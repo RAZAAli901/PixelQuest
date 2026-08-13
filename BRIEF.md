@@ -34,3 +34,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 28: Build PixelDialog composable skeleton - df684f7
 - Step 29: Style PixelDialog with pixel panel background and pixel font - 3e06037
 - Step 30: Build PixelProgressBar composable using progress bar asset - 7297a1d
+- Step 31: Add Compose Previews for both PixelDialog and PixelProgressBar - 9803ea7
