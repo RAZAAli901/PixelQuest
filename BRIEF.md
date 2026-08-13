@@ -11,3 +11,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 5: Add first Progress Log entry to BRIEF.md documenting steps 1-4 - 3f3623f
 - Step 6: Add Compose BOM and core Compose UI dependencies - 3b503cd
 - Step 7: Add Navigation Compose dependency - b56c096
+- Step 8: Add Room dependency - 748587a
