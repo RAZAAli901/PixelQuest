@@ -36,3 +36,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 30: Build PixelProgressBar composable using progress bar asset - 7297a1d
 - Step 31: Add Compose Previews for both PixelDialog and PixelProgressBar - 9803ea7
 - Step 32: Set up NavHost with routes: Splash, Home, Tasks, Stats, Profile - 75ce851
+- Step 33: Build bottom navigation bar composable with pixel icons - b96eafe

@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
@@ -40,32 +39,38 @@ fun PixelBottomNavBar(
     onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    PixelCard(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 12.dp),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        variant = PixelPanelVariant.BORDER,
+        contentPadding = 4.dp
     ) {
-        bottomNavItems.forEach { item ->
-            val isSelected = currentRoute == item.route
-            Column(
-                modifier = Modifier
-                    .clickable { onNavigate(item.route) }
-                    .padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = item.iconRes),
-                    contentDescription = item.title,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            bottomNavItems.forEach { item ->
+                val isSelected = currentRoute == item.route
+                Column(
+                    modifier = Modifier
+                        .clickable { onNavigate(item.route) }
+                        .padding(vertical = 4.dp, horizontal = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = item.iconRes),
+                        contentDescription = item.title,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = item.title,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
