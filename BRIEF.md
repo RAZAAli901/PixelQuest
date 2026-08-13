@@ -18,3 +18,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 12: Create subfolders under ui/: theme/, components/, screens/ - e0febef
 - Step 13: Add short README.md inside data/ and domain/ - e2a7a47
 - Step 14: Add short README.md inside ui/ and di/ - 5966003
+- Step 15: Define the pixel color palette in ui/theme/Color.kt - ff828da
