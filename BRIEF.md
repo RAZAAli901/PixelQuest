@@ -20,3 +20,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 14: Add short README.md inside ui/ and di/ - 5966003
 - Step 15: Define the pixel color palette in ui/theme/Color.kt - ff828da
 - Step 16: Bundle Press Start 2P pixel font as local font resource - 508a7a6
+- Step 17: Define ui/theme/Typography.kt wiring pixel font into Compose text styles - bb2100a
