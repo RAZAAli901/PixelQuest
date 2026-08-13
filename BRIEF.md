@@ -14,3 +14,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 8: Add Room dependency - 748587a
 - Step 9: Add WorkManager and Hilt dependencies - 61dd95d
 - Step 10: Add Coil and Kotlin Coroutines dependencies - ade6133
+- Step 11: Create top-level package folders: data/, domain/, ui/, di/ - 68ba46f
