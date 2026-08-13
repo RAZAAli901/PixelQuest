@@ -23,3 +23,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 17: Define ui/theme/Typography.kt wiring pixel font into Compose text styles - bb2100a
 - Step 18: Define ui/theme/Theme.kt combining palette + typography into PixelQuestTheme - aaa0bb7
 - Step 19: Add Compose Preview confirming PixelQuestTheme renders sample text/colors correctly - 3aff360
+- Step 20: Source and stage Kenney.nl UI Pack - Pixel button and panel assets - 727a3c6
