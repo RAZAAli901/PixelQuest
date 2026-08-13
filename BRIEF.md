@@ -17,3 +17,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 11: Create top-level package folders: data/, domain/, ui/, di/ - 68ba46f
 - Step 12: Create subfolders under ui/: theme/, components/, screens/ - e0febef
 - Step 13: Add short README.md inside data/ and domain/ - e2a7a47
+- Step 14: Add short README.md inside ui/ and di/ - 5966003
