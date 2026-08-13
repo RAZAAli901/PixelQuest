@@ -46,3 +46,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 40: Polish splash screen visuals (spacing, centering, retro pixel card frame) - de1d697
 - Step 41: Add .github/workflows/build.yml skeleton - db0a359
 - Step 42: Configure workflow to build debug APK - a494c94
+- Step 43: Configure workflow to upload APK as build artifact - 399e766
