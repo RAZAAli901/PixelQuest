@@ -32,3 +32,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 26: Build PixelCard / PixelPanel composable using panel asset - 14f8ff0
 - Step 27: Add Compose Preview file showing PixelButton and PixelCard in isolation - deb0d1b
 - Step 28: Build PixelDialog composable skeleton - df684f7
+- Step 29: Style PixelDialog with pixel panel background and pixel font - 3e06037
