@@ -27,3 +27,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 21: Import button and panel PNGs into res/drawable - ebe7911
 - Step 22: Import progress bar and icon assets into res/drawable - 4c9db5f
 - Step 23: Create ASSETS.md logging pack name, source URL, license (CC0), and imported files - 3daf913
+- Step 24: Build base PixelButton composable using imported button asset - b72fc75
