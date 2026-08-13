@@ -42,3 +42,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 36: Wire navigation so all 4 bottom nav items switch screens - 73eee88
 - Step 37: Build SplashScreen composable with title in Press Start 2P font - 05cb14f
 - Step 38: Add pixel-style loading bar animation to splash screen - 81bab27
+- Step 39: Add timed auto-transition (~1.5s) from splash to Home - 069229a

@@ -18,6 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelProgressBar
 
 @Composable
@@ -38,31 +40,41 @@ fun SplashScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(32.dp),
+            .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "PIXELQUEST",
-            style = MaterialTheme.typography.displayLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "8-BIT HABIT TRACKER",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.secondary
-        )
-        Spacer(modifier = Modifier.height(48.dp))
-        Text(
-            text = "LOADING QUESTS...",
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        PixelProgressBar(
-            progress = progressAnim.value,
-            modifier = Modifier.fillMaxWidth(0.8f)
-        )
+        PixelCard(
+            modifier = Modifier.fillMaxWidth(0.92f),
+            variant = PixelPanelVariant.BORDER,
+            contentPadding = 24.dp
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "PIXELQUEST",
+                    style = MaterialTheme.typography.displayMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "8-BIT HABIT TRACKER",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+                Spacer(modifier = Modifier.height(36.dp))
+                Text(
+                    text = "INITIALIZING...",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                PixelProgressBar(
+                    progress = progressAnim.value,
+                    modifier = Modifier.fillMaxWidth(0.9f)
+                )
+            }
+        }
     }
 }
