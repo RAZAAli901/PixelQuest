@@ -64,6 +64,10 @@ dependencies {
     // Section B Step 7: Navigation Compose Dependency
     implementation(libs.androidx.navigation.compose)
 
+    // Section B Step 8: Room Dependency
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
