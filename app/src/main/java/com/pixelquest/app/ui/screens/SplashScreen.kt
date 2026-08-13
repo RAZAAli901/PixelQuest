@@ -29,8 +29,9 @@ fun SplashScreen(
     LaunchedEffect(Unit) {
         progressAnim.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 1400)
+            animationSpec = tween(durationMillis = 1500)
         )
+        onSplashTimeout()
     }
 
     Column(

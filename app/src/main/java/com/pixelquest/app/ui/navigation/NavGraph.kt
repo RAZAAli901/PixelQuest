@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.pixelquest.app.ui.screens.HomeScreen
 import com.pixelquest.app.ui.screens.ProfileScreen
+import com.pixelquest.app.ui.screens.SplashScreen
 import com.pixelquest.app.ui.screens.StatsScreen
 import com.pixelquest.app.ui.screens.TasksScreen
 
@@ -22,8 +23,7 @@ sealed class Screen(val route: String) {
 fun PixelNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    startDestination: String = Screen.Splash.route,
-    onSplashFinish: () -> Unit = {}
+    startDestination: String = Screen.Splash.route
 ) {
     NavHost(
         navController = navController,
@@ -31,7 +31,13 @@ fun PixelNavHost(
         modifier = modifier
     ) {
         composable(Screen.Splash.route) {
-            // Handled in Step 37-39
+            SplashScreen(
+                onSplashTimeout = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
+                    }
+                }
+            )
         }
         composable(Screen.Home.route) {
             HomeScreen()
