@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.pixelquest.app"
-    compileSdk = 34
+    compileSdk = 34 // Latest stable compileSdk
 
     defaultConfig {
         applicationId = "com.pixelquest.app"
-        minSdk = 24
-        targetSdk = 34
+        minSdk = 24 // Minimum supported Android API 24 (Nougat)
+        targetSdk = 34 // Latest stable targetSdk
         versionCode = 1
         versionName = "1.0"
 
