@@ -43,3 +43,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 37: Build SplashScreen composable with title in Press Start 2P font - 05cb14f
 - Step 38: Add pixel-style loading bar animation to splash screen - 81bab27
 - Step 39: Add timed auto-transition (~1.5s) from splash to Home - 069229a
+- Step 40: Polish splash screen visuals (spacing, centering, retro pixel card frame) - de1d697
