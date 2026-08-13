@@ -5,6 +5,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.pixelquest.app.ui.screens.HomeScreen
+import com.pixelquest.app.ui.screens.ProfileScreen
+import com.pixelquest.app.ui.screens.StatsScreen
+import com.pixelquest.app.ui.screens.TasksScreen
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
@@ -27,19 +31,19 @@ fun PixelNavHost(
         modifier = modifier
     ) {
         composable(Screen.Splash.route) {
-            // Splash destination placeholder
+            // Handled in Step 37-39
         }
         composable(Screen.Home.route) {
-            // Home destination placeholder
+            HomeScreen()
         }
         composable(Screen.Tasks.route) {
-            // Tasks destination placeholder
+            TasksScreen()
         }
         composable(Screen.Stats.route) {
-            // Stats destination placeholder
+            StatsScreen()
         }
         composable(Screen.Profile.route) {
-            // Profile destination placeholder
+            ProfileScreen()
         }
     }
 }

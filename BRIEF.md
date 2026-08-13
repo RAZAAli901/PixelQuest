@@ -38,3 +38,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 32: Set up NavHost with routes: Splash, Home, Tasks, Stats, Profile - 75ce851
 - Step 33: Build bottom navigation bar composable with pixel icons - b96eafe
 - Step 34: Style bottom nav bar using pixel panel asset - 6b86f10
+- Step 35: Create placeholder Home/Tasks/Stats/Profile screens - 79214e3
