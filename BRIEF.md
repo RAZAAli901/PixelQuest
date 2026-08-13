@@ -29,3 +29,4 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 23: Create ASSETS.md logging pack name, source URL, license (CC0), and imported files - 3daf913
 - Step 24: Build base PixelButton composable using imported button asset - b72fc75
 - Step 25: Add pressed/unpressed visual states to PixelButton - f0f0b68
+- Step 26: Build PixelCard / PixelPanel composable using panel asset - 14f8ff0
