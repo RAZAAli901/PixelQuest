@@ -51,5 +51,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 45: Verify full end-to-end flow (splash -> bottom nav -> 4 screens) and finalize Day 1 - d08048d
 
 ## Day 2 Progress Log
-- Step 1: Create AppDatabase abstract Room database class skeleton - 77d8b08
+- Step 1: Create AppDatabase abstract Room database class skeleton - 6c3402b
+- Step 2: Add Room KTX and coroutines support to Gradle - e27eead
 

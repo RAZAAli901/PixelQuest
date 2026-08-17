@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
 }
 
 android {
@@ -67,10 +68,12 @@ dependencies {
     // Section B Step 8: Room Dependency
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
 
     // Section B Step 9: WorkManager and Hilt Dependencies
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
     // Section B Step 10: Coil and Kotlin Coroutines Dependencies
@@ -78,6 +81,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.room.testing)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -85,3 +90,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
