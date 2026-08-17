@@ -1,6 +1,16 @@
 package com.pixelquest.app.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Update
+import com.pixelquest.app.data.local.entity.UserProfileEntity
 
 @Dao
-interface UserProfileDao
+interface UserProfileDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertProfile(profile: UserProfileEntity)
+
+    @Update
+    suspend fun updateProfile(profile: UserProfileEntity)
+}

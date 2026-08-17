@@ -67,5 +67,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 14: Add getCurrentStreak query method to StreakDao - c3dfac3
 - Step 15: Register StreakEntity and StreakDao on AppDatabase - 54393a4
 - Step 16: Define UserProfileEntity room data entity - 5adeb9f
-- Step 17: Create UserProfileDao interface skeleton - 3adce07
+- Step 17: Create UserProfileDao interface skeleton - 65835f8
+- Step 18: Add insertProfile and updateProfile methods to UserProfileDao - 1900932
 
