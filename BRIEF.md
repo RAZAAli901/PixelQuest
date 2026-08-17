@@ -82,4 +82,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 29: Register TaskCompletionLogEntity and TaskCompletionLogDao on AppDatabase - bc60990
 - Step 30: Create TaskRepository interface and TaskRepositoryImpl wrapping TaskDao - a05a131
 - Step 31: Create StreakRepository interface and StreakRepositoryImpl wrapping StreakDao - d4ae3e4
-- Step 32: Create UserProfileRepository interface and UserProfileRepositoryImpl wrapping UserProfileDao - def2960
+- Step 32: Create UserProfileRepository interface and UserProfileRepositoryImpl wrapping UserProfileDao - f0a59a6
+- Step 33: Create DifficultySettingsRepository interface and DifficultySettingsRepositoryImpl wrapping DifficultySettingsDao - f79d079
