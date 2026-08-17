@@ -49,3 +49,7 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 43: Configure workflow to upload APK as build artifact - 399e766
 - Step 44: Write README.md with project concept, tech stack, status, and build instructions - 0567bdd
 - Step 45: Verify full end-to-end flow (splash -> bottom nav -> 4 screens) and finalize Day 1 - d08048d
+
+## Day 2 Progress Log
+- Step 1: Create AppDatabase abstract Room database class skeleton - 77d8b08
+
