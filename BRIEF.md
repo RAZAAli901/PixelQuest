@@ -86,4 +86,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 33: Create DifficultySettingsRepository interface and DifficultySettingsRepositoryImpl wrapping DifficultySettingsDao - a4e74e2
 - Step 34: Create TaskCompletionRepository interface and TaskCompletionRepositoryImpl wrapping TaskCompletionLogDao - 026ce6c
 - Step 35: Review all five repositories for consistent naming/return-type conventions - 6775c56
-- Step 36: Create DatabaseModule providing AppDatabase as singleton - 0fbc4f1
+- Step 36: Create DatabaseModule providing AppDatabase as singleton - d56fde5
+- Step 37: Create DaoModule providing all 5 DAOs from AppDatabase - 46b941d
