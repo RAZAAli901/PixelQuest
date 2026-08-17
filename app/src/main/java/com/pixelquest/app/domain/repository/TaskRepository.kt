@@ -4,6 +4,10 @@ import com.pixelquest.app.data.local.entity.TaskEntity
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
+/**
+ * Repository interface for managing tasks.
+ * All read operations return reactive [Flow] streams and all write operations are [suspend] functions.
+ */
 interface TaskRepository {
     fun getAllTasks(): Flow<List<TaskEntity>>
     fun getTaskById(id: Long): Flow<TaskEntity?>
