@@ -64,5 +64,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 11: Define StreakEntity room data entity - c217587
 - Step 12: Create StreakDao interface skeleton - 04194c2
 - Step 13: Add insertStreak and updateStreak methods to StreakDao - 3e6a387
-- Step 14: Add getCurrentStreak query method to StreakDao - ab542f5
+- Step 14: Add getCurrentStreak query method to StreakDao - c3dfac3
+- Step 15: Register StreakEntity and StreakDao on AppDatabase - 199d790
 
