@@ -90,4 +90,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 37: Create DaoModule providing all 5 DAOs from AppDatabase - 0c92d4b
 - Step 38: Create RepositoryModule binding each repository interface to its implementation - 5f03b83
 - Step 39: Add Hilt Application entry point and DI smoke-test injection point - 7a8da63
-- Step 40: Create SeedDataProvider with sample tasks, default UserProfileEntity, and default DifficultySettingsEntity - fbbb91e
+- Step 40: Create SeedDataProvider with sample tasks, default UserProfileEntity, and default DifficultySettingsEntity - 04e7077
+- Step 41: Wire seed data insertion on RoomDatabase onCreate callback - 0341c47
