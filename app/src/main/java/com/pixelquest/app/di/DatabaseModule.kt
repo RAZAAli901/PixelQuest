@@ -1,6 +1,7 @@
 package com.pixelquest.app.di
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -44,6 +45,7 @@ object DatabaseModule {
                         SeedDataProvider.initialTasks().forEach { task ->
                             appDb.taskDao().insertTask(task)
                         }
+                        Log.d("PixelQuestSeed", "Database seeded successfully with initial profile, settings, streak, and tasks.")
                     }
                 }
             })
