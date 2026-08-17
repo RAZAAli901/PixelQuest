@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.pixelquest.app.data.local.entity.TaskEntity
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface TaskDao {
@@ -25,4 +26,7 @@ interface TaskDao {
 
     @Query("SELECT * FROM tasks WHERE id = :id")
     fun getTaskById(id: Long): Flow<TaskEntity?>
+
+    @Query("SELECT * FROM tasks WHERE scheduledDay = :day AND isActive = 1 ORDER BY scheduledTime ASC")
+    fun getTasksForDay(day: LocalDate): Flow<List<TaskEntity>>
 }
