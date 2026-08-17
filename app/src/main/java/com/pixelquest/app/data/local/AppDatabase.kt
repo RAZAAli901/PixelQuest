@@ -3,9 +3,11 @@ package com.pixelquest.app.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.pixelquest.app.data.local.dao.DifficultySettingsDao
 import com.pixelquest.app.data.local.dao.StreakDao
 import com.pixelquest.app.data.local.dao.TaskDao
 import com.pixelquest.app.data.local.dao.UserProfileDao
+import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
@@ -14,7 +16,8 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
     entities = [
         TaskEntity::class,
         StreakEntity::class,
-        UserProfileEntity::class
+        UserProfileEntity::class,
+        DifficultySettingsEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -24,4 +27,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun streakDao(): StreakDao
     abstract fun userProfileDao(): UserProfileDao
+    abstract fun difficultySettingsDao(): DifficultySettingsDao
 }

@@ -73,4 +73,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 20: Register UserProfileEntity and UserProfileDao on AppDatabase - 80845ec
 - Step 21: Define DifficultySettingsEntity room data entity - b494a67
 - Step 22: Create DifficultySettingsDao with insert and update methods - a3417f8
-- Step 23: Add getCurrentDifficulty query method to DifficultySettingsDao - 4f79381
+- Step 23: Add getCurrentDifficulty query method to DifficultySettingsDao - 7728b36
+- Step 24: Register DifficultySettingsEntity and DifficultySettingsDao on AppDatabase - f37f44b
