@@ -54,5 +54,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 1: Create AppDatabase abstract Room database class skeleton - 6c3402b
 - Step 2: Add Room KTX and coroutines support to Gradle - 6394af3
 - Step 3: Create Converters.kt for Room type converters - 544b7aa
-- Step 4: Register Converters on AppDatabase via @TypeConverters - 2a8a2b1
+- Step 4: Register Converters on AppDatabase via @TypeConverters - 8c163cc
+- Step 5: Define TaskEntity room data entity - 6ca3bb8
 
