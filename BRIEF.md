@@ -57,5 +57,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 4: Register Converters on AppDatabase via @TypeConverters - 8c163cc
 - Step 5: Define TaskEntity room data entity - bdd1126
 - Step 6: Create TaskDao interface skeleton - 13612bb
-- Step 7: Add insertTask, updateTask, deleteTask methods to TaskDao - 97e4b75
+- Step 7: Add insertTask, updateTask, deleteTask methods to TaskDao - 9e4c416
+- Step 8: Add getAllTasks and getTaskById query methods to TaskDao - eb89ebd
 
