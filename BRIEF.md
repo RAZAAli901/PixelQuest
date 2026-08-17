@@ -77,4 +77,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 24: Register DifficultySettingsEntity and DifficultySettingsDao on AppDatabase - 6b20551
 - Step 25: Define TaskCompletionLogEntity room data entity - 0190561
 - Step 26: Create TaskCompletionLogDao interface skeleton - 429bbe7
-- Step 27: Add insertLog and getLogsForDate methods to TaskCompletionLogDao - 8a0e1c8
+- Step 27: Add insertLog and getLogsForDate methods to TaskCompletionLogDao - c132e54
+- Step 28: Add getLogsForTask and getCompletionHistory methods to TaskCompletionLogDao - 3b70d9f
