@@ -63,5 +63,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 10: Register TaskEntity and TaskDao on AppDatabase - 158fd50
 - Step 11: Define StreakEntity room data entity - c217587
 - Step 12: Create StreakDao interface skeleton - 04194c2
-- Step 13: Add insertStreak and updateStreak methods to StreakDao - 34a5507
+- Step 13: Add insertStreak and updateStreak methods to StreakDao - 3e6a387
+- Step 14: Add getCurrentStreak query method to StreakDao - ab542f5
 
