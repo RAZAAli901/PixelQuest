@@ -96,4 +96,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 43: Add seed verification logging for fresh install/clear-data database initialization - 6d47996
 - Step 44: Set up in-memory Room test database and BaseDaoTest helper - 465cd61
 - Step 45: Write TaskDao tests: insert, query by id, query by day, delete - be6e13c
-- Step 46: Write StreakDao and UserProfileDao tests: insert/update, Flow emission on change - 9741125
+- Step 46: Write StreakDao and UserProfileDao tests: insert/update, Flow emission on change - f01df61
+- Step 47: Write DifficultySettingsDao and TaskCompletionLogDao tests: insert/update, date-range query correctness - d9278ca
