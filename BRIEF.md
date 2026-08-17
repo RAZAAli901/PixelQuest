@@ -80,4 +80,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 27: Add insertLog and getLogsForDate methods to TaskCompletionLogDao - c132e54
 - Step 28: Add getLogsForTask and getCompletionHistory methods to TaskCompletionLogDao - 5b4d699
 - Step 29: Register TaskCompletionLogEntity and TaskCompletionLogDao on AppDatabase - bc60990
-- Step 30: Create TaskRepository interface and TaskRepositoryImpl wrapping TaskDao - af6f77e
+- Step 30: Create TaskRepository interface and TaskRepositoryImpl wrapping TaskDao - a05a131
+- Step 31: Create StreakRepository interface and StreakRepositoryImpl wrapping StreakDao - 98ed166
