@@ -94,4 +94,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 41: Wire seed data insertion on RoomDatabase onCreate callback - a5b4969
 - Step 42: Ensure default DifficultySettingsEntity is created alongside default profile with Medium threshold - 60cac1f
 - Step 43: Add seed verification logging for fresh install/clear-data database initialization - 6d47996
-- Step 44: Set up in-memory Room test database and BaseDaoTest helper - 2170747
+- Step 44: Set up in-memory Room test database and BaseDaoTest helper - 465cd61
+- Step 45: Write TaskDao tests: insert, query by id, query by day, delete - 1f5239a
