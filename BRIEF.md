@@ -61,5 +61,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 8: Add getAllTasks and getTaskById query methods to TaskDao - b4fabec
 - Step 9: Add getTasksForDay query method to TaskDao - 99ae56a
 - Step 10: Register TaskEntity and TaskDao on AppDatabase - 158fd50
-- Step 11: Define StreakEntity room data entity - c9e718d
+- Step 11: Define StreakEntity room data entity - c217587
+- Step 12: Create StreakDao interface skeleton - afcb8f1
 
