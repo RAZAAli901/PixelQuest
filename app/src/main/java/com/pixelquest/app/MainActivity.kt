@@ -15,7 +15,17 @@ import com.pixelquest.app.ui.navigation.PixelNavHost
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 
+import com.pixelquest.app.domain.repository.TaskRepository
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    // Smoke-test injection point verifying DI graph resolution:
+    @Inject
+    lateinit var taskRepository: TaskRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
