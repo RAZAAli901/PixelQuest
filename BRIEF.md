@@ -91,4 +91,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 38: Create RepositoryModule binding each repository interface to its implementation - 5f03b83
 - Step 39: Add Hilt Application entry point and DI smoke-test injection point - 7a8da63
 - Step 40: Create SeedDataProvider with sample tasks, default UserProfileEntity, and default DifficultySettingsEntity - 04e7077
-- Step 41: Wire seed data insertion on RoomDatabase onCreate callback - 0341c47
+- Step 41: Wire seed data insertion on RoomDatabase onCreate callback - a5b4969
+- Step 42: Ensure default DifficultySettingsEntity is created alongside default profile with Medium threshold - 73c6aaa

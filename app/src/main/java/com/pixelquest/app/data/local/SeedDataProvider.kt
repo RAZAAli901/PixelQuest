@@ -31,6 +31,15 @@ object SeedDataProvider {
         )
     }
 
+    fun defaultProfileWithSettings(): Pair<UserProfileEntity, DifficultySettingsEntity> {
+        val profile = defaultProfile()
+        val difficulty = defaultDifficultySettings()
+        check(difficulty.difficultyLevel == DifficultyLevel.MEDIUM && difficulty.perfectDayThreshold > 0f) {
+            "Default difficulty settings must be non-null Medium with valid threshold"
+        }
+        return Pair(profile, difficulty)
+    }
+
     fun defaultStreak(): StreakEntity {
         return StreakEntity(
             id = 1,
