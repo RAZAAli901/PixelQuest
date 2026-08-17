@@ -59,5 +59,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 6: Create TaskDao interface skeleton - 13612bb
 - Step 7: Add insertTask, updateTask, deleteTask methods to TaskDao - 9e4c416
 - Step 8: Add getAllTasks and getTaskById query methods to TaskDao - b4fabec
-- Step 9: Add getTasksForDay query method to TaskDao - 958644d
+- Step 9: Add getTasksForDay query method to TaskDao - 99ae56a
+- Step 10: Register TaskEntity and TaskDao on AppDatabase - 7af333d
 
