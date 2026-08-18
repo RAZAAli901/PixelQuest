@@ -204,4 +204,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 34: Create worker/MissedTaskWorker.kt (CoroutineWorker) that checks for tasks whose scheduled time + response window has passed without a completion log - fe1f178
 - Step 35: Implement missed-detection logic: insert a TaskCompletionLogEntity with wasCompleted = false for any such task - 841feac
 - Step 36: Schedule MissedTaskWorker as a periodic WorkManager request (e.g. every 30 minutes) from PixelQuestApplication - b057aa4
-- Step 37: Add reasonable WorkManager constraints (e.g. battery not low) to the periodic request - 2bcc824
+- Step 37: Add reasonable WorkManager constraints (e.g. battery not low) to the periodic request - 46ab7e9
+- Step 38: Write a unit test for MissedTaskWorker's missed-detection logic using a fake/in-memory repository - 3c8fe26
