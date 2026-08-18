@@ -141,5 +141,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 29: Add an EditTaskScreen route that reuses the CreateTaskScreen composable in "edit mode" with a pre-filled TaskFormState - 61cdd2c
 - Step 30: Wire TaskFormViewModel to load an existing task by id (via getTaskById) when entering edit mode - 921d246
 - Step 31: Wire the Save button in edit mode to call TaskRepository.updateTask() instead of insert - fea7794
-- Step 32: Add a delete icon/button on the task list item or edit screen - a29d53a
+- Step 32: Add a delete icon/button on the task list item or edit screen - 665e338
+- Step 33: Add PixelConfirmDialog for delete confirmation, reusing the PixelDialog component from Day 1 - 95aae19
 
