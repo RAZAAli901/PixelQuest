@@ -110,5 +110,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - **Status & Next Steps for Day 3**: Local data layer compiled and fully testable. Day 3 will wire ViewModels and Compose UI screens to consume real repository data.
 
 ## Day 3 Progress Log
-- Step 1: Create ui/screens/tasks/TaskViewModel.kt skeleton with Hilt @HiltViewModel, injecting TaskRepository - 3b4eeba
+- Step 1: Create ui/screens/tasks/TaskViewModel.kt skeleton with Hilt @HiltViewModel, injecting TaskRepository - d5341ff
+- Step 2: Define TaskUiState (sealed class or data class: Loading, Success(tasks: List<Task>), Error) in the same package - d7a55f0
 
