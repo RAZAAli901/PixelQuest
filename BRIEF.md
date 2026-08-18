@@ -202,4 +202,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 32: Write unit tests for PointsCalculator - 3f25582
 - Step 33: Manually verify points update correctly in the (currently placeholder) profile data after completing a task - 4bb68a5
 - Step 34: Create worker/MissedTaskWorker.kt (CoroutineWorker) that checks for tasks whose scheduled time + response window has passed without a completion log - fe1f178
-- Step 35: Implement missed-detection logic: insert a TaskCompletionLogEntity with wasCompleted = false for any such task - b0feb35
+- Step 35: Implement missed-detection logic: insert a TaskCompletionLogEntity with wasCompleted = false for any such task - 841feac
+- Step 36: Schedule MissedTaskWorker as a periodic WorkManager request (e.g. every 30 minutes) from PixelQuestApplication - d3b7fa1
