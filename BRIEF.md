@@ -169,7 +169,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 
 ## Day 4 Progress Log
 - Step 1: Add the POST_NOTIFICATIONS permission declaration to AndroidManifest.xml (required Android 13+) - 83d494e
-- Step 2: Build a runtime permission request flow (permission launcher) triggered on first app launch, with a pixel-styled rationale screen/dialog if needed - 92f3fc7
+- Step 2: Build a runtime permission request flow (permission launcher) triggered on first app launch, with a pixel-styled rationale screen/dialog if needed - 5cda73d
+- Step 3: Create notification/NotificationHelper.kt that builds a NotificationChannel ("PixelQuest Reminders") with an appropriate importance level and a pixel-style small icon - 45ae642
 
 
 
