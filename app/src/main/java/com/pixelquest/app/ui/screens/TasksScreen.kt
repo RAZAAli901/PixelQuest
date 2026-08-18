@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.EmptyTasksState
+import com.pixelquest.app.ui.components.PixelLoadingState
 import com.pixelquest.app.ui.components.PixelTaskListItem
 import com.pixelquest.app.ui.screens.tasks.TaskUiState
 import com.pixelquest.app.ui.screens.tasks.TaskViewModel
@@ -64,7 +65,7 @@ fun TasksScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("LOADING QUESTS...", style = PixelTypography.bodyMedium, color = PixelGold)
+                        PixelLoadingState()
                     }
                 }
                 is TaskUiState.Error -> {
