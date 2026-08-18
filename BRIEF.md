@@ -121,5 +121,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 9: Build PixelRecurrenceSelector composable (toggle chips: Daily / Specific Days / Weekly) - e11cf61
 - Step 10: Build PixelCategorySelector composable (icon-based category picker, icons placeholder for now — real icons come in Section H) - 32d3043
 - Step 11: Add a Compose Preview file showing all five new form components - 44335ee
-- Step 12: Build CreateTaskScreen scaffold: PixelQuestTheme, pixel-styled top bar with title "New Quest" - 6a2e5f2
+- Step 12: Build CreateTaskScreen scaffold: PixelQuestTheme, pixel-styled top bar with title "New Quest" - 90122f9
+- Step 13: Wire the task-name PixelTextField into CreateTaskScreen, bound to TaskFormViewModel's state - 8cc6587
 

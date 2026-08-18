@@ -1,22 +1,28 @@
 package com.pixelquest.app.ui.screens.tasks
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -24,8 +30,11 @@ import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun CreateTaskScreen(
+    viewModel: TaskFormViewModel,
     onNavigateBack: () -> Unit = {}
 ) {
+    val formState by viewModel.formState.collectAsState()
+
     PixelQuestTheme {
         Scaffold(
             topBar = {
@@ -43,7 +52,7 @@ fun CreateTaskScreen(
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "NEW QUEST",
+                            text = if (formState.isEditMode) "EDIT QUEST" else "NEW QUEST",
                             style = PixelTypography.titleLarge,
                             color = PixelGold
                         )
@@ -52,13 +61,22 @@ fun CreateTaskScreen(
             },
             containerColor = PixelBackgroundDark
         ) { innerPadding ->
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
                     .background(PixelBackgroundDark)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
             ) {
-                // Form content added in subsequent steps
+                PixelTextField(
+                    value = formState.name,
+                    onValueChange = { viewModel.onNameChanged(it) },
+                    label = "QUEST NAME",
+                    placeholder = "Enter quest title...",
+                    errorText = formState.nameError,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
