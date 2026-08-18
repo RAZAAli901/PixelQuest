@@ -1,9 +1,13 @@
 package com.pixelquest.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -12,7 +16,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.ui.components.PixelTaskListItem
 import com.pixelquest.app.ui.screens.tasks.TaskUiState
 import com.pixelquest.app.ui.screens.tasks.TaskViewModel
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
@@ -22,7 +29,8 @@ import com.pixelquest.app.ui.theme.PixelTypography
 @Composable
 fun TasksScreen(
     viewModel: TaskViewModel = hiltViewModel(),
-    onNavigateToCreateTask: () -> Unit = {}
+    onNavigateToCreateTask: () -> Unit = {},
+    onNavigateToEditTask: (Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -45,18 +53,41 @@ fun TasksScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(PixelBackgroundDark),
-            contentAlignment = Alignment.Center
+                .background(PixelBackgroundDark)
         ) {
             when (val state = uiState) {
                 is TaskUiState.Loading -> {
-                    Text("LOADING QUESTS...", style = PixelTypography.bodyMedium, color = PixelGold)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("LOADING QUESTS...", style = PixelTypography.bodyMedium, color = PixelGold)
+                    }
                 }
                 is TaskUiState.Error -> {
-                    Text("ERROR: ${state.message}", style = PixelTypography.bodyMedium, color = PixelGold)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("ERROR: ${state.message}", style = PixelTypography.bodyMedium, color = PixelGold)
+                    }
                 }
                 is TaskUiState.Success -> {
-                    Text("QUESTS: ${state.tasks.size}", style = PixelTypography.bodyMedium, color = PixelGold)
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            items = state.tasks,
+                            key = { it.id }
+                        ) { task ->
+                            PixelTaskListItem(
+                                task = task,
+                                onClick = { onNavigateToEditTask(task.id) }
+                            )
+                        }
+                    }
                 }
             }
         }
