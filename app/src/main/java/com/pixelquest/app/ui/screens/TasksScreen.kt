@@ -76,7 +76,7 @@ fun TasksScreen(
                     ) {
                         PixelErrorState(
                             errorMessage = state.message,
-                            onRetry = { /* Flow automatically retries or refreshes */ }
+                            onRetry = {}
                         )
                     }
                 }
@@ -98,11 +98,12 @@ fun TasksScreen(
                         ) {
                             items(
                                 items = state.tasks,
-                                key = { it.id }
-                            ) { task ->
+                                key = { it.task.id }
+                            ) { item ->
                                 PixelTaskListItem(
-                                    task = task,
-                                    onClick = { onNavigateToEditTask(task.id) }
+                                    task = item.task,
+                                    status = item.status,
+                                    onClick = { onNavigateToEditTask(item.task.id) }
                                 )
                             }
                         }
