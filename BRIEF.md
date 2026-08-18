@@ -199,4 +199,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 29: Add an auto-dismiss/timeout: if the user doesn't respond within a set window (e.g. 2 hours), treat it as missed via the Section H worker rather than leaving it open indefinitely - b0b296d
 - Step 30: Create domain/PointsCalculator.kt: base points per completed task, with a placeholder hook for a streak bonus (real streak logic lands Day 5 — leave a clearly marked TODO/extension point, don't build streak logic today) - 001ac91
 - Step 31: Wire PointsCalculator into the "Yes" completion path (Section F, step 26), updating UserProfileRepository's totalXp - 81488ba
-- Step 32: Write unit tests for PointsCalculator - cd13558
+- Step 32: Write unit tests for PointsCalculator - 3f25582
+- Step 33: Manually verify points update correctly in the (currently placeholder) profile data after completing a task - a0c4a5e
