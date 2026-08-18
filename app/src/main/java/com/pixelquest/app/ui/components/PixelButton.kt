@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -38,14 +39,15 @@ fun PixelButton(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val bgRes = when (variant) {
-        PixelButtonVariant.YELLOW -> if (isPressed) R.drawable.pixel_button_yellow_pressed else R.drawable.pixel_button_yellow
-        PixelButtonVariant.BLUE -> if (isPressed) R.drawable.pixel_button_blue_pressed else R.drawable.pixel_button_blue
+        PixelButtonVariant.YELLOW -> if (isPressed && enabled) R.drawable.pixel_button_yellow_pressed else R.drawable.pixel_button_yellow
+        PixelButtonVariant.BLUE -> if (isPressed && enabled) R.drawable.pixel_button_blue_pressed else R.drawable.pixel_button_blue
     }
 
-    val contentOffsetY = if (isPressed) 2.dp else 0.dp
+    val contentOffsetY = if (isPressed && enabled) 2.dp else 0.dp
 
     Box(
         modifier = modifier
+            .graphicsLayer { alpha = if (enabled) 1f else 0.5f }
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
