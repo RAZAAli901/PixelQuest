@@ -123,5 +123,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 11: Add a Compose Preview file showing all five new form components - 44335ee
 - Step 12: Build CreateTaskScreen scaffold: PixelQuestTheme, pixel-styled top bar with title "New Quest" - 90122f9
 - Step 13: Wire the task-name PixelTextField into CreateTaskScreen, bound to TaskFormViewModel's state - 35c8f90
-- Step 14: Wire day-of-week selector and PixelTimePicker into CreateTaskScreen - f192f9c
+- Step 14: Wire day-of-week selector and PixelTimePicker into CreateTaskScreen - 6b9dc35
+- Step 15: Wire PixelRecurrenceSelector and PixelCategorySelector into CreateTaskScreen - 9b71643
 

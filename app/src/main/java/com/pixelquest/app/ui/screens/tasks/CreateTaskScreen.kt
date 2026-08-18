@@ -22,8 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.components.PixelCategorySelector
 import com.pixelquest.app.ui.components.PixelDaySelector
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.PixelRecurrenceSelector
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTimePicker
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
@@ -82,10 +84,9 @@ fun CreateTaskScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                PixelTimePicker(
-                    selectedTime = formState.scheduledTime,
-                    onTimeSelected = { viewModel.onTimeSelected(it) },
-                    errorText = formState.timeError,
+                PixelRecurrenceSelector(
+                    selectedType = formState.recurrenceType,
+                    onTypeSelected = { viewModel.onRecurrenceSelected(it) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -99,6 +100,21 @@ fun CreateTaskScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
+
+                PixelTimePicker(
+                    selectedTime = formState.scheduledTime,
+                    onTimeSelected = { viewModel.onTimeSelected(it) },
+                    errorText = formState.timeError,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                PixelCategorySelector(
+                    selectedCategory = formState.category,
+                    onCategorySelected = { viewModel.onCategorySelected(it) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
