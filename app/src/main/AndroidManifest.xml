@@ -21,6 +21,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ui.prompt.TaskPromptActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:theme="@style/Theme.PixelQuest" />
+
         <receiver
             android:name=".scheduling.TaskAlarmReceiver"
             android:exported="false" />

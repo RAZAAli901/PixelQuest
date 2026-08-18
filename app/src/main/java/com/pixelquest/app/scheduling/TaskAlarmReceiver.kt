@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 import com.pixelquest.app.notification.NotificationHelper
 import com.pixelquest.app.notification.TaskActionReceiver
+import com.pixelquest.app.ui.prompt.TaskPromptActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -16,6 +17,18 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         val taskId = intent.getLongExtra("EXTRA_TASK_ID", -1L)
         val taskName = intent.getStringExtra("EXTRA_TASK_NAME") ?: "Quest Reminder"
         if (taskId == -1L) return
+
+        val promptIntent = Intent(context, TaskPromptActivity::class.java).apply {
+            putExtra("EXTRA_TASK_ID", taskId)
+            putExtra("EXTRA_TASK_NAME", taskName)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val contentPendingIntent = PendingIntent.getActivity(
+            context,
+            taskId.toInt(),
+            promptIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
         val yesIntent = Intent(context, TaskActionReceiver::class.java).apply {
             putExtra("EXTRA_TASK_ID", taskId)
@@ -44,6 +57,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 context = context,
                 taskId = taskId,
                 taskName = taskName,
+                contentIntent = contentPendingIntent,
                 yesIntent = yesPendingIntent,
                 noIntent = noPendingIntent
             )

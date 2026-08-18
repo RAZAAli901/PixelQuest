@@ -194,4 +194,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 24: Create a full-screen Compose destination (TaskPromptActivity or a dedicated nav route with appropriate launch flags) triggered when the notification body (not the action buttons) is tapped - 021c3a3
 - Step 25: Build DidYouDoItScreen composable using the Day 1 PixelDialog/PixelCard styling, showing the task name and scheduled time - deb2b19
 - Step 26: Add a "Yes" pixel button that logs completion (wasCompleted = true) and triggers point awarding (Section G) - a1dd36f
-- Step 27: Add a "Not yet" pixel button that logs completion (wasCompleted = false, no points) - 7fe3af8
+- Step 27: Add a "Not yet" pixel button that logs completion (wasCompleted = false, no points) - d80ddbe
+- Step 28: Wire the full-screen prompt into AndroidManifest.xml with the correct launch mode and intent filters so it can appear even from a locked/background state - 8a5f492
