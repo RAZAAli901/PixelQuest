@@ -189,4 +189,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 19: Add NotificationHelper.buildTaskReminderNotification(task): pixel small icon, task name, scheduled time - a8eb380
 - Step 20: Wire TaskAlarmReceiver to call NotificationManagerCompat.notify() when the alarm fires - 75c591e
 - Step 21: Add "Yes, I did it" and "Not yet" action buttons directly on the notification via PendingIntents - 9a585a7
-- Step 22: Create notification/TaskActionReceiver.kt (BroadcastReceiver) to handle notification action-button taps - b6e1281
+- Step 22: Create notification/TaskActionReceiver.kt (BroadcastReceiver) to handle notification action-button taps - b1c600e
+- Step 23: Wire TaskActionReceiver to insert a TaskCompletionLogEntity (via TaskCompletionRepository) reflecting the tapped response - caf5273
