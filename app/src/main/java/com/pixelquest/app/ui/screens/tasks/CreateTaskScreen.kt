@@ -20,9 +20,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.components.PixelDaySelector
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelTextField
+import com.pixelquest.app.ui.components.PixelTimePicker
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -77,6 +80,25 @@ fun CreateTaskScreen(
                     errorText = formState.nameError,
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                PixelTimePicker(
+                    selectedTime = formState.scheduledTime,
+                    onTimeSelected = { viewModel.onTimeSelected(it) },
+                    errorText = formState.timeError,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (formState.recurrenceType == RecurrenceType.WEEKLY) {
+                    PixelDaySelector(
+                        selectedDays = formState.selectedDays,
+                        onDayToggled = { viewModel.onDayToggled(it) },
+                        errorText = formState.daysError,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
