@@ -209,4 +209,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 39: Add a "missed" visual indicator (e.g. dimmed styling, red pixel border) on PixelTaskListItem when today's instance of a task was marked missed - 92078d0
 - Step 40: Wire TasksScreen/TaskViewModel to join today's task list with today's completion logs so status (done/missed/pending) is reflected per item - ab07dd6
 - Step 41: Add a small pixel-styled snackbar/toast informing the user when a task auto-marks as missed - c99e540
-- Step 42: Handle the edge case where a task is edited/deleted while a notification or alarm is already pending — ensure the old alarm is cleanly cancelled before the new one is scheduled (cross-check against Section C) - b0aa1a7
+- Step 42: Handle the edge case where a task is edited/deleted while a notification or alarm is already pending — ensure the old alarm is cleanly cancelled before the new one is scheduled (cross-check against Section C) - 9633705
+- Step 43: Write unit tests for TaskAlarmScheduler's scheduling/cancellation logic - 723960f
