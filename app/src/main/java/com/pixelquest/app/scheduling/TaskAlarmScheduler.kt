@@ -51,4 +51,18 @@ class TaskAlarmScheduler @Inject constructor(
             pendingIntent
         )
     }
+
+    fun cancelAlarmForTask(task: TaskEntity) {
+        val intent = Intent(context, TaskAlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            task.id.toInt(),
+            intent,
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()
+        }
+    }
 }
