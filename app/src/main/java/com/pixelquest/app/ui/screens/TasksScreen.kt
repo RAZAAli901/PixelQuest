@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,11 +40,13 @@ fun TasksScreen(
             FloatingActionButton(
                 onClick = onNavigateToCreateTask,
                 containerColor = PixelGold,
-                contentColor = PixelBackgroundDark
+                contentColor = PixelBackgroundDark,
+                shape = CutCornerShape(4.dp)
             ) {
                 Text(
                     text = "+",
-                    style = PixelTypography.displaySmall
+                    style = PixelTypography.displaySmall,
+                    color = PixelBackgroundDark
                 )
             }
         },
