@@ -1,6 +1,7 @@
 package com.pixelquest.app
 
 import android.app.Application
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -18,7 +19,14 @@ class PixelQuestApplication : Application() {
     }
 
     private fun scheduleMissedTaskWorker() {
-        val workRequest = PeriodicWorkRequestBuilder<MissedTaskWorker>(30, TimeUnit.MINUTES).build()
+        val constraints = Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .build()
+
+        val workRequest = PeriodicWorkRequestBuilder<MissedTaskWorker>(30, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .build()
+
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "MissedTaskWorkerPeriodic",
             ExistingPeriodicWorkPolicy.KEEP,
