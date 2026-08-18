@@ -130,5 +130,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 18: Add validation rules to TaskFormViewModel: name required (non-blank), time required, at least one day selected for recurrence - 1a8b2a3
 - Step 19: Add inline pixel-styled error text under each invalid field, driven by TaskFormState's error fields - 039007d
 - Step 20: Disable the Save button while the form is invalid - 02701e8
-- Step 21: Write unit tests for TaskFormViewModel validation logic (valid form, missing name, missing time, no days selected) - f4fc754
+- Step 21: Write unit tests for TaskFormViewModel validation logic (valid form, missing name, missing time, no days selected) - 146378c
+- Step 22: Manually verify validation blocks an empty/invalid submission end-to-end in the running app - a2c4ff5
 
