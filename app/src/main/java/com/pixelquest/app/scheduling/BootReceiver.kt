@@ -5,6 +5,10 @@ import android.content.Context
 import android.content.Intent
 import com.pixelquest.app.domain.repository.TaskRepository
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -18,7 +22,17 @@ class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            // Skeleton for rescheduling active task alarms
+            val pendingResult = goAsync()
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val tasks = taskRepository.getAllTasks().first()
+                    tasks.forEach { task ->
+                        taskAlarmScheduler.scheduleExactAlarmForTask(task)
+                    }
+                } finally {
+                    pendingResult.finish()
+                }
+            }
         }
     }
 }
