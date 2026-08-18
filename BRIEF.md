@@ -153,5 +153,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 41: Wire the real category icons into PixelCategorySelector and PixelTaskListItem, replacing the Section B/C placeholders - e383f87
 - Step 42: Update ASSETS.md with the newly imported icon files and their source/license - ed3f809
 - Step 43: Write a UI test for CreateTaskScreen: fill the form, tap Save, verify navigation back and the task appears in the list - a3dbc53
-- Step 44: Write a UI test for TasksScreen: empty state renders correctly, populated list renders correctly, delete flow removes an item - e6334ce
+- Step 44: Write a UI test for TasksScreen: empty state renders correctly, populated list renders correctly, delete flow removes an item - 641a034
+- Step 45: Manual QA pass: create, edit, and delete several tasks; force-close and reopen the app to confirm persistence - 28d9ce5
 
