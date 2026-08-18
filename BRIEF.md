@@ -186,7 +186,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 16: Create scheduling/BootReceiver.kt to reschedule all active task alarms after device reboot - 7a275f7
 - Step 17: Register BootReceiver with the RECEIVE_BOOT_COMPLETED permission in the manifest - 4a30786
 - Step 18: Implement BootReceiver logic to query all active tasks via TaskRepository and reschedule each via TaskAlarmScheduler - a567172
-- Step 19: Add NotificationHelper.buildTaskReminderNotification(task): pixel small icon, task name, scheduled time - 2e78f7d
+- Step 19: Add NotificationHelper.buildTaskReminderNotification(task): pixel small icon, task name, scheduled time - a8eb380
+- Step 20: Wire TaskAlarmReceiver to call NotificationManagerCompat.notify() when the alarm fires - 667117d
 
 
 
