@@ -4,7 +4,9 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.domain.model.RecurrenceType
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -20,6 +22,28 @@ class TaskAlarmScheduler @Inject constructor(
 ) {
     private val alarmManager: AlarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+    fun canScheduleExactAlarms(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            alarmManager.canScheduleExactAlarms()
+        } else {
+            true
+        }
+    }
+
+    fun openExactAlarmSettingsIntent(): Intent {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        } else {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
+    }
 
     fun calculateTriggerTimeMillis(task: TaskEntity): Long {
         val now = LocalDateTime.now()
@@ -40,7 +64,7 @@ class TaskAlarmScheduler @Inject constructor(
     }
 
     fun scheduleExactAlarmForTask(task: TaskEntity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+        if (!canScheduleExactAlarms()) {
             return
         }
 

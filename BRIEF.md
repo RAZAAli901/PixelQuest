@@ -181,7 +181,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 11: Call scheduleExactAlarmForTask() when a task is created (hook into Day 3's TaskFormViewModel insert path) - de19973
 - Step 12: Call scheduleExactAlarmForTask() (reschedule) when a task is updated - 5a826a3
 - Step 13: Call cancelAlarmForTask() when a task is deleted - a1e9dcc
-- Step 14: Handle recurring tasks: after an alarm fires, compute and schedule the next occurrence (daily/specific-days/weekly logic from Day 3's RecurrenceType) - 8354f1d
+- Step 14: Handle recurring tasks: after an alarm fires, compute and schedule the next occurrence (daily/specific-days/weekly logic from Day 3's RecurrenceType) - 536e61d
+- Step 15: Add SCHEDULE_EXACT_ALARM permission handling for Android 12+ (canScheduleExactAlarms() check, redirect to system settings if not granted) - ccf9f29
 
 
 
