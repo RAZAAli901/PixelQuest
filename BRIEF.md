@@ -183,7 +183,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 13: Call cancelAlarmForTask() when a task is deleted - a1e9dcc
 - Step 14: Handle recurring tasks: after an alarm fires, compute and schedule the next occurrence (daily/specific-days/weekly logic from Day 3's RecurrenceType) - 536e61d
 - Step 15: Add SCHEDULE_EXACT_ALARM permission handling for Android 12+ (canScheduleExactAlarms() check, redirect to system settings if not granted) - 922a892
-- Step 16: Create scheduling/BootReceiver.kt to reschedule all active task alarms after device reboot - d32e337
+- Step 16: Create scheduling/BootReceiver.kt to reschedule all active task alarms after device reboot - 7a275f7
+- Step 17: Register BootReceiver with the RECEIVE_BOOT_COMPLETED permission in the manifest - 335781e
 
 
 
