@@ -211,4 +211,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 41: Add a small pixel-styled snackbar/toast informing the user when a task auto-marks as missed - c99e540
 - Step 42: Handle the edge case where a task is edited/deleted while a notification or alarm is already pending — ensure the old alarm is cleanly cancelled before the new one is scheduled (cross-check against Section C) - 9633705
 - Step 43: Write unit tests for TaskAlarmScheduler's scheduling/cancellation logic - e83f495
-- Step 44: Write an instrumented test (or, if exact-alarm testing is impractical in CI, a documented manual test script) covering the notification action-button flow - 0b86312
+- Step 44: Write an instrumented test (or, if exact-alarm testing is impractical in CI, a documented manual test script) covering the notification action-button flow - 1cf330a
+- Step 45: Manual QA pass: create a task ~2 minutes in the future, verify the notification fires, and exercise all four paths — notification "Yes", notification "Not yet", full-screen prompt tap-through, and the missed-task auto-detection - e46305c
