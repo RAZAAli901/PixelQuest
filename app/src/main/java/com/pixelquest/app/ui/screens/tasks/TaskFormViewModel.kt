@@ -123,6 +123,7 @@ class TaskFormViewModel @Inject constructor(
             )
             if (state.isEditMode && state.taskId != null && state.taskId > 0) {
                 taskRepository.updateTask(task)
+                taskAlarmScheduler.scheduleExactAlarmForTask(task)
             } else {
                 val insertedId = taskRepository.insertTask(task)
                 taskAlarmScheduler.scheduleExactAlarmForTask(task.copy(id = insertedId))
