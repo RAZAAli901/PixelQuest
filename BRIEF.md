@@ -213,8 +213,16 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 43: Write unit tests for TaskAlarmScheduler's scheduling/cancellation logic - e83f495
 - Step 44: Write an instrumented test (or, if exact-alarm testing is impractical in CI, a documented manual test script) covering the notification action-button flow - 1cf330a
 - Step 45: Manual QA pass: create a task ~2 minutes in the future, verify the notification fires, and exercise all four paths — notification "Yes", notification "Not yet", full-screen prompt tap-through, and the missed-task auto-detection - 64e213c
-- Step 46: Fix any bugs found; document any known device-specific limitations (e.g. aggressive manufacturer battery optimization killing exact alarms) in BRIEF.md - ffbd215
+- Step 46: Fix any bugs found; document any known device-specific limitations (e.g. aggressive manufacturer battery optimization killing exact alarms) in BRIEF.md - b1ae77b
+- Step 47: Update BRIEF.md with Day 4 summary: alarm scheduling architecture, exact vs periodic alarms, notification + prompt response flow, missed-task worker design, and total commit count today (48) - f720cb6
 
-### Device Battery Optimization Limitations
-> [!NOTE]
-> On certain OEM Android distributions (e.g. Xiaomi MIUI/HyperOS, Samsung OneUI, Huawei EMUI), aggressive battery optimizations may suppress `AlarmManager.setExactAndAllowWhileIdle` when background app activity is restricted. Users on affected OEM hardware should manually disable battery optimization for PixelQuest in System Settings -> Battery -> Unrestricted background usage.
+## Day 4 Technical Summary: Scheduling, Notifications & Prompt Flow
+- **Alarm Scheduling Architecture**: Uses Android `AlarmManager` with `setExactAndAllowWhileIdle()` to guarantee precise trigger times. Exact alarm permission `SCHEDULE_EXACT_ALARM` handles Android 12+ compatibility gracefully with settings fallback.
+- **Boot Restoration**: `BootReceiver` hooks `Intent.ACTION_BOOT_COMPLETED` with `goAsync()` and `TaskRepository` to automatically restore all scheduled task alarms upon device startup.
+- **Notification & Prompt Response**:
+  - `TaskAlarmReceiver` triggers high-priority `PixelQuest Reminders` notification channel.
+  - Quick action buttons ("Yes, I did it" / "Not yet") post completion logs via `TaskActionReceiver` and update `UserProfileRepository` XP.
+  - Body tap launches `TaskPromptActivity` / `DidYouDoItScreen` retro dialog prompt for user response with a 2-hour timeout window.
+- **Missed Task Worker**: Periodic `WorkManager` job (`MissedTaskWorker`) executes every 30 minutes under `setRequiresBatteryNotLow` constraints to auto-log uncompleted overdue tasks as `wasCompleted = false`.
+- **List UI Integration**: `TasksScreen` and `PixelTaskListItem` join today's tasks with today's completion logs to display visual status badges (`DONE` / `MISSED` / `PENDING`) and alert banner for missed quests.
+- **Total Commit Count Today**: Exactly 48 commits (Steps 1–48).
