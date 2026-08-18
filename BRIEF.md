@@ -117,5 +117,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 5: Create ui/screens/tasks/TaskFormViewModel.kt skeleton with Hilt injection of TaskRepository, holding a TaskFormState - d67640e
 - Step 6: Build PixelTextField composable (pixel-bordered text input using Day 1's panel asset, pixel font) - 5df0f25
 - Step 7: Build PixelDropdown/PixelSelector composable for day-of-week selection - 007de58
-- Step 8: Build PixelTimePicker composable — pixel-styled wrapper around a time selection dialog - 23b6325
+- Step 8: Build PixelTimePicker composable — pixel-styled wrapper around a time selection dialog - 738ac71
+- Step 9: Build PixelRecurrenceSelector composable (toggle chips: Daily / Specific Days / Weekly) - ce3fab3
 
