@@ -115,5 +115,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 3: Wire TaskViewModel to collect TaskRepository.getAllTasks() as a StateFlow<TaskUiState> - 52b2806
 - Step 4: Define TaskFormState data class for the create/edit form (name, selected day(s), time, recurrence, category, plus per-field error strings) - 4ee5314
 - Step 5: Create ui/screens/tasks/TaskFormViewModel.kt skeleton with Hilt injection of TaskRepository, holding a TaskFormState - d67640e
-- Step 6: Build PixelTextField composable (pixel-bordered text input using Day 1's panel asset, pixel font) - 0009e39
+- Step 6: Build PixelTextField composable (pixel-bordered text input using Day 1's panel asset, pixel font) - 5df0f25
+- Step 7: Build PixelDropdown/PixelSelector composable for day-of-week selection - 58e7139
 
