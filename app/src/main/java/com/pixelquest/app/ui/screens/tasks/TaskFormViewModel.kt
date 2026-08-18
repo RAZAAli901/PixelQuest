@@ -24,6 +24,10 @@ class TaskFormViewModel @Inject constructor(
     private val _formState = MutableStateFlow(TaskFormState())
     val formState: StateFlow<TaskFormState> = _formState.asStateFlow()
 
+    fun resetForm() {
+        _formState.value = TaskFormState()
+    }
+
     fun loadTask(taskId: Long) {
         viewModelScope.launch {
             taskRepository.getTaskById(taskId).collect { task ->

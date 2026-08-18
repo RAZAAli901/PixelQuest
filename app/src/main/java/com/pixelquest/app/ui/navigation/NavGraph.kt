@@ -64,6 +64,9 @@ fun PixelNavHost(
         }
         composable(Screen.CreateTask.route) {
             val formViewModel: TaskFormViewModel = hiltViewModel()
+            LaunchedEffect(Unit) {
+                formViewModel.resetForm()
+            }
             CreateTaskScreen(
                 viewModel = formViewModel,
                 onNavigateBack = { navController.popBackStack() }
