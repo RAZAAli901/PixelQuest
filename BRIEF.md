@@ -191,4 +191,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 21: Add "Yes, I did it" and "Not yet" action buttons directly on the notification via PendingIntents - 9a585a7
 - Step 22: Create notification/TaskActionReceiver.kt (BroadcastReceiver) to handle notification action-button taps - b1c600e
 - Step 23: Wire TaskActionReceiver to insert a TaskCompletionLogEntity (via TaskCompletionRepository) reflecting the tapped response - cfa8cf9
-- Step 24: Create a full-screen Compose destination (TaskPromptActivity or a dedicated nav route with appropriate launch flags) triggered when the notification body (not the action buttons) is tapped - 5d5bf73
+- Step 24: Create a full-screen Compose destination (TaskPromptActivity or a dedicated nav route with appropriate launch flags) triggered when the notification body (not the action buttons) is tapped - 021c3a3
+- Step 25: Build DidYouDoItScreen composable using the Day 1 PixelDialog/PixelCard styling, showing the task name and scheduled time - 69d963f
