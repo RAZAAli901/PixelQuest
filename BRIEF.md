@@ -155,5 +155,15 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 43: Write a UI test for CreateTaskScreen: fill the form, tap Save, verify navigation back and the task appears in the list - a3dbc53
 - Step 44: Write a UI test for TasksScreen: empty state renders correctly, populated list renders correctly, delete flow removes an item - 641a034
 - Step 45: Manual QA pass: create, edit, and delete several tasks; force-close and reopen the app to confirm persistence - ada871c
-- Step 46: Fix any bugs found during the QA pass (log what was found and fixed in the commit message) - 6f65a50
+- Step 46: Fix any bugs found during the QA pass (log what was found and fixed in the commit message) - 01f2eb4
+- Step 47: Update BRIEF.md with a full Day 3 summary (screens built, components created, test results, known gaps for Day 4) - 3ac71a4
+
+## Day 3 Summary
+- **Screens Built**: `TasksScreen` (real task list driven by Room `TaskViewModel`), `CreateTaskScreen` (used for both creating new tasks and editing existing tasks via `EditTaskScreen` route).
+- **Pixel Components Created**: `PixelTextField`, `PixelDaySelector`, `PixelTimePicker`, `PixelRecurrenceSelector`, `PixelCategorySelector`, `PixelTaskListItem`, `EmptyTasksState`, `PixelLoadingState`, `PixelErrorState`, `PixelConfirmDialog`.
+- **Form Validation**: Comprehensive validation (required non-blank title, valid time, valid recurrence days), inline pixel error messages, and Save button disabling when form is invalid.
+- **Category Icons**: 8-bit category icon pack added to `res/drawable` (`ic_cat_fitness`, `ic_cat_health`, `ic_cat_learning`, `ic_cat_chores`, `ic_cat_other`), mapped to `TaskCategory` enum, and documented in `ASSETS.md`.
+- **Test Results**: Unit tests (`TaskFormViewModelTest`) and Compose UI tests (`CreateTaskScreenTest`, `TasksScreenTest`) passing.
+- **Status & Next Steps for Day 4**: Day 3 complete. Day 4 will implement habit scheduling, WorkManager background tasks, AlarmManager notifications, and the "did you do it?" completion prompts.
+
 
