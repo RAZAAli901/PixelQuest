@@ -25,23 +25,37 @@ class TaskFormViewModel @Inject constructor(
     val formState: StateFlow<TaskFormState> = _formState.asStateFlow()
 
     fun onNameChanged(name: String) {
-        _formState.update { it.copy(name = name, nameError = null) }
+        _formState.update { state ->
+            val error = if (name.isBlank()) "Quest title is required!" else null
+            state.copy(name = name, nameError = error)
+        }
     }
 
     fun onDayToggled(day: DayOfWeek) {
         _formState.update { state ->
             val current = state.selectedDays
             val updated = if (current.contains(day)) current - day else current + day
-            state.copy(selectedDays = updated, daysError = null)
+            val error = if (state.recurrenceType == RecurrenceType.WEEKLY && updated.isEmpty()) {
+                "Select at least one day!"
+            } else null
+            state.copy(selectedDays = updated, daysError = error)
         }
     }
 
-    fun onTimeSelected(time: LocalTime) {
-        _formState.update { it.copy(scheduledTime = time, timeError = null) }
+    fun onTimeSelected(time: LocalTime?) {
+        _formState.update { state ->
+            val error = if (time == null) "Time is required!" else null
+            state.copy(scheduledTime = time, timeError = error)
+        }
     }
 
     fun onRecurrenceSelected(recurrence: RecurrenceType) {
-        _formState.update { it.copy(recurrenceType = recurrence) }
+        _formState.update { state ->
+            val daysErr = if (recurrence == RecurrenceType.WEEKLY && state.selectedDays.isEmpty()) {
+                "Select at least one day!"
+            } else null
+            state.copy(recurrenceType = recurrence, daysError = daysErr)
+        }
     }
 
     fun onCategorySelected(category: TaskCategory) {
