@@ -173,7 +173,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 3: Create notification/NotificationHelper.kt that builds a NotificationChannel ("PixelQuest Reminders") with an appropriate importance level and a pixel-style small icon - aa0b6ea
 - Step 4: Wire channel creation into PixelQuestApplication.onCreate() - 955ec66
 - Step 5: Add a non-blocking pixel-styled banner/reminder shown if the user denies notification permission, explaining that reminders won't fire without it - 0cf867a
-- Step 6: Create scheduling/TaskAlarmScheduler.kt wrapping AlarmManager - 2c3d2b2
+- Step 6: Create scheduling/TaskAlarmScheduler.kt wrapping AlarmManager - 3545c56
+- Step 7: Add scheduleExactAlarmForTask(task) using setExactAndAllowWhileIdle - b310112
 
 
 
