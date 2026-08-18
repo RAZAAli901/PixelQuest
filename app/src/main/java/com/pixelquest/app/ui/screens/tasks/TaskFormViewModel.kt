@@ -6,6 +6,7 @@ import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.domain.repository.TaskRepository
+import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TaskFormViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val taskAlarmScheduler: TaskAlarmScheduler
 ) : ViewModel() {
 
     private val _formState = MutableStateFlow(TaskFormState())
@@ -122,7 +124,8 @@ class TaskFormViewModel @Inject constructor(
             if (state.isEditMode && state.taskId != null && state.taskId > 0) {
                 taskRepository.updateTask(task)
             } else {
-                taskRepository.insertTask(task)
+                val insertedId = taskRepository.insertTask(task)
+                taskAlarmScheduler.scheduleExactAlarmForTask(task.copy(id = insertedId))
             }
             _formState.update { it.copy(isSubmitting = false, isSaveSuccess = true) }
             onSuccess()

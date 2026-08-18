@@ -177,7 +177,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 7: Add scheduleExactAlarmForTask(task) using setExactAndAllowWhileIdle - fc8a4aa
 - Step 8: Add cancelAlarmForTask(task) - c723e4b
 - Step 9: Create scheduling/TaskAlarmReceiver.kt (BroadcastReceiver) skeleton to handle the alarm firing - b8d1e12
-- Step 10: Register TaskAlarmReceiver in AndroidManifest.xml - 8b2a1c0
+- Step 10: Register TaskAlarmReceiver in AndroidManifest.xml - f81c871
+- Step 11: Call scheduleExactAlarmForTask() when a task is created (hook into Day 3's TaskFormViewModel insert path) - 3af0506
 
 
 

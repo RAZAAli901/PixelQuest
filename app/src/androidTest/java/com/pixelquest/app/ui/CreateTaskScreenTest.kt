@@ -5,6 +5,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ApplicationProvider
+import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import com.pixelquest.app.ui.screens.tasks.CreateTaskScreen
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -20,7 +22,8 @@ class CreateTaskScreenTest {
     @Test
     fun fillFormAndSave_navigatesBackAndCreatesTask() {
         val fakeRepo = FakeTaskRepository()
-        val viewModel = TaskFormViewModel(fakeRepo)
+        val alarmScheduler = TaskAlarmScheduler(ApplicationProvider.getApplicationContext())
+        val viewModel = TaskFormViewModel(fakeRepo, alarmScheduler)
         var navigatedBack = false
 
         composeTestRule.setContent {

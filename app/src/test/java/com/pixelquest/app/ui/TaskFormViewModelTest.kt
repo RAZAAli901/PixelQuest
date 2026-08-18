@@ -1,8 +1,10 @@
 package com.pixelquest.app.ui
 
+import androidx.test.core.app.ApplicationProvider
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.repository.TaskRepository
+import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +16,8 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -41,15 +45,18 @@ class FakeTaskRepository : TaskRepository {
     }
 }
 
+@RunWith(RobolectricTestRunner::class)
 class TaskFormViewModelTest {
 
     private lateinit var fakeRepository: FakeTaskRepository
+    private lateinit var alarmScheduler: TaskAlarmScheduler
     private lateinit var viewModel: TaskFormViewModel
 
     @Before
     fun setUp() {
         fakeRepository = FakeTaskRepository()
-        viewModel = TaskFormViewModel(fakeRepository)
+        alarmScheduler = TaskAlarmScheduler(ApplicationProvider.getApplicationContext())
+        viewModel = TaskFormViewModel(fakeRepository, alarmScheduler)
     }
 
     @Test
