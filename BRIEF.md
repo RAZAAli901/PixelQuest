@@ -143,5 +143,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 31: Wire the Save button in edit mode to call TaskRepository.updateTask() instead of insert - fea7794
 - Step 32: Add a delete icon/button on the task list item or edit screen - 665e338
 - Step 33: Add PixelConfirmDialog for delete confirmation, reusing the PixelDialog component from Day 1 - d32e2ee
-- Step 34: Wire delete confirmation to TaskRepository.deleteTask(); verify the list updates reactively after deletion - 21327f4
+- Step 34: Wire delete confirmation to TaskRepository.deleteTask(); verify the list updates reactively after deletion - 9e079c2
+- Step 35: Build EmptyTasksState composable: pixel icon/illustration, "No quests yet" message, "Create your first quest" CTA button - 5c91e3a
 
