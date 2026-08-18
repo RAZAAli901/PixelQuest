@@ -127,5 +127,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 15: Wire PixelRecurrenceSelector and PixelCategorySelector into CreateTaskScreen - f6c1e8b
 - Step 16: Add a pixel-styled Save button wired to TaskFormViewModel.saveTask(), navigating back on success - 74ff87b
 - Step 17: Add the CreateTaskScreen nav route and a FAB entry point on the Tasks screen that opens it - 036426d
-- Step 18: Add validation rules to TaskFormViewModel: name required (non-blank), time required, at least one day selected for recurrence - 312dbc9
+- Step 18: Add validation rules to TaskFormViewModel: name required (non-blank), time required, at least one day selected for recurrence - 1a8b2a3
+- Step 19: Add inline pixel-styled error text under each invalid field, driven by TaskFormState's error fields - 8854688
 
