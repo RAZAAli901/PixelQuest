@@ -17,6 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,6 +36,7 @@ import com.pixelquest.app.ui.components.PixelTimePicker
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelQuestTheme
+import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -41,6 +45,7 @@ fun CreateTaskScreen(
     onNavigateBack: () -> Unit = {}
 ) {
     val formState by viewModel.formState.collectAsState()
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     PixelQuestTheme {
         Scaffold(
@@ -61,8 +66,14 @@ fun CreateTaskScreen(
                         Text(
                             text = if (formState.isEditMode) "EDIT QUEST" else "NEW QUEST",
                             style = PixelTypography.titleLarge,
-                            color = PixelGold
+                            color = PixelGold,
+                            modifier = Modifier.weight(1f)
                         )
+                        if (formState.isEditMode) {
+                            IconButton(onClick = { showDeleteConfirm = true }) {
+                                Text("🗑️", style = PixelTypography.titleMedium)
+                            }
+                        }
                     }
                 }
             },
