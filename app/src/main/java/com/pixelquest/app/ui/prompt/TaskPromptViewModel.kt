@@ -3,6 +3,7 @@ package com.pixelquest.app.ui.prompt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
+import com.pixelquest.app.domain.PointsCalculator
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,7 +29,8 @@ class TaskPromptViewModel @Inject constructor(
             if (wasCompleted) {
                 val profile = userProfileRepository.getUserProfile().first()
                 if (profile != null) {
-                    val updated = profile.copy(totalXp = profile.totalXp + 50)
+                    val earnedXp = PointsCalculator.calculateXpForTask()
+                    val updated = profile.copy(totalXp = profile.totalXp + earnedXp)
                     userProfileRepository.updateUserProfile(updated)
                 }
             }

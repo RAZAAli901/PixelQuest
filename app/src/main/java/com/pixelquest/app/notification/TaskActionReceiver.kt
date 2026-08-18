@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
+import com.pixelquest.app.domain.PointsCalculator
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,7 +42,8 @@ class TaskActionReceiver : BroadcastReceiver() {
                 if (wasCompleted) {
                     val profile = userProfileRepository.getUserProfile().first()
                     if (profile != null) {
-                        val updatedXp = profile.totalXp + 50
+                        val earnedXp = PointsCalculator.calculateXpForTask()
+                        val updatedXp = profile.totalXp + earnedXp
                         userProfileRepository.updateUserProfile(profile.copy(totalXp = updatedXp))
                     }
                 }
