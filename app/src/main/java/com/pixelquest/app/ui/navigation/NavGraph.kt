@@ -50,6 +50,9 @@ fun PixelNavHost(
             TasksScreen(
                 onNavigateToCreateTask = {
                     navController.navigate(Screen.CreateTask.route)
+                },
+                onNavigateToEditTask = { taskId ->
+                    navController.navigate("edit_task/$taskId")
                 }
             )
         }

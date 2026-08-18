@@ -136,5 +136,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 24: Build PixelTaskListItem composable: task name, scheduled time, category icon placeholder, pixel card background - b191282
 - Step 25: Render the task list in TasksScreen via LazyColumn driven by TaskUiState.Success - ae2326a
 - Step 26: Verify the list updates reactively (add a task, confirm it appears without manual refresh, since it's Flow-backed) - 253f0e3
-- Step 27: Add a pixel-styled FAB "+" button on TasksScreen opening CreateTaskScreen - 991772b
+- Step 27: Add a pixel-styled FAB "+" button on TasksScreen opening CreateTaskScreen - 0198d42
+- Step 28: Wire tap-to-open navigation from a list item to task detail/edit (route only — screen built in Section F) - 7acfcd9
 
