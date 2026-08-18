@@ -29,5 +29,13 @@
 - `ic_stats.png`: 16x16 pixel-art level stats icon
 - `ic_profile.png`: 16x16 pixel-art hero avatar icon
 
+### Task Category Icons (`res/drawable/`)
+- `ic_cat_fitness.png`: 16x16 pixel-art fitness category icon
+- `ic_cat_health.png`: 16x16 pixel-art health category icon
+- `ic_cat_learning.png`: 16x16 pixel-art learning category icon
+- `ic_cat_chores.png`: 16x16 pixel-art chores category icon
+- `ic_cat_other.png`: 16x16 pixel-art custom/other category icon
+
 ### Fonts (`res/font/`)
 - `press_start_2p.ttf`: Open-source 8-bit retro font by CodeMan38 (SIL Open Font License) via Google Fonts
+

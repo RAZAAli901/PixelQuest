@@ -150,5 +150,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 38: Add an error state UI (pixel-styled message + retry option) for TaskUiState.Error - 8ea9dd2
 - Step 39: Define TaskCategory enum (Fitness, Health, Learning, Chores, Other) with an icon-resource mapping - 83063a4
 - Step 40: Source pixel category icons (Kenney.nl or another CC0 pack) and add to res/drawable - ac497a4
-- Step 41: Wire the real category icons into PixelCategorySelector and PixelTaskListItem, replacing the Section B/C placeholders - 98c4bb8
+- Step 41: Wire the real category icons into PixelCategorySelector and PixelTaskListItem, replacing the Section B/C placeholders - e383f87
+- Step 42: Update ASSETS.md with the newly imported icon files and their source/license - e197a21
 
