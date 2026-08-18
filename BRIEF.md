@@ -168,7 +168,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - **Status & Next Steps for Day 4**: Day 3 complete. Day 4 will implement habit scheduling, WorkManager background tasks, AlarmManager notifications, and the "did you do it?" completion prompts.
 
 ## Day 4 Progress Log
-- Step 1: Add the POST_NOTIFICATIONS permission declaration to AndroidManifest.xml (required Android 13+) - 4e3f447
+- Step 1: Add the POST_NOTIFICATIONS permission declaration to AndroidManifest.xml (required Android 13+) - 83d494e
+- Step 2: Build a runtime permission request flow (permission launcher) triggered on first app launch, with a pixel-styled rationale screen/dialog if needed - 92f3fc7
 
 
 
