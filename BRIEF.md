@@ -205,4 +205,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 35: Implement missed-detection logic: insert a TaskCompletionLogEntity with wasCompleted = false for any such task - 841feac
 - Step 36: Schedule MissedTaskWorker as a periodic WorkManager request (e.g. every 30 minutes) from PixelQuestApplication - b057aa4
 - Step 37: Add reasonable WorkManager constraints (e.g. battery not low) to the periodic request - 46ab7e9
-- Step 38: Write a unit test for MissedTaskWorker's missed-detection logic using a fake/in-memory repository - 3c8fe26
+- Step 38: Write a unit test for MissedTaskWorker's missed-detection logic using a fake/in-memory repository - 89cfba2
+- Step 39: Add a "missed" visual indicator (e.g. dimmed styling, red pixel border) on PixelTaskListItem when today's instance of a task was marked missed - 9aa9063
