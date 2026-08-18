@@ -2,6 +2,7 @@ package com.pixelquest.app.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,6 +11,8 @@ import com.pixelquest.app.ui.screens.ProfileScreen
 import com.pixelquest.app.ui.screens.SplashScreen
 import com.pixelquest.app.ui.screens.StatsScreen
 import com.pixelquest.app.ui.screens.TasksScreen
+import com.pixelquest.app.ui.screens.tasks.CreateTaskScreen
+import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
@@ -17,6 +20,7 @@ sealed class Screen(val route: String) {
     object Tasks : Screen("tasks")
     object Stats : Screen("stats")
     object Profile : Screen("profile")
+    object CreateTask : Screen("create_task")
 }
 
 @Composable
@@ -43,7 +47,18 @@ fun PixelNavHost(
             HomeScreen()
         }
         composable(Screen.Tasks.route) {
-            TasksScreen()
+            TasksScreen(
+                onNavigateToCreateTask = {
+                    navController.navigate(Screen.CreateTask.route)
+                }
+            )
+        }
+        composable(Screen.CreateTask.route) {
+            val formViewModel: TaskFormViewModel = hiltViewModel()
+            CreateTaskScreen(
+                viewModel = formViewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable(Screen.Stats.route) {
             StatsScreen()

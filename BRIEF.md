@@ -125,5 +125,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 13: Wire the task-name PixelTextField into CreateTaskScreen, bound to TaskFormViewModel's state - 35c8f90
 - Step 14: Wire day-of-week selector and PixelTimePicker into CreateTaskScreen - 6b9dc35
 - Step 15: Wire PixelRecurrenceSelector and PixelCategorySelector into CreateTaskScreen - f6c1e8b
-- Step 16: Add a pixel-styled Save button wired to TaskFormViewModel.saveTask(), navigating back on success - db6aa7c
+- Step 16: Add a pixel-styled Save button wired to TaskFormViewModel.saveTask(), navigating back on success - 74ff87b
+- Step 17: Add the CreateTaskScreen nav route and a FAB entry point on the Tasks screen that opens it - e1d54a3
 
