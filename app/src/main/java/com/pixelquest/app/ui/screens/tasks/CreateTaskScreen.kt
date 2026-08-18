@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.RecurrenceType
+import com.pixelquest.app.ui.components.PixelButton
+import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelCategorySelector
 import com.pixelquest.app.ui.components.PixelDaySelector
@@ -115,6 +117,18 @@ fun CreateTaskScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(24.dp))
+
+                PixelButton(
+                    text = if (formState.isEditMode) "UPDATE QUEST" else "SAVE QUEST",
+                    onClick = {
+                        viewModel.saveTask {
+                            onNavigateBack()
+                        }
+                    },
+                    variant = PixelButtonVariant.YELLOW,
+                    enabled = !formState.isSubmitting && formState.isValid,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
