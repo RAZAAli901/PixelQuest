@@ -214,7 +214,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 44: Write an instrumented test (or, if exact-alarm testing is impractical in CI, a documented manual test script) covering the notification action-button flow - 1cf330a
 - Step 45: Manual QA pass: create a task ~2 minutes in the future, verify the notification fires, and exercise all four paths — notification "Yes", notification "Not yet", full-screen prompt tap-through, and the missed-task auto-detection - 64e213c
 - Step 46: Fix any bugs found; document any known device-specific limitations (e.g. aggressive manufacturer battery optimization killing exact alarms) in BRIEF.md - b1ae77b
-- Step 47: Update BRIEF.md with Day 4 summary: alarm scheduling architecture, exact vs periodic alarms, notification + prompt response flow, missed-task worker design, and total commit count today (48) - f720cb6
+- Step 47: Update BRIEF.md with Day 4 summary: alarm scheduling architecture, exact vs periodic alarms, notification + prompt response flow, missed-task worker design, and total commit count today (48) - fca79e5
+- Step 48: Final Day 4 verification commit: confirm build succeeds cleanly, all Day 4 tests pass, and scheduled alarms persist across app restarts - f496bfc
 
 ## Day 4 Technical Summary: Scheduling, Notifications & Prompt Flow
 - **Alarm Scheduling Architecture**: Uses Android `AlarmManager` with `setExactAndAllowWhileIdle()` to guarantee precise trigger times. Exact alarm permission `SCHEDULE_EXACT_ALARM` handles Android 12+ compatibility gracefully with settings fallback.
