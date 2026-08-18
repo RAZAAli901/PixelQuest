@@ -119,5 +119,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 7: Build PixelDropdown/PixelSelector composable for day-of-week selection - 007de58
 - Step 8: Build PixelTimePicker composable — pixel-styled wrapper around a time selection dialog - 738ac71
 - Step 9: Build PixelRecurrenceSelector composable (toggle chips: Daily / Specific Days / Weekly) - e11cf61
-- Step 10: Build PixelCategorySelector composable (icon-based category picker, icons placeholder for now — real icons come in Section H) - 3d4b92b
+- Step 10: Build PixelCategorySelector composable (icon-based category picker, icons placeholder for now — real icons come in Section H) - 32d3043
+- Step 11: Add a Compose Preview file showing all five new form components - a47d147
 
