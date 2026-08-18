@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.EmptyTasksState
+import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
 import com.pixelquest.app.ui.components.PixelTaskListItem
 import com.pixelquest.app.ui.screens.tasks.TaskUiState
@@ -73,7 +74,10 @@ fun TasksScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("ERROR: ${state.message}", style = PixelTypography.bodyMedium, color = PixelGold)
+                        PixelErrorState(
+                            errorMessage = state.message,
+                            onRetry = { /* Flow automatically retries or refreshes */ }
+                        )
                     }
                 }
                 is TaskUiState.Success -> {

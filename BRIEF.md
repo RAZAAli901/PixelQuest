@@ -146,5 +146,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 34: Wire delete confirmation to TaskRepository.deleteTask(); verify the list updates reactively after deletion - 9e079c2
 - Step 35: Build EmptyTasksState composable: pixel icon/illustration, "No quests yet" message, "Create your first quest" CTA button - 108681b
 - Step 36: Wire EmptyTasksState into TasksScreen when TaskUiState.Success has an empty list - 9ece155
-- Step 37: Add a pixel-styled loading indicator for TaskUiState.Loading - 02d2526
+- Step 37: Add a pixel-styled loading indicator for TaskUiState.Loading - c588c29
+- Step 38: Add an error state UI (pixel-styled message + retry option) for TaskUiState.Error - ae807e1
 
