@@ -108,3 +108,7 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - **Seed Data Provider**: `SeedDataProvider` with sample tasks, default profile, default streak, and default Medium difficulty settings
 - **DAO Test Suite**: `BaseDaoTest`, `TaskDaoTest`, `StreakAndUserProfileDaoTest`, `DifficultyAndCompletionLogDaoTest`
 - **Status & Next Steps for Day 3**: Local data layer compiled and fully testable. Day 3 will wire ViewModels and Compose UI screens to consume real repository data.
+
+## Day 3 Progress Log
+- Step 1: Create ui/screens/tasks/TaskViewModel.kt skeleton with Hilt @HiltViewModel, injecting TaskRepository - 3b4eeba
+
