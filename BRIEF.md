@@ -147,5 +147,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 35: Build EmptyTasksState composable: pixel icon/illustration, "No quests yet" message, "Create your first quest" CTA button - 108681b
 - Step 36: Wire EmptyTasksState into TasksScreen when TaskUiState.Success has an empty list - 9ece155
 - Step 37: Add a pixel-styled loading indicator for TaskUiState.Loading - c588c29
-- Step 38: Add an error state UI (pixel-styled message + retry option) for TaskUiState.Error - ae807e1
+- Step 38: Add an error state UI (pixel-styled message + retry option) for TaskUiState.Error - 8ea9dd2
+- Step 39: Define TaskCategory enum (Fitness, Health, Learning, Chores, Other) with an icon-resource mapping - 9734c09
 

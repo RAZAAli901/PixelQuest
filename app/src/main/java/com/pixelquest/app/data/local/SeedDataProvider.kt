@@ -78,7 +78,7 @@ object SeedDataProvider {
                 scheduledDay = today,
                 scheduledTime = LocalTime.of(21, 0),
                 recurrenceType = RecurrenceType.DAILY,
-                category = TaskCategory.PRODUCTIVITY
+                category = TaskCategory.LEARNING
             )
         )
     }
