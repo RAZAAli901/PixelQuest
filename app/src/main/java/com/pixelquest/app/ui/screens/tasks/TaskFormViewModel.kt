@@ -115,12 +115,30 @@ class TaskFormViewModel @Inject constructor(
                 recurrenceType = state.recurrenceType,
                 category = state.category
             )
-            if (state.isEditMode && state.taskId != null) {
+            if (state.isEditMode && state.taskId != null && state.taskId > 0) {
                 taskRepository.updateTask(task)
             } else {
                 taskRepository.insertTask(task)
             }
             _formState.update { it.copy(isSubmitting = false, isSaveSuccess = true) }
+            onSuccess()
+        }
+    }
+
+    fun deleteTask(onSuccess: () -> Unit) {
+        val state = _formState.value
+        val id = state.taskId ?: return
+        viewModelScope.launch {
+            val task = TaskEntity(
+                id = id,
+                name = state.name,
+                description = state.description,
+                scheduledDay = state.scheduledDay,
+                scheduledTime = state.scheduledTime ?: LocalTime.of(9, 0),
+                recurrenceType = state.recurrenceType,
+                category = state.category
+            )
+            taskRepository.deleteTask(task)
             onSuccess()
         }
     }
