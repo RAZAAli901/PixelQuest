@@ -146,6 +146,7 @@ class TaskFormViewModel @Inject constructor(
                 recurrenceType = state.recurrenceType,
                 category = state.category
             )
+            taskAlarmScheduler.cancelAlarmForTask(task)
             taskRepository.deleteTask(task)
             onSuccess()
         }
