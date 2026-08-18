@@ -122,6 +122,7 @@ class TaskFormViewModel @Inject constructor(
                 category = state.category
             )
             if (state.isEditMode && state.taskId != null && state.taskId > 0) {
+                taskAlarmScheduler.cancelAlarmForTask(task)
                 taskRepository.updateTask(task)
                 taskAlarmScheduler.scheduleExactAlarmForTask(task)
             } else {
