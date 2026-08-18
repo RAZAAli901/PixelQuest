@@ -111,5 +111,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 
 ## Day 3 Progress Log
 - Step 1: Create ui/screens/tasks/TaskViewModel.kt skeleton with Hilt @HiltViewModel, injecting TaskRepository - d5341ff
-- Step 2: Define TaskUiState (sealed class or data class: Loading, Success(tasks: List<Task>), Error) in the same package - d7a55f0
+- Step 2: Define TaskUiState (sealed class or data class: Loading, Success(tasks: List<Task>), Error) in the same package - 83c6501
+- Step 3: Wire TaskViewModel to collect TaskRepository.getAllTasks() as a StateFlow<TaskUiState> - f49775e
 
