@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.ui.components.EmptyTasksState
 import com.pixelquest.app.ui.components.PixelTaskListItem
 import com.pixelquest.app.ui.screens.tasks.TaskUiState
 import com.pixelquest.app.ui.screens.tasks.TaskViewModel
@@ -76,19 +76,30 @@ fun TasksScreen(
                     }
                 }
                 is TaskUiState.Success -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(
-                            items = state.tasks,
-                            key = { it.id }
-                        ) { task ->
-                            PixelTaskListItem(
-                                task = task,
-                                onClick = { onNavigateToEditTask(task.id) }
+                    if (state.tasks.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            EmptyTasksState(
+                                onCreateQuestClick = onNavigateToCreateTask
                             )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(
+                                items = state.tasks,
+                                key = { it.id }
+                            ) { task ->
+                                PixelTaskListItem(
+                                    task = task,
+                                    onClick = { onNavigateToEditTask(task.id) }
+                                )
+                            }
                         }
                     }
                 }
