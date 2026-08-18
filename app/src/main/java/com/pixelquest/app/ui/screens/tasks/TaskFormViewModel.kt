@@ -24,6 +24,27 @@ class TaskFormViewModel @Inject constructor(
     private val _formState = MutableStateFlow(TaskFormState())
     val formState: StateFlow<TaskFormState> = _formState.asStateFlow()
 
+    fun loadTask(taskId: Long) {
+        viewModelScope.launch {
+            taskRepository.getTaskById(taskId).collect { task ->
+                if (task != null) {
+                    _formState.update {
+                        it.copy(
+                            taskId = task.id,
+                            name = task.name,
+                            description = task.description,
+                            scheduledDay = task.scheduledDay,
+                            scheduledTime = task.scheduledTime,
+                            recurrenceType = task.recurrenceType,
+                            category = task.category,
+                            isEditMode = true
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun onNameChanged(name: String) {
         _formState.update { state ->
             val error = if (name.isBlank()) "Quest title is required!" else null
