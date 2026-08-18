@@ -196,4 +196,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 26: Add a "Yes" pixel button that logs completion (wasCompleted = true) and triggers point awarding (Section G) - a1dd36f
 - Step 27: Add a "Not yet" pixel button that logs completion (wasCompleted = false, no points) - d80ddbe
 - Step 28: Wire the full-screen prompt into AndroidManifest.xml with the correct launch mode and intent filters so it can appear even from a locked/background state - 0de8aba
-- Step 29: Add an auto-dismiss/timeout: if the user doesn't respond within a set window (e.g. 2 hours), treat it as missed via the Section H worker rather than leaving it open indefinitely - 25a0a02
+- Step 29: Add an auto-dismiss/timeout: if the user doesn't respond within a set window (e.g. 2 hours), treat it as missed via the Section H worker rather than leaving it open indefinitely - b0b296d
+- Step 30: Create domain/PointsCalculator.kt: base points per completed task, with a placeholder hook for a streak bonus (real streak logic lands Day 5 — leave a clearly marked TODO/extension point, don't build streak logic today) - 6a0599b
