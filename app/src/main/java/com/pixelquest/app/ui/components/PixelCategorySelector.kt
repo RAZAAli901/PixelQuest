@@ -1,18 +1,20 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.ui.theme.PixelCyan
@@ -27,14 +29,6 @@ fun PixelCategorySelector(
     modifier: Modifier = Modifier,
     label: String = "CATEGORY"
 ) {
-    val categories = listOf(
-        TaskCategory.FITNESS to "💪 Fitness",
-        TaskCategory.PRODUCTIVITY to "📚 Study",
-        TaskCategory.HEALTH to "❤️ Health",
-        TaskCategory.MINDFULNESS to "🧘 Mind",
-        TaskCategory.CUSTOM to "⭐ Custom"
-    )
-
     Column(modifier = modifier) {
         Text(
             text = label,
@@ -46,7 +40,7 @@ fun PixelCategorySelector(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            categories.forEach { (category, displayStr) ->
+            TaskCategory.values().forEach { category ->
                 val isSelected = selectedCategory == category
                 val variant = if (isSelected) PixelPanelVariant.BLUE else PixelPanelVariant.BORDER
 
@@ -57,12 +51,19 @@ fun PixelCategorySelector(
                         .weight(1f)
                         .clickable { onCategorySelected(category) }
                 ) {
-                    Box(
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
+                        Image(
+                            painter = painterResource(id = category.iconResId),
+                            contentDescription = category.displayName,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = displayStr,
+                            text = category.displayName,
                             style = PixelTypography.bodySmall,
                             color = if (isSelected) PixelCyan else PixelTextMuted
                         )
