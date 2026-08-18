@@ -1,25 +1,30 @@
 package com.pixelquest.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.ui.components.PixelBottomNavBar
+import com.pixelquest.app.ui.components.PixelNotificationPermissionBanner
 import com.pixelquest.app.ui.navigation.PixelNavHost
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -68,10 +73,31 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) { innerPadding ->
-                    PixelNavHost(
-                        navController = navController,
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        if (!isNotificationPermissionGranted && currentRoute != Screen.Splash.route) {
+                            PixelNotificationPermissionBanner(
+                                onRequestPermission = {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                    } else {
+                                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                            data = Uri.fromParts("package", packageName, null)
+                                        }
+                                        startActivity(intent)
+                                    }
+                                },
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                            )
+                        }
+                        PixelNavHost(
+                            navController = navController,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }
