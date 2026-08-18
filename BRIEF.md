@@ -134,5 +134,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 22: Manually verify validation blocks an empty/invalid submission end-to-end in the running app - 7e38f77
 - Step 23: Replace the Day 1 placeholder TasksScreen content with real TaskViewModel wiring - e79f79b
 - Step 24: Build PixelTaskListItem composable: task name, scheduled time, category icon placeholder, pixel card background - b191282
-- Step 25: Render the task list in TasksScreen via LazyColumn driven by TaskUiState.Success - fd465a1
+- Step 25: Render the task list in TasksScreen via LazyColumn driven by TaskUiState.Success - ae2326a
+- Step 26: Verify the list updates reactively (add a task, confirm it appears without manual refresh, since it's Flow-backed) - 5449922
 
