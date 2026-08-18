@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +25,7 @@ import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
+import kotlinx.coroutines.delay
 
 @Composable
 fun DidYouDoItScreen(
@@ -32,8 +34,14 @@ fun DidYouDoItScreen(
     onDismiss: () -> Unit,
     onYesClick: () -> Unit = {},
     onNoClick: () -> Unit = {},
+    timeoutMillis: Long = 2 * 60 * 60 * 1000L, // 2 hours window
     modifier: Modifier = Modifier
 ) {
+    LaunchedEffect(taskId) {
+        delay(timeoutMillis)
+        onDismiss()
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
