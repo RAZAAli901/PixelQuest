@@ -28,6 +28,7 @@ import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelCategorySelector
+import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelDaySelector
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelRecurrenceSelector
@@ -36,7 +37,6 @@ import com.pixelquest.app.ui.components.PixelTimePicker
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelQuestTheme
-import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -46,6 +46,22 @@ fun CreateTaskScreen(
 ) {
     val formState by viewModel.formState.collectAsState()
     var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    if (showDeleteConfirm) {
+        PixelConfirmDialog(
+            title = "ABANDON QUEST?",
+            message = "Are you sure you want to delete '${formState.name}'?",
+            confirmText = "DELETE",
+            dismissText = "CANCEL",
+            onConfirm = {
+                showDeleteConfirm = false
+                viewModel.deleteTask {
+                    onNavigateBack()
+                }
+            },
+            onDismiss = { showDeleteConfirm = false }
+        )
+    }
 
     PixelQuestTheme {
         Scaffold(

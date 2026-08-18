@@ -142,5 +142,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 30: Wire TaskFormViewModel to load an existing task by id (via getTaskById) when entering edit mode - 921d246
 - Step 31: Wire the Save button in edit mode to call TaskRepository.updateTask() instead of insert - fea7794
 - Step 32: Add a delete icon/button on the task list item or edit screen - 665e338
-- Step 33: Add PixelConfirmDialog for delete confirmation, reusing the PixelDialog component from Day 1 - 95aae19
+- Step 33: Add PixelConfirmDialog for delete confirmation, reusing the PixelDialog component from Day 1 - d32e2ee
+- Step 34: Wire delete confirmation to TaskRepository.deleteTask(); verify the list updates reactively after deletion - 21327f4
 
