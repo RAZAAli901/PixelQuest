@@ -3,8 +3,10 @@ package com.pixelquest.app.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,7 +24,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.EmptyTasksState
 import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
+import com.pixelquest.app.ui.components.PixelSnackbar
 import com.pixelquest.app.ui.components.PixelTaskListItem
+import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.screens.tasks.TaskUiState
 import com.pixelquest.app.ui.screens.tasks.TaskViewModel
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
@@ -81,6 +85,7 @@ fun TasksScreen(
                     }
                 }
                 is TaskUiState.Success -> {
+                    val missedCount = state.tasks.count { it.status == TaskItemStatus.MISSED }
                     if (state.tasks.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -91,20 +96,28 @@ fun TasksScreen(
                             )
                         }
                     } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            items(
-                                items = state.tasks,
-                                key = { it.task.id }
-                            ) { item ->
-                                PixelTaskListItem(
-                                    task = item.task,
-                                    status = item.status,
-                                    onClick = { onNavigateToEditTask(item.task.id) }
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            if (missedCount > 0) {
+                                PixelSnackbar(
+                                    message = "$missedCount quest(s) missed today!",
+                                    modifier = Modifier.padding(16.dp)
                                 )
+                            }
+                            LazyColumn(
+                                modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(
+                                    items = state.tasks,
+                                    key = { it.task.id }
+                                ) { item ->
+                                    PixelTaskListItem(
+                                        task = item.task,
+                                        status = item.status,
+                                        onClick = { onNavigateToEditTask(item.task.id) }
+                                    )
+                                }
                             }
                         }
                     }

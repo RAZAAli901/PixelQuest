@@ -207,4 +207,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 37: Add reasonable WorkManager constraints (e.g. battery not low) to the periodic request - 46ab7e9
 - Step 38: Write a unit test for MissedTaskWorker's missed-detection logic using a fake/in-memory repository - 89cfba2
 - Step 39: Add a "missed" visual indicator (e.g. dimmed styling, red pixel border) on PixelTaskListItem when today's instance of a task was marked missed - 92078d0
-- Step 40: Wire TasksScreen/TaskViewModel to join today's task list with today's completion logs so status (done/missed/pending) is reflected per item - 5585c92
+- Step 40: Wire TasksScreen/TaskViewModel to join today's task list with today's completion logs so status (done/missed/pending) is reflected per item - ab07dd6
+- Step 41: Add a small pixel-styled snackbar/toast informing the user when a task auto-marks as missed - ee931b1
