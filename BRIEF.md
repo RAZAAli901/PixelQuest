@@ -180,7 +180,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 10: Register TaskAlarmReceiver in AndroidManifest.xml - f81c871
 - Step 11: Call scheduleExactAlarmForTask() when a task is created (hook into Day 3's TaskFormViewModel insert path) - de19973
 - Step 12: Call scheduleExactAlarmForTask() (reschedule) when a task is updated - 5a826a3
-- Step 13: Call cancelAlarmForTask() when a task is deleted - ef5a5e2
+- Step 13: Call cancelAlarmForTask() when a task is deleted - a1e9dcc
+- Step 14: Handle recurring tasks: after an alarm fires, compute and schedule the next occurrence (daily/specific-days/weekly logic from Day 3's RecurrenceType) - 8354f1d
 
 
 

@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.domain.model.RecurrenceType
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.inject.Inject
@@ -26,6 +28,15 @@ class TaskAlarmScheduler @Inject constructor(
             scheduledDateTime = scheduledDateTime.plusDays(1)
         }
         return scheduledDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    }
+
+    fun calculateNextOccurrenceDate(task: TaskEntity, fromDate: LocalDate = LocalDate.now()): LocalDate {
+        return when (task.recurrenceType) {
+            RecurrenceType.DAILY -> fromDate.plusDays(1)
+            RecurrenceType.WEEKLY -> fromDate.plusWeeks(1)
+            RecurrenceType.MONTHLY -> fromDate.plusMonths(1)
+            RecurrenceType.ONE_TIME -> task.scheduledDay
+        }
     }
 
     fun scheduleExactAlarmForTask(task: TaskEntity) {
@@ -50,6 +61,13 @@ class TaskAlarmScheduler @Inject constructor(
             triggerTimeMillis,
             pendingIntent
         )
+    }
+
+    fun scheduleNextOccurrence(task: TaskEntity) {
+        if (task.recurrenceType == RecurrenceType.ONE_TIME) return
+        val nextDate = calculateNextOccurrenceDate(task)
+        val updatedTask = task.copy(scheduledDay = nextDate)
+        scheduleExactAlarmForTask(updatedTask)
     }
 
     fun cancelAlarmForTask(task: TaskEntity) {
