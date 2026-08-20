@@ -261,4 +261,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 30: Add a "streak broken" pixel notification/banner shown the next time the app is opened after a streak reset occurs - 1f67c1f
 - Step 31: Handle difficulty changes mid-day: today's progress ring immediately recomputes against the new threshold - c757cc7
 - Step 32: Write unit tests covering streak-break edge cases: 0 tasks scheduled that day, all tasks missed, and completion landing exactly at threshold - 7e17bec
-- Step 33: Update the Day 1 placeholder Home screen to show the current streak count with a pixel flame/streak icon - 7131b9e
+- Step 33: Update the Day 1 placeholder Home screen to show the current streak count with a pixel flame/streak icon - e37fafd
+- Step 34: Update the Home screen to show total points/XP from UserProfileRepository - d15deaa
