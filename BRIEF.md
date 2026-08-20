@@ -257,4 +257,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 26: Add the DifficultySelectionScreen nav route, accessible from the Day 1 Profile placeholder screen - 7a232a9
 - Step 27: Write unit tests for the difficulty-change repository update logic - b311137
 - Step 28: Document the streak-break rule explicitly in code comment and BRIEF.md (resets currentStreak to 0 only; longestStreak and totalXp preserved) - 0b79167
-- Step 29: Verify/update StreakEvaluationWorker to precisely follow this rule (cross-check against Section B) - 731f9ee
+- Step 29: Verify/update StreakEvaluationWorker to precisely follow this rule (cross-check against Section B) - 01189db
+- Step 30: Add a "streak broken" pixel notification/banner shown the next time the app is opened after a streak reset occurs - 62262dc
