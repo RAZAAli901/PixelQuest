@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.EmptyTasksState
+import com.pixelquest.app.ui.components.PixelDailyProgressRing
 import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
 import com.pixelquest.app.ui.components.PixelSnackbar
@@ -97,12 +98,18 @@ fun TasksScreen(
                         }
                     } else {
                         Column(modifier = Modifier.fillMaxSize()) {
+                            PixelDailyProgressRing(
+                                progress = state.completionPercentage,
+                                targetThreshold = state.targetThreshold,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
                             if (missedCount > 0) {
                                 PixelSnackbar(
                                     message = "$missedCount quest(s) missed today!",
-                                    modifier = Modifier.padding(16.dp)
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                                 )
                             }
+
                             LazyColumn(
                                 modifier = Modifier.weight(1f),
                                 contentPadding = PaddingValues(16.dp),
