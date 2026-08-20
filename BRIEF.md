@@ -246,4 +246,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 15: Expose a "today's completion %" computed value from TaskViewModel using StreakCalculator and difficulty threshold - 48aad28
 - Step 16: Build PixelDailyProgressRing showing today's completion % against the active difficulty's perfect-day threshold - 6783e7e
 - Step 17: Wire the progress indicator into the top of TasksScreen, above the task list - 0b1c696
-- Step 18: Add a "Perfect Day!" pixel celebration banner/toast shown once today's threshold is met - be36002
+- Step 18: Add a "Perfect Day!" pixel celebration banner/toast shown once today's threshold is met - ea0a4d2
+- Step 19: Add a Compose Preview for the new daily progress indicator component - a9d3b0c
