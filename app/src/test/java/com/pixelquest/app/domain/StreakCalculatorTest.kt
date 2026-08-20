@@ -50,4 +50,21 @@ class StreakCalculatorTest {
         assertTrue(StreakCalculator.isPerfectDay(logs, 3, 0.50f))
         assertFalse(StreakCalculator.isPerfectDay(logs, 3, 0.70f))
     }
+
+    @Test
+    fun isPerfectDay_exactThresholdBoundary_returnsTrue() {
+        // 7 completed out of 10 = 0.70f -> exactly meets 0.70f threshold
+        val pct = StreakCalculator.calculateCompletionPercentage(7, 10)
+        assertEquals(0.70f, pct, 0.001f)
+        assertTrue(StreakCalculator.isPerfectDay(7, 10, 0.70f))
+    }
+
+    @Test
+    fun isPerfectDay_justBelowThresholdBoundary_returnsFalse() {
+        // 6 completed out of 10 = 0.60f -> below 0.70f threshold
+        val pct = StreakCalculator.calculateCompletionPercentage(6, 10)
+        assertEquals(0.60f, pct, 0.001f)
+        assertFalse(StreakCalculator.isPerfectDay(6, 10, 0.70f))
+    }
 }
+
