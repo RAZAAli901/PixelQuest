@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
+import com.pixelquest.app.ui.components.Pixel7DayHistoryStrip
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.screens.stats.StatsViewModel
@@ -117,5 +118,9 @@ fun StatsScreen(
                 }
             }
         }
+
+        // 7-Day History Strip
+        Pixel7DayHistoryStrip(days = state.last7DaysLogs)
     }
 }
+
