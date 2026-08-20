@@ -234,4 +234,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 3: Write unit tests for StreakCalculator's perfect-day logic across varying task counts (0 tasks, 1 task, many tasks, partial completion) - 6b12bbf
 - Step 4: Define the difficulty -> perfect-day-threshold mapping (e.g. Easy = 50%, Medium = 70%, Hard = 90%, Hardest = 100%) in domain/DifficultyMode.kt, referencing DifficultyLevel from Day 2 - 8107b2f
 - Step 5: Reconcile DifficultySettingsEntity's seeded default (Medium) to match 0.7f (70%) threshold mapping in SeedDataProvider and entity - 66ebe09
-- Step 6: Create worker/StreakEvaluationWorker.kt (CoroutineWorker) intended to run once daily, shortly after midnight, to evaluate whether yesterday was a perfect day - fa8c7ec
+- Step 6: Create worker/StreakEvaluationWorker.kt (CoroutineWorker) intended to run once daily, shortly after midnight, to evaluate whether yesterday was a perfect day - 948dcb2
+- Step 7: Wire StreakEvaluationWorker to call StreakCalculator using yesterday's completion logs and the currently active difficulty threshold - 66437b6

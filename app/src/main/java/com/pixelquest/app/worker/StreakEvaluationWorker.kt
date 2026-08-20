@@ -4,12 +4,16 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.pixelquest.app.domain.StreakCalculator
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.flow.first
+import java.time.LocalDate
+
 
 @HiltWorker
 class StreakEvaluationWorker @AssistedInject constructor(
@@ -22,6 +26,19 @@ class StreakEvaluationWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
+        val targetDate = LocalDate.now().minusDays(1)
+        val tasksForDay = taskRepository.getTasksForDay(targetDate).first()
+        val logsForDay = taskCompletionRepository.getLogsForDate(targetDate).first()
+        val difficulty = difficultySettingsRepository.getCurrentDifficulty().first()
+        val threshold = difficulty?.perfectDayThreshold ?: 0.7f
+
+        val isPerfect = StreakCalculator.isPerfectDay(
+            logs = logsForDay,
+            totalTaskCount = tasksForDay.size,
+            threshold = threshold
+        )
+
         return Result.success()
     }
 }
+
