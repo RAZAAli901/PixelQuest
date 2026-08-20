@@ -227,3 +227,6 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - **Missed Task Worker**: Periodic `WorkManager` job (`MissedTaskWorker`) executes every 30 minutes under `setRequiresBatteryNotLow` constraints to auto-log uncompleted overdue tasks as `wasCompleted = false`.
 - **List UI Integration**: `TasksScreen` and `PixelTaskListItem` join today's tasks with today's completion logs to display visual status badges (`DONE` / `MISSED` / `PENDING`) and alert banner for missed quests.
 - **Total Commit Count Today**: Exactly 48 commits (Steps 1–48).
+
+## Day 5 Progress Log
+- Step 1: Create domain/StreakCalculator.kt: given a date's completion logs and total scheduled tasks for that date, compute the completion percentage - 2c5b6cd
