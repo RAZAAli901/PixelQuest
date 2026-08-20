@@ -15,12 +15,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
@@ -31,10 +35,24 @@ import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun DifficultySelectionScreen(
-    currentDifficulty: DifficultyLevel = DifficultyLevel.MEDIUM,
-    onDifficultySelected: (DifficultyLevel) -> Unit = {},
+    viewModel: DifficultyViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {}
 ) {
+    val state by viewModel.uiState.collectAsState()
+
+    if (state.showWarningDialog && state.pendingLevel != null) {
+        val target = state.pendingLevel!!
+        val targetPct = (DifficultyMode.getPerfectDayThreshold(target) * 100).toInt()
+        PixelConfirmDialog(
+            title = "CHANGE DIFFICULTY?",
+            message = "Changing difficulty mid-streak will update your perfect day target to $targetPct%. Are you sure you want to change difficulty?",
+            confirmText = "CONFIRM",
+            dismissText = "CANCEL",
+            onConfirm = { viewModel.confirmDifficultyChange() },
+            onDismiss = { viewModel.dismissWarningDialog() }
+        )
+    }
+
     Scaffold(
         containerColor = PixelBackgroundDark
     ) { innerPadding ->
@@ -59,7 +77,7 @@ fun DifficultySelectionScreen(
             )
 
             DifficultyLevel.values().forEach { level ->
-                val isSelected = level == currentDifficulty
+                val isSelected = level == state.currentLevel
                 val thresholdPct = (DifficultyMode.getPerfectDayThreshold(level) * 100).toInt()
                 val daysReq = DifficultyMode.getDaysRequiredPerLevel(level)
 
@@ -68,7 +86,7 @@ fun DifficultySelectionScreen(
                     contentPadding = 16.dp,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onDifficultySelected(level) }
+                        .clickable { viewModel.onDifficultyClicked(level) }
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
