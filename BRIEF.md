@@ -267,4 +267,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 36: Add a simple 7-day bar/strip placeholder on the Stats screen showing each of the last 7 days - fbccf66
 - Step 37: Create a shared HomeViewModel/StatsViewModel wiring StreakRepository, UserProfileRepository, and DifficultySettingsRepository - 1079393
 - Step 38: Add Compose Previews for the updated Home and Stats screen sections - 1709cff
-- Step 39: Handle a task being added/removed mid-day after completions logged — ensure perfect-day % recalculates against current count - 78474c1
+- Step 39: Handle a task being added/removed mid-day after completions logged — ensure perfect-day % recalculates against current count - 817c5ea
+- Step 40: Handle timezone/date-boundary edge cases in StreakCalculator and StreakEvaluationWorker using system default ZoneId - 3421e64

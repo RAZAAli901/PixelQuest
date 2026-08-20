@@ -26,8 +26,9 @@ class StreakEvaluationWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        val targetDate = LocalDate.now().minusDays(1)
+        val targetDate = LocalDate.now(java.time.ZoneId.systemDefault()).minusDays(1)
         val tasksForDay = taskRepository.getTasksForDay(targetDate).first()
+
         val logsForDay = taskCompletionRepository.getLogsForDate(targetDate).first()
         val difficulty = difficultySettingsRepository.getCurrentDifficulty().first()
         val threshold = difficulty?.perfectDayThreshold ?: 0.7f
