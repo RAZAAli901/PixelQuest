@@ -25,6 +25,7 @@ import com.pixelquest.app.ui.components.EmptyTasksState
 import com.pixelquest.app.ui.components.PixelDailyProgressRing
 import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
+import com.pixelquest.app.ui.components.PixelPerfectDayBanner
 import com.pixelquest.app.ui.components.PixelSnackbar
 import com.pixelquest.app.ui.components.PixelTaskListItem
 import com.pixelquest.app.ui.components.TaskItemStatus
@@ -103,12 +104,18 @@ fun TasksScreen(
                                 targetThreshold = state.targetThreshold,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                             )
+                            if (state.isPerfectDay) {
+                                PixelPerfectDayBanner(
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                                )
+                            }
                             if (missedCount > 0) {
                                 PixelSnackbar(
                                     message = "$missedCount quest(s) missed today!",
                                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                                 )
                             }
+
 
                             LazyColumn(
                                 modifier = Modifier.weight(1f),
