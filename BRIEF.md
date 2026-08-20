@@ -265,4 +265,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 34: Update the Home screen to show total points/XP from UserProfileRepository - 5664bdb
 - Step 35: Update the Day 1 placeholder Stats screen to show longest streak and the currently active difficulty - a9aa34d
 - Step 36: Add a simple 7-day bar/strip placeholder on the Stats screen showing each of the last 7 days - fbccf66
-- Step 37: Create a shared HomeViewModel/StatsViewModel wiring StreakRepository, UserProfileRepository, and DifficultySettingsRepository - 3507796
+- Step 37: Create a shared HomeViewModel/StatsViewModel wiring StreakRepository, UserProfileRepository, and DifficultySettingsRepository - 1079393
+- Step 38: Add Compose Previews for the updated Home and Stats screen sections - 40ee98e
