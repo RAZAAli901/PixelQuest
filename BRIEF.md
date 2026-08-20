@@ -250,4 +250,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 19: Add a Compose Preview for the new daily progress indicator component - a86d92e
 - Step 20: Write a unit test verifying the completion % calculation against several task/log combinations, including the exact-threshold boundary case - c135871
 - Step 21: Build DifficultySelectionScreen: four pixel-styled difficulty cards (Easy/Medium/Hard/Hardest), each showing its threshold and days-required-per-level - 81eae71
-- Step 22: Source or design a simple pixel icon per difficulty tier and add to res/drawable; log in ASSETS.md - fc92257
+- Step 22: Source or design a simple pixel icon per difficulty tier and add to res/drawable; log in ASSETS.md - 32fafc6
+- Step 23: Wire DifficultySelectionScreen to DifficultySettingsRepository — read current selection, allow choosing a new one - 13529fd
