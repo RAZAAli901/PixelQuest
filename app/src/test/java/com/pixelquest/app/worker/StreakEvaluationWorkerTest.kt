@@ -148,4 +148,29 @@ class StreakEvaluationWorkerTest {
         val streak = fakeStreakRepo.getCurrentStreak().first()
         assertEquals(3, streak?.currentStreak) // 2 + 1 = 3
     }
+
+    @Test
+    fun doWork_secondCallSameDate_isIdempotent() = runBlocking {
+        val yesterday = LocalDate.now().minusDays(1)
+        fakeStreakRepo.updateStreak(
+            StreakEntity(id = 1, currentStreak = 5, longestStreak = 5, lastCompletedDate = yesterday)
+        )
+
+        val params = mock(WorkerParameters::class.java)
+        val worker = StreakEvaluationWorker(
+            ApplicationProvider.getApplicationContext(),
+            params,
+            fakeTaskRepo,
+            fakeCompletionRepo,
+            fakeStreakRepo,
+            fakeDiffRepo
+        )
+
+        val result = worker.doWork()
+        assertEquals(ListenableWorker.Result.success(), result)
+
+        val streak = fakeStreakRepo.getCurrentStreak().first()
+        assertEquals(5, streak?.currentStreak) // did not increment again!
+    }
 }
+
