@@ -268,4 +268,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 37: Create a shared HomeViewModel/StatsViewModel wiring StreakRepository, UserProfileRepository, and DifficultySettingsRepository - 1079393
 - Step 38: Add Compose Previews for the updated Home and Stats screen sections - 1709cff
 - Step 39: Handle a task being added/removed mid-day after completions logged — ensure perfect-day % recalculates against current count - 817c5ea
-- Step 40: Handle timezone/date-boundary edge cases in StreakCalculator and StreakEvaluationWorker using system default ZoneId - 3421e64
+- Step 40: Handle timezone/date-boundary edge cases in StreakCalculator and StreakEvaluationWorker using system default ZoneId - f21b66c
+- Step 41: Add an idempotency safeguard so StreakEvaluationWorker never double-processes the same date if WorkManager retries - 2a64873

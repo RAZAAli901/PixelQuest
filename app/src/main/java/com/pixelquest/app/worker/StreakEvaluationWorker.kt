@@ -41,6 +41,11 @@ class StreakEvaluationWorker @AssistedInject constructor(
 
         val streak = streakRepository.getCurrentStreak().first() ?: com.pixelquest.app.data.local.entity.StreakEntity()
 
+        // Idempotency safeguard: if yesterday was already evaluated, skip re-evaluating
+        if (streak.lastCompletedDate == targetDate) {
+            return Result.success()
+        }
+
         if (isPerfect) {
             val newCurrent = streak.currentStreak + 1
             val newLongest = kotlin.math.max(streak.longestStreak, newCurrent)
@@ -59,10 +64,12 @@ class StreakEvaluationWorker @AssistedInject constructor(
              * Level progress (Day 6 scope) is tracked separately via totalXp/perfectDaysCount.
              */
             val updatedStreak = streak.copy(
-                currentStreak = 0
+                currentStreak = 0,
+                lastCompletedDate = targetDate
             )
             streakRepository.updateStreak(updatedStreak)
         }
+
 
 
         return Result.success()
