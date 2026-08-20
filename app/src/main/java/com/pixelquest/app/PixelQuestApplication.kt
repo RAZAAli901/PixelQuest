@@ -16,6 +16,7 @@ class PixelQuestApplication : Application() {
         super.onCreate()
         NotificationHelper.createNotificationChannel(this)
         scheduleMissedTaskWorker()
+        scheduleStreakEvaluationWorker()
     }
 
     private fun scheduleMissedTaskWorker() {
@@ -33,4 +34,21 @@ class PixelQuestApplication : Application() {
             workRequest
         )
     }
+
+    private fun scheduleStreakEvaluationWorker() {
+        val now = java.time.LocalDateTime.now()
+        val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay().plusMinutes(5)
+        val initialDelayMinutes = java.time.Duration.between(now, nextMidnight).toMinutes()
+
+        val workRequest = PeriodicWorkRequestBuilder<com.pixelquest.app.worker.StreakEvaluationWorker>(1, TimeUnit.DAYS)
+            .setInitialDelay(initialDelayMinutes, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "StreakEvaluationWorkerPeriodic",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
+    }
 }
+
