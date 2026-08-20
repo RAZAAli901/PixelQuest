@@ -38,7 +38,22 @@ class StreakEvaluationWorker @AssistedInject constructor(
             threshold = threshold
         )
 
+        val streak = streakRepository.getCurrentStreak().first() ?: com.pixelquest.app.data.local.entity.StreakEntity()
+
+        if (isPerfect) {
+            val newCurrent = streak.currentStreak + 1
+            val newLongest = kotlin.math.max(streak.longestStreak, newCurrent)
+            val updatedStreak = streak.copy(
+                currentStreak = newCurrent,
+                longestStreak = newLongest,
+                lastCompletedDate = targetDate,
+                perfectDaysCount = streak.perfectDaysCount + 1
+            )
+            streakRepository.updateStreak(updatedStreak)
+        }
+
         return Result.success()
     }
 }
+
 
