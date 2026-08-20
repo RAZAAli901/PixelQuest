@@ -36,6 +36,13 @@
 - `ic_cat_chores.png`: 16x16 pixel-art chores category icon
 - `ic_cat_other.png`: 16x16 pixel-art custom/other category icon
 
+### Difficulty Tier Icons (`res/drawable/`)
+- `ic_diff_easy.xml`: Green shield icon for Easy difficulty
+- `ic_diff_medium.xml`: Blue shield icon for Medium difficulty
+- `ic_diff_hard.xml`: Orange shield icon for Hard difficulty
+- `ic_diff_hardest.xml`: Red shield icon for Hardest difficulty
+
 ### Fonts (`res/font/`)
 - `press_start_2p.ttf`: Open-source 8-bit retro font by CodeMan38 (SIL Open Font License) via Google Fonts
+
 
