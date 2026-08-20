@@ -229,4 +229,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - **Total Commit Count Today**: Exactly 48 commits (Steps 1–48).
 
 ## Day 5 Progress Log
-- Step 1: Create domain/StreakCalculator.kt: given a date's completion logs and total scheduled tasks for that date, compute the completion percentage - 2c5b6cd
+- Step 1: Create domain/StreakCalculator.kt: given a date's completion logs and total scheduled tasks for that date, compute the completion percentage - 1f6e781
+- Step 2: Add logic to StreakCalculator to determine whether a given date counts as a "perfect day" by comparing its completion percentage against a supplied threshold - dcfcef0
