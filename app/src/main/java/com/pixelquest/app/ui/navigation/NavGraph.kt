@@ -23,6 +23,7 @@ sealed class Screen(val route: String) {
     object Tasks : Screen("tasks")
     object Stats : Screen("stats")
     object Profile : Screen("profile")
+    object DifficultySelection : Screen("difficulty_selection")
     object CreateTask : Screen("create_task")
     object EditTask : Screen("edit_task/{taskId}") {
         fun createRoute(taskId: Long) = "edit_task/$taskId"
@@ -90,7 +91,17 @@ fun PixelNavHost(
             StatsScreen()
         }
         composable(Screen.Profile.route) {
-            ProfileScreen()
+            ProfileScreen(
+                onNavigateToDifficulty = {
+                    navController.navigate(Screen.DifficultySelection.route)
+                }
+            )
+        }
+        composable(Screen.DifficultySelection.route) {
+            com.pixelquest.app.ui.screens.difficulty.DifficultySelectionScreen(
+                onBackClick = { navController.popBackStack() }
+            )
         }
     }
 }
+
