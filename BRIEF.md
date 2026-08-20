@@ -248,4 +248,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 17: Wire the progress indicator into the top of TasksScreen, above the task list - 0b1c696
 - Step 18: Add a "Perfect Day!" pixel celebration banner/toast shown once today's threshold is met - ea0a4d2
 - Step 19: Add a Compose Preview for the new daily progress indicator component - a86d92e
-- Step 20: Write a unit test verifying the completion % calculation against several task/log combinations, including the exact-threshold boundary case - 64e97dd
+- Step 20: Write a unit test verifying the completion % calculation against several task/log combinations, including the exact-threshold boundary case - c135871
+- Step 21: Build DifficultySelectionScreen: four pixel-styled difficulty cards (Easy/Medium/Hard/Hardest), each showing its threshold and days-required-per-level - f6c0881
