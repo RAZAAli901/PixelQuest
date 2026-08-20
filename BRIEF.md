@@ -236,4 +236,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 5: Reconcile DifficultySettingsEntity's seeded default (Medium) to match 0.7f (70%) threshold mapping in SeedDataProvider and entity - 66ebe09
 - Step 6: Create worker/StreakEvaluationWorker.kt (CoroutineWorker) intended to run once daily, shortly after midnight, to evaluate whether yesterday was a perfect day - 948dcb2
 - Step 7: Wire StreakEvaluationWorker to call StreakCalculator using yesterday's completion logs and the currently active difficulty threshold - 046bb2c
-- Step 8: Add increment logic: if yesterday was a perfect day, increment StreakEntity.currentStreak and update longestStreak if new value exceeds it - a83ab0e
+- Step 8: Add increment logic: if yesterday was a perfect day, increment StreakEntity.currentStreak and update longestStreak if new value exceeds it - 22e1617
+- Step 9: Add reset logic: if yesterday was not a perfect day, reset StreakEntity.currentStreak to 0 (streak-break path) - 62372b5

@@ -50,10 +50,16 @@ class StreakEvaluationWorker @AssistedInject constructor(
                 perfectDaysCount = streak.perfectDaysCount + 1
             )
             streakRepository.updateStreak(updatedStreak)
+        } else {
+            val updatedStreak = streak.copy(
+                currentStreak = 0
+            )
+            streakRepository.updateStreak(updatedStreak)
         }
 
         return Result.success()
     }
 }
+
 
 
