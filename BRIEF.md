@@ -252,4 +252,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 21: Build DifficultySelectionScreen: four pixel-styled difficulty cards (Easy/Medium/Hard/Hardest), each showing its threshold and days-required-per-level - 81eae71
 - Step 22: Source or design a simple pixel icon per difficulty tier and add to res/drawable; log in ASSETS.md - 32fafc6
 - Step 23: Wire DifficultySelectionScreen to DifficultySettingsRepository — read current selection, allow choosing a new one - 777c9d7
-- Step 24: Add a confirmation PixelDialog warning that changing difficulty mid-streak may affect the current streak - 8266757
+- Step 24: Add a confirmation PixelDialog warning that changing difficulty mid-streak may affect the current streak - 7bc4a6a
+- Step 25: Wire the confirmation dialog so the difficulty change is only applied to DifficultySettingsEntity after the user confirms - 6e8c783
