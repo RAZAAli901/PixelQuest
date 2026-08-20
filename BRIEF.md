@@ -238,4 +238,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 7: Wire StreakEvaluationWorker to call StreakCalculator using yesterday's completion logs and the currently active difficulty threshold - 046bb2c
 - Step 8: Add increment logic: if yesterday was a perfect day, increment StreakEntity.currentStreak and update longestStreak if new value exceeds it - 22e1617
 - Step 9: Add reset logic: if yesterday was not a perfect day, reset StreakEntity.currentStreak to 0 (streak-break path) - 42025ac
-- Step 10: Schedule StreakEvaluationWorker as a daily periodic WorkManager request from PixelQuestApplication, with an initial delay computed to align near midnight local time - 38d896a
+- Step 10: Schedule StreakEvaluationWorker as a daily periodic WorkManager request from PixelQuestApplication, with an initial delay computed to align near midnight local time - 80d49b2
+- Step 11: Update domain/PointsCalculator.kt (from Day 4) to replace streak-bonus TODO with real logic scaling bonus points with StreakEntity.currentStreak - 39f1452
