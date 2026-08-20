@@ -26,7 +26,7 @@ object SeedDataProvider {
         return DifficultySettingsEntity(
             id = 1,
             difficultyLevel = DifficultyLevel.MEDIUM,
-            perfectDayThreshold = 0.8f,
+            perfectDayThreshold = 0.7f,
             daysRequiredPerLevel = 7
         )
     }

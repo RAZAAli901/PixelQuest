@@ -9,6 +9,7 @@ data class DifficultySettingsEntity(
     @PrimaryKey
     val id: Long = 1,
     val difficultyLevel: DifficultyLevel = DifficultyLevel.MEDIUM,
-    val perfectDayThreshold: Float = 0.8f,
+    val perfectDayThreshold: Float = 0.7f,
     val daysRequiredPerLevel: Int = 7
 )
+
