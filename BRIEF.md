@@ -270,4 +270,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 39: Handle a task being added/removed mid-day after completions logged — ensure perfect-day % recalculates against current count - 817c5ea
 - Step 40: Handle timezone/date-boundary edge cases in StreakCalculator and StreakEvaluationWorker using system default ZoneId - f21b66c
 - Step 41: Add an idempotency safeguard so StreakEvaluationWorker never double-processes the same date if WorkManager retries - 2b8c358
-- Step 42: Write unit tests for the idempotency safeguard and the date-boundary handling - e677b2c
+- Step 42: Write unit tests for the idempotency safeguard and the date-boundary handling - 0ba4f6f
+- Step 43: Write an end-to-end integration test simulating 3 consecutive perfect days and verifying streak increments to 3 - 726128c
