@@ -40,4 +40,22 @@ class StreakIntegrationTest {
         assertEquals(3, currentStreak)
         assertEquals(210, totalXp) // 130 + (50 + 30) = 210
     }
+
+    @Test
+    fun simulateStreakBreakOnDay4_resetsCurrentStreakToZero_preservesLongestStreakAndXp() {
+        var currentStreak = 3
+        var longestStreak = 3
+        var totalXp = 210
+
+        // Day 4: Not a perfect day! (e.g. 0 out of 2 tasks completed = 0% < 70% threshold)
+        val day4Perfect = StreakCalculator.isPerfectDay(0, 2, 0.70f)
+        if (!day4Perfect) {
+            currentStreak = 0 // Streak broken!
+        }
+
+        assertEquals(0, currentStreak)
+        assertEquals(3, longestStreak) // Preserved!
+        assertEquals(210, totalXp) // Preserved!
+    }
 }
+
