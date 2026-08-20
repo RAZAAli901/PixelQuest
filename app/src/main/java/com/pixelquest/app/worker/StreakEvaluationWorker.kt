@@ -51,11 +51,18 @@ class StreakEvaluationWorker @AssistedInject constructor(
             )
             streakRepository.updateStreak(updatedStreak)
         } else {
+            /**
+             * STREAK-BREAK RULE:
+             * Breaking a streak resets currentStreak to 0 ONLY.
+             * longestStreak, perfectDaysCount, and totalXp are strictly preserved.
+             * Level progress (Day 6 scope) is tracked separately via totalXp/perfectDaysCount.
+             */
             val updatedStreak = streak.copy(
                 currentStreak = 0
             )
             streakRepository.updateStreak(updatedStreak)
         }
+
 
         return Result.success()
     }

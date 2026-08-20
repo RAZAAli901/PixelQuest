@@ -255,4 +255,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 24: Add a confirmation PixelDialog warning that changing difficulty mid-streak may affect the current streak - 7bc4a6a
 - Step 25: Wire the confirmation dialog so the difficulty change is only applied to DifficultySettingsEntity after the user confirms - f707d2a
 - Step 26: Add the DifficultySelectionScreen nav route, accessible from the Day 1 Profile placeholder screen - 7a232a9
-- Step 27: Write unit tests for the difficulty-change repository update logic - 23ef989
+- Step 27: Write unit tests for the difficulty-change repository update logic - b311137
+- Step 28: Document the streak-break rule explicitly in code comment and BRIEF.md (resets currentStreak to 0 only; longestStreak and totalXp preserved) - e2f679d
