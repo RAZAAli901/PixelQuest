@@ -242,4 +242,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 11: Update domain/PointsCalculator.kt (from Day 4) to replace streak-bonus TODO with real logic scaling bonus points with StreakEntity.currentStreak - f22adff
 - Step 12: Wire the streak bonus into the "Yes" completion path (DidYouDoItScreen and notification action flow) so completions during active streak award bonus points - a8cc85e
 - Step 13: Write unit tests for the new streak-bonus point calculation (streak 0, low streak, high streak) - 86a465e
-- Step 14: Manual QA: simulate completing tasks across several consecutive days and verify bonus points scale as expected - f2be725
+- Step 14: Manual QA: simulate completing tasks across several consecutive days and verify bonus points scale as expected - a4d390d
+- Step 15: Expose a "today's completion %" computed value from TaskViewModel using StreakCalculator and difficulty threshold - 10e1aba
