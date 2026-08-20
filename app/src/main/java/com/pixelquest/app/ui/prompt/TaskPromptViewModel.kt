@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.domain.PointsCalculator
+import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskPromptViewModel @Inject constructor(
     private val taskCompletionRepository: TaskCompletionRepository,
-    private val userProfileRepository: UserProfileRepository
+    private val userProfileRepository: UserProfileRepository,
+    private val streakRepository: StreakRepository
 ) : ViewModel() {
 
     fun onTaskCompleted(taskId: Long, wasCompleted: Boolean, onDone: () -> Unit) {
@@ -28,8 +30,10 @@ class TaskPromptViewModel @Inject constructor(
             taskCompletionRepository.logTaskCompletion(log)
             if (wasCompleted) {
                 val profile = userProfileRepository.getUserProfile().first()
+                val streak = streakRepository.getCurrentStreak().first()
+                val currentStreakCount = streak?.currentStreak ?: 0
                 if (profile != null) {
-                    val earnedXp = PointsCalculator.calculateXpForTask()
+                    val earnedXp = PointsCalculator.calculateXpForTask(currentStreak = currentStreakCount)
                     val updated = profile.copy(totalXp = profile.totalXp + earnedXp)
                     userProfileRepository.updateUserProfile(updated)
                 }

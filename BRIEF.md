@@ -239,4 +239,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 8: Add increment logic: if yesterday was a perfect day, increment StreakEntity.currentStreak and update longestStreak if new value exceeds it - 22e1617
 - Step 9: Add reset logic: if yesterday was not a perfect day, reset StreakEntity.currentStreak to 0 (streak-break path) - 42025ac
 - Step 10: Schedule StreakEvaluationWorker as a daily periodic WorkManager request from PixelQuestApplication, with an initial delay computed to align near midnight local time - 80d49b2
-- Step 11: Update domain/PointsCalculator.kt (from Day 4) to replace streak-bonus TODO with real logic scaling bonus points with StreakEntity.currentStreak - 39f1452
+- Step 11: Update domain/PointsCalculator.kt (from Day 4) to replace streak-bonus TODO with real logic scaling bonus points with StreakEntity.currentStreak - f22adff
+- Step 12: Wire the streak bonus into the "Yes" completion path (DidYouDoItScreen and notification action flow) so completions during active streak award bonus points - d948f6d
