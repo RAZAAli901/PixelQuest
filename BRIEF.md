@@ -230,4 +230,5 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 
 ## Day 5 Progress Log
 - Step 1: Create domain/StreakCalculator.kt: given a date's completion logs and total scheduled tasks for that date, compute the completion percentage - 1f6e781
-- Step 2: Add logic to StreakCalculator to determine whether a given date counts as a "perfect day" by comparing its completion percentage against a supplied threshold - dcfcef0
+- Step 2: Add logic to StreakCalculator to determine whether a given date counts as a "perfect day" by comparing its completion percentage against a supplied threshold - 9620d36
+- Step 3: Write unit tests for StreakCalculator's perfect-day logic across varying task counts (0 tasks, 1 task, many tasks, partial completion) - a1cc162
