@@ -274,4 +274,18 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 43: Write an end-to-end integration test simulating 3 consecutive perfect days and verifying streak increments to 3 - 52473b0
 - Step 44: Write a second integration test simulating a streak break on day 4 and verifying currentStreak resets to 0, longestStreak remains 3 - 6de9057
 - Step 45: Run all unit and integration tests written today; fix any failures - 35948fa
-- Step 46: Perform a manual QA pass across all screens (Home, Tasks, Stats, Profile/Difficulty); fix visual bugs - c71eb58
+- Step 46: Perform a manual QA pass across all screens (Home, Tasks, Stats, Profile/Difficulty); fix visual bugs - 8b4e39c
+- Step 47: Append a concise summary of Day 5 work to BRIEF.md under a ## Day 5 heading - 4306cdd
+
+## Day 5 — Points, Streaks & Difficulty System Summary
+- **Streak Domain Logic**: Created `StreakCalculator` calculating daily completion percentage and perfect day achievement against difficulty thresholds.
+- **Difficulty Modes**: Implemented `DifficultyMode` mapping Easy (50%), Medium (70%), Hard (90%), and Hardest (100%) thresholds with corresponding level days requirements.
+- **Automated WorkManager Evaluation**: Created `StreakEvaluationWorker` scheduled daily at midnight to evaluate yesterday's tasks, increment `currentStreak`/`longestStreak`, or reset `currentStreak` to 0 while preserving `longestStreak` and total XP.
+- **Streak-Scaled Bonus Points**: Replaced TODO in `PointsCalculator` with `streakBonus = currentStreak * 10` XP per completed task, wired through `TaskPromptViewModel` and `TaskActionReceiver`.
+- **UI Integration**:
+  - `PixelDailyProgressRing`: Displays real-time daily progress ring and threshold target at top of `TasksScreen`.
+  - `PixelPerfectDayBanner` & `PixelStreakBrokenBanner`: Displays celebration banner upon reaching threshold and break notification upon reset.
+  - `DifficultySelectionScreen`: Pixel-styled difficulty card selector with confirmation `PixelConfirmDialog`.
+  - `HomeScreen` & `StatsScreen`: Displays active streak with pixel flame icon, total XP, longest streak, active difficulty shield, and 7-day history strip.
+- **Edge Cases & Testing**: Handled mid-day task count changes, timezone boundary alignment (`ZoneId.systemDefault()`), worker idempotency via `lastCompletedDate`, boundary unit tests, and 3-day/4-day integration tests.
+
