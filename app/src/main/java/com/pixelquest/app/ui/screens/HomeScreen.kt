@@ -115,9 +115,11 @@ fun HomeScreen(
         // Level XP Bar
         val perfectDays = state.profile?.perfectDaysTowardNextLevel ?: 0
         val daysRequired = state.difficulty?.daysRequiredPerLevel ?: 7
+        val userLevel = state.profile?.level ?: 1
         PixelXpBar(
             currentProgress = perfectDays,
             maxProgress = daysRequired,
+            level = userLevel,
             modifier = Modifier.fillMaxWidth()
         )
     }

@@ -21,37 +21,71 @@ import com.pixelquest.app.ui.theme.PixelGreen
 import com.pixelquest.app.ui.theme.PixelQuestTypography
 import com.pixelquest.app.ui.theme.PixelSurface
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import com.pixelquest.app.ui.theme.PixelGold
+
 @Composable
 fun PixelXpBar(
     currentProgress: Int,
     maxProgress: Int,
     modifier: Modifier = Modifier,
+    level: Int = 1,
     progressFraction: Float = if (maxProgress > 0) (currentProgress.toFloat() / maxProgress).coerceIn(0f, 1f) else 0f
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(24.dp)
-            .clip(RoundedCornerShape(4.dp))
-            .background(PixelSurface)
-            .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
-            .padding(2.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier.fillMaxWidth()
     ) {
+        // Level Badge
         Box(
             modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(fraction = progressFraction)
-                .clip(RoundedCornerShape(2.dp))
-                .background(PixelGreen)
-        )
-        Text(
-            text = "$currentProgress / $maxProgress DAYS",
-            style = PixelQuestTypography.bodySmall.copy(
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            ),
-            modifier = Modifier.align(Alignment.Center)
-        )
+                .height(28.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(PixelGold)
+                .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
+                .padding(horizontal = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "LVL $level",
+                style = PixelQuestTypography.bodySmall.copy(
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        // Progress Bar
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(24.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(PixelSurface)
+                .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
+                .padding(2.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(fraction = progressFraction)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(PixelGreen)
+            )
+            Text(
+                text = "$currentProgress / $maxProgress DAYS",
+                style = PixelQuestTypography.bodySmall.copy(
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                ),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 }
