@@ -22,6 +22,7 @@ import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.PixelXpBar
 import com.pixelquest.app.ui.screens.profile.ProfileViewModel
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
@@ -114,6 +115,16 @@ fun ProfileScreen(
                 }
             }
         }
+
+        // Level XP Bar
+        val perfectDays = profile?.perfectDaysTowardNextLevel ?: 0
+        val daysRequired = difficulty?.daysRequiredPerLevel ?: 7
+        PixelXpBar(
+            currentProgress = perfectDays,
+            maxProgress = daysRequired,
+            level = level,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         PixelButton(
             text = "🛡️ CHANGE DIFFICULTY",
