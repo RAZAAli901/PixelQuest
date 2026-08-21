@@ -15,28 +15,42 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+import com.pixelquest.app.domain.LevelUpSignalManager
+
 data class HomeUiState(
     val profile: UserProfileEntity? = null,
     val streak: StreakEntity? = null,
-    val difficulty: DifficultySettingsEntity? = null
+    val difficulty: DifficultySettingsEntity? = null,
+    val pendingLevelUp: Int? = null
 )
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val streakRepository: StreakRepository,
     private val userProfileRepository: UserProfileRepository,
-    private val difficultySettingsRepository: DifficultySettingsRepository
+    private val difficultySettingsRepository: DifficultySettingsRepository,
+    private val levelUpSignalManager: LevelUpSignalManager
 ) : ViewModel() {
 
     val uiState: StateFlow<HomeUiState> = combine(
-        userProfileRepository.getUserProfile(),
+        userProfileRepository.getProfile(),
         streakRepository.getCurrentStreak(),
-        difficultySettingsRepository.getCurrentDifficulty()
-    ) { profile, streak, difficulty ->
-        HomeUiState(profile = profile, streak = streak, difficulty = difficulty)
+        difficultySettingsRepository.getCurrentDifficulty(),
+        levelUpSignalManager.pendingLevelUp
+    ) { profile, streak, difficulty, pendingLevelUp ->
+        HomeUiState(
+            profile = profile,
+            streak = streak,
+            difficulty = difficulty,
+            pendingLevelUp = pendingLevelUp
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = HomeUiState()
     )
+
+    fun dismissLevelUpCelebration() {
+        levelUpSignalManager.clearPendingLevelUp()
+    }
 }

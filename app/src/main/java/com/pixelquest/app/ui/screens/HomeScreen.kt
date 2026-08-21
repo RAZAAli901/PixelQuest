@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelXpBar
+import com.pixelquest.app.ui.screens.leveling.LevelUpCelebrationScreen
 import com.pixelquest.app.ui.screens.home.HomeViewModel
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
@@ -121,6 +122,14 @@ fun HomeScreen(
             maxProgress = daysRequired,
             level = userLevel,
             modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    // Pending Level Up Celebration Overlay
+    state.pendingLevelUp?.let { level ->
+        LevelUpCelebrationScreen(
+            level = level,
+            onDismiss = { viewModel.dismissLevelUpCelebration() }
         )
     }
 }
