@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
 
+import com.pixelquest.app.domain.repository.UserProfileRepository
+
 @HiltWorker
 class StreakEvaluationWorker @AssistedInject constructor(
     @Assisted appContext: Context,
@@ -22,7 +24,8 @@ class StreakEvaluationWorker @AssistedInject constructor(
     private val taskRepository: TaskRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
     private val streakRepository: StreakRepository,
-    private val difficultySettingsRepository: DifficultySettingsRepository
+    private val difficultySettingsRepository: DifficultySettingsRepository,
+    private val userProfileRepository: UserProfileRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -56,6 +59,13 @@ class StreakEvaluationWorker @AssistedInject constructor(
                 perfectDaysCount = streak.perfectDaysCount + 1
             )
             streakRepository.updateStreak(updatedStreak)
+
+            val profile = userProfileRepository.getProfile().first()
+            if (profile != null) {
+                userProfileRepository.updateProfile(
+                    profile.copy(perfectDaysTowardNextLevel = profile.perfectDaysTowardNextLevel + 1)
+                )
+            }
         } else {
             /**
              * STREAK-BREAK RULE:
