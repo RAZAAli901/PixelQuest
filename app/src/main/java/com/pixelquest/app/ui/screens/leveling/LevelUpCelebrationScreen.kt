@@ -21,11 +21,30 @@ import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelQuestTypography
 import com.pixelquest.app.ui.theme.PixelTextWhite
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.scale
+
 @Composable
 fun LevelUpCelebrationScreen(
     level: Int,
     onDismiss: () -> Unit = {}
 ) {
+    val transition = rememberInfiniteTransition(label = "level_up_bounce")
+    val scale by transition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 1.12f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(600),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -34,7 +53,9 @@ fun LevelUpCelebrationScreen(
     ) {
         PixelCard(
             variant = PixelPanelVariant.YELLOW,
-            modifier = Modifier.padding(24.dp)
+            modifier = Modifier
+                .padding(24.dp)
+                .scale(scale)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
