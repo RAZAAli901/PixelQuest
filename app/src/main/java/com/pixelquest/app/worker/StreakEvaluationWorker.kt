@@ -18,6 +18,9 @@ import java.time.LocalDate
 import com.pixelquest.app.domain.LevelCalculator
 import com.pixelquest.app.domain.repository.UserProfileRepository
 
+import com.pixelquest.app.data.local.entity.LevelHistoryEntity
+import com.pixelquest.app.domain.repository.LevelHistoryRepository
+
 @HiltWorker
 class StreakEvaluationWorker @AssistedInject constructor(
     @Assisted appContext: Context,
@@ -26,7 +29,8 @@ class StreakEvaluationWorker @AssistedInject constructor(
     private val taskCompletionRepository: TaskCompletionRepository,
     private val streakRepository: StreakRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
-    private val userProfileRepository: UserProfileRepository
+    private val userProfileRepository: UserProfileRepository,
+    private val levelHistoryRepository: LevelHistoryRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -66,10 +70,18 @@ class StreakEvaluationWorker @AssistedInject constructor(
                 val newProgress = profile.perfectDaysTowardNextLevel + 1
                 val daysRequired = difficulty?.daysRequiredPerLevel ?: 7
                 if (LevelCalculator.shouldLevelUp(newProgress, daysRequired)) {
+                    val newLevel = profile.level + 1
                     userProfileRepository.updateProfile(
                         profile.copy(
-                            level = profile.level + 1,
+                            level = newLevel,
                             perfectDaysTowardNextLevel = LevelCalculator.getPostLevelUpProgress()
+                        )
+                    )
+                    levelHistoryRepository.insertLevelHistory(
+                        LevelHistoryEntity(
+                            level = newLevel,
+                            achievedDate = System.currentTimeMillis(),
+                            difficultyAtTimeOfLevelUp = difficulty?.difficultyLevel?.name ?: "MEDIUM"
                         )
                     )
                 } else {
