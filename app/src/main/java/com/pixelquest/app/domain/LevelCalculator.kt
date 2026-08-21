@@ -17,4 +17,12 @@ object LevelCalculator {
      * maintaining consistency with Day 5's "no fractional state" design rule.
      */
     fun getPostLevelUpProgress(): Int = 0
+
+    /**
+     * MID-PROGRESS DIFFICULTY-SWITCH BEHAVIOR:
+     * When switching difficulty mid-level, perfectDaysTowardNextLevel carries over strictly as a raw count.
+     * The target threshold immediately updates to the new difficulty's daysRequiredPerLevel.
+     * If current count already equals or exceeds the new target (e.g. 5 days when switching from Medium(7) to Easy(3)),
+     * the next daily evaluation immediately triggers a level-up, maintaining continuity without progress erasure.
+     */
 }
