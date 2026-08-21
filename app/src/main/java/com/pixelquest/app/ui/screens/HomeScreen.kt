@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.PixelXpBar
 import com.pixelquest.app.ui.screens.home.HomeViewModel
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
@@ -110,5 +111,14 @@ fun HomeScreen(
                 }
             }
         }
+
+        // Level XP Bar
+        val perfectDays = state.profile?.perfectDaysTowardNextLevel ?: 0
+        val daysRequired = state.difficulty?.daysRequiredPerLevel ?: 7
+        PixelXpBar(
+            currentProgress = perfectDays,
+            maxProgress = daysRequired,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
