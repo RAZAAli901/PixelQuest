@@ -71,11 +71,26 @@ fun LevelHistoryScreenContent(
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "No levels earned yet — complete perfect days to level up!",
-                    style = PixelTypography.bodyMedium,
-                    color = PixelTextWhite
-                )
+                PixelCard(
+                    variant = PixelPanelVariant.YELLOW,
+                    modifier = Modifier.fillMaxWidth().padding(16.dp)
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(24.dp)
+                    ) {
+                        Text(
+                            text = "📜",
+                            style = PixelTypography.displayMedium
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "No levels earned yet — complete perfect days to level up!",
+                            style = PixelTypography.bodyMedium,
+                            color = PixelTextWhite
+                        )
+                    }
+                }
             }
         } else {
             LazyColumn(
