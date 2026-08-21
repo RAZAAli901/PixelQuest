@@ -290,3 +290,119 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
   - `HomeScreen` & `StatsScreen`: Displays active streak with pixel flame icon, total XP, longest streak, active difficulty shield, and 7-day history strip.
 - **Edge Cases & Testing**: Handled mid-day task count changes, timezone boundary alignment (`ZoneId.systemDefault()`), worker idempotency via `lastCompletedDate`, boundary unit tests, and 3-day/4-day integration tests.
 
+## Day 6 Progress Log
+- Step 1: Add a perfectDaysTowardNextLevel field to UserProfileEntity - e95cd8f
+- Step 2: Create a Room Migration (bump AppDatabase version) adding the new column with a default of 0 - 0a43003
+- Step 3: Create LevelHistoryEntity (id, level, achievedDate, difficultyAtTimeOfLevelUp) - 2bc105a
+- Step 4: Create LevelHistoryDao (insert, getAllHistory() as Flow) - acd6e8b
+- Step 5: Register LevelHistoryEntity/LevelHistoryDao on AppDatabase as part of the same version bump from step 2 - d184905
+- Step 6: Create LevelHistoryRepository interface + impl, and wire it through Hilt's DaoModule/RepositoryModule - db63d20
+- Step 7: Create domain/LevelCalculator.kt to determine whether level-up should trigger - a485781
+- Step 8: Decide and implement post-level-up reset behavior (resets to 0, no partial carryover) - ce616e3
+- Step 9: Update StreakEvaluationWorker to increment perfectDaysTowardNextLevel on perfect days - 90313d8
+- Step 10: Wire StreakEvaluationWorker to call LevelCalculator after incrementing, triggering a level-up if the threshold is met - ec0b962
+- Step 11: Write unit tests for LevelCalculator across all four difficulty thresholds - 710acfc
+- Step 12: Implement level-up execution (increment level, reset progress to 0) in UserProfileRepository - 7ed6d9b
+- Step 13: Insert a LevelHistoryEntity record on each level-up - 3db8c8e
+- Step 14: Add a pending level-up signal mechanism (LevelUpSignalManager) so UI can detect background level-ups - d16c901
+- Step 15: Write unit tests for the full level-up execution + history-logging flow - abb7652
+- Step 16: Manual QA: simulate reaching perfect-day threshold and verify level, history entry, and signal - 38b7a25
+- Step 17: Build PixelXpBar composable: a segmented pixel progress bar showing perfectDaysTowardNextLevel / daysRequiredPerLevel - e369d44
+- Step 18: Wire PixelXpBar into the Home screen near streak/points display - 70a6d1a
+- Step 19: Add a small pixel level-badge showing the current level number next to the XP bar - 7162197
+- Step 20: Add a Compose Preview for PixelXpBar at multiple fill states (0%, ~50%, 100%) - 122d2b7
+- Step 21: Add an animated fill transition (animateFloatAsState) so the bar smoothly fills when progress changes - 4ce1373
+- Step 22: Build LevelUpCelebrationScreen full-screen pixel-styled overlay with LEVEL UP! banner - 01e83bc
+- Step 23: Add a simple pixel celebration animation (bouncing/scaling level badge) - 824d588
+- Step 24: Add a Continue pixel button that dismisses the celebration screen - be1516f
+- Step 25: Wire app launch/resume logic to check pending-level-up signal and show LevelUpCelebrationScreen - fa6ac5e
+- Step 26: Add a sound-effect hook placeholder for the level-up moment (clearly marked TODO) - e2f9900
+- Step 27: Add Compose Preview and test verifying LevelUpCelebrationScreen dismiss clears pending signal - 032313f
+- Step 28: Replace Day 1 placeholder Profile screen with real ProfileViewModel wiring UserProfileRepository - 47f5ed3
+- Step 29: Display current level, total XP, current difficulty, and current streak on Profile screen - 9fc74d0
+- Step 30: Add a placeholder pixel avatar/character area on the Profile screen - d829b08
+- Step 31: Wire PixelXpBar into the Profile screen as well as Home - 20f721d
+- Step 32: Add a Compose Preview for the updated Profile screen - 6c99406
+- Step 33: Build LevelHistoryScreen: a scrollable pixel-styled list of past level-ups - 960fee3
+- Step 34: Wire LevelHistoryScreen to LevelHistoryRepository via LevelHistoryViewModel - 0f5d74e
+- Step 35: Add an empty state for LevelHistoryScreen (No levels earned yet) - 8d47a04
+- Step 36: Add the LevelHistoryScreen nav route, accessible from the Profile screen - ebc1089
+- Step 37: Write a UI test for LevelHistoryScreen covering both populated and empty states - 6548f32
+- Step 38: Decide and document behavior when difficulty changes mid-progress (raw count carries over) - 23127a0
+- Step 39: Update difficulty-change warning dialog to also mention effect on level progress - 4f183b6
+- Step 40: Update LevelCalculator/StreakEvaluationWorker to re-evaluate against new difficulty daysRequiredPerLevel - e7ae014
+- Step 41: Write unit tests covering a difficulty switch that happens mid-progress-toward-level - d2d5a01
+- Step 42: End-to-end integration test: seed tasks -> complete perfect day -> verify level-up & history - 4fb1d29
+- Step 43: Manual QA verification of the XP bar rendering correctly on Home and Profile screens - 8c1444e
+- Step 44: Manual QA verification of celebration overlay lifecycle (shown once, cleared after Continue) - d9dac7e
+- Step 45: Manual QA verification of level history log persistence across app restarts - 510654b
+- Step 46: Document all Day 6 architectural decisions, data models, Room migration details, and edge-case behavior in BRIEF.md
+
+### Day 6 Technical Documentation & Architectural Summary
+
+#### 1. Data Layer & Migration
+- **UserProfileEntity Extension**: Added `perfectDaysTowardNextLevel: Int = 0`.
+- **LevelHistoryEntity & DAO**: Added Room entity `LevelHistoryEntity` storing `id`, `level`, `achievedDate`, and `difficultyAtTimeOfLevelUp`.
+- **Room Migration (MIGRATION_1_2)**: Bumps Database version from 1 to 2. Executes:
+  - `ALTER TABLE user_profile ADD COLUMN perfectDaysTowardNextLevel INTEGER NOT NULL DEFAULT 0;`
+  - `CREATE TABLE IF NOT EXISTS level_history (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, level INTEGER NOT NULL, achievedDate INTEGER NOT NULL, difficultyAtTimeOfLevelUp TEXT NOT NULL);`
+
+#### 2. Level Progression & Domain Rules
+- **Decoupled Streak & Level Progress**: Level progress (`perfectDaysTowardNextLevel`) is tracked independently of raw streak (`StreakEntity.currentStreak`). Breaking a streak resets `currentStreak` to 0 but **never erases** `perfectDaysTowardNextLevel`.
+- **Threshold Requirements**:
+  - EASY: 3 perfect days per level.
+  - MEDIUM: 7 perfect days per level.
+  - HARD: 14 perfect days per level.
+  - HARDEST: 30 perfect days per level.
+- **Post-Level-Up Reset**: When a level up triggers, `perfectDaysTowardNextLevel` resets to 0 (no fractional carryover).
+- **Mid-Progress Difficulty Switch**: When difficulty changes mid-progress, `perfectDaysTowardNextLevel` carries over as a raw integer. Target requirement immediately updates to the new difficulty's `daysRequiredPerLevel`. If raw count meets/exceeds the new threshold, next evaluation triggers level-up.
+
+#### 3. Signal & UI Celebration Overlay
+- **LevelUpSignalManager**: Emits pending level-up signals via `SharedPreferences` + `StateFlow<Int?>`. When `StreakEvaluationWorker` executes level-up in background, it sets the pending level. `HomeViewModel` detects this signal on launch/resume and overlays `LevelUpCelebrationScreen`. Tapping `CONTINUE` clears the pending signal so celebration overlay renders exactly once.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
