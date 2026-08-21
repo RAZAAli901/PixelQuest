@@ -27,6 +27,14 @@ import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelGreen
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.sp
+import com.pixelquest.app.ui.theme.PixelSurface
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
 
@@ -59,6 +67,23 @@ fun ProfileScreen(
             style = PixelTypography.titleLarge,
             color = PixelGold
         )
+
+        // Placeholder Pixel Avatar Frame
+        Box(
+            modifier = Modifier
+                .size(96.dp)
+                .align(Alignment.CenterHorizontally)
+                .clip(RoundedCornerShape(8.dp))
+                .background(PixelSurface)
+                .border(2.dp, PixelGold, RoundedCornerShape(8.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "⚔️\n🧙‍♂️",
+                fontSize = 28.sp,
+                style = PixelTypography.titleMedium
+            )
+        }
 
         // Profile Stats Overview Card
         PixelCard(
