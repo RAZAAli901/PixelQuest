@@ -28,6 +28,22 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+
+@Composable
+fun LevelHistoryScreen(
+    viewModel: LevelHistoryViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
+) {
+    val historyList by viewModel.history.collectAsState()
+    LevelHistoryScreenContent(
+        history = historyList,
+        modifier = modifier
+    )
+}
+
 @Composable
 fun LevelHistoryScreenContent(
     history: List<LevelHistoryEntity>,
