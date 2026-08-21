@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
 
+import com.pixelquest.app.domain.LevelCalculator
 import com.pixelquest.app.domain.repository.UserProfileRepository
 
 @HiltWorker
@@ -62,9 +63,20 @@ class StreakEvaluationWorker @AssistedInject constructor(
 
             val profile = userProfileRepository.getProfile().first()
             if (profile != null) {
-                userProfileRepository.updateProfile(
-                    profile.copy(perfectDaysTowardNextLevel = profile.perfectDaysTowardNextLevel + 1)
-                )
+                val newProgress = profile.perfectDaysTowardNextLevel + 1
+                val daysRequired = difficulty?.daysRequiredPerLevel ?: 7
+                if (LevelCalculator.shouldLevelUp(newProgress, daysRequired)) {
+                    userProfileRepository.updateProfile(
+                        profile.copy(
+                            level = profile.level + 1,
+                            perfectDaysTowardNextLevel = LevelCalculator.getPostLevelUpProgress()
+                        )
+                    )
+                } else {
+                    userProfileRepository.updateProfile(
+                        profile.copy(perfectDaysTowardNextLevel = newProgress)
+                    )
+                }
             }
         } else {
             /**
