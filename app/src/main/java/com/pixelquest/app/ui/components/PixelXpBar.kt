@@ -26,14 +26,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import com.pixelquest.app.ui.theme.PixelGold
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
+
 @Composable
 fun PixelXpBar(
     currentProgress: Int,
     maxProgress: Int,
     modifier: Modifier = Modifier,
-    level: Int = 1,
-    progressFraction: Float = if (maxProgress > 0) (currentProgress.toFloat() / maxProgress).coerceIn(0f, 1f) else 0f
+    level: Int = 1
 ) {
+    val targetFraction = if (maxProgress > 0) (currentProgress.toFloat() / maxProgress).coerceIn(0f, 1f) else 0f
+    val animatedFraction by animateFloatAsState(
+        targetValue = targetFraction,
+        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        label = "xp_bar_animation"
+    )
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.fillMaxWidth()
@@ -73,7 +84,7 @@ fun PixelXpBar(
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .fillMaxWidth(fraction = progressFraction)
+                    .fillMaxWidth(fraction = animatedFraction)
                     .clip(RoundedCornerShape(2.dp))
                     .background(PixelGreen)
             )
