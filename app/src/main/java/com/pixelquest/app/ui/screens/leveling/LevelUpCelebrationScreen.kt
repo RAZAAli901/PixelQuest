@@ -28,6 +28,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.getValue
 import com.pixelquest.app.ui.components.PixelButton
+import androidx.compose.ui.tooling.preview.Preview
+import com.pixelquest.app.ui.theme.PixelQuestTheme
 
 import androidx.compose.runtime.LaunchedEffect
 
@@ -92,5 +94,16 @@ fun LevelUpCelebrationScreen(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LevelUpCelebrationScreenPreview() {
+    PixelQuestTheme {
+        LevelUpCelebrationScreen(
+            level = 5,
+            onDismiss = {}
+        )
     }
 }
