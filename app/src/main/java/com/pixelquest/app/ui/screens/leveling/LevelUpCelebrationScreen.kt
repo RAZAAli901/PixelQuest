@@ -29,11 +29,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.getValue
 import com.pixelquest.app.ui.components.PixelButton
 
+import androidx.compose.runtime.LaunchedEffect
+
 @Composable
 fun LevelUpCelebrationScreen(
     level: Int,
     onDismiss: () -> Unit = {}
 ) {
+    LaunchedEffect(level) {
+        // TODO (Day 7 Scope): Play retro level-up sound effect (e.g. SoundManager.playLevelUpSound())
+    }
+
     val transition = rememberInfiniteTransition(label = "level_up_bounce")
     val scale by transition.animateFloat(
         initialValue = 0.95f,
