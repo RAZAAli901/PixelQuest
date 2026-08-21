@@ -42,4 +42,17 @@ class LevelCalculatorTest {
     fun testPostLevelUpResetProgress() {
         assertEquals(0, LevelCalculator.getPostLevelUpProgress())
     }
+
+    @Test
+    fun testMidProgressDifficultySwitch() {
+        val currentProgress = 4 // accumulated under Medium (req 7)
+        val easyDaysReq = DifficultyMode.getDaysRequiredPerLevel(DifficultyLevel.EASY) // 3
+        val hardDaysReq = DifficultyMode.getDaysRequiredPerLevel(DifficultyLevel.HARD) // 14
+
+        // Switch Medium -> Easy: 4 >= 3 -> Level Up immediately
+        assertTrue(LevelCalculator.evaluateLevelProgressOnDifficultySwitch(currentProgress, easyDaysReq))
+
+        // Switch Medium -> Hard: 4 < 14 -> No Level Up yet
+        assertFalse(LevelCalculator.evaluateLevelProgressOnDifficultySwitch(currentProgress, hardDaysReq))
+    }
 }
