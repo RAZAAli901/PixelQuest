@@ -7,4 +7,5 @@ interface UserProfileRepository {
     fun getProfile(): Flow<UserProfileEntity?>
     suspend fun insertProfile(profile: UserProfileEntity)
     suspend fun updateProfile(profile: UserProfileEntity)
+    suspend fun performLevelUp(): UserProfileEntity?
 }
