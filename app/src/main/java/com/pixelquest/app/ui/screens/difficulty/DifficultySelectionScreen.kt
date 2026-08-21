@@ -43,9 +43,10 @@ fun DifficultySelectionScreen(
     if (state.showWarningDialog && state.pendingLevel != null) {
         val target = state.pendingLevel!!
         val targetPct = (DifficultyMode.getPerfectDayThreshold(target) * 100).toInt()
+        val daysReq = DifficultyMode.getDaysRequiredPerLevel(target)
         PixelConfirmDialog(
             title = "CHANGE DIFFICULTY?",
-            message = "Changing difficulty mid-streak will update your perfect day target to $targetPct%. Are you sure you want to change difficulty?",
+            message = "Changing difficulty will update your target to $targetPct% and level threshold to $daysReq days. Progress count carries over. Confirm difficulty change?",
             confirmText = "CONFIRM",
             dismissText = "CANCEL",
             onConfirm = { viewModel.confirmDifficultyChange() },
