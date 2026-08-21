@@ -337,6 +337,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 44: Manual QA verification of celebration overlay lifecycle (shown once, cleared after Continue) - d9dac7e
 - Step 45: Manual QA verification of level history log persistence across app restarts - 510654b
 - Step 46: Document all Day 6 architectural decisions, data models, Room migration details, and edge-case behavior in BRIEF.md - 63847b1
+- Step 47: Run the full test suite (./gradlew test) and confirm all unit/integration tests pass - dd64f8f
+- Step 48: Final Day 6 summary commit and completion brief - e5e3b0e
 
 ### Day 6 Technical Documentation & Architectural Summary
 
