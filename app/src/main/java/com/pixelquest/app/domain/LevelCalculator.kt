@@ -25,4 +25,10 @@ object LevelCalculator {
      * If current count already equals or exceeds the new target (e.g. 5 days when switching from Medium(7) to Easy(3)),
      * the next daily evaluation immediately triggers a level-up, maintaining continuity without progress erasure.
      */
+    fun evaluateLevelProgressOnDifficultySwitch(
+        currentProgress: Int,
+        newDaysRequired: Int
+    ): Boolean {
+        return shouldLevelUp(currentProgress, newDaysRequired)
+    }
 }
