@@ -12,10 +12,8 @@ import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
-import com.pixelquest.app.data.local.entity.UserProfileEntity
-
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
+import com.pixelquest.app.data.local.dao.LevelHistoryDao
+import com.pixelquest.app.data.local.entity.LevelHistoryEntity
 
 @Database(
     entities = [
@@ -23,7 +21,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         StreakEntity::class,
         UserProfileEntity::class,
         DifficultySettingsEntity::class,
-        TaskCompletionLogEntity::class
+        TaskCompletionLogEntity::class,
+        LevelHistoryEntity::class
     ],
     version = 2,
     exportSchema = false
@@ -35,6 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userProfileDao(): UserProfileDao
     abstract fun difficultySettingsDao(): DifficultySettingsDao
     abstract fun taskCompletionLogDao(): TaskCompletionLogDao
+    abstract fun levelHistoryDao(): LevelHistoryDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
