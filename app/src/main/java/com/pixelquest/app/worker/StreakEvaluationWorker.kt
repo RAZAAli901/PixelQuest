@@ -21,6 +21,8 @@ import com.pixelquest.app.domain.repository.UserProfileRepository
 import com.pixelquest.app.data.local.entity.LevelHistoryEntity
 import com.pixelquest.app.domain.repository.LevelHistoryRepository
 
+import com.pixelquest.app.domain.LevelUpSignalManager
+
 @HiltWorker
 class StreakEvaluationWorker @AssistedInject constructor(
     @Assisted appContext: Context,
@@ -30,7 +32,8 @@ class StreakEvaluationWorker @AssistedInject constructor(
     private val streakRepository: StreakRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val userProfileRepository: UserProfileRepository,
-    private val levelHistoryRepository: LevelHistoryRepository
+    private val levelHistoryRepository: LevelHistoryRepository,
+    private val levelUpSignalManager: LevelUpSignalManager
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -84,6 +87,7 @@ class StreakEvaluationWorker @AssistedInject constructor(
                             difficultyAtTimeOfLevelUp = difficulty?.difficultyLevel?.name ?: "MEDIUM"
                         )
                     )
+                    levelUpSignalManager.setPendingLevelUp(newLevel)
                 } else {
                     userProfileRepository.updateProfile(
                         profile.copy(perfectDaysTowardNextLevel = newProgress)
