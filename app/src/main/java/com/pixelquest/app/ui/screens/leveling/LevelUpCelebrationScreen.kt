@@ -27,7 +27,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.draw.scale
+import com.pixelquest.app.ui.components.PixelButton
 
 @Composable
 fun LevelUpCelebrationScreen(
@@ -78,6 +78,11 @@ fun LevelUpCelebrationScreen(
                     text = "$level",
                     style = PixelQuestTypography.displayLarge.copy(fontSize = 48.sp),
                     color = PixelGold
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                PixelButton(
+                    text = "CONTINUE",
+                    onClick = onDismiss
                 )
             }
         }
