@@ -127,6 +127,13 @@ fun ProfileScreen(
         )
 
         PixelButton(
+            text = "📜 LEVEL HISTORY",
+            onClick = onNavigateToLevelHistory,
+            variant = PixelButtonVariant.BLUE,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        PixelButton(
             text = "🛡️ CHANGE DIFFICULTY",
             onClick = onNavigateToDifficulty,
             variant = PixelButtonVariant.YELLOW,

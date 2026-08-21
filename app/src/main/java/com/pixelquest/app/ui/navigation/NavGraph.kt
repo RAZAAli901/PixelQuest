@@ -17,6 +17,8 @@ import com.pixelquest.app.ui.screens.TasksScreen
 import com.pixelquest.app.ui.screens.tasks.CreateTaskScreen
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 
+import com.pixelquest.app.ui.screens.leveling.LevelHistoryScreen
+
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
     object Home : Screen("home")
@@ -24,6 +26,7 @@ sealed class Screen(val route: String) {
     object Stats : Screen("stats")
     object Profile : Screen("profile")
     object DifficultySelection : Screen("difficulty_selection")
+    object LevelHistory : Screen("level_history")
     object CreateTask : Screen("create_task")
     object EditTask : Screen("edit_task/{taskId}") {
         fun createRoute(taskId: Long) = "edit_task/$taskId"
@@ -94,8 +97,14 @@ fun PixelNavHost(
             ProfileScreen(
                 onNavigateToDifficulty = {
                     navController.navigate(Screen.DifficultySelection.route)
+                },
+                onNavigateToLevelHistory = {
+                    navController.navigate(Screen.LevelHistory.route)
                 }
             )
+        }
+        composable(Screen.LevelHistory.route) {
+            LevelHistoryScreen()
         }
         composable(Screen.DifficultySelection.route) {
             com.pixelquest.app.ui.screens.difficulty.DifficultySelectionScreen(
