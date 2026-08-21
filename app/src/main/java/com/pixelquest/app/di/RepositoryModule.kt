@@ -16,6 +16,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+import com.pixelquest.app.data.repository.LevelHistoryRepositoryImpl
+import com.pixelquest.app.domain.repository.LevelHistoryRepository
+
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
@@ -49,4 +52,10 @@ abstract class RepositoryModule {
     abstract fun bindTaskCompletionRepository(
         impl: TaskCompletionRepositoryImpl
     ): TaskCompletionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLevelHistoryRepository(
+        impl: LevelHistoryRepositoryImpl
+    ): LevelHistoryRepository
 }

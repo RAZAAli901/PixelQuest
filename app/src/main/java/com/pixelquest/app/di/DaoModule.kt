@@ -12,6 +12,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+import com.pixelquest.app.data.local.dao.LevelHistoryDao
+
 @Module
 @InstallIn(SingletonComponent::class)
 object DaoModule {
@@ -35,4 +37,8 @@ object DaoModule {
     @Provides
     @Singleton
     fun provideTaskCompletionLogDao(database: AppDatabase): TaskCompletionLogDao = database.taskCompletionLogDao()
+
+    @Provides
+    @Singleton
+    fun provideLevelHistoryDao(database: AppDatabase): LevelHistoryDao = database.levelHistoryDao()
 }
