@@ -11,5 +11,6 @@ data class UserProfileEntity(
     val avatarId: String,
     val level: Int = 1,
     val totalXp: Int = 0,
+    val perfectDaysTowardNextLevel: Int = 0,
     val createdAt: Long = System.currentTimeMillis()
 )
