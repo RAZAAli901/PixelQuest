@@ -363,15 +363,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - **LevelUpSignalManager**: Emits pending level-up signals via `SharedPreferences` + `StateFlow<Int?>`. When `StreakEvaluationWorker` executes level-up in background, it sets the pending level. `HomeViewModel` detects this signal on launch/resume and overlays `LevelUpCelebrationScreen`. Tapping `CONTINUE` clears the pending signal so celebration overlay renders exactly once.
 
 ## Day 7 Progress Log
-- Step 1: Create audio/SoundManager.kt using SoundPool for low-latency short SFX playback - 026e12e
-
-
-
-
-
-
-
-
+- Step 1: Create audio/SoundManager.kt using SoundPool for low-latency short SFX playback - 501891c
+- Step 2: Source CC0 8-bit sound effects for click, task-complete, task-missed, and level-up chime - 0174721
 
 
 
