@@ -397,7 +397,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 32: Manual QA: toggle the filter on/off across several screens (Home, Tasks, Profile) and confirm no crashes or major frame drops - 373adff
 - Step 33: Audit existing pixel icons/assets for visual consistency in palette and pixel density — confirmed consistent 16x16 grid and palette - eca02f2
 - Step 34: Document icon audit findings: zero mismatches found, existing assets maintain pixel density and color palette harmony - 31be1ff
-- Step 35: Verify zero default Material icons remain in use, all UI elements use proper pixel icons - c2bb299
+- Step 35: Verify zero default Material icons remain in use, all UI elements use proper pixel icons - 17b93e9
+- Step 36: Update ASSETS.md with changes from this pass - b0623f8
 
 
 
