@@ -66,33 +66,59 @@ fun AvatarSelectionScreen(
     }
 }
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import com.pixelquest.app.ui.theme.PixelGreen
+import com.pixelquest.app.ui.theme.PixelTextWhite
+
 @Composable
 private fun AvatarGridItem(
     avatar: AvatarItem,
     isSelected: Boolean,
     onSelect: () -> Unit
 ) {
-    PixelCard(
-        variant = if (isSelected) PixelPanelVariant.YELLOW else PixelPanelVariant.BLUE,
+    val shape = RoundedCornerShape(8.dp)
+    Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(shape)
+            .border(
+                width = if (isSelected) 4.dp else 2.dp,
+                color = if (isSelected) PixelGold else PixelGold.copy(alpha = 0.3f),
+                shape = shape
+            )
             .clickable { onSelect() }
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+        PixelCard(
+            variant = if (isSelected) PixelPanelVariant.YELLOW else PixelPanelVariant.BLUE,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            PixelAvatarDisplay(
-                avatarId = avatar.id,
-                size = 64.dp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = avatar.name.uppercase(),
-                style = PixelQuestTypography.titleSmall,
-                color = PixelGold,
-                textAlign = TextAlign.Center
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                PixelAvatarDisplay(
+                    avatarId = avatar.id,
+                    size = 64.dp
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = avatar.name.uppercase(),
+                    style = PixelQuestTypography.titleSmall,
+                    color = if (isSelected) PixelGold else PixelTextWhite,
+                    textAlign = TextAlign.Center
+                )
+                if (isSelected) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "★ SELECTED ★",
+                        style = PixelQuestTypography.labelSmall,
+                        color = PixelGreen,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }

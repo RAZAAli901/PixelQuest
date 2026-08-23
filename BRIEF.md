@@ -381,7 +381,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 16: Build PixelAvatarDisplay composable rendering the selected avatar at a given size - 228492c
 - Step 17: Replace the Day 6 placeholder avatar frame on ProfileScreen with the real PixelAvatarDisplay - e0aa165
 - Step 18: Build AvatarSelectionScreen grid of selectable pixel avatars using PixelCard styling - 9e69fd9
-- Step 19: Wire AvatarSelectionScreen to UserProfileRepository read avatarId, write new selection on tap - 6e79f48
+- Step 19: Wire AvatarSelectionScreen to UserProfileRepository read avatarId, write new selection on tap - d9295b4
+- Step 20: Add a highlighted pixel border indicating the currently-selected avatar in the grid - a8c8b67
 
 
 
