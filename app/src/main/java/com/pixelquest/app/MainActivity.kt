@@ -35,6 +35,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import com.pixelquest.app.audio.LocalSoundManager
 import com.pixelquest.app.audio.SoundManager
 
+import androidx.compose.runtime.collectAsState
+import com.pixelquest.app.domain.repository.SettingsRepository
+import com.pixelquest.app.ui.components.PixelCrtOverlay
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -43,6 +47,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var soundManager: SoundManager
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
 
     var isNotificationPermissionGranted by mutableStateOf(true)
         private set
@@ -58,58 +65,61 @@ class MainActivity : ComponentActivity() {
         setContent {
             PixelQuestTheme {
                 CompositionLocalProvider(LocalSoundManager provides soundManager) {
-                    val navController = rememberNavController()
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentRoute = navBackStackEntry?.destination?.route
+                    val isCrtEnabled by settingsRepository.isCrtEnabled.collectAsState(initial = false)
+                    PixelCrtOverlay(enabled = isCrtEnabled) {
+                        val navController = rememberNavController()
+                        val navBackStackEntry by navController.currentBackStackEntryAsState()
+                        val currentRoute = navBackStackEntry?.destination?.route
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        if (currentRoute != Screen.Splash.route) {
-                            PixelBottomNavBar(
-                                currentRoute = currentRoute,
-                                onNavigate = { route ->
-                                    navController.navigate(route) {
-                                        popUpTo(Screen.Home.route) {
-                                            saveState = true
+                        Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            bottomBar = {
+                                if (currentRoute != Screen.Splash.route) {
+                                    PixelBottomNavBar(
+                                        currentRoute = currentRoute,
+                                        onNavigate = { route ->
+                                            navController.navigate(route) {
+                                                popUpTo(Screen.Home.route) {
+                                                    saveState = true
+                                                }
+                                                launchSingleTop = true
+                                                restoreState = true
+                                            }
                                         }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
+                                    )
                                 }
-                            )
+                            }
+                        ) { innerPadding ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(innerPadding)
+                            ) {
+                                if (!isNotificationPermissionGranted && currentRoute != Screen.Splash.route) {
+                                    PixelNotificationPermissionBanner(
+                                        onRequestPermission = {
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                            } else {
+                                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                                    data = Uri.fromParts("package", packageName, null)
+                                                }
+                                                startActivity(intent)
+                                            }
+                                        },
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                                    )
+                                }
+                                PixelNavHost(
+                                    navController = navController,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
-                    }
-                ) { innerPadding ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    ) {
-                        if (!isNotificationPermissionGranted && currentRoute != Screen.Splash.route) {
-                            PixelNotificationPermissionBanner(
-                                onRequestPermission = {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                        requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                    } else {
-                                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                            data = Uri.fromParts("package", packageName, null)
-                                        }
-                                        startActivity(intent)
-                                    }
-                                },
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
-                            )
-                        }
-                        PixelNavHost(
-                            navController = navController,
-                            modifier = Modifier.weight(1f)
-                        )
                     }
                 }
             }
         }
-    }
     }
 
     private fun checkNotificationPermission() {
