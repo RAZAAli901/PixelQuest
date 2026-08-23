@@ -33,12 +33,15 @@ val bottomNavItems = listOf(
     NavItem("PROFILE", Screen.Profile.route, R.drawable.ic_profile)
 )
 
+import com.pixelquest.app.audio.LocalSoundManager
+
 @Composable
 fun PixelBottomNavBar(
     currentRoute: String?,
     onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val soundManager = LocalSoundManager.current
     PixelCard(
         modifier = modifier
             .fillMaxWidth()
@@ -55,7 +58,10 @@ fun PixelBottomNavBar(
                 val isSelected = currentRoute == item.route
                 Column(
                     modifier = Modifier
-                        .clickable { onNavigate(item.route) }
+                        .clickable {
+                            soundManager?.playClickSound()
+                            onNavigate(item.route)
+                        }
                         .padding(vertical = 4.dp, horizontal = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
