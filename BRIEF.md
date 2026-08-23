@@ -369,7 +369,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 4: Load all sound resources into SoundPool on SoundManager init, with proper release handling - 95137ad
 - Step 5: Create a minimal SettingsRepository with a persisted Sound Effects On/Off toggle - cbcfddc
 - Step 6: Write a unit test for SoundManager's enable/disable state logic - eec1ed1
-- Step 7: Wire the Day 1 PixelButton to play the click SFX on tap, respecting the mute toggle - d1fdc47
+- Step 7: Wire the Day 1 PixelButton to play the click SFX on tap, respecting the mute toggle - cd09241
+- Step 8: Wire the "Yes, I did it" completion path to play the task-complete SFX - ab0aa4b
 
 
 

@@ -7,10 +7,18 @@ import androidx.activity.viewModels
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+import androidx.compose.runtime.CompositionLocalProvider
+import com.pixelquest.app.audio.LocalSoundManager
+import com.pixelquest.app.audio.SoundManager
+import javax.inject.Inject
+
 @AndroidEntryPoint
 class TaskPromptActivity : ComponentActivity() {
 
     private val viewModel: TaskPromptViewModel by viewModels()
+
+    @Inject
+    lateinit var soundManager: SoundManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,21 +27,23 @@ class TaskPromptActivity : ComponentActivity() {
 
         setContent {
             PixelQuestTheme {
-                DidYouDoItScreen(
-                    taskId = taskId,
-                    taskName = taskName,
-                    onDismiss = { finish() },
-                    onYesClick = {
-                        viewModel.onTaskCompleted(taskId, true) {
-                            finish()
+                CompositionLocalProvider(LocalSoundManager provides soundManager) {
+                    DidYouDoItScreen(
+                        taskId = taskId,
+                        taskName = taskName,
+                        onDismiss = { finish() },
+                        onYesClick = {
+                            viewModel.onTaskCompleted(taskId, true) {
+                                finish()
+                            }
+                        },
+                        onNoClick = {
+                            viewModel.onTaskCompleted(taskId, false) {
+                                finish()
+                            }
                         }
-                    },
-                    onNoClick = {
-                        viewModel.onTaskCompleted(taskId, false) {
-                            finish()
-                        }
-                    }
-                )
+                    )
+                }
             }
         }
     }

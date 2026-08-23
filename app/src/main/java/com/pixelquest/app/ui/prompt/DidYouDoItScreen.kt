@@ -27,6 +27,8 @@ import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
 import kotlinx.coroutines.delay
 
+import com.pixelquest.app.audio.LocalSoundManager
+
 @Composable
 fun DidYouDoItScreen(
     taskId: Long,
@@ -37,6 +39,7 @@ fun DidYouDoItScreen(
     timeoutMillis: Long = 2 * 60 * 60 * 1000L, // 2 hours window
     modifier: Modifier = Modifier
 ) {
+    val soundManager = LocalSoundManager.current
     LaunchedEffect(taskId) {
         delay(timeoutMillis)
         onDismiss()
@@ -92,6 +95,7 @@ fun DidYouDoItScreen(
                     PixelButton(
                         text = "YES!",
                         onClick = {
+                            soundManager?.playTaskCompleteSound()
                             onYesClick()
                             onDismiss()
                         },
