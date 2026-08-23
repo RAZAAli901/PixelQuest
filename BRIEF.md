@@ -409,6 +409,47 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 44: Manual full visual QA pass: walk through Home, Tasks, Profile, Stats, avatar selection, and difficulty selection with CRT filter on/off - 8b6f8e4
 - Step 45: Fix layout overflow bug by adding vertical scroll state to ProfileScreen - 910449b
 - Step 46: Document device-specific performance notes for the CRT filter: Modifier.drawWithContent guarantees 60fps/120fps zero-recomposition rendering - 485e02e
+- Step 47: Update BRIEF.md with full Day 7 summary - e89a45a
+
+### Day 7 Technical Documentation & Architectural Summary
+
+#### 1. Audio & Sound System Architecture
+- **SoundPool Engine (`audio/SoundManager.kt`)**: Utilizes Android `SoundPool` with `AudioAttributes.USAGE_GAME` and `CONTENT_TYPE_SONIFICATION` for low-latency playback of short retro 8-bit sound effects. Preloads sound resources on initialization and handles `release()` on cleanup.
+- **Sound Effects Loaded**:
+  - `sfx_click.wav`: Button and navigation tap sound
+  - `sfx_complete.wav`: Positive task completion chime
+  - `sfx_missed.wav`: Negative task missed sound
+  - `sfx_levelup.wav`: Level-up celebration fanfare chime
+- **CompositionLocal Integration (`LocalSoundManager`)**: `LocalSoundManager` exposes `SoundManager` throughout the Compose tree via `CompositionLocalProvider` in `MainActivity` and `TaskPromptActivity`.
+- **Persisted Audio Toggle**: `SettingsRepositoryImpl` backed by `SharedPreferences` persists sound mute state (`isSoundEnabled`), exposed as a reactive `Flow<Boolean>`.
+
+#### 2. Avatar Sprite & Selection System
+- **Avatar Catalog (`domain/AvatarCatalog.kt`)**: Maps avatar identifiers (`avatar_hero`, `avatar_mage`, `avatar_rogue`, `avatar_warrior`, `avatar_paladin`, `avatar_ranger`) to 32x32 8-bit PNG drawables and display names.
+- **Avatar Display (`ui/components/PixelAvatarDisplay.kt`)**: Renders class sprite with `FilterQuality.None` for crisp nearest-neighbor pixel rendering.
+- **Avatar Selection UI (`AvatarSelectionScreen`)**: Grid of `PixelCard` avatar items featuring a 4.dp gold selection border highlight and "★ SELECTED ★" badge. Updates `UserProfileRepository` on selection tap.
+- **Level-Based Visual Progression (`PixelAvatarFrame` & `AvatarTierCalculator`)**:
+  - **Bronze Tier**: Levels 1–4 (`0xFFCD7F32`)
+  - **Silver Tier**: Levels 5–9 (`0xFFC0C0C0`)
+  - **Gold Tier**: Levels 10+ (`0xFFFFD700`)
+  - Applies level-based tier border colors and emoji badges around the hero's avatar display on `ProfileScreen`.
+
+#### 3. Retro CRT / Scanline Visual Filter
+- **Zero-Jank Overlay (`ui/components/PixelCrtOverlay.kt`)**: Uses `Modifier.drawWithContent` to draw subtle horizontal scanlines (`0.12` alpha, 4.dp step) and a radial vignette gradient directly during the Canvas draw phase, eliminating recomposition overhead and frame drops.
+- **Global Integration**: Wraps `PixelNavHost` in `MainActivity`, driven by `SettingsRepository.isCrtEnabled`. Toggleable directly from `ProfileScreen`.
+
+#### 4. Icon Audit & Polish
+- **Asset Consistency**: Verified 100% compliance across 16x16 / 32x32 pixel density and color palette harmony. Zero standard Material icons remain in active UI flows.
+- **Adaptive Launcher Icon**: Custom 8-bit adaptive launcher icon (`ic_launcher_background` + `ic_launcher_foreground`) rendering cleanly across circle, squircle, and square masks.
+- **Splash Screen Refinement**: Updated `SplashScreen` visuals with `PixelAvatarFrame` hero mascot graphics.
+
+#### 5. Integration Tests & QA
+- `SoundSettingsPersistenceTest`: Verified sound mute toggle persistence across simulated app restarts.
+- `AvatarSelectionPersistenceTest`: Verified avatar selection persistence across Room database operations.
+- `AvatarSelectionScreenTest`: Verified grid rendering and selection callbacks.
+- `SoundManagerTest` & `AvatarTierCalculatorTest`: Verified domain logic and level threshold boundaries.
+
+#### 6. Known Gaps for Day 8
+- Day 8 scope will implement the Home / "Today" Dashboard Screen: live countdowns, quick-complete flow, daily progress ring placement, and flavor text.
 
 
 
