@@ -400,7 +400,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 35: Verify zero default Material icons remain in use, all UI elements use proper pixel icons - 17b93e9
 - Step 36: Update ASSETS.md with changes from this pass - b0623f8
 - Step 37: Design and update app launcher icon in pixel style with separate foreground and background layers - 87b3348
-- Step 38: Update SplashScreen visuals with refined pixel logo and mascot hero art - 12ac7d0
+- Step 38: Update SplashScreen visuals with refined pixel logo and mascot hero art - 811103c
+- Step 39: Verify launcher icon renders correctly across standard adaptive icon masks (circle, squircle, square) - 5190c03
 
 
 
