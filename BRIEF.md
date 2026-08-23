@@ -367,7 +367,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 2: Source CC0 8-bit sound effects for click, task-complete, task-missed, and level-up chime - 3aaf32b
 - Step 3: Add sound files to res/raw and log pack name, source URL, and license in ASSETS.md - 41d3cbd
 - Step 4: Load all sound resources into SoundPool on SoundManager init, with proper release handling - 95137ad
-- Step 5: Create a minimal SettingsRepository with a persisted Sound Effects On/Off toggle - 3888a7a
+- Step 5: Create a minimal SettingsRepository with a persisted Sound Effects On/Off toggle - cbcfddc
+- Step 6: Write a unit test for SoundManager's enable/disable state logic - dff9902
 
 
 
