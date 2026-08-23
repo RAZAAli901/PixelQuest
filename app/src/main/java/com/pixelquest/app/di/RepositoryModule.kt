@@ -19,6 +19,9 @@ import javax.inject.Singleton
 import com.pixelquest.app.data.repository.LevelHistoryRepositoryImpl
 import com.pixelquest.app.domain.repository.LevelHistoryRepository
 
+import com.pixelquest.app.data.repository.SettingsRepositoryImpl
+import com.pixelquest.app.domain.repository.SettingsRepository
+
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
@@ -58,4 +61,10 @@ abstract class RepositoryModule {
     abstract fun bindLevelHistoryRepository(
         impl: LevelHistoryRepositoryImpl
     ): LevelHistoryRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSettingsRepository(
+        impl: SettingsRepositoryImpl
+    ): SettingsRepository
 }
