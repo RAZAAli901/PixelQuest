@@ -139,5 +139,21 @@ fun ProfileScreen(
             variant = PixelButtonVariant.YELLOW,
             modifier = Modifier.fillMaxWidth()
         )
+
+        val soundText = if (state.isSoundEnabled) "🔊 SFX: ON" else "🔇 SFX: OFF"
+        PixelButton(
+            text = soundText,
+            onClick = { viewModel.toggleSound(!state.isSoundEnabled) },
+            variant = PixelButtonVariant.BLUE,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        val crtText = if (state.isCrtEnabled) "📺 CRT FILTER: ON" else "📺 CRT FILTER: OFF"
+        PixelButton(
+            text = crtText,
+            onClick = { viewModel.toggleCrt(!state.isCrtEnabled) },
+            variant = PixelButtonVariant.YELLOW,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

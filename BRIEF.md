@@ -389,7 +389,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 24: Build PixelAvatarFrame composable applying tier embellishment around PixelAvatarDisplay - 4732a16
 - Step 25: Wire the tier logic into ProfileScreen's avatar display - 1ea4a4a
 - Step 26: Write a unit test for the tier-calculation logic across level ranges - e217aee
-- Step 27: Build a CRT/scanline overlay composable with subtle scanlines and vignette effect - 66dc70d
+- Step 27: Build a CRT/scanline overlay composable with subtle scanlines and vignette effect - 77d1a7c
+- Step 28: Add a Retro CRT Filter on/off toggle to SettingsRepository - 219a409
 
 
 

@@ -15,32 +15,54 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
+import com.pixelquest.app.domain.repository.SettingsRepository
+import kotlinx.coroutines.launch
+
 data class ProfileUiState(
     val profile: UserProfileEntity? = null,
     val streak: StreakEntity? = null,
-    val difficulty: DifficultySettingsEntity? = null
+    val difficulty: DifficultySettingsEntity? = null,
+    val isSoundEnabled: Boolean = true,
+    val isCrtEnabled: Boolean = false
 )
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val streakRepository: StreakRepository,
-    private val difficultySettingsRepository: DifficultySettingsRepository
+    private val difficultySettingsRepository: DifficultySettingsRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<ProfileUiState> = combine(
         userProfileRepository.getProfile(),
         streakRepository.getCurrentStreak(),
-        difficultySettingsRepository.getCurrentDifficulty()
-    ) { profile, streak, difficulty ->
+        difficultySettingsRepository.getCurrentDifficulty(),
+        settingsRepository.isSoundEnabled,
+        settingsRepository.isCrtEnabled
+    ) { profile, streak, difficulty, soundEnabled, crtEnabled ->
         ProfileUiState(
             profile = profile,
             streak = streak,
-            difficulty = difficulty
+            difficulty = difficulty,
+            isSoundEnabled = soundEnabled,
+            isCrtEnabled = crtEnabled
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = ProfileUiState()
     )
+
+    fun toggleSound(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setSoundEnabled(enabled)
+        }
+    }
+
+    fun toggleCrt(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setCrtEnabled(enabled)
+        }
+    }
 }
