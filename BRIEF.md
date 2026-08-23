@@ -391,7 +391,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 26: Write a unit test for the tier-calculation logic across level ranges - e217aee
 - Step 27: Build a CRT/scanline overlay composable with subtle scanlines and vignette effect - 77d1a7c
 - Step 28: Add a Retro CRT Filter on/off toggle to SettingsRepository - 2baf36d
-- Step 29: Wire the CRT overlay into the app root Scaffold/NavHost so it applies globally when enabled - dc57a20
+- Step 29: Wire the CRT overlay into the app root Scaffold/NavHost so it applies globally when enabled - c97cf33
+- Step 30: Tune CRT effect for performance using Modifier.drawWithContent to eliminate recomposition jank - dacdc6f
 
 
 
