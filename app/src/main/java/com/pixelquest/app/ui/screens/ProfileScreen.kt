@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.ui.components.PixelAvatarDisplay
+import com.pixelquest.app.ui.components.PixelAvatarFrame
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
@@ -75,22 +76,15 @@ fun ProfileScreen(
 
         val avatarId = profile?.avatarId ?: "avatar_hero"
 
-        // Real Pixel Avatar Display
-        Box(
+        // Real Pixel Avatar Display with Level Tier Framing
+        PixelAvatarFrame(
+            avatarId = avatarId,
+            level = level,
+            size = 80.dp,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .clip(RoundedCornerShape(8.dp))
-                .background(PixelSurface)
-                .border(2.dp, PixelGold, RoundedCornerShape(8.dp))
                 .clickable { onNavigateToAvatarSelection() }
-                .padding(8.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            PixelAvatarDisplay(
-                avatarId = avatarId,
-                size = 80.dp
-            )
-        }
+        )
 
         // Profile Stats Overview Card
         PixelCard(
