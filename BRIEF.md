@@ -403,7 +403,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 38: Update SplashScreen visuals with refined pixel logo and mascot hero art - 811103c
 - Step 39: Verify launcher icon renders correctly across standard adaptive icon masks (circle, squircle, square) - c868fda
 - Step 40: Replace any remaining default Android loading indicators with pixel-styled loading animation - 25298b5
-- Step 41: Update README.md with notes on finalized visual identity and screenshot placeholders - 5715dee
+- Step 41: Update README.md with notes on finalized visual identity and screenshot placeholders - a3a1ead
+- Step 42: Write an integration test verifying the sound-mute toggle persists correctly across an app restart - 884d6a0
 
 
 
