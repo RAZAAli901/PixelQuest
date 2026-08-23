@@ -43,6 +43,11 @@
 - `ic_diff_hardest.xml`: Red shield icon for Hardest difficulty
 
 ### Fonts (`res/font/`)
-- `press_start_2p.ttf`: Open-source 8-bit retro font by CodeMan38 (SIL Open Font License) via Google Fonts
-
-
+### Sound Effects (`res/raw/`)
+- **Pack Name**: Kenney Interface Sounds / Retro Audio (Kenney.nl)
+- **Source URL**: https://kenney.nl/assets/interface-sounds
+- **License**: Creative Commons Zero (CC0 1.0 Universal / Public Domain)
+- `sfx_click.wav`: 8-bit short button tap sound
+- `sfx_complete.wav`: Positive 8-bit task completion chime
+- `sfx_missed.wav`: Negative 8-bit task missed buzz
+- `sfx_levelup.wav`: 8-bit level-up fanfare chime
