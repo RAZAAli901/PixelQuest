@@ -385,7 +385,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 20: Add a highlighted pixel border indicating the currently-selected avatar in the grid - af039ab
 - Step 21: Add the AvatarSelectionScreen nav route, opened by tapping the avatar on ProfileScreen - 51542d9
 - Step 22: Write a UI test for the avatar selection flow - 3f39741
-- Step 23: Define simple tier system based on level ranges in AvatarTierCalculator - 58bff1c
+- Step 23: Define simple tier system based on level ranges in AvatarTierCalculator - a338fb8
+- Step 24: Build PixelAvatarFrame composable applying tier embellishment around PixelAvatarDisplay - a7a3b31
 
 
 
