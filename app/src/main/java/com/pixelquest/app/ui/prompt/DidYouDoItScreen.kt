@@ -85,6 +85,7 @@ fun DidYouDoItScreen(
                     PixelButton(
                         text = "NOT YET",
                         onClick = {
+                            soundManager?.playTaskMissedSound()
                             onNoClick()
                             onDismiss()
                         },
