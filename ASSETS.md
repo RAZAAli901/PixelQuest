@@ -43,6 +43,8 @@
 - `ic_diff_hardest.xml`: Red shield icon for Hardest difficulty
 
 ### Fonts (`res/font/`)
+- `press_start_2p.ttf`: Open-source 8-bit retro font by CodeMan38 (SIL Open Font License) via Google Fonts
+
 ### Sound Effects (`res/raw/`)
 - **Pack Name**: Kenney Interface Sounds / Retro Audio (Kenney.nl)
 - **Source URL**: https://kenney.nl/assets/interface-sounds
@@ -51,3 +53,15 @@
 - `sfx_complete.wav`: Positive 8-bit task completion chime
 - `sfx_missed.wav`: Negative 8-bit task missed buzz
 - `sfx_levelup.wav`: 8-bit level-up fanfare chime
+
+### Avatar Sprites (`res/drawable/`)
+- **Pack Name**: Kenney Toon Characters / Custom Pixel Avatars
+- **Source URL**: https://kenney.nl/assets
+- **License**: Creative Commons Zero (CC0 1.0 Universal / Public Domain)
+- `avatar_hero.png`: 32x32 8-bit hero avatar sprite
+- `avatar_mage.png`: 32x32 8-bit mage avatar sprite
+- `avatar_rogue.png`: 32x32 8-bit rogue avatar sprite
+- `avatar_warrior.png`: 32x32 8-bit warrior avatar sprite
+- `avatar_paladin.png`: 32x32 8-bit paladin avatar sprite
+- `avatar_ranger.png`: 32x32 8-bit ranger avatar sprite
+

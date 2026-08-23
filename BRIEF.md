@@ -374,7 +374,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 9: Wire the "Not yet"/missed path to play the task-missed SFX - a7ed907
 - Step 10: Wire LevelUpCelebrationScreen to play the level-up chime, replacing the TODO placeholder - 1405515
 - Step 11: Manual QA: verify all four SFX fire at the right moments and the mute toggle silences all of them - 731e4d2
-- Step 12: Source a small set (6) of CC0 pixel character sprites as avatar options - d4c7ea7
+- Step 12: Source a small set (6) of CC0 pixel character sprites as avatar options - 09d2d2a
+- Step 13: Add the avatar sprite PNGs to res/drawable; log in ASSETS.md - b1ba61d
 
 
 
