@@ -31,11 +31,18 @@ import com.pixelquest.app.ui.theme.PixelQuestTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+import androidx.compose.runtime.CompositionLocalProvider
+import com.pixelquest.app.audio.LocalSoundManager
+import com.pixelquest.app.audio.SoundManager
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var taskRepository: TaskRepository
+
+    @Inject
+    lateinit var soundManager: SoundManager
 
     var isNotificationPermissionGranted by mutableStateOf(true)
         private set
@@ -50,7 +57,8 @@ class MainActivity : ComponentActivity() {
         checkNotificationPermission()
         setContent {
             PixelQuestTheme {
-                val navController = rememberNavController()
+                CompositionLocalProvider(LocalSoundManager provides soundManager) {
+                    val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
@@ -101,6 +109,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
     }
 
     private fun checkNotificationPermission() {

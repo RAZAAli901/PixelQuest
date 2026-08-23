@@ -8,8 +8,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import androidx.compose.runtime.staticCompositionLocalOf
+
+val LocalSoundManager = staticCompositionLocalOf<SoundManager?> { null }
+
 @Singleton
 class SoundManager @Inject constructor(
+
     @ApplicationContext private val context: Context
 ) {
     var isSoundEnabled: Boolean = true

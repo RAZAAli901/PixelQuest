@@ -21,6 +21,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 
+import com.pixelquest.app.audio.LocalSoundManager
+
 enum class PixelButtonVariant {
     YELLOW,
     BLUE
@@ -35,6 +37,7 @@ fun PixelButton(
     textColor: Color = Color.Unspecified,
     enabled: Boolean = true
 ) {
+    val soundManager = LocalSoundManager.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -52,7 +55,10 @@ fun PixelButton(
                 interactionSource = interactionSource,
                 indication = null,
                 enabled = enabled,
-                onClick = onClick
+                onClick = {
+                    soundManager?.playClickSound()
+                    onClick()
+                }
             ),
         contentAlignment = Alignment.Center
     ) {
