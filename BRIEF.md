@@ -404,7 +404,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 39: Verify launcher icon renders correctly across standard adaptive icon masks (circle, squircle, square) - c868fda
 - Step 40: Replace any remaining default Android loading indicators with pixel-styled loading animation - 25298b5
 - Step 41: Update README.md with notes on finalized visual identity and screenshot placeholders - a3a1ead
-- Step 42: Write an integration test verifying the sound-mute toggle persists correctly across an app restart - 884d6a0
+- Step 42: Write an integration test verifying the sound-mute toggle persists correctly across an app restart - 1077431
+- Step 43: Write an integration test verifying avatar selection persists correctly across an app restart - 5d47b5a
 
 
 
