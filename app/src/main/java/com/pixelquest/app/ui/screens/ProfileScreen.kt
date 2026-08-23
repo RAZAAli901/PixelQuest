@@ -43,6 +43,9 @@ import com.pixelquest.app.ui.theme.PixelTypography
 
 import androidx.compose.foundation.clickable
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
@@ -65,6 +68,7 @@ fun ProfileScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(PixelBackgroundDark)
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {

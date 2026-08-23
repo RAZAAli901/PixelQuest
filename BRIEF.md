@@ -406,7 +406,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 41: Update README.md with notes on finalized visual identity and screenshot placeholders - a3a1ead
 - Step 42: Write an integration test verifying the sound-mute toggle persists correctly across an app restart - 1077431
 - Step 43: Write an integration test verifying avatar selection persists correctly across an app restart - e9897d2
-- Step 44: Manual full visual QA pass: walk through Home, Tasks, Profile, Stats, avatar selection, and difficulty selection with CRT filter on/off - a0580f2
+- Step 44: Manual full visual QA pass: walk through Home, Tasks, Profile, Stats, avatar selection, and difficulty selection with CRT filter on/off - 8b6f8e4
+- Step 45: Fix layout overflow bug by adding vertical scroll state to ProfileScreen - eabdeab
 
 
 
