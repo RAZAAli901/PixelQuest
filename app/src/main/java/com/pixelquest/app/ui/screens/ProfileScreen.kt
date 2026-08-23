@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
+import com.pixelquest.app.ui.components.PixelAvatarDisplay
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
@@ -69,20 +70,21 @@ fun ProfileScreen(
             color = PixelGold
         )
 
-        // Placeholder Pixel Avatar Frame
+        val avatarId = profile?.avatarId ?: "avatar_hero"
+
+        // Real Pixel Avatar Display
         Box(
             modifier = Modifier
-                .size(96.dp)
                 .align(Alignment.CenterHorizontally)
                 .clip(RoundedCornerShape(8.dp))
                 .background(PixelSurface)
-                .border(2.dp, PixelGold, RoundedCornerShape(8.dp)),
+                .border(2.dp, PixelGold, RoundedCornerShape(8.dp))
+                .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "⚔️\n🧙‍♂️",
-                fontSize = 28.sp,
-                style = PixelTypography.titleMedium
+            PixelAvatarDisplay(
+                avatarId = avatarId,
+                size = 80.dp
             )
         }
 
