@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.ui.components.PixelAvatarFrame
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelProgressBar
@@ -56,6 +57,12 @@ fun SplashScreen(
                     text = "PIXELQUEST",
                     style = MaterialTheme.typography.displayMedium,
                     color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                PixelAvatarFrame(
+                    avatarId = "avatar_hero",
+                    level = 10,
+                    size = 80.dp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
