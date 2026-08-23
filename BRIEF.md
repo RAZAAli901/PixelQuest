@@ -387,7 +387,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 22: Write a UI test for the avatar selection flow - 3f39741
 - Step 23: Define simple tier system based on level ranges in AvatarTierCalculator - a338fb8
 - Step 24: Build PixelAvatarFrame composable applying tier embellishment around PixelAvatarDisplay - 4732a16
-- Step 25: Wire the tier logic into ProfileScreen's avatar display - 59fc308
+- Step 25: Wire the tier logic into ProfileScreen's avatar display - 1ea4a4a
+- Step 26: Write a unit test for the tier-calculation logic across level ranges - 1e31c1a
 
 
 
