@@ -40,9 +40,12 @@ import com.pixelquest.app.ui.theme.PixelSurface
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
 
+import androidx.compose.foundation.clickable
+
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
+    onNavigateToAvatarSelection: () -> Unit = {},
     onNavigateToDifficulty: () -> Unit = {},
     onNavigateToLevelHistory: () -> Unit = {}
 ) {
@@ -79,6 +82,7 @@ fun ProfileScreen(
                 .clip(RoundedCornerShape(8.dp))
                 .background(PixelSurface)
                 .border(2.dp, PixelGold, RoundedCornerShape(8.dp))
+                .clickable { onNavigateToAvatarSelection() }
                 .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {

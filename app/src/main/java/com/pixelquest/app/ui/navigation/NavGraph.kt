@@ -1,6 +1,7 @@
 package com.pixelquest.app.ui.navigation
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -25,6 +26,7 @@ sealed class Screen(val route: String) {
     object Tasks : Screen("tasks")
     object Stats : Screen("stats")
     object Profile : Screen("profile")
+    object AvatarSelection : Screen("avatar_selection")
     object DifficultySelection : Screen("difficulty_selection")
     object LevelHistory : Screen("level_history")
     object CreateTask : Screen("create_task")
@@ -95,12 +97,26 @@ fun PixelNavHost(
         }
         composable(Screen.Profile.route) {
             ProfileScreen(
+                onNavigateToAvatarSelection = {
+                    navController.navigate(Screen.AvatarSelection.route)
+                },
                 onNavigateToDifficulty = {
                     navController.navigate(Screen.DifficultySelection.route)
                 },
                 onNavigateToLevelHistory = {
                     navController.navigate(Screen.LevelHistory.route)
                 }
+            )
+        }
+        composable(Screen.AvatarSelection.route) {
+            val avatarViewModel: com.pixelquest.app.ui.screens.avatar.AvatarSelectionViewModel = hiltViewModel()
+            val currentAvatarId by avatarViewModel.currentAvatarId.collectAsState()
+            com.pixelquest.app.ui.screens.avatar.AvatarSelectionScreen(
+                currentAvatarId = currentAvatarId,
+                onAvatarSelected = { selectedId ->
+                    avatarViewModel.selectAvatar(selectedId)
+                },
+                onBackClick = { navController.popBackStack() }
             )
         }
         composable(Screen.LevelHistory.route) {
