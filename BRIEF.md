@@ -376,7 +376,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 11: Manual QA: verify all four SFX fire at the right moments and the mute toggle silences all of them - 731e4d2
 - Step 12: Source a small set (6) of CC0 pixel character sprites as avatar options - 09d2d2a
 - Step 13: Add the avatar sprite PNGs to res/drawable; log in ASSETS.md - 99dc5c8
-- Step 14: Verify UserProfileEntity.avatarId exists (from Day 2) — confirmed present, no migration required - 8211bf9
+- Step 14: Verify UserProfileEntity.avatarId exists (from Day 2) — confirmed present, no migration required - b718826
+- Step 15: Create domain/AvatarCatalog.kt mapping each avatarId to its drawable resource and display name - 0a7cfba
 
 
 
