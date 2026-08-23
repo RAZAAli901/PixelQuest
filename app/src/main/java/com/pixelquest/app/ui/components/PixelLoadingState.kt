@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.ui.components.PixelAvatarDisplay
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTypography
 
@@ -45,6 +46,11 @@ fun PixelLoadingState(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
+            PixelAvatarDisplay(
+                avatarId = "avatar_hero",
+                size = 48.dp
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = message,
                 style = PixelTypography.bodyLarge,
