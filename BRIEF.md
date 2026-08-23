@@ -372,15 +372,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 7: Wire the Day 1 PixelButton to play the click SFX on tap, respecting the mute toggle - cd09241
 - Step 8: Wire the "Yes, I did it" completion path to play the task-complete SFX - c42413a
 - Step 9: Wire the "Not yet"/missed path to play the task-missed SFX - a7ed907
-- Step 10: Wire LevelUpCelebrationScreen to play the level-up chime, replacing the TODO placeholder - 4888d06
-
-
-
-
-
-
-
-
+- Step 10: Wire LevelUpCelebrationScreen to play the level-up chime, replacing the TODO placeholder - 1405515
+- Step 11: Manual QA: verify all four SFX fire at the right moments and the mute toggle silences all of them - dea3bf9
 
 
 
