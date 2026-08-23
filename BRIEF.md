@@ -379,7 +379,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 14: Verify UserProfileEntity.avatarId exists (from Day 2) — confirmed present, no migration required - b718826
 - Step 15: Create domain/AvatarCatalog.kt mapping each avatarId to its drawable resource and display name - 7eea8d6
 - Step 16: Build PixelAvatarDisplay composable rendering the selected avatar at a given size - 228492c
-- Step 17: Replace the Day 6 placeholder avatar frame on ProfileScreen with the real PixelAvatarDisplay - 64b15d3
+- Step 17: Replace the Day 6 placeholder avatar frame on ProfileScreen with the real PixelAvatarDisplay - e0aa165
+- Step 18: Build AvatarSelectionScreen grid of selectable pixel avatars using PixelCard styling - 89802a6
 
 
 
