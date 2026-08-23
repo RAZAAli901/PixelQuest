@@ -371,7 +371,8 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 - Step 6: Write a unit test for SoundManager's enable/disable state logic - eec1ed1
 - Step 7: Wire the Day 1 PixelButton to play the click SFX on tap, respecting the mute toggle - cd09241
 - Step 8: Wire the "Yes, I did it" completion path to play the task-complete SFX - c42413a
-- Step 9: Wire the "Not yet"/missed path to play the task-missed SFX - 0c7df36
+- Step 9: Wire the "Not yet"/missed path to play the task-missed SFX - a7ed907
+- Step 10: Wire LevelUpCelebrationScreen to play the level-up chime, replacing the TODO placeholder - 4888d06
 
 
 

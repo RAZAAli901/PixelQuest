@@ -33,13 +33,16 @@ import com.pixelquest.app.ui.theme.PixelQuestTheme
 
 import androidx.compose.runtime.LaunchedEffect
 
+import com.pixelquest.app.audio.LocalSoundManager
+
 @Composable
 fun LevelUpCelebrationScreen(
     level: Int,
     onDismiss: () -> Unit = {}
 ) {
+    val soundManager = LocalSoundManager.current
     LaunchedEffect(level) {
-        // TODO (Day 7 Scope): Play retro level-up sound effect (e.g. SoundManager.playLevelUpSound())
+        soundManager?.playLevelUpSound()
     }
 
     val transition = rememberInfiniteTransition(label = "level_up_bounce")
