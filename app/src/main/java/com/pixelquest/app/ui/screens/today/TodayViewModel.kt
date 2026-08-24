@@ -22,28 +22,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
 
-data class TodayTaskItem(
-    val task: TaskEntity,
-    val status: TaskItemStatus,
-    val scheduledTime: LocalTime = task.scheduledTime
-)
-
-sealed class TodayUiState {
-    object Loading : TodayUiState()
-    data class Success(
-        val tasks: List<TodayTaskItem> = emptyList(),
-        val currentStreak: Int = 0,
-        val totalXp: Int = 0,
-        val level: Int = 1,
-        val perfectDaysTowardNextLevel: Int = 0,
-        val daysRequiredPerLevel: Int = 7,
-        val completionPercentage: Float = 0f,
-        val targetThreshold: Float = 0.7f,
-        val isPerfectDay: Boolean = false
-    ) : TodayUiState()
-    data class Error(val message: String) : TodayUiState()
-}
-
 @HiltViewModel
 class TodayViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
