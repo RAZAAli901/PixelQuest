@@ -47,6 +47,8 @@ fun TodayQuestCard(
     val isGracePeriod = status == TaskItemStatus.GRACE_PERIOD
     val isActivePending = status == TaskItemStatus.PENDING || isGracePeriod
 
+    var offsetX by remember { mutableStateOf(0f) }
+
     val cardVariant = when {
         isDone -> PixelPanelVariant.GREEN
         isMissed -> PixelPanelVariant.RED
