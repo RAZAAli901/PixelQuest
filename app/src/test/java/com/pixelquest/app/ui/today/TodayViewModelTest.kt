@@ -138,4 +138,25 @@ class TodayViewModelTest {
         assertEquals(500, successState.totalXp)
         assertEquals(3, successState.level)
     }
+
+    @Test
+    fun combineLogic_sortsPendingFirstByScheduledTime() = runTest {
+        val today = LocalDate.now()
+        val task1 = TaskEntity(id = 1, name = "Late Pending", scheduledTime = LocalTime.of(18, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
+        val task2 = TaskEntity(id = 2, name = "Early Completed", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
+        val task3 = TaskEntity(id = 3, name = "Early Pending", scheduledTime = LocalTime.of(9, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)
+
+        taskRepo.tasksFlow.value = listOf(task1, task2, task3)
+        completionRepo.logsFlow.value = listOf(
+            TaskCompletionLogEntity(id = 10, taskId = 2, completionDate = today, wasCompleted = true)
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value as TodayUiState.Success
+        assertEquals(3, state.tasks.size)
+        assertEquals(3L, state.tasks[0].task.id) // Early Pending (9:00)
+        assertEquals(1L, state.tasks[1].task.id) // Late Pending (18:00)
+        assertEquals(2L, state.tasks[2].task.id) // Early Completed (8:00, deprioritized)
+    }
 }

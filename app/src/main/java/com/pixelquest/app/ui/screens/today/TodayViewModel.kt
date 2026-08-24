@@ -53,16 +53,19 @@ class TodayViewModel @Inject constructor(
                 status = status,
                 scheduledTime = task.scheduledTime
             )
-        }
+        val sortedItems = items.sortedWith(
+            compareBy<TodayTaskItem> { it.status == TaskItemStatus.DONE || it.status == TaskItemStatus.MISSED }
+                .thenBy { it.scheduledTime }
+        )
 
-        val completedCount = items.count { it.status == TaskItemStatus.DONE }
-        val totalCount = items.size
+        val completedCount = sortedItems.count { it.status == TaskItemStatus.DONE }
+        val totalCount = sortedItems.size
         val completionPct = if (totalCount > 0) completedCount.toFloat() / totalCount else 0f
         val threshold = difficulty?.perfectDayThreshold ?: 0.7f
         val isPerfectDay = totalCount > 0 && completionPct >= threshold
 
         TodayUiState.Success(
-            tasks = items,
+            tasks = sortedItems,
             currentStreak = streak?.currentStreak ?: 0,
             totalXp = profile?.totalXp ?: 0,
             level = profile?.level ?: 1,
