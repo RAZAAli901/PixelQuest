@@ -168,4 +168,39 @@ class TodayViewModelTest {
         assertEquals(1L, state.tasks[1].task.id) // Late Pending (18:00)
         assertEquals(2L, state.tasks[2].task.id) // Early Completed (8:00, deprioritized)
     }
+
+    @Test
+    fun completeTask_updatesCompletionPercentageAndIsPerfectDay() = runTest {
+        val today = LocalDate.now()
+        val task1 = TaskEntity(id = 1, name = "Task 1", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
+        val task2 = TaskEntity(id = 2, name = "Task 2", scheduledTime = LocalTime.of(12, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
+
+        taskRepo.tasksFlow.value = listOf(task1, task2)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        var state = viewModel.uiState.value as TodayUiState.Success
+        assertEquals(0f, state.completionPercentage, 0.001f)
+        assertFalse(state.isPerfectDay)
+
+        // Complete task1 (1 of 2 completed = 50%, below Medium 70% threshold)
+        completionRepo.logsFlow.value = listOf(
+            TaskCompletionLogEntity(id = 1, taskId = 1, completionDate = today, wasCompleted = true, pointsAwarded = 50)
+        )
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        state = viewModel.uiState.value as TodayUiState.Success
+        assertEquals(0.5f, state.completionPercentage, 0.001f)
+        assertFalse(state.isPerfectDay)
+
+        // Complete task2 (2 of 2 completed = 100%, >= 70% threshold)
+        completionRepo.logsFlow.value = listOf(
+            TaskCompletionLogEntity(id = 1, taskId = 1, completionDate = today, wasCompleted = true, pointsAwarded = 50),
+            TaskCompletionLogEntity(id = 2, taskId = 2, completionDate = today, wasCompleted = true, pointsAwarded = 50)
+        )
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        state = viewModel.uiState.value as TodayUiState.Success
+        assertEquals(1.0f, state.completionPercentage, 0.001f)
+        assertTrue(state.isPerfectDay)
+    }
 }
