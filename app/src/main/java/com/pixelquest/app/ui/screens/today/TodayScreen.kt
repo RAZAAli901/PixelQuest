@@ -29,6 +29,7 @@ import com.pixelquest.app.ui.components.PixelDailyProgressRing
 import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
 import com.pixelquest.app.ui.components.PixelPerfectDayBanner
+import com.pixelquest.app.ui.components.StreakXpSummaryStrip
 import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.components.TodayQuestCard
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
@@ -127,6 +128,14 @@ fun TodayContent(
             PixelDailyProgressRing(
                 progress = state.completionPercentage,
                 targetThreshold = state.targetThreshold
+            )
+        }
+        item {
+            StreakXpSummaryStrip(
+                currentStreak = state.currentStreak,
+                totalXp = state.totalXp,
+                level = state.level,
+                onClick = onNavigateToProfile
             )
         }
         if (state.flavorText.isNotBlank()) {
