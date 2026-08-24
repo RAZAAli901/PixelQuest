@@ -99,16 +99,6 @@ fun TasksScreen(
                         }
                     } else {
                         Column(modifier = Modifier.fillMaxSize()) {
-                            PixelDailyProgressRing(
-                                progress = state.completionPercentage,
-                                targetThreshold = state.targetThreshold,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                            if (state.isPerfectDay) {
-                                PixelPerfectDayBanner(
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                                )
-                            }
                             if (missedCount > 0) {
                                 PixelSnackbar(
                                     message = "$missedCount quest(s) missed today!",
