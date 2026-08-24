@@ -25,6 +25,10 @@ import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextMuted
 import com.pixelquest.app.ui.theme.PixelTypography
 
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import com.pixelquest.app.audio.LocalSoundManager
+
 @Composable
 fun TodayScreen(
     viewModel: TodayViewModel = hiltViewModel(),
@@ -32,6 +36,8 @@ fun TodayScreen(
     onNavigateToProfile: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val haptics = LocalHapticFeedback.current
+    val soundManager = LocalSoundManager.current
 
     Box(
         modifier = Modifier
@@ -61,8 +67,16 @@ fun TodayScreen(
             is TodayUiState.Success -> {
                 TodayContent(
                     state = state,
-                    onQuickComplete = { task -> viewModel.completeTask(task) },
-                    onQuickSkip = { task -> viewModel.skipTask(task) },
+                    onQuickComplete = { task ->
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        soundManager?.playTaskCompleteSound()
+                        viewModel.completeTask(task)
+                    },
+                    onQuickSkip = { task ->
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        soundManager?.playTaskMissedSound()
+                        viewModel.skipTask(task)
+                    },
                     onNavigateToEditTask = onNavigateToEditTask,
                     onNavigateToProfile = onNavigateToProfile
                 )
