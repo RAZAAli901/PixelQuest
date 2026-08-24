@@ -452,6 +452,99 @@ It features retro 8-bit aesthetic styling, custom pixel-art UI components, level
 #### 6. Known Gaps for Day 8
 - Day 8 scope will implement the Home / "Today" Dashboard Screen: live countdowns, quick-complete flow, daily progress ring placement, and flavor text.
 
+## Day 8 Progress Log
+- Step 1: Create ui/screens/today/TodayViewModel.kt joining today tasks with completion logs, streak, XP, and level - 378931c
+- Step 2: Define TodayUiState with TodayTaskItem per task - 6041922
+- Step 3: Wire TodayViewModel to combine Flows from Task, Completion, Streak, Profile, and Difficulty repositories - f068ba2
+- Step 4: Write unit test for TodayViewModel combine logic mapping task statuses - d5a31af
+- Step 5: Add chronological sorting ordering pending tasks first by scheduled time - 05116f4
+- Step 6: Build PixelCountdownTimer composable showing time remaining until scheduled time - 524fade
+- Step 7: Wire ticking timer loop in LaunchedEffect updating countdown state every 30 seconds - e007e37
+- Step 8: Add urgency styling color shift when countdown drops under 15 minutes threshold - 1c1a28c
+- Step 9: Add Compose Preview for PixelCountdownTimer across several time-remaining states - b31967f
+- Step 10: Write unit test for countdown formatting logic and time's up transitions - ea474de
+- Step 11: Build TodayQuestCard composable with task details, category icon, status/countdown, and quick-complete affordance - e6681b8
+- Step 12: Replace current Home screen content with new TodayScreen layout - 88ce4fb
+- Step 13: Wire card list via LazyColumn driven by TodayUiState - 4136577
+- Step 14: Add distinct visual treatment for pending vs done vs missed cards with strikethrough and alpha - c0b9b25
+- Step 15: Implement grouped sections list structure for Up Next vs Completed & Past Quests - eb378f9
+- Step 16: Add swipe right gesture on TodayQuestCard as secondary quick-complete affordance - 0b96947
+- Step 17: Add Compose Preview for TodayScreen with a representative mix of pending, done, and missed items - bd0b9ce
+- Step 18: Add quick-complete button affordance on TodayQuestCard for active pending tasks - 27d83e4
+- Step 19: Wire quick-complete to log completion wasCompleted=true via TaskCompletionRepository - 8533785
+- Step 20: Trigger PointsCalculator points-awarding logic and XP update in completeTask - bbaaa20
+- Step 21: Cancel pending scheduled alarm in TaskAlarmScheduler when task is quick-completed early - 649c45d
+- Step 22: Add mark as missed/skip affordance gated behind PixelConfirmDialog - 11cc8be
+- Step 23: Add light haptic feedback and sound effects on quick-complete and skip - 020ce1b
+- Step 24: Write integration tests for quick-complete and quick-skip paths verifying log insertion and XP awards - 2edacfa
+- Step 25: Move Day 5 PixelDailyProgressRing to top of TodayScreen as primary visual anchor - 77268c8
+- Step 26: Verify progress ring completion percentage and perfect day flag update reactively on quick-completions - 5dabdaa
+- Step 27: Wire Day 5 PixelPerfectDayBanner into TodayScreen when isPerfectDay is true - 5c14573
+- Step 28: Remove duplicate progress ring and banner from TasksScreen layout - d59a56b
+- Step 29: Create FlavorTextCatalog with curated retro pixel flavor text lines per progress state - 1872d7c
+- Step 30: Build FlavorTextBanner composable displaying one selected flavor text line - 1a0808c
+- Step 31: Wire date-seeded flavor text selection into TodayViewModel and TodayScreen - 64df705
+- Step 32: Add special-case flavor text for zero-tasks-today and all-tasks-completed states - 7499b66
+- Step 33: Write unit test verifying flavor text selection is deterministic per day and varies by progress state - 4b8f1f9
+- Step 34: Build StreakXpSummaryStrip composable consolidating streak count, points, and level badge into one compact row - 48d19f6
+- Step 35: Wire StreakXpSummaryStrip into TodayScreen directly below progress ring - fd10738
+- Step 36: Wire tap on StreakXpSummaryStrip to navigate to ProfileScreen and add verification test - 4b8d659
+- Step 37: Add Compose Preview for StreakXpSummaryStrip - 7c91758
+- Step 38: Add distinct no quests today empty state with pixel illustration and create quest CTA - d1935e7
+- Step 39: Handle grace-period status for overdue tasks before midnight streak evaluation - 63113aa
+- Step 40: Add manual refresh button and affordance on TodayScreen - 9685fc5
+- Step 41: Write unit test TodayGracePeriodTest for late/grace-period task status handling and empty states - 6fa10d2
+- Step 42: Write TodayScreenEndToEndTest integration test verifying full UI state rendering - 60e8266
+- Step 43: Manual QA pass: walk through full day cycle simulating task creation, countdown, and completion transitions - 73a5fcd
+- Step 44: Verify countdown timers pause and resume cleanly using lifecycle-aware LaunchedEffect scope - 49146cf
+- Step 45: Fix UI card gesture state and polish layout rendering during QA pass - 9233886
+- Step 46: Manual QA: verify sound effects and haptic feedback trigger cleanly from quick-complete path - 039eee7
+- Step 47: Update BRIEF.md with full technical documentation for Day 8 - [PENDING_COMMIT]
+
+### Technical Documentation — Day 8: The "Today" Dashboard & Quick-Complete System
+
+#### 1. Architecture Overview
+Day 8 consolidates the core experience of PixelQuest around the new **Today Dashboard** (`TodayScreen.kt`, `TodayViewModel.kt`). The screen serves as the primary home interface, uniting live scheduled quest countdowns, quick completion/skipping, daily progress ring tracking, streak & XP summaries, and date-seeded retro flavor text.
+
+```
+                  ┌───────────────────────────────┐
+                  │       TodayViewModel          │
+                  └──────────────┬────────────────┘
+                                 │ combines Flows from 5 repos:
+    ┌────────────────┬───────────┼───────────┬────────────────┐
+    │                │           │           │                │
+TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
+  (Tasks)         (Logs)        (Streak)   (XP, Level)   (Thresholds)
+```
+
+#### 2. Today UI State & Dynamic Status Mapping
+- **TodayUiState.Success**: Emits reactive `TodayTaskItem` instances chronologically ordered (pending quests first ordered by scheduled time, followed by completed/missed quests).
+- **TaskItemStatus**:
+  - `PENDING`: Scheduled for today, future time remaining.
+  - `GRACE_PERIOD`: Scheduled time passed today, pending completion or midnight evaluation.
+  - `DONE`: Quick-completed or completed via notification (`wasCompleted = true`).
+  - `MISSED`: Marked as skipped (`wasCompleted = false`).
+
+#### 3. Quick-Complete & Skip Flow
+1. **Quick-Complete**:
+   - Inserts `TaskCompletionLogEntity(wasCompleted = true, pointsAwarded = points)` via `TaskCompletionRepository`.
+   - Awards XP computed via `PointsCalculator.calculateXpForTask(task, streak)`.
+   - Cancels pending `AlarmManager` alarms via `TaskAlarmScheduler.cancelAlarmForTask(task)`.
+   - Plays completion SFX via `SoundManager.playTaskCompleteSound()` and triggers haptic feedback.
+2. **Quick-Skip**:
+   - Gated behind `PixelConfirmDialog` ("Are you sure you want to mark quest as missed?").
+   - Inserts `TaskCompletionLogEntity(wasCompleted = false, pointsAwarded = 0)`.
+   - Cancels pending alarm and triggers missed SFX + haptic feedback.
+
+#### 4. Countdown Timer & Urgency System
+- **`PixelCountdownTimer`**: Lifecycle-aware composable ticking every 30s using `LaunchedEffect(Unit)`.
+- **Urgency Shift**: Shifts text & border color to `PixelYellow` with a 15% opacity background highlight when time remaining falls below 15 minutes. Shows "TIME'S UP!" when expired.
+
+#### 5. Motivational Flavor Text Catalog
+- **`FlavorTextCatalog.kt`**: Curated pool of retro 8-bit motivational lines.
+- Date-seeded via `LocalDate.now().hashCode()` to ensure stability throughout the day without re-rolling on recomposition, transitioning across `zeroTasksLines`, `notStartedLines`, `inProgressLines`, `allCompletedLines`, and `perfectDayLines`.
+
+
 
 
 
