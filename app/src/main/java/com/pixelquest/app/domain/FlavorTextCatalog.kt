@@ -29,6 +29,12 @@ object FlavorTextCatalog {
         "Maximum glory unlocked today, hero!"
     )
 
+    val allCompletedLines = listOf(
+        "All quests completed! Perfect score today, hero!",
+        "Quest log cleared! Rest easy until tomorrow's adventure!",
+        "Flawless victory! Every scheduled quest accomplished!"
+    )
+
     fun getFlavorText(
         taskCount: Int,
         completedCount: Int,
@@ -36,9 +42,13 @@ object FlavorTextCatalog {
         date: LocalDate = LocalDate.now()
     ): String {
         val seed = abs(date.hashCode())
+        val allCompleted = taskCount > 0 && completedCount == taskCount
         return when {
             taskCount == 0 -> zeroTasksLines[seed % zeroTasksLines.size]
-            isPerfectDay -> perfectDayLines[seed % perfectDayLines.size]
+            allCompleted || isPerfectDay -> {
+                if (allCompleted) allCompletedLines[seed % allCompletedLines.size]
+                else perfectDayLines[seed % perfectDayLines.size]
+            }
             completedCount > 0 -> inProgressLines[seed % inProgressLines.size]
             else -> notStartedLines[seed % notStartedLines.size]
         }
