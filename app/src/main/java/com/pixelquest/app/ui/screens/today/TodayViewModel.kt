@@ -25,13 +25,16 @@ import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
 
+import com.pixelquest.app.scheduling.TaskAlarmScheduler
+
 @HiltViewModel
 class TodayViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
     private val streakRepository: StreakRepository,
     private val userProfileRepository: UserProfileRepository,
-    private val difficultySettingsRepository: DifficultySettingsRepository
+    private val difficultySettingsRepository: DifficultySettingsRepository,
+    private val taskAlarmScheduler: TaskAlarmScheduler
 ) : ViewModel() {
 
     private val currentDate: LocalDate = LocalDate.now()
@@ -87,6 +90,7 @@ class TodayViewModel @Inject constructor(
 
     fun completeTask(task: TaskEntity) {
         viewModelScope.launch {
+            taskAlarmScheduler.cancelAlarmForTask(task)
             val currentStreak = streakRepository.getCurrentStreak().first()?.currentStreak ?: 0
             val points = PointsCalculator.calculateXpForTask(task, currentStreak)
             val log = TaskCompletionLogEntity(

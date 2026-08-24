@@ -77,6 +77,12 @@ class FakeDifficultyRepo : DifficultySettingsRepository {
     override suspend fun updateSettings(settings: DifficultySettingsEntity) {}
 }
 
+import androidx.test.core.app.ApplicationProvider
+import com.pixelquest.app.scheduling.TaskAlarmScheduler
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class TodayViewModelTest {
 
@@ -86,6 +92,7 @@ class TodayViewModelTest {
     private lateinit var streakRepo: FakeStreakRepository
     private lateinit var profileRepo: FakeUserProfileRepository
     private lateinit var difficultyRepo: FakeDifficultyRepo
+    private lateinit var alarmScheduler: TaskAlarmScheduler
     private lateinit var viewModel: TodayViewModel
 
     @Before
@@ -96,13 +103,15 @@ class TodayViewModelTest {
         streakRepo = FakeStreakRepository()
         profileRepo = FakeUserProfileRepository()
         difficultyRepo = FakeDifficultyRepo()
+        alarmScheduler = TaskAlarmScheduler(ApplicationProvider.getApplicationContext())
 
         viewModel = TodayViewModel(
             taskRepository = taskRepo,
             taskCompletionRepository = completionRepo,
             streakRepository = streakRepo,
             userProfileRepository = profileRepo,
-            difficultySettingsRepository = difficultyRepo
+            difficultySettingsRepository = difficultyRepo,
+            taskAlarmScheduler = alarmScheduler
         )
     }
 
