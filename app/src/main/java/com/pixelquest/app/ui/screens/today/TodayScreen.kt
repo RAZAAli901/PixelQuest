@@ -1,11 +1,12 @@
 package com.pixelquest.app.ui.screens.today
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
+import com.pixelquest.app.ui.components.TodayQuestCard
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 
 @Composable
@@ -68,12 +70,22 @@ fun TodayContent(
     onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Today Screen header placeholder, list wired in Step 13
-        Text("TODAY'S QUEST BOARD")
+        items(
+            items = state.tasks,
+            key = { it.task.id }
+        ) { item ->
+            TodayQuestCard(
+                task = item.task,
+                status = item.status,
+                onQuickComplete = {},
+                onQuickSkip = {},
+                onClick = { onNavigateToEditTask(item.task.id) }
+            )
+        }
     }
 }
