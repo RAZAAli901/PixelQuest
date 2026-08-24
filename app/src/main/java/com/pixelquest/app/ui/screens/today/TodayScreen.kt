@@ -37,9 +37,12 @@ import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextMuted
 import com.pixelquest.app.ui.theme.PixelTypography
 
+import com.pixelquest.app.ui.components.EmptyTodayState
+
 @Composable
 fun TodayScreen(
     viewModel: TodayViewModel = hiltViewModel(),
+    onNavigateToCreateTask: () -> Unit = {},
     onNavigateToEditTask: (Long) -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
 ) {
@@ -85,6 +88,7 @@ fun TodayScreen(
                         soundManager?.playTaskMissedSound()
                         viewModel.skipTask(task)
                     },
+                    onCreateQuestClick = onNavigateToCreateTask,
                     onNavigateToEditTask = onNavigateToEditTask,
                     onNavigateToProfile = onNavigateToProfile
                 )
@@ -98,6 +102,7 @@ fun TodayContent(
     state: TodayUiState.Success,
     onQuickComplete: (TaskEntity) -> Unit,
     onQuickSkip: (TaskEntity) -> Unit,
+    onCreateQuestClick: () -> Unit,
     onNavigateToEditTask: (Long) -> Unit,
     onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier
@@ -148,7 +153,11 @@ fun TodayContent(
                 PixelPerfectDayBanner()
             }
         }
-        if (pendingTasks.isNotEmpty()) {
+        if (state.tasks.isEmpty()) {
+            item {
+                EmptyTodayState(onCreateQuestClick = onCreateQuestClick)
+            }
+        } else if (pendingTasks.isNotEmpty()) {
             item {
                 Text(
                     text = "⚔️ UP NEXT",
