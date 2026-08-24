@@ -26,6 +26,13 @@ import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTextMuted
 import com.pixelquest.app.ui.theme.PixelTypography
 
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 @Composable
 fun TodayQuestCard(
     task: TaskEntity,
@@ -37,6 +44,8 @@ fun TodayQuestCard(
 ) {
     val isDone = status == TaskItemStatus.DONE || status == TaskItemStatus.COMPLETED
     val isMissed = status == TaskItemStatus.MISSED
+
+    var offsetX by remember { mutableStateOf(0f) }
 
     val cardVariant = when {
         isDone -> PixelPanelVariant.BLUE
@@ -50,6 +59,23 @@ fun TodayQuestCard(
         modifier = modifier
             .fillMaxWidth()
             .alpha(if (isMissed) 0.7f else 1.0f)
+            .pointerInput(isDone, isMissed) {
+                if (!isDone && !isMissed) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            if (offsetX > 150f) {
+                                onQuickComplete()
+                            }
+                            offsetX = 0f
+                        },
+                        onHorizontalDrag = { _, dragAmount ->
+                            if (dragAmount > 0) {
+                                offsetX = (offsetX + dragAmount).coerceAtMost(300f)
+                            }
+                        }
+                    )
+                }
+            }
             .clickable(onClick = onClick)
     ) {
         Row(
