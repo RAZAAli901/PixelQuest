@@ -69,7 +69,9 @@ fun TodayQuestCard(
             ) {
                 Text(
                     text = task.name,
-                    style = PixelTypography.titleMedium,
+                    style = PixelTypography.titleMedium.copy(
+                        textDecoration = if (isMissed) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
+                    ),
                     color = when {
                         isDone -> PixelGreen
                         isMissed -> PixelRed
