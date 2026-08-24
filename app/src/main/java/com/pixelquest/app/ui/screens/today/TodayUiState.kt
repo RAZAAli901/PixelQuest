@@ -21,7 +21,8 @@ sealed class TodayUiState {
         val daysRequiredPerLevel: Int = 7,
         val completionPercentage: Float = 0f,
         val targetThreshold: Float = 0.7f,
-        val isPerfectDay: Boolean = false
+        val isPerfectDay: Boolean = false,
+        val flavorText: String = ""
     ) : TodayUiState()
     data class Error(val message: String) : TodayUiState()
 }

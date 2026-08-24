@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.audio.LocalSoundManager
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.ui.components.FlavorTextBanner
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelDailyProgressRing
 import com.pixelquest.app.ui.components.PixelErrorState
@@ -127,6 +128,11 @@ fun TodayContent(
                 progress = state.completionPercentage,
                 targetThreshold = state.targetThreshold
             )
+        }
+        if (state.flavorText.isNotBlank()) {
+            item {
+                FlavorTextBanner(text = state.flavorText)
+            }
         }
         if (state.isPerfectDay) {
             item {

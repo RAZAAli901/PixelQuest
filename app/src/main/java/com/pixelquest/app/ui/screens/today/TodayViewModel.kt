@@ -7,12 +7,14 @@ import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
+import com.pixelquest.app.domain.FlavorTextCatalog
 import com.pixelquest.app.domain.PointsCalculator
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
+import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import com.pixelquest.app.ui.components.TaskItemStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,8 +26,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
-
-import com.pixelquest.app.scheduling.TaskAlarmScheduler
 
 @HiltViewModel
 class TodayViewModel @Inject constructor(
@@ -70,6 +70,7 @@ class TodayViewModel @Inject constructor(
         val completionPct = if (totalCount > 0) completedCount.toFloat() / totalCount else 0f
         val threshold = difficulty?.perfectDayThreshold ?: 0.7f
         val isPerfectDay = totalCount > 0 && completionPct >= threshold
+        val flavorText = FlavorTextCatalog.getFlavorText(totalCount, completedCount, isPerfectDay, currentDate)
 
         TodayUiState.Success(
             tasks = sortedItems,
@@ -80,7 +81,8 @@ class TodayViewModel @Inject constructor(
             daysRequiredPerLevel = difficulty?.daysRequiredPerLevel ?: 7,
             completionPercentage = completionPct,
             targetThreshold = threshold,
-            isPerfectDay = isPerfectDay
+            isPerfectDay = isPerfectDay,
+            flavorText = flavorText
         ) as TodayUiState
     }.stateIn(
         scope = viewModelScope,
