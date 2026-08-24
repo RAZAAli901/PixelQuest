@@ -91,6 +91,8 @@ import androidx.compose.runtime.setValue
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 
+import com.pixelquest.app.ui.components.PixelDailyProgressRing
+
 @Composable
 fun TodayContent(
     state: TodayUiState.Success,
@@ -122,6 +124,12 @@ fun TodayContent(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        item {
+            PixelDailyProgressRing(
+                progress = state.completionPercentage,
+                targetThreshold = state.targetThreshold
+            )
+        }
         if (pendingTasks.isNotEmpty()) {
             item {
                 Text(
