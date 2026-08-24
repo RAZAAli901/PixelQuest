@@ -31,7 +31,8 @@ enum class TaskItemStatus {
     PENDING,
     COMPLETED,
     DONE,
-    MISSED
+    MISSED,
+    GRACE_PERIOD
 }
 
 @Composable

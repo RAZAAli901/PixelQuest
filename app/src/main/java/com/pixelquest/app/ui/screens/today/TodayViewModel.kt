@@ -49,9 +49,11 @@ class TodayViewModel @Inject constructor(
         val logMap = logs.associateBy { it.taskId }
         val items = tasks.map { task ->
             val log = logMap[task.id]
+            val nowTime = LocalTime.now()
             val status = when {
                 log?.wasCompleted == true -> TaskItemStatus.DONE
                 log?.wasCompleted == false -> TaskItemStatus.MISSED
+                nowTime.isAfter(task.scheduledTime) -> TaskItemStatus.GRACE_PERIOD
                 else -> TaskItemStatus.PENDING
             }
             TodayTaskItem(
