@@ -7,6 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,6 +21,7 @@ import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTypography
 import com.pixelquest.app.ui.theme.PixelYellow
+import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.LocalTime
 
@@ -50,8 +56,20 @@ object CountdownFormatter {
 fun PixelCountdownTimer(
     scheduledTime: LocalTime,
     modifier: Modifier = Modifier,
-    now: LocalTime = LocalTime.now()
+    overrideNow: LocalTime? = null
 ) {
+    var currentTime by remember { mutableStateOf(overrideNow ?: LocalTime.now()) }
+
+    LaunchedEffect(overrideNow) {
+        if (overrideNow == null) {
+            while (true) {
+                currentTime = LocalTime.now()
+                delay(30_000L) // tick every 30 seconds
+            }
+        }
+    }
+
+    val now = overrideNow ?: currentTime
     val isExpired = CountdownFormatter.isExpired(scheduledTime, now)
     val isUrgent = CountdownFormatter.isUrgent(scheduledTime, now)
     val text = CountdownFormatter.formatRemainingTime(scheduledTime, now)
