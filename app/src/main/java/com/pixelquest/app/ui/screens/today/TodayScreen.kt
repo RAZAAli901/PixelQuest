@@ -61,6 +61,8 @@ fun TodayScreen(
             is TodayUiState.Success -> {
                 TodayContent(
                     state = state,
+                    onQuickComplete = { task -> viewModel.completeTask(task) },
+                    onQuickSkip = { task -> viewModel.skipTask(task) },
                     onNavigateToEditTask = onNavigateToEditTask,
                     onNavigateToProfile = onNavigateToProfile
                 )
@@ -69,15 +71,37 @@ fun TodayScreen(
     }
 }
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.ui.components.PixelConfirmDialog
+
 @Composable
 fun TodayContent(
     state: TodayUiState.Success,
+    onQuickComplete: (TaskEntity) -> Unit,
+    onQuickSkip: (TaskEntity) -> Unit,
     onNavigateToEditTask: (Long) -> Unit,
     onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var taskToSkip by remember { mutableStateOf<TaskEntity?>(null) }
+
     val pendingTasks = state.tasks.filter { it.status == TaskItemStatus.PENDING }
     val completedOrMissedTasks = state.tasks.filter { it.status != TaskItemStatus.PENDING }
+
+    if (taskToSkip != null) {
+        PixelConfirmDialog(
+            title = "SKIP QUEST",
+            message = "Are you sure you want to mark '${taskToSkip?.name}' as missed/skipped?",
+            onConfirm = {
+                taskToSkip?.let { onQuickSkip(it) }
+                taskToSkip = null
+            },
+            onDismiss = { taskToSkip = null }
+        )
+    }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -100,8 +124,8 @@ fun TodayContent(
                 TodayQuestCard(
                     task = item.task,
                     status = item.status,
-                    onQuickComplete = {},
-                    onQuickSkip = {},
+                    onQuickComplete = { onQuickComplete(item.task) },
+                    onQuickSkip = { taskToSkip = item.task },
                     onClick = { onNavigateToEditTask(item.task.id) }
                 )
             }

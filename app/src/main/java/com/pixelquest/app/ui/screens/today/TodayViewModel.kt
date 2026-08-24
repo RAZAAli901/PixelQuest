@@ -107,4 +107,17 @@ class TodayViewModel @Inject constructor(
             }
         }
     }
+
+    fun skipTask(task: TaskEntity) {
+        viewModelScope.launch {
+            taskAlarmScheduler.cancelAlarmForTask(task)
+            val log = TaskCompletionLogEntity(
+                taskId = task.id,
+                completedDate = currentDate,
+                wasCompleted = false,
+                pointsAwarded = 0
+            )
+            taskCompletionRepository.insertLog(log)
+        }
+    }
 }
