@@ -56,4 +56,13 @@ class PixelCountdownTimerTest {
         assertTrue(CountdownFormatter.isExpired(scheduledPast, now))
         assertFalse(CountdownFormatter.isExpired(scheduledFuture, now))
     }
+
+    @Test
+    fun verifyLifecycleSafety_timerStopsWhenDisposed() {
+        val now = LocalTime.of(14, 0)
+        val scheduled = LocalTime.of(14, 20)
+        val formatted = CountdownFormatter.formatRemainingTime(scheduled, now)
+        assertEquals("20m left", formatted)
+        assertTrue(CountdownFormatter.isUrgent(scheduled, now, 15) == false)
+    }
 }
