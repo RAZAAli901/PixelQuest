@@ -30,6 +30,7 @@ import java.time.format.DateTimeFormatter
 enum class TaskItemStatus {
     PENDING,
     COMPLETED,
+    DONE,
     MISSED
 }
 
@@ -43,7 +44,7 @@ fun PixelTaskListItem(
 ) {
     val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
     val cardVariant = when (status) {
-        TaskItemStatus.COMPLETED -> PixelPanelVariant.BLUE
+        TaskItemStatus.COMPLETED, TaskItemStatus.DONE -> PixelPanelVariant.BLUE
         TaskItemStatus.MISSED -> PixelPanelVariant.BORDER
         TaskItemStatus.PENDING -> PixelPanelVariant.BEIGE
     }
