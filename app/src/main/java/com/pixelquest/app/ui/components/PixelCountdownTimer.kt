@@ -86,9 +86,15 @@ fun PixelCountdownTimer(
         else -> PixelCyan.copy(alpha = 0.6f)
     }
 
+    val backgroundColor: Color = when {
+        isExpired -> PixelRed.copy(alpha = 0.15f)
+        isUrgent -> PixelYellow.copy(alpha = 0.15f)
+        else -> PixelBackgroundDark
+    }
+
     Box(
         modifier = modifier
-            .background(PixelBackgroundDark, shape = CutCornerShape(2.dp))
+            .background(backgroundColor, shape = CutCornerShape(2.dp))
             .border(1.dp, borderColor, CutCornerShape(2.dp))
             .padding(horizontal = 8.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center
