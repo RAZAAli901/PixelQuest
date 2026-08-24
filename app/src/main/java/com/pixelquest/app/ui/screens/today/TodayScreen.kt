@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.audio.LocalSoundManager
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.ui.components.EmptyTodayState
 import com.pixelquest.app.ui.components.FlavorTextBanner
+import com.pixelquest.app.ui.components.PixelButton
+import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelDailyProgressRing
 import com.pixelquest.app.ui.components.PixelErrorState
@@ -36,8 +41,6 @@ import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextMuted
 import com.pixelquest.app.ui.theme.PixelTypography
-
-import com.pixelquest.app.ui.components.EmptyTodayState
 
 @Composable
 fun TodayScreen(
@@ -88,6 +91,7 @@ fun TodayScreen(
                         soundManager?.playTaskMissedSound()
                         viewModel.skipTask(task)
                     },
+                    onRefresh = { viewModel.refresh() },
                     onCreateQuestClick = onNavigateToCreateTask,
                     onNavigateToEditTask = onNavigateToEditTask,
                     onNavigateToProfile = onNavigateToProfile
@@ -102,6 +106,7 @@ fun TodayContent(
     state: TodayUiState.Success,
     onQuickComplete: (TaskEntity) -> Unit,
     onQuickSkip: (TaskEntity) -> Unit,
+    onRefresh: () -> Unit,
     onCreateQuestClick: () -> Unit,
     onNavigateToEditTask: (Long) -> Unit,
     onNavigateToProfile: () -> Unit,
@@ -109,8 +114,8 @@ fun TodayContent(
 ) {
     var taskToSkip by remember { mutableStateOf<TaskEntity?>(null) }
 
-    val pendingTasks = state.tasks.filter { it.status == TaskItemStatus.PENDING }
-    val completedOrMissedTasks = state.tasks.filter { it.status != TaskItemStatus.PENDING }
+    val pendingTasks = state.tasks.filter { it.status == TaskItemStatus.PENDING || it.status == TaskItemStatus.GRACE_PERIOD }
+    val completedOrMissedTasks = state.tasks.filter { it.status == TaskItemStatus.DONE || it.status == TaskItemStatus.MISSED }
 
     if (taskToSkip != null) {
         PixelConfirmDialog(
@@ -129,6 +134,24 @@ fun TodayContent(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "⚔️ TODAY'S DASHBOARD",
+                    style = PixelTypography.titleLarge,
+                    color = PixelGold
+                )
+                PixelButton(
+                    text = "🔄 REFRESH",
+                    onClick = onRefresh,
+                    variant = PixelButtonVariant.SECONDARY
+                )
+            }
+        }
         item {
             PixelDailyProgressRing(
                 progress = state.completionPercentage,

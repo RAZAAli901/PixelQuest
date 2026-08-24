@@ -60,6 +60,7 @@ fun TodayScreenPreview() {
                 state = state,
                 onQuickComplete = {},
                 onQuickSkip = {},
+                onRefresh = {},
                 onCreateQuestClick = {},
                 onNavigateToEditTask = {},
                 onNavigateToProfile = {}

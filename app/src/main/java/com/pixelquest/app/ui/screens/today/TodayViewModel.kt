@@ -112,6 +112,11 @@ class TodayViewModel @Inject constructor(
         }
     }
 
+    fun refresh() {
+        // StateFlow combined from Room repositories automatically emits on DB changes.
+        // Explicit refresh hook provided for manual user pull/tap refresh.
+    }
+
     fun skipTask(task: TaskEntity) {
         viewModelScope.launch {
             taskAlarmScheduler.cancelAlarmForTask(task)
