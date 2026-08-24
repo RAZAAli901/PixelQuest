@@ -12,22 +12,28 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.pixelquest.app.audio.LocalSoundManager
+import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PixelDailyProgressRing
 import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
+import com.pixelquest.app.ui.components.PixelPerfectDayBanner
 import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.components.TodayQuestCard
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextMuted
 import com.pixelquest.app.ui.theme.PixelTypography
-
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import com.pixelquest.app.audio.LocalSoundManager
 
 @Composable
 fun TodayScreen(
@@ -85,14 +91,6 @@ fun TodayScreen(
     }
 }
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import com.pixelquest.app.data.local.entity.TaskEntity
-import com.pixelquest.app.ui.components.PixelConfirmDialog
-
-import com.pixelquest.app.ui.components.PixelDailyProgressRing
-
 @Composable
 fun TodayContent(
     state: TodayUiState.Success,
@@ -129,6 +127,11 @@ fun TodayContent(
                 progress = state.completionPercentage,
                 targetThreshold = state.targetThreshold
             )
+        }
+        if (state.isPerfectDay) {
+            item {
+                PixelPerfectDayBanner()
+            }
         }
         if (pendingTasks.isNotEmpty()) {
             item {
