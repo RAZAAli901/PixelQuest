@@ -31,9 +31,11 @@ class TodayViewModel @Inject constructor(
     private val difficultySettingsRepository: DifficultySettingsRepository
 ) : ViewModel() {
 
+    private val currentDate: LocalDate = LocalDate.now()
+
     val uiState: StateFlow<TodayUiState> = combine(
-        taskRepository.getTasksForDay(LocalDate.now()),
-        taskCompletionRepository.getLogsForDate(LocalDate.now()),
+        taskRepository.getTasksForDay(currentDate),
+        taskCompletionRepository.getLogsForDate(currentDate),
         streakRepository.getCurrentStreak(),
         userProfileRepository.getProfile(),
         difficultySettingsRepository.getCurrentDifficulty()
