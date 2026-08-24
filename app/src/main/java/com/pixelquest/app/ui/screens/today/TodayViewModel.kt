@@ -1,0 +1,100 @@
+package com.pixelquest.app.ui.screens.today
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
+import com.pixelquest.app.data.local.entity.StreakEntity
+import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
+import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.data.local.entity.UserProfileEntity
+import com.pixelquest.app.domain.repository.DifficultySettingsRepository
+import com.pixelquest.app.domain.repository.StreakRepository
+import com.pixelquest.app.domain.repository.TaskCompletionRepository
+import com.pixelquest.app.domain.repository.TaskRepository
+import com.pixelquest.app.domain.repository.UserProfileRepository
+import com.pixelquest.app.ui.components.TaskItemStatus
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import java.time.LocalDate
+import java.time.LocalTime
+import javax.inject.Inject
+
+data class TodayTaskItem(
+    val task: TaskEntity,
+    val status: TaskItemStatus,
+    val scheduledTime: LocalTime = task.scheduledTime
+)
+
+sealed class TodayUiState {
+    object Loading : TodayUiState()
+    data class Success(
+        val tasks: List<TodayTaskItem> = emptyList(),
+        val currentStreak: Int = 0,
+        val totalXp: Int = 0,
+        val level: Int = 1,
+        val perfectDaysTowardNextLevel: Int = 0,
+        val daysRequiredPerLevel: Int = 7,
+        val completionPercentage: Float = 0f,
+        val targetThreshold: Float = 0.7f,
+        val isPerfectDay: Boolean = false
+    ) : TodayUiState()
+    data class Error(val message: String) : TodayUiState()
+}
+
+@HiltViewModel
+class TodayViewModel @Inject constructor(
+    private val taskRepository: TaskRepository,
+    private val taskCompletionRepository: TaskCompletionRepository,
+    private val streakRepository: StreakRepository,
+    private val userProfileRepository: UserProfileRepository,
+    private val difficultySettingsRepository: DifficultySettingsRepository
+) : ViewModel() {
+
+    val uiState: StateFlow<TodayUiState> = combine(
+        taskRepository.getTasksForDay(LocalDate.now()),
+        taskCompletionRepository.getLogsForDate(LocalDate.now()),
+        streakRepository.getCurrentStreak(),
+        userProfileRepository.getProfile(),
+        difficultySettingsRepository.getCurrentDifficulty()
+    ) { tasks, logs, streak, profile, difficulty ->
+        val logMap = logs.associateBy { it.taskId }
+        val items = tasks.map { task ->
+            val log = logMap[task.id]
+            val status = when {
+                log?.wasCompleted == true -> TaskItemStatus.DONE
+                log?.wasCompleted == false -> TaskItemStatus.MISSED
+                else -> TaskItemStatus.PENDING
+            }
+            TodayTaskItem(
+                task = task,
+                status = status,
+                scheduledTime = task.scheduledTime
+            )
+        }
+
+        val completedCount = items.count { it.status == TaskItemStatus.DONE }
+        val totalCount = items.size
+        val completionPct = if (totalCount > 0) completedCount.toFloat() / totalCount else 0f
+        val threshold = difficulty?.perfectDayThreshold ?: 0.7f
+        val isPerfectDay = totalCount > 0 && completionPct >= threshold
+
+        TodayUiState.Success(
+            tasks = items,
+            currentStreak = streak?.currentStreak ?: 0,
+            totalXp = profile?.totalXp ?: 0,
+            level = profile?.level ?: 1,
+            perfectDaysTowardNextLevel = profile?.perfectDaysTowardNextLevel ?: 0,
+            daysRequiredPerLevel = difficulty?.daysRequiredPerLevel ?: 7,
+            completionPercentage = completionPct,
+            targetThreshold = threshold,
+            isPerfectDay = isPerfectDay
+        ) as TodayUiState
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = TodayUiState.Loading
+    )
+}
