@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,8 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
+import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.components.TodayQuestCard
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
+import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelTextMuted
+import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun TodayScreen(
@@ -70,22 +76,58 @@ fun TodayContent(
     onNavigateToProfile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val pendingTasks = state.tasks.filter { it.status == TaskItemStatus.PENDING }
+    val completedOrMissedTasks = state.tasks.filter { it.status != TaskItemStatus.PENDING }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(
-            items = state.tasks,
-            key = { it.task.id }
-        ) { item ->
-            TodayQuestCard(
-                task = item.task,
-                status = item.status,
-                onQuickComplete = {},
-                onQuickSkip = {},
-                onClick = { onNavigateToEditTask(item.task.id) }
-            )
+        if (pendingTasks.isNotEmpty()) {
+            item {
+                Text(
+                    text = "⚔️ UP NEXT",
+                    style = PixelTypography.titleMedium,
+                    color = PixelGold,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+            items(
+                items = pendingTasks,
+                key = { it.task.id }
+            ) { item ->
+                TodayQuestCard(
+                    task = item.task,
+                    status = item.status,
+                    onQuickComplete = {},
+                    onQuickSkip = {},
+                    onClick = { onNavigateToEditTask(item.task.id) }
+                )
+            }
+        }
+
+        if (completedOrMissedTasks.isNotEmpty()) {
+            item {
+                Text(
+                    text = "📜 COMPLETED & PAST QUESTS",
+                    style = PixelTypography.titleMedium,
+                    color = PixelTextMuted,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                )
+            }
+            items(
+                items = completedOrMissedTasks,
+                key = { it.task.id }
+            ) { item ->
+                TodayQuestCard(
+                    task = item.task,
+                    status = item.status,
+                    onQuickComplete = {},
+                    onQuickSkip = {},
+                    onClick = { onNavigateToEditTask(item.task.id) }
+                )
+            }
         }
     }
 }
