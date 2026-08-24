@@ -156,7 +156,7 @@ fun TodayQuestCard(
                             modifier = Modifier.padding(end = 8.dp)
                         )
                         PixelButton(
-                            text = "✓",
+                            text = "✓ DONE",
                             onClick = onQuickComplete,
                             variant = PixelButtonVariant.PRIMARY
                         )
