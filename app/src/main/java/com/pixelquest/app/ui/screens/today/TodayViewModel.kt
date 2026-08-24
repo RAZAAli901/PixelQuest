@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
@@ -80,4 +81,16 @@ class TodayViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = TodayUiState.Loading
     )
+
+    fun completeTask(taskId: Long) {
+        viewModelScope.launch {
+            val log = TaskCompletionLogEntity(
+                taskId = taskId,
+                completedDate = currentDate,
+                wasCompleted = true,
+                pointsAwarded = 0
+            )
+            taskCompletionRepository.insertLog(log)
+        }
+    }
 }
