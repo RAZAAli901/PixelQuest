@@ -586,6 +586,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 38: Add View Level History quick-link on StatsScreen pointing to LevelHistoryScreen - 127acf4
 - Step 39: Add windowed pagination and load-more support for TaskHistoryScreen - c4cdd69
 - Step 40: Add memoization for heatmap grid data aggregation avoiding redundant calculations on scroll - 4528abe
+- Step 41: Verify stats screens performance against large 6-month simulated dataset in StatsPerformanceTest - e2a1d3a
+
 
 
 
