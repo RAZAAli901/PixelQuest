@@ -566,6 +566,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 18: Wire PixelCalendarHeatmap into StatsScreen replacing the Day 5 7-day strip placeholder - 7f0b3a5
 - Step 19: Add Compose Preview StatsScreenPreview for updated StatsScreen layout - 136d753
 - Step 20: Build TaskHistoryScreen item composable displaying past task completion log entries - 8160b67
+- Step 21: Wire TaskHistoryScreen to TaskCompletionRepository via TaskHistoryViewModel - 35766bd
+
 
 
 
