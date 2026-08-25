@@ -585,6 +585,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 37: Add quick-nav affordances from StatsScreen to TaskHistoryScreen and TaskAnalyticsScreen - 4efd9d3
 - Step 38: Add View Level History quick-link on StatsScreen pointing to LevelHistoryScreen - 127acf4
 - Step 39: Add windowed pagination and load-more support for TaskHistoryScreen - c4cdd69
+- Step 40: Add memoization for heatmap grid data aggregation avoiding redundant calculations on scroll - 4528abe
+
 
 
 
