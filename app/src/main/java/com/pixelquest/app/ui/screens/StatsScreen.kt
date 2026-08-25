@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
-import com.pixelquest.app.ui.components.Pixel7DayHistoryStrip
+import com.pixelquest.app.ui.components.PixelCalendarHeatmap
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelStatCard
@@ -128,8 +128,22 @@ fun StatsScreen(
             }
         }
 
-        // 7-Day History Strip
-        Pixel7DayHistoryStrip(days = state.last7DaysLogs)
+        // Heatmap Section
+        Text(
+            text = "📅 QUEST ACTIVITY HEATMAP",
+            style = PixelTypography.titleMedium,
+            color = PixelGold
+        )
+        PixelCard(
+            variant = PixelPanelVariant.BEIGE,
+            contentPadding = 8.dp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            PixelCalendarHeatmap(
+                statusMap = state.heatmapStatusMap,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 

@@ -562,6 +562,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 14: Build StatsViewModel wiring repositories into StatsUiState - f2e136d
 - Step 15: Build PixelStatCard reusable composable for key metrics display - d2b7935
 - Step 16: Wire PixelStatCard instances into StatsScreen for streak, XP, and completion rate - ac41273
+- Step 17: Update difficulty display on StatsScreen bound to active difficulty level - b5985b0
+
 
 
 
