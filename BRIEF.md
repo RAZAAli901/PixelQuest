@@ -570,6 +570,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 22: Add PixelFilterChips composable for date-range filtering in task history - 736bf10
 - Step 23: Add EmptyHistoryState composable to TaskHistoryScreen when log history is empty - 8f77060
 - Step 24: Add TaskHistoryScreen nav route accessible from StatsScreen - 0d1c3fc
+- Step 25: Write UI test TaskHistoryScreenTest covering empty and populated history states - b60b5e4
+
 
 
 
