@@ -557,6 +557,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 9: Add month and week labels along heatmap edges in pixel font - 0492d2f
 - Step 10: Add tap interaction on heatmap cell showing day detail popup dialog - 88bb8b1
 - Step 11: Add horizontal scroll support to PixelCalendarHeatmap for viewing extended history - 2fd91c7
+- Step 12: Add Compose Preview for PixelCalendarHeatmap with sample data spanning all status types - 1a329bf
+
 
 
 
