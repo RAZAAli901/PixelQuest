@@ -103,3 +103,78 @@ fun TaskHistoryListItem(
         }
     }
 }
+
+@Composable
+fun EmptyHistoryState(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "📜",
+            style = PixelTypography.displayLarge
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "NO QUEST HISTORY",
+            style = PixelTypography.titleMedium,
+            color = PixelGold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Complete your daily quests to build your log history!",
+            style = PixelTypography.bodyMedium,
+            color = PixelTextWhite,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+    }
+}
+
+@Composable
+fun TaskHistoryScreen(
+    viewModel: TaskHistoryViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
+    onTaskClick: (Long) -> Unit = {}
+) {
+    val state by androidx.compose.runtime.collectAsState(viewModel.uiState)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(PixelBackgroundDark)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "📜 QUEST HISTORY LOG",
+            style = PixelTypography.titleLarge,
+            color = PixelGold
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        com.pixelquest.app.ui.components.PixelFilterChips(
+            selectedFilter = state.selectedFilter,
+            onFilterSelected = { viewModel.setFilter(it) }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (state.items.isEmpty()) {
+            EmptyHistoryState(modifier = Modifier.weight(1f))
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(state.items, key = { it.logId }) { item ->
+                    TaskHistoryListItem(
+                        item = item,
+                        onClick = { onTaskClick(item.taskId) }
+                    )
+                }
+            }
+        }
+    }
+}
