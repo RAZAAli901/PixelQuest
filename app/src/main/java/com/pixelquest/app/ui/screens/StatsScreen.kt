@@ -24,6 +24,9 @@ import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelStatCard
 import com.pixelquest.app.ui.screens.stats.StatsViewModel
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import com.pixelquest.app.ui.components.PixelBarChart
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelGold
@@ -50,6 +53,7 @@ fun StatsContent(
         modifier = modifier
             .fillMaxSize()
             .background(PixelBackgroundDark)
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -149,6 +153,14 @@ fun StatsContent(
         ) {
             PixelCalendarHeatmap(
                 statusMap = state.heatmapStatusMap,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // Weekly Trend Chart Section
+        if (state.weeklyTrend.isNotEmpty()) {
+            PixelBarChart(
+                weeklyData = state.weeklyTrend,
                 modifier = Modifier.fillMaxWidth()
             )
         }
