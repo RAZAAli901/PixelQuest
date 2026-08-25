@@ -578,6 +578,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 30: Add Compose Preview TaskAnalyticsScreenPreview for TaskAnalyticsScreen - cf98e7a
 - Step 31: Write UI test TaskAnalyticsScreenTest rendering per-task metrics - 24d0943
 - Step 32: Build PixelBarChart composable showing completion rate trend over recent weeks - a80743e
+- Step 33: Wire weekly trend bar chart into StatsScreen below calendar heatmap - 5d1faf5
+
 
 
 
