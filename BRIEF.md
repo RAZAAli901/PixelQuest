@@ -574,6 +574,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 26: Build TaskAnalyticsScreen layout displaying per-task completion rate, streak, and total completions - 69a445d
 - Step 27: Wire TaskAnalyticsScreen to TaskAnalyticsViewModel using StatsRepository.getPerTaskStats - e9bec7c
 - Step 28: Add PixelTaskMiniHistory composable showing task's recent completion history mini-heatmap - 71520ae
+- Step 29: Add TaskAnalyticsScreen nav route accessible by tapping a task in history or tasks list - 5288301
+
 
 
 
