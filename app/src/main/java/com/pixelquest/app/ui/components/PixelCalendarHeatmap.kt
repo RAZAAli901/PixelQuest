@@ -55,17 +55,20 @@ fun PixelCalendarHeatmap(
             onDismiss = { selectedDay = null }
         )
     }
-    var firstMonday = startDate
-    while (firstMonday.dayOfWeek != DayOfWeek.MONDAY) {
-        firstMonday = firstMonday.minusDays(1)
-    }
+    val weeks = remember(startDate, endDate) {
+        var firstMonday = startDate
+        while (firstMonday.dayOfWeek != DayOfWeek.MONDAY) {
+            firstMonday = firstMonday.minusDays(1)
+        }
 
-    val weeks = mutableListOf<List<LocalDate>>()
-    var curr = firstMonday
-    while (!curr.isAfter(endDate)) {
-        val week = (0..6).map { curr.plusDays(it.toLong()) }
-        weeks.add(week)
-        curr = curr.plusDays(7)
+        val list = mutableListOf<List<LocalDate>>()
+        var curr = firstMonday
+        while (!curr.isAfter(endDate)) {
+            val week = (0..6).map { curr.plusDays(it.toLong()) }
+            list.add(week)
+            curr = curr.plusDays(7)
+        }
+        list
     }
 
     val monthFormatter = DateTimeFormatter.ofPattern("MMM")
