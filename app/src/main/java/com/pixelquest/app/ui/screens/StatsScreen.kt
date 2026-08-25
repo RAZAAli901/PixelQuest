@@ -177,11 +177,21 @@ fun StatsContent(
         }
 
         // Quick-Nav Actions Section
-        com.pixelquest.app.ui.components.PixelButton(
-            text = "📜 VIEW QUEST HISTORY",
-            onClick = onNavigateToTaskHistory,
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
-        )
+        ) {
+            com.pixelquest.app.ui.components.PixelButton(
+                text = "📜 QUEST HISTORY",
+                onClick = onNavigateToTaskHistory,
+                modifier = Modifier.weight(1f)
+            )
+            com.pixelquest.app.ui.components.PixelButton(
+                text = "⭐ LEVEL HISTORY",
+                onClick = onNavigateToLevelHistory,
+                modifier = Modifier.weight(1f)
+            )
+        }
     }
 }
 

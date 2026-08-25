@@ -582,6 +582,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 34: Add Compose Preview PixelBarChartPreview for trend chart across improving, declining, and flat patterns - 0e64892
 - Step 35: Write unit test StatsDataBucketerTest for trend chart data-bucketing logic - 967b94c
 - Step 36: Confirm StatsScreen as primary entry point for metrics, heatmap, trend, and history with zero placeholder text - ee3d0b7
+- Step 37: Add quick-nav affordances from StatsScreen to TaskHistoryScreen and TaskAnalyticsScreen - 4efd9d3
+
 
 
 
