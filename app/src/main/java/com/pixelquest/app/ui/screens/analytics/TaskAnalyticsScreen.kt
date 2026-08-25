@@ -130,5 +130,30 @@ fun TaskAnalyticsContent(
                 modifier = Modifier.weight(1f)
             )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        PixelCard(
+            variant = PixelPanelVariant.BEIGE,
+            contentPadding = 12.dp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            com.pixelquest.app.ui.components.PixelTaskMiniHistory(
+                recentHistory = stats.recentHistory
+            )
+        }
     }
+}
+
+@Composable
+fun TaskAnalyticsScreen(
+    viewModel: TaskAnalyticsViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
+    onBackClick: () -> Unit = {}
+) {
+    val state by androidx.compose.runtime.collectAsState(viewModel.uiState)
+    TaskAnalyticsContent(
+        task = state.task,
+        stats = state.stats,
+        onBackClick = onBackClick
+    )
 }

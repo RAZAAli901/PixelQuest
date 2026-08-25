@@ -572,6 +572,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 24: Add TaskHistoryScreen nav route accessible from StatsScreen - 0d1c3fc
 - Step 25: Write UI test TaskHistoryScreenTest covering empty and populated history states - b60b5e4
 - Step 26: Build TaskAnalyticsScreen layout displaying per-task completion rate, streak, and total completions - 69a445d
+- Step 27: Wire TaskAnalyticsScreen to TaskAnalyticsViewModel using StatsRepository.getPerTaskStats - e9bec7c
+
 
 
 
