@@ -36,9 +36,7 @@ fun StatsScreen(
     viewModel: StatsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    val longestStreak = state.streak?.longestStreak ?: 0
-    val currentStreak = state.streak?.currentStreak ?: 0
-    val activeDifficulty = state.difficulty?.difficultyLevel ?: DifficultyLevel.MEDIUM
+    val activeDifficulty = state.difficultyLevel
 
     Column(
         modifier = Modifier
