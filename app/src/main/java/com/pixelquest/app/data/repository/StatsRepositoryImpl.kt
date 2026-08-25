@@ -64,7 +64,38 @@ class StatsRepositoryImpl @Inject constructor(
         startDate: LocalDate,
         endDate: LocalDate
     ): Flow<Map<LocalDate, DailyStatus>> {
-        return flowOf(emptyMap())
+        return combine(
+            taskRepository.getAllTasks(),
+            taskCompletionRepository.getAllLogs(),
+            difficultySettingsRepository.getCurrentDifficulty()
+        ) { tasks, logs, difficultyEntity ->
+            val difficultyLevel = difficultyEntity?.difficultyLevel ?: com.pixelquest.app.domain.model.DifficultyLevel.MEDIUM
+            val threshold = com.pixelquest.app.domain.DifficultyMode.getPerfectDayThreshold(difficultyLevel)
+            
+            val logsByDate = logs.groupBy { it.completedDate }
+            val resultMap = mutableMapOf<LocalDate, DailyStatus>()
+
+            var currentDate = startDate
+            while (!currentDate.isAfter(endDate)) {
+                val scheduledTasks = tasks.filter { isTaskScheduledOnDate(it, currentDate) }
+                if (scheduledTasks.isEmpty()) {
+                    resultMap[currentDate] = DailyStatus.NO_TASKS_SCHEDULED
+                } else {
+                    val dayLogs = logsByDate[currentDate] ?: emptyList()
+                    val completedCount = dayLogs.count { it.wasCompleted }
+                    val isPerfect = com.pixelquest.app.domain.StreakCalculator.isPerfectDay(completedCount, scheduledTasks.size, threshold)
+                    val status = when {
+                        isPerfect -> DailyStatus.PERFECT
+                        completedCount > 0 -> DailyStatus.PARTIAL
+                        else -> DailyStatus.MISSED
+                    }
+                    resultMap[currentDate] = status
+                }
+                currentDate = currentDate.plusDays(1)
+            }
+
+            resultMap
+        }
     }
 
     override fun getPerTaskStats(taskId: Long): Flow<PerTaskStats> {
