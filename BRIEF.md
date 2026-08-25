@@ -588,6 +588,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 40: Add memoization for heatmap grid data aggregation avoiding redundant calculations on scroll - 4528abe
 - Step 41: Verify stats screens performance against large 6-month simulated dataset in StatsPerformanceTest - e2a1d3a
 - Step 42: Document performance tradeoffs made for heatmap memoization, history pagination, and aggregation in BRIEF.md - 73758d0
+- Step 43: Write integration test StatsScreenIntegrationTest verifying end-to-end metrics reconciliation with raw completion logs - baa637a
+
 
 
 
