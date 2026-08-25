@@ -2,12 +2,12 @@ package com.pixelquest.app.ui.screens.stats
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
-import com.pixelquest.app.data.local.entity.StreakEntity
-import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
+import com.pixelquest.app.domain.model.DailyStatus
+import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
+import com.pixelquest.app.domain.repository.StatsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
-import com.pixelquest.app.domain.repository.TaskCompletionRepository
+import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,36 +17,39 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 data class StatsUiState(
-    val streak: StreakEntity? = null,
-    val difficulty: DifficultySettingsEntity? = null,
-    val last7DaysLogs: List<Pair<LocalDate, Boolean>> = emptyList()
+    val currentStreak: Int = 0,
+    val longestStreak: Int = 0,
+    val totalPoints: Int = 0,
+    val overallCompletionRate: Float = 0f,
+    val difficultyLevel: DifficultyLevel = DifficultyLevel.MEDIUM,
+    val heatmapStatusMap: Map<LocalDate, DailyStatus> = emptyMap()
 )
 
 @HiltViewModel
 class StatsViewModel @Inject constructor(
+    private val statsRepository: StatsRepository,
     private val streakRepository: StreakRepository,
-    private val difficultySettingsRepository: DifficultySettingsRepository,
-    private val taskCompletionRepository: TaskCompletionRepository
+    private val userProfileRepository: UserProfileRepository,
+    private val difficultySettingsRepository: DifficultySettingsRepository
 ) : ViewModel() {
+
+    private val startDate = LocalDate.now().minusMonths(3)
+    private val endDate = LocalDate.now()
 
     val uiState: StateFlow<StatsUiState> = combine(
         streakRepository.getCurrentStreak(),
+        userProfileRepository.getProfile(),
         difficultySettingsRepository.getCurrentDifficulty(),
-        taskCompletionRepository.getAllLogs()
-    ) { streak, difficulty, logs ->
-        val today = LocalDate.now()
-        val last7Days = (6 downTo 0).map { daysAgo ->
-            val date = today.minusDays(daysAgo.toLong())
-            val dateLogs = logs.filter { it.completedAt.toLocalDate() == date }
-            val completedCount = dateLogs.count { it.wasCompleted }
-            val isPerfect = completedCount > 0 // Simple 7-day strip status indicator
-            Pair(date, isPerfect)
-        }
-
+        statsRepository.getCompletionRateOverRange(startDate, endDate),
+        statsRepository.getDailyStatusForRange(startDate, endDate)
+    ) { streak, profile, difficulty, rate, dailyStatusMap ->
         StatsUiState(
-            streak = streak,
-            difficulty = difficulty,
-            last7DaysLogs = last7Days
+            currentStreak = streak?.currentStreak ?: 0,
+            longestStreak = streak?.longestStreak ?: 0,
+            totalPoints = profile?.totalXp ?: 0,
+            overallCompletionRate = rate,
+            difficultyLevel = difficulty?.difficultyLevel ?: DifficultyLevel.MEDIUM,
+            heatmapStatusMap = dailyStatusMap
         )
     }.stateIn(
         scope = viewModelScope,
