@@ -67,4 +67,10 @@ abstract class RepositoryModule {
     abstract fun bindSettingsRepository(
         impl: SettingsRepositoryImpl
     ): SettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindStatsRepository(
+        impl: com.pixelquest.app.data.repository.StatsRepositoryImpl
+    ): com.pixelquest.app.domain.repository.StatsRepository
 }

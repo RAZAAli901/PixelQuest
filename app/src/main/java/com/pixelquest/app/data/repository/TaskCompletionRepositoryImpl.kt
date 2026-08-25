@@ -15,4 +15,6 @@ class TaskCompletionRepositoryImpl @Inject constructor(
     override fun getLogsForTask(taskId: Long): Flow<List<TaskCompletionLogEntity>> = taskCompletionLogDao.getLogsForTask(taskId)
     override fun getCompletionHistory(startDate: LocalDate, endDate: LocalDate): Flow<List<TaskCompletionLogEntity>> =
         taskCompletionLogDao.getCompletionHistory(startDate, endDate)
+    override fun getAllLogs(): Flow<List<TaskCompletionLogEntity>> =
+        taskCompletionLogDao.getAllLogs()
 }

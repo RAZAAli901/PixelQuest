@@ -9,4 +9,5 @@ interface TaskCompletionRepository {
     fun getLogsForDate(date: LocalDate): Flow<List<TaskCompletionLogEntity>>
     fun getLogsForTask(taskId: Long): Flow<List<TaskCompletionLogEntity>>
     fun getCompletionHistory(startDate: LocalDate, endDate: LocalDate): Flow<List<TaskCompletionLogEntity>>
+    fun getAllLogs(): Flow<List<TaskCompletionLogEntity>>
 }

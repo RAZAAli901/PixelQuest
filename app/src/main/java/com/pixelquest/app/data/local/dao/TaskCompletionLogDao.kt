@@ -21,4 +21,7 @@ interface TaskCompletionLogDao {
 
     @Query("SELECT * FROM task_completion_logs WHERE completedDate BETWEEN :startDate AND :endDate ORDER BY completedDate ASC")
     fun getCompletionHistory(startDate: LocalDate, endDate: LocalDate): Flow<List<TaskCompletionLogEntity>>
+
+    @Query("SELECT * FROM task_completion_logs ORDER BY completedDate ASC")
+    fun getAllLogs(): Flow<List<TaskCompletionLogEntity>>
 }
