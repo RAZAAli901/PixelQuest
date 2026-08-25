@@ -576,6 +576,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 28: Add PixelTaskMiniHistory composable showing task's recent completion history mini-heatmap - 71520ae
 - Step 29: Add TaskAnalyticsScreen nav route accessible by tapping a task in history or tasks list - 5288301
 - Step 30: Add Compose Preview TaskAnalyticsScreenPreview for TaskAnalyticsScreen - cf98e7a
+- Step 31: Write UI test TaskAnalyticsScreenTest rendering per-task metrics - 24d0943
+
 
 
 
