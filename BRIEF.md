@@ -560,6 +560,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 12: Add Compose Preview for PixelCalendarHeatmap with sample data spanning all status types - 1a329bf
 - Step 13: Write unit test HeatmapColorMapperTest for data-to-color-intensity mapping logic - 8ccd968
 - Step 14: Build StatsViewModel wiring repositories into StatsUiState - f2e136d
+- Step 15: Build PixelStatCard reusable composable for key metrics display - d2b7935
+
 
 
 

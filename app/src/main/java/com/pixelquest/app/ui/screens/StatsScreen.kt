@@ -22,6 +22,7 @@ import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.ui.components.Pixel7DayHistoryStrip
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.PixelStatCard
 import com.pixelquest.app.ui.screens.stats.StatsViewModel
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
@@ -52,35 +53,45 @@ fun StatsScreen(
             color = PixelGold
         )
 
-        // Longest Streak Card
-        PixelCard(
-            variant = PixelPanelVariant.BEIGE,
-            contentPadding = 16.dp,
+        // Core Metrics 2x2 Grid
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "🏆",
-                    style = PixelTypography.displayMedium,
-                    modifier = Modifier.padding(end = 12.dp)
-                )
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "LONGEST STREAK",
-                        style = PixelTypography.labelLarge,
-                        color = PixelGold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "$longestStreak DAYS (Current: $currentStreak)",
-                        style = PixelTypography.bodyMedium,
-                        color = PixelTextWhite
-                    )
-                }
-            }
+            PixelStatCard(
+                label = "CURRENT STREAK",
+                value = "${state.currentStreak} DAYS",
+                icon = "🔥",
+                accentColor = PixelGold,
+                modifier = Modifier.weight(1f)
+            )
+            PixelStatCard(
+                label = "LONGEST STREAK",
+                value = "${state.longestStreak} DAYS",
+                icon = "🏆",
+                accentColor = PixelGold,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            PixelStatCard(
+                label = "TOTAL XP",
+                value = "${state.totalPoints} XP",
+                icon = "⭐",
+                accentColor = PixelCyan,
+                modifier = Modifier.weight(1f)
+            )
+            PixelStatCard(
+                label = "COMPLETION RATE",
+                value = "${(state.overallCompletionRate * 100).toInt()}%",
+                icon = "🎯",
+                accentColor = PixelGreen,
+                modifier = Modifier.weight(1f)
+            )
         }
 
         // Active Difficulty Card
