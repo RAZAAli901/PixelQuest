@@ -161,4 +161,25 @@ class StatsRepositoryTest {
         val statusMap = statsRepository.getDailyStatusForRange(startDate, endDate).first()
         assertEquals(DailyStatus.NO_TASKS_SCHEDULED, statusMap[startDate])
     }
+
+    @Test
+    fun getPerTaskStats_calculatesCompletionCountAndRateCorrectly() = runTest {
+        fakeCompletionLogs.add(TaskCompletionLogEntity(taskId = 1, completedDate = LocalDate.of(2026, 8, 1), wasCompleted = true, pointsAwarded = 10))
+        fakeCompletionLogs.add(TaskCompletionLogEntity(taskId = 1, completedDate = LocalDate.of(2026, 8, 2), wasCompleted = true, pointsAwarded = 10))
+        fakeCompletionLogs.add(TaskCompletionLogEntity(taskId = 1, completedDate = LocalDate.of(2026, 8, 3), wasCompleted = false, pointsAwarded = 0))
+
+        val stats = statsRepository.getPerTaskStats(1L).first()
+        assertEquals(1L, stats.taskId)
+        assertEquals(2, stats.completionCount)
+        assertEquals(2, stats.longestStreak)
+        assertEquals(0, stats.currentStreak) // Last log was false
+    }
+
+    @Test
+    fun getPerTaskStats_nonExistentTask_returnsDefaultStats() = runTest {
+        val stats = statsRepository.getPerTaskStats(999L).first()
+        assertEquals(999L, stats.taskId)
+        assertEquals(0, stats.completionCount)
+        assertEquals(0f, stats.completionRate, 0.001f)
+    }
 }
