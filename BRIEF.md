@@ -581,6 +581,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 33: Wire weekly trend bar chart into StatsScreen below calendar heatmap - 5d1faf5
 - Step 34: Add Compose Preview PixelBarChartPreview for trend chart across improving, declining, and flat patterns - 0e64892
 - Step 35: Write unit test StatsDataBucketerTest for trend chart data-bucketing logic - 967b94c
+- Step 36: Confirm StatsScreen as primary entry point for metrics, heatmap, trend, and history with zero placeholder text - ee3d0b7
+
 
 
 

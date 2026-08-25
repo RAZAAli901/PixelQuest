@@ -97,7 +97,17 @@ fun PixelNavHost(
             )
         }
         composable(Screen.Stats.route) {
-            StatsScreen()
+            StatsScreen(
+                onNavigateToTaskHistory = {
+                    navController.navigate(Screen.TaskHistory.route)
+                },
+                onNavigateToLevelHistory = {
+                    navController.navigate(Screen.LevelHistory.route)
+                },
+                onNavigateToTaskAnalytics = { taskId ->
+                    navController.navigate(Screen.TaskAnalytics.createRoute(taskId))
+                }
+            )
         }
         composable(Screen.Profile.route) {
             ProfileScreen(

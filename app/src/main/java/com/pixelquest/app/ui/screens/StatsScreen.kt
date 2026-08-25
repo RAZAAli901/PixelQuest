@@ -36,15 +36,26 @@ import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun StatsScreen(
-    viewModel: StatsViewModel = hiltViewModel()
+    viewModel: StatsViewModel = hiltViewModel(),
+    onNavigateToTaskHistory: () -> Unit = {},
+    onNavigateToLevelHistory: () -> Unit = {},
+    onNavigateToTaskAnalytics: (Long) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
-    StatsContent(state = state)
+    StatsContent(
+        state = state,
+        onNavigateToTaskHistory = onNavigateToTaskHistory,
+        onNavigateToLevelHistory = onNavigateToLevelHistory,
+        onNavigateToTaskAnalytics = onNavigateToTaskAnalytics
+    )
 }
 
 @Composable
 fun StatsContent(
     state: com.pixelquest.app.ui.screens.stats.StatsUiState,
+    onNavigateToTaskHistory: () -> Unit = {},
+    onNavigateToLevelHistory: () -> Unit = {},
+    onNavigateToTaskAnalytics: (Long) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val activeDifficulty = state.difficultyLevel
@@ -164,6 +175,13 @@ fun StatsContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+
+        // Quick-Nav Actions Section
+        com.pixelquest.app.ui.components.PixelButton(
+            text = "📜 VIEW QUEST HISTORY",
+            onClick = onNavigateToTaskHistory,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
