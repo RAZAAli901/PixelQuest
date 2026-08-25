@@ -554,6 +554,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 6: Write unit tests for per-task stats aggregation - 1e7b12e
 - Step 7: Build PixelHeatmapCell composable and HeatmapColorMapper representing day status - abe1659
 - Step 8: Build PixelCalendarHeatmap composable displaying grid of cells arranged GitHub-contribution style - 3f4b6d2
+- Step 9: Add month and week labels along heatmap edges in pixel font - 0492d2f
+
 
 
 

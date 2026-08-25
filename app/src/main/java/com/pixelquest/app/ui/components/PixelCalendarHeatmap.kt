@@ -31,6 +31,11 @@ data class HeatmapDayData(
     val totalCount: Int = 0
 )
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 @Composable
 fun PixelCalendarHeatmap(
     statusMap: Map<LocalDate, DailyStatus>,
@@ -39,6 +44,16 @@ fun PixelCalendarHeatmap(
     endDate: LocalDate = LocalDate.now(),
     onDayClick: ((LocalDate, DailyStatus) -> Unit)? = null
 ) {
+    var selectedDay by remember { mutableStateOf<Pair<LocalDate, DailyStatus>?>(null) }
+
+    if (selectedDay != null) {
+        val (date, status) = selectedDay!!
+        PixelDayDetailDialog(
+            date = date,
+            status = status,
+            onDismiss = { selectedDay = null }
+        )
+    }
     var firstMonday = startDate
     while (firstMonday.dayOfWeek != DayOfWeek.MONDAY) {
         firstMonday = firstMonday.minusDays(1)
@@ -111,7 +126,10 @@ fun PixelCalendarHeatmap(
                             val status = statusMap[date] ?: DailyStatus.NO_TASKS_SCHEDULED
                             PixelHeatmapCell(
                                 status = status,
-                                onClick = if (onDayClick != null) { { onDayClick(date, status) } } else null
+                                onClick = {
+                                    selectedDay = Pair(date, status)
+                                    onDayClick?.invoke(date, status)
+                                }
                             )
                         }
                     }
