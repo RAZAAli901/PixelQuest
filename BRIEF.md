@@ -549,6 +549,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 1: Create data/repository/StatsRepository.kt aggregating data from TaskCompletionRepository, StreakRepository, and UserProfileRepository - a3e158e
 - Step 2: Add getCompletionRateOverRange(dateRange) calculating percentage of scheduled tasks completed over date range - 0a8910e
 - Step 3: Add getDailyStatusForRange(dateRange) providing per-day status (perfect/partial/missed/no-tasks) for heatmap - 060db3f
+- Step 4: Add getPerTaskStats(taskId) computing completion count, rate, and current/longest streak per task - 644150e
+
 
 
 
