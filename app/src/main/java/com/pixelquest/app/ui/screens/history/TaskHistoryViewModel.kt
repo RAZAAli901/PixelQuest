@@ -23,7 +23,8 @@ enum class HistoryFilter {
 data class TaskHistoryUiState(
     val isLoading: Boolean = false,
     val items: List<TaskHistoryItem> = emptyList(),
-    val selectedFilter: HistoryFilter = HistoryFilter.ALL_TIME
+    val selectedFilter: HistoryFilter = HistoryFilter.ALL_TIME,
+    val hasMoreItems: Boolean = false
 )
 
 @HiltViewModel
@@ -33,12 +34,14 @@ class TaskHistoryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _selectedFilter = MutableStateFlow(HistoryFilter.ALL_TIME)
+    private val _pageSize = MutableStateFlow(30)
 
     val uiState: StateFlow<TaskHistoryUiState> = combine(
         taskCompletionRepository.getAllLogs(),
         taskRepository.getAllTasks(),
-        _selectedFilter
-    ) { logs, tasks, filter ->
+        _selectedFilter,
+        _pageSize
+    ) { logs, tasks, filter, pageSize ->
         val tasksMap = tasks.associateBy { it.id }
 
         val today = LocalDate.now()
@@ -50,7 +53,10 @@ class TaskHistoryViewModel @Inject constructor(
             }
         }.sortedByDescending { it.completedDate }
 
-        val historyItems = filteredLogs.map { log ->
+        val hasMore = filteredLogs.size > pageSize
+        val windowedLogs = filteredLogs.take(pageSize)
+
+        val historyItems = windowedLogs.map { log ->
             val task = tasksMap[log.taskId]
             TaskHistoryItem(
                 logId = log.id,
@@ -66,7 +72,8 @@ class TaskHistoryViewModel @Inject constructor(
         TaskHistoryUiState(
             isLoading = false,
             items = historyItems,
-            selectedFilter = filter
+            selectedFilter = filter,
+            hasMoreItems = hasMore
         )
     }.stateIn(
         scope = viewModelScope,
@@ -76,5 +83,10 @@ class TaskHistoryViewModel @Inject constructor(
 
     fun setFilter(filter: HistoryFilter) {
         _selectedFilter.value = filter
+        _pageSize.value = 30 // Reset page size when filter changes
+    }
+
+    fun loadNextPage() {
+        _pageSize.value += 30
     }
 }

@@ -174,6 +174,19 @@ fun TaskHistoryScreen(
                         onClick = { onTaskClick(item.taskId) }
                     )
                 }
+
+                if (state.hasMoreItems) {
+                    item {
+                        com.pixelquest.app.ui.components.PixelButton(
+                            text = "LOAD MORE QUESTS",
+                            onClick = { viewModel.loadNextPage() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        )
+                    }
+                }
+            }
             }
         }
     }
