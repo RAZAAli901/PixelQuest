@@ -36,10 +36,18 @@ fun StatsScreen(
     viewModel: StatsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    StatsContent(state = state)
+}
+
+@Composable
+fun StatsContent(
+    state: com.pixelquest.app.ui.screens.stats.StatsUiState,
+    modifier: Modifier = Modifier
+) {
     val activeDifficulty = state.difficultyLevel
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(PixelBackgroundDark)
             .padding(16.dp),
