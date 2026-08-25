@@ -99,15 +99,73 @@ class StatsRepositoryImpl @Inject constructor(
     }
 
     override fun getPerTaskStats(taskId: Long): Flow<PerTaskStats> {
-        return flowOf(
+        return combine(
+            taskRepository.getTaskById(taskId),
+            taskCompletionRepository.getLogsForTask(taskId)
+        ) { task, logs ->
+            if (task == null) {
+                return@combine PerTaskStats(
+                    taskId = taskId,
+                    completionCount = 0,
+                    totalScheduledCount = 0,
+                    completionRate = 0f,
+                    currentStreak = 0,
+                    longestStreak = 0
+                )
+            }
+
+            val today = LocalDate.now()
+            var totalScheduled = 0
+            var checkDate = task.scheduledDay
+            while (!checkDate.isAfter(today)) {
+                if (isTaskScheduledOnDate(task, checkDate)) {
+                    totalScheduled++
+                }
+                checkDate = checkDate.plusDays(1)
+            }
+            val totalScheduledCount = maxOf(totalScheduled, logs.size)
+
+            val completedLogs = logs.filter { it.wasCompleted }
+            val completionCount = completedLogs.size
+            val rate = if (totalScheduledCount == 0) 0f else (completionCount.toFloat() / totalScheduledCount.toFloat()).coerceIn(0f, 1f)
+
+            // Calculate streaks from chronological logs
+            val sortedLogs = logs.sortedBy { it.completedDate }
+            var currentStreak = 0
+            var longestStreak = 0
+            var tempStreak = 0
+
+            for (log in sortedLogs) {
+                if (log.wasCompleted) {
+                    tempStreak++
+                    if (tempStreak > longestStreak) {
+                        longestStreak = tempStreak
+                    }
+                } else {
+                    tempStreak = 0
+                }
+            }
+
+            // Current streak counts backward from latest log
+            for (log in sortedLogs.reversed()) {
+                if (log.wasCompleted) {
+                    currentStreak++
+                } else {
+                    break
+                }
+            }
+
+            val recentHistory = sortedLogs.takeLast(14).map { Pair(it.completedDate, it.wasCompleted) }
+
             PerTaskStats(
                 taskId = taskId,
-                completionCount = 0,
-                totalScheduledCount = 0,
-                completionRate = 0f,
-                currentStreak = 0,
-                longestStreak = 0
+                completionCount = completionCount,
+                totalScheduledCount = totalScheduledCount,
+                completionRate = rate,
+                currentStreak = currentStreak,
+                longestStreak = longestStreak,
+                recentHistory = recentHistory
             )
-        )
+        }
     }
 }
