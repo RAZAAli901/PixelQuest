@@ -551,6 +551,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 3: Add getDailyStatusForRange(dateRange) providing per-day status (perfect/partial/missed/no-tasks) for heatmap - 060db3f
 - Step 4: Add getPerTaskStats(taskId) computing completion count, rate, and current/longest streak per task - 644150e
 - Step 5: Write unit tests for completion-rate and per-day-status aggregation logic in StatsRepositoryTest - 138222e
+- Step 6: Write unit tests for per-task stats aggregation - 1e7b12e
+
 
 
 
