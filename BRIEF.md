@@ -634,7 +634,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 36: Create DataExportImport.kt helper providing JSON serialization/deserialization for all app state - 81788f0
 - Step 37: Wire SAF Storage Access Framework intents in SettingsScreen.kt for Export JSON & Import JSON - 29e3cfc
 - Step 38: Build a pixel-styled confirmation dialog for restore ("Restoring will overwrite current progress. Proceed?") - b2387f1
-- Step 39: On restore confirmation: parse incoming JSON, validate payload format, atomically replace DB contents, and reschedule active tasks' alarms - f84654f
+- Step 39: On restore confirmation: parse incoming JSON, validate payload format, atomically replace DB contents, and reschedule active tasks' alarms - 6156eda
+- Step 40: Write unit tests for JSON export format correctness and roundtrip import fidelity - 8970d1e
 
 
 
