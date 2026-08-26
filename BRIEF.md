@@ -606,7 +606,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 8: Add validation to name entry (non-blank, reasonable length limit) - 54c5885
 - Step 9: Wire Next navigation to only proceed once the name is valid - 32f64f0
 - Step 10: Add Compose Previews for the Welcome and Name Entry screens - 3c51801
-- Step 11: Build OnboardingAvatarStepScreen, adapting Day 7's avatar grid component for the onboarding context - 386eca5
+- Step 11: Build OnboardingAvatarStepScreen, adapting Day 7's avatar grid component for the onboarding context - 39e3dbf
+- Step 12: Wire the avatar choice into OnboardingViewModel's in-progress state - e3f98f2
 
 
 

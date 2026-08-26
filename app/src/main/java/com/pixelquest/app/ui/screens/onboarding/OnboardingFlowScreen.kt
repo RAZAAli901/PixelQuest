@@ -33,7 +33,12 @@ fun OnboardingFlowScreen(
             )
         }
         OnboardingStep.AvatarPick -> {
-            // Skeleton placeholder until Section C steps
+            OnboardingAvatarStepScreen(
+                selectedAvatarId = uiState.avatarId,
+                onAvatarSelected = { viewModel.updateAvatar(it) },
+                onNextClick = { viewModel.nextStep() },
+                onBackClick = { viewModel.previousStep() }
+            )
         }
         OnboardingStep.DifficultyPick -> {
             // Skeleton placeholder until Section C steps
