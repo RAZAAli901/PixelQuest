@@ -19,6 +19,18 @@ fun SettingsScreen(
 
     val context = androidx.compose.ui.platform.LocalContext.current
 
+    val exportLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let { viewModel.exportBackupToUri(context, it) }
+    }
+
+    val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let { viewModel.onImportFileSelected(context, it) }
+    }
+
     SettingsScreenScaffold(
         accountSection = {
             val username = state.profile?.username ?: "PixelHero"
@@ -90,6 +102,20 @@ fun SettingsScreen(
                 text = crtText,
                 onClick = { viewModel.toggleCrt(!state.isCrtEnabled) },
                 variant = PixelButtonVariant.YELLOW,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        dataSection = {
+            PixelButton(
+                text = "📤 EXPORT QUEST DATA (JSON)",
+                onClick = { exportLauncher.launch("pixelquest_backup.json") },
+                variant = PixelButtonVariant.GREEN,
+                modifier = Modifier.fillMaxWidth()
+            )
+            PixelButton(
+                text = "📥 IMPORT QUEST DATA (JSON)",
+                onClick = { importLauncher.launch(arrayOf("application/json", "*/*")) },
+                variant = PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
         }

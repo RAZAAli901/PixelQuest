@@ -12,6 +12,7 @@ import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -79,12 +80,40 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateUsername(newUsername: String) {
+    fun exportBackupToUri(context: android.content.Context, uri: android.net.Uri) {
         viewModelScope.launch {
-            val current = uiState.value.profile ?: return@launch
-            if (newUsername.isNotBlank() && newUsername.length <= 20) {
-                userProfileRepository.saveProfile(current.copy(username = newUsername))
-            }
+            try {
+                val profile = userProfileRepository.getProfile().first()
+                val difficulty = difficultySettingsRepository.getCurrentDifficulty().first()
+                val tasks = taskRepository.getAllTasks().first()
+                val payload = com.pixelquest.app.data.backup.BackupPayload(
+                    userProfile = profile,
+                    difficultySettings = difficulty,
+                    streak = null,
+                    tasks = tasks
+                )
+                val json = com.pixelquest.app.data.backup.DataExportImport.exportToJson(payload)
+                context.contentResolver.openOutputStream(uri)?.use { os ->
+                    os.write(json.toByteArray())
+                }
+            } catch (_: Exception) {}
         }
     }
-}
+
+    fun onImportFileSelected(context: android.content.Context, uri: android.net.Uri) {
+        viewModelScope.launch {
+            try {
+                val json = context.contentResolver.openInputStream(uri)?.use { isStream ->
+                    isStream.bufferedReader().use { it.readText() }
+                } ?: return@launch
+                val payload = com.pixelquest.app.data.backup.DataExportImport.importFromJson(json)
+                // Stores draft payload to trigger confirmation dialog in Step 38
+                pendingImportPayload = payload
+                _showRestoreConfirmDialog.value = true
+            } catch (_: Exception) {}
+        }
+    }
+
+    private var pendingImportPayload: com.pixelquest.app.data.backup.BackupPayload? = null
+    private val _showRestoreConfirmDialog = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val showRestoreConfirmDialog: StateFlow<Boolean> = _showRestoreConfirmDialog.asStateFlow()
