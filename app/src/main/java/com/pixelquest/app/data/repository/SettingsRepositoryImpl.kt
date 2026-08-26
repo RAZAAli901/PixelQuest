@@ -63,6 +63,28 @@ class SettingsRepositoryImpl @Inject constructor(
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
+    override val isNotificationSoundEnabled: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_NOTIFICATION_SOUND) {
+                trySend(prefs.getBoolean(KEY_NOTIFICATION_SOUND, true))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_NOTIFICATION_SOUND, true))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override val isNotificationVibrationEnabled: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_NOTIFICATION_VIBRATION) {
+                trySend(prefs.getBoolean(KEY_NOTIFICATION_VIBRATION, true))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_NOTIFICATION_VIBRATION, true))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     override suspend fun setSoundEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
     }
@@ -79,10 +101,20 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled).apply()
     }
 
+    override suspend fun setNotificationSoundEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_NOTIFICATION_SOUND, enabled).apply()
+    }
+
+    override suspend fun setNotificationVibrationEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_NOTIFICATION_VIBRATION, enabled).apply()
+    }
+
     companion object {
         private const val KEY_SOUND_ENABLED = "key_sound_enabled"
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
         private const val KEY_ONBOARDING_COMPLETE = "key_onboarding_complete"
         private const val KEY_NOTIFICATIONS_ENABLED = "key_notifications_enabled"
+        private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"
+        private const val KEY_NOTIFICATION_VIBRATION = "key_notification_vibration"
     }
 }

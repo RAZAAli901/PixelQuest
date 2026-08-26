@@ -33,7 +33,9 @@ object NotificationHelper {
         taskName: String,
         contentIntent: PendingIntent? = null,
         yesIntent: PendingIntent? = null,
-        noIntent: PendingIntent? = null
+        noIntent: PendingIntent? = null,
+        soundEnabled: Boolean = true,
+        vibrationEnabled: Boolean = true
     ): Notification {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_tasks)
@@ -41,6 +43,13 @@ object NotificationHelper {
             .setContentText("Did you complete this quest today?")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
+
+        if (!soundEnabled) {
+            builder.setSound(null)
+        }
+        if (!vibrationEnabled) {
+            builder.setVibrate(longArrayOf(0L))
+        }
 
         if (contentIntent != null) {
             builder.setContentIntent(contentIntent)
