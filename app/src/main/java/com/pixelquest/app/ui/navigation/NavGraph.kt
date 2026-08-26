@@ -160,6 +160,15 @@ fun PixelNavHost(
                 onBackClick = { navController.popBackStack() }
             )
         }
+        composable(Screen.Onboarding.route) {
+            com.pixelquest.app.ui.screens.onboarding.OnboardingFlowScreen(
+                onOnboardingComplete = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                    }
+                }
+            )
+        }
     }
 }
 

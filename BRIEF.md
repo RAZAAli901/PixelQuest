@@ -603,7 +603,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 5: Write a unit test for the first-launch routing decision logic - 0434d3c
 - Step 6: Build OnboardingWelcomeScreen: a pixel-styled intro explaining PixelQuest's concept (quests, streaks, levels) with a Start button - 7d07072
 - Step 7: Build OnboardingNameEntryScreen reusing Day 3's PixelTextField for username input - 89ca24b
-- Step 8: Add validation to name entry (non-blank, reasonable length limit) - d5c7e24
+- Step 8: Add validation to name entry (non-blank, reasonable length limit) - 54c5885
+- Step 9: Wire Next navigation to only proceed once the name is valid - 8809f6e
 
 
 
