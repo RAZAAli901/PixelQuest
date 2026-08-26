@@ -604,7 +604,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 6: Build OnboardingWelcomeScreen: a pixel-styled intro explaining PixelQuest's concept (quests, streaks, levels) with a Start button - 7d07072
 - Step 7: Build OnboardingNameEntryScreen reusing Day 3's PixelTextField for username input - 89ca24b
 - Step 8: Add validation to name entry (non-blank, reasonable length limit) - 54c5885
-- Step 9: Wire Next navigation to only proceed once the name is valid - 8809f6e
+- Step 9: Wire Next navigation to only proceed once the name is valid - 32f64f0
+- Step 10: Add Compose Previews for the Welcome and Name Entry screens - 84ac052
 
 
 
