@@ -26,6 +26,13 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
+            val crtText = if (state.isCrtEnabled) "📺 CRT FILTER: ON" else "📺 CRT FILTER: OFF"
+            PixelButton(
+                text = crtText,
+                onClick = { viewModel.toggleCrt(!state.isCrtEnabled) },
+                variant = PixelButtonVariant.YELLOW,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     )
 }
