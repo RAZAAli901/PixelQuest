@@ -41,6 +41,17 @@ class SettingsRepositoryImpl @Inject constructor(
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
+    override val onboardingComplete: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_ONBOARDING_COMPLETE) {
+                trySend(prefs.getBoolean(KEY_ONBOARDING_COMPLETE, false))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_ONBOARDING_COMPLETE, false))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     override suspend fun setSoundEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
     }
@@ -49,8 +60,13 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_CRT_ENABLED, enabled).apply()
     }
 
+    override suspend fun setOnboardingComplete(complete: Boolean) {
+        prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETE, complete).apply()
+    }
+
     companion object {
         private const val KEY_SOUND_ENABLED = "key_sound_enabled"
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
+        private const val KEY_ONBOARDING_COMPLETE = "key_onboarding_complete"
     }
 }

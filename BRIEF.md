@@ -595,6 +595,9 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 47: Update BRIEF.md with Day 9 summary, key decisions, architecture notes, and progress log - 2b1702e
 - Step 48: Perform final clean build and verification commit for Day 9 - 09cc01c
 
+## Day 10 Progress Log
+- Step 1: Add onboardingComplete preference and setter to SettingsRepository - 2a9034e
+
 
 
 
