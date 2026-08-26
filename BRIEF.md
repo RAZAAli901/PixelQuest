@@ -611,7 +611,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 13: Build OnboardingDifficultyStepScreen, adapting Day 5's difficulty cards similarly - ce79933
 - Step 14: Wire the difficulty choice into OnboardingViewModel's in-progress state - 5ada9c2
 - Step 15: Add back navigation between onboarding steps without losing previously entered data - d8c968b
-- Step 16: Add Compose Previews for both new onboarding steps - 15c136b
+- Step 16: Add Compose Previews for both new onboarding steps - e47b524
+- Step 17: Build OnboardingSummaryScreen: a recap of the chosen name/avatar/difficulty with a Begin Your Quest confirm button - 82c0ef4
 
 
 
