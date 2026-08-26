@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
             PixelQuestTheme {
                 CompositionLocalProvider(LocalSoundManager provides soundManager) {
                     val isCrtEnabled by settingsRepository.isCrtEnabled.collectAsState(initial = false)
+                    val onboardingComplete by settingsRepository.onboardingComplete.collectAsState(initial = true)
                     PixelCrtOverlay(enabled = isCrtEnabled) {
                         val navController = rememberNavController()
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -74,7 +75,7 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             modifier = Modifier.fillMaxSize(),
                             bottomBar = {
-                                if (currentRoute != Screen.Splash.route) {
+                                if (currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {
                                     PixelBottomNavBar(
                                         currentRoute = currentRoute,
                                         onNavigate = { route ->
@@ -95,7 +96,7 @@ class MainActivity : ComponentActivity() {
                                     .fillMaxSize()
                                     .padding(innerPadding)
                             ) {
-                                if (!isNotificationPermissionGranted && currentRoute != Screen.Splash.route) {
+                                if (!isNotificationPermissionGranted && currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {
                                     PixelNotificationPermissionBanner(
                                         onRequestPermission = {
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -112,7 +113,8 @@ class MainActivity : ComponentActivity() {
                                 }
                                 PixelNavHost(
                                     navController = navController,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
+                                    onboardingComplete = onboardingComplete
                                 )
                             }
                         }

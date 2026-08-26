@@ -37,13 +37,16 @@ sealed class Screen(val route: String) {
     object EditTask : Screen("edit_task/{taskId}") {
         fun createRoute(taskId: Long) = "edit_task/$taskId"
     }
+    object Onboarding : Screen("onboarding")
+    object Settings : Screen("settings")
 }
 
 @Composable
 fun PixelNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    startDestination: String = Screen.Splash.route
+    startDestination: String = Screen.Splash.route,
+    onboardingComplete: Boolean = true
 ) {
     NavHost(
         navController = navController,
@@ -53,7 +56,8 @@ fun PixelNavHost(
         composable(Screen.Splash.route) {
             SplashScreen(
                 onSplashTimeout = {
-                    navController.navigate(Screen.Home.route) {
+                    val target = if (!onboardingComplete) Screen.Onboarding.route else Screen.Home.route
+                    navController.navigate(target) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
