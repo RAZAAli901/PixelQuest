@@ -49,7 +49,17 @@ fun OnboardingFlowScreen(
             )
         }
         OnboardingStep.Summary -> {
-            // Skeleton placeholder until Section D steps
+            OnboardingSummaryScreen(
+                username = uiState.username,
+                avatarId = uiState.avatarId,
+                difficultyLevel = uiState.difficultyLevel,
+                onConfirmClick = {
+                    viewModel.completeOnboarding {
+                        onOnboardingComplete()
+                    }
+                },
+                onBackClick = { viewModel.previousStep() }
+            )
         }
     }
 }

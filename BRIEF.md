@@ -613,7 +613,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 15: Add back navigation between onboarding steps without losing previously entered data - d8c968b
 - Step 16: Add Compose Previews for both new onboarding steps - e47b524
 - Step 17: Build OnboardingSummaryScreen: a recap of the chosen name/avatar/difficulty with a Begin Your Quest confirm button - e21ad43
-- Step 18: Wire the confirm action to persist all onboarding choices atomically - 0b16fc0
+- Step 18: Wire the confirm action to persist all onboarding choices atomically - 7c4e25f
+- Step 19: Wire successful completion to navigate into the main app (Today screen) with a nav backstack that prevents navigating back into onboarding - 286093c
 
 
 
