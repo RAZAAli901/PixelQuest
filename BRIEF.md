@@ -617,7 +617,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 19: Wire successful completion to navigate into the main app (Today screen) with a nav backstack that prevents navigating back into onboarding - 7778a83
 - Step 20: Write an integration test for the full onboarding flow persisting the correct data end-to-end - bdd5a96
 - Step 21: Manual QA: fresh install, walk through onboarding, and confirm Day 2's SeedDataProvider sample tasks still appear alongside the newly onboarded profile - af62fda
-- Step 22: Build SettingsScreen scaffold: pixel-styled top bar, sectioned layout (Account, Notifications, Appearance, Data, Danger Zone) - dd00bd5
+- Step 22: Build SettingsScreen scaffold: pixel-styled top bar, sectioned layout (Account, Notifications, Appearance, Data, Danger Zone) - 7adcf6e
+- Step 23: Build SettingsViewModel wiring SettingsRepository, UserProfileRepository, DifficultySettingsRepository - e07f429
 
 
 
