@@ -17,7 +17,30 @@ fun SettingsScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
     SettingsScreenScaffold(
+        notificationsSection = {
+            val notifText = if (state.isNotificationsEnabled) "🔔 NOTIFICATIONS: ON" else "🔕 NOTIFICATIONS: OFF"
+            PixelButton(
+                text = notifText,
+                onClick = { viewModel.toggleNotifications(!state.isNotificationsEnabled) },
+                variant = PixelButtonVariant.YELLOW,
+                modifier = Modifier.fillMaxWidth()
+            )
+            PixelButton(
+                text = "⚙️ OS NOTIFICATION SETTINGS",
+                onClick = {
+                    val intent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = android.net.Uri.fromParts("package", context.packageName, null)
+                        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    context.startActivity(intent)
+                },
+                variant = PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
         appearanceSection = {
             val soundText = if (state.isSoundEnabled) "🔊 SFX: ON" else "🔇 SFX: OFF"
             PixelButton(

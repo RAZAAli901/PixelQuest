@@ -624,7 +624,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 26: Move the CRT filter toggle (Day 7) from ProfileScreen into Settings' Appearance section - 59b74e8
 - Step 27: Add a Reminder notifications enabled master toggle to SettingsRepository, checked before Day 4's TaskAlarmScheduler schedules any alarm - 9a664de
 - Step 28: Wire the master toggle: disabling it cancels all currently scheduled alarms; re-enabling it reschedules all active tasks' alarms - 8bee339
-- Step 29: Add a notification sound/vibration sub-preference, wired into Day 4's notification builder - e7dd0ed
+- Step 29: Add a notification sound/vibration sub-preference, wired into Day 4's notification builder - 7a85e24
+- Step 30: Add a shortcut button linking to the Android system notification settings for the app - 27e6450
 
 
 
