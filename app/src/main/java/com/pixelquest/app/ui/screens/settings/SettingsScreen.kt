@@ -20,6 +20,21 @@ fun SettingsScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
 
     SettingsScreenScaffold(
+        accountSection = {
+            val diffLevel = state.difficulty?.difficultyLevel ?: com.pixelquest.app.domain.model.DifficultyLevel.MEDIUM
+            val diffName = com.pixelquest.app.domain.DifficultyMode.getDisplayName(diffLevel)
+            androidx.compose.material3.Text(
+                text = "CURRENT DIFFICULTY: ${diffName.uppercase()}",
+                style = com.pixelquest.app.ui.theme.PixelTypography.bodyMedium,
+                color = com.pixelquest.app.ui.theme.PixelGold
+            )
+            PixelButton(
+                text = "🛡️ CHANGE DIFFICULTY",
+                onClick = onNavigateToDifficulty,
+                variant = PixelButtonVariant.YELLOW,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
         notificationsSection = {
             val notifText = if (state.isNotificationsEnabled) "🔔 NOTIFICATIONS: ON" else "🔕 NOTIFICATIONS: OFF"
             PixelButton(

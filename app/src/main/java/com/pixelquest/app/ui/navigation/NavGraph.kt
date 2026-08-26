@@ -173,7 +173,10 @@ fun PixelNavHost(
             )
         }
         composable(Screen.Settings.route) {
-            com.pixelquest.app.ui.screens.settings.SettingsScreen()
+            com.pixelquest.app.ui.screens.settings.SettingsScreen(
+                onNavigateToDifficulty = { navController.navigate(Screen.DifficultySelection.route) },
+                onNavigateToAvatar = { navController.navigate(Screen.AvatarSelection.route) }
+            )
         }
     }
 }
