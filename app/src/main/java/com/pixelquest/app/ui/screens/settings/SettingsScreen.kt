@@ -21,6 +21,14 @@ fun SettingsScreen(
 
     SettingsScreenScaffold(
         accountSection = {
+            val username = state.profile?.username ?: "PixelHero"
+            com.pixelquest.app.ui.components.PixelTextField(
+                value = username,
+                onValueChange = { viewModel.updateUsername(it) },
+                label = "EDIT HERO NAME",
+                placeholder = "Enter username",
+                modifier = Modifier.fillMaxWidth()
+            )
             val avatarId = state.profile?.avatarId ?: "avatar_hero"
             val level = state.profile?.level ?: 1
             com.pixelquest.app.ui.components.PixelAvatarFrame(
