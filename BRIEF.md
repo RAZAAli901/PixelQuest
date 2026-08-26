@@ -629,7 +629,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 31: Write unit tests for the master-toggle cascade (disable cancels all alarms, re-enable reschedules all) - 4d33eb8
 - Step 32: Add a difficulty display + Change Difficulty entry point in Settings' Account section, linking to Day 5's DifficultySelectionScreen - a7db795
 - Step 33: Add an avatar display + Change Avatar entry point in Settings, linking to Day 7's AvatarSelectionScreen - 565a058
-- Step 34: Add a username display + edit capability in Settings' Account section, reusing PixelTextField - 5982a89
+- Step 34: Add a username display + edit capability in Settings' Account section, reusing PixelTextField - 1ce3d2f
+- Step 35: Add a Compose Preview for the Account section - 2b088a5
 
 
 
