@@ -622,7 +622,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 24: Add the SettingsScreen nav route, replacing the ad-hoc Day 7 toggle entries currently on ProfileScreen - 6772c41
 - Step 25: Move the sound-effects mute toggle (Day 7) from ProfileScreen into Settings' Appearance/Notifications section as appropriate - d7aec95
 - Step 26: Move the CRT filter toggle (Day 7) from ProfileScreen into Settings' Appearance section - 59b74e8
-- Step 27: Add a Reminder notifications enabled master toggle to SettingsRepository, checked before Day 4's TaskAlarmScheduler schedules any alarm - 521366f
+- Step 27: Add a Reminder notifications enabled master toggle to SettingsRepository, checked before Day 4's TaskAlarmScheduler schedules any alarm - 9a664de
+- Step 28: Wire the master toggle: disabling it cancels all currently scheduled alarms; re-enabling it reschedules all active tasks' alarms - 3fd5c44
 
 
 

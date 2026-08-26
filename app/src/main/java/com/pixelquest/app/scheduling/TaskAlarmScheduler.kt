@@ -107,4 +107,12 @@ class TaskAlarmScheduler @Inject constructor(
             pendingIntent.cancel()
         }
     }
+
+    fun cancelAllAlarms(tasks: List<TaskEntity>) {
+        tasks.forEach { cancelAlarmForTask(it) }
+    }
+
+    fun rescheduleAllAlarms(tasks: List<TaskEntity>) {
+        tasks.forEach { scheduleExactAlarmForTask(it) }
+    }
 }
