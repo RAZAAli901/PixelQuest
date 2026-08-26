@@ -610,7 +610,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 12: Wire the avatar choice into OnboardingViewModel's in-progress state - bf57df5
 - Step 13: Build OnboardingDifficultyStepScreen, adapting Day 5's difficulty cards similarly - ce79933
 - Step 14: Wire the difficulty choice into OnboardingViewModel's in-progress state - 5ada9c2
-- Step 15: Add back navigation between onboarding steps without losing previously entered data - db029b2
+- Step 15: Add back navigation between onboarding steps without losing previously entered data - d8c968b
+- Step 16: Add Compose Previews for both new onboarding steps - 15c136b
 
 
 
