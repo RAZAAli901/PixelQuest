@@ -120,4 +120,12 @@ fun SettingsScreen(
             )
         }
     )
+
+    val showRestoreDialog by viewModel.showRestoreConfirmDialog.collectAsState()
+    if (showRestoreDialog) {
+        RestoreDataConfirmDialog(
+            onConfirm = { viewModel.confirmImport() },
+            onDismiss = { viewModel.dismissImportDialog() }
+        )
+    }
 }

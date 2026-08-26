@@ -114,6 +114,28 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun confirmImport() {
+        viewModelScope.launch {
+            val payload = pendingImportPayload ?: return@launch
+            payload.userProfile?.let { userProfileRepository.saveProfile(it) }
+            payload.difficultySettings?.let { difficultySettingsRepository.updateDifficultySettings(it) }
+            if (payload.tasks.isNotEmpty()) {
+                val currentTasks = taskRepository.getAllTasks().first()
+                taskAlarmScheduler.cancelAllAlarms(currentTasks)
+                currentTasks.forEach { taskRepository.deleteTask(it) }
+                payload.tasks.forEach { taskRepository.insertTask(it) }
+                taskAlarmScheduler.rescheduleAllAlarms(payload.tasks)
+            }
+            pendingImportPayload = null
+            _showRestoreConfirmDialog.value = false
+        }
+    }
+
+    fun dismissImportDialog() {
+        pendingImportPayload = null
+        _showRestoreConfirmDialog.value = false
+    }
+
     private var pendingImportPayload: com.pixelquest.app.data.backup.BackupPayload? = null
     private val _showRestoreConfirmDialog = kotlinx.coroutines.flow.MutableStateFlow(false)
     val showRestoreConfirmDialog: StateFlow<Boolean> = _showRestoreConfirmDialog.asStateFlow()
