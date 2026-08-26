@@ -641,7 +641,37 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 43: Build a double-confirmation dialog sequence ("Reset all quest data, level, streak, and settings? This CANNOT be undone.") - c44f0c3
 - Step 44: Wire the final confirmation to wipe all Room DB tables, clear SharedPreferences, cancel all pending alarms, reset onboarding flag, and navigate back to Screen.Onboarding - 485d24d
 - Step 45: Write an integration test for the reset flow (ResetProgressIntegrationTest.kt) - a09e492
-- Step 46: Run full test suite covering Day 10 code (Onboarding + Settings + Export/Import + Reset) - 76504bd
+- Step 46: Run full test suite covering Day 10 code (Onboarding + Settings + Export/Import + Reset) - 5918c57
+- Step 47: Update BRIEF.md with Day 10 summary documentation (onboarding architecture, settings consolidation, SAF export/import schema, reset semantics) - 0f99932
+
+## Day 10 Architecture & Implementation Summary
+
+### 1. Onboarding Flow & Routing
+- **Routing Gate**: On app startup, `SettingsRepository.onboardingComplete` determines whether `PixelNavHost` routes to `Screen.Onboarding` (when `false`) or `Screen.Home` (when `true`).
+- **State Machine**: Managed by `OnboardingViewModel` with steps `Welcome -> NameEntry -> AvatarPick -> DifficultyPick -> Summary`.
+- **Atomic Persistence**: Onboarding choices remain in memory (`OnboardingUiState`) until the final `Summary` step, where `completeOnboarding()` saves `UserProfileEntity`, `DifficultySettingsEntity`, and sets `onboardingComplete = true` in a single operation.
+
+### 2. Component Reuse
+- Extracted `PixelAvatarGrid` and `PixelDifficultyCards` as shared composables. `OnboardingAvatarStepScreen` and `AvatarSelectionScreen` share `PixelAvatarGrid`. `OnboardingDifficultyStepScreen` and `DifficultySelectionScreen` share `PixelDifficultyCards`.
+
+### 3. Consolidated Settings Screen
+- Built `SettingsScreenScaffold` with section cards: Account, Notifications, Appearance & Audio, Data Backup & Restore, and Danger Zone.
+- Migrated sound SFX and CRT filter toggles from `ProfileScreen` into `SettingsScreen`.
+- Integrated username editing using `PixelTextField`.
+
+### 4. Notification Preferences & Alarm Cascade
+- Master notification toggle `isNotificationsEnabled` added to `SettingsRepository`.
+- Disabling master toggle invokes `TaskAlarmScheduler.cancelAllAlarms()`. Re-enabling invokes `rescheduleAllAlarms()`.
+- System settings shortcut button fires SAF intent `ACTION_APPLICATION_DETAILS_SETTINGS`.
+
+### 5. Data Backup & Restore (SAF JSON)
+- `DataExportImport.kt` handles JSON serialization and deserialization of `BackupPayload` (`UserProfileEntity`, `DifficultySettingsEntity`, `StreakEntity`, `TaskEntity` list).
+- SAF `CreateDocument` and `OpenDocument` activity launchers handle file save and load.
+- Pixel-styled `RestoreDataConfirmDialog` requires user confirmation before replacing database state.
+
+### 6. Danger Zone & Full Reset
+- Prominent red card in `SettingsScreen` triggers `ResetProgressDialogSequence` double confirmation dialog.
+- Final confirmation cancels all pending alarms, clears tasks, resets user profile and difficulty settings to default values, sets `onboardingComplete = false`, and navigates back to `Screen.Onboarding` popping the backstack inclusive.
 
 
 
