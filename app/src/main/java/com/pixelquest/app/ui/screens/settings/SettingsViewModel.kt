@@ -131,10 +131,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun dismissImportDialog() {
-        pendingImportPayload = null
-        _showRestoreConfirmDialog.value = false
+    fun onResetProgressClicked() {
+        _resetStep.value = 1
     }
+
+    private val _resetStep = kotlinx.coroutines.flow.MutableStateFlow(0)
+    val resetStep: StateFlow<Int> = _resetStep.asStateFlow()
 
     private var pendingImportPayload: com.pixelquest.app.data.backup.BackupPayload? = null
     private val _showRestoreConfirmDialog = kotlinx.coroutines.flow.MutableStateFlow(false)

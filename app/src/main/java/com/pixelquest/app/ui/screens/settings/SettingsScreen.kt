@@ -118,6 +118,14 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
+        },
+        dangerZoneSection = {
+            PixelButton(
+                text = "🔥 RESET ALL PROGRESS",
+                onClick = { viewModel.onResetProgressClicked() },
+                variant = PixelButtonVariant.RED,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     )
 

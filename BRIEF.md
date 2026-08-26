@@ -636,7 +636,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 38: Build a pixel-styled confirmation dialog for restore ("Restoring will overwrite current progress. Proceed?") - b2387f1
 - Step 39: On restore confirmation: parse incoming JSON, validate payload format, atomically replace DB contents, and reschedule active tasks' alarms - 6156eda
 - Step 40: Write unit tests for JSON export format correctness and roundtrip import fidelity - c1ae4ee
-- Step 41: Manual QA: export data, alter tasks, restore backup, and verify original state is completely restored - e45af1d
+- Step 41: Manual QA: export data, alter tasks, restore backup, and verify original state is completely restored - f8deb54
+- Step 42: Build a red-styled Danger Zone section card in Settings containing a prominent RESET ALL PROGRESS button - 27c6284
 
 
 
