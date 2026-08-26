@@ -637,7 +637,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 39: On restore confirmation: parse incoming JSON, validate payload format, atomically replace DB contents, and reschedule active tasks' alarms - 6156eda
 - Step 40: Write unit tests for JSON export format correctness and roundtrip import fidelity - c1ae4ee
 - Step 41: Manual QA: export data, alter tasks, restore backup, and verify original state is completely restored - f8deb54
-- Step 42: Build a red-styled Danger Zone section card in Settings containing a prominent RESET ALL PROGRESS button - 27c6284
+- Step 42: Build a red-styled Danger Zone section card in Settings containing a prominent RESET ALL PROGRESS button - 50a160e
+- Step 43: Build a double-confirmation dialog sequence ("Reset all quest data, level, streak, and settings? This CANNOT be undone.") - 0efcb1d
 
 
 
