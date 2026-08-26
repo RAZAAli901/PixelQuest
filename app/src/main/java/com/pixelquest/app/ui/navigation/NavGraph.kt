@@ -123,6 +123,9 @@ fun PixelNavHost(
                 },
                 onNavigateToLevelHistory = {
                     navController.navigate(Screen.LevelHistory.route)
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
                 }
             )
         }
@@ -168,6 +171,9 @@ fun PixelNavHost(
                     }
                 }
             )
+        }
+        composable(Screen.Settings.route) {
+            com.pixelquest.app.ui.screens.settings.SettingsScreenScaffold()
         }
     }
 }

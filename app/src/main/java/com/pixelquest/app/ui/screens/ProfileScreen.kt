@@ -51,7 +51,8 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     onNavigateToAvatarSelection: () -> Unit = {},
     onNavigateToDifficulty: () -> Unit = {},
-    onNavigateToLevelHistory: () -> Unit = {}
+    onNavigateToLevelHistory: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val profile = state.profile
@@ -141,6 +142,13 @@ fun ProfileScreen(
             text = "🛡️ CHANGE DIFFICULTY",
             onClick = onNavigateToDifficulty,
             variant = PixelButtonVariant.YELLOW,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        PixelButton(
+            text = "⚙️ APP SETTINGS",
+            onClick = onNavigateToSettings,
+            variant = PixelButtonVariant.GREEN,
             modifier = Modifier.fillMaxWidth()
         )
 
