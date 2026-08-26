@@ -41,7 +41,12 @@ fun OnboardingFlowScreen(
             )
         }
         OnboardingStep.DifficultyPick -> {
-            // Skeleton placeholder until Section C steps
+            OnboardingDifficultyStepScreen(
+                selectedLevel = uiState.difficultyLevel,
+                onLevelSelected = { viewModel.updateDifficulty(it) },
+                onNextClick = { viewModel.nextStep() },
+                onBackClick = { viewModel.previousStep() }
+            )
         }
         OnboardingStep.Summary -> {
             // Skeleton placeholder until Section D steps
