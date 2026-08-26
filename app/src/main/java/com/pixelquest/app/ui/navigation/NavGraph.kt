@@ -173,7 +173,7 @@ fun PixelNavHost(
             )
         }
         composable(Screen.Settings.route) {
-            com.pixelquest.app.ui.screens.settings.SettingsScreenScaffold()
+            com.pixelquest.app.ui.screens.settings.SettingsScreen()
         }
     }
 }

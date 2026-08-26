@@ -619,7 +619,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 21: Manual QA: fresh install, walk through onboarding, and confirm Day 2's SeedDataProvider sample tasks still appear alongside the newly onboarded profile - af62fda
 - Step 22: Build SettingsScreen scaffold: pixel-styled top bar, sectioned layout (Account, Notifications, Appearance, Data, Danger Zone) - 7adcf6e
 - Step 23: Build SettingsViewModel wiring SettingsRepository, UserProfileRepository, DifficultySettingsRepository - c8f547d
-- Step 24: Add the SettingsScreen nav route, replacing the ad-hoc Day 7 toggle entries currently on ProfileScreen - 3deb3c4
+- Step 24: Add the SettingsScreen nav route, replacing the ad-hoc Day 7 toggle entries currently on ProfileScreen - 6772c41
+- Step 25: Move the sound-effects mute toggle (Day 7) from ProfileScreen into Settings' Appearance/Notifications section as appropriate - d77674a
 
 
 
