@@ -77,50 +77,10 @@ fun DifficultySelectionScreen(
                 color = PixelTextWhite
             )
 
-            DifficultyLevel.values().forEach { level ->
-                val isSelected = level == state.currentLevel
-                val thresholdPct = (DifficultyMode.getPerfectDayThreshold(level) * 100).toInt()
-                val daysReq = DifficultyMode.getDaysRequiredPerLevel(level)
-
-                PixelCard(
-                    variant = if (isSelected) PixelPanelVariant.BLUE else PixelPanelVariant.BEIGE,
-                    contentPadding = 16.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { viewModel.onDifficultyClicked(level) }
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = DifficultyMode.getDisplayName(level).uppercase(),
-                                style = PixelTypography.titleMedium,
-                                color = if (isSelected) PixelGold else PixelGreen
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Perfect Day: $thresholdPct% completed",
-                                style = PixelTypography.bodySmall,
-                                color = PixelCyan
-                            )
-                            Text(
-                                text = "Days per Level: $daysReq days",
-                                style = PixelTypography.labelSmall,
-                                color = PixelTextWhite
-                            )
-                        }
-                        if (isSelected) {
-                            Text(
-                                text = "ACTIVE",
-                                style = PixelTypography.labelMedium,
-                                color = PixelGold
-                            )
-                        }
-                    }
-                }
-            }
+            com.pixelquest.app.ui.components.PixelDifficultyCards(
+                selectedLevel = state.currentLevel,
+                onLevelSelected = { level -> viewModel.onDifficultyClicked(level) }
+            )
         }
     }
 }
