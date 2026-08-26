@@ -601,7 +601,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 3: Define an OnboardingStep sealed state (Welcome, NameEntry, AvatarPick, DifficultyPick, Summary) - 582a056
 - Step 4: Wire app launch logic (in the NavHost/MainActivity) to check SettingsRepository.onboardingComplete and route to the onboarding flow instead of the normal app when it's false - 9b3af06
 - Step 5: Write a unit test for the first-launch routing decision logic - 0434d3c
-- Step 6: Build OnboardingWelcomeScreen: a pixel-styled intro explaining PixelQuest's concept (quests, streaks, levels) with a Start button - 341ebaa
+- Step 6: Build OnboardingWelcomeScreen: a pixel-styled intro explaining PixelQuest's concept (quests, streaks, levels) with a Start button - 7d07072
+- Step 7: Build OnboardingNameEntryScreen reusing Day 3's PixelTextField for username input - a213a05
 
 
 
