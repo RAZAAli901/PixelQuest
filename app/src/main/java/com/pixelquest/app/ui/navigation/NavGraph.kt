@@ -175,7 +175,12 @@ fun PixelNavHost(
         composable(Screen.Settings.route) {
             com.pixelquest.app.ui.screens.settings.SettingsScreen(
                 onNavigateToDifficulty = { navController.navigate(Screen.DifficultySelection.route) },
-                onNavigateToAvatar = { navController.navigate(Screen.AvatarSelection.route) }
+                onNavigateToAvatar = { navController.navigate(Screen.AvatarSelection.route) },
+                onResetComplete = {
+                    navController.navigate(Screen.Onboarding.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
     }

@@ -135,6 +135,46 @@ class SettingsViewModel @Inject constructor(
         _resetStep.value = 1
     }
 
+    fun advanceResetStep() {
+        _resetStep.value = 2
+    }
+
+    fun cancelReset() {
+        _resetStep.value = 0
+    }
+
+    fun performFullReset(onResetComplete: () -> Unit) {
+        viewModelScope.launch {
+            val tasks = taskRepository.getAllTasks().first()
+            taskAlarmScheduler.cancelAllAlarms(tasks)
+            tasks.forEach { taskRepository.deleteTask(it) }
+            
+            userProfileRepository.saveProfile(
+                UserProfileEntity(
+                    id = 1,
+                    username = "PixelHero",
+                    avatarId = "avatar_hero",
+                    level = 1,
+                    totalXp = 0,
+                    perfectDaysTowardNextLevel = 0
+                )
+            )
+
+            difficultySettingsRepository.updateDifficultySettings(
+                DifficultySettingsEntity(
+                    id = 1,
+                    difficultyLevel = com.pixelquest.app.domain.model.DifficultyLevel.MEDIUM,
+                    perfectDayThreshold = 0.7f,
+                    daysRequiredPerLevel = 7
+                )
+            )
+
+            settingsRepository.setOnboardingComplete(false)
+            _resetStep.value = 0
+            onResetComplete()
+        }
+    }
+
     private val _resetStep = kotlinx.coroutines.flow.MutableStateFlow(0)
     val resetStep: StateFlow<Int> = _resetStep.asStateFlow()
 

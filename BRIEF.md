@@ -638,7 +638,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 40: Write unit tests for JSON export format correctness and roundtrip import fidelity - c1ae4ee
 - Step 41: Manual QA: export data, alter tasks, restore backup, and verify original state is completely restored - f8deb54
 - Step 42: Build a red-styled Danger Zone section card in Settings containing a prominent RESET ALL PROGRESS button - 50a160e
-- Step 43: Build a double-confirmation dialog sequence ("Reset all quest data, level, streak, and settings? This CANNOT be undone.") - 0efcb1d
+- Step 43: Build a double-confirmation dialog sequence ("Reset all quest data, level, streak, and settings? This CANNOT be undone.") - c44f0c3
+- Step 44: Wire the final confirmation to wipe all Room DB tables, clear SharedPreferences, cancel all pending alarms, reset onboarding flag, and navigate back to Screen.Onboarding - 375ca07
 
 
 

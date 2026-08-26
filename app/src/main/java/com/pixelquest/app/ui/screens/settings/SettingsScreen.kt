@@ -13,7 +13,8 @@ import com.pixelquest.app.ui.components.PixelButtonVariant
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onNavigateToDifficulty: () -> Unit = {},
-    onNavigateToAvatar: () -> Unit = {}
+    onNavigateToAvatar: () -> Unit = {},
+    onResetComplete: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -134,6 +135,16 @@ fun SettingsScreen(
         RestoreDataConfirmDialog(
             onConfirm = { viewModel.confirmImport() },
             onDismiss = { viewModel.dismissImportDialog() }
+        )
+    }
+
+    val resetStepState by viewModel.resetStep.collectAsState()
+    if (resetStepState > 0) {
+        ResetProgressDialogSequence(
+            step = resetStepState,
+            onNextStep = { viewModel.advanceResetStep() },
+            onConfirmWipe = { viewModel.performFullReset(onResetComplete) },
+            onDismiss = { viewModel.cancelReset() }
         )
     }
 }
