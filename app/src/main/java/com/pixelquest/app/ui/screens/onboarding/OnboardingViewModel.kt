@@ -26,7 +26,8 @@ data class OnboardingUiState(
     val username: String = "",
     val avatarId: String = "avatar_hero",
     val difficultyLevel: DifficultyLevel = DifficultyLevel.MEDIUM,
-    val isNameValid: Boolean = false
+    val isNameValid: Boolean = false,
+    val nameError: String? = null
 )
 
 @HiltViewModel
@@ -41,9 +42,17 @@ class OnboardingViewModel @Inject constructor(
 
     fun updateUsername(name: String) {
         val trimmed = name.take(20)
-        val valid = trimmed.isNotBlank() && trimmed.length <= 20
+        val isNonBlank = trimmed.trim().isNotBlank()
+        val isWithinLength = trimmed.length in 1..20
+        val isValid = isNonBlank && isWithinLength
+        val error = when {
+            trimmed.isEmpty() -> null
+            !isNonBlank -> "Name cannot be blank"
+            trimmed.length > 20 -> "Name must be 20 characters or less"
+            else -> null
+        }
         _uiState.update {
-            it.copy(username = trimmed, isNameValid = valid)
+            it.copy(username = trimmed, isNameValid = isValid, nameError = error)
         }
     }
 

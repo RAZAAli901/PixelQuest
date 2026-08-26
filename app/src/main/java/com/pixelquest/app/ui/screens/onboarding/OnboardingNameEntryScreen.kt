@@ -30,6 +30,7 @@ fun OnboardingNameEntryScreen(
     username: String,
     onUsernameChange: (String) -> Unit,
     isValid: Boolean,
+    nameError: String? = null,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -68,7 +69,7 @@ fun OnboardingNameEntryScreen(
                 onValueChange = onUsernameChange,
                 label = "HERO USERNAME",
                 placeholder = "e.g. PixelKnight",
-                errorText = if (username.isNotEmpty() && !isValid) "Name must be 1-20 characters" else null,
+                errorText = nameError,
                 modifier = Modifier.fillMaxWidth()
             )
         }
