@@ -52,6 +52,17 @@ class SettingsRepositoryImpl @Inject constructor(
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
+    override val isNotificationsEnabled: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_NOTIFICATIONS_ENABLED) {
+                trySend(prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_NOTIFICATIONS_ENABLED, true))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     override suspend fun setSoundEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
     }
@@ -64,9 +75,14 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETE, complete).apply()
     }
 
+    override suspend fun setNotificationsEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled).apply()
+    }
+
     companion object {
         private const val KEY_SOUND_ENABLED = "key_sound_enabled"
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
         private const val KEY_ONBOARDING_COMPLETE = "key_onboarding_complete"
+        private const val KEY_NOTIFICATIONS_ENABLED = "key_notifications_enabled"
     }
 }
