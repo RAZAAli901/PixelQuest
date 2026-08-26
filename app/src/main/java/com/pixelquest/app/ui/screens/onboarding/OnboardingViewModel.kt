@@ -89,4 +89,32 @@ class OnboardingViewModel @Inject constructor(
         }
         _uiState.update { it.copy(currentStep = prev) }
     }
+
+    fun completeOnboarding(onSuccess: () -> Unit = {}) {
+        viewModelScope.launch {
+            val state = _uiState.value
+            val userProfile = com.pixelquest.app.data.local.entity.UserProfileEntity(
+                id = 1,
+                username = state.username.ifBlank { "PixelHero" },
+                avatarId = state.avatarId,
+                level = 1,
+                totalXp = 0,
+                perfectDaysTowardNextLevel = 0
+            )
+            userProfileRepository.saveProfile(userProfile)
+
+            val diffThreshold = com.pixelquest.app.domain.DifficultyMode.getPerfectDayThreshold(state.difficultyLevel)
+            val daysReq = com.pixelquest.app.domain.DifficultyMode.getDaysRequiredPerLevel(state.difficultyLevel)
+            val diffEntity = com.pixelquest.app.data.local.entity.DifficultySettingsEntity(
+                id = 1,
+                difficultyLevel = state.difficultyLevel,
+                perfectDayThreshold = diffThreshold,
+                daysRequiredPerLevel = daysReq
+            )
+            difficultySettingsRepository.updateDifficultySettings(diffEntity)
+
+            settingsRepository.setOnboardingComplete(true)
+            onSuccess()
+        }
+    }
 }
