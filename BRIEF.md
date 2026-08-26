@@ -597,7 +597,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 
 ## Day 10 Progress Log
 - Step 1: Add onboardingComplete preference and setter to SettingsRepository - f23b1d9
-- Step 2: Create ui/screens/onboarding/OnboardingViewModel.kt skeleton wiring UserProfileRepository, DifficultySettingsRepository, and SettingsRepository - 82ae99e
+- Step 2: Create ui/screens/onboarding/OnboardingViewModel.kt skeleton wiring UserProfileRepository, DifficultySettingsRepository, and SettingsRepository - 23b65d1
+- Step 3: Define an OnboardingStep sealed state (Welcome, NameEntry, AvatarPick, DifficultyPick, Summary) - 68d1627
 
 
 
