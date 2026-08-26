@@ -627,7 +627,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 29: Add a notification sound/vibration sub-preference, wired into Day 4's notification builder - 7a85e24
 - Step 30: Add a shortcut button linking to the Android system notification settings for the app - d31fdcd
 - Step 31: Write unit tests for the master-toggle cascade (disable cancels all alarms, re-enable reschedules all) - 4d33eb8
-- Step 32: Add a difficulty display + Change Difficulty entry point in Settings' Account section, linking to Day 5's DifficultySelectionScreen - ea03cc7
+- Step 32: Add a difficulty display + Change Difficulty entry point in Settings' Account section, linking to Day 5's DifficultySelectionScreen - a7db795
+- Step 33: Add an avatar display + Change Avatar entry point in Settings, linking to Day 7's AvatarSelectionScreen - c897c8c
 
 
 

@@ -21,6 +21,19 @@ fun SettingsScreen(
 
     SettingsScreenScaffold(
         accountSection = {
+            val avatarId = state.profile?.avatarId ?: "avatar_hero"
+            val level = state.profile?.level ?: 1
+            com.pixelquest.app.ui.components.PixelAvatarFrame(
+                avatarId = avatarId,
+                level = level,
+                size = 64.dp
+            )
+            PixelButton(
+                text = "🧙 CHANGE AVATAR",
+                onClick = onNavigateToAvatar,
+                variant = PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
             val diffLevel = state.difficulty?.difficultyLevel ?: com.pixelquest.app.domain.model.DifficultyLevel.MEDIUM
             val diffName = com.pixelquest.app.domain.DifficultyMode.getDisplayName(diffLevel)
             androidx.compose.material3.Text(
