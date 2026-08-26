@@ -630,7 +630,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 32: Add a difficulty display + Change Difficulty entry point in Settings' Account section, linking to Day 5's DifficultySelectionScreen - a7db795
 - Step 33: Add an avatar display + Change Avatar entry point in Settings, linking to Day 7's AvatarSelectionScreen - 565a058
 - Step 34: Add a username display + edit capability in Settings' Account section, reusing PixelTextField - 1ce3d2f
-- Step 35: Add a Compose Preview for the Account section - 2b088a5
+- Step 35: Add a Compose Preview for the Account section - eda77ba
+- Step 36: Create DataExportImport.kt helper providing JSON serialization/deserialization for all app state - cb1b6ff
 
 
 
