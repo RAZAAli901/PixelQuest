@@ -28,6 +28,11 @@ private val PixelDarkColorScheme = darkColorScheme(
     onError = PixelTextWhite
 )
 
+/**
+ * PixelQuest Theme wrapper.
+ * NOTE: Intentionally locks to PixelDarkColorScheme regardless of system light/dark mode
+ * to preserve the retro 8-bit arcade aesthetic, high-contrast gold/cyan palette, and CRT visual identity.
+ */
 @Composable
 fun PixelQuestTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
