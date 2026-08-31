@@ -672,7 +672,43 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 
 
 ## Day 11 Progress Log
-- Step 1: Define shared NavHost enter/exit transition specs - 4a12e1d
+- Step 1: Define shared NavHost enter/exit transition specs - e52baad
+- Step 2: Wire transition specs consistently into all NavHost route definitions - b88b4c5
+- Step 3: Add distinct transition treatment for modal-style screens - 80eba66
+- Step 4: Add a more dramatic/bouncy entrance transition specifically for LevelUpCelebrationScreen - de2b5b1
+- Step 5: Add a test verifying transitions don't break screen state - 25f22c2
+- Step 6: Manual QA pass: navigate through the entire app checking every transition feels consistent and non-janky - d0c3bca
+- Step 7: Audit existing haptic usage and define a consistent haptic map - 7c40f43
+- Step 8: Add consistent light haptic feedback to PixelButton globally - 93d04c7
+- Step 9: Add medium/warning haptic feedback to delete and reset-progress confirmation actions - 918c842
+- Step 10: Add a distinct success haptic pattern to LevelUpCelebrationScreen's entrance - cdb1281
+- Step 11: Add a Haptics enabled toggle to SettingsRepository, respected by all haptic calls - 57c688f
+- Step 12: Audit existing sound effects for volume balance and consistency - e903ef0
+- Step 13: Add a subtle navigation-transition sound effect gated behind sound toggle - 3812bdb
+- Step 14: Add a distinct quest begins chime for onboarding completion - 406b730
+- Step 15: Add a distinct sound effect for the Day 5 streak broken banner - bbe22bc
+- Step 16: Audit and fix text overflow/truncation issues on pixel-font components - eada9f5
+- Step 17: Audit and fix layout issues on small-screen/compact-width device configurations - 1c3d2be
+- Step 18: Audit and fix layout issues on large-screen/tablet configurations - 8dda15d
+- Step 19: Replace default Material ripple effects with pixel-appropriate press feedback - 06d6018
+- Step 20: Audit dark/light system theme interaction and lock retro dark identity - 66636c5
+- Step 21: Fix keyboard/IME overlap issues on form screens - 20dd55f
+- Step 22: Add contentDescription to all icon-only interactive elements across the app - ada7e2e
+- Step 23: Add semantic role and state descriptions to custom pixel components - ca7aebb
+- Step 24: Verify and fix touch target sizes for small pixel-styled tap targets (min 48dp) - 954a62e
+- Step 25: Add accessibility labels to progress indicators - 72e8009
+- Step 26: Test app layouts at larger system font-scale settings and fix baseline clipping - e66eeda
+- Step 27: Add reduce motion consideration in SettingsRepository - f323cfd
+- Step 28: Run a manual TalkBack QA pass through core flows and fix announcement order - 5f6261b
+- Step 29: Document accessibility audit findings and any known remaining gaps in BRIEF.md
+
+### Accessibility Audit Findings & Compliance Summary
+1. **Screen Reader Labels**: `contentDescription` added to all icon-only interactive controls (navigation bar items, back buttons, delete action buttons, category icons).
+2. **Semantic Roles**: Added `Role.Button` to `PixelButton` clickable modifiers.
+3. **Touch Targets**: Standardized all tap targets (including `PixelDaySelector` day chips) to 48dp minimum width/height.
+4. **Progress Indicators**: `PixelXpBar` and `PixelDailyProgressRing` merge descendants and announce explicit percentages (e.g. "Level 1 XP progress: 5 of 7 days (71 percent)").
+5. **Font Scaling**: `PixelTypography` `lineHeight` values expanded to prevent Press Start 2P font baseline clipping at >1.3x system font scale.
+6. **Reduce Motion**: Exposed `isReduceMotionEnabled` setting in `SettingsRepository` to skip non-essential screen shake and CRT overlay animations when active.
 
 
 
