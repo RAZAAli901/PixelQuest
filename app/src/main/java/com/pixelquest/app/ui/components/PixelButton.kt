@@ -38,6 +38,7 @@ fun PixelButton(
     enabled: Boolean = true
 ) {
     val soundManager = LocalSoundManager.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -56,6 +57,7 @@ fun PixelButton(
                 indication = null,
                 enabled = enabled,
                 onClick = {
+                    com.pixelquest.app.ui.haptics.PixelHaptics.performLightTap(haptic)
                     soundManager?.playClickSound()
                     onClick()
                 }
