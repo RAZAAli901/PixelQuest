@@ -51,6 +51,13 @@ class SoundManager @Inject constructor(
         }
     }
 
+    fun playNavSound() {
+        if (!isSoundEnabled) return
+        if (soundClickId != 0) {
+            soundPool?.play(soundClickId, 0.35f, 0.35f, 0, 0, 1.2f)
+        }
+    }
+
     fun playTaskCompleteSound() {
         if (!isSoundEnabled) return
         if (soundCompleteId != 0) {

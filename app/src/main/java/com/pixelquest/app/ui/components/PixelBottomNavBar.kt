@@ -59,7 +59,7 @@ fun PixelBottomNavBar(
                 Column(
                     modifier = Modifier
                         .clickable {
-                            soundManager?.playClickSound()
+                            soundManager?.playNavSound()
                             onNavigate(item.route)
                         }
                         .padding(vertical = 4.dp, horizontal = 8.dp),
