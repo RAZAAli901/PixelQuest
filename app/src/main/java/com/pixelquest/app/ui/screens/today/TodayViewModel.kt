@@ -74,6 +74,8 @@ class TodayViewModel @Inject constructor(
         val isPerfectDay = totalCount > 0 && completionPct >= threshold
         val flavorText = FlavorTextCatalog.getFlavorText(totalCount, completedCount, isPerfectDay, currentDate)
 
+        val isStreakBroken = (streak != null && streak.currentStreak == 0 && streak.lastCompletedDate != null)
+
         TodayUiState.Success(
             tasks = sortedItems,
             currentStreak = streak?.currentStreak ?: 0,
@@ -84,6 +86,7 @@ class TodayViewModel @Inject constructor(
             completionPercentage = completionPct,
             targetThreshold = threshold,
             isPerfectDay = isPerfectDay,
+            isStreakBroken = isStreakBroken,
             flavorText = flavorText
         ) as TodayUiState
     }.stateIn(

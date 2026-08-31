@@ -171,6 +171,25 @@ fun TodayContent(
                 FlavorTextBanner(text = state.flavorText)
             }
         }
+        if (state.isStreakBroken) {
+            item {
+                val soundManager = com.pixelquest.app.audio.LocalSoundManager.current
+                androidx.compose.runtime.LaunchedEffect(Unit) {
+                    soundManager?.playTaskMissedSound()
+                }
+                PixelCard(
+                    variant = PixelPanelVariant.BORDER,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "💔 STREAK BROKEN — START A NEW QUEST STREAK TODAY!",
+                        style = PixelTypography.bodySmall,
+                        color = com.pixelquest.app.ui.theme.PixelRed,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
+        }
         if (state.isPerfectDay) {
             item {
                 PixelPerfectDayBanner()
