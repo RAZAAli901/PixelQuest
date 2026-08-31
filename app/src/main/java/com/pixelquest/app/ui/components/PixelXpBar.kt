@@ -45,9 +45,14 @@ fun PixelXpBar(
         label = "xp_bar_animation"
     )
 
+    val percentage = (targetFraction * 100).toInt()
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .androidx.compose.ui.semantics.semantics(mergeDescendants = true) {
+                contentDescription = "Level $level XP progress: $currentProgress of $maxProgress days ($percentage percent)"
+            }
     ) {
         // Level Badge
         Box(
