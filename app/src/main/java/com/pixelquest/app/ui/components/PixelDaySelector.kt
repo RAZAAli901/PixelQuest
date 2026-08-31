@@ -50,8 +50,10 @@ fun PixelDaySelector(
             modifier = Modifier.padding(bottom = 6.dp)
         )
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxWidth()
+                .androidx.compose.foundation.horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             days.forEach { (day, shortName) ->
                 val isSelected = selectedDays.contains(day)
