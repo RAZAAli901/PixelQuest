@@ -47,7 +47,7 @@ class SoundManager @Inject constructor(
     fun playClickSound() {
         if (!isSoundEnabled) return
         if (soundClickId != 0) {
-            soundPool?.play(soundClickId, 1.0f, 1.0f, 0, 0, 1.0f)
+            soundPool?.play(soundClickId, 0.60f, 0.60f, 0, 0, 1.0f)
         }
     }
 
@@ -61,7 +61,7 @@ class SoundManager @Inject constructor(
     fun playTaskMissedSound() {
         if (!isSoundEnabled) return
         if (soundMissedId != 0) {
-            soundPool?.play(soundMissedId, 1.0f, 1.0f, 0, 0, 1.0f)
+            soundPool?.play(soundMissedId, 0.85f, 0.85f, 0, 0, 1.0f)
         }
     }
 
