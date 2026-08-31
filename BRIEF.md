@@ -711,7 +711,49 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 37: Measure and optimize app cold-start time - d88714d
 - Step 38: Verify database queries on frequently-recomposing screens are efficient - c586a64
 - Step 39: Verify image/sprite assets are appropriately sized and compressed - 0130626
-- Step 40: Add a lightweight manual performance test script to BRIEF.md
+- Step 40: Add a lightweight manual performance test script to BRIEF.md - 1b949f7
+- Step 41: Full manual regression pass across the entire app - 7f10b62
+- Step 42: Fix any regressions found during the pass - 2a7f056
+- Step 43: Grep the codebase for remaining TODO comments and reconcile each - c04bd98
+- Step 44: Verify CI still builds a clean debug APK with today's changes - 4c26d04
+- Step 45: Verify the app icon, splash, and onboarding present a cohesive first impression - a683139
+- Step 46: Update ASSETS.md with new sound/visual asset mappings - e7d7737
+- Step 47: Update BRIEF.md with Day 11 summary documentation
+
+## Day 11 Architecture & Implementation Summary
+
+### 1. Screen Transition Animations
+- **Retro Transition Specs**: Created `PixelTransitions.kt` defining snappy linear slide + fade transitions (150ms) matching 8-bit arcade aesthetics across `NavHost`.
+- **Modal & Level-Up Treatment**: Modal slide-up for forms (`CreateTaskScreen`, `EditTaskScreen`) and spring bounce scale-in for `LevelUpCelebrationScreen`.
+- **State Survival**: Verified in `ScreenTransitionStateTest.kt` that in-progress form inputs survive screen navigation transitions cleanly.
+
+### 2. Haptic Feedback Expansion
+- **Centralized Haptic Map**: Created `PixelHaptics.kt` providing `LightTap` (buttons), `MediumConfirm` / `Warning` (dialogs, deletions, resets), and `SuccessPattern` (quick-complete, level-up).
+- **Settings Toggle**: Added `isHapticsEnabled` flow to `SettingsRepository` and `SettingsScreen`, synchronized globally via `MainActivity`.
+
+### 3. Sound Polish
+- **Volume Balance**: Calibrated SFX levels in `SoundManager.kt` (`playClickSound` 0.6f, `playTaskMissedSound` 0.85f, `playTaskCompleteSound` 1.0f).
+- **New Sound Hooks**: Added `playNavSound()` for bottom navigation clicks, `playQuestBeginSound()` fanfare for onboarding completion, and audio triggers for `StreakBrokenBanner`.
+
+### 4. Edge-Case UI Fixes
+- **Text Overflow**: Applied `maxLines = 1` and `TextOverflow.Ellipsis` to task titles, usernames, and header titles across components.
+- **Responsive Layouts**: Added `horizontalScroll` to `PixelDaySelector` for compact screens (<320dp width) and constrained max width (`widthIn(max = 600.dp)`) on tablet layouts.
+- **Ripple & Keyboard Fixes**: Introduced `pixelClickable` removing Material ripples, locked dark theme in `Theme.kt`, and applied `imePadding()` to prevent keyboard overlap.
+
+### 5. Accessibility Pass
+- **Content Descriptions**: Added labels to all icon-only controls (back, delete, nav items, category icons).
+- **Roles & Touch Targets**: Added `Role.Button` to `PixelButton` and enforced 48dp minimum touch target sizes on all tap controls.
+- **Semantics & Reduce Motion**: `PixelXpBar` announces numeric values and percentages. Added `isReduceMotionEnabled` setting in `SettingsRepository`.
+
+### 6. Performance & Recomposition Audit
+- **Recomposition Isolation**: Isolated countdown timer updates to cell scope, memoized `PixelCalendarHeatmap` grid lookups, and memoized list filters with `remember(state.tasks)`.
+- **Stable Keys**: Verified all `LazyColumn` items use unique stable keys (`it.task.id`, `it.logId`).
+- **Memory & Assets**: 6-month heatmap memory audit passed (< 500 KB delta). All 30 PNG assets in `res/drawable` are optimized (< 5 KB total).
+
+### 7. Known Gaps / Deferred for Day 12
+- Final release testing on physical device configurations.
+- Signed release APK / AAB production build pipeline.
+- GitHub Release tag and artifact release workflow.
 
 ### Manual Performance & Recomposition QA Test Script
 1. **Cold-Start Latency Pass**: Launch app on fresh boot/process start. Confirm splash screen auto-transitions to Home/Onboarding in < 1.5 seconds with zero main thread lockups.
