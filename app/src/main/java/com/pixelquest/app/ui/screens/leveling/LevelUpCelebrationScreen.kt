@@ -56,18 +56,28 @@ fun LevelUpCelebrationScreen(
         label = "scale"
     )
 
+    var visible by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        visible = true
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(PixelBackgroundDark.copy(alpha = 0.95f)),
         contentAlignment = Alignment.Center
     ) {
-        PixelCard(
-            variant = PixelPanelVariant.YELLOW,
-            modifier = Modifier
-                .padding(24.dp)
-                .scale(scale)
+        androidx.compose.animation.AnimatedVisibility(
+            visible = visible,
+            enter = com.pixelquest.app.ui.navigation.PixelTransitions.LevelUpEnter,
+            exit = com.pixelquest.app.ui.navigation.PixelTransitions.LevelUpExit
         ) {
+            PixelCard(
+                variant = PixelPanelVariant.YELLOW,
+                modifier = Modifier
+                    .padding(24.dp)
+                    .scale(scale)
+            ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,

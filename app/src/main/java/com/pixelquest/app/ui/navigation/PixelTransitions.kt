@@ -69,4 +69,17 @@ object PixelTransitions {
     ) + fadeOut(
         animationSpec = tween(durationMillis = DURATION_SNAPPY, easing = LinearEasing)
     )
+
+    val LevelUpEnter: EnterTransition = androidx.compose.animation.scaleIn(
+        initialScale = 0.3f,
+        animationSpec = androidx.compose.animation.core.spring(
+            dampingRatio = androidx.compose.animation.core.Spring.DampingRatioMediumBouncy,
+            stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+        )
+    ) + fadeIn(animationSpec = tween(durationMillis = 200))
+
+    val LevelUpExit: ExitTransition = androidx.compose.animation.scaleOut(
+        targetScale = 0.8f,
+        animationSpec = tween(durationMillis = 150)
+    ) + fadeOut(animationSpec = tween(durationMillis = 150))
 }
