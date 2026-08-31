@@ -670,9 +670,9 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - SAF `CreateDocument` and `OpenDocument` activity launchers handle file save and load.
 - Pixel-styled `RestoreDataConfirmDialog` requires user confirmation before replacing database state.
 
-### 6. Danger Zone & Full Reset
-- Prominent red card in `SettingsScreen` triggers `ResetProgressDialogSequence` double confirmation dialog.
-- Final confirmation cancels all pending alarms, clears tasks, resets user profile and difficulty settings to default values, sets `onboardingComplete = false`, and navigates back to `Screen.Onboarding` popping the backstack inclusive.
+
+## Day 11 Progress Log
+- Step 1: Define shared NavHost enter/exit transition specs - 4a12e1d
 
 
 
