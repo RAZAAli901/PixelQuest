@@ -45,6 +45,7 @@ fun DidYouDoItScreen(
         onDismiss()
     }
 
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -85,6 +86,7 @@ fun DidYouDoItScreen(
                     PixelButton(
                         text = "NOT YET",
                         onClick = {
+                            com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
                             soundManager?.playTaskMissedSound()
                             onNoClick()
                             onDismiss()
@@ -96,6 +98,7 @@ fun DidYouDoItScreen(
                     PixelButton(
                         text = "YES!",
                         onClick = {
+                            com.pixelquest.app.ui.haptics.PixelHaptics.performSuccessPattern(haptic)
                             soundManager?.playTaskCompleteSound()
                             onYesClick()
                             onDismiss()
