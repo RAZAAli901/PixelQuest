@@ -98,6 +98,13 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
+            val hapticText = if (state.isHapticsEnabled) "📳 HAPTICS: ON" else "📴 HAPTICS: OFF"
+            PixelButton(
+                text = hapticText,
+                onClick = { viewModel.toggleHaptics(!state.isHapticsEnabled) },
+                variant = PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
             val crtText = if (state.isCrtEnabled) "📺 CRT FILTER: ON" else "📺 CRT FILTER: OFF"
             PixelButton(
                 text = crtText,

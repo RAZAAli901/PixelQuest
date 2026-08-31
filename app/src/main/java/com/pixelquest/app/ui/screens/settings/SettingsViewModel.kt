@@ -24,6 +24,7 @@ data class SettingsUiState(
     val difficulty: DifficultySettingsEntity? = null,
     val isSoundEnabled: Boolean = true,
     val isCrtEnabled: Boolean = false,
+    val isHapticsEnabled: Boolean = true,
     val isNotificationsEnabled: Boolean = true
 )
 
@@ -41,13 +42,15 @@ class SettingsViewModel @Inject constructor(
         difficultySettingsRepository.getCurrentDifficulty(),
         settingsRepository.isSoundEnabled,
         settingsRepository.isCrtEnabled,
+        settingsRepository.isHapticsEnabled,
         settingsRepository.isNotificationsEnabled
-    ) { profile, difficulty, soundEnabled, crtEnabled, notificationsEnabled ->
+    ) { profile, difficulty, soundEnabled, crtEnabled, hapticsEnabled, notificationsEnabled ->
         SettingsUiState(
             profile = profile,
             difficulty = difficulty,
             isSoundEnabled = soundEnabled,
             isCrtEnabled = crtEnabled,
+            isHapticsEnabled = hapticsEnabled,
             isNotificationsEnabled = notificationsEnabled
         )
     }.stateIn(
@@ -59,6 +62,12 @@ class SettingsViewModel @Inject constructor(
     fun toggleSound(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setSoundEnabled(enabled)
+        }
+    }
+
+    fun toggleHaptics(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setHapticsEnabled(enabled)
         }
     }
 

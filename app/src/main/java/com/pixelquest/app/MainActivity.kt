@@ -66,6 +66,8 @@ class MainActivity : ComponentActivity() {
             PixelQuestTheme {
                 CompositionLocalProvider(LocalSoundManager provides soundManager) {
                     val isCrtEnabled by settingsRepository.isCrtEnabled.collectAsState(initial = false)
+                    val isHapticsEnabled by settingsRepository.isHapticsEnabled.collectAsState(initial = true)
+                    com.pixelquest.app.ui.haptics.PixelHaptics.isHapticsEnabledGlobal = isHapticsEnabled
                     val onboardingComplete by settingsRepository.onboardingComplete.collectAsState(initial = true)
                     PixelCrtOverlay(enabled = isCrtEnabled) {
                         val navController = rememberNavController()

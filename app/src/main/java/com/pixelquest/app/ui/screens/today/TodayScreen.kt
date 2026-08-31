@@ -82,12 +82,12 @@ fun TodayScreen(
                 TodayContent(
                     state = state,
                     onQuickComplete = { task ->
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        com.pixelquest.app.ui.haptics.PixelHaptics.performSuccessPattern(haptics)
                         soundManager?.playTaskCompleteSound()
                         viewModel.completeTask(task)
                     },
                     onQuickSkip = { task ->
-                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptics)
                         soundManager?.playTaskMissedSound()
                         viewModel.skipTask(task)
                     },

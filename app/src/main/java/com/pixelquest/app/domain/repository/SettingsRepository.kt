@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     val isSoundEnabled: Flow<Boolean>
     val isCrtEnabled: Flow<Boolean>
+    val isHapticsEnabled: Flow<Boolean>
     val onboardingComplete: Flow<Boolean>
     val isNotificationsEnabled: Flow<Boolean>
     val isNotificationSoundEnabled: Flow<Boolean>
@@ -12,6 +13,7 @@ interface SettingsRepository {
 
     suspend fun setSoundEnabled(enabled: Boolean)
     suspend fun setCrtEnabled(enabled: Boolean)
+    suspend fun setHapticsEnabled(enabled: Boolean)
     suspend fun setOnboardingComplete(complete: Boolean)
     suspend fun setNotificationsEnabled(enabled: Boolean)
     suspend fun setNotificationSoundEnabled(enabled: Boolean)
