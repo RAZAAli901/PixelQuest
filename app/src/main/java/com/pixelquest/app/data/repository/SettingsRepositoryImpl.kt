@@ -52,6 +52,17 @@ class SettingsRepositoryImpl @Inject constructor(
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
+    override val isReduceMotionEnabled: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_REDUCE_MOTION_ENABLED) {
+                trySend(prefs.getBoolean(KEY_REDUCE_MOTION_ENABLED, false))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_REDUCE_MOTION_ENABLED, false))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     override val onboardingComplete: Flow<Boolean> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_ONBOARDING_COMPLETE) {
@@ -108,6 +119,10 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_HAPTICS_ENABLED, enabled).apply()
     }
 
+    override suspend fun setReduceMotionEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_REDUCE_MOTION_ENABLED, enabled).apply()
+    }
+
     override suspend fun setOnboardingComplete(complete: Boolean) {
         prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETE, complete).apply()
     }
@@ -128,6 +143,7 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_SOUND_ENABLED = "key_sound_enabled"
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
         private const val KEY_HAPTICS_ENABLED = "key_haptics_enabled"
+        private const val KEY_REDUCE_MOTION_ENABLED = "key_reduce_motion_enabled"
         private const val KEY_ONBOARDING_COMPLETE = "key_onboarding_complete"
         private const val KEY_NOTIFICATIONS_ENABLED = "key_notifications_enabled"
         private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"
