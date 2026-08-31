@@ -68,3 +68,10 @@
 ## Day 7 Consistency Audit Summary
 - **Visual Audit**: Confirmed 100% compliance across pixel grid resolution (16x16 / 32x32) and retro color palette. Zero default Material icons remain in active UI flows.
 
+## Day 11 Audio & Visual Polish Inventory
+- **Navigation SFX**: `playNavSound()` (0.35f volume, 1.2f pitch shift using `sfx_click.wav`) gated behind sound settings toggle.
+- **Quest Begin Chime**: `playQuestBeginSound()` (1.0f volume, 1.25f pitch fanfare using `sfx_levelup.wav`) for hero onboarding completion.
+- **Streak Broken Audio**: `sfx_missed.wav` audio trigger connected to Day 5 `StreakBrokenBanner`.
+- **Haptic Maps**: `PixelHaptics` mapping (Light Tap for buttons, Medium Warning for delete/reset confirm, Success Pattern for quick-complete & level-up celebration).
+- **Haptics Toggle**: `isHapticsEnabled` setting in `SettingsRepository` and `SettingsScreen`.
+
