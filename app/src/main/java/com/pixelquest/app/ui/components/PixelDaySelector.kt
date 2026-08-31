@@ -63,11 +63,11 @@ fun PixelDaySelector(
                     variant = variant,
                     contentPadding = 0.dp,
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(48.dp)
                         .clickable { onDayToggled(day) }
                 ) {
                     Box(
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
