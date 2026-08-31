@@ -7,6 +7,7 @@ import com.pixelquest.app.BuildConfig
 
 /**
  * Debug-only recomposition counter helper for performance auditing.
+ * Gated behind BuildConfig.DEBUG so production release builds strip tracking overhead cleanly.
  */
 @Composable
 fun LogRecomposition(tag: String) {
