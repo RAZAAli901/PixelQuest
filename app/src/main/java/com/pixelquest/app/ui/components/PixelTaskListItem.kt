@@ -76,6 +76,8 @@ fun PixelTaskListItem(
                     Text(
                         text = task.name,
                         style = PixelTypography.titleMedium,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         color = when (status) {
                             TaskItemStatus.COMPLETED -> PixelGreen
                             TaskItemStatus.MISSED -> PixelRed

@@ -100,6 +100,8 @@ fun ProfileScreen(
                 Text(
                     text = username.uppercase(),
                     style = PixelTypography.titleMedium,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     color = PixelGold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
