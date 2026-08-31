@@ -700,7 +700,24 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 26: Test app layouts at larger system font-scale settings and fix baseline clipping - e66eeda
 - Step 27: Add reduce motion consideration in SettingsRepository - f323cfd
 - Step 28: Run a manual TalkBack QA pass through core flows and fix announcement order - 5f6261b
-- Step 29: Document accessibility audit findings and any known remaining gaps in BRIEF.md
+- Step 29: Document accessibility audit findings and any known remaining gaps in BRIEF.md - d294feb
+- Step 30: Add temporary recomposition tracking across complex screens - ec516fa
+- Step 31: Identify and fix unnecessary recompositions in TodayScreen - f6b539f
+- Step 32: Identify and fix unnecessary recompositions in heatmap/stats screens - 31e7fd7
+- Step 33: Add remember/derivedStateOf optimizations to list filtering - 3ca4c35
+- Step 34: Verify all LazyColumn usages across the app use stable keys for list items - 84852ae
+- Step 35: Profile memory usage during an extended session to check for leaks - 92187c1
+- Step 36: Gate recomposition tracking behind debug flag for clean release build - e93f114
+- Step 37: Measure and optimize app cold-start time - d88714d
+- Step 38: Verify database queries on frequently-recomposing screens are efficient - c586a64
+- Step 39: Verify image/sprite assets are appropriately sized and compressed - 0130626
+- Step 40: Add a lightweight manual performance test script to BRIEF.md
+
+### Manual Performance & Recomposition QA Test Script
+1. **Cold-Start Latency Pass**: Launch app on fresh boot/process start. Confirm splash screen auto-transitions to Home/Onboarding in < 1.5 seconds with zero main thread lockups.
+2. **Timer Recomposition Pass**: Open `TodayScreen` with active pending quests. Enable recomposition highlights. Confirm 30s timer updates only trigger re-renders inside `PixelCountdownTimer`.
+3. **Heatmap Scroll Pass**: Navigate to `StatsScreen` -> 90-day heatmap. Scroll horizontally back and forth across 6 months of data. Verify steady 60 FPS rendering and smooth gesture response.
+4. **Memory Leak Pass**: Cycle between `TasksScreen` -> `CreateTaskScreen` -> `StatsScreen` -> `SettingsScreen` 10 times. Verify memory allocation stabilizes and GC reclaims transient UI state.
 
 ### Accessibility Audit Findings & Compliance Summary
 1. **Screen Reader Labels**: `contentDescription` added to all icon-only interactive controls (navigation bar items, back buttons, delete action buttons, category icons).
