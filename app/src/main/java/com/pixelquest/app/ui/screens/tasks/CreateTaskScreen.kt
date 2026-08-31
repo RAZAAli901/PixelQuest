@@ -100,6 +100,7 @@ fun CreateTaskScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
                     .background(PixelBackgroundDark)
+                    .androidx.compose.foundation.layout.imePadding()
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally

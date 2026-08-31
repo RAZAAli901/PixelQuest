@@ -38,6 +38,7 @@ fun OnboardingNameEntryScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(PixelBackgroundDark)
+            .androidx.compose.foundation.layout.imePadding()
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
