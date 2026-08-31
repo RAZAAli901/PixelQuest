@@ -75,7 +75,12 @@ fun CreateTaskScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        IconButton(onClick = onNavigateBack) {
+                        IconButton(
+                            onClick = onNavigateBack,
+                            modifier = Modifier.androidx.compose.ui.semantics.semantics {
+                                contentDescription = "Go Back"
+                            }
+                        ) {
                             Text("◀", style = PixelTypography.titleMedium, color = PixelGold)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
@@ -86,7 +91,12 @@ fun CreateTaskScreen(
                             modifier = Modifier.weight(1f)
                         )
                         if (formState.isEditMode) {
-                            IconButton(onClick = { showDeleteConfirm = true }) {
+                            IconButton(
+                                onClick = { showDeleteConfirm = true },
+                                modifier = Modifier.androidx.compose.ui.semantics.semantics {
+                                    contentDescription = "Delete Quest"
+                                }
+                            ) {
                                 Text("🗑️", style = PixelTypography.titleMedium)
                             }
                         }
