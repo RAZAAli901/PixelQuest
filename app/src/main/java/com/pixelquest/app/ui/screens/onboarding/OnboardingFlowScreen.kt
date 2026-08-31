@@ -10,6 +10,7 @@ fun OnboardingFlowScreen(
     viewModel: OnboardingViewModel = hiltViewModel(),
     onOnboardingComplete: () -> Unit = {}
 ) {
+    val soundManager = com.pixelquest.app.audio.LocalSoundManager.current
     val uiState by viewModel.uiState.collectAsState()
 
     when (uiState.currentStep) {
@@ -54,6 +55,7 @@ fun OnboardingFlowScreen(
                 avatarId = uiState.avatarId,
                 difficultyLevel = uiState.difficultyLevel,
                 onConfirmClick = {
+                    soundManager?.playQuestBeginSound()
                     viewModel.completeOnboarding {
                         onOnboardingComplete()
                     }

@@ -79,6 +79,13 @@ class SoundManager @Inject constructor(
         }
     }
 
+    fun playQuestBeginSound() {
+        if (!isSoundEnabled) return
+        if (soundLevelUpId != 0) {
+            soundPool?.play(soundLevelUpId, 1.0f, 1.0f, 0, 0, 1.25f)
+        }
+    }
+
     fun release() {
         soundPool?.release()
         soundPool = null
