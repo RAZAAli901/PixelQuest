@@ -17,6 +17,7 @@ fun ResetProgressDialogSequence(
     onConfirmWipe: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     if (step == 1) {
         AlertDialog(
             onDismissRequest = onDismiss,
@@ -32,7 +33,10 @@ fun ResetProgressDialogSequence(
                 )
             },
             confirmButton = {
-                PixelButton(text = "YES, CONTINUE", onClick = onNextStep, variant = PixelButtonVariant.RED)
+                PixelButton(text = "YES, CONTINUE", onClick = {
+                    com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
+                    onNextStep()
+                }, variant = PixelButtonVariant.RED)
             },
             dismissButton = {
                 PixelButton(text = "CANCEL", onClick = onDismiss, variant = PixelButtonVariant.BLUE)
@@ -53,7 +57,10 @@ fun ResetProgressDialogSequence(
                 )
             },
             confirmButton = {
-                PixelButton(text = "CONFIRM WIPEOUT", onClick = onConfirmWipe, variant = PixelButtonVariant.RED)
+                PixelButton(text = "CONFIRM WIPEOUT", onClick = {
+                    com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
+                    onConfirmWipe()
+                }, variant = PixelButtonVariant.RED)
             },
             dismissButton = {
                 PixelButton(text = "CANCEL", onClick = onDismiss, variant = PixelButtonVariant.BLUE)

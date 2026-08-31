@@ -17,11 +17,15 @@ fun PixelConfirmDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     PixelDialog(
         title = title,
         onDismissRequest = onDismiss,
         confirmButtonText = confirmText,
-        onConfirm = onConfirm,
+        onConfirm = {
+            com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
+            onConfirm()
+        },
         dismissButtonText = dismissText,
         onDismiss = onDismiss,
         modifier = modifier
