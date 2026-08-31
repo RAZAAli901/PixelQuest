@@ -80,7 +80,13 @@ fun PixelNavHost(
                 }
             )
         }
-        composable(Screen.CreateTask.route) {
+        composable(
+            route = Screen.CreateTask.route,
+            enterTransition = { PixelTransitions.ModalEnter },
+            exitTransition = { PixelTransitions.ModalExit },
+            popEnterTransition = { PixelTransitions.ModalPopEnter },
+            popExitTransition = { PixelTransitions.ModalPopExit }
+        ) {
             val formViewModel: TaskFormViewModel = hiltViewModel()
             LaunchedEffect(Unit) {
                 formViewModel.resetForm()
@@ -92,7 +98,11 @@ fun PixelNavHost(
         }
         composable(
             route = Screen.EditTask.route,
-            arguments = listOf(navArgument("taskId") { type = NavType.LongType })
+            arguments = listOf(navArgument("taskId") { type = NavType.LongType }),
+            enterTransition = { PixelTransitions.ModalEnter },
+            exitTransition = { PixelTransitions.ModalExit },
+            popEnterTransition = { PixelTransitions.ModalPopEnter },
+            popExitTransition = { PixelTransitions.ModalPopExit }
         ) { backStackEntry ->
             val taskId = backStackEntry.arguments?.getLong("taskId") ?: 0L
             val formViewModel: TaskFormViewModel = hiltViewModel()

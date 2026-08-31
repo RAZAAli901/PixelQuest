@@ -44,4 +44,29 @@ object PixelTransitions {
     ) + fadeOut(
         animationSpec = tween(durationMillis = DURATION_SNAPPY, easing = LinearEasing)
     )
+
+    val ModalEnter: EnterTransition = androidx.compose.animation.slideInVertically(
+        initialOffsetY = { fullHeight -> fullHeight / 3 },
+        animationSpec = tween(durationMillis = DURATION_NORMAL, easing = LinearEasing)
+    ) + fadeIn(
+        animationSpec = tween(durationMillis = DURATION_SNAPPY, easing = LinearEasing)
+    )
+
+    val ModalExit: ExitTransition = androidx.compose.animation.slideOutVertically(
+        targetOffsetY = { fullHeight -> fullHeight / 3 },
+        animationSpec = tween(durationMillis = DURATION_NORMAL, easing = LinearEasing)
+    ) + fadeOut(
+        animationSpec = tween(durationMillis = DURATION_SNAPPY, easing = LinearEasing)
+    )
+
+    val ModalPopEnter: EnterTransition = fadeIn(
+        animationSpec = tween(durationMillis = DURATION_SNAPPY, easing = LinearEasing)
+    )
+
+    val ModalPopExit: ExitTransition = androidx.compose.animation.slideOutVertically(
+        targetOffsetY = { fullHeight -> fullHeight / 3 },
+        animationSpec = tween(durationMillis = DURATION_NORMAL, easing = LinearEasing)
+    ) + fadeOut(
+        animationSpec = tween(durationMillis = DURATION_SNAPPY, easing = LinearEasing)
+    )
 }
