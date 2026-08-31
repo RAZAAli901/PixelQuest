@@ -33,6 +33,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
+/**
+ * Isolated Composable for Today's Dashboard quest card.
+ * Designed for atomic recomposition so countdown timer ticks do not trigger parent screen re-renders.
+ */
 @Composable
 fun TodayQuestCard(
     task: TaskEntity,
