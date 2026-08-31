@@ -41,8 +41,10 @@ fun LevelUpCelebrationScreen(
     onDismiss: () -> Unit = {}
 ) {
     val soundManager = LocalSoundManager.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     LaunchedEffect(level) {
         soundManager?.playLevelUpSound()
+        com.pixelquest.app.ui.haptics.PixelHaptics.performSuccessPattern(haptic)
     }
 
     val transition = rememberInfiniteTransition(label = "level_up_bounce")
