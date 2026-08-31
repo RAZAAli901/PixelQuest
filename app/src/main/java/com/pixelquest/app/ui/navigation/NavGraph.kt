@@ -51,7 +51,11 @@ fun PixelNavHost(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = modifier
+        modifier = modifier,
+        enterTransition = { PixelTransitions.Enter },
+        exitTransition = { PixelTransitions.Exit },
+        popEnterTransition = { PixelTransitions.PopEnter },
+        popExitTransition = { PixelTransitions.PopExit }
     ) {
         composable(Screen.Splash.route) {
             SplashScreen(
