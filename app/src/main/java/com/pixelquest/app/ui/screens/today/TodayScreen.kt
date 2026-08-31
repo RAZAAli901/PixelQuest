@@ -114,8 +114,12 @@ fun TodayContent(
 ) {
     var taskToSkip by remember { mutableStateOf<TaskEntity?>(null) }
 
-    val pendingTasks = state.tasks.filter { it.status == TaskItemStatus.PENDING || it.status == TaskItemStatus.GRACE_PERIOD }
-    val completedOrMissedTasks = state.tasks.filter { it.status == TaskItemStatus.DONE || it.status == TaskItemStatus.MISSED }
+    val pendingTasks = remember(state.tasks) {
+        state.tasks.filter { it.status == TaskItemStatus.PENDING || it.status == TaskItemStatus.GRACE_PERIOD }
+    }
+    val completedOrMissedTasks = remember(state.tasks) {
+        state.tasks.filter { it.status == TaskItemStatus.DONE || it.status == TaskItemStatus.MISSED }
+    }
 
     if (taskToSkip != null) {
         PixelConfirmDialog(
