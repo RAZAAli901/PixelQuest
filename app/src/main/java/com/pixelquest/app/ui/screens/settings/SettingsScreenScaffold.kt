@@ -38,6 +38,7 @@ fun SettingsScreenScaffold(
             .background(PixelBackgroundDark)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(

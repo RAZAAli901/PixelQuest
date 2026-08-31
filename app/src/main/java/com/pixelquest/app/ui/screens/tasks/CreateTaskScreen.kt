@@ -101,7 +101,8 @@ fun CreateTaskScreen(
                     .padding(innerPadding)
                     .background(PixelBackgroundDark)
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 PixelTextField(
                     value = formState.name,
