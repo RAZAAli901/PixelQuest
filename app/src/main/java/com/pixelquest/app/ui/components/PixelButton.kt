@@ -56,6 +56,7 @@ fun PixelButton(
                 interactionSource = interactionSource,
                 indication = null,
                 enabled = enabled,
+                role = androidx.compose.ui.semantics.Role.Button,
                 onClick = {
                     com.pixelquest.app.ui.haptics.PixelHaptics.performLightTap(haptic)
                     soundManager?.playClickSound()
