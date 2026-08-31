@@ -14,7 +14,9 @@ import java.util.concurrent.TimeUnit
 class PixelQuestApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+        // Fast cold-start: lightweight notification channel creation
         NotificationHelper.createNotificationChannel(this)
+        // Background async enqueue of periodic background workers
         scheduleMissedTaskWorker()
         scheduleStreakEvaluationWorker()
     }
