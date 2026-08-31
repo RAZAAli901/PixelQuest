@@ -55,7 +55,7 @@ fun PixelCalendarHeatmap(
             onDismiss = { selectedDay = null }
         )
     }
-    val weeks = remember(startDate, endDate) {
+    val weeks = remember(startDate, endDate, statusMap) {
         var firstMonday = startDate
         while (firstMonday.dayOfWeek != DayOfWeek.MONDAY) {
             firstMonday = firstMonday.minusDays(1)
