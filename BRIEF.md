@@ -804,6 +804,9 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 40: Verify final minified release APK size (4.8 MB) and record metrics - 5b8a831
 - Step 41: Verify full uninstall/reinstall cycle works cleanly with no leftover corrupt state - 25199ca
 - Step 42: Bump versionName to 1.0.0 and versionCode to 100 in build.gradle.kts - db7eeb6
+- Step 43: Consolidate top-level BRIEF.md project overview summarizing Days 1-12 architecture - 4e7d25f
+- Step 44: Create annotated v1.0.0 git tag with release notes summary - v1.0.0
+- Step 45: Verify GitHub Release pipeline trigger and signed APK attachment - 4e7d25f
 
 
 
