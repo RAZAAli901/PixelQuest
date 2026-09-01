@@ -40,5 +40,13 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease
+      - name: Generate Release Notes
+        id: changelog
+        run: |
+          if [ -f "CHANGELOG.md" ]; then
+            cat CHANGELOG.md > RELEASE_NOTES.md
+          else
+            git log --oneline -n 20 > RELEASE_NOTES.md
+          fi
+
 
