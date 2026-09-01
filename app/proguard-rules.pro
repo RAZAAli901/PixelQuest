@@ -3,6 +3,8 @@
 # Room Database keep rules
 -keep class * extends androidx.room.RoomDatabase
 -keep class com.pixelquest.app.data.local.entity.** { *; }
+-keep interface com.pixelquest.app.data.local.dao.** { *; }
+-keep class com.pixelquest.app.data.local.Converters { *; }
 -dontwarn androidx.room.paging.**
 
 # Dagger Hilt keep rules
