@@ -16,6 +16,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Extract Version Name from Git Tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "Building release version: $VERSION"
+          echo "VERSION_NAME=$VERSION" >> $GITHUB_ENV
+
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
