@@ -80,11 +80,17 @@ class TaskAlarmScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            triggerTimeMillis,
-            pendingIntent
-        )
+        try {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerTimeMillis,
+                pendingIntent
+            )
+        } catch (e: SecurityException) {
+            android.util.Log.w("TaskAlarmScheduler", "Exact alarm permission revoked or unavailable, degrading gracefully", e)
+        } catch (e: Exception) {
+            android.util.Log.e("TaskAlarmScheduler", "Failed to schedule alarm for task ${task.id}", e)
+        }
     }
 
     fun scheduleNextOccurrence(task: TaskEntity) {
