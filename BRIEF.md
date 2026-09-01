@@ -1,12 +1,3 @@
-# PixelQuest — Day 1 Brief
-
-PixelQuest is a gamified daily task and habit tracker Android application built with Kotlin and Jetpack Compose.
-It features retro 8-bit aesthetic styling, custom pixel-art UI components, level progress tracking, and habit management.
-
-## Progress Log
-- Step 1: Create Android Studio project skeleton - c5843a0
-- Step 2: Configure build.gradle.kts basics: minSdk 24, targetSdk 34, compileSdk 34, Compose enabled - 42d6bd6
-- Step 3: Add standard Android .gitignore file - a3e3324
 - Step 4: Create BRIEF.md with project description and Progress Log section header - e09a528
 - Step 5: Add first Progress Log entry to BRIEF.md documenting steps 1-4 - 3f3623f
 - Step 6: Add Compose BOM and core Compose UI dependencies - 3b503cd
@@ -769,6 +760,92 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 4. **Progress Indicators**: `PixelXpBar` and `PixelDailyProgressRing` merge descendants and announce explicit percentages (e.g. "Level 1 XP progress: 5 of 7 days (71 percent)").
 5. **Font Scaling**: `PixelTypography` `lineHeight` values expanded to prevent Press Start 2P font baseline clipping at >1.3x system font scale.
 6. **Reduce Motion**: Exposed `isReduceMotionEnabled` setting in `SettingsRepository` to skip non-essential screen shake and CRT overlay animations when active.
+
+## Day 12 Progress Log
+- Step 1: Write an end-to-end instrumented test for the full onboarding flow - 09957bc
+- Step 2: Write an end-to-end instrumented test for task quick-complete flow and points update - d7c353a
+- Step 3: Write an end-to-end instrumented test for the task create -> edit -> delete lifecycle - d0d3a32
+- Step 4: Write an end-to-end instrumented test for the difficulty-change flow including warning dialog - b26a637
+- Step 5: Write an end-to-end instrumented test for avatar selection persisting to Profile screen - 6c0512c
+- Step 6: Write an end-to-end instrumented test verifying settings toggles persist and take effect - c6621d4
+- Step 7: Write an end-to-end instrumented test for the data export -> import round-trip UI flow - 93501b5
+- Step 8: Add global uncaught-exception handler logging crash details locally - 5d24144
+- Step 9: Add try/catch graceful fallback wrapper around Room database operations - 69443c7
+- Step 10: Add graceful handling for AlarmManager/notification permission edge cases - f41ce29
+- Step 11: Add generic pixel-styled ErrorBoundary composable wrapper - 297558f
+- Step 12: Add defensive null/empty and date range checks around stats aggregation queries - 58ee3e3
+- Step 13: Add defensive handling around data-import JSON parser for malformed files - 5d2027b
+- Step 14: Configure release build type in build.gradle.kts with R8 minification and resource shrinking - ad6f6b6
+- Step 15: Add ProGuard/R8 keep rules for Room, Hilt, Compose, and WorkManager - af82aa1
+- Step 16: Configure release signing config in build.gradle.kts and add keystore patterns to .gitignore - 2d38821
+- Step 17: Verify signed release build configuration and add Gradle wrapper executable - 0804e28
+- Step 18: Run full manual regression suite against minified release build - 020f097
+- Step 19: Tune ProGuard/R8 rules for Room DAOs and TypeConverters to prevent reflection bugs - 60bdaf5
+- Step 20: Add release.yml workflow triggered on v* tag push - 8f9b460
+- Step 21: Configure release workflow with secrets-based keystore decoding and signed APK build - d45ba9d
+- Step 22: Configure release workflow to auto-generate release notes from CHANGELOG.md and commit history - c8c4b4a
+- Step 23: Configure release workflow to create GitHub Release and attach signed release APK asset - 6bff052
+- Step 24: Add version-name extraction step tied to git tag in release workflow - 70ab614
+- Step 25: Test and document release workflow pipeline end-to-end with tag verification script - 7a78e97
+- Step 26: Create CHANGELOG.md summarizing user-facing feature additions across Days 1-12 - 82a1f3e
+- Step 27: Rewrite README.md as final showcase documentation with features, sideloading, and build steps - 4ff4a99
+- Step 28: Add CONTRIBUTING.md documenting project architecture, folder structure, and build steps - 97b6d75
+- Step 29: Add MIT LICENSE file for open-source publication - e6f1183
+- Step 30: Perform final consolidation pass on ASSETS.md verifying asset logging compliance - 5efdd20
+- Step 31: Capture app UI screenshots for Today, Tasks, Stats, Profile, and Onboarding - 6c43831
+- Step 32: Embed screenshot catalog in docs/screenshots/ and link inside README.md - 71f05aa
+- Step 33: Add pixel-styled feature banner image for top of README - 36f221c
+- Step 34: Verify README markdown rendering and image link paths on GitHub viewer - f77b862
+- Step 35: Run comprehensive manual regression pass on signed release build across all modules - 2b409e2
+- Step 36: Test direct APK sideload install flow from GitHub Release link - 06b287a
+- Step 37: Verify API 24 minSdk backward compatibility across notification channels and alarms - 26cfd5e
+- Step 38: Verify battery optimization and alarm scheduling fallback user guidance - 4b27694
+- Step 39: Fix final edge-case bugs identified during release regression pass - 7d54d96
+- Step 40: Verify final minified release APK size (4.8 MB) and record metrics - 5b8a831
+- Step 41: Verify full uninstall/reinstall cycle works cleanly with no leftover corrupt state - 25199ca
+- Step 42: Bump versionName to 1.0.0 and versionCode to 100 in build.gradle.kts - db7eeb6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
