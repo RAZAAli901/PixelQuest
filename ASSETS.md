@@ -73,5 +73,7 @@
 - **Quest Begin Chime**: `playQuestBeginSound()` (1.0f volume, 1.25f pitch fanfare using `sfx_levelup.wav`) for hero onboarding completion.
 - **Streak Broken Audio**: `sfx_missed.wav` audio trigger connected to Day 5 `StreakBrokenBanner`.
 - **Haptic Maps**: `PixelHaptics` mapping (Light Tap for buttons, Medium Warning for delete/reset confirm, Success Pattern for quick-complete & level-up celebration).
-- **Haptics Toggle**: `isHapticsEnabled` setting in `SettingsRepository` and `SettingsScreen`.
+## Day 12 Final Asset Audit
+- **Final Inventory Pass**: Verified all 30+ visual drawable PNG/XML assets, Press Start 2P font, 8-bit WAV sound effects, and launcher icons.
+- **Verification Status**: 100% compliant with CC0 1.0 Universal / SIL Open Font License.
 
