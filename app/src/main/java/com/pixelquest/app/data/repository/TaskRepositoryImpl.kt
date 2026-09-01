@@ -13,7 +13,8 @@ class TaskRepositoryImpl @Inject constructor(
     override fun getAllTasks(): Flow<List<TaskEntity>> = taskDao.getAllTasks()
     override fun getTaskById(id: Long): Flow<TaskEntity?> = taskDao.getTaskById(id)
     override fun getTasksForDay(day: LocalDate): Flow<List<TaskEntity>> = taskDao.getTasksForDay(day)
-    override suspend fun insertTask(task: TaskEntity): Long = taskDao.insertTask(task)
-    override suspend fun updateTask(task: TaskEntity) = taskDao.updateTask(task)
-    override suspend fun deleteTask(task: TaskEntity) = taskDao.deleteTask(task)
+    override suspend fun insertTask(task: TaskEntity): Long = com.pixelquest.app.util.safeDatabaseCall(-1L) { taskDao.insertTask(task) }
+    override suspend fun updateTask(task: TaskEntity) = com.pixelquest.app.util.safeDatabaseCall(Unit) { taskDao.updateTask(task) }
+    override suspend fun deleteTask(task: TaskEntity) = com.pixelquest.app.util.safeDatabaseCall(Unit) { taskDao.deleteTask(task) }
 }
+
