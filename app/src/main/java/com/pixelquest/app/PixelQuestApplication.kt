@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit
 class PixelQuestApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+        // Step 8: Global uncaught-exception handler logging crashes locally
+        com.pixelquest.app.util.PixelCrashHandler.init(this)
         // Fast cold-start: lightweight notification channel creation
         NotificationHelper.createNotificationChannel(this)
         // Background async enqueue of periodic background workers
