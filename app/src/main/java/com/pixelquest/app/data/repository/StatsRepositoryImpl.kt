@@ -23,10 +23,12 @@ class StatsRepositoryImpl @Inject constructor(
 ) : StatsRepository {
 
     override fun getCompletionRateOverRange(startDate: LocalDate, endDate: LocalDate): Flow<Float> {
+        if (startDate.isAfter(endDate)) return flowOf(0f)
         return combine(
             taskRepository.getAllTasks(),
             taskCompletionRepository.getAllLogs()
         ) { tasks, logs ->
+            if (tasks.isEmpty()) return@combine 0f
             var totalScheduled = 0
             var totalCompleted = 0
             
@@ -64,6 +66,7 @@ class StatsRepositoryImpl @Inject constructor(
         startDate: LocalDate,
         endDate: LocalDate
     ): Flow<Map<LocalDate, DailyStatus>> {
+        if (startDate.isAfter(endDate)) return flowOf(emptyMap())
         return combine(
             taskRepository.getAllTasks(),
             taskCompletionRepository.getAllLogs(),
