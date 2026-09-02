@@ -1,7 +1,7 @@
 package com.pixelquest.app.ui.screens.tasks
 
 import com.pixelquest.app.data.local.entity.TaskEntity
-import com.pixelquest.app.domain.model.TaskItemStatus
+import com.pixelquest.app.ui.components.TaskItemStatus
 
 data class TaskWithStatus(
     val task: TaskEntity,
