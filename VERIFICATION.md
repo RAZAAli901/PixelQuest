@@ -28,3 +28,21 @@
 - Day 10 (Onboarding & SAF JSON Backup Engine): Target >= 45 commits. Actual: 48 commits. Status: VERIFIED.
 - Day 11 (Accessibility, Haptics & Performance Audit): Target >= 45 commits. Actual: 48 commits. Status: VERIFIED.
 
+### Step 4: Day-by-Day Commit Count Audit Table
+
+| Day | Target Commits | Actual Git Commits | BRIEF.md Logged Steps | Status |
+|:---|:---:|:---:|:---:|:---:|
+| Day 1 | 45 | 45 (+1 init) | 42 | Verified |
+| Day 2 | 45 | 48 | 48 | Verified |
+| Day 3 | 45 | 48 | 48 | Verified |
+| Day 4 | 45 | 48 | 48 | Verified |
+| Day 5 | 45 | 48 | 48 | Verified |
+| Day 6 | 45 | 48 | 48 | Verified |
+| Day 7 | 45 | 48 | 48 | Verified |
+| Day 8 | 45 | 48 | 48 | Verified |
+| Day 9 | 45 | 49 | 48 | Verified |
+| Day 10 | 45 | 48 | 48 | Verified |
+| Day 11 | 45 | 48 | 48 | Verified |
+| Day 12 | 45 | 47 | 48 | Verified |
+| Total | 540 | 574 | 570 | 100% Target Compliant |
+
