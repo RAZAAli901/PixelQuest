@@ -149,3 +149,16 @@
 - System Settings Verification: System App Info -> PixelQuest Version 1.0.0 (versionCode 100).
 - Match Status: VERIFIED MATCH.
 
+### Step 27: Comprehensive Real-Device Flow Pass/Fail Matrix
+
+| User Flow | Test Device / Environment | Pass/Fail | Notes |
+|:---|:---:|:---:|:---|
+| Clean Sideload Install | Android 14 (API 34) | PASS | APK size 4.8MB, installs cleanly |
+| Onboarding & Avatar Select | Android 14 (API 34) | PASS | Class selection & state saved |
+| Task Creation & Alarm | Android 14 (API 34) | PASS | AlarmManager exact alarm fires |
+| Quick-Complete & Streak | Android 14 (API 34) | PASS | XP awarded, level-up modal shown |
+| Stats & 90-Day Heatmap | Android 14 (API 34) | PASS | Dynamic intensity grid renders |
+| Settings Toggles | Android 14 (API 34) | PASS | Sound/CRT/Haptics/Notifications persistent |
+| SAF Backup & Restore | Android 14 (API 34) | PASS | Full JSON round-trip verified |
+| Reset Progress Flow | Android 14 (API 34) | PASS | Complete clean state restoration |
+
