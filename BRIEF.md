@@ -972,3 +972,4 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 28: Confirm zero blocking bugs and document release stability - 5d2048b
 - Step 29: Reconcile README.md feature descriptions with verified app state - 1a1ae57
 - Step 30: Reconcile CHANGELOG.md against verified per-day commit counts - d6383fd
+- Step 31: Audit and update ASSETS.md asset inventory compliance - 7c44454
