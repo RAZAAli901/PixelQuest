@@ -127,3 +127,7 @@
 - Flow: Tap task checkmark -> Award XP -> Trigger Level-Up Modal -> Increment Streak Counter.
 - Result: PASS. XP awarded according to difficulty threshold, streak count increments, level-up dialogue displays.
 
+### Step 22: Stats & Heatmap Visualization Verification
+- Flow: Navigate to Stats screen -> View 90-day activity heatmap -> Check per-task completion metrics.
+- Result: PASS. Heatmap grid reflects daily completion logs, intensity colors render correctly without recomposition lag.
+

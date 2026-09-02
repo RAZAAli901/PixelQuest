@@ -963,3 +963,4 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 19: Verify Onboarding flow end-to-end on clean release install - f47d2ec
 - Step 20: Verify task creation and scheduled alarm notification firing - 0af6949
 - Step 21: Verify quick-complete interaction, streak scaling, and level XP updates - 4a0ae80
+- Step 22: Verify stats dashboard and activity heatmap rendering - a711c70
