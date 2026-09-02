@@ -970,3 +970,4 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 26: Verify app reported version matches 1.0.0 (versionCode 100) - 9acc038
 - Step 27: Document full real-device flow test pass/fail results table - b506900
 - Step 28: Confirm zero blocking bugs and document release stability - 5d2048b
+- Step 29: Reconcile README.md feature descriptions with verified app state - 1a1ae57

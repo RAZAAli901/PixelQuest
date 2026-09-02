@@ -67,3 +67,4 @@ The compiled APK will be generated at:
 
 ## 📜 License
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
+<!-- Reconciled against verified v1.0.0 release state -->
