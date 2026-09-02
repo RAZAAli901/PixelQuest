@@ -123,3 +123,7 @@
 - Flow: Create Task -> Select Category/Priority -> Set Exact Time -> Alarm Firing -> Notification Prompt.
 - Result: PASS. Exact alarm scheduled via TaskAlarmScheduler, notification fires on schedule with sound & haptics.
 
+### Step 21: Quick-Complete & Streak Calculation Verification
+- Flow: Tap task checkmark -> Award XP -> Trigger Level-Up Modal -> Increment Streak Counter.
+- Result: PASS. XP awarded according to difficulty threshold, streak count increments, level-up dialogue displays.
+
