@@ -115,3 +115,7 @@
 - Environment: Factory-reset emulator / clean physical Android device (API 34 / Android 14).
 - Condition: Fresh sideload installation without pre-existing development database or shared preferences.
 
+### Step 19: Onboarding Flow Verification
+- Flow: App launch -> Pixelized Splash Screen -> Onboarding Character Class Selection -> Initial Task Setup.
+- Result: PASS. Navigates seamlessly, persists selected avatar class, sets onboardingComplete = true.
+
