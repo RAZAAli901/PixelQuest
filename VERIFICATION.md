@@ -111,3 +111,7 @@
 - Source: Published GitHub Release v1.0.0.
 - Integrity: APK build size ~4.8 MB, signed with production key, R8 minification verified.
 
+### Step 18: Clean-State Environment Setup
+- Environment: Factory-reset emulator / clean physical Android device (API 34 / Android 14).
+- Condition: Fresh sideload installation without pre-existing development database or shared preferences.
+
