@@ -25,7 +25,7 @@ android {
         create("release") {
             val keystorePath = System.getenv("KEYSTORE_FILE") ?: "pixelquest-release.jks"
             val storeFileObj = file(keystorePath)
-            if (storeFileObj.exists()) {
+            if (storeFileObj.exists() && storeFileObj.length() > 0L) {
                 storeFile = storeFileObj
                 storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "pixelquest123"
                 keyAlias = System.getenv("KEY_ALIAS") ?: "pixelquest"
