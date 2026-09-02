@@ -30,6 +30,8 @@ android {
                 storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "pixelquest123"
                 keyAlias = System.getenv("KEY_ALIAS") ?: "pixelquest"
                 keyPassword = System.getenv("KEY_PASSWORD") ?: "pixelquest123"
+            } else {
+                initWith(signingConfigs.getByName("debug"))
             }
         }
     }
@@ -38,12 +40,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            val releaseKeystore = file(System.getenv("KEYSTORE_FILE") ?: "pixelquest-release.jks")
-            signingConfig = if (releaseKeystore.exists()) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
