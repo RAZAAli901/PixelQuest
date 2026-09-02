@@ -131,3 +131,7 @@
 - Flow: Navigate to Stats screen -> View 90-day activity heatmap -> Check per-task completion metrics.
 - Result: PASS. Heatmap grid reflects daily completion logs, intensity colors render correctly without recomposition lag.
 
+### Step 23: Settings Toggles Verification
+- Flow: Toggle Audio SFX -> Toggle CRT Scanline Shader -> Toggle Haptics -> Toggle Notification Reminders.
+- Result: PASS. SoundPool mute state persists, CRT overlay applies globally, haptics respond, notifications toggle.
+
