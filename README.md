@@ -1,8 +1,8 @@
-# ⚔️ PixelQuest v1.0.1 — Level Up Your Life
+# ⚔️ PixelQuest v1.0.2 — Level Up Your Life
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
 [![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
-[![Version](https://img.shields.io/badge/Release-v1.0.1-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.0.1)
+[![Version](https://img.shields.io/badge/Release-v1.0.2-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.0.2)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 ![PixelQuest Feature Banner](docs/screenshots/banner.png)
@@ -15,7 +15,7 @@
 
 Click the button below to directly download the latest signed release APK onto your Android device:
 
-👉 **[📥 Direct Download app-release.apk (v1.0.1)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)** 👈
+👉 **[📥 Direct Download app-release.apk (v1.0.2)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)** 👈
 
 Or browse all build assets and previous versions on the **[📦 GitHub Releases Page](https://github.com/RAZAAli901/PixelQuest/releases)**.
 
@@ -89,7 +89,7 @@ The compiled APK will be generated at:
 ## 🛡️ Real-Device Verification Status
 
 This release has undergone an extensive 39-step verification pass post-release:
-- **Verified Build Artifact**: Published v1.0.1 GitHub Release signed APK sideloaded and tested on a clean environment.
+- **Verified Build Artifact**: Published v1.0.2 GitHub Release signed APK sideloaded and tested on a clean environment.
 - **Pass/Fail Results**: 100% pass rate across Onboarding, Task Creation, Alarm Notifications, Streaks & XP, 90-day Stats Heatmap, Audio/Shader Settings, SAF JSON Export/Import, and Progress Reset flows.
 - **Total Confirmed Commits**: 614 commits across initial 12-day development and post-release verification audit.
 
