@@ -966,3 +966,4 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 22: Verify stats dashboard and activity heatmap rendering - a711c70
 - Step 23: Verify settings toggles for audio, CRT filter, haptics, and notifications - 4c45302
 - Step 24: Verify SAF JSON data backup and restore round-trip - 2218a5f
+- Step 25: Verify reset progress sequence and clean state restoration - 63b745d

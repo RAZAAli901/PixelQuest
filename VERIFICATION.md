@@ -139,3 +139,7 @@
 - Flow: Settings -> Export Data (JSON) -> Save to Storage -> Reset Data -> Import Data (JSON).
 - Result: PASS. Full state (tasks, streak history, profile level, settings) exported and restored without corruption.
 
+### Step 25: Reset Progress Sequence Verification
+- Flow: Settings -> Reset Progress -> Confirm Dialog -> Database Clear -> Initial Onboarding Redirect.
+- Result: PASS. Database tables cleared, default seed re-initialized, splash/onboarding state reset cleanly.
+
