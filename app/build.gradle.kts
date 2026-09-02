@@ -23,16 +23,13 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystoreFile = System.getenv("KEYSTORE_FILE") ?: "pixelquest-release.jks"
-            val storeFileObj = file(keystoreFile)
+            val keystorePath = System.getenv("KEYSTORE_FILE") ?: "pixelquest-release.jks"
+            val storeFileObj = file(keystorePath)
             if (storeFileObj.exists()) {
                 storeFile = storeFileObj
                 storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "pixelquest123"
                 keyAlias = System.getenv("KEY_ALIAS") ?: "pixelquest"
                 keyPassword = System.getenv("KEY_PASSWORD") ?: "pixelquest123"
-            } else {
-                // Fallback to debug signing config if release keystore file is not present locally
-                initWith(getByName("debug"))
             }
         }
     }
@@ -41,7 +38,12 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
+            val releaseKeystore = file(System.getenv("KEYSTORE_FILE") ?: "pixelquest-release.jks")
+            signingConfig = if (releaseKeystore.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

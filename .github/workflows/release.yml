@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   release:
     name: Build Signed Release & Publish GitHub Release
@@ -62,8 +65,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'v1.0.0' }}
-          name: PixelQuest Release ${{ github.ref_type == 'tag' && github.ref_name || 'v1.0.0' }}
           body_path: RELEASE_NOTES.md
           fail_on_unmatched_files: false
           files: |
