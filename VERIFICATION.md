@@ -119,3 +119,7 @@
 - Flow: App launch -> Pixelized Splash Screen -> Onboarding Character Class Selection -> Initial Task Setup.
 - Result: PASS. Navigates seamlessly, persists selected avatar class, sets onboardingComplete = true.
 
+### Step 20: Task Creation & Notification Alarm Verification
+- Flow: Create Task -> Select Category/Priority -> Set Exact Time -> Alarm Firing -> Notification Prompt.
+- Result: PASS. Exact alarm scheduled via TaskAlarmScheduler, notification fires on schedule with sound & haptics.
+

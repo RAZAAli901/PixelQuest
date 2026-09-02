@@ -961,3 +961,4 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 17: Download and verify v1.0.0 release APK asset build integrity - 95d2803
 - Step 18: Verify clean environment installation state on test device - 916b383
 - Step 19: Verify Onboarding flow end-to-end on clean release install - f47d2ec
+- Step 20: Verify task creation and scheduled alarm notification firing - 0af6949
