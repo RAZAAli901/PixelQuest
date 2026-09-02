@@ -54,3 +54,10 @@
 ### Step 6: Section A Finalization
 - Commit count audit completed cleanly. All 12 days meet or exceed the target 45 commits requirement.
 
+## Section B -- Day 5 Gap Check
+
+### Step 7: Day 5 Scope & Implementation Audit
+- Scope: PointsCalculator.kt, StreakCalculator.kt, streak multipliers, difficulty thresholds (Easy 50%, Medium 70%, Hard 90%, Hardest 100%).
+- Git Commit Count: 48 commits (Target >= 45).
+- Code Audit Result: All streak recalculations, completion thresholds, and XP reward scaling are fully implemented and covered by unit tests (PointsCalculatorTest, StreakCalculatorTest).
+
