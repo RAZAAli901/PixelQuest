@@ -28,13 +28,11 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.4'
 
-      - name: Setup Gradle Wrapper
-        run: |
-          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            gradle wrapper --gradle-version 8.4
-          fi
-          chmod +x gradlew
+      - name: Make Gradlew Executable
+        run: chmod +x gradlew
 
       - name: Ensure Debug Keystore Exists
         run: |
