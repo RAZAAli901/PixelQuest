@@ -111,6 +111,7 @@ fun LevelUpCelebrationScreen(
         }
     }
 }
+}
 
 @Preview(showBackground = true)
 @Composable

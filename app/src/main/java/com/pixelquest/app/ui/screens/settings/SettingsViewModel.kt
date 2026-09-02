@@ -190,3 +190,4 @@ class SettingsViewModel @Inject constructor(
     private var pendingImportPayload: com.pixelquest.app.data.backup.BackupPayload? = null
     private val _showRestoreConfirmDialog = kotlinx.coroutines.flow.MutableStateFlow(false)
     val showRestoreConfirmDialog: StateFlow<Boolean> = _showRestoreConfirmDialog.asStateFlow()
+}

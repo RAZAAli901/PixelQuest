@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
+import com.pixelquest.app.audio.LocalSoundManager
 import com.pixelquest.app.ui.navigation.Screen
 
 data class NavItem(
@@ -32,8 +33,6 @@ val bottomNavItems = listOf(
     NavItem("STATS", Screen.Stats.route, R.drawable.ic_stats),
     NavItem("PROFILE", Screen.Profile.route, R.drawable.ic_profile)
 )
-
-import com.pixelquest.app.audio.LocalSoundManager
 
 @Composable
 fun PixelBottomNavBar(
