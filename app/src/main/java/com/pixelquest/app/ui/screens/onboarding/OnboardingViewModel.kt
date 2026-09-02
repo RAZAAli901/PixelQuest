@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed interface OnboardingStep {
@@ -101,7 +102,7 @@ class OnboardingViewModel @Inject constructor(
                 totalXp = 0,
                 perfectDaysTowardNextLevel = 0
             )
-            userProfileRepository.saveProfile(userProfile)
+            userProfileRepository.insertProfile(userProfile)
 
             val diffThreshold = com.pixelquest.app.domain.DifficultyMode.getPerfectDayThreshold(state.difficultyLevel)
             val daysReq = com.pixelquest.app.domain.DifficultyMode.getDaysRequiredPerLevel(state.difficultyLevel)
@@ -111,7 +112,7 @@ class OnboardingViewModel @Inject constructor(
                 perfectDayThreshold = diffThreshold,
                 daysRequiredPerLevel = daysReq
             )
-            difficultySettingsRepository.updateDifficultySettings(diffEntity)
+            difficultySettingsRepository.insertSettings(diffEntity)
 
             settingsRepository.setOnboardingComplete(true)
             onSuccess()

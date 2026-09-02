@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -150,7 +153,7 @@ fun TaskAnalyticsScreen(
     viewModel: TaskAnalyticsViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     onBackClick: () -> Unit = {}
 ) {
-    val state by androidx.compose.runtime.collectAsState(viewModel.uiState)
+    val state by viewModel.uiState.collectAsState()
     TaskAnalyticsContent(
         task = state.task,
         stats = state.stats,

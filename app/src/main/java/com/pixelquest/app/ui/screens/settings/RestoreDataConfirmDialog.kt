@@ -5,7 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundCard
+import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
@@ -17,7 +17,7 @@ fun RestoreDataConfirmDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = PixelBackgroundCard,
+        containerColor = PixelSurfaceDark,
         title = {
             Text(
                 text = "💾 OVERWRITE QUEST DATA?",

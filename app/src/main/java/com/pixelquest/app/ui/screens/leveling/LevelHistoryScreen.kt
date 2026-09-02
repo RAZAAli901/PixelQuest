@@ -72,7 +72,7 @@ fun LevelHistoryScreenContent(
                 contentAlignment = Alignment.Center
             ) {
                 PixelCard(
-                    variant = PixelPanelVariant.YELLOW,
+                    variant = PixelPanelVariant.BORDER,
                     modifier = Modifier.fillMaxWidth().padding(16.dp)
                 ) {
                     Column(

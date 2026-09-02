@@ -5,7 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundCard
+import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
@@ -21,7 +21,7 @@ fun ResetProgressDialogSequence(
     if (step == 1) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            containerColor = PixelBackgroundCard,
+            containerColor = PixelSurfaceDark,
             title = {
                 Text(text = "⚠️ RESET ALL PROGRESS?", style = PixelTypography.titleMedium, color = PixelRed)
             },
@@ -36,7 +36,7 @@ fun ResetProgressDialogSequence(
                 PixelButton(text = "YES, CONTINUE", onClick = {
                     com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
                     onNextStep()
-                }, variant = PixelButtonVariant.RED)
+                }, variant = PixelButtonVariant.YELLOW)
             },
             dismissButton = {
                 PixelButton(text = "CANCEL", onClick = onDismiss, variant = PixelButtonVariant.BLUE)
@@ -45,7 +45,7 @@ fun ResetProgressDialogSequence(
     } else if (step == 2) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            containerColor = PixelBackgroundCard,
+            containerColor = PixelSurfaceDark,
             title = {
                 Text(text = "🔥 FINAL WARNING", style = PixelTypography.titleMedium, color = PixelRed)
             },
@@ -60,7 +60,7 @@ fun ResetProgressDialogSequence(
                 PixelButton(text = "CONFIRM WIPEOUT", onClick = {
                     com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
                     onConfirmWipe()
-                }, variant = PixelButtonVariant.RED)
+                }, variant = PixelButtonVariant.YELLOW)
             },
             dismissButton = {
                 PixelButton(text = "CANCEL", onClick = onDismiss, variant = PixelButtonVariant.BLUE)

@@ -54,9 +54,8 @@ fun TodayQuestCard(
     var offsetX by remember { mutableStateOf(0f) }
 
     val cardVariant = when {
-        isDone -> PixelPanelVariant.GREEN
-        isMissed -> PixelPanelVariant.RED
-        isGracePeriod -> PixelPanelVariant.YELLOW
+        isDone -> PixelPanelVariant.BLUE
+        isMissed -> PixelPanelVariant.BORDER
         else -> PixelPanelVariant.BEIGE
     }
 
@@ -132,7 +131,7 @@ fun TodayQuestCard(
             when {
                 isDone -> {
                     PixelCard(
-                        variant = PixelPanelVariant.GREEN,
+                        variant = PixelPanelVariant.BLUE,
                         contentPadding = 6.dp
                     ) {
                         Text(
@@ -144,7 +143,7 @@ fun TodayQuestCard(
                 }
                 isMissed -> {
                     PixelCard(
-                        variant = PixelPanelVariant.RED,
+                        variant = PixelPanelVariant.BORDER,
                         contentPadding = 6.dp
                     ) {
                         Text(
@@ -165,7 +164,7 @@ fun TodayQuestCard(
                         PixelButton(
                             text = "✓ DONE",
                             onClick = onQuickComplete,
-                            variant = PixelButtonVariant.PRIMARY
+                            variant = PixelButtonVariant.YELLOW
                         )
                     }
                 }

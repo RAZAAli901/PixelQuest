@@ -47,7 +47,7 @@ fun PixelTaskListItem(
     val cardVariant = when (status) {
         TaskItemStatus.COMPLETED, TaskItemStatus.DONE -> PixelPanelVariant.BLUE
         TaskItemStatus.MISSED -> PixelPanelVariant.BORDER
-        TaskItemStatus.PENDING -> PixelPanelVariant.BEIGE
+        TaskItemStatus.PENDING, TaskItemStatus.GRACE_PERIOD -> PixelPanelVariant.BEIGE
     }
 
     PixelCard(
@@ -79,9 +79,9 @@ fun PixelTaskListItem(
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         color = when (status) {
-                            TaskItemStatus.COMPLETED -> PixelGreen
+                            TaskItemStatus.COMPLETED, TaskItemStatus.DONE -> PixelGreen
                             TaskItemStatus.MISSED -> PixelRed
-                            TaskItemStatus.PENDING -> PixelGold
+                            TaskItemStatus.PENDING, TaskItemStatus.GRACE_PERIOD -> PixelGold
                         },
                         modifier = Modifier.weight(1f, fill = false)
                     )

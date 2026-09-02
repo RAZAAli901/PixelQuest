@@ -18,8 +18,10 @@ import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelQuestTypography
+import com.pixelquest.app.ui.theme.PixelTypography
 import com.pixelquest.app.ui.theme.PixelTextWhite
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.scale
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -75,7 +77,7 @@ fun LevelUpCelebrationScreen(
             exit = com.pixelquest.app.ui.navigation.PixelTransitions.LevelUpExit
         ) {
             PixelCard(
-                variant = PixelPanelVariant.YELLOW,
+                variant = PixelPanelVariant.BORDER,
                 modifier = Modifier
                     .padding(24.dp)
                     .scale(scale)
@@ -87,19 +89,19 @@ fun LevelUpCelebrationScreen(
             ) {
                 Text(
                     text = "🎉 LEVEL UP! 🎉",
-                    style = PixelQuestTypography.headlineMedium,
+                    style = PixelTypography.headlineMedium,
                     color = PixelGold
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "YOU ARE NOW LEVEL",
-                    style = PixelQuestTypography.bodyLarge,
+                    style = PixelTypography.bodyLarge,
                     color = PixelTextWhite
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "$level",
-                    style = PixelQuestTypography.displayLarge.copy(fontSize = 48.sp),
+                    style = PixelTypography.displayLarge.copy(fontSize = 48.sp),
                     color = PixelGold
                 )
                 Spacer(modifier = Modifier.height(24.dp))

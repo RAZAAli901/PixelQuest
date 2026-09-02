@@ -144,6 +144,18 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun dismissImportDialog() {
+        pendingImportPayload = null
+        _showRestoreConfirmDialog.value = false
+    }
+
+    fun updateUsername(newName: String) {
+        viewModelScope.launch {
+            val current = userProfileRepository.getProfile().first() ?: return@launch
+            userProfileRepository.insertProfile(current.copy(username = newName))
+        }
+    }
+
     fun onResetProgressClicked() {
         _resetStep.value = 1
     }

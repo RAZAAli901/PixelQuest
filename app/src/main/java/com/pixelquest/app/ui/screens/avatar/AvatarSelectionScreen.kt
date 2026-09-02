@@ -27,7 +27,7 @@ import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelQuestTypography
+import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun AvatarSelectionScreen(
@@ -43,7 +43,7 @@ fun AvatarSelectionScreen(
     ) {
         Text(
             text = "🧙 CHOOSE AVATAR",
-            style = PixelQuestTypography.headlineMedium,
+            style = PixelTypography.headlineMedium,
             color = PixelGold,
             modifier = Modifier.padding(bottom = 16.dp)
         )

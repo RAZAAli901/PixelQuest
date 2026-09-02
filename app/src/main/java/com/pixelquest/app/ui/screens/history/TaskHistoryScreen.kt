@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -138,7 +140,7 @@ fun TaskHistoryScreen(
     viewModel: TaskHistoryViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     onTaskClick: (Long) -> Unit = {}
 ) {
-    val state by androidx.compose.runtime.collectAsState(viewModel.uiState)
+    val state by viewModel.uiState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -168,7 +170,7 @@ fun TaskHistoryScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(state.items, key = { it.logId }) { item ->
+                items(items = state.items, key = { it.logId }) { item ->
                     TaskHistoryListItem(
                         item = item,
                         onClick = { onTaskClick(item.taskId) }

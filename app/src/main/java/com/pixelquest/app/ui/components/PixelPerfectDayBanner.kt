@@ -16,7 +16,7 @@ fun PixelPerfectDayBanner(
     modifier: Modifier = Modifier
 ) {
     PixelCard(
-        variant = PixelPanelVariant.YELLOW,
+        variant = PixelPanelVariant.BEIGE,
         contentPadding = 12.dp,
         modifier = modifier.fillMaxWidth()
     ) {

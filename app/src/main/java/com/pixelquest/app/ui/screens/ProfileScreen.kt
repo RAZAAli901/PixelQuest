@@ -37,7 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
-import com.pixelquest.app.ui.theme.PixelSurface
+import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
 
@@ -93,7 +93,7 @@ fun ProfileScreen(
 
         // Profile Stats Overview Card
         PixelCard(
-            variant = PixelPanelVariant.YELLOW,
+            variant = PixelPanelVariant.BORDER,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -150,7 +150,7 @@ fun ProfileScreen(
         PixelButton(
             text = "⚙️ APP SETTINGS",
             onClick = onNavigateToSettings,
-            variant = PixelButtonVariant.GREEN,
+            variant = PixelButtonVariant.YELLOW,
             modifier = Modifier.fillMaxWidth()
         )
     }

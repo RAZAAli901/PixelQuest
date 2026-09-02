@@ -75,7 +75,7 @@ fun OnboardingSummaryScreen(
             )
 
             PixelCard(
-                variant = PixelPanelVariant.YELLOW,
+                variant = PixelPanelVariant.BORDER,
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = 16.dp
             ) {

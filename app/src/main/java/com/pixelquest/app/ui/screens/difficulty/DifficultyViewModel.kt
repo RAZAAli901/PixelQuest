@@ -56,7 +56,7 @@ class DifficultyViewModel @Inject constructor(
                 perfectDayThreshold = DifficultyMode.getPerfectDayThreshold(target),
                 daysRequiredPerLevel = DifficultyMode.getDaysRequiredPerLevel(target)
             )
-            difficultySettingsRepository.updateDifficultySettings(newSettings)
+            difficultySettingsRepository.insertSettings(newSettings)
             _uiState.value = _uiState.value.copy(
                 currentLevel = target,
                 pendingLevel = null,

@@ -10,7 +10,7 @@ import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,20 +22,22 @@ class TaskPromptViewModel @Inject constructor(
 
     fun onTaskCompleted(taskId: Long, wasCompleted: Boolean, onDone: () -> Unit) {
         viewModelScope.launch {
+            val streak = streakRepository.getCurrentStreak().first()
+            val currentStreakCount = streak?.currentStreak ?: 0
+            val earnedXp = if (wasCompleted) PointsCalculator.calculateXpForTask(currentStreak = currentStreakCount) else 0
+
             val log = TaskCompletionLogEntity(
                 taskId = taskId,
-                completedAt = LocalDateTime.now(),
-                wasCompleted = wasCompleted
+                completedDate = LocalDate.now(),
+                wasCompleted = wasCompleted,
+                pointsAwarded = earnedXp
             )
-            taskCompletionRepository.logTaskCompletion(log)
+            taskCompletionRepository.insertLog(log)
             if (wasCompleted) {
-                val profile = userProfileRepository.getUserProfile().first()
-                val streak = streakRepository.getCurrentStreak().first()
-                val currentStreakCount = streak?.currentStreak ?: 0
+                val profile = userProfileRepository.getProfile().first()
                 if (profile != null) {
-                    val earnedXp = PointsCalculator.calculateXpForTask(currentStreak = currentStreakCount)
                     val updated = profile.copy(totalXp = profile.totalXp + earnedXp)
-                    userProfileRepository.updateUserProfile(updated)
+                    userProfileRepository.updateProfile(updated)
                 }
             }
             onDone()

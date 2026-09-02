@@ -35,6 +35,7 @@ import com.pixelquest.app.ui.components.PixelRecurrenceSelector
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTimePicker
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
+import com.pixelquest.app.ui.theme.PixelGold
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
@@ -64,9 +65,8 @@ fun CreateTaskScreen(
         )
     }
 
-    PixelQuestTheme {
-        Scaffold(
-            topBar = {
+    Scaffold(
+        topBar = {
                 PixelCard(
                     variant = PixelPanelVariant.BEIGE,
                     contentPadding = 12.dp,
@@ -172,4 +172,3 @@ fun CreateTaskScreen(
             }
         }
     }
-}
