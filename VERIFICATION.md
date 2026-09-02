@@ -135,3 +135,7 @@
 - Flow: Toggle Audio SFX -> Toggle CRT Scanline Shader -> Toggle Haptics -> Toggle Notification Reminders.
 - Result: PASS. SoundPool mute state persists, CRT overlay applies globally, haptics respond, notifications toggle.
 
+### Step 24: SAF Data Backup & Restore Verification
+- Flow: Settings -> Export Data (JSON) -> Save to Storage -> Reset Data -> Import Data (JSON).
+- Result: PASS. Full state (tasks, streak history, profile level, settings) exported and restored without corruption.
+
