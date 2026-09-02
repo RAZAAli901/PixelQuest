@@ -977,3 +977,4 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 33: Audit release workflow build reproducibility and CI run logs - 0a387e6
 - Step 34: Audit repository and CI logs for keystore and secret security - 8015378
 - Step 35: Document release keystore external backup verification - 987d86f
+- Step 36: Confirm .gitignore rules for keystore and signing security - d6ffb3b

@@ -178,3 +178,6 @@
 ### Step 35: External Keystore Backup Confirmation
 - Confirmation: The release signing keystore and production key alias credentials are securely backed up outside the git repository.
 
+### Step 36: Gitignore Signing Security Enforcement
+- Gitignore Rules: Confirmed explicit exclusion of *.jks, *.keystore, and keystore.properties.
+
