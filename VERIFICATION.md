@@ -172,3 +172,6 @@
 - Workflow File: .github/workflows/release.yml.
 - Audit Findings: Release pipeline builds deterministically on v* tag pushes with base64 keystore decoding, ProGuard shrinking, and release asset upload.
 
+### Step 34: Keystore & Secret Security Audit
+- Audit Findings: Zero plaintext signing keys, store passwords, or private key material exposed in git history or workflow logs. Keystore passed via encrypted environment secrets.
+
