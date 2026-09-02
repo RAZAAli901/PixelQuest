@@ -41,7 +41,7 @@ fun ErrorBoundary(
             contentAlignment = Alignment.Center
         ) {
             PixelCard(
-                variant = PixelPanelVariant.RED,
+                variant = PixelPanelVariant.BORDER,
                 modifier = Modifier.fillMaxWidth(),
                 contentPadding = 20.dp
             ) {
@@ -76,11 +76,6 @@ fun ErrorBoundary(
             }
         }
     } else {
-        try {
-            content()
-        } catch (e: Throwable) {
-            hasError = true
-            android.util.Log.e("ErrorBoundary", "Caught UI exception inside ErrorBoundary", e)
-        }
+        content()
     }
 }

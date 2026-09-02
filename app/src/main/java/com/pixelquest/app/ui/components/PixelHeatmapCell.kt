@@ -12,18 +12,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.DailyStatus
-import com.pixelquest.app.ui.theme.PixelBackgroundCard
+import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.ui.theme.PixelGreen
 import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelYellow
+import com.pixelquest.app.ui.theme.PixelGold
 
 object HeatmapColorMapper {
     fun getCellColor(status: DailyStatus): Color {
         return when (status) {
             DailyStatus.PERFECT -> PixelGreen
-            DailyStatus.PARTIAL -> PixelYellow
+            DailyStatus.PARTIAL -> PixelGold
             DailyStatus.MISSED -> PixelRed
-            DailyStatus.NO_TASKS_SCHEDULED -> PixelBackgroundCard
+            DailyStatus.NO_TASKS_SCHEDULED -> PixelSurfaceDark
         }
     }
 

@@ -37,7 +37,7 @@ fun SampleScreenContent(title: String) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         PixelCard(
-            variant = PixelPanelVariant.YELLOW,
+            variant = PixelPanelVariant.BORDER,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(modifier = Modifier.padding(16.dp)) {

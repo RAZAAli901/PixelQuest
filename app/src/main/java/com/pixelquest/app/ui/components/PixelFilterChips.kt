@@ -16,7 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.screens.history.HistoryFilter
-import com.pixelquest.app.ui.theme.PixelBackgroundCard
+import com.pixelquest.app.ui.theme.PixelBackgroundDark
+import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
@@ -42,7 +43,7 @@ fun PixelFilterChips(
                 modifier = Modifier
                     .weight(1f)
                     .background(
-                        color = if (isSelected) PixelGold else PixelBackgroundCard,
+                        color = if (isSelected) PixelGold else PixelSurfaceDark,
                         shape = RoundedCornerShape(4.dp)
                     )
                     .border(
@@ -56,7 +57,7 @@ fun PixelFilterChips(
                 Text(
                     text = label,
                     style = PixelTypography.labelSmall.copy(fontSize = 9.sp),
-                    color = if (isSelected) PixelBackgroundCard else PixelTextWhite
+                    color = if (isSelected) PixelBackgroundDark else PixelTextWhite
                 )
             }
         }

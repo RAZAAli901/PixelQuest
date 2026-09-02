@@ -10,7 +10,9 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
  * Success moment: quest quick-complete, level-up celebration
  */
 object PixelHaptics {
-    fun performLightTap(haptic: HapticFeedback?, enabled: Boolean = true) {
+    var isHapticsEnabledGlobal: Boolean = true
+
+    fun performLightTap(haptic: HapticFeedback?, enabled: Boolean = isHapticsEnabledGlobal) {
         if (!enabled || haptic == null) return
         haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }

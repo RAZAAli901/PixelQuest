@@ -20,7 +20,7 @@ import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTypography
-import com.pixelquest.app.ui.theme.PixelYellow
+import com.pixelquest.app.ui.theme.PixelGold
 import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.LocalTime
@@ -76,19 +76,19 @@ fun PixelCountdownTimer(
 
     val textColor: Color = when {
         isExpired -> PixelRed
-        isUrgent -> PixelYellow
+        isUrgent -> PixelGold
         else -> PixelCyan
     }
 
     val borderColor: Color = when {
         isExpired -> PixelRed
-        isUrgent -> PixelYellow
+        isUrgent -> PixelGold
         else -> PixelCyan.copy(alpha = 0.6f)
     }
 
     val backgroundColor: Color = when {
         isExpired -> PixelRed.copy(alpha = 0.15f)
-        isUrgent -> PixelYellow.copy(alpha = 0.15f)
+        isUrgent -> PixelGold.copy(alpha = 0.15f)
         else -> PixelBackgroundDark
     }
 

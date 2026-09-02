@@ -22,7 +22,6 @@ fun PixelAvatarDisplay(
         painter = painterResource(id = avatar.drawableRes),
         contentDescription = avatar.name,
         contentScale = ContentScale.Fit,
-        filterQuality = FilterQuality.None, // Nearest neighbor for pixel art crispness
         modifier = modifier.size(size)
     )
 }

@@ -70,7 +70,7 @@ private fun AvatarGridItem(
             .clickable { onSelect() }
     ) {
         PixelCard(
-            variant = if (isSelected) PixelPanelVariant.YELLOW else PixelPanelVariant.BLUE,
+            variant = if (isSelected) PixelPanelVariant.BEIGE else PixelPanelVariant.BLUE,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(

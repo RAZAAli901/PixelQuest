@@ -5,8 +5,8 @@ import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.domain.model.DifficultyLevel
-import com.pixelquest.app.domain.model.Priority
 import com.pixelquest.app.domain.model.RecurrenceType
+import com.pixelquest.app.domain.model.TaskCategory
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -65,9 +65,8 @@ object DataExportImport {
                 put("scheduledTime", task.scheduledTime.toString())
                 put("scheduledDay", task.scheduledDay.toString())
                 put("recurrenceType", task.recurrenceType.name)
-                put("priority", task.priority.name)
-                put("difficulty", task.difficulty.name)
-                put("isCompleted", task.isCompleted)
+                put("category", task.category.name)
+                put("isActive", task.isActive)
             }
             tasksArray.put(tObj)
         }
@@ -132,14 +131,12 @@ object DataExportImport {
                             val scheduledTimeStr = tObj.optString("scheduledTime", "09:00")
                             val scheduledDayStr = tObj.optString("scheduledDay", LocalDate.now().toString())
                             val recurrenceStr = tObj.optString("recurrenceType", RecurrenceType.DAILY.name)
-                            val priorityStr = tObj.optString("priority", Priority.MEDIUM.name)
-                            val difficultyStr = tObj.optString("difficulty", com.pixelquest.app.domain.model.TaskDifficulty.MEDIUM.name)
+                            val categoryStr = tObj.optString("category", TaskCategory.FITNESS.name)
 
                             val time = try { LocalTime.parse(scheduledTimeStr) } catch (e: Exception) { LocalTime.of(9, 0) }
                             val day = try { LocalDate.parse(scheduledDayStr) } catch (e: Exception) { LocalDate.now() }
                             val rec = try { RecurrenceType.valueOf(recurrenceStr) } catch (e: Exception) { RecurrenceType.DAILY }
-                            val prio = try { Priority.valueOf(priorityStr) } catch (e: Exception) { Priority.MEDIUM }
-                            val diff = try { com.pixelquest.app.domain.model.TaskDifficulty.valueOf(difficultyStr) } catch (e: Exception) { com.pixelquest.app.domain.model.TaskDifficulty.MEDIUM }
+                            val cat = try { TaskCategory.valueOf(categoryStr) } catch (e: Exception) { TaskCategory.FITNESS }
 
                             tasks.add(
                                 TaskEntity(
@@ -149,9 +146,8 @@ object DataExportImport {
                                     scheduledTime = time,
                                     scheduledDay = day,
                                     recurrenceType = rec,
-                                    priority = prio,
-                                    difficulty = diff,
-                                    isCompleted = tObj.optBoolean("isCompleted", false)
+                                    category = cat,
+                                    isActive = tObj.optBoolean("isActive", true)
                                 )
                             )
                         } catch (e: Exception) {

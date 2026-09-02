@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.domain.AvatarTierCalculator
-import com.pixelquest.app.ui.theme.PixelSurface
+import com.pixelquest.app.ui.theme.PixelSurfaceDark
 
 @Composable
 fun PixelAvatarFrame(
@@ -37,7 +37,7 @@ fun PixelAvatarFrame(
         Box(
             modifier = Modifier
                 .clip(shape)
-                .background(PixelSurface)
+                .background(PixelSurfaceDark)
                 .border(3.dp, borderColor, shape)
                 .padding(8.dp),
             contentAlignment = Alignment.Center

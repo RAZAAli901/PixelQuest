@@ -18,7 +18,6 @@ import com.pixelquest.app.ui.theme.PixelGreen
 import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
-import com.pixelquest.app.ui.theme.PixelYellow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -33,7 +32,7 @@ fun PixelDayDetailDialog(
 
     val (statusTitle, statusColor) = when (status) {
         DailyStatus.PERFECT -> "🌟 PERFECT DAY!" to PixelGreen
-        DailyStatus.PARTIAL -> "⚡ PARTIAL PROGRESS" to PixelYellow
+        DailyStatus.PARTIAL -> "⚡ PARTIAL PROGRESS" to PixelGold
         DailyStatus.MISSED -> "💀 MISSED QUESTS" to PixelRed
         DailyStatus.NO_TASKS_SCHEDULED -> "🛡️ NO QUESTS SCHEDULED" to PixelCyan
     }

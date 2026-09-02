@@ -14,7 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.LocalDate
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,20 +37,22 @@ class TaskActionReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                val streak = streakRepository.getCurrentStreak().first()
+                val currentStreakCount = streak?.currentStreak ?: 0
+                val earnedXp = if (wasCompleted) PointsCalculator.calculateXpForTask(currentStreak = currentStreakCount) else 0
+
                 val completionLog = TaskCompletionLogEntity(
                     taskId = taskId,
-                    completedAt = LocalDateTime.now(),
-                    wasCompleted = wasCompleted
+                    completedDate = LocalDate.now(),
+                    wasCompleted = wasCompleted,
+                    pointsAwarded = earnedXp
                 )
-                taskCompletionRepository.logTaskCompletion(completionLog)
+                taskCompletionRepository.insertLog(completionLog)
                 if (wasCompleted) {
-                    val profile = userProfileRepository.getUserProfile().first()
-                    val streak = streakRepository.getCurrentStreak().first()
-                    val currentStreakCount = streak?.currentStreak ?: 0
+                    val profile = userProfileRepository.getProfile().first()
                     if (profile != null) {
-                        val earnedXp = PointsCalculator.calculateXpForTask(currentStreak = currentStreakCount)
                         val updatedXp = profile.totalXp + earnedXp
-                        userProfileRepository.updateUserProfile(profile.copy(totalXp = updatedXp))
+                        userProfileRepository.updateProfile(profile.copy(totalXp = updatedXp))
                     }
                 }
             } finally {

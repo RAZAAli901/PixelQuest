@@ -20,7 +20,7 @@ fun EmptyTodayState(
     modifier: Modifier = Modifier
 ) {
     PixelCard(
-        variant = PixelPanelVariant.DARK,
+        variant = PixelPanelVariant.BORDER,
         contentPadding = 24.dp,
         modifier = modifier.fillMaxWidth()
     ) {
