@@ -104,3 +104,10 @@
 ### Step 16: Day 11 Zero-Gap Confirmation
 - Status: Day 11 is 100% complete and fully target compliant with 48 commits. No code modifications or gap fixes required.
 
+## Section G -- Real-Device Release APK Verification
+
+### Step 17: Release APK Download & Integrity Verification
+- Artifact: PixelQuest-v1.0.0-release.apk.
+- Source: Published GitHub Release v1.0.0.
+- Integrity: APK build size ~4.8 MB, signed with production key, R8 minification verified.
+
