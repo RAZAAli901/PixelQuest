@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,7 +52,7 @@ fun PixelXpBar(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .androidx.compose.ui.semantics.semantics(mergeDescendants = true) {
+            .semantics(mergeDescendants = true) {
                 contentDescription = "Level $level XP progress: $currentProgress of $maxProgress days ($percentage percent)"
             }
     ) {
