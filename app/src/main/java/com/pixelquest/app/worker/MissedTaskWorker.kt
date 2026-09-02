@@ -38,10 +38,11 @@ class MissedTaskWorker @AssistedInject constructor(
         missedTasks.forEach { task ->
             val missedLog = TaskCompletionLogEntity(
                 taskId = task.id,
-                completedAt = LocalDateTime.now(),
-                wasCompleted = false
+                completedDate = today,
+                wasCompleted = false,
+                pointsAwarded = 0
             )
-            taskCompletionRepository.logTaskCompletion(missedLog)
+            taskCompletionRepository.insertLog(missedLog)
         }
 
         return Result.success()

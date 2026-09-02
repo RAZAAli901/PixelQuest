@@ -44,14 +44,14 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.isCrtEnabled,
         settingsRepository.isHapticsEnabled,
         settingsRepository.isNotificationsEnabled
-    ) { profile, difficulty, soundEnabled, crtEnabled, hapticsEnabled, notificationsEnabled ->
+    ) { args: Array<Any?> ->
         SettingsUiState(
-            profile = profile,
-            difficulty = difficulty,
-            isSoundEnabled = soundEnabled,
-            isCrtEnabled = crtEnabled,
-            isHapticsEnabled = hapticsEnabled,
-            isNotificationsEnabled = notificationsEnabled
+            profile = args[0] as? UserProfileEntity,
+            difficulty = args[1] as? DifficultySettingsEntity,
+            isSoundEnabled = args[2] as? Boolean ?: true,
+            isCrtEnabled = args[3] as? Boolean ?: true,
+            isHapticsEnabled = args[4] as? Boolean ?: true,
+            isNotificationsEnabled = args[5] as? Boolean ?: true
         )
     }.stateIn(
         scope = viewModelScope,
@@ -126,8 +126,8 @@ class SettingsViewModel @Inject constructor(
     fun confirmImport() {
         viewModelScope.launch {
             val payload = pendingImportPayload ?: return@launch
-            payload.userProfile?.let { userProfileRepository.saveProfile(it) }
-            payload.difficultySettings?.let { difficultySettingsRepository.updateDifficultySettings(it) }
+            payload.userProfile?.let { userProfileRepository.insertProfile(it) }
+            payload.difficultySettings?.let { difficultySettingsRepository.insertSettings(it) }
             if (payload.tasks.isNotEmpty()) {
                 val currentTasks = taskRepository.getAllTasks().first()
                 taskAlarmScheduler.cancelAllAlarms(currentTasks)
@@ -158,7 +158,7 @@ class SettingsViewModel @Inject constructor(
             taskAlarmScheduler.cancelAllAlarms(tasks)
             tasks.forEach { taskRepository.deleteTask(it) }
             
-            userProfileRepository.saveProfile(
+            userProfileRepository.insertProfile(
                 UserProfileEntity(
                     id = 1,
                     username = "PixelHero",
@@ -169,7 +169,7 @@ class SettingsViewModel @Inject constructor(
                 )
             )
 
-            difficultySettingsRepository.updateDifficultySettings(
+            difficultySettingsRepository.insertSettings(
                 DifficultySettingsEntity(
                     id = 1,
                     difficultyLevel = com.pixelquest.app.domain.model.DifficultyLevel.MEDIUM,

@@ -35,8 +35,9 @@ import com.pixelquest.app.ui.components.PixelRecurrenceSelector
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTimePicker
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelQuestTheme
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -77,7 +78,7 @@ fun CreateTaskScreen(
                     ) {
                         IconButton(
                             onClick = onNavigateBack,
-                            modifier = Modifier.androidx.compose.ui.semantics.semantics {
+                            modifier = Modifier.semantics {
                                 contentDescription = "Go Back"
                             }
                         ) {
@@ -93,7 +94,7 @@ fun CreateTaskScreen(
                         if (formState.isEditMode) {
                             IconButton(
                                 onClick = { showDeleteConfirm = true },
-                                modifier = Modifier.androidx.compose.ui.semantics.semantics {
+                                modifier = Modifier.semantics {
                                     contentDescription = "Delete Quest"
                                 }
                             ) {
@@ -110,7 +111,7 @@ fun CreateTaskScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
                     .background(PixelBackgroundDark)
-                    .androidx.compose.foundation.layout.imePadding()
+                    .imePadding()
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally

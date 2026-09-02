@@ -22,19 +22,19 @@ fun TodayScreenPreview() {
         val today = LocalDate.now()
         val sampleTasks = listOf(
             TodayTaskItem(
-                task = TaskEntity(id = 1, name = "Morning Gym Session", scheduledTime = LocalTime.of(9, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY),
+                task = TaskEntity(id = 1, name = "Morning Gym Session", description = "Morning workout routine", scheduledTime = LocalTime.of(9, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY),
                 status = TaskItemStatus.PENDING
             ),
             TodayTaskItem(
-                task = TaskEntity(id = 2, name = "Kotlin Documentation", scheduledTime = LocalTime.of(14, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY),
+                task = TaskEntity(id = 2, name = "Kotlin Documentation", description = "Read coroutines and flows", scheduledTime = LocalTime.of(14, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY),
                 status = TaskItemStatus.PENDING
             ),
             TodayTaskItem(
-                task = TaskEntity(id = 3, name = "Drink 2L Water", scheduledTime = LocalTime.of(7, 30), scheduledDay = today, category = TaskCategory.HEALTH, recurrenceType = RecurrenceType.DAILY),
+                task = TaskEntity(id = 3, name = "Drink 2L Water", description = "Daily hydration goal", scheduledTime = LocalTime.of(7, 30), scheduledDay = today, category = TaskCategory.HEALTH, recurrenceType = RecurrenceType.DAILY),
                 status = TaskItemStatus.DONE
             ),
             TodayTaskItem(
-                task = TaskEntity(id = 4, name = "Take Out Trash", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY),
+                task = TaskEntity(id = 4, name = "Take Out Trash", description = "Take trash bins outside", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY),
                 status = TaskItemStatus.MISSED
             )
         )

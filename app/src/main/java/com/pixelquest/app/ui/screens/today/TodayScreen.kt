@@ -29,8 +29,10 @@ import com.pixelquest.app.ui.components.EmptyTodayState
 import com.pixelquest.app.ui.components.FlavorTextBanner
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
+import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelDailyProgressRing
+import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
 import com.pixelquest.app.ui.components.PixelPerfectDayBanner
@@ -152,7 +154,7 @@ fun TodayContent(
                 PixelButton(
                     text = "🔄 REFRESH",
                     onClick = onRefresh,
-                    variant = PixelButtonVariant.SECONDARY
+                    variant = PixelButtonVariant.BLUE
                 )
             }
         }

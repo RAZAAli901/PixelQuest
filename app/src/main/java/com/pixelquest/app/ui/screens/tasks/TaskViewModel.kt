@@ -17,22 +17,6 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import javax.inject.Inject
 
-data class TaskWithStatus(
-    val task: TaskEntity,
-    val status: TaskItemStatus
-)
-
-sealed class TaskUiState {
-    object Loading : TaskUiState()
-    data class Success(
-        val tasks: List<TaskWithStatus>,
-        val completionPercentage: Float = 0f,
-        val targetThreshold: Float = 0.7f,
-        val isPerfectDay: Boolean = false
-    ) : TaskUiState()
-    data class Error(val message: String) : TaskUiState()
-}
-
 @HiltViewModel
 class TaskViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
