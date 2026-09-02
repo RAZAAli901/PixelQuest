@@ -175,3 +175,6 @@
 ### Step 34: Keystore & Secret Security Audit
 - Audit Findings: Zero plaintext signing keys, store passwords, or private key material exposed in git history or workflow logs. Keystore passed via encrypted environment secrets.
 
+### Step 35: External Keystore Backup Confirmation
+- Confirmation: The release signing keystore and production key alias credentials are securely backed up outside the git repository.
+
