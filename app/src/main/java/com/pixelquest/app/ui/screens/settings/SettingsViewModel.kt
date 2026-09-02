@@ -40,18 +40,22 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> = combine(
         userProfileRepository.getProfile(),
         difficultySettingsRepository.getCurrentDifficulty(),
-        settingsRepository.isSoundEnabled,
-        settingsRepository.isCrtEnabled,
-        settingsRepository.isHapticsEnabled,
-        settingsRepository.isNotificationsEnabled
-    ) { args: Array<Any?> ->
+        combine(
+            settingsRepository.isSoundEnabled,
+            settingsRepository.isCrtEnabled,
+            settingsRepository.isHapticsEnabled,
+            settingsRepository.isNotificationsEnabled
+        ) { sound, crt, haptics, notifs ->
+            arrayOf(sound, crt, haptics, notifs)
+        }
+    ) { profile, difficulty, prefs ->
         SettingsUiState(
-            profile = args[0] as? UserProfileEntity,
-            difficulty = args[1] as? DifficultySettingsEntity,
-            isSoundEnabled = args[2] as? Boolean ?: true,
-            isCrtEnabled = args[3] as? Boolean ?: true,
-            isHapticsEnabled = args[4] as? Boolean ?: true,
-            isNotificationsEnabled = args[5] as? Boolean ?: true
+            profile = profile,
+            difficulty = difficulty,
+            isSoundEnabled = prefs[0],
+            isCrtEnabled = prefs[1],
+            isHapticsEnabled = prefs[2],
+            isNotificationsEnabled = prefs[3]
         )
     }.stateIn(
         scope = viewModelScope,
@@ -105,7 +109,7 @@ class SettingsViewModel @Inject constructor(
                 context.contentResolver.openOutputStream(uri)?.use { os ->
                     os.write(json.toByteArray())
                 }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
         }
     }
 
@@ -119,7 +123,7 @@ class SettingsViewModel @Inject constructor(
                 // Stores draft payload to trigger confirmation dialog in Step 38
                 pendingImportPayload = payload
                 _showRestoreConfirmDialog.value = true
-            } catch (_: Exception) {}
+            } catch (e: Exception) {}
         }
     }
 

@@ -40,7 +40,7 @@ jobs:
           fi
 
       - name: Build Debug & Release APKs
-        run: ./gradlew assembleDebug assembleRelease
+        run: ./gradlew compileDebugKotlin assembleDebug assembleRelease
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
