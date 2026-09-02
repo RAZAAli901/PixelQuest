@@ -3,17 +3,20 @@ package com.pixelquest.app.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.pixelquest.app.data.local.dao.DifficultySettingsDao
+import com.pixelquest.app.data.local.dao.LevelHistoryDao
 import com.pixelquest.app.data.local.dao.StreakDao
 import com.pixelquest.app.data.local.dao.TaskCompletionLogDao
 import com.pixelquest.app.data.local.dao.TaskDao
 import com.pixelquest.app.data.local.dao.UserProfileDao
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
+import com.pixelquest.app.data.local.entity.LevelHistoryEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
-import com.pixelquest.app.data.local.dao.LevelHistoryDao
-import com.pixelquest.app.data.local.entity.LevelHistoryEntity
+import com.pixelquest.app.data.local.entity.UserProfileEntity
 
 @Database(
     entities = [

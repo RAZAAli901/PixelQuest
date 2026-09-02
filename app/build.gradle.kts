@@ -92,6 +92,8 @@ dependencies {
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.work)
+    kapt(libs.androidx.hilt.compiler)
 
     // Section B Step 10: Coil and Kotlin Coroutines Dependencies
     implementation(libs.coil.compose)
