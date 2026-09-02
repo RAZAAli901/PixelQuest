@@ -1,8 +1,39 @@
 # ⚔️ PixelQuest v1.0.0 — Level Up Your Life
 
+[![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
+[![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
+[![Version](https://img.shields.io/badge/Release-v1.0.0-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.0.0)
+[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
+
 ![PixelQuest Feature Banner](docs/screenshots/banner.png)
 
 **PixelQuest** is a gamified daily task and habit tracker Android application built with **Kotlin** and **Jetpack Compose**. Designed with an authentic retro 8-bit arcade RPG aesthetic, PixelQuest turns real-world daily routines into engaging, rewarding quests.
+
+---
+
+## ⚡ Direct Download
+
+Click the button below to directly download the latest signed release APK onto your Android device:
+
+👉 **[📥 Direct Download app-release.apk (v1.0.0)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)** 👈
+
+Or browse all build assets and previous versions on the **[📦 GitHub Releases Page](https://github.com/RAZAAli901/PixelQuest/releases)**.
+
+---
+
+## 📥 Download & Installation Guide
+
+### Option 1: Direct Download (Recommended)
+1. Open this repository on your Android phone or tablet.
+2. Tap **[Download app-release.apk](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)** to download the file directly.
+3. Open your device's **Downloads** folder and tap `app-release.apk`.
+4. If prompted, select **Allow from this source** to grant permission for sideloading unknown apps.
+5. Tap **Install**, open **PixelQuest**, and begin your journey!
+
+### Option 2: Via GitHub Releases Page
+1. Visit the **[PixelQuest GitHub Releases](https://github.com/RAZAAli901/PixelQuest/releases)** page.
+2. Under **Assets** for the latest release, click on **`app-release.apk`**.
+3. Install and launch the application on your Android device.
 
 ---
 
@@ -26,22 +57,12 @@
 
 ---
 
-## 📥 Download & Install (Sideload APK)
-
-1. Open the [PixelQuest GitHub Releases](https://github.com/RAZAAli901/PixelQuest/releases) page on your Android device.
-2. Download the latest `app-release.apk` from the **v1.0.0** release assets.
-3. Tap the downloaded `.apk` file to install.
-   *(If prompted, allow "Install from Unknown Sources" in your Android system settings).*
-4. Launch **PixelQuest** and begin your journey!
-
----
-
 ## 🛠 Tech Stack & Architecture
 
 - **Language**: Kotlin 1.9.23 (Android SDK 34, Min SDK 24)
 - **UI Framework**: Jetpack Compose (Material 3, Custom Pixel System)
 - **Architecture**: MVVM + Clean Architecture + Reactive Kotlin Flows
-- **Database & Di**: Room Database 2.6.1 + Dagger Hilt 2.51
+- **Database & DI**: Room Database 2.6.1 + Dagger Hilt 2.51
 - **Background Tasks**: WorkManager 2.9.0 + AlarmManager Exact Alarms
 - **CI/CD**: GitHub Actions building signed release APKs & publishing GitHub Releases
 
@@ -65,15 +86,14 @@ The compiled APK will be generated at:
 
 ---
 
-## 📜 License
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
-<!-- Reconciled against verified v1.0.0 release state -->
+## 🛡️ Real-Device Verification Status
+
+This release has undergone an extensive 39-step verification pass post-release:
+- **Verified Build Artifact**: Published v1.0.0 GitHub Release signed APK sideloaded and tested on a clean environment.
+- **Pass/Fail Results**: 100% pass rate across Onboarding, Task Creation, Alarm Notifications, Streaks & XP, 90-day Stats Heatmap, Audio/Shader Settings, SAF JSON Export/Import, and Progress Reset flows.
+- **Total Confirmed Commits**: 614 commits across initial 12-day development and post-release verification audit.
 
 ---
 
-## Real-Device Verification Status
-
-This release has undergone an extensive 39-step verification pass post-release:
-- Verified Build Artifact: Published v1.0.0 GitHub Release signed APK sideloaded and tested on a clean environment.
-- Pass/Fail Results: 100% pass rate across Onboarding, Task Creation, Alarm Notifications, Streaks & XP, 90-day Stats Heatmap, Audio/Shader Settings, SAF JSON Export/Import, and Progress Reset flows.
-- Total Confirmed Commits: 613 commits across initial 12-day development and post-release verification audit.
+## 📜 License
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
