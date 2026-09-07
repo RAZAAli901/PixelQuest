@@ -1027,6 +1027,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 36: Add manual Sync Now button with timestamp and status feedback in AccountScreen - b3f9c9a
 - Step 37: Perform manual QA verification of Google sign-in, opt-in, and Supabase cloud row - 28c6e80
 - Step 38: Verify sign-out and re-sign-in matches existing cloud row by supabaseUserId without duplicates - d447b8e
+- Step 39: Handle Supabase token exchange failure with state rollback and specific error messaging - 9a8e360
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

@@ -76,26 +76,34 @@ class AuthViewModel @Inject constructor(
                         }
                         is SupabaseResult.NetworkError -> {
                             googleAuthManager.signOut()
+                            authRepository.signOut()
+                            userProfileRepository.updateSupabaseUserId(null)
                             _uiState.value = AuthUiState.Error(
-                                "No internet connection. Please connect to the internet to sign in."
+                                "Google authentication succeeded, but cloud connection failed. Please check your internet connection."
                             )
                         }
                         is SupabaseResult.AuthError -> {
                             googleAuthManager.signOut()
+                            authRepository.signOut()
+                            userProfileRepository.updateSupabaseUserId(null)
                             _uiState.value = AuthUiState.Error(
-                                "Cloud authentication failed. Please check credentials or try again."
+                                "Google authentication succeeded, but cloud token exchange failed. Please verify Supabase OAuth provider settings."
                             )
                         }
                         is SupabaseResult.ServerError -> {
                             googleAuthManager.signOut()
+                            authRepository.signOut()
+                            userProfileRepository.updateSupabaseUserId(null)
                             _uiState.value = AuthUiState.Error(
-                                "Cloud server error: ${exchangeResult.message}"
+                                "Google authentication succeeded, but cloud server error occurred: ${exchangeResult.message}"
                             )
                         }
                         is SupabaseResult.UnknownError -> {
                             googleAuthManager.signOut()
+                            authRepository.signOut()
+                            userProfileRepository.updateSupabaseUserId(null)
                             _uiState.value = AuthUiState.Error(
-                                "Sign-in failed: ${exchangeResult.message}"
+                                "Google authentication succeeded, but cloud token exchange failed: ${exchangeResult.message}"
                             )
                         }
                     }
