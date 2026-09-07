@@ -1026,6 +1026,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 35: Wire one-time profile sync on opt-in pushing streak, level, and points to Supabase - 33b0e2a
 - Step 36: Add manual Sync Now button with timestamp and status feedback in AccountScreen - b3f9c9a
 - Step 37: Perform manual QA verification of Google sign-in, opt-in, and Supabase cloud row - 28c6e80
+- Step 38: Verify sign-out and re-sign-in matches existing cloud row by supabaseUserId without duplicates - d447b8e
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
@@ -1067,6 +1068,14 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
   - `current_streak`, `longest_streak`, `level`, `total_xp`: Accurately mirrored local Room values.
   - `leaderboard_opt_in`: `true`.
   - `updated_at`: Valid ISO-8601 timestamp.
+
+#### 6. Manual QA Verification: Sign-Out / Re-Sign-In Idempotency & Upsert Matching
+- **Sign-Out Execution**: Triggered "SIGN OUT" in AccountScreen. Confirmed Supabase session cleared, local auth state transitioned to SignedOut, and local Room profile retained without data loss.
+- **Re-Authentication**: Initiated Google Sign-In with the same Google identity. Supabase Auth exchanged token for existing user record, returning identical `auth.users.id`.
+- **Cloud Row Matching**: Triggered "SYNC PROFILE NOW". Inspected Supabase `profiles` table:
+  - Total row count remained 1 (no duplicate row created).
+  - Primary key `id` matched the existing row.
+  - Profile attributes (level, XP, streaks) updated in-place via PostgREST upsert (`ON CONFLICT (id) DO UPDATE`).
 
 
 
