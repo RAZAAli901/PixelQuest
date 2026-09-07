@@ -227,6 +227,55 @@ fun AccountScreen(
                         )
                     }
                 }
+
+                // Manual Cloud Sync Card (Foundation phase debugging & manual push)
+                if (accountState.isOptedIn) {
+                    PixelCard(
+                        variant = PixelPanelVariant.BEIGE,
+                        contentPadding = 16.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "☁️ CLOUD SYNCHRONIZATION",
+                                style = PixelTypography.titleSmall,
+                                color = PixelGold,
+                                textAlign = TextAlign.Center
+                            )
+                            if (accountState.lastSyncTime != null) {
+                                val formattedTime = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+                                    .format(java.util.Date(accountState.lastSyncTime!!))
+                                Text(
+                                    text = "Last synced: $formattedTime",
+                                    style = PixelTypography.bodySmall,
+                                    color = PixelTextWhite.copy(alpha = 0.8f)
+                                )
+                            }
+                            if (accountState.syncMessage != null) {
+                                Text(
+                                    text = accountState.syncMessage ?: "",
+                                    style = PixelTypography.bodySmall,
+                                    color = if (accountState.syncMessage?.contains("successful", ignoreCase = true) == true) {
+                                        com.pixelquest.app.ui.theme.PixelGreen
+                                    } else {
+                                        PixelGold
+                                    },
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                            PixelButton(
+                                text = if (accountState.isSyncing) "⏳ SYNCING..." else "🔄 SYNC PROFILE NOW",
+                                onClick = { accountViewModel.syncNow() },
+                                enabled = !accountState.isSyncing,
+                                variant = PixelButtonVariant.YELLOW,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.weight(1f, fill = false))

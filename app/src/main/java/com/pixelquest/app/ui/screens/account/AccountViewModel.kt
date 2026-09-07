@@ -116,6 +116,44 @@ class AccountViewModel @Inject constructor(
         }
     }
 
+    fun syncNow() {
+        val state = _uiState.value
+        if (!state.isOptedIn) {
+            _uiState.value = state.copy(syncMessage = "Opt-in to leaderboard before syncing.")
+            return
+        }
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSyncing = true, syncMessage = null)
+            when (val result = cloudProfileRepository.syncProfileToCloud()) {
+                is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        lastSyncTime = System.currentTimeMillis(),
+                        syncMessage = "Cloud sync successful!"
+                    )
+                }
+                is com.pixelquest.app.data.remote.SupabaseResult.NetworkError -> {
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        syncMessage = "Network error: check connection."
+                    )
+                }
+                is com.pixelquest.app.data.remote.SupabaseResult.AuthError -> {
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        syncMessage = "Auth error: please sign in again."
+                    )
+                }
+                is com.pixelquest.app.data.remote.SupabaseResult.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        syncMessage = "Sync failed: ${result.userMessage}"
+                    )
+                }
+            }
+        }
+    }
+
     fun dismissConfirmDialog() {
         _uiState.value = _uiState.value.copy(showConfirmDialog = false)
     }

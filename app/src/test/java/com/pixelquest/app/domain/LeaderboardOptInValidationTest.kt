@@ -155,4 +155,18 @@ class LeaderboardOptInValidationTest {
         assertFalse("Opt-in flag should be false after optOut", viewModel.uiState.value.isOptedIn)
         assertEquals(false, fakeCloudProfileRepo.lastOptIn)
     }
+
+    @Test
+    fun syncNow_whenOptedIn_triggersCloudSync() = runTest {
+        advanceUntilIdle()
+        viewModel.onDisplayNameChanged("PixelHero_42")
+        viewModel.confirmOptIn()
+        advanceUntilIdle()
+
+        viewModel.syncNow()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.syncMessage?.contains("successful") == true)
+        assertNotNull(viewModel.uiState.value.lastSyncTime)
+    }
 }
