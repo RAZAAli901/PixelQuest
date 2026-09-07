@@ -1003,6 +1003,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 12: Document Google Cloud OAuth Client ID configuration in BRIEF.md - 5fa4843
 - Step 13: Create auth/GoogleAuthManager.kt wrapping Credential Manager sign-in flow - ff468a7
 - Step 14: Wire Google Sign-In to exchange Google ID token for Supabase session - 8987983
+- Step 15: Create auth/AuthViewModel.kt exposing sign-in and session state via StateFlow - 11b89c3
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
