@@ -1010,6 +1010,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 19: Create Room Migration 2 to 3 bumping AppDatabase version to 3 - 3fbc6a3
 - Step 20: Update UserProfileRepository with cloud linkage and leaderboard methods - da9a5de
 - Step 21: Write unit tests for Migration 2 to 3 and UserProfileRepository cloud methods - 757d65a
+- Step 22: Verify existing local profile data survives migration 2 to 3 untouched - 17fa536
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
@@ -1035,6 +1036,12 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Web Client ID (Server Client ID)**: Configured as Web Application in GCP Console with authorized callback `https://<project-ref>.supabase.co/auth/v1/callback`.
 - **Supabase Auth Provider Binding**: Web Client ID and Secret entered in Supabase Dashboard (Auth -> Providers -> Google) to enable ID-token exchange.
 - **Local Ingestion**: `GOOGLE_WEB_CLIENT_ID` configured in `local.properties` and provided to Credential Manager's `GetGoogleIdOption`.
+
+#### 4. Room Migration 2 to 3 Verification & Data Preservation
+- **Preservation Verification**: Confirmed `user_profile` table attributes (`username`, `avatarId`, `level`, `totalXp`, `perfectDaysTowardNextLevel`, `createdAt`) are 100% preserved during upgrade.
+- **Default Column Behavior**: `supabaseUserId` defaults to `NULL`, `leaderboardOptIn` defaults strictly to `0` (false), and `leaderboardDisplayName` defaults to `NULL`.
+- **Zero Data Loss**: Existing player progress remains untouched when migrating from database version 2 to 3.
+
 
 
 
