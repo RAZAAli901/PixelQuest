@@ -197,12 +197,28 @@ fun AccountScreen(
                             color = if (accountState.isOptedIn) com.pixelquest.app.ui.theme.PixelGreen else PixelGold,
                             textAlign = TextAlign.Center
                         )
+                        com.pixelquest.app.ui.components.PixelTextField(
+                            value = accountState.displayNameInput,
+                            onValueChange = { accountViewModel.onDisplayNameChanged(it) },
+                            label = "PUBLIC LEADERBOARD NAME",
+                            placeholder = "Enter public pseudonym",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (accountState.displayNameError != null) {
+                            Text(
+                                text = accountState.displayNameError ?: "",
+                                style = PixelTypography.bodySmall,
+                                color = com.pixelquest.app.ui.theme.PixelRed,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                         Text(
-                            text = "Opt-in defaults to OFF to ensure complete privacy until you explicitly enable it.",
+                            text = "ℹ️ Shown publicly on the leaderboard. Decoupled from local hero name and never exposes Google email or real name.",
                             style = PixelTypography.bodySmall,
-                            color = PixelTextWhite,
+                            color = PixelTextWhite.copy(alpha = 0.8f),
                             textAlign = TextAlign.Center
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         PixelButton(
                             text = if (accountState.isOptedIn) "🔴 LEAVE LEADERBOARD (OPT OUT)" else "🟢 JOIN LEADERBOARD (OPT IN)",
                             onClick = { accountViewModel.onOptInToggleClicked(!accountState.isOptedIn) },

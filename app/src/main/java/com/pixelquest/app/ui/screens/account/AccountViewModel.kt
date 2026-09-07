@@ -44,8 +44,22 @@ class AccountViewModel @Inject constructor(
         }
     }
 
+    fun onDisplayNameChanged(newName: String) {
+        val error = validateDisplayName(newName)
+        _uiState.value = _uiState.value.copy(
+            displayNameInput = newName,
+            displayNameError = error
+        )
+    }
+
     fun onOptInToggleClicked(targetEnabled: Boolean) {
         if (targetEnabled) {
+            val currentName = _uiState.value.displayNameInput
+            val error = validateDisplayName(currentName)
+            if (error != null) {
+                _uiState.value = _uiState.value.copy(displayNameError = error)
+                return
+            }
             _uiState.value = _uiState.value.copy(showConfirmDialog = true)
         } else {
             viewModelScope.launch {
@@ -57,5 +71,18 @@ class AccountViewModel @Inject constructor(
 
     fun dismissConfirmDialog() {
         _uiState.value = _uiState.value.copy(showConfirmDialog = false)
+    }
+
+    companion object {
+        fun validateDisplayName(name: String): String? {
+            val trimmed = name.trim()
+            return when {
+                trimmed.isBlank() -> "Display name cannot be blank."
+                trimmed.length < 3 -> "Name must be at least 3 characters."
+                trimmed.length > 20 -> "Name must not exceed 20 characters."
+                !trimmed.matches(Regex("^[a-zA-Z0-9_]+$")) -> "Only alphanumeric characters and underscores allowed."
+                else -> null
+            }
+        }
     }
 }
