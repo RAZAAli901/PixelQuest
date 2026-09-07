@@ -993,6 +993,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 2: Design the profiles table schema specification with privacy guarantees - 0a052ad
 - Step 3: Write SQL migration creating the profiles table with constraints and triggers - 87773b5
 - Step 4: Enable Row Level Security and configure access policies on profiles table - 4fb2818
+- Step 5: Document credential storage in local.properties and verify gitignore exclusion - 27f7521
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
@@ -1005,4 +1006,11 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Authentication**: Supabase Auth enabled with Google ID Token provider support
 - **Credentials Provisioning**: Project URL and anon public key configured via `local.properties` (strictly gitignored).
 - **Security Advisory**: Database master password shared during initial provisioning is designated for manual migration access only and recommended for dashboard rotation under Project Settings -> Database -> Reset Database Password.
+
+#### 2. Secrets & Credential Storage Architecture
+- **Storage Location**: Sensitive endpoint parameters (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GOOGLE_WEB_CLIENT_ID`) are stored exclusively in `local.properties` at repository root.
+- **Git Protection Verified**: Verified `.gitignore` contains rules `/local.properties` and `local.properties`. Zero credential leakage into git history.
+- **BuildConfig Integration**: Gradle parses `local.properties` at build time and exposes `BuildConfig.SUPABASE_URL`, `BuildConfig.SUPABASE_ANON_KEY`, and `BuildConfig.GOOGLE_WEB_CLIENT_ID` with safe empty-string fallbacks.
+- **Database Password Rotation**: Shared plaintext password should be rotated in the Supabase dashboard (Project Settings -> Database -> Reset Database Password).
+
 
