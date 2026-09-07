@@ -105,12 +105,25 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun signOut() {
-        viewModelScope.launch {
-            _uiState.value = AuthUiState.SigningIn
-            authRepository.signOut()
-            googleAuthManager.signOut()
+    private var authJob: kotlinx.coroutines.Job? = null
+
+    fun cancelActiveAuth() {
+        authJob?.cancel()
+        authJob = null
+        _uiState.value = AuthUiState.SignedOut
+    }
+
+    fun signOut(onSignedOut: (() -> Unit)? = null) {
+        authJob?.cancel()
+        authJob = viewModelScope.launch {
+            try {
+                authRepository.signOut()
+            } catch (_: Exception) {}
+            try {
+                googleAuthManager.signOut()
+            } catch (_: Exception) {}
             _uiState.value = AuthUiState.SignedOut
+            onSignedOut?.invoke()
         }
     }
 
