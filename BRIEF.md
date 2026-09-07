@@ -990,6 +990,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 
 ## Day 13 Progress Log
 - Step 1: Document Supabase project creation details and dashboard configuration in BRIEF.md - 833f2fa
+- Step 2: Design the profiles table schema specification with privacy guarantees - 0a052ad
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
