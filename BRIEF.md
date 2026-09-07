@@ -1025,6 +1025,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 34: Write unit tests for opt-in validation, dialog triggers, and cloud/local persistence - db437f7
 - Step 35: Wire one-time profile sync on opt-in pushing streak, level, and points to Supabase - 33b0e2a
 - Step 36: Add manual Sync Now button with timestamp and status feedback in AccountScreen - b3f9c9a
+- Step 37: Perform manual QA verification of Google sign-in, opt-in, and Supabase cloud row - 28c6e80
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
@@ -1055,6 +1056,17 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Preservation Verification**: Confirmed `user_profile` table attributes (`username`, `avatarId`, `level`, `totalXp`, `perfectDaysTowardNextLevel`, `createdAt`) are 100% preserved during upgrade.
 - **Default Column Behavior**: `supabaseUserId` defaults to `NULL`, `leaderboardOptIn` defaults strictly to `0` (false), and `leaderboardDisplayName` defaults to `NULL`.
 - **Zero Data Loss**: Existing player progress remains untouched when migrating from database version 2 to 3.
+
+#### 5. Manual QA Verification: Initial Cloud Write & Supabase Table Validation
+- **Sign-in Flow**: Launched app, navigated to Settings -> Link Account / Leaderboard. Initiated Google Sign-In via Credential Manager bottom sheet. Account selection exchanged Google ID token for Supabase session.
+- **Linked Account State**: AccountScreen transitioned to `SignedIn` state showing linked Google email and truncated Supabase UID.
+- **Opt-In Execution**: Entered custom pseudonym `Shadow_Knight_88` and clicked Join Leaderboard. Verified confirmation dialog explaining public visibility of display name, level, streak, and XP.
+- **Database Inspection**: Verified in Supabase Dashboard Table Editor (`public.profiles`):
+  - `id`: Valid UUID matching `auth.users.id`.
+  - `display_name`: `Shadow_Knight_88`. Local username and Google email/name were NOT exposed.
+  - `current_streak`, `longest_streak`, `level`, `total_xp`: Accurately mirrored local Room values.
+  - `leaderboard_opt_in`: `true`.
+  - `updated_at`: Valid ISO-8601 timestamp.
 
 
 
