@@ -1033,6 +1033,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 42: Write unit tests for network failure, auth error, server error, and edge cases - cf89919
 - Step 43: Write integration test for full sign-in -> opt-in -> cloud sync flow - 8df9802
 - Step 44: Perform manual regression pass confirming offline/local-only app is 100% unaffected - 992eef7
+- Step 45: Update BRIEF.md with full Day 13 technical summary, privacy rules, and Day 14 scope - 81788f6
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
@@ -1089,6 +1090,34 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Streaks & Heatmaps**: Streak progression and monthly heatmap rendering operate 100% offline.
 - **Sound, Haptics & Themes**: Audio and retro UI mechanics function identically offline.
 - **Privacy & Autonomy**: No network requests are dispatched unless the user explicitly initiates Google Sign-In in Settings. Local data never leaves the device without explicit opt-in.
+
+### Day 13 Full Technical Architecture Summary
+- **Backend & Database Engine**: Supabase PostgreSQL 15+ hosted in Asia-Pacific region.
+- **Schema & Migrations**:
+  - `supabase/migrations/20260908000000_create_profiles_table.sql`: Creates `public.profiles` table linked via foreign key `id REFERENCES auth.users(id) ON DELETE CASCADE`.
+  - `supabase/migrations/20260908000001_enable_rls_and_policies.sql`: Enables PostgreSQL Row Level Security (RLS). `allow_read_opted_in_profiles` allows authenticated reads where `leaderboard_opt_in = true`. `allow_insert_own_profile` and `allow_update_own_profile` restrict all writes strictly to `auth.uid() = id`.
+- **Client Integration**:
+  - `io.github.jan-tennert.supabase:bom:2.5.4` integrating `postgrest-kt`, `auth-kt`, and `ktor-client-android`.
+  - `SupabaseClient.kt` singleton reading `SUPABASE_URL` and `SUPABASE_ANON_KEY` through `BuildConfig` sourced from `local.properties`.
+  - Type-safe error wrapping via sealed `SupabaseResult<T>` and `safeSupabaseCall` with coroutine cooperative cancellation support.
+- **Authentication & Identity**:
+  - Google Identity Services + Android Credential Manager (`androidx.credentials:credentials:1.3.0` & `com.google.android.libraries.identity.googleid:googleid:1.1.1`).
+  - Id-token exchange via Supabase Auth `IdToken` provider.
+  - Fail-safe rollback: If Google sign-in succeeds but Supabase token exchange fails, both Credential Manager and local Room profile state are completely cleared with user-friendly actionable feedback.
+- **Privacy & Leaderboard Opt-In**:
+  - Opt-in strictly defaults to **OFF** (`false` in Room and PostgreSQL).
+  - Public display name is completely separate from local hero name and requires explicit validation (3-20 chars, alphanumeric + underscores).
+  - Explicit privacy confirmation dialog detailing public visibility before any cloud write occurs. Real name and Google email are never stored in `profiles` or broadcast.
+- **Room Migration 2 to 3**:
+  - Non-destructive `MIGRATION_2_3` implemented and registered in `DatabaseModule`.
+  - Zero data loss: Existing profiles, task records, and streak history remain 100% intact.
+- **Initial Cloud Write & Idempotency**:
+  - One-time sync on opt-in pushes streak, level, and XP.
+  - Manual "Sync Now" button with timestamp for foundation debugging.
+  - PostgREST upsert guarantees row uniqueness matched by `auth.uid()`; re-signing in updates existing record without duplicate entries.
+- **Known Gaps & Scope for Day 14**:
+  - Leaderboard UI screen (ranking list, tier icons, user position highlight).
+  - Background periodic sync worker via `WorkManager` to synchronize progress automatically in the background.
 
 
 
