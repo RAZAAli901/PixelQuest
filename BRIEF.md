@@ -1014,6 +1014,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 23: Build AccountScreen composable skeleton reachable from Settings - 99630d6
 - Step 24: Wire pixel-styled Google Sign-In button to AuthViewModel - f4748f9
 - Step 25: Add signed-in view with linked Google account info and Sign Out button - 9c1d5d6
+- Step 26: Add pixel-styled loading state during the sign-in process - 97fdee1
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

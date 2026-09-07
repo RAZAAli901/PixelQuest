@@ -109,6 +109,13 @@ fun AccountScreen(
                 }
             }
 
+            if (uiState is com.pixelquest.app.auth.AuthUiState.SigningIn) {
+                com.pixelquest.app.ui.components.PixelLoadingState(
+                    message = "AUTHENTICATING QUEST HERO...",
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             if (uiState is com.pixelquest.app.auth.AuthUiState.SignedIn) {
                 val user = (uiState as com.pixelquest.app.auth.AuthUiState.SignedIn).user
                 PixelCard(
