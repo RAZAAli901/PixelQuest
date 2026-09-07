@@ -1008,6 +1008,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 17: Write unit tests for AuthViewModel state transitions and rollback - 8cb3404
 - Step 18: Add supabaseUserId, leaderboardOptIn, and leaderboardDisplayName to UserProfileEntity - ab9f8a9
 - Step 19: Create Room Migration 2 to 3 bumping AppDatabase version to 3 - 3fbc6a3
+- Step 20: Update UserProfileRepository with cloud linkage and leaderboard methods - da9a5de
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

@@ -18,4 +18,13 @@ interface UserProfileDao {
 
     @Query("SELECT * FROM user_profile WHERE id = 1")
     fun getProfile(): Flow<UserProfileEntity?>
+
+    @Query("UPDATE user_profile SET supabaseUserId = :userId WHERE id = 1")
+    suspend fun updateSupabaseUserId(userId: String?)
+
+    @Query("UPDATE user_profile SET leaderboardOptIn = :optIn, leaderboardDisplayName = :displayName WHERE id = 1")
+    suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?)
+
+    @Query("UPDATE user_profile SET leaderboardOptIn = :optIn WHERE id = 1")
+    suspend fun updateLeaderboardOptIn(optIn: Boolean)
 }

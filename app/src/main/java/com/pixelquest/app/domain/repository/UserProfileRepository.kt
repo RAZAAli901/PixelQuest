@@ -8,4 +8,7 @@ interface UserProfileRepository {
     suspend fun insertProfile(profile: UserProfileEntity)
     suspend fun updateProfile(profile: UserProfileEntity)
     suspend fun performLevelUp(): UserProfileEntity?
+    suspend fun updateSupabaseUserId(userId: String?)
+    suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?)
+    suspend fun updateLeaderboardOptIn(optIn: Boolean)
 }

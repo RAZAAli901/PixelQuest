@@ -25,4 +25,16 @@ class UserProfileRepositoryImpl @Inject constructor(
         userProfileDao.updateProfile(updated)
         return updated
     }
+
+    override suspend fun updateSupabaseUserId(userId: String?) {
+        userProfileDao.updateSupabaseUserId(userId)
+    }
+
+    override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {
+        userProfileDao.updateLeaderboardSettings(optIn, displayName)
+    }
+
+    override suspend fun updateLeaderboardOptIn(optIn: Boolean) {
+        userProfileDao.updateLeaderboardOptIn(optIn)
+    }
 }
