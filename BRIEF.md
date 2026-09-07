@@ -1007,6 +1007,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 16: Implement sign-out logic clearing Supabase session and Credential Manager state - 2442633
 - Step 17: Write unit tests for AuthViewModel state transitions and rollback - 8cb3404
 - Step 18: Add supabaseUserId, leaderboardOptIn, and leaderboardDisplayName to UserProfileEntity - ab9f8a9
+- Step 19: Create Room Migration 2 to 3 bumping AppDatabase version to 3 - 3fbc6a3
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

@@ -33,7 +33,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "pixelquest.db"
         )
-            .addMigrations(AppDatabase.MIGRATION_1_2)
+            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
             .fallbackToDestructiveMigration()
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
