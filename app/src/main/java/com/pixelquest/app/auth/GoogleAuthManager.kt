@@ -30,14 +30,14 @@ sealed class GoogleAuthResult {
  * Manages Google Sign-In using modern Android Credential Manager and Google Identity Services.
  */
 @Singleton
-class GoogleAuthManager @Inject constructor(
+open class GoogleAuthManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val credentialManager: CredentialManager by lazy {
         CredentialManager.create(context)
     }
 
-    suspend fun signInWithGoogle(activityContext: Context): GoogleAuthResult {
+    open suspend fun signInWithGoogle(activityContext: Context): GoogleAuthResult {
         val serverClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID.trim()
         if (serverClientId.isBlank() || serverClientId.startsWith("placeholder")) {
             return GoogleAuthResult.Failure(
@@ -92,7 +92,7 @@ class GoogleAuthManager @Inject constructor(
         }
     }
 
-    suspend fun signOut() {
+    open suspend fun signOut() {
         try {
             credentialManager.clearCredentialState(ClearCredentialStateRequest())
         } catch (_: Exception) {
