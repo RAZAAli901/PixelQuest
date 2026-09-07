@@ -34,7 +34,8 @@ import com.pixelquest.app.ui.theme.PixelTypography
 fun AccountScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
+    accountViewModel: AccountViewModel = hiltViewModel()
 ) {
     Scaffold(
         containerColor = PixelBackground,
@@ -163,6 +164,49 @@ fun AccountScreen(
                             text = "🚪 SIGN OUT",
                             onClick = { viewModel.signOut() },
                             variant = PixelButtonVariant.BLUE,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
+                // Leaderboard Opt-In Card (Defaults to OFF)
+                val accountState by accountViewModel.uiState.collectAsState()
+                PixelCard(
+                    variant = PixelPanelVariant.BEIGE,
+                    contentPadding = 20.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = "🏆 LEADERBOARD PARTICIPATION",
+                            style = PixelTypography.titleSmall,
+                            color = PixelGold,
+                            textAlign = TextAlign.Center
+                        )
+                        val optInStatusText = if (accountState.isOptedIn) {
+                            "STATUS: ACTIVE (OPTED IN)"
+                        } else {
+                            "STATUS: INACTIVE (DEFAULT OFF)"
+                        }
+                        Text(
+                            text = optInStatusText,
+                            style = PixelTypography.bodyMedium,
+                            color = if (accountState.isOptedIn) com.pixelquest.app.ui.theme.PixelGreen else PixelGold,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "Opt-in defaults to OFF to ensure complete privacy until you explicitly enable it.",
+                            style = PixelTypography.bodySmall,
+                            color = PixelTextWhite,
+                            textAlign = TextAlign.Center
+                        )
+                        PixelButton(
+                            text = if (accountState.isOptedIn) "🔴 LEAVE LEADERBOARD (OPT OUT)" else "🟢 JOIN LEADERBOARD (OPT IN)",
+                            onClick = { accountViewModel.onOptInToggleClicked(!accountState.isOptedIn) },
+                            variant = if (accountState.isOptedIn) PixelButtonVariant.BLUE else PixelButtonVariant.YELLOW,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
