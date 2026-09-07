@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -100,6 +101,13 @@ dependencies {
     // Section B Step 10: Coil and Kotlin Coroutines Dependencies
     implementation(libs.coil.compose)
     implementation(libs.kotlinx.coroutines.android)
+
+    // Day 13 Section B Step 6: Supabase & Network Dependencies
+    implementation(platform(libs.supabase.bom))
+    implementation(libs.supabase.postgrest)
+    implementation(libs.supabase.auth)
+    implementation(libs.ktor.client.android)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
     testImplementation(libs.androidx.room.testing)
