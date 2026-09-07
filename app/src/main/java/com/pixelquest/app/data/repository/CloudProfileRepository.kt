@@ -39,15 +39,13 @@ open class CloudProfileRepositoryImpl @Inject constructor(
         val profile = userProfileRepository.getProfile().first()
         val streak = streakRepository.getCurrentStreak().first()
 
-        val dto = CloudProfileDto(
-            id = user.id,
+        val dto = buildProfileDto(
+            userId = user.id,
             displayName = displayName,
+            optIn = optIn,
+            profile = profile,
             currentStreak = streak?.currentStreak ?: 0,
-            longestStreak = streak?.longestStreak ?: 0,
-            level = profile?.level ?: 1,
-            totalXp = profile?.totalXp ?: 0,
-            leaderboardOptIn = optIn,
-            updatedAt = Instant.now().toString()
+            longestStreak = streak?.longestStreak ?: 0
         )
 
         return safeSupabaseCall {
@@ -67,19 +65,40 @@ open class CloudProfileRepositoryImpl @Inject constructor(
 
         val displayName = profile?.leaderboardDisplayName?.ifBlank { "Hero" } ?: "Hero"
 
-        val dto = CloudProfileDto(
-            id = user.id,
+        val dto = buildProfileDto(
+            userId = user.id,
             displayName = displayName,
+            optIn = profile?.leaderboardOptIn ?: false,
+            profile = profile,
             currentStreak = streak?.currentStreak ?: 0,
-            longestStreak = streak?.longestStreak ?: 0,
-            level = profile?.level ?: 1,
-            totalXp = profile?.totalXp ?: 0,
-            leaderboardOptIn = profile?.leaderboardOptIn ?: false,
-            updatedAt = Instant.now().toString()
+            longestStreak = streak?.longestStreak ?: 0
         )
 
         return safeSupabaseCall {
             postgrest["profiles"].upsert(dto)
+        }
+    }
+
+    companion object {
+        fun buildProfileDto(
+            userId: String,
+            displayName: String,
+            optIn: Boolean,
+            profile: UserProfileEntity?,
+            currentStreak: Int,
+            longestStreak: Int,
+            timestamp: String = Instant.now().toString()
+        ): CloudProfileDto {
+            return CloudProfileDto(
+                id = userId,
+                displayName = displayName,
+                currentStreak = currentStreak,
+                longestStreak = longestStreak,
+                level = profile?.level ?: 1,
+                totalXp = profile?.totalXp ?: 0,
+                leaderboardOptIn = optIn,
+                updatedAt = timestamp
+            )
         }
     }
 }

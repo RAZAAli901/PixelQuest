@@ -1023,6 +1023,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 32: Wire opt-in toggle and display name to local Room and Supabase profiles table - 649a55b
 - Step 33: Add confirmation dialog detailing public visibility and privacy guarantees - 9e4965c
 - Step 34: Write unit tests for opt-in validation, dialog triggers, and cloud/local persistence - db437f7
+- Step 35: Wire one-time profile sync on opt-in pushing streak, level, and points to Supabase - 33b0e2a
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
