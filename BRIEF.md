@@ -1009,6 +1009,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 18: Add supabaseUserId, leaderboardOptIn, and leaderboardDisplayName to UserProfileEntity - ab9f8a9
 - Step 19: Create Room Migration 2 to 3 bumping AppDatabase version to 3 - 3fbc6a3
 - Step 20: Update UserProfileRepository with cloud linkage and leaderboard methods - da9a5de
+- Step 21: Write unit tests for Migration 2 to 3 and UserProfileRepository cloud methods - 757d65a
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
