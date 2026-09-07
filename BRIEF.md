@@ -995,6 +995,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 4: Enable Row Level Security and configure access policies on profiles table - 4fb2818
 - Step 5: Document credential storage in local.properties and verify gitignore exclusion - 27f7521
 - Step 6: Add Supabase Kotlin client and Ktor network dependencies to Gradle - 0367e26
+- Step 7: Create data/remote/SupabaseClient.kt singleton reading URL and anon key from BuildConfig - 5a8b38a
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

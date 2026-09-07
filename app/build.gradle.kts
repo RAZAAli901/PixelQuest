@@ -6,6 +6,16 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+val localProps = java.util.Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        load(localPropertiesFile.inputStream())
+    }
+}
+val supabaseUrlProp = localProps.getProperty("SUPABASE_URL") ?: "https://placeholder-project.supabase.co"
+val supabaseAnonKeyProp = localProps.getProperty("SUPABASE_ANON_KEY") ?: "placeholder-anon-key"
+val googleWebClientIdProp = localProps.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
+
 android {
     namespace = "com.pixelquest.app"
     compileSdk = 34 // Latest stable compileSdk
@@ -16,6 +26,10 @@ android {
         targetSdk = 34 // Latest stable targetSdk
         versionCode = 100
         versionName = "1.0.0"
+
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrlProp\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKeyProp\"")
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientIdProp\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
