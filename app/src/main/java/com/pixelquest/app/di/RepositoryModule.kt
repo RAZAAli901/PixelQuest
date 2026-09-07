@@ -79,4 +79,10 @@ abstract class RepositoryModule {
     abstract fun bindAuthRepository(
         impl: com.pixelquest.app.auth.AuthRepositoryImpl
     ): com.pixelquest.app.auth.AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCloudProfileRepository(
+        impl: com.pixelquest.app.data.repository.CloudProfileRepositoryImpl
+    ): com.pixelquest.app.data.repository.CloudProfileRepository
 }

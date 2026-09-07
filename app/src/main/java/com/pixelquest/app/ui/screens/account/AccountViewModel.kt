@@ -24,7 +24,8 @@ data class AccountUiState(
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
-    private val userProfileRepository: UserProfileRepository
+    private val userProfileRepository: UserProfileRepository,
+    private val cloudProfileRepository: com.pixelquest.app.data.repository.CloudProfileRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountUiState())
@@ -62,10 +63,56 @@ class AccountViewModel @Inject constructor(
             }
             _uiState.value = _uiState.value.copy(showConfirmDialog = true)
         } else {
-            viewModelScope.launch {
-                userProfileRepository.updateLeaderboardOptIn(false)
-                _uiState.value = _uiState.value.copy(isOptedIn = false)
+            optOut()
+        }
+    }
+
+    fun confirmOptIn() {
+        val name = _uiState.value.displayNameInput.trim()
+        val error = validateDisplayName(name)
+        if (error != null) {
+            _uiState.value = _uiState.value.copy(displayNameError = error, showConfirmDialog = false)
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isSyncing = true,
+                showConfirmDialog = false,
+                displayNameError = null
+            )
+            when (cloudProfileRepository.updateOptInAndSync(optIn = true, displayName = name)) {
+                is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        isOptedIn = true,
+                        lastSyncTime = System.currentTimeMillis(),
+                        syncMessage = "Opt-in complete! Profile synced to cloud."
+                    )
+                }
+                else -> {
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        isOptedIn = true,
+                        syncMessage = "Opt-in saved locally. Cloud sync will retry."
+                    )
+                }
             }
+        }
+    }
+
+    fun optOut() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isSyncing = true)
+            cloudProfileRepository.updateOptInAndSync(
+                optIn = false,
+                displayName = _uiState.value.displayNameInput.trim()
+            )
+            _uiState.value = _uiState.value.copy(
+                isSyncing = false,
+                isOptedIn = false,
+                syncMessage = "Opted out from leaderboard."
+            )
         }
     }
 
