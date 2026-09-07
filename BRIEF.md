@@ -1001,6 +1001,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 10: Create sealed SupabaseResult error wrapper with safe call runner - 6694ba9
 - Step 11: Add Credential Manager and Google Identity Services dependencies - f1dea32
 - Step 12: Document Google Cloud OAuth Client ID configuration in BRIEF.md - 5fa4843
+- Step 13: Create auth/GoogleAuthManager.kt wrapping Credential Manager sign-in flow - ff468a7
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
