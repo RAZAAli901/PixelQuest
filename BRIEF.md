@@ -996,6 +996,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 5: Document credential storage in local.properties and verify gitignore exclusion - 27f7521
 - Step 6: Add Supabase Kotlin client and Ktor network dependencies to Gradle - 0367e26
 - Step 7: Create data/remote/SupabaseClient.kt singleton reading URL and anon key from BuildConfig - 5a8b38a
+- Step 8: Wire SupabaseClient and plugins into Hilt DI via NetworkModule - 76061c2
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
