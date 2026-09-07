@@ -116,6 +116,15 @@ fun AccountScreen(
                 )
             }
 
+            if (uiState is com.pixelquest.app.auth.AuthUiState.Error) {
+                val errorMsg = (uiState as com.pixelquest.app.auth.AuthUiState.Error).message
+                com.pixelquest.app.ui.components.PixelErrorState(
+                    errorMessage = errorMsg,
+                    onRetry = { viewModel.signInWithGoogle(context) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             if (uiState is com.pixelquest.app.auth.AuthUiState.SignedIn) {
                 val user = (uiState as com.pixelquest.app.auth.AuthUiState.SignedIn).user
                 PixelCard(
