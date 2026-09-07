@@ -26,7 +26,8 @@ sealed class AuthUiState {
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val googleAuthManager: GoogleAuthManager,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val userProfileRepository: com.pixelquest.app.domain.repository.UserProfileRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.SignedOut)
@@ -41,6 +42,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             val user = authRepository.getInitialUser()
             if (user != null) {
+                userProfileRepository.updateSupabaseUserId(user.id)
                 _uiState.value = AuthUiState.SignedIn(user)
             } else {
                 _uiState.value = AuthUiState.SignedOut
@@ -52,6 +54,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.currentUser.collect { user ->
                 if (user != null) {
+                    userProfileRepository.updateSupabaseUserId(user.id)
                     _uiState.value = AuthUiState.SignedIn(user)
                 } else if (_uiState.value !is AuthUiState.SigningIn && _uiState.value !is AuthUiState.Error) {
                     _uiState.value = AuthUiState.SignedOut
@@ -67,7 +70,9 @@ class AuthViewModel @Inject constructor(
                 is GoogleAuthResult.Success -> {
                     when (val exchangeResult = authRepository.exchangeGoogleIdToken(googleResult.idToken)) {
                         is SupabaseResult.Success -> {
-                            _uiState.value = AuthUiState.SignedIn(exchangeResult.data)
+                            val user = exchangeResult.data
+                            userProfileRepository.updateSupabaseUserId(user.id)
+                            _uiState.value = AuthUiState.SignedIn(user)
                         }
                         is SupabaseResult.NetworkError -> {
                             googleAuthManager.signOut()
@@ -121,6 +126,9 @@ class AuthViewModel @Inject constructor(
             } catch (_: Exception) {}
             try {
                 googleAuthManager.signOut()
+            } catch (_: Exception) {}
+            try {
+                userProfileRepository.updateSupabaseUserId(null)
             } catch (_: Exception) {}
             _uiState.value = AuthUiState.SignedOut
             onSignedOut?.invoke()

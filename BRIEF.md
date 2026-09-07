@@ -1016,6 +1016,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 25: Add signed-in view with linked Google account info and Sign Out button - 9c1d5d6
 - Step 26: Add pixel-styled loading state during the sign-in process - 97fdee1
 - Step 27: Add pixel error state UI for sign-in failures with retry affordance - efda22d
+- Step 28: Wire successful sign-in to persist supabaseUserId onto local UserProfileEntity - c599341
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

@@ -59,12 +59,26 @@ class FakeGoogleAuthManager(context: Context) : GoogleAuthManager(context) {
     }
 }
 
+class FakeUserProfileRepositoryForAuth : com.pixelquest.app.domain.repository.UserProfileRepository {
+    var storedSupabaseUserId: String? = null
+    override fun getProfile(): Flow<com.pixelquest.app.data.local.entity.UserProfileEntity?> = MutableStateFlow(null)
+    override suspend fun insertProfile(profile: com.pixelquest.app.data.local.entity.UserProfileEntity) {}
+    override suspend fun updateProfile(profile: com.pixelquest.app.data.local.entity.UserProfileEntity) {}
+    override suspend fun performLevelUp(): com.pixelquest.app.data.local.entity.UserProfileEntity? = null
+    override suspend fun updateSupabaseUserId(userId: String?) {
+        storedSupabaseUserId = userId
+    }
+    override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {}
+    override suspend fun updateLeaderboardOptIn(optIn: Boolean) {}
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class AuthViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeAuthRepo: FakeAuthRepository
     private lateinit var fakeGoogleAuthManager: FakeGoogleAuthManager
+    private lateinit var fakeUserProfileRepo: FakeUserProfileRepositoryForAuth
     private lateinit var viewModel: AuthViewModel
 
     // Mock Context using dynamic proxy or dummy implementation
@@ -78,6 +92,7 @@ class AuthViewModelTest {
         Dispatchers.setMain(testDispatcher)
         fakeAuthRepo = FakeAuthRepository()
         fakeGoogleAuthManager = FakeGoogleAuthManager(dummyContext)
+        fakeUserProfileRepo = FakeUserProfileRepositoryForAuth()
     }
 
     @After
@@ -87,7 +102,7 @@ class AuthViewModelTest {
 
     @Test
     fun initialState_whenNoUser_isSignedOut() = runTest {
-        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo)
+        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo, fakeUserProfileRepo)
         advanceUntilIdle()
         assertTrue(viewModel.uiState.value is AuthUiState.SignedOut)
     }
@@ -95,17 +110,18 @@ class AuthViewModelTest {
     @Test
     fun initialState_whenUserExists_isSignedIn() = runTest {
         fakeAuthRepo.initialUser = AuthUser("uid_existing", "hero@pixelquest.com", "QuestHero")
-        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo)
+        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo, fakeUserProfileRepo)
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertTrue(state is AuthUiState.SignedIn)
         assertEquals("uid_existing", (state as AuthUiState.SignedIn).user.id)
+        assertEquals("uid_existing", fakeUserProfileRepo.storedSupabaseUserId)
     }
 
     @Test
-    fun signInWithGoogle_onSuccess_transitionsToSignedIn() = runTest {
-        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo)
+    fun signInWithGoogle_onSuccess_transitionsToSignedInAndPersistsId() = runTest {
+        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo, fakeUserProfileRepo)
         advanceUntilIdle()
 
         fakeGoogleAuthManager.signInResult = GoogleAuthResult.Success(
@@ -123,11 +139,12 @@ class AuthViewModelTest {
         val state = viewModel.uiState.value
         assertTrue("State should be SignedIn on success", state is AuthUiState.SignedIn)
         assertEquals("uid_new", (state as AuthUiState.SignedIn).user.id)
+        assertEquals("uid_new", fakeUserProfileRepo.storedSupabaseUserId)
     }
 
     @Test
     fun signInWithGoogle_onCancelled_returnsToSignedOut() = runTest {
-        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo)
+        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo, fakeUserProfileRepo)
         advanceUntilIdle()
 
         fakeGoogleAuthManager.signInResult = GoogleAuthResult.Cancelled()
@@ -139,7 +156,7 @@ class AuthViewModelTest {
 
     @Test
     fun signInWithGoogle_onNetworkError_transitionsToErrorAndRollsBack() = runTest {
-        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo)
+        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo, fakeUserProfileRepo)
         advanceUntilIdle()
 
         fakeGoogleAuthManager.signInResult = GoogleAuthResult.Success(
@@ -158,17 +175,19 @@ class AuthViewModelTest {
     }
 
     @Test
-    fun signOut_transitionsFromSignedInToSignedOut() = runTest {
+    fun signOut_transitionsFromSignedInToSignedOutAndClearsLocalId() = runTest {
         fakeAuthRepo.initialUser = AuthUser("uid_active", "hero@pixelquest.com", "QuestHero")
-        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo)
+        viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo, fakeUserProfileRepo)
         advanceUntilIdle()
 
         assertTrue(viewModel.uiState.value is AuthUiState.SignedIn)
+        assertEquals("uid_active", fakeUserProfileRepo.storedSupabaseUserId)
 
         viewModel.signOut()
         advanceUntilIdle()
 
         assertTrue("State should transition to SignedOut", viewModel.uiState.value is AuthUiState.SignedOut)
         assertTrue("GoogleAuthManager signOut should be called", fakeGoogleAuthManager.signOutCalled)
+        assertEquals(null, fakeUserProfileRepo.storedSupabaseUserId)
     }
 }
