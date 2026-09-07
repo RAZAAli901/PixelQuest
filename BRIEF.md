@@ -992,6 +992,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 1: Document Supabase project creation details and dashboard configuration in BRIEF.md - 833f2fa
 - Step 2: Design the profiles table schema specification with privacy guarantees - 0a052ad
 - Step 3: Write SQL migration creating the profiles table with constraints and triggers - 87773b5
+- Step 4: Enable Row Level Security and configure access policies on profiles table - 4fb2818
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
