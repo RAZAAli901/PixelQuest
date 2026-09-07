@@ -15,6 +15,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onNavigateToDifficulty: () -> Unit = {},
     onNavigateToAvatar: () -> Unit = {},
+    onNavigateToAccount: () -> Unit = {},
     onResetComplete: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -67,6 +68,12 @@ fun SettingsScreen(
                 text = "🛡️ CHANGE DIFFICULTY",
                 onClick = onNavigateToDifficulty,
                 variant = PixelButtonVariant.YELLOW,
+                modifier = Modifier.fillMaxWidth()
+            )
+            PixelButton(
+                text = "☁️ CLOUD & LEADERBOARD",
+                onClick = onNavigateToAccount,
+                variant = PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
         },

@@ -1017,6 +1017,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 26: Add pixel-styled loading state during the sign-in process - 97fdee1
 - Step 27: Add pixel error state UI for sign-in failures with retry affordance - efda22d
 - Step 28: Wire successful sign-in to persist supabaseUserId onto local UserProfileEntity - c599341
+- Step 29: Add AccountScreen navigation route accessible from Settings - 7bb8d1e
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

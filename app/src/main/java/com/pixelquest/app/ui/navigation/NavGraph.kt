@@ -40,6 +40,7 @@ sealed class Screen(val route: String) {
     }
     object Onboarding : Screen("onboarding")
     object Settings : Screen("settings")
+    object Account : Screen("account")
 }
 
 @Composable
@@ -191,11 +192,17 @@ fun PixelNavHost(
             com.pixelquest.app.ui.screens.settings.SettingsScreen(
                 onNavigateToDifficulty = { navController.navigate(Screen.DifficultySelection.route) },
                 onNavigateToAvatar = { navController.navigate(Screen.AvatarSelection.route) },
+                onNavigateToAccount = { navController.navigate(Screen.Account.route) },
                 onResetComplete = {
                     navController.navigate(Screen.Onboarding.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
+            )
+        }
+        composable(Screen.Account.route) {
+            com.pixelquest.app.ui.screens.account.AccountScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }
