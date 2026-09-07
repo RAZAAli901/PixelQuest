@@ -987,3 +987,19 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Real-Device Release Verification: Sideloaded fresh v1.0.0 release APK. Verified 100% pass rate across Onboarding, Tasks, Notifications, Streaks, Stats Heatmap, Settings Toggles, SAF Backup/Restore, and Reset Progress flows.
 - Documentation & Pipeline Audit: Reconciled README.md, CHANGELOG.md, ASSETS.md, and .gitignore. Confirmed zero secret leakage and external keystore backup.
 - Final Tag: Tagged v1.0.0-verified. Total repository commit count: 613 commits.
+
+## Day 13 Progress Log
+- Step 1: Document Supabase project creation details and dashboard configuration in BRIEF.md - 833f2fa
+
+### Day 13 Architecture & Setup Notes
+#### 1. Supabase Project Setup (Manual Dashboard Execution)
+- **Organization**: RAZAAli901's Org (Free tier)
+- **Project Name**: Pixel Quest
+- **Repository Integration**: Linked to `RAZAAli901/PixelQuest`
+- **Region**: Asia-Pacific (Tokyo/Singapore, ap-southeast-1)
+- **Database Engine**: PostgreSQL 15+
+- **Data API**: PostgREST enabled
+- **Authentication**: Supabase Auth enabled with Google ID Token provider support
+- **Credentials Provisioning**: Project URL and anon public key configured via `local.properties` (strictly gitignored).
+- **Security Advisory**: Database master password shared during initial provisioning is designated for manual migration access only and recommended for dashboard rotation under Project Settings -> Database -> Reset Database Password.
+
