@@ -1034,6 +1034,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 43: Write integration test for full sign-in -> opt-in -> cloud sync flow - 8df9802
 - Step 44: Perform manual regression pass confirming offline/local-only app is 100% unaffected - 992eef7
 - Step 45: Update BRIEF.md with full Day 13 technical summary, privacy rules, and Day 14 scope - 81788f6
+- Step 46: Final verification of clean build, CI integrity, and state persistence across app restart - 3399a46
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
@@ -1090,6 +1091,12 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Streaks & Heatmaps**: Streak progression and monthly heatmap rendering operate 100% offline.
 - **Sound, Haptics & Themes**: Audio and retro UI mechanics function identically offline.
 - **Privacy & Autonomy**: No network requests are dispatched unless the user explicitly initiates Google Sign-In in Settings. Local data never leaves the device without explicit opt-in.
+
+#### 8. App Restart Persistence & Final Verification
+- **Session Restoration**: Cold launch reinstantiates `AuthViewModel`, which queries `authRepository.getInitialUser()` to restore active Supabase sessions without re-prompting Google login.
+- **Room Persistence**: `user_profile` table attributes (`supabaseUserId`, `leaderboardOptIn`, `leaderboardDisplayName`) survive process death and app restarts.
+- **Opt-In Preference Continuity**: `AccountViewModel` immediately initializes with `isOptedIn = true` and the saved display name when the user re-opens Settings.
+- **Commit Integrity Audit**: Exactly 46 atomic commits produced with 1-to-1 matching log entries in `BRIEF.md`. Clean working directory confirmed.
 
 ### Day 13 Full Technical Architecture Summary
 - **Backend & Database Engine**: Supabase PostgreSQL 15+ hosted in Asia-Pacific region.
