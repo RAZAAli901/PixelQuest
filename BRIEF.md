@@ -1030,6 +1030,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 39: Handle Supabase token exchange failure with state rollback and specific error messaging - 9a8e360
 - Step 40: Handle device offline state during sign-in with clear network messaging - cbc5f29
 - Step 41: Handle sign-out while sync is in progress with graceful coroutine cancellation - 8069bab
+- Step 42: Write unit tests for network failure, auth error, server error, and edge cases - cf89919
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
