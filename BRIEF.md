@@ -1006,6 +1006,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 15: Create auth/AuthViewModel.kt exposing sign-in and session state via StateFlow - 11b89c3
 - Step 16: Implement sign-out logic clearing Supabase session and Credential Manager state - 2442633
 - Step 17: Write unit tests for AuthViewModel state transitions and rollback - 8cb3404
+- Step 18: Add supabaseUserId, leaderboardOptIn, and leaderboardDisplayName to UserProfileEntity - ab9f8a9
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

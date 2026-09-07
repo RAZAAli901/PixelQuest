@@ -12,5 +12,8 @@ data class UserProfileEntity(
     val level: Int = 1,
     val totalXp: Int = 0,
     val perfectDaysTowardNextLevel: Int = 0,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val supabaseUserId: String? = null,
+    val leaderboardOptIn: Boolean = false,
+    val leaderboardDisplayName: String? = null
 )
