@@ -51,6 +51,8 @@ suspend fun <T> safeSupabaseCall(block: suspend () -> T): SupabaseResult<T> {
         SupabaseResult.NetworkError(e, "Network error communicating with Supabase.")
     } catch (e: io.github.jan.supabase.exceptions.RestException) {
         SupabaseResult.ServerError(e.statusCode, e.error.ifBlank { "Database request failed." })
+    } catch (e: kotlinx.coroutines.CancellationException) {
+        throw e
     } catch (e: Exception) {
         val msg = e.message ?: "Unknown error"
         if (msg.contains("auth", ignoreCase = true) || msg.contains("token", ignoreCase = true) || msg.contains("credential", ignoreCase = true)) {

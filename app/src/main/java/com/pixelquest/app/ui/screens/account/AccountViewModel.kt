@@ -67,6 +67,17 @@ class AccountViewModel @Inject constructor(
         }
     }
 
+    private var syncJob: kotlinx.coroutines.Job? = null
+
+    fun cancelActiveSync() {
+        syncJob?.cancel()
+        syncJob = null
+        _uiState.value = _uiState.value.copy(
+            isSyncing = false,
+            syncMessage = "Sync cancelled."
+        )
+    }
+
     fun confirmOptIn() {
         val name = _uiState.value.displayNameInput.trim()
         val error = validateDisplayName(name)
@@ -75,44 +86,54 @@ class AccountViewModel @Inject constructor(
             return
         }
 
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isSyncing = true,
-                showConfirmDialog = false,
-                displayNameError = null
-            )
-            when (cloudProfileRepository.updateOptInAndSync(optIn = true, displayName = name)) {
-                is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
-                    _uiState.value = _uiState.value.copy(
-                        isSyncing = false,
-                        isOptedIn = true,
-                        lastSyncTime = System.currentTimeMillis(),
-                        syncMessage = "Opt-in complete! Profile synced to cloud."
-                    )
+        syncJob?.cancel()
+        syncJob = viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(
+                    isSyncing = true,
+                    showConfirmDialog = false,
+                    displayNameError = null
+                )
+                when (cloudProfileRepository.updateOptInAndSync(optIn = true, displayName = name)) {
+                    is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            isOptedIn = true,
+                            lastSyncTime = System.currentTimeMillis(),
+                            syncMessage = "Opt-in complete! Profile synced to cloud."
+                        )
+                    }
+                    else -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            isOptedIn = true,
+                            syncMessage = "Opt-in saved locally. Cloud sync will retry."
+                        )
+                    }
                 }
-                else -> {
-                    _uiState.value = _uiState.value.copy(
-                        isSyncing = false,
-                        isOptedIn = true,
-                        syncMessage = "Opt-in saved locally. Cloud sync will retry."
-                    )
-                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                _uiState.value = _uiState.value.copy(isSyncing = false, syncMessage = "Sync cancelled.")
             }
         }
     }
 
     fun optOut() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isSyncing = true)
-            cloudProfileRepository.updateOptInAndSync(
-                optIn = false,
-                displayName = _uiState.value.displayNameInput.trim()
-            )
-            _uiState.value = _uiState.value.copy(
-                isSyncing = false,
-                isOptedIn = false,
-                syncMessage = "Opted out from leaderboard."
-            )
+        syncJob?.cancel()
+        syncJob = viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isSyncing = true)
+                cloudProfileRepository.updateOptInAndSync(
+                    optIn = false,
+                    displayName = _uiState.value.displayNameInput.trim()
+                )
+                _uiState.value = _uiState.value.copy(
+                    isSyncing = false,
+                    isOptedIn = false,
+                    syncMessage = "Opted out from leaderboard."
+                )
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                _uiState.value = _uiState.value.copy(isSyncing = false, syncMessage = "Sync cancelled.")
+            }
         }
     }
 
@@ -122,34 +143,39 @@ class AccountViewModel @Inject constructor(
             _uiState.value = state.copy(syncMessage = "Opt-in to leaderboard before syncing.")
             return
         }
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isSyncing = true, syncMessage = null)
-            when (val result = cloudProfileRepository.syncProfileToCloud()) {
-                is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
-                    _uiState.value = _uiState.value.copy(
-                        isSyncing = false,
-                        lastSyncTime = System.currentTimeMillis(),
-                        syncMessage = "Cloud sync successful!"
-                    )
+        syncJob?.cancel()
+        syncJob = viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isSyncing = true, syncMessage = null)
+                when (val result = cloudProfileRepository.syncProfileToCloud()) {
+                    is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            lastSyncTime = System.currentTimeMillis(),
+                            syncMessage = "Cloud sync successful!"
+                        )
+                    }
+                    is com.pixelquest.app.data.remote.SupabaseResult.NetworkError -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            syncMessage = "Network error: check connection."
+                        )
+                    }
+                    is com.pixelquest.app.data.remote.SupabaseResult.AuthError -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            syncMessage = "Auth error: please sign in again."
+                        )
+                    }
+                    is com.pixelquest.app.data.remote.SupabaseResult.Error -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            syncMessage = "Sync failed: ${result.userMessage}"
+                        )
+                    }
                 }
-                is com.pixelquest.app.data.remote.SupabaseResult.NetworkError -> {
-                    _uiState.value = _uiState.value.copy(
-                        isSyncing = false,
-                        syncMessage = "Network error: check connection."
-                    )
-                }
-                is com.pixelquest.app.data.remote.SupabaseResult.AuthError -> {
-                    _uiState.value = _uiState.value.copy(
-                        isSyncing = false,
-                        syncMessage = "Auth error: please sign in again."
-                    )
-                }
-                is com.pixelquest.app.data.remote.SupabaseResult.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isSyncing = false,
-                        syncMessage = "Sync failed: ${result.userMessage}"
-                    )
-                }
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                _uiState.value = _uiState.value.copy(isSyncing = false, syncMessage = "Sync cancelled.")
             }
         }
     }

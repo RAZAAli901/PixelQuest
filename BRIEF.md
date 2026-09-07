@@ -1029,6 +1029,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 38: Verify sign-out and re-sign-in matches existing cloud row by supabaseUserId without duplicates - d447b8e
 - Step 39: Handle Supabase token exchange failure with state rollback and specific error messaging - 9a8e360
 - Step 40: Handle device offline state during sign-in with clear network messaging - cbc5f29
+- Step 41: Handle sign-out while sync is in progress with graceful coroutine cancellation - 8069bab
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

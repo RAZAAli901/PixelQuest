@@ -162,7 +162,10 @@ fun AccountScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         PixelButton(
                             text = "🚪 SIGN OUT",
-                            onClick = { viewModel.signOut() },
+                            onClick = {
+                                accountViewModel.cancelActiveSync()
+                                viewModel.signOut()
+                            },
                             variant = PixelButtonVariant.BLUE,
                             modifier = Modifier.fillMaxWidth()
                         )
