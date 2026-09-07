@@ -1012,6 +1012,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 21: Write unit tests for Migration 2 to 3 and UserProfileRepository cloud methods - 757d65a
 - Step 22: Verify existing local profile data survives migration 2 to 3 untouched - 17fa536
 - Step 23: Build AccountScreen composable skeleton reachable from Settings - 99630d6
+- Step 24: Wire pixel-styled Google Sign-In button to AuthViewModel - f4748f9
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

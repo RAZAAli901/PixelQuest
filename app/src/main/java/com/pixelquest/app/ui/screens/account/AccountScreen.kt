@@ -73,27 +73,39 @@ fun AccountScreen(
             }
 
             // Entry Point Card
-            PixelCard(
-                variant = PixelPanelVariant.BEIGE,
-                contentPadding = 20.dp,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+            val uiState by viewModel.uiState.collectAsState()
+            val context = LocalContext.current
+
+            if (uiState is com.pixelquest.app.auth.AuthUiState.SignedOut) {
+                PixelCard(
+                    variant = PixelPanelVariant.BEIGE,
+                    contentPadding = 20.dp,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "🏆 JOIN THE LEADERBOARD",
-                        style = PixelTypography.titleSmall,
-                        color = PixelGold,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Sign in with Google to join the leaderboard. By default, your stats remain private until you explicitly choose to opt in.",
-                        style = PixelTypography.bodyMedium,
-                        color = PixelTextWhite,
-                        textAlign = TextAlign.Center
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = "🏆 JOIN THE LEADERBOARD",
+                            style = PixelTypography.titleSmall,
+                            color = PixelGold,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "Sign in with Google to join the leaderboard. By default, your stats remain private until you explicitly choose to opt in.",
+                            style = PixelTypography.bodyMedium,
+                            color = PixelTextWhite,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        PixelButton(
+                            text = "🌐 SIGN IN WITH GOOGLE",
+                            onClick = { viewModel.signInWithGoogle(context) },
+                            variant = PixelButtonVariant.YELLOW,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 }
             }
 
