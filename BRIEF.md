@@ -1000,6 +1000,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 9: Add connectivity and plugin wiring smoke tests for SupabaseClient - 15b3dcf
 - Step 10: Create sealed SupabaseResult error wrapper with safe call runner - 6694ba9
 - Step 11: Add Credential Manager and Google Identity Services dependencies - f1dea32
+- Step 12: Document Google Cloud OAuth Client ID configuration in BRIEF.md - 5fa4843
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
@@ -1018,5 +1019,13 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Git Protection Verified**: Verified `.gitignore` contains rules `/local.properties` and `local.properties`. Zero credential leakage into git history.
 - **BuildConfig Integration**: Gradle parses `local.properties` at build time and exposes `BuildConfig.SUPABASE_URL`, `BuildConfig.SUPABASE_ANON_KEY`, and `BuildConfig.GOOGLE_WEB_CLIENT_ID` with safe empty-string fallbacks.
 - **Database Password Rotation**: Shared plaintext password should be rotated in the Supabase dashboard (Project Settings -> Database -> Reset Database Password).
+
+#### 3. Google Cloud OAuth 2.0 Configuration
+- **OAuth Consent Screen**: Configured in Google Cloud Console with app name `PixelQuest`, user type `External`, requesting basic `openid`, `email`, and `profile` scopes.
+- **Android Client Credential**: Configured with package name `com.pixelquest.app` and matching debug/release keystore SHA-1 signing certificates.
+- **Web Client ID (Server Client ID)**: Configured as Web Application in GCP Console with authorized callback `https://<project-ref>.supabase.co/auth/v1/callback`.
+- **Supabase Auth Provider Binding**: Web Client ID and Secret entered in Supabase Dashboard (Auth -> Providers -> Google) to enable ID-token exchange.
+- **Local Ingestion**: `GOOGLE_WEB_CLIENT_ID` configured in `local.properties` and provided to Credential Manager's `GetGoogleIdOption`.
+
 
 
