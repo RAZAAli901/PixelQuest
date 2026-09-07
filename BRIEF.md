@@ -999,6 +999,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 8: Wire SupabaseClient and plugins into Hilt DI via NetworkModule - 76061c2
 - Step 9: Add connectivity and plugin wiring smoke tests for SupabaseClient - 15b3dcf
 - Step 10: Create sealed SupabaseResult error wrapper with safe call runner - 6694ba9
+- Step 11: Add Credential Manager and Google Identity Services dependencies - f1dea32
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)

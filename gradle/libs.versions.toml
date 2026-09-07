@@ -15,8 +15,13 @@ hilt = "2.51"
 hiltNavigationCompose = "1.2.0"
 coil = "2.6.0"
 coroutines = "1.8.0"
+credentials = "1.3.0"
+googleid = "1.1.1"
 
 [libraries]
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKt" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
