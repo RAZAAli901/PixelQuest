@@ -109,6 +109,50 @@ fun AccountScreen(
                 }
             }
 
+            if (uiState is com.pixelquest.app.auth.AuthUiState.SignedIn) {
+                val user = (uiState as com.pixelquest.app.auth.AuthUiState.SignedIn).user
+                PixelCard(
+                    variant = PixelPanelVariant.BEIGE,
+                    contentPadding = 20.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = "🛡️ LINKED CLOUD ACCOUNT",
+                            style = PixelTypography.titleSmall,
+                            color = PixelGold,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "Signed in as:",
+                            style = PixelTypography.bodySmall,
+                            color = PixelTextWhite
+                        )
+                        Text(
+                            text = user.email ?: user.displayName ?: "Hero",
+                            style = PixelTypography.bodyMedium,
+                            color = PixelGold,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "Cloud UID: ${user.id.take(8)}...${user.id.takeLast(4)}",
+                            style = PixelTypography.bodySmall,
+                            color = PixelTextWhite.copy(alpha = 0.7f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        PixelButton(
+                            text = "🚪 SIGN OUT",
+                            onClick = { viewModel.signOut() },
+                            variant = PixelButtonVariant.BLUE,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.weight(1f, fill = false))
 
             PixelButton(
