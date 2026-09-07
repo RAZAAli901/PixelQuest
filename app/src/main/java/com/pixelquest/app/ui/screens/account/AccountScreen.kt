@@ -238,5 +238,14 @@ fun AccountScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+
+        val accountState by accountViewModel.uiState.collectAsState()
+        if (accountState.showConfirmDialog) {
+            LeaderboardPrivacyConfirmDialog(
+                displayName = accountState.displayNameInput.trim().ifBlank { "Hero" },
+                onConfirm = { accountViewModel.confirmOptIn() },
+                onDismiss = { accountViewModel.dismissConfirmDialog() }
+            )
+        }
     }
 }

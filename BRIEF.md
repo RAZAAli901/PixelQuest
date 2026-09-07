@@ -1021,6 +1021,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 30: Build leaderboard opt-in toggle in AccountScreen defaulting to OFF - 6ea12ef
 - Step 31: Build leaderboardDisplayName entry field with validation and privacy disclaimer - 0451cc6
 - Step 32: Wire opt-in toggle and display name to local Room and Supabase profiles table - 649a55b
+- Step 33: Add confirmation dialog detailing public visibility and privacy guarantees - 9e4965c
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
