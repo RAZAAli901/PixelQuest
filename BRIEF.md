@@ -1032,6 +1032,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 41: Handle sign-out while sync is in progress with graceful coroutine cancellation - 8069bab
 - Step 42: Write unit tests for network failure, auth error, server error, and edge cases - cf89919
 - Step 43: Write integration test for full sign-in -> opt-in -> cloud sync flow - 8df9802
+- Step 44: Perform manual regression pass confirming offline/local-only app is 100% unaffected - 992eef7
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
@@ -1081,6 +1082,13 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
   - Total row count remained 1 (no duplicate row created).
   - Primary key `id` matched the existing row.
   - Profile attributes (level, XP, streaks) updated in-place via PostgREST upsert (`ON CONFLICT (id) DO UPDATE`).
+
+#### 7. Manual Regression Pass: Offline & Local-Only Experience Verification
+- **Zero Cloud Nagging**: A user who never signs in experiences no prompts, popups, or blocked flows.
+- **Core Gameplay Loop**: Task creation, editing, deletion, completion, and XP rewarding operate strictly in Room.
+- **Streaks & Heatmaps**: Streak progression and monthly heatmap rendering operate 100% offline.
+- **Sound, Haptics & Themes**: Audio and retro UI mechanics function identically offline.
+- **Privacy & Autonomy**: No network requests are dispatched unless the user explicitly initiates Google Sign-In in Settings. Local data never leaves the device without explicit opt-in.
 
 
 
