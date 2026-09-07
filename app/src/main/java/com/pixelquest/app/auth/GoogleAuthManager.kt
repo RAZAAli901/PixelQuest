@@ -38,6 +38,13 @@ open class GoogleAuthManager @Inject constructor(
     }
 
     open suspend fun signInWithGoogle(activityContext: Context): GoogleAuthResult {
+        if (!com.pixelquest.app.util.NetworkUtils.isOnline(activityContext)) {
+            return GoogleAuthResult.Failure(
+                java.io.IOException("No internet connection"),
+                "No internet connection detected. Please connect to the internet to sign in."
+            )
+        }
+
         val serverClientId = BuildConfig.GOOGLE_WEB_CLIENT_ID.trim()
         if (serverClientId.isBlank() || serverClientId.startsWith("placeholder")) {
             return GoogleAuthResult.Failure(
@@ -86,7 +93,16 @@ open class GoogleAuthManager @Inject constructor(
         } catch (e: GetCredentialCancellationException) {
             GoogleAuthResult.Cancelled("Sign-in cancelled by user.")
         } catch (e: GetCredentialException) {
-            GoogleAuthResult.Failure(e, e.message ?: "Google Sign-In failed.")
+            val isNetworkErr = e.message?.contains("network", ignoreCase = true) == true ||
+                    e.message?.contains("connection", ignoreCase = true) == true ||
+                    e.cause is java.io.IOException
+            if (isNetworkErr) {
+                GoogleAuthResult.Failure(e, "No internet connection detected. Please connect to the internet to sign in.")
+            } else {
+                GoogleAuthResult.Failure(e, e.message ?: "Google Sign-In failed.")
+            }
+        } catch (e: java.io.IOException) {
+            GoogleAuthResult.Failure(e, "No internet connection detected. Please connect to the internet to sign in.")
         } catch (e: Exception) {
             GoogleAuthResult.Failure(e, e.message ?: "An unexpected error occurred during Google Sign-In.")
         }

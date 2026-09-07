@@ -1028,6 +1028,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 37: Perform manual QA verification of Google sign-in, opt-in, and Supabase cloud row - 28c6e80
 - Step 38: Verify sign-out and re-sign-in matches existing cloud row by supabaseUserId without duplicates - d447b8e
 - Step 39: Handle Supabase token exchange failure with state rollback and specific error messaging - 9a8e360
+- Step 40: Handle device offline state during sign-in with clear network messaging - cbc5f29
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
