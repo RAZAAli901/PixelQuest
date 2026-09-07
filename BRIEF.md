@@ -1022,6 +1022,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 31: Build leaderboardDisplayName entry field with validation and privacy disclaimer - 0451cc6
 - Step 32: Wire opt-in toggle and display name to local Room and Supabase profiles table - 649a55b
 - Step 33: Add confirmation dialog detailing public visibility and privacy guarantees - 9e4965c
+- Step 34: Write unit tests for opt-in validation, dialog triggers, and cloud/local persistence - db437f7
 
 ### Day 13 Architecture & Setup Notes
 #### 1. Supabase Project Setup (Manual Dashboard Execution)
