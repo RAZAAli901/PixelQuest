@@ -1133,12 +1133,18 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 4: Add debounce and unique work coalescing logic to SyncScheduler - a4c02be
 - Step 5: Document manual sync button retention decision as debug affordance in BRIEF.md - dd3ebc8
 - Step 6: Write unit tests for sync trigger dispatch, debounce coalescing, and privacy guards - 59684be
+- Step 7: Confirm and document WorkManager built-in retry-with-backoff architecture in BRIEF.md - d0fd50d
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
 - **Automatic by Default**: Core sync triggers execute automatically in the background on task completion, level-up, and streak breaks via `ProfileSyncWorker`.
 - **Debug Affordance Retained**: The manual sync button is retained in `AccountScreen` under the label `🔄 FORCE SYNC NOW (DEBUG)`, accompanied by an informative note that background sync is automatic.
 - **Diagnostic Value**: Keeping this affordance allows developers and QA testers to force immediate cloud writes and inspect `lastSyncTime` and `syncMessage` directly without having to alter game state.
+
+#### 2. Offline Queue Architecture: WorkManager Persistent Queue vs Custom Pending Table
+- **Persistent Internal Queue**: `WorkManager` persists all enqueued requests in its internal SQLite database, guaranteeing survivability across process death and device reboots.
+- **Fresh State Guarantees**: Rather than queuing static payloads into a custom `pending_sync` Room table (which risks stale data and synchronization bugs), `ProfileSyncWorker` queries the single-source-of-truth Room tables (`user_profile`, `streak`) at execution time.
+- **Built-in Resiliency**: Eliminates redundant custom queue tables while fully utilizing Android's JobScheduler and WorkManager backoff engine.
 
 
 
