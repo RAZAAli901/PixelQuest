@@ -1136,6 +1136,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 7: Confirm and document WorkManager built-in retry-with-backoff architecture in BRIEF.md - d0fd50d
 - Step 8: Wire network constraint and exponential backoff policy on ProfileSyncWorker request - 7b54950
 - Step 9: Add ConnectivitySyncObserver to trigger pending sync retries on network reconnect - 0d5f0f6
+- Step 10: Write unit test for offline queue, exponential backoff, and reconnect retry - f6f5791
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
