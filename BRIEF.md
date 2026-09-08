@@ -1126,6 +1126,9 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
   - Leaderboard UI screen (ranking list, tier icons, user position highlight).
   - Background periodic sync worker via `WorkManager` to synchronize progress automatically in the background.
 
+## Day 14 Progress Log
+- Step 1: Create ProfileSyncWorker CoroutineWorker for signed-in and opted-in users - 1f1e9a0
+
 
 
 
