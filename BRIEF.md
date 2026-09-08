@@ -1130,6 +1130,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 1: Create ProfileSyncWorker CoroutineWorker for signed-in and opted-in users - 1f1e9a0
 - Step 2: Wire ProfileSyncWorker triggers to task completion, level-up, and streak break - a3f7088
 - Step 3: Schedule ProfileSyncWorker as one-time expedited request with network constraint - 45e344d
+- Step 4: Add debounce and unique work coalescing logic to SyncScheduler - a4c02be
 
 
 

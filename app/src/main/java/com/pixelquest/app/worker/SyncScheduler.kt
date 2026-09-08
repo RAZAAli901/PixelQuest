@@ -8,7 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface SyncScheduler {
-    fun scheduleProfileSync()
+    fun scheduleProfileSync(debounceMs: Long = SyncSchedulerImpl.DEFAULT_DEBOUNCE_MS)
 }
 
 @Singleton
@@ -16,16 +16,37 @@ class SyncSchedulerImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : SyncScheduler {
 
-    override fun scheduleProfileSync() {
-        val constraints = androidx.work.Constraints.Builder()
-            .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
-            .build()
+    private val scope = kotlinx.coroutines.CoroutineScope(
+        kotlinx.coroutines.Dispatchers.Default + kotlinx.coroutines.SupervisorJob()
+    )
+    private var debounceJob: kotlinx.coroutines.Job? = null
 
-        val request = OneTimeWorkRequestBuilder<ProfileSyncWorker>()
-            .setConstraints(constraints)
-            .setExpedited(androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .build()
+    override fun scheduleProfileSync(debounceMs: Long) {
+        debounceJob?.cancel()
+        debounceJob = scope.launch {
+            if (debounceMs > 0) {
+                kotlinx.coroutines.delay(debounceMs)
+            }
 
-        WorkManager.getInstance(context).enqueue(request)
+            val constraints = androidx.work.Constraints.Builder()
+                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                .build()
+
+            val request = OneTimeWorkRequestBuilder<ProfileSyncWorker>()
+                .setConstraints(constraints)
+                .setExpedited(androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
+
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                UNIQUE_SYNC_WORK_NAME,
+                androidx.work.ExistingWorkPolicy.REPLACE,
+                request
+            )
+        }
+    }
+
+    companion object {
+        const val UNIQUE_SYNC_WORK_NAME = "pixelquest_profile_sync_work"
+        const val DEFAULT_DEBOUNCE_MS = 1500L
     }
 }
