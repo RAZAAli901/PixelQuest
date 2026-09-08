@@ -1138,6 +1138,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 9: Add ConnectivitySyncObserver to trigger pending sync retries on network reconnect - 0d5f0f6
 - Step 10: Write unit test for offline queue, exponential backoff, and reconnect retry - f6f5791
 - Step 11: Perform manual QA verification of offline task completion and reconnect auto-sync - 845ccb6
+- Step 12: Create LeaderboardRepository querying Supabase profiles table - bfb9040
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)

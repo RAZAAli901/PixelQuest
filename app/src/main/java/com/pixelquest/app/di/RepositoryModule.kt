@@ -91,4 +91,10 @@ abstract class RepositoryModule {
     abstract fun bindSyncScheduler(
         impl: com.pixelquest.app.worker.SyncSchedulerImpl
     ): com.pixelquest.app.worker.SyncScheduler
+
+    @Binds
+    @Singleton
+    abstract fun bindLeaderboardRepository(
+        impl: com.pixelquest.app.data.repository.LeaderboardRepositoryImpl
+    ): com.pixelquest.app.data.repository.LeaderboardRepository
 }
