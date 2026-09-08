@@ -21,8 +21,8 @@ data class UserLeaderboardRank(
 
 interface LeaderboardRepository {
     suspend fun getProfiles(): SupabaseResult<List<CloudProfileDto>>
-    suspend fun getTopByStreak(limit: Long = 20): SupabaseResult<List<CloudProfileDto>>
-    suspend fun getTopByLevel(limit: Long = 20): SupabaseResult<List<CloudProfileDto>>
+    suspend fun getTopByStreak(limit: Long = 20, offset: Long = 0): SupabaseResult<List<CloudProfileDto>>
+    suspend fun getTopByLevel(limit: Long = 20, offset: Long = 0): SupabaseResult<List<CloudProfileDto>>
     suspend fun getCurrentUserRank(
         sortMode: LeaderboardSortMode,
         userId: String? = null
@@ -45,19 +45,24 @@ open class LeaderboardRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getTopByStreak(limit: Long): SupabaseResult<List<CloudProfileDto>> {
+    override suspend fun getTopByStreak(limit: Long, offset: Long): SupabaseResult<List<CloudProfileDto>> {
         return safeSupabaseCall {
             postgrest["profiles"].select {
                 filter {
                     eq("leaderboard_opt_in", true)
                 }
                 order("current_streak", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
-                limit(limit)
+                order("longest_streak", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
+                if (offset > 0) {
+                    range(from = offset, to = offset + limit - 1)
+                } else {
+                    limit(limit)
+                }
             }.decodeList<CloudProfileDto>()
         }
     }
 
-    override suspend fun getTopByLevel(limit: Long): SupabaseResult<List<CloudProfileDto>> {
+    override suspend fun getTopByLevel(limit: Long, offset: Long): SupabaseResult<List<CloudProfileDto>> {
         return safeSupabaseCall {
             postgrest["profiles"].select {
                 filter {
@@ -65,7 +70,11 @@ open class LeaderboardRepositoryImpl @Inject constructor(
                 }
                 order("level", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
                 order("total_xp", io.github.jan.supabase.postgrest.query.Order.DESCENDING)
-                limit(limit)
+                if (offset > 0) {
+                    range(from = offset, to = offset + limit - 1)
+                } else {
+                    limit(limit)
+                }
             }.decodeList<CloudProfileDto>()
         }
     }
