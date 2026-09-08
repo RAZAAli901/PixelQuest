@@ -1132,6 +1132,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 3: Schedule ProfileSyncWorker as one-time expedited request with network constraint - 45e344d
 - Step 4: Add debounce and unique work coalescing logic to SyncScheduler - a4c02be
 - Step 5: Document manual sync button retention decision as debug affordance in BRIEF.md - dd3ebc8
+- Step 6: Write unit tests for sync trigger dispatch, debounce coalescing, and privacy guards - 59684be
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
