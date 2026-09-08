@@ -34,7 +34,8 @@ class TodayViewModel @Inject constructor(
     private val streakRepository: StreakRepository,
     private val userProfileRepository: UserProfileRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
-    private val taskAlarmScheduler: TaskAlarmScheduler
+    private val taskAlarmScheduler: TaskAlarmScheduler,
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
 ) : ViewModel() {
 
     private val currentDate: LocalDate = LocalDate.now()
@@ -112,6 +113,7 @@ class TodayViewModel @Inject constructor(
             if (profile != null) {
                 userProfileRepository.updateProfile(profile.copy(totalXp = profile.totalXp + points))
             }
+            syncScheduler?.scheduleProfileSync()
         }
     }
 

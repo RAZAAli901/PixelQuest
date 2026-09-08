@@ -10,7 +10,8 @@ import com.pixelquest.app.domain.LevelCalculator
 import kotlinx.coroutines.flow.first
 
 class UserProfileRepositoryImpl @Inject constructor(
-    private val userProfileDao: UserProfileDao
+    private val userProfileDao: UserProfileDao,
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
 ) : UserProfileRepository {
     override fun getProfile(): Flow<UserProfileEntity?> = userProfileDao.getProfile()
     override suspend fun insertProfile(profile: UserProfileEntity) = userProfileDao.insertProfile(profile)
@@ -23,6 +24,7 @@ class UserProfileRepositoryImpl @Inject constructor(
             perfectDaysTowardNextLevel = LevelCalculator.getPostLevelUpProgress()
         )
         userProfileDao.updateProfile(updated)
+        syncScheduler?.scheduleProfileSync()
         return updated
     }
 

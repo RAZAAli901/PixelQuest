@@ -85,4 +85,10 @@ abstract class RepositoryModule {
     abstract fun bindCloudProfileRepository(
         impl: com.pixelquest.app.data.repository.CloudProfileRepositoryImpl
     ): com.pixelquest.app.data.repository.CloudProfileRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSyncScheduler(
+        impl: com.pixelquest.app.worker.SyncSchedulerImpl
+    ): com.pixelquest.app.worker.SyncScheduler
 }

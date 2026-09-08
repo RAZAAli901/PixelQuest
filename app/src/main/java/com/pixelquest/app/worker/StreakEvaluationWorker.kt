@@ -33,7 +33,8 @@ class StreakEvaluationWorker @AssistedInject constructor(
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val userProfileRepository: UserProfileRepository,
     private val levelHistoryRepository: LevelHistoryRepository,
-    private val levelUpSignalManager: LevelUpSignalManager
+    private val levelUpSignalManager: LevelUpSignalManager,
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -94,6 +95,7 @@ class StreakEvaluationWorker @AssistedInject constructor(
                     )
                 }
             }
+            syncScheduler?.scheduleProfileSync()
         } else {
             /**
              * STREAK-BREAK RULE:
@@ -106,9 +108,8 @@ class StreakEvaluationWorker @AssistedInject constructor(
                 lastCompletedDate = targetDate
             )
             streakRepository.updateStreak(updatedStreak)
+            syncScheduler?.scheduleProfileSync()
         }
-
-
 
         return Result.success()
     }
