@@ -137,8 +137,23 @@ fun LeaderboardScreen(
                         textAlign = TextAlign.Center,
                         lineHeight = 18.sp
                     )
-                } else {
+                    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                    val shouldLoadMore = androidx.compose.runtime.remember {
+                        androidx.compose.runtime.derivedStateOf {
+                            val totalItems = listState.layoutInfo.totalItemsCount
+                            val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                            totalItems > 0 && lastVisibleItemIndex >= totalItems - 2
+                        }
+                    }
+
+                    androidx.compose.runtime.LaunchedEffect(shouldLoadMore.value) {
+                        if (shouldLoadMore.value && uiState.canLoadMore && !uiState.isLoading && !uiState.isLoadingMore) {
+                            viewModel.loadMore()
+                        }
+                    }
+
                     androidx.compose.foundation.lazy.LazyColumn(
+                        state = listState,
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -171,8 +186,42 @@ fun LeaderboardScreen(
                                 }
                             }
                         }
+
+                        // Pagination Load More trigger item
+                        if (uiState.canLoadMore) {
+                            item(key = "load_more_indicator") {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 12.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    if (uiState.isLoadingMore) {
+                                        CircularProgressIndicator(
+                                            color = PixelGold,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    } else {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(PixelSurfaceDark)
+                                                .border(1.dp, PixelCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                                .clickable { viewModel.loadMore() }
+                                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                        ) {
+                                            Text(
+                                                text = "▼ LOAD MORE HEROES ▼",
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = PixelCyan,
+                                                fontSize = 9.sp
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
             }
 
             // Pinned Current User Rank Footer

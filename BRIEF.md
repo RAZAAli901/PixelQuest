@@ -1148,7 +1148,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 19: Build PixelLeaderboardRow composable with rank tier colors and pixel card styling - e88957b
 - Step 20: Build LeaderboardScreen with Top Streaks and Top Levels tabs - 6e6a7dd
 - Step 21: Wire LazyColumn rendering PixelLeaderboardRows per active tab - 77e717a
-- Step 22: Add highlighted pinned row displaying current signed-in user's rank outside top N - pending
+- Step 22: Add highlighted pinned row displaying current signed-in user's rank outside top N - 8de19db
+- Step 23: Add load more trigger and pagination scrolling to LeaderboardScreen - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
