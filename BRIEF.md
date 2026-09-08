@@ -1140,7 +1140,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 11: Perform manual QA verification of offline task completion and reconnect auto-sync - c013089
 - Step 12: Create LeaderboardRepository querying Supabase profiles table - a59b488
 - Step 13: Add getTopByStreak ordered by streak descending to LeaderboardRepository - 437aea1
-- Step 14: Add getTopByLevel ordered by level with total_xp tiebreaker to LeaderboardRepository - pending
+- Step 14: Add getTopByLevel ordered by level with total_xp tiebreaker to LeaderboardRepository - 2871e5e
+- Step 15: Add getCurrentUserRank computing 1-based rank even outside top N to LeaderboardRepository - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
