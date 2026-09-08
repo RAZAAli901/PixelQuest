@@ -1145,7 +1145,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 16: Add pagination support with offset and limit to LeaderboardRepository - 0d897e9
 - Step 17: Write unit tests for LeaderboardRepository query construction, pagination, and rank computation - f1106e0
 - Step 18: Build LeaderboardViewModel wiring LeaderboardRepository and auth sign-in state - ab32f92
-- Step 19: Build PixelLeaderboardRow composable with rank tier colors and pixel card styling - pending
+- Step 19: Build PixelLeaderboardRow composable with rank tier colors and pixel card styling - e88957b
+- Step 20: Build LeaderboardScreen with Top Streaks and Top Levels tabs - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
