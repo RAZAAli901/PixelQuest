@@ -1142,7 +1142,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 13: Add getTopByStreak ordered by streak descending to LeaderboardRepository - 437aea1
 - Step 14: Add getTopByLevel ordered by level with total_xp tiebreaker to LeaderboardRepository - 2871e5e
 - Step 15: Add getCurrentUserRank computing 1-based rank even outside top N to LeaderboardRepository - 91cf072
-- Step 16: Add pagination support with offset and limit to LeaderboardRepository - pending
+- Step 16: Add pagination support with offset and limit to LeaderboardRepository - 0d897e9
+- Step 17: Write unit tests for LeaderboardRepository query construction, pagination, and rank computation - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
