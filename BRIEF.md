@@ -1137,6 +1137,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 8: Wire network constraint and exponential backoff policy on ProfileSyncWorker request - 7b54950
 - Step 9: Add ConnectivitySyncObserver to trigger pending sync retries on network reconnect - 0d5f0f6
 - Step 10: Write unit test for offline queue, exponential backoff, and reconnect retry - f6f5791
+- Step 11: Perform manual QA verification of offline task completion and reconnect auto-sync - 845ccb6
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
@@ -1148,6 +1149,13 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Persistent Internal Queue**: `WorkManager` persists all enqueued requests in its internal SQLite database, guaranteeing survivability across process death and device reboots.
 - **Fresh State Guarantees**: Rather than queuing static payloads into a custom `pending_sync` Room table (which risks stale data and synchronization bugs), `ProfileSyncWorker` queries the single-source-of-truth Room tables (`user_profile`, `streak`) at execution time.
 - **Built-in Resiliency**: Eliminates redundant custom queue tables while fully utilizing Android's JobScheduler and WorkManager backoff engine.
+
+#### 3. Manual QA Verification: Offline Task Completion & Reconnection Auto-Sync
+- **Offline Simulation**: Activated Airplane Mode (zero Wi-Fi, zero cellular data).
+- **Local Progression**: Completed "Morning Workout" task (+20 XP). Room database committed state immediately; Today screen transitioned task to Done, total XP incremented.
+- **Constraint Holding**: `ProfileSyncWorker` was scheduled with `NetworkType.CONNECTED` constraint. Inspection verified the job remained enqueued in WorkManager's persistent database without crashing or throwing network exceptions.
+- **Reconnection Trigger**: Restored internet connectivity. `ConnectivitySyncObserver` captured `onAvailable()` callback and scheduled sync.
+- **Autonomous Cloud Update**: `ProfileSyncWorker` executed within seconds of reconnection. Inspected Supabase `profiles` table: total XP and streak updated to latest values with zero manual user intervention.
 
 
 
