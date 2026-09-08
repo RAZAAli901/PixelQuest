@@ -174,6 +174,48 @@ fun LeaderboardScreen(
                     }
                 }
             }
+
+            // Pinned Current User Rank Footer
+            val userRank = uiState.currentUserRank
+            if (userRank != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(PixelSurfaceDark)
+                        .border(1.dp, PixelGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = "★ YOUR RANKING",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = PixelGold,
+                        fontSize = 8.sp,
+                        modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
+                    )
+                    when (uiState.selectedTab) {
+                        LeaderboardTab.TOP_STREAKS -> {
+                            PixelLeaderboardRow(
+                                rank = userRank.rank,
+                                displayName = userRank.profile.displayName,
+                                statLabel = "DAYS STREAK",
+                                statValue = "${userRank.profile.currentStreak} 🔥",
+                                isCurrentUser = true
+                            )
+                        }
+                        LeaderboardTab.TOP_LEVELS -> {
+                            PixelLeaderboardRow(
+                                rank = userRank.rank,
+                                displayName = userRank.profile.displayName,
+                                statLabel = "XP: ${userRank.profile.totalXp}",
+                                statValue = "LVL ${userRank.profile.level} ⚔️",
+                                isCurrentUser = true
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
