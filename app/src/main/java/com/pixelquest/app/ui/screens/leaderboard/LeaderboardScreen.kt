@@ -106,28 +106,72 @@ fun LeaderboardScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Tab Content Container
+            // Tab Content: LazyColumn of PixelLeaderboardRows
+            val currentUserId = when (val auth = uiState.authState) {
+                is LeaderboardAuthState.SignedInAndOptedIn -> auth.userId
+                is LeaderboardAuthState.SignedInReadOnly -> auth.userId
+                LeaderboardAuthState.NotSignedIn -> null
+            }
+
+            val currentEntries = when (uiState.selectedTab) {
+                LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
+                LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                if (uiState.isLoading && uiState.streakEntries.isEmpty() && uiState.levelEntries.isEmpty()) {
+                if (uiState.isLoading && currentEntries.isEmpty()) {
                     CircularProgressIndicator(
                         color = PixelGold,
                         modifier = Modifier.size(36.dp)
                     )
-                } else {
+                } else if (currentEntries.isEmpty()) {
                     Text(
-                        text = when (uiState.selectedTab) {
-                            LeaderboardTab.TOP_STREAKS -> "Top Streaks Tab Ready"
-                            LeaderboardTab.TOP_LEVELS -> "Top Levels Tab Ready"
-                        },
+                        text = "NO HEROES RANKED YET\nOpt in from Account Settings to claim the top spot!",
                         style = MaterialTheme.typography.bodyMedium,
                         color = PixelTextMuted,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        lineHeight = 18.sp
                     )
+                } else {
+                    androidx.compose.foundation.lazy.LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            count = currentEntries.size,
+                            key = { index -> currentEntries[index].id }
+                        ) { index ->
+                            val item = currentEntries[index]
+                            val rank = index + 1
+                            val isCurrentUser = currentUserId != null && item.id == currentUserId
+
+                            when (uiState.selectedTab) {
+                                LeaderboardTab.TOP_STREAKS -> {
+                                    PixelLeaderboardRow(
+                                        rank = rank,
+                                        displayName = item.displayName,
+                                        statLabel = "DAYS STREAK",
+                                        statValue = "${item.currentStreak} 🔥",
+                                        isCurrentUser = isCurrentUser
+                                    )
+                                }
+                                LeaderboardTab.TOP_LEVELS -> {
+                                    PixelLeaderboardRow(
+                                        rank = rank,
+                                        displayName = item.displayName,
+                                        statLabel = "XP: ${item.totalXp}",
+                                        statValue = "LVL ${item.level} ⚔️",
+                                        isCurrentUser = isCurrentUser
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
