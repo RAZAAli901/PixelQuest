@@ -1131,6 +1131,13 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 2: Wire ProfileSyncWorker triggers to task completion, level-up, and streak break - a3f7088
 - Step 3: Schedule ProfileSyncWorker as one-time expedited request with network constraint - 45e344d
 - Step 4: Add debounce and unique work coalescing logic to SyncScheduler - a4c02be
+- Step 5: Document manual sync button retention decision as debug affordance in BRIEF.md - dd3ebc8
+
+### Day 14 Architecture & Setup Notes
+#### 1. Manual "Sync Now" Button Decision (Debug Affordance)
+- **Automatic by Default**: Core sync triggers execute automatically in the background on task completion, level-up, and streak breaks via `ProfileSyncWorker`.
+- **Debug Affordance Retained**: The manual sync button is retained in `AccountScreen` under the label `🔄 FORCE SYNC NOW (DEBUG)`, accompanied by an informative note that background sync is automatic.
+- **Diagnostic Value**: Keeping this affordance allows developers and QA testers to force immediate cloud writes and inspect `lastSyncTime` and `syncMessage` directly without having to alter game state.
 
 
 

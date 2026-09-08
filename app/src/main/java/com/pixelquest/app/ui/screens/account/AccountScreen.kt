@@ -269,8 +269,14 @@ fun AccountScreen(
                                     textAlign = TextAlign.Center
                                 )
                             }
+                            Text(
+                                text = "ℹ️ Sync runs automatically in background on task completion & level-up.",
+                                style = PixelTypography.bodySmall,
+                                color = PixelTextWhite.copy(alpha = 0.7f),
+                                textAlign = TextAlign.Center
+                            )
                             PixelButton(
-                                text = if (accountState.isSyncing) "⏳ SYNCING..." else "🔄 SYNC PROFILE NOW",
+                                text = if (accountState.isSyncing) "⏳ SYNCING..." else "🔄 FORCE SYNC NOW (DEBUG)",
                                 onClick = { accountViewModel.syncNow() },
                                 enabled = !accountState.isSyncing,
                                 variant = PixelButtonVariant.YELLOW,
