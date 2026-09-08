@@ -1139,6 +1139,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 10: Write unit test for offline queue, exponential backoff, and reconnect retry - f6f5791
 - Step 11: Perform manual QA verification of offline task completion and reconnect auto-sync - 845ccb6
 - Step 12: Create LeaderboardRepository querying Supabase profiles table - bfb9040
+- Step 13: Add getTopByStreak ordered by streak descending to LeaderboardRepository - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
