@@ -1135,6 +1135,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 6: Write unit tests for sync trigger dispatch, debounce coalescing, and privacy guards - 59684be
 - Step 7: Confirm and document WorkManager built-in retry-with-backoff architecture in BRIEF.md - d0fd50d
 - Step 8: Wire network constraint and exponential backoff policy on ProfileSyncWorker request - 7b54950
+- Step 9: Add ConnectivitySyncObserver to trigger pending sync retries on network reconnect - 0d5f0f6
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)

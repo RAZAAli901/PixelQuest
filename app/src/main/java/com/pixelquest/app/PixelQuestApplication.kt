@@ -12,12 +12,18 @@ import java.util.concurrent.TimeUnit
 
 @HiltAndroidApp
 class PixelQuestApplication : Application() {
+
+    @javax.inject.Inject
+    lateinit var connectivitySyncObserver: com.pixelquest.app.worker.ConnectivitySyncObserver
+
     override fun onCreate() {
         super.onCreate()
         // Step 8: Global uncaught-exception handler logging crashes locally
         com.pixelquest.app.util.PixelCrashHandler.init(this)
         // Fast cold-start: lightweight notification channel creation
         NotificationHelper.createNotificationChannel(this)
+        // Start connectivity observer for prompt sync retry on reconnection
+        connectivitySyncObserver.startObserving()
         // Background async enqueue of periodic background workers
         scheduleMissedTaskWorker()
         scheduleStreakEvaluationWorker()
