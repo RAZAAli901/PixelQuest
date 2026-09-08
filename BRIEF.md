@@ -1127,19 +1127,20 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
   - Background periodic sync worker via `WorkManager` to synchronize progress automatically in the background.
 
 ## Day 14 Progress Log
-- Step 1: Create ProfileSyncWorker CoroutineWorker for signed-in and opted-in users - 1f1e9a0
-- Step 2: Wire ProfileSyncWorker triggers to task completion, level-up, and streak break - a3f7088
-- Step 3: Schedule ProfileSyncWorker as one-time expedited request with network constraint - 45e344d
-- Step 4: Add debounce and unique work coalescing logic to SyncScheduler - a4c02be
-- Step 5: Document manual sync button retention decision as debug affordance in BRIEF.md - dd3ebc8
-- Step 6: Write unit tests for sync trigger dispatch, debounce coalescing, and privacy guards - 59684be
-- Step 7: Confirm and document WorkManager built-in retry-with-backoff architecture in BRIEF.md - d0fd50d
-- Step 8: Wire network constraint and exponential backoff policy on ProfileSyncWorker request - 7b54950
-- Step 9: Add ConnectivitySyncObserver to trigger pending sync retries on network reconnect - 0d5f0f6
-- Step 10: Write unit test for offline queue, exponential backoff, and reconnect retry - f6f5791
-- Step 11: Perform manual QA verification of offline task completion and reconnect auto-sync - 845ccb6
-- Step 12: Create LeaderboardRepository querying Supabase profiles table - bfb9040
-- Step 13: Add getTopByStreak ordered by streak descending to LeaderboardRepository - pending
+- Step 1: Create ProfileSyncWorker CoroutineWorker for signed-in and opted-in users - af3748d
+- Step 2: Wire ProfileSyncWorker triggers to task completion, level-up, and streak break - d74057d
+- Step 3: Schedule ProfileSyncWorker as one-time expedited request with network constraint - a384319
+- Step 4: Add debounce and unique work coalescing logic to SyncScheduler - 9dc88fc
+- Step 5: Document manual sync button retention decision as debug affordance in BRIEF.md - 1a64f4c
+- Step 6: Write unit tests for sync trigger dispatch, debounce coalescing, and privacy guards - 59de3b3
+- Step 7: Confirm and document WorkManager built-in retry-with-backoff architecture in BRIEF.md - f1ef8ec
+- Step 8: Wire network constraint and exponential backoff policy on ProfileSyncWorker request - b843dc1
+- Step 9: Add ConnectivitySyncObserver to trigger pending sync retries on network reconnect - b8f70d7
+- Step 10: Write unit test for offline queue, exponential backoff, and reconnect retry - 1ddfe88
+- Step 11: Perform manual QA verification of offline task completion and reconnect auto-sync - c013089
+- Step 12: Create LeaderboardRepository querying Supabase profiles table - a59b488
+- Step 13: Add getTopByStreak ordered by streak descending to LeaderboardRepository - 437aea1
+- Step 14: Add getTopByLevel ordered by level with total_xp tiebreaker to LeaderboardRepository - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
