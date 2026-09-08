@@ -47,4 +47,21 @@ class ProfileSyncWorker @AssistedInject constructor(
             is SupabaseResult.UnknownError -> Result.retry()
         }
     }
+
+    override suspend fun getForegroundInfo(): androidx.work.ForegroundInfo {
+        val notification = androidx.core.app.NotificationCompat.Builder(
+            applicationContext,
+            com.pixelquest.app.notification.NotificationHelper.CHANNEL_ID
+        )
+            .setSmallIcon(com.pixelquest.app.R.drawable.ic_tasks)
+            .setContentTitle("PixelQuest Sync")
+            .setContentText("Syncing hero stats to leaderboard...")
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_LOW)
+            .build()
+        return androidx.work.ForegroundInfo(SYNC_NOTIFICATION_ID, notification)
+    }
+
+    companion object {
+        const val SYNC_NOTIFICATION_ID = 9001
+    }
 }

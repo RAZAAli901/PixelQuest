@@ -17,8 +17,15 @@ class SyncSchedulerImpl @Inject constructor(
 ) : SyncScheduler {
 
     override fun scheduleProfileSync() {
-        val workManager = WorkManager.getInstance(context)
-        val request = OneTimeWorkRequestBuilder<ProfileSyncWorker>().build()
-        workManager.enqueue(request)
+        val constraints = androidx.work.Constraints.Builder()
+            .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+            .build()
+
+        val request = OneTimeWorkRequestBuilder<ProfileSyncWorker>()
+            .setConstraints(constraints)
+            .setExpedited(androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .build()
+
+        WorkManager.getInstance(context).enqueue(request)
     }
 }
