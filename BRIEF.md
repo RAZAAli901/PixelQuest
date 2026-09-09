@@ -1162,7 +1162,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 33: Add Compose Preview for rank-tier styling and badges on top 3 podium rows - d2fd715
 - Step 34: Add graceful LeaderboardErrorState for unreachable Supabase backend distinct from empty states - a1542e9
 - Step 35: Add retry action button on LeaderboardErrorState triggering data refresh - 5ee93b2
-- Step 36: Verify and document local-first graceful degradation when Supabase is unreachable - pending
+- Step 36: Verify and document local-first graceful degradation when Supabase is unreachable - 28cffe5
+- Step 37: Write unit tests for LeaderboardViewModel error state triggering and retry logic - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
