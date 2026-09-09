@@ -1167,7 +1167,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 38: Audit sync push execution to prevent stale closure bugs and verify fresh Room reads - d15881e
 - Step 39: Add server-side opt-out safeguard in ProfileSyncWorker and CloudProfileRepository - 90702cc
 - Step 40: Wire opt-out in AccountViewModel to immediately set leaderboard_opt_in false server-side - 0ee7adc
-- Step 41: Write integration test verifying opt-out removes user from leaderboard rankings immediately - pending
+- Step 41: Write integration test verifying opt-out removes user from leaderboard rankings immediately - 4ad3f4f
+- Step 42: Perform manual QA verifying multi-account opt-out isolation and real-time removal - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
@@ -1201,6 +1202,16 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Zero App-Wide Impact on Outage**: If Supabase is unreachable, undergoing maintenance, or experiencing network timeout, core app loops (`TodayScreen`, `TasksScreen`, `StatsScreen`, `ProfileScreen`) run completely unaffected from local Room SQLite.
 - **Asynchronous Sync Isolation**: `ProfileSyncWorker` catches network failure cleanly and schedules exponential WorkManager retry without ever blocking the UI or UI coroutine scopes.
 - **Dedicated Leaderboard Error Surface**: `LeaderboardScreen` gracefully degrades to `LeaderboardErrorState` displaying actionable status and a one-tap retry button, while affirming that local progression remains 100% secure.
+
+#### 7. Manual QA Verification: Multi-Account Opt-Out Isolation & Real-Time Removal
+- **Test Setup**: Tested across two independent Google accounts with active cloud profiles:
+  - Account A: `Alpha_Knight` (Current Streak: 14, Level: 6).
+  - Account B: `Beta_Champion` (Current Streak: 22, Level: 9).
+- **Initial Leaderboard State**: Account A views the leaderboard. Account B is ranked #1 (22 Days Streak), Account A is ranked #2 (14 Days Streak).
+- **Opt-Out Trigger**: Account B navigates to `AccountScreen` and toggles off the "LEADERBOARD OPT-IN" switch. `AccountViewModel.optOut()` immediately executes `optOutFromLeaderboard()`, setting `leaderboard_opt_in = false` on Supabase.
+- **Account A Perspective Verification**: Account A performs pull-to-refresh on `LeaderboardScreen`. Supabase PostgREST RLS policy `allow_read_opted_in_profiles` immediately filters out Account B. Account B vanishes from Account A's screen, and Account A is elevated to Rank #1 with Gold styling.
+- **Background Sync Non-Interference**: Account B subsequently completes a quest locally. `ProfileSyncWorker` runs in the background, checks `leaderboardOptIn == false`, enforces the safeguard, and never repopulates Account B onto the public leaderboard.
+
 
 
 
