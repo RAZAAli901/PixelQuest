@@ -132,9 +132,13 @@ class LeaderboardViewModel @Inject constructor(
 
     fun selectTab(tab: LeaderboardTab) {
         if (_uiState.value.selectedTab == tab) return
-        _uiState.value = _uiState.value.copy(selectedTab = tab, errorMessage = null)
-        val currentList = if (tab == LeaderboardTab.TOP_STREAKS) _uiState.value.streakEntries else _uiState.value.levelEntries
-        if (currentList.isEmpty()) {
+        val targetList = if (tab == LeaderboardTab.TOP_STREAKS) _uiState.value.streakEntries else _uiState.value.levelEntries
+        _uiState.value = _uiState.value.copy(
+            selectedTab = tab,
+            errorMessage = null,
+            canLoadMore = targetList.isEmpty() || targetList.size >= pageSize
+        )
+        if (targetList.isEmpty()) {
             loadInitialData()
         } else {
             fetchCurrentUserRank()

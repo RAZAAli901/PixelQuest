@@ -230,17 +230,53 @@ fun LeaderboardContent(
                     Spacer(modifier = Modifier.height(4.dp))
                 }
 
-            // Tab Content: LazyColumn of PixelLeaderboardRows
-            val currentUserId = when (val auth = uiState.authState) {
-                is LeaderboardAuthState.SignedInAndOptedIn -> auth.userId
-                is LeaderboardAuthState.SignedInReadOnly -> auth.userId
-                LeaderboardAuthState.NotSignedIn -> null
-            }
+                // Tab Content: LazyColumn of PixelLeaderboardRows
+                val currentUserId = when (val auth = uiState.authState) {
+                    is LeaderboardAuthState.SignedInAndOptedIn -> auth.userId
+                    is LeaderboardAuthState.SignedInReadOnly -> auth.userId
+                    LeaderboardAuthState.NotSignedIn -> null
+                }
 
-            val currentEntries = when (uiState.selectedTab) {
-                LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
-                LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
-            }
+                val currentEntries = when (uiState.selectedTab) {
+                    LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
+                    LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
+                }
+
+                // Inline non-blocking error banner if refresh or pagination failed while cached data is displayed
+                if (uiState.errorMessage != null && currentEntries.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(PixelSurfaceDark)
+                            .border(1.dp, PixelRed, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "⚠️ ${uiState.errorMessage}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = PixelRed,
+                                fontSize = 8.sp,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                text = "RETRY",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = PixelGold,
+                                fontSize = 8.sp,
+                                modifier = Modifier
+                                    .clickable { onRefresh() }
+                                    .padding(start = 8.dp)
+                            )
+                        }
+                    }
+                }
 
             Box(
                 modifier = Modifier

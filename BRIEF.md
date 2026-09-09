@@ -1170,7 +1170,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 41: Write integration test verifying opt-out removes user from leaderboard rankings immediately - 4ad3f4f
 - Step 42: Perform manual QA verifying multi-account opt-out isolation and real-time removal - 5c1d52a
 - Step 43: Write integration test for full leaderboard fetch and display flow with rankings and spectator mode - 65c8c8d
-- Step 44: Perform manual QA pass verifying relative ranking between two real Google accounts - pending
+- Step 44: Perform manual QA pass verifying relative ranking between two real Google accounts - 66d159b
+- Step 45: Fix tab pagination state preservation bug and add inline error banner to LeaderboardScreen - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
