@@ -1171,7 +1171,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 42: Perform manual QA verifying multi-account opt-out isolation and real-time removal - 5c1d52a
 - Step 43: Write integration test for full leaderboard fetch and display flow with rankings and spectator mode - 65c8c8d
 - Step 44: Perform manual QA pass verifying relative ranking between two real Google accounts - 66d159b
-- Step 45: Fix tab pagination state preservation bug and add inline error banner to LeaderboardScreen - pending
+- Step 45: Fix tab pagination state preservation bug and add inline error banner to LeaderboardScreen - 39d562b
+- Step 46: Update BRIEF.md with full Day 14 technical summary, architecture, and Day 15 scope - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
@@ -1231,6 +1232,67 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
   - `QuestMaster_99` completed a scheduled task (+20 XP, streak increments from 8 to 9).
   - Background `ProfileSyncWorker` pushed the new state to Supabase.
   - Pull-to-refresh on `Raza_Hero`'s device immediately reflected the new streak (9) and XP (4220) in real-time.
+
+## Day 14 Technical Architecture & Feature Summary
+
+### 1. Overview
+Day 14 delivers the live background synchronization worker and the full retro 8-bit **Global Leaderboard** for PixelQuest, transforming the local quest system into an interconnected realm experience while maintaining strict local-first reliability, user privacy, and non-blocking performance.
+
+### 2. Background Sync Engine Architecture (`ProfileSyncWorker`)
+- **WorkManager Expedited Execution**: `ProfileSyncWorker` is implemented as an expedited `CoroutineWorker` (`OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST`) to ensure prompt cloud propagation without relying on battery-draining periodic background polls.
+- **Event-Driven Dispatch**: Triggered automatically on three local progression milestones:
+  1. Task quick-completion or timed completion in `TodayViewModel`
+  2. Level-up milestone execution in `UserProfileRepositoryImpl` / `TodayViewModel`
+  3. Midnight streak evaluation / streak break in `StreakEvaluationWorker`
+- **Network Constraints & Resilience**: Enforces `NetworkType.CONNECTED` constraint and `BackoffPolicy.EXPONENTIAL` (10s initial delay), delegating retry and process-death survivability to Android's persistent SQLite WorkManager store.
+- **Debounce & Work Coalescing**: `SyncScheduler` implements a 1500ms debounce buffer using `ExistingWorkPolicy.REPLACE` (`SYNC_WORK_NAME = "profile_sync_work"`). Rapid completions (e.g. multi-task checking) coalesce into a single execution.
+- **Immediate Reconnect Retries**: `ConnectivitySyncObserver` registers an active `NetworkCallback` that detects internet restoration and immediately dispatches pending sync requests.
+- **Push-Time Evaluation (No Stale Closures)**: `ProfileSyncWorker` queries Room database tables (`user_profile`, `streak`) at exact execution time rather than passing frozen closure state through WorkManager arguments, eliminating stale-value overwrite bugs.
+- **Debug Sync Affordance**: The manual `🔄 FORCE SYNC NOW (DEBUG)` button is retained in `AccountScreen` for developer and QA diagnostic inspection.
+
+### 3. Leaderboard Data Layer (`LeaderboardRepository`)
+- **PostgREST Query Pipelines**:
+  - `getTopByStreak(limit, offset)`: Queries `public.profiles` ordered by `current_streak` DESC, with `longest_streak` DESC as secondary tiebreaker, filtered by `leaderboard_opt_in = true`.
+  - `getTopByLevel(limit, offset)`: Queries `public.profiles` ordered by `level` DESC, with `total_xp` DESC as tiebreaker, filtered by `leaderboard_opt_in = true`.
+  - `getCurrentUserRank(sortMode, userId)`: Dynamically computes the signed-in user's true 1-based global rank across all opted-in players, even if the user falls outside the top N pagination window.
+- **Pagination**: Supports windowed offsets and limits (`pageSize = 20L`) for smooth, infinite list scrolling without memory bloat.
+
+### 4. Leaderboard Screen UI & Retro Aesthetics
+- **Screen Structure (`LeaderboardScreen`)**: Built in Jetpack Compose with custom arcade styling:
+  - Tab Switcher: "🔥 TOP STREAKS" and "⚔️ TOP LEVELS" tabs.
+  - Rank-Tier Podium: Special visual treatment for podium positions:
+    - 🥇 Rank 1: Gold border (`#FFD700`), crown badge, golden rank number.
+    - 🥈 Rank 2: Silver border (`#C0C0C0`), star badge.
+    - 🥉 Rank 3: Bronze border (`#CD7F32`), spark badge.
+  - Active Player Row Highlighting: Subtle pulsing animation when the current user appears in the visible leaderboard scroll list.
+  - Pinned Current User Card: Persistent bottom card showing the current user's active rank and stats regardless of scroll depth.
+  - Pull-to-Refresh: Retro pull banner ("▼ PULL TO REFRESH ▼", "⚡ RELEASE TO REFRESH ⚡", "🔄 UPDATING...") and "LAST UPDATED: HH:mm:ss" online status badge.
+  - Inline Non-Blocking Error Alert: Informative banner at the top of the list if background refresh or pagination encounters a network hiccup, preserving cached entries.
+- **Navigation Integration**: Preserved the 4-tab bottom navigation bar (Home, Tasks, Stats, Profile) for ergonomic 48dp touch targets; `LeaderboardScreen` is launched via a dedicated "🏆 GLOBAL LEADERBOARD" button on `StatsScreen` and an entry point from `AccountScreen`.
+
+### 5. Privacy & Spectator Mode State Architecture
+- **Opt-In Default OFF**: Leaderboard participation defaults to OFF (`false`). Public display names are completely separate pseudonyms from local hero names, never exposing Google real names or emails.
+- **Three-Tier Auth States**:
+  1. `NotSignedIn`: Displays "HALL OF FAME LOCKED" card with 1-tap Google Sign-In pathway to `AccountScreen`.
+  2. `SignedInReadOnly` (Spectator Mode): Day 13 PostgreSQL RLS `allow_read_opted_in_profiles` allows read access without requiring personal opt-in. Signed-in users can browse full rankings without appearing on the leaderboard. Displays a non-intrusive "👁️ SPECTATOR MODE" banner.
+  3. `SignedInAndOptedIn`: User is ranked, displayed, and synced automatically.
+
+### 6. Opt-Out Safeguard & Real-Time Removal
+- **Immediate Server-Side Opt-Out**: When the player toggles opt-in off in `AccountScreen`, `AccountViewModel.optOut()` calls `cloudProfileRepository.optOutFromLeaderboard()`. This immediately writes `leaderboard_opt_in = false` to the Supabase `profiles` table.
+- **Real-Time Removal**: Verified via multi-account QA that opt-out instantly removes the player from competitors' leaderboard views upon their next refresh.
+- **Offline Opt-Out Safeguard**: If an opt-out occurs while offline, `ProfileSyncWorker` catches `leaderboardOptIn == false` and synchronizes the opt-out flag to the cloud upon reconnect rather than silently skipping.
+
+### 7. Graceful Degradation & Local-First Guarantees
+- **Strict Isolation**: Network calls are strictly bounded within `LeaderboardRepository`, `AuthRepository`, and background `ProfileSyncWorker`.
+- **Zero App-Wide Impact**: If Supabase is down or unreachable, core gameplay (quests, alarms, streaks, XP leveling, stats heatmap) runs 100% locally and offline without crashes or delays.
+- **`LeaderboardErrorState`**: Leaderboard screen degrades gracefully to a dedicated arcade offline screen reassuring players that local progress is safe and providing an immediate retry action.
+
+### 8. Known Gaps & Scope for Day 15
+- Inappropriate display name profanity filtering and reporting mechanisms.
+- Offline conflict edge cases beyond basic retry (e.g. clock drift, multi-device sync resolution).
+- Full end-to-end instrumented test suite covering Google Sign-In, sync worker, and live leaderboard UI.
+- Final v1.1.0 release packaging, release notes, and GitHub tag.
+
 
 
 
