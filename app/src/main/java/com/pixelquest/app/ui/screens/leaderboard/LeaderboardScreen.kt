@@ -53,7 +53,28 @@ fun LeaderboardScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    LeaderboardContent(
+        uiState = uiState,
+        onTabSelected = { viewModel.selectTab(it) },
+        onLoadMore = { viewModel.loadMore() },
+        onRefresh = { viewModel.refresh() },
+        onNavigateBack = onNavigateBack,
+        onNavigateToAccount = onNavigateToAccount,
+        modifier = modifier
+    )
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LeaderboardContent(
+    uiState: LeaderboardUiState,
+    onTabSelected: (LeaderboardTab) -> Unit,
+    onLoadMore: () -> Unit,
+    onRefresh: () -> Unit,
+    onNavigateBack: () -> Unit,
+    onNavigateToAccount: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = PixelBackgroundDark,
@@ -77,7 +98,7 @@ fun LeaderboardScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.refresh() }) {
+                    IconButton(onClick = onRefresh) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_refresh),
                             contentDescription = "Refresh Leaderboard",
@@ -107,7 +128,7 @@ fun LeaderboardScreen(
                 // Tab Selector Row: Top Streaks / Top Levels
                 LeaderboardTabRow(
                     selectedTab = uiState.selectedTab,
-                    onTabSelected = { viewModel.selectTab(it) }
+                    onTabSelected = onTabSelected
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -154,7 +175,7 @@ fun LeaderboardScreen(
 
                     androidx.compose.runtime.LaunchedEffect(shouldLoadMore.value) {
                         if (shouldLoadMore.value && uiState.canLoadMore && !uiState.isLoading && !uiState.isLoadingMore) {
-                            viewModel.loadMore()
+                            onLoadMore()
                         }
                     }
 
@@ -213,7 +234,7 @@ fun LeaderboardScreen(
                                                 .clip(RoundedCornerShape(6.dp))
                                                 .background(PixelSurfaceDark)
                                                 .border(1.dp, PixelCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                                                .clickable { viewModel.loadMore() }
+                                                .clickable { onLoadMore() }
                                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                                         ) {
                                             Text(
