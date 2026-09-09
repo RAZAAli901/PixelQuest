@@ -1166,7 +1166,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 37: Write unit tests for LeaderboardViewModel error state triggering and retry logic - aa13230
 - Step 38: Audit sync push execution to prevent stale closure bugs and verify fresh Room reads - d15881e
 - Step 39: Add server-side opt-out safeguard in ProfileSyncWorker and CloudProfileRepository - 90702cc
-- Step 40: Wire opt-out in AccountViewModel to immediately set leaderboard_opt_in false server-side - pending
+- Step 40: Wire opt-out in AccountViewModel to immediately set leaderboard_opt_in false server-side - 0ee7adc
+- Step 41: Write integration test verifying opt-out removes user from leaderboard rankings immediately - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
