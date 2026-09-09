@@ -49,6 +49,7 @@ import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelGreen
+import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelSurfaceBorder
 import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.ui.theme.PixelTextMuted
@@ -252,6 +253,11 @@ fun LeaderboardContent(
                         color = PixelGold,
                         modifier = Modifier.size(36.dp)
                     )
+                } else if (uiState.errorMessage != null && currentEntries.isEmpty()) {
+                    LeaderboardErrorState(
+                        errorMessage = uiState.errorMessage,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 } else if (currentEntries.isEmpty()) {
                     Text(
                         text = "NO HEROES RANKED YET\nOpt in from Account Settings to claim the top spot!",
@@ -260,6 +266,7 @@ fun LeaderboardContent(
                         textAlign = TextAlign.Center,
                         lineHeight = 18.sp
                     )
+                } else {
                     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
                     val shouldLoadMore = androidx.compose.runtime.remember {
                         androidx.compose.runtime.derivedStateOf {
@@ -345,6 +352,7 @@ fun LeaderboardContent(
                             }
                         }
                     }
+                }
             }
 
             // Footer: Pinned Current User Rank (Opted In) OR Spectator Mode Banner (Read Only)
@@ -559,3 +567,57 @@ fun SpectatorModeBanner(
         }
     }
 }
+
+@Composable
+fun LeaderboardErrorState(
+    errorMessage: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(PixelSurfaceDark)
+                .border(2.dp, PixelRed, RoundedCornerShape(12.dp))
+                .padding(24.dp)
+        ) {
+            Text(
+                text = "📡",
+                fontSize = 36.sp,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            Text(
+                text = "REALM TRANSMISSION FAILED",
+                style = MaterialTheme.typography.titleMedium,
+                color = PixelRed,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = errorMessage,
+                style = MaterialTheme.typography.bodySmall,
+                color = PixelTextWhite,
+                textAlign = TextAlign.Center,
+                lineHeight = 16.sp,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            Text(
+                text = "🛡️ Offline Mode Safe: Local quests, streaks, and XP continue tracking uninterrupted on your device.",
+                style = MaterialTheme.typography.labelSmall,
+                color = PixelTextMuted,
+                textAlign = TextAlign.Center,
+                fontSize = 8.sp,
+                lineHeight = 14.sp
+            )
+        }
+    }
+}
+

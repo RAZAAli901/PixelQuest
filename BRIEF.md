@@ -1159,7 +1159,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 30: Add subtle pulse highlight animation when current user row is visible - c3c0b09
 - Step 31: Add pull-to-refresh nested scroll and retro indicator on LeaderboardScreen - f53bf03
 - Step 32: Add last updated timestamp and online sync indicator to LeaderboardScreen - bcf450f
-- Step 33: Add Compose Preview for rank-tier styling and badges on top 3 podium rows - pending
+- Step 33: Add Compose Preview for rank-tier styling and badges on top 3 podium rows - d2fd715
+- Step 34: Add graceful LeaderboardErrorState for unreachable Supabase backend distinct from empty states - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
