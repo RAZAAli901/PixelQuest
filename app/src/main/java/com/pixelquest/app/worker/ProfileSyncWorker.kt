@@ -30,13 +30,24 @@ class ProfileSyncWorker @AssistedInject constructor(
         val profile = userProfileRepository.getProfile().first()
             ?: return Result.success()
 
-        // Privacy and authentication guard: only sync if signed in and opted in
+        // Privacy and authentication guard: user must have a linked cloud account
         val isCloudLinked = !profile.supabaseUserId.isNullOrBlank()
-        val isOptedIn = profile.leaderboardOptIn
-
-        if (!isCloudLinked || !isOptedIn) {
-            // Nothing to sync to public leaderboard for offline or non-opted-in users
+        if (!isCloudLinked) {
+            // Nothing to sync to public leaderboard for offline users
             return Result.success()
+        }
+
+        val isOptedIn = profile.leaderboardOptIn
+        if (!isOptedIn) {
+            // Safeguard: Ensure server-side leaderboard_opt_in is false promptly,
+            // never leaving a dangling opted-in record on the cloud
+            return when (cloudProfileRepository.optOutFromLeaderboard()) {
+                is SupabaseResult.Success -> Result.success()
+                is SupabaseResult.NetworkError -> Result.retry()
+                is SupabaseResult.ServerError -> Result.retry()
+                is SupabaseResult.AuthError -> Result.failure()
+                is SupabaseResult.UnknownError -> Result.retry()
+            }
         }
 
         return when (val syncResult = cloudProfileRepository.syncProfileToCloud()) {

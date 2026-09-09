@@ -1164,7 +1164,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 35: Add retry action button on LeaderboardErrorState triggering data refresh - 5ee93b2
 - Step 36: Verify and document local-first graceful degradation when Supabase is unreachable - 28cffe5
 - Step 37: Write unit tests for LeaderboardViewModel error state triggering and retry logic - aa13230
-- Step 38: Audit sync push execution to prevent stale closure bugs and verify fresh Room reads - pending
+- Step 38: Audit sync push execution to prevent stale closure bugs and verify fresh Room reads - d15881e
+- Step 39: Add server-side opt-out safeguard in ProfileSyncWorker and CloudProfileRepository - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)

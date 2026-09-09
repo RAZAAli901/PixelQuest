@@ -15,6 +15,7 @@ import javax.inject.Singleton
 interface CloudProfileRepository {
     suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit>
     suspend fun syncProfileToCloud(): SupabaseResult<Unit>
+    suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
 
 @Singleton
@@ -69,6 +70,30 @@ open class CloudProfileRepositoryImpl @Inject constructor(
             userId = user.id,
             displayName = displayName,
             optIn = profile?.leaderboardOptIn ?: false,
+            profile = profile,
+            currentStreak = streak?.currentStreak ?: 0,
+            longestStreak = streak?.longestStreak ?: 0
+        )
+
+        return safeSupabaseCall {
+            postgrest["profiles"].upsert(dto)
+        }
+    }
+
+    override suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> {
+        userProfileRepository.updateLeaderboardOptIn(false)
+
+        val user = auth.currentUserOrNull()
+            ?: return SupabaseResult.Success(Unit)
+
+        val profile = userProfileRepository.getProfile().first()
+        val streak = streakRepository.getCurrentStreak().first()
+        val displayName = profile?.leaderboardDisplayName?.ifBlank { "Hero" } ?: "Hero"
+
+        val dto = buildProfileDto(
+            userId = user.id,
+            displayName = displayName,
+            optIn = false,
             profile = profile,
             currentStreak = streak?.currentStreak ?: 0,
             longestStreak = streak?.longestStreak ?: 0
