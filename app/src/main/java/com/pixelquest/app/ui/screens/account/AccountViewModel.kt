@@ -121,16 +121,31 @@ class AccountViewModel @Inject constructor(
         syncJob?.cancel()
         syncJob = viewModelScope.launch {
             try {
-                _uiState.value = _uiState.value.copy(isSyncing = true)
-                cloudProfileRepository.updateOptInAndSync(
-                    optIn = false,
-                    displayName = _uiState.value.displayNameInput.trim()
-                )
-                _uiState.value = _uiState.value.copy(
-                    isSyncing = false,
-                    isOptedIn = false,
-                    syncMessage = "Opted out from leaderboard."
-                )
+                _uiState.value = _uiState.value.copy(isSyncing = true, syncMessage = null)
+                when (val result = cloudProfileRepository.optOutFromLeaderboard()) {
+                    is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            isOptedIn = false,
+                            lastSyncTime = System.currentTimeMillis(),
+                            syncMessage = "Opted out from leaderboard. Removed from public rankings."
+                        )
+                    }
+                    is com.pixelquest.app.data.remote.SupabaseResult.NetworkError -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            isOptedIn = false,
+                            syncMessage = "Opted out locally. Server sync queued when online."
+                        )
+                    }
+                    else -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            isOptedIn = false,
+                            syncMessage = "Opted out from leaderboard."
+                        )
+                    }
+                }
             } catch (e: kotlinx.coroutines.CancellationException) {
                 _uiState.value = _uiState.value.copy(isSyncing = false, syncMessage = "Sync cancelled.")
             }
