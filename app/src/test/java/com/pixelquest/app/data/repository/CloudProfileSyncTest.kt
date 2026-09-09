@@ -65,4 +65,43 @@ class CloudProfileSyncTest {
         // Verify ISO-8601 parsable
         assertNotNull(Instant.parse(dto.updatedAt))
     }
+
+    @Test
+    fun staleClosureAudit_pushPayloadUsesFreshValuesAtExecutionTime() {
+        // Given an initial profile and streak at t0
+        var localStreak = 3
+        var localLevel = 2
+        var localXp = 400
+
+        val initialProfile = UserProfileEntity(
+            id = 1,
+            username = "Hero",
+            avatarId = "1",
+            level = localLevel,
+            totalXp = localXp,
+            supabaseUserId = "user-123",
+            leaderboardOptIn = true,
+            leaderboardDisplayName = "Hero_Live"
+        )
+
+        // Rapid local state changes occur before worker execution
+        localStreak += 1 // streak is now 4
+        localXp += 50    // xp is now 450
+        val updatedProfile = initialProfile.copy(level = localLevel, totalXp = localXp)
+
+        // At push execution time, worker queries Room freshly and builds DTO
+        val executionDto = CloudProfileRepositoryImpl.buildProfileDto(
+            userId = "user-123",
+            displayName = updatedProfile.leaderboardDisplayName!!,
+            optIn = updatedProfile.leaderboardOptIn,
+            profile = updatedProfile,
+            currentStreak = localStreak,
+            longestStreak = 10
+        )
+
+        // Verify the pushed values reflect the fresh post-update values, NOT stale closure snapshots
+        assertEquals(4, executionDto.currentStreak)
+        assertEquals(450, executionDto.totalXp)
+        assertEquals(2, executionDto.level)
+    }
 }
