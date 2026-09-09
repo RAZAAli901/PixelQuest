@@ -256,6 +256,7 @@ fun LeaderboardContent(
                 } else if (uiState.errorMessage != null && currentEntries.isEmpty()) {
                     LeaderboardErrorState(
                         errorMessage = uiState.errorMessage,
+                        onRetry = onRefresh,
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else if (currentEntries.isEmpty()) {
@@ -571,6 +572,7 @@ fun SpectatorModeBanner(
 @Composable
 fun LeaderboardErrorState(
     errorMessage: String,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -607,7 +609,14 @@ fun LeaderboardErrorState(
                 color = PixelTextWhite,
                 textAlign = TextAlign.Center,
                 lineHeight = 16.sp,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            com.pixelquest.app.ui.components.PixelButton(
+                text = "🔄 RETRY CONNECTION",
+                onClick = onRetry,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 14.dp)
             )
             Text(
                 text = "🛡️ Offline Mode Safe: Local quests, streaks, and XP continue tracking uninterrupted on your device.",
