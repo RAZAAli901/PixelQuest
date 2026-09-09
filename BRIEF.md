@@ -1161,7 +1161,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 32: Add last updated timestamp and online sync indicator to LeaderboardScreen - bcf450f
 - Step 33: Add Compose Preview for rank-tier styling and badges on top 3 podium rows - d2fd715
 - Step 34: Add graceful LeaderboardErrorState for unreachable Supabase backend distinct from empty states - a1542e9
-- Step 35: Add retry action button on LeaderboardErrorState triggering data refresh - pending
+- Step 35: Add retry action button on LeaderboardErrorState triggering data refresh - 5ee93b2
+- Step 36: Verify and document local-first graceful degradation when Supabase is unreachable - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
@@ -1189,6 +1190,13 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **RLS Read Authorization**: Day 13's Row Level Security policy `allow_read_opted_in_profiles` permits any authenticated user to SELECT rows where `leaderboard_opt_in = true`. The database policy does not condition read access on the viewer's own opt-in status.
 - **Spectator Experience**: Signed-in users who have not opted in can browse the leaderboard in full read-only spectator mode. Opting in is required only to appear publicly on the leaderboard with a calculated rank, not to view others' progress.
 - **Zero-Pressure Exploration**: In spectator mode, a compact retro banner reminds the player of read-only status and provides a 1-tap pathway to choose a pseudonym and opt in whenever they feel ready.
+
+#### 6. Local-First Architecture: Leaderboard-Only Graceful Degradation
+- **Strict Network Boundary**: Supabase network interactions are confined entirely to `LeaderboardRepository`, `AuthRepository`, and background `ProfileSyncWorker`.
+- **Zero App-Wide Impact on Outage**: If Supabase is unreachable, undergoing maintenance, or experiencing network timeout, core app loops (`TodayScreen`, `TasksScreen`, `StatsScreen`, `ProfileScreen`) run completely unaffected from local Room SQLite.
+- **Asynchronous Sync Isolation**: `ProfileSyncWorker` catches network failure cleanly and schedules exponential WorkManager retry without ever blocking the UI or UI coroutine scopes.
+- **Dedicated Leaderboard Error Surface**: `LeaderboardScreen` gracefully degrades to `LeaderboardErrorState` displaying actionable status and a one-tap retry button, while affirming that local progression remains 100% secure.
+
 
 
 
