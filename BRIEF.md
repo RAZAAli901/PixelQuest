@@ -1172,7 +1172,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 43: Write integration test for full leaderboard fetch and display flow with rankings and spectator mode - 65c8c8d
 - Step 44: Perform manual QA pass verifying relative ranking between two real Google accounts - 66d159b
 - Step 45: Fix tab pagination state preservation bug and add inline error banner to LeaderboardScreen - 39d562b
-- Step 46: Update BRIEF.md with full Day 14 technical summary, architecture, and Day 15 scope - pending
+- Step 46: Update BRIEF.md with full Day 14 technical summary, architecture, and Day 15 scope - dd41c41
+- Step 47: Final verification commit: clean build, CI pass, state persistence across app restart - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)

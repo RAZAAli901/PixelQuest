@@ -106,5 +106,38 @@ class AppRestartPersistenceTest {
         assertEquals("PixelLegend_88", restoredAccountViewModel.uiState.value.displayNameInput)
         assertEquals(9, restoredAccountViewModel.uiState.value.profile?.level)
         assertEquals(2700, restoredAccountViewModel.uiState.value.profile?.totalXp)
+
+        // 3. Verify LeaderboardViewModel restores into SignedInAndOptedIn across cold restart
+        val fakeLeaderboardRepo = object : com.pixelquest.app.data.repository.LeaderboardRepository {
+            override suspend fun getProfiles(): SupabaseResult<List<com.pixelquest.app.data.remote.model.CloudProfileDto>> =
+                SupabaseResult.Success(emptyList())
+            override suspend fun getTopByStreak(limit: Long, offset: Long): SupabaseResult<List<com.pixelquest.app.data.remote.model.CloudProfileDto>> =
+                SupabaseResult.Success(listOf(
+                    com.pixelquest.app.data.remote.model.CloudProfileDto(
+                        id = "restored-user-uuid-888",
+                        displayName = "PixelLegend_88",
+                        currentStreak = 14,
+                        longestStreak = 20,
+                        level = 9,
+                        totalXp = 2700,
+                        leaderboardOptIn = true
+                    )
+                ))
+            override suspend fun getTopByLevel(limit: Long, offset: Long): SupabaseResult<List<com.pixelquest.app.data.remote.model.CloudProfileDto>> =
+                SupabaseResult.Success(emptyList())
+            override suspend fun getCurrentUserRank(sortMode: com.pixelquest.app.data.repository.LeaderboardSortMode, userId: String?): SupabaseResult<com.pixelquest.app.data.repository.UserLeaderboardRank?> =
+                SupabaseResult.Success(null)
+        }
+
+        val restoredLeaderboardViewModel = com.pixelquest.app.ui.screens.leaderboard.LeaderboardViewModel(
+            fakeLeaderboardRepo,
+            fakeAuthRepo,
+            fakeUserRepo
+        )
+        advanceUntilIdle()
+
+        val leaderboardState = restoredLeaderboardViewModel.uiState.value
+        assertTrue("Leaderboard must restore SignedInAndOptedIn state", leaderboardState.authState is com.pixelquest.app.ui.screens.leaderboard.LeaderboardAuthState.SignedInAndOptedIn)
+        assertEquals("PixelLegend_88", (leaderboardState.authState as com.pixelquest.app.ui.screens.leaderboard.LeaderboardAuthState.SignedInAndOptedIn).displayName)
     }
 }
