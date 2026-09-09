@@ -27,12 +27,21 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.R
@@ -75,6 +84,39 @@ fun LeaderboardContent(
     onNavigateToAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var pullOffset by remember { mutableStateOf(0f) }
+    val density = LocalDensity.current
+    val refreshThresholdPx = with(density) { 64.dp.toPx() }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (available.y < 0 && pullOffset > 0f) {
+                    val consumed = available.y.coerceAtLeast(-pullOffset)
+                    pullOffset += consumed
+                    return Offset(0f, consumed)
+                }
+                return Offset.Zero
+            }
+
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (available.y > 0) {
+                    pullOffset = (pullOffset + available.y * 0.4f).coerceAtMost(refreshThresholdPx * 1.5f)
+                    return Offset(0f, available.y)
+                }
+                return Offset.Zero
+            }
+
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                if (pullOffset >= refreshThresholdPx) {
+                    onRefresh()
+                }
+                pullOffset = 0f
+                return Velocity.Zero
+            }
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = PixelBackgroundDark,
@@ -122,9 +164,35 @@ fun LeaderboardContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .nestedScroll(nestedScrollConnection)
                     .padding(innerPadding)
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
+                // Pull-to-refresh banner indicator
+                if (pullOffset > 0f || uiState.isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(PixelSurfaceDark)
+                            .border(1.dp, PixelCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                            .padding(vertical = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = when {
+                                uiState.isLoading -> "🔄 UPDATING HALL OF FAME..."
+                                pullOffset >= refreshThresholdPx -> "⚡ RELEASE TO REFRESH ⚡"
+                                else -> "▼ PULL TO REFRESH ▼"
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (pullOffset >= refreshThresholdPx) PixelGold else PixelCyan,
+                            fontSize = 8.sp
+                        )
+                    }
+                }
+
                 // Tab Selector Row: Top Streaks / Top Levels
                 LeaderboardTabRow(
                     selectedTab = uiState.selectedTab,
