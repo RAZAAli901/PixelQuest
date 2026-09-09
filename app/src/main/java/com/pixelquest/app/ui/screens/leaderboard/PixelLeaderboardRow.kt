@@ -17,16 +17,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pixelquest.app.ui.components.PixelAvatarDisplay
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelSurfaceBorder
-import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.domain.AvatarTier
 import com.pixelquest.app.ui.components.PixelAvatarDisplay
 import com.pixelquest.app.ui.theme.PixelCyan
@@ -57,7 +58,24 @@ fun PixelLeaderboardRow(
     val tierColor = if (tier != null) Color(tier.borderColor) else PixelSurfaceBorder
     val rankTextColor = if (tier != null) Color(tier.borderColor) else PixelTextMuted
 
-    val borderColor = if (isCurrentUser) PixelGold else tierColor
+    // Subtle highlight pulse animation when current user's row is visible
+    val pulseAlpha = if (isCurrentUser) {
+        val transition = rememberInfiniteTransition(label = "currentUserPulse")
+        val alphaState = transition.animateFloat(
+            initialValue = 0.45f,
+            targetValue = 1.0f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulseAlpha"
+        )
+        alphaState.value
+    } else {
+        1.0f
+    }
+
+    val borderColor = if (isCurrentUser) PixelGold.copy(alpha = pulseAlpha) else tierColor
     val backgroundColor = when {
         isCurrentUser -> Color(0xFF262640)
         rank == 1 -> Color(0xFF2A2416)

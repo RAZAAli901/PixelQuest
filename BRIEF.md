@@ -1155,7 +1155,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 26: Implement read-only spectator mode for signed-in non-opted-in users and document RLS read rationale - a732a07
 - Step 27: Wire exact auth and opt-in state transitions across NotSignedIn, SignedInReadOnly, and SignedInAndOptedIn - 0e10836
 - Step 28: Add Compose Previews for NotSignedIn, SignedInReadOnly, and SignedInAndOptedIn states - dd51901
-- Step 29: Add rank-tier visual styling for top 3 positions reusing Day 7 avatar tier colors and emojis - pending
+- Step 29: Add rank-tier visual styling for top 3 positions reusing Day 7 avatar tier colors and emojis - a10ad63
+- Step 30: Add subtle pulse highlight animation when current user row is visible - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
