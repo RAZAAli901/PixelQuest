@@ -1157,7 +1157,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 28: Add Compose Previews for NotSignedIn, SignedInReadOnly, and SignedInAndOptedIn states - dd51901
 - Step 29: Add rank-tier visual styling for top 3 positions reusing Day 7 avatar tier colors and emojis - a10ad63
 - Step 30: Add subtle pulse highlight animation when current user row is visible - c3c0b09
-- Step 31: Add pull-to-refresh nested scroll and retro indicator on LeaderboardScreen - pending
+- Step 31: Add pull-to-refresh nested scroll and retro indicator on LeaderboardScreen - f53bf03
+- Step 32: Add last updated timestamp and online sync indicator to LeaderboardScreen - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)

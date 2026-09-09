@@ -48,6 +48,7 @@ import com.pixelquest.app.R
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelGreen
 import com.pixelquest.app.ui.theme.PixelSurfaceBorder
 import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.ui.theme.PixelTextMuted
@@ -199,7 +200,34 @@ fun LeaderboardContent(
                     onTabSelected = onTabSelected
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Last updated timestamp & status banner
+                if (uiState.lastUpdatedTimestamp != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp, vertical = 2.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "UPDATED: ${uiState.lastUpdatedTimestamp}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = PixelTextMuted,
+                            fontSize = 7.sp
+                        )
+                        Text(
+                            text = if (uiState.isLoading) "SYNCING..." else "ONLINE ●",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (uiState.isLoading) PixelGold else PixelGreen,
+                            fontSize = 7.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                } else {
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
 
             // Tab Content: LazyColumn of PixelLeaderboardRows
             val currentUserId = when (val auth = uiState.authState) {
