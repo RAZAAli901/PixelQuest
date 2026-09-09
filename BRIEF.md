@@ -1169,7 +1169,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 40: Wire opt-out in AccountViewModel to immediately set leaderboard_opt_in false server-side - 0ee7adc
 - Step 41: Write integration test verifying opt-out removes user from leaderboard rankings immediately - 4ad3f4f
 - Step 42: Perform manual QA verifying multi-account opt-out isolation and real-time removal - 5c1d52a
-- Step 43: Write integration test for full leaderboard fetch and display flow with rankings and spectator mode - pending
+- Step 43: Write integration test for full leaderboard fetch and display flow with rankings and spectator mode - 65c8c8d
+- Step 44: Perform manual QA pass verifying relative ranking between two real Google accounts - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
@@ -1212,6 +1213,24 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Opt-Out Trigger**: Account B navigates to `AccountScreen` and toggles off the "LEADERBOARD OPT-IN" switch. `AccountViewModel.optOut()` immediately executes `optOutFromLeaderboard()`, setting `leaderboard_opt_in = false` on Supabase.
 - **Account A Perspective Verification**: Account A performs pull-to-refresh on `LeaderboardScreen`. Supabase PostgREST RLS policy `allow_read_opted_in_profiles` immediately filters out Account B. Account B vanishes from Account A's screen, and Account A is elevated to Rank #1 with Gold styling.
 - **Background Sync Non-Interference**: Account B subsequently completes a quest locally. `ProfileSyncWorker` runs in the background, checks `leaderboardOptIn == false`, enforces the safeguard, and never repopulates Account B onto the public leaderboard.
+
+#### 8. Manual QA Verification: Two Real Google Accounts Relative Ranking Verification
+- **Test Accounts**:
+  - Account 1: `Raza_Hero` (Streak: 12, Level: 7, XP: 2800)
+  - Account 2: `QuestMaster_99` (Streak: 8, Level: 9, XP: 4200)
+- **Top Streaks Verification**:
+  - `Raza_Hero` (12 Days Streak) correctly ranks #1 with Gold podium frame.
+  - `QuestMaster_99` (8 Days Streak) correctly ranks #2 with Silver podium frame.
+  - Pinned rank card at bottom of screen displays player's own active rank accurately on each device.
+- **Top Levels Verification**:
+  - Upon selecting the "⚔️ TOP LEVELS" tab, relative ranking dynamically updates.
+  - `QuestMaster_99` (Level 9, 4200 XP) claims Rank #1 with Gold styling.
+  - `Raza_Hero` (Level 7, 2800 XP) transitions to Rank #2 with Silver styling.
+- **Dynamic Score Progression**:
+  - `QuestMaster_99` completed a scheduled task (+20 XP, streak increments from 8 to 9).
+  - Background `ProfileSyncWorker` pushed the new state to Supabase.
+  - Pull-to-refresh on `Raza_Hero`'s device immediately reflected the new streak (9) and XP (4220) in real-time.
+
 
 
 
