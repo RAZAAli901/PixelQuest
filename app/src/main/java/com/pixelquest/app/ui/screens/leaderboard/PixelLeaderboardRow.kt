@@ -27,6 +27,12 @@ import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelSurfaceBorder
 import com.pixelquest.app.ui.theme.PixelSurfaceDark
+import com.pixelquest.app.domain.AvatarTier
+import com.pixelquest.app.ui.components.PixelAvatarDisplay
+import com.pixelquest.app.ui.theme.PixelCyan
+import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelSurfaceBorder
+import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.ui.theme.PixelTextMuted
 import com.pixelquest.app.ui.theme.PixelTextWhite
 
@@ -40,23 +46,25 @@ fun PixelLeaderboardRow(
     isCurrentUser: Boolean = false,
     avatarId: String? = null
 ) {
-    // Rank tier colors (Top 3): Gold, Silver, Bronze
-    val tierColor = when (rank) {
-        1 -> Color(0xFFFFD700) // Gold
-        2 -> Color(0xFFC0C0C0) // Silver
-        3 -> Color(0xFFCD7F32) // Bronze
-        else -> PixelSurfaceBorder
+    // Rank tier visual styling reusing Day 7's AvatarTier system
+    val tier = when (rank) {
+        1 -> AvatarTier.GOLD
+        2 -> AvatarTier.SILVER
+        3 -> AvatarTier.BRONZE
+        else -> null
     }
 
-    val rankTextColor = when (rank) {
-        1 -> Color(0xFFFFD700)
-        2 -> Color(0xFFC0C0C0)
-        3 -> Color(0xFFCD7F32)
-        else -> PixelTextMuted
-    }
+    val tierColor = if (tier != null) Color(tier.borderColor) else PixelSurfaceBorder
+    val rankTextColor = if (tier != null) Color(tier.borderColor) else PixelTextMuted
 
     val borderColor = if (isCurrentUser) PixelGold else tierColor
-    val backgroundColor = if (isCurrentUser) Color(0xFF262640) else PixelSurfaceDark
+    val backgroundColor = when {
+        isCurrentUser -> Color(0xFF262640)
+        rank == 1 -> Color(0xFF2A2416)
+        rank == 2 -> Color(0xFF22242B)
+        rank == 3 -> Color(0xFF271F1B)
+        else -> PixelSurfaceDark
+    }
     val shape = RoundedCornerShape(8.dp)
 
     Box(
@@ -91,25 +99,34 @@ fun PixelLeaderboardRow(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = when (rank) {
-                            1 -> "👑1"
-                            2 -> "🥈2"
-                            3 -> "🥉3"
-                            else -> "#$rank"
+                        text = when (tier) {
+                            AvatarTier.GOLD -> "${AvatarTier.GOLD.badgeEmoji}1"
+                            AvatarTier.SILVER -> "${AvatarTier.SILVER.badgeEmoji}2"
+                            AvatarTier.BRONZE -> "${AvatarTier.BRONZE.badgeEmoji}3"
+                            null -> "#$rank"
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = rankTextColor,
-                        fontSize = if (rank <= 3) 9.sp else 8.sp
+                        fontSize = if (tier != null) 9.sp else 8.sp
                     )
                 }
 
                 Spacer(modifier = Modifier.width(10.dp))
 
-                // Avatar Icon
-                PixelAvatarDisplay(
-                    avatarId = avatarId ?: "avatar_hero",
-                    size = 32.dp
-                )
+                // Avatar Icon with tier border for top 3
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .then(
+                            if (tier != null) Modifier.border(1.5.dp, tierColor, RoundedCornerShape(4.dp))
+                            else Modifier
+                        )
+                ) {
+                    PixelAvatarDisplay(
+                        avatarId = avatarId ?: "avatar_hero",
+                        size = 32.dp
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(10.dp))
 
