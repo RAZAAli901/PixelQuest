@@ -85,3 +85,44 @@ fun LeaderboardPreview_SignedInAndOptedIn() {
         )
     }
 }
+
+@Preview(name = "4. Rank Tier Podium Top 3 Preview", showBackground = true, backgroundColor = 0xFF12121E)
+@Composable
+fun LeaderboardTop3PodiumPreview() {
+    PixelQuestTheme {
+        androidx.compose.foundation.layout.Column(
+            modifier = androidx.compose.ui.Modifier
+                .androidx.compose.foundation.layout.fillMaxWidth()
+                .androidx.compose.foundation.background(com.pixelquest.app.ui.theme.PixelBackgroundDark)
+                .androidx.compose.foundation.layout.padding(16.dp),
+            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+        ) {
+            androidx.compose.material3.Text(
+                text = "👑 HALL OF FAME PODIUM",
+                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                color = com.pixelquest.app.ui.theme.PixelGold
+            )
+            PixelLeaderboardRow(
+                rank = 1,
+                displayName = "Valkyrie99",
+                statLabel = "DAYS STREAK",
+                statValue = "42 🔥",
+                isCurrentUser = false
+            )
+            PixelLeaderboardRow(
+                rank = 2,
+                displayName = "ShadowKnight",
+                statLabel = "DAYS STREAK",
+                statValue = "28 🔥",
+                isCurrentUser = false
+            )
+            PixelLeaderboardRow(
+                rank = 3,
+                displayName = "PixelMage",
+                statLabel = "DAYS STREAK",
+                statValue = "21 🔥",
+                isCurrentUser = true
+            )
+        }
+    }
+}
