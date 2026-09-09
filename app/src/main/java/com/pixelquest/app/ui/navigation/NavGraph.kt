@@ -41,6 +41,7 @@ sealed class Screen(val route: String) {
     object Onboarding : Screen("onboarding")
     object Settings : Screen("settings")
     object Account : Screen("account")
+    object Leaderboard : Screen("leaderboard")
 }
 
 @Composable
@@ -126,6 +127,9 @@ fun PixelNavHost(
                 },
                 onNavigateToTaskAnalytics = { taskId ->
                     navController.navigate(Screen.TaskAnalytics.createRoute(taskId))
+                },
+                onNavigateToLeaderboard = {
+                    navController.navigate(Screen.Leaderboard.route)
                 }
             )
         }
@@ -203,6 +207,14 @@ fun PixelNavHost(
         composable(Screen.Account.route) {
             com.pixelquest.app.ui.screens.account.AccountScreen(
                 onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.Leaderboard.route) {
+            val leaderboardViewModel: com.pixelquest.app.ui.screens.leaderboard.LeaderboardViewModel = hiltViewModel()
+            com.pixelquest.app.ui.screens.leaderboard.LeaderboardScreen(
+                viewModel = leaderboardViewModel,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToAccount = { navController.navigate(Screen.Account.route) }
             )
         }
     }

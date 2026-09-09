@@ -1149,7 +1149,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 20: Build LeaderboardScreen with Top Streaks and Top Levels tabs - 6e6a7dd
 - Step 21: Wire LazyColumn rendering PixelLeaderboardRows per active tab - 77e717a
 - Step 22: Add highlighted pinned row displaying current signed-in user's rank outside top N - 8de19db
-- Step 23: Add load more trigger and pagination scrolling to LeaderboardScreen - pending
+- Step 23: Add load more trigger and pagination scrolling to LeaderboardScreen - 2ff1f4f
+- Step 24: Add LeaderboardScreen nav route with StatsScreen entry point and document architectural choice - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
@@ -1168,6 +1169,10 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - **Constraint Holding**: `ProfileSyncWorker` was scheduled with `NetworkType.CONNECTED` constraint. Inspection verified the job remained enqueued in WorkManager's persistent database without crashing or throwing network exceptions.
 - **Reconnection Trigger**: Restored internet connectivity. `ConnectivitySyncObserver` captured `onAvailable()` callback and scheduled sync.
 - **Autonomous Cloud Update**: `ProfileSyncWorker` executed within seconds of reconnection. Inspected Supabase `profiles` table: total XP and streak updated to latest values with zero manual user intervention.
+
+#### 4. Leaderboard Navigation Architecture Decision (Stats Entry vs 5th Bottom Nav Tab)
+- **4-Tab Bar Ergonomics Preserved**: PixelQuest's bottom bar (Home, Tasks, Stats, Profile) is strictly tuned for 48dp touch targets and retro icon spacing. Adding a 5th tab would compress controls on compact devices (<360dp width) and introduce navigation clutter.
+- **Stats Context Synergy**: The Leaderboard is a natural extension of player metrics and streak progression. Placing a prominent "🏆 GLOBAL LEADERBOARD" button directly on `StatsScreen` offers intuitive discovery alongside personal stats and heatmap data, without cluttering the persistent bottom navigation.
 
 
 

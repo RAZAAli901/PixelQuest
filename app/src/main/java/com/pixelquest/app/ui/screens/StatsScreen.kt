@@ -39,14 +39,16 @@ fun StatsScreen(
     viewModel: StatsViewModel = hiltViewModel(),
     onNavigateToTaskHistory: () -> Unit = {},
     onNavigateToLevelHistory: () -> Unit = {},
-    onNavigateToTaskAnalytics: (Long) -> Unit = {}
+    onNavigateToTaskAnalytics: (Long) -> Unit = {},
+    onNavigateToLeaderboard: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     StatsContent(
         state = state,
         onNavigateToTaskHistory = onNavigateToTaskHistory,
         onNavigateToLevelHistory = onNavigateToLevelHistory,
-        onNavigateToTaskAnalytics = onNavigateToTaskAnalytics
+        onNavigateToTaskAnalytics = onNavigateToTaskAnalytics,
+        onNavigateToLeaderboard = onNavigateToLeaderboard
     )
 }
 
@@ -56,6 +58,7 @@ fun StatsContent(
     onNavigateToTaskHistory: () -> Unit = {},
     onNavigateToLevelHistory: () -> Unit = {},
     onNavigateToTaskAnalytics: (Long) -> Unit = {},
+    onNavigateToLeaderboard: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val activeDifficulty = state.difficultyLevel
@@ -175,6 +178,13 @@ fun StatsContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+
+        // Global Leaderboard Entry Point
+        com.pixelquest.app.ui.components.PixelButton(
+            text = "🏆 GLOBAL LEADERBOARD",
+            onClick = onNavigateToLeaderboard,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         // Quick-Nav Actions Section
         Row(
