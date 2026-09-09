@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -78,8 +79,27 @@ class LeaderboardViewModel @Inject constructor(
             }.collect { newAuthState ->
                 val prevAuthState = _uiState.value.authState
                 _uiState.value = _uiState.value.copy(authState = newAuthState)
-                if (newAuthState !is LeaderboardAuthState.NotSignedIn && prevAuthState is LeaderboardAuthState.NotSignedIn) {
-                    loadInitialData()
+                when (newAuthState) {
+                    is LeaderboardAuthState.NotSignedIn -> {
+                        _uiState.value = _uiState.value.copy(
+                            streakEntries = emptyList(),
+                            levelEntries = emptyList(),
+                            currentUserRank = null
+                        )
+                    }
+                    is LeaderboardAuthState.SignedInReadOnly -> {
+                        _uiState.value = _uiState.value.copy(currentUserRank = null)
+                        if (prevAuthState is LeaderboardAuthState.NotSignedIn) {
+                            loadInitialData()
+                        }
+                    }
+                    is LeaderboardAuthState.SignedInAndOptedIn -> {
+                        if (prevAuthState is LeaderboardAuthState.NotSignedIn) {
+                            loadInitialData()
+                        } else if (prevAuthState !is LeaderboardAuthState.SignedInAndOptedIn) {
+                            fetchCurrentUserRank()
+                        }
+                    }
                 }
             }
         }
@@ -87,21 +107,25 @@ class LeaderboardViewModel @Inject constructor(
 
     fun syncAuthState(authUiState: AuthUiState) {
         viewModelScope.launch {
-            val profile = userProfileRepository.getProfile()
-            // Can be called to mirror AuthViewModel state explicitly if needed
-            when (authUiState) {
+            val profile = userProfileRepository.getProfile().firstOrNull()
+            val newAuthState = when (authUiState) {
                 is AuthUiState.SignedIn -> {
-                    // Handled automatically via repository flow
+                    if (profile?.leaderboardOptIn == true) {
+                        LeaderboardAuthState.SignedInAndOptedIn(
+                            userId = authUiState.user.id,
+                            displayName = profile.leaderboardDisplayName ?: profile.username
+                        )
+                    } else {
+                        LeaderboardAuthState.SignedInReadOnly(userId = authUiState.user.id)
+                    }
                 }
-                is AuthUiState.SignedOut -> {
-                    _uiState.value = _uiState.value.copy(
-                        authState = LeaderboardAuthState.NotSignedIn,
-                        streakEntries = emptyList(),
-                        levelEntries = emptyList(),
-                        currentUserRank = null
-                    )
-                }
-                else -> Unit
+                else -> LeaderboardAuthState.NotSignedIn
+            }
+            _uiState.value = _uiState.value.copy(authState = newAuthState)
+            if (newAuthState is LeaderboardAuthState.SignedInAndOptedIn) {
+                fetchCurrentUserRank()
+            } else if (newAuthState is LeaderboardAuthState.SignedInReadOnly) {
+                _uiState.value = _uiState.value.copy(currentUserRank = null)
             }
         }
     }

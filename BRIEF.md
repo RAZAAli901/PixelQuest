@@ -1152,7 +1152,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 23: Add load more trigger and pagination scrolling to LeaderboardScreen - 2ff1f4f
 - Step 24: Add LeaderboardScreen nav route with StatsScreen entry point and document architectural choice - 0f74063
 - Step 25: Add NotSignedInLeaderboardState with CTA to AccountScreen when user is signed out - 3eba21a
-- Step 26: Implement read-only spectator mode for signed-in non-opted-in users and document RLS read rationale - pending
+- Step 26: Implement read-only spectator mode for signed-in non-opted-in users and document RLS read rationale - a732a07
+- Step 27: Wire exact auth and opt-in state transitions across NotSignedIn, SignedInReadOnly, and SignedInAndOptedIn - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
