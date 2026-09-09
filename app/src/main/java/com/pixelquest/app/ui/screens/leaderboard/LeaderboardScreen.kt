@@ -92,19 +92,25 @@ fun LeaderboardScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            // Tab Selector Row: Top Streaks / Top Levels
-            LeaderboardTabRow(
-                selectedTab = uiState.selectedTab,
-                onTabSelected = { viewModel.selectTab(it) }
+        if (uiState.authState is LeaderboardAuthState.NotSignedIn) {
+            NotSignedInLeaderboardState(
+                onNavigateToAccount = onNavigateToAccount,
+                modifier = Modifier.padding(innerPadding)
             )
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                // Tab Selector Row: Top Streaks / Top Levels
+                LeaderboardTabRow(
+                    selectedTab = uiState.selectedTab,
+                    onTabSelected = { viewModel.selectTab(it) }
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
             // Tab Content: LazyColumn of PixelLeaderboardRows
             val currentUserId = when (val auth = uiState.authState) {
@@ -327,5 +333,55 @@ fun LeaderboardTabButton(
             color = textColor,
             fontSize = 9.sp
         )
+    }
+}
+
+@Composable
+fun NotSignedInLeaderboardState(
+    onNavigateToAccount: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(PixelSurfaceDark)
+                .border(2.dp, PixelGold, RoundedCornerShape(12.dp))
+                .padding(24.dp)
+        ) {
+            Text(
+                text = "🔒",
+                fontSize = 40.sp,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            Text(
+                text = "HALL OF FAME LOCKED",
+                style = MaterialTheme.typography.titleLarge,
+                color = PixelGold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            Text(
+                text = "Sign in with your Google Account to view live global rankings, streaks, and top heroes across the realm.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = PixelTextWhite,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp,
+                modifier = Modifier.padding(bottom = 20.dp)
+            )
+            com.pixelquest.app.ui.components.PixelButton(
+                text = "🔑 SIGN IN VIA ACCOUNT",
+                onClick = onNavigateToAccount,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
