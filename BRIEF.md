@@ -1151,7 +1151,8 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 22: Add highlighted pinned row displaying current signed-in user's rank outside top N - 8de19db
 - Step 23: Add load more trigger and pagination scrolling to LeaderboardScreen - 2ff1f4f
 - Step 24: Add LeaderboardScreen nav route with StatsScreen entry point and document architectural choice - 0f74063
-- Step 25: Add NotSignedInLeaderboardState with CTA to AccountScreen when user is signed out - pending
+- Step 25: Add NotSignedInLeaderboardState with CTA to AccountScreen when user is signed out - 3eba21a
+- Step 26: Implement read-only spectator mode for signed-in non-opted-in users and document RLS read rationale - pending
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
@@ -1174,6 +1175,11 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 #### 4. Leaderboard Navigation Architecture Decision (Stats Entry vs 5th Bottom Nav Tab)
 - **4-Tab Bar Ergonomics Preserved**: PixelQuest's bottom bar (Home, Tasks, Stats, Profile) is strictly tuned for 48dp touch targets and retro icon spacing. Adding a 5th tab would compress controls on compact devices (<360dp width) and introduce navigation clutter.
 - **Stats Context Synergy**: The Leaderboard is a natural extension of player metrics and streak progression. Placing a prominent "🏆 GLOBAL LEADERBOARD" button directly on `StatsScreen` offers intuitive discovery alongside personal stats and heatmap data, without cluttering the persistent bottom navigation.
+
+#### 5. Signed-In Read-Only Spectator Mode Architecture Decision (RLS Read Semantics)
+- **RLS Read Authorization**: Day 13's Row Level Security policy `allow_read_opted_in_profiles` permits any authenticated user to SELECT rows where `leaderboard_opt_in = true`. The database policy does not condition read access on the viewer's own opt-in status.
+- **Spectator Experience**: Signed-in users who have not opted in can browse the leaderboard in full read-only spectator mode. Opting in is required only to appear publicly on the leaderboard with a calculated rank, not to view others' progress.
+- **Zero-Pressure Exploration**: In spectator mode, a compact retro banner reminds the player of read-only status and provides a 1-tap pathway to choose a pseudonym and opt in whenever they feel ready.
 
 
 

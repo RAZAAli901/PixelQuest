@@ -230,46 +230,57 @@ fun LeaderboardScreen(
                     }
             }
 
-            // Pinned Current User Rank Footer
-            val userRank = uiState.currentUserRank
-            if (userRank != null) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(PixelSurfaceDark)
-                        .border(1.dp, PixelGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                        .padding(8.dp)
-                ) {
-                    Text(
-                        text = "★ YOUR RANKING",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = PixelGold,
-                        fontSize = 8.sp,
-                        modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
+            // Footer: Pinned Current User Rank (Opted In) OR Spectator Mode Banner (Read Only)
+            when (uiState.authState) {
+                is LeaderboardAuthState.SignedInReadOnly -> {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    SpectatorModeBanner(
+                        onNavigateToAccount = onNavigateToAccount
                     )
-                    when (uiState.selectedTab) {
-                        LeaderboardTab.TOP_STREAKS -> {
-                            PixelLeaderboardRow(
-                                rank = userRank.rank,
-                                displayName = userRank.profile.displayName,
-                                statLabel = "DAYS STREAK",
-                                statValue = "${userRank.profile.currentStreak} 🔥",
-                                isCurrentUser = true
+                }
+                is LeaderboardAuthState.SignedInAndOptedIn -> {
+                    val userRank = uiState.currentUserRank
+                    if (userRank != null) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(PixelSurfaceDark)
+                                .border(1.dp, PixelGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = "★ YOUR RANKING",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = PixelGold,
+                                fontSize = 8.sp,
+                                modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
                             )
-                        }
-                        LeaderboardTab.TOP_LEVELS -> {
-                            PixelLeaderboardRow(
-                                rank = userRank.rank,
-                                displayName = userRank.profile.displayName,
-                                statLabel = "XP: ${userRank.profile.totalXp}",
-                                statValue = "LVL ${userRank.profile.level} ⚔️",
-                                isCurrentUser = true
-                            )
+                            when (uiState.selectedTab) {
+                                LeaderboardTab.TOP_STREAKS -> {
+                                    PixelLeaderboardRow(
+                                        rank = userRank.rank,
+                                        displayName = userRank.profile.displayName,
+                                        statLabel = "DAYS STREAK",
+                                        statValue = "${userRank.profile.currentStreak} 🔥",
+                                        isCurrentUser = true
+                                    )
+                                }
+                                LeaderboardTab.TOP_LEVELS -> {
+                                    PixelLeaderboardRow(
+                                        rank = userRank.rank,
+                                        displayName = userRank.profile.displayName,
+                                        statLabel = "XP: ${userRank.profile.totalXp}",
+                                        statValue = "LVL ${userRank.profile.level} ⚔️",
+                                        isCurrentUser = true
+                                    )
+                                }
+                            }
                         }
                     }
                 }
+                LeaderboardAuthState.NotSignedIn -> Unit
             }
         }
     }
@@ -379,6 +390,52 @@ fun NotSignedInLeaderboardState(
             )
             com.pixelquest.app.ui.components.PixelButton(
                 text = "🔑 SIGN IN VIA ACCOUNT",
+                onClick = onNavigateToAccount,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+fun SpectatorModeBanner(
+    onNavigateToAccount: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(PixelSurfaceDark)
+            .border(1.dp, PixelCyan.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+            .padding(12.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 6.dp)
+            ) {
+                Text(
+                    text = "👁️ SPECTATOR MODE",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = PixelCyan,
+                    fontSize = 11.sp
+                )
+            }
+            Text(
+                text = "You are viewing the leaderboard in read-only spectator mode. Opt in from Account Settings to appear on the leaderboard!",
+                style = MaterialTheme.typography.bodySmall,
+                color = PixelTextMuted,
+                textAlign = TextAlign.Center,
+                fontSize = 8.sp,
+                lineHeight = 14.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            com.pixelquest.app.ui.components.PixelButton(
+                text = "⚔️ JOIN LEADERBOARD",
                 onClick = onNavigateToAccount,
                 modifier = Modifier.fillMaxWidth()
             )
