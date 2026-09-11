@@ -1173,7 +1173,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Step 44: Perform manual QA pass verifying relative ranking between two real Google accounts - 66d159b
 - Step 45: Fix tab pagination state preservation bug and add inline error banner to LeaderboardScreen - 39d562b
 - Step 46: Update BRIEF.md with full Day 14 technical summary, architecture, and Day 15 scope - dd41c41
-- Step 47: Final verification commit: clean build, CI pass, state persistence across app restart - pending
+- Step 47: Final verification commit: clean build, CI pass, state persistence across app restart - 9df0a0f
 
 ### Day 14 Architecture & Setup Notes
 #### 1. Manual "Sync Now" Button Decision (Debug Affordance)
@@ -1293,6 +1293,10 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Offline conflict edge cases beyond basic retry (e.g. clock drift, multi-device sync resolution).
 - Full end-to-end instrumented test suite covering Google Sign-In, sync worker, and live leaderboard UI.
 - Final v1.1.0 release packaging, release notes, and GitHub tag.
+
+## Day 15 Progress Log
+- Step 1: Add client-side profanity and offensive-word filter for leaderboard display name - pending
+
 
 
 

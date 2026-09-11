@@ -207,7 +207,7 @@ class AccountViewModel @Inject constructor(
                 trimmed.length < 3 -> "Name must be at least 3 characters."
                 trimmed.length > 20 -> "Name must not exceed 20 characters."
                 !trimmed.matches(Regex("^[a-zA-Z0-9_]+$")) -> "Only alphanumeric characters and underscores allowed."
-                else -> null
+                else -> com.pixelquest.app.domain.DisplayNameModerator.validate(trimmed)
             }
         }
     }
