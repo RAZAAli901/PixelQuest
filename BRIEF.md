@@ -1298,7 +1298,15 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 1: Add client-side profanity and offensive-word filter for leaderboard display name - d6d6bfa
 - Step 2: Add server-side check constraint and trigger function for display name moderation - 1a99770
 - Step 3: Add report action on PixelLeaderboardRow and create reports table with insert-only RLS - 84da7ef
-- Step 4: Write unit tests for client-side display name moderation and leetspeak filter - pending
+- Step 4: Write unit tests for client-side display name moderation and leetspeak filter - c2be218
+- Step 5: Perform manual QA verification of UI and direct API display name moderation rejection - pending
+
+### Day 15 Architecture & Setup Notes
+#### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
+- **Client-Side Filter**: `DisplayNameModerator.kt` filters vulgarities, profanity, and l33tspeak substitutions at input time in `AccountScreen`. Malicious inputs trigger inline error text and disable opt-in.
+- **Server-Side Enforcement**: PostgreSQL trigger `trigger_check_display_name_moderation` executes before INSERT/UPDATE on `public.profiles`. Direct REST API calls attempting to bypass the client UI are rejected with a SQL check violation exception.
+- **Community Flagging**: Authenticated users can flag inappropriate names via the `🚩` report button on `PixelLeaderboardRow`, inserting a record into `public.reports` governed by insert-only RLS.
+
 
 
 
