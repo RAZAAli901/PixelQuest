@@ -4,6 +4,12 @@ import android.content.Context
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,16 +22,16 @@ class SyncSchedulerImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : SyncScheduler {
 
-    private val scope = kotlinx.coroutines.CoroutineScope(
-        kotlinx.coroutines.Dispatchers.Default + kotlinx.coroutines.SupervisorJob()
+    private val scope = CoroutineScope(
+        Dispatchers.Default + SupervisorJob()
     )
-    private var debounceJob: kotlinx.coroutines.Job? = null
+    private var debounceJob: Job? = null
 
     override fun scheduleProfileSync(debounceMs: Long) {
         debounceJob?.cancel()
         debounceJob = scope.launch {
             if (debounceMs > 0) {
-                kotlinx.coroutines.delay(debounceMs)
+                delay(debounceMs)
             }
 
             val constraints = androidx.work.Constraints.Builder()

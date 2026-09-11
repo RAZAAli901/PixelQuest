@@ -137,21 +137,19 @@ fun LeaderboardContent(
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_nav_back),
-                            contentDescription = "Back",
-                            tint = PixelGold,
-                            modifier = Modifier.size(24.dp)
+                        Text(
+                            text = "◀",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = PixelGold
                         )
                     }
                 },
                 actions = {
                     IconButton(onClick = onRefresh) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_refresh),
-                            contentDescription = "Refresh Leaderboard",
-                            tint = PixelCyan,
-                            modifier = Modifier.size(20.dp)
+                        Text(
+                            text = "🔄",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = PixelCyan
                         )
                     }
                 },
@@ -470,6 +468,7 @@ fun LeaderboardContent(
                 LeaderboardAuthState.NotSignedIn -> Unit
             }
         }
+    }
     }
 
     if (reportingItem != null) {

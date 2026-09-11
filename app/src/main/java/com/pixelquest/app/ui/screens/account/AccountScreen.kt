@@ -27,8 +27,9 @@ import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackground
+import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
 
@@ -97,7 +98,7 @@ fun AccountContent(
     modifier: Modifier = Modifier
 ) {
     Scaffold(
-        containerColor = PixelBackground,
+        containerColor = PixelBackgroundDark,
         modifier = modifier.fillMaxSize()
     ) { paddingValues ->
         Column(
@@ -378,7 +379,8 @@ fun AccountContent(
                         PixelButton(
                             text = "🗑️ DELETE MY CLOUD DATA",
                             onClick = onRequestDeleteCloudData,
-                            variant = PixelButtonVariant.RED,
+                            variant = PixelButtonVariant.YELLOW,
+                            textColor = PixelRed,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }

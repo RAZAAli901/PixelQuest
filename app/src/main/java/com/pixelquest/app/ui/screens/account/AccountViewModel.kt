@@ -221,11 +221,18 @@ class AccountViewModel @Inject constructor(
                             syncMessage = "Auth error: please sign in again."
                         )
                     }
-                    is com.pixelquest.app.data.remote.SupabaseResult.Error -> {
+                    is com.pixelquest.app.data.remote.SupabaseResult.ServerError -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isSyncFailed = true,
-                            syncMessage = "Sync failed: ${result.userMessage}"
+                            syncMessage = "Server error: ${result.message}"
+                        )
+                    }
+                    is com.pixelquest.app.data.remote.SupabaseResult.UnknownError -> {
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            isSyncFailed = true,
+                            syncMessage = "Sync failed: ${result.message}"
                         )
                     }
                 }

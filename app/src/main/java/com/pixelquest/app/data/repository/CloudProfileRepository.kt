@@ -1,5 +1,6 @@
 package com.pixelquest.app.data.repository
 
+import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.model.CloudProfileDto
 import com.pixelquest.app.data.remote.safeSupabaseCall

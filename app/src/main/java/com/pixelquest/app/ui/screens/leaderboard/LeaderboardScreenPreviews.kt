@@ -1,9 +1,20 @@
 package com.pixelquest.app.ui.screens.leaderboard
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.pixelquest.app.data.remote.model.CloudProfileDto
 import com.pixelquest.app.data.repository.UserLeaderboardRank
+import com.pixelquest.app.ui.theme.PixelBackgroundDark
+import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 
 private val sampleStreakProfiles = listOf(
@@ -90,17 +101,17 @@ fun LeaderboardPreview_SignedInAndOptedIn() {
 @Composable
 fun LeaderboardTop3PodiumPreview() {
     PixelQuestTheme {
-        androidx.compose.foundation.layout.Column(
-            modifier = androidx.compose.ui.Modifier
-                .androidx.compose.foundation.layout.fillMaxWidth()
-                .androidx.compose.foundation.background(com.pixelquest.app.ui.theme.PixelBackgroundDark)
-                .androidx.compose.foundation.layout.padding(16.dp),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(PixelBackgroundDark)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            androidx.compose.material3.Text(
+            Text(
                 text = "👑 HALL OF FAME PODIUM",
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                color = com.pixelquest.app.ui.theme.PixelGold
+                style = MaterialTheme.typography.titleMedium,
+                color = PixelGold
             )
             PixelLeaderboardRow(
                 rank = 1,

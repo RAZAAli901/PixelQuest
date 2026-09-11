@@ -186,7 +186,7 @@ class LeaderboardViewModel @Inject constructor(
                 is SupabaseResult.NetworkError -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = "Network error: ${result.userMessage}"
+                        errorMessage = "Network error: ${result.message}"
                     )
                 }
                 is SupabaseResult.ServerError -> {
@@ -198,7 +198,7 @@ class LeaderboardViewModel @Inject constructor(
                 is SupabaseResult.AuthError -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = "Authentication error: ${result.userMessage}"
+                        errorMessage = "Authentication error: ${result.message}"
                     )
                 }
                 is SupabaseResult.UnknownError -> {

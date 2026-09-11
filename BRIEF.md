@@ -1338,7 +1338,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 41: Bump versionName to 1.1.0 and versionCode to 101 in build.gradle.kts - c7e3e72
 - Step 42: Document required GitHub Secrets for Supabase and OAuth release build injection - f9f799a
 - Step 43: Update release and CI workflows to inject Supabase secrets dynamically at build time - f21cae8
-- Step 44: Create annotated v1.1.0 git tag with release notes covering leaderboard feature - pending
+- Step 44: Create annotated v1.1.0 git tag with release notes covering leaderboard feature - 575dda8
+- Step 45: Trigger release workflow via v1.1.0 tag and verify GitHub Release publication - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
