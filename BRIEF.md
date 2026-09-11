@@ -1320,7 +1320,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 23: Write unit tests for leaderboard fetch timeout and prompt recovery - fd44b01
 - Step 24: Write comprehensive PRIVACY.md documenting local-first storage, cloud sync, and deletion rights - 29b448d
 - Step 25: Add in-app privacy policy viewer accessible from AccountScreen before sign-in - c7b0a63
-- Step 26: Update README.md with Privacy & Data Architecture section - pending
+- Step 26: Update README.md with Privacy & Data Architecture section - 9faf1bb
+- Step 27: Update CHANGELOG.md with full leaderboard feature entry for v1.1.0 release - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
