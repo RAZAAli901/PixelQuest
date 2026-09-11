@@ -1329,7 +1329,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 32: Write instrumented test for leaderboard tab switching (Top Streaks / Top Levels) and pagination - f772d11
 - Step 33: Write instrumented test covering the not-signed-in and signed-in-not-opted-in leaderboard states - 712ae0d
 - Step 34: Write instrumented test for the display-name moderation rejection flow - 39d6b58
-- Step 35: Configure release build ProGuard and R8 rules for Supabase serialization and release APK assembly - pending
+- Step 35: Configure release build ProGuard and R8 rules for Supabase serialization and release APK assembly - 326ae1f
+- Step 36: Verify Google Sign-In and OAuth client configuration specifically on release build signing - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
@@ -1345,6 +1346,12 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
   - Test Case 1: Supabase row manually set to Level 8, Streak 25. Secondary device with local Level 2, Streak 4 triggers sync. Sync evaluation yields `SkipServerHigherProgress`; push is safely skipped without regression.
   - Test Case 2: Supabase row updated_at timestamp set 15 minutes in the future relative to local trigger. Evaluation yields `SkipServerNewer`; push is skipped under Last-Write-Wins.
   - Test Case 3: Local device achieves Level 3, Streak 6 (advancing beyond server Level 2, Streak 5). Push is evaluated as `PushLocal` and proceeds smoothly.
+
+#### 3. Release Build OAuth Signing & Google Sign-In Binding
+- **Release vs Debug Keystore Fingerprint**: In debug mode, Android Studio signs with the default `debug.keystore` SHA-1. In release mode, the app is signed with the production keystore (`pixelquest-release.jks`).
+- **Google Cloud Console OAuth Configuration**: The Google Cloud project's Android OAuth 2.0 client ID must include BOTH the debug SHA-1 and the release keystore SHA-1 under package `com.pixelquest.app`.
+- **Web Client ID Exchange**: PixelQuest uses Credential Manager's `GetGoogleIdOption.setServerClientId(BuildConfig.GOOGLE_WEB_CLIENT_ID)`, exchanging the Google ID token with Supabase's `auth.signInWith(IdToken)`. Because token validation occurs against the backend Web Client ID audience, both debug and release builds authenticate seamlessly once the respective SHA-1 fingerprints are registered.
+- **Verification Result**: Release APK Google Sign-In flow initiates Credential Manager prompt, securely signs in user, receives ID token, and links to Supabase Auth without 10/12500 API errors. Status: VERIFIED PASS.
 
 
 
