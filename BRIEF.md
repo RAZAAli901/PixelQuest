@@ -1308,13 +1308,20 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 11: Write integration test verifying cloud deletion removes user from leaderboard queries - 81421dd
 - Step 12: Add discoverable Leave Leaderboard action in AccountScreen with lightweight single confirmation dialog - 0430fef
 - Step 13: Add brief confirmation notice after opting out of leaderboard - e1dbb86
-- Step 14: Write UI test for opt-out discoverability and confirmation flow - pending
+- Step 14: Write UI test for opt-out discoverability and confirmation flow - c86e3e0
+- Step 15: Define and document sync conflict resolution rules: Last-Write-Wins and anti-regression - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
 - **Client-Side Filter**: `DisplayNameModerator.kt` filters vulgarities, profanity, and l33tspeak substitutions at input time in `AccountScreen`. Malicious inputs trigger inline error text and disable opt-in.
 - **Server-Side Enforcement**: PostgreSQL trigger `trigger_check_display_name_moderation` executes before INSERT/UPDATE on `public.profiles`. Direct REST API calls attempting to bypass the client UI are rejected with a SQL check violation exception.
 - **Community Flagging**: Authenticated users can flag inappropriate names via the `🚩` report button on `PixelLeaderboardRow`, inserting a record into `public.reports` governed by insert-only RLS.
+
+#### 2. Multi-Device Sync Conflict Resolution & Staleness Protection
+- **Multi-Device Scenario**: The player signs into PixelQuest with the same Google account across two devices (e.g., phone and tablet).
+- **Rule 1: Last-Write-Wins (LWW) by `updated_at` Timestamp**: When `ProfileSyncWorker` executes, it compares the remote profile's `updated_at` ISO-8601 timestamp against the local event trigger timestamp. If `serverProfile.updated_at > localTriggerTime`, the local push is skipped, preventing a device from clobbering recent cloud updates.
+- **Rule 2: Anti-Regression Guard (Monotonic Progress)**: Regardless of timestamp comparison, a sync must never push lower values for `current_streak`, `longest_streak`, `level`, or `total_xp` than what is already committed to the server. If a secondary device has been offline and has stale lower values, the sync is aborted, protecting real user progress from regressing.
+
 
 
 
