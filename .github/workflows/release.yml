@@ -51,6 +51,16 @@ jobs:
             rm -f app/pixelquest-release.jks
           fi
 
+      - name: Inject Supabase & OAuth Build Secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
+        run: |
+          echo "SUPABASE_URL=${SUPABASE_URL:-https://placeholder-project.supabase.co}" >> local.properties
+          echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-placeholder-anon-key}" >> local.properties
+          echo "GOOGLE_WEB_CLIENT_ID=${GOOGLE_WEB_CLIENT_ID:-}" >> local.properties
+
       - name: Build Debug & Release APKs
         env:
           KEYSTORE_FILE: ${{ github.workspace }}/app/pixelquest-release.jks
