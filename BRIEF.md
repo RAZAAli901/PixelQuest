@@ -1322,7 +1322,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 25: Add in-app privacy policy viewer accessible from AccountScreen before sign-in - c7b0a63
 - Step 26: Update README.md with Privacy & Data Architecture section - 9faf1bb
 - Step 27: Update CHANGELOG.md with full leaderboard feature entry for v1.1.0 release - d0033fe
-- Step 28: Write instrumented test: sign-in -> opt-in -> set display name -> appears on leaderboard - pending
+- Step 28: Write instrumented test: sign-in -> opt-in -> set display name -> appears on leaderboard - 085ed1c
+- Step 29: Write instrumented test: opt-out -> disappears from leaderboard - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
