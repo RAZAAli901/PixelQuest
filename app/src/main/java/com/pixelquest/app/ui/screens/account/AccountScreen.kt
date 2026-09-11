@@ -338,6 +338,18 @@ fun AccountScreen(
             )
         }
 
+        // Lightweight Single Confirmation Dialog for Leaving Leaderboard (Opt-Out)
+        if (accountState.showOptOutConfirmDialog) {
+            PixelConfirmDialog(
+                title = "LEAVE LEADERBOARD?",
+                message = "Are you sure you want to leave the leaderboard? Your rank and public display name will no longer be visible to other players. You can rejoin at any time.",
+                confirmText = "LEAVE",
+                dismissText = "STAY",
+                onConfirm = { accountViewModel.confirmOptOut() },
+                onDismiss = { accountViewModel.dismissOptOutDialog() }
+            )
+        }
+
         // Deletion Step 1: Initial Warning
         if (accountState.showDeleteConfirmDialog) {
             PixelConfirmDialog(

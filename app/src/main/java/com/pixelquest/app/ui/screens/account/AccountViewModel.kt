@@ -22,6 +22,7 @@ data class AccountUiState(
     val lastSyncTime: Long? = null,
     val showDeleteConfirmDialog: Boolean = false,
     val showDeleteDoubleConfirmDialog: Boolean = false,
+    val showOptOutConfirmDialog: Boolean = false,
     val isDeletingCloudData: Boolean = false
 )
 
@@ -67,8 +68,21 @@ class AccountViewModel @Inject constructor(
             }
             _uiState.value = _uiState.value.copy(showConfirmDialog = true)
         } else {
-            optOut()
+            requestOptOut()
         }
+    }
+
+    fun requestOptOut() {
+        _uiState.value = _uiState.value.copy(showOptOutConfirmDialog = true)
+    }
+
+    fun dismissOptOutDialog() {
+        _uiState.value = _uiState.value.copy(showOptOutConfirmDialog = false)
+    }
+
+    fun confirmOptOut() {
+        _uiState.value = _uiState.value.copy(showOptOutConfirmDialog = false)
+        optOut()
     }
 
     private var syncJob: kotlinx.coroutines.Job? = null
