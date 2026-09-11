@@ -1326,7 +1326,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 29: Write instrumented test: opt-out -> disappears from leaderboard - dc092d9
 - Step 30: Write instrumented test for full account and cloud data deletion flow - 1bff8f3
 - Step 31: Write instrumented test for offline sync queuing and eventual success on reconnect - c679eee
-- Step 32: Write instrumented test for leaderboard tab switching (Top Streaks / Top Levels) and pagination - pending
+- Step 32: Write instrumented test for leaderboard tab switching (Top Streaks / Top Levels) and pagination - f772d11
+- Step 33: Write instrumented test covering the not-signed-in and signed-in-not-opted-in leaderboard states - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
