@@ -1304,7 +1304,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 7: Wire deletion in CloudProfileRepository to delete own Supabase profiles row - 2e07b44
 - Step 8: Wire auth account self-deletion via delete_user_account PostgreSQL RPC in AuthRepository - 80e5926
 - Step 9: Add double-confirmation dialog for cloud data deletion clarifying local data safety - 853fc57
-- Step 10: Wire cloud deletion execution to clear Room cloud fields and sign out locally - pending
+- Step 10: Wire cloud deletion execution to clear Room cloud fields and sign out locally - 993fc46
+- Step 11: Write integration test verifying cloud deletion removes user from leaderboard queries - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
