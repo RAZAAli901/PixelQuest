@@ -42,7 +42,8 @@ data class LeaderboardUiState(
     val isLoadingMore: Boolean = false,
     val canLoadMore: Boolean = true,
     val errorMessage: String? = null,
-    val lastUpdatedTimestamp: String? = null
+    val lastUpdatedTimestamp: String? = null,
+    val reportMessage: String? = null
 )
 
 @HiltViewModel
@@ -275,5 +276,31 @@ class LeaderboardViewModel @Inject constructor(
 
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    fun reportProfile(profileId: String, reason: String = "Offensive display name") {
+        viewModelScope.launch {
+            when (val result = leaderboardRepository.reportProfile(profileId, reason)) {
+                is SupabaseResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        reportMessage = "Report submitted. Thank you for keeping PixelQuest safe."
+                    )
+                }
+                is SupabaseResult.AuthError -> {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Please sign in to report players."
+                    )
+                }
+                else -> {
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = "Could not submit report: check network connection."
+                    )
+                }
+            }
+        }
+    }
+
+    fun clearReportMessage() {
+        _uiState.value = _uiState.value.copy(reportMessage = null)
     }
 }

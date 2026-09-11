@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import com.pixelquest.app.ui.components.PixelConfirmDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -69,6 +70,7 @@ fun LeaderboardScreen(
         onTabSelected = { viewModel.selectTab(it) },
         onLoadMore = { viewModel.loadMore() },
         onRefresh = { viewModel.refresh() },
+        onReportProfile = { id, name -> viewModel.reportProfile(id, "Flagged offensive display name: $name") },
         onNavigateBack = onNavigateBack,
         onNavigateToAccount = onNavigateToAccount,
         modifier = modifier
@@ -82,10 +84,12 @@ fun LeaderboardContent(
     onTabSelected: (LeaderboardTab) -> Unit,
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit,
+    onReportProfile: (String, String) -> Unit = { _, _ -> },
     onNavigateBack: () -> Unit,
     onNavigateToAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var reportingItem by remember { mutableStateOf<Pair<String, String>?>(null) }
     var pullOffset by remember { mutableStateOf(0f) }
     val density = LocalDensity.current
     val refreshThresholdPx = with(density) { 64.dp.toPx() }
@@ -278,6 +282,25 @@ fun LeaderboardContent(
                     }
                 }
 
+                if (uiState.reportMessage != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(PixelSurfaceDark)
+                            .border(1.dp, PixelGreen, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = "🚩 ${uiState.reportMessage}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = PixelGreen,
+                            fontSize = 8.sp
+                        )
+                    }
+                }
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -339,7 +362,8 @@ fun LeaderboardContent(
                                         displayName = item.displayName,
                                         statLabel = "DAYS STREAK",
                                         statValue = "${item.currentStreak} 🔥",
-                                        isCurrentUser = isCurrentUser
+                                        isCurrentUser = isCurrentUser,
+                                        onReportClicked = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
                                     )
                                 }
                                 LeaderboardTab.TOP_LEVELS -> {
@@ -348,7 +372,8 @@ fun LeaderboardContent(
                                         displayName = item.displayName,
                                         statLabel = "XP: ${item.totalXp}",
                                         statValue = "LVL ${item.level} ⚔️",
-                                        isCurrentUser = isCurrentUser
+                                        isCurrentUser = isCurrentUser,
+                                        onReportClicked = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
                                     )
                                 }
                             }
@@ -445,6 +470,21 @@ fun LeaderboardContent(
                 LeaderboardAuthState.NotSignedIn -> Unit
             }
         }
+    }
+
+    if (reportingItem != null) {
+        val (profileId, name) = reportingItem!!
+        PixelConfirmDialog(
+            title = "FLAG HERO NAME?",
+            message = "Report '$name' for an offensive or inappropriate public display name?",
+            confirmText = "REPORT",
+            dismissText = "CANCEL",
+            onConfirm = {
+                onReportProfile(profileId, name)
+                reportingItem = null
+            },
+            onDismiss = { reportingItem = null }
+        )
     }
 }
 

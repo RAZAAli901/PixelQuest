@@ -2,6 +2,7 @@ package com.pixelquest.app.ui.screens.leaderboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +46,8 @@ fun PixelLeaderboardRow(
     statValue: String,
     modifier: Modifier = Modifier,
     isCurrentUser: Boolean = false,
-    avatarId: String? = null
+    avatarId: String? = null,
+    onReportClicked: ((displayName: String) -> Unit)? = null
 ) {
     // Rank tier visual styling reusing Day 7's AvatarTier system
     val tier = when (rank) {
@@ -173,6 +175,16 @@ fun PixelLeaderboardRow(
                                     style = MaterialTheme.typography.labelSmall
                                 )
                             }
+                        } else if (onReportClicked != null) {
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "🚩",
+                                fontSize = 9.sp,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .clickable { onReportClicked(displayName) }
+                                    .padding(2.dp)
+                            )
                         }
                     }
                 }

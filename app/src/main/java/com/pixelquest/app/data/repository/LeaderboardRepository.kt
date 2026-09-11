@@ -27,6 +27,10 @@ interface LeaderboardRepository {
         sortMode: LeaderboardSortMode,
         userId: String? = null
     ): SupabaseResult<UserLeaderboardRank?>
+    suspend fun reportProfile(
+        reportedProfileId: String,
+        reason: String
+    ): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
 
 @Singleton
@@ -138,6 +142,27 @@ open class LeaderboardRepositoryImpl @Inject constructor(
             }
 
             UserLeaderboardRank(rank = rank, profile = targetProfile)
+        }
+    }
+
+    override suspend fun reportProfile(
+        reportedProfileId: String,
+        reason: String
+    ): SupabaseResult<Unit> {
+        val user = auth?.currentUserOrNull()
+            ?: return SupabaseResult.AuthError(
+                IllegalStateException("Not authenticated"),
+                "Please sign in to report an offensive display name."
+            )
+
+        return safeSupabaseCall {
+            postgrest["reports"].insert(
+                com.pixelquest.app.data.remote.model.ReportDto(
+                    reporterId = user.id,
+                    reportedProfileId = reportedProfileId,
+                    reason = reason
+                )
+            )
         }
     }
 }
