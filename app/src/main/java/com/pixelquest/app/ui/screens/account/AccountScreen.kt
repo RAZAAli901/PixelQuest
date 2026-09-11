@@ -304,6 +304,14 @@ fun AccountContent(
                                     color = PixelTextWhite.copy(alpha = 0.8f)
                                 )
                             }
+                            if (accountState.isSyncFailed) {
+                                Text(
+                                    text = "☁️⚠️ Cloud sync currently unavailable (retrying in background) — local progress is safe",
+                                    style = PixelTypography.bodySmall,
+                                    color = PixelGold,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                             if (accountState.syncMessage != null) {
                                 Text(
                                     text = accountState.syncMessage,

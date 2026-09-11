@@ -20,6 +20,7 @@ data class AccountUiState(
     val isSyncing: Boolean = false,
     val syncMessage: String? = null,
     val lastSyncTime: Long? = null,
+    val isSyncFailed: Boolean = false,
     val showDeleteConfirmDialog: Boolean = false,
     val showDeleteDoubleConfirmDialog: Boolean = false,
     val showOptOutConfirmDialog: Boolean = false,
@@ -192,6 +193,7 @@ class AccountViewModel @Inject constructor(
                     is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
+                            isSyncFailed = false,
                             lastSyncTime = System.currentTimeMillis(),
                             syncMessage = "Cloud sync successful!"
                         )
@@ -199,18 +201,21 @@ class AccountViewModel @Inject constructor(
                     is com.pixelquest.app.data.remote.SupabaseResult.NetworkError -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
+                            isSyncFailed = true,
                             syncMessage = "Network error: check connection."
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.AuthError -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
+                            isSyncFailed = true,
                             syncMessage = "Auth error: please sign in again."
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
+                            isSyncFailed = true,
                             syncMessage = "Sync failed: ${result.userMessage}"
                         )
                     }

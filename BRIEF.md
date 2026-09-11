@@ -1314,7 +1314,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 17: Add defensive anti-regression check preventing sync from pushing lower streak or level values than server - d20dfd1
 - Step 18: Write unit tests for conflict-resolution and staleness-guard logic - ac94bb7
 - Step 19: Perform manual QA verifying server-ahead sync skip behavior and regression protection - ac23e03
-- Step 20: Extend downtime error handling in ProfileSyncWorker with WorkManager backoff retry and zero-crash isolation - pending
+- Step 20: Extend downtime error handling in ProfileSyncWorker with WorkManager backoff retry and zero-crash isolation - fef9a77
+- Step 21: Add subtle non-blocking cloud sync unavailable indicator in AccountScreen when sync fails - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
