@@ -1309,7 +1309,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 12: Add discoverable Leave Leaderboard action in AccountScreen with lightweight single confirmation dialog - 0430fef
 - Step 13: Add brief confirmation notice after opting out of leaderboard - e1dbb86
 - Step 14: Write UI test for opt-out discoverability and confirmation flow - c86e3e0
-- Step 15: Define and document sync conflict resolution rules: Last-Write-Wins and anti-regression - pending
+- Step 15: Define and document sync conflict resolution rules: Last-Write-Wins and anti-regression - aa0a031
+- Step 16: Wire ProfileSyncWorker to check server updated_at before pushing and skip if server is newer - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)

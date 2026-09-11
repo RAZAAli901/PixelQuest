@@ -50,6 +50,34 @@ class ProfileSyncWorker @AssistedInject constructor(
             }
         }
 
+        // Check server state for multi-device Last-Write-Wins timestamp comparison
+        val triggerEpochMs = inputData.getLong(KEY_TRIGGER_TIMESTAMP, System.currentTimeMillis())
+        val localTriggerTime = java.time.Instant.ofEpochMilli(triggerEpochMs)
+
+        val serverProfileResult = cloudProfileRepository.fetchCloudProfile(profile.supabaseUserId!!)
+        val serverProfile = when (serverProfileResult) {
+            is SupabaseResult.Success -> serverProfileResult.data
+            is SupabaseResult.NetworkError -> return Result.retry()
+            is SupabaseResult.ServerError -> return Result.retry()
+            is SupabaseResult.AuthError -> return Result.failure()
+            is SupabaseResult.UnknownError -> return Result.retry()
+        }
+
+        if (serverProfile != null) {
+            val serverUpdatedAt = serverProfile.updatedAt
+            if (!serverUpdatedAt.isNullOrBlank()) {
+                try {
+                    val serverTime = java.time.Instant.parse(serverUpdatedAt)
+                    if (serverTime.isAfter(localTriggerTime)) {
+                        // Server value is newer than what triggered this local sync. Skip push.
+                        return Result.success()
+                    }
+                } catch (_: Exception) {
+                    // Fallback to push if timestamp parsing fails
+                }
+            }
+        }
+
         return when (val syncResult = cloudProfileRepository.syncProfileToCloud()) {
             is SupabaseResult.Success -> Result.success()
             is SupabaseResult.NetworkError -> Result.retry()
@@ -74,5 +102,6 @@ class ProfileSyncWorker @AssistedInject constructor(
 
     companion object {
         const val SYNC_NOTIFICATION_ID = 9001
+        const val KEY_TRIGGER_TIMESTAMP = "key_trigger_timestamp"
     }
 }

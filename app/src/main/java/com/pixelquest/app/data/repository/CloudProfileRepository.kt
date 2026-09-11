@@ -15,6 +15,7 @@ import javax.inject.Singleton
 interface CloudProfileRepository {
     suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit>
     suspend fun syncProfileToCloud(): SupabaseResult<Unit>
+    suspend fun fetchCloudProfile(userId: String): SupabaseResult<CloudProfileDto?> = SupabaseResult.Success(null)
     suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
     suspend fun deleteCloudProfile(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
@@ -102,6 +103,16 @@ open class CloudProfileRepositoryImpl @Inject constructor(
 
         return safeSupabaseCall {
             postgrest["profiles"].upsert(dto)
+        }
+    }
+
+    override suspend fun fetchCloudProfile(userId: String): SupabaseResult<CloudProfileDto?> {
+        return safeSupabaseCall {
+            postgrest["profiles"].select {
+                filter {
+                    eq("id", userId)
+                }
+            }.decodeList<CloudProfileDto>().firstOrNull()
         }
     }
 
