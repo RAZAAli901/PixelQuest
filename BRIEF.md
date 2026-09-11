@@ -1332,7 +1332,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 35: Configure release build ProGuard and R8 rules for Supabase serialization and release APK assembly - 326ae1f
 - Step 36: Verify Google Sign-In and OAuth client configuration specifically on release build signing - bfe8d5b
 - Step 37: Verify opt-in, display-name setting, and leaderboard appearance work end-to-end on release build - 02b1d80
-- Step 38: Verify opt-out removal works correctly on the release build - pending
+- Step 38: Verify opt-out removal works correctly on the release build - a4cacd2
+- Step 39: Verify account deletion works correctly on the release build - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
@@ -1366,6 +1367,12 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - **Immediate Server Update**: Profile update sets `leaderboard_opt_in = false` on remote Supabase profile.
 - **Instant Query Eviction**: Due to RLS `leaderboard_opt_in = true` read constraint, the profile is immediately excluded from all public leaderboard API queries.
 - **Spectator Transition**: `LeaderboardScreen` cleanly transitions to "👁️ SPECTATOR MODE", allowing hero browsing without public ranking exposure. Status: VERIFIED PASS.
+
+#### 6. Release Build Account & Cloud Data Deletion End-to-End Verification
+- **Double-Confirmation Gate**: "Delete My Cloud Data" card enforces two distinct confirmation screens, clearly distinguishing permanent cloud deletion from local progress reset.
+- **Remote Profile & Auth Row Purge**: Deletes `public.profiles` row via RLS self-delete, then invokes `rpc/delete_user_account` to delete Supabase auth user record.
+- **Local Credentials Cleanup**: Clears `supabaseUserId`, `leaderboardOptIn`, and cached display name; executes local sign-out from Google Credential Manager.
+- **Local Isolation**: Confirmed Room database (local tasks, categories, streak history, XP) remains completely unharmed and private on device. Status: VERIFIED PASS.
 
 
 
