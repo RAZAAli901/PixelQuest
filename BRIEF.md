@@ -1324,7 +1324,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 27: Update CHANGELOG.md with full leaderboard feature entry for v1.1.0 release - d0033fe
 - Step 28: Write instrumented test: sign-in -> opt-in -> set display name -> appears on leaderboard - 085ed1c
 - Step 29: Write instrumented test: opt-out -> disappears from leaderboard - dc092d9
-- Step 30: Write instrumented test for full account and cloud data deletion flow - pending
+- Step 30: Write instrumented test for full account and cloud data deletion flow - 1bff8f3
+- Step 31: Write instrumented test for offline sync queuing and eventual success on reconnect - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
