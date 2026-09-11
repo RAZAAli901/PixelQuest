@@ -25,6 +25,7 @@ data class AccountUiState(
     val showDeleteDoubleConfirmDialog: Boolean = false,
     val showOptOutConfirmDialog: Boolean = false,
     val showOptOutSuccessNotice: Boolean = false,
+    val showPrivacyDialog: Boolean = false,
     val isDeletingCloudData: Boolean = false
 )
 
@@ -139,6 +140,14 @@ class AccountViewModel @Inject constructor(
 
     fun dismissOptOutSuccessNotice() {
         _uiState.value = _uiState.value.copy(showOptOutSuccessNotice = false)
+    }
+
+    fun showPrivacyPolicy() {
+        _uiState.value = _uiState.value.copy(showPrivacyDialog = true)
+    }
+
+    fun dismissPrivacyPolicy() {
+        _uiState.value = _uiState.value.copy(showPrivacyDialog = false)
     }
 
     fun optOut() {

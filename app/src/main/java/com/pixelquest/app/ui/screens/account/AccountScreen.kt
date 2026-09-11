@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -60,6 +61,8 @@ fun AccountScreen(
         onConfirmOptOut = { accountViewModel.confirmOptOut() },
         onDismissOptOutDialog = { accountViewModel.dismissOptOutDialog() },
         onDismissOptOutNotice = { accountViewModel.dismissOptOutSuccessNotice() },
+        onViewPrivacyPolicy = { accountViewModel.showPrivacyPolicy() },
+        onDismissPrivacyPolicy = { accountViewModel.dismissPrivacyPolicy() },
         onSyncNow = { accountViewModel.syncNow() },
         onRequestDeleteCloudData = { accountViewModel.requestDeleteCloudAccount() },
         onProceedDeleteDoubleConfirm = { accountViewModel.proceedToDeleteDoubleConfirm() },
@@ -83,6 +86,8 @@ fun AccountContent(
     onConfirmOptOut: () -> Unit = {},
     onDismissOptOutDialog: () -> Unit = {},
     onDismissOptOutNotice: () -> Unit = {},
+    onViewPrivacyPolicy: () -> Unit = {},
+    onDismissPrivacyPolicy: () -> Unit = {},
     onSyncNow: () -> Unit = {},
     onRequestDeleteCloudData: () -> Unit = {},
     onProceedDeleteDoubleConfirm: () -> Unit = {},
@@ -155,6 +160,12 @@ fun AccountContent(
                             text = "🌐 SIGN IN WITH GOOGLE",
                             onClick = onSignInWithGoogle,
                             variant = PixelButtonVariant.YELLOW,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        PixelButton(
+                            text = "📜 VIEW PRIVACY POLICY",
+                            onClick = onViewPrivacyPolicy,
+                            variant = PixelButtonVariant.BLUE,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -443,6 +454,65 @@ fun AccountContent(
                 dismissText = "KEEP ACCOUNT",
                 onConfirm = onConfirmDeleteCloudData,
                 onDismiss = onDismissDeleteDialog
+            )
+        }
+
+        // Informed Consent: In-App Privacy Information Dialog
+        if (accountState.showPrivacyDialog) {
+            PrivacyPolicyDialog(
+                onDismiss = onDismissPrivacyPolicy
+            )
+        }
+    }
+}
+
+@Composable
+fun PrivacyPolicyDialog(
+    onDismiss: () -> Unit
+) {
+    com.pixelquest.app.ui.components.PixelDialog(
+        title = "PRIVACY POLICY",
+        onDismissRequest = onDismiss,
+        confirmButtonText = "I UNDERSTAND",
+        onConfirm = onDismiss,
+        dismissButtonText = null
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 320.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = "🛡️ 100% LOCAL-FIRST OPERATION",
+                style = PixelTypography.titleSmall,
+                color = PixelGold
+            )
+            Text(
+                text = "By default, all your quests, schedule times, recurrence rules, completion logs, and streak history are stored strictly on your local device. We never run third-party advertising SDKs or tracking telemetry.",
+                style = PixelTypography.bodySmall,
+                color = PixelTextWhite
+            )
+            Text(
+                text = "🏆 OPTIONAL CLOUD LEADERBOARD",
+                style = PixelTypography.titleSmall,
+                color = PixelGold
+            )
+            Text(
+                text = "Leaderboard participation defaults to OFF. If you choose to sign in with Google and opt in, only your public display name, level, streak, and XP are synchronized. Your individual quest descriptions and Google email are NEVER shared.",
+                style = PixelTypography.bodySmall,
+                color = PixelTextWhite
+            )
+            Text(
+                text = "🗑️ RIGHT TO ERASE",
+                style = PixelTypography.titleSmall,
+                color = PixelGold
+            )
+            Text(
+                text = "You can leave the leaderboard at any time, or permanently delete your cloud account and public record with one tap from this screen. Local progress remains safe on your device.",
+                style = PixelTypography.bodySmall,
+                color = PixelTextWhite
             )
         }
     }
