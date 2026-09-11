@@ -220,6 +220,11 @@ class AccountViewModel @Inject constructor(
         )
     }
 
+    fun confirmDeleteCloudAccount(authViewModel: com.pixelquest.app.auth.AuthViewModel? = null) {
+        dismissDeleteDialog()
+        // Step 10 wires the full execution
+    }
+
     companion object {
         fun validateDisplayName(name: String): String? {
             val trimmed = name.trim()

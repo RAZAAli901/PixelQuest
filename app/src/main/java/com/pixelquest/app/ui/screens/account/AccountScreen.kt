@@ -21,6 +21,7 @@ import com.pixelquest.app.auth.AuthViewModel
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelBackground
 import com.pixelquest.app.ui.theme.PixelGold
@@ -334,6 +335,32 @@ fun AccountScreen(
                 displayName = accountState.displayNameInput.trim().ifBlank { "Hero" },
                 onConfirm = { accountViewModel.confirmOptIn() },
                 onDismiss = { accountViewModel.dismissConfirmDialog() }
+            )
+        }
+
+        // Deletion Step 1: Initial Warning
+        if (accountState.showDeleteConfirmDialog) {
+            PixelConfirmDialog(
+                title = "DELETE CLOUD DATA?",
+                message = "Are you sure you want to delete your cloud account and public leaderboard record? This action cannot be undone.",
+                confirmText = "CONTINUE",
+                dismissText = "CANCEL",
+                onConfirm = { accountViewModel.proceedToDeleteDoubleConfirm() },
+                onDismiss = { accountViewModel.dismissDeleteDialog() }
+            )
+        }
+
+        // Deletion Step 2: Final Double Confirmation
+        if (accountState.showDeleteDoubleConfirmDialog) {
+            PixelConfirmDialog(
+                title = "FINAL WARNING: PURGE",
+                message = "This permanently erases your leaderboard rank, display name, and cloud profile, and signs you out.\n\nLocal quests and streak history on this device will remain safe.",
+                confirmText = "PURGE CLOUD",
+                dismissText = "KEEP ACCOUNT",
+                onConfirm = {
+                    accountViewModel.confirmDeleteCloudAccount(viewModel)
+                },
+                onDismiss = { accountViewModel.dismissDeleteDialog() }
             )
         }
     }
