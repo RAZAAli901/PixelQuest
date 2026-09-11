@@ -192,3 +192,31 @@
 ### Step 38: Annotated Release Tagging
 - Git Tag Created: v1.0.0-verified.
 
+## Section L -- Day 15 Leaderboard Extension Real-Device Release Verification (v1.1.0 Release Build)
+
+### Step 39: Release-Config APK Environment & OAuth Setup
+- **Target Device / Environment**: Physical Android Device (Android 14, API level 34) and Clean Virtual Device (Android 13, API level 33).
+- **Tested Artifact**: Production signed release build (`PixelQuest-v1.1.0-release.apk`) built with production keystore and full ProGuard/R8 code and resource shrinking (`isMinifyEnabled = true`, `isShrinkResources = true`).
+- **OAuth Keystore Fingerprint**: Verified that production keystore SHA-1 fingerprint is registered under the Google Cloud Console OAuth 2.0 Android Client ID alongside debug SHA-1. Token exchange operates cleanly against `GOOGLE_WEB_CLIENT_ID`.
+
+### Step 40: Comprehensive Real-Device Release Verification Matrix
+
+| Flow / Feature | Environment | Result | Detailed Verification Findings |
+|:---|:---:|:---:|:---|
+| **Google Sign-In (Release APK)** | Physical (API 34) | **PASS** | Credential Manager prompt triggers seamlessly; retrieves ID token; signs into Supabase Auth without 10/12500 errors. |
+| **Display Name Moderation** | Physical (API 34) | **PASS** | Offensive inputs (including leetspeak evasions) rejected at input time with inline warning; opt-in button remains disabled. |
+| **Server-Side Trigger Defense** | Physical (API 34) | **PASS** | Direct REST API calls with prohibited terms aborted with SQL trigger violation; zero unmoderated names reach database. |
+| **Opt-In & Global Leaderboard** | Physical (API 34) | **PASS** | Toggling opt-in flips `leaderboard_opt_in = true`, syncs profile; user appears on Top Streaks/Top Levels; pinned ranking row displays. |
+| **Tab Switching & Pagination** | Physical (API 34) | **PASS** | Smooth switching between Top Streaks and Top Levels tabs; infinite scroll / "LOAD MORE HEROES" page fetches work without stutter. |
+| **Opt-Out Real-Time Eviction** | Physical (API 34) | **PASS** | "Leave Leaderboard" single confirmation flips flag to false; RLS immediately excludes user from public queries; screen transitions to Spectator Mode. |
+| **Read-Only Spectator Mode** | Physical (API 34) | **PASS** | Signed-in but non-opted-in users can browse top heroes across the realm with "👁️ SPECTATOR MODE" banner and join CTA. |
+| **Double-Confirm Account Deletion** | Physical (API 34) | **PASS** | Two distinct confirmation modals enforce safety; removes `profiles` row; deletes auth account; purges local cloud fields; leaves local offline quests intact. |
+| **Downtime Graceful Degradation** | Physical (API 34) | **PASS** | Supabase unreachable state displays subtle warning; 10s fetch timeout halts loading wheel; local app and offline quests remain 100% functional. |
+| **Sync Conflict & Staleness Guard** | Physical (API 34) | **PASS** | Server-ahead timestamp comparison and monotonic progress check safely skip lower/stale pushes, preventing cloud progress regression. |
+
+### Step 41: Extension Stability Assessment
+- **Status**: ALL 10 TEST FLOWS VERIFIED PASS ON PRODUCTION RELEASE BUILD.
+- **Zero Regressions**: Core offline quest engine, sound effects, CRT shader, alarms, and analytics operate with zero regressions.
+- **Security & Privacy**: RLS policies, display-name triggers, encrypted secrets, and complete cloud deletion verified.
+
+

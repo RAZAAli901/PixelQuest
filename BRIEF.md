@@ -1333,7 +1333,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 36: Verify Google Sign-In and OAuth client configuration specifically on release build signing - bfe8d5b
 - Step 37: Verify opt-in, display-name setting, and leaderboard appearance work end-to-end on release build - 02b1d80
 - Step 38: Verify opt-out removal works correctly on the release build - a4cacd2
-- Step 39: Verify account deletion works correctly on the release build - pending
+- Step 39: Verify account deletion works correctly on the release build - d7cb3d0
+- Step 40: Document all real-device verification results in VERIFICATION.md across device matrix - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
