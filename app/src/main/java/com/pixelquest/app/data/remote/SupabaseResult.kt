@@ -37,12 +37,23 @@ sealed class SupabaseResult<out T> {
     }
 }
 
+const val DEFAULT_SUPABASE_TIMEOUT_MS = 15_000L
+
 /**
- * Executes a suspending Supabase operation safely, catching network, rest, auth, and unexpected exceptions.
+ * Executes a suspending Supabase operation safely with a timeout,
+ * catching network, timeout, rest, auth, and unexpected exceptions.
  */
-suspend fun <T> safeSupabaseCall(block: suspend () -> T): SupabaseResult<T> {
+suspend fun <T> safeSupabaseCall(
+    timeoutMs: Long = DEFAULT_SUPABASE_TIMEOUT_MS,
+    block: suspend () -> T
+): SupabaseResult<T> {
     return try {
-        SupabaseResult.Success(block())
+        val data = kotlinx.coroutines.withTimeout(timeoutMs) {
+            block()
+        }
+        SupabaseResult.Success(data)
+    } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+        SupabaseResult.NetworkError(e, "Request timed out after ${timeoutMs / 1000}s. Please check your internet connection.")
     } catch (e: HttpRequestTimeoutException) {
         SupabaseResult.NetworkError(e, "Request timed out. Please check your internet connection.")
     } catch (e: IOException) {

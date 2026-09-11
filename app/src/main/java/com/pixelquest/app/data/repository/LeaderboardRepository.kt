@@ -40,7 +40,7 @@ open class LeaderboardRepositoryImpl @Inject constructor(
 ) : LeaderboardRepository {
 
     override suspend fun getProfiles(): SupabaseResult<List<CloudProfileDto>> {
-        return safeSupabaseCall {
+        return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
             postgrest["profiles"].select {
                 filter {
                     eq("leaderboard_opt_in", true)
@@ -50,7 +50,7 @@ open class LeaderboardRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTopByStreak(limit: Long, offset: Long): SupabaseResult<List<CloudProfileDto>> {
-        return safeSupabaseCall {
+        return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
             postgrest["profiles"].select {
                 filter {
                     eq("leaderboard_opt_in", true)
@@ -67,7 +67,7 @@ open class LeaderboardRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTopByLevel(limit: Long, offset: Long): SupabaseResult<List<CloudProfileDto>> {
-        return safeSupabaseCall {
+        return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
             postgrest["profiles"].select {
                 filter {
                     eq("leaderboard_opt_in", true)
@@ -87,7 +87,7 @@ open class LeaderboardRepositoryImpl @Inject constructor(
         sortMode: LeaderboardSortMode,
         userId: String?
     ): SupabaseResult<UserLeaderboardRank?> {
-        return safeSupabaseCall {
+        return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
             val targetId = userId ?: auth?.currentUserOrNull()?.id ?: return@safeSupabaseCall null
 
             // 1. Fetch user's profile
@@ -155,7 +155,7 @@ open class LeaderboardRepositoryImpl @Inject constructor(
                 "Please sign in to report an offensive display name."
             )
 
-        return safeSupabaseCall {
+        return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
             postgrest["reports"].insert(
                 com.pixelquest.app.data.remote.model.ReportDto(
                     reporterId = user.id,
@@ -164,5 +164,9 @@ open class LeaderboardRepositoryImpl @Inject constructor(
                 )
             )
         }
+    }
+
+    companion object {
+        const val LEADERBOARD_TIMEOUT_MS = 10_000L
     }
 }
