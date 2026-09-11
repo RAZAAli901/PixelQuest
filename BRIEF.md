@@ -1307,7 +1307,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 10: Wire cloud deletion execution to clear Room cloud fields and sign out locally - 993fc46
 - Step 11: Write integration test verifying cloud deletion removes user from leaderboard queries - 81421dd
 - Step 12: Add discoverable Leave Leaderboard action in AccountScreen with lightweight single confirmation dialog - 0430fef
-- Step 13: Add brief confirmation notice after opting out of leaderboard - pending
+- Step 13: Add brief confirmation notice after opting out of leaderboard - e1dbb86
+- Step 14: Write UI test for opt-out discoverability and confirmation flow - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)

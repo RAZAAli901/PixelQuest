@@ -16,6 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.auth.AuthViewModel
 import com.pixelquest.app.ui.components.PixelButton
@@ -37,6 +40,56 @@ fun AccountScreen(
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = hiltViewModel(),
     accountViewModel: AccountViewModel = hiltViewModel()
+) {
+    val authState by viewModel.uiState.collectAsState()
+    val accountState by accountViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    AccountContent(
+        authState = authState,
+        accountState = accountState,
+        onSignInWithGoogle = { viewModel.signInWithGoogle(context) },
+        onSignOut = {
+            accountViewModel.cancelActiveSync()
+            viewModel.signOut()
+        },
+        onDisplayNameChange = { accountViewModel.onDisplayNameChanged(it) },
+        onOptInToggle = { accountViewModel.onOptInToggleClicked(it) },
+        onConfirmOptIn = { accountViewModel.confirmOptIn() },
+        onDismissOptInDialog = { accountViewModel.dismissConfirmDialog() },
+        onConfirmOptOut = { accountViewModel.confirmOptOut() },
+        onDismissOptOutDialog = { accountViewModel.dismissOptOutDialog() },
+        onDismissOptOutNotice = { accountViewModel.dismissOptOutSuccessNotice() },
+        onSyncNow = { accountViewModel.syncNow() },
+        onRequestDeleteCloudData = { accountViewModel.requestDeleteCloudAccount() },
+        onProceedDeleteDoubleConfirm = { accountViewModel.proceedToDeleteDoubleConfirm() },
+        onConfirmDeleteCloudData = { accountViewModel.confirmDeleteCloudAccount(viewModel) },
+        onDismissDeleteDialog = { accountViewModel.dismissDeleteDialog() },
+        onNavigateBack = onNavigateBack,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun AccountContent(
+    authState: com.pixelquest.app.auth.AuthUiState,
+    accountState: AccountUiState,
+    onSignInWithGoogle: () -> Unit = {},
+    onSignOut: () -> Unit = {},
+    onDisplayNameChange: (String) -> Unit = {},
+    onOptInToggle: (Boolean) -> Unit = {},
+    onConfirmOptIn: () -> Unit = {},
+    onDismissOptInDialog: () -> Unit = {},
+    onConfirmOptOut: () -> Unit = {},
+    onDismissOptOutDialog: () -> Unit = {},
+    onDismissOptOutNotice: () -> Unit = {},
+    onSyncNow: () -> Unit = {},
+    onRequestDeleteCloudData: () -> Unit = {},
+    onProceedDeleteDoubleConfirm: () -> Unit = {},
+    onConfirmDeleteCloudData: () -> Unit = {},
+    onDismissDeleteDialog: () -> Unit = {},
+    onNavigateBack: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
         containerColor = PixelBackground,
@@ -75,10 +128,7 @@ fun AccountScreen(
             }
 
             // Entry Point Card
-            val uiState by viewModel.uiState.collectAsState()
-            val context = LocalContext.current
-
-            if (uiState is com.pixelquest.app.auth.AuthUiState.SignedOut) {
+            if (authState is com.pixelquest.app.auth.AuthUiState.SignedOut) {
                 PixelCard(
                     variant = PixelPanelVariant.BEIGE,
                     contentPadding = 20.dp,
@@ -103,7 +153,7 @@ fun AccountScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         PixelButton(
                             text = "🌐 SIGN IN WITH GOOGLE",
-                            onClick = { viewModel.signInWithGoogle(context) },
+                            onClick = onSignInWithGoogle,
                             variant = PixelButtonVariant.YELLOW,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -111,24 +161,24 @@ fun AccountScreen(
                 }
             }
 
-            if (uiState is com.pixelquest.app.auth.AuthUiState.SigningIn) {
+            if (authState is com.pixelquest.app.auth.AuthUiState.SigningIn) {
                 com.pixelquest.app.ui.components.PixelLoadingState(
                     message = "AUTHENTICATING QUEST HERO...",
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            if (uiState is com.pixelquest.app.auth.AuthUiState.Error) {
-                val errorMsg = (uiState as com.pixelquest.app.auth.AuthUiState.Error).message
+            if (authState is com.pixelquest.app.auth.AuthUiState.Error) {
+                val errorMsg = (authState as com.pixelquest.app.auth.AuthUiState.Error).message
                 com.pixelquest.app.ui.components.PixelErrorState(
                     errorMessage = errorMsg,
-                    onRetry = { viewModel.signInWithGoogle(context) },
+                    onRetry = onSignInWithGoogle,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            if (uiState is com.pixelquest.app.auth.AuthUiState.SignedIn) {
-                val user = (uiState as com.pixelquest.app.auth.AuthUiState.SignedIn).user
+            if (authState is com.pixelquest.app.auth.AuthUiState.SignedIn) {
+                val user = (authState as com.pixelquest.app.auth.AuthUiState.SignedIn).user
                 PixelCard(
                     variant = PixelPanelVariant.BEIGE,
                     contentPadding = 20.dp,
@@ -163,10 +213,7 @@ fun AccountScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         PixelButton(
                             text = "🚪 SIGN OUT",
-                            onClick = {
-                                accountViewModel.cancelActiveSync()
-                                viewModel.signOut()
-                            },
+                            onClick = onSignOut,
                             variant = PixelButtonVariant.BLUE,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -174,7 +221,6 @@ fun AccountScreen(
                 }
 
                 // Leaderboard Opt-In Card (Defaults to OFF)
-                val accountState by accountViewModel.uiState.collectAsState()
                 PixelCard(
                     variant = PixelPanelVariant.BEIGE,
                     contentPadding = 20.dp,
@@ -203,7 +249,7 @@ fun AccountScreen(
                         )
                         com.pixelquest.app.ui.components.PixelTextField(
                             value = accountState.displayNameInput,
-                            onValueChange = { accountViewModel.onDisplayNameChanged(it) },
+                            onValueChange = onDisplayNameChange,
                             label = "PUBLIC LEADERBOARD NAME",
                             placeholder = "Enter public pseudonym",
                             modifier = Modifier.fillMaxWidth()
@@ -225,7 +271,7 @@ fun AccountScreen(
                         Spacer(modifier = Modifier.height(4.dp))
                         PixelButton(
                             text = if (accountState.isOptedIn) "🔴 LEAVE LEADERBOARD (OPT OUT)" else "🟢 JOIN LEADERBOARD (OPT IN)",
-                            onClick = { accountViewModel.onOptInToggleClicked(!accountState.isOptedIn) },
+                            onClick = { onOptInToggle(!accountState.isOptedIn) },
                             variant = if (accountState.isOptedIn) PixelButtonVariant.BLUE else PixelButtonVariant.YELLOW,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -251,7 +297,7 @@ fun AccountScreen(
                             )
                             if (accountState.lastSyncTime != null) {
                                 val formattedTime = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
-                                    .format(java.util.Date(accountState.lastSyncTime!!))
+                                    .format(java.util.Date(accountState.lastSyncTime))
                                 Text(
                                     text = "Last synced: $formattedTime",
                                     style = PixelTypography.bodySmall,
@@ -260,9 +306,9 @@ fun AccountScreen(
                             }
                             if (accountState.syncMessage != null) {
                                 Text(
-                                    text = accountState.syncMessage ?: "",
+                                    text = accountState.syncMessage,
                                     style = PixelTypography.bodySmall,
-                                    color = if (accountState.syncMessage?.contains("successful", ignoreCase = true) == true) {
+                                    color = if (accountState.syncMessage.contains("successful", ignoreCase = true)) {
                                         com.pixelquest.app.ui.theme.PixelGreen
                                     } else {
                                         PixelGold
@@ -278,11 +324,12 @@ fun AccountScreen(
                             )
                             PixelButton(
                                 text = if (accountState.isSyncing) "⏳ SYNCING..." else "🔄 FORCE SYNC NOW (DEBUG)",
-                                onClick = { accountViewModel.syncNow() },
+                                onClick = onSyncNow,
                                 enabled = !accountState.isSyncing,
                                 variant = PixelButtonVariant.YELLOW,
                                 modifier = Modifier.fillMaxWidth()
                             )
+                        }
                     }
                 }
 
@@ -311,7 +358,7 @@ fun AccountScreen(
                         Spacer(modifier = Modifier.height(4.dp))
                         PixelButton(
                             text = "🗑️ DELETE MY CLOUD DATA",
-                            onClick = { accountViewModel.requestDeleteCloudAccount() },
+                            onClick = onRequestDeleteCloudData,
                             variant = PixelButtonVariant.RED,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -329,12 +376,11 @@ fun AccountScreen(
             )
         }
 
-        val accountState by accountViewModel.uiState.collectAsState()
         if (accountState.showConfirmDialog) {
             LeaderboardPrivacyConfirmDialog(
                 displayName = accountState.displayNameInput.trim().ifBlank { "Hero" },
-                onConfirm = { accountViewModel.confirmOptIn() },
-                onDismiss = { accountViewModel.dismissConfirmDialog() }
+                onConfirm = onConfirmOptIn,
+                onDismiss = onDismissOptInDialog
             )
         }
 
@@ -345,8 +391,8 @@ fun AccountScreen(
                 message = "Are you sure you want to leave the leaderboard? Your rank and public display name will no longer be visible to other players. You can rejoin at any time.",
                 confirmText = "LEAVE",
                 dismissText = "STAY",
-                onConfirm = { accountViewModel.confirmOptOut() },
-                onDismiss = { accountViewModel.dismissOptOutDialog() }
+                onConfirm = onConfirmOptOut,
+                onDismiss = onDismissOptOutDialog
             )
         }
 
@@ -354,9 +400,9 @@ fun AccountScreen(
         if (accountState.showOptOutSuccessNotice) {
             com.pixelquest.app.ui.components.PixelDialog(
                 title = "LEADERBOARD",
-                onDismissRequest = { accountViewModel.dismissOptOutSuccessNotice() },
+                onDismissRequest = onDismissOptOutNotice,
                 confirmButtonText = "OK",
-                onConfirm = { accountViewModel.dismissOptOutSuccessNotice() },
+                onConfirm = onDismissOptOutNotice,
                 dismissButtonText = null
             ) {
                 Text(
@@ -375,8 +421,8 @@ fun AccountScreen(
                 message = "Are you sure you want to delete your cloud account and public leaderboard record? This action cannot be undone.",
                 confirmText = "CONTINUE",
                 dismissText = "CANCEL",
-                onConfirm = { accountViewModel.proceedToDeleteDoubleConfirm() },
-                onDismiss = { accountViewModel.dismissDeleteDialog() }
+                onConfirm = onProceedDeleteDoubleConfirm,
+                onDismiss = onDismissDeleteDialog
             )
         }
 
@@ -387,10 +433,8 @@ fun AccountScreen(
                 message = "This permanently erases your leaderboard rank, display name, and cloud profile, and signs you out.\n\nLocal quests and streak history on this device will remain safe.",
                 confirmText = "PURGE CLOUD",
                 dismissText = "KEEP ACCOUNT",
-                onConfirm = {
-                    accountViewModel.confirmDeleteCloudAccount(viewModel)
-                },
-                onDismiss = { accountViewModel.dismissDeleteDialog() }
+                onConfirm = onConfirmDeleteCloudData,
+                onDismiss = onDismissDeleteDialog
             )
         }
     }
