@@ -6,6 +6,7 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -22,11 +23,13 @@ interface AuthRepository {
     suspend fun exchangeGoogleIdToken(idToken: String, rawNonce: String? = null): SupabaseResult<AuthUser>
     suspend fun signOut(): SupabaseResult<Unit>
     suspend fun getInitialUser(): AuthUser?
+    suspend fun deleteAccount(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
 
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
-    private val auth: Auth
+    private val auth: Auth,
+    private val postgrest: Postgrest
 ) : AuthRepository {
 
     override val currentUser: Flow<AuthUser?> = auth.sessionStatus.map { status ->
@@ -79,5 +82,10 @@ class AuthRepositoryImpl @Inject constructor(
             displayName = (user.userMetadata?.get("full_name") as? String)
                 ?: (user.userMetadata?.get("name") as? String)
         )
+    }
+
+    override suspend fun deleteAccount(): SupabaseResult<Unit> = safeSupabaseCall {
+        postgrest.rpc("delete_user_account")
+        auth.signOut()
     }
 }
