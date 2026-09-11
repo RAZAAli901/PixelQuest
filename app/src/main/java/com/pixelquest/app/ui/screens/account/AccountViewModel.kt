@@ -23,6 +23,7 @@ data class AccountUiState(
     val showDeleteConfirmDialog: Boolean = false,
     val showDeleteDoubleConfirmDialog: Boolean = false,
     val showOptOutConfirmDialog: Boolean = false,
+    val showOptOutSuccessNotice: Boolean = false,
     val isDeletingCloudData: Boolean = false
 )
 
@@ -135,6 +136,10 @@ class AccountViewModel @Inject constructor(
         }
     }
 
+    fun dismissOptOutSuccessNotice() {
+        _uiState.value = _uiState.value.copy(showOptOutSuccessNotice = false)
+    }
+
     fun optOut() {
         syncJob?.cancel()
         syncJob = viewModelScope.launch {
@@ -145,22 +150,25 @@ class AccountViewModel @Inject constructor(
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isOptedIn = false,
+                            showOptOutSuccessNotice = true,
                             lastSyncTime = System.currentTimeMillis(),
-                            syncMessage = "Opted out from leaderboard. Removed from public rankings."
+                            syncMessage = "You've left the leaderboard. Your rank and display name are now private."
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.NetworkError -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isOptedIn = false,
-                            syncMessage = "Opted out locally. Server sync queued when online."
+                            showOptOutSuccessNotice = true,
+                            syncMessage = "You've left the leaderboard. Server sync queued when online."
                         )
                     }
                     else -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isOptedIn = false,
-                            syncMessage = "Opted out from leaderboard."
+                            showOptOutSuccessNotice = true,
+                            syncMessage = "You've left the leaderboard."
                         )
                     }
                 }

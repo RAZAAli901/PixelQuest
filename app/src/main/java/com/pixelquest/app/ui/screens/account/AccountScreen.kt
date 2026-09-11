@@ -350,6 +350,24 @@ fun AccountScreen(
             )
         }
 
+        // Confirmation Notice After Leaving Leaderboard
+        if (accountState.showOptOutSuccessNotice) {
+            com.pixelquest.app.ui.components.PixelDialog(
+                title = "LEADERBOARD",
+                onDismissRequest = { accountViewModel.dismissOptOutSuccessNotice() },
+                confirmButtonText = "OK",
+                onConfirm = { accountViewModel.dismissOptOutSuccessNotice() },
+                dismissButtonText = null
+            ) {
+                Text(
+                    text = "You've left the leaderboard. Your rank and display name have been removed from public rankings.",
+                    style = PixelTypography.bodyMedium,
+                    color = PixelTextWhite,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
         // Deletion Step 1: Initial Warning
         if (accountState.showDeleteConfirmDialog) {
             PixelConfirmDialog(
