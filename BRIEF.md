@@ -1300,7 +1300,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 3: Add report action on PixelLeaderboardRow and create reports table with insert-only RLS - 84da7ef
 - Step 4: Write unit tests for client-side display name moderation and leetspeak filter - c2be218
 - Step 5: Perform manual QA verification of UI and direct API display name moderation rejection - ed75f0e
-- Step 6: Add Delete My Cloud Data option in AccountScreen distinct from local reset - pending
+- Step 6: Add Delete My Cloud Data option in AccountScreen distinct from local reset - 73fbdb7
+- Step 7: Wire deletion in CloudProfileRepository to delete own Supabase profiles row - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)

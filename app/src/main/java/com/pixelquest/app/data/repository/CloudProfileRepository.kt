@@ -16,6 +16,7 @@ interface CloudProfileRepository {
     suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit>
     suspend fun syncProfileToCloud(): SupabaseResult<Unit>
     suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+    suspend fun deleteCloudProfile(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
 
 @Singleton
@@ -101,6 +102,22 @@ open class CloudProfileRepositoryImpl @Inject constructor(
 
         return safeSupabaseCall {
             postgrest["profiles"].upsert(dto)
+        }
+    }
+
+    override suspend fun deleteCloudProfile(): SupabaseResult<Unit> {
+        val user = auth.currentUserOrNull()
+            ?: return SupabaseResult.AuthError(
+                IllegalStateException("No authenticated Supabase user"),
+                "Please sign in to delete cloud data."
+            )
+
+        return safeSupabaseCall {
+            postgrest["profiles"].delete {
+                filter {
+                    eq("id", user.id)
+                }
+            }
         }
     }
 
