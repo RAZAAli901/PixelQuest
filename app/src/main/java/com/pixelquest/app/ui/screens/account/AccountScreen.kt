@@ -282,7 +282,38 @@ fun AccountScreen(
                                 variant = PixelButtonVariant.YELLOW,
                                 modifier = Modifier.fillMaxWidth()
                             )
-                        }
+                    }
+                }
+
+                // Cloud Account & Data Management
+                PixelCard(
+                    variant = PixelPanelVariant.BEIGE,
+                    contentPadding = 16.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "🛡️ CLOUD DATA & PRIVACY",
+                            style = PixelTypography.titleSmall,
+                            color = PixelGold,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "Permanently purge your public cloud leaderboard profile and unlink your Supabase account. Local quests and streak history remain untouched.",
+                            style = PixelTypography.bodySmall,
+                            color = PixelTextWhite.copy(alpha = 0.8f),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        PixelButton(
+                            text = "🗑️ DELETE MY CLOUD DATA",
+                            onClick = { accountViewModel.requestDeleteCloudAccount() },
+                            variant = PixelButtonVariant.RED,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }

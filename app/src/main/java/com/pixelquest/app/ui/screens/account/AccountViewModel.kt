@@ -19,7 +19,10 @@ data class AccountUiState(
     val showConfirmDialog: Boolean = false,
     val isSyncing: Boolean = false,
     val syncMessage: String? = null,
-    val lastSyncTime: Long? = null
+    val lastSyncTime: Long? = null,
+    val showDeleteConfirmDialog: Boolean = false,
+    val showDeleteDoubleConfirmDialog: Boolean = false,
+    val isDeletingCloudData: Boolean = false
 )
 
 @HiltViewModel
@@ -197,6 +200,24 @@ class AccountViewModel @Inject constructor(
 
     fun dismissConfirmDialog() {
         _uiState.value = _uiState.value.copy(showConfirmDialog = false)
+    }
+
+    fun requestDeleteCloudAccount() {
+        _uiState.value = _uiState.value.copy(showDeleteConfirmDialog = true)
+    }
+
+    fun proceedToDeleteDoubleConfirm() {
+        _uiState.value = _uiState.value.copy(
+            showDeleteConfirmDialog = false,
+            showDeleteDoubleConfirmDialog = true
+        )
+    }
+
+    fun dismissDeleteDialog() {
+        _uiState.value = _uiState.value.copy(
+            showDeleteConfirmDialog = false,
+            showDeleteDoubleConfirmDialog = false
+        )
     }
 
     companion object {
