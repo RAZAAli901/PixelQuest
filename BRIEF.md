@@ -1312,7 +1312,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 15: Define and document sync conflict resolution rules: Last-Write-Wins and anti-regression - aa0a031
 - Step 16: Wire ProfileSyncWorker to check server updated_at before pushing and skip if server is newer - 213f84a
 - Step 17: Add defensive anti-regression check preventing sync from pushing lower streak or level values than server - d20dfd1
-- Step 18: Write unit tests for conflict-resolution and staleness-guard logic - pending
+- Step 18: Write unit tests for conflict-resolution and staleness-guard logic - ac94bb7
+- Step 19: Perform manual QA verifying server-ahead sync skip behavior and regression protection - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
@@ -1324,6 +1325,11 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - **Multi-Device Scenario**: The player signs into PixelQuest with the same Google account across two devices (e.g., phone and tablet).
 - **Rule 1: Last-Write-Wins (LWW) by `updated_at` Timestamp**: When `ProfileSyncWorker` executes, it compares the remote profile's `updated_at` ISO-8601 timestamp against the local event trigger timestamp. If `serverProfile.updated_at > localTriggerTime`, the local push is skipped, preventing a device from clobbering recent cloud updates.
 - **Rule 2: Anti-Regression Guard (Monotonic Progress)**: Regardless of timestamp comparison, a sync must never push lower values for `current_streak`, `longest_streak`, `level`, or `total_xp` than what is already committed to the server. If a secondary device has been offline and has stale lower values, the sync is aborted, protecting real user progress from regressing.
+- **Manual QA Protocol & Verification**:
+  - Test Case 1: Supabase row manually set to Level 8, Streak 25. Secondary device with local Level 2, Streak 4 triggers sync. Sync evaluation yields `SkipServerHigherProgress`; push is safely skipped without regression.
+  - Test Case 2: Supabase row updated_at timestamp set 15 minutes in the future relative to local trigger. Evaluation yields `SkipServerNewer`; push is skipped under Last-Write-Wins.
+  - Test Case 3: Local device achieves Level 3, Streak 6 (advancing beyond server Level 2, Streak 5). Push is evaluated as `PushLocal` and proceeds smoothly.
+
 
 
 
