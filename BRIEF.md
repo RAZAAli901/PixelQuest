@@ -1335,7 +1335,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 38: Verify opt-out removal works correctly on the release build - a4cacd2
 - Step 39: Verify account deletion works correctly on the release build - d7cb3d0
 - Step 40: Document all real-device verification results in VERIFICATION.md across device matrix - b2289b9
-- Step 41: Bump versionName to 1.1.0 and versionCode to 101 in build.gradle.kts - pending
+- Step 41: Bump versionName to 1.1.0 and versionCode to 101 in build.gradle.kts - c7e3e72
+- Step 42: Document required GitHub Secrets for Supabase and OAuth release build injection - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
@@ -1375,6 +1376,15 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - **Remote Profile & Auth Row Purge**: Deletes `public.profiles` row via RLS self-delete, then invokes `rpc/delete_user_account` to delete Supabase auth user record.
 - **Local Credentials Cleanup**: Clears `supabaseUserId`, `leaderboardOptIn`, and cached display name; executes local sign-out from Google Credential Manager.
 - **Local Isolation**: Confirmed Room database (local tasks, categories, streak history, XP) remains completely unharmed and private on device. Status: VERIFIED PASS.
+
+#### 7. Production Release GitHub Secrets Specification
+To assemble the signed production release APK with full cloud sync and authentication functionality, the following repository secrets are configured in GitHub Actions (`Settings -> Secrets and variables -> Actions`):
+1. `SUPABASE_URL`: Production Supabase project URL (e.g. `https://xyzcompany.supabase.co`). Injected into `local.properties` at CI build time.
+2. `SUPABASE_ANON_KEY`: Supabase Anonymous Public API Key, strictly governed by PostgreSQL Row Level Security (RLS). Never hardcoded in source control.
+3. `GOOGLE_WEB_CLIENT_ID`: Google Cloud OAuth 2.0 Web Client ID used by Credential Manager to obtain ID tokens for Supabase authentication.
+4. `KEYSTORE_BASE64`: Base64-encoded release keystore (`pixelquest-release.jks`) for deterministic release artifact signing.
+5. `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`: Keystore decryption credentials.
+
 
 
 
