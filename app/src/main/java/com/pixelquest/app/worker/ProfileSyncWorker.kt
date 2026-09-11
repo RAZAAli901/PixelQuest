@@ -23,7 +23,8 @@ class ProfileSyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val userProfileRepository: UserProfileRepository,
-    private val cloudProfileRepository: CloudProfileRepository
+    private val cloudProfileRepository: CloudProfileRepository,
+    private val streakRepository: com.pixelquest.app.domain.repository.StreakRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -50,7 +51,7 @@ class ProfileSyncWorker @AssistedInject constructor(
             }
         }
 
-        // Check server state for multi-device Last-Write-Wins timestamp comparison
+        // Check server state for multi-device Last-Write-Wins and Anti-Regression guards
         val triggerEpochMs = inputData.getLong(KEY_TRIGGER_TIMESTAMP, System.currentTimeMillis())
         val localTriggerTime = java.time.Instant.ofEpochMilli(triggerEpochMs)
 
@@ -63,18 +64,28 @@ class ProfileSyncWorker @AssistedInject constructor(
             is SupabaseResult.UnknownError -> return Result.retry()
         }
 
-        if (serverProfile != null) {
-            val serverUpdatedAt = serverProfile.updatedAt
-            if (!serverUpdatedAt.isNullOrBlank()) {
-                try {
-                    val serverTime = java.time.Instant.parse(serverUpdatedAt)
-                    if (serverTime.isAfter(localTriggerTime)) {
-                        // Server value is newer than what triggered this local sync. Skip push.
-                        return Result.success()
-                    }
-                } catch (_: Exception) {
-                    // Fallback to push if timestamp parsing fails
-                }
+        val streak = streakRepository.getCurrentStreak().first()
+        val decision = com.pixelquest.app.domain.SyncConflictResolver.evaluate(
+            localCurrentStreak = streak?.currentStreak ?: 0,
+            localLongestStreak = streak?.longestStreak ?: 0,
+            localLevel = profile.level,
+            localTotalXp = profile.totalXp,
+            localTriggerTime = localTriggerTime,
+            serverProfile = serverProfile
+        )
+
+        when (decision) {
+            is com.pixelquest.app.domain.SyncDecision.SkipServerHigherProgress -> {
+                // Defensive check: server holds higher streak/level/xp than local.
+                // Never push lower values to avoid regressing user progress.
+                return Result.success()
+            }
+            is com.pixelquest.app.domain.SyncDecision.SkipServerNewer -> {
+                // Last-Write-Wins: server was updated more recently by another device.
+                return Result.success()
+            }
+            is com.pixelquest.app.domain.SyncDecision.PushLocal -> {
+                // Local values are higher or equal; proceed with push
             }
         }
 

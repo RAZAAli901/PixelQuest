@@ -1310,7 +1310,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 13: Add brief confirmation notice after opting out of leaderboard - e1dbb86
 - Step 14: Write UI test for opt-out discoverability and confirmation flow - c86e3e0
 - Step 15: Define and document sync conflict resolution rules: Last-Write-Wins and anti-regression - aa0a031
-- Step 16: Wire ProfileSyncWorker to check server updated_at before pushing and skip if server is newer - pending
+- Step 16: Wire ProfileSyncWorker to check server updated_at before pushing and skip if server is newer - 213f84a
+- Step 17: Add defensive anti-regression check preventing sync from pushing lower streak or level values than server - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)

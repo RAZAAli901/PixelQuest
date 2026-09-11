@@ -78,6 +78,26 @@ open class CloudProfileRepositoryImpl @Inject constructor(
         )
 
         return safeSupabaseCall {
+            val remoteProfile = postgrest["profiles"].select {
+                filter {
+                    eq("id", user.id)
+                }
+            }.decodeList<CloudProfileDto>().firstOrNull()
+
+            if (remoteProfile != null) {
+                val decision = com.pixelquest.app.domain.SyncConflictResolver.evaluate(
+                    localCurrentStreak = streak?.currentStreak ?: 0,
+                    localLongestStreak = streak?.longestStreak ?: 0,
+                    localLevel = profile?.level ?: 1,
+                    localTotalXp = profile?.totalXp ?: 0,
+                    localTriggerTime = Instant.now(),
+                    serverProfile = remoteProfile
+                )
+                if (decision is com.pixelquest.app.domain.SyncDecision.SkipServerHigherProgress) {
+                    return@safeSupabaseCall
+                }
+            }
+
             postgrest["profiles"].upsert(dto)
         }
     }
