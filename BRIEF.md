@@ -1297,7 +1297,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 ## Day 15 Progress Log
 - Step 1: Add client-side profanity and offensive-word filter for leaderboard display name - d6d6bfa
 - Step 2: Add server-side check constraint and trigger function for display name moderation - 1a99770
-- Step 3: Add report action on PixelLeaderboardRow and create reports table with insert-only RLS - pending
+- Step 3: Add report action on PixelLeaderboardRow and create reports table with insert-only RLS - 84da7ef
+- Step 4: Write unit tests for client-side display name moderation and leetspeak filter - pending
 
 
 
