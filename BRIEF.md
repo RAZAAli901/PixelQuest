@@ -1319,7 +1319,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 22: Add 10-second timeout on leaderboard fetch calls to prevent hanging loading state - eb1b151
 - Step 23: Write unit tests for leaderboard fetch timeout and prompt recovery - fd44b01
 - Step 24: Write comprehensive PRIVACY.md documenting local-first storage, cloud sync, and deletion rights - 29b448d
-- Step 25: Add in-app privacy policy viewer accessible from AccountScreen before sign-in - pending
+- Step 25: Add in-app privacy policy viewer accessible from AccountScreen before sign-in - c7b0a63
+- Step 26: Update README.md with Privacy & Data Architecture section - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
