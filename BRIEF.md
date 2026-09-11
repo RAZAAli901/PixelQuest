@@ -1295,7 +1295,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Final v1.1.0 release packaging, release notes, and GitHub tag.
 
 ## Day 15 Progress Log
-- Step 1: Add client-side profanity and offensive-word filter for leaderboard display name - pending
+- Step 1: Add client-side profanity and offensive-word filter for leaderboard display name - d6d6bfa
+- Step 2: Add server-side check constraint and trigger function for display name moderation - pending
 
 
 
