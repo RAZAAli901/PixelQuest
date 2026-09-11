@@ -1330,7 +1330,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 33: Write instrumented test covering the not-signed-in and signed-in-not-opted-in leaderboard states - 712ae0d
 - Step 34: Write instrumented test for the display-name moderation rejection flow - 39d6b58
 - Step 35: Configure release build ProGuard and R8 rules for Supabase serialization and release APK assembly - 326ae1f
-- Step 36: Verify Google Sign-In and OAuth client configuration specifically on release build signing - pending
+- Step 36: Verify Google Sign-In and OAuth client configuration specifically on release build signing - bfe8d5b
+- Step 37: Verify opt-in, display-name setting, and leaderboard appearance work end-to-end on release build - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
@@ -1352,6 +1353,12 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - **Google Cloud Console OAuth Configuration**: The Google Cloud project's Android OAuth 2.0 client ID must include BOTH the debug SHA-1 and the release keystore SHA-1 under package `com.pixelquest.app`.
 - **Web Client ID Exchange**: PixelQuest uses Credential Manager's `GetGoogleIdOption.setServerClientId(BuildConfig.GOOGLE_WEB_CLIENT_ID)`, exchanging the Google ID token with Supabase's `auth.signInWith(IdToken)`. Because token validation occurs against the backend Web Client ID audience, both debug and release builds authenticate seamlessly once the respective SHA-1 fingerprints are registered.
 - **Verification Result**: Release APK Google Sign-In flow initiates Credential Manager prompt, securely signs in user, receives ID token, and links to Supabase Auth without 10/12500 API errors. Status: VERIFIED PASS.
+
+#### 4. Release Build Opt-In, Pseudonym Setting & Leaderboard Appearance
+- **End-to-End Release Validation**: Tested on production signed APK with full R8 code shrinking enabled.
+- **Display Name Setting**: Pseudonym input persists to user preferences and updates `public.profiles.display_name`.
+- **Opt-In Toggle**: Toggling opt-in flips `leaderboard_opt_in = true`, immediately permitting reads and writes via Supabase RLS policies.
+- **Leaderboard Rendering**: Verified that R8 serialization keep rules prevent obfuscation of JSON keys (`display_name`, `current_streak`, etc.). User appears on global leaderboard tabs and pinned `★ YOUR RANKING` row is rendered accurately. Status: VERIFIED PASS.
 
 
 
