@@ -1313,7 +1313,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 16: Wire ProfileSyncWorker to check server updated_at before pushing and skip if server is newer - 213f84a
 - Step 17: Add defensive anti-regression check preventing sync from pushing lower streak or level values than server - d20dfd1
 - Step 18: Write unit tests for conflict-resolution and staleness-guard logic - ac94bb7
-- Step 19: Perform manual QA verifying server-ahead sync skip behavior and regression protection - pending
+- Step 19: Perform manual QA verifying server-ahead sync skip behavior and regression protection - ac23e03
+- Step 20: Extend downtime error handling in ProfileSyncWorker with WorkManager backoff retry and zero-crash isolation - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
