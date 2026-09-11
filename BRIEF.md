@@ -1328,7 +1328,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 31: Write instrumented test for offline sync queuing and eventual success on reconnect - c679eee
 - Step 32: Write instrumented test for leaderboard tab switching (Top Streaks / Top Levels) and pagination - f772d11
 - Step 33: Write instrumented test covering the not-signed-in and signed-in-not-opted-in leaderboard states - 712ae0d
-- Step 34: Write instrumented test for the display-name moderation rejection flow - pending
+- Step 34: Write instrumented test for the display-name moderation rejection flow - 39d6b58
+- Step 35: Configure release build ProGuard and R8 rules for Supabase serialization and release APK assembly - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)

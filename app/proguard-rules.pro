@@ -25,3 +25,14 @@
 # Model classes used in JSON serialization / backup payload
 -keep class com.pixelquest.app.data.backup.** { *; }
 -keep class com.pixelquest.app.domain.model.** { *; }
+
+# Supabase DTOs & Kotlinx Serialization keep rules
+-keep class com.pixelquest.app.data.remote.** { *; }
+-keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
+-keepclassmembers class * {
+    @kotlinx.serialization.Serializable <fields>;
+    @kotlinx.serialization.SerialName <fields>;
+}
+-dontwarn io.github.jan.supabase.**
+-dontwarn io.ktor.**
+
