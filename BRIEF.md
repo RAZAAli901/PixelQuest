@@ -1311,7 +1311,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 14: Write UI test for opt-out discoverability and confirmation flow - c86e3e0
 - Step 15: Define and document sync conflict resolution rules: Last-Write-Wins and anti-regression - aa0a031
 - Step 16: Wire ProfileSyncWorker to check server updated_at before pushing and skip if server is newer - 213f84a
-- Step 17: Add defensive anti-regression check preventing sync from pushing lower streak or level values than server - pending
+- Step 17: Add defensive anti-regression check preventing sync from pushing lower streak or level values than server - d20dfd1
+- Step 18: Write unit tests for conflict-resolution and staleness-guard logic - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
