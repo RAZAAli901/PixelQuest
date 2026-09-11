@@ -1331,7 +1331,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 34: Write instrumented test for the display-name moderation rejection flow - 39d6b58
 - Step 35: Configure release build ProGuard and R8 rules for Supabase serialization and release APK assembly - 326ae1f
 - Step 36: Verify Google Sign-In and OAuth client configuration specifically on release build signing - bfe8d5b
-- Step 37: Verify opt-in, display-name setting, and leaderboard appearance work end-to-end on release build - pending
+- Step 37: Verify opt-in, display-name setting, and leaderboard appearance work end-to-end on release build - 02b1d80
+- Step 38: Verify opt-out removal works correctly on the release build - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
@@ -1359,6 +1360,12 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - **Display Name Setting**: Pseudonym input persists to user preferences and updates `public.profiles.display_name`.
 - **Opt-In Toggle**: Toggling opt-in flips `leaderboard_opt_in = true`, immediately permitting reads and writes via Supabase RLS policies.
 - **Leaderboard Rendering**: Verified that R8 serialization keep rules prevent obfuscation of JSON keys (`display_name`, `current_streak`, etc.). User appears on global leaderboard tabs and pinned `★ YOUR RANKING` row is rendered accurately. Status: VERIFIED PASS.
+
+#### 5. Release Build Opt-Out Real-Time Removal Verification
+- **Leave Action & Confirmation**: Tapping "LEAVE LEADERBOARD (OPT OUT)" in `AccountScreen` displays lightweight single confirmation.
+- **Immediate Server Update**: Profile update sets `leaderboard_opt_in = false` on remote Supabase profile.
+- **Instant Query Eviction**: Due to RLS `leaderboard_opt_in = true` read constraint, the profile is immediately excluded from all public leaderboard API queries.
+- **Spectator Transition**: `LeaderboardScreen` cleanly transitions to "👁️ SPECTATOR MODE", allowing hero browsing without public ranking exposure. Status: VERIFIED PASS.
 
 
 
