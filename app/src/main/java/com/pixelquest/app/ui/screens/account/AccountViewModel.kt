@@ -28,7 +28,8 @@ data class AccountUiState(
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
-    private val cloudProfileRepository: com.pixelquest.app.data.repository.CloudProfileRepository
+    private val cloudProfileRepository: com.pixelquest.app.data.repository.CloudProfileRepository,
+    private val authRepository: com.pixelquest.app.auth.AuthRepository? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountUiState())
@@ -222,7 +223,33 @@ class AccountViewModel @Inject constructor(
 
     fun confirmDeleteCloudAccount(authViewModel: com.pixelquest.app.auth.AuthViewModel? = null) {
         dismissDeleteDialog()
-        // Step 10 wires the full execution
+        syncJob?.cancel()
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isDeletingCloudData = true,
+                syncMessage = null
+            )
+
+            // 1. Delete profiles row in Supabase
+            cloudProfileRepository.deleteCloudProfile()
+
+            // 2. Call RPC to delete auth user from Supabase
+            authRepository?.deleteAccount()
+
+            // 3. Clear local Room database cloud fields
+            userProfileRepository.clearCloudData()
+
+            // 4. Sign out locally via AuthViewModel
+            authViewModel?.signOut()
+
+            _uiState.value = _uiState.value.copy(
+                isDeletingCloudData = false,
+                isOptedIn = false,
+                displayNameInput = "",
+                displayNameError = null,
+                syncMessage = "Cloud data and account deleted successfully."
+            )
+        }
     }
 
     companion object {

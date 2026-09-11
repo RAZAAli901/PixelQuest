@@ -11,4 +11,5 @@ interface UserProfileRepository {
     suspend fun updateSupabaseUserId(userId: String?)
     suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?)
     suspend fun updateLeaderboardOptIn(optIn: Boolean)
+    suspend fun clearCloudData()
 }

@@ -39,4 +39,9 @@ class UserProfileRepositoryImpl @Inject constructor(
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {
         userProfileDao.updateLeaderboardOptIn(optIn)
     }
+
+    override suspend fun clearCloudData() {
+        userProfileDao.updateSupabaseUserId(null)
+        userProfileDao.updateLeaderboardSettings(optIn = false, displayName = null)
+    }
 }
