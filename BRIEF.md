@@ -1316,7 +1316,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 19: Perform manual QA verifying server-ahead sync skip behavior and regression protection - ac23e03
 - Step 20: Extend downtime error handling in ProfileSyncWorker with WorkManager backoff retry and zero-crash isolation - fef9a77
 - Step 21: Add subtle non-blocking cloud sync unavailable indicator in AccountScreen when sync fails - 5fcc1e5
-- Step 22: Add 10-second timeout on leaderboard fetch calls to prevent hanging loading state - pending
+- Step 22: Add 10-second timeout on leaderboard fetch calls to prevent hanging loading state - eb1b151
+- Step 23: Write unit tests for leaderboard fetch timeout and prompt recovery - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
