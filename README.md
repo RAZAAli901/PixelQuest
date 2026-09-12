@@ -1,8 +1,8 @@
-# ⚔️ PixelQuest v1.0.3 — Level Up Your Life
+# ⚔️ PixelQuest v1.1.0 — Level Up Your Life
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
 [![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
-[![Version](https://img.shields.io/badge/Release-v1.0.3-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.0.3)
+[![Version](https://img.shields.io/badge/Release-v1.1.0-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.1.0)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 ![PixelQuest Feature Banner](docs/screenshots/banner.png)
@@ -15,7 +15,7 @@
 
 Click the button below to directly download the latest signed release APK onto your Android device:
 
-👉 **[📥 Direct Download app-release.apk (v1.0.3)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)** 👈
+👉 **[📥 Direct Download app-release.apk (v1.1.0)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)** 👈
 
 Or browse all build assets and previous versions on the **[📦 GitHub Releases Page](https://github.com/RAZAAli901/PixelQuest/releases)**.
 
