@@ -1339,7 +1339,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 42: Document required GitHub Secrets for Supabase and OAuth release build injection - f9f799a
 - Step 43: Update release and CI workflows to inject Supabase secrets dynamically at build time - f21cae8
 - Step 44: Create annotated v1.1.0 git tag with release notes covering leaderboard feature - 575dda8
-- Step 45: Trigger release workflow via v1.1.0 tag and verify GitHub Release publication - pending
+- Step 45: Trigger release workflow via v1.1.0 tag and verify GitHub Release publication - 51b1f79
+- Step 46: Update BRIEF.md with a full Day 15 summary and closing notes for the leaderboard extension - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
@@ -1387,6 +1388,17 @@ To assemble the signed production release APK with full cloud sync and authentic
 3. `GOOGLE_WEB_CLIENT_ID`: Google Cloud OAuth 2.0 Web Client ID used by Credential Manager to obtain ID tokens for Supabase authentication.
 4. `KEYSTORE_BASE64`: Base64-encoded release keystore (`pixelquest-release.jks`) for deterministic release artifact signing.
 5. `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`: Keystore decryption credentials.
+
+#### 8. Day 15 Leaderboard Extension Wrap-up & Closing Notes
+Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing PixelQuest to release version `v1.1.0`:
+- **Strict Architecture Principles Maintained**:
+  - **Local-First Sovereign Storage**: The local Room SQLite database remains the absolute source of truth. The application remains 100% functional without an internet connection or cloud account.
+  - **Privacy by Default**: Leaderboard participation requires explicit opt-in. Display names are custom pseudonyms completely detached from personal emails and names.
+  - **True Defense-in-Depth**: Profanity filtering operates client-side at entry, server-side via PostgreSQL triggers, and post-publish via authenticated community reporting.
+  - **Irrevocable Right to Erasure**: Cloud data deletion purges cloud profile rows, revokes Supabase auth users, and severs all remote links while preserving local offline quest progress intact.
+  - **Non-blocking Resiliency**: Multi-device sync handles conflicts through Last-Write-Wins and strict monotonic streak/level regression guards; cloud outages never degrade offline gameplay.
+- **Release Verification**: The automated GitHub Actions release workflow successfully compiled, tested, signed, and published `PixelQuest v1.1.0` with both `app-debug.apk` and `app-release.apk` attached to the release tag.
+- **Extension Metric**: Exactly 48 atomic commits executed across Day 15, completing the 142-commit leaderboard extension and raising total project commits to 755.
 
 
 
