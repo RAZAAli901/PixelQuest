@@ -1340,7 +1340,8 @@ Day 14 delivers the live background synchronization worker and the full retro 8-
 - Step 43: Update release and CI workflows to inject Supabase secrets dynamically at build time - f21cae8
 - Step 44: Create annotated v1.1.0 git tag with release notes covering leaderboard feature - 575dda8
 - Step 45: Trigger release workflow via v1.1.0 tag and verify GitHub Release publication - 51b1f79
-- Step 46: Update BRIEF.md with a full Day 15 summary and closing notes for the leaderboard extension - pending
+- Step 46: Update BRIEF.md with a full Day 15 summary and closing notes for the leaderboard extension - 27321f7
+- Step 47: Update VERIFICATION.md with final Day 13-15 commit counts and the new total project commit count including this extension - pending
 
 ### Day 15 Architecture & Setup Notes
 #### 1. Display Name Defense-in-Depth Moderation (Client + Server Trigger)
