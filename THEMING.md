@@ -55,3 +55,16 @@ PixelQuest formally adopts a 4th theme configuration: `ThemeMode.System` ("Follo
 - **Theme-Agnostic Invariants**:
   - Box layout hierarchy, `contentPadding` contract, and composable slot container structure remain constant.
 
+### 2.3 `PixelDialog` Audit
+- **Current State**:
+  - Implements standard Compose `Dialog(onDismissRequest)`.
+  - Container: Delegated entirely to `PixelCard(variant = PixelPanelVariant.BORDER)`.
+  - Title: Accurately binds to `MaterialTheme.colorScheme.primary`.
+  - Action Buttons: Uses standard `PixelButton` instances (`BLUE` for dismissal/cancel, `YELLOW` for confirmation).
+- **Theme-Aware Adaptations (Days 17 & 20–23)**:
+  - Inherits container styling directly from `PixelCard`: once `PixelCard` adapts to theme-aware backgrounds in Day 17, `PixelDialog` automatically renders light/comic frames without architectural breakage.
+  - In Comic Mode (Days 20–23): Option to render speech-bubble or explosive comic callout headers ("WARNING!", "HEROIC DECISION!").
+- **Theme-Agnostic Invariants**:
+  - Dialog window scrim, back button dismissal mechanics, title spacing, and button arrangement.
+
+
