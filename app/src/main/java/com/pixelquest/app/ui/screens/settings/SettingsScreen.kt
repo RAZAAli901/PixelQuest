@@ -16,6 +16,7 @@ fun SettingsScreen(
     onNavigateToDifficulty: () -> Unit = {},
     onNavigateToAvatar: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
+    onNavigateToThemeSelection: () -> Unit = {},
     onResetComplete: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -102,6 +103,12 @@ fun SettingsScreen(
             ThemeSelectionCard(
                 currentTheme = state.themeMode,
                 onThemeSelected = { viewModel.setThemeMode(it) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            PixelButton(
+                text = "🎨 FULL THEME SETTINGS",
+                onClick = onNavigateToThemeSelection,
+                variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )
             val soundText = if (state.isSoundEnabled) "🔊 SFX: ON" else "🔇 SFX: OFF"

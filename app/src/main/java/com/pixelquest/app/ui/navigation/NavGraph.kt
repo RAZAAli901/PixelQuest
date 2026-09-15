@@ -42,6 +42,7 @@ sealed class Screen(val route: String) {
     object Settings : Screen("settings")
     object Account : Screen("account")
     object Leaderboard : Screen("leaderboard")
+    object ThemeSelection : Screen("theme_selection")
 }
 
 @Composable
@@ -197,11 +198,17 @@ fun PixelNavHost(
                 onNavigateToDifficulty = { navController.navigate(Screen.DifficultySelection.route) },
                 onNavigateToAvatar = { navController.navigate(Screen.AvatarSelection.route) },
                 onNavigateToAccount = { navController.navigate(Screen.Account.route) },
+                onNavigateToThemeSelection = { navController.navigate(Screen.ThemeSelection.route) },
                 onResetComplete = {
                     navController.navigate(Screen.Onboarding.route) {
                         popUpTo(0) { inclusive = true }
                     }
                 }
+            )
+        }
+        composable(Screen.ThemeSelection.route) {
+            com.pixelquest.app.ui.screens.settings.ThemeSelectionScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable(Screen.Account.route) {
