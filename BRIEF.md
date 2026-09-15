@@ -1418,6 +1418,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 13: Verify theme changes apply live reactively without app restart - db344e9
 - Step 14: Add smooth cross-fade transition when switching themes - e9e5a18
 - Step 15: Restrict CRT scanline overlay to Pixel theme mode and document decision - 7af4e05
+- Step 16: Write test verifying theme switch triggers recomposition and CRT gating - eeb72ea
 
 
 
