@@ -50,3 +50,22 @@ fun ThemeSelectorLightActivePreview() {
         }
     }
 }
+
+@Preview(name = "Theme Selector - Follow System Active", showBackground = true)
+@Composable
+fun ThemeSelectorSystemActivePreview() {
+    PixelQuestTheme(themeMode = ThemeMode.System) {
+        Box(
+            modifier = Modifier
+                .background(PixelBackgroundDark)
+                .padding(16.dp)
+        ) {
+            ThemeSelectionCard(
+                currentTheme = ThemeMode.System,
+                onThemeSelected = {},
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+

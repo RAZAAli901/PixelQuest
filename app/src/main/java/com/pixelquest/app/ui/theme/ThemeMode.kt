@@ -27,7 +27,9 @@ enum class ThemeMode(
 
     companion object {
         fun fromId(id: String?): ThemeMode {
-            return entries.firstOrNull { it.id.equals(id, ignoreCase = true) } ?: Pixel
+            val cleanId = id?.trim()
+            return entries.firstOrNull { it.id.equals(cleanId, ignoreCase = true) } ?: Pixel
         }
     }
+
 }

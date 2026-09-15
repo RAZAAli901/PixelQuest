@@ -61,9 +61,14 @@ class SystemThemeResolutionTest {
     fun themeMode_fromId_handlesSystemCorrectly() {
         assertEquals(ThemeMode.System, ThemeMode.fromId("system"))
         assertEquals(ThemeMode.System, ThemeMode.fromId("SYSTEM"))
+        assertEquals(ThemeMode.System, ThemeMode.fromId("  system  "))
         assertEquals(ThemeMode.Pixel, ThemeMode.fromId("pixel"))
+        assertEquals(ThemeMode.Pixel, ThemeMode.fromId("  pixel\n"))
         assertEquals(ThemeMode.Light, ThemeMode.fromId("light"))
         assertEquals(ThemeMode.Comic, ThemeMode.fromId("comic"))
         assertEquals(ThemeMode.Pixel, ThemeMode.fromId("invalid_mode"))
+        assertEquals(ThemeMode.Pixel, ThemeMode.fromId(null))
+        assertEquals(ThemeMode.Pixel, ThemeMode.fromId(""))
+
     }
 }
