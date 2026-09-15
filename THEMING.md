@@ -28,3 +28,18 @@ PixelQuest formally adopts a 4th theme configuration: `ThemeMode.System` ("Follo
 - Default installation preference remains `ThemeMode.Pixel` to preserve the signature arcade branding upon fresh installs.
 - Users can switch to `Follow System`, `Pixel`, or `Light` at any time from `Settings -> Theme Selection`.
 - Explicit selections (`Pixel`, `Light`, `Comic`) act as strict overrides that completely decouple from OS state.
+
+## 2. Component-Level Theme Compatibility Audit
+
+### 2.1 `PixelButton` Audit
+- **Current State**:
+  - Backgrounds: Hardcoded 9-patch drawables (`R.drawable.pixel_button_yellow`, `pixel_button_blue`, and pressed variants).
+  - Text Color: Hardcoded ternary (`Color.Black` for yellow, `Color.White` for blue).
+  - Press Animation: 2.dp downward offset on press with `alpha = 0.5f` on disabled.
+  - Interaction: Emits `performLightTap` haptic and `playClickSound()` via `LocalSoundManager`.
+- **Theme-Aware Adaptations (Days 17 & 20–23)**:
+  - **Light Mode (Day 17)**: Dynamic color tint filter (`ColorFilter.tint(colors.primary)`) applied over the button base shape, and text color resolved dynamically from `LocalAppColorScheme.current.onPrimary` / `onSecondary`.
+  - **Comic Mode (Days 20–23)**: Comic theme requires thick 3–4px hard black borders, stark halftone or saturated solid fills, and angled drop-shadow offsets instead of 8-bit stepped pixel corners.
+- **Theme-Agnostic Invariants**:
+  - Haptic feedback and click SFX triggers remain consistent across all themes.
+  - `Role.Button` accessibility semantics and 48dp minimum touch target bounding.

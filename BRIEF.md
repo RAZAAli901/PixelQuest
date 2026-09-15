@@ -1434,6 +1434,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 22: Revisit Day 11 dark mode decision and document adoption of Follow System - 3e1ffac
 - Step 23: Implement Follow System theme mode resolving to Pixel or Light - 79dadce
 - Step 24: Write unit test for system-theme-change detection while Follow System is active - 70fb9fe
+- Step 25: Update Day 11 dark/light documentation in BRIEF.md to reflect Follow System decision - cfa455b
 
 
 
