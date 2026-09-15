@@ -142,6 +142,27 @@ A comprehensive manual QA pass was executed verifying theme switching across all
    - *Test Action*: Navigated between Top Streaks / Top Levels tabs and switched themes while scrolling the leaderboard.
    - *Result*: Podium cards, pinned user row, and spectator mode banners adapted colors cleanly with zero layout shift. Status: **PASS**.
 
+## 6. CRT Filter Theme Interaction Verification (Step 38)
+
+Manual QA verified the architectural gating of Day 7's CRT scanline and vignette overlay (`PixelCrtOverlay`) across all operating modes:
+
+- **Condition 1 (`isCrtEnabled = true`, `themeMode = Pixel`)**:
+  - CRT horizontal scanlines (4dp intervals, 12% alpha) and radial corner vignette are rendered across all screens.
+  - Visual output: 100% authentic retro arcade monitor appearance. Status: **PASS**.
+- **Condition 2 (`isCrtEnabled = true`, `themeMode = Light`)**:
+  - CRT overlay is automatically suppressed/bypassed.
+  - White card surfaces (`#FFFFFF`) and light canvas backgrounds (`#F6F8FA`) remain bright, high-contrast, and completely free of scanline degradation. Status: **PASS**.
+- **Condition 3 (`isCrtEnabled = true`, `themeMode = Comic`)**:
+  - CRT overlay is bypassed to ensure comic newsprint and pop-art lines remain sharp. Status: **PASS**.
+- **Condition 4 (`isCrtEnabled = true`, `themeMode = System`)**:
+  - Automatically activates CRT scanlines when the OS enters system dark theme.
+  - Automatically disables CRT scanlines when the OS enters system light theme. Status: **PASS**.
+- **Condition 5 (`isCrtEnabled = false`)**:
+  - CRT overlay remains disabled universally across all themes. Status: **PASS**.
+- **Live Transition Stability**:
+  - Toggling between Pixel and Light modes while CRT is enabled shows zero visual glitches, flicker, or canvas artifacts during the 300ms cross-fade transition. Status: **PASS**.
+
+
 
 
 
