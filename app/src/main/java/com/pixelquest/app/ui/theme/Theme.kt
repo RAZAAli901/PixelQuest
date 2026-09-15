@@ -42,8 +42,8 @@ fun PixelQuestTheme(
 ) {
     val appColorScheme: AppColorScheme = when (themeMode) {
         ThemeMode.Pixel -> DefaultPixelColorScheme
-        ThemeMode.Light -> DefaultPixelColorScheme // placeholder until Step 9 stubs
-        ThemeMode.Comic -> DefaultPixelColorScheme // placeholder until Step 9 stubs
+        ThemeMode.Light -> DefaultLightColorScheme
+        ThemeMode.Comic -> DefaultComicColorScheme
     }
     val materialColorScheme = appColorScheme.toMaterialColorScheme()
     val view = LocalView.current

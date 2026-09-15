@@ -1410,6 +1410,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 5: Write a unit test for ThemeViewModel state exposure - 7fd2973
 - Step 6: Extract pixel color palette into formal PixelColorScheme data structure - 284b59a
 - Step 7: Create generic AppColorScheme interface implemented by theme palettes - 53c919d
+- Step 8: Refactor PixelQuestTheme to accept ThemeMode parameter and select color scheme - a9b8e8b
 
 
 
