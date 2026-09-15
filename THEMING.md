@@ -67,4 +67,19 @@ PixelQuest formally adopts a 4th theme configuration: `ThemeMode.System` ("Follo
 - **Theme-Agnostic Invariants**:
   - Dialog window scrim, back button dismissal mechanics, title spacing, and button arrangement.
 
+### 2.4 Avatar Display, XP Bar & Progress Ring Audit
+- **`PixelAvatarFrame`**:
+  - *Current State*: Frame background hardcoded to `PixelSurfaceDark` (`#1A1A2E`). Border color dynamically calculated via `AvatarTierCalculator`.
+  - *Theme Adaptations*: In Light mode, container background must read `LocalAppColorScheme.current.surface` (`#FFFFFF`) to avoid dark boxes on light screens. In Comic mode, add high-contrast 3px comic outline with action drop-shadow.
+  - *Invariants*: Tier calculation logic and badge emoji positioning.
+- **`PixelXpBar`**:
+  - *Current State*: Track background hardcoded to `PixelSurfaceDark`, level badge to `PixelGold`, progress fill to `PixelGreen`, and label text to `Color.White`.
+  - *Theme Adaptations*: In Light mode, track must read `colors.surfaceVariant` (`#E1E4E8`), fill `colors.tertiary` (`#2E7D32`), level badge `colors.primary`, and label text `colors.onSurface`. In Comic mode, add pop-art striped hatch pattern and bold black borders.
+  - *Invariants*: Progress ratio calculation, 600ms easing animation curve, and screen reader percentage announcement semantics.
+- **`PixelDailyProgressRing`**:
+  - *Current State*: Uses `PixelCard(variant = PixelPanelVariant.BEIGE)`. Title and percentage text hardcoded to `PixelGold`/`PixelTextWhite` and `PixelGreen`/`PixelCyan`.
+  - *Theme Adaptations*: Delegate colors to `LocalAppColorScheme.current.primary` / `onSurface`. Card background inherits theme-aware `PixelCard` in Day 17. In Comic mode, "PERFECT DAY!" renders as an action comic sticker/burst.
+  - *Invariants*: Milestone evaluation (`progress >= targetThreshold`), column spacing, progress ratio.
+
+
 
