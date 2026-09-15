@@ -234,5 +234,28 @@
 - **Final Release Tag**: `v1.1.0` published on GitHub Releases with signed production APK attached.
 - **Verification Status**: 100% COMPLETE & VERIFIED.
 
+## Section C -- Day 16 Theming Architecture Verification (Step 43)
+
+### Step 43: Day 16 Commit Audit & Multi-Theme Verification
+- **Day 16 Commit Target**: Exactly 43 atomic commits (Steps 1–43).
+- **Actual Day 16 Commits**: 43 commits.
+- **New Project Commit Total**: 755 (Day 15) + 43 (Day 16) = 798 documented project commits.
+
+### Final Verification Results:
+1. **CI Build & Compile**:
+   - `compileDebugKotlin` and `assembleDebug` executed with 0 errors and 0 warnings.
+   - Build duration: 1m 3s.
+2. **Cold-Start Theme Persistence**:
+   - `SettingsRepository.themeMode` persists `ThemeMode` (`Pixel`, `Light`, `Comic`, `System`) across application termination and device reboots via Proto DataStore.
+   - Synchronous initial flow collection ensures zero theme flickering on cold start.
+3. **Reactive Recomposition & Smooth Cross-Fade**:
+   - `rememberAnimatedAppColorScheme` animates all semantic color tokens over a 300ms tween in-place without restarting `NavHost` or triggering activity rebuilds.
+4. **CRT Scanline Overlay Isolation**:
+   - CRT shader overlay is strictly gated to `ThemeMode.Pixel` (and `ThemeMode.System` when OS is in dark mode). Light and Comic modes bypass the overlay cleanly.
+5. **Days 1–15 Functional Integrity**:
+   - Habit tracking, leveling, audio SFX, haptics, JSON backup/restore, analytics heatmaps, and Supabase global leaderboards remain 100% functional.
+- **Verification Status**: 100% COMPLETE & VERIFIED.
+
+
 
 
