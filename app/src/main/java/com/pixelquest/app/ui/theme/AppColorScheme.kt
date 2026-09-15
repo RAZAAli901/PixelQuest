@@ -34,3 +34,30 @@ interface AppColorScheme {
 
     fun toMaterialColorScheme(): ColorScheme
 }
+
+/**
+ * CompositionLocal providing access to the current active [AppColorScheme].
+ */
+val LocalAppColorScheme = androidx.compose.runtime.staticCompositionLocalOf<AppColorScheme> {
+    DefaultPixelColorScheme
+}
+
+/**
+ * CompositionLocal providing access to the current active [ThemeMode].
+ */
+val LocalAppThemeMode = androidx.compose.runtime.staticCompositionLocalOf<ThemeMode> {
+    ThemeMode.Pixel
+}
+
+/**
+ * Convenient accessor for theme tokens in composables.
+ */
+object PixelTheme {
+    val colors: AppColorScheme
+        @androidx.compose.runtime.Composable
+        get() = LocalAppColorScheme.current
+
+    val mode: ThemeMode
+        @androidx.compose.runtime.Composable
+        get() = LocalAppThemeMode.current
+}

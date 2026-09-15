@@ -55,9 +55,14 @@ fun PixelQuestTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = materialColorScheme,
-        typography = PixelTypography,
-        content = content
-    )
+    androidx.compose.runtime.CompositionLocalProvider(
+        LocalAppColorScheme provides appColorScheme,
+        LocalAppThemeMode provides themeMode
+    ) {
+        MaterialTheme(
+            colorScheme = materialColorScheme,
+            typography = PixelTypography,
+            content = content
+        )
+    }
 }
