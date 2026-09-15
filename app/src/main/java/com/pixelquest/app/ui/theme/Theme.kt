@@ -20,13 +20,18 @@ import androidx.compose.ui.platform.LocalView
 fun PixelQuestTheme(
     themeMode: ThemeMode = ThemeMode.Pixel,
     darkTheme: Boolean = isSystemInDarkTheme(),
+    isReduceMotion: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val appColorScheme: AppColorScheme = when (themeMode) {
+    val rawColorScheme: AppColorScheme = when (themeMode) {
         ThemeMode.Pixel -> DefaultPixelColorScheme
         ThemeMode.Light -> DefaultLightColorScheme
         ThemeMode.Comic -> DefaultComicColorScheme
     }
+    val appColorScheme = rememberAnimatedAppColorScheme(
+        targetScheme = rawColorScheme,
+        isReduceMotion = isReduceMotion
+    )
     val materialColorScheme = appColorScheme.toMaterialColorScheme()
     val view = LocalView.current
     if (!view.isInEditMode) {

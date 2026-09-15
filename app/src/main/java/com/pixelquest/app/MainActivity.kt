@@ -69,7 +69,8 @@ class MainActivity : ComponentActivity() {
         checkNotificationPermission()
         setContent {
             val themeMode by themeViewModel.themeMode.collectAsState()
-            PixelQuestTheme(themeMode = themeMode) {
+            val isReduceMotionEnabled by settingsRepository.isReduceMotionEnabled.collectAsState(initial = false)
+            PixelQuestTheme(themeMode = themeMode, isReduceMotion = isReduceMotionEnabled) {
                 CompositionLocalProvider(LocalSoundManager provides soundManager) {
                     val isCrtEnabled by settingsRepository.isCrtEnabled.collectAsState(initial = false)
                     val isHapticsEnabled by settingsRepository.isHapticsEnabled.collectAsState(initial = true)
