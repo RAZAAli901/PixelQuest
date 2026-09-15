@@ -1425,6 +1425,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 20: Add theme-selection nav route and link from Settings - 69a7cfa
 - Step 21: Add Compose Preview for theme selector - 1cf0fd1
 - Step 22: Revisit Day 11 dark mode decision and document adoption of Follow System - 3e1ffac
+- Step 23: Implement Follow System theme mode resolving to Pixel or Light - 79dadce
 
 
 
