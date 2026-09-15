@@ -76,7 +76,9 @@ class MainActivity : ComponentActivity() {
                     val isHapticsEnabled by settingsRepository.isHapticsEnabled.collectAsState(initial = true)
                     com.pixelquest.app.ui.haptics.PixelHaptics.isHapticsEnabledGlobal = isHapticsEnabled
                     val onboardingComplete by settingsRepository.onboardingComplete.collectAsState(initial = true)
-                    PixelCrtOverlay(enabled = isCrtEnabled) {
+                    // CRT overlay is architecturally restricted to Pixel theme mode only.
+                    val shouldApplyCrt = isCrtEnabled && themeMode == com.pixelquest.app.ui.theme.ThemeMode.Pixel
+                    PixelCrtOverlay(enabled = shouldApplyCrt) {
                         val navController = rememberNavController()
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentRoute = navBackStackEntry?.destination?.route

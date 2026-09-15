@@ -11,6 +11,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Retro cathode-ray tube (CRT) monitor scanline and vignette overlay.
+ *
+ * Architecture Decision (Day 16):
+ * This filter is intentionally restricted to [com.pixelquest.app.ui.theme.ThemeMode.Pixel] only.
+ * In Light and Comic modes, scanlines degrade readability and contradict the medium's aesthetic
+ * (paper print / crisp modern interface). Thus, it is automatically bypassed when non-Pixel themes are active.
+ */
 @Composable
 fun PixelCrtOverlay(
     enabled: Boolean,

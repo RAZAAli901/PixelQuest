@@ -1416,6 +1416,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 11: Verify existing pixel-mode UI renders identically to pre-refactor - d31ca3e
 - Step 12: Wire root composable to observe ThemeViewModel and apply PixelQuestTheme - ce2bbb5
 - Step 13: Verify theme changes apply live reactively without app restart - db344e9
+- Step 14: Add smooth cross-fade transition when switching themes - e9e5a18
 
 
 
