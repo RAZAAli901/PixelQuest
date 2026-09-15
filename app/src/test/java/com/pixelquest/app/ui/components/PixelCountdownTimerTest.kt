@@ -52,7 +52,7 @@ class PixelCountdownTimerTest {
     fun isExpired_detectsPassedTime() {
         val now = LocalTime.of(12, 0)
         val scheduledPast = LocalTime.of(11, 59)
-        val scheduledFuture = LocalTime.of(12, 01)
+        val scheduledFuture = LocalTime.of(12, 1)
         assertTrue(CountdownFormatter.isExpired(scheduledPast, now))
         assertFalse(CountdownFormatter.isExpired(scheduledFuture, now))
     }

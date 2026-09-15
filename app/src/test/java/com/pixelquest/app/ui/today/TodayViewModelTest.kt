@@ -32,6 +32,10 @@ import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalTime
+import androidx.test.core.app.ApplicationProvider
+import com.pixelquest.app.scheduling.TaskAlarmScheduler
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 class FakeTaskRepository : TaskRepository {
     val tasksFlow = MutableStateFlow<List<TaskEntity>>(emptyList())
@@ -76,11 +80,6 @@ class FakeDifficultyRepo : DifficultySettingsRepository {
     override suspend fun insertSettings(settings: DifficultySettingsEntity) {}
     override suspend fun updateSettings(settings: DifficultySettingsEntity) {}
 }
-
-import androidx.test.core.app.ApplicationProvider
-import com.pixelquest.app.scheduling.TaskAlarmScheduler
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)

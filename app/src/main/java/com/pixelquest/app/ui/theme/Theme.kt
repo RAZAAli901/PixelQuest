@@ -9,24 +9,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 
-private val PixelDarkColorScheme = darkColorScheme(
-    primary = PixelGold,
-    onPrimary = PixelBlack,
-    primaryContainer = PixelGoldDark,
-    onPrimaryContainer = PixelTextWhite,
-    secondary = PixelCyan,
-    onSecondary = PixelBlack,
-    tertiary = PixelGreen,
-    onTertiary = PixelBlack,
-    background = PixelBackgroundDark,
-    onBackground = PixelTextWhite,
-    surface = PixelSurfaceDark,
-    onSurface = PixelTextWhite,
-    surfaceVariant = PixelSurfaceBorder,
-    onSurfaceVariant = PixelTextMuted,
-    error = PixelRed,
-    onError = PixelTextWhite
-)
 
 /**
  * PixelQuest Theme wrapper supporting multiple theme modes:
