@@ -1414,6 +1414,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 9: Create placeholder LightColorScheme and ComicColorScheme stubs - e1a0cdc
 - Step 10: Wire CompositionLocal for active theme and color scheme - 3328831
 - Step 11: Verify existing pixel-mode UI renders identically to pre-refactor - d31ca3e
+- Step 12: Wire root composable to observe ThemeViewModel and apply PixelQuestTheme - ce2bbb5
 
 
 
