@@ -99,6 +99,11 @@ fun SettingsScreen(
             )
         },
         appearanceSection = {
+            ThemeSelectionCard(
+                currentTheme = state.themeMode,
+                onThemeSelected = { viewModel.setThemeMode(it) },
+                modifier = Modifier.fillMaxWidth()
+            )
             val soundText = if (state.isSoundEnabled) "🔊 SFX: ON" else "🔇 SFX: OFF"
             PixelButton(
                 text = soundText,

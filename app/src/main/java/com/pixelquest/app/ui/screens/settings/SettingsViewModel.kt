@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.pixelquest.app.ui.theme.ThemeMode
 import javax.inject.Inject
 
 data class SettingsUiState(
@@ -25,7 +26,16 @@ data class SettingsUiState(
     val isSoundEnabled: Boolean = true,
     val isCrtEnabled: Boolean = false,
     val isHapticsEnabled: Boolean = true,
-    val isNotificationsEnabled: Boolean = true
+    val isNotificationsEnabled: Boolean = true,
+    val themeMode: ThemeMode = ThemeMode.Pixel
+)
+
+private data class SettingsPrefs(
+    val sound: Boolean,
+    val crt: Boolean,
+    val haptics: Boolean,
+    val notifs: Boolean,
+    val theme: ThemeMode
 )
 
 @HiltViewModel
@@ -44,24 +54,32 @@ class SettingsViewModel @Inject constructor(
             settingsRepository.isSoundEnabled,
             settingsRepository.isCrtEnabled,
             settingsRepository.isHapticsEnabled,
-            settingsRepository.isNotificationsEnabled
-        ) { sound, crt, haptics, notifs ->
-            arrayOf(sound, crt, haptics, notifs)
+            settingsRepository.isNotificationsEnabled,
+            settingsRepository.themeMode
+        ) { sound, crt, haptics, notifs, theme ->
+            SettingsPrefs(sound, crt, haptics, notifs, theme)
         }
     ) { profile, difficulty, prefs ->
         SettingsUiState(
             profile = profile,
             difficulty = difficulty,
-            isSoundEnabled = prefs[0],
-            isCrtEnabled = prefs[1],
-            isHapticsEnabled = prefs[2],
-            isNotificationsEnabled = prefs[3]
+            isSoundEnabled = prefs.sound,
+            isCrtEnabled = prefs.crt,
+            isHapticsEnabled = prefs.haptics,
+            isNotificationsEnabled = prefs.notifs,
+            themeMode = prefs.theme
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = SettingsUiState()
     )
+
+    fun setThemeMode(mode: ThemeMode) {
+        viewModelScope.launch {
+            settingsRepository.setThemeMode(mode)
+        }
+    }
 
     fun toggleSound(enabled: Boolean) {
         viewModelScope.launch {
