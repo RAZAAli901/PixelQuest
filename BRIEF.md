@@ -1446,6 +1446,44 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 34: Verify tinting utility integration on PixelButton and add unit test - b2dbb7b
 - Step 35: Note in ASSETS.md future asset roadmap for Days 17 and 20-23 - 12642f2
 - Step 36: Write integration test switching through all theme modes across screens - 02c6724
+- Step 37: Manual QA switch themes across all major screens and confirm no layout breakage - 4b408f7
+- Step 38: Manual QA verify CRT filter interaction holds up across screens - 71860f4
+- Step 39: Polish theme selector previews and edge-case resolution - cafce63
+- Step 40: Run full regression pass confirming Days 1-15 functionality unaffected - 17989ff
+
+### Day 16 Architecture & Theming Foundation Summary
+
+Day 16 initiates the new 15-day extension (Days 16–30) for PixelQuest, establishing the foundational theming architecture that enables dynamic, runtime theme switching across four operating modes without requiring an application restart.
+
+#### 1. Multi-Theme Data Architecture
+- **`ThemeMode` Enum**: Formalized `ThemeMode` (`Pixel`, `Light`, `Comic`, `System`). `Pixel` serves as the default 8-bit arcade aesthetic. `Light` is architected for Day 17's crisp productivity design. `Comic` is stubbed with preview swatches ahead of Days 20–23's pop-art overhaul.
+- **Unified `AppColorScheme` Contract**: Defined a comprehensive semantic design token interface implemented by `PixelColorScheme` (`DefaultPixelColorScheme`), `LightColorScheme` (`DefaultLightColorScheme`), and `ComicColorScheme` (`DefaultComicColorScheme`). Nested composables consume tokens via `LocalAppColorScheme.current` and `LocalThemeMode.current` without prop-drilling.
+- **Seamless Live Cross-Fade Transitions**: Rather than unmounting screens or causing route desynchronization, `rememberAnimatedAppColorScheme` performs an in-place 300ms tween across background, surface, primary, and border tokens. The app re-themes smoothly on the fly.
+
+#### 2. System-Follow Mode Adoption (Day 11 Decision Revisited)
+- **Architectural Reversal**: Day 11 intentionally locked PixelQuest into a fixed dark theme. With real light mode arriving on Day 17, this constraint was lifted.
+- **Dynamic Resolution**: Added `ThemeMode.System` ("Follow System"), which queries Compose's `isSystemInDarkTheme()`. When active, daytime conditions resolve to `ThemeMode.Light`, and sunset/dark mode conditions resolve to `ThemeMode.Pixel`.
+- **User Agency**: Users can explicitly choose `Pixel` (always dark), `Light` (always bright), or `System` (automatic device scheduling) from the Settings screen.
+
+#### 3. CRT Scanline Filter Interaction Policy
+- **Gated CRT Overlay**: Day 7's `PixelCrtOverlay` (scanlines and vignette) was architecturally restricted:
+  - Enabled exclusively when `effectiveTheme == ThemeMode.Pixel` and user setting `isCrtEnabled == true`.
+  - Automatically suppressed in `Light` and `Comic` modes to preserve high contrast, sharp text, and pristine comic-strip borders.
+
+#### 4. Multi-Theme Asset Strategy
+- **`Pixel` Mode**: Retains authentic 8-bit pixel art raster PNGs and hand-crafted canvas borders.
+- **`Light` Mode (Day 17)**: Employs dynamic tinting via `PixelThemeAssetFilter` and `ColorFilter.tint()`. Reuses existing pixel assets with contrast-adapted tints, eliminating duplicate asset bloat.
+- **`Comic` Mode (Days 20–23)**: Adopted a dedicated asset strategy requiring genuine vector/raster artwork featuring bold 3dp black contours, Ben-Day halftone dots, and comic action frames.
+
+#### 5. Component Audit & Safe Token Migration
+- Audited `PixelButton`, `PixelCard`, `PixelPanel`, `PixelDialog`, `AvatarDisplay`, `XpBar`, and `ProgressRing`. Documented compatibility and migration requirements in `THEMING.md`.
+- Converted hardcoded dark surface colors and border tokens to dynamic scheme references (`LocalAppColorScheme.current`).
+- Pixel mode renders and behaves 100% identically to v1.1.0 before the refactor.
+
+#### 6. Known Gaps & Roadmap for Day 17
+- **Day 17 Scope**: Complete visual implementation of `DefaultLightColorScheme` (curated high-contrast paper palette, readable font sizes, warm card surfaces).
+- **Component Elevation**: Day 17 will refine button drop-shadows and card elevations for light surfaces.
+- **Full CI Verification**: All Days 1–15 habit tracking, leveling, audio, haptic, and cloud leaderboard features verified regression-free.
 
 
 
