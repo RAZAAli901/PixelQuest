@@ -1405,6 +1405,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 ## Day 16 Progress Log
 - Step 1: Define ThemeMode enum with Pixel, Light, and Comic options - f16d04e
 - Step 2: Add themeMode preference to SettingsRepository defaulting to Pixel - 90ab6e8
+- Step 3: Create ThemeViewModel exposing ThemeMode StateFlow - ba1fd9e
 
 
 
