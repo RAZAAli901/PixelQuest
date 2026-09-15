@@ -55,6 +55,21 @@ fun ThemeSelectionCard(
                 color = PixelGold
             )
 
+            // Follow System Option
+            ThemeOptionRow(
+                title = "📱 FOLLOW SYSTEM",
+                subtitle = "Automatically match device light/dark schedule",
+                isSelected = currentTheme == ThemeMode.System,
+                isComingSoon = false,
+                previewColors = listOf(
+                    DefaultPixelColorScheme.background,
+                    DefaultLightColorScheme.background,
+                    DefaultPixelColorScheme.primary,
+                    DefaultLightColorScheme.primary
+                ),
+                onClick = { onThemeSelected(ThemeMode.System) }
+            )
+
             // Pixel Mode Option
             ThemeOptionRow(
                 title = "🕹️ PIXEL (RETRO DARK)",

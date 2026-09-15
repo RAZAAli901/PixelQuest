@@ -77,7 +77,9 @@ class MainActivity : ComponentActivity() {
                     com.pixelquest.app.ui.haptics.PixelHaptics.isHapticsEnabledGlobal = isHapticsEnabled
                     val onboardingComplete by settingsRepository.onboardingComplete.collectAsState(initial = true)
                     // CRT overlay is architecturally restricted to Pixel theme mode only.
-                    val shouldApplyCrt = isCrtEnabled && themeMode == com.pixelquest.app.ui.theme.ThemeMode.Pixel
+                    val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
+                    val effectiveTheme = themeMode.resolveEffective(isSystemDark)
+                    val shouldApplyCrt = isCrtEnabled && effectiveTheme == com.pixelquest.app.ui.theme.ThemeMode.Pixel
                     PixelCrtOverlay(enabled = shouldApplyCrt) {
                         val navController = rememberNavController()
                         val navBackStackEntry by navController.currentBackStackEntryAsState()

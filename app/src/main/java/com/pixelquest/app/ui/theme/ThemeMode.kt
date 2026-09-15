@@ -10,9 +10,20 @@ enum class ThemeMode(
     val id: String,
     val displayName: String
 ) {
+    System("system", "Follow System"),
     Pixel("pixel", "Retro Pixel (Dark)"),
     Light("light", "Clean Light"),
     Comic("comic", "Comic Pop (Coming Soon)");
+
+    /**
+     * Resolves the concrete runtime theme mode based on device dark/light state.
+     */
+    fun resolveEffective(isSystemInDark: Boolean): ThemeMode = when (this) {
+        System -> if (isSystemInDark) Pixel else Light
+        Pixel -> Pixel
+        Light -> Light
+        Comic -> Comic
+    }
 
     companion object {
         fun fromId(id: String?): ThemeMode {

@@ -23,8 +23,9 @@ fun PixelQuestTheme(
     isReduceMotion: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val rawColorScheme: AppColorScheme = when (themeMode) {
-        ThemeMode.Pixel -> DefaultPixelColorScheme
+    val effectiveMode = themeMode.resolveEffective(darkTheme)
+    val rawColorScheme: AppColorScheme = when (effectiveMode) {
+        ThemeMode.Pixel, ThemeMode.System -> DefaultPixelColorScheme
         ThemeMode.Light -> DefaultLightColorScheme
         ThemeMode.Comic -> DefaultComicColorScheme
     }
@@ -44,7 +45,7 @@ fun PixelQuestTheme(
 
     androidx.compose.runtime.CompositionLocalProvider(
         LocalAppColorScheme provides appColorScheme,
-        LocalAppThemeMode provides themeMode
+        LocalAppThemeMode provides effectiveMode
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme,
