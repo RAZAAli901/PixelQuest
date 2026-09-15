@@ -1408,6 +1408,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 3: Create ThemeViewModel exposing ThemeMode StateFlow - ba1fd9e
 - Step 4: Write a unit test for theme preference persistence - 30478ea
 - Step 5: Write a unit test for ThemeViewModel state exposure - 7fd2973
+- Step 6: Extract pixel color palette into formal PixelColorScheme data structure - 284b59a
 
 
 

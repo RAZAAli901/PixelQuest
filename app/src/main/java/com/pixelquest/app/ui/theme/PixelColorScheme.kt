@@ -9,28 +9,29 @@ import androidx.compose.ui.graphics.Color
  * Preserves the exact palette tokens defined in Day 1 Color.kt.
  */
 data class PixelColorScheme(
-    val primary: Color = PixelGold,
-    val onPrimary: Color = PixelBlack,
-    val primaryContainer: Color = PixelGoldDark,
-    val onPrimaryContainer: Color = PixelTextWhite,
-    val secondary: Color = PixelCyan,
-    val onSecondary: Color = PixelBlack,
-    val secondaryContainer: Color = PixelCyanDark,
-    val tertiary: Color = PixelGreen,
-    val onTertiary: Color = PixelBlack,
-    val tertiaryContainer: Color = PixelGreenDark,
-    val background: Color = PixelBackgroundDark,
-    val onBackground: Color = PixelTextWhite,
-    val surface: Color = PixelSurfaceDark,
-    val onSurface: Color = PixelTextWhite,
-    val surfaceVariant: Color = PixelSurfaceBorder,
-    val onSurfaceVariant: Color = PixelTextMuted,
-    val error: Color = PixelRed,
-    val onError: Color = PixelTextWhite,
-    val accentPurple: Color = PixelPurple,
-    val isDark: Boolean = true
-) {
-    fun toMaterialColorScheme(): ColorScheme = darkColorScheme(
+    override val themeMode: ThemeMode = ThemeMode.Pixel,
+    override val primary: Color = PixelGold,
+    override val onPrimary: Color = PixelBlack,
+    override val primaryContainer: Color = PixelGoldDark,
+    override val onPrimaryContainer: Color = PixelTextWhite,
+    override val secondary: Color = PixelCyan,
+    override val onSecondary: Color = PixelBlack,
+    override val secondaryContainer: Color = PixelCyanDark,
+    override val tertiary: Color = PixelGreen,
+    override val onTertiary: Color = PixelBlack,
+    override val tertiaryContainer: Color = PixelGreenDark,
+    override val background: Color = PixelBackgroundDark,
+    override val onBackground: Color = PixelTextWhite,
+    override val surface: Color = PixelSurfaceDark,
+    override val onSurface: Color = PixelTextWhite,
+    override val surfaceVariant: Color = PixelSurfaceBorder,
+    override val onSurfaceVariant: Color = PixelTextMuted,
+    override val error: Color = PixelRed,
+    override val onError: Color = PixelTextWhite,
+    override val accentPurple: Color = PixelPurple,
+    override val isDark: Boolean = true
+) : AppColorScheme {
+    override fun toMaterialColorScheme(): ColorScheme = darkColorScheme(
         primary = primary,
         onPrimary = onPrimary,
         primaryContainer = primaryContainer,
