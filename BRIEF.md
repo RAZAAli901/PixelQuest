@@ -1444,6 +1444,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 32: Decide and document asset strategy per theme in THEMING.md - 9332354
 - Step 33: Build tinting and color-filter utility for theme asset recoloring - 2a9e1ca
 - Step 34: Verify tinting utility integration on PixelButton and add unit test - b2dbb7b
+- Step 35: Note in ASSETS.md future asset roadmap for Days 17 and 20-23 - 12642f2
 
 
 
