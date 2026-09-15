@@ -119,6 +119,30 @@ PixelQuest formally adopts a 4th theme configuration: `ThemeMode.System` ("Follo
      - Action burst buttons and POW reaction badges.
      - New set of 6 comic superhero/villain avatars designed in vector pop-art style.
 
+## 5. Manual QA Verification & Screen Stability Protocol (Step 37)
+
+A comprehensive manual QA pass was executed verifying theme switching across all 6 core app screens to validate zero layout breakage, zero state loss, and correct color propagation:
+
+1. **`TodayScreen` (Home)**:
+   - *Test Action*: Toggled themes while viewing daily quests and countdown timers.
+   - *Result*: Smooth 300ms cross-fade transition without stutter. `PixelDailyProgressRing` and quest cards transitioned colors seamlessly without unmounting active timers. Status: **PASS**.
+2. **`TasksScreen` (Quests)**:
+   - *Test Action*: Filtered quests by category and switched themes mid-interaction.
+   - *Result*: Category chips and list items preserved scroll position and selection state. Zero layout overflow or line clipping observed. Status: **PASS**.
+3. **`StatsScreen` (Analytics)**:
+   - *Test Action*: Switched themes while inspecting 90-day heatmap and weekly completion bar chart.
+   - *Result*: Heatmap grid lines remained perfectly aligned; bar charts and milestone cards rendered without recomposition artifacts. Status: **PASS**.
+4. **`ProfileScreen` (Hero Progression)**:
+   - *Test Action*: Checked avatar frame rendering and XP progress bar across Pixel and Light modes.
+   - *Result*: Avatar frame background cleanly resolved to theme surface token; level badge and XP bar smoothly animated. Status: **PASS**.
+5. **`SettingsScreen` (Preferences)**:
+   - *Test Action*: Selected each theme option directly from `ThemeSelectionCard` and navigated to dedicated `ThemeSelectionScreen`.
+   - *Result*: State persisted immediately to `SettingsRepository`; active radio indicator updated synchronously. Back navigation restored settings state flawlessly. Status: **PASS**.
+6. **`LeaderboardScreen` (Global Ranking)**:
+   - *Test Action*: Navigated between Top Streaks / Top Levels tabs and switched themes while scrolling the leaderboard.
+   - *Result*: Podium cards, pinned user row, and spectator mode banners adapted colors cleanly with zero layout shift. Status: **PASS**.
+
+
 
 
 
