@@ -77,5 +77,18 @@
 - **Final Inventory Pass**: Verified all 30+ visual drawable PNG/XML assets, Press Start 2P font, 8-bit WAV sound effects, and launcher icons.
 - **Verification Status**: 100% compliant with CC0 1.0 Universal / SIL Open Font License.
 
+## Day 16 Multi-Theme Asset Plan (Days 17 & 20–23 Roadmap)
+- **Day 17 (Light Mode) — Reused & Tinted Strategy**:
+  - *No new raster PNG assets required*.
+  - Existing pixel 9-patches and icons are dynamically tinted at runtime via `PixelThemeAssetFilter` and Compose `ColorFilter.tint(colors.primary)`.
+  - Avoids APK size bloat while preserving retro 8-bit silhouettes against light `#F6F8FA` surfaces.
+- **Days 20–23 (Comic Mode) — Genuinely New Art Strategy**:
+  - *Requires dedicated new comic pop-art assets*:
+    - 6 new comic-book style hero/villain avatar illustrations (halftone ink/cel-shaded style).
+    - Comic card panel assets with thick 3px solid black outlines and 4px diagonal drop shadows.
+    - Action burst button frames ("POW!", "LEVEL UP!", "QUEST DONE!").
+    - Action comic display typography (OFL-licensed comic font).
+- **Days 18–19 (Simple Mode) — Minimalist Vector Strategy**:
+  - Un-gamified clean Material vector icons and neutral cards with zero pixel or comic textures.
 
-<!-- Audit Status: Fully verified for v1.0.0 release (CC0 assets intact) -->
+<!-- Audit Status: Fully verified for v1.1.0 and Day 16 theming architecture -->
