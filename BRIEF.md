@@ -1422,6 +1422,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 17: Build theme selection section in Settings with Pixel, Light, and Comic options - 1b8b52c
 - Step 18: Add small preview swatches for each theme option - 0f8f264
 - Step 19: Wire theme selection to persist via SettingsRepository and trigger immediate switch - 3b63215
+- Step 20: Add theme-selection nav route and link from Settings - 69a7cfa
 
 
 
