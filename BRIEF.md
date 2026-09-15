@@ -1439,6 +1439,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 27: Audit PixelCard and PixelPanel for multi-theme readiness - 04b5577
 - Step 28: Audit PixelDialog for theme-agnostic readiness and document requirements - ccf383b
 - Step 29: Audit Avatar display, XP bar, and Progress ring for theme readiness - df5896d
+- Step 30: Document audited components and future theme requirements in THEMING.md - 71d1666
 
 
 

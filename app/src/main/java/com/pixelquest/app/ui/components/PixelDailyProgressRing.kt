@@ -11,10 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -40,13 +37,13 @@ fun PixelDailyProgressRing(
                 Text(
                     text = if (isGoalMet) "⭐ PERFECT DAY!" else "🎯 QUEST PROGRESS",
                     style = PixelTypography.titleMedium,
-                    color = if (isGoalMet) PixelGold else PixelTextWhite,
+                    color = if (isGoalMet) PixelTheme.colors.primary else PixelTheme.colors.onBackground,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
                     text = "$pctInt% / $targetPctInt%",
                     style = PixelTypography.labelMedium,
-                    color = if (isGoalMet) PixelGreen else PixelCyan
+                    color = if (isGoalMet) PixelTheme.colors.tertiary else PixelTheme.colors.secondary
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))

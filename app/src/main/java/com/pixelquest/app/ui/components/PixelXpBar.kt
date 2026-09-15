@@ -19,14 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pixelquest.app.ui.theme.PixelGreen
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
-import com.pixelquest.app.ui.theme.PixelSurfaceDark
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
-import com.pixelquest.app.ui.theme.PixelGold
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -61,7 +59,7 @@ fun PixelXpBar(
             modifier = Modifier
                 .height(28.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(PixelGold)
+                .background(PixelTheme.colors.primary)
                 .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
                 .padding(horizontal = 8.dp),
             contentAlignment = Alignment.Center
@@ -71,7 +69,7 @@ fun PixelXpBar(
                 style = PixelTypography.bodySmall.copy(
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = PixelTheme.colors.onPrimary
                 )
             )
         }
@@ -84,7 +82,7 @@ fun PixelXpBar(
                 .weight(1f)
                 .height(24.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(PixelSurfaceDark)
+                .background(PixelTheme.colors.surface)
                 .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
                 .padding(2.dp)
         ) {
@@ -93,14 +91,14 @@ fun PixelXpBar(
                     .fillMaxHeight()
                     .fillMaxWidth(fraction = animatedFraction)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(PixelGreen)
+                    .background(PixelTheme.colors.tertiary)
             )
             Text(
                 text = "$currentProgress / $maxProgress DAYS",
                 style = PixelTypography.bodySmall.copy(
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = PixelTheme.colors.onSurface
                 ),
                 modifier = Modifier.align(Alignment.Center)
             )
