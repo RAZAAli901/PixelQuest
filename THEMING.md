@@ -162,6 +162,26 @@ Manual QA verified the architectural gating of Day 7's CRT scanline and vignette
 - **Live Transition Stability**:
   - Toggling between Pixel and Light modes while CRT is enabled shows zero visual glitches, flicker, or canvas artifacts during the 300ms cross-fade transition. Status: **PASS**.
 
+## 7. Days 1-15 Full Regression Verification Pass (Step 40)
+
+A comprehensive regression pass was conducted across all subsystems developed in Days 1–15 to confirm that the theming architecture refactor introduced zero functional or visual regressions in Pixel mode:
+
+| Subsystem | Days Covered | Components Verified | Verification Criteria | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Habit & Task Engine** | Days 1–2 | `TaskDao`, `TaskRepository`, `TodayViewModel`, `TaskCard` | Task creation, editing, deletion, completion toggles, daily rollover, and XP rewarding operate identically. | **PASS** |
+| **Pixel Design System** | Days 3–4 | `PixelButton`, `PixelCard`, `PixelPanel`, `PixelDialog`, `Typography.kt` | Pixel borders (outer 2dp, inner 1dp), Press-depression offsets (+2dp y), gold highlights, and retro PressStart2P fonts remain pixel-perfect. | **PASS** |
+| **Audio & Haptics** | Days 5–6 | `SoundEffectManager`, `HapticFeedbackHelper` | Level-up chimes, task completion clicks, button tap feedback, and mute preferences continue firing without delay. | **PASS** |
+| **Display & Settings** | Day 7 | `PixelCrtOverlay`, `SettingsRepository`, `SettingsViewModel` | Sound toggle, haptics toggle, CRT toggle, and theme mode toggle persist across app relaunch via Proto/DataStore. | **PASS** |
+| **Streaks & Background** | Days 8–10 | `StreakManager`, `GracePeriodWorker`, `BackupManager` | Daily streak incrementing, freeze consumables, grace period protection, JSON backup import/export function flawlessly. | **PASS** |
+| **Stats & Analytics** | Days 11–12 | `StatsScreen`, `HeatmapGrid`, `CompletionChart` | Heatmap cell color scaling, streak milestone badges, and weekly completion bar graphs render correctly across themes. | **PASS** |
+| **Cloud & Leaderboard** | Days 13–15 | `SupabaseClient`, `AuthRepository`, `LeaderboardScreen`, `SpectatorBanner` | Google OAuth sign-in, anonymous guest spectator mode, cloud profile sync, and global ranking pagination remain fully functional. | **PASS** |
+
+### Regression Summary:
+- **Zero broken flows**: All database queries, worker schedules, network endpoints, and sound hooks remain intact.
+- **Visual Parity**: In `Pixel` mode (default), the visual presentation is indistinguishable from v1.1.0 (Day 15).
+- **Extensibility**: Multi-theme foundation is verified ready for Day 17 (Light mode visual design) and Days 20–23 (Comic mode visual design).
+
+
 
 
 
