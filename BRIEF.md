@@ -1441,6 +1441,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 29: Audit Avatar display, XP bar, and Progress ring for theme readiness - df5896d
 - Step 30: Document audited components and future theme requirements in THEMING.md - 71d1666
 - Step 31: Apply safe theme-agnostic color token refactors across audited components - 8f25060
+- Step 32: Decide and document asset strategy per theme in THEMING.md - 9332354
 
 
 
