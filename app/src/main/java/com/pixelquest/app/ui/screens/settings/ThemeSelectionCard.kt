@@ -1,23 +1,30 @@
 package com.pixelquest.app.ui.screens.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.theme.DefaultComicColorScheme
+import com.pixelquest.app.ui.theme.DefaultLightColorScheme
+import com.pixelquest.app.ui.theme.DefaultPixelColorScheme
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelSurfaceBorder
 import com.pixelquest.app.ui.theme.PixelTextMuted
@@ -27,7 +34,7 @@ import com.pixelquest.app.ui.theme.ThemeMode
 
 /**
  * Theme selection section for Settings screen.
- * Presents Pixel, Light, and Comic theme options.
+ * Presents Pixel, Light, and Comic theme options with color swatches.
  * Comic is labeled "COMING SOON" until Days 20-23 design completion.
  */
 @Composable
@@ -54,6 +61,12 @@ fun ThemeSelectionCard(
                 subtitle = "Original 8-bit arcade aesthetic with CRT support",
                 isSelected = currentTheme == ThemeMode.Pixel,
                 isComingSoon = false,
+                previewColors = listOf(
+                    DefaultPixelColorScheme.background,
+                    DefaultPixelColorScheme.primary,
+                    DefaultPixelColorScheme.secondary,
+                    DefaultPixelColorScheme.tertiary
+                ),
                 onClick = { onThemeSelected(ThemeMode.Pixel) }
             )
 
@@ -63,6 +76,12 @@ fun ThemeSelectionCard(
                 subtitle = "Crisp, modern productivity theme (Day 17 preview)",
                 isSelected = currentTheme == ThemeMode.Light,
                 isComingSoon = false,
+                previewColors = listOf(
+                    DefaultLightColorScheme.background,
+                    DefaultLightColorScheme.primary,
+                    DefaultLightColorScheme.secondary,
+                    DefaultLightColorScheme.tertiary
+                ),
                 onClick = { onThemeSelected(ThemeMode.Light) }
             )
 
@@ -72,7 +91,38 @@ fun ThemeSelectionCard(
                 subtitle = "Bold halftone pop-art borders (Coming Soon — Day 23)",
                 isSelected = currentTheme == ThemeMode.Comic,
                 isComingSoon = true,
+                previewColors = listOf(
+                    DefaultComicColorScheme.background,
+                    DefaultComicColorScheme.primary,
+                    DefaultComicColorScheme.secondary,
+                    DefaultComicColorScheme.tertiary
+                ),
                 onClick = { /* Disabled / Coming soon */ }
+            )
+        }
+    }
+}
+
+/**
+ * Small 4-tile palette swatch displaying the primary colors of the theme.
+ */
+@Composable
+fun ThemePreviewSwatch(
+    colors: List<Color>,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .border(1.dp, PixelSurfaceBorder)
+            .padding(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        colors.forEach { color ->
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .background(color)
+                    .border(0.5.dp, Color.Black.copy(alpha = 0.4f))
             )
         }
     }
@@ -84,6 +134,7 @@ fun ThemeOptionRow(
     subtitle: String,
     isSelected: Boolean,
     isComingSoon: Boolean,
+    previewColors: List<Color>,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -118,6 +169,8 @@ fun ThemeOptionRow(
                 style = PixelTypography.bodySmall,
                 color = PixelTextMuted
             )
+            Spacer(modifier = Modifier.height(6.dp))
+            ThemePreviewSwatch(colors = previewColors)
         }
 
         Spacer(modifier = Modifier.width(8.dp))
