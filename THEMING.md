@@ -181,6 +181,48 @@ A comprehensive regression pass was conducted across all subsystems developed in
 - **Visual Parity**: In `Pixel` mode (default), the visual presentation is indistinguishable from v1.1.0 (Day 15).
 - **Extensibility**: Multi-theme foundation is verified ready for Day 17 (Light mode visual design) and Days 20–23 (Comic mode visual design).
 
+## 8. Authoritative Blueprint for Days 17 & 20–23 (Step 42)
+
+This section serves as the binding architectural contract that subsequent theme implementation phases will build against:
+
+### 8.1 Day 17 Contract: Clean Light Mode Implementation
+1. **Target File**: `app/src/main/java/com/pixelquest/app/ui/theme/Color.kt` (`DefaultLightColorScheme`).
+2. **Color Palette Requirements**:
+   - `background`: `#F6F8FA` (Crisp off-white / light slate canvas).
+   - `surface`: `#FFFFFF` (Pristine white card interiors).
+   - `surfaceVariant`: `#E1E4E8` (Subtle grey borders and dividers).
+   - `primary`: `#0969DA` (Vibrant sapphire blue for actions and primary headers).
+   - `secondary`: `#6E7781` (Refined graphite grey for supporting icons and secondary badges).
+   - `tertiary`: `#1A7F37` (Emerald green for completion checkmarks, streak flames, and XP bars).
+   - `onBackground` / `onSurface`: `#1F2328` (High-contrast deep charcoal text, WCAG AAA compliant).
+   - `gold`: `#9A6700` (Warm amber-gold for achievements and level badges on white backgrounds).
+   - `pixelBorder`: `#D0D7DE` (Crisp 2dp framing).
+3. **Typography Scaling**: Retain `PressStart2P` for titles/headers; maintain `Inter`/system font fallbacks for dense body text to optimize legibility on high-DPI displays.
+4. **Elevation & Shadows**: Replace dark pixel inset glows with clean 1dp–2dp drop shadows (`ambientColor = Color(0x1A000000)`).
+
+### 8.2 Days 20–23 Contract: Comic Mode Pop-Art Implementation
+1. **Target File**: `app/src/main/java/com/pixelquest/app/ui/theme/Color.kt` (`DefaultComicColorScheme`).
+2. **Color Palette Requirements**:
+   - `background`: `#FFFDF0` (Aged newsprint cream).
+   - `surface`: `#FFFFFF` (High-contrast white speech bubble and panel cells).
+   - `surfaceVariant`: `#000000` (Stark solid black panel framing).
+   - `primary`: `#FF0033` (Dynamic comic red for hero banners and critical buttons).
+   - `secondary`: `#0066FF` (Dynamic comic blue for supporting actions).
+   - `tertiary`: `#FFCC00` (Vibrant yellow burst for XP reward stars).
+   - `onBackground` / `onSurface`: `#000000` (Deep black ink).
+   - `pixelBorder`: `#000000` (Thick 3dp–4dp hard ink strokes).
+3. **Asset Scope**:
+   - Vector drawables in `res/drawable/comic_*` with hand-drawn ink contours and 45-degree angle drop-shadow blocks.
+   - Onomatopoeia reaction bursts (`comic_pow.xml`, `comic_bam.xml`, `comic_level_up.xml`).
+   - 6 pop-art hero avatars rendered in vector comic aesthetic.
+
+### 8.3 Architecture Sign-off
+- **State Flow**: `SettingsRepository.themeMode` -> `ThemeViewModel.themeMode` -> `PixelQuestApp` root observer.
+- **Composition Local**: `LocalAppColorScheme.current` and `LocalThemeMode.current` accessible everywhere in Compose tree.
+- **Runtime Transition**: 300ms smooth cross-fade tweening without activity reload or recomposition glitches.
+- **Status**: **READY FOR DAY 17 IMPLEMENTATION**.
+
+
 
 
 
