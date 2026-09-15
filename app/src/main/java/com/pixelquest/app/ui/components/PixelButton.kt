@@ -49,6 +49,14 @@ fun PixelButton(
 
     val contentOffsetY = if (isPressed && enabled) 2.dp else 0.dp
 
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    val tintColor = if (variant == PixelButtonVariant.YELLOW) {
+        com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+    } else {
+        com.pixelquest.app.ui.theme.PixelTheme.colors.secondary
+    }
+    val assetFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.buttonTint(activeMode, tintColor)
+
     Box(
         modifier = modifier
             .graphicsLayer { alpha = if (enabled) 1f else 0.5f }
@@ -69,6 +77,7 @@ fun PixelButton(
             painter = painterResource(id = bgRes),
             contentDescription = null,
             contentScale = ContentScale.FillBounds,
+            colorFilter = assetFilter,
             modifier = Modifier.matchParentSize()
         )
         Text(
