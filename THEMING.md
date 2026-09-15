@@ -81,5 +81,25 @@ PixelQuest formally adopts a 4th theme configuration: `ThemeMode.System` ("Follo
   - *Theme Adaptations*: Delegate colors to `LocalAppColorScheme.current.primary` / `onSurface`. Card background inherits theme-aware `PixelCard` in Day 17. In Comic mode, "PERFECT DAY!" renders as an action comic sticker/burst.
   - *Invariants*: Milestone evaluation (`progress >= targetThreshold`), column spacing, progress ratio.
 
+## 3. Comprehensive Component Theme-Awareness Audit Matrix
+
+| Component | Currently Theme-Aware? | Hardcoded Dependencies | Day 17 (Light Mode) Scope | Days 20–23 (Comic Mode) Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| `PixelButton` | Partial | Drawables (`pixel_button_*`), `Color.Black`/`White` text | Dynamic tinting via `ColorFilter.tint(primary)`, text from `onPrimary`/`onSecondary` | Bold 3px black stroke, drop-shadow offset, comic action burst style |
+| `PixelCard` / `PixelPanel` | Partial | 9-patch assets with `#0D0D15` background | Light panel variant or tinted border with `#FFFFFF` surface fill | 3px solid black border with newsprint paper fill and angled drop shadow |
+| `PixelDialog` | Partial | Uses `PixelCard` & `PixelButton` | Automatic inheritance from `PixelCard` light surface | Comic caption header styling and speech-bubble callouts |
+| `PixelAvatarFrame` | Partial | Background hardcoded to `PixelSurfaceDark` | Background to read `colors.surface` (`#FFFFFF`) | High-contrast black outlines and comic tier star badge |
+| `PixelXpBar` | Partial | Hardcoded `PixelGold`, `PixelSurfaceDark`, `PixelGreen` | Track reads `surfaceVariant`, fill `tertiary`, badge `primary` | Pop-art striped/diagonal fill with thick black border |
+| `PixelDailyProgressRing` | Partial | Hardcoded text colors, uses `PixelCard` | Colors bound to `colors.primary` / `onSurface` | Action comic badge banner ("POW!", "PERFECT DAY!") |
+| `PixelBottomNavBar` | Partial | Background `PixelBackgroundDark`, border `PixelSurfaceBorder` | Container `surface`, active tab `primary`, inactive `onSurfaceVariant` | Comic panel navigation strip with divider lines |
+| `PixelTextField` | Partial | Border `PixelSurfaceBorder`, text `PixelTextWhite` | Border `surfaceVariant`, text `onBackground`, placeholder `onSurfaceVariant` | Comic dialogue speech input box |
+| `PixelDaySelector` | Partial | Selected `PixelGold`, chip `PixelSurfaceDark` | Selected `primaryContainer`, unselected chip `surfaceVariant` | Comic weekday badge strip |
+| `PixelFilterChips` | Partial | Hardcoded `PixelSurfaceDark`, `PixelGold` | Theme tokens `primary`, `surfaceVariant`, `onSurface` | Comic category tag badges |
+| `PixelHeatmapCell` | Yes | Reads level opacity levels directly | Adapt baseline empty cell color to light slate (`#E1E4E8`) | Halftone dot density matrix |
+| `PixelBarChart` | Partial | Grid lines and bar colors | Grid lines `surfaceVariant`, bars `secondary` / `tertiary` | Comic skyscraper bar pillars |
+| `TodayQuestCard` | Partial | Uses `PixelCard`, hardcoded status colors | Colors bound to `LocalAppColorScheme.current` | Comic mission briefing card |
+| `PixelCrtOverlay` | Yes | Gated strictly to `ThemeMode.Pixel` | Bypassed automatically in Light mode | Bypassed automatically in Comic mode |
+
+
 
 
