@@ -39,6 +39,9 @@ import androidx.compose.runtime.collectAsState
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.ui.components.PixelCrtOverlay
 
+import androidx.activity.viewModels
+import com.pixelquest.app.ui.theme.ThemeViewModel
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -50,6 +53,8 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
+
+    private val themeViewModel: ThemeViewModel by viewModels()
 
     var isNotificationPermissionGranted by mutableStateOf(true)
         private set
@@ -63,7 +68,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         checkNotificationPermission()
         setContent {
-            PixelQuestTheme {
+            val themeMode by themeViewModel.themeMode.collectAsState()
+            PixelQuestTheme(themeMode = themeMode) {
                 CompositionLocalProvider(LocalSoundManager provides soundManager) {
                     val isCrtEnabled by settingsRepository.isCrtEnabled.collectAsState(initial = false)
                     val isHapticsEnabled by settingsRepository.isHapticsEnabled.collectAsState(initial = true)
