@@ -100,6 +100,25 @@ PixelQuest formally adopts a 4th theme configuration: `ThemeMode.System` ("Follo
 | `TodayQuestCard` | Partial | Uses `PixelCard`, hardcoded status colors | Colors bound to `LocalAppColorScheme.current` | Comic mission briefing card |
 | `PixelCrtOverlay` | Yes | Gated strictly to `ThemeMode.Pixel` | Bypassed automatically in Light mode | Bypassed automatically in Comic mode |
 
+## 4. Multi-Theme Asset Strategy Decision
+
+### 4.1 Light Mode (Day 17): Reused & Dynamically Tinted Art
+- **Decision**: Light mode will **reuse existing pixel-art PNGs and 9-patches**, transforming them at runtime via Compose `ColorFilter` tinting and color transformation matrices.
+- **Rationale**:
+  1. **Aesthetic Consistency**: The app's core identity is *PixelQuest*. Light mode represents daytime pixel retro gaming, not a departure from the pixel medium.
+  2. **APK Footprint Optimization**: Generating redundant PNG duplicates for day/night duplicates would bloat APK download size without delivering creative value.
+  3. **Runtime Flexibility**: By applying dynamic Compose color filters (`ColorFilter.tint(colors.primary, BlendMode.SrcAtop)`), assets seamlessly adjust to any dynamic palette shifts (such as future Material You wallpaper-driven dynamic coloring).
+
+### 4.2 Comic Mode (Days 20–23): Dedicated New Art Assets
+- **Decision**: Comic mode will require **genuinely new dedicated art assets** specifically authored for the pop-art comic-book medium.
+- **Rationale**:
+  1. **Artistic Authenticity**: Comic art is built on distinctive visual grammar: heavy 3–4px solid black ink lines, Ben-Day / halftone printing dot matrices, dramatic cross-hatching, onomatopoeia dialogue stickers ("POW!", "LEVEL UP!"), and cel-shaded characters.
+  2. **Impossibility of Dynamic Simulation**: Tinting an 8-bit stepped pixel sprite cannot produce clean curved ink lines or newsprint textures; attempting to do so yields an uncanny, subpar visual result.
+  3. **Asset Scope for Days 20–23**:
+     - Dedicated Comic panel cards with 4px drop-shadow offsets (`comic_panel_card.xml` / vector drawables).
+     - Action burst buttons and POW reaction badges.
+     - New set of 6 comic superhero/villain avatars designed in vector pop-art style.
+
 
 
 
