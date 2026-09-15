@@ -43,3 +43,15 @@ PixelQuest formally adopts a 4th theme configuration: `ThemeMode.System` ("Follo
 - **Theme-Agnostic Invariants**:
   - Haptic feedback and click SFX triggers remain consistent across all themes.
   - `Role.Button` accessibility semantics and 48dp minimum touch target bounding.
+
+### 2.2 `PixelCard` / `PixelPanel` Audit
+- **Current State**:
+  - Backgrounds: Hardcoded 9-patch assets (`R.drawable.pixel_panel_border`, `pixel_panel_blue`, `pixel_panel_beige`).
+  - Stretches background image via `ContentScale.FillBounds` behind arbitrary composable content.
+  - Content padding configurable with 16.dp default.
+- **Theme-Aware Adaptations (Days 17 & 20–23)**:
+  - **Light Mode (Day 17)**: `pixel_panel_border` has an opaque dark charcoal fill (`#0D0D15`) that severely compromises light mode legibility. Day 17 requires a light card background (`surface = Color(0xFFFFFFFF)`) paired with crisp border outlines (`surfaceVariant = Color(0xFFE1E4E8)`) or tinted pixel-frame assets.
+  - **Comic Mode (Days 20–23)**: Comic panels emulate printed comic cells—white/newsprint background fills, thick 3px solid black outlines (`#000000`), angled or dot-screen drop-shadows, and slight skew/tilt variations.
+- **Theme-Agnostic Invariants**:
+  - Box layout hierarchy, `contentPadding` contract, and composable slot container structure remain constant.
+
