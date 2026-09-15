@@ -29,27 +29,34 @@ private val PixelDarkColorScheme = darkColorScheme(
 )
 
 /**
- * PixelQuest Theme wrapper.
- * NOTE: Intentionally locks to PixelDarkColorScheme regardless of system light/dark mode
- * to preserve the retro 8-bit arcade aesthetic, high-contrast gold/cyan palette, and CRT visual identity.
+ * PixelQuest Theme wrapper supporting multiple theme modes:
+ * - [ThemeMode.Pixel]: Classic retro dark arcade theme.
+ * - [ThemeMode.Light]: Crisp light theme (full design Day 17).
+ * - [ThemeMode.Comic]: Dynamic comic-book pop art (full design Days 20-23).
  */
 @Composable
 fun PixelQuestTheme(
+    themeMode: ThemeMode = ThemeMode.Pixel,
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = PixelDarkColorScheme
+    val appColorScheme: AppColorScheme = when (themeMode) {
+        ThemeMode.Pixel -> DefaultPixelColorScheme
+        ThemeMode.Light -> DefaultPixelColorScheme // placeholder until Step 9 stubs
+        ThemeMode.Comic -> DefaultPixelColorScheme // placeholder until Step 9 stubs
+    }
+    val materialColorScheme = appColorScheme.toMaterialColorScheme()
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val activity = view.context as? Activity
-            activity?.window?.statusBarColor = colorScheme.background.toArgb()
-            activity?.window?.navigationBarColor = colorScheme.background.toArgb()
+            activity?.window?.statusBarColor = appColorScheme.background.toArgb()
+            activity?.window?.navigationBarColor = appColorScheme.background.toArgb()
         }
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = materialColorScheme,
         typography = PixelTypography,
         content = content
     )
