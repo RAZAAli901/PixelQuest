@@ -730,7 +730,7 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 ### 4. Edge-Case UI Fixes
 - **Text Overflow**: Applied `maxLines = 1` and `TextOverflow.Ellipsis` to task titles, usernames, and header titles across components.
 - **Responsive Layouts**: Added `horizontalScroll` to `PixelDaySelector` for compact screens (<320dp width) and constrained max width (`widthIn(max = 600.dp)`) on tablet layouts.
-- **Ripple & Keyboard Fixes**: Introduced `pixelClickable` removing Material ripples, locked dark theme in `Theme.kt`, and applied `imePadding()` to prevent keyboard overlap.
+- **Ripple & Keyboard Fixes**: Introduced `pixelClickable` removing Material ripples, locked dark theme in `Theme.kt` (superseded Day 16 by multi-theme architecture), and applied `imePadding()` to prevent keyboard overlap.
 
 ### 5. Accessibility Pass
 - **Content Descriptions**: Added labels to all icon-only controls (back, delete, nav items, category icons).
@@ -746,6 +746,13 @@ TaskRepository  TaskCompletion  Streak    UserProfile    Difficulty
 - Final release testing on physical device configurations.
 - Signed release APK / AAB production build pipeline.
 - GitHub Release tag and artifact release workflow.
+
+### 8. System Dark/Light Mode Evolution (Day 16 Revisit Note)
+- **Day 11 Context**: The app originally enforced a fixed retro dark theme because PixelQuest only possessed a single dark pixel arcade palette.
+- **Day 16 Revisit & Decision**: Officially superseded on Day 16 with the introduction of the multi-theme architecture:
+  - Added a 4th `ThemeMode.System` ("Follow System") option alongside explicit `Pixel`, `Light`, and `Comic` choices.
+  - Dynamically evaluates `isSystemInDarkTheme()` to render `ThemeMode.Pixel` during system dark mode and `ThemeMode.Light` during system light mode.
+  - The default preference remains `ThemeMode.Pixel` for pristine out-of-the-box arcade identity while offering full system follow flexibility in Settings.
 
 ### Manual Performance & Recomposition QA Test Script
 1. **Cold-Start Latency Pass**: Launch app on fresh boot/process start. Confirm splash screen auto-transitions to Home/Onboarding in < 1.5 seconds with zero main thread lockups.
@@ -1426,6 +1433,7 @@ Day 15 concludes the 3-day Global Leaderboard extension (Days 13–15), bringing
 - Step 21: Add Compose Preview for theme selector - 1cf0fd1
 - Step 22: Revisit Day 11 dark mode decision and document adoption of Follow System - 3e1ffac
 - Step 23: Implement Follow System theme mode resolving to Pixel or Light - 79dadce
+- Step 24: Write unit test for system-theme-change detection while Follow System is active - 70fb9fe
 
 
 
