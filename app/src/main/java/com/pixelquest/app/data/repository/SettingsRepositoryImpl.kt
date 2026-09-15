@@ -107,6 +107,19 @@ class SettingsRepositoryImpl @Inject constructor(
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
+    override val themeMode: Flow<com.pixelquest.app.ui.theme.ThemeMode> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_THEME_MODE) {
+                val modeId = prefs.getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.Pixel.id)
+                trySend(com.pixelquest.app.ui.theme.ThemeMode.fromId(modeId))
+            }
+        }
+        val initialId = prefs.getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.Pixel.id)
+        trySend(com.pixelquest.app.ui.theme.ThemeMode.fromId(initialId))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     override suspend fun setSoundEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
     }
@@ -139,6 +152,10 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_NOTIFICATION_VIBRATION, enabled).apply()
     }
 
+    override suspend fun setThemeMode(mode: com.pixelquest.app.ui.theme.ThemeMode) {
+        prefs.edit().putString(KEY_THEME_MODE, mode.id).apply()
+    }
+
     companion object {
         private const val KEY_SOUND_ENABLED = "key_sound_enabled"
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
@@ -148,5 +165,6 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_NOTIFICATIONS_ENABLED = "key_notifications_enabled"
         private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"
         private const val KEY_NOTIFICATION_VIBRATION = "key_notification_vibration"
+        private const val KEY_THEME_MODE = "key_theme_mode"
     }
 }
