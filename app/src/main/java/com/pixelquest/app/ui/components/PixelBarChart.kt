@@ -20,10 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -32,11 +29,13 @@ fun PixelBarChart(
     modifier: Modifier = Modifier,
     maxHeightDp: Int = 100
 ) {
+    val colors = PixelTheme.colors
+
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "📈 WEEKLY TREND",
             style = PixelTypography.titleMedium,
-            color = PixelGold
+            color = colors.primary
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -65,7 +64,7 @@ fun PixelBarChart(
                         Text(
                             text = "$percentageInt%",
                             style = PixelTypography.labelSmall.copy(fontSize = 7.sp),
-                            color = PixelGreen
+                            color = colors.tertiary
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
@@ -74,8 +73,8 @@ fun PixelBarChart(
                             modifier = Modifier
                                 .width(20.dp)
                                 .height(barHeight)
-                                .background(PixelGreen, shape = RoundedCornerShape(2.dp))
-                                .border(1.dp, Color(0xFF1C7139), shape = RoundedCornerShape(2.dp))
+                                .background(colors.tertiary, shape = RoundedCornerShape(2.dp))
+                                .border(1.dp, colors.pixelBorder, shape = RoundedCornerShape(2.dp))
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
@@ -83,7 +82,7 @@ fun PixelBarChart(
                         Text(
                             text = weekLabel,
                             style = PixelTypography.labelSmall.copy(fontSize = 8.sp),
-                            color = PixelCyan
+                            color = colors.secondary
                         )
                     }
                 }

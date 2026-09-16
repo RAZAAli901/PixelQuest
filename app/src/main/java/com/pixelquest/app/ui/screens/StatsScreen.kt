@@ -27,11 +27,7 @@ import com.pixelquest.app.ui.screens.stats.StatsViewModel
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.pixelquest.app.ui.components.PixelBarChart
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -61,12 +57,13 @@ fun StatsContent(
     onNavigateToLeaderboard: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     val activeDifficulty = state.difficultyLevel
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -74,7 +71,7 @@ fun StatsContent(
         Text(
             text = "📊 HERO STATISTICS",
             style = PixelTypography.titleLarge,
-            color = PixelGold
+            color = colors.primary
         )
 
         // Core Metrics 2x2 Grid
@@ -86,14 +83,14 @@ fun StatsContent(
                 label = "CURRENT STREAK",
                 value = "${state.currentStreak} DAYS",
                 icon = "🔥",
-                accentColor = PixelGold,
+                accentColor = colors.primary,
                 modifier = Modifier.weight(1f)
             )
             PixelStatCard(
                 label = "LONGEST STREAK",
                 value = "${state.longestStreak} DAYS",
                 icon = "🏆",
-                accentColor = PixelGold,
+                accentColor = colors.primary,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -106,14 +103,14 @@ fun StatsContent(
                 label = "TOTAL XP",
                 value = "${state.totalPoints} XP",
                 icon = "⭐",
-                accentColor = PixelCyan,
+                accentColor = colors.secondary,
                 modifier = Modifier.weight(1f)
             )
             PixelStatCard(
                 label = "COMPLETION RATE",
                 value = "${(state.overallCompletionRate * 100).toInt()}%",
                 icon = "🎯",
-                accentColor = PixelGreen,
+                accentColor = colors.tertiary,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -137,18 +134,18 @@ fun StatsContent(
                     Text(
                         text = "ACTIVE DIFFICULTY",
                         style = PixelTypography.labelLarge,
-                        color = PixelCyan
+                        color = colors.secondary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = DifficultyMode.getDisplayName(activeDifficulty).uppercase(),
                         style = PixelTypography.titleMedium,
-                        color = PixelGreen
+                        color = colors.tertiary
                     )
                     Text(
                         text = "${(DifficultyMode.getPerfectDayThreshold(activeDifficulty) * 100).toInt()}% Target Threshold",
                         style = PixelTypography.bodySmall,
-                        color = PixelTextWhite
+                        color = colors.onSurface
                     )
                 }
             }
@@ -158,7 +155,7 @@ fun StatsContent(
         Text(
             text = "📅 QUEST ACTIVITY HEATMAP",
             style = PixelTypography.titleMedium,
-            color = PixelGold
+            color = colors.primary
         )
         PixelCard(
             variant = PixelPanelVariant.BEIGE,

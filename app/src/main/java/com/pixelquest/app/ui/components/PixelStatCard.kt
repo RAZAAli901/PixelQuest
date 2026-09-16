@@ -12,8 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -22,9 +21,10 @@ fun PixelStatCard(
     value: String,
     icon: String,
     modifier: Modifier = Modifier,
-    accentColor: Color = PixelGold,
+    accentColor: Color = PixelTheme.colors.primary,
     variant: PixelPanelVariant = PixelPanelVariant.BEIGE
 ) {
+    val colors = PixelTheme.colors
     PixelCard(
         variant = variant,
         contentPadding = 12.dp,
@@ -48,7 +48,7 @@ fun PixelStatCard(
                 Text(
                     text = value,
                     style = PixelTypography.titleMedium,
-                    color = PixelTextWhite
+                    color = colors.onSurface
                 )
             }
         }
