@@ -46,15 +46,7 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.R
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelSurfaceBorder
-import com.pixelquest.app.ui.theme.PixelSurfaceDark
-import com.pixelquest.app.ui.theme.PixelTextMuted
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,16 +115,19 @@ fun LeaderboardContent(
         }
     }
 
+    val colors = PixelTheme.colors
+    val isLight = PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Light
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = PixelBackgroundDark,
+        containerColor = colors.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "LEADERBOARD",
                         style = MaterialTheme.typography.titleLarge,
-                        color = PixelGold
+                        color = colors.primary
                     )
                 },
                 navigationIcon = {
@@ -140,7 +135,7 @@ fun LeaderboardContent(
                         Text(
                             text = "◀",
                             style = MaterialTheme.typography.titleMedium,
-                            color = PixelGold
+                            color = colors.primary
                         )
                     }
                 },
@@ -149,12 +144,12 @@ fun LeaderboardContent(
                         Text(
                             text = "🔄",
                             style = MaterialTheme.typography.titleMedium,
-                            color = PixelCyan
+                            color = colors.secondary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = PixelSurfaceDark
+                    containerColor = colors.surface
                 )
             )
         }
@@ -179,8 +174,8 @@ fun LeaderboardContent(
                             .fillMaxWidth()
                             .padding(bottom = 8.dp)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(PixelSurfaceDark)
-                            .border(1.dp, PixelCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                            .background(colors.surface)
+                            .border(1.dp, colors.secondary.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
                             .padding(vertical = 6.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -191,7 +186,7 @@ fun LeaderboardContent(
                                 else -> "▼ PULL TO REFRESH ▼"
                             },
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (pullOffset >= refreshThresholdPx) PixelGold else PixelCyan,
+                            color = if (pullOffset >= refreshThresholdPx) colors.primary else colors.secondary,
                             fontSize = 8.sp
                         )
                     }
@@ -217,13 +212,13 @@ fun LeaderboardContent(
                         Text(
                             text = "UPDATED: ${uiState.lastUpdatedTimestamp}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = PixelTextMuted,
+                            color = colors.onSurfaceVariant,
                             fontSize = 7.sp
                         )
                         Text(
                             text = if (uiState.isLoading) "SYNCING..." else "ONLINE ●",
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (uiState.isLoading) PixelGold else PixelGreen,
+                            color = if (uiState.isLoading) colors.primary else colors.tertiary,
                             fontSize = 7.sp
                         )
                     }
@@ -251,8 +246,8 @@ fun LeaderboardContent(
                             .fillMaxWidth()
                             .padding(bottom = 8.dp)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(PixelSurfaceDark)
-                            .border(1.dp, PixelRed, RoundedCornerShape(6.dp))
+                            .background(colors.surface)
+                            .border(1.dp, colors.error, RoundedCornerShape(6.dp))
                             .padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
                         Row(
@@ -263,14 +258,14 @@ fun LeaderboardContent(
                             Text(
                                 text = "⚠️ ${uiState.errorMessage}",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = PixelRed,
+                                color = colors.error,
                                 fontSize = 8.sp,
                                 modifier = Modifier.weight(1f)
                             )
                             Text(
                                 text = "RETRY",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = PixelGold,
+                                color = colors.primary,
                                 fontSize = 8.sp,
                                 modifier = Modifier
                                     .clickable { onRefresh() }
@@ -286,14 +281,14 @@ fun LeaderboardContent(
                             .fillMaxWidth()
                             .padding(bottom = 8.dp)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(PixelSurfaceDark)
-                            .border(1.dp, PixelGreen, RoundedCornerShape(6.dp))
+                            .background(colors.surface)
+                            .border(1.dp, colors.tertiary, RoundedCornerShape(6.dp))
                             .padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
                         Text(
                             text = "🚩 ${uiState.reportMessage}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = PixelGreen,
+                            color = colors.tertiary,
                             fontSize = 8.sp
                         )
                     }
@@ -307,7 +302,7 @@ fun LeaderboardContent(
             ) {
                 if (uiState.isLoading && currentEntries.isEmpty()) {
                     CircularProgressIndicator(
-                        color = PixelGold,
+                        color = colors.primary,
                         modifier = Modifier.size(36.dp)
                     )
                 } else if (uiState.errorMessage != null && currentEntries.isEmpty()) {
@@ -320,7 +315,7 @@ fun LeaderboardContent(
                     Text(
                         text = "NO HEROES RANKED YET\nOpt in from Account Settings to claim the top spot!",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = PixelTextMuted,
+                        color = colors.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         lineHeight = 18.sp
                     )
@@ -388,22 +383,22 @@ fun LeaderboardContent(
                                 ) {
                                     if (uiState.isLoadingMore) {
                                         CircularProgressIndicator(
-                                            color = PixelGold,
+                                            color = colors.primary,
                                             modifier = Modifier.size(24.dp)
                                         )
                                     } else {
                                         Box(
                                             modifier = Modifier
                                                 .clip(RoundedCornerShape(6.dp))
-                                                .background(PixelSurfaceDark)
-                                                .border(1.dp, PixelCyan.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                                .background(colors.surface)
+                                                .border(1.dp, colors.secondary.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
                                                 .clickable { onLoadMore() }
                                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                                         ) {
                                             Text(
                                                 text = "▼ LOAD MORE HEROES ▼",
                                                 style = MaterialTheme.typography.labelMedium,
-                                                color = PixelCyan,
+                                                color = colors.secondary,
                                                 fontSize = 9.sp
                                             )
                                         }
@@ -431,14 +426,14 @@ fun LeaderboardContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(PixelSurfaceDark)
-                                .border(1.dp, PixelGold.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                .background(if (isLight) Color(0xFFFEF3C7) else colors.surface)
+                                .border(1.dp, colors.primary.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                                 .padding(8.dp)
                         ) {
                             Text(
                                 text = "★ YOUR RANKING",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = PixelGold,
+                                color = colors.primary,
                                 fontSize = 8.sp,
                                 modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
                             )
@@ -493,12 +488,13 @@ fun LeaderboardTabRow(
     onTabSelected: (LeaderboardTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(PixelSurfaceDark)
-            .border(1.dp, PixelSurfaceBorder, RoundedCornerShape(8.dp))
+            .background(colors.surface)
+            .border(1.dp, colors.pixelBorder, RoundedCornerShape(8.dp))
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -525,10 +521,11 @@ fun LeaderboardTabButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     val shape = RoundedCornerShape(6.dp)
-    val backgroundColor = if (isSelected) PixelGold.copy(alpha = 0.2f) else Color.Transparent
-    val borderColor = if (isSelected) PixelGold else Color.Transparent
-    val textColor = if (isSelected) PixelGold else PixelTextMuted
+    val backgroundColor = if (isSelected) colors.primary.copy(alpha = 0.2f) else Color.Transparent
+    val borderColor = if (isSelected) colors.primary else Color.Transparent
+    val textColor = if (isSelected) colors.primary else colors.onSurfaceVariant
 
     Box(
         modifier = modifier
@@ -553,6 +550,7 @@ fun NotSignedInLeaderboardState(
     onNavigateToAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -565,8 +563,8 @@ fun NotSignedInLeaderboardState(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(PixelSurfaceDark)
-                .border(2.dp, PixelGold, RoundedCornerShape(12.dp))
+                .background(colors.surface)
+                .border(2.dp, colors.primary, RoundedCornerShape(12.dp))
                 .padding(24.dp)
         ) {
             Text(
@@ -577,14 +575,14 @@ fun NotSignedInLeaderboardState(
             Text(
                 text = "HALL OF FAME LOCKED",
                 style = MaterialTheme.typography.titleLarge,
-                color = PixelGold,
+                color = colors.primary,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             Text(
                 text = "Sign in with your Google Account to view live global rankings, streaks, and top heroes across the realm.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = PixelTextWhite,
+                color = colors.onSurface,
                 textAlign = TextAlign.Center,
                 lineHeight = 18.sp,
                 modifier = Modifier.padding(bottom = 20.dp)
@@ -603,12 +601,13 @@ fun SpectatorModeBanner(
     onNavigateToAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(PixelSurfaceDark)
-            .border(1.dp, PixelCyan.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+            .background(colors.surface)
+            .border(1.dp, colors.secondary.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
             .padding(12.dp)
     ) {
         Column(
@@ -622,14 +621,14 @@ fun SpectatorModeBanner(
                 Text(
                     text = "👁️ SPECTATOR MODE",
                     style = MaterialTheme.typography.titleMedium,
-                    color = PixelCyan,
+                    color = colors.secondary,
                     fontSize = 11.sp
                 )
             }
             Text(
                 text = "You are viewing the leaderboard in read-only spectator mode. Opt in from Account Settings to appear on the leaderboard!",
                 style = MaterialTheme.typography.bodySmall,
-                color = PixelTextMuted,
+                color = colors.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 fontSize = 8.sp,
                 lineHeight = 14.sp,
@@ -650,6 +649,7 @@ fun LeaderboardErrorState(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -662,8 +662,8 @@ fun LeaderboardErrorState(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(PixelSurfaceDark)
-                .border(2.dp, PixelRed, RoundedCornerShape(12.dp))
+                .background(colors.surface)
+                .border(2.dp, colors.error, RoundedCornerShape(12.dp))
                 .padding(24.dp)
         ) {
             Text(
@@ -674,14 +674,14 @@ fun LeaderboardErrorState(
             Text(
                 text = "REALM TRANSMISSION FAILED",
                 style = MaterialTheme.typography.titleMedium,
-                color = PixelRed,
+                color = colors.error,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
                 text = errorMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = PixelTextWhite,
+                color = colors.onSurface,
                 textAlign = TextAlign.Center,
                 lineHeight = 16.sp,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -696,7 +696,7 @@ fun LeaderboardErrorState(
             Text(
                 text = "🛡️ Offline Mode Safe: Local quests, streaks, and XP continue tracking uninterrupted on your device.",
                 style = MaterialTheme.typography.labelSmall,
-                color = PixelTextMuted,
+                color = colors.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 fontSize = 8.sp,
                 lineHeight = 14.sp

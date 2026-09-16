@@ -31,12 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.domain.AvatarTier
 import com.pixelquest.app.ui.components.PixelAvatarDisplay
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelSurfaceBorder
-import com.pixelquest.app.ui.theme.PixelSurfaceDark
-import com.pixelquest.app.ui.theme.PixelTextMuted
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 
 @Composable
 fun PixelLeaderboardRow(
@@ -49,6 +44,9 @@ fun PixelLeaderboardRow(
     avatarId: String? = null,
     onReportClicked: ((displayName: String) -> Unit)? = null
 ) {
+    val colors = PixelTheme.colors
+    val isLight = PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Light
+
     // Rank tier visual styling reusing Day 7's AvatarTier system
     val tier = when (rank) {
         1 -> AvatarTier.GOLD
@@ -57,8 +55,19 @@ fun PixelLeaderboardRow(
         else -> null
     }
 
-    val tierColor = if (tier != null) Color(tier.borderColor) else PixelSurfaceBorder
-    val rankTextColor = if (tier != null) Color(tier.borderColor) else PixelTextMuted
+    val tierColor = if (tier != null) {
+        if (isLight) {
+            when (tier) {
+                AvatarTier.GOLD -> colors.gold
+                AvatarTier.SILVER -> Color(0xFF475569)
+                AvatarTier.BRONZE -> Color(0xFF9A4F10)
+            }
+        } else {
+            Color(tier.borderColor)
+        }
+    } else colors.pixelBorder
+
+    val rankTextColor = if (tier != null) tierColor else colors.onSurfaceVariant
 
     // Subtle highlight pulse animation when current user's row is visible
     val pulseAlpha = if (isCurrentUser) {
@@ -77,13 +86,13 @@ fun PixelLeaderboardRow(
         1.0f
     }
 
-    val borderColor = if (isCurrentUser) PixelGold.copy(alpha = pulseAlpha) else tierColor
+    val borderColor = if (isCurrentUser) colors.primary.copy(alpha = pulseAlpha) else tierColor
     val backgroundColor = when {
-        isCurrentUser -> Color(0xFF262640)
-        rank == 1 -> Color(0xFF2A2416)
-        rank == 2 -> Color(0xFF22242B)
-        rank == 3 -> Color(0xFF271F1B)
-        else -> PixelSurfaceDark
+        isCurrentUser -> if (isLight) Color(0xFFFEF3C7) else Color(0xFF262640)
+        rank == 1 -> if (isLight) Color(0xFFFEF9C3) else Color(0xFF2A2416)
+        rank == 2 -> if (isLight) Color(0xFFF1F5F9) else Color(0xFF22242B)
+        rank == 3 -> if (isLight) Color(0xFFFFEDD5) else Color(0xFF271F1B)
+        else -> colors.surface
     }
     val shape = RoundedCornerShape(8.dp)
 
@@ -115,7 +124,7 @@ fun PixelLeaderboardRow(
                         .size(36.dp)
                         .clip(RoundedCornerShape(4.dp))
                         .background(if (rank <= 3) tierColor.copy(alpha = 0.2f) else Color.Transparent)
-                        .border(1.dp, if (rank <= 3) tierColor else PixelSurfaceBorder, RoundedCornerShape(4.dp)),
+                        .border(1.dp, if (rank <= 3) tierColor else colors.pixelBorder, RoundedCornerShape(4.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -156,7 +165,7 @@ fun PixelLeaderboardRow(
                         Text(
                             text = displayName,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = PixelTextWhite,
+                            color = colors.onSurface,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -165,13 +174,13 @@ fun PixelLeaderboardRow(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(3.dp))
-                                    .background(PixelGold)
+                                    .background(colors.primary)
                                     .padding(horizontal = 4.dp, vertical = 1.dp)
                             ) {
                                 Text(
                                     text = "YOU",
                                     fontSize = 7.sp,
-                                    color = Color.Black,
+                                    color = colors.onPrimary,
                                     style = MaterialTheme.typography.labelSmall
                                 )
                             }
@@ -199,13 +208,13 @@ fun PixelLeaderboardRow(
                 Text(
                     text = statValue,
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (rank <= 3) tierColor else PixelCyan,
+                    color = if (rank <= 3) tierColor else colors.secondary,
                     fontSize = 12.sp
                 )
                 Text(
                     text = statLabel,
                     style = MaterialTheme.typography.labelSmall,
-                    color = PixelTextMuted,
+                    color = colors.onSurfaceVariant,
                     fontSize = 7.sp
                 )
             }
