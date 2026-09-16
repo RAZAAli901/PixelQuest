@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.sp
 import com.pixelquest.app.domain.AvatarTierCalculator
 import com.pixelquest.app.ui.theme.PixelTheme
 
+import com.pixelquest.app.domain.AvatarTier
+import com.pixelquest.app.ui.theme.ThemeMode
+
 @Composable
 fun PixelAvatarFrame(
     avatarId: String,
@@ -27,7 +30,16 @@ fun PixelAvatarFrame(
     size: Dp = 80.dp
 ) {
     val tier = AvatarTierCalculator.calculateTier(level)
-    val borderColor = Color(tier.borderColor)
+    val activeMode = PixelTheme.mode
+    val borderColor = if (activeMode == ThemeMode.Light) {
+        when (tier) {
+            AvatarTier.BRONZE -> Color(0xFF9A4F10) // Rich dark bronze (>5:1 on white)
+            AvatarTier.SILVER -> Color(0xFF475569) // Slate chrome silver (>7:1 on white)
+            AvatarTier.GOLD -> PixelTheme.colors.gold // Deep dungeon gold (>5.2:1 on white)
+        }
+    } else {
+        Color(tier.borderColor)
+    }
     val shape = RoundedCornerShape(8.dp)
 
     Box(
