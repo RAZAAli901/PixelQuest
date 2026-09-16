@@ -38,8 +38,14 @@ fun PixelQuestTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val activity = view.context as? Activity
-            activity?.window?.statusBarColor = appColorScheme.background.toArgb()
-            activity?.window?.navigationBarColor = appColorScheme.background.toArgb()
+            activity?.window?.let { window ->
+                window.statusBarColor = appColorScheme.background.toArgb()
+                window.navigationBarColor = appColorScheme.background.toArgb()
+                val insetsController = androidx.core.view.WindowCompat.getInsetsController(window, view)
+                val isLight = effectiveMode == ThemeMode.Light
+                insetsController.isAppearanceLightStatusBars = isLight
+                insetsController.isAppearanceLightNavigationBars = isLight
+            }
         }
     }
 

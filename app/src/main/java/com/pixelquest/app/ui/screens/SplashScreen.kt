@@ -37,10 +37,12 @@ fun SplashScreen(
         onSplashTimeout()
     }
 
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(colors.background)
             .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -56,7 +58,7 @@ fun SplashScreen(
                 Text(
                     text = "PIXELQUEST",
                     style = MaterialTheme.typography.displayMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = colors.primary
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 PixelAvatarFrame(
@@ -68,13 +70,13 @@ fun SplashScreen(
                 Text(
                     text = "8-BIT HABIT TRACKER",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = colors.secondary
                 )
                 Spacer(modifier = Modifier.height(36.dp))
                 Text(
                     text = "INITIALIZING...",
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = colors.onSurface
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 PixelProgressBar(
@@ -83,5 +85,21 @@ fun SplashScreen(
                 )
             }
         }
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(name = "Splash Screen - Dark", showBackground = true)
+@Composable
+private fun SplashScreenDarkPreview() {
+    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Pixel) {
+        SplashScreen()
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(name = "Splash Screen - Light", showBackground = true)
+@Composable
+private fun SplashScreenLightPreview() {
+    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Light) {
+        SplashScreen()
     }
 }
