@@ -27,12 +27,7 @@ import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -43,8 +38,8 @@ data class TaskHistoryItem(
     val taskName: String,
     val category: TaskCategory,
     val completedDate: LocalDate,
-    val wasCompleted: Boolean,
-    val pointsAwarded: Int
+    val pointsAwarded: Int,
+    val wasCompleted: Boolean
 )
 
 @Composable
@@ -53,10 +48,11 @@ fun TaskHistoryListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     val dateFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy")
 
     PixelCard(
-        variant = if (item.wasCompleted) PixelPanelVariant.BEIGE else PixelPanelVariant.BLUE,
+        variant = if (item.wasCompleted) PixelPanelVariant.BEIGE else PixelPanelVariant.BORDER,
         contentPadding = 12.dp,
         modifier = modifier
             .fillMaxWidth()
@@ -69,7 +65,7 @@ fun TaskHistoryListItem(
             Icon(
                 painter = painterResource(id = item.category.iconResId),
                 contentDescription = item.category.displayName,
-                tint = PixelGold,
+                tint = colors.primary,
                 modifier = Modifier.size(24.dp)
             )
 
@@ -79,13 +75,13 @@ fun TaskHistoryListItem(
                 Text(
                     text = item.taskName,
                     style = PixelTypography.titleMedium,
-                    color = PixelTextWhite
+                    color = colors.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = item.completedDate.format(dateFormatter).uppercase(),
                     style = PixelTypography.labelSmall,
-                    color = PixelCyan
+                    color = colors.onSurfaceVariant
                 )
             }
 
@@ -93,13 +89,13 @@ fun TaskHistoryListItem(
                 Text(
                     text = if (item.wasCompleted) "COMPLETED" else "MISSED",
                     style = PixelTypography.labelSmall,
-                    color = if (item.wasCompleted) PixelGreen else PixelRed
+                    color = if (item.wasCompleted) colors.tertiary else colors.error
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "+${item.pointsAwarded} XP",
                     style = PixelTypography.labelMedium,
-                    color = PixelGold
+                    color = colors.gold
                 )
             }
         }
@@ -108,6 +104,7 @@ fun TaskHistoryListItem(
 
 @Composable
 fun EmptyHistoryState(modifier: Modifier = Modifier) {
+    val colors = PixelTheme.colors
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -123,13 +120,13 @@ fun EmptyHistoryState(modifier: Modifier = Modifier) {
         Text(
             text = "NO QUEST HISTORY",
             style = PixelTypography.titleMedium,
-            color = PixelGold
+            color = colors.primary
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Complete your daily quests to build your log history!",
             style = PixelTypography.bodyMedium,
-            color = PixelTextWhite,
+            color = colors.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
     }
@@ -140,18 +137,19 @@ fun TaskHistoryScreen(
     viewModel: TaskHistoryViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     onTaskClick: (Long) -> Unit = {}
 ) {
+    val colors = PixelTheme.colors
     val state by viewModel.uiState.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .padding(16.dp)
     ) {
         Text(
             text = "📜 QUEST HISTORY LOG",
             style = PixelTypography.titleLarge,
-            color = PixelGold
+            color = colors.primary
         )
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -26,11 +26,7 @@ import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelStatCard
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -40,10 +36,11 @@ fun TaskAnalyticsContent(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -59,13 +56,13 @@ fun TaskAnalyticsContent(
             Text(
                 text = "QUEST ANALYTICS",
                 style = PixelTypography.titleMedium,
-                color = PixelGold
+                color = colors.primary
             )
         }
 
         if (task != null) {
             PixelCard(
-                variant = PixelPanelVariant.BEIGE,
+                variant = PixelPanelVariant.BORDER,
                 contentPadding = 16.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -73,7 +70,7 @@ fun TaskAnalyticsContent(
                     Icon(
                         painter = painterResource(id = task.category.iconResId),
                         contentDescription = task.category.displayName,
-                        tint = PixelGold,
+                        tint = colors.primary,
                         modifier = Modifier.size(32.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -81,12 +78,12 @@ fun TaskAnalyticsContent(
                         Text(
                             text = task.name.uppercase(),
                             style = PixelTypography.titleLarge,
-                            color = PixelTextWhite
+                            color = colors.onSurface
                         )
                         Text(
                             text = task.category.displayName,
                             style = PixelTypography.bodySmall,
-                            color = PixelCyan
+                            color = colors.onSurfaceVariant
                         )
                     }
                 }
@@ -102,14 +99,14 @@ fun TaskAnalyticsContent(
                 label = "COMPLETIONS",
                 value = "${stats.completionCount}",
                 icon = "🎯",
-                accentColor = PixelGreen,
+                accentColor = colors.tertiary,
                 modifier = Modifier.weight(1f)
             )
             PixelStatCard(
                 label = "COMPLETION RATE",
                 value = "${(stats.completionRate * 100).toInt()}%",
                 icon = "📊",
-                accentColor = PixelCyan,
+                accentColor = colors.secondary,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -122,14 +119,14 @@ fun TaskAnalyticsContent(
                 label = "CURRENT STREAK",
                 value = "${stats.currentStreak} DAYS",
                 icon = "🔥",
-                accentColor = PixelGold,
+                accentColor = colors.gold,
                 modifier = Modifier.weight(1f)
             )
             PixelStatCard(
                 label = "LONGEST STREAK",
                 value = "${stats.longestStreak} DAYS",
                 icon = "🏆",
-                accentColor = PixelGold,
+                accentColor = colors.gold,
                 modifier = Modifier.weight(1f)
             )
         }

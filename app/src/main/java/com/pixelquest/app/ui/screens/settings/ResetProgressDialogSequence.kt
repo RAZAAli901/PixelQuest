@@ -5,9 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelSurfaceDark
-import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -17,19 +15,20 @@ fun ResetProgressDialogSequence(
     onConfirmWipe: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val colors = PixelTheme.colors
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     if (step == 1) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            containerColor = PixelSurfaceDark,
+            containerColor = colors.surface,
             title = {
-                Text(text = "⚠️ RESET ALL PROGRESS?", style = PixelTypography.titleMedium, color = PixelRed)
+                Text(text = "⚠️ RESET ALL PROGRESS?", style = PixelTypography.titleMedium, color = colors.error)
             },
             text = {
                 Text(
                     text = "This will delete all your quests, level progress, streak history, and settings. Proceed?",
                     style = PixelTypography.bodyMedium,
-                    color = PixelTextWhite
+                    color = colors.onSurface
                 )
             },
             confirmButton = {
@@ -45,15 +44,15 @@ fun ResetProgressDialogSequence(
     } else if (step == 2) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            containerColor = PixelSurfaceDark,
+            containerColor = colors.surface,
             title = {
-                Text(text = "🔥 FINAL WARNING", style = PixelTypography.titleMedium, color = PixelRed)
+                Text(text = "🔥 FINAL WARNING", style = PixelTypography.titleMedium, color = colors.error)
             },
             text = {
                 Text(
                     text = "This action CANNOT be undone. All data will be permanently wiped and reset to day one.",
                     style = PixelTypography.bodyMedium,
-                    color = PixelTextWhite
+                    color = colors.onSurface
                 )
             },
             confirmButton = {

@@ -31,8 +31,6 @@ import com.pixelquest.app.ui.components.PixelTaskListItem
 import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.screens.tasks.TaskUiState
 import com.pixelquest.app.ui.screens.tasks.TaskViewModel
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable

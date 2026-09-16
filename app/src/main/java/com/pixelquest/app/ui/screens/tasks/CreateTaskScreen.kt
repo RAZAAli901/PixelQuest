@@ -34,8 +34,7 @@ import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelRecurrenceSelector
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTimePicker
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelTheme
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
@@ -82,13 +81,13 @@ fun CreateTaskScreen(
                                 contentDescription = "Go Back"
                             }
                         ) {
-                            Text("◀", style = PixelTypography.titleMedium, color = PixelGold)
+                            Text("◀", style = PixelTypography.titleMedium, color = PixelTheme.colors.primary)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = if (formState.isEditMode) "EDIT QUEST" else "NEW QUEST",
                             style = PixelTypography.titleLarge,
-                            color = PixelGold,
+                            color = PixelTheme.colors.primary,
                             modifier = Modifier.weight(1f)
                         )
                         if (formState.isEditMode) {
@@ -104,13 +103,13 @@ fun CreateTaskScreen(
                     }
                 }
             },
-            containerColor = PixelBackgroundDark
+            containerColor = PixelTheme.colors.background
         ) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .background(PixelBackgroundDark)
+                    .background(PixelTheme.colors.background)
                     .imePadding()
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),

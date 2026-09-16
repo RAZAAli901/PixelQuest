@@ -20,9 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.data.local.entity.LevelHistoryEntity
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -49,19 +47,20 @@ fun LevelHistoryScreenContent(
     history: List<LevelHistoryEntity>,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
             text = "📜 LEVEL HISTORY",
             style = PixelTypography.titleLarge,
-            color = PixelGold
+            color = colors.primary
         )
 
         if (history.isEmpty()) {
@@ -87,7 +86,7 @@ fun LevelHistoryScreenContent(
                         Text(
                             text = "No levels earned yet — complete perfect days to level up!",
                             style = PixelTypography.bodyMedium,
-                            color = PixelTextWhite
+                            color = colors.onSurface
                         )
                     }
                 }
@@ -99,7 +98,7 @@ fun LevelHistoryScreenContent(
             ) {
                 items(history) { entry ->
                     PixelCard(
-                        variant = PixelPanelVariant.BLUE,
+                        variant = PixelPanelVariant.BORDER,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
@@ -113,19 +112,19 @@ fun LevelHistoryScreenContent(
                                 Text(
                                     text = "LEVEL ${entry.level}",
                                     style = PixelTypography.titleMedium,
-                                    color = PixelGold
+                                    color = colors.primary
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "MODE: ${entry.difficultyAtTimeOfLevelUp}",
                                     style = PixelTypography.bodySmall,
-                                    color = PixelTextWhite
+                                    color = colors.onSurfaceVariant
                                 )
                             }
                             Text(
                                 text = dateFormat.format(Date(entry.achievedDate)),
                                 style = PixelTypography.bodySmall,
-                                color = PixelTextWhite
+                                color = colors.onSurfaceVariant
                             )
                         }
                     }

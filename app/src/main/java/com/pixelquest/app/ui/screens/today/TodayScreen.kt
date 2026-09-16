@@ -39,9 +39,6 @@ import com.pixelquest.app.ui.components.PixelPerfectDayBanner
 import com.pixelquest.app.ui.components.StreakXpSummaryStrip
 import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.components.TodayQuestCard
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextMuted
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable

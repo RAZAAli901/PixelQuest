@@ -25,8 +25,7 @@ import com.pixelquest.app.domain.AvatarItem
 import com.pixelquest.app.ui.components.PixelAvatarDisplay
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -35,16 +34,17 @@ fun AvatarSelectionScreen(
     onAvatarSelected: (String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    val colors = PixelTheme.colors
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .padding(16.dp)
     ) {
         Text(
             text = "🧙 CHOOSE AVATAR",
             style = PixelTypography.headlineMedium,
-            color = PixelGold,
+            color = colors.primary,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 

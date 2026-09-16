@@ -25,10 +25,6 @@ import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.DefaultComicColorScheme
 import com.pixelquest.app.ui.theme.DefaultLightColorScheme
 import com.pixelquest.app.ui.theme.DefaultPixelColorScheme
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelSurfaceBorder
-import com.pixelquest.app.ui.theme.PixelTextMuted
-import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
 import com.pixelquest.app.ui.theme.ThemeMode
 

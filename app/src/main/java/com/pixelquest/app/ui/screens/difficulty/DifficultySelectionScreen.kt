@@ -26,11 +26,7 @@ import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -38,6 +34,7 @@ fun DifficultySelectionScreen(
     viewModel: DifficultyViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {}
 ) {
+    val colors = PixelTheme.colors
     val state by viewModel.uiState.collectAsState()
 
     if (state.showWarningDialog && state.pendingLevel != null) {
@@ -55,13 +52,13 @@ fun DifficultySelectionScreen(
     }
 
     Scaffold(
-        containerColor = PixelBackgroundDark
+        containerColor = colors.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(PixelBackgroundDark)
+                .background(colors.background)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -69,12 +66,12 @@ fun DifficultySelectionScreen(
             Text(
                 text = "🛡️ CHOOSE DIFFICULTY",
                 style = PixelTypography.titleLarge,
-                color = PixelGold
+                color = colors.primary
             )
             Text(
                 text = "Select a difficulty level to balance your quest requirements.",
                 style = PixelTypography.bodyMedium,
-                color = PixelTextWhite
+                color = colors.onSurfaceVariant
             )
 
             com.pixelquest.app.ui.components.PixelDifficultyCards(
