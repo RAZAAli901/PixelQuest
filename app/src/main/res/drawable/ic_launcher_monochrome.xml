@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Step 29: Android 13+ Material You Monochrome Adaptive Icon Layer -->
+    <!-- Shield Rim Outer Contour -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M36,36h36v4h-36zM36,36h4v24h-4zM68,36h4v24h-4zM40,60h4v8h-4zM64,60h4v8h-4zM44,68h4v8h-4zM60,68h4v8h-4zM48,76h12v4h-12z"/>
+    <!-- Pixel Sword Diagonal Blade -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M64,28h8v8h-8zM56,36h8v8h-8zM48,44h8v8h-8zM40,52h8v8h-8z"/>
+    <!-- Sword Crossguard -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M32,56h16v4h-16zM44,44h4v16h-4z"/>
+    <!-- Sword Hilt & Pommel -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M32,60h8v8h-8zM28,68h8v8h-8z"/>
+    <!-- Retro Corner Accents -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M20,20h8v3h-8zM20,20h3v8h-3zM80,20h8v3h-8zM85,20h3v8h-3zM20,85h8v3h-8zM20,80h3v8h-3zM80,85h8v3h-8zM85,80h3v8h-3z"/>
+</vector>
