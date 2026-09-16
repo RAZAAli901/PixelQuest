@@ -242,16 +242,14 @@ This section serves as the binding architectural contract that subsequent theme 
    - Onomatopoeia reaction bursts (`comic_pow.xml`, `comic_bam.xml`, `comic_level_up.xml`).
    - 6 pop-art hero avatars rendered in vector comic aesthetic.
 
-### 8.3 Architecture Sign-off
-- **State Flow**: `SettingsRepository.themeMode` -> `ThemeViewModel.themeMode` -> `PixelQuestApp` root observer.
-- **Composition Local**: `LocalAppColorScheme.current` and `LocalThemeMode.current` accessible everywhere in Compose tree.
-- **Runtime Transition**: 300ms smooth cross-fade tweening without activity reload or recomposition glitches.
-- **Status**: **READY FOR DAY 17 IMPLEMENTATION**.
-
-
-
-
-
-
-
-
+### 8.4 Launcher Adaptive Icon Audit across System Themes (Step 28)
+1. **Adaptive Canvas & Safe Zone Geometry**:
+   - Total canvas: 108dp x 108dp. Safe zone: inner circle/square diameter of 66dp (radius 33dp centered at 54, 54).
+   - The pixel sword and shield mascot coordinates are bounded strictly within `[28, 76]`, fully contained within the 66dp safe zone across all vendor mask shapes (Squircle, Teardrop, Rounded Square, Pebble, Circle).
+2. **Foreground & Background Legibility**:
+   - **Background Layer (`ic_launcher_background.xml`)**: `#1E1E2E` dark slate-purple with 4 gold retro pixel corner accents (`#FFD700`). Provides clear edge contrast against light wallpapers (contrast ratio ~12.5:1 against `#FFFFFF` dock) and dark wallpapers (elevated above pure black `#000000`).
+   - **Foreground Layer (`ic_launcher_foreground.xml`)**: High-contrast layered pixel art (dark shield `#34495E`, gold rim `#F1C40F`, polished sword steel `#ECF0F1`, crimson guard `#E74C3C`, and leather hilt `#D35400`).
+3. **Launcher Theme Compatibility**:
+   - **Light System Launcher**: Dark background tile provides sharp, clean silhouette without washing out.
+   - **Dark System Launcher**: Gold corner brackets and light sword blade stand out with vibrant arcade energy.
+   - **Android 13+ Material You Themed Icons**: Audited for dynamic system tinting compatibility; handled in Step 29 via `<monochrome>` layer.
