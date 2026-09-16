@@ -30,6 +30,8 @@ interface AppColorScheme {
     val error: Color
     val onError: Color
     val accentPurple: Color
+    val gold: Color
+    val pixelBorder: Color
     val isDark: Boolean
 
     fun toMaterialColorScheme(): ColorScheme

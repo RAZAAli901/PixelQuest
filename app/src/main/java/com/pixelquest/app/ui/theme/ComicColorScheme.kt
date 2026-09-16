@@ -29,6 +29,8 @@ data class ComicColorScheme(
     override val error: Color = Color(0xFFFF1744),
     override val onError: Color = Color(0xFFFFFFFF),
     override val accentPurple: Color = Color(0xFF7C4DFF),
+    override val gold: Color = Color(0xFFFFD600),
+    override val pixelBorder: Color = Color(0xFF000000),
     override val isDark: Boolean = true
 ) : AppColorScheme {
     override fun toMaterialColorScheme(): ColorScheme = darkColorScheme(

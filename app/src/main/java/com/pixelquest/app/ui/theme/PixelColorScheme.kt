@@ -29,6 +29,8 @@ data class PixelColorScheme(
     override val error: Color = PixelRed,
     override val onError: Color = PixelTextWhite,
     override val accentPurple: Color = PixelPurple,
+    override val gold: Color = PixelGold,
+    override val pixelBorder: Color = PixelSurfaceBorder,
     override val isDark: Boolean = true
 ) : AppColorScheme {
     override fun toMaterialColorScheme(): ColorScheme = darkColorScheme(

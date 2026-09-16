@@ -37,6 +37,8 @@ class PixelColorSchemeVerificationTest {
         assertEquals(PixelRed, scheme.error)
         assertEquals(PixelTextWhite, scheme.onError)
         assertEquals(PixelPurple, scheme.accentPurple)
+        assertEquals(PixelGold, scheme.gold)
+        assertEquals(PixelSurfaceBorder, scheme.pixelBorder)
     }
 
     @Test

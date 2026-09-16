@@ -34,6 +34,8 @@ data class DynamicAnimatedColorScheme(
     override val error: Color,
     override val onError: Color,
     override val accentPurple: Color,
+    override val gold: Color,
+    override val pixelBorder: Color,
     override val isDark: Boolean
 ) : AppColorScheme {
     override fun toMaterialColorScheme(): ColorScheme {
@@ -111,8 +113,10 @@ fun rememberAnimatedAppColorScheme(
     val error by animateColorAsState(targetScheme.error, animationSpec, label = "theme_error")
     val onError by animateColorAsState(targetScheme.onError, animationSpec, label = "theme_onError")
     val accentPurple by animateColorAsState(targetScheme.accentPurple, animationSpec, label = "theme_accentPurple")
+    val gold by animateColorAsState(targetScheme.gold, animationSpec, label = "theme_gold")
+    val pixelBorder by animateColorAsState(targetScheme.pixelBorder, animationSpec, label = "theme_pixelBorder")
 
-    return remember(targetScheme.themeMode, primary, background, surface, surfaceVariant) {
+    return remember(targetScheme.themeMode, primary, background, surface, surfaceVariant, gold, pixelBorder) {
         DynamicAnimatedColorScheme(
             themeMode = targetScheme.themeMode,
             primary = primary,
@@ -134,6 +138,8 @@ fun rememberAnimatedAppColorScheme(
             error = error,
             onError = onError,
             accentPurple = accentPurple,
+            gold = gold,
+            pixelBorder = pixelBorder,
             isDark = targetScheme.isDark
         )
     }
