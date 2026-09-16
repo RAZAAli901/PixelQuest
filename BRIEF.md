@@ -1583,6 +1583,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 36: Document Follow System dynamic OS theme switching verification - d71675c
 - Step 37: Fix contrast and theme-switching edge cases identified during QA - 05ab0bf
 - Step 38: Confirm Pixel retro dark mode is 100% regression-free - f4e7fd0
+- Step 39: Update BRIEF.md with full Day 17 summary and roadmap - b7b4234
 
 
 
