@@ -313,3 +313,19 @@ During manual navigation in active Light Mode (`ThemeMode.Light`), all core appl
    - Top 3 podium pillars render gold `#A16207`, silver `#475569`, and bronze `#9A4F10` with dark rankings.
    - Pinned user rank row renders elevated with `#0284C7` accent border.
    - Not-signed-in state renders white lock card with `#B45309` title and sign-in button.
+
+### 8.7 "Follow System" Dynamic OS Theme Resolution Verification (Step 36)
+1. **Resolution Logic**:
+   - When the user selects `ThemeMode.System`, `PixelQuestTheme` observes the ambient `isSystemInDarkTheme()` Compose primitive.
+   - When the OS toggles from Dark to Light:
+     - `ThemeMode.System` seamlessly resolves to `ThemeMode.Light`.
+     - `rememberAnimatedAppColorScheme` smoothly tweens palette tokens from Dark Arcade to Daylight Parchment across 300ms.
+     - The CRT scanline overlay (`PixelCrtOverlay`) immediately decouples and disables itself.
+     - Window insets controller switches `isAppearanceLightStatusBars` and `isAppearanceLightNavigationBars` to `true`, converting status icons to high-contrast dark glyphs.
+   - When the OS toggles from Light to Dark:
+     - `ThemeMode.System` resolves back to `ThemeMode.Pixel`.
+     - CRT scanlines re-engage (if user had enabled CRT effect in settings).
+     - System bar icons flip to light glyphs (`isAppearanceLightStatusBars = false`).
+2. **Explicit User Overrides**:
+   - Selecting `ThemeMode.Pixel` or `ThemeMode.Light` explicitly overrides OS system night mode without interference.
+
