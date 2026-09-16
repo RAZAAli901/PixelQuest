@@ -23,6 +23,9 @@ fun PixelProgressBar(
 ) {
     val clampedProgress = progress.coerceIn(0f, 1f)
 
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -49,6 +52,10 @@ fun PixelProgressBar(
                     painter = painterResource(id = R.drawable.pixel_bar_green_fill),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
+                    colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
+                        activeMode,
+                        colors.tertiary
+                    ),
                     modifier = Modifier.matchParentSize()
                 )
             }
