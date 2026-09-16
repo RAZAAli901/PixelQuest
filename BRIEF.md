@@ -1507,6 +1507,15 @@ Day 16 initiates the new 15-day extension (Days 16–30) for PixelQuest, establi
 - Step 13: Adapt avatar display and selection grid colors for light mode legibility - 10f2223
 - Step 14: Adapt progress bar and splash asset styling for light mode - 886a344
 - Step 15: Update ASSETS.md with runtime tinting application details for light mode - a867591
+- Step 16: Audit and fix Today screen components and cards for light mode - 3c43605
+- Step 17: Audit and fix Tasks screen and components for light mode - 803e577
+- Step 18: Audit and fix Stats screen, bar chart, and stat cards for light mode - cfb8d05
+- Step 19: Audit and fix Profile screen, XP bar, and level badge for light mode - dcff9f7
+- Step 20: Audit and fix Settings and Account screens and theme selector for light mode - 2905320
+- Step 21: Audit and fix Onboarding flow screens for light mode - 88c3d83
+- Step 22: Audit and fix Leaderboard screen and rows for light mode - bdaab46
+- Step 23: Design dedicated light-mode color ramp for PixelHeatmapCell - 02d46e6
+- Step 24: Wire heatmap cells and calendar heatmap labels to active theme - bda9805
 
 
 
