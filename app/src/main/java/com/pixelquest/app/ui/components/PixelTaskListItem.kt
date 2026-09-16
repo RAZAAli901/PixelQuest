@@ -65,6 +65,10 @@ fun PixelTaskListItem(
             Image(
                 painter = painterResource(id = task.category.iconResId),
                 contentDescription = task.category.displayName,
+                colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
+                    com.pixelquest.app.ui.theme.PixelTheme.mode,
+                    com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                ),
                 modifier = Modifier
                     .padding(end = 12.dp)
                     .size(24.dp)

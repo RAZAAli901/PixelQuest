@@ -59,6 +59,10 @@ fun PixelCategorySelector(
                         Image(
                             painter = painterResource(id = category.iconResId),
                             contentDescription = category.displayName,
+                            colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
+                                com.pixelquest.app.ui.theme.PixelTheme.mode,
+                                if (isSelected) com.pixelquest.app.ui.theme.PixelTheme.colors.primary else com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant
+                            ),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
