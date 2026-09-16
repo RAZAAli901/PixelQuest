@@ -10,18 +10,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextMuted
+import com.pixelquest.app.ui.theme.PixelQuestTheme
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
+import com.pixelquest.app.ui.theme.ThemeMode
 
 @Composable
 fun EmptyTasksState(
     onCreateQuestClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     PixelCard(
-        variant = PixelPanelVariant.BEIGE,
+        variant = PixelPanelVariant.BORDER,
         contentPadding = 24.dp,
         modifier = modifier.fillMaxWidth(0.9f)
     ) {
@@ -37,14 +40,14 @@ fun EmptyTasksState(
             Text(
                 text = "NO QUESTS YET",
                 style = PixelTypography.displaySmall,
-                color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
+                color = colors.primary,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "Your quest log is empty, brave adventurer! Create your first quest to begin your journey.",
                 style = PixelTypography.bodyMedium,
-                color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant,
+                color = colors.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(20.dp))
@@ -54,5 +57,21 @@ fun EmptyTasksState(
                 variant = PixelButtonVariant.YELLOW
             )
         }
+    }
+}
+
+@Preview(name = "Empty Tasks State - Dark", showBackground = true)
+@Composable
+private fun EmptyTasksStateDarkPreview() {
+    PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+        EmptyTasksState(onCreateQuestClick = {})
+    }
+}
+
+@Preview(name = "Empty Tasks State - Light", showBackground = true)
+@Composable
+private fun EmptyTasksStateLightPreview() {
+    PixelQuestTheme(themeMode = ThemeMode.Light) {
+        EmptyTasksState(onCreateQuestClick = {})
     }
 }
