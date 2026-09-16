@@ -1,6 +1,8 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,14 +12,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.DailyStatus
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelQuestTheme
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
+import com.pixelquest.app.ui.theme.ThemeMode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -27,14 +28,15 @@ fun PixelDayDetailDialog(
     status: DailyStatus,
     onDismiss: () -> Unit
 ) {
+    val colors = PixelTheme.colors
     val formatter = DateTimeFormatter.ofPattern("EEEE, MMM d, yyyy")
     val dateText = date.format(formatter)
 
     val (statusTitle, statusColor) = when (status) {
-        DailyStatus.PERFECT -> "🌟 PERFECT DAY!" to PixelGreen
-        DailyStatus.PARTIAL -> "⚡ PARTIAL PROGRESS" to PixelGold
-        DailyStatus.MISSED -> "💀 MISSED QUESTS" to PixelRed
-        DailyStatus.NO_TASKS_SCHEDULED -> "🛡️ NO QUESTS SCHEDULED" to PixelCyan
+        DailyStatus.PERFECT -> "🌟 PERFECT DAY!" to colors.tertiary
+        DailyStatus.PARTIAL -> "⚡ PARTIAL PROGRESS" to colors.gold
+        DailyStatus.MISSED -> "💀 MISSED QUESTS" to colors.error
+        DailyStatus.NO_TASKS_SCHEDULED -> "🛡️ NO QUESTS SCHEDULED" to colors.secondary
     }
 
     PixelDialog(
@@ -51,7 +53,7 @@ fun PixelDayDetailDialog(
             Text(
                 text = dateText.uppercase(),
                 style = PixelTypography.labelLarge,
-                color = PixelGold
+                color = colors.primary
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -68,6 +70,42 @@ fun PixelDayDetailDialog(
                 text = "CLOSE",
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth(0.6f)
+            )
+        }
+    }
+}
+
+@Preview(name = "Day Detail Dialog - Dark", showBackground = true)
+@Composable
+private fun PixelDayDetailDialogDarkPreview() {
+    PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+        Box(
+            modifier = Modifier
+                .background(PixelTheme.colors.background)
+                .padding(16.dp)
+        ) {
+            PixelDayDetailDialog(
+                date = LocalDate.now(),
+                status = DailyStatus.PERFECT,
+                onDismiss = {}
+            )
+        }
+    }
+}
+
+@Preview(name = "Day Detail Dialog - Light", showBackground = true)
+@Composable
+private fun PixelDayDetailDialogLightPreview() {
+    PixelQuestTheme(themeMode = ThemeMode.Light) {
+        Box(
+            modifier = Modifier
+                .background(PixelTheme.colors.background)
+                .padding(16.dp)
+        ) {
+            PixelDayDetailDialog(
+                date = LocalDate.now(),
+                status = DailyStatus.PARTIAL,
+                onDismiss = {}
             )
         }
     }
