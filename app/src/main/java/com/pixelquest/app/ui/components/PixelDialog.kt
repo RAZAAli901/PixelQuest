@@ -39,10 +39,14 @@ fun PixelDialog(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
+                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                content()
+                androidx.compose.runtime.CompositionLocalProvider(
+                    androidx.compose.material3.LocalContentColor provides com.pixelquest.app.ui.theme.PixelTheme.colors.onSurface
+                ) {
+                    content()
+                }
                 Spacer(modifier = Modifier.height(20.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
