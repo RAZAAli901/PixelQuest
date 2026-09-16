@@ -1528,6 +1528,8 @@ Day 16 initiates the new 15-day extension (Days 16–30) for PixelQuest, establi
 - Step 34: Document light mode contrast audit results across all screens in THEMING.md - f1fda54
 - Step 35: Document light mode visual-regression baseline across all screens - 010d0c8
 - Step 36: Document Follow System dynamic OS theme switching verification - d71675c
+- Step 37: Fix contrast and theme-switching edge cases identified during QA - 05ab0bf
+
 
 
 
