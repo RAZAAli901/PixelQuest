@@ -1493,6 +1493,7 @@ Day 16 initiates the new 15-day extension (Days 16–30) for PixelQuest, establi
 
 ## Day 17 Progress Log
 - Step 1: Finalize DefaultLightColorScheme color values with retro daylight arcade palette - ecdc817
+- Step 2: Define semantic token mapping including pixelBorder and gold across AppColorScheme implementations - 89b4243
 
 
 
