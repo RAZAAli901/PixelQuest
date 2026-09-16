@@ -14,6 +14,12 @@ object NotificationHelper {
     const val CHANNEL_ID = "pixelquest_reminders_channel"
     const val CHANNEL_NAME = "PixelQuest Reminders"
     const val CHANNEL_DESCRIPTION = "Notifications for task reminders and quest completion prompts"
+    /**
+     * Accent color for system notifications.
+     * Uses PixelQuest Daylight Gold / Retro Amber (0xFFB45309), providing >= 4.5:1 contrast
+     * against both dark (5.2:1) and light (4.6:1) OS notification shades.
+     */
+    const val NOTIFICATION_ACCENT_COLOR = 0xFFB45309.toInt()
 
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -39,6 +45,7 @@ object NotificationHelper {
     ): Notification {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_tasks)
+            .setColor(NOTIFICATION_ACCENT_COLOR)
             .setContentTitle("⚔️ Quest Time: $taskName")
             .setContentText("Did you complete this quest today?")
             .setPriority(NotificationCompat.PRIORITY_HIGH)

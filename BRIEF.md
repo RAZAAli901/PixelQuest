@@ -1517,6 +1517,8 @@ Day 16 initiates the new 15-day extension (Days 16–30) for PixelQuest, establi
 - Step 23: Design dedicated light-mode color ramp for PixelHeatmapCell - 02d46e6
 - Step 24: Wire heatmap cells and calendar heatmap labels to active theme - bda9805
 - Step 25: Add Compose Preview comparing the heatmap rendered in both themes - 140f78a
+- Step 26: Adapt heatmap tap-detail popup for light mode - 4197191
+
 
 
 
