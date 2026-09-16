@@ -1527,6 +1527,8 @@ Day 16 initiates the new 15-day extension (Days 16–30) for PixelQuest, establi
 - Step 33: Add test asserting empty states render with compliant contrast in light mode - de02b7b
 - Step 34: Document light mode contrast audit results across all screens in THEMING.md - f1fda54
 - Step 35: Document light mode visual-regression baseline across all screens - 010d0c8
+- Step 36: Document Follow System dynamic OS theme switching verification - d71675c
+
 
 
 

@@ -12,8 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelRed
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -21,6 +20,7 @@ fun PixelNotificationPermissionBanner(
     onRequestPermission: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     PixelCard(
         variant = PixelPanelVariant.BEIGE,
         contentPadding = 12.dp,
@@ -39,13 +39,13 @@ fun PixelNotificationPermissionBanner(
                 Text(
                     text = "REMINDERS DISABLED",
                     style = PixelTypography.labelLarge,
-                    color = PixelRed
+                    color = colors.error
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "Notification permission is required for quest alarms to fire.",
                     style = PixelTypography.bodySmall,
-                    color = PixelGold
+                    color = colors.onSurfaceVariant
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))

@@ -11,8 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -21,8 +20,9 @@ fun PixelErrorState(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     PixelCard(
-        variant = PixelPanelVariant.BEIGE,
+        variant = PixelPanelVariant.BORDER,
         contentPadding = 24.dp,
         modifier = modifier.fillMaxWidth(0.9f)
     ) {
@@ -38,14 +38,14 @@ fun PixelErrorState(
             Text(
                 text = "QUEST LOG ERROR",
                 style = PixelTypography.displaySmall,
-                color = PixelRed,
+                color = colors.error,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = errorMessage,
                 style = PixelTypography.bodyMedium,
-                color = PixelTextWhite,
+                color = colors.onSurface,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(20.dp))

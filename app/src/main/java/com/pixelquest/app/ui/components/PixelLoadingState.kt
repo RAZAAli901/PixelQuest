@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.components.PixelAvatarDisplay
-import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -27,6 +27,7 @@ fun PixelLoadingState(
     message: String = "LOADING QUESTS...",
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     val infiniteTransition = rememberInfiniteTransition()
     val progress by infiniteTransition.animateFloat(
         initialValue = 0.1f,
@@ -38,7 +39,7 @@ fun PixelLoadingState(
     )
 
     PixelCard(
-        variant = PixelPanelVariant.BEIGE,
+        variant = PixelPanelVariant.BORDER,
         contentPadding = 24.dp,
         modifier = modifier.fillMaxWidth(0.85f)
     ) {
@@ -54,7 +55,7 @@ fun PixelLoadingState(
             Text(
                 text = message,
                 style = PixelTypography.bodyLarge,
-                color = PixelGold,
+                color = colors.primary,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(16.dp))

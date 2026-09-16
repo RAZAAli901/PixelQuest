@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelRed
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -17,8 +17,9 @@ fun PixelSnackbar(
     message: String,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     PixelCard(
-        variant = PixelPanelVariant.BEIGE,
+        variant = PixelPanelVariant.BORDER,
         contentPadding = 12.dp,
         modifier = modifier.fillMaxWidth()
     ) {
@@ -29,7 +30,7 @@ fun PixelSnackbar(
             Text(
                 text = "⚠️ $message",
                 style = PixelTypography.bodyMedium,
-                color = PixelRed,
+                color = colors.error,
                 modifier = Modifier.padding(vertical = 4.dp)
             )
         }
