@@ -11,17 +11,21 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.AvatarCatalog
 
+import androidx.compose.ui.graphics.ColorFilter
+
 @Composable
 fun PixelAvatarDisplay(
     avatarId: String,
     modifier: Modifier = Modifier,
-    size: Dp = 64.dp
+    size: Dp = 64.dp,
+    colorFilter: ColorFilter? = null
 ) {
     val avatar = AvatarCatalog.getAvatarById(avatarId)
     Image(
         painter = painterResource(id = avatar.drawableRes),
         contentDescription = avatar.name,
         contentScale = ContentScale.Fit,
+        colorFilter = colorFilter,
         modifier = modifier.size(size)
     )
 }

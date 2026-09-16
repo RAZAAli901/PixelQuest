@@ -57,20 +57,21 @@ private fun AvatarGridItem(
     isSelected: Boolean,
     onSelect: () -> Unit
 ) {
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
     val shape = RoundedCornerShape(8.dp)
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
             .border(
-                width = if (isSelected) 4.dp else 2.dp,
-                color = if (isSelected) PixelGold else PixelGold.copy(alpha = 0.3f),
+                width = if (isSelected) 3.dp else 1.dp,
+                color = if (isSelected) colors.primary else colors.pixelBorder.copy(alpha = 0.5f),
                 shape = shape
             )
             .clickable { onSelect() }
     ) {
         PixelCard(
-            variant = if (isSelected) PixelPanelVariant.BEIGE else PixelPanelVariant.BLUE,
+            variant = if (isSelected) PixelPanelVariant.BEIGE else PixelPanelVariant.BORDER,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
@@ -85,7 +86,7 @@ private fun AvatarGridItem(
                 Text(
                     text = avatar.name.uppercase(),
                     style = PixelTypography.titleSmall,
-                    color = if (isSelected) PixelGold else PixelTextWhite,
+                    color = if (isSelected) colors.primary else colors.onSurface,
                     textAlign = TextAlign.Center
                 )
                 if (isSelected) {
@@ -93,7 +94,7 @@ private fun AvatarGridItem(
                     Text(
                         text = "★ SELECTED ★",
                         style = PixelTypography.labelSmall,
-                        color = PixelGreen,
+                        color = colors.tertiary,
                         textAlign = TextAlign.Center
                     )
                 }

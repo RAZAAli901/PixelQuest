@@ -1503,6 +1503,7 @@ Day 16 initiates the new 15-day extension (Days 16–30) for PixelQuest, establi
 - Step 9: Verify and tune avatar frame tier colors for light mode contrast - 400b804
 - Step 10: Add Compose Previews comparing dark vs light component rendering side-by-side - 80cc2c3
 - Step 11: Apply PixelThemeAssetFilter to category icons for light-mode contrast - 5d13231
+- Step 12: Apply tinting to difficulty tier icons for light mode - 161945a
 
 
 
