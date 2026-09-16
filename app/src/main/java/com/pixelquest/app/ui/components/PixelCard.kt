@@ -12,6 +12,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.ThemeMode
+
 enum class PixelPanelVariant {
     BORDER,
     BLUE,
@@ -25,26 +32,72 @@ fun PixelCard(
     contentPadding: Dp = 16.dp,
     content: @Composable () -> Unit
 ) {
-    val bgRes = when (variant) {
-        PixelPanelVariant.BORDER -> R.drawable.pixel_panel_border
-        PixelPanelVariant.BLUE -> R.drawable.pixel_panel_blue
-        PixelPanelVariant.BEIGE -> R.drawable.pixel_panel_beige
-    }
+    val activeMode = PixelTheme.mode
+    val colors = PixelTheme.colors
 
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = bgRes),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.matchParentSize()
-        )
+    if (activeMode == ThemeMode.Light) {
+        val (cardBg, borderColor) = when (variant) {
+            PixelPanelVariant.BORDER -> colors.surface to colors.pixelBorder
+            PixelPanelVariant.BLUE -> colors.secondaryContainer to colors.secondary
+            PixelPanelVariant.BEIGE -> colors.primaryContainer to colors.primary
+        }
+
         Box(
-            modifier = Modifier.padding(contentPadding)
+            modifier = modifier
+                .drawBehind {
+                    val shadowOffset = 2.dp.toPx()
+                    val borderWidth = 2.dp.toPx()
+                    // Draw bottom-right 8-bit hard pixel shadow
+                    drawRect(
+                        color = Color(0x24000000),
+                        topLeft = Offset(shadowOffset, shadowOffset),
+                        size = size
+                    )
+                    // Draw card background surface
+                    drawRect(
+                        color = cardBg,
+                        topLeft = Offset.Zero,
+                        size = size
+                    )
+                    // Draw outer pixel border
+                    drawRect(
+                        color = borderColor,
+                        topLeft = Offset.Zero,
+                        size = size,
+                        style = Stroke(width = borderWidth)
+                    )
+                },
+            contentAlignment = Alignment.Center
         ) {
-            content()
+            Box(
+                modifier = Modifier.padding(contentPadding)
+            ) {
+                content()
+            }
+        }
+    } else {
+        val bgRes = when (variant) {
+            PixelPanelVariant.BORDER -> R.drawable.pixel_panel_border
+            PixelPanelVariant.BLUE -> R.drawable.pixel_panel_blue
+            PixelPanelVariant.BEIGE -> R.drawable.pixel_panel_beige
+        }
+
+        Box(
+            modifier = modifier,
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = bgRes),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.matchParentSize()
+            )
+            Box(
+                modifier = Modifier.padding(contentPadding)
+            ) {
+                content()
+            }
         }
     }
 }
+
