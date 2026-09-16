@@ -28,6 +28,8 @@ fun PixelFilterChips(
     onFilterSelected: (HistoryFilter) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.fillMaxWidth()
@@ -43,12 +45,12 @@ fun PixelFilterChips(
                 modifier = Modifier
                     .weight(1f)
                     .background(
-                        color = if (isSelected) PixelGold else PixelSurfaceDark,
+                        color = if (isSelected) colors.primary else colors.surface,
                         shape = RoundedCornerShape(4.dp)
                     )
                     .border(
                         width = 2.dp,
-                        color = if (isSelected) PixelGold else PixelTextWhite.copy(alpha = 0.3f),
+                        color = if (isSelected) colors.primary else colors.pixelBorder.copy(alpha = 0.5f),
                         shape = RoundedCornerShape(4.dp)
                     )
                     .clickable { onFilterSelected(filter) }
@@ -57,7 +59,7 @@ fun PixelFilterChips(
                 Text(
                     text = label,
                     style = PixelTypography.labelSmall.copy(fontSize = 9.sp),
-                    color = if (isSelected) PixelBackgroundDark else PixelTextWhite
+                    color = if (isSelected) colors.onPrimary else colors.onSurface
                 )
             }
         }

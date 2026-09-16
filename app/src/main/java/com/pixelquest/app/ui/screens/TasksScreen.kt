@@ -43,28 +43,30 @@ fun TasksScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToCreateTask,
-                containerColor = PixelGold,
-                contentColor = PixelBackgroundDark,
+                containerColor = colors.primary,
+                contentColor = colors.onPrimary,
                 shape = CutCornerShape(4.dp)
             ) {
                 Text(
                     text = "+",
                     style = PixelTypography.displaySmall,
-                    color = PixelBackgroundDark
+                    color = colors.onPrimary
                 )
             }
         },
-        containerColor = PixelBackgroundDark
+        containerColor = colors.background
     ) { innerPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(PixelBackgroundDark)
+                .background(colors.background)
         ) {
             when (val state = uiState) {
                 is TaskUiState.Loading -> {

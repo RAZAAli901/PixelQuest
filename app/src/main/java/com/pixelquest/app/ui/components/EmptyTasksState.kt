@@ -37,14 +37,14 @@ fun EmptyTasksState(
             Text(
                 text = "NO QUESTS YET",
                 style = PixelTypography.displaySmall,
-                color = PixelGold,
+                color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = "Your quest log is empty, brave adventurer! Create your first quest to begin your journey.",
                 style = PixelTypography.bodyMedium,
-                color = PixelTextMuted,
+                color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(20.dp))

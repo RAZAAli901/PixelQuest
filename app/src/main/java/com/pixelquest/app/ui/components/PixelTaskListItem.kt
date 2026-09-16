@@ -43,6 +43,7 @@ fun PixelTaskListItem(
     status: TaskItemStatus = TaskItemStatus.PENDING,
     modifier: Modifier = Modifier
 ) {
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
     val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
     val cardVariant = when (status) {
         TaskItemStatus.COMPLETED, TaskItemStatus.DONE -> PixelPanelVariant.BLUE
@@ -67,7 +68,7 @@ fun PixelTaskListItem(
                 contentDescription = task.category.displayName,
                 colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
                     com.pixelquest.app.ui.theme.PixelTheme.mode,
-                    com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                    colors.primary
                 ),
                 modifier = Modifier
                     .padding(end = 12.dp)
@@ -83,18 +84,18 @@ fun PixelTaskListItem(
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         color = when (status) {
-                            TaskItemStatus.COMPLETED, TaskItemStatus.DONE -> PixelGreen
-                            TaskItemStatus.MISSED -> PixelRed
-                            TaskItemStatus.PENDING, TaskItemStatus.GRACE_PERIOD -> PixelGold
+                            TaskItemStatus.COMPLETED, TaskItemStatus.DONE -> colors.tertiary
+                            TaskItemStatus.MISSED -> colors.error
+                            TaskItemStatus.PENDING, TaskItemStatus.GRACE_PERIOD -> colors.primary
                         },
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     if (status == TaskItemStatus.COMPLETED) {
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(" [DONE]", style = PixelTypography.labelSmall, color = PixelGreen)
+                        Text(" [DONE]", style = PixelTypography.labelSmall, color = colors.tertiary)
                     } else if (status == TaskItemStatus.MISSED) {
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(" [MISSED]", style = PixelTypography.labelSmall, color = PixelRed)
+                        Text(" [MISSED]", style = PixelTypography.labelSmall, color = colors.error)
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -102,13 +103,13 @@ fun PixelTaskListItem(
                     Text(
                         text = "⏰ ${task.scheduledTime.format(timeFormatter)}",
                         style = PixelTypography.bodySmall,
-                        color = PixelCyan
+                        color = colors.secondary
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "🔄 ${task.recurrenceType.name}",
                         style = PixelTypography.labelSmall,
-                        color = PixelTextMuted
+                        color = colors.onSurfaceVariant
                     )
                 }
             }
