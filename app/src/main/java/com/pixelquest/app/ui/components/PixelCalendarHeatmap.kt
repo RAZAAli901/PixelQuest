@@ -23,8 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.domain.model.DailyStatus
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -45,6 +44,7 @@ fun PixelCalendarHeatmap(
     endDate: LocalDate = LocalDate.now(),
     onDayClick: ((LocalDate, DailyStatus) -> Unit)? = null
 ) {
+    val colors = PixelTheme.colors
     var selectedDay by remember { mutableStateOf<Pair<LocalDate, DailyStatus>?>(null) }
 
     if (selectedDay != null) {
@@ -88,7 +88,7 @@ fun PixelCalendarHeatmap(
                         Text(
                             text = firstDayOfWeek.format(monthFormatter).uppercase(),
                             style = PixelTypography.labelSmall.copy(fontSize = 7.sp),
-                            color = PixelGold,
+                            color = colors.primary,
                             maxLines = 1
                         )
                     }
@@ -115,7 +115,7 @@ fun PixelCalendarHeatmap(
                             Text(
                                 text = label,
                                 style = PixelTypography.labelSmall.copy(fontSize = 8.sp),
-                                color = PixelTextWhite,
+                                color = colors.onSurfaceVariant,
                                 textAlign = TextAlign.Center
                             )
                         }

@@ -84,10 +84,12 @@ fun PixelHeatmapCell(
     status: DailyStatus,
     modifier: Modifier = Modifier,
     size: Dp = 14.dp,
+    isLightOverride: Boolean? = null,
     onClick: (() -> Unit)? = null
 ) {
-    val fillColor = HeatmapColorMapper.getCellColor(status)
-    val borderColor = HeatmapColorMapper.getBorderColor(status)
+    val isLight = isLightOverride ?: (com.pixelquest.app.ui.theme.PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Light)
+    val fillColor = HeatmapColorMapper.getCellColor(status, isLight = isLight)
+    val borderColor = HeatmapColorMapper.getBorderColor(status, isLight = isLight)
 
     Box(
         modifier = modifier

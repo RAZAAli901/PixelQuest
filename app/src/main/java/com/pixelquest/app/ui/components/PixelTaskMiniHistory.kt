@@ -13,8 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.domain.model.DailyStatus
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -24,13 +23,14 @@ fun PixelTaskMiniHistory(
     recentHistory: List<Pair<LocalDate, Boolean>>,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     val dayFormatter = DateTimeFormatter.ofPattern("d")
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "📅 RECENT HISTORY (LAST 14 LOGS)",
             style = PixelTypography.labelMedium,
-            color = PixelGold
+            color = colors.primary
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -50,7 +50,7 @@ fun PixelTaskMiniHistory(
                     Text(
                         text = date.format(dayFormatter),
                         style = PixelTypography.labelSmall.copy(fontSize = 7.sp),
-                        color = PixelCyan
+                        color = colors.secondary
                     )
                 }
             }
