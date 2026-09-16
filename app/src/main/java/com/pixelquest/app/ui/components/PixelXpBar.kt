@@ -60,7 +60,7 @@ fun PixelXpBar(
                 .height(28.dp)
                 .clip(RoundedCornerShape(4.dp))
                 .background(PixelTheme.colors.primary)
-                .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
+                .border(2.dp, PixelTheme.colors.pixelBorder, RoundedCornerShape(4.dp))
                 .padding(horizontal = 8.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -82,8 +82,8 @@ fun PixelXpBar(
                 .weight(1f)
                 .height(24.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(PixelTheme.colors.surface)
-                .border(2.dp, Color.Black, RoundedCornerShape(4.dp))
+                .background(PixelTheme.colors.surfaceVariant)
+                .border(2.dp, PixelTheme.colors.pixelBorder, RoundedCornerShape(4.dp))
                 .padding(2.dp)
         ) {
             Box(

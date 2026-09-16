@@ -26,10 +26,7 @@ import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelXpBar
 import com.pixelquest.app.ui.screens.profile.ProfileViewModel
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
+import com.pixelquest.app.ui.theme.PixelTheme
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -37,8 +34,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
-import com.pixelquest.app.ui.theme.PixelSurfaceDark
-import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
 
 import androidx.compose.foundation.clickable
@@ -64,11 +59,12 @@ fun ProfileScreen(
     val totalXp = profile?.totalXp ?: 0
     val streakCount = streak?.currentStreak ?: 0
     val diffLevel = difficulty?.difficultyLevel ?: DifficultyLevel.MEDIUM
+    val colors = PixelTheme.colors
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -76,7 +72,7 @@ fun ProfileScreen(
         Text(
             text = "👤 HERO PROFILE",
             style = PixelTypography.titleLarge,
-            color = PixelGold
+            color = colors.primary
         )
 
         val avatarId = profile?.avatarId ?: "avatar_hero"
@@ -102,23 +98,23 @@ fun ProfileScreen(
                     style = PixelTypography.titleMedium,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                    color = PixelGold
+                    color = colors.primary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "LEVEL: $level", style = PixelTypography.bodyMedium, color = PixelTextWhite)
-                    Text(text = "TOTAL XP: $totalXp", style = PixelTypography.bodyMedium, color = PixelGreen)
+                    Text(text = "LEVEL: $level", style = PixelTypography.bodyMedium, color = colors.onSurface)
+                    Text(text = "TOTAL XP: $totalXp", style = PixelTypography.bodyMedium, color = colors.tertiary)
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "STREAK: $streakCount DAYS", style = PixelTypography.bodyMedium, color = PixelCyan)
-                    Text(text = "MODE: ${DifficultyMode.getDisplayName(diffLevel)}", style = PixelTypography.bodyMedium, color = PixelGold)
+                    Text(text = "STREAK: $streakCount DAYS", style = PixelTypography.bodyMedium, color = colors.secondary)
+                    Text(text = "MODE: ${DifficultyMode.getDisplayName(diffLevel)}", style = PixelTypography.bodyMedium, color = colors.primary)
                 }
             }
         }
