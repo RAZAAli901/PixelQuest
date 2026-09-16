@@ -18,10 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -32,10 +29,12 @@ fun SettingsScreenScaffold(
     dataSection: @Composable () -> Unit = {},
     dangerZoneSection: @Composable () -> Unit = {}
 ) {
+    val colors = PixelTheme.colors
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -44,7 +43,7 @@ fun SettingsScreenScaffold(
         Text(
             text = "⚙️ SETTINGS",
             style = PixelTypography.titleLarge,
-            color = PixelGold
+            color = colors.primary
         )
 
         // Account Section Card
@@ -54,7 +53,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "👤 ACCOUNT", style = PixelTypography.titleMedium, color = PixelGold)
+                Text(text = "👤 ACCOUNT", style = PixelTypography.titleMedium, color = colors.primary)
                 accountSection()
             }
         }
@@ -66,7 +65,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "🔔 NOTIFICATIONS", style = PixelTypography.titleMedium, color = PixelGold)
+                Text(text = "🔔 NOTIFICATIONS", style = PixelTypography.titleMedium, color = colors.primary)
                 notificationsSection()
             }
         }
@@ -78,7 +77,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "📺 APPEARANCE & AUDIO", style = PixelTypography.titleMedium, color = PixelGold)
+                Text(text = "📺 APPEARANCE & AUDIO", style = PixelTypography.titleMedium, color = colors.primary)
                 appearanceSection()
             }
         }
@@ -90,7 +89,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "💾 DATA BACKUP", style = PixelTypography.titleMedium, color = PixelGold)
+                Text(text = "💾 DATA BACKUP", style = PixelTypography.titleMedium, color = colors.primary)
                 dataSection()
             }
         }
@@ -102,7 +101,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "⚠️ DANGER ZONE", style = PixelTypography.titleMedium, color = PixelRed)
+                Text(text = "⚠️ DANGER ZONE", style = PixelTypography.titleMedium, color = colors.error)
                 dangerZoneSection()
             }
         }

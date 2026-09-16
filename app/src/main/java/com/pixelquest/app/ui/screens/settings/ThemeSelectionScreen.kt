@@ -18,8 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 /**
@@ -32,11 +31,12 @@ fun ThemeSelectionScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
+    val colors = PixelTheme.colors
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -45,7 +45,7 @@ fun ThemeSelectionScreen(
         Text(
             text = "🎨 THEME SELECTION",
             style = PixelTypography.titleLarge,
-            color = PixelGold
+            color = colors.primary
         )
 
         ThemeSelectionCard(

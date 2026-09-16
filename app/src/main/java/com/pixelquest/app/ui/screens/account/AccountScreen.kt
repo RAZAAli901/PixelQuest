@@ -27,10 +27,7 @@ import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 /**
@@ -97,8 +94,10 @@ fun AccountContent(
     onNavigateBack: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
+
     Scaffold(
-        containerColor = PixelBackgroundDark,
+        containerColor = colors.background,
         modifier = modifier.fillMaxSize()
     ) { paddingValues ->
         Column(
@@ -120,14 +119,14 @@ fun AccountContent(
                     Text(
                         text = "☁️ CLOUD & LEADERBOARD",
                         style = PixelTypography.titleMedium,
-                        color = PixelGold,
+                        color = colors.primary,
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Connect your Google account to join the community quest leaderboard and synchronize your stats.",
                         style = PixelTypography.bodySmall,
-                        color = PixelTextWhite,
+                        color = colors.onSurface,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -147,13 +146,13 @@ fun AccountContent(
                         Text(
                             text = "🏆 JOIN THE LEADERBOARD",
                             style = PixelTypography.titleSmall,
-                            color = PixelGold,
+                            color = colors.primary,
                             textAlign = TextAlign.Center
                         )
                         Text(
                             text = "Sign in with Google to join the leaderboard. By default, your stats remain private until you explicitly choose to opt in.",
                             style = PixelTypography.bodyMedium,
-                            color = PixelTextWhite,
+                            color = colors.onSurface,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -203,24 +202,24 @@ fun AccountContent(
                         Text(
                             text = "🛡️ LINKED CLOUD ACCOUNT",
                             style = PixelTypography.titleSmall,
-                            color = PixelGold,
+                            color = colors.primary,
                             textAlign = TextAlign.Center
                         )
                         Text(
                             text = "Signed in as:",
                             style = PixelTypography.bodySmall,
-                            color = PixelTextWhite
+                            color = colors.onSurfaceVariant
                         )
                         Text(
                             text = user.email ?: user.displayName ?: "Hero",
                             style = PixelTypography.bodyMedium,
-                            color = PixelGold,
+                            color = colors.primary,
                             textAlign = TextAlign.Center
                         )
                         Text(
                             text = "Cloud UID: ${user.id.take(8)}...${user.id.takeLast(4)}",
                             style = PixelTypography.bodySmall,
-                            color = PixelTextWhite.copy(alpha = 0.7f)
+                            color = colors.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         PixelButton(
@@ -245,7 +244,7 @@ fun AccountContent(
                         Text(
                             text = "🏆 LEADERBOARD PARTICIPATION",
                             style = PixelTypography.titleSmall,
-                            color = PixelGold,
+                            color = colors.primary,
                             textAlign = TextAlign.Center
                         )
                         val optInStatusText = if (accountState.isOptedIn) {
@@ -256,7 +255,7 @@ fun AccountContent(
                         Text(
                             text = optInStatusText,
                             style = PixelTypography.bodyMedium,
-                            color = if (accountState.isOptedIn) com.pixelquest.app.ui.theme.PixelGreen else PixelGold,
+                            color = if (accountState.isOptedIn) colors.tertiary else colors.primary,
                             textAlign = TextAlign.Center
                         )
                         com.pixelquest.app.ui.components.PixelTextField(
@@ -270,14 +269,14 @@ fun AccountContent(
                             Text(
                                 text = accountState.displayNameError ?: "",
                                 style = PixelTypography.bodySmall,
-                                color = com.pixelquest.app.ui.theme.PixelRed,
+                                color = colors.error,
                                 textAlign = TextAlign.Center
                             )
                         }
                         Text(
                             text = "ℹ️ Shown publicly on the leaderboard. Decoupled from local hero name and never exposes Google email or real name.",
                             style = PixelTypography.bodySmall,
-                            color = PixelTextWhite.copy(alpha = 0.8f),
+                            color = colors.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(4.dp))
@@ -304,7 +303,7 @@ fun AccountContent(
                             Text(
                                 text = "☁️ CLOUD SYNCHRONIZATION",
                                 style = PixelTypography.titleSmall,
-                                color = PixelGold,
+                                color = colors.primary,
                                 textAlign = TextAlign.Center
                             )
                             if (accountState.lastSyncTime != null) {
@@ -313,14 +312,14 @@ fun AccountContent(
                                 Text(
                                     text = "Last synced: $formattedTime",
                                     style = PixelTypography.bodySmall,
-                                    color = PixelTextWhite.copy(alpha = 0.8f)
+                                    color = colors.onSurfaceVariant
                                 )
                             }
                             if (accountState.isSyncFailed) {
                                 Text(
                                     text = "☁️⚠️ Cloud sync currently unavailable (retrying in background) — local progress is safe",
                                     style = PixelTypography.bodySmall,
-                                    color = PixelGold,
+                                    color = colors.primary,
                                     textAlign = TextAlign.Center
                                 )
                             }
@@ -329,9 +328,9 @@ fun AccountContent(
                                     text = accountState.syncMessage,
                                     style = PixelTypography.bodySmall,
                                     color = if (accountState.syncMessage.contains("successful", ignoreCase = true)) {
-                                        com.pixelquest.app.ui.theme.PixelGreen
+                                        colors.tertiary
                                     } else {
-                                        PixelGold
+                                        colors.primary
                                     },
                                     textAlign = TextAlign.Center
                                 )
@@ -339,7 +338,7 @@ fun AccountContent(
                             Text(
                                 text = "ℹ️ Sync runs automatically in background on task completion & level-up.",
                                 style = PixelTypography.bodySmall,
-                                color = PixelTextWhite.copy(alpha = 0.7f),
+                                color = colors.onSurfaceVariant,
                                 textAlign = TextAlign.Center
                             )
                             PixelButton(
@@ -366,13 +365,13 @@ fun AccountContent(
                         Text(
                             text = "🛡️ CLOUD DATA & PRIVACY",
                             style = PixelTypography.titleSmall,
-                            color = PixelGold,
+                            color = colors.primary,
                             textAlign = TextAlign.Center
                         )
                         Text(
                             text = "Permanently purge your public cloud leaderboard profile and unlink your Supabase account. Local quests and streak history remain untouched.",
                             style = PixelTypography.bodySmall,
-                            color = PixelTextWhite.copy(alpha = 0.8f),
+                            color = colors.onSurfaceVariant,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(4.dp))
@@ -380,7 +379,7 @@ fun AccountContent(
                             text = "🗑️ DELETE MY CLOUD DATA",
                             onClick = onRequestDeleteCloudData,
                             variant = PixelButtonVariant.YELLOW,
-                            textColor = PixelRed,
+                            textColor = colors.error,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -429,7 +428,7 @@ fun AccountContent(
                 Text(
                     text = "You've left the leaderboard. Your rank and display name have been removed from public rankings.",
                     style = PixelTypography.bodyMedium,
-                    color = PixelTextWhite,
+                    color = colors.onSurface,
                     textAlign = TextAlign.Center
                 )
             }
@@ -472,6 +471,7 @@ fun AccountContent(
 fun PrivacyPolicyDialog(
     onDismiss: () -> Unit
 ) {
+    val colors = PixelTheme.colors
     com.pixelquest.app.ui.components.PixelDialog(
         title = "PRIVACY POLICY",
         onDismissRequest = onDismiss,
@@ -489,32 +489,32 @@ fun PrivacyPolicyDialog(
             Text(
                 text = "🛡️ 100% LOCAL-FIRST OPERATION",
                 style = PixelTypography.titleSmall,
-                color = PixelGold
+                color = colors.primary
             )
             Text(
                 text = "By default, all your quests, schedule times, recurrence rules, completion logs, and streak history are stored strictly on your local device. We never run third-party advertising SDKs or tracking telemetry.",
                 style = PixelTypography.bodySmall,
-                color = PixelTextWhite
+                color = colors.onSurface
             )
             Text(
                 text = "🏆 OPTIONAL CLOUD LEADERBOARD",
                 style = PixelTypography.titleSmall,
-                color = PixelGold
+                color = colors.primary
             )
             Text(
                 text = "Leaderboard participation defaults to OFF. If you choose to sign in with Google and opt in, only your public display name, level, streak, and XP are synchronized. Your individual quest descriptions and Google email are NEVER shared.",
                 style = PixelTypography.bodySmall,
-                color = PixelTextWhite
+                color = colors.onSurface
             )
             Text(
                 text = "🗑️ RIGHT TO ERASE",
                 style = PixelTypography.titleSmall,
-                color = PixelGold
+                color = colors.primary
             )
             Text(
                 text = "You can leave the leaderboard at any time, or permanently delete your cloud account and public record with one tap from this screen. Local progress remains safe on your device.",
                 style = PixelTypography.bodySmall,
-                color = PixelTextWhite
+                color = colors.onSurface
             )
         }
     }

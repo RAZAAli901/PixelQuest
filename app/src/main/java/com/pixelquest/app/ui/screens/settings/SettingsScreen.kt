@@ -63,7 +63,7 @@ fun SettingsScreen(
             androidx.compose.material3.Text(
                 text = "CURRENT DIFFICULTY: ${diffName.uppercase()}",
                 style = com.pixelquest.app.ui.theme.PixelTypography.bodyMedium,
-                color = com.pixelquest.app.ui.theme.PixelGold
+                color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
             )
             PixelButton(
                 text = "🛡️ CHANGE DIFFICULTY",

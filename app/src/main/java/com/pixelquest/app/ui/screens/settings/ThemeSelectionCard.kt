@@ -52,7 +52,7 @@ fun ThemeSelectionCard(
             Text(
                 text = "🎨 THEME SELECTION",
                 style = PixelTypography.titleMedium,
-                color = PixelGold
+                color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
             )
 
             // Follow System Option
@@ -128,7 +128,7 @@ fun ThemePreviewSwatch(
 ) {
     Row(
         modifier = modifier
-            .border(1.dp, PixelSurfaceBorder)
+            .border(1.dp, com.pixelquest.app.ui.theme.PixelTheme.colors.pixelBorder)
             .padding(2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp)
     ) {
@@ -153,7 +153,8 @@ fun ThemeOptionRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val borderColor = if (isSelected) PixelGold else PixelSurfaceBorder
+    val themeColors = com.pixelquest.app.ui.theme.PixelTheme.colors
+    val borderColor = if (isSelected) themeColors.primary else themeColors.pixelBorder
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -167,14 +168,14 @@ fun ThemeOptionRow(
                 Text(
                     text = title,
                     style = PixelTypography.bodyMedium,
-                    color = if (isComingSoon) PixelTextMuted else PixelTextWhite
+                    color = if (isComingSoon) themeColors.onSurfaceVariant else themeColors.onSurface
                 )
                 if (isComingSoon) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "[COMING SOON]",
                         style = PixelTypography.labelSmall.copy(fontSize = 9.sp),
-                        color = PixelGold
+                        color = themeColors.primary
                     )
                 }
             }
@@ -182,7 +183,7 @@ fun ThemeOptionRow(
             Text(
                 text = subtitle,
                 style = PixelTypography.bodySmall,
-                color = PixelTextMuted
+                color = themeColors.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(6.dp))
             ThemePreviewSwatch(colors = previewColors)
@@ -193,7 +194,7 @@ fun ThemeOptionRow(
         Text(
             text = if (isSelected) "● ACTIVE" else "○",
             style = PixelTypography.labelSmall,
-            color = if (isSelected) PixelGold else PixelTextMuted
+            color = if (isSelected) themeColors.primary else themeColors.onSurfaceVariant
         )
     }
 }

@@ -13,9 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelDialog
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 /**
@@ -29,6 +27,7 @@ fun LeaderboardPrivacyConfirmDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     PixelDialog(
         title = "LEADERBOARD PRIVACY",
         onDismissRequest = onDismiss,
@@ -42,22 +41,22 @@ fun LeaderboardPrivacyConfirmDialog(
             Text(
                 text = "The following will become publicly visible to other players:",
                 style = PixelTypography.bodyMedium,
-                color = PixelGold
+                color = colors.primary
             )
             Text(
                 text = "• Display Name: \"$displayName\"",
                 style = PixelTypography.bodySmall,
-                color = PixelGreen
+                color = colors.tertiary
             )
             Text(
                 text = "• Current & Longest Streaks",
                 style = PixelTypography.bodySmall,
-                color = PixelTextWhite
+                color = colors.onSurface
             )
             Text(
                 text = "• Current Level & Total XP",
                 style = PixelTypography.bodySmall,
-                color = PixelTextWhite
+                color = colors.onSurface
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -65,12 +64,12 @@ fun LeaderboardPrivacyConfirmDialog(
             Text(
                 text = "🛡️ PRIVACY GUARANTEE:",
                 style = PixelTypography.bodyMedium,
-                color = PixelGold
+                color = colors.primary
             )
             Text(
                 text = "Your Google email, real name, profile photo, and personal quest titles remain strictly private and will never be exposed.",
                 style = PixelTypography.bodySmall,
-                color = PixelTextWhite
+                color = colors.onSurface
             )
 
             Spacer(modifier = Modifier.height(12.dp))
