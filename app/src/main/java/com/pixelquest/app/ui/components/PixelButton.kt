@@ -57,9 +57,20 @@ fun PixelButton(
     }
     val assetFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.buttonTint(activeMode, tintColor)
 
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+    val resolvedTextColor = if (textColor != Color.Unspecified) {
+        textColor
+    } else if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Light) {
+        if (variant == PixelButtonVariant.YELLOW) colors.onPrimary else colors.onSecondary
+    } else {
+        if (variant == PixelButtonVariant.YELLOW) Color.Black else Color.White
+    }
+
     Box(
         modifier = modifier
-            .graphicsLayer { alpha = if (enabled) 1f else 0.5f }
+            .graphicsLayer {
+                alpha = if (!enabled) 0.5f else if (isPressed && activeMode == com.pixelquest.app.ui.theme.ThemeMode.Light) 0.92f else 1f
+            }
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -83,9 +94,7 @@ fun PixelButton(
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
-            color = if (textColor == Color.Unspecified) {
-                if (variant == PixelButtonVariant.YELLOW) Color.Black else Color.White
-            } else textColor,
+            color = resolvedTextColor,
             modifier = Modifier
                 .offset(y = contentOffsetY)
                 .padding(horizontal = 16.dp, vertical = 12.dp)

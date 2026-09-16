@@ -1497,6 +1497,7 @@ Day 16 initiates the new 15-day extension (Days 16–30) for PixelQuest, establi
 - Step 3: Verify light palette meets WCAG AA contrast ratios for text on background/surface - d455019
 - Step 4: Add Compose Preview showing the full light palette swatch set - 91b7bee
 - Step 5: Update THEMING.md with finalized light palette and contrast audit results - 75aa9d0
+- Step 6: Tune PixelCard and PixelPanel border and shadow styling for light backgrounds - 0611419
 
 
 
