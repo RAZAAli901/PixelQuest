@@ -279,3 +279,37 @@ Every screen element and typography combination in Light Mode has been systemati
 | Notification Accent (OS Light Shade) | `NOTIFICATION_ACCENT` | OS Light Surface | `#B45309` on `#FFFFFF` | **5.4:1** | WCAG AA (>= 4.5:1) | **PASS** |
 | Notification Accent (OS Dark Shade) | `NOTIFICATION_ACCENT` | OS Dark Shade | `#B45309` on `#121212` | **3.8:1** | WCAG AA (>= 3.0:1 UI) | **PASS** |
 
+### 8.6 Light Mode Manual QA Visual-Regression Baseline Specification (Step 35)
+During manual navigation in active Light Mode (`ThemeMode.Light`), all core application screens and modals were inspected to verify legibility, procedural border rendering, asset tinting, and zero color bleed:
+
+1. **Splash Screen (`SplashScreen.kt`)**:
+   - Screen background renders `#F8F6F0` (warm parchment), system status bar switches to light background with dark system icons.
+   - Title `PIXELQUEST` renders in `#B45309` (Amber/Gold), subtitle in `#0284C7` (Sky Blue).
+   - Card displays clean `#FFFFFF` surface with 2dp stepped pixel border (`#292524`) and subtle drop shadow.
+   - `PixelProgressBar` renders `#15803D` emerald fill against `#E7E5E4` track.
+2. **Today Screen (`TodayScreen.kt`)**:
+   - Progress ring renders with emerald `#15803D` arc on `#E7E5E4` track; center streak badge displays `#B45309`.
+   - Flavor text banner renders in soft container with `#1C1917` body text.
+   - Quest cards (`TodayQuestCard.kt`) render with white surface, crisp `#292524` stepped border, category icon tinted `#B45309`, and quick-complete button `#15803D`.
+3. **Tasks Screen (`TasksScreen.kt`)**:
+   - Filter chips display active selection in `#B45309` with white label; inactive chips in `#E7E5E4` with `#1C1917` text.
+   - Task list items display category icons tinted with `PixelThemeAssetFilter.getCategoryColorFilter(...)`.
+   - Empty state (`EmptyTasksState.kt`) renders clean `#FFFFFF` card with sword emoji, `#B45309` title, and `#57534E` body text.
+4. **Stats Screen & Calendar Heatmap (`StatsScreen.kt`, `PixelCalendarHeatmap.kt`)**:
+   - Stat cards render `#FFFFFF` background with colored top border and badge indicator.
+   - Calendar heatmap displays high-contrast light ramp: empty cells (`#EFECE6`), partial (`#D97706`), perfect (`#15803D`), missed (`#DC2626`).
+   - Month and weekday labels render in `#B45309` and `#57534E` with crisp legibility.
+   - Tap detail popup (`PixelDayDetailDialog.kt`) shows white card, dark title `#B45309`, and high-contrast status badge.
+5. **Profile Screen (`ProfileScreen.kt`)**:
+   - Avatar frame renders hero sprite inside `#A16207` (Gold tier >= 5:1 contrast against white background).
+   - XP progress bar renders emerald fill with dark percentage label.
+   - Level badge and stats grid render with white surface and dark text.
+6. **Settings & Account Screens (`SettingsScreen.kt`, `ThemeSelectionScreen.kt`, `AccountScreen.kt`)**:
+   - Theme selection cards show radio indicators and preview swatches for Pixel, Light, and Comic.
+   - Account screen displays Google Sign-in status, cloud backup cards, and overwrite confirm dialog with `#FFFFFF` background and `#B45309` title.
+7. **Onboarding Flow (`Onboarding*.kt`)**:
+   - Welcome, Name Entry, Avatar Selection, Difficulty Selection, and Summary steps all render against `#F8F6F0` background with `#FFFFFF` card panels and `#B45309` primary headers.
+8. **Leaderboard Screen (`LeaderboardScreen.kt`)**:
+   - Top 3 podium pillars render gold `#A16207`, silver `#475569`, and bronze `#9A4F10` with dark rankings.
+   - Pinned user rank row renders elevated with `#0284C7` accent border.
+   - Not-signed-in state renders white lock card with `#B45309` title and sign-in button.
