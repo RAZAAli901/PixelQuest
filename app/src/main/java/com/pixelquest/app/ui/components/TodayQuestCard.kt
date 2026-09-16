@@ -88,9 +88,16 @@ fun TodayQuestCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
+            val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+            val mode = com.pixelquest.app.ui.theme.PixelTheme.mode
+
             Image(
                 painter = painterResource(id = task.category.iconResId),
                 contentDescription = task.category.displayName,
+                colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
+                    mode,
+                    colors.primary
+                ),
                 modifier = Modifier
                     .padding(end = 12.dp)
                     .size(28.dp)
@@ -105,9 +112,9 @@ fun TodayQuestCard(
                         textDecoration = if (isMissed) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
                     ),
                     color = when {
-                        isDone -> PixelGreen
-                        isMissed -> PixelRed
-                        else -> PixelGold
+                        isDone -> colors.tertiary
+                        isMissed -> colors.error
+                        else -> colors.primary
                     }
                 )
                 Spacer(modifier = Modifier.height(4.dp))
@@ -115,13 +122,13 @@ fun TodayQuestCard(
                     Text(
                         text = "⏰ ${task.scheduledTime}",
                         style = PixelTypography.bodySmall,
-                        color = PixelCyan
+                        color = colors.secondary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = task.category.displayName,
                         style = PixelTypography.labelSmall,
-                        color = PixelTextMuted
+                        color = colors.onSurfaceVariant
                     )
                 }
             }
@@ -137,7 +144,7 @@ fun TodayQuestCard(
                         Text(
                             text = "✓ DONE",
                             style = PixelTypography.labelMedium,
-                            color = PixelBackgroundDark
+                            color = colors.onSecondary
                         )
                     }
                 }
@@ -149,7 +156,7 @@ fun TodayQuestCard(
                         Text(
                             text = "✗ MISSED",
                             style = PixelTypography.labelMedium,
-                            color = PixelRed
+                            color = colors.error
                         )
                     }
                 }

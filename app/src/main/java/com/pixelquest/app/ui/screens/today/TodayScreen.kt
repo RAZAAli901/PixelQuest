@@ -58,7 +58,7 @@ fun TodayScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(com.pixelquest.app.ui.theme.PixelTheme.colors.background)
     ) {
         when (val state = uiState) {
             is TodayUiState.Loading -> {
@@ -149,7 +149,7 @@ fun TodayContent(
                 Text(
                     text = "⚔️ TODAY'S DASHBOARD",
                     style = PixelTypography.titleLarge,
-                    color = PixelGold
+                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
                 )
                 PixelButton(
                     text = "🔄 REFRESH",
@@ -190,7 +190,7 @@ fun TodayContent(
                     Text(
                         text = "💔 STREAK BROKEN — START A NEW QUEST STREAK TODAY!",
                         style = PixelTypography.bodySmall,
-                        color = com.pixelquest.app.ui.theme.PixelRed,
+                        color = com.pixelquest.app.ui.theme.PixelTheme.colors.error,
                         modifier = Modifier.padding(12.dp)
                     )
                 }
@@ -210,7 +210,7 @@ fun TodayContent(
                 Text(
                     text = "⚔️ UP NEXT",
                     style = PixelTypography.titleMedium,
-                    color = PixelGold,
+                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }
@@ -233,7 +233,7 @@ fun TodayContent(
                 Text(
                     text = "📜 COMPLETED & PAST QUESTS",
                     style = PixelTypography.titleMedium,
-                    color = PixelTextMuted,
+                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )
             }

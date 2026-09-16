@@ -28,7 +28,7 @@ fun FlavorTextBanner(
             Text(
                 text = "💬 $text",
                 style = PixelTypography.bodyMedium,
-                color = PixelCyan,
+                color = com.pixelquest.app.ui.theme.PixelTheme.colors.secondary,
                 modifier = Modifier.padding(vertical = 2.dp)
             )
         }
