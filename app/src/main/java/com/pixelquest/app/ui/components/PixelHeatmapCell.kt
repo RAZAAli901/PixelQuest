@@ -17,22 +17,64 @@ import com.pixelquest.app.ui.theme.PixelGreen
 import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelGold
 
+/**
+ * Dedicated color mapper for PixelQuest heatmap cells.
+ * Provides distinct, tailored color ramps for Pixel (dark arcade) and Light (paper daylight) themes.
+ */
 object HeatmapColorMapper {
-    fun getCellColor(status: DailyStatus): Color {
-        return when (status) {
-            DailyStatus.PERFECT -> PixelGreen
-            DailyStatus.PARTIAL -> PixelGold
-            DailyStatus.MISSED -> PixelRed
-            DailyStatus.NO_TASKS_SCHEDULED -> PixelSurfaceDark
+    // Light-mode dedicated ramp (adapted for daylight contrast on white surfaces)
+    val LightEmptyCell = Color(0xFFEFECE6)
+    val LightEmptyBorder = Color(0xFFD5CEBF)
+    val LightPerfectCell = Color(0xFF15803D)
+    val LightPerfectBorder = Color(0xFF166534)
+    val LightPartialCell = Color(0xFFD97706)
+    val LightPartialBorder = Color(0xFFB45309)
+    val LightMissedCell = Color(0xFFDC2626)
+    val LightMissedBorder = Color(0xFF991B1B)
+
+    // Dark-mode (Pixel) canonical 8-bit ramp
+    val DarkEmptyCell = PixelSurfaceDark
+    val DarkEmptyBorder = Color(0xFF333842)
+    val DarkPerfectCell = PixelGreen
+    val DarkPerfectBorder = Color(0xFF1C7139)
+    val DarkPartialCell = PixelGold
+    val DarkPartialBorder = Color(0xFFC8A100)
+    val DarkMissedCell = PixelRed
+    val DarkMissedBorder = Color(0xFF8B0000)
+
+    fun getCellColor(status: DailyStatus, isLight: Boolean = false): Color {
+        return if (isLight) {
+            when (status) {
+                DailyStatus.PERFECT -> LightPerfectCell
+                DailyStatus.PARTIAL -> LightPartialCell
+                DailyStatus.MISSED -> LightMissedCell
+                DailyStatus.NO_TASKS_SCHEDULED -> LightEmptyCell
+            }
+        } else {
+            when (status) {
+                DailyStatus.PERFECT -> DarkPerfectCell
+                DailyStatus.PARTIAL -> DarkPartialCell
+                DailyStatus.MISSED -> DarkMissedCell
+                DailyStatus.NO_TASKS_SCHEDULED -> DarkEmptyCell
+            }
         }
     }
 
-    fun getBorderColor(status: DailyStatus): Color {
-        return when (status) {
-            DailyStatus.PERFECT -> Color(0xFF1C7139)
-            DailyStatus.PARTIAL -> Color(0xFFC8A100)
-            DailyStatus.MISSED -> Color(0xFF8B0000)
-            DailyStatus.NO_TASKS_SCHEDULED -> Color(0xFF333842)
+    fun getBorderColor(status: DailyStatus, isLight: Boolean = false): Color {
+        return if (isLight) {
+            when (status) {
+                DailyStatus.PERFECT -> LightPerfectBorder
+                DailyStatus.PARTIAL -> LightPartialBorder
+                DailyStatus.MISSED -> LightMissedBorder
+                DailyStatus.NO_TASKS_SCHEDULED -> LightEmptyBorder
+            }
+        } else {
+            when (status) {
+                DailyStatus.PERFECT -> DarkPerfectBorder
+                DailyStatus.PARTIAL -> DarkPartialBorder
+                DailyStatus.MISSED -> DarkMissedBorder
+                DailyStatus.NO_TASKS_SCHEDULED -> DarkEmptyBorder
+            }
         }
     }
 }
