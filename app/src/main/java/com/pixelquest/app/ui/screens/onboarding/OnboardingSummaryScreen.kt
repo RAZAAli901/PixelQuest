@@ -24,11 +24,7 @@ import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -39,10 +35,12 @@ fun OnboardingSummaryScreen(
     onConfirmClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val colors = PixelTheme.colors
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,13 +54,13 @@ fun OnboardingSummaryScreen(
             Text(
                 text = "📜 HERO SUMMARY",
                 style = PixelTypography.titleLarge,
-                color = PixelGold,
+                color = colors.primary,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Review your character choices before starting your adventure.",
                 style = PixelTypography.bodyMedium,
-                color = PixelTextWhite,
+                color = colors.onSurface,
                 textAlign = TextAlign.Center
             )
 
@@ -86,33 +84,33 @@ fun OnboardingSummaryScreen(
                     Text(
                         text = username.uppercase(),
                         style = PixelTypography.titleMedium,
-                        color = PixelGold
+                        color = colors.primary
                     )
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "AVATAR:", style = PixelTypography.bodySmall, color = PixelTextWhite)
-                        Text(text = avatarId, style = PixelTypography.bodySmall, color = PixelGreen)
+                        Text(text = "AVATAR:", style = PixelTypography.bodySmall, color = colors.onSurface)
+                        Text(text = avatarId, style = PixelTypography.bodySmall, color = colors.tertiary)
                     }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "DIFFICULTY:", style = PixelTypography.bodySmall, color = PixelTextWhite)
+                        Text(text = "DIFFICULTY:", style = PixelTypography.bodySmall, color = colors.onSurface)
                         Text(
                             text = DifficultyMode.getDisplayName(difficultyLevel).uppercase(),
                             style = PixelTypography.bodySmall,
-                            color = PixelCyan
+                            color = colors.secondary
                         )
                     }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "PERFECT DAY:", style = PixelTypography.bodySmall, color = PixelTextWhite)
+                        Text(text = "PERFECT DAY:", style = PixelTypography.bodySmall, color = colors.onSurface)
                         val pct = (DifficultyMode.getPerfectDayThreshold(difficultyLevel) * 100).toInt()
-                        Text(text = "$pct%", style = PixelTypography.bodySmall, color = PixelGold)
+                        Text(text = "$pct%", style = PixelTypography.bodySmall, color = colors.primary)
                     }
                 }
             }

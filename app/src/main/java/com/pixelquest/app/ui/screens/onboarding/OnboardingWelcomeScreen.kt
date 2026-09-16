@@ -21,21 +21,19 @@ import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun OnboardingWelcomeScreen(
     onStartClick: () -> Unit = {}
 ) {
+    val colors = PixelTheme.colors
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -50,13 +48,13 @@ fun OnboardingWelcomeScreen(
             Text(
                 text = "⚔️ WELCOME HERO ⚔️",
                 style = PixelTypography.titleLarge,
-                color = PixelGold,
+                color = colors.primary,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Turn your daily routines into retro RPG quests!",
                 style = PixelTypography.bodyMedium,
-                color = PixelTextWhite,
+                color = colors.onSurface,
                 textAlign = TextAlign.Center
             )
 
@@ -69,22 +67,22 @@ fun OnboardingWelcomeScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "📜 ", style = PixelTypography.titleMedium)
                         Column {
-                            Text(text = "DAILY QUESTS", style = PixelTypography.titleSmall, color = PixelGold)
-                            Text(text = "Set daily habits and schedule alarm reminders.", style = PixelTypography.bodySmall, color = PixelTextWhite)
+                            Text(text = "DAILY QUESTS", style = PixelTypography.titleSmall, color = colors.primary)
+                            Text(text = "Set daily habits and schedule alarm reminders.", style = PixelTypography.bodySmall, color = colors.onSurface)
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "🔥 ", style = PixelTypography.titleMedium)
                         Column {
-                            Text(text = "BUILD STREAKS", style = PixelTypography.titleSmall, color = PixelCyan)
-                            Text(text = "Maintain consecutive perfect days for bonus XP.", style = PixelTypography.bodySmall, color = PixelTextWhite)
+                            Text(text = "BUILD STREAKS", style = PixelTypography.titleSmall, color = colors.secondary)
+                            Text(text = "Maintain consecutive perfect days for bonus XP.", style = PixelTypography.bodySmall, color = colors.onSurface)
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "🛡️ ", style = PixelTypography.titleMedium)
                         Column {
-                            Text(text = "LEVEL UP HERO", style = PixelTypography.titleSmall, color = PixelGreen)
-                            Text(text = "Earn levels, unlock avatars, and climb history.", style = PixelTypography.bodySmall, color = PixelTextWhite)
+                            Text(text = "LEVEL UP HERO", style = PixelTypography.titleSmall, color = colors.tertiary)
+                            Text(text = "Earn levels, unlock avatars, and climb history.", style = PixelTypography.bodySmall, color = colors.onSurface)
                         }
                     }
                 }

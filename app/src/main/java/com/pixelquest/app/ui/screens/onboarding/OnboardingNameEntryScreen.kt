@@ -21,9 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelTextField
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -35,10 +33,12 @@ fun OnboardingNameEntryScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val colors = PixelTheme.colors
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
@@ -54,13 +54,13 @@ fun OnboardingNameEntryScreen(
             Text(
                 text = "👑 NAME YOUR HERO",
                 style = PixelTypography.titleLarge,
-                color = PixelGold,
+                color = colors.primary,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Every legendary quest begins with a hero's name.",
                 style = PixelTypography.bodyMedium,
-                color = PixelTextWhite,
+                color = colors.onSurface,
                 textAlign = TextAlign.Center
             )
 

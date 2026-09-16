@@ -18,9 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.components.PixelAvatarGrid
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -30,24 +28,26 @@ fun OnboardingAvatarStepScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val colors = PixelTheme.colors
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "🧙 CHOOSE YOUR AVATAR",
             style = PixelTypography.titleLarge,
-            color = PixelGold,
+            color = colors.primary,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Pick an 8-bit avatar to represent your hero in PixelQuest.",
             style = PixelTypography.bodyMedium,
-            color = PixelTextWhite,
+            color = colors.onSurface,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))

@@ -21,9 +21,7 @@ import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelDifficultyCards
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -33,10 +31,12 @@ fun OnboardingDifficultyStepScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val colors = PixelTheme.colors
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark)
+            .background(colors.background)
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -49,14 +49,14 @@ fun OnboardingDifficultyStepScreen(
             Text(
                 text = "🛡️ CHOOSE DIFFICULTY",
                 style = PixelTypography.titleLarge,
-                color = PixelGold,
+                color = colors.primary,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Select how demanding your daily quest completion targets should be.",
                 style = PixelTypography.bodyMedium,
-                color = PixelTextWhite,
+                color = colors.onSurface,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(16.dp))
