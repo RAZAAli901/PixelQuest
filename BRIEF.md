@@ -1505,6 +1505,7 @@ Day 16 initiates the new 15-day extension (Days 16–30) for PixelQuest, establi
 - Step 11: Apply PixelThemeAssetFilter to category icons for light-mode contrast - 5d13231
 - Step 12: Apply tinting to difficulty tier icons for light mode - 161945a
 - Step 13: Adapt avatar display and selection grid colors for light mode legibility - 10f2223
+- Step 14: Adapt progress bar and splash asset styling for light mode - 886a344
 
 
 

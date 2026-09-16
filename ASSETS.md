@@ -87,8 +87,22 @@
     - 6 new comic-book style hero/villain avatar illustrations (halftone ink/cel-shaded style).
     - Comic card panel assets with thick 3px solid black outlines and 4px diagonal drop shadows.
     - Action burst button frames ("POW!", "LEVEL UP!", "QUEST DONE!").
-    - Action comic display typography (OFL-licensed comic font).
-- **Days 18–19 (Simple Mode) — Minimalist Vector Strategy**:
-  - Un-gamified clean Material vector icons and neutral cards with zero pixel or comic textures.
+## Day 17 Light Mode Runtime Tinting Architecture (Step 15)
+- **Tinting Engine**: `PixelThemeAssetFilter` provides runtime `ColorFilter.tint(color, BlendMode.SrcAtop)` and theme-gated filters:
+  1. **Category Icons (`ic_cat_*`)**:
+     - *In Pixel Mode*: Preserves original multi-color pixel art (null filter).
+     - *In Light Mode*: Dynamically tinted with `colors.primary` (`#B45309`) or `colors.onSurfaceVariant` (`#57534E`) in lists and selectors to achieve >= 4.5:1 contrast against light card surfaces.
+  2. **Difficulty Tier Icons (`ic_diff_*`)**:
+     - *In Pixel Mode*: Preserves saturated vector colors (Green/Blue/Orange/Red).
+     - *In Light Mode*: Tinted with `colors.primary` (`#B45309`) when selected and `colors.onSurfaceVariant` (`#57534E`) when inactive, avoiding washed-out pastel fills.
+  3. **Progress Bar Fill (`pixel_bar_green_fill.png`)**:
+     - *In Pixel Mode*: Uses canonical arcade neon green (`#00E676`).
+     - *In Light Mode*: Tinted with `colors.tertiary` (`#15803D`) providing rich meadow green contrast.
+  4. **Avatar Sprites (`avatar_*.png`)**:
+     - *Readability Confirmation*: Avatar sprites retain high-contrast 1px black contour silhouettes. When placed over `PixelTheme.colors.surface` (`#FFFFFF`), sprites remain crisp and legible without requiring artificial tinting.
+  5. **Card Panels (`PixelCard`)**:
+     - Light mode bypasses the dark-filled `#0D0D15` 9-patch `pixel_panel_border.png`, procedurally rendering an 8-bit stepped pixel border using `colors.pixelBorder` (`#292524`) with clean 2dp drop shadow.
+- **APK Footprint Impact**: Zero additional bytes added to the APK package; 100% runtime procedural shading and Compose vector tinting.
 
-<!-- Audit Status: Fully verified for v1.1.0 and Day 16 theming architecture -->
+<!-- Audit Status: Fully verified for v1.1.0, Day 16 multi-theme architecture, and Day 17 Light Mode -->
+
