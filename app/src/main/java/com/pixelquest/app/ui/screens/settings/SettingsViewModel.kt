@@ -238,4 +238,20 @@ class SettingsViewModel @Inject constructor(
     private var pendingImportPayload: com.pixelquest.app.data.backup.BackupPayload? = null
     private val _showRestoreConfirmDialog = kotlinx.coroutines.flow.MutableStateFlow(false)
     val showRestoreConfirmDialog: StateFlow<Boolean> = _showRestoreConfirmDialog.asStateFlow()
+
+    private val _showSimpleModeDialog = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val showSimpleModeDialog: StateFlow<Boolean> = _showSimpleModeDialog.asStateFlow()
+
+    fun requestEnableSimpleMode() {
+        _showSimpleModeDialog.value = true
+    }
+
+    fun dismissSimpleModeDialog() {
+        _showSimpleModeDialog.value = false
+    }
+
+    fun confirmEnableSimpleMode() {
+        _showSimpleModeDialog.value = false
+        toggleSimpleMode(true)
+    }
 }
