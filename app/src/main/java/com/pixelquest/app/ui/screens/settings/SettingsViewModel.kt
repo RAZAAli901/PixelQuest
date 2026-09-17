@@ -27,7 +27,8 @@ data class SettingsUiState(
     val isCrtEnabled: Boolean = false,
     val isHapticsEnabled: Boolean = true,
     val isNotificationsEnabled: Boolean = true,
-    val themeMode: ThemeMode = ThemeMode.Pixel
+    val themeMode: ThemeMode = ThemeMode.Pixel,
+    val isSimpleModeEnabled: Boolean = false
 )
 
 private data class SettingsPrefs(
@@ -35,7 +36,8 @@ private data class SettingsPrefs(
     val crt: Boolean,
     val haptics: Boolean,
     val notifs: Boolean,
-    val theme: ThemeMode
+    val theme: ThemeMode,
+    val simpleMode: Boolean
 )
 
 @HiltViewModel
@@ -51,13 +53,18 @@ class SettingsViewModel @Inject constructor(
         userProfileRepository.getProfile(),
         difficultySettingsRepository.getCurrentDifficulty(),
         combine(
-            settingsRepository.isSoundEnabled,
-            settingsRepository.isCrtEnabled,
-            settingsRepository.isHapticsEnabled,
-            settingsRepository.isNotificationsEnabled,
-            settingsRepository.themeMode
-        ) { sound, crt, haptics, notifs, theme ->
-            SettingsPrefs(sound, crt, haptics, notifs, theme)
+            combine(
+                settingsRepository.isSoundEnabled,
+                settingsRepository.isCrtEnabled,
+                settingsRepository.isHapticsEnabled
+            ) { sound, crt, haptics -> Triple(sound, crt, haptics) },
+            combine(
+                settingsRepository.isNotificationsEnabled,
+                settingsRepository.themeMode,
+                settingsRepository.simpleModeEnabled
+            ) { notifs, theme, simpleMode -> Triple(notifs, theme, simpleMode) }
+        ) { (sound, crt, haptics), (notifs, theme, simpleMode) ->
+            SettingsPrefs(sound, crt, haptics, notifs, theme, simpleMode)
         }
     ) { profile, difficulty, prefs ->
         SettingsUiState(
@@ -67,13 +74,20 @@ class SettingsViewModel @Inject constructor(
             isCrtEnabled = prefs.crt,
             isHapticsEnabled = prefs.haptics,
             isNotificationsEnabled = prefs.notifs,
-            themeMode = prefs.theme
+            themeMode = prefs.theme,
+            isSimpleModeEnabled = prefs.simpleMode
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = SettingsUiState()
     )
+
+    fun toggleSimpleMode(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setSimpleModeEnabled(enabled)
+        }
+    }
 
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {

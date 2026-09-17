@@ -1587,6 +1587,10 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 40: Update THEMING.md marking Light mode as fully complete - 17b1620
 - Step 41: Final verification clean build, CI pass and persistence check for Day 17 Light Mode - verified
 
+## Day 18 Progress Log
+- Step 1: Add simpleModeEnabled preference to SettingsRepository defaulting to false - 93a305e
+
+
 
 
 
