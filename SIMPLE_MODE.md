@@ -91,6 +91,18 @@ The following 5 core gamification systems are suppressed when Simple Mode is ena
 
 ---
 
+## CRT Filter Suppression Decision (Section B, Step 11)
+
+### Decision: Forced OFF While Simple Mode Is Active
+**The CRT scanline filter overlay (`PixelCrtOverlay`) is strictly forced OFF whenever Simple Mode is enabled, regardless of whether the user previously enabled the CRT toggle in Settings.**
+
+### Architectural Rationale:
+1. **Aesthetic Conflict**: CRT scanlines are a heavy, nostalgic "retro arcade gamer" flourish. Simple Mode exists precisely to provide a clean, modern, calm task management interface. Scanlines over a minimalist list create visual dissonance and eye strain.
+2. **Preference Preservation**: The underlying `isCrtEnabled` preference in `SettingsRepository` is NOT overwritten or mutated. If the user toggles Simple Mode OFF, their CRT setting immediately resumes its active state.
+3. **Enforcement Mechanism**: The policy is codified in `CrtFilterPolicy.shouldApplyCrt(isCrtSettingEnabled, effectiveThemeMode, isSimpleModeEnabled)`. In `MainActivity.kt`, the overlay resolves this policy at compose time.
+
+---
+
 ## Data Layer Contracts (Day 18)
 1. `SettingsRepository.simpleModeEnabled`: StateFlow<Boolean> defaulting to `false`.
 2. Instant reactivity: Changes emit across all ViewModels without requiring app restart.

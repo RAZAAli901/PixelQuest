@@ -1597,6 +1597,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 7: Verify StreakEvaluationWorker continues running normally regardless of Simple Mode - 8ff6dd3
 - Step 8: Gate level-up celebration signal from firing in Simple Mode while preserving level calculations - f319233
 - Step 9: Wire TaskPromptViewModel to skip points-awarded toast/animation trigger when Simple Mode is active - cc6a419
+- Step 10: Wire quick-complete to skip gamification success flourish in Simple Mode - 75954c9
 
 
 
