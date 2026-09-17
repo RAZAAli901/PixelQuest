@@ -1591,6 +1591,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 1: Add simpleModeEnabled preference to SettingsRepository defaulting to false - 93a305e
 - Step 2: Expose simpleModeEnabled as StateFlow via SimpleModeViewModel and SettingsViewModel - 9e7209e
 - Step 3: Define full suppression list for Simple Mode in domain model - 69eb4e4
+- Step 4: Create SIMPLE_MODE.md documenting suppression list for Day 19 reference - 5d1b308
 
 
 
