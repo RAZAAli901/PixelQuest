@@ -6,6 +6,7 @@ import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
+import com.pixelquest.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,12 +18,14 @@ import javax.inject.Inject
 data class DifficultyUiState(
     val currentLevel: DifficultyLevel = DifficultyLevel.MEDIUM,
     val pendingLevel: DifficultyLevel? = null,
-    val showWarningDialog: Boolean = false
+    val showWarningDialog: Boolean = false,
+    val isSimpleModeEnabled: Boolean = false
 )
 
 @HiltViewModel
 class DifficultyViewModel @Inject constructor(
-    private val difficultySettingsRepository: DifficultySettingsRepository
+    private val difficultySettingsRepository: DifficultySettingsRepository,
+    private val settingsRepository: SettingsRepository? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DifficultyUiState())
@@ -36,9 +39,18 @@ class DifficultyViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            settingsRepository?.simpleModeEnabled?.collectLatest { isSimple ->
+                _uiState.value = _uiState.value.copy(isSimpleModeEnabled = isSimple)
+            }
+        }
     }
 
     fun onDifficultyClicked(level: DifficultyLevel) {
+        if (_uiState.value.isSimpleModeEnabled) {
+            // Data-layer lock: Difficulty selection locked under Simple Mode
+            return
+        }
         if (level == _uiState.value.currentLevel) return
         _uiState.value = _uiState.value.copy(pendingLevel = level, showWarningDialog = true)
     }
@@ -48,6 +60,10 @@ class DifficultyViewModel @Inject constructor(
     }
 
     fun confirmDifficultyChange() {
+        if (_uiState.value.isSimpleModeEnabled) {
+            _uiState.value = _uiState.value.copy(pendingLevel = null, showWarningDialog = false)
+            return
+        }
         val target = _uiState.value.pendingLevel ?: return
         viewModelScope.launch {
             val newSettings = DifficultySettingsEntity(
