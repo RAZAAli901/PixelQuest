@@ -1623,6 +1623,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 33: Write integration test for normal gamified operation confirming zero regression baseline - 6d25d5d
 - Step 34: Write integration test for notification and prompt copy switching based on Simple Mode state - b5facd2
 - Step 35: Write unit test for the CRT-filter-forced-off-in-Simple-Mode logic - a900572
+- Step 36: Write integration test for AI insights placeholder hook interaction with Simple Mode state - f4993ce
 
 
 
