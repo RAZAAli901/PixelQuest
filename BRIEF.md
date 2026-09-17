@@ -1595,6 +1595,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 5: Write unit test for simpleModeEnabled persistence - 9f0ba31
 - Step 6: Document decision to keep internal streak points and level tracking running in Simple Mode - c53ea65
 - Step 7: Verify StreakEvaluationWorker continues running normally regardless of Simple Mode - 8ff6dd3
+- Step 8: Gate level-up celebration signal from firing in Simple Mode while preserving level calculations - f319233
 
 
 

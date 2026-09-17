@@ -7,7 +7,11 @@ import com.pixelquest.app.domain.PointsCalculator
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
+import com.pixelquest.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -17,8 +21,12 @@ import javax.inject.Inject
 class TaskPromptViewModel @Inject constructor(
     private val taskCompletionRepository: TaskCompletionRepository,
     private val userProfileRepository: UserProfileRepository,
-    private val streakRepository: StreakRepository
+    private val streakRepository: StreakRepository,
+    private val settingsRepository: SettingsRepository? = null
 ) : ViewModel() {
+
+    private val _pointsAwardedTrigger = MutableStateFlow<Int?>(null)
+    val pointsAwardedTrigger: StateFlow<Int?> = _pointsAwardedTrigger.asStateFlow()
 
     fun onTaskCompleted(taskId: Long, wasCompleted: Boolean, onDone: () -> Unit) {
         viewModelScope.launch {
@@ -34,6 +42,10 @@ class TaskPromptViewModel @Inject constructor(
             )
             taskCompletionRepository.insertLog(log)
             if (wasCompleted) {
+                val isSimpleMode = settingsRepository?.simpleModeEnabled?.first() ?: false
+                if (!isSimpleMode) {
+                    _pointsAwardedTrigger.value = earnedXp
+                }
                 val profile = userProfileRepository.getProfile().first()
                 if (profile != null) {
                     val updated = profile.copy(totalXp = profile.totalXp + earnedXp)
