@@ -1613,6 +1613,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 23: Write integration test for toggling Simple Mode on and off verifying data integrity - c52cbfb
 - Step 24: Decide Simple Mode difficulty interaction and document fixed default lock in SIMPLE_MODE.md - b5aa02d
 - Step 25: Wire the data-layer lock for difficulty changes while Simple Mode is active - 62d8fcb
+- Step 26: Decide Simple Mode leaderboard interaction allowing coexistence and document in SIMPLE_MODE.md - 6da7576
 
 
 

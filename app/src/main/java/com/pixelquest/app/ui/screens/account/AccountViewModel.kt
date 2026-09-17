@@ -26,14 +26,17 @@ data class AccountUiState(
     val showOptOutConfirmDialog: Boolean = false,
     val showOptOutSuccessNotice: Boolean = false,
     val showPrivacyDialog: Boolean = false,
-    val isDeletingCloudData: Boolean = false
+    val isDeletingCloudData: Boolean = false,
+    val isSimpleModeEnabled: Boolean = false,
+    val isLeaderboardAllowedUnderSimpleMode: Boolean = true
 )
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val cloudProfileRepository: com.pixelquest.app.data.repository.CloudProfileRepository,
-    private val authRepository: com.pixelquest.app.auth.AuthRepository? = null
+    private val authRepository: com.pixelquest.app.auth.AuthRepository? = null,
+    private val settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountUiState())
@@ -48,6 +51,15 @@ class AccountViewModel @Inject constructor(
                     displayNameInput = if (_uiState.value.displayNameInput.isBlank()) {
                         profile?.leaderboardDisplayName ?: ""
                     } else _uiState.value.displayNameInput
+                )
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository?.simpleModeEnabled?.collect { simpleMode ->
+                val allowed = com.pixelquest.app.domain.policy.LeaderboardSimpleModePolicy.isLeaderboardAllowed(simpleMode)
+                _uiState.value = _uiState.value.copy(
+                    isSimpleModeEnabled = simpleMode,
+                    isLeaderboardAllowedUnderSimpleMode = allowed
                 )
             }
         }
