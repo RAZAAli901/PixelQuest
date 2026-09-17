@@ -1619,6 +1619,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 29: Document AI insights forward compatibility and tone adaptation decision in SIMPLE_MODE.md - 84e0725
 - Step 30: Add placeholder interface hook for tone-adjusted insight copy based on Simple Mode state - af5e527
 - Step 31: Write unit test confirming AI insights placeholder hook compiles and wires correctly - 12ba64d
+- Step 32: Write integration test verifying streak points and level data integrity across Simple Mode toggles - 190b85d
 
 
 
