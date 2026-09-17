@@ -15,12 +15,15 @@ import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import com.pixelquest.app.scheduling.TaskAlarmScheduler
-import com.pixelquest.app.ui.components.TaskItemStatus
+import com.pixelquest.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -35,18 +38,31 @@ class TodayViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val taskAlarmScheduler: TaskAlarmScheduler,
-    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
+    private val settingsRepository: SettingsRepository? = null
 ) : ViewModel() {
 
     private val currentDate: LocalDate = LocalDate.now()
 
+    private val _quickCompleteFlourishEvent = MutableStateFlow<Boolean?>(null)
+    val quickCompleteFlourishEvent: StateFlow<Boolean?> = _quickCompleteFlourishEvent.asStateFlow()
+
+    fun dismissFlourishEvent() {
+        _quickCompleteFlourishEvent.value = null
+    }
+
     val uiState: StateFlow<TodayUiState> = combine(
-        taskRepository.getTasksForDay(currentDate),
-        taskCompletionRepository.getLogsForDate(currentDate),
-        streakRepository.getCurrentStreak(),
-        userProfileRepository.getProfile(),
-        difficultySettingsRepository.getCurrentDifficulty()
-    ) { tasks, logs, streak, profile, difficulty ->
+        combine(
+            taskRepository.getTasksForDay(currentDate),
+            taskCompletionRepository.getLogsForDate(currentDate),
+            streakRepository.getCurrentStreak()
+        ) { tasks, logs, streak -> Triple(tasks, logs, streak) },
+        combine(
+            userProfileRepository.getProfile(),
+            difficultySettingsRepository.getCurrentDifficulty(),
+            settingsRepository?.simpleModeEnabled ?: flowOf(false)
+        ) { profile, difficulty, simpleMode -> Triple(profile, difficulty, simpleMode) }
+    ) { (tasks, logs, streak), (profile, difficulty, isSimpleMode) ->
         val logMap = logs.associateBy { it.taskId }
         val items = tasks.map { task ->
             val log = logMap[task.id]
@@ -88,7 +104,8 @@ class TodayViewModel @Inject constructor(
             targetThreshold = threshold,
             isPerfectDay = isPerfectDay,
             isStreakBroken = isStreakBroken,
-            flavorText = flavorText
+            flavorText = flavorText,
+            isSimpleMode = isSimpleMode
         ) as TodayUiState
     }.stateIn(
         scope = viewModelScope,
@@ -113,6 +130,8 @@ class TodayViewModel @Inject constructor(
             if (profile != null) {
                 userProfileRepository.updateProfile(profile.copy(totalXp = profile.totalXp + points))
             }
+            val isSimple = settingsRepository?.simpleModeEnabled?.first() ?: false
+            _quickCompleteFlourishEvent.value = !isSimple
             syncScheduler?.scheduleProfileSync()
         }
     }

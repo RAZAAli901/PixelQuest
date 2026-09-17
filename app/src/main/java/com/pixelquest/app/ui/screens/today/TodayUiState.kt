@@ -23,7 +23,8 @@ sealed class TodayUiState {
         val targetThreshold: Float = 0.7f,
         val isPerfectDay: Boolean = false,
         val isStreakBroken: Boolean = false,
-        val flavorText: String = ""
+        val flavorText: String = "",
+        val isSimpleMode: Boolean = false
     ) : TodayUiState()
     data class Error(val message: String) : TodayUiState()
 }
