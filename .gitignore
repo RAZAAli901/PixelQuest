@@ -16,3 +16,4 @@ app/build/
 local.properties
 *.jks
 *.keystore
+.kotlin/
