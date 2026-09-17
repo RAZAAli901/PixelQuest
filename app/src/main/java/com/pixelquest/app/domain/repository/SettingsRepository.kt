@@ -13,6 +13,11 @@ interface SettingsRepository {
     val isNotificationVibrationEnabled: Flow<Boolean>
     val themeMode: Flow<com.pixelquest.app.ui.theme.ThemeMode>
         get() = kotlinx.coroutines.flow.flowOf(com.pixelquest.app.ui.theme.ThemeMode.Pixel)
+    /**
+     * Hot reactive flow representing whether Simple Mode is enabled.
+     * Emits immediately to all active data-layer consumers upon modification via [setSimpleModeEnabled],
+     * requiring zero application restarts.
+     */
     val simpleModeEnabled: Flow<Boolean>
         get() = kotlinx.coroutines.flow.flowOf(false)
 

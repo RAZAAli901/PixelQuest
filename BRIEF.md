@@ -1607,6 +1607,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 17: Write unit tests for copy-selection logic based on Simple Mode state - 3abccec
 - Step 18: Add functional Simple Mode toggle entry point in SettingsScreen - ee78e3e
 - Step 19: Add explanatory dialog when enabling Simple Mode describing changes - 9ae3daf
+- Step 20: Document decision to keep onboarding gamified by default without upfront Simple Mode choice - e9ad23b
 
 
 
