@@ -74,6 +74,23 @@ The following 5 core gamification systems are suppressed when Simple Mode is ena
 
 ---
 
+## Underlying Game Tracking Decision (Section B, Step 6)
+
+### Decision: Keep Internal Tracking Running Continuously
+**PixelQuest explicitly retains 100% active internal tracking of streaks, XP points, and player levels in the background while Simple Mode is enabled.**
+
+### Architectural Rationale:
+1. **Zero Data Loss on Mode Toggle**: If a user spends three weeks using Simple Mode and decides to return to Full Game Mode, all habit consistency, streak continuity, accumulated XP, and earned level milestones must remain intact. Disabling background tracking would reset or freeze player progression, creating severe friction and punishing users for toggling modes.
+2. **Reversibility Guarantee**: Simple Mode is purely an un-gamified lens over the core PixelQuest task engine. The user's habit records remain faithful to their real-world task completions.
+3. **Leaderboard Consistency**: A user in Simple Mode can still participate in the social leaderboard (see Section E) because their underlying XP and level continue calculating accurately without requiring an alternate ranking system.
+4. **Implementation Contract**:
+   - `StreakEvaluationWorker` runs nightly and evaluates daily completion logs without interruption.
+   - `LevelCalculator` calculates level increments when requirements are met.
+   - `TaskCompletionLogEntity` records calculated `pointsAwarded`.
+   - The UI and audio layers simply suppress the visibility and celebration of these metrics.
+
+---
+
 ## Data Layer Contracts (Day 18)
 1. `SettingsRepository.simpleModeEnabled`: StateFlow<Boolean> defaulting to `false`.
 2. Instant reactivity: Changes emit across all ViewModels without requiring app restart.
