@@ -1602,6 +1602,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 12: Write unit tests verifying underlying streak points and level tracking in Simple Mode - b8c8381
 - Step 13: Update NotificationHelper to omit streak and points references in Simple Mode reminder text - b827207
 - Step 14: Define TaskPromptCopyVariants for Did You Do It prompt under Simple Mode - 5cb2759
+- Step 15: Gate level-up celebration trigger in HomeViewModel under Simple Mode - 2d17a8b
 
 
 

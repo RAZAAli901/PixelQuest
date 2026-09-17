@@ -80,4 +80,45 @@ object NotificationHelper {
 
         return builder.build()
     }
+
+    fun getMissedTaskTitle(taskName: String, isSimpleMode: Boolean): String {
+        return if (isSimpleMode) "Task Missed: $taskName" else "💔 Quest Missed: $taskName"
+    }
+
+    fun getMissedTaskText(taskName: String, isSimpleMode: Boolean): String {
+        return if (isSimpleMode) {
+            "You missed a scheduled task: $taskName."
+        } else {
+            "You broke your streak on $taskName! Start a new streak tomorrow."
+        }
+    }
+
+    fun buildMissedTaskNotification(
+        context: Context,
+        taskId: Long,
+        taskName: String,
+        contentIntent: PendingIntent? = null,
+        soundEnabled: Boolean = true,
+        vibrationEnabled: Boolean = true,
+        isSimpleMode: Boolean = false
+    ): Notification {
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_tasks)
+            .setColor(NOTIFICATION_ACCENT_COLOR)
+            .setContentTitle(getMissedTaskTitle(taskName, isSimpleMode))
+            .setContentText(getMissedTaskText(taskName, isSimpleMode))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+
+        if (!soundEnabled) {
+            builder.setSound(null)
+        }
+        if (!vibrationEnabled) {
+            builder.setVibrate(longArrayOf(0L))
+        }
+        if (contentIntent != null) {
+            builder.setContentIntent(contentIntent)
+        }
+        return builder.build()
+    }
 }
