@@ -15,6 +15,7 @@ import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import com.pixelquest.app.scheduling.TaskAlarmScheduler
+import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

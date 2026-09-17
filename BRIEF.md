@@ -1608,6 +1608,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 18: Add functional Simple Mode toggle entry point in SettingsScreen - ee78e3e
 - Step 19: Add explanatory dialog when enabling Simple Mode describing changes - 9ae3daf
 - Step 20: Document decision to keep onboarding gamified by default without upfront Simple Mode choice - e9ad23b
+- Step 21: Wire Simple Mode toggle changes to propagate immediately to all data-layer consumers - b3ddb7e
 
 
 

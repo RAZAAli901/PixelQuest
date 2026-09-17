@@ -142,9 +142,17 @@ fun SettingsScreen(
                         viewModel.toggleSimpleMode(false)
                     }
                 },
-                variant = if (state.isSimpleModeEnabled) PixelButtonVariant.GREEN else PixelButtonVariant.BLUE,
+                variant = if (state.isSimpleModeEnabled) PixelButtonVariant.YELLOW else PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (state.isSimpleModeEnabled) {
+                PixelButton(
+                    text = "🎮 SWITCH BACK TO FULL GAME MODE",
+                    onClick = { viewModel.toggleSimpleMode(false) },
+                    variant = PixelButtonVariant.YELLOW,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         },
         dataSection = {
             PixelButton(
