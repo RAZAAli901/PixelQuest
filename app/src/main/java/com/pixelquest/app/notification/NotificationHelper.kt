@@ -33,6 +33,14 @@ object NotificationHelper {
         }
     }
 
+    fun getReminderTitle(taskName: String, isSimpleMode: Boolean): String {
+        return if (isSimpleMode) "Time to do: $taskName" else "⚔️ Quest Time: $taskName"
+    }
+
+    fun getReminderText(taskName: String, isSimpleMode: Boolean): String {
+        return if (isSimpleMode) "Time to complete: $taskName" else "Did you complete this quest today? Keep your streak!"
+    }
+
     fun buildTaskReminderNotification(
         context: Context,
         taskId: Long,
@@ -41,13 +49,14 @@ object NotificationHelper {
         yesIntent: PendingIntent? = null,
         noIntent: PendingIntent? = null,
         soundEnabled: Boolean = true,
-        vibrationEnabled: Boolean = true
+        vibrationEnabled: Boolean = true,
+        isSimpleMode: Boolean = false
     ): Notification {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_tasks)
             .setColor(NOTIFICATION_ACCENT_COLOR)
-            .setContentTitle("⚔️ Quest Time: $taskName")
-            .setContentText("Did you complete this quest today?")
+            .setContentTitle(getReminderTitle(taskName, isSimpleMode))
+            .setContentText(getReminderText(taskName, isSimpleMode))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
 
@@ -61,8 +70,9 @@ object NotificationHelper {
         if (contentIntent != null) {
             builder.setContentIntent(contentIntent)
         }
+        val yesActionText = if (isSimpleMode) "Completed" else "Yes, I did it"
         if (yesIntent != null) {
-            builder.addAction(0, "Yes, I did it", yesIntent)
+            builder.addAction(0, yesActionText, yesIntent)
         }
         if (noIntent != null) {
             builder.addAction(0, "Not yet", noIntent)

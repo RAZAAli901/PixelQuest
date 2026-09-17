@@ -1599,6 +1599,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 9: Wire TaskPromptViewModel to skip points-awarded toast/animation trigger when Simple Mode is active - cc6a419
 - Step 10: Wire quick-complete to skip gamification success flourish in Simple Mode - 75954c9
 - Step 11: Force CRT filter OFF in Simple Mode and document decision - 4f14c93
+- Step 12: Write unit tests verifying underlying streak points and level tracking in Simple Mode - b8c8381
 
 
 
