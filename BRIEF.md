@@ -1624,6 +1624,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 34: Write integration test for notification and prompt copy switching based on Simple Mode state - b5facd2
 - Step 35: Write unit test for the CRT-filter-forced-off-in-Simple-Mode logic - a900572
 - Step 36: Write integration test for AI insights placeholder hook interaction with Simple Mode state - f4993ce
+- Step 37: Perform manual QA verifying multi-day task completions and backend progression under Simple Mode - e857ce7
 
 
 
