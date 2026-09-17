@@ -142,10 +142,26 @@ The following 5 core gamification systems are suppressed when Simple Mode is ena
 
 ---
 
+## AI Insights Forward Compatibility Decision (Section F, Step 29)
+
+### Decision: Simple Mode Users Continue to Receive AI Habit Insights (With Adjusted Tone)
+**Users in Simple Mode will continue to receive Gemini-powered habit insights (Days 24–25). Rather than disabling AI habit analysis, PixelQuest adjusts the tone of generated insights to clean, neutral, supportive productivity coaching, omitting RPG/gaming jargon.**
+
+### Architectural Rationale:
+1. **Universal Productivity Value**: Habit insights analyze task completion velocity, time-of-day consistency, friction points, and weekly trends. These benefits are universally valuable to anyone managing daily routines, regardless of whether they prefer arcade RPG mechanics or a minimalist task checklist.
+2. **Tone Adaptation vs Disablement**: Disabling insights in Simple Mode would strip away a premier feature of PixelQuest. Instead, a tone provider hook (`HabitInsightToneHook`) routes generation parameters:
+   - **Gamified Mode**: Epic RPG flavor text ("Mighty adventurer! Your afternoon quest resilience is legendary; beware the morning slump monster!").
+   - **Simple Mode**: Professional, minimalist habit coaching ("You complete 85% of your scheduled tasks in the afternoon. Scheduling difficult tasks before 2 PM may boost morning consistency.").
+3. **Forward Compatibility Contract**: Day 18 introduces the placeholder interface hook `HabitInsightToneHook` so that Day 25's Gemini prompt synthesizer can query `HabitInsightToneHook.getToneForState(isSimpleMode)` without requiring retrofitting or schema changes.
+
+---
+
 ## Data Layer Contracts (Day 18)
 1. `SettingsRepository.simpleModeEnabled`: StateFlow<Boolean> defaulting to `false`.
 2. Instant reactivity: Changes emit across all ViewModels without requiring app restart.
 3. No data loss: Switching between Simple Mode and Full Game Mode preserves 100% of historical progress.
 4. Difficulty lock: Data layer prevents changing difficulty while Simple Mode is active.
 5. Leaderboard coexistence: Simple Mode and leaderboard opt-in operate concurrently without mutual exclusion.
+6. AI insights compatibility: Tone hook provides mode-aware tone configuration for future Gemini insights.
+
 

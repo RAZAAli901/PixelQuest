@@ -1615,6 +1615,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 25: Wire the data-layer lock for difficulty changes while Simple Mode is active - 62d8fcb
 - Step 26: Decide Simple Mode leaderboard interaction allowing coexistence and document in SIMPLE_MODE.md - 6da7576
 - Step 27: Add data-layer flag and check confirming Simple Mode and leaderboard coexistence is explicitly supported - f9622a2
+- Step 28: Write unit test for the difficulty-lock logic under Simple Mode - 43f3bc5
 
 
 
