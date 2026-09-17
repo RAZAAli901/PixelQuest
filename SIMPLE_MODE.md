@@ -103,6 +103,19 @@ The following 5 core gamification systems are suppressed when Simple Mode is ena
 
 ---
 
+## Onboarding Strategy Decision (Section D, Step 20)
+
+### Decision: Gamified-By-Default Onboarding (No Upfront Mode Choice)
+**PixelQuest retains its canonical gamified onboarding flow on initial installation. Simple Mode is NOT presented as an upfront toggle during onboarding, but is discoverable in Settings.**
+
+### Architectural Rationale:
+1. **Preserving Brand Identity**: PixelQuest is fundamentally built around retro 8-bit arcade storytelling, avatar personalization, and quest adventures. New users should encounter and experience the app's full thematic identity first.
+2. **Eliminating First-Launch Decision Fatigue**: Asking users during onboarding whether they prefer "Gamified Mode" or "Simple Mode" forces a premature architectural decision before they have experienced either mode.
+3. **Onboarding Flow Integrity**: The Day 10 onboarding sequence (`NameEntry` -> `AvatarPick` -> `DifficultyPick` -> `Summary`) remains stable and focused.
+4. **Discoverability**: Once users are in the app, the Simple Mode toggle in Settings provides a self-directed transition accompanied by the Step 19 explanatory dialog.
+
+---
+
 ## Data Layer Contracts (Day 18)
 1. `SettingsRepository.simpleModeEnabled`: StateFlow<Boolean> defaulting to `false`.
 2. Instant reactivity: Changes emit across all ViewModels without requiring app restart.
