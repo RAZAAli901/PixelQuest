@@ -120,6 +120,17 @@ class SettingsRepositoryImpl @Inject constructor(
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
+    override val simpleModeEnabled: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_SIMPLE_MODE_ENABLED) {
+                trySend(prefs.getBoolean(KEY_SIMPLE_MODE_ENABLED, false))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_SIMPLE_MODE_ENABLED, false))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     override suspend fun setSoundEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
     }
@@ -156,6 +167,10 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putString(KEY_THEME_MODE, mode.id).apply()
     }
 
+    override suspend fun setSimpleModeEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_SIMPLE_MODE_ENABLED, enabled).apply()
+    }
+
     companion object {
         private const val KEY_SOUND_ENABLED = "key_sound_enabled"
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
@@ -166,5 +181,6 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"
         private const val KEY_NOTIFICATION_VIBRATION = "key_notification_vibration"
         private const val KEY_THEME_MODE = "key_theme_mode"
+        private const val KEY_SIMPLE_MODE_ENABLED = "key_simple_mode_enabled"
     }
 }

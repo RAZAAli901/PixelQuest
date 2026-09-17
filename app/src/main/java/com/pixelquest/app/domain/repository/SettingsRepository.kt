@@ -13,6 +13,8 @@ interface SettingsRepository {
     val isNotificationVibrationEnabled: Flow<Boolean>
     val themeMode: Flow<com.pixelquest.app.ui.theme.ThemeMode>
         get() = kotlinx.coroutines.flow.flowOf(com.pixelquest.app.ui.theme.ThemeMode.Pixel)
+    val simpleModeEnabled: Flow<Boolean>
+        get() = kotlinx.coroutines.flow.flowOf(false)
 
     suspend fun setSoundEnabled(enabled: Boolean)
     suspend fun setCrtEnabled(enabled: Boolean)
@@ -23,4 +25,5 @@ interface SettingsRepository {
     suspend fun setNotificationSoundEnabled(enabled: Boolean)
     suspend fun setNotificationVibrationEnabled(enabled: Boolean)
     suspend fun setThemeMode(mode: com.pixelquest.app.ui.theme.ThemeMode) {}
+    suspend fun setSimpleModeEnabled(enabled: Boolean) {}
 }
