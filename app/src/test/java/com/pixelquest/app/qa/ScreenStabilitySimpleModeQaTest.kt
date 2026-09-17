@@ -16,7 +16,7 @@ import com.pixelquest.app.ui.screens.difficulty.DifficultyUiState
 import com.pixelquest.app.ui.screens.difficulty.DifficultyViewModel
 import com.pixelquest.app.ui.screens.settings.SettingsUiState
 import com.pixelquest.app.ui.screens.settings.SettingsViewModel
-import com.pixelquest.app.ui.screens.simplemode.SimpleModeViewModel
+import com.pixelquest.app.ui.screens.settings.SimpleModeViewModel
 import com.pixelquest.app.ui.screens.today.TodayUiState
 import com.pixelquest.app.ui.theme.ThemeMode
 import kotlinx.coroutines.Dispatchers
