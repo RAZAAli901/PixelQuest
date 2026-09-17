@@ -37,6 +37,13 @@ class StreakEvaluationWorker @AssistedInject constructor(
     private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
 ) : CoroutineWorker(appContext, workerParams) {
 
+    /**
+     * ARCHITECTURAL CONTRACT (Day 18 Simple Mode):
+     * StreakEvaluationWorker continues to execute normal nightly evaluation regardless of Simple Mode state.
+     * Under Simple Mode, streak records, perfect day counts, and streak break states continue to be calculated
+     * and persisted to Room DB so that historical consistency is preserved if a user later switches back
+     * to Full Game Mode.
+     */
     override suspend fun doWork(): Result {
         val targetDate = LocalDate.now(java.time.ZoneId.systemDefault()).minusDays(1)
         val tasksForDay = taskRepository.getTasksForDay(targetDate).first()
