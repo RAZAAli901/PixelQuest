@@ -116,7 +116,21 @@ The following 5 core gamification systems are suppressed when Simple Mode is ena
 
 ---
 
+## Difficulty Setting Interaction Decision (Section E, Step 24)
+
+### Decision: Difficulty Locked to Fixed Internal Default (Medium) Under Simple Mode
+**When Simple Mode is active, difficulty setting modifications are locked and suppressed. The system locks difficulty to the standard internal default (`DifficultyLevel.MEDIUM`: 70% threshold, 7 days per level) without exposing difficulty choices to the user.**
+
+### Architectural Rationale:
+1. **Difficulty Is a Gamification Concept**: Difficulty tiers in PixelQuest (Easy: 50%, Medium: 70%, Hard: 90%) dictate perfect-day thresholds for leveling and XP multipliers. In Simple Mode, leveling and XP displays are suppressed; tasks are simply tasks to be checked off. Presenting difficulty options in an un-gamified mode contradicts the purpose of simplification.
+2. **Standard Baseline for Background Leveling**: Since Step 6 decided to keep background calculations running so progress is never lost, locking to `MEDIUM` ensures predictable, balanced progression in the background without user burden.
+3. **Data-Layer Enforcement**: The data layer (`DifficultyViewModel` and repository guard) rejects or blocks difficulty modifications while `simpleModeEnabled = true`.
+4. **Preservation of User's Configured Difficulty**: The user's previously chosen difficulty setting in Room is preserved in storage. When switching back to Full Game Mode, the user's customized difficulty tier is restored immediately.
+
+---
+
 ## Data Layer Contracts (Day 18)
 1. `SettingsRepository.simpleModeEnabled`: StateFlow<Boolean> defaulting to `false`.
 2. Instant reactivity: Changes emit across all ViewModels without requiring app restart.
 3. No data loss: Switching between Simple Mode and Full Game Mode preserves 100% of historical progress.
+4. Difficulty lock: Data layer prevents changing difficulty while Simple Mode is active.
