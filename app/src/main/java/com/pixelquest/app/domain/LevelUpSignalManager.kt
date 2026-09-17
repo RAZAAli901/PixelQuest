@@ -23,7 +23,11 @@ class LevelUpSignalManager @Inject constructor(
         return if (level > 0) level else null
     }
 
-    fun setPendingLevelUp(newLevel: Int) {
+    fun setPendingLevelUp(newLevel: Int, suppressCelebration: Boolean = false) {
+        if (suppressCelebration) {
+            clearPendingLevelUp()
+            return
+        }
         prefs.edit().putInt(KEY_PENDING_LEVEL, newLevel).apply()
         _pendingLevelUp.value = newLevel
     }
