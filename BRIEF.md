@@ -1604,6 +1604,7 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 14: Define TaskPromptCopyVariants for Did You Do It prompt under Simple Mode - 5cb2759
 - Step 15: Gate level-up celebration trigger in HomeViewModel under Simple Mode - 2d17a8b
 - Step 16: Adjust missed-task notification copy tone for Simple Mode to neutral phrasing - 45c7cab
+- Step 17: Write unit tests for copy-selection logic based on Simple Mode state - 3abccec
 
 
 

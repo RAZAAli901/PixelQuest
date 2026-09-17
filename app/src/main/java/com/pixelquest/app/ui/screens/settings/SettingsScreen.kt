@@ -132,6 +132,13 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )
+            val simpleModeText = if (state.isSimpleModeEnabled) "📋 SIMPLE MODE: ON" else "📋 SIMPLE MODE: OFF"
+            PixelButton(
+                text = simpleModeText,
+                onClick = { viewModel.toggleSimpleMode(!state.isSimpleModeEnabled) },
+                variant = if (state.isSimpleModeEnabled) PixelButtonVariant.GREEN else PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
         },
         dataSection = {
             PixelButton(
