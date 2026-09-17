@@ -1626,6 +1626,60 @@ Day 17 implements the complete Light Mode experience for PixelQuest, delivering 
 - Step 36: Write integration test for AI insights placeholder hook interaction with Simple Mode state - f4993ce
 - Step 37: Perform manual QA verifying multi-day task completions and backend progression under Simple Mode - e857ce7
 - Step 38: Perform manual QA verifying screen and ViewModel stability under Simple Mode - a5e46ea
+- Step 39: Fix QA edge cases and ensure defensive null safety across Simple Mode consumers - 27da3c5
+
+### Day 18 Full Technical Architecture & Summary: Un-Gamified "Simple Mode" Data & Logic Layer
+
+#### 1. Overview & Architectural Boundary
+Day 18 implements the foundational data, domain logic, and preference layer for **Simple Mode** in PixelQuest. Simple Mode is an un-gamified lens designed for users seeking a minimalist, distraction-free task tracker without gamification anxiety, scorekeeping, streaks, or celebration popups. 
+In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on data and logic without suppressing visual UI elements** (visual UI suppression across headers, cards, and dashboards is Day 19's scope).
+
+#### 2. Key Architectural Decisions & Rationale
+1. **Continuous Background Tracking (Zero Progress Loss)**:
+   - *Decision*: Streaks, XP points, and level milestones continue tracking actively in the background within Room DB (`streak`, `user_profile`, `task_completion_log`).
+   - *Rationale*: Toggling Simple Mode is a non-destructive view preference. If a user spends weeks in Simple Mode and subsequently toggles back to Full Game Mode, all accumulated habit consistency, streaks, and XP remain 100% intact.
+2. **CRT Scanline Filter Policy (Forced OFF in Simple Mode)**:
+   - *Decision*: The CRT scanline overlay (`PixelCrtOverlay`) is strictly forced OFF whenever Simple Mode is enabled, regardless of whether the user previously enabled it in Settings.
+   - *Rationale*: CRT scanlines evoke a heavy retro arcade aesthetic that directly clashes with an understated, calm productivity mode. The underlying user preference is preserved and resumes when Simple Mode is turned off.
+3. **Gamified Onboarding Baseline**:
+   - *Decision*: Onboarding remains gamified by default (hero creation, avatar selection, difficulty intro). Simple Mode is not forced upfront, but is discoverable in Settings.
+   - *Rationale*: Preserves PixelQuest's distinctive brand identity for new users without introducing decision paralysis during first-time launch.
+4. **Difficulty Setting Data-Layer Lock**:
+   - *Decision*: Difficulty settings are locked to `DifficultyLevel.MEDIUM` (70% threshold, 7 days per level) while Simple Mode is active.
+   - *Rationale*: Difficulty thresholds are inherently gamified mechanics. In Simple Mode, leveling UI is hidden, so difficulty choices are unnecessary. The user's previously chosen difficulty is preserved in storage and restored if they switch back.
+5. **Leaderboard Coexistence Allowed**:
+   - *Decision*: Simple Mode users retain full permission to sign in with Google, opt into the public leaderboard, and have their background stats ranked.
+   - *Rationale*: Avoids forcing a false dilemma between personal UI minimalism and social community accountability.
+6. **AI Habit Insights Forward Compatibility (Days 24–25)**:
+   - *Decision*: Simple Mode users continue receiving Gemini-powered habit insights, but the tone is dynamically adapted from RPG metaphors to clean, supportive habit coaching via `HabitInsightToneHook`.
+
+#### 3. Settings Entry Point & Ergonomics
+- Added functional Simple Mode toggle in `SettingsScreen` with immediate reactive state propagation via `StateFlow`.
+- Added informative confirmation dialog detailing what changes when enabling Simple Mode (streaks/points/levels hidden, quiet tracking).
+- Added a prominent, reassuring "SWITCH BACK TO FULL GAME MODE" button right below the toggle to guarantee users never feel trapped.
+
+#### 4. Testing & Verification Matrix
+- `SimpleModePersistenceTest`: Verified SharedPreferences persistence across process recreation.
+- `SimpleModeUnderlyingTrackingTest`: Verified streaks, XP, and levels continue updating under Simple Mode.
+- `SimpleModeToggleIntegrationTest`: Verified toggling ON and OFF preserves data integrity.
+- `DifficultyLockUnderSimpleModeTest`: Verified difficulty modification rejection when Simple Mode is active.
+- `HabitInsightToneHookTest`: Verified tone selection between heroic and minimalist coaching.
+- `SimpleModeDataIntegrityIntegrationTest`: Multi-day integration test confirming zero data loss across toggles.
+- `GamifiedModeBaselineRegressionTest`: Verified zero behavior change in default gamified operation.
+- `NotificationCopyIntegrationTest`: Verified copy variants switch dynamically between gaming urgency and neutral reminders.
+- `CrtFilterSimpleModeSuppressionTest`: Verified CRT filter forced-off behavior.
+- `AiInsightsPlaceholderIntegrationTest`: Verified AI tone hook state flow reactivity.
+- `Day18SimpleModeManualQaTest`: 5-day simulated QA protocol confirming uninterrupted backend progression.
+- `ScreenStabilitySimpleModeQaTest`: Screen stability QA confirming zero crashes or uncaught exceptions across all ViewModels.
+
+#### 5. Known Gaps & Roadmap for Day 19
+- Replace `TodayScreen` header strip with plain task count ("X of Y tasks completed").
+- Suppress XP badges and difficulty indicators on `TodayQuestCard`.
+- Suppress level-up celebration popups and fanfare on screen surfaces.
+- Suppress CRT scanlines on composable root when Simple Mode is active.
+- Adjust `DidYouDoItScreen` and `TaskPromptScreen` copy to use `TaskPromptCopyVariants`.
+- Replace `StatsScreen` and `ProfileScreen` XP/streak charts with clean completion statistics.
+
 
 
 
