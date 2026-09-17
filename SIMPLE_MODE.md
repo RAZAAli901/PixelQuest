@@ -129,8 +129,23 @@ The following 5 core gamification systems are suppressed when Simple Mode is ena
 
 ---
 
+## Leaderboard Interaction Decision (Section E, Step 26)
+
+### Decision: Coexistence Allowed (Simple Mode Users Can Opt Into Leaderboard)
+**PixelQuest explicitly allows coexistence between Simple Mode and the Global Leaderboard. A user operating in Simple Mode retains the full ability to sign in, opt into the leaderboard, set a display name, and have their background stats ranked publicly.**
+
+### Architectural Rationale & Tension Analysis:
+1. **The Inherent Tension**: The leaderboard is inherently competitive, score-driven, and gamified (ranking by streaks, levels, and XP). Simple Mode, by contrast, is designed to reduce gamification pressure and score anxiety in daily personal task management.
+2. **User Autonomy & Social Coexistence**: Some users desire a clean, minimalist day-to-day task checklist without in-app fanfare, but still appreciate participating in a social community or friendly leaderboard competition. Arbitrarily barring Simple Mode users from leaderboard participation would force a false choice between a quiet personal interface and social accountability.
+3. **Seamless Background Scoring**: Because Step 6 preserves underlying XP, streak, and level calculation in Room, the cloud synchronization worker (`ProfileSyncWorker`) already possesses valid, up-to-date player stats to publish without inventing synthetic simple-mode ranking rules.
+4. **Spectator Mode & Opt-Out Freedom**: Simple Mode users retain full access to Spectator Mode (Day 14) and the one-tap opt-out mechanism (Day 15) in `AccountScreen` whenever they choose to participate or withdraw.
+
+---
+
 ## Data Layer Contracts (Day 18)
 1. `SettingsRepository.simpleModeEnabled`: StateFlow<Boolean> defaulting to `false`.
 2. Instant reactivity: Changes emit across all ViewModels without requiring app restart.
 3. No data loss: Switching between Simple Mode and Full Game Mode preserves 100% of historical progress.
 4. Difficulty lock: Data layer prevents changing difficulty while Simple Mode is active.
+5. Leaderboard coexistence: Simple Mode and leaderboard opt-in operate concurrently without mutual exclusion.
+
