@@ -164,4 +164,46 @@ The following 5 core gamification systems are suppressed when Simple Mode is ena
 5. Leaderboard coexistence: Simple Mode and leaderboard opt-in operate concurrently without mutual exclusion.
 6. AI insights compatibility: Tone hook provides mode-aware tone configuration for future Gemini insights.
 
+---
+
+## Day 19 Implementation Technical Guide (Authoritative UI Blueprint)
+
+When implementing the visual UI suppression in Day 19, developers must adhere to the following file-by-file blueprint:
+
+### 1. `TodayScreen.kt` & `StreakXpSummaryStrip.kt`
+- **When `isSimpleMode == true`**:
+  - Completely suppress `StreakXpSummaryStrip` (the streak flame, count, level badge, and XP counter).
+  - Render a clean, minimalist header showing: `"TODAY'S TASKS"` and a simple counter `"X / Y Completed"`.
+  - Remove streak broken alert banners from `TodayScreen`.
+
+### 2. `TodayQuestCard.kt` & `PixelTaskListItem.kt`
+- **When `isSimpleMode == true`**:
+  - Suppress the `+XP` award pill/badge.
+  - Suppress difficulty tier indicators (Easy/Medium/Hard badges).
+  - Retain clean checkbox, task title, scheduled time, and category color accent.
+
+### 3. Quick-Complete & Celebration Signals
+- **When `isSimpleMode == true`**:
+  - `TodayViewModel._quickCompleteFlourishEvent` emits `false`.
+  - Suppress XP fly-up animation and fanfare toast. Show standard checkmark transition.
+  - `LevelUpSignalManager`: Ensure celebration modal (`LevelUpCelebrationScreen`) never displays.
+
+### 4. `DidYouDoItScreen.kt` & Fullscreen Prompts
+- **When `isSimpleMode == true`**:
+  - Use `TaskPromptCopyVariants`:
+    - Title: `"Did you complete this task?"`
+    - Confirm button: `"Completed"`
+    - Dismiss button: `"Not yet"`
+  - Suppress swords/skull/combat graphics in dialog and replace with neutral checkmark iconography.
+
+### 5. `StatsScreen.kt` & `ProfileScreen.kt`
+- **When `isSimpleMode == true`**:
+  - Hide XP progress bar and level milestone badges.
+  - Hide current streak and longest streak hero cards.
+  - Display clean task completion tally, completion rate percentage, and activity calendar heatmap (with neutral cells).
+
+### 6. CRT Filter Overlay (`PixelCrtOverlay.kt`)
+- Verify that `MainActivity.kt` continues to enforce `CrtFilterPolicy.shouldApplyCrt(..., isSimpleModeEnabled) == false`, preventing any scanlines from rendering while Simple Mode is active.
+
+
 
