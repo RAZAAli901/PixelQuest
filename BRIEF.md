@@ -1694,6 +1694,7 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 8: Replace level-derived avatar tier framing with neutral avatar frame in Simple Mode - 8a1ed84
 - Step 9: Replace streak and points display with non-gamified stats in Simple Mode on ProfileScreen - eb76292
 - Step 10: Keep avatar selection fully functional and available as cosmetic choice in Simple Mode - e780bad
+- Step 11: Add subtle Simple Mode indicator on ProfileScreen for mode clarity - 46f0ff3
 
 
 

@@ -25,6 +25,7 @@ import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelXpBar
+import com.pixelquest.app.ui.screens.profile.ProfileUiState
 import com.pixelquest.app.ui.screens.profile.ProfileViewModel
 import com.pixelquest.app.ui.theme.PixelTheme
 import androidx.compose.foundation.border
@@ -50,6 +51,23 @@ fun ProfileScreen(
     onNavigateToSettings: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
+    ProfileContent(
+        state = state,
+        onNavigateToAvatarSelection = onNavigateToAvatarSelection,
+        onNavigateToDifficulty = onNavigateToDifficulty,
+        onNavigateToLevelHistory = onNavigateToLevelHistory,
+        onNavigateToSettings = onNavigateToSettings
+    )
+}
+
+@Composable
+fun ProfileContent(
+    state: ProfileUiState,
+    onNavigateToAvatarSelection: () -> Unit = {},
+    onNavigateToDifficulty: () -> Unit = {},
+    onNavigateToLevelHistory: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
+) {
     val profile = state.profile
     val streak = state.streak
     val difficulty = state.difficulty
@@ -65,6 +83,7 @@ fun ProfileScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.background)
+
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
