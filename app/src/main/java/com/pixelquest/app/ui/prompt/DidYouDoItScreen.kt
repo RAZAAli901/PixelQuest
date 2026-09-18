@@ -48,10 +48,11 @@ fun DidYouDoItScreen(
     }
 
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val colors = PixelTheme.colors
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(PixelBackgroundDark),
+            .background(colors.background),
         contentAlignment = Alignment.Center
     ) {
         PixelCard(
@@ -73,21 +74,21 @@ fun DidYouDoItScreen(
                 Text(
                     text = copy.headerTitle,
                     style = PixelTypography.displaySmall,
-                    color = PixelGold,
+                    color = colors.primary,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = copy.questionPrompt,
                     style = PixelTypography.bodyMedium,
-                    color = PixelTheme.colors.onSurfaceVariant,
+                    color = colors.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = taskName,
                     style = PixelTypography.titleMedium,
-                    color = PixelTextWhite,
+                    color = colors.onSurface,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(24.dp))

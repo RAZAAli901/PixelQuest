@@ -33,7 +33,7 @@ fun PixelConfirmDialog(
         Text(
             text = message,
             style = PixelTypography.bodyMedium,
-            color = PixelTextWhite
+            color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurface
         )
     }
 }
