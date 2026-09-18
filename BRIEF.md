@@ -1700,6 +1700,7 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 14: Keep completion-rate stat card and task history visible in Simple Mode on StatsScreen - f39a198
 - Step 15: Adapt heatmap legend and labels to neutral language in Simple Mode - 7fb1e91
 - Step 16: Reframe weekly trend chart copy as neutral completion-rate trend in Simple Mode - 3e0bb38
+- Step 17: Hide View Level History quick-link on StatsScreen when Simple Mode is active - 2c65c6f
 
 
 
