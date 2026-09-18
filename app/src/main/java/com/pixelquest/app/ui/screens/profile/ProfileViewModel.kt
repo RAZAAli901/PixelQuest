@@ -18,13 +18,19 @@ import javax.inject.Inject
 import com.pixelquest.app.domain.repository.SettingsRepository
 import kotlinx.coroutines.launch
 
+import com.pixelquest.app.domain.repository.TaskCompletionRepository
+import com.pixelquest.app.domain.repository.TaskRepository
+import kotlinx.coroutines.flow.flowOf
+
 data class ProfileUiState(
     val profile: UserProfileEntity? = null,
     val streak: StreakEntity? = null,
     val difficulty: DifficultySettingsEntity? = null,
     val isSoundEnabled: Boolean = true,
     val isCrtEnabled: Boolean = false,
-    val isSimpleMode: Boolean = false
+    val isSimpleMode: Boolean = false,
+    val totalTasksCompleted: Int = 0,
+    val activeTasksCount: Int = 0
 )
 
 @HiltViewModel
@@ -32,7 +38,9 @@ class ProfileViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val streakRepository: StreakRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val taskRepository: TaskRepository? = null,
+    private val taskCompletionRepository: TaskCompletionRepository? = null
 ) : ViewModel() {
 
     val uiState: StateFlow<ProfileUiState> = combine(
@@ -45,15 +53,21 @@ class ProfileViewModel @Inject constructor(
             settingsRepository.isSoundEnabled,
             settingsRepository.isCrtEnabled,
             settingsRepository.simpleModeEnabled
-        ) { sound, crt, simpleMode -> Triple(sound, crt, simpleMode) }
-    ) { (profile, streak, difficulty), (soundEnabled, crtEnabled, simpleMode) ->
+        ) { sound, crt, simpleMode -> Triple(sound, crt, simpleMode) },
+        combine(
+            taskRepository?.getAllTasks() ?: flowOf(emptyList()),
+            taskCompletionRepository?.getAllLogs() ?: flowOf(emptyList())
+        ) { tasks, logs -> Pair(tasks.size, logs.count { it.wasCompleted }) }
+    ) { (profile, streak, difficulty), (soundEnabled, crtEnabled, simpleMode), (activeTasksCount, completedLogsCount) ->
         ProfileUiState(
             profile = profile,
             streak = streak,
             difficulty = difficulty,
             isSoundEnabled = soundEnabled,
             isCrtEnabled = crtEnabled,
-            isSimpleMode = simpleMode
+            isSimpleMode = simpleMode,
+            totalTasksCompleted = completedLogsCount,
+            activeTasksCount = activeTasksCount
         )
     }.stateIn(
         scope = viewModelScope,

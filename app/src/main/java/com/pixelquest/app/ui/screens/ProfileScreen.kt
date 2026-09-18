@@ -102,20 +102,30 @@ fun ProfileScreen(
                     color = colors.primary
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = "LEVEL: $level", style = PixelTypography.bodyMedium, color = colors.onSurface)
-                    Text(text = "TOTAL XP: $totalXp", style = PixelTypography.bodyMedium, color = colors.tertiary)
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = "STREAK: $streakCount DAYS", style = PixelTypography.bodyMedium, color = colors.secondary)
-                    Text(text = "MODE: ${DifficultyMode.getDisplayName(diffLevel)}", style = PixelTypography.bodyMedium, color = colors.primary)
+                if (!state.isSimpleMode) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "LEVEL: $level", style = PixelTypography.bodyMedium, color = colors.onSurface)
+                        Text(text = "TOTAL XP: $totalXp", style = PixelTypography.bodyMedium, color = colors.tertiary)
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "STREAK: $streakCount DAYS", style = PixelTypography.bodyMedium, color = colors.secondary)
+                        Text(text = "MODE: ${DifficultyMode.getDisplayName(diffLevel)}", style = PixelTypography.bodyMedium, color = colors.primary)
+                    }
+                } else {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "TASKS COMPLETED: ${state.totalTasksCompleted}", style = PixelTypography.bodyMedium, color = colors.tertiary)
+                        Text(text = "ACTIVE TASKS: ${state.activeTasksCount}", style = PixelTypography.bodyMedium, color = colors.onSurface)
+                    }
                 }
             }
         }
