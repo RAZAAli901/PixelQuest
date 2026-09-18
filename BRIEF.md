@@ -1683,7 +1683,8 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Adjust `DidYouDoItScreen` and `TaskPromptScreen` copy to use `TaskPromptCopyVariants`.
 - Replace `StatsScreen` and `ProfileScreen` XP/streak charts with clean completion statistics.
 
-
+## Day 19 Progress Log
+- Step 1: Hide StreakXpSummaryStrip on TodayScreen when Simple Mode is active - 389a803
 
 
 

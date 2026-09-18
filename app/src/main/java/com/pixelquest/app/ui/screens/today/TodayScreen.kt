@@ -225,7 +225,7 @@ fun TodayContent(
         }
         if (state.isPerfectDay) {
             item {
-                PixelPerfectDayBanner()
+                PixelPerfectDayBanner(isSimpleMode = state.isSimpleMode)
             }
         }
         if (state.tasks.isEmpty()) {

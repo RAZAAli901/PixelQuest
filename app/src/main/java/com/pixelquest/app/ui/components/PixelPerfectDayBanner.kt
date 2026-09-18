@@ -13,10 +13,12 @@ import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun PixelPerfectDayBanner(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSimpleMode: Boolean = false
 ) {
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
     PixelCard(
-        variant = PixelPanelVariant.BEIGE,
+        variant = if (isSimpleMode) PixelPanelVariant.BORDER else PixelPanelVariant.BEIGE,
         contentPadding = 12.dp,
         modifier = modifier.fillMaxWidth()
     ) {
@@ -25,9 +27,9 @@ fun PixelPerfectDayBanner(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "🎉 PERFECT DAY ACHIEVED! Streak protected for today!",
+                text = if (isSimpleMode) "✓ All tasks done for today" else "🎉 PERFECT DAY ACHIEVED! Streak protected for today!",
                 style = PixelTypography.bodyMedium,
-                color = PixelGold,
+                color = if (isSimpleMode) colors.primary else PixelGold,
                 modifier = Modifier.padding(vertical = 4.dp)
             )
         }
