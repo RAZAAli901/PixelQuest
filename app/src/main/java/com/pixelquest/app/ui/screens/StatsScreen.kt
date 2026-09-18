@@ -119,38 +119,40 @@ fun StatsContent(
             )
         }
 
-        // Active Difficulty Card
-        PixelCard(
-            variant = PixelPanelVariant.BLUE,
-            contentPadding = 16.dp,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+        // Active Difficulty Card (Hidden in Simple Mode)
+        if (!state.isSimpleMode) {
+            PixelCard(
+                variant = PixelPanelVariant.BLUE,
+                contentPadding = 16.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "🛡️",
-                    style = PixelTypography.displayMedium,
-                    modifier = Modifier.padding(end = 12.dp)
-                )
-                Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text(
-                        text = "ACTIVE DIFFICULTY",
-                        style = PixelTypography.labelLarge,
-                        color = colors.secondary
+                        text = "🛡️",
+                        style = PixelTypography.displayMedium,
+                        modifier = Modifier.padding(end = 12.dp)
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = DifficultyMode.getDisplayName(activeDifficulty).uppercase(),
-                        style = PixelTypography.titleMedium,
-                        color = colors.tertiary
-                    )
-                    Text(
-                        text = "${(DifficultyMode.getPerfectDayThreshold(activeDifficulty) * 100).toInt()}% Target Threshold",
-                        style = PixelTypography.bodySmall,
-                        color = colors.onSurface
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "ACTIVE DIFFICULTY",
+                            style = PixelTypography.labelLarge,
+                            color = colors.secondary
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = DifficultyMode.getDisplayName(activeDifficulty).uppercase(),
+                            style = PixelTypography.titleMedium,
+                            color = colors.tertiary
+                        )
+                        Text(
+                            text = "${(DifficultyMode.getPerfectDayThreshold(activeDifficulty) * 100).toInt()}% Target Threshold",
+                            style = PixelTypography.bodySmall,
+                            color = colors.onSurface
+                        )
+                    }
                 }
             }
         }
@@ -177,6 +179,7 @@ fun StatsContent(
         if (state.weeklyTrend.isNotEmpty()) {
             PixelBarChart(
                 weeklyData = state.weeklyTrend,
+                isSimpleMode = state.isSimpleMode,
                 modifier = Modifier.fillMaxWidth()
             )
         }

@@ -27,13 +27,14 @@ import com.pixelquest.app.ui.theme.PixelTypography
 fun PixelBarChart(
     weeklyData: List<Pair<String, Float>>,
     modifier: Modifier = Modifier,
-    maxHeightDp: Int = 100
+    maxHeightDp: Int = 100,
+    isSimpleMode: Boolean = false
 ) {
     val colors = PixelTheme.colors
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "📈 WEEKLY TREND",
+            text = if (isSimpleMode) "📈 COMPLETION RATE TREND" else "📈 WEEKLY TREND",
             style = PixelTypography.titleMedium,
             color = colors.primary
         )
