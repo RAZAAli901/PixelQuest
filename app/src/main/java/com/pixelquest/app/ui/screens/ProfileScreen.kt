@@ -196,6 +196,13 @@ fun ProfileContent(
             variant = PixelButtonVariant.YELLOW,
             modifier = Modifier.fillMaxWidth()
         )
+        if (state.isSimpleMode) {
+            Text(
+                text = "🔒 Difficulty selection is locked while Simple Mode is active.",
+                style = PixelTypography.labelSmall,
+                color = colors.onSurfaceVariant
+            )
+        }
 
         PixelButton(
             text = "⚙️ APP SETTINGS",

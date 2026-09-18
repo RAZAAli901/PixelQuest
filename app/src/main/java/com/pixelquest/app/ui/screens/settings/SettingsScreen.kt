@@ -1,6 +1,8 @@
 package com.pixelquest.app.ui.screens.settings
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -72,6 +74,14 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (state.isSimpleModeEnabled) {
+                androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(4.dp))
+                androidx.compose.material3.Text(
+                    text = "🔒 Difficulty selection is locked while Simple Mode is active. Thresholds and streaks are paused.",
+                    style = com.pixelquest.app.ui.theme.PixelTypography.labelSmall,
+                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant
+                )
+            }
             PixelButton(
                 text = "☁️ CLOUD & LEADERBOARD",
                 onClick = onNavigateToAccount,
