@@ -144,7 +144,7 @@ fun TodayContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "⚔️ TODAY'S DASHBOARD",
+                    text = if (state.isSimpleMode) "📋 TODAY'S TASKS" else "⚔️ TODAY'S DASHBOARD",
                     style = PixelTypography.titleLarge,
                     color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
                 )
@@ -161,20 +161,50 @@ fun TodayContent(
                 targetThreshold = state.targetThreshold
             )
         }
-        item {
-            StreakXpSummaryStrip(
-                currentStreak = state.currentStreak,
-                totalXp = state.totalXp,
-                level = state.level,
-                onClick = onNavigateToProfile
-            )
+        if (!state.isSimpleMode) {
+            item {
+                StreakXpSummaryStrip(
+                    currentStreak = state.currentStreak,
+                    totalXp = state.totalXp,
+                    level = state.level,
+                    onClick = onNavigateToProfile
+                )
+            }
+        } else {
+            item {
+                val completedCount = state.tasks.count { it.status == TaskItemStatus.DONE }
+                val totalCount = state.tasks.size
+                PixelCard(
+                    variant = PixelPanelVariant.BORDER,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "STATUS",
+                            style = PixelTypography.labelLarge,
+                            color = com.pixelquest.app.ui.theme.PixelTheme.colors.secondary
+                        )
+                        Text(
+                            text = "$completedCount / $totalCount COMPLETED",
+                            style = PixelTypography.bodyMedium,
+                            color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                        )
+                    }
+                }
+            }
         }
         if (state.flavorText.isNotBlank()) {
             item {
                 FlavorTextBanner(text = state.flavorText)
             }
         }
-        if (state.isStreakBroken) {
+        if (state.isStreakBroken && !state.isSimpleMode) {
             item {
                 val soundManager = com.pixelquest.app.audio.LocalSoundManager.current
                 androidx.compose.runtime.LaunchedEffect(Unit) {
