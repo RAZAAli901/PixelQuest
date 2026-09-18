@@ -9,6 +9,8 @@ import com.pixelquest.app.domain.repository.StatsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.pixelquest.app.domain.repository.SettingsRepository
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -23,7 +25,8 @@ data class StatsUiState(
     val overallCompletionRate: Float = 0f,
     val difficultyLevel: DifficultyLevel = DifficultyLevel.MEDIUM,
     val heatmapStatusMap: Map<LocalDate, DailyStatus> = emptyMap(),
-    val weeklyTrend: List<Pair<String, Float>> = emptyList()
+    val weeklyTrend: List<Pair<String, Float>> = emptyList(),
+    val isSimpleMode: Boolean = false
 )
 
 object StatsDataBucketer {
@@ -52,19 +55,25 @@ class StatsViewModel @Inject constructor(
     private val statsRepository: StatsRepository,
     private val streakRepository: StreakRepository,
     private val userProfileRepository: UserProfileRepository,
-    private val difficultySettingsRepository: DifficultySettingsRepository
+    private val difficultySettingsRepository: DifficultySettingsRepository,
+    private val settingsRepository: SettingsRepository? = null
 ) : ViewModel() {
 
     private val startDate = LocalDate.now().minusMonths(3)
     private val endDate = LocalDate.now()
 
     val uiState: StateFlow<StatsUiState> = combine(
-        streakRepository.getCurrentStreak(),
-        userProfileRepository.getProfile(),
-        difficultySettingsRepository.getCurrentDifficulty(),
-        statsRepository.getCompletionRateOverRange(startDate, endDate),
-        statsRepository.getDailyStatusForRange(startDate, endDate)
-    ) { streak, profile, difficulty, rate, dailyStatusMap ->
+        combine(
+            streakRepository.getCurrentStreak(),
+            userProfileRepository.getProfile(),
+            difficultySettingsRepository.getCurrentDifficulty()
+        ) { streak, profile, difficulty -> Triple(streak, profile, difficulty) },
+        combine(
+            statsRepository.getCompletionRateOverRange(startDate, endDate),
+            statsRepository.getDailyStatusForRange(startDate, endDate),
+            settingsRepository?.simpleModeEnabled ?: flowOf(false)
+        ) { rate, dailyStatusMap, isSimpleMode -> Triple(rate, dailyStatusMap, isSimpleMode) }
+    ) { (streak, profile, difficulty), (rate, dailyStatusMap, isSimpleMode) ->
         val weeklyTrend = StatsDataBucketer.calculateWeeklyBuckets(dailyStatusMap)
         StatsUiState(
             currentStreak = streak?.currentStreak ?: 0,
@@ -73,7 +82,8 @@ class StatsViewModel @Inject constructor(
             overallCompletionRate = rate,
             difficultyLevel = difficulty?.difficultyLevel ?: DifficultyLevel.MEDIUM,
             heatmapStatusMap = dailyStatusMap,
-            weeklyTrend = weeklyTrend
+            weeklyTrend = weeklyTrend,
+            isSimpleMode = isSimpleMode
         )
     }.stateIn(
         scope = viewModelScope,

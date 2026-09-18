@@ -69,30 +69,32 @@ fun StatsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "📊 HERO STATISTICS",
+            text = if (state.isSimpleMode) "📊 TASK STATISTICS" else "📊 HERO STATISTICS",
             style = PixelTypography.titleLarge,
             color = colors.primary
         )
 
-        // Core Metrics 2x2 Grid
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            PixelStatCard(
-                label = "CURRENT STREAK",
-                value = "${state.currentStreak} DAYS",
-                icon = "🔥",
-                accentColor = colors.primary,
-                modifier = Modifier.weight(1f)
-            )
-            PixelStatCard(
-                label = "LONGEST STREAK",
-                value = "${state.longestStreak} DAYS",
-                icon = "🏆",
-                accentColor = colors.primary,
-                modifier = Modifier.weight(1f)
-            )
+        // Core Metrics Grid (Streak cards hidden in Simple Mode)
+        if (!state.isSimpleMode) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                PixelStatCard(
+                    label = "CURRENT STREAK",
+                    value = "${state.currentStreak} DAYS",
+                    icon = "🔥",
+                    accentColor = colors.primary,
+                    modifier = Modifier.weight(1f)
+                )
+                PixelStatCard(
+                    label = "LONGEST STREAK",
+                    value = "${state.longestStreak} DAYS",
+                    icon = "🏆",
+                    accentColor = colors.primary,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
 
         Row(
