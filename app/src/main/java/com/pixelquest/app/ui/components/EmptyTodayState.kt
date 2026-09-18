@@ -17,8 +17,11 @@ import com.pixelquest.app.ui.theme.PixelTypography
 @Composable
 fun EmptyTodayState(
     onCreateQuestClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSimpleMode: Boolean = false
 ) {
+    val terminology = com.pixelquest.app.domain.model.TaskTerminology.forMode(isSimpleMode)
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
     PixelCard(
         variant = PixelPanelVariant.BORDER,
         contentPadding = 24.dp,
@@ -29,24 +32,24 @@ fun EmptyTodayState(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "🏰",
+                text = if (isSimpleMode) "📋" else "🏰",
                 style = PixelTypography.displayMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "NO QUESTS SCHEDULED FOR TODAY",
+                text = terminology.emptyStateTitle,
                 style = PixelTypography.titleMedium,
-                color = PixelGold
+                color = if (isSimpleMode) colors.primary else PixelGold
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "The realm is quiet. Add a new quest to begin your adventure!",
+                text = terminology.emptyStateSubtitle,
                 style = PixelTypography.bodyMedium,
                 color = PixelTextMuted
             )
             Spacer(modifier = Modifier.height(16.dp))
             PixelButton(
-                text = "+ CREATE QUEST",
+                text = terminology.createButtonText,
                 onClick = onCreateQuestClick,
                 modifier = Modifier.fillMaxWidth(0.8f)
             )

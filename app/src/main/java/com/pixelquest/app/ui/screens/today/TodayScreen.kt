@@ -120,10 +120,12 @@ fun TodayContent(
         state.tasks.filter { it.status == TaskItemStatus.DONE || it.status == TaskItemStatus.MISSED }
     }
 
+    val terminology = com.pixelquest.app.domain.model.TaskTerminology.forMode(state.isSimpleMode)
+
     if (taskToSkip != null) {
         PixelConfirmDialog(
-            title = "SKIP QUEST",
-            message = "Are you sure you want to mark '${taskToSkip?.name}' as missed/skipped?",
+            title = terminology.skipDialogTitle,
+            message = terminology.skipDialogMessage(taskToSkip?.name ?: ""),
             onConfirm = {
                 taskToSkip?.let { onQuickSkip(it) }
                 taskToSkip = null
@@ -144,7 +146,7 @@ fun TodayContent(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = if (state.isSimpleMode) "📋 TODAY'S TASKS" else "⚔️ TODAY'S DASHBOARD",
+                    text = terminology.todayHeader,
                     style = PixelTypography.titleLarge,
                     color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
                 )
@@ -230,12 +232,15 @@ fun TodayContent(
         }
         if (state.tasks.isEmpty()) {
             item {
-                EmptyTodayState(onCreateQuestClick = onCreateQuestClick)
+                EmptyTodayState(
+                    onCreateQuestClick = onCreateQuestClick,
+                    isSimpleMode = state.isSimpleMode
+                )
             }
         } else if (pendingTasks.isNotEmpty()) {
             item {
                 Text(
-                    text = "⚔️ UP NEXT",
+                    text = terminology.upNextHeader,
                     style = PixelTypography.titleMedium,
                     color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
                     modifier = Modifier.padding(vertical = 4.dp)
@@ -258,7 +263,7 @@ fun TodayContent(
         if (completedOrMissedTasks.isNotEmpty()) {
             item {
                 Text(
-                    text = "📜 COMPLETED & PAST QUESTS",
+                    text = terminology.completedHeader,
                     style = PixelTypography.titleMedium,
                     color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
