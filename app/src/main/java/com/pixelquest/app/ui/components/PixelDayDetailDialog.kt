@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter
 fun PixelDayDetailDialog(
     date: LocalDate,
     status: DailyStatus,
+    isSimpleMode: Boolean = false,
     onDismiss: () -> Unit
 ) {
     val colors = PixelTheme.colors
@@ -33,10 +34,10 @@ fun PixelDayDetailDialog(
     val dateText = date.format(formatter)
 
     val (statusTitle, statusColor) = when (status) {
-        DailyStatus.PERFECT -> "🌟 PERFECT DAY!" to colors.tertiary
-        DailyStatus.PARTIAL -> "⚡ PARTIAL PROGRESS" to colors.gold
-        DailyStatus.MISSED -> "💀 MISSED QUESTS" to colors.error
-        DailyStatus.NO_TASKS_SCHEDULED -> "🛡️ NO QUESTS SCHEDULED" to colors.secondary
+        DailyStatus.PERFECT -> (if (isSimpleMode) "✓ COMPLETED" else "🌟 PERFECT DAY!") to colors.tertiary
+        DailyStatus.PARTIAL -> (if (isSimpleMode) "⚡ PARTIAL" else "⚡ PARTIAL PROGRESS") to colors.gold
+        DailyStatus.MISSED -> (if (isSimpleMode) "✗ MISSED" else "💀 MISSED QUESTS") to colors.error
+        DailyStatus.NO_TASKS_SCHEDULED -> (if (isSimpleMode) "NO TASKS SCHEDULED" else "🛡️ NO QUESTS SCHEDULED") to colors.secondary
     }
 
     PixelDialog(

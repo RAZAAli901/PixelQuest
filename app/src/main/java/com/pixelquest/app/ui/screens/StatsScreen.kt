@@ -157,7 +157,7 @@ fun StatsContent(
 
         // Heatmap Section
         Text(
-            text = "📅 QUEST ACTIVITY HEATMAP",
+            text = if (state.isSimpleMode) "📅 TASK ACTIVITY HEATMAP" else "📅 QUEST ACTIVITY HEATMAP",
             style = PixelTypography.titleMedium,
             color = colors.primary
         )
@@ -168,6 +168,7 @@ fun StatsContent(
         ) {
             PixelCalendarHeatmap(
                 statusMap = state.heatmapStatusMap,
+                isSimpleMode = state.isSimpleMode,
                 modifier = Modifier.fillMaxWidth()
             )
         }

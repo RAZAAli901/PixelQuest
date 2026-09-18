@@ -1,11 +1,13 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -42,6 +44,7 @@ fun PixelCalendarHeatmap(
     modifier: Modifier = Modifier,
     startDate: LocalDate = LocalDate.now().minusMonths(3),
     endDate: LocalDate = LocalDate.now(),
+    isSimpleMode: Boolean = false,
     onDayClick: ((LocalDate, DailyStatus) -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
@@ -52,6 +55,7 @@ fun PixelCalendarHeatmap(
         PixelDayDetailDialog(
             date = date,
             status = status,
+            isSimpleMode = isSimpleMode,
             onDismiss = { selectedDay = null }
         )
     }
@@ -141,5 +145,52 @@ fun PixelCalendarHeatmap(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            HeatmapLegendItem(
+                color = colors.tertiary,
+                label = if (isSimpleMode) "Completed" else "Perfect Day"
+            )
+            HeatmapLegendItem(
+                color = colors.gold,
+                label = "Partial"
+            )
+            HeatmapLegendItem(
+                color = colors.error,
+                label = "Missed"
+            )
+            HeatmapLegendItem(
+                color = colors.onSurfaceVariant.copy(alpha = 0.4f),
+                label = if (isSimpleMode) "No Tasks" else "No Quests"
+            )
+        }
     }
 }
+
+@Composable
+private fun HeatmapLegendItem(
+    color: androidx.compose.ui.graphics.Color,
+    label: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(color)
+        )
+        Text(
+            text = label,
+            style = PixelTypography.labelSmall.copy(fontSize = 7.sp),
+            color = PixelTheme.colors.onSurfaceVariant
+        )
+    }
+}
+

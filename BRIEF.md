@@ -1697,6 +1697,7 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 11: Add subtle Simple Mode indicator on ProfileScreen for mode clarity - 46f0ff3
 - Step 12: Add Compose Preview for ProfileScreen in Simple Mode - 041b6a4
 - Step 13: Hide streak-related stat cards on StatsScreen when Simple Mode is active - 8f33d79
+- Step 14: Keep completion-rate stat card and task history visible in Simple Mode on StatsScreen - f39a198
 
 
 
