@@ -109,6 +109,17 @@ fun StatsContent(
                     accentColor = colors.secondary,
                     modifier = Modifier.weight(1f)
                 )
+            } else {
+                val activeDays = state.heatmapStatusMap.values.count {
+                    it == com.pixelquest.app.domain.model.DailyStatus.PERFECT || it == com.pixelquest.app.domain.model.DailyStatus.PARTIAL
+                }
+                PixelStatCard(
+                    label = "ACTIVE DAYS",
+                    value = "$activeDays DAYS",
+                    icon = "📋",
+                    accentColor = colors.secondary,
+                    modifier = Modifier.weight(1f)
+                )
             }
             PixelStatCard(
                 label = "COMPLETION RATE",
