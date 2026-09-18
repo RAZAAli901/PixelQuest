@@ -68,6 +68,7 @@ fun SettingsScreen(
             PixelButton(
                 text = "🛡️ CHANGE DIFFICULTY",
                 onClick = onNavigateToDifficulty,
+                enabled = !state.isSimpleModeEnabled,
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )

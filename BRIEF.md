@@ -1706,6 +1706,7 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 20: Verify notification visuals omit gamified iconography and badges in Simple Mode - f25d759
 - Step 21: Wire DidYouDoItScreen prompt to visually use Simple Mode copy variants - cca9531
 - Step 22: Verify sound effects respect Simple Mode with suppressed celebration and preserved neutral feedback - eeb8e95
+- Step 23: Add test verifying LevelUpCelebrationScreen never appears in Simple Mode across level-up scenarios - 45ac872
 
 
 

@@ -192,6 +192,7 @@ fun ProfileContent(
         PixelButton(
             text = "🛡️ CHANGE DIFFICULTY",
             onClick = onNavigateToDifficulty,
+            enabled = !state.isSimpleMode,
             variant = PixelButtonVariant.YELLOW,
             modifier = Modifier.fillMaxWidth()
         )
