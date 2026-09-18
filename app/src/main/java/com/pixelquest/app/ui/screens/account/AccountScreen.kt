@@ -280,6 +280,13 @@ fun AccountContent(
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "📋 Note: When Simple Mode is active, your habit completions, streaks, and XP points are still tracked in the background and accurately reflected on the global leaderboard.",
+                            style = PixelTypography.bodySmall,
+                            color = colors.secondary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
                         PixelButton(
                             text = if (accountState.isOptedIn) "🔴 LEAVE LEADERBOARD (OPT OUT)" else "🟢 JOIN LEADERBOARD (OPT IN)",
                             onClick = { onOptInToggle(!accountState.isOptedIn) },
