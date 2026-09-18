@@ -192,20 +192,28 @@ fun StatsContent(
         )
 
         // Quick-Nav Actions Section
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        if (state.isSimpleMode) {
             com.pixelquest.app.ui.components.PixelButton(
-                text = if (state.isSimpleMode) "📜 TASK HISTORY" else "📜 QUEST HISTORY",
+                text = "📜 TASK HISTORY",
                 onClick = onNavigateToTaskHistory,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxWidth()
             )
-            com.pixelquest.app.ui.components.PixelButton(
-                text = "⭐ LEVEL HISTORY",
-                onClick = onNavigateToLevelHistory,
-                modifier = Modifier.weight(1f)
-            )
+        } else {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                com.pixelquest.app.ui.components.PixelButton(
+                    text = "📜 QUEST HISTORY",
+                    onClick = onNavigateToTaskHistory,
+                    modifier = Modifier.weight(1f)
+                )
+                com.pixelquest.app.ui.components.PixelButton(
+                    text = "⭐ LEVEL HISTORY",
+                    onClick = onNavigateToLevelHistory,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
