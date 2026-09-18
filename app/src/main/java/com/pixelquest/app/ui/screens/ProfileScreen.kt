@@ -75,6 +75,27 @@ fun ProfileScreen(
             color = colors.primary
         )
 
+        if (state.isSimpleMode) {
+            PixelCard(
+                variant = PixelPanelVariant.BEIGE,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "📋 SIMPLE MODE ACTIVE",
+                        style = PixelTypography.labelSmall,
+                        color = colors.primary
+                    )
+                }
+            }
+        }
+
         val avatarId = profile?.avatarId ?: "avatar_hero"
 
         // Real Pixel Avatar Display with Level Tier Framing (or neutral frame in Simple Mode)
