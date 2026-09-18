@@ -1701,6 +1701,7 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 15: Adapt heatmap legend and labels to neutral language in Simple Mode - 7fb1e91
 - Step 16: Reframe weekly trend chart copy as neutral completion-rate trend in Simple Mode - 3e0bb38
 - Step 17: Hide View Level History quick-link on StatsScreen when Simple Mode is active - 2c65c6f
+- Step 18: Add Compose Preview for StatsScreen in Simple Mode - fe052c8
 
 
 
