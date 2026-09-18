@@ -2,6 +2,7 @@ package com.pixelquest.app.ui.screens.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -159,6 +160,46 @@ fun SettingsScreen(
             )
         },
         simpleModeSection = {
+            if (state.showSimpleModeHighlight && !state.isSimpleModeEnabled) {
+                // Lightweight, non-naggy one-time highlight (Step 36)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(PixelTheme.colors.secondary.copy(alpha = 0.15f))
+                        .border(1.dp, PixelTheme.colors.secondary, RoundedCornerShape(6.dp))
+                        .padding(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "✨ NEW: TRY SIMPLE MODE",
+                                style = PixelTypography.labelMedium,
+                                color = PixelTheme.colors.secondary,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Looking for a calm, distraction-free checklist? Switch off gamification anytime.",
+                                style = PixelTypography.bodySmall,
+                                color = PixelTheme.colors.onSurface
+                            )
+                        }
+                        Text(
+                            text = "✕",
+                            style = PixelTypography.labelLarge,
+                            color = PixelTheme.colors.onSurfaceVariant,
+                            modifier = Modifier
+                                .clickable { viewModel.dismissSimpleModeHighlight() }
+                                .padding(start = 8.dp, top = 4.dp, bottom = 4.dp, end = 4.dp)
+                        )
+                    }
+                }
+            }
+
             androidx.compose.material3.Text(
                 text = "Minimalist, un-gamified task tracking. Hides XP, streaks, levels, and celebration modals while preserving all background progress.",
                 style = com.pixelquest.app.ui.theme.PixelTypography.bodySmall,

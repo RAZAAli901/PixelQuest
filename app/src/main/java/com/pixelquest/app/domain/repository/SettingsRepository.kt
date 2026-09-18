@@ -21,6 +21,14 @@ interface SettingsRepository {
     val simpleModeEnabled: Flow<Boolean>
         get() = kotlinx.coroutines.flow.flowOf(false)
 
+    /**
+     * One-time highlight preference for Simple Mode discoverability.
+     */
+    val hasSeenSimpleModeHighlight: Flow<Boolean>
+        get() = kotlinx.coroutines.flow.flowOf(false)
+
+    suspend fun setSimpleModeHighlightSeen(seen: Boolean = true) {}
+
     suspend fun setSoundEnabled(enabled: Boolean)
     suspend fun setCrtEnabled(enabled: Boolean)
     suspend fun setHapticsEnabled(enabled: Boolean)

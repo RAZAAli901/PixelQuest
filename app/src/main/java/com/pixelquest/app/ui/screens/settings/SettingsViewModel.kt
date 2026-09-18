@@ -28,7 +28,8 @@ data class SettingsUiState(
     val isHapticsEnabled: Boolean = true,
     val isNotificationsEnabled: Boolean = true,
     val themeMode: ThemeMode = ThemeMode.Pixel,
-    val isSimpleModeEnabled: Boolean = false
+    val isSimpleModeEnabled: Boolean = false,
+    val showSimpleModeHighlight: Boolean = false
 )
 
 private data class SettingsPrefs(
@@ -37,7 +38,8 @@ private data class SettingsPrefs(
     val haptics: Boolean,
     val notifs: Boolean,
     val theme: ThemeMode,
-    val simpleMode: Boolean
+    val simpleMode: Boolean,
+    val highlightSeen: Boolean
 )
 
 @HiltViewModel
@@ -61,12 +63,16 @@ class SettingsViewModel @Inject constructor(
             combine(
                 settingsRepository.isNotificationsEnabled,
                 settingsRepository.themeMode,
-                settingsRepository.simpleModeEnabled
-            ) { notifs, theme, simpleMode -> Triple(notifs, theme, simpleMode) }
-        ) { (sound, crt, haptics), (notifs, theme, simpleMode) ->
-            SettingsPrefs(sound, crt, haptics, notifs, theme, simpleMode)
+                combine(settingsRepository.simpleModeEnabled, settingsRepository.hasSeenSimpleModeHighlight) { simple, seen -> Pair(simple, seen) }
+            ) { notifs, theme, (simple, seen) ->
+                Triple(notifs, theme, Pair(simple, seen))
+            }
+        ) { (sound, crt, haptics), (notifs, theme, pair) ->
+            SettingsPrefs(sound, crt, haptics, notifs, theme, pair.first, pair.second)
         }
     ) { profile, difficulty, prefs ->
+        val hasUsage = (profile?.totalXp ?: 0) >= 30 || (profile?.level ?: 1) > 1
+        val shouldShowHighlight = !prefs.simpleMode && !prefs.highlightSeen && hasUsage
         SettingsUiState(
             profile = profile,
             difficulty = difficulty,
@@ -75,7 +81,8 @@ class SettingsViewModel @Inject constructor(
             isHapticsEnabled = prefs.haptics,
             isNotificationsEnabled = prefs.notifs,
             themeMode = prefs.theme,
-            isSimpleModeEnabled = prefs.simpleMode
+            isSimpleModeEnabled = prefs.simpleMode,
+            showSimpleModeHighlight = shouldShowHighlight
         )
     }.stateIn(
         scope = viewModelScope,
@@ -83,8 +90,17 @@ class SettingsViewModel @Inject constructor(
         initialValue = SettingsUiState()
     )
 
+    fun dismissSimpleModeHighlight() {
+        viewModelScope.launch {
+            settingsRepository.setSimpleModeHighlightSeen(true)
+        }
+    }
+
     fun toggleSimpleMode(enabled: Boolean) {
         viewModelScope.launch {
+            if (enabled) {
+                settingsRepository.setSimpleModeHighlightSeen(true)
+            }
             settingsRepository.setSimpleModeEnabled(enabled)
         }
     }
