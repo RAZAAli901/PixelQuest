@@ -1692,6 +1692,7 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 6: Add Compose Preview comparing TodayScreen in gamified vs Simple Mode side-by-side - 533a912
 - Step 7: Hide the XP bar and level badge on ProfileScreen when Simple Mode is active - a329700
 - Step 8: Replace level-derived avatar tier framing with neutral avatar frame in Simple Mode - 8a1ed84
+- Step 9: Replace streak and points display with non-gamified stats in Simple Mode on ProfileScreen - eb76292
 
 
 
