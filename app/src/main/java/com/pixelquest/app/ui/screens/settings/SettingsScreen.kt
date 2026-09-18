@@ -214,11 +214,7 @@ fun SettingsScreen(
 
     val showSimpleModeDialog by viewModel.showSimpleModeDialog.collectAsState()
     if (showSimpleModeDialog) {
-        com.pixelquest.app.ui.components.PixelConfirmDialog(
-            title = "ENABLE SIMPLE MODE",
-            message = "Simple Mode streamlines PixelQuest into a clean, minimalist task tracker. Streaks, XP points, player levels, and celebration popups will be hidden. Your habit history and stats will still be safely tracked in the background, and you can switch back at any time.",
-            confirmText = "ENABLE",
-            dismissText = "CANCEL",
+        SimpleModeEnableDialog(
             onConfirm = { viewModel.confirmEnableSimpleMode() },
             onDismiss = { viewModel.dismissSimpleModeDialog() }
         )
