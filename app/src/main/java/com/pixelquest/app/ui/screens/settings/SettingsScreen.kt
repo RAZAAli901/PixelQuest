@@ -143,9 +143,32 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )
-            val simpleModeText = if (state.isSimpleModeEnabled) "📋 SIMPLE MODE: ON" else "📋 SIMPLE MODE: OFF"
+        },
+        simpleModeSection = {
+            androidx.compose.material3.Text(
+                text = "Minimalist, un-gamified task tracking. Hides XP, streaks, levels, and celebration modals while preserving all background progress.",
+                style = com.pixelquest.app.ui.theme.PixelTypography.bodySmall,
+                color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant
+            )
+            androidx.compose.foundation.layout.Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            ) {
+                androidx.compose.material3.Text(
+                    text = "MODE STATUS:",
+                    style = com.pixelquest.app.ui.theme.PixelTypography.labelSmall,
+                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                )
+                androidx.compose.material3.Text(
+                    text = if (state.isSimpleModeEnabled) "✨ SIMPLE (ACTIVE)" else "⚔️ GAMIFIED (ACTIVE)",
+                    style = com.pixelquest.app.ui.theme.PixelTypography.labelMedium,
+                    color = if (state.isSimpleModeEnabled) com.pixelquest.app.ui.theme.PixelTheme.colors.secondary else com.pixelquest.app.ui.theme.PixelTheme.colors.tertiary
+                )
+            }
+            val simpleModeButtonText = if (state.isSimpleModeEnabled) "📋 SIMPLE MODE: ON" else "📋 ENABLE SIMPLE MODE"
             PixelButton(
-                text = simpleModeText,
+                text = simpleModeButtonText,
                 onClick = {
                     if (!state.isSimpleModeEnabled) {
                         viewModel.requestEnableSimpleMode()

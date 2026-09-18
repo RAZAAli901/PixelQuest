@@ -26,6 +26,7 @@ fun SettingsScreenScaffold(
     accountSection: @Composable () -> Unit = {},
     notificationsSection: @Composable () -> Unit = {},
     appearanceSection: @Composable () -> Unit = {},
+    simpleModeSection: @Composable () -> Unit = {},
     dataSection: @Composable () -> Unit = {},
     dangerZoneSection: @Composable () -> Unit = {}
 ) {
@@ -79,6 +80,18 @@ fun SettingsScreenScaffold(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(text = "📺 APPEARANCE & AUDIO", style = PixelTypography.titleMedium, color = colors.primary)
                 appearanceSection()
+            }
+        }
+
+        // Simple Mode Section Card
+        PixelCard(
+            variant = PixelPanelVariant.BORDER,
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = 16.dp
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(text = "📋 SIMPLE MODE", style = PixelTypography.titleMedium, color = colors.primary)
+                simpleModeSection()
             }
         }
 
