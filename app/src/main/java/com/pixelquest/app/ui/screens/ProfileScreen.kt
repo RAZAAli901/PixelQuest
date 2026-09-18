@@ -77,11 +77,12 @@ fun ProfileScreen(
 
         val avatarId = profile?.avatarId ?: "avatar_hero"
 
-        // Real Pixel Avatar Display with Level Tier Framing
+        // Real Pixel Avatar Display with Level Tier Framing (or neutral frame in Simple Mode)
         PixelAvatarFrame(
             avatarId = avatarId,
             level = level,
             size = 80.dp,
+            isSimpleMode = state.isSimpleMode,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .clickable { onNavigateToAvatarSelection() }

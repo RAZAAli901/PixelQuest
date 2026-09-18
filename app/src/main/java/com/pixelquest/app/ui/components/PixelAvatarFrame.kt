@@ -27,11 +27,14 @@ fun PixelAvatarFrame(
     avatarId: String,
     level: Int,
     modifier: Modifier = Modifier,
-    size: Dp = 80.dp
+    size: Dp = 80.dp,
+    isSimpleMode: Boolean = false
 ) {
     val tier = AvatarTierCalculator.calculateTier(level)
     val activeMode = PixelTheme.mode
-    val borderColor = if (activeMode == ThemeMode.Light) {
+    val borderColor = if (isSimpleMode) {
+        PixelTheme.colors.pixelBorder
+    } else if (activeMode == ThemeMode.Light) {
         when (tier) {
             AvatarTier.BRONZE -> Color(0xFF9A4F10) // Rich dark bronze (>5:1 on white)
             AvatarTier.SILVER -> Color(0xFF475569) // Slate chrome silver (>7:1 on white)
@@ -50,7 +53,7 @@ fun PixelAvatarFrame(
             modifier = Modifier
                 .clip(shape)
                 .background(PixelTheme.colors.surface)
-                .border(3.dp, borderColor, shape)
+                .border(if (isSimpleMode) 2.dp else 3.dp, borderColor, shape)
                 .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -60,19 +63,21 @@ fun PixelAvatarFrame(
             )
         }
 
-        // Tier Badge Indicator
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .offset(x = 4.dp, y = 4.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(borderColor)
-                .padding(horizontal = 4.dp, vertical = 2.dp)
-        ) {
-            Text(
-                text = tier.badgeEmoji,
-                fontSize = 12.sp
-            )
+        // Tier Badge Indicator (suppressed in Simple Mode)
+        if (!isSimpleMode) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 4.dp, y = 4.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(borderColor)
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
+            ) {
+                Text(
+                    text = tier.badgeEmoji,
+                    fontSize = 12.sp
+                )
+            }
         }
     }
 }
