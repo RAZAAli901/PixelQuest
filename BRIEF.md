@@ -1687,6 +1687,7 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 1: Hide StreakXpSummaryStrip on TodayScreen when Simple Mode is active - 389a803
 - Step 2: Reword the Perfect Day banner into a neutral message in Simple Mode - b0a5ac9
 - Step 3: Switch task-card terminology from Quest to Task when Simple Mode is active via centralized copy provider - 209c3af
+- Step 4: Verify countdown timers and quick-complete remain fully functional and unchanged in Simple Mode - 4f12c4d
 
 
 

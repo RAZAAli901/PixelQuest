@@ -35,14 +35,47 @@ object FlavorTextCatalog {
         "Flawless victory! Every scheduled quest accomplished!"
     )
 
+    val simpleZeroTasksLines = listOf(
+        "No tasks scheduled for today.",
+        "Your checklist is empty for today.",
+        "All clear for today. Add tasks whenever you're ready."
+    )
+
+    val simpleNotStartedLines = listOf(
+        "Ready to begin today's tasks.",
+        "Here is your task checklist for today.",
+        "First step of the day: review your scheduled tasks."
+    )
+
+    val simpleInProgressLines = listOf(
+        "Tasks in progress. Keep moving forward.",
+        "Great progress on today's checklist.",
+        "Continuing through your scheduled tasks."
+    )
+
+    val simpleAllCompletedLines = listOf(
+        "All tasks completed for today.",
+        "Checklist complete. Well done on finishing today's tasks.",
+        "Every scheduled task for today has been completed."
+    )
+
     fun getFlavorText(
         taskCount: Int,
         completedCount: Int,
         isPerfectDay: Boolean,
-        date: LocalDate = LocalDate.now()
+        date: LocalDate = LocalDate.now(),
+        isSimpleMode: Boolean = false
     ): String {
         val seed = abs(date.hashCode())
         val allCompleted = taskCount > 0 && completedCount == taskCount
+        if (isSimpleMode) {
+            return when {
+                taskCount == 0 -> simpleZeroTasksLines[seed % simpleZeroTasksLines.size]
+                allCompleted || isPerfectDay -> simpleAllCompletedLines[seed % simpleAllCompletedLines.size]
+                completedCount > 0 -> simpleInProgressLines[seed % simpleInProgressLines.size]
+                else -> simpleNotStartedLines[seed % simpleNotStartedLines.size]
+            }
+        }
         return when {
             taskCount == 0 -> zeroTasksLines[seed % zeroTasksLines.size]
             allCompleted || isPerfectDay -> {

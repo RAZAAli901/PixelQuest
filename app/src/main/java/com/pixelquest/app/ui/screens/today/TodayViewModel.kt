@@ -90,7 +90,13 @@ class TodayViewModel @Inject constructor(
         val completionPct = if (totalCount > 0) completedCount.toFloat() / totalCount else 0f
         val threshold = difficulty?.perfectDayThreshold ?: 0.7f
         val isPerfectDay = totalCount > 0 && completionPct >= threshold
-        val flavorText = FlavorTextCatalog.getFlavorText(totalCount, completedCount, isPerfectDay, currentDate)
+        val flavorText = FlavorTextCatalog.getFlavorText(
+            taskCount = totalCount,
+            completedCount = completedCount,
+            isPerfectDay = isPerfectDay,
+            date = currentDate,
+            isSimpleMode = isSimpleMode
+        )
 
         val isStreakBroken = (streak != null && streak.currentStreak == 0 && streak.lastCompletedDate != null)
 
