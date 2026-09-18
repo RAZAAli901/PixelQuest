@@ -70,7 +70,7 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            text = "👤 HERO PROFILE",
+            text = if (state.isSimpleMode) "👤 USER PROFILE" else "👤 HERO PROFILE",
             style = PixelTypography.titleLarge,
             color = colors.primary
         )
@@ -120,21 +120,23 @@ fun ProfileScreen(
         }
 
         // Level XP Bar
-        val perfectDays = profile?.perfectDaysTowardNextLevel ?: 0
-        val daysRequired = difficulty?.daysRequiredPerLevel ?: 7
-        PixelXpBar(
-            currentProgress = perfectDays,
-            maxProgress = daysRequired,
-            level = level,
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (!state.isSimpleMode) {
+            val perfectDays = profile?.perfectDaysTowardNextLevel ?: 0
+            val daysRequired = difficulty?.daysRequiredPerLevel ?: 7
+            PixelXpBar(
+                currentProgress = perfectDays,
+                maxProgress = daysRequired,
+                level = level,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-        PixelButton(
-            text = "📜 LEVEL HISTORY",
-            onClick = onNavigateToLevelHistory,
-            variant = PixelButtonVariant.BLUE,
-            modifier = Modifier.fillMaxWidth()
-        )
+            PixelButton(
+                text = "📜 LEVEL HISTORY",
+                onClick = onNavigateToLevelHistory,
+                variant = PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         PixelButton(
             text = "🛡️ CHANGE DIFFICULTY",

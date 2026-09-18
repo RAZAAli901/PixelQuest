@@ -23,7 +23,8 @@ data class ProfileUiState(
     val streak: StreakEntity? = null,
     val difficulty: DifficultySettingsEntity? = null,
     val isSoundEnabled: Boolean = true,
-    val isCrtEnabled: Boolean = false
+    val isCrtEnabled: Boolean = false,
+    val isSimpleMode: Boolean = false
 )
 
 @HiltViewModel
@@ -35,18 +36,24 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<ProfileUiState> = combine(
-        userProfileRepository.getProfile(),
-        streakRepository.getCurrentStreak(),
-        difficultySettingsRepository.getCurrentDifficulty(),
-        settingsRepository.isSoundEnabled,
-        settingsRepository.isCrtEnabled
-    ) { profile, streak, difficulty, soundEnabled, crtEnabled ->
+        combine(
+            userProfileRepository.getProfile(),
+            streakRepository.getCurrentStreak(),
+            difficultySettingsRepository.getCurrentDifficulty()
+        ) { profile, streak, difficulty -> Triple(profile, streak, difficulty) },
+        combine(
+            settingsRepository.isSoundEnabled,
+            settingsRepository.isCrtEnabled,
+            settingsRepository.simpleModeEnabled
+        ) { sound, crt, simpleMode -> Triple(sound, crt, simpleMode) }
+    ) { (profile, streak, difficulty), (soundEnabled, crtEnabled, simpleMode) ->
         ProfileUiState(
             profile = profile,
             streak = streak,
             difficulty = difficulty,
             isSoundEnabled = soundEnabled,
-            isCrtEnabled = crtEnabled
+            isCrtEnabled = crtEnabled,
+            isSimpleMode = simpleMode
         )
     }.stateIn(
         scope = viewModelScope,

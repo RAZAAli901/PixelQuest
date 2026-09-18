@@ -1689,6 +1689,7 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 3: Switch task-card terminology from Quest to Task when Simple Mode is active via centralized copy provider - 209c3af
 - Step 4: Verify countdown timers and quick-complete remain fully functional and unchanged in Simple Mode - 4f12c4d
 - Step 5: Wire flavor text banner to use neutral copy variants in Simple Mode - e666796
+- Step 6: Add Compose Preview comparing TodayScreen in gamified vs Simple Mode side-by-side - 533a912
 
 
 
