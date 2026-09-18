@@ -1696,6 +1696,7 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 10: Keep avatar selection fully functional and available as cosmetic choice in Simple Mode - e780bad
 - Step 11: Add subtle Simple Mode indicator on ProfileScreen for mode clarity - 46f0ff3
 - Step 12: Add Compose Preview for ProfileScreen in Simple Mode - 041b6a4
+- Step 13: Hide streak-related stat cards on StatsScreen when Simple Mode is active - 8f33d79
 
 
 

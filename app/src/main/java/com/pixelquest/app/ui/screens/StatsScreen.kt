@@ -101,13 +101,15 @@ fun StatsContent(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            PixelStatCard(
-                label = "TOTAL XP",
-                value = "${state.totalPoints} XP",
-                icon = "⭐",
-                accentColor = colors.secondary,
-                modifier = Modifier.weight(1f)
-            )
+            if (!state.isSimpleMode) {
+                PixelStatCard(
+                    label = "TOTAL XP",
+                    value = "${state.totalPoints} XP",
+                    icon = "⭐",
+                    accentColor = colors.secondary,
+                    modifier = Modifier.weight(1f)
+                )
+            }
             PixelStatCard(
                 label = "COMPLETION RATE",
                 value = "${(state.overallCompletionRate * 100).toInt()}%",
@@ -191,7 +193,7 @@ fun StatsContent(
             modifier = Modifier.fillMaxWidth()
         ) {
             com.pixelquest.app.ui.components.PixelButton(
-                text = "📜 QUEST HISTORY",
+                text = if (state.isSimpleMode) "📜 TASK HISTORY" else "📜 QUEST HISTORY",
                 onClick = onNavigateToTaskHistory,
                 modifier = Modifier.weight(1f)
             )
