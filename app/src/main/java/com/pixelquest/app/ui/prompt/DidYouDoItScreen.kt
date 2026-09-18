@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.audio.LocalSoundManager
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
@@ -24,10 +25,9 @@ import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextWhite
+import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 import kotlinx.coroutines.delay
-
-import com.pixelquest.app.audio.LocalSoundManager
 
 @Composable
 fun DidYouDoItScreen(
@@ -36,9 +36,11 @@ fun DidYouDoItScreen(
     onDismiss: () -> Unit,
     onYesClick: () -> Unit = {},
     onNoClick: () -> Unit = {},
+    isSimpleMode: Boolean = false,
     timeoutMillis: Long = 2 * 60 * 60 * 1000L, // 2 hours window
     modifier: Modifier = Modifier
 ) {
+    val copy = TaskPromptCopyVariants.resolve(isSimpleMode)
     val soundManager = LocalSoundManager.current
     LaunchedEffect(taskId) {
         delay(timeoutMillis)
@@ -61,15 +63,24 @@ fun DidYouDoItScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                if (copy.iconEmoji != null) {
+                    Text(
+                        text = copy.iconEmoji,
+                        style = PixelTypography.displayLarge
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
                 Text(
-                    text = "⚔️",
-                    style = PixelTypography.displayLarge
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "DID YOU DO IT?",
+                    text = copy.headerTitle,
                     style = PixelTypography.displaySmall,
                     color = PixelGold,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = copy.questionPrompt,
+                    style = PixelTypography.bodyMedium,
+                    color = PixelTheme.colors.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -84,7 +95,7 @@ fun DidYouDoItScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     PixelButton(
-                        text = "NOT YET",
+                        text = copy.dismissButtonText,
                         onClick = {
                             com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
                             soundManager?.playTaskMissedSound()
@@ -96,7 +107,7 @@ fun DidYouDoItScreen(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     PixelButton(
-                        text = "YES!",
+                        text = copy.confirmButtonText,
                         onClick = {
                             com.pixelquest.app.ui.haptics.PixelHaptics.performSuccessPattern(haptic)
                             soundManager?.playTaskCompleteSound()

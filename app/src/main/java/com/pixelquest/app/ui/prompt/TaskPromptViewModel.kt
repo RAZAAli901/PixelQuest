@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -24,6 +27,9 @@ class TaskPromptViewModel @Inject constructor(
     private val streakRepository: StreakRepository,
     private val settingsRepository: SettingsRepository? = null
 ) : ViewModel() {
+
+    val isSimpleMode: StateFlow<Boolean> = (settingsRepository?.simpleModeEnabled ?: flowOf(false))
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _pointsAwardedTrigger = MutableStateFlow<Int?>(null)
     val pointsAwardedTrigger: StateFlow<Int?> = _pointsAwardedTrigger.asStateFlow()
