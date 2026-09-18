@@ -1712,6 +1712,84 @@ In strict accordance with the prompt's boundary rules, **Day 18 focuses 100% on 
 - Step 26: Verify disabled difficulty state uses proper styling and layout stability in Simple Mode - 610dbf6
 - Step 27: Add Compose Preview for Settings screen showing locked difficulty state - 9be8a6f
 - Step 28: Add UI test for difficulty entry point disabled state under Simple Mode - df4f2db
+- Step 29: Verify LeaderboardScreen remains functional and visually unchanged for opted-in Simple Mode users - 6bba35f
+- Step 30: Add explanatory note in AccountScreen clarifying leaderboard background progress in Simple Mode - 43fd5d0
+- Step 31: Verify Simple Mode user's own leaderboard row renders normally to other users - 921fae4
+- Step 32: Add UI test confirming leaderboard rendering is unaffected by viewing user Simple Mode state - c322aa3
+- Step 33: Polish Simple Mode toggle visual placement and styling in Settings - ae7100f
+- Step 34: Polish the explanatory enable-dialog with proper theme-aware pixel styling - 110fc37
+- Step 35: Polish the Switch back to Full Game Mode affordance styling - 32ad658
+- Step 36: Add lightweight non-naggy one-time highlight for Simple Mode in Settings - 1fc0a01
+- Step 37: Verify Simple Mode UI suppression works correctly across all theme modes (Pixel, Light) - 9c5ca3b
+- Step 38: Verify CRT forced off decision correctly restores original CRT preference when exiting Simple Mode - 2736e78
+- Step 39: Add integration test covering Simple Mode x theme mode combination matrix for Pixel and Light - a5b2739
+- Step 40: Fix visual conflicts between Simple Mode suppression and theme rendering - 16e87c7
+- Step 41: Manual QA pass verifying Simple Mode active screens cleanly hide gamification elements - f7a147a
+- Step 42: Manual QA pass verifying disabling Simple Mode restores all gamified elements with historical data intact - 6654cd6
+- Step 43: Fix layout balance bug on StatsScreen and clean up unused imports in TodayQuestCard - 70e5f64
+- Step 44: Run full regression pass confirming default gamified mode is completely unaffected - b810a3d
+- Step 45: Add UI test suite entry covering full Simple Mode checklist from SIMPLE_MODE.md - f2a3c39
+- Step 46: Update BRIEF.md with full Day 19 summary (UI suppression, cross-theme verification, known gaps) - [PENDING_COMMIT]
+
+---
+
+## Day 19 Summary: Un-Gamified "Simple Mode": UI Adaptation
+
+### Overview & Architecture
+Day 19 successfully builds on Day 18's data layer to bring **Simple Mode** to life across the visual UI of PixelQuest. Simple Mode delivers a clean, un-gamified, minimalist task management lens for users seeking focus and habit consistency without score anxiety, level pressure, streaks, or celebration modals.
+
+### Core Visual Suppression Implementation
+1. **TodayScreen**:
+   - Suppressed `StreakXpSummaryStrip` (streak flame, XP total, level badge).
+   - Added clean minimalist completion status card showing `"X / Y COMPLETED"`.
+   - Reworded "Perfect Day!" banner to neutral `"All tasks done for today"`.
+   - Centralized terminology via `TaskTerminology.kt` (switching "Quest" to "Task" across headers, buttons, cards, dialogs).
+   - Flavor text wired to neutral, supportive variants via `FlavorTextCatalog.kt`.
+   - Functional integrity verified: countdown timers and quick-complete swipe gestures remain fully operational.
+   - Compose Preview added for side-by-side gamified vs Simple Mode comparison.
+2. **ProfileScreen**:
+   - Suppressed XP progression bar and level milestone badges.
+   - Replaced bronze/silver/gold avatar tier frames with a neutral minimalist border in `PixelAvatarFrame.kt`.
+   - Replaced streak/points stats with clean habit tallies (`ACTIVE TASKS`, `COMPLETED`).
+   - Maintained full cosmetic avatar customization freedom across all levels.
+   - Added subtle `📋 SIMPLE MODE ACTIVE` indicator chip.
+   - Compose Preview added for Simple Mode profile.
+3. **StatsScreen**:
+   - Suppressed streak-related hero cards (current streak, longest streak).
+   - Preserved completion rate percentage and balanced layout with active habit days stat card.
+   - Adapted calendar heatmap legend to neutral labels (`Completed`, `Partial`, `Missed`, `No Tasks`).
+   - Reframed weekly trend chart as completion-rate trend.
+   - Hidden "View Level History" quick link.
+   - Compose Preview added for Simple Mode stats.
+4. **Celebrations, Sounds & Prompts**:
+   - Enforced end-to-end gating so `LevelUpCelebrationScreen` never renders in Simple Mode.
+   - Suppressed level-up fanfare audio while preserving neutral task completion and skip feedback chimes.
+   - Adapted `DidYouDoItScreen` prompt: neutral title (`TASK CHECK`), neutral prompt (`"Did you complete this task?"`), and clean action buttons (`"Completed"`, `"Not yet"`) with combat iconography omitted.
+   - Automated tests added verifying celebration suppression across various XP scenarios.
+5. **Settings & Discoverability**:
+   - Visually disabled the "Change Difficulty" entry point with clear explanatory text regarding the Medium baseline lock.
+   - Dedicated Simple Mode section card in `SettingsScreenScaffold.kt` with clear status indication.
+   - Theme-aware pixel dialog `SimpleModeEnableDialog.kt` detailing hidden elements, safe background tracking, and reversibility.
+   - Polished "Switch back to Full Game Mode" affordance card with retro gold accent and reassurance copy.
+   - Lightweight, non-naggy one-time highlight banner shown once after meaningful app usage.
+6. **Leaderboard Coexistence**:
+   - Verified that opted-in Simple Mode users continue to render normally with full competitor rankings on `LeaderboardScreen`.
+   - Added explanatory note on `AccountScreen` confirming habit completions and XP continue populating public leaderboards.
+   - Confirmed viewing user's Simple Mode setting has zero impact on competitor row display.
+
+### Cross-Theme Verification Results
+- **Orthogonality**: Simple Mode and theme mode (`Pixel`, `Light`) are fully orthogonal dimensions.
+- **CRT Filter Restoration**: CRT scanlines are forced OFF in Simple Mode (preserving an understated experience), while preserving the underlying user preference. Exiting Simple Mode immediately restores the user's active CRT setting without manual intervention.
+- **Theme Rendering Fixes**: Resolved hardcoded dark background and white text in prompt dialogs and error cards, ensuring clean WCAG AAA contrast across both Dark Pixel and Light modes.
+
+### Regression & Data Preservation
+- **100% Background Tracking**: Nightly streak calculations, XP points, and level advancements continue operating in Room DB during Simple Mode.
+- **Clean Reversal**: Exiting Simple Mode restores all gamification badges, streak counters, and avatar tier framing with zero data loss.
+- **Default Mode Untouched**: Comprehensive regression tests verify that the default Gamified Mode is 100% visually and functionally identical to prior behavior.
+
+### Known Gaps & Forward Compatibility for Day 20
+- **Day 20 Scope**: Begins the Comic theme foundation, color tokens, and visual assets (independent of Simple Mode).
+- **Future Hook**: Comic theme will be integrated into the Simple Mode theme matrix once Day 23 finishes. Simple Mode AI insight tone hook (`HabitInsightToneHook`) is prepared for Gemini prompt integration in Days 24–25.
 
 
 
