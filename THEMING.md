@@ -418,4 +418,24 @@ All color combinations were verified using the standard WCAG relative luminance 
      - Must be strictly forced OFF in Simple Mode (preserving minimalist focus).
      - Must never degrade text contrast or WCAG AA readability.
 
+### 10.5 Locked Geometric Spec for Days 21–23 (Step 35)
+
+Following direct visual fidelity cross-checks against the Nitnode reference in Steps 30–34, the geometric shape tokens are calibrated and locked. Days 21–23 screen implementations **must consume these tokens directly from `ComicShapeTokens` and `ComicTokens` without deviation**:
+
+| Token Name | Constant | Exact DP Value | Intended Visual Role & Usage |
+| :--- | :--- | :--- | :--- |
+| **Default Border Width** | `ComicShapeTokens.BorderWidthDefault` | **2.5dp** | Standard solid black ink outline for cards, stat panels, and buttons |
+| **Thick Border Width** | `ComicShapeTokens.BorderWidthThick` | **3.5dp** | Prominent hero panels, modal dialog outlines, avatar frames |
+| **Default Shadow Offset** | `ComicShapeTokens.ShadowOffsetDefault` | **4.0dp** | Hard-edged flat solid black offset (+4dp down-right) for cards & buttons |
+| **Prominent Shadow Offset** | `ComicShapeTokens.ShadowOffsetProminent` | **6.0dp** | Elevated hero cards, floating action items, dialog frames |
+| **Subtle Shadow Offset** | `ComicShapeTokens.ShadowOffsetSubtle` | **2.0dp** | Compact filter chips, status badges, secondary buttons |
+| **Default Corner Radius** | `ComicShapeTokens.RadiusDefault` | **10.0dp** | Standard rounded corners for cards, stat containers, and CTA buttons |
+| **Small Corner Radius** | `ComicShapeTokens.RadiusSmall` | **8.0dp** | Compact chips, tags, small notification badges |
+| **Large Corner Radius** | `ComicShapeTokens.RadiusLarge` | **12.0dp** | Large modal dialogs, hero header cards, bottom sheets |
+
+#### Tactile Button Press Physics Specification
+- **Resting State**: Button translation = `(0dp, 0dp)`, Flat Shadow Offset = `4.0dp`.
+- **Pressed State**: Button translates `+3.0dp` down-right into shadow, Shadow collapses to `1.0dp`, creating tactile comic mechanical actuation.
+- **Elevation Rules**: Zero Material blurred elevation (`elevation = 0.dp`); only duplicated offset vector geometry is permitted.
+
 
