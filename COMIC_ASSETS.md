@@ -100,3 +100,23 @@ This checklist enumerates every component Days 21–23 will adapt to the Comic B
 - [ ] **Full Screen Theme Integration & Gate Release**:
   - [ ] Connect `ThemeMode.Comic` across all app screens.
   - [ ] Remove "Coming Soon" gate in `ThemeSelectionCard.kt`.
+
+---
+
+## 4. Architectural Decision: Compose-Drawn Shapes vs. Raster PNG Assets (Step 27)
+
+### 4.1 The Core Decision: Adopt Compose-Drawn Vector Shapes
+We formally decide that **Comic mode components are built using Compose-drawn vector shapes (`comicBorder`, `comicDropShadow`, `RoundedCornerShape`) rather than static raster PNG assets**.
+
+### 4.2 Key Rationale
+1. **Pristine Geometric Fidelity**:
+   The Nitnode reference style features unblurred solid black strokes and sharp offset drop shadows. In Compose, drawing these procedurally ensures mathematical crispness without 9-patch scaling artifacts, blurry corners, or anti-aliasing fuzziness.
+2. **Zero APK Bloat**:
+   Using procedural modifiers adds **0 bytes of PNG raster weight** to the APK, avoiding multiple density directories (`drawable-xhdpi`, `drawable-xxhdpi`, etc.).
+3. **Infinite Palette Flexibility**:
+   A single `ComicPanel` or `ComicButton` composable can effortlessly render in Coral Red, Burnt Orange, Sky Blue, Lavender, or White by passing a color token. Raster assets would require dozens of sliced 9-patches for each color and state.
+4. **Dynamic Press Physics**:
+   Compose enables fluid, responsive press animations (translating the button face `+2dp` into the shadow while collapsing shadow offset) that feel tactile and physical.
+5. **Role for Raster Art**:
+   Raster PNG assets are reserved strictly for genuinely illustrated elements (e.g. multi-layered character illustrations or complex comic burst stickers), if any are added in later days.
+
