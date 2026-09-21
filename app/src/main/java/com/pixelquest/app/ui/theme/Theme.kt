@@ -3,18 +3,16 @@ package com.pixelquest.app.ui.theme
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 
-
 /**
  * PixelQuest Theme wrapper supporting multiple theme modes:
  * - [ThemeMode.Pixel]: Classic retro dark arcade theme.
  * - [ThemeMode.Light]: Crisp light theme (full design Day 17).
- * - [ThemeMode.Comic]: Dynamic comic-book pop art (full design Days 20-23).
+ * - [ThemeMode.Comic]: Dynamic comic-book pop art (foundation Day 20, screens Days 21-23).
  */
 @Composable
 fun PixelQuestTheme(
@@ -34,6 +32,11 @@ fun PixelQuestTheme(
         isReduceMotion = isReduceMotion
     )
     val materialColorScheme = appColorScheme.toMaterialColorScheme()
+    val effectiveTypography = when (effectiveMode) {
+        ThemeMode.Comic -> ComicTypography
+        else -> PixelTypography
+    }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -42,7 +45,7 @@ fun PixelQuestTheme(
                 window.statusBarColor = appColorScheme.background.toArgb()
                 window.navigationBarColor = appColorScheme.background.toArgb()
                 val insetsController = androidx.core.view.WindowCompat.getInsetsController(window, view)
-                val isLight = effectiveMode == ThemeMode.Light
+                val isLight = !appColorScheme.isDark
                 insetsController.isAppearanceLightStatusBars = isLight
                 insetsController.isAppearanceLightNavigationBars = isLight
             }
@@ -55,7 +58,7 @@ fun PixelQuestTheme(
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme,
-            typography = PixelTypography,
+            typography = effectiveTypography,
             content = content
         )
     }
