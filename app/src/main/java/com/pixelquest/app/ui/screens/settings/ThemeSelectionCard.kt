@@ -103,10 +103,11 @@ fun ThemeSelectionCard(
                 isSelected = currentTheme == ThemeMode.Comic,
                 isComingSoon = !ThemeMode.Comic.isAvailable,
                 previewColors = listOf(
-                    DefaultComicColorScheme.background,
                     DefaultComicColorScheme.primary,
-                    DefaultComicColorScheme.secondary,
-                    DefaultComicColorScheme.tertiary
+                    DefaultComicColorScheme.burntOrange,
+                    DefaultComicColorScheme.skyBlue,
+                    DefaultComicColorScheme.lavender,
+                    DefaultComicColorScheme.comicBorder
                 ),
                 onClick = { /* Disabled / Gated until Day 23 */ }
             )
@@ -191,6 +192,17 @@ fun ThemeOptionRow(
             text = if (isSelected) "● ACTIVE" else "○",
             style = PixelTypography.labelSmall,
             color = if (isSelected) themeColors.primary else themeColors.onSurfaceVariant
+        )
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, backgroundColor = 0xFF12121E)
+@Composable
+fun ThemeSelectionCardPreview() {
+    com.pixelquest.app.ui.theme.PixelQuestTheme {
+        ThemeSelectionCard(
+            currentTheme = ThemeMode.Pixel,
+            onThemeSelected = {}
         )
     }
 }
