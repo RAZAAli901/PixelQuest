@@ -107,5 +107,15 @@
      - Light mode bypasses the dark-filled `#0D0D15` 9-patch `pixel_panel_border.png`, procedurally rendering an 8-bit stepped pixel border using `colors.pixelBorder` (`#292524`) with clean 2dp drop shadow.
 - **APK Footprint Impact**: Zero additional bytes added to the APK package; 100% runtime procedural shading and Compose vector tinting.
 
-<!-- Audit Status: Fully verified for v1.1.0, Day 16 multi-theme architecture, and Day 17 Light Mode -->
+## Day 20 Comic Mode Vector Shape Architecture (Steps 27–29)
+- **Architectural Decision**: Comic Mode components (buttons, panels, cards, dialogue frames) are built 100% using **procedural Compose-drawn vector shapes** rather than static raster PNG assets:
+  - `comicBorder`: Solid black ink line (`2.5dp`), `RoundedCornerShape(10.dp)`.
+  - `comicDropShadow`: Flat, hard-edged solid black duplicated offset shape (`4.dp` offset down-right).
+  - `ComicPanel`: Layout-safe box container reserving shadow clearance (`4.dp`).
+  - `ComicButton`: Tactile +3dp XY translation with collapsible shadow and integrated haptics/audio.
+- **Proof-of-Concept Validation**: `ComicButton.kt` successfully replicates the Nitnode reference button with zero raster 9-patch assets, infinite color flexibility, and 0 APK bloat.
+- **Raster Scope**: Raster PNGs are reserved strictly for future complex multi-layer character illustrations, if desired.
+
+<!-- Audit Status: Fully verified for v1.1.0, Day 16 multi-theme architecture, Day 17 Light Mode, and Day 20 Comic Mode Foundation -->
+
 
