@@ -99,16 +99,16 @@ fun ThemeSelectionCard(
             // Comic Mode Option (Marked Coming Soon)
             ThemeOptionRow(
                 title = "💥 COMIC (POP-ART)",
-                subtitle = "Bold halftone pop-art borders (Coming Soon — Day 23)",
+                subtitle = "Bold pop-art comic borders (Coming Soon — Day 23)",
                 isSelected = currentTheme == ThemeMode.Comic,
-                isComingSoon = true,
+                isComingSoon = !ThemeMode.Comic.isAvailable,
                 previewColors = listOf(
                     DefaultComicColorScheme.background,
                     DefaultComicColorScheme.primary,
                     DefaultComicColorScheme.secondary,
                     DefaultComicColorScheme.tertiary
                 ),
-                onClick = { /* Disabled / Coming soon */ }
+                onClick = { /* Disabled / Gated until Day 23 */ }
             )
         }
     }
