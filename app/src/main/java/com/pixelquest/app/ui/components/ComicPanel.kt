@@ -3,6 +3,7 @@ package com.pixelquest.app.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -49,7 +50,7 @@ fun ComicPanel(
     shadowColor: Color = Color.Black,
     shadowOffset: Dp = ComicShapeTokens.ShadowOffsetDefault,
     cornerRadius: Dp = ComicShapeTokens.RadiusDefault,
-    contentPadding: Dp = 16.dp,
+    contentPadding: PaddingValues = PaddingValues(16.dp),
     contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -83,4 +84,36 @@ fun ComicPanel(
     ) {
         content()
     }
+}
+
+/**
+ * Convenient overload accepting uniform contentPadding in Dp.
+ */
+@Composable
+fun ComicPanel(
+    modifier: Modifier = Modifier,
+    variant: ComicPanelVariant = ComicPanelVariant.SURFACE,
+    backgroundColor: Color? = null,
+    borderColor: Color = Color.Black,
+    borderWidth: Dp = ComicShapeTokens.BorderWidthDefault,
+    shadowColor: Color = Color.Black,
+    shadowOffset: Dp = ComicShapeTokens.ShadowOffsetDefault,
+    cornerRadius: Dp = ComicShapeTokens.RadiusDefault,
+    contentPadding: Dp,
+    contentAlignment: Alignment = Alignment.TopStart,
+    content: @Composable BoxScope.() -> Unit
+) {
+    ComicPanel(
+        modifier = modifier,
+        variant = variant,
+        backgroundColor = backgroundColor,
+        borderColor = borderColor,
+        borderWidth = borderWidth,
+        shadowColor = shadowColor,
+        shadowOffset = shadowOffset,
+        cornerRadius = cornerRadius,
+        contentPadding = PaddingValues(contentPadding),
+        contentAlignment = contentAlignment,
+        content = content
+    )
 }

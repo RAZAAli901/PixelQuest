@@ -80,7 +80,7 @@ fun Modifier.comicDropShadow(
                 color = color,
                 topLeft = Offset(dx, dy),
                 size = Size(rr.width, rr.height),
-                cornerRadius = CornerRadius(rr.bottomLeftCornerRadius.x, rr.bottomLeftCornerRadius.y)
+                cornerRadius = CornerRadius(rr.topLeftCornerRadius.x, rr.topLeftCornerRadius.y)
             )
         }
         is Outline.Generic -> {
