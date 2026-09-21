@@ -43,7 +43,10 @@
 - `ic_diff_hardest.xml`: Red shield icon for Hardest difficulty
 
 ### Fonts (`res/font/`)
-- `press_start_2p.ttf`: Open-source 8-bit retro font by CodeMan38 (SIL Open Font License) via Google Fonts
+- `press_start_2p.ttf`: Open-source 8-bit retro font by CodeMan38 (SIL Open Font License 1.1) via Google Fonts
+- `bangers_regular.ttf`: Bold heavyweight comic display font designed by Vernon Adams (SIL Open Font License 1.1) via Google Fonts / GitHub (`google/fonts`)
+- `kalam_regular.ttf`: Handwritten/marker-style accent font designed by Indian Type Foundry (Lipi Raval, Jonny Pinhorn) (SIL Open Font License 1.1) via Google Fonts
+- `kalam_bold.ttf`: Bold handwritten/marker-style accent font designed by Indian Type Foundry (SIL Open Font License 1.1) via Google Fonts
 
 ### Sound Effects (`res/raw/`)
 - **Pack Name**: Kenney Interface Sounds / Retro Audio (Kenney.nl)
