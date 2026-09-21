@@ -1834,7 +1834,8 @@ Day 19 successfully builds on Day 18's data layer to bring **Simple Mode** to li
 - Step 38: Write unit test confirming Comic mode is isolated from system theme changes - 10f2412
 - Step 39: Perform Manual QA visual verification of ComicPanel and button prototypes - d9d47e0
 - Step 40: Fix visual discrepancies in corner radius retrieval and panel padding - cb76359
-- Step 41: Update BRIEF.md with full Day 20 summary (comic palette, typography, shape spec, asset strategy, known gaps)
+- Step 41: Update BRIEF.md with full Day 20 summary (comic palette, typography, shape spec, asset strategy, known gaps) - cfbf4e9
+- Step 42: Final verification: clean build, CI pass, confirm zero regression on Pixel/Light modes - fd095cb
 
 ---
 
