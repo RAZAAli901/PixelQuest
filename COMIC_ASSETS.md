@@ -49,3 +49,54 @@ Avatar sprites are framed with comic pop-art flair:
   - Silver: Cool cyan/sky-blue inner mat with black outer frame.
   - Gold: Saturated comic gold frame with starburst action badge.
 - **Avatar Badges**: High-contrast star or exclamation badge ("POW!", "LVL UP!").
+
+---
+
+## 3. Days 21–23 Component-by-Component Implementation Checklist (Step 26)
+
+This checklist enumerates every component Days 21–23 will adapt to the Comic Book UI Mode:
+
+### 3.1 Core Action & Panel Components (Day 21 Focus)
+- [ ] **`ComicButton`**:
+  - [ ] Primary CTA variant (Coral Red `#FF5A4E` fill, 2.5dp black border, 4dp flat black drop shadow, black bold text).
+  - [ ] Secondary container variants (Burnt Orange, Sky Blue, Lavender).
+  - [ ] Outlined / Surface variant (White surface with black border and shadow).
+  - [ ] Interactive press state: +2dp XY translation with collapsed 2dp shadow and haptic click.
+  - [ ] Disabled state: Desaturated gray `#E0DDD5` fill with 0.5f alpha.
+- [ ] **`ComicPanel`** (Foundation created on Day 20):
+  - [ ] Full screen integration into `TodayScreen`, `TasksScreen`, `StatsScreen`, `ProfileScreen`.
+  - [ ] Cyclical container coloring (`containerForIndex(index)`).
+- [ ] **`ComicDialog`**:
+  - [ ] Speech-bubble callout header with comic font.
+  - [ ] Action buttons styled with `ComicButton`.
+  - [ ] Clean white panel surface with 12dp rounded corners and solid black outline.
+
+### 3.2 Progression, Avatars & Feedback (Day 22 Focus)
+- [ ] **`ComicAvatarFrame`**:
+  - [ ] Solid black 2.5dp outline with 10dp corner radius.
+  - [ ] Bronze, Silver, Gold tier badge highlights.
+  - [ ] Comic star burst badge for level milestones.
+- [ ] **`ComicXpBar`**:
+  - [ ] Thick black container border with recessed track.
+  - [ ] Diagonal striped comic energy fill pattern.
+  - [ ] Level badge rendered as an energetic comic star badge.
+- [ ] **`ComicDailyProgressRing`**:
+  - [ ] Action comic badge banner ("POW!", "PERFECT DAY!").
+  - [ ] High-contrast progress arc with comic border outline.
+- [ ] **`ComicQuestCard` (`TodayQuestCard.kt`)**:
+  - [ ] Comic mission card with cycling burnt orange / sky blue / lavender container fills.
+  - [ ] Quick-complete action stamp ("DONE!", "POW!").
+
+### 3.3 Navigation & Data Displays (Day 23 Focus)
+- [ ] **`ComicBottomNavBar`**:
+  - [ ] Divided comic strip panel layout with 2dp black divider lines.
+  - [ ] Active tab indicated by vibrant coral-red pill chip.
+- [ ] **`ComicDaySelector` & `ComicFilterChips`**:
+  - [ ] Comic tag stickers with 2dp black borders and 3dp mini drop shadows.
+- [ ] **`ComicTextField`**:
+  - [ ] Comic dialogue speech input container with clean sans font and black border.
+- [ ] **`ComicHeatmapCell` & `ComicBarChart`**:
+  - [ ] Pop-art color ramp and skyscraper comic pillars with black borders.
+- [ ] **Full Screen Theme Integration & Gate Release**:
+  - [ ] Connect `ThemeMode.Comic` across all app screens.
+  - [ ] Remove "Coming Soon" gate in `ThemeSelectionCard.kt`.
