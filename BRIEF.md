@@ -1793,6 +1793,108 @@ Day 19 successfully builds on Day 18's data layer to bring **Simple Mode** to li
 - **Day 20 Scope**: Begins the Comic theme foundation, color tokens, and visual assets (independent of Simple Mode).
 - **Future Hook**: Comic theme will be integrated into the Simple Mode theme matrix once Day 23 finishes. Simple Mode AI insight tone hook (`HabitInsightToneHook`) is prepared for Gemini prompt integration in Days 24–25.
 
+## Day 20 Progress Log
+- Step 1: Finalize ComicColorScheme values based on Nitnode reference tokens - 54f980f
+- Step 2: Define semantic token mapping matching AppColorScheme interface - f0c41ef
+- Step 3: Verify comic palette meets WCAG AA contrast ratios with contrast audit test - 4b4a4d8
+- Step 4: Add Compose Preview showing the full comic palette swatch set - 0030a44
+- Step 5: Update THEMING.md with finalized comic palette and contrast results - e103639
+- Step 6: Define reusable comicBorder Modifier for solid black ink borders - f33fb0a
+- Step 7: Define reusable comicDropShadow Modifier for flat solid black offset shadow - 6c7b5ad
+- Step 8: Define corner-radius and shape tokens for comic mode (~8-12dp) - 4bd689f
+- Step 9: Build ComicPanel base composable combining border, shadow, corner radius, and background - b5086e7
+- Step 10: Add Compose Preview demonstrating ComicPanel in isolation - f029ff2
+- Step 11: Verify shadow-offset approach renders correctly without clipping or overflow - d85fc44
+- Step 12: Source bold heavyweight comic display font (Bangers OFL) and add to res/font - 9337239
+- Step 13: Source handwritten marker accent font (Kalam OFL) and add to res/font - b1c7554
+- Step 14: Define ComicTypography wiring headline display font, sans body, and marker accents - 62d2bfc
+- Step 15: Add Compose Preview showing the full comic typography scale - 777d243
+- Step 16: Update ASSETS.md with new comic font sources and licenses - 8a59e6c
+- Step 17: Wire ComicColorScheme and ComicTypography into theme selection system - 186f8f0
+- Step 18: Keep Comic mode gated as Coming Soon in theme selector - 6f6545e
+- Step 19: Verify live crossfade theme switching transitioning into and out of Comic mode - 3617c88
+- Step 20: Add comic palette swatches to theme selector preview - e997ab4
+- Step 21: Write unit test verifying ComicColorScheme resolves correctly through theme system - e91638e
+- Step 22: Confirm CRT filter policy strictly excludes Comic mode - 8bc0d3a
+- Step 23: Document halftone dot flourish decision for Days 21-23 in THEMING.md - 05527eb
+- Step 24: Write unit test confirming CRT filter never applies in Comic mode - 6ff7b7f
+- Step 25: Define needed comic assets specification for buttons, panels, icons, and frames - 2e7ed36
+- Step 26: Create COMIC_ASSETS.md checklist enumerating assets for Days 21-23 - 017a0e1
+- Step 27: Decide and document Compose-drawn shapes vs raster PNG assets in COMIC_ASSETS.md - b369a0d
+- Step 28: Build proof-of-concept comic button asset with solid fill, border, and offset shadow - f604221
+- Step 29: Update COMIC_ASSETS.md and ASSETS.md reflecting vector decision and POC result - ef36e16
+- Step 30: Build Compose Preview replicating Nitnode reference stat cards - cef24d9
+- Step 31: Calibrate border weight, shadow offset, and corner radius against reference tokens - 5031a2f
+- Step 32: Validate coral-red CTA button styling against reference teardown button - f78b8a6
+- Step 33: Validate all three reference container colors as usable variants in ComicColorScheme - 11743c3
+- Step 34: Cross-check typography scale against headline weight and handwritten accent style - f2ff04a
+- Step 35: Document final validated shape tokens in THEMING.md as locked spec for Days 21-23 - 047b8e6
+- Step 36: Write unit test for comicDropShadow modifier offset calculation - 0496cfd
+- Step 37: Write unit test for comicBorder modifier - 4383382
+- Step 38: Write unit test confirming Comic mode is isolated from system theme changes - 10f2412
+- Step 39: Perform Manual QA visual verification of ComicPanel and button prototypes - d9d47e0
+- Step 40: Fix visual discrepancies in corner radius retrieval and panel padding - cb76359
+- Step 41: Update BRIEF.md with full Day 20 summary (comic palette, typography, shape spec, asset strategy, known gaps)
+
+---
+
+## Day 20 Summary: Comic Book UI Mode — Foundation & Design System
+
+Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme: **Comic Book UI Mode** (`ThemeMode.Comic`). Following the architecture established on Day 16 and the asset strategy decision (Comic mode requires genuinely new art and vector styling, not tinted pixel assets), Day 20 focuses strictly on **foundation, tokens, shape language, and typography**, validated via isolated previews and unit tests. No production screens or components have been restyled yet (scheduled for Days 21–23).
+
+### 1. Comic Palette Definition (Section A)
+- **Extracted Reference Palette**:
+  - Primary / CTA Accent: Coral-red (`#FF5A4E`)
+  - Three Signature Containers: Burnt Orange (`#F0A868`), Sky Blue (`#8ECAE6`), Lavender (`#B8A4D4`)
+  - Inks & Outlines: Solid Black (`#000000`)
+  - Paper Canvas & Surface: Newsprint Canvas (`#FAF8F5`), Panel Surface (`#FFFFFF`), Muted Shading (`#F4EFE6`)
+  - Text & Accents: Text Primary (`#1A1A1A`), Text Secondary (`#4A4A4A`), Gold Accent (`#FFB703`), Error Red (`#D32F2F`)
+- **Semantic Mapping (`AppColorScheme`)**:
+  - `primary` = Coral-Red, `onPrimary` = Solid Black (6.77:1 contrast)
+  - `primaryContainer` = Burnt Orange, `onPrimaryContainer` = Solid Black (10.2:1 contrast)
+  - `secondary` = Sky Blue, `onSecondary` = Solid Black (12.6:1 contrast)
+  - `tertiary` = Lavender, `onTertiary` = Solid Black (9.4:1 contrast)
+  - `background` = Newsprint Canvas, `onBackground` = Text Primary (16.1:1 AAA contrast)
+  - `surface` = Panel White, `onSurface` = Text Primary (16.1:1 AAA contrast)
+  - `pixelBorder` = Solid Black (18.0:1 AAA contrast)
+- **Accessibility**: Audited via `ComicPaletteContrastTest.kt`—100% of combinations exceed WCAG AA (4.5:1), with text achieving WCAG AAA (>= 7.0:1).
+- **Documentation**: Fully documented in `THEMING.md` (§10.1–10.3).
+
+### 2. Component Shape Language (Section B & G)
+- **Solid Black Borders**: Implemented `comicBorder` modifier and tokens (`BorderWidthDefault = 2.5dp`, `BorderWidthThick = 3.5dp`). Never soft or blurred.
+- **Flat Offset Drop Shadows**: Implemented `comicDropShadow` modifier. Unlike blurred Material elevation, this draws a hard-edged flat solid black duplicated offset shape (`ShadowOffsetDefault = 4.0dp` down-right).
+- **Corner Radii**: Locked tokens in `ComicShapeTokens` (`RadiusSmall = 8.0dp`, `RadiusDefault = 10.0dp`, `RadiusLarge = 12.0dp`).
+- **Base Composables**:
+  - `ComicPanel`: Base container combining solid fill, black border, flat drop shadow, and padding clearance reservation.
+  - `ComicButton`: Tactile vector button with solid fill, ink border, and mechanical press physics (translates +3dp down-right while shadow collapses from 4dp to 1dp).
+
+### 3. Comic Typography (Section C)
+- **Headline Display Font**: Sourced **Bangers** (SIL Open Font License 1.1) to `res/font/bangers_regular.ttf` for high-impact comic hero titles.
+- **Callout Accent Font**: Sourced **Kalam** (SIL Open Font License 1.1) to `res/font/kalam_regular.ttf` and `kalam_bold.ttf` for authentic handwritten dialogue/marker accents ("NO FLUFF, NO 12-PAGE REPORT...").
+- **UI & Body Copy**: Clean sans-serif (`FontFamily.SansSerif`) for optimal readability.
+- **Typography Scale**: Configured in `ComicTypography.kt` and `ComicCalloutStyles.kt`.
+
+### 4. Theme System Integration & Gating (Section D & E)
+- **Gated Theme Selection**: Comic mode is wired into `PixelQuestTheme` but safely gated as `[COMING SOON]` (`isAvailable = false`) in `ThemeMode.kt` and `ThemeSelectionCard.kt`. Users cannot accidentally select a half-finished theme.
+- **CRT Filter Policy**: Strictly enforced that the retro CRT scanline shader NEVER engages when in Comic mode, verified via `ComicCrtExclusionTest.kt`.
+- **Halftone Dot Candidate**: Documented potential procedural halftone/Ben-Day dot flourish as an optional feature candidate for Days 21–23 in `THEMING.md` (§10.4).
+
+### 5. Asset Strategy (Section F)
+- **Vector Decision**: Decided that all standard comic UI components (cards, buttons, chips, panels, dialog frames) will be Compose-drawn vector shapes via modifiers, eliminating raster PNG bloating and scaling artifacts.
+- **Asset Scope**: Created `COMIC_ASSETS.md` cataloging the exact assets needed for Days 21–23 (vector drawables, onomatopoeia bursts, comic avatar frames, and category icons).
+
+### 6. Reference Fidelity Validation (Section G & H)
+- **Stat Cards Validation**: Replicated Nitnode reference stat cards across burnt orange, sky blue, and lavender in `ComicReferenceCardsPreview.kt`.
+- **CTA Button Validation**: Replicated "Book a 15-min teardown" coral-red primary button in `ComicCtaButtonPreview.kt`.
+- **Typography Scale Validation**: Cross-checked headline weight and handwritten accent style in `ComicTypographyFidelityPreview.kt`.
+- **Locked Spec**: Exact DP values locked in `THEMING.md` (§10.5).
+- **Unit & UI Tests**: Added `ComicDropShadowTest.kt`, `ComicBorderTest.kt`, `ComicSystemThemeIsolationTest.kt`, and `Day20ComicManualQaTest.kt`.
+
+### 7. Known Gaps & Forward Plan for Day 21
+- **Day 20 Boundary**: Zero existing screens or dialogs were restyled today.
+- **Day 21 Objective**: Begin screen-by-screen comic styling starting with Today Screen (quest cards, streak counters, action buttons) consuming the locked tokens.
+- **Pixel & Light Integrity**: Pixel and Light modes remain 100% unaffected and regression-free.
+
 
 
 
