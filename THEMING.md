@@ -407,3 +407,15 @@ All color combinations were verified using the standard WCAG relative luminance 
 | Comic Border Line | `pixelBorder` (`#000000`) | `background` (`#FAF8F5`) | **18.0:1** | WCAG AAA (>= 7.0:1) | **PASS** |
 | Danger / Error Badge | `error` (`#D32F2F`) | `surface` (`#FFFFFF`) | **5.5:1** | WCAG AA (>= 4.5:1) | **PASS** |
 
+### 10.4 Optional Visual Flourish Candidate: Halftone / Ben-Day Dot Pattern (Step 23 Decision)
+- **Background**: Classic comic books produced in the mid-to-late 20th century relied on four-color CMYK rotary letterpress printing with visible **Ben-Day dots / halftone dot screening**. Just as CRT scanlines provide nostalgic authenticity to Pixel mode, a subtle halftone texture is a compelling visual flourish for Comic mode.
+- **Architectural Decision**:
+  1. **Deferred to Days 21–23**: Halftone overlays will **not** be built on Day 20 foundation. Day 20 focuses strictly on core palette, border geometry, flat drop shadows, and typography.
+  2. **Candidate Status**: Documented as an optional flourish candidate for screen restyling across Days 21–23.
+  3. **Implementation Invariants**: If implemented:
+     - Must be 100% procedural (rendered via `DrawScope` canvas drawing or RuntimeShader), incurring zero bitmap/raster asset overhead.
+     - Must be an optional user toggle in Settings (`isHalftoneEnabled: Flow<Boolean>`), default OFF or subtle.
+     - Must be strictly forced OFF in Simple Mode (preserving minimalist focus).
+     - Must never degrade text contrast or WCAG AA readability.
+
+
