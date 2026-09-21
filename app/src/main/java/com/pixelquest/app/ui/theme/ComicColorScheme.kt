@@ -27,7 +27,26 @@ object ComicTokens {
 }
 
 /**
- * ComicColorScheme implementing the AppColorScheme contract with the finalized comic palette.
+ * Three signature container color variants for Comic Book mode.
+ */
+enum class ComicContainerVariant {
+    BURNT_ORANGE,
+    SKY_BLUE,
+    LAVENDER
+}
+
+/**
+ * ComicColorScheme implementing the semantic token mapping defined by [AppColorScheme].
+ *
+ * Mappings:
+ * - primary: Coral-red CTA accent (#FF5A4E)
+ * - onPrimary: High-contrast solid black (#000000)
+ * - primaryContainer: Burnt orange container variant (#F0A868)
+ * - secondary: Sky blue container variant (#8ECAE6)
+ * - tertiary: Lavender container variant (#B8A4D4)
+ * - background: Light neutral warm newsprint paper (#FAF8F5)
+ * - surface: Crisp comic panel white (#FFFFFF)
+ * - pixelBorder: Solid black ink line (#000000)
  */
 data class ComicColorScheme(
     override val themeMode: ThemeMode = ThemeMode.Comic,
@@ -60,6 +79,24 @@ data class ComicColorScheme(
     val comicBorder: Color = ComicTokens.SolidBlack,
     val comicShadow: Color = ComicTokens.SolidBlack
 ) : AppColorScheme {
+
+    /**
+     * Resolves the container background color for a specific comic container variant.
+     */
+    fun containerColor(variant: ComicContainerVariant): Color = when (variant) {
+        ComicContainerVariant.BURNT_ORANGE -> burntOrange
+        ComicContainerVariant.SKY_BLUE -> skyBlue
+        ComicContainerVariant.LAVENDER -> lavender
+    }
+
+    /**
+     * Resolves a cyclical container variant by index for repeating list/grid cards.
+     */
+    fun containerForIndex(index: Int): Color {
+        val variants = listOf(burntOrange, skyBlue, lavender)
+        return variants[kotlin.math.abs(index) % variants.size]
+    }
+
     override fun toMaterialColorScheme(): ColorScheme = lightColorScheme(
         primary = primary,
         onPrimary = onPrimary,
