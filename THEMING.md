@@ -532,6 +532,11 @@ A thorough regression verification was executed to guarantee that Day 16–17's 
 - **Form Inputs Invariance**: Form inputs maintain daylight text fields, emerald day-selector chips, and clean neutral selectors.
 - **Availability Guarantee**: `ThemeMode.Light.isAvailable == true` remains completely accessible to all users.
 
+### 11.9 Debug-Only QA Gate Enforcement (Step 37)
+Following the completion of all visual QA and regression passes, the QA preview harness was finalized:
+- **`DebugComicPreviewToggle` Gating**: Strictly gated behind `BuildConfig.DEBUG`. In release or non-debug builds, the composable immediately returns with zero emitted nodes, preventing test scaffolding from entering production.
+- **Production Theme Gating Status**: `ThemeMode.Comic.isAvailable` remains strictly `false` ("Comic Pop (Coming Soon)"). Comic mode cannot be selected or activated by standard end users on Day 21, adhering faithfully to the Day 20 gating policy. Full user enablement remains reserved for Day 23 after entire screens are restyled.
+
 
 
 

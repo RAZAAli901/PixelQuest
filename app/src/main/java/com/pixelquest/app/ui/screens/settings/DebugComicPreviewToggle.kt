@@ -22,9 +22,9 @@ import com.pixelquest.app.ui.theme.PixelTypography
 import com.pixelquest.app.ui.theme.ThemeMode
 
 /**
- * Step 33: Temporary debug-only Comic mode preview toggle for QA inspection.
- * Allows on-device visual inspection of restyled core components against Day 20's locked spec.
- * Gated behind debug build flag / QA tool harness.
+ * Step 37: Debug-only Comic mode preview toggle clearly gated behind [BuildConfig.DEBUG].
+ * In release builds or non-debug environments, this composable emits nothing, ensuring
+ * Comic mode remains 100% gated from real users per Day 20's architectural decision.
  */
 @Composable
 fun DebugComicPreviewToggle(
@@ -32,6 +32,10 @@ fun DebugComicPreviewToggle(
     onTogglePreview: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    if (!BuildConfig.DEBUG) {
+        return
+    }
+
     val isComicActive = currentTheme == ThemeMode.Comic
 
     PixelCard(

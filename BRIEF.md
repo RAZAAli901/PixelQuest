@@ -1932,6 +1932,7 @@ Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme
 - Step 33: Add temporary debug Comic preview toggle and run visual QA inspection - 704cedc
 - Step 34: Fix visual inconsistencies found during QA pass - 1d1c351
 - Step 35: Run full regression pass confirming Pixel mode is completely unaffected - 2852f51
+- Step 36: Run full regression pass confirming Light mode is completely unaffected - 21e4fc3
 
 
 
