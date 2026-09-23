@@ -469,6 +469,19 @@ As PixelQuest expands to support three complete aesthetic themes (**Pixel**, **L
   4. Category Icons (`ic_cat_*`): Vector comic badge frames and cel-shaded contours.
 - **Strict Boundary Enforcement**: Zero Comic code, branching, or asset modifications for these components landed on Day 21. They remain 100% preserved in their existing Pixel and Light mode states.
 
+### 11.4 Progress Ring, XP Bar, and Heatmap Regression Verification (Step 30)
+- **Source Code Verification**: `git diff` against Day 20 baseline confirms 0 lines modified in:
+  - `PixelDailyProgressRing.kt` (Day 5 habit ring)
+  - `PixelXpBar.kt` (Day 6 RPG XP bar)
+  - `PixelCalendarHeatmap.kt` (Day 11 activity matrix)
+  - `PixelProgressBar.kt` (Day 4 base progress bar)
+  - `PixelAvatarFrame.kt` (Day 8 cosmetic frames)
+- **Pixel & Light Rendering Invariance**:
+  - Pixel mode: Retains classic 8-bit stepped pixel corners, retro arcade gold progress arc (`#FFCC00`), and dark arcade heatmap ramp.
+  - Light mode: Retains daylight emerald progress arc (`#15803D`) and dedicated light heatmap ramp (`#EFECE6` -> `#15803D`).
+- **Conclusion**: Core component dispatch refactors for buttons, cards, dialogs, and form inputs are completely isolated and introduced zero regression to progress-related components.
+
+
 
 
 
