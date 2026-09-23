@@ -42,6 +42,18 @@ enum class ComicButtonVariant {
 }
 
 /**
+ * Mechanical press-physics specifications for comic buttons.
+ * Resting: 4dp shadow, 0dp translation.
+ * Pressed: 1dp shadow, +3dp translation down-right into shadow.
+ */
+object ComicButtonPhysics {
+    val MaxShadow: Dp = ComicShapeTokens.ShadowOffsetDefault // 4.dp
+    val MinShadow: Dp = 1.dp
+    val TranslationDelta: Dp = MaxShadow - MinShadow // 3.dp
+    const val AnimationDurationMs: Int = 60
+}
+
+/**
  * Step 28: Proof-of-concept comic-styled button asset/composable.
  * Implements Compose-drawn vector geometry: solid color fill, solid black ink border,
  * and hard-edged flat offset drop-shadow with tactile press physics.
@@ -61,19 +73,19 @@ fun ComicButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
-    val maxShadow: Dp = ComicShapeTokens.ShadowOffsetDefault // 4dp
-    val minShadow: Dp = 1.dp
+    val maxShadow: Dp = ComicButtonPhysics.MaxShadow
+    val minShadow: Dp = ComicButtonPhysics.MinShadow
 
     // Tactile press animation: button moves +3dp into shadow, shadow collapses
     val animatedShadowOffset by animateDpAsState(
         targetValue = if (isPressed && enabled) minShadow else if (!enabled) minShadow else maxShadow,
-        animationSpec = tween(durationMillis = 60),
+        animationSpec = tween(durationMillis = ComicButtonPhysics.AnimationDurationMs),
         label = "comic_btn_shadow"
     )
 
     val animatedTranslation by animateDpAsState(
-        targetValue = if (isPressed && enabled) (maxShadow - minShadow) else 0.dp,
-        animationSpec = tween(durationMillis = 60),
+        targetValue = if (isPressed && enabled) ComicButtonPhysics.TranslationDelta else 0.dp,
+        animationSpec = tween(durationMillis = ComicButtonPhysics.AnimationDurationMs),
         label = "comic_btn_translation"
     )
 
