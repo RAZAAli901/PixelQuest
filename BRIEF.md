@@ -1896,6 +1896,16 @@ Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme
 - **Day 21 Objective**: Begin screen-by-screen comic styling starting with Today Screen (quest cards, streak counters, action buttons) consuming the locked tokens.
 - **Pixel & Light Integrity**: Pixel and Light modes remain 100% unaffected and regression-free.
 
+## Day 21 Progress Log
+- Step 1: Decide theme-dispatching component architecture pattern - edf73b1
+- Step 2: Document theme-dispatching component architecture decision in THEMING.md - 8f1923a
+- Step 3: Refactor PixelButton to dispatch to ComicButton in Comic mode - 28fae7d
+- Step 4: Verify PixelButton dispatch across Pixel, Light, and Comic themes - 58ff81b
+- Step 5: Write unit test for PixelButton theme-dispatch logic across all three modes - ecf1a68
+- Step 6: Implement all PixelButton variants with Comic styling using locked tokens - c4c9334
+- Step 7: Wire mechanical press-physics interaction from ComicButton spec into dispatched button - 4d8a4df
+- Step 8: Verify touch-target sizing remains at least 48dp in Comic mode - cb6337f
+
 
 
 
