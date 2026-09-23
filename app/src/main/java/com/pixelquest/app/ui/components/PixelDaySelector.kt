@@ -34,6 +34,18 @@ fun PixelDaySelector(
     label: String = "SELECT DAYS",
     errorText: String? = null
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicDaySelector(
+            selectedDays = selectedDays,
+            onDayToggled = onDayToggled,
+            modifier = modifier,
+            label = label,
+            errorText = errorText
+        )
+        return
+    }
+
     val days = listOf(
         DayOfWeek.MONDAY to "M",
         DayOfWeek.TUESDAY to "T",

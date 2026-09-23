@@ -25,6 +25,17 @@ fun PixelRecurrenceSelector(
     modifier: Modifier = Modifier,
     label: String = "RECURRENCE"
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicRecurrenceSelector(
+            selectedType = selectedType,
+            onTypeSelected = onTypeSelected,
+            modifier = modifier,
+            label = label
+        )
+        return
+    }
+
     val options = listOf(
         RecurrenceType.DAILY to "Daily",
         RecurrenceType.WEEKLY to "Weekly",

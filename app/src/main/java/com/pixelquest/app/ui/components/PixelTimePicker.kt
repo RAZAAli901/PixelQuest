@@ -31,6 +31,18 @@ fun PixelTimePicker(
     label: String = "SET TIME",
     errorText: String? = null
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicTimePicker(
+            selectedTime = selectedTime,
+            onTimeSelected = onTimeSelected,
+            modifier = modifier,
+            label = label,
+            errorText = errorText
+        )
+        return
+    }
+
     val context = LocalContext.current
     val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 

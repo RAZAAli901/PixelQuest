@@ -31,6 +31,22 @@ fun PixelTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = modifier,
+            label = label,
+            placeholder = placeholder,
+            errorText = errorText,
+            singleLine = singleLine,
+            keyboardOptions = keyboardOptions,
+            visualTransformation = visualTransformation
+        )
+        return
+    }
+
     Column(modifier = modifier) {
         if (label != null) {
             Text(

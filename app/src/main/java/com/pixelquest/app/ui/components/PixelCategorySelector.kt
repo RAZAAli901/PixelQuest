@@ -29,6 +29,17 @@ fun PixelCategorySelector(
     modifier: Modifier = Modifier,
     label: String = "CATEGORY"
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicCategorySelector(
+            selectedCategory = selectedCategory,
+            onCategorySelected = onCategorySelected,
+            modifier = modifier,
+            label = label
+        )
+        return
+    }
+
     Column(modifier = modifier) {
         Text(
             text = label,
