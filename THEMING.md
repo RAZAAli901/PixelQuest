@@ -524,6 +524,14 @@ A thorough regression verification was executed to guarantee that classic 8-bit 
 - **Form Inputs Invariance**: `PixelTextField`, `PixelDaySelector`, `PixelTimePicker`, `PixelCategorySelector`, and `PixelRecurrenceSelector` retain pixel typography, classic bitmap category icons, and arcade color accents.
 - **Availability Guarantee**: `ThemeMode.Pixel.isAvailable == true` remains the default theme for all users.
 
+### 11.8 Light Mode Full Regression Pass (Step 36)
+A thorough regression verification was executed to guarantee that Day 16–17's Light mode is 100% unaffected by the internal theme-dispatch refactoring:
+- **`PixelButton` Invariance**: Dispatches cleanly to the Light mode path (`ComponentThemeFamily.LIGHT`), preserving daylight amber (`#B45309`) and emerald (`#15803D`) tokens, crisp white text, and subtle 2dp active press feedback without Comic pop-art styling.
+- **`PixelCard` / `PixelPanel` Invariance**: Renders warm daylight card surfaces (`#FAFAF8`), stepped 2dp stone borders (`#292524`), and clean daylight elevation without Comic flat black drop shadows.
+- **`PixelDialog` / `PixelConfirmDialog` Invariance**: Light mode confirmation and action dialogs preserve daylight typography, contrast tokens, and action button pairings.
+- **Form Inputs Invariance**: Form inputs maintain daylight text fields, emerald day-selector chips, and clean neutral selectors.
+- **Availability Guarantee**: `ThemeMode.Light.isAvailable == true` remains completely accessible to all users.
+
 
 
 
