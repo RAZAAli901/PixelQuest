@@ -1933,6 +1933,106 @@ Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme
 - Step 34: Fix visual inconsistencies found during QA pass - 1d1c351
 - Step 35: Run full regression pass confirming Pixel mode is completely unaffected - 2852f51
 - Step 36: Run full regression pass confirming Light mode is completely unaffected - 21e4fc3
+- Step 37: Gate temporary debug Comic preview toggle strictly behind BuildConfig.DEBUG - 0140ace
+
+---
+
+# Day 21 Summary: Comic Book UI Mode — Core Component Restyling (Buttons, Cards, Dialogs, Forms)
+
+Day 21 is the first of three component-and-screen implementation days (Days 21–23) in the 4-day Comic Book UI arc. Today promoted Day 20's design tokens and prototypes into fully production-ready, theme-dispatching components across **buttons, cards/panels, dialogs, and form inputs**.
+
+---
+
+### 1. Component Architecture Decision: Theme-Dispatching Wrappers (§11.1)
+- **Architecture Strategy**: Rather than creating parallel, Comic-prefixed composables (`ComicPixelButton`, `ComicPixelCard`, etc.) requiring refactoring hundreds of call sites across the codebase, existing core components retain their canonical signatures (`PixelButton`, `PixelCard`, `PixelDialog`, `PixelTextField`, etc.) and internally inspect `PixelTheme.mode` / `LocalThemeMode.current`.
+- **Zero Call-Site Disruption**: Zero screen files or dialog call sites required renaming or refactoring. All existing screens automatically gain Comic Book mode readiness while remaining 100% backward-compatible with Pixel and Light modes.
+- **Dispatch Integrity**: `ComponentThemeFamily` maps `ThemeMode.Pixel` and `ThemeMode.System` to `PIXEL`, `ThemeMode.Light` to `LIGHT`, and `ThemeMode.Comic` to `COMIC`.
+
+---
+
+### 2. Buttons: Full Comic Styling (Section B)
+- **Variant Coverage**: All variants (Primary CTA, Secondary/Blue, Disabled, Burnt Orange, Sky Blue, Lavender, Surface) fully wired with Day 20's locked tokens.
+- **Color Mapping**:
+  - Primary CTA (`PixelButtonVariant.YELLOW`) -> Coral Red (`#FF5A4E`)
+  - Secondary CTA (`PixelButtonVariant.BLUE`) -> Sky Blue (`#8ECAE6`)
+  - Disabled state -> Soft gray-beige fill (`#E0DDD5`) with muted semi-transparent black ink outline and collapsed shadow
+- **Press Physics & Feedback**:
+  - Button resting state: 4dp solid black flat offset shadow, 0dp translation.
+  - Active press state: translates +3dp down-right into shadow, shadow collapses from 4dp to 1dp with 60ms spring tween.
+  - Haptic feedback and click audio triggers preserved.
+- **Constraint Propagation & Touch Target**:
+  - Enabled `propagateMinConstraints = true` on outer bounding box so button surface face matches outer constraints (e.g. `fillMaxWidth`) without shadow-width mismatch.
+  - Outer bounding box maintains `>= 48dp` on both axes, audited via `ComicButtonTouchTargetTest.kt`.
+- **Testing**: `PixelButtonClickBehaviorTest.kt` verifies click callback invocation, disabled suppression, and `Role.Button` semantic parity across all modes.
+
+---
+
+### 3. Cards & Panels: Full Comic Styling (Section C)
+- **Panel Base Composable**: `PixelCard` and `PixelPanel` dispatch to `ComicPanel` when `activeMode == ThemeMode.Comic`.
+- **Shape & Shadow Language**: Compose-drawn vector geometry with 2.5dp solid black ink border (`ComicShapeTokens.BorderWidthDefault`), 4dp hard-edged unblurred black drop shadow (`ComicShapeTokens.ShadowOffsetDefault`), and 10dp corner radius (`ComicShapeTokens.CardRadius`).
+- **Container Color Variants**:
+  - `ComicPanelVariant.SURFACE`: Crisp pure white (`#FFFFFF`)
+  - `ComicPanelVariant.BURNT_ORANGE`: Warm container fill (`#F0A868`)
+  - `ComicPanelVariant.SKY_BLUE`: Cool container fill (`#8ECAE6`)
+  - `ComicPanelVariant.LAVENDER`: Mystery/accent fill (`#B8A4D4`)
+  - `ComicPanelVariant.PAPER`: Warm neutral newsprint canvas (`#FAF5EE`)
+- **Clipping Prevention**: Outer Box reserves `padding(end = shadowOffset, bottom = shadowOffset)` ensuring duplicated offset shadow renders within container bounds in LazyColumns and nested layouts.
+- **Testing**: `PixelCardContentLayoutTest.kt` verifies zero layout shift or clipping.
+
+---
+
+### 4. Dialogs: Full Comic Styling (Section D)
+- **Implementations**:
+  - `ComicDialog`: Modal dialog shell built on `ComicPanel`, featuring centered Bangers uppercase display titles (0.8sp tracking), 16dp content padding, and 12dp action button spacing.
+  - `ComicConfirmDialog`: High-contrast confirmation modal for destructive/reset/logout actions, pairing Coral Red primary confirm button with Sky Blue dismiss button and warning haptics.
+- **Dispatch Integration**: `PixelDialog` and `PixelConfirmDialog` dispatch internally to `ComicDialog` and `ComicConfirmDialog` when in Comic mode.
+- **Testing**: `ComicDialogButtonIntegrationTest.kt` and `PixelDialogInteractionTest.kt` verify confirm/cancel/dismiss actions execute cleanly across all three themes.
+
+---
+
+### 5. Form Input Components: Comic Styling (Section E)
+- **`ComicTextField`**: Bangers display label, `ComicPanel` input surface, sans-serif text input, Coral Red cursor brush, and Coral Red ink border (`BorderWidthThick = 3dp`) with bold error caption on validation failure.
+- **`ComicDropdown`**: Comic panel selector row with chevron indicator and flat white dropdown menu with `ChipRadius` (8dp) ink border.
+- **`ComicTimePicker`**: Wraps platform `TimePickerDialog` in a comic-styled panel trigger displaying time emoji and formatted time string (`hh:mm a`).
+- **`ComicDaySelector`**: 48dp tactile day chips (M–S) with Sky Blue selected fill and 2dp solid black ink borders.
+- **`ComicCategorySelector`**: High-contrast contour category icons with Sky Blue selected chips.
+- **`ComicRecurrenceSelector`**: Daily/Weekly/One-Time chips with Burnt Orange selected fills.
+- **Testing**: `ThemeFormComponentsComparisonPreview.kt` and `ComicComponentsIntegrationTest.kt`.
+
+---
+
+### 6. Strict Scope Boundaries & Regressions (Section F & G)
+- **Explicit Day 22 Boundaries (Untouched Today)**:
+  - `PixelProgressBar`: Strictly Day 22 scope (§11.2).
+  - `PixelAvatarFrame`, `PixelXpBar`, `PixelDailyProgressRing`, Category Icons: Strictly Day 22 scope (§11.3).
+  - Activity Heatmap (`PixelCalendarHeatmap`): Regression verified (§11.4).
+  - Progress components regression test: `ProgressComponentsThemeBoundaryTest.kt`.
+- **Regression Verification**:
+  - Pixel Mode: Verified 100% regression-free via `PixelModeComponentRegressionTest.kt` (§11.7).
+  - Light Mode: Verified 100% regression-free via `LightModeComponentRegressionTest.kt` (§11.8).
+- **Gating Status**:
+  - `DebugComicPreviewToggle` gated behind `BuildConfig.DEBUG` (§11.9).
+  - `ThemeMode.Comic.isAvailable` remains strictly `false` ("Comic Pop (Coming Soon)").
+
+---
+
+### 7. Component Status Matrix
+| Component | Day 20 Status | Day 21 Status | Target Completion Day |
+| :--- | :--- | :--- | :--- |
+| `PixelButton` | Prototype preview | **Production Complete (Dispatched)** | Day 21 |
+| `PixelCard` / `PixelPanel` | Prototype preview | **Production Complete (Dispatched)** | Day 21 |
+| `PixelDialog` / `PixelConfirmDialog` | None | **Production Complete (Dispatched)** | Day 21 |
+| `PixelTextField` | None | **Production Complete (Dispatched)** | Day 21 |
+| `PixelDaySelector` / `PixelDropdown` | None | **Production Complete (Dispatched)** | Day 21 |
+| `PixelTimePicker` | None | **Production Complete (Dispatched)** | Day 21 |
+| `PixelCategorySelector` / `PixelRecurrenceSelector` | None | **Production Complete (Dispatched)** | Day 21 |
+| `PixelProgressBar` | Untouched | **Pending Day 22** | Day 22 |
+| `PixelAvatarFrame` | Untouched | **Pending Day 22** | Day 22 |
+| `PixelXpBar` | Untouched | **Pending Day 22** | Day 22 |
+| `PixelDailyProgressRing` | Untouched | **Pending Day 22** | Day 22 |
+| Category Icons (`ic_cat_*`) | Untouched | **Pending Day 22** | Day 22 |
+| Screen-level restyling | Untouched | **Pending Day 23** | Day 23 |
+| Comic Mode Public Enablement | Gated | **Gated (`isAvailable = false`)** | Day 23 |
 
 
 
