@@ -456,4 +456,10 @@ As PixelQuest expands to support three complete aesthetic themes (**Pixel**, **L
   - **Seamless live theme switching**: When the user toggles themes, all screens instantly re-render in the target aesthetic.
   - **Single point of maintenance**: Component interfaces, haptics, and audio hooks stay unified.
 
+### 11.2 Day 21 vs Day 22 Boundary: `PixelProgressBar` Scope Boundary (Step 28)
+- **Scope Contract**: Today (Day 21) is exclusively dedicated to **buttons, cards/panels, dialogs, and form inputs**.
+- **Explicit Boundary Confirmation**: `PixelProgressBar`'s Comic styling and theme-dispatching logic are **strictly Day 22 scope**, not today.
+- **Implementation Status**: `PixelProgressBar` remains 100% untouched on Day 21. It retains its classic 8-bit stepped pixel fill in Pixel mode and emerald daylight fill in Light mode, with zero Comic branching or vector restyling introduced today. This strict boundary prevents scope creep and ensures Day 21's 40 commits remain tightly focused on core interactive wrappers.
+
+
 

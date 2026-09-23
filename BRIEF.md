@@ -1923,6 +1923,7 @@ Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme
 - Step 24: Build Comic time picker matching PixelTimePicker with comic styled shell - 92a6bbe
 - Step 25: Build Comic versions of recurrence and category selectors matching Pixel counterparts - 636bb3c
 - Step 26: Wire all form components to dispatch correctly when Comic mode is active - 0e6afa2
+- Step 27: Add Compose Preview comparing form inputs across all three themes - adbf78c
 
 
 

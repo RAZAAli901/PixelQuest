@@ -72,6 +72,10 @@ This checklist enumerates every component Days 21–23 will adapt to the Comic B
   - [ ] Clean white panel surface with 12dp rounded corners and solid black outline.
 
 ### 3.2 Progression, Avatars & Feedback (Day 22 Focus)
+- [ ] **`PixelProgressBar` / `ComicProgressBar`** (Explicitly deferred from Day 21 per Step 28):
+  - [ ] Solid black 2.5dp container border with 4dp flat black drop shadow.
+  - [ ] High-contrast comic progress fill (dynamic coral red / sky blue / amber) with diagonal energy stripe option.
+  - [ ] Zero changes made on Day 21; all progress bar restyling is locked to Day 22.
 - [ ] **`ComicAvatarFrame`**:
   - [ ] Solid black 2.5dp outline with 10dp corner radius.
   - [ ] Bronze, Silver, Gold tier badge highlights.
