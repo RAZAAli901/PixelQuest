@@ -35,6 +35,22 @@ fun PixelCard(
     val activeMode = PixelTheme.mode
     val colors = PixelTheme.colors
 
+    if (activeMode == ThemeMode.Comic) {
+        val comicVariant = when (variant) {
+            PixelPanelVariant.BORDER -> ComicPanelVariant.SURFACE
+            PixelPanelVariant.BLUE -> ComicPanelVariant.SKY_BLUE
+            PixelPanelVariant.BEIGE -> ComicPanelVariant.BURNT_ORANGE
+        }
+        ComicPanel(
+            modifier = modifier,
+            variant = comicVariant,
+            contentPadding = contentPadding
+        ) {
+            content()
+        }
+        return
+    }
+
     if (activeMode == ThemeMode.Light) {
         val (cardBg, borderColor) = when (variant) {
             PixelPanelVariant.BORDER -> colors.surface to colors.pixelBorder
@@ -100,4 +116,23 @@ fun PixelCard(
         }
     }
 }
+
+/**
+ * PixelPanel alias providing theme-aware card panel rendering.
+ */
+@Composable
+fun PixelPanel(
+    modifier: Modifier = Modifier,
+    variant: PixelPanelVariant = PixelPanelVariant.BORDER,
+    contentPadding: Dp = 16.dp,
+    content: @Composable () -> Unit
+) {
+    PixelCard(
+        modifier = modifier,
+        variant = variant,
+        contentPadding = contentPadding,
+        content = content
+    )
+}
+
 
