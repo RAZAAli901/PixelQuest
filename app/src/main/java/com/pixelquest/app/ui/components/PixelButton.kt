@@ -37,6 +37,23 @@ fun PixelButton(
     textColor: Color = Color.Unspecified,
     enabled: Boolean = true
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        val comicVariant = when (variant) {
+            PixelButtonVariant.YELLOW -> ComicButtonVariant.PRIMARY
+            PixelButtonVariant.BLUE -> ComicButtonVariant.SKY_BLUE
+        }
+        ComicButton(
+            text = text,
+            onClick = onClick,
+            modifier = modifier,
+            variant = comicVariant,
+            enabled = enabled
+        )
+        return
+    }
+
     val soundManager = LocalSoundManager.current
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -49,7 +66,6 @@ fun PixelButton(
 
     val contentOffsetY = if (isPressed && enabled) 2.dp else 0.dp
 
-    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
     val tintColor = if (variant == PixelButtonVariant.YELLOW) {
         com.pixelquest.app.ui.theme.PixelTheme.colors.primary
     } else {
