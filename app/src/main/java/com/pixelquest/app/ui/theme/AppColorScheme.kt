@@ -52,6 +52,11 @@ val LocalAppThemeMode = androidx.compose.runtime.staticCompositionLocalOf<ThemeM
 }
 
 /**
+ * Alias for [LocalAppThemeMode] providing direct access to the current [ThemeMode].
+ */
+val LocalThemeMode = LocalAppThemeMode
+
+/**
  * Convenient accessor for theme tokens in composables.
  */
 object PixelTheme {
