@@ -22,13 +22,15 @@ import com.pixelquest.app.ui.theme.ThemeMode
 enum class PixelPanelVariant {
     BORDER,
     BLUE,
-    BEIGE
+    BEIGE,
+    LAVENDER
 }
 
 @Composable
 fun PixelCard(
     modifier: Modifier = Modifier,
     variant: PixelPanelVariant = PixelPanelVariant.BORDER,
+    comicVariant: ComicPanelVariant? = null,
     contentPadding: Dp = 16.dp,
     content: @Composable () -> Unit
 ) {
@@ -36,14 +38,15 @@ fun PixelCard(
     val colors = PixelTheme.colors
 
     if (activeMode == ThemeMode.Comic) {
-        val comicVariant = when (variant) {
+        val resolvedComicVariant = comicVariant ?: when (variant) {
             PixelPanelVariant.BORDER -> ComicPanelVariant.SURFACE
             PixelPanelVariant.BLUE -> ComicPanelVariant.SKY_BLUE
             PixelPanelVariant.BEIGE -> ComicPanelVariant.BURNT_ORANGE
+            PixelPanelVariant.LAVENDER -> ComicPanelVariant.LAVENDER
         }
         ComicPanel(
             modifier = modifier,
-            variant = comicVariant,
+            variant = resolvedComicVariant,
             contentPadding = contentPadding
         ) {
             content()
@@ -56,6 +59,7 @@ fun PixelCard(
             PixelPanelVariant.BORDER -> colors.surface to colors.pixelBorder
             PixelPanelVariant.BLUE -> colors.secondaryContainer to colors.secondary
             PixelPanelVariant.BEIGE -> colors.primaryContainer to colors.primary
+            PixelPanelVariant.LAVENDER -> Color(0xFFEDE9FE) to Color(0xFF7C3AED)
         }
 
         Box(
@@ -96,6 +100,7 @@ fun PixelCard(
             PixelPanelVariant.BORDER -> R.drawable.pixel_panel_border
             PixelPanelVariant.BLUE -> R.drawable.pixel_panel_blue
             PixelPanelVariant.BEIGE -> R.drawable.pixel_panel_beige
+            PixelPanelVariant.LAVENDER -> R.drawable.pixel_panel_blue
         }
 
         Box(
@@ -124,12 +129,14 @@ fun PixelCard(
 fun PixelPanel(
     modifier: Modifier = Modifier,
     variant: PixelPanelVariant = PixelPanelVariant.BORDER,
+    comicVariant: ComicPanelVariant? = null,
     contentPadding: Dp = 16.dp,
     content: @Composable () -> Unit
 ) {
     PixelCard(
         modifier = modifier,
         variant = variant,
+        comicVariant = comicVariant,
         contentPadding = contentPadding,
         content = content
     )
