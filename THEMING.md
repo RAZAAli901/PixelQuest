@@ -438,4 +438,22 @@ Following direct visual fidelity cross-checks against the Nitnode reference in S
 - **Pressed State**: Button translates `+3.0dp` down-right into shadow, Shadow collapses to `1.0dp`, creating tactile comic mechanical actuation.
 - **Elevation Rules**: Zero Material blurred elevation (`elevation = 0.dp`); only duplicated offset vector geometry is permitted.
 
+---
+
+## 11. Day 21: Component Architecture & Theme-Dispatching Wrappers
+
+### 11.1 The Theme-Dispatch Architecture Decision (Step 1 & 2)
+As PixelQuest expands to support three complete aesthetic themes (**Pixel**, **Light**, and **Comic**), a core architectural choice was finalized:
+- **Approach Chosen: Internally Theme-Aware Dispatching Wrappers**:
+  Existing core components (`PixelButton`, `PixelCard`, `PixelDialog`, `PixelTextField`, `PixelTimePicker`, `PixelCategorySelector`, `PixelRecurrenceSelector`, `PixelDaySelector`) become internally theme-aware. They check `PixelTheme.mode` (or `LocalThemeMode.current`) and branch to render the appropriate aesthetic style:
+  1. `ThemeMode.Pixel`: Classic 8-bit Kenney retro 9-patches, pixel fonts, stepped corners, CRT compatibility.
+  2. `ThemeMode.Light`: Procedural 2dp stepped dark stone borders, daylight ivory canvas, crisp white card surfaces.
+  3. `ThemeMode.Comic`: Solid black 2.5dp borders, 4dp flat drop shadow, pop-art container variants, Bangers display headlines, and tactile press physics.
+- **Alternative Rejected: Parallel `Comic*` Components Across Screen Call Sites**:
+  Creating a parallel set of `ComicButton`, `ComicCard`, etc. and refactoring dozens of screens to import and switch between them was rejected. That approach would duplicate layout logic, risk component divergence, and require massive codebase churn across Days 21–23.
+- **Benefits**:
+  - **Zero call-site refactoring**: Screens continue invoking `PixelButton(...)`, `PixelCard(...)`, etc.
+  - **Seamless live theme switching**: When the user toggles themes, all screens instantly re-render in the target aesthetic.
+  - **Single point of maintenance**: Component interfaces, haptics, and audio hooks stay unified.
+
 
