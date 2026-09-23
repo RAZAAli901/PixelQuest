@@ -1927,6 +1927,7 @@ Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme
 - Step 28: Explicitly confirm PixelProgressBar Comic dispatch is Day 22 scope - 6aa3407
 - Step 29: Explicitly confirm avatar frame, XP bar, and icon restyling is Day 22 scope - 9c34325
 - Step 30: Verify progress ring, XP bar, and heatmap rendering in Pixel and Light mode are unaffected - 8e31344
+- Step 31: Add regression test covering Pixel and Light rendering of progress components - 44d5229
 
 
 
