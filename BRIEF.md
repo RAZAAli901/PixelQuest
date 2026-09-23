@@ -1917,6 +1917,7 @@ Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme
 - Step 18: Wire PixelDialog and PixelConfirmDialog to dispatch to Comic implementations - 19fc35b
 - Step 19: Verify dialog button styling integrates correctly within ComicDialog - 2c88d51
 - Step 20: Add Compose Preview comparing dialog rendering across all three themes - faaee60
+- Step 21: Add UI test verifying dialog interaction is unaffected by visual restyle - 1df4d08
 
 
 
