@@ -1934,6 +1934,7 @@ Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme
 - Step 35: Run full regression pass confirming Pixel mode is completely unaffected - 2852f51
 - Step 36: Run full regression pass confirming Light mode is completely unaffected - 21e4fc3
 - Step 37: Gate temporary debug Comic preview toggle strictly behind BuildConfig.DEBUG - 0140ace
+- Step 38: Update BRIEF.md with full Day 21 summary and component status - cd3b4d8
 
 ---
 

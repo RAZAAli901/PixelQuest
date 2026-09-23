@@ -52,55 +52,64 @@ Avatar sprites are framed with comic pop-art flair:
 
 ---
 
-## 3. Days 21–23 Component-by-Component Implementation Checklist (Step 26)
+## 3. Days 21–23 Component-by-Component Implementation Checklist (Step 26 & Step 39)
 
-This checklist enumerates every component Days 21–23 will adapt to the Comic Book UI Mode:
+This checklist tracks every component across the 4-day Comic Book UI arc (Days 20–23):
 
-### 3.1 Core Action & Panel Components (Day 21 Focus)
-- [ ] **`ComicButton`**:
-  - [ ] Primary CTA variant (Coral Red `#FF5A4E` fill, 2.5dp black border, 4dp flat black drop shadow, black bold text).
-  - [ ] Secondary container variants (Burnt Orange, Sky Blue, Lavender).
-  - [ ] Outlined / Surface variant (White surface with black border and shadow).
-  - [ ] Interactive press state: +2dp XY translation with collapsed 2dp shadow and haptic click.
-  - [ ] Disabled state: Desaturated gray `#E0DDD5` fill with 0.5f alpha.
-- [ ] **`ComicPanel`** (Foundation created on Day 20):
-  - [ ] Full screen integration into `TodayScreen`, `TasksScreen`, `StatsScreen`, `ProfileScreen`.
-  - [ ] Cyclical container coloring (`containerForIndex(index)`).
-- [ ] **`ComicDialog`**:
-  - [ ] Speech-bubble callout header with comic font.
-  - [ ] Action buttons styled with `ComicButton`.
-  - [ ] Clean white panel surface with 12dp rounded corners and solid black outline.
+### 3.1 Core Action & Panel Components (Day 21 — COMPLETE)
+- [x] **`ComicButton` (Dispatched via `PixelButton`)**:
+  - [x] Primary CTA variant (Coral Red `#FF5A4E` fill, 2.5dp black border, 4dp flat black drop shadow, black bold text).
+  - [x] Secondary container variants (Burnt Orange, Sky Blue, Lavender).
+  - [x] Outlined / Surface variant (White surface with black border and shadow).
+  - [x] Interactive press state: +3dp XY translation into shadow with collapsed 1dp shadow, 60ms spring tween, haptic click, and audio.
+  - [x] Disabled state: Desaturated gray `#E0DDD5` fill with 0.5f alpha black ink stroke.
+  - [x] Touch target: Audited >= 48dp on both axes with `propagateMinConstraints = true`.
+- [x] **`ComicPanel` (Dispatched via `PixelCard` / `PixelPanel`)**:
+  - [x] Compose-drawn vector panel with solid 2.5dp ink border and 4dp flat offset drop shadow.
+  - [x] Pre-allocated shadow clearance padding (`padding(end = 4.dp, bottom = 4.dp)`).
+  - [x] Selectable signature container colors (Burnt Orange, Sky Blue, Lavender, Surface, Paper).
+- [x] **`ComicDialog` & `ComicConfirmDialog` (Dispatched via `PixelDialog` / `PixelConfirmDialog`)**:
+  - [x] Centered uppercase Bangers title (0.8sp tracking).
+  - [x] Primary confirm button (Coral Red) and secondary dismiss button (Sky Blue) with 12dp spacing.
+  - [x] Modal shell built on `ComicPanel` with solid black outline and warning haptics.
+- [x] **Form Inputs (Dispatched via `PixelTextField`, `PixelSelector`, etc.)**:
+  - [x] `ComicTextField`: Bangers label, `ComicPanel` input surface, Coral Red error border/text.
+  - [x] `ComicDropdown`: Comic panel row trigger with chevron and flat white popup menu with `ChipRadius` border.
+  - [x] `ComicTimePicker`: Comic-styled panel trigger integrating platform `TimePickerDialog`.
+  - [x] `ComicDaySelector`: 48dp tactile day chips (M–S) with Sky Blue active fills.
+  - [x] `ComicCategorySelector`: High-contrast solid black contour icons with Sky Blue active chips.
+  - [x] `ComicRecurrenceSelector`: Daily, Weekly, One-Time chips with Burnt Orange active fills.
 
-### 3.2 Progression, Avatars & Feedback (Day 22 Focus - Confirmed Out of Scope for Day 21)
-- [ ] **`PixelProgressBar` / `ComicProgressBar`** (Explicitly deferred from Day 21 per Step 28):
+### 3.2 Progression, Avatars & Feedback (Day 22 Scope — PENDING DAY 22)
+- [ ] **`PixelProgressBar` / `ComicProgressBar`** (Strictly Day 22 scope per Step 28):
   - [ ] Solid black 2.5dp container border with 4dp flat black drop shadow.
   - [ ] High-contrast comic progress fill (dynamic coral red / sky blue / amber) with diagonal energy stripe option.
-  - [ ] Zero changes made on Day 21; all progress bar restyling is locked to Day 22.
-- [ ] **`ComicAvatarFrame`** (Day 22 scope per Step 29):
+  - [ ] Status: Untouched on Day 21; strictly Day 22.
+- [ ] **`ComicAvatarFrame`** (Strictly Day 22 scope per Step 29):
   - [ ] Solid black 2.5dp outline with 10dp corner radius.
   - [ ] Bronze, Silver, Gold tier badge highlights.
   - [ ] Comic star burst badge for level milestones.
-- [ ] **`ComicXpBar`** (Day 22 scope per Step 29):
+  - [ ] Status: Untouched on Day 21; strictly Day 22.
+- [ ] **`ComicXpBar`** (Strictly Day 22 scope per Step 29):
   - [ ] Thick black container border with recessed track.
   - [ ] Diagonal striped comic energy fill pattern.
   - [ ] Level badge rendered as an energetic comic star badge.
-- [ ] **`ComicDailyProgressRing`** (Day 22 scope per Step 29):
+  - [ ] Status: Untouched on Day 21; strictly Day 22.
+- [ ] **`ComicDailyProgressRing`** (Strictly Day 22 scope per Step 29):
   - [ ] Action comic badge banner ("POW!", "PERFECT DAY!").
   - [ ] High-contrast progress arc with comic border outline.
-- [ ] **`ComicCategoryIcons`** (Day 22 scope per Step 29):
-  - [ ] Contoured comic badge frame and cel-shaded tinting.
-- [ ] **`ComicQuestCard` (`TodayQuestCard.kt`)**:
+  - [ ] Status: Untouched on Day 21; strictly Day 22.
+- [ ] **`ComicCategoryIcons` (`ic_cat_*`)** (Strictly Day 22 scope per Step 29):
+  - [ ] Vector comic badge frames and cel-shaded contours.
+  - [ ] Status: Untouched on Day 21; strictly Day 22.
+- [ ] **`ComicQuestCard` (`TodayQuestCard.kt`)** (Day 22/23 scope):
   - [ ] Comic mission card with cycling burnt orange / sky blue / lavender container fills.
   - [ ] Quick-complete action stamp ("DONE!", "POW!").
 
-### 3.3 Navigation & Data Displays (Day 23 Focus)
+### 3.3 Navigation & Data Displays (Day 23 Scope — PENDING DAY 23)
 - [ ] **`ComicBottomNavBar`**:
   - [ ] Divided comic strip panel layout with 2dp black divider lines.
   - [ ] Active tab indicated by vibrant coral-red pill chip.
-- [ ] **`ComicDaySelector` & `ComicFilterChips`**:
-  - [ ] Comic tag stickers with 2dp black borders and 3dp mini drop shadows.
-- [ ] **`ComicTextField`**:
-  - [ ] Comic dialogue speech input container with clean sans font and black border.
 - [ ] **`ComicHeatmapCell` & `ComicBarChart`**:
   - [ ] Pop-art color ramp and skyscraper comic pillars with black borders.
 - [ ] **Full Screen Theme Integration & Gate Release**:
