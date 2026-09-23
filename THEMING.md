@@ -481,6 +481,28 @@ As PixelQuest expands to support three complete aesthetic themes (**Pixel**, **L
   - Light mode: Retains daylight emerald progress arc (`#15803D`) and dedicated light heatmap ramp (`#EFECE6` -> `#15803D`).
 - **Conclusion**: Core component dispatch refactors for buttons, cards, dialogs, and form inputs are completely isolated and introduced zero regression to progress-related components.
 
+### 11.5 Manual QA: Visual Inspection Against Day 20 Locked Spec (Step 33)
+Using the temporary `DebugComicPreviewToggle`, a manual QA pass was executed across all 4 restyled component categories:
+1. **Buttons (`PixelButton` -> `ComicButton`)**:
+   - Primary variant renders Coral Red (`#FF5A4E`) with 2.5dp black ink border and 4dp flat black drop shadow.
+   - Press physics verified: face translates +3dp down-right while shadow collapses to 1dp with 60ms spring tween.
+   - Touch targets audited: outer bounding box maintains >= 48dp on both axes. Status: **PASS**.
+2. **Cards & Panels (`PixelCard` -> `ComicPanel`)**:
+   - Standard panels render crisp white surface with black border and 4dp drop shadow.
+   - Three container colors (Burnt Orange, Sky Blue, Lavender) verified against Nitnode reference tokens.
+   - Outer shadow clearance reservation (`padding(end = 4.dp, bottom = 4.dp)`) prevents clipping in scrollable lists. Status: **PASS**.
+3. **Dialogs (`PixelDialog` / `PixelConfirmDialog` -> `ComicDialog` / `ComicConfirmDialog`)**:
+   - Title renders in Bangers display font, centered, uppercase, with 0.8sp letter spacing.
+   - Action buttons (Coral Red primary / Sky Blue cancel) maintain 12dp spacing, preventing shadow collision.
+   - Confirm/dismiss callbacks and warning haptics function flawlessly. Status: **PASS**.
+4. **Form Inputs (`PixelTextField`, `PixelDaySelector`, `PixelTimePicker`, `PixelCategorySelector`, `PixelRecurrenceSelector`)**:
+   - Bangers labels display crisp solid black ink.
+   - Day chips (48dp) highlight with Sky Blue fill on selection.
+   - Time picker opens system picker and formats time cleanly.
+   - Category chips display solid black contour icons with Sky Blue selection.
+   - Recurrence chips highlight with Burnt Orange fill. Status: **PASS**.
+
+
 
 
 
