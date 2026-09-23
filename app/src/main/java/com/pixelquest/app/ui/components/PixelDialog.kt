@@ -27,6 +27,21 @@ fun PixelDialog(
     onDismiss: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicDialog(
+            onDismissRequest = onDismissRequest,
+            title = title,
+            modifier = modifier,
+            confirmButtonText = confirmButtonText,
+            onConfirm = onConfirm,
+            dismissButtonText = dismissButtonText,
+            onDismiss = onDismiss,
+            content = content
+        )
+        return
+    }
+
     Dialog(onDismissRequest = onDismissRequest) {
         PixelCard(
             modifier = modifier.fillMaxWidth(0.92f),

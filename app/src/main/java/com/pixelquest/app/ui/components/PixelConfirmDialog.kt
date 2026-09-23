@@ -17,6 +17,20 @@ fun PixelConfirmDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicConfirmDialog(
+            title = title,
+            message = message,
+            confirmText = confirmText,
+            dismissText = dismissText,
+            onConfirm = onConfirm,
+            onDismiss = onDismiss,
+            modifier = modifier
+        )
+        return
+    }
+
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     PixelDialog(
         title = title,
