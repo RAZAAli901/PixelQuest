@@ -516,6 +516,14 @@ Following the Step 33 manual QA inspection, several visual refinements were impl
 4. **`ComicDropdown` Elevation Tint Normalization**:
    - *Fix*: Enforced `RoundedCornerShape(ComicShapeTokens.ChipRadius)` and verified flat pure white surface background without Material 3 tonal color pollution.
 
+### 11.7 Pixel Mode Full Regression Pass (Step 35)
+A thorough regression verification was executed to guarantee that classic 8-bit Pixel mode is 100% unaffected by the internal theme-dispatch refactoring:
+- **`PixelButton` Invariance**: Dispatches cleanly to Kenney 9-patch bitmap drawables (`pixel_button_yellow`, `pixel_button_blue`), preserving 8-bit gold/arcade styling, PressStart2P typography, and mechanical 2dp depression physics.
+- **`PixelCard` / `PixelPanel` Invariance**: Renders original textured wood/stone panels (`panel_wood`, `panel_wood_inset`) and stepped pixel outlines.
+- **`PixelDialog` / `PixelConfirmDialog` Invariance**: Dialog shells, backdrop overlays, and button pairings continue rendering pixel-art assets without any Comic vector substitution.
+- **Form Inputs Invariance**: `PixelTextField`, `PixelDaySelector`, `PixelTimePicker`, `PixelCategorySelector`, and `PixelRecurrenceSelector` retain pixel typography, classic bitmap category icons, and arcade color accents.
+- **Availability Guarantee**: `ThemeMode.Pixel.isAvailable == true` remains the default theme for all users.
+
 
 
 
