@@ -49,6 +49,7 @@ fun PixelButton(
             onClick = onClick,
             modifier = modifier,
             variant = comicVariant,
+            textColor = textColor,
             enabled = enabled
         )
         return

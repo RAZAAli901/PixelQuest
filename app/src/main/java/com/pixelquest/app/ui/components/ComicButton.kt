@@ -52,6 +52,7 @@ fun ComicButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     variant: ComicButtonVariant = ComicButtonVariant.PRIMARY,
+    textColor: Color = Color.Unspecified,
     enabled: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 12.dp)
 ) {
@@ -65,7 +66,7 @@ fun ComicButton(
 
     // Tactile press animation: button moves +3dp into shadow, shadow collapses
     val animatedShadowOffset by animateDpAsState(
-        targetValue = if (isPressed && enabled) minShadow else maxShadow,
+        targetValue = if (isPressed && enabled) minShadow else if (!enabled) minShadow else maxShadow,
         animationSpec = tween(durationMillis = 60),
         label = "comic_btn_shadow"
     )
@@ -90,9 +91,14 @@ fun ComicButton(
 
     val contentColor = if (!enabled) {
         Color(0xFF757575)
+    } else if (textColor != Color.Unspecified) {
+        textColor
     } else {
         ComicTokens.SolidBlack
     }
+
+    val borderColor = if (!enabled) ComicTokens.SolidBlack.copy(alpha = 0.5f) else ComicTokens.SolidBlack
+    val shadowColor = if (!enabled) ComicTokens.SolidBlack.copy(alpha = 0.35f) else ComicTokens.SolidBlack
 
     val shape = RoundedCornerShape(ComicShapeTokens.RadiusDefault)
 
@@ -117,7 +123,7 @@ fun ComicButton(
             modifier = Modifier
                 .matchParentSize()
                 .offset(x = animatedShadowOffset, y = animatedShadowOffset)
-                .background(ComicTokens.SolidBlack, shape = shape)
+                .background(shadowColor, shape = shape)
         )
 
         // Main button surface face
@@ -127,7 +133,7 @@ fun ComicButton(
                 .background(fillColor, shape = shape)
                 .comicBorder(
                     width = ComicShapeTokens.BorderWidthDefault,
-                    color = ComicTokens.SolidBlack,
+                    color = borderColor,
                     shape = shape
                 )
                 .padding(contentPadding),
