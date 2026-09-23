@@ -1911,6 +1911,7 @@ Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme
 - Step 12: Wire signature container colors as selectable ComicPanel variants for different card contexts - 8e28866
 - Step 13: Verify existing PixelCard usages render correctly once dispatch is wired - 6bf5ad6
 - Step 14: Add Compose Preview comparing card rendering across all three themes - eb9c16a
+- Step 15: Add UI test verifying card content layout is unaffected by visual restyle - b382bb0
 
 
 
