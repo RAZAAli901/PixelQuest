@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.theme.BangersFontFamily
+import com.pixelquest.app.ui.theme.ComicShapeTokens
 import com.pixelquest.app.ui.theme.ComicTokens
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -53,6 +54,7 @@ fun ComicTimePicker(
         false
     )
 
+    val hasError = errorText != null
     Column(modifier = modifier) {
         Text(
             text = label.uppercase(),
@@ -65,6 +67,8 @@ fun ComicTimePicker(
 
         ComicPanel(
             variant = ComicPanelVariant.SURFACE,
+            borderColor = if (hasError) ComicTokens.CoralRed else ComicTokens.SolidBlack,
+            borderWidth = if (hasError) ComicShapeTokens.BorderWidthThick else ComicShapeTokens.BorderWidthDefault,
             contentPadding = 12.dp,
             modifier = Modifier
                 .fillMaxWidth()

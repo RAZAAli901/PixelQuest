@@ -94,7 +94,7 @@ fun <T> ComicDropdown(
             onDismissRequest = { expanded = false },
             modifier = Modifier
                 .background(ComicTokens.PanelSurface)
-                .comicBorder(ComicShapeTokens.BorderWidthDefault, ComicTokens.SolidBlack, RoundedCornerShape(8.dp))
+                .comicBorder(ComicShapeTokens.BorderWidthDefault, ComicTokens.SolidBlack, RoundedCornerShape(ComicShapeTokens.ChipRadius))
         ) {
             items.forEach { item ->
                 DropdownMenuItem(
@@ -163,9 +163,9 @@ fun ComicDaySelector(
                 ComicPanel(
                     variant = panelVariant,
                     contentPadding = 0.dp,
-                    cornerRadius = 8.dp,
-                    shadowOffset = 3.dp,
-                    borderWidth = 2.dp,
+                    cornerRadius = ComicShapeTokens.ChipRadius,
+                    shadowOffset = ComicShapeTokens.ShadowOffsetSmall,
+                    borderWidth = ComicShapeTokens.BorderWidthThin,
                     modifier = Modifier
                         .size(48.dp)
                         .clickable { onDayToggled(day) }

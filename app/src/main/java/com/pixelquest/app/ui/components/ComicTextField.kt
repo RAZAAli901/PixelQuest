@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.theme.BangersFontFamily
+import com.pixelquest.app.ui.theme.ComicShapeTokens
 import com.pixelquest.app.ui.theme.ComicTokens
 
 /**
@@ -50,8 +51,11 @@ fun ComicTextField(
             )
         }
 
+        val hasError = errorText != null
         ComicPanel(
             variant = ComicPanelVariant.SURFACE,
+            borderColor = if (hasError) ComicTokens.CoralRed else ComicTokens.SolidBlack,
+            borderWidth = if (hasError) ComicShapeTokens.BorderWidthThick else ComicShapeTokens.BorderWidthDefault,
             contentPadding = 12.dp,
             modifier = Modifier.fillMaxWidth()
         ) {

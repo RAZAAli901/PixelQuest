@@ -130,7 +130,8 @@ fun ComicButton(
                 soundManager?.playClickSound()
                 onClick()
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
+        propagateMinConstraints = true
     ) {
         // Flat solid black drop shadow
         Box(

@@ -502,6 +502,20 @@ Using the temporary `DebugComicPreviewToggle`, a manual QA pass was executed acr
    - Category chips display solid black contour icons with Sky Blue selection.
    - Recurrence chips highlight with Burnt Orange fill. Status: **PASS**.
 
+### 11.6 Visual QA Inconsistency Refinements & Fixes (Step 34)
+Following the Step 33 manual QA inspection, several visual refinements were implemented across the restyled core components:
+1. **`ComicButton` Constraint Propagation**:
+   - *Issue*: When `Modifier.fillMaxWidth()` was supplied to `ComicButton`, the outer bounding box expanded and the drop shadow stretched to full width via `matchParentSize()`, but the button face Box only wrapped text content with horizontal padding, causing a visual mismatch.
+   - *Fix*: Enabled `propagateMinConstraints = true` on the outer bounding `Box`. This guarantees that minimum width constraints from `fillMaxWidth()` flow directly to the button face surface Box, ensuring identical full-width expansion for both face and shadow in dialog actions and full-width forms.
+2. **`ComicTextField` & `ComicTimePicker` Error State Styling**:
+   - *Issue*: When validation errors occurred, the error caption text rendered in Coral Red below the field, but the input panel border remained neutral solid black, reducing visual urgency.
+   - *Fix*: Dynamically bind `borderColor = if (hasError) ComicTokens.CoralRed else ComicTokens.SolidBlack` and `borderWidth = if (hasError) ComicShapeTokens.BorderWidthThick else ComicShapeTokens.BorderWidthDefault` on the enclosing `ComicPanel`.
+3. **`ComicSelector` & `ComicFormSelectors` Token Standardization**:
+   - *Issue*: Hardcoded 8dp radii, 3dp shadow offsets, and 2dp border widths were present in chip elements.
+   - *Fix*: Refactored all selectors (`ComicDaySelector`, `ComicCategorySelector`, `ComicRecurrenceSelector`, `ComicDropdown`) to strictly reference `ComicShapeTokens` (`ChipRadius`, `ShadowOffsetSmall`, `BorderWidthThin`, and `BorderWidthDefault`).
+4. **`ComicDropdown` Elevation Tint Normalization**:
+   - *Fix*: Enforced `RoundedCornerShape(ComicShapeTokens.ChipRadius)` and verified flat pure white surface background without Material 3 tonal color pollution.
+
 
 
 

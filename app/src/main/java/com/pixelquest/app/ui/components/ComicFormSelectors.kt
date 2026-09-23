@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.ui.theme.BangersFontFamily
+import com.pixelquest.app.ui.theme.ComicShapeTokens
 import com.pixelquest.app.ui.theme.ComicTokens
 
 /**
@@ -59,9 +60,9 @@ fun ComicCategorySelector(
                 ComicPanel(
                     variant = variant,
                     contentPadding = 6.dp,
-                    cornerRadius = 8.dp,
-                    shadowOffset = 3.dp,
-                    borderWidth = 2.dp,
+                    cornerRadius = ComicShapeTokens.ChipRadius,
+                    shadowOffset = ComicShapeTokens.ShadowOffsetSmall,
+                    borderWidth = ComicShapeTokens.BorderWidthThin,
                     modifier = Modifier
                         .weight(1f)
                         .clickable { onCategorySelected(category) }
@@ -130,9 +131,9 @@ fun ComicRecurrenceSelector(
                 ComicPanel(
                     variant = variant,
                     contentPadding = 8.dp,
-                    cornerRadius = 8.dp,
-                    shadowOffset = 3.dp,
-                    borderWidth = 2.dp,
+                    cornerRadius = ComicShapeTokens.ChipRadius,
+                    shadowOffset = ComicShapeTokens.ShadowOffsetSmall,
+                    borderWidth = ComicShapeTokens.BorderWidthThin,
                     modifier = Modifier
                         .weight(1f)
                         .clickable { onTypeSelected(type) }
