@@ -71,22 +71,24 @@ This checklist enumerates every component Days 21–23 will adapt to the Comic B
   - [ ] Action buttons styled with `ComicButton`.
   - [ ] Clean white panel surface with 12dp rounded corners and solid black outline.
 
-### 3.2 Progression, Avatars & Feedback (Day 22 Focus)
+### 3.2 Progression, Avatars & Feedback (Day 22 Focus - Confirmed Out of Scope for Day 21)
 - [ ] **`PixelProgressBar` / `ComicProgressBar`** (Explicitly deferred from Day 21 per Step 28):
   - [ ] Solid black 2.5dp container border with 4dp flat black drop shadow.
   - [ ] High-contrast comic progress fill (dynamic coral red / sky blue / amber) with diagonal energy stripe option.
   - [ ] Zero changes made on Day 21; all progress bar restyling is locked to Day 22.
-- [ ] **`ComicAvatarFrame`**:
+- [ ] **`ComicAvatarFrame`** (Day 22 scope per Step 29):
   - [ ] Solid black 2.5dp outline with 10dp corner radius.
   - [ ] Bronze, Silver, Gold tier badge highlights.
   - [ ] Comic star burst badge for level milestones.
-- [ ] **`ComicXpBar`**:
+- [ ] **`ComicXpBar`** (Day 22 scope per Step 29):
   - [ ] Thick black container border with recessed track.
   - [ ] Diagonal striped comic energy fill pattern.
   - [ ] Level badge rendered as an energetic comic star badge.
-- [ ] **`ComicDailyProgressRing`**:
+- [ ] **`ComicDailyProgressRing`** (Day 22 scope per Step 29):
   - [ ] Action comic badge banner ("POW!", "PERFECT DAY!").
   - [ ] High-contrast progress arc with comic border outline.
+- [ ] **`ComicCategoryIcons`** (Day 22 scope per Step 29):
+  - [ ] Contoured comic badge frame and cel-shaded tinting.
 - [ ] **`ComicQuestCard` (`TodayQuestCard.kt`)**:
   - [ ] Comic mission card with cycling burnt orange / sky blue / lavender container fills.
   - [ ] Quick-complete action stamp ("DONE!", "POW!").

@@ -461,5 +461,14 @@ As PixelQuest expands to support three complete aesthetic themes (**Pixel**, **L
 - **Explicit Boundary Confirmation**: `PixelProgressBar`'s Comic styling and theme-dispatching logic are **strictly Day 22 scope**, not today.
 - **Implementation Status**: `PixelProgressBar` remains 100% untouched on Day 21. It retains its classic 8-bit stepped pixel fill in Pixel mode and emerald daylight fill in Light mode, with zero Comic branching or vector restyling introduced today. This strict boundary prevents scope creep and ensures Day 21's 40 commits remain tightly focused on core interactive wrappers.
 
+### 11.3 Progression, Avatars, and Icons Boundary: Confirmed Day 22 Scope (Step 29)
+- **Components Confirmed as Day 22 Scope**:
+  1. `PixelAvatarFrame`: Comic pop-art solid black 2.5dp outline, 10dp corner radius, starburst badge milestones.
+  2. `PixelXpBar`: Comic container border with flat black drop shadow, diagonal striped energy fill pattern.
+  3. `PixelDailyProgressRing`: Comic action badge banner ("POW!", "PERFECT DAY!") and circular comic stroke.
+  4. Category Icons (`ic_cat_*`): Vector comic badge frames and cel-shaded contours.
+- **Strict Boundary Enforcement**: Zero Comic code, branching, or asset modifications for these components landed on Day 21. They remain 100% preserved in their existing Pixel and Light mode states.
+
+
 
 

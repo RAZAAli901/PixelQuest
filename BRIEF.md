@@ -1924,6 +1924,7 @@ Day 20 initiates a 4-day arc (Days 20–23) introducing PixelQuest's third theme
 - Step 25: Build Comic versions of recurrence and category selectors matching Pixel counterparts - 636bb3c
 - Step 26: Wire all form components to dispatch correctly when Comic mode is active - 0e6afa2
 - Step 27: Add Compose Preview comparing form inputs across all three themes - adbf78c
+- Step 28: Explicitly confirm PixelProgressBar Comic dispatch is Day 22 scope - 6aa3407
 
 
 
