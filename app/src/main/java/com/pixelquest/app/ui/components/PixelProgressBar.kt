@@ -24,6 +24,16 @@ fun PixelProgressBar(
     val clampedProgress = progress.coerceIn(0f, 1f)
 
     val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicProgressBar(
+            progress = progress,
+            modifier = modifier,
+            height = height
+        )
+        return
+    }
+
     val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
 
     Box(
