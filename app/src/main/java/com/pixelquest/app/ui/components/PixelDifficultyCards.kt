@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
@@ -34,6 +35,51 @@ private fun getDifficultyIconRes(level: DifficultyLevel): Int = when (level) {
     DifficultyLevel.MEDIUM -> R.drawable.ic_diff_medium
     DifficultyLevel.HARD -> R.drawable.ic_diff_hard
     DifficultyLevel.HARDEST -> R.drawable.ic_diff_hardest
+}
+
+/**
+ * Step 25: Canonical difficulty tier icon with theme dispatch.
+ * In Pixel/Light mode: renders the raw icon tinted with PixelThemeAssetFilter.
+ * In Comic mode: renders the icon wrapped inside ComicIconBadge.
+ */
+@Composable
+fun PixelDifficultyIcon(
+    level: DifficultyLevel,
+    modifier: Modifier = Modifier,
+    size: Dp = 32.dp,
+    isSelected: Boolean = false
+) {
+    val mode = PixelTheme.mode
+    val colors = PixelTheme.colors
+
+    if (mode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        val badgeColor = when (level) {
+            DifficultyLevel.EASY -> com.pixelquest.app.ui.theme.ComicTokens.SkyBlue
+            DifficultyLevel.MEDIUM -> com.pixelquest.app.ui.theme.ComicTokens.BurntOrange
+            DifficultyLevel.HARD -> com.pixelquest.app.ui.theme.ComicTokens.Lavender
+            DifficultyLevel.HARDEST -> com.pixelquest.app.ui.theme.ComicTokens.CoralRed
+        }
+        ComicIconBadge(
+            iconResId = getDifficultyIconRes(level),
+            contentDescription = DifficultyMode.getDisplayName(level),
+            modifier = modifier,
+            badgeSize = size + 8.dp,
+            iconSize = size,
+            backgroundColor = if (isSelected) badgeColor else com.pixelquest.app.ui.theme.ComicTokens.SurfaceVariant,
+            iconTint = com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
+        )
+        return
+    }
+
+    Image(
+        painter = painterResource(id = getDifficultyIconRes(level)),
+        contentDescription = DifficultyMode.getDisplayName(level),
+        colorFilter = PixelThemeAssetFilter.forTheme(
+            mode,
+            if (isSelected) colors.primary else colors.onSurfaceVariant
+        ),
+        modifier = modifier.size(size)
+    )
 }
 
 @Composable
@@ -65,16 +111,10 @@ fun PixelDifficultyCards(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Image(
-                        painter = painterResource(id = getDifficultyIconRes(level)),
-                        contentDescription = DifficultyMode.getDisplayName(level),
-                        colorFilter = PixelThemeAssetFilter.forTheme(
-                            mode,
-                            if (isSelected) colors.primary else colors.onSurfaceVariant
-                        ),
-                        modifier = Modifier
-                            .size(32.dp)
-                            .padding(end = 4.dp)
+                    PixelDifficultyIcon(
+                        level = level,
+                        isSelected = isSelected,
+                        modifier = Modifier.padding(end = 4.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
