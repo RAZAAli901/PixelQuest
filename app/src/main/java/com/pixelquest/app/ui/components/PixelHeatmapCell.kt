@@ -139,15 +139,31 @@ fun PixelHeatmapCell(
     isLightOverride: Boolean? = null,
     onClick: (() -> Unit)? = null
 ) {
-    val isLight = isLightOverride ?: (com.pixelquest.app.ui.theme.PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Light)
-    val fillColor = HeatmapColorMapper.getCellColor(status, isLight = isLight)
-    val borderColor = HeatmapColorMapper.getBorderColor(status, isLight = isLight)
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    val isComic = activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic && isLightOverride != true
+
+    val fillColor = if (isComic) {
+        HeatmapColorMapper.getCellColor(status, com.pixelquest.app.ui.theme.ThemeMode.Comic)
+    } else {
+        val isLight = isLightOverride ?: (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Light)
+        HeatmapColorMapper.getCellColor(status, isLight = isLight)
+    }
+
+    val borderColor = if (isComic) {
+        HeatmapColorMapper.getBorderColor(status, com.pixelquest.app.ui.theme.ThemeMode.Comic)
+    } else {
+        val isLight = isLightOverride ?: (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Light)
+        HeatmapColorMapper.getBorderColor(status, isLight = isLight)
+    }
+
+    val cornerRadius = if (isComic) 3.dp else 2.dp
+    val borderWidth = if (isComic) 1.5.dp else 1.dp
 
     Box(
         modifier = modifier
             .size(size)
-            .background(fillColor, shape = RoundedCornerShape(2.dp))
-            .border(1.dp, borderColor, shape = RoundedCornerShape(2.dp))
+            .background(fillColor, shape = RoundedCornerShape(cornerRadius))
+            .border(borderWidth, borderColor, shape = RoundedCornerShape(cornerRadius))
             .then(
                 if (onClick != null) Modifier.clickable { onClick() } else Modifier
             )
