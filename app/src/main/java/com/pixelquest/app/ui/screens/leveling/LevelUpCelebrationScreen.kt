@@ -60,6 +60,22 @@ fun LevelUpCelebrationScreen(
         visible = true
     }
 
+    val activeMode = PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        androidx.compose.animation.AnimatedVisibility(
+            visible = visible,
+            enter = com.pixelquest.app.ui.navigation.PixelTransitions.LevelUpEnter,
+            exit = com.pixelquest.app.ui.navigation.PixelTransitions.LevelUpExit
+        ) {
+            ComicLevelUpCelebration(
+                level = level,
+                onDismiss = onDismiss,
+                scale = scale
+            )
+        }
+        return
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
