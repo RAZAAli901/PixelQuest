@@ -63,16 +63,10 @@ fun PixelTaskListItem(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Image(
-                painter = painterResource(id = task.category.iconResId),
-                contentDescription = task.category.displayName,
-                colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
-                    com.pixelquest.app.ui.theme.PixelTheme.mode,
-                    colors.primary
-                ),
-                modifier = Modifier
-                    .padding(end = 12.dp)
-                    .size(24.dp)
+            PixelCategoryIcon(
+                category = task.category,
+                modifier = Modifier.padding(end = 12.dp),
+                size = 24.dp
             )
             Column(
                 modifier = Modifier.weight(1f)

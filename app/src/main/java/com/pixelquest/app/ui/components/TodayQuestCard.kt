@@ -85,16 +85,10 @@ fun TodayQuestCard(
             val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
             val mode = com.pixelquest.app.ui.theme.PixelTheme.mode
 
-            Image(
-                painter = painterResource(id = task.category.iconResId),
-                contentDescription = task.category.displayName,
-                colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
-                    mode,
-                    colors.primary
-                ),
-                modifier = Modifier
-                    .padding(end = 12.dp)
-                    .size(28.dp)
+            PixelCategoryIcon(
+                category = task.category,
+                modifier = Modifier.padding(end = 12.dp),
+                size = 28.dp
             )
 
             Column(
