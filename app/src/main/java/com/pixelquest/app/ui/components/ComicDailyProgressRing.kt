@@ -21,10 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +39,79 @@ import com.pixelquest.app.ui.theme.ComicShapeTokens
 import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.comicBorder
 import com.pixelquest.app.ui.theme.comicDropShadow
+
+/**
+ * Step 8: ComicStarburstBadge — Action starburst shape for "Perfect Day!" celebratory moment.
+ * Procedurally draws a multi-pointed comic action star with offset drop shadow and black ink border.
+ */
+@Composable
+fun ComicStarburstBadge(
+    text: String = "POW!",
+    modifier: Modifier = Modifier,
+    fillColor: Color = ComicTokens.GoldAccent,
+    points: Int = 12
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val w = size.width
+            val h = size.height
+            val cx = w / 2f
+            val cy = h / 2f
+            val rOuter = minOf(w, h) / 2f * 0.95f
+            val rInner = rOuter * 0.65f
+
+            fun buildStarPath(offsetX: Float = 0f, offsetY: Float = 0f): Path {
+                val path = Path()
+                val totalPoints = points * 2
+                val angleStep = (2.0 * Math.PI / totalPoints)
+
+                for (i in 0 until totalPoints) {
+                    val angle = i * angleStep - (Math.PI / 2.0)
+                    val r = if (i % 2 == 0) rOuter else rInner
+                    val x = cx + offsetX + (r * Math.cos(angle)).toFloat()
+                    val y = cy + offsetY + (r * Math.sin(angle)).toFloat()
+                    if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                }
+                path.close()
+                return path
+            }
+
+            // Drop shadow
+            val shadowPx = 3.dp.toPx()
+            drawPath(
+                path = buildStarPath(shadowPx, shadowPx),
+                color = ComicTokens.SolidBlack,
+                style = Fill
+            )
+
+            // Fill
+            drawPath(
+                path = buildStarPath(),
+                color = fillColor,
+                style = Fill
+            )
+
+            // Ink Border
+            drawPath(
+                path = buildStarPath(),
+                color = ComicTokens.SolidBlack,
+                style = Stroke(width = 2.5.dp.toPx())
+            )
+        }
+
+        Text(
+            text = text,
+            fontFamily = BangersFontFamily,
+            fontSize = 11.sp,
+            letterSpacing = 0.5.sp,
+            color = ComicTokens.SolidBlack,
+            modifier = Modifier.rotate(-6f)
+        )
+    }
+}
 
 /**
  * Step 6: Circular comic-styled progress ring featuring:
@@ -121,8 +197,9 @@ fun ComicProgressRingArc(
 }
 
 /**
- * Step 6: ComicDailyProgressRing composable matching PixelDailyProgressRing's role.
+ * Step 6 & 8: ComicDailyProgressRing composable matching PixelDailyProgressRing's role.
  * Wraps the circular comic ring inside a comic panel with title, target status, and bold typography.
+ * Displays ComicStarburstBadge during "Perfect Day!" completion.
  */
 @Composable
 fun ComicDailyProgressRing(
@@ -148,13 +225,22 @@ fun ComicDailyProgressRing(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (isGoalMet) "⭐ PERFECT DAY!" else "🎯 QUEST PROGRESS",
-                    fontFamily = BangersFontFamily,
-                    fontSize = 18.sp,
-                    letterSpacing = 0.8.sp,
-                    color = ComicTokens.SolidBlack
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (isGoalMet) {
+                        ComicStarburstBadge(
+                            text = "POW!",
+                            modifier = Modifier.size(34.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
+                    Text(
+                        text = if (isGoalMet) "PERFECT DAY!" else "QUEST PROGRESS",
+                        fontFamily = BangersFontFamily,
+                        fontSize = 18.sp,
+                        letterSpacing = 0.8.sp,
+                        color = ComicTokens.SolidBlack
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = if (isGoalMet) "ALL DAILY GOALS CRUSHED!" else "DAILY HABIT COMPLETION",
@@ -183,3 +269,4 @@ fun ComicDailyProgressRing(
         }
     }
 }
+
