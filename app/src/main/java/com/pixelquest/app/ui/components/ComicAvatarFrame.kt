@@ -57,7 +57,7 @@ fun ComicAvatarFrame(
     val shadowOffset = ComicShapeTokens.ShadowOffsetDefault // 4.dp
 
     Box(
-        modifier = modifier.padding(bottom = if (!isSimpleMode) 8.dp else shadowOffset, end = shadowOffset),
+        modifier = modifier.padding(bottom = if (!isSimpleMode) 14.dp else shadowOffset, end = shadowOffset),
         contentAlignment = Alignment.Center
     ) {
         // Main Avatar Comic Panel Frame

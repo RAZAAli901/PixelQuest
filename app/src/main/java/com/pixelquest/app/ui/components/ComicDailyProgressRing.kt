@@ -163,7 +163,7 @@ fun ComicProgressRingArc(
 
             // Track background ring
             drawArc(
-                color = Color(0xFFE8E4DC),
+                color = ComicTokens.SurfaceVariant,
                 startAngle = 0f,
                 sweepAngle = 360f,
                 useCenter = false,
