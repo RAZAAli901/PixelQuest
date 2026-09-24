@@ -32,6 +32,17 @@ object HeatmapColorMapper {
     val LightMissedCell = Color(0xFFDC2626)
     val LightMissedBorder = Color(0xFF991B1B)
 
+    // Comic-mode dedicated ramp (signature container colors + solid black ink borders)
+    val ComicEmptyCell = Color(0xFFF4EFE6) // SurfaceVariant newsprint
+    val ComicEmptyBorder = Color(0xFF000000)
+    val ComicPerfectCell = Color(0xFF8ECAE6) // Sky Blue signature container
+    val ComicPerfectBorder = Color(0xFF000000)
+    val ComicPartialCell = Color(0xFFF0A868) // Burnt Orange signature container
+    val ComicPartialBorder = Color(0xFF000000)
+    val ComicMissedCell = Color(0xFFFF5A4E) // Coral Red accent
+    val ComicMissedBorder = Color(0xFF000000)
+    val ComicBonusCell = Color(0xFFB8A4D4) // Lavender signature container
+
     // Dark-mode (Pixel) canonical 8-bit ramp
     val DarkEmptyCell = PixelSurfaceDark
     val DarkEmptyBorder = Color(0xFF333842)
@@ -60,6 +71,29 @@ object HeatmapColorMapper {
         }
     }
 
+    fun getCellColor(status: DailyStatus, mode: com.pixelquest.app.ui.theme.ThemeMode): Color {
+        return when (mode) {
+            com.pixelquest.app.ui.theme.ThemeMode.Comic -> when (status) {
+                DailyStatus.PERFECT -> ComicPerfectCell
+                DailyStatus.PARTIAL -> ComicPartialCell
+                DailyStatus.MISSED -> ComicMissedCell
+                DailyStatus.NO_TASKS_SCHEDULED -> ComicEmptyCell
+            }
+            com.pixelquest.app.ui.theme.ThemeMode.Light -> when (status) {
+                DailyStatus.PERFECT -> LightPerfectCell
+                DailyStatus.PARTIAL -> LightPartialCell
+                DailyStatus.MISSED -> LightMissedCell
+                DailyStatus.NO_TASKS_SCHEDULED -> LightEmptyCell
+            }
+            else -> when (status) {
+                DailyStatus.PERFECT -> DarkPerfectCell
+                DailyStatus.PARTIAL -> DarkPartialCell
+                DailyStatus.MISSED -> DarkMissedCell
+                DailyStatus.NO_TASKS_SCHEDULED -> DarkEmptyCell
+            }
+        }
+    }
+
     fun getBorderColor(status: DailyStatus, isLight: Boolean = false): Color {
         return if (isLight) {
             when (status) {
@@ -70,6 +104,24 @@ object HeatmapColorMapper {
             }
         } else {
             when (status) {
+                DailyStatus.PERFECT -> DarkPerfectBorder
+                DailyStatus.PARTIAL -> DarkPartialBorder
+                DailyStatus.MISSED -> DarkMissedBorder
+                DailyStatus.NO_TASKS_SCHEDULED -> DarkEmptyBorder
+            }
+        }
+    }
+
+    fun getBorderColor(status: DailyStatus, mode: com.pixelquest.app.ui.theme.ThemeMode): Color {
+        return when (mode) {
+            com.pixelquest.app.ui.theme.ThemeMode.Comic -> ComicEmptyBorder
+            com.pixelquest.app.ui.theme.ThemeMode.Light -> when (status) {
+                DailyStatus.PERFECT -> LightPerfectBorder
+                DailyStatus.PARTIAL -> LightPartialBorder
+                DailyStatus.MISSED -> LightMissedBorder
+                DailyStatus.NO_TASKS_SCHEDULED -> LightEmptyBorder
+            }
+            else -> when (status) {
                 DailyStatus.PERFECT -> DarkPerfectBorder
                 DailyStatus.PARTIAL -> DarkPartialBorder
                 DailyStatus.MISSED -> DarkMissedBorder
