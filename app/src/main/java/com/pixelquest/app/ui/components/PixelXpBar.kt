@@ -38,6 +38,18 @@ fun PixelXpBar(
     modifier: Modifier = Modifier,
     level: Int = 1
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicXpBar(
+            currentProgress = currentProgress,
+            maxProgress = maxProgress,
+            modifier = modifier,
+            level = level
+        )
+        return
+    }
+
     val targetFraction = if (maxProgress > 0) (currentProgress.toFloat() / maxProgress).coerceIn(0f, 1f) else 0f
     val animatedFraction by animateFloatAsState(
         targetValue = targetFraction,
