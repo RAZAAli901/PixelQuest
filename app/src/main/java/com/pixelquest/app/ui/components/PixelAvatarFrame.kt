@@ -30,8 +30,20 @@ fun PixelAvatarFrame(
     size: Dp = 80.dp,
     isSimpleMode: Boolean = false
 ) {
-    val tier = AvatarTierCalculator.calculateTier(level)
     val activeMode = PixelTheme.mode
+
+    if (activeMode == ThemeMode.Comic) {
+        ComicAvatarFrame(
+            avatarId = avatarId,
+            level = level,
+            modifier = modifier,
+            size = size,
+            isSimpleMode = isSimpleMode
+        )
+        return
+    }
+
+    val tier = AvatarTierCalculator.calculateTier(level)
     val borderColor = if (isSimpleMode) {
         PixelTheme.colors.pixelBorder
     } else if (activeMode == ThemeMode.Light) {
