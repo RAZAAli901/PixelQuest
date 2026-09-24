@@ -571,4 +571,30 @@ As Day 21 concludes, the component status across themes is codified as follows:
   3. **Visual Pop-Art Impact**: Placing the existing icon inside a comic-bordered badge with solid black ink outline (2dp), flat unblurred drop shadow (2dp), and signature container background (Burnt Orange, Sky Blue, Lavender, Coral Red) transforms it into an authentic pop-art comic emblem while preserving instant recognizability.
   4. **Zero Overhead**: Zero APK asset bloat; the badge container is rendered entirely via Compose runtime geometry.
 
+### 12.2 Manual QA Visual Inspection Against Day 20 Locked Spec (Step 37)
+Using Day 21's `DebugComicPreviewToggle`, a systematic manual QA inspection was performed across all 7 restyled component families:
+
+1. **`PixelProgressBar` -> `ComicProgressBar`**:
+   - 2.5dp black ink outline, 3dp flat black drop shadow, smoothly animated fill transition, high-contrast label.
+   - Verified across empty (0%), partial (25%, 50%, 75%), and full (100%) fill states. Status: **PASS**.
+2. **`PixelDailyProgressRing` -> `ComicDailyProgressRing`**:
+   - Thick black circular contour with 8dp comic stroke, centered Bangers percentage text, and animated arc fill.
+   - When goal is reached (`progress >= targetThreshold`), procedural 12-point `ComicStarburstBadge` ("POW!") and "PERFECT DAY!" headline engage with zero layout jitter. Status: **PASS**.
+3. **`PixelXpBar` -> `ComicXpBar`**:
+   - Diagonal-striped dynamic energy fill (`ComicEnergyFill`) with 45-degree action stripes.
+   - Dedicated comic level badge (`ComicLevelBadge`) alongside bar with Bangers typography and flat drop shadow. Status: **PASS**.
+4. **`PixelAvatarFrame` -> `ComicAvatarFrame`**:
+   - 12dp rounded corners (`RadiusLarge`), 2.5dp black ink border, 4dp flat drop shadow, and crisp white panel surface.
+   - Tier system pop-art ribbons: Bronze (`ComicTokens.BurntOrange`), Silver (`ComicTokens.SkyBlue`), Gold (`ComicTokens.GoldAccent`) pinned neatly at bottom center.
+   - Sprite proportions verified: 1:1 square ratio preserved with zero clipping. Status: **PASS**.
+5. **Category & Difficulty Icons (`ComicIconBadge`)**:
+   - Category badges render signature container colors (`BurntOrange`, `SkyBlue`, `Lavender`, `GoldAccent`, `CoralRed`) with 2dp border and 2dp shadow.
+   - Difficulty tier cards display styled comic badges with crisp black ink tinting. Status: **PASS**.
+6. **`PixelHeatmapCell` (3-Ramp Architecture)**:
+   - Dedicated comic color ramp verified: Sky Blue (Perfect), Burnt Orange (Partial), Coral Red (Missed), Newsprint (Empty) with solid black 1.5dp borders. Status: **PASS**.
+7. **`LevelUpCelebrationScreen` -> `ComicLevelUpCelebration`**:
+   - Radial action-burst rays radiating from screen center.
+   - 16-point gold starburst badge with "LEVEL UP!" in 34sp Bangers font.
+   - Crisp comic card panel with 58sp level number and Coral Red primary CTA button. Status: **PASS**.
+
 
