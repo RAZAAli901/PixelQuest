@@ -5,14 +5,19 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -34,6 +41,8 @@ import com.pixelquest.app.ui.theme.ComicShapeTokens
 import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.comicBorder
 import com.pixelquest.app.ui.theme.comicDropShadow
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
  * Step 11: Comic-styled diagonal-striped energy fill canvas.
@@ -82,7 +91,132 @@ fun ComicEnergyFill(
 }
 
 /**
- * Step 11: ComicXpBar matching PixelXpBar role.
+ * Step 13: Comic level badge style options.
+ */
+enum class ComicLevelBadgeStyle {
+    CIRCLE,
+    BURST
+}
+
+/**
+ * Step 13: Comic-styled level badge alongside the XP bar.
+ * Features a circular or starburst action badge with thick black ink border,
+ * comic drop shadow, and Bangers typography.
+ */
+@Composable
+fun ComicLevelBadge(
+    level: Int,
+    modifier: Modifier = Modifier,
+    style: ComicLevelBadgeStyle = ComicLevelBadgeStyle.CIRCLE,
+    backgroundColor: Color = ComicTokens.GoldAccent
+) {
+    val sizeDp = 38.dp
+    if (style == ComicLevelBadgeStyle.BURST) {
+        Box(
+            modifier = modifier
+                .size(sizeDp)
+                .semantics { contentDescription = "Level $level badge" },
+            contentAlignment = Alignment.Center
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val cx = size.width / 2f
+                val cy = size.height / 2f
+                val outerR = size.minDimension / 2f - 3f
+                val innerR = outerR * 0.72f
+                val points = 10
+                val angleStep = (2f * Math.PI / points).toFloat()
+                val halfStep = angleStep / 2f
+
+                val path = Path()
+                for (i in 0 until points) {
+                    val outerAngle = i * angleStep - (Math.PI / 2f).toFloat()
+                    val innerAngle = outerAngle + halfStep
+                    val ox = cx + outerR * cos(outerAngle)
+                    val oy = cy + outerR * sin(outerAngle)
+                    val ix = cx + innerR * cos(innerAngle)
+                    val iy = cy + innerR * sin(innerAngle)
+
+                    if (i == 0) path.moveTo(ox, oy) else path.lineTo(ox, oy)
+                    path.lineTo(ix, iy)
+                }
+                path.close()
+
+                // Shadow
+                drawContext.canvas.save()
+                drawContext.canvas.translate(2f.toDp().toPx(), 2f.toDp().toPx())
+                drawPath(path, color = ComicTokens.SolidBlack)
+                drawContext.canvas.restore()
+
+                // Background
+                drawPath(path, color = backgroundColor)
+
+                // Ink outline
+                drawPath(path, color = ComicTokens.SolidBlack, style = Stroke(width = 2.5f.toDp().toPx()))
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "LVL",
+                    fontFamily = BangersFontFamily,
+                    fontSize = 8.sp,
+                    color = ComicTokens.SolidBlack,
+                    lineHeight = 8.sp
+                )
+                Text(
+                    text = "$level",
+                    fontFamily = BangersFontFamily,
+                    fontSize = 15.sp,
+                    color = ComicTokens.SolidBlack,
+                    lineHeight = 15.sp
+                )
+            }
+        }
+    } else {
+        Box(
+            modifier = modifier
+                .size(sizeDp)
+                .comicDropShadow(
+                    offsetX = ComicShapeTokens.ShadowOffsetSmall,
+                    offsetY = ComicShapeTokens.ShadowOffsetSmall,
+                    color = ComicTokens.SolidBlack,
+                    shape = CircleShape
+                )
+                .background(backgroundColor, CircleShape)
+                .comicBorder(
+                    width = ComicShapeTokens.BorderWidthDefault,
+                    color = ComicTokens.SolidBlack,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "LVL",
+                    fontFamily = BangersFontFamily,
+                    fontSize = 8.sp,
+                    color = ComicTokens.SolidBlack,
+                    lineHeight = 8.sp
+                )
+                Text(
+                    text = "$level",
+                    fontFamily = BangersFontFamily,
+                    fontSize = 15.sp,
+                    color = ComicTokens.SolidBlack,
+                    lineHeight = 15.sp
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Step 11 & 13: ComicXpBar matching PixelXpBar role.
  * Features:
  * - Comic level badge on the left
  * - Comic panel track with flat black drop shadow and black ink border
@@ -95,7 +229,8 @@ fun ComicXpBar(
     maxProgress: Int,
     modifier: Modifier = Modifier,
     level: Int = 1,
-    energyColor: Color = ComicTokens.SkyBlue
+    energyColor: Color = ComicTokens.SkyBlue,
+    badgeStyle: ComicLevelBadgeStyle = ComicLevelBadgeStyle.CIRCLE
 ) {
     val targetFraction = if (maxProgress > 0) (currentProgress.toFloat() / maxProgress).coerceIn(0f, 1f) else 0f
     val animatedFraction by animateFloatAsState(
@@ -116,29 +251,11 @@ fun ComicXpBar(
                 contentDescription = "Level $level XP progress: $currentProgress of $maxProgress days ($percentage percent)"
             }
     ) {
-        // Level Badge (Initial Step 11 layout, refined in Step 13)
-        Box(
-            modifier = Modifier
-                .height(30.dp)
-                .comicDropShadow(
-                    offsetX = 2.dp,
-                    offsetY = 2.dp,
-                    color = ComicTokens.SolidBlack,
-                    shape = RoundedCornerShape(6.dp)
-                )
-                .background(ComicTokens.CoralRed, RoundedCornerShape(6.dp))
-                .comicBorder(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack, RoundedCornerShape(6.dp))
-                .padding(horizontal = 10.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "LVL $level",
-                fontFamily = BangersFontFamily,
-                fontSize = 13.sp,
-                letterSpacing = 0.5.sp,
-                color = ComicTokens.SolidBlack
-            )
-        }
+        // Step 13: Comic Level Badge alongside the bar
+        ComicLevelBadge(
+            level = level,
+            style = badgeStyle
+        )
 
         Spacer(modifier = Modifier.width(8.dp))
 
