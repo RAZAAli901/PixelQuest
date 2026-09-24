@@ -20,6 +20,17 @@ fun PixelDailyProgressRing(
     targetThreshold: Float,
     modifier: Modifier = Modifier
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicDailyProgressRing(
+            progress = progress,
+            targetThreshold = targetThreshold,
+            modifier = modifier
+        )
+        return
+    }
+
     val pctInt = (progress * 100).toInt()
     val targetPctInt = (targetThreshold * 100).toInt()
     val isGoalMet = progress >= targetThreshold
