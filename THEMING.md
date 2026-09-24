@@ -561,7 +561,14 @@ As Day 21 concludes, the component status across themes is codified as follows:
 - **Commit History**: Exactly 40 atomic, incremental commits produced for Day 21 (Steps 1 through 40), fully documented in `BRIEF.md`.
 
 
+## 12. Day 22: Remaining Component Restyling (Progress, XP Bar, Avatar, Icons, Heatmap, Celebration)
 
-
+### 12.1 Category & Difficulty Icon Treatment Strategy Decision (Step 22)
+- **Decision**: Wrap existing icon art in a new comic-styled badge container (`ComicIconBadge`) rather than commissioning entirely new vector icon art.
+- **Architectural Rationale**:
+  1. **Asset Reuse**: Reuses the established, battle-tested pixel icon assets from Day 3 (`ic_cat_*` category icons) and Day 5 (difficulty tier icons) without duplicating raster PNG files or commissioning an entirely new vector icon set.
+  2. **Consistency with Day 20 Decision**: Adheres directly to Day 20's Compose-drawn-preferred architecture, using Compose canvas drawing and modifier-driven geometry (`comicBorder` + `comicDropShadow` + vibrant container background) for theme styling.
+  3. **Visual Pop-Art Impact**: Placing the existing icon inside a comic-bordered badge with solid black ink outline (2dp), flat unblurred drop shadow (2dp), and signature container background (Burnt Orange, Sky Blue, Lavender, Coral Red) transforms it into an authentic pop-art comic emblem while preserving instant recognizability.
+  4. **Zero Overhead**: Zero APK asset bloat; the badge container is rendered entirely via Compose runtime geometry.
 
 
