@@ -38,7 +38,8 @@ import com.pixelquest.app.ui.theme.PixelTheme
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun CreateTaskScreen(
@@ -48,6 +49,43 @@ fun CreateTaskScreen(
     val formState by viewModel.formState.collectAsState()
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
+    TaskFormContent(
+        formState = formState,
+        showDeleteConfirm = showDeleteConfirm,
+        onShowDeleteConfirm = { showDeleteConfirm = it },
+        onNameChanged = { viewModel.onNameChanged(it) },
+        onRecurrenceSelected = { viewModel.onRecurrenceSelected(it) },
+        onDayToggled = { viewModel.onDayToggled(it) },
+        onTimeSelected = { viewModel.onTimeSelected(it) },
+        onCategorySelected = { viewModel.onCategorySelected(it) },
+        onSave = {
+            viewModel.saveTask {
+                onNavigateBack()
+            }
+        },
+        onDelete = {
+            viewModel.deleteTask {
+                onNavigateBack()
+            }
+        },
+        onNavigateBack = onNavigateBack
+    )
+}
+
+@Composable
+fun TaskFormContent(
+    formState: TaskFormState,
+    showDeleteConfirm: Boolean = false,
+    onShowDeleteConfirm: (Boolean) -> Unit = {},
+    onNameChanged: (String) -> Unit = {},
+    onRecurrenceSelected: (RecurrenceType) -> Unit = {},
+    onDayToggled: (java.time.DayOfWeek) -> Unit = {},
+    onTimeSelected: (java.time.LocalTime) -> Unit = {},
+    onCategorySelected: (com.pixelquest.app.domain.model.TaskCategory) -> Unit = {},
+    onSave: () -> Unit = {},
+    onDelete: () -> Unit = {},
+    onNavigateBack: () -> Unit = {}
+) {
     if (showDeleteConfirm) {
         PixelConfirmDialog(
             title = "ABANDON QUEST?",
@@ -55,12 +93,10 @@ fun CreateTaskScreen(
             confirmText = "DELETE",
             dismissText = "CANCEL",
             onConfirm = {
-                showDeleteConfirm = false
-                viewModel.deleteTask {
-                    onNavigateBack()
-                }
+                onShowDeleteConfirm(false)
+                onDelete()
             },
-            onDismiss = { showDeleteConfirm = false }
+            onDismiss = { onShowDeleteConfirm(false) }
         )
     }
 
@@ -75,88 +111,116 @@ fun CreateTaskScreen(
                             contentDescription = "Go Back"
                         }
                     ) {
-                        Text("◀", style = PixelTypography.titleMedium, color = PixelTheme.colors.primary)
+                        Text("◀", style = MaterialTheme.typography.titleMedium, color = PixelTheme.colors.primary)
                     }
                 },
                 actions = {
                     if (formState.isEditMode) {
                         IconButton(
-                            onClick = { showDeleteConfirm = true },
+                            onClick = { onShowDeleteConfirm(true) },
                             modifier = Modifier.semantics {
                                 contentDescription = "Delete Quest"
                             }
                         ) {
-                            Text("🗑️", style = PixelTypography.titleMedium)
+                            Text("🗑️", style = MaterialTheme.typography.titleMedium)
                         }
                     }
                 }
             )
         },
         containerColor = PixelTheme.colors.background
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(PixelTheme.colors.background)
-                    .imePadding()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                PixelTextField(
-                    value = formState.name,
-                    onValueChange = { viewModel.onNameChanged(it) },
-                    label = "QUEST NAME",
-                    placeholder = "Enter quest title...",
-                    errorText = formState.nameError,
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(PixelTheme.colors.background)
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            PixelTextField(
+                value = formState.name,
+                onValueChange = onNameChanged,
+                label = "QUEST NAME",
+                placeholder = "Enter quest title...",
+                errorText = formState.nameError,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            PixelRecurrenceSelector(
+                selectedType = formState.recurrenceType,
+                onTypeSelected = onRecurrenceSelected,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (formState.recurrenceType == RecurrenceType.WEEKLY) {
+                PixelDaySelector(
+                    selectedDays = formState.selectedDays,
+                    onDayToggled = onDayToggled,
+                    errorText = formState.daysError,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-
-                PixelRecurrenceSelector(
-                    selectedType = formState.recurrenceType,
-                    onTypeSelected = { viewModel.onRecurrenceSelected(it) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (formState.recurrenceType == RecurrenceType.WEEKLY) {
-                    PixelDaySelector(
-                        selectedDays = formState.selectedDays,
-                        onDayToggled = { viewModel.onDayToggled(it) },
-                        errorText = formState.daysError,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                PixelTimePicker(
-                    selectedTime = formState.scheduledTime,
-                    onTimeSelected = { viewModel.onTimeSelected(it) },
-                    errorText = formState.timeError,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                PixelCategorySelector(
-                    selectedCategory = formState.category,
-                    onCategorySelected = { viewModel.onCategorySelected(it) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-
-                PixelButton(
-                    text = if (formState.isEditMode) "UPDATE QUEST" else "SAVE QUEST",
-                    onClick = {
-                        viewModel.saveTask {
-                            onNavigateBack()
-                        }
-                    },
-                    variant = PixelButtonVariant.YELLOW,
-                    enabled = !formState.isSubmitting && formState.isValid,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
+
+            PixelTimePicker(
+                selectedTime = formState.scheduledTime,
+                onTimeSelected = onTimeSelected,
+                errorText = formState.timeError,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            PixelCategorySelector(
+                selectedCategory = formState.category,
+                onCategorySelected = onCategorySelected,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            PixelButton(
+                text = if (formState.isEditMode) "UPDATE QUEST" else "SAVE QUEST",
+                onClick = onSave,
+                variant = PixelButtonVariant.YELLOW,
+                enabled = !formState.isSubmitting && formState.isValid,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
+}
+
+@Preview(name = "Create Task Screen - Comic Mode", showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+fun CreateTaskScreenComicPreview() {
+    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        TaskFormContent(
+            formState = TaskFormState(
+                name = "Defeat the Dragon",
+                isEditMode = false,
+                category = com.pixelquest.app.domain.model.TaskCategory.FITNESS,
+                recurrenceType = RecurrenceType.DAILY
+            )
+        )
+    }
+}
+
+@Preview(name = "Edit Task Screen - Comic Mode", showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+fun EditTaskScreenComicPreview() {
+    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        TaskFormContent(
+            formState = TaskFormState(
+                name = "Read Comic Chapter 5",
+                isEditMode = true,
+                category = com.pixelquest.app.domain.model.TaskCategory.LEARNING,
+                recurrenceType = RecurrenceType.WEEKLY,
+                selectedDays = setOf(java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.WEDNESDAY, java.time.DayOfWeek.FRIDAY)
+            )
+        )
+    }
+}
+
