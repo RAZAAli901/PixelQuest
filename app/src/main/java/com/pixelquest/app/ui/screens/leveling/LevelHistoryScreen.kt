@@ -21,7 +21,8 @@ import com.pixelquest.app.data.local.entity.LevelHistoryEntity
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -59,7 +60,7 @@ fun LevelHistoryScreenContent(
     ) {
         Text(
             text = "📜 LEVEL HISTORY",
-            style = PixelTypography.titleLarge,
+            style = MaterialTheme.typography.titleLarge,
             color = colors.primary
         )
 
@@ -80,12 +81,12 @@ fun LevelHistoryScreenContent(
                     ) {
                         Text(
                             text = "📜",
-                            style = PixelTypography.displayMedium
+                            style = MaterialTheme.typography.displayMedium
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "No levels earned yet — complete perfect days to level up!",
-                            style = PixelTypography.bodyMedium,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = colors.onSurface
                         )
                     }
@@ -111,19 +112,19 @@ fun LevelHistoryScreenContent(
                             Column {
                                 Text(
                                     text = "LEVEL ${entry.level}",
-                                    style = PixelTypography.titleMedium,
+                                    style = MaterialTheme.typography.titleMedium,
                                     color = colors.primary
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "MODE: ${entry.difficultyAtTimeOfLevelUp}",
-                                    style = PixelTypography.bodySmall,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = colors.onSurfaceVariant
                                 )
                             }
                             Text(
                                 text = dateFormat.format(Date(entry.achievedDate)),
-                                style = PixelTypography.bodySmall,
+                                style = MaterialTheme.typography.bodySmall,
                                 color = colors.onSurfaceVariant
                             )
                         }
@@ -133,3 +134,16 @@ fun LevelHistoryScreenContent(
         }
     }
 }
+
+@Preview(name = "Level History Screen - Comic Mode", showBackground = true)
+@Composable
+fun LevelHistoryScreenComicPreview() {
+    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        val sampleHistory = listOf(
+            LevelHistoryEntity(id = 1, level = 2, achievedDate = System.currentTimeMillis() - 86400000L * 7, difficultyAtTimeOfLevelUp = "MEDIUM"),
+            LevelHistoryEntity(id = 2, level = 3, achievedDate = System.currentTimeMillis() - 86400000L * 2, difficultyAtTimeOfLevelUp = "HARD")
+        )
+        LevelHistoryScreenContent(history = sampleHistory)
+    }
+}
+

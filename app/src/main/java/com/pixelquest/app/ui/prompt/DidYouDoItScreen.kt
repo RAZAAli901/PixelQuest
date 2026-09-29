@@ -26,7 +26,8 @@ import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.delay
 
 @Composable
@@ -67,27 +68,27 @@ fun DidYouDoItScreen(
                 if (copy.iconEmoji != null) {
                     Text(
                         text = copy.iconEmoji,
-                        style = PixelTypography.displayLarge
+                        style = MaterialTheme.typography.displayLarge
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
                 Text(
                     text = copy.headerTitle,
-                    style = PixelTypography.displaySmall,
+                    style = MaterialTheme.typography.displaySmall,
                     color = colors.primary,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = copy.questionPrompt,
-                    style = PixelTypography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = colors.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = taskName,
-                    style = PixelTypography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     color = colors.onSurface,
                     textAlign = TextAlign.Center
                 )
@@ -123,3 +124,17 @@ fun DidYouDoItScreen(
         }
     }
 }
+
+@Preview(name = "Did You Do It Prompt - Comic Mode", showBackground = true)
+@Composable
+fun DidYouDoItScreenComicPreview() {
+    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        DidYouDoItScreen(
+            taskId = 1,
+            taskName = "Defeat the Morning Workout",
+            onDismiss = {},
+            isSimpleMode = false
+        )
+    }
+}
+
