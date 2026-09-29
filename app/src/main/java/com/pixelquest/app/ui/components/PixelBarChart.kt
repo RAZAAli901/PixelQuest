@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun PixelBarChart(
@@ -35,7 +35,7 @@ fun PixelBarChart(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = if (isSimpleMode) "📈 COMPLETION RATE TREND" else "📈 WEEKLY TREND",
-            style = PixelTypography.titleMedium,
+            style = MaterialTheme.typography.titleMedium,
             color = colors.primary
         )
 
@@ -64,7 +64,7 @@ fun PixelBarChart(
                     ) {
                         Text(
                             text = "$percentageInt%",
-                            style = PixelTypography.labelSmall.copy(fontSize = 7.sp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 7.sp),
                             color = colors.tertiary
                         )
 
@@ -82,7 +82,7 @@ fun PixelBarChart(
 
                         Text(
                             text = weekLabel,
-                            style = PixelTypography.labelSmall.copy(fontSize = 8.sp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
                             color = colors.secondary
                         )
                     }

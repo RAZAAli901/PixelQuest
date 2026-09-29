@@ -28,7 +28,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.pixelquest.app.ui.components.PixelBarChart
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun StatsScreen(
@@ -70,7 +70,7 @@ fun StatsContent(
     ) {
         Text(
             text = if (state.isSimpleMode) "📊 TASK STATISTICS" else "📊 HERO STATISTICS",
-            style = PixelTypography.titleLarge,
+            style = MaterialTheme.typography.titleLarge,
             color = colors.primary
         )
 
@@ -143,24 +143,24 @@ fun StatsContent(
                 ) {
                     Text(
                         text = "🛡️",
-                        style = PixelTypography.displayMedium,
+                        style = MaterialTheme.typography.displayMedium,
                         modifier = Modifier.padding(end = 12.dp)
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "ACTIVE DIFFICULTY",
-                            style = PixelTypography.labelLarge,
+                            style = MaterialTheme.typography.labelLarge,
                             color = colors.secondary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = DifficultyMode.getDisplayName(activeDifficulty).uppercase(),
-                            style = PixelTypography.titleMedium,
+                            style = MaterialTheme.typography.titleMedium,
                             color = colors.tertiary
                         )
                         Text(
                             text = "${(DifficultyMode.getPerfectDayThreshold(activeDifficulty) * 100).toInt()}% Target Threshold",
-                            style = PixelTypography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = colors.onSurface
                         )
                     }
@@ -171,7 +171,7 @@ fun StatsContent(
         // Heatmap Section
         Text(
             text = if (state.isSimpleMode) "📅 TASK ACTIVITY HEATMAP" else "📅 QUEST ACTIVITY HEATMAP",
-            style = PixelTypography.titleMedium,
+            style = MaterialTheme.typography.titleMedium,
             color = colors.primary
         )
         PixelCard(

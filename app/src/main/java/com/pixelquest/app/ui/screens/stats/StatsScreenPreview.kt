@@ -105,3 +105,41 @@ fun StatsScreenComparisonSideBySidePreview() {
         }
     }
 }
+
+@Preview(name = "Stats Screen - Comic Mode", showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+fun StatsScreenComicPreview() {
+    PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        val today = LocalDate.now()
+        val sampleMap = (0..60).associate { daysAgo ->
+            val date = today.minusDays(daysAgo.toLong())
+            val status = when (daysAgo % 4) {
+                0 -> DailyStatus.PERFECT
+                1 -> DailyStatus.PARTIAL
+                2 -> DailyStatus.MISSED
+                else -> DailyStatus.NO_TASKS_SCHEDULED
+            }
+            date to status
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(com.pixelquest.app.ui.theme.PixelTheme.colors.background)
+        ) {
+            StatsContent(
+                state = StatsUiState(
+                    currentStreak = 12,
+                    longestStreak = 24,
+                    totalPoints = 3450,
+                    overallCompletionRate = 0.92f,
+                    difficultyLevel = DifficultyLevel.HARDEST,
+                    heatmapStatusMap = sampleMap,
+                    weeklyTrend = listOf("W-3" to 0.75f, "W-2" to 0.88f, "W-1" to 0.95f, "NOW" to 1.0f),
+                    isSimpleMode = false
+                )
+            )
+        }
+    }
+}
+
