@@ -18,7 +18,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.data.local.entity.TaskEntity
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.ui.input.pointer.pointerInput
@@ -96,7 +96,7 @@ fun TodayQuestCard(
             ) {
                 Text(
                     text = task.name,
-                    style = PixelTypography.titleMedium.copy(
+                    style = MaterialTheme.typography.titleMedium.copy(
                         textDecoration = if (isMissed) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
                     ),
                     color = when {
@@ -109,13 +109,13 @@ fun TodayQuestCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "⏰ ${task.scheduledTime}",
-                        style = PixelTypography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = colors.secondary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = task.category.displayName,
-                        style = PixelTypography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall,
                         color = colors.onSurfaceVariant
                     )
                 }
@@ -131,7 +131,7 @@ fun TodayQuestCard(
                     ) {
                         Text(
                             text = "✓ DONE",
-                            style = PixelTypography.labelMedium,
+                            style = MaterialTheme.typography.labelMedium,
                             color = colors.onSecondary
                         )
                     }
@@ -143,7 +143,7 @@ fun TodayQuestCard(
                     ) {
                         Text(
                             text = "✗ MISSED",
-                            style = PixelTypography.labelMedium,
+                            style = MaterialTheme.typography.labelMedium,
                             color = colors.error
                         )
                     }

@@ -5,15 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelGreen
-import com.pixelquest.app.ui.theme.PixelTypography
+import com.pixelquest.app.ui.theme.PixelTheme
 
 @Composable
 fun StreakXpSummaryStrip(
@@ -23,6 +21,7 @@ fun StreakXpSummaryStrip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = PixelTheme.colors
     PixelCard(
         variant = PixelPanelVariant.BLUE,
         contentPadding = 12.dp,
@@ -38,36 +37,36 @@ fun StreakXpSummaryStrip(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "🔥 ",
-                    style = PixelTypography.titleMedium
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Text(
                     text = "$currentStreak DAYS",
-                    style = PixelTypography.titleMedium,
-                    color = PixelGold
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.gold
                 )
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "✨ ",
-                    style = PixelTypography.titleMedium
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Text(
                     text = "$totalXp XP",
-                    style = PixelTypography.titleMedium,
-                    color = PixelGreen
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.tertiary
                 )
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "⭐ ",
-                    style = PixelTypography.titleMedium
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Text(
                     text = "LVL $level",
-                    style = PixelTypography.titleMedium,
-                    color = PixelCyan
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.secondary
                 )
             }
         }

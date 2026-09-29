@@ -74,34 +74,64 @@ fun PixelCountdownTimer(
     val isUrgent = CountdownFormatter.isUrgent(scheduledTime, now)
     val text = CountdownFormatter.formatRemainingTime(scheduledTime, now)
 
-    val textColor: Color = when {
-        isExpired -> PixelRed
-        isUrgent -> PixelGold
-        else -> PixelCyan
+    val mode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    val isComic = mode == com.pixelquest.app.ui.theme.ThemeMode.Comic
+
+    val textColor: Color = if (isComic) {
+        when {
+            isExpired -> com.pixelquest.app.ui.theme.ComicTokens.ErrorRed
+            isUrgent -> com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
+            else -> com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
+        }
+    } else {
+        when {
+            isExpired -> PixelRed
+            isUrgent -> PixelGold
+            else -> PixelCyan
+        }
     }
 
-    val borderColor: Color = when {
-        isExpired -> PixelRed
-        isUrgent -> PixelGold
-        else -> PixelCyan.copy(alpha = 0.6f)
+    val borderColor: Color = if (isComic) {
+        com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
+    } else {
+        when {
+            isExpired -> PixelRed
+            isUrgent -> PixelGold
+            else -> PixelCyan.copy(alpha = 0.6f)
+        }
     }
 
-    val backgroundColor: Color = when {
-        isExpired -> PixelRed.copy(alpha = 0.15f)
-        isUrgent -> PixelGold.copy(alpha = 0.15f)
-        else -> PixelBackgroundDark
+    val backgroundColor: Color = if (isComic) {
+        when {
+            isExpired -> com.pixelquest.app.ui.theme.ComicTokens.CoralRed.copy(alpha = 0.2f)
+            isUrgent -> com.pixelquest.app.ui.theme.ComicTokens.BurntOrange.copy(alpha = 0.3f)
+            else -> com.pixelquest.app.ui.theme.ComicTokens.SkyBlue.copy(alpha = 0.25f)
+        }
+    } else {
+        when {
+            isExpired -> PixelRed.copy(alpha = 0.15f)
+            isUrgent -> PixelGold.copy(alpha = 0.15f)
+            else -> PixelBackgroundDark
+        }
     }
+
+    val timerShape = if (isComic) {
+        androidx.compose.foundation.shape.RoundedCornerShape(com.pixelquest.app.ui.theme.ComicShapeTokens.ChipRadius)
+    } else {
+        CutCornerShape(2.dp)
+    }
+    val borderWidth = if (isComic) 1.5.dp else 1.dp
 
     Box(
         modifier = modifier
-            .background(backgroundColor, shape = CutCornerShape(2.dp))
-            .border(1.dp, borderColor, CutCornerShape(2.dp))
+            .background(backgroundColor, shape = timerShape)
+            .border(borderWidth, borderColor, timerShape)
             .padding(horizontal = 8.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            style = PixelTypography.labelMedium,
+            style = androidx.compose.material3.MaterialTheme.typography.labelMedium,
             color = textColor
         )
     }

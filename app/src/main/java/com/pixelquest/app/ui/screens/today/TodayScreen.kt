@@ -39,7 +39,7 @@ import com.pixelquest.app.ui.components.PixelPerfectDayBanner
 import com.pixelquest.app.ui.components.StreakXpSummaryStrip
 import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.components.TodayQuestCard
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun TodayScreen(
@@ -147,7 +147,7 @@ fun TodayContent(
             ) {
                 Text(
                     text = terminology.todayHeader,
-                    style = PixelTypography.titleLarge,
+                    style = MaterialTheme.typography.titleLarge,
                     color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
                 )
                 PixelButton(
@@ -189,12 +189,12 @@ fun TodayContent(
                     ) {
                         Text(
                             text = "STATUS",
-                            style = PixelTypography.labelLarge,
+                            style = MaterialTheme.typography.labelLarge,
                             color = com.pixelquest.app.ui.theme.PixelTheme.colors.secondary
                         )
                         Text(
                             text = "$completedCount / $totalCount COMPLETED",
-                            style = PixelTypography.bodyMedium,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
                         )
                     }
@@ -218,7 +218,7 @@ fun TodayContent(
                 ) {
                     Text(
                         text = "💔 STREAK BROKEN — START A NEW QUEST STREAK TODAY!",
-                        style = PixelTypography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = com.pixelquest.app.ui.theme.PixelTheme.colors.error,
                         modifier = Modifier.padding(12.dp)
                     )
@@ -241,7 +241,7 @@ fun TodayContent(
             item {
                 Text(
                     text = terminology.upNextHeader,
-                    style = PixelTypography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
@@ -264,7 +264,7 @@ fun TodayContent(
             item {
                 Text(
                     text = terminology.completedHeader,
-                    style = PixelTypography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )
