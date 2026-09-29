@@ -12,11 +12,26 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
+import com.pixelquest.app.ui.theme.ThemeMode
+
 @Composable
 fun PixelSnackbar(
     message: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onActionClick: (() -> Unit)? = null
 ) {
+    val activeMode = PixelTheme.mode
+    if (activeMode == ThemeMode.Comic) {
+        ComicSnackbar(
+            message = message,
+            modifier = modifier,
+            actionLabel = actionLabel,
+            onActionClick = onActionClick
+        )
+        return
+    }
+
     val colors = PixelTheme.colors
     PixelCard(
         variant = PixelPanelVariant.BORDER,
@@ -29,10 +44,18 @@ fun PixelSnackbar(
         ) {
             Text(
                 text = "⚠️ $message",
-                style = PixelTypography.bodyMedium,
+                style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
                 color = colors.error,
-                modifier = Modifier.padding(vertical = 4.dp)
+                modifier = Modifier.padding(vertical = 4.dp).weight(1f, fill = false)
             )
+            if (actionLabel != null && onActionClick != null) {
+                PixelButton(
+                    text = actionLabel,
+                    onClick = onActionClick,
+                    variant = PixelButtonVariant.YELLOW,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
         }
     }
 }
