@@ -27,6 +27,12 @@ import com.pixelquest.app.ui.components.PixelProgressBar
 fun SplashScreen(
     onSplashTimeout: () -> Unit = {}
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicSplashScreen(onSplashTimeout = onSplashTimeout)
+        return
+    }
+
     val progressAnim = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
@@ -103,3 +109,12 @@ private fun SplashScreenLightPreview() {
         SplashScreen()
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(name = "Splash Screen - Comic", showBackground = true)
+@Composable
+private fun SplashScreenComicPreview() {
+    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        SplashScreen()
+    }
+}
+
