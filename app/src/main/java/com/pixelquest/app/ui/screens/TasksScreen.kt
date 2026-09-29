@@ -45,18 +45,9 @@ fun TasksScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToCreateTask,
-                containerColor = colors.primary,
-                contentColor = colors.onPrimary,
-                shape = CutCornerShape(4.dp)
-            ) {
-                Text(
-                    text = "+",
-                    style = PixelTypography.displaySmall,
-                    color = colors.onPrimary
-                )
-            }
+            com.pixelquest.app.ui.components.PixelFloatingActionButton(
+                onClick = onNavigateToCreateTask
+            )
         },
         containerColor = colors.background
     ) { innerPadding ->
