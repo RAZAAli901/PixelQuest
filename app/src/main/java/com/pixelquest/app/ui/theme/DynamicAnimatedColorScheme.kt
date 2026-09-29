@@ -116,31 +116,29 @@ fun rememberAnimatedAppColorScheme(
     val gold by animateColorAsState(targetScheme.gold, animationSpec, label = "theme_gold")
     val pixelBorder by animateColorAsState(targetScheme.pixelBorder, animationSpec, label = "theme_pixelBorder")
 
-    return remember(targetScheme.themeMode, primary, background, surface, surfaceVariant, gold, pixelBorder) {
-        DynamicAnimatedColorScheme(
-            themeMode = targetScheme.themeMode,
-            primary = primary,
-            onPrimary = onPrimary,
-            primaryContainer = primaryContainer,
-            onPrimaryContainer = onPrimaryContainer,
-            secondary = secondary,
-            onSecondary = onSecondary,
-            secondaryContainer = secondaryContainer,
-            tertiary = tertiary,
-            onTertiary = onTertiary,
-            tertiaryContainer = tertiaryContainer,
-            background = background,
-            onBackground = onBackground,
-            surface = surface,
-            onSurface = onSurface,
-            surfaceVariant = surfaceVariant,
-            onSurfaceVariant = onSurfaceVariant,
-            error = error,
-            onError = onError,
-            accentPurple = accentPurple,
-            gold = gold,
-            pixelBorder = pixelBorder,
-            isDark = targetScheme.isDark
-        )
-    }
+    return DynamicAnimatedColorScheme(
+        themeMode = targetScheme.themeMode,
+        primary = primary,
+        onPrimary = onPrimary,
+        primaryContainer = primaryContainer,
+        onPrimaryContainer = onPrimaryContainer,
+        secondary = secondary,
+        onSecondary = onSecondary,
+        secondaryContainer = secondaryContainer,
+        tertiary = tertiary,
+        onTertiary = onTertiary,
+        tertiaryContainer = tertiaryContainer,
+        background = background,
+        onBackground = onBackground,
+        surface = surface,
+        onSurface = onSurface,
+        surfaceVariant = surfaceVariant,
+        onSurfaceVariant = onSurfaceVariant,
+        error = error,
+        onError = onError,
+        accentPurple = accentPurple,
+        gold = gold,
+        pixelBorder = pixelBorder,
+        isDark = targetScheme.isDark
+    )
 }
