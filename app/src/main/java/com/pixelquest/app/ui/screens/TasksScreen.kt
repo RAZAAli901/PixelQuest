@@ -40,7 +40,19 @@ fun TasksScreen(
     onNavigateToEditTask: (Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    TasksContent(
+        uiState = uiState,
+        onNavigateToCreateTask = onNavigateToCreateTask,
+        onNavigateToEditTask = onNavigateToEditTask
+    )
+}
 
+@Composable
+fun TasksContent(
+    uiState: TaskUiState,
+    onNavigateToCreateTask: () -> Unit = {},
+    onNavigateToEditTask: (Long) -> Unit = {}
+) {
     val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
 
     Scaffold(
@@ -97,7 +109,6 @@ fun TasksScreen(
                                 )
                             }
 
-
                             LazyColumn(
                                 modifier = Modifier.weight(1f),
                                 contentPadding = PaddingValues(16.dp),
@@ -121,3 +132,40 @@ fun TasksScreen(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(name = "Tasks Screen - Comic Mode", showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+fun TasksScreenComicPreview() {
+    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        val sampleTasks = listOf(
+            com.pixelquest.app.ui.screens.tasks.TaskWithStatus(
+                task = com.pixelquest.app.data.local.entity.TaskEntity(
+                    id = 1,
+                    name = "Comic Hero Workout",
+                    description = "Power routine",
+                    scheduledTime = java.time.LocalTime.of(8, 30),
+                    scheduledDay = java.time.LocalDate.now(),
+                    category = com.pixelquest.app.domain.model.TaskCategory.FITNESS,
+                    recurrenceType = com.pixelquest.app.domain.model.RecurrenceType.DAILY
+                ),
+                status = TaskItemStatus.PENDING
+            ),
+            com.pixelquest.app.ui.screens.tasks.TaskWithStatus(
+                task = com.pixelquest.app.data.local.entity.TaskEntity(
+                    id = 2,
+                    name = "Read Comic Issue #42",
+                    description = "Graphic novel study",
+                    scheduledTime = java.time.LocalTime.of(12, 0),
+                    scheduledDay = java.time.LocalDate.now(),
+                    category = com.pixelquest.app.domain.model.TaskCategory.LEARNING,
+                    recurrenceType = com.pixelquest.app.domain.model.RecurrenceType.DAILY
+                ),
+                status = TaskItemStatus.COMPLETED
+            )
+        )
+        TasksContent(
+            uiState = TaskUiState.Success(tasks = sampleTasks)
+        )
+    }
+}
+

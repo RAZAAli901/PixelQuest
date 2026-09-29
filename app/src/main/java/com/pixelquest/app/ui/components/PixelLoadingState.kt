@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,7 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.components.PixelAvatarDisplay
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun PixelLoadingState(
@@ -54,7 +54,7 @@ fun PixelLoadingState(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = message,
-                style = PixelTypography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge,
                 color = colors.primary,
                 textAlign = TextAlign.Center
             )

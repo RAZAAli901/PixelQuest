@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,7 +25,6 @@ import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelGreen
 import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTextMuted
-import com.pixelquest.app.ui.theme.PixelTypography
 import java.time.format.DateTimeFormatter
 
 enum class TaskItemStatus {
@@ -74,7 +74,7 @@ fun PixelTaskListItem(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = task.name,
-                        style = PixelTypography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium,
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         color = when (status) {
@@ -86,30 +86,30 @@ fun PixelTaskListItem(
                     )
                     if (status == TaskItemStatus.COMPLETED) {
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(" [DONE]", style = PixelTypography.labelSmall, color = colors.tertiary)
+                        Text(" [DONE]", style = MaterialTheme.typography.labelSmall, color = colors.tertiary)
                     } else if (status == TaskItemStatus.MISSED) {
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(" [MISSED]", style = PixelTypography.labelSmall, color = colors.error)
+                        Text(" [MISSED]", style = MaterialTheme.typography.labelSmall, color = colors.error)
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "⏰ ${task.scheduledTime.format(timeFormatter)}",
-                        style = PixelTypography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = colors.secondary
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "🔄 ${task.recurrenceType.name}",
-                        style = PixelTypography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall,
                         color = colors.onSurfaceVariant
                     )
                 }
             }
             if (onDeleteClick != null) {
                 IconButton(onClick = onDeleteClick) {
-                    Text("🗑️", style = PixelTypography.titleMedium)
+                    Text("🗑️", style = MaterialTheme.typography.titleMedium)
                 }
             }
         }
