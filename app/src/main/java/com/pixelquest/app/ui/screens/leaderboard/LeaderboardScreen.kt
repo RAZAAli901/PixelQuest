@@ -122,14 +122,8 @@ fun LeaderboardContent(
         modifier = modifier.fillMaxSize(),
         containerColor = colors.background,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "LEADERBOARD",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = colors.primary
-                    )
-                },
+            com.pixelquest.app.ui.components.PixelTopAppBar(
+                title = "LEADERBOARD",
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Text(
@@ -147,10 +141,7 @@ fun LeaderboardContent(
                             color = colors.secondary
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.surface
-                )
+                }
             )
         }
     ) { innerPadding ->

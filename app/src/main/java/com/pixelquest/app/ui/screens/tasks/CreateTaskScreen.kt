@@ -66,44 +66,33 @@ fun CreateTaskScreen(
 
     Scaffold(
         topBar = {
-                PixelCard(
-                    variant = PixelPanelVariant.BEIGE,
-                    contentPadding = 12.dp,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+            com.pixelquest.app.ui.components.PixelTopAppBar(
+                title = if (formState.isEditMode) "EDIT QUEST" else "NEW QUEST",
+                navigationIcon = {
+                    IconButton(
+                        onClick = onNavigateBack,
+                        modifier = Modifier.semantics {
+                            contentDescription = "Go Back"
+                        }
                     ) {
+                        Text("◀", style = PixelTypography.titleMedium, color = PixelTheme.colors.primary)
+                    }
+                },
+                actions = {
+                    if (formState.isEditMode) {
                         IconButton(
-                            onClick = onNavigateBack,
+                            onClick = { showDeleteConfirm = true },
                             modifier = Modifier.semantics {
-                                contentDescription = "Go Back"
+                                contentDescription = "Delete Quest"
                             }
                         ) {
-                            Text("◀", style = PixelTypography.titleMedium, color = PixelTheme.colors.primary)
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = if (formState.isEditMode) "EDIT QUEST" else "NEW QUEST",
-                            style = PixelTypography.titleLarge,
-                            color = PixelTheme.colors.primary,
-                            modifier = Modifier.weight(1f)
-                        )
-                        if (formState.isEditMode) {
-                            IconButton(
-                                onClick = { showDeleteConfirm = true },
-                                modifier = Modifier.semantics {
-                                    contentDescription = "Delete Quest"
-                                }
-                            ) {
-                                Text("🗑️", style = PixelTypography.titleMedium)
-                            }
+                            Text("🗑️", style = PixelTypography.titleMedium)
                         }
                     }
                 }
-            },
-            containerColor = PixelTheme.colors.background
+            )
+        },
+        containerColor = PixelTheme.colors.background
         ) { innerPadding ->
             Column(
                 modifier = Modifier
