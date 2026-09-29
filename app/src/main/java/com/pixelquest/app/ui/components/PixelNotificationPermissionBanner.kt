@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun PixelNotificationPermissionBanner(
@@ -32,19 +32,19 @@ fun PixelNotificationPermissionBanner(
         ) {
             Text(
                 text = "⚠️",
-                style = PixelTypography.titleMedium,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(end = 8.dp)
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "REMINDERS DISABLED",
-                    style = PixelTypography.labelLarge,
+                    style = MaterialTheme.typography.labelLarge,
                     color = colors.error
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "Notification permission is required for quest alarms to fire.",
-                    style = PixelTypography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall,
                     color = colors.onSurfaceVariant
                 )
             }
