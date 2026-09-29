@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun SettingsScreenScaffold(
@@ -43,7 +43,7 @@ fun SettingsScreenScaffold(
     ) {
         Text(
             text = "⚙️ SETTINGS",
-            style = PixelTypography.titleLarge,
+            style = MaterialTheme.typography.titleLarge,
             color = colors.primary
         )
 
@@ -54,7 +54,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "👤 ACCOUNT", style = PixelTypography.titleMedium, color = colors.primary)
+                Text(text = "👤 ACCOUNT", style = MaterialTheme.typography.titleMedium, color = colors.primary)
                 accountSection()
             }
         }
@@ -66,7 +66,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "🔔 NOTIFICATIONS", style = PixelTypography.titleMedium, color = colors.primary)
+                Text(text = "🔔 NOTIFICATIONS", style = MaterialTheme.typography.titleMedium, color = colors.primary)
                 notificationsSection()
             }
         }
@@ -78,7 +78,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "📺 APPEARANCE & AUDIO", style = PixelTypography.titleMedium, color = colors.primary)
+                Text(text = "📺 APPEARANCE & AUDIO", style = MaterialTheme.typography.titleMedium, color = colors.primary)
                 appearanceSection()
             }
         }
@@ -90,7 +90,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "📋 SIMPLE MODE", style = PixelTypography.titleMedium, color = colors.primary)
+                Text(text = "📋 SIMPLE MODE", style = MaterialTheme.typography.titleMedium, color = colors.primary)
                 simpleModeSection()
             }
         }
@@ -102,7 +102,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "💾 DATA BACKUP", style = PixelTypography.titleMedium, color = colors.primary)
+                Text(text = "💾 DATA & BACKUP", style = MaterialTheme.typography.titleMedium, color = colors.primary)
                 dataSection()
             }
         }
@@ -114,7 +114,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "⚠️ DANGER ZONE", style = PixelTypography.titleMedium, color = colors.error)
+                Text(text = "⚠️ DANGER ZONE", style = MaterialTheme.typography.titleMedium, color = colors.error)
                 dangerZoneSection()
             }
         }

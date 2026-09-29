@@ -43,3 +43,14 @@ fun OnboardingNameEntryScreenValidPreview() {
         )
     }
 }
+
+@Preview(name = "Onboarding Welcome Screen - Comic Mode", showBackground = true)
+@Composable
+fun OnboardingWelcomeComicPreview() {
+    PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        OnboardingWelcomeScreen(
+            onStartClick = {}
+        )
+    }
+}
+

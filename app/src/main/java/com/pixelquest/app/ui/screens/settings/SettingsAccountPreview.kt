@@ -54,3 +54,43 @@ fun SettingsAccountPreview() {
         )
     }
 }
+
+@Preview(name = "Settings Account - Comic Mode", showBackground = true)
+@Composable
+fun SettingsAccountComicPreview() {
+    PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        SettingsScreenScaffold(
+            accountSection = {
+                PixelTextField(
+                    value = "ComicHero",
+                    onValueChange = {},
+                    label = "EDIT HERO NAME",
+                    modifier = Modifier.fillMaxWidth()
+                )
+                PixelAvatarFrame(
+                    avatarId = "avatar_hero",
+                    level = 5,
+                    size = 64.dp
+                )
+                PixelButton(
+                    text = "🧙 CHANGE AVATAR",
+                    onClick = {},
+                    variant = PixelButtonVariant.BLUE,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = "CURRENT DIFFICULTY: ${DifficultyMode.getDisplayName(DifficultyLevel.HARD).uppercase()}",
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                )
+                PixelButton(
+                    text = "🛡️ CHANGE DIFFICULTY",
+                    onClick = {},
+                    variant = PixelButtonVariant.YELLOW,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        )
+    }
+}
+
