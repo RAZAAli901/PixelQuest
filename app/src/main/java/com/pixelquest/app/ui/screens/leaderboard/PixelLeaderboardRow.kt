@@ -45,7 +45,9 @@ fun PixelLeaderboardRow(
     onReportClicked: ((displayName: String) -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
-    val isLight = PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Light
+    val activeMode = PixelTheme.mode
+    val isLight = activeMode == com.pixelquest.app.ui.theme.ThemeMode.Light
+    val isComic = activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic
 
     // Rank tier visual styling reusing Day 7's AvatarTier system
     val tier = when (rank) {
@@ -56,7 +58,13 @@ fun PixelLeaderboardRow(
     }
 
     val tierColor = if (tier != null) {
-        if (isLight) {
+        if (isComic) {
+            when (tier) {
+                AvatarTier.GOLD -> Color(0xFFB45309) // High-contrast amber-gold for text
+                AvatarTier.SILVER -> Color(0xFF334155) // High-contrast slate for silver text
+                AvatarTier.BRONZE -> Color(0xFF9A3412) // High-contrast dark bronze for text
+            }
+        } else if (isLight) {
             when (tier) {
                 AvatarTier.GOLD -> colors.gold
                 AvatarTier.SILVER -> Color(0xFF475569)
@@ -86,15 +94,22 @@ fun PixelLeaderboardRow(
         1.0f
     }
 
-    val borderColor = if (isCurrentUser) colors.primary.copy(alpha = pulseAlpha) else tierColor
+    val borderColor = if (isComic) {
+        if (isCurrentUser) com.pixelquest.app.ui.theme.ComicTokens.CoralRed else com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
+    } else if (isCurrentUser) {
+        colors.primary.copy(alpha = pulseAlpha)
+    } else {
+        tierColor
+    }
+
     val backgroundColor = when {
-        isCurrentUser -> if (isLight) Color(0xFFFEF3C7) else Color(0xFF262640)
-        rank == 1 -> if (isLight) Color(0xFFFEF9C3) else Color(0xFF2A2416)
-        rank == 2 -> if (isLight) Color(0xFFF1F5F9) else Color(0xFF22242B)
-        rank == 3 -> if (isLight) Color(0xFFFFEDD5) else Color(0xFF271F1B)
+        isCurrentUser -> if (isComic) Color(0xFFFFFBEB) else if (isLight) Color(0xFFFEF3C7) else Color(0xFF262640)
+        rank == 1 -> if (isComic) Color(0xFFFEF3C7) else if (isLight) Color(0xFFFEF9C3) else Color(0xFF2A2416)
+        rank == 2 -> if (isComic) Color(0xFFF0F9FF) else if (isLight) Color(0xFFF1F5F9) else Color(0xFF22242B)
+        rank == 3 -> if (isComic) Color(0xFFFFEDD5) else if (isLight) Color(0xFFFFEDD5) else Color(0xFF271F1B)
         else -> colors.surface
     }
-    val shape = RoundedCornerShape(8.dp)
+    val shape = if (isComic) RoundedCornerShape(com.pixelquest.app.ui.theme.ComicShapeTokens.RadiusDefault) else RoundedCornerShape(8.dp)
 
     Box(
         modifier = modifier
@@ -102,7 +117,7 @@ fun PixelLeaderboardRow(
             .clip(shape)
             .background(backgroundColor)
             .border(
-                width = if (isCurrentUser || rank <= 3) 2.dp else 1.dp,
+                width = if (isComic) 2.dp else (if (isCurrentUser || rank <= 3) 2.dp else 1.dp),
                 color = borderColor,
                 shape = shape
             )
@@ -119,12 +134,27 @@ fun PixelLeaderboardRow(
                 modifier = Modifier.weight(1f, fill = false)
             ) {
                 // Rank Box
+                val rankBoxBg = if (isComic) {
+                    when (tier) {
+                        AvatarTier.GOLD -> com.pixelquest.app.ui.theme.ComicTokens.GoldAccent.copy(alpha = 0.35f)
+                        AvatarTier.SILVER -> com.pixelquest.app.ui.theme.ComicTokens.SkyBlue.copy(alpha = 0.35f)
+                        AvatarTier.BRONZE -> com.pixelquest.app.ui.theme.ComicTokens.BurntOrange.copy(alpha = 0.35f)
+                        null -> Color.Transparent
+                    }
+                } else (if (rank <= 3) tierColor.copy(alpha = 0.2f) else Color.Transparent)
+
+                val rankBoxBorder = if (isComic) {
+                    com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
+                } else {
+                    if (rank <= 3) tierColor else colors.pixelBorder
+                }
+
                 Box(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(RoundedCornerShape(4.dp))
-                        .background(if (rank <= 3) tierColor.copy(alpha = 0.2f) else Color.Transparent)
-                        .border(1.dp, if (rank <= 3) tierColor else colors.pixelBorder, RoundedCornerShape(4.dp)),
+                        .background(rankBoxBg)
+                        .border(1.dp, rankBoxBorder, RoundedCornerShape(4.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -143,11 +173,12 @@ fun PixelLeaderboardRow(
                 Spacer(modifier = Modifier.width(10.dp))
 
                 // Avatar Icon with tier border for top 3
+                val avatarBorder = if (isComic) com.pixelquest.app.ui.theme.ComicTokens.SolidBlack else tierColor
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
                         .then(
-                            if (tier != null) Modifier.border(1.5.dp, tierColor, RoundedCornerShape(4.dp))
+                            if (tier != null) Modifier.border(1.5.dp, avatarBorder, RoundedCornerShape(4.dp))
                             else Modifier
                         )
                 ) {

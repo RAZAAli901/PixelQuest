@@ -137,3 +137,45 @@ fun LeaderboardTop3PodiumPreview() {
         }
     }
 }
+
+@Preview(name = "5. Rank Tier Podium Top 3 Preview - Comic Mode", showBackground = true)
+@Composable
+fun LeaderboardTop3PodiumComicPreview() {
+    PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(com.pixelquest.app.ui.theme.PixelTheme.colors.background)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "👑 HALL OF FAME PODIUM",
+                style = MaterialTheme.typography.titleMedium,
+                color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+            )
+            PixelLeaderboardRow(
+                rank = 1,
+                displayName = "Valkyrie99",
+                statLabel = "DAYS STREAK",
+                statValue = "42 🔥",
+                isCurrentUser = false
+            )
+            PixelLeaderboardRow(
+                rank = 2,
+                displayName = "ShadowKnight",
+                statLabel = "DAYS STREAK",
+                statValue = "28 🔥",
+                isCurrentUser = false
+            )
+            PixelLeaderboardRow(
+                rank = 3,
+                displayName = "PixelMage",
+                statLabel = "DAYS STREAK",
+                statValue = "21 🔥",
+                isCurrentUser = true
+            )
+        }
+    }
+}
+
