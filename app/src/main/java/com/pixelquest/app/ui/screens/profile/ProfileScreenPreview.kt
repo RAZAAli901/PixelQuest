@@ -125,3 +125,50 @@ fun ProfileScreenComparisonSideBySidePreview() {
         }
     }
 }
+
+@Preview(name = "Profile Screen - Comic Mode", showBackground = true, widthDp = 360, heightDp = 740)
+@Composable
+fun ProfileScreenComicPreview() {
+    PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        val comicState = ProfileUiState(
+            profile = UserProfileEntity(
+                id = 1,
+                username = "ComicCap",
+                level = 8,
+                totalXp = 4850,
+                perfectDaysTowardNextLevel = 5,
+                avatarId = "avatar_warrior"
+            ),
+            streak = StreakEntity(
+                id = 1,
+                currentStreak = 21,
+                longestStreak = 30,
+                lastCompletedDate = null
+            ),
+            difficulty = DifficultySettingsEntity(
+                id = 1,
+                difficultyLevel = DifficultyLevel.HARD,
+                perfectDayThreshold = 0.8f,
+                daysRequiredPerLevel = 7
+            ),
+            isSimpleMode = false,
+            totalTasksCompleted = 120,
+            activeTasksCount = 4
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(com.pixelquest.app.ui.theme.PixelTheme.colors.background)
+        ) {
+            ProfileContent(
+                state = comicState,
+                onNavigateToAvatarSelection = {},
+                onNavigateToDifficulty = {},
+                onNavigateToLevelHistory = {},
+                onNavigateToSettings = {}
+            )
+        }
+    }
+}
+

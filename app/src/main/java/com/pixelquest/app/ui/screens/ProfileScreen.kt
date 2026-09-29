@@ -35,7 +35,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.foundation.clickable
 
@@ -90,7 +90,7 @@ fun ProfileContent(
     ) {
         Text(
             text = if (state.isSimpleMode) "👤 USER PROFILE" else "👤 HERO PROFILE",
-            style = PixelTypography.titleLarge,
+            style = MaterialTheme.typography.titleLarge,
             color = colors.primary
         )
 
@@ -108,7 +108,7 @@ fun ProfileContent(
                 ) {
                     Text(
                         text = "📋 SIMPLE MODE ACTIVE",
-                        style = PixelTypography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall,
                         color = colors.primary
                     )
                 }
@@ -136,7 +136,7 @@ fun ProfileContent(
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
                     text = username.uppercase(),
-                    style = PixelTypography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     color = colors.primary
@@ -147,24 +147,24 @@ fun ProfileContent(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "LEVEL: $level", style = PixelTypography.bodyMedium, color = colors.onSurface)
-                        Text(text = "TOTAL XP: $totalXp", style = PixelTypography.bodyMedium, color = colors.tertiary)
+                        Text(text = "LEVEL: $level", style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
+                        Text(text = "TOTAL XP: $totalXp", style = MaterialTheme.typography.bodyMedium, color = colors.tertiary)
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "STREAK: $streakCount DAYS", style = PixelTypography.bodyMedium, color = colors.secondary)
-                        Text(text = "MODE: ${DifficultyMode.getDisplayName(diffLevel)}", style = PixelTypography.bodyMedium, color = colors.primary)
+                        Text(text = "STREAK: $streakCount DAYS", style = MaterialTheme.typography.bodyMedium, color = colors.secondary)
+                        Text(text = "MODE: ${DifficultyMode.getDisplayName(diffLevel)}", style = MaterialTheme.typography.bodyMedium, color = colors.primary)
                     }
                 } else {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "TASKS COMPLETED: ${state.totalTasksCompleted}", style = PixelTypography.bodyMedium, color = colors.tertiary)
-                        Text(text = "ACTIVE TASKS: ${state.activeTasksCount}", style = PixelTypography.bodyMedium, color = colors.onSurface)
+                        Text(text = "TASKS COMPLETED: ${state.totalTasksCompleted}", style = MaterialTheme.typography.bodyMedium, color = colors.tertiary)
+                        Text(text = "ACTIVE TASKS: ${state.activeTasksCount}", style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
                     }
                 }
             }
@@ -199,7 +199,7 @@ fun ProfileContent(
         if (state.isSimpleMode) {
             Text(
                 text = "🔒 Difficulty selection is locked while Simple Mode is active.",
-                style = PixelTypography.labelSmall,
+                style = MaterialTheme.typography.labelSmall,
                 color = colors.onSurfaceVariant
             )
         }
