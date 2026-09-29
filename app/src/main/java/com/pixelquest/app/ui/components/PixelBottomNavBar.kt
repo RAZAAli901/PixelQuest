@@ -40,6 +40,16 @@ fun PixelBottomNavBar(
     onNavigate: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        ComicBottomNavBar(
+            currentRoute = currentRoute,
+            onNavigate = onNavigate,
+            modifier = modifier
+        )
+        return
+    }
+
     val soundManager = LocalSoundManager.current
     PixelCard(
         modifier = modifier
