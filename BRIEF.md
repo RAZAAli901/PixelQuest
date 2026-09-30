@@ -2232,6 +2232,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 13: Add unit tests for parsing Gemini response into insight data class with malformed handling - e335ffa
 - Step 14: Create HabitInsightRepository orchestrating prompt generation and API dispatch - c0e8181
 - Step 15: Add temporary debug-only trigger to exercise AI insight pipeline end-to-end - 512140f
+- Step 16: Document AI call minimum interval throttle and rationale in AI_INSIGHTS.md - 9fcf11b
 
 
 
