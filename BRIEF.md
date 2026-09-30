@@ -2251,6 +2251,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 32: Note this decision in THEMING.md as a forward reference for Day 25 - c06f163
 - Step 33: Write integration test for the full pipeline using a mocked GeminiClient - 0ca3088
 - Step 34: Write test verifying error-handling wrapper correctly surfaces rate-limit and network-failure cases without crashing - df2c153
+- Step 35: Unit test verifying rate-limit groundwork value is actually enforced by debug trigger - 2a32ff4
 
 
 
