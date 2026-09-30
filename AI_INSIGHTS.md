@@ -99,5 +99,19 @@ PixelQuest formally designates AI Habit Insights as an **opt-in feature**. On al
 ### 6.2 Precedent & Rationale
 1. **Consistency with Leaderboard Precedent (Day 14-15)**: PixelQuest's core identity is local-first. The Supabase global leaderboard defaults to `leaderboard_opt_in = false`. Departing from this precedent by enabling third-party AI calls by default would contradict the app's established privacy contract.
 2. **Affirmative User Consent**: Transmitting user habit completion statistics to an external cloud API (Google) requires explicit, informed consent under modern data protection frameworks (GDPR, CCPA) and Android privacy guidelines.
-3. **Zero Unexpected Network Footprint**: By defaulting to `false`, users with limited data plans, airplane mode requirements, or strict privacy standards can use the app indefinitely without a single AI network request being dispatched.
 4. **Controlled User Experience**: When players enable AI Habit Insights in Settings, they will be presented with a clear consent confirmation explaining the data-minimization guarantees before their first prompt is dispatched.
+
+---
+
+## 7. Architectural Decision: Day 25 Three-Theme Dispatch Integration
+
+### 7.1 Decision: Implement Full Theme Dispatch (Pixel / Light / Comic) from Day One
+Day 25's user-facing AI Insights screen will natively support all three established themes (**Pixel**, **Light**, and **Comic**) from initial release, rather than shipping a Pixel/Light baseline and retrofitting Comic later.
+
+### 7.2 Rationale
+1. **Established Dispatch Pattern**: Days 20–23 fully stabilized the `ComponentThemeFamily.from(PixelTheme.mode)` architecture. Discarding Comic mode for new screens would introduce technical debt and degrade the user experience for players who have unlocked and selected Comic mode.
+2. **Reusability of Comic Tokens**: All required design tokens (`ComicPanel`, `ComicButton`, `ComicTopAppBar`, `Bangers` font, 2.5dp black ink contours, 4dp flat drop-shadows) are already implemented and tested in the design system.
+3. **Thematic Presentation**:
+   - **Pixel Mode**: 8-bit CRT quest debrief card with gold borders, arcade typography, and scanlines.
+   - **Light Mode**: High-contrast ivory productivity panel with crisp stone pixel contours and deep slate text.
+   - **Comic Mode**: Bold comic-strip mission intel with pop-art explosive bursts ("💥 MISSION DEBRIEF!"), Bangers header, and speech-bubble styling.
