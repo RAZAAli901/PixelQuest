@@ -35,4 +35,10 @@ object AiModule {
             model = "gemini-1.5-flash"
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideHabitInsightRepository(
+        impl: com.pixelquest.app.data.repository.HabitInsightRepositoryImpl
+    ): com.pixelquest.app.domain.repository.HabitInsightRepository = impl
 }
