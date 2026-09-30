@@ -88,3 +88,16 @@ The following data elements are strictly blocked and excluded:
 2. **Production Recommendation for Developer**:
    - Prior to publishing the production release of PixelQuest on Google Play, the developer should attach a billing account to Google AI Studio to graduate to the **Paid Pay-As-You-Go Tier**.
    - This eliminates model training and human review at negligible cost given PixelQuest's 6-hour minimum throttle and 12-hour client caching.
+
+---
+
+## 6. Architectural Decision: Opt-In Gating Architecture
+
+### 6.1 Formal Decision: Strictly OPT-IN (`aiInsightsEnabled = false`)
+PixelQuest formally designates AI Habit Insights as an **opt-in feature**. On all fresh installs, the preference `SettingsRepository.aiInsightsEnabled` defaults strictly to `false`.
+
+### 6.2 Precedent & Rationale
+1. **Consistency with Leaderboard Precedent (Day 14-15)**: PixelQuest's core identity is local-first. The Supabase global leaderboard defaults to `leaderboard_opt_in = false`. Departing from this precedent by enabling third-party AI calls by default would contradict the app's established privacy contract.
+2. **Affirmative User Consent**: Transmitting user habit completion statistics to an external cloud API (Google) requires explicit, informed consent under modern data protection frameworks (GDPR, CCPA) and Android privacy guidelines.
+3. **Zero Unexpected Network Footprint**: By defaulting to `false`, users with limited data plans, airplane mode requirements, or strict privacy standards can use the app indefinitely without a single AI network request being dispatched.
+4. **Controlled User Experience**: When players enable AI Habit Insights in Settings, they will be presented with a clear consent confirmation explaining the data-minimization guarantees before their first prompt is dispatched.
