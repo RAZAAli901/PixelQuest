@@ -15,7 +15,14 @@ fun PixelPerfectDayBanner(
     modifier: Modifier = Modifier,
     isSimpleMode: Boolean = false
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
     val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+    val textColor = if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
+    } else {
+        if (isSimpleMode) colors.primary else colors.gold
+    }
+
     PixelCard(
         variant = if (isSimpleMode) PixelPanelVariant.BORDER else PixelPanelVariant.BEIGE,
         contentPadding = 12.dp,
@@ -28,7 +35,7 @@ fun PixelPerfectDayBanner(
             Text(
                 text = if (isSimpleMode) "✓ All tasks done for today" else "🎉 PERFECT DAY ACHIEVED! Streak protected for today!",
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isSimpleMode) colors.primary else colors.gold,
+                color = textColor,
                 modifier = Modifier.padding(vertical = 4.dp)
             )
         }

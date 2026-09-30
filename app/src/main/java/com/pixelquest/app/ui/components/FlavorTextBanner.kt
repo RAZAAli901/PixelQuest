@@ -15,6 +15,14 @@ fun FlavorTextBanner(
     text: String,
     modifier: Modifier = Modifier
 ) {
+    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+    val textColor = if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
+    } else {
+        colors.secondary
+    }
+
     PixelCard(
         variant = PixelPanelVariant.BEIGE,
         contentPadding = 12.dp,
@@ -27,7 +35,7 @@ fun FlavorTextBanner(
             Text(
                 text = "💬 $text",
                 style = MaterialTheme.typography.bodyMedium,
-                color = com.pixelquest.app.ui.theme.PixelTheme.colors.secondary,
+                color = textColor,
                 modifier = Modifier.padding(vertical = 2.dp)
             )
         }
