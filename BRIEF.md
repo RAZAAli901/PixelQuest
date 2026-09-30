@@ -2221,6 +2221,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 2: Create GeminiClient wrapping Generative Language API via Ktor - 8b947e5
 - Step 3: Wire GEMINI_API_KEY from local.properties into BuildConfig - e6310d5
 - Step 4: Wire GeminiClient into Hilt via a new AiModule - c64edc3
+- Step 5: Add connectivity smoke test for GeminiClient API requests - 8f5b861
 
 
 
