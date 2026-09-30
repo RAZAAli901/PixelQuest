@@ -2225,6 +2225,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 6: Add error-handling wrapper for Gemini calls returning sealed GeminiResult - 5e59371
 - Step 7: Confirm GitHub Actions secret-injection readiness for Gemini API key - 5ddc628
 - Step 8: Design core prompt template and system directives for habit insight generation - d30f7ce
+- Step 9: Create HabitInsightPromptBuilder for constructing AI habit analysis prompts - 7c7efb9
 
 
 
