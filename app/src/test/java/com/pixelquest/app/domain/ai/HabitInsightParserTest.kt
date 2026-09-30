@@ -106,4 +106,43 @@ class HabitInsightParserTest {
         assertNotNull("Missing required fields should produce an IllegalArgumentException", caught)
         assertTrue("Exception message should note missing required fields", caught?.message?.contains("Missing required insight fields") == true)
     }
+
+    @Test
+    fun parseResponseWithConversationalPreambleAndPostamble_successfullyExtractsJson() {
+        val mixedText = """
+            Certainly! Here is your quest habit debrief:
+            ```json
+            {
+              "summary": "You have sustained a 5-day streak in fitness.",
+              "suggestion": "Keep active routines consistent.",
+              "encouragement": "Victory awaits you, hero!",
+              "highlightCategory": "FITNESS",
+              "specificTaskCallout": "Morning workout"
+            }
+            ```
+            Hope this guidance aids your adventure!
+        """.trimIndent()
+
+        val insight = HabitInsightResponse.parseFromJson(mixedText)
+        assertEquals("You have sustained a 5-day streak in fitness.", insight.summary)
+        assertEquals("FITNESS", insight.highlightCategory)
+        assertEquals("Morning workout", insight.specificTaskCallout)
+    }
+
+    @Test
+    fun parseResponseWithLiteralNullStrings_normalizesToNull() {
+        val literalNullJson = """
+            {
+              "summary": "Great routine momentum.",
+              "suggestion": "Maintain pace.",
+              "encouragement": "Well done.",
+              "highlightCategory": "null",
+              "specificTaskCallout": "NULL"
+            }
+        """.trimIndent()
+
+        val insight = HabitInsightResponse.parseFromJson(literalNullJson)
+        assertNull("Literal 'null' should be converted to null", insight.highlightCategory)
+        assertNull("Literal 'NULL' should be converted to null", insight.specificTaskCallout)
+    }
 }

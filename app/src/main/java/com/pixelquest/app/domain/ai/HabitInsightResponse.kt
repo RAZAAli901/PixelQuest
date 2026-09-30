@@ -30,9 +30,12 @@ data class HabitInsightResponse(
             isLenient = true
         }
 
+        private val MARKDOWN_JSON_REGEX = Regex("```(?:json)?\\s*([\\s\\S]*?)\\s*```", RegexOption.IGNORE_CASE)
+
         /**
          * Parses a raw Gemini response string into a [HabitInsightResponse].
-         * Safely strips markdown code blocks (e.g. ```json ... ```) and extracts fields.
+         * Safely strips markdown code blocks (e.g. ```json ... ```) or conversational preambles/postambles
+         * and extracts structured fields.
          *
          * @throws IllegalArgumentException if the JSON is malformed or required fields are missing.
          */
@@ -52,8 +55,10 @@ data class HabitInsightResponse(
                 throw IllegalArgumentException("Missing required insight fields in JSON: $sanitized")
             }
 
-            val highlightCategory = jsonObject["highlightCategory"]?.jsonPrimitive?.content?.trim()?.ifBlank { null }
-            val specificTaskCallout = jsonObject["specificTaskCallout"]?.jsonPrimitive?.content?.trim()?.ifBlank { null }
+            val highlightCategory = jsonObject["highlightCategory"]?.jsonPrimitive?.content?.trim()
+                ?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
+            val specificTaskCallout = jsonObject["specificTaskCallout"]?.jsonPrimitive?.content?.trim()
+                ?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
 
             return HabitInsightResponse(
                 summary = summary,
@@ -65,16 +70,25 @@ data class HabitInsightResponse(
         }
 
         private fun sanitizeJsonString(raw: String): String {
-            var trimmed = raw.trim()
-            // Strip markdown json block fences if the model wraps the output
-            if (trimmed.startsWith("```json")) {
-                trimmed = trimmed.removePrefix("```json").trim()
-            } else if (trimmed.startsWith("```")) {
-                trimmed = trimmed.removePrefix("```").trim()
+            val trimmed = raw.trim()
+
+            // 1. Look for markdown code fences (even with surrounding conversational text)
+            val match = MARKDOWN_JSON_REGEX.find(trimmed)
+            if (match != null) {
+                val extracted = match.groupValues[1].trim()
+                if (extracted.startsWith("{") && extracted.endsWith("}")) {
+                    return extracted
+                }
             }
-            if (trimmed.endsWith("```")) {
-                trimmed = trimmed.removeSuffix("```").trim()
+
+            // 2. If no valid code fence, extract substring from first '{' to last '}'
+            val firstBrace = trimmed.indexOf('{')
+            val lastBrace = trimmed.lastIndexOf('}')
+            if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
+                return trimmed.substring(firstBrace, lastBrace + 1).trim()
             }
+
+            // 3. Fallback to direct trimmed string (which will throw clear exception in parser if invalid)
             return trimmed
         }
     }

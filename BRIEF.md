@@ -2253,6 +2253,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 34: Write test verifying error-handling wrapper correctly surfaces rate-limit and network-failure cases without crashing - df2c153
 - Step 35: Unit test verifying rate-limit groundwork value is actually enforced by debug trigger - 2a32ff4
 - Step 36: Manual QA test verifying graceful offline/airplane mode failure with no crashes - 7f67bcf
+- Step 37: Manual QA test verifying deliberate malformed Gemini response payloads fail gracefully without crashing - d6a45b7
 
 
 
