@@ -2237,6 +2237,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 18: Verify live Gemini pipeline execution and coherent insight generation in QA harness - 59b9523
 - Step 19: Document AI data-minimization policy and strict PII exclusion rules in AI_INSIGHTS.md - c982567
 - Step 20: Implement active data sanitization and PII stripping in HabitInsightPromptBuilder - a118fba
+- Step 21: Add unit test verifying active PII sanitization and data minimization - 41ae04f
 
 
 

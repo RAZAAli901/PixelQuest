@@ -54,6 +54,29 @@ Our cloud database utilizes PostgreSQL with strict **Row-Level Security (RLS)**:
 
 ---
 
+## 3. Optional AI Habit Insights (Google Gemini Integration)
+
+PixelQuest offers AI-powered habit analysis and coaching powered by Google's Gemini API. This is a **completely distinct third-party data flow from Supabase** and operates under strict data-minimization safeguards.
+
+### A. Strict Opt-In Architecture
+- **Disabled by Default**: AI Habit Insights are turned **OFF** by default on all installations.
+- **Player Consent Required**: No network requests are ever sent to Google Gemini unless you explicitly navigate to **Settings > AI Habit Insights** and enable the feature.
+
+### B. What Habit-Summary Data is Transmitted
+When you request or receive an AI insight, PixelQuest transmits strictly anonymized, high-level summary metrics:
+- **Streak Totals**: Current streak count, longest streak count, and total perfect days.
+- **Category Ratios**: Predefined category tags (e.g. `FITNESS`, `STUDY`, `HEALTH`) paired with completion percentages and counts (e.g. `80% (4/5 completed)`).
+- **Recent Momentum**: Aggregate 7-day completion percentage and missed task count.
+- **Progression Tier**: Your numeric player level (e.g. `Level 5`).
+
+### C. What is NEVER Transmitted to Google Gemini
+- **Verbatim Task Names & Notes**: We **never** transmit individual task titles (such as "Take heart medication" or "Call counselor") or notes. Raw task descriptions remain 100% on your device.
+- **Personal Identifiers**: No usernames, real names, emails, Google OAuth credentials, or Supabase user IDs are ever included in AI prompts.
+- **Device & Location Data**: Zero device telemetry, GPS coordinates, or advertising IDs.
+- **Active Sanitization Defense**: PixelQuest executes an active client-side regex and blacklist sanitization pass prior to prompt dispatch, actively scrubbing emails, phone numbers, and names even in accidental edge cases.
+
+---
+
 ## 4. How to Delete Your Data (Full Control)
 
 PixelQuest provides transparent, immediate mechanisms to modify or erase your data at any time:
