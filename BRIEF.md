@@ -2230,6 +2230,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 11: Add HabitInsightResponse data model for parsed AI insights - 3b39301
 - Step 12: Add unit tests for HabitInsightPromptBuilder covering multiple user scenarios - 6f9c759
 - Step 13: Add unit tests for parsing Gemini response into insight data class with malformed handling - e335ffa
+- Step 14: Create HabitInsightRepository orchestrating prompt generation and API dispatch - c0e8181
 
 
 
