@@ -2238,6 +2238,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 19: Document AI data-minimization policy and strict PII exclusion rules in AI_INSIGHTS.md - c982567
 - Step 20: Implement active data sanitization and PII stripping in HabitInsightPromptBuilder - a118fba
 - Step 21: Add unit test verifying active PII sanitization and data minimization - 41ae04f
+- Step 22: Update PRIVACY.md with Gemini AI data flow disclosure and data minimization guarantees - a1b4c2b
 
 
 

@@ -67,3 +67,24 @@ The following data elements are strictly blocked and excluded:
 4. **Account Information**: No emails, OAuth tokens, or Supabase user IDs.
 5. **Exact Timestamps & Geolocation**: No time-of-day execution markers or coordinates.
 6. **Device Identifiers**: No Android ID, advertising ID, MAC address, or hardware telemetry.
+
+---
+
+## 5. Google Gemini Data-Usage & Retention Policy Implications
+
+### 5.1 Google AI Studio Tier Comparison
+
+| Dimension | Free / Unpaid Developer Tier | Paid Pay-As-You-Go Tier | Vertex AI (Google Cloud) |
+| :--- | :--- | :--- | :--- |
+| **Model Training** | **Data MAY be used for model training**: Google's terms permit using prompt inputs and completions to improve Google products, services, and machine learning models. | **Data is NOT used for training**: Prompts and completions are never utilized to train Google models. | **Data is NOT used for training**: Customer isolation governed by Google Cloud BAA / SOC 2. |
+| **Human Review** | Human reviewers may inspect and annotate conversation logs for quality and safety. | No human review of customer prompt data. | Zero human review; enterprise data governance. |
+| **Data Retention** | Stored up to 18–36 months in Google logging infrastructure. | Transient logging for billing audits and operational abuse prevention. | Configurable log retention policies. |
+| **Rate Limits** | 15 Requests Per Minute (RPM), 1,500 Requests Per Day (RPD). | Higher dynamic quotas (up to 360–1,000+ RPM). | Enterprise quotas. |
+
+### 5.2 Architectural Implications for PixelQuest
+1. **Defense-in-Depth Justification**: Because PixelQuest develops under the Developer Free Tier during early phases, Google could theoretically log transmitted prompts. This provides absolute justification for PixelQuest's aggressive client-side data minimization:
+   - Since no personal task names, descriptions, emails, or usernames ever reach Google, any prompt retained by Google consists solely of abstract game numbers (e.g. `Current Streak: 5, FITNESS: 80%`).
+   - Even in the event of human review on Google's end, the reviewer sees only non-identifiable habit statistics.
+2. **Production Recommendation for Developer**:
+   - Prior to publishing the production release of PixelQuest on Google Play, the developer should attach a billing account to Google AI Studio to graduate to the **Paid Pay-As-You-Go Tier**.
+   - This eliminates model training and human review at negligible cost given PixelQuest's 6-hour minimum throttle and 12-hour client caching.
