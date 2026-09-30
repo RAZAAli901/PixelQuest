@@ -96,18 +96,20 @@ fun ThemeSelectionCard(
                 onClick = { onThemeSelected(ThemeMode.Light) }
             )
 
-            // Comic Mode Option (Unlocked Day 23)
+            // Comic Mode Option (Unlocked Day 23: Final fully-realized styling)
             ThemeOptionRow(
                 title = "💥 COMIC (POP-ART)",
-                subtitle = "Bold pop-art comic aesthetic with action borders",
+                subtitle = "Bold pop-art comic aesthetic with action borders & halftone panels",
                 isSelected = currentTheme == ThemeMode.Comic,
-                isComingSoon = !ThemeMode.Comic.isAvailable,
+                isComingSoon = false,
+                isComicTheme = true,
                 previewColors = listOf(
-                    DefaultComicColorScheme.primary,
-                    DefaultComicColorScheme.burntOrange,
-                    DefaultComicColorScheme.skyBlue,
-                    DefaultComicColorScheme.lavender,
-                    DefaultComicColorScheme.comicBorder
+                    com.pixelquest.app.ui.theme.ComicTokens.CoralRed,
+                    com.pixelquest.app.ui.theme.ComicTokens.GoldAccent,
+                    com.pixelquest.app.ui.theme.ComicTokens.SkyBlue,
+                    com.pixelquest.app.ui.theme.ComicTokens.BurntOrange,
+                    com.pixelquest.app.ui.theme.ComicTokens.Lavender,
+                    com.pixelquest.app.ui.theme.ComicTokens.PaperBackground
                 ),
                 onClick = { onThemeSelected(ThemeMode.Comic) }
             )
@@ -116,13 +118,35 @@ fun ThemeSelectionCard(
 }
 
 /**
- * Small 4-tile palette swatch displaying the primary colors of the theme.
+ * Palette swatch displaying the primary colors of the theme.
+ * Supports comic styling with 2dp ink border and action shadows for Comic mode.
  */
 @Composable
 fun ThemePreviewSwatch(
     colors: List<Color>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isComicStyle: Boolean = false
 ) {
+    if (isComicStyle) {
+        Row(
+            modifier = modifier
+                .background(Color.White, androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
+                .border(2.dp, Color.Black, androidx.compose.foundation.shape.RoundedCornerShape(4.dp))
+                .padding(3.dp),
+            horizontalArrangement = Arrangement.spacedBy(3.dp)
+        ) {
+            colors.forEach { color ->
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .background(color, androidx.compose.foundation.shape.RoundedCornerShape(2.dp))
+                        .border(1.dp, Color.Black, androidx.compose.foundation.shape.RoundedCornerShape(2.dp))
+                )
+            }
+        }
+        return
+    }
+
     Row(
         modifier = modifier
             .border(1.dp, com.pixelquest.app.ui.theme.PixelTheme.colors.pixelBorder)
@@ -148,10 +172,15 @@ fun ThemeOptionRow(
     isComingSoon: Boolean,
     previewColors: List<Color>,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isComicTheme: Boolean = false
 ) {
     val themeColors = com.pixelquest.app.ui.theme.PixelTheme.colors
-    val borderColor = if (isSelected) themeColors.primary else themeColors.pixelBorder
+    val borderColor = if (isSelected) {
+        if (isComicTheme) com.pixelquest.app.ui.theme.ComicTokens.CoralRed else themeColors.primary
+    } else {
+        themeColors.pixelBorder
+    }
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -183,7 +212,7 @@ fun ThemeOptionRow(
                 color = themeColors.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(6.dp))
-            ThemePreviewSwatch(colors = previewColors)
+            ThemePreviewSwatch(colors = previewColors, isComicStyle = isComicTheme)
         }
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -191,7 +220,11 @@ fun ThemeOptionRow(
         Text(
             text = if (isSelected) "● ACTIVE" else "○",
             style = PixelTypography.labelSmall,
-            color = if (isSelected) themeColors.primary else themeColors.onSurfaceVariant
+            color = if (isSelected) {
+                if (isComicTheme) com.pixelquest.app.ui.theme.ComicTokens.CoralRed else themeColors.primary
+            } else {
+                themeColors.onSurfaceVariant
+            }
         )
     }
 }
