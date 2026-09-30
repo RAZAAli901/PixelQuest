@@ -17,7 +17,7 @@ enum class ThemeMode(
     System("system", "Follow System", isAvailable = true),
     Pixel("pixel", "Retro Pixel (Dark)", isAvailable = true),
     Light("light", "Clean Light", isAvailable = true),
-    Comic("comic", "Comic Pop (Coming Soon)", isAvailable = false);
+    Comic("comic", "Comic Pop", isAvailable = true);
 
     /**
      * Resolves the concrete runtime theme mode based on device dark/light state.

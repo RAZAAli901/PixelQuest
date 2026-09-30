@@ -96,10 +96,10 @@ fun ThemeSelectionCard(
                 onClick = { onThemeSelected(ThemeMode.Light) }
             )
 
-            // Comic Mode Option (Marked Coming Soon)
+            // Comic Mode Option (Unlocked Day 23)
             ThemeOptionRow(
                 title = "💥 COMIC (POP-ART)",
-                subtitle = "Bold pop-art comic borders (Coming Soon — Day 23)",
+                subtitle = "Bold pop-art comic aesthetic with action borders",
                 isSelected = currentTheme == ThemeMode.Comic,
                 isComingSoon = !ThemeMode.Comic.isAvailable,
                 previewColors = listOf(
@@ -109,7 +109,7 @@ fun ThemeSelectionCard(
                     DefaultComicColorScheme.lavender,
                     DefaultComicColorScheme.comicBorder
                 ),
-                onClick = { /* Disabled / Gated until Day 23 */ }
+                onClick = { onThemeSelected(ThemeMode.Comic) }
             )
         }
     }
