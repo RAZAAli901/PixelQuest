@@ -35,6 +35,11 @@ class HabitInsightRepositoryImpl @Inject constructor(
     override val latestInsight: Flow<HabitInsightResponse?> = _latestInsight.asStateFlow()
 
     override suspend fun generateHabitInsight(): GeminiResult<HabitInsightResponse> {
+        val isOptedIn = try { settingsRepository.aiInsightsEnabled.first() } catch (e: Exception) { false }
+        if (!isOptedIn) {
+            return GeminiResult.Disabled("AI Habit Insights are disabled. Enable them in Settings to receive personalized insights.")
+        }
+
         val streak = try { streakRepository.getCurrentStreak().first() } catch (e: Exception) { null }
         val profile = try { userProfileRepository.getProfile().first() } catch (e: Exception) { null }
         val tasks = try { taskRepository.getAllTasks().first() } catch (e: Exception) { emptyList() }

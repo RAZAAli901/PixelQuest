@@ -2242,6 +2242,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 23: Document Gemini API data retention and model training policy analysis in AI_INSIGHTS.md - 9c163a4
 - Step 24: Document opt-in architecture decision for AI insights in AI_INSIGHTS.md - 2daec60
 - Step 25: Add aiInsightsEnabled preference defaulting to false in SettingsRepository - d39913f
+- Step 26: Add minimal functional toggle entry point for AI insights in Settings - ed2a336
 
 
 
