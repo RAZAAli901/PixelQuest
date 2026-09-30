@@ -20,6 +20,7 @@ if (localPropertiesFile.exists()) {
 val supabaseUrlProp = localProps.getProperty("SUPABASE_URL") ?: "https://placeholder-project.supabase.co"
 val supabaseAnonKeyProp = localProps.getProperty("SUPABASE_ANON_KEY") ?: "placeholder-anon-key"
 val googleWebClientIdProp = localProps.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
+val geminiApiKeyProp = localProps.getProperty("GEMINI_API_KEY") ?: "placeholder-gemini-key"
 
 android {
     namespace = "com.pixelquest.app"
@@ -35,6 +36,7 @@ android {
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrlProp\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKeyProp\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientIdProp\"")
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKeyProp\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
