@@ -2257,6 +2257,8 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 38: Harden JSON parser against conversational preambles, markdown code fences, and literal null strings - b6f7eb7
 - Step 39: Create AI_INSIGHTS.md consolidating prompt design, data-privacy decisions, caching/rate-limit groundwork, and opt-in architecture - 952c3d6
 - Step 40: Update BRIEF.md with full Day 24 summary and architecture documentation - 7eae913
+- Step 41: Gate temporary debug insight trigger strictly behind BuildConfig.DEBUG - 515c037
+- Step 42: Final verification: clean CI build passes, key hygiene confirmed, and settings persistence verified - 5f60a43
 
 ---
 
