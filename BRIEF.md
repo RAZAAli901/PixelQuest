@@ -2255,6 +2255,54 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 36: Manual QA test verifying graceful offline/airplane mode failure with no crashes - 7f67bcf
 - Step 37: Manual QA test verifying deliberate malformed Gemini response payloads fail gracefully without crashing - d6a45b7
 - Step 38: Harden JSON parser against conversational preambles, markdown code fences, and literal null strings - b6f7eb7
+- Step 39: Create AI_INSIGHTS.md consolidating prompt design, data-privacy decisions, caching/rate-limit groundwork, and opt-in architecture - 952c3d6
+
+---
+
+## Day 24 Summary: Gemini AI Integration Foundation
+
+### 1. Overview & Objectives
+Day 24 initiates a 2-day arc (Days 24–25) introducing AI-powered habit insights to **PixelQuest** via Google Gemini. In strict adherence to the project plan, **Day 24 focused entirely on foundation architecture — with zero user-facing UI screens**. All pipeline components were engineered, unit tested, and QA verified: a direct Ktor REST Gemini client, a privacy-first prompt generation engine with active regex/blacklist sanitization, Simple Mode tone adaptation, sealed error recovery, 6-hour call interval throttling, and an opt-in settings toggle.
+
+### 2. Gemini Integration Architecture
+1. **Direct REST Client via Ktor (`GeminiClient`)**:
+   - Evaluated the official Google GenAI Android SDK vs. direct REST. Chose direct REST via Ktor (`io.ktor:ktor-client-android`) to leverage the existing Day 13 Supabase networking stack, adding **0 MB** to the APK footprint and avoiding transitive dependency bloat.
+   - Communicates with Google's Generative Language API targeting `gemini-1.5-flash` with a 25-second configurable timeout.
+2. **Credential Management**:
+   - `GEMINI_API_KEY` injected into `BuildConfig` via `local.properties` (with a safe placeholder fallback for CI builds), ensuring no credentials are ever checked into Git.
+   - Structural CI readiness verified for GitHub Actions repository secret injection.
+3. **Sealed Error Recovery (`GeminiResult`)**:
+   - Modeled after Day 13's `SupabaseResult` pattern: `Success`, `RateLimited` (429/quota), `NetworkError` (DNS/connectivity/timeout), `ApiError` (HTTP 5xx), `Disabled` (opt-in gate), and `MalformedResponse` (JSON syntax/schema mismatch).
+   - Graceful degradation verified across offline/airplane mode and corrupted LLM payloads with zero crashes.
+
+### 3. Data Privacy & Minimization Decisions
+1. **Strict Data Boundary**:
+   - Only high-level aggregated statistics are transmitted to Gemini: streak counts, progression level, category-level completion percentages, and 7-day consistency metrics.
+   - **Strictly Forbidden**: No verbatim task titles (which could include private medical/financial notes), task descriptions, real names, usernames, emails, or device identifiers ever leave the device.
+2. **Active Client-Side Sanitization**:
+   - Implemented `HabitInsightPromptBuilder.sanitizePromptText` running regex scrubs for emails and phone numbers, paired with an active blacklist that dynamically scrubs any username, display name, or task title from the prompt before dispatch.
+3. **Third-Party Disclosure in `PRIVACY.md`**:
+   - Updated `PRIVACY.md` to explicitly disclose the distinct third-party data flow to Google Gemini, highlighting the anonymization and data-minimization guarantees.
+4. **Google AI Studio Tier Analysis**:
+   - Researched and documented Google AI Studio data retention policies in `AI_INSIGHTS.md`: Free Developer Tier allows Google to use prompts for model training; Paid Pay-As-You-Go Tier guarantees zero model training and no human review. Recommended developer upgrade to Pay-As-You-Go tier before production release.
+5. **Strict Opt-In Architecture**:
+   - In alignment with the Day 14 leaderboard privacy precedent, AI Habit Insights are strictly **opt-in**, defaulting to `aiInsightsEnabled = false`.
+
+### 4. Tone Adaptation & Multi-Theme Forward Compatibility
+1. **Simple Mode Tone Adaptation**:
+   - Connected Day 18's `HabitInsightToneHook` to prompt and system instruction builders:
+     - **Gamified Mode**: 8-bit Questmaster persona delivering epic RPG debriefs and battle metaphors.
+     - **Simple Mode**: Calm, pragmatic habit coach focusing on steady routines with zero gaming/fantasy terminology.
+2. **Multi-Theme UI Contract for Day 25**:
+   - Formally committed in `THEMING.md` and `AI_INSIGHTS.md` to launch Day 25's user-facing UI with native three-theme dispatch (`Pixel`, `Light`, and `Comic`) from day one.
+
+### 5. Known Gaps & Scope for Day 25
+The following capabilities are deliberately scoped for Day 25:
+- **User-Facing UI**: Dedicated `AiInsightsScreen` with theme-dispatched cards (`PixelCard`, `LightCard`, `ComicPanel`), scanline integration, and Bangers pop-art typography.
+- **Persistent Local Caching**: Room database table (`AiInsightEntity`) storing insights indexed by compound cache-key (`ai_insight_{scope}_{date}_{period}`) with 12-hour TTL and dynamic invalidation on level-up/streak breaks.
+- **In-App Throttling & Refresh UI**: Visual countdown timer showing remaining throttle window and manual "Request New Debrief" trigger.
+- **Educational Consent Flow**: Explanatory dialog presented in Settings when enabling AI insights.
+
 
 
 
