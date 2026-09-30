@@ -711,5 +711,31 @@ Every dynamic component in PixelQuest dispatches cleanly at runtime based on `Pi
 - **System Isolation Rule**:
   - Never configure `ThemeMode.System` to resolve to `Comic`; "Follow System" is architecturally reserved for standard Dark (Pixel) and Light transitions.
 
+---
+
+## 15. Forward Reference: Day 25 AI Insights UI Multi-Theme Integration Contract
+
+### 15.1 Architectural Decision (Day 24 Step 31-32)
+In accordance with the multi-theme architecture finalized in Day 23, the upcoming **AI Habit Insights UI (Day 25)** will launch with native, first-class support for all three design families (**Pixel**, **Light**, and **Comic**) from day one. Shipping a partial Pixel/Light baseline and retrofitting Comic later is explicitly rejected to eliminate technical debt and ensure visual continuity for all players.
+
+### 15.2 Theme Presentation Mapping for AI Insights
+When Day 25 implements the user-facing AI Insights screen, each theme mode will render via `ComponentThemeFamily`:
+
+1. **👾 Pixel Mode (Classic Retro Arcade)**:
+   - **Container**: `PixelCard(variant = PixelPanelVariant.BEIGE)` with retro dark indigo fill and gold pixel borders.
+   - **Typography**: `PressStart2P` header ("QUESTMASTER INTEL").
+   - **Accents**: Radiant Gold (`#FFD700`) and Electric Cyan (`#00E5FF`).
+   - **CRT Filter**: Operational if enabled by user.
+
+2. **☀️ Light Mode (Daylight Productivity)**:
+   - **Container**: Clean daylight white panel (`#FFFFFF`) with 2dp stone pixel contour borders (`#E1E4E8`).
+   - **Typography**: High-legibility `PixelTypography.titleMedium` with amber dungeon gold accent (`#B45309`).
+   - **Accents**: Forest green tertiary (`#15803D`) and warm parchment accents.
+
+3. **💥 Comic Mode (Graphic Novel Pop-Art)**:
+   - **Container**: `ComicPanel` with 2.5dp solid black ink borders, newsprint white fill, and 4dp flat offset drop shadow.
+   - **Typography**: Bold `Bangers` header ("💥 QUESTMASTER MISSION BRIEFING!").
+   - **Accents**: Dynamic Coral Red (`#FF5A4E`) badge pill, Lavender container highlight, and comic action burst framing.
+
 
 

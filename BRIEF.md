@@ -2247,6 +2247,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 28: Add unit test verifying opt-in gating logic prevents API calls when disabled - f72b781
 - Step 29: Wire HabitInsightToneHook into HabitInsightPromptBuilder for Simple Mode tone adaptation - acee544
 - Step 30: Add unit test verifying prompt generation differs appropriately based on Simple Mode - b640f12
+- Step 31: Decide to build Day 25 AI insight UI with three-theme dispatch from day one - e7850f6
 
 
 
