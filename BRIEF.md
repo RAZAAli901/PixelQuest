@@ -2222,6 +2222,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 3: Wire GEMINI_API_KEY from local.properties into BuildConfig - e6310d5
 - Step 4: Wire GeminiClient into Hilt via a new AiModule - c64edc3
 - Step 5: Add connectivity smoke test for GeminiClient API requests - 8f5b861
+- Step 6: Add error-handling wrapper for Gemini calls returning sealed GeminiResult - 5e59371
 
 
 
