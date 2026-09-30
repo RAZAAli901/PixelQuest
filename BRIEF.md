@@ -2223,6 +2223,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 4: Wire GeminiClient into Hilt via a new AiModule - c64edc3
 - Step 5: Add connectivity smoke test for GeminiClient API requests - 8f5b861
 - Step 6: Add error-handling wrapper for Gemini calls returning sealed GeminiResult - 5e59371
+- Step 7: Confirm GitHub Actions secret-injection readiness for Gemini API key - 5ddc628
 
 
 
