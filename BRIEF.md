@@ -2226,6 +2226,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 7: Confirm GitHub Actions secret-injection readiness for Gemini API key - 5ddc628
 - Step 8: Design core prompt template and system directives for habit insight generation - d30f7ce
 - Step 9: Create HabitInsightPromptBuilder for constructing AI habit analysis prompts - 7c7efb9
+- Step 10: Define structured JSON schema contract for Gemini habit insight responses - 8dc45d7
 
 
 
