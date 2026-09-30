@@ -47,4 +47,12 @@ interface SettingsRepository {
     suspend fun setNotificationVibrationEnabled(enabled: Boolean)
     suspend fun setThemeMode(mode: com.pixelquest.app.ui.theme.ThemeMode) {}
     suspend fun setSimpleModeEnabled(enabled: Boolean) {}
+
+    /**
+     * Opt-in preference for AI Habit Insights (Day 24 Section E). Defaults strictly to false.
+     */
+    val aiInsightsEnabled: Flow<Boolean>
+        get() = kotlinx.coroutines.flow.flowOf(false)
+
+    suspend fun setAiInsightsEnabled(enabled: Boolean) {}
 }

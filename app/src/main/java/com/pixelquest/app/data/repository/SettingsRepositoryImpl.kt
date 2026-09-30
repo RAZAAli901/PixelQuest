@@ -201,6 +201,21 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_SIMPLE_MODE_ENABLED, enabled).apply()
     }
 
+    override val aiInsightsEnabled: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_AI_INSIGHTS_ENABLED) {
+                trySend(prefs.getBoolean(KEY_AI_INSIGHTS_ENABLED, false))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_AI_INSIGHTS_ENABLED, false))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setAiInsightsEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_AI_INSIGHTS_ENABLED, enabled).apply()
+    }
+
     companion object {
         private const val KEY_SOUND_ENABLED = "key_sound_enabled"
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
@@ -214,5 +229,6 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_SIMPLE_MODE_ENABLED = "key_simple_mode_enabled"
         private const val KEY_SIMPLE_MODE_HIGHLIGHT_SEEN = "key_simple_mode_highlight_seen"
         private const val KEY_COMIC_MODE_HIGHLIGHT_SEEN = "key_comic_mode_highlight_seen"
+        private const val KEY_AI_INSIGHTS_ENABLED = "key_ai_insights_enabled"
     }
 }
