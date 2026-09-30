@@ -146,6 +146,21 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_SIMPLE_MODE_HIGHLIGHT_SEEN, seen).apply()
     }
 
+    override val hasSeenComicModeHighlight: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_COMIC_MODE_HIGHLIGHT_SEEN) {
+                trySend(prefs.getBoolean(KEY_COMIC_MODE_HIGHLIGHT_SEEN, false))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_COMIC_MODE_HIGHLIGHT_SEEN, false))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setComicModeHighlightSeen(seen: Boolean) {
+        prefs.edit().putBoolean(KEY_COMIC_MODE_HIGHLIGHT_SEEN, seen).apply()
+    }
+
     override suspend fun setSoundEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
     }
@@ -198,5 +213,6 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_THEME_MODE = "key_theme_mode"
         private const val KEY_SIMPLE_MODE_ENABLED = "key_simple_mode_enabled"
         private const val KEY_SIMPLE_MODE_HIGHLIGHT_SEEN = "key_simple_mode_highlight_seen"
+        private const val KEY_COMIC_MODE_HIGHLIGHT_SEEN = "key_comic_mode_highlight_seen"
     }
 }

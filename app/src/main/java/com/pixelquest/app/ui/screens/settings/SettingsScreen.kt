@@ -126,6 +126,45 @@ fun SettingsScreen(
             )
         },
         appearanceSection = {
+            if (state.showComicModeHighlight && state.themeMode != com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+                // One-time discoverability highlight for Comic Book Mode (Day 23 Step 30)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(PixelTheme.colors.primary.copy(alpha = 0.15f))
+                        .border(1.5.dp, PixelTheme.colors.primary, RoundedCornerShape(6.dp))
+                        .padding(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "💥 NEW: COMIC BOOK MODE!",
+                                style = PixelTypography.labelMedium,
+                                color = PixelTheme.colors.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Transform PixelQuest into a graphic novel with bold ink borders and halftone panels.",
+                                style = PixelTypography.bodySmall,
+                                color = PixelTheme.colors.onSurface
+                            )
+                        }
+                        Text(
+                            text = "✕",
+                            style = PixelTypography.labelLarge,
+                            color = PixelTheme.colors.onSurfaceVariant,
+                            modifier = Modifier
+                                .clickable { viewModel.dismissComicModeHighlight() }
+                                .padding(start = 8.dp, top = 4.dp, bottom = 4.dp, end = 4.dp)
+                        )
+                    }
+                }
+            }
             ThemeSelectionCard(
                 currentTheme = state.themeMode,
                 onThemeSelected = { viewModel.setThemeMode(it) },

@@ -29,6 +29,14 @@ interface SettingsRepository {
 
     suspend fun setSimpleModeHighlightSeen(seen: Boolean = true) {}
 
+    /**
+     * One-time highlight preference for Comic Mode discoverability (Day 23 Step 30).
+     */
+    val hasSeenComicModeHighlight: Flow<Boolean>
+        get() = kotlinx.coroutines.flow.flowOf(false)
+
+    suspend fun setComicModeHighlightSeen(seen: Boolean = true) {}
+
     suspend fun setSoundEnabled(enabled: Boolean)
     suspend fun setCrtEnabled(enabled: Boolean)
     suspend fun setHapticsEnabled(enabled: Boolean)

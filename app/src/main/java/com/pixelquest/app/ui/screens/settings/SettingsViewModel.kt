@@ -29,7 +29,8 @@ data class SettingsUiState(
     val isNotificationsEnabled: Boolean = true,
     val themeMode: ThemeMode = ThemeMode.Pixel,
     val isSimpleModeEnabled: Boolean = false,
-    val showSimpleModeHighlight: Boolean = false
+    val showSimpleModeHighlight: Boolean = false,
+    val showComicModeHighlight: Boolean = false
 )
 
 private data class SettingsPrefs(
@@ -39,7 +40,15 @@ private data class SettingsPrefs(
     val notifs: Boolean,
     val theme: ThemeMode,
     val simpleMode: Boolean,
-    val highlightSeen: Boolean
+    val highlightSeen: Boolean,
+    val comicHighlightSeen: Boolean
+)
+
+private data class PrefsSubGroup(
+    val notifs: Boolean,
+    val theme: ThemeMode,
+    val simple: Boolean,
+    val highlights: Pair<Boolean, Boolean>
 )
 
 @HiltViewModel
@@ -63,16 +72,30 @@ class SettingsViewModel @Inject constructor(
             combine(
                 settingsRepository.isNotificationsEnabled,
                 settingsRepository.themeMode,
-                combine(settingsRepository.simpleModeEnabled, settingsRepository.hasSeenSimpleModeHighlight) { simple, seen -> Pair(simple, seen) }
-            ) { notifs, theme, (simple, seen) ->
-                Triple(notifs, theme, Pair(simple, seen))
+                combine(
+                    settingsRepository.simpleModeEnabled,
+                    settingsRepository.hasSeenSimpleModeHighlight,
+                    settingsRepository.hasSeenComicModeHighlight
+                ) { simple, seen, comicSeen -> Triple(simple, seen, comicSeen) }
+            ) { notifs, theme, (simple, seen, comicSeen) ->
+                PrefsSubGroup(notifs, theme, simple, Pair(seen, comicSeen))
             }
-        ) { (sound, crt, haptics), (notifs, theme, pair) ->
-            SettingsPrefs(sound, crt, haptics, notifs, theme, pair.first, pair.second)
+        ) { (sound, crt, haptics), subGroup ->
+            SettingsPrefs(
+                sound = sound,
+                crt = crt,
+                haptics = haptics,
+                notifs = subGroup.notifs,
+                theme = subGroup.theme,
+                simpleMode = subGroup.simple,
+                highlightSeen = subGroup.highlights.first,
+                comicHighlightSeen = subGroup.highlights.second
+            )
         }
     ) { profile, difficulty, prefs ->
         val hasUsage = (profile?.totalXp ?: 0) >= 30 || (profile?.level ?: 1) > 1
         val shouldShowHighlight = !prefs.simpleMode && !prefs.highlightSeen && hasUsage
+        val shouldShowComicHighlight = !prefs.comicHighlightSeen && prefs.theme != ThemeMode.Comic
         SettingsUiState(
             profile = profile,
             difficulty = difficulty,
@@ -82,7 +105,8 @@ class SettingsViewModel @Inject constructor(
             isNotificationsEnabled = prefs.notifs,
             themeMode = prefs.theme,
             isSimpleModeEnabled = prefs.simpleMode,
-            showSimpleModeHighlight = shouldShowHighlight
+            showSimpleModeHighlight = shouldShowHighlight,
+            showComicModeHighlight = shouldShowComicHighlight
         )
     }.stateIn(
         scope = viewModelScope,
@@ -93,6 +117,12 @@ class SettingsViewModel @Inject constructor(
     fun dismissSimpleModeHighlight() {
         viewModelScope.launch {
             settingsRepository.setSimpleModeHighlightSeen(true)
+        }
+    }
+
+    fun dismissComicModeHighlight() {
+        viewModelScope.launch {
+            settingsRepository.setComicModeHighlightSeen(true)
         }
     }
 
@@ -107,6 +137,9 @@ class SettingsViewModel @Inject constructor(
 
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch {
+            if (mode == ThemeMode.Comic) {
+                settingsRepository.setComicModeHighlightSeen(true)
+            }
             settingsRepository.setThemeMode(mode)
         }
     }
