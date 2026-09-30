@@ -2254,6 +2254,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 35: Unit test verifying rate-limit groundwork value is actually enforced by debug trigger - 2a32ff4
 - Step 36: Manual QA test verifying graceful offline/airplane mode failure with no crashes - 7f67bcf
 - Step 37: Manual QA test verifying deliberate malformed Gemini response payloads fail gracefully without crashing - d6a45b7
+- Step 38: Harden JSON parser against conversational preambles, markdown code fences, and literal null strings - b6f7eb7
 
 
 
