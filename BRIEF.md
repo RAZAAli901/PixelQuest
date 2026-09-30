@@ -2233,6 +2233,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 14: Create HabitInsightRepository orchestrating prompt generation and API dispatch - c0e8181
 - Step 15: Add temporary debug-only trigger to exercise AI insight pipeline end-to-end - 512140f
 - Step 16: Document AI call minimum interval throttle and rationale in AI_INSIGHTS.md - 9fcf11b
+- Step 17: Document cache-key strategy and staleness window in AI_INSIGHTS.md - 0bc6170
 
 
 
