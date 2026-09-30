@@ -2245,6 +2245,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 26: Add minimal functional toggle entry point for AI insights in Settings - ed2a336
 - Step 27: Wire debug trigger to respect aiInsightsEnabled toggle with zero network calls when disabled - 842c78a
 - Step 28: Add unit test verifying opt-in gating logic prevents API calls when disabled - f72b781
+- Step 29: Wire HabitInsightToneHook into HabitInsightPromptBuilder for Simple Mode tone adaptation - acee544
 
 
 
