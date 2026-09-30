@@ -2234,6 +2234,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 15: Add temporary debug-only trigger to exercise AI insight pipeline end-to-end - 512140f
 - Step 16: Document AI call minimum interval throttle and rationale in AI_INSIGHTS.md - 9fcf11b
 - Step 17: Document cache-key strategy and staleness window in AI_INSIGHTS.md - 0bc6170
+- Step 18: Verify live Gemini pipeline execution and coherent insight generation in QA harness - 59b9523
 
 
 

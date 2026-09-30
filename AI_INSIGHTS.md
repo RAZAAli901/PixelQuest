@@ -44,3 +44,26 @@ A cached insight is marked stale and purged ahead of TTL upon any of the followi
 2. **Streak Broken Event**: Consecutive day broken, requiring urgent recovery encouragement.
 3. **Perfect Day Milestone**: All daily quests completed, triggering heroic celebration.
 4. **Manual Debug Refresh**: Developer explicitly invokes debug pipeline regeneration.
+
+---
+
+## 4. Privacy & Data Minimization Policy
+
+### 4.1 Strict Data Boundary
+PixelQuest enforces an absolute data-minimization architecture for AI requests. User habit data can be deeply personal (e.g. medical habits, mental health routines, therapy appointments, financial tasks). Therefore, individual raw activities are strictly isolated to on-device SQLite storage and **never** leave the device.
+
+### 4.2 What Data IS Transmitted to Google Gemini
+Only anonymized, abstract aggregate statistics are transmitted in the prompt payload:
+- **Streak Counts**: Integer metrics (`currentStreak`, `longestStreak`, `perfectDaysCount`).
+- **Category Completion Ratios**: Predefined enum category names and numeric ratios (e.g. `FITNESS: 80% (4/5 completed)`).
+- **Recent Momentum**: 7-day completion percentage and missed count.
+- **Progression Level**: Anonymous numeric tier (e.g. `Level 5`).
+
+### 4.3 What Data is EXPLICITLY FORBIDDEN from Transmission
+The following data elements are strictly blocked and excluded:
+1. **Verbatim Task Names**: No task title (e.g. "Take antidepressant medication", "Call AA sponsor", "Pay overdue rent") is ever sent.
+2. **Task Descriptions & Notes**: Freeform user text is completely excluded.
+3. **User Identifiers**: No usernames, real names, or display names.
+4. **Account Information**: No emails, OAuth tokens, or Supabase user IDs.
+5. **Exact Timestamps & Geolocation**: No time-of-day execution markers or coordinates.
+6. **Device Identifiers**: No Android ID, advertising ID, MAC address, or hardware telemetry.
