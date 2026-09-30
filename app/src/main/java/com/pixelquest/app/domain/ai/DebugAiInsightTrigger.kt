@@ -13,15 +13,16 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Step 15 & 35: Temporary debug-only trigger to exercise the AI habit insight pipeline end-to-end
+ * Step 15, 35 & 41: Temporary debug-only trigger to exercise the AI habit insight pipeline end-to-end
  * without requiring any user-facing UI (which is scheduled for Day 25).
- * Gated behind BuildConfig.DEBUG and enforces the Section C Step 16 rate-limit throttle groundwork
+ * Gated strictly behind BuildConfig.DEBUG and enforces the Section C Step 16 rate-limit throttle groundwork
  * (minimum 6-hour interval between successful calls per user).
  */
 @Singleton
 class DebugAiInsightTrigger @Inject constructor(
     private val habitInsightRepository: HabitInsightRepository,
-    private val clock: () -> Long = { System.currentTimeMillis() }
+    private val clock: () -> Long = { System.currentTimeMillis() },
+    private val isDebugProvider: () -> Boolean = { BuildConfig.DEBUG }
 ) {
     companion object {
         /**
@@ -40,12 +41,13 @@ class DebugAiInsightTrigger @Inject constructor(
 
     /**
      * Executes the insight generation pipeline asynchronously in debug mode.
+     * Strictly blocked when not running in debug builds.
      */
     fun triggerInsightGeneration(
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
         onComplete: ((GeminiResult<HabitInsightResponse>) -> Unit)? = null
     ) {
-        if (!BuildConfig.DEBUG) {
+        if (!isDebugProvider()) {
             val disabled = GeminiResult.Disabled("AI debug trigger is restricted to debug builds only.")
             _lastResult.value = disabled
             _debugStatus.value = "DEBUG_ONLY_RESTRICTION"
@@ -88,11 +90,16 @@ class DebugAiInsightTrigger @Inject constructor(
 
     /**
      * Direct suspending trigger for synchronous testing and coroutine consumers.
+     * Strictly blocked when not running in debug builds.
      */
     suspend fun triggerDirectly(): GeminiResult<HabitInsightResponse> {
-        if (!BuildConfig.DEBUG) {
-            return GeminiResult.Disabled("AI debug trigger is restricted to debug builds only.")
+        if (!isDebugProvider()) {
+            val disabled = GeminiResult.Disabled("AI debug trigger is restricted to debug builds only.")
+            _lastResult.value = disabled
+            _debugStatus.value = "DEBUG_ONLY_RESTRICTION"
+            return disabled
         }
+
         val currentTime = clock()
         val elapsed = currentTime - lastSuccessfulCallTimestamp
         if (lastSuccessfulCallTimestamp > 0L && elapsed < MIN_CALL_INTERVAL_MS) {
