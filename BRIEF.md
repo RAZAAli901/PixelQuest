@@ -2243,6 +2243,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 24: Document opt-in architecture decision for AI insights in AI_INSIGHTS.md - 2daec60
 - Step 25: Add aiInsightsEnabled preference defaulting to false in SettingsRepository - d39913f
 - Step 26: Add minimal functional toggle entry point for AI insights in Settings - ed2a336
+- Step 27: Wire debug trigger to respect aiInsightsEnabled toggle with zero network calls when disabled - 842c78a
 
 
 
