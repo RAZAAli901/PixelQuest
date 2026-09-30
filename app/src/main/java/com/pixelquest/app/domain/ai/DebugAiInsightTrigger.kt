@@ -13,14 +13,25 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Step 15: Temporary debug-only trigger to exercise the AI habit insight pipeline end-to-end
+ * Step 15 & 35: Temporary debug-only trigger to exercise the AI habit insight pipeline end-to-end
  * without requiring any user-facing UI (which is scheduled for Day 25).
- * Gated behind BuildConfig.DEBUG.
+ * Gated behind BuildConfig.DEBUG and enforces the Section C Step 16 rate-limit throttle groundwork
+ * (minimum 6-hour interval between successful calls per user).
  */
 @Singleton
 class DebugAiInsightTrigger @Inject constructor(
-    private val habitInsightRepository: HabitInsightRepository
+    private val habitInsightRepository: HabitInsightRepository,
+    private val clock: () -> Long = { System.currentTimeMillis() }
 ) {
+    companion object {
+        /**
+         * Minimum interval between live insight calls: 6 hours (Section C Step 16).
+         */
+        const val MIN_CALL_INTERVAL_MS: Long = 6 * 60 * 60 * 1000L // 21,600,000 ms
+    }
+
+    private var lastSuccessfulCallTimestamp: Long = 0L
+
     private val _debugStatus = MutableStateFlow("IDLE")
     val debugStatus: StateFlow<String> = _debugStatus.asStateFlow()
 
@@ -35,13 +46,33 @@ class DebugAiInsightTrigger @Inject constructor(
         onComplete: ((GeminiResult<HabitInsightResponse>) -> Unit)? = null
     ) {
         if (!BuildConfig.DEBUG) {
+            val disabled = GeminiResult.Disabled("AI debug trigger is restricted to debug builds only.")
+            _lastResult.value = disabled
             _debugStatus.value = "DEBUG_ONLY_RESTRICTION"
+            onComplete?.invoke(disabled)
+            return
+        }
+
+        val currentTime = clock()
+        val elapsed = currentTime - lastSuccessfulCallTimestamp
+        if (lastSuccessfulCallTimestamp > 0L && elapsed < MIN_CALL_INTERVAL_MS) {
+            val remainingSeconds = (MIN_CALL_INTERVAL_MS - elapsed) / 1000
+            val throttled = GeminiResult.RateLimited(
+                retryAfterSeconds = remainingSeconds,
+                message = "Rate limit throttle enforced: minimum 6-hour interval between calls. Please wait $remainingSeconds seconds."
+            )
+            _lastResult.value = throttled
+            _debugStatus.value = "THROTTLED: ${throttled.message}"
+            onComplete?.invoke(throttled)
             return
         }
 
         _debugStatus.value = "RUNNING"
         scope.launch {
             val result = habitInsightRepository.generateHabitInsight()
+            if (result is GeminiResult.Success) {
+                lastSuccessfulCallTimestamp = clock()
+            }
             _lastResult.value = result
             _debugStatus.value = when (result) {
                 is GeminiResult.Success -> "SUCCESS"
@@ -53,5 +84,42 @@ class DebugAiInsightTrigger @Inject constructor(
             }
             onComplete?.invoke(result)
         }
+    }
+
+    /**
+     * Direct suspending trigger for synchronous testing and coroutine consumers.
+     */
+    suspend fun triggerDirectly(): GeminiResult<HabitInsightResponse> {
+        if (!BuildConfig.DEBUG) {
+            return GeminiResult.Disabled("AI debug trigger is restricted to debug builds only.")
+        }
+        val currentTime = clock()
+        val elapsed = currentTime - lastSuccessfulCallTimestamp
+        if (lastSuccessfulCallTimestamp > 0L && elapsed < MIN_CALL_INTERVAL_MS) {
+            val remainingSeconds = (MIN_CALL_INTERVAL_MS - elapsed) / 1000
+            val throttled = GeminiResult.RateLimited(
+                retryAfterSeconds = remainingSeconds,
+                message = "Rate limit throttle enforced: minimum 6-hour interval between calls. Please wait $remainingSeconds seconds."
+            )
+            _lastResult.value = throttled
+            _debugStatus.value = "THROTTLED: ${throttled.message}"
+            return throttled
+        }
+
+        _debugStatus.value = "RUNNING"
+        val result = habitInsightRepository.generateHabitInsight()
+        if (result is GeminiResult.Success) {
+            lastSuccessfulCallTimestamp = clock()
+        }
+        _lastResult.value = result
+        _debugStatus.value = when (result) {
+            is GeminiResult.Success -> "SUCCESS"
+            is GeminiResult.RateLimited -> "RATE_LIMITED: ${result.message}"
+            is GeminiResult.NetworkError -> "NETWORK_ERROR: ${result.message}"
+            is GeminiResult.ApiError -> "API_ERROR: ${result.message}"
+            is GeminiResult.Disabled -> "DISABLED: ${result.message}"
+            is GeminiResult.MalformedResponse -> "MALFORMED: ${result.message}"
+        }
+        return result
     }
 }

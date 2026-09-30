@@ -2250,6 +2250,7 @@ The entire multi-theme architecture is now feature-complete, production-ready, a
 - Step 31: Decide to build Day 25 AI insight UI with three-theme dispatch from day one - e7850f6
 - Step 32: Note this decision in THEMING.md as a forward reference for Day 25 - c06f163
 - Step 33: Write integration test for the full pipeline using a mocked GeminiClient - 0ca3088
+- Step 34: Write test verifying error-handling wrapper correctly surfaces rate-limit and network-failure cases without crashing - df2c153
 
 
 
