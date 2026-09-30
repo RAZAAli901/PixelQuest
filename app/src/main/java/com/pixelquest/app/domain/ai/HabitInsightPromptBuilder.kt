@@ -160,7 +160,7 @@ object HabitInsightPromptBuilder {
         sb.appendLine()
         sb.appendLine("TASK:")
         if (tone == HabitInsightTone.SIMPLE_MINIMALIST) {
-            sb.appendLine("Provide a thoughtful, calm habit coaching insight based on these metrics. Encourage consistency and offer 1 practical adjustment.")
+            sb.appendLine("Provide a thoughtful, calm habit coaching insight based on these metrics. Focus on steady routines, sustainable cadence, and practical adjustments. Omit all gaming, quest, battle, or fantasy references.")
         } else {
             sb.appendLine("Provide an epic 8-bit questmaster debrief based on these metrics. Celebrate heroic consistency and issue 1 tactical quest suggestion.")
         }
@@ -171,14 +171,48 @@ object HabitInsightPromptBuilder {
     }
 
     /**
+     * Overload constructing prompt from HabitInsightToneHook and Simple Mode state.
+     */
+    fun buildPrompt(
+        telemetry: HabitTelemetrySummary,
+        toneHook: HabitInsightToneHook,
+        isSimpleModeEnabled: Boolean
+    ): String {
+        val tone = toneHook.resolveTone(isSimpleModeEnabled)
+        return buildPrompt(telemetry, tone)
+    }
+
+    /**
+     * Constructs the system instruction using HabitInsightToneHook for tone adaptation.
+     */
+    fun buildSystemInstruction(
+        toneHook: HabitInsightToneHook,
+        isSimpleModeEnabled: Boolean
+    ): String {
+        val tone = toneHook.resolveTone(isSimpleModeEnabled)
+        val guidance = toneHook.getSystemPromptGuidance(tone)
+        return buildSystemInstructionWithGuidance(tone, guidance)
+    }
+
+    /**
      * Constructs the system instruction directing model persona, tone, and formatting constraints.
      */
     fun buildSystemInstruction(
         tone: HabitInsightTone = HabitInsightTone.GAMIFIED_HEROIC
     ): String {
+        val defaultHook = DefaultHabitInsightToneHook()
+        val guidance = defaultHook.getSystemPromptGuidance(tone)
+        return buildSystemInstructionWithGuidance(tone, guidance)
+    }
+
+    private fun buildSystemInstructionWithGuidance(
+        tone: HabitInsightTone,
+        guidance: String
+    ): String {
         return if (tone == HabitInsightTone.SIMPLE_MINIMALIST) {
             """
             You are an expert, empathetic habit coach.
+            Tone Guidance: $guidance
             Analyze the user's habit telemetry and provide clear, objective, and supportive observations.
             Provide actionable suggestions to maintain or build consistency.
             Do NOT use gaming metaphors, quests, battle references, XP, levels, or arcade terminology.
@@ -188,6 +222,7 @@ object HabitInsightPromptBuilder {
         } else {
             """
             You are the Questmaster of PixelQuest, a retro 8-bit RPG habit tracker.
+            Tone Guidance: $guidance
             Analyze the adventurer's recent habit telemetry and provide an empowering, insightful quest debrief.
             Frame consistency as battle resilience, streaks as hero momentum, and categories as quest disciplines.
             Be encouraging, authentic, and concise. Avoid condescension.
