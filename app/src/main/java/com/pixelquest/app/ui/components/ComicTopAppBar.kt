@@ -72,6 +72,7 @@ fun ComicTopAppBar(
                 color = ComicTokens.SolidBlack,
                 letterSpacing = 0.8.sp,
                 maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
 
