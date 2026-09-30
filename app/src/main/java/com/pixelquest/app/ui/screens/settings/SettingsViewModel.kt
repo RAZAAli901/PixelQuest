@@ -30,7 +30,8 @@ data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.Pixel,
     val isSimpleModeEnabled: Boolean = false,
     val showSimpleModeHighlight: Boolean = false,
-    val showComicModeHighlight: Boolean = false
+    val showComicModeHighlight: Boolean = false,
+    val isAiInsightsEnabled: Boolean = false
 )
 
 private data class SettingsPrefs(
@@ -41,14 +42,16 @@ private data class SettingsPrefs(
     val theme: ThemeMode,
     val simpleMode: Boolean,
     val highlightSeen: Boolean,
-    val comicHighlightSeen: Boolean
+    val comicHighlightSeen: Boolean,
+    val aiInsights: Boolean
 )
 
 private data class PrefsSubGroup(
     val notifs: Boolean,
     val theme: ThemeMode,
     val simple: Boolean,
-    val highlights: Pair<Boolean, Boolean>
+    val highlights: Pair<Boolean, Boolean>,
+    val aiInsights: Boolean
 )
 
 @HiltViewModel
@@ -72,13 +75,14 @@ class SettingsViewModel @Inject constructor(
             combine(
                 settingsRepository.isNotificationsEnabled,
                 settingsRepository.themeMode,
+                settingsRepository.aiInsightsEnabled,
                 combine(
                     settingsRepository.simpleModeEnabled,
                     settingsRepository.hasSeenSimpleModeHighlight,
                     settingsRepository.hasSeenComicModeHighlight
                 ) { simple, seen, comicSeen -> Triple(simple, seen, comicSeen) }
-            ) { notifs, theme, (simple, seen, comicSeen) ->
-                PrefsSubGroup(notifs, theme, simple, Pair(seen, comicSeen))
+            ) { notifs, theme, aiEnabled, (simple, seen, comicSeen) ->
+                PrefsSubGroup(notifs, theme, simple, Pair(seen, comicSeen), aiEnabled)
             }
         ) { (sound, crt, haptics), subGroup ->
             SettingsPrefs(
@@ -89,7 +93,8 @@ class SettingsViewModel @Inject constructor(
                 theme = subGroup.theme,
                 simpleMode = subGroup.simple,
                 highlightSeen = subGroup.highlights.first,
-                comicHighlightSeen = subGroup.highlights.second
+                comicHighlightSeen = subGroup.highlights.second,
+                aiInsights = subGroup.aiInsights
             )
         }
     ) { profile, difficulty, prefs ->
@@ -106,13 +111,20 @@ class SettingsViewModel @Inject constructor(
             themeMode = prefs.theme,
             isSimpleModeEnabled = prefs.simpleMode,
             showSimpleModeHighlight = shouldShowHighlight,
-            showComicModeHighlight = shouldShowComicHighlight
+            showComicModeHighlight = shouldShowComicHighlight,
+            isAiInsightsEnabled = prefs.aiInsights
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = SettingsUiState()
     )
+
+    fun setAiInsightsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setAiInsightsEnabled(enabled)
+        }
+    }
 
     fun dismissSimpleModeHighlight() {
         viewModelScope.launch {

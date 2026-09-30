@@ -103,6 +103,13 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
+            val aiText = if (state.isAiInsightsEnabled) "✨ AI HABIT INSIGHTS: ON" else "✨ AI HABIT INSIGHTS: OFF (OPT-IN)"
+            PixelButton(
+                text = aiText,
+                onClick = { viewModel.setAiInsightsEnabled(!state.isAiInsightsEnabled) },
+                variant = if (state.isAiInsightsEnabled) PixelButtonVariant.YELLOW else PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
         },
         notificationsSection = {
             val notifText = if (state.isNotificationsEnabled) "🔔 NOTIFICATIONS: ON" else "🔕 NOTIFICATIONS: OFF"
