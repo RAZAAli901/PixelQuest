@@ -654,4 +654,62 @@ Following full-screen application of Comic mode across all primary application s
 - **Discoverability Highlight**: Non-naggy one-time highlight ("💥 NEW: COMIC BOOK MODE!") added in Settings, matching Day 19's Simple Mode discoverability pattern.
 
 
+## 14. Master Multi-Theme Specification: Pixel vs. Light vs. Comic Reference Matrix
+
+With the conclusion of Day 23, the PixelQuest multi-theme system is **feature-complete**. The application natively supports three first-class, fully-realized visual design systems:
+
+| Design Dimension | 👾 Retro Pixel (Dark) | ☀️ Clean Light (Day) | 💥 Comic Pop-Art (Graphic Novel) |
+| :--- | :--- | :--- | :--- |
+| **ThemeMode ID** | `ThemeMode.Pixel` (`"pixel"`) | `ThemeMode.Light` (`"light"`) | `ThemeMode.Comic` (`"comic"`) |
+| **Availability** | Default (All users) | Unlocked (Day 17) | Unlocked (Day 23) |
+| **Core Inspiration** | Classic 1980s 8-bit CRT arcade | High-contrast cartridge manuals | Nitnode pop-art graphic novels |
+| **Canvas Background**| Deep slate navy (`#12121E`) | Warm cartridge ivory (`#F8F6F0`) | Warm printed paper (`#FAF8F5`) |
+| **Surface Cards** | Dark retro indigo (`#1A1A2E`) | Crisp daylight white (`#FFFFFF`) | High-contrast panel white (`#FFFFFF`) |
+| **Primary Accent** | Radiant pixel gold (`#FFD700`) | Amber dungeon gold (`#B45309`) | Dynamic coral red (`#FF5A4E`) |
+| **Secondary Accent**| Electric cyan (`#00E5FF`) | Arcade daylight sky (`#0284C7`) | Signature sky blue (`#8ECAE6`) |
+| **Tertiary Accent** | Quest meadow green (`#00E676`) | Forest quest green (`#15803D`) | Lavender container (`#BDB2FF`) |
+| **Quaternary Accent**| Dungeon boss red (`#FF5252`) | Crimson alert red (`#DC2626`) | Burnt orange container (`#F0A868`) |
+| **Typography Family**| `PressStart2P` (Pixelated) | `PressStart2P` / `PixelTypography` | `BangersFontFamily` (Comic headers) |
+| **Border System** | Stepped pixel 9-patches (Kenney) | 2dp hard pixel stone borders | 2.5dp solid black ink contours |
+| **Shadow System** | 2dp hard-step pixel drops | 2dp hard-step pixel drops | 4dp flat offset unblurred drop shadow |
+| **Button Physics** | Instant 8-bit color shift | Instant 8-bit color shift | Tactile +3dp translation into shadow |
+| **CRT Shader** | Operational (When enabled) | Strictly excluded by policy | Strictly excluded by policy |
+| **System Theme Role**| Resolves for System Dark | Resolves for System Light | Explicit user selection only |
+
+### 14.1 Component Theme Family Dispatch Registry (`ComponentThemeFamily`)
+Every dynamic component in PixelQuest dispatches cleanly at runtime based on `PixelTheme.mode`:
+
+```
+                 ┌─────────────────────────────┐
+                 │ ComponentThemeFamily.from() │
+                 └──────────────┬──────────────┘
+                                │
+        ┌───────────────────────┼───────────────────────┐
+        ▼                       ▼                       ▼
+    [PIXEL]                  [LIGHT]                 [COMIC]
+  (Classic 8-bit)        (Daylight Tint)       (Pop-Art Procedural)
+  - PixelButton          - PixelButton (Light)  - ComicButton
+  - PixelCard (9-patch)  - PixelCard (Stone)    - ComicPanel (Black ink)
+  - PixelBottomNavBar    - PixelBottomNavBar    - ComicBottomNavBar
+  - PixelTopAppBar       - PixelTopAppBar       - ComicTopAppBar
+  - PixelProgressBar     - PixelProgressBar     - ComicProgressBar
+  - PixelDailyProgress   - PixelDailyProgress   - ComicDailyProgressRing
+  - PixelXpBar           - PixelXpBar           - ComicXpBar (Energy fill)
+  - PixelAvatarFrame     - PixelAvatarFrame     - ComicAvatarFrame (Ribbons)
+  - PixelSnackbar        - PixelSnackbar        - ComicSnackbar ("ALERT!")
+  - SplashScreen         - SplashScreen         - ComicSplashScreen (Rays)
+```
+
+### 14.2 Maintenance & Extensibility Guidelines
+- **Adding New Components**:
+  - Always wire through the `ComponentThemeFamily` dispatch pattern.
+  - Implement a dedicated comic-styled variant using `ComicShapeTokens` and `ComicTokens`.
+  - Provide a preview harness verifying all three theme modes side-by-side.
+- **Color Scheme Integrity**:
+  - Never hardcode color hexes directly inside screen composables.
+  - Always consume `LocalAppColorScheme.current` or `PixelTheme.colors`.
+- **System Isolation Rule**:
+  - Never configure `ThemeMode.System` to resolve to `Comic`; "Follow System" is architecturally reserved for standard Dark (Pixel) and Light transitions.
+
+
 
