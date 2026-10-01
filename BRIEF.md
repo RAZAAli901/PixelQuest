@@ -2406,4 +2406,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 2: Fix difficulty picker crash: restore ic_diff_easy.xml path data corrupted in Day 22 - 19164db
 - Step 3: Fix onboarding skipped in Pixel/Light: splash timeout reads the current onboardingComplete value - 20503c7
 - Step 4: Fix AI Coach card ignoring opt-in until restart: AiInsightViewModel reloads on aiInsightsEnabled changes - 031c733
-- Step 5: Remove leftover "(Day 17 preview)" text from the Light theme description - pending
+- Step 5: Remove leftover "(Day 17 preview)" text from the Light theme description - 306665e
+- Step 6: Move Gemini model id to GEMINI_MODEL_ID and replace retired gemini-1.5-flash with gemini-2.5-flash - pending

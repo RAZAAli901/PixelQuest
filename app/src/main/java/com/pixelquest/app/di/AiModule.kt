@@ -1,6 +1,7 @@
 package com.pixelquest.app.di
 
 import com.pixelquest.app.BuildConfig
+import com.pixelquest.app.data.remote.GEMINI_MODEL_ID
 import com.pixelquest.app.data.remote.GeminiClient
 import com.pixelquest.app.data.remote.GeminiClientImpl
 import dagger.Module
@@ -32,7 +33,7 @@ object AiModule {
         return GeminiClientImpl(
             apiKeyProvider = { BuildConfig.GEMINI_API_KEY },
             httpClient = httpClient,
-            model = "gemini-1.5-flash"
+            model = GEMINI_MODEL_ID
         )
     }
 

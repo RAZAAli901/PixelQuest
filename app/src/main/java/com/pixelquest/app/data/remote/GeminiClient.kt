@@ -22,6 +22,12 @@ import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 
 /**
+ * Gemini model used for all PixelQuest generation calls. gemini-1.5-flash was retired by Google;
+ * confirm this id against the models list for your API key when upgrading.
+ */
+const val GEMINI_MODEL_ID = "gemini-2.5-flash"
+
+/**
  * Interface representing a remote Google Gemini generative AI client.
  */
 interface GeminiClient {
@@ -54,7 +60,7 @@ class GeminiNetworkException(message: String, cause: Throwable) : GeminiExceptio
 class GeminiClientImpl(
     private val apiKeyProvider: () -> String,
     private val httpClient: HttpClient = HttpClient(Android),
-    private val model: String = "gemini-1.5-flash"
+    private val model: String = GEMINI_MODEL_ID
 ) : GeminiClient {
 
     private val json = Json {
