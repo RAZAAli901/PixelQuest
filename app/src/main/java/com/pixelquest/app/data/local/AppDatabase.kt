@@ -6,12 +6,14 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.pixelquest.app.data.local.dao.DifficultySettingsDao
+import com.pixelquest.app.data.local.dao.InsightCacheDao
 import com.pixelquest.app.data.local.dao.LevelHistoryDao
 import com.pixelquest.app.data.local.dao.StreakDao
 import com.pixelquest.app.data.local.dao.TaskCompletionLogDao
 import com.pixelquest.app.data.local.dao.TaskDao
 import com.pixelquest.app.data.local.dao.UserProfileDao
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
+import com.pixelquest.app.data.local.entity.InsightCacheEntity
 import com.pixelquest.app.data.local.entity.LevelHistoryEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
@@ -25,9 +27,10 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         UserProfileEntity::class,
         DifficultySettingsEntity::class,
         TaskCompletionLogEntity::class,
-        LevelHistoryEntity::class
+        LevelHistoryEntity::class,
+        InsightCacheEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -38,6 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun difficultySettingsDao(): DifficultySettingsDao
     abstract fun taskCompletionLogDao(): TaskCompletionLogDao
     abstract fun levelHistoryDao(): LevelHistoryDao
+    abstract fun insightCacheDao(): InsightCacheDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -52,6 +56,25 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE user_profile ADD COLUMN supabaseUserId TEXT DEFAULT NULL")
                 db.execSQL("ALTER TABLE user_profile ADD COLUMN leaderboardOptIn INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("ALTER TABLE user_profile ADD COLUMN leaderboardDisplayName TEXT DEFAULT NULL")
+            }
+        }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `insight_cache` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `summary` TEXT NOT NULL,
+                        `suggestion` TEXT NOT NULL,
+                        `encouragement` TEXT NOT NULL,
+                        `highlightCategory` TEXT,
+                        `specificTaskCallout` TEXT,
+                        `dataHash` TEXT NOT NULL,
+                        `generatedAt` INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
             }
         }
     }

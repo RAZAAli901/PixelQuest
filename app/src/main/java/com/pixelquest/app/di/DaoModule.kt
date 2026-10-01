@@ -12,6 +12,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+import com.pixelquest.app.data.local.dao.InsightCacheDao
 import com.pixelquest.app.data.local.dao.LevelHistoryDao
 
 @Module
@@ -41,4 +42,8 @@ object DaoModule {
     @Provides
     @Singleton
     fun provideLevelHistoryDao(database: AppDatabase): LevelHistoryDao = database.levelHistoryDao()
+
+    @Provides
+    @Singleton
+    fun provideInsightCacheDao(database: AppDatabase): InsightCacheDao = database.insightCacheDao()
 }

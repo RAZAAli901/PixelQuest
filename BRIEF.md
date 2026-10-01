@@ -2310,6 +2310,7 @@ The following capabilities are deliberately scoped for Day 25:
 
 ## Day 25 Progress Log
 - Step 1: Create InsightCacheEntity with dataHash and insight fields - a7e0fae
+- Step 2: Create InsightCacheDao with insert, getLatest, and deleteOld operations - 930197e
 
 
 
