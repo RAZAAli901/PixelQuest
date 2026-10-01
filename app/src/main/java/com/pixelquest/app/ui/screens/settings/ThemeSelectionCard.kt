@@ -84,7 +84,7 @@ fun ThemeSelectionCard(
             // Light Mode Option
             ThemeOptionRow(
                 title = "☀️ LIGHT (DAY MODE)",
-                subtitle = "Crisp, modern productivity theme (Day 17 preview)",
+                subtitle = "Crisp, modern productivity theme",
                 isSelected = currentTheme == ThemeMode.Light,
                 isComingSoon = false,
                 previewColors = listOf(
