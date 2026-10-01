@@ -2342,6 +2342,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 31: Add graceful UI messaging and theme-dispatched CapReached component when usage limits are hit - bb4a8f6
 - Step 32: Write unit test for daily and monthly cap-enforcement logic across boundary conditions - 8732104
 - Step 33: Add lightweight local usage counter to track calls toward caps efficiently - 02eb696
+- Step 34: Write integration test for full user-facing flow verifying opt-in, generation, caching, and rate limiting - 482c95a
 
 
 
