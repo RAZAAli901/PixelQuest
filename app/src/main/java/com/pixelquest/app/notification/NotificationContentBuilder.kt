@@ -12,7 +12,9 @@ data class ReminderContext(
     val isSimpleMode: Boolean,
     val currentStreak: Int,
     val doneToday: Int,
-    val totalToday: Int
+    val totalToday: Int,
+    /** Minutes until the task's time when the reminder fires early (lead time); 0 = due now. */
+    val startsInMinutes: Int = 0
 )
 
 data class NotificationCopy(
@@ -25,10 +27,12 @@ data class NotificationCopy(
 object NotificationContentBuilder {
 
     fun reminder(ctx: ReminderContext): NotificationCopy {
-        val title = if (ctx.isSimpleMode) {
-            NotificationHelper.getReminderTitle(ctx.taskName, isSimpleMode = true)
-        } else {
-            "${categoryGlyph(ctx.category)} Quest Time: ${ctx.taskName}"
+        val soon = ctx.startsInMinutes > 0
+        val title = when {
+            ctx.isSimpleMode && soon -> "Coming up in ${ctx.startsInMinutes} min: ${ctx.taskName}"
+            ctx.isSimpleMode -> NotificationHelper.getReminderTitle(ctx.taskName, isSimpleMode = true)
+            soon -> "${categoryGlyph(ctx.category)} Quest in ${ctx.startsInMinutes} min: ${ctx.taskName}"
+            else -> "${categoryGlyph(ctx.category)} Quest Time: ${ctx.taskName}"
         }
         val progress = progressLine(ctx)
         val prompt = streakAtRiskLine(ctx) ?: NotificationHelper.getReminderText(ctx.taskName, ctx.isSimpleMode)

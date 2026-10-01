@@ -21,6 +21,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import com.pixelquest.app.data.local.entity.TaskEntity
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -57,7 +59,14 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 val task = taskRepository.getTaskById(taskId).first()
                 if (task == null || !task.isActive || !task.reminderEnabled) return@launch
 
-                postReminder(context, taskId, task.name.ifBlank { taskName }, task.category, task.reminderStyle)
+                postReminder(
+                    context = context,
+                    taskId = taskId,
+                    taskName = task.name.ifBlank { taskName },
+                    category = task.category,
+                    style = task.reminderStyle,
+                    startsInMinutes = minutesUntilTask(task)
+                )
                 // Exact alarms fire once, so arm the next daily/weekly/monthly occurrence now.
                 val occurrenceDate = LocalDateTime.now().plusMinutes(task.reminderLeadMinutes.toLong()).toLocalDate()
                 taskAlarmScheduler.scheduleNextOccurrence(task, handledDate = occurrenceDate)
@@ -72,13 +81,16 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         taskId: Long,
         taskName: String,
         category: TaskCategory,
-        style: ReminderStyle
+        style: ReminderStyle,
+        startsInMinutes: Int
     ) {
         val isSimpleMode = settingsRepository.simpleModeEnabled.first()
         // A SILENT task stays quiet even when reminder sound is on.
         val soundEnabled = settingsRepository.isNotificationSoundEnabled.first() && style != ReminderStyle.SILENT
         val vibrationEnabled = settingsRepository.isNotificationVibrationEnabled.first()
-        val copy = NotificationContentBuilder.reminder(buildReminderContext(taskName, category, isSimpleMode))
+        val copy = NotificationContentBuilder.reminder(
+            buildReminderContext(taskName, category, isSimpleMode).copy(startsInMinutes = startsInMinutes)
+        )
 
         val promptIntent = Intent(context, TaskPromptActivity::class.java).apply {
             putExtra("EXTRA_TASK_ID", taskId)
@@ -149,6 +161,15 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         } catch (e: SecurityException) {
             // Permission missing
         }
+    }
+
+    /** Minutes from now to the task's time on the day this reminder is for (0 if it is due now). */
+    private fun minutesUntilTask(task: TaskEntity): Int {
+        if (task.reminderLeadMinutes <= 0) return 0
+        val now = LocalDateTime.now()
+        val taskDate = now.plusMinutes(task.reminderLeadMinutes.toLong()).toLocalDate()
+        val minutes = Duration.between(now, LocalDateTime.of(taskDate, task.scheduledTime)).toMinutes()
+        return if (minutes >= 1) minutes.toInt() else 0
     }
 
     private suspend fun buildReminderContext(
