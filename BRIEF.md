@@ -2339,6 +2339,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 28: Decide and document visual framing adjustments under Simple Mode and adapt UI presentation - 98f7819
 - Step 29: Add UI test for Simple Mode + AI Insights interaction verifying framing and cache separation - d9a9149
 - Step 30: Add hard daily and monthly caps on Gemini calls and document safeguards in AI_INSIGHTS.md - ba69abf
+- Step 31: Add graceful UI messaging and theme-dispatched CapReached component when usage limits are hit - bb4a8f6
 
 
 
