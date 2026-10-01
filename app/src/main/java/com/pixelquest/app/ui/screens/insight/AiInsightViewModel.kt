@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.remote.GeminiResult
 import com.pixelquest.app.domain.repository.HabitInsightRepository
+import com.pixelquest.app.domain.repository.InsightCacheRepository
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,15 +16,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Step 11: ViewModel orchestrating the AI habit insights screen.
- * Wires HabitInsightRepository and SettingsRepository's aiInsightsEnabled,
- * exposing reactive AiInsightUiState across Loading, Success, Error, Disabled, RateLimited, and NotEnoughData.
+ * Step 11 & 12: ViewModel orchestrating the AI habit insights screen.
+ * Wires HabitInsightRepository, InsightCacheRepository, and SettingsRepository's aiInsightsEnabled.
+ * Requests cached insight on load for instant display, only calling Gemini fresh when the cache
+ * is stale or missing and the 6-hour rate limit allows it.
  */
 @HiltViewModel
 class AiInsightViewModel @Inject constructor(
     private val habitInsightRepository: HabitInsightRepository,
     private val settingsRepository: SettingsRepository,
-    private val taskCompletionRepository: TaskCompletionRepository
+    private val taskCompletionRepository: TaskCompletionRepository,
+    private val insightCacheRepository: InsightCacheRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AiInsightUiState>(AiInsightUiState.Loading)
@@ -35,8 +38,6 @@ class AiInsightViewModel @Inject constructor(
 
     fun loadInsight(forceRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = AiInsightUiState.Loading
-
             val isOptedIn = try { settingsRepository.aiInsightsEnabled.first() } catch (e: Exception) { false }
             if (!isOptedIn) {
                 _uiState.value = AiInsightUiState.Disabled()
@@ -51,50 +52,67 @@ class AiInsightViewModel @Inject constructor(
                 return@launch
             }
 
-            // Request insight (cache-first unless forceRefresh = true)
-            val result = habitInsightRepository.generateHabitInsight(forceRefresh = forceRefresh)
+            // Fast path on initial load: immediately show existing cache if available
+            val cachedEntry = insightCacheRepository.getLatestInsight()
             val cooldown = habitInsightRepository.getRemainingCooldownSeconds()
+
+            if (!forceRefresh && cachedEntry != null) {
+                val cachedResponse = cachedEntry.toInsightResponse()
+                _uiState.value = AiInsightUiState.Success(
+                    insight = cachedResponse,
+                    isCached = true,
+                    remainingCooldownSeconds = cooldown,
+                    canRefresh = cooldown == 0L
+                )
+            } else if (_uiState.value !is AiInsightUiState.Success) {
+                _uiState.value = AiInsightUiState.Loading
+            }
+
+            // Request insight via repository (validates dataHash, staleness, and rate limit)
+            val result = habitInsightRepository.generateHabitInsight(forceRefresh = forceRefresh)
+            val updatedCooldown = habitInsightRepository.getRemainingCooldownSeconds()
 
             _uiState.value = when (result) {
                 is GeminiResult.Success -> {
+                    val wasCached = cachedEntry != null && cachedEntry.generatedAt == result.data.generatedAt
                     AiInsightUiState.Success(
                         insight = result.data,
-                        isCached = !forceRefresh,
-                        remainingCooldownSeconds = cooldown,
-                        canRefresh = cooldown == 0L
+                        isCached = wasCached,
+                        remainingCooldownSeconds = updatedCooldown,
+                        canRefresh = updatedCooldown == 0L
                     )
                 }
                 is GeminiResult.Disabled -> AiInsightUiState.Disabled(result.message)
                 is GeminiResult.RateLimited -> {
-                    val last = habitInsightRepository.latestInsight.first()
+                    val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()
                     AiInsightUiState.RateLimited(
-                        retryAfterSeconds = result.retryAfterSeconds ?: cooldown,
+                        retryAfterSeconds = result.retryAfterSeconds ?: updatedCooldown,
                         message = result.message,
-                        lastInsight = last
+                        lastInsight = fallback
                     )
                 }
                 is GeminiResult.NetworkError -> {
-                    val last = habitInsightRepository.latestInsight.first()
+                    val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()
                     AiInsightUiState.Error(
                         message = result.message,
                         canRetry = true,
-                        fallbackInsight = last
+                        fallbackInsight = fallback
                     )
                 }
                 is GeminiResult.ApiError -> {
-                    val last = habitInsightRepository.latestInsight.first()
+                    val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()
                     AiInsightUiState.Error(
                         message = result.message,
                         canRetry = true,
-                        fallbackInsight = last
+                        fallbackInsight = fallback
                     )
                 }
                 is GeminiResult.MalformedResponse -> {
-                    val last = habitInsightRepository.latestInsight.first()
+                    val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()
                     AiInsightUiState.Error(
                         message = "Could not parse AI response: ${result.message}",
                         canRetry = true,
-                        fallbackInsight = last
+                        fallbackInsight = fallback
                     )
                 }
             }

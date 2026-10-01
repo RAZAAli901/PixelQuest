@@ -2319,6 +2319,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 8: Add clear in-app message and AiRateLimitFormatter for throttled insight requests - c01d194
 - Step 9: Write unit test for rate-limit enforcement across boundary conditions - 19408f7
 - Step 10: Manual QA verification confirming rapid repeated requests hit rate limit without spamming Gemini - 594752b
+- Step 11: Create AiInsightViewModel exposing reactive AiInsightUiState - bb0587e
 
 
 
