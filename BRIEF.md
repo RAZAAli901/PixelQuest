@@ -2448,4 +2448,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 44: Add EncouragementMessagesTest (9 tests): sanitizer, JSON parsing, aggregate-only prompt, provider fallback and pack store - 9994452
 - Step 45: Notify on the AI Coach channel when the insight cooldown ends (only while AI Coach and notifications are on) - a5ba0a4
 - Step 46: Add InsightReadyWorkerTest (Robolectric + work-testing): posts on the AI Coach channel only when allowed - 1569c13
-- Step 47: Fix reminders never scheduling on Android 14: fall back to an inexact alarm when exact alarms aren't allowed - pending
+- Step 47: Fix reminders never scheduling on Android 14: fall back to an inexact alarm when exact alarms aren't allowed - 289b999
+- Step 48: Settings prompts for exact reminder times when Android blocks them, and reminders re-arm when that permission changes - pending

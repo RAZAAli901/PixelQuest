@@ -25,7 +25,7 @@ class BootReceiver : BroadcastReceiver() {
     lateinit var settingsRepository: SettingsRepository
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED || intent.action == ACTION_EXACT_ALARM_PERMISSION_CHANGED) {
             val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
@@ -40,5 +40,11 @@ class BootReceiver : BroadcastReceiver() {
                 }
             }
         }
+    }
+
+    companion object {
+        /** AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED (API 31). */
+        const val ACTION_EXACT_ALARM_PERMISSION_CHANGED =
+            "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"
     }
 }

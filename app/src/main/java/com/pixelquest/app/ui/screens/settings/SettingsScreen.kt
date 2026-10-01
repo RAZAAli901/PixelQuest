@@ -113,6 +113,10 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             if (state.isNotificationsEnabled) {
+                ExactAlarmPrompt(
+                    canScheduleExact = { viewModel.canScheduleExactAlarms() },
+                    onAllow = { context.startActivity(viewModel.exactAlarmSettingsIntent()) }
+                )
                 val reminderSoundOn by viewModel.isReminderSoundEnabled.collectAsState()
                 PixelButton(
                     text = if (reminderSoundOn) "🔊 REMINDER SOUND: ON" else "🔇 REMINDER SOUND: OFF",

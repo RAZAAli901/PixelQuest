@@ -120,6 +120,11 @@ class SettingsViewModel @Inject constructor(
         initialValue = SettingsUiState()
     )
 
+    /** False on Android 12+ until the user allows "Alarms & reminders"; reminders may then run late. */
+    fun canScheduleExactAlarms(): Boolean = taskAlarmScheduler.canScheduleExactAlarms()
+
+    fun exactAlarmSettingsIntent(): android.content.Intent = taskAlarmScheduler.openExactAlarmSettingsIntent()
+
     /** Off sends reminders to the silent channel (see NotificationChannels.reminderChannel). */
     val isReminderSoundEnabled: StateFlow<Boolean> = settingsRepository.isNotificationSoundEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
