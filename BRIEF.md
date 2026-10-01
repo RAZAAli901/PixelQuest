@@ -2432,4 +2432,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 28: Include per-task reminder settings in JSON backup export and import (older backups keep defaults) - 7118e5c
 - Step 29: Scheduler applies each task's reminder lead time and skips tasks whose reminders are turned off - ab9a713
 - Step 30: Reminder styles: SILENT uses the silent channel, PROMPT opens the full-screen prompt where Android allows it - ada1747
-- Step 31: Early reminders say how soon the task starts ("Quest in 15 min" / "Coming up in 15 min") - pending
+- Step 31: Early reminders say how soon the task starts ("Quest in 15 min" / "Coming up in 15 min") - e1b9968
+- Step 32: Add Migration4To5Test (Robolectric): existing tasks keep default reminder settings; style converter and lead-time copy - pending
