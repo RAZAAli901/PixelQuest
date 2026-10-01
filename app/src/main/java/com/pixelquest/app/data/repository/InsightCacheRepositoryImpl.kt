@@ -12,10 +12,16 @@ import javax.inject.Singleton
  * Step 4: Implementation of [InsightCacheRepository] backed by Room's [InsightCacheDao].
  */
 @Singleton
-class InsightCacheRepositoryImpl @Inject constructor(
+class InsightCacheRepositoryImpl(
     private val insightCacheDao: InsightCacheDao,
-    private val clock: () -> Long = { System.currentTimeMillis() }
+    private val clock: () -> Long
 ) : InsightCacheRepository {
+
+    @Inject
+    constructor(insightCacheDao: InsightCacheDao) : this(
+        insightCacheDao = insightCacheDao,
+        clock = { System.currentTimeMillis() }
+    )
 
     override suspend fun saveInsight(response: HabitInsightResponse, dataHash: String) {
         val entity = InsightCacheEntity.fromInsightResponse(response, dataHash)

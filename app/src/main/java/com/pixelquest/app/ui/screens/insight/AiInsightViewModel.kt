@@ -135,7 +135,30 @@ class AiInsightViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Step 15: Manual action to refresh insight.
+     * Evaluates the rate-limit cooldown window and blocks refresh if cooldown is active,
+     * updating state to RateLimited with remaining cooldown countdown.
+     */
     fun refreshInsight() {
-        loadInsight(forceRefresh = true)
+        viewModelScope.launch {
+            val cooldown = habitInsightRepository.getRemainingCooldownSeconds()
+            if (cooldown > 0L) {
+                val current = _uiState.value
+                val fallback = when (current) {
+                    is AiInsightUiState.Success -> current.insight
+                    is AiInsightUiState.RateLimited -> current.lastInsight
+                    is AiInsightUiState.Error -> current.fallbackInsight
+                    else -> null
+                }
+                _uiState.value = AiInsightUiState.RateLimited(
+                    retryAfterSeconds = cooldown,
+                    message = com.pixelquest.app.domain.ai.AiRateLimitFormatter.formatCooldownMessage(cooldown),
+                    lastInsight = fallback
+                )
+                return@launch
+            }
+            loadInsight(forceRefresh = true)
+        }
     }
 }

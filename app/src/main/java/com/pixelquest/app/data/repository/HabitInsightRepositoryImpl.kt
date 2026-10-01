@@ -22,15 +22,14 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class HabitInsightRepositoryImpl @Inject constructor(
+class HabitInsightRepositoryImpl(
     private val streakRepository: StreakRepository,
     private val userProfileRepository: UserProfileRepository,
     private val taskRepository: TaskRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
     private val settingsRepository: SettingsRepository,
     private val geminiClient: GeminiClient,
-    private val insightCacheRepository: InsightCacheRepository,
+    private val insightCacheRepository: InsightCacheRepository = NoOpInsightCacheRepository(),
     private val toneHook: HabitInsightToneHook = DefaultHabitInsightToneHook(),
     private val clock: () -> Long = { System.currentTimeMillis() }
 ) : HabitInsightRepository {

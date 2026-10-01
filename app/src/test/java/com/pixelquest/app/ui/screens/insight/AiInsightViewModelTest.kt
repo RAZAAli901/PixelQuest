@@ -247,4 +247,61 @@ class AiInsightViewModelTest {
         assertTrue(error.canRetry)
         assertEquals("Network connection unavailable.", error.message)
     }
+
+    @Test
+    fun refreshInsight_whenCooldownActive_blocksRefreshAndSetsRateLimitedState() = runTest {
+        val settingsRepo = FakeSettingsRepository()
+        val completionRepo = FakeCompletionRepository()
+        populateSufficientLogs(completionRepo)
+
+        val habitRepo = FakeHabitInsightRepository()
+        val viewModel = AiInsightViewModel(
+            habitInsightRepository = habitRepo,
+            settingsRepository = settingsRepo,
+            taskCompletionRepository = completionRepo,
+            insightCacheRepository = FakeCacheRepository()
+        )
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value is AiInsightUiState.Success)
+
+        // Now set cooldown active
+        habitRepo.cooldownSeconds = 3600L
+        viewModel.refreshInsight()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue("State must be RateLimited during cooldown", state is AiInsightUiState.RateLimited)
+        val rateLimited = state as AiInsightUiState.RateLimited
+        assertEquals(3600L, rateLimited.retryAfterSeconds)
+        assertNotNull(rateLimited.lastInsight)
+    }
+
+    @Test
+    fun refreshInsight_whenCooldownZero_forcesRefresh() = runTest {
+        val settingsRepo = FakeSettingsRepository()
+        val completionRepo = FakeCompletionRepository()
+        populateSufficientLogs(completionRepo)
+
+        val habitRepo = FakeHabitInsightRepository()
+        val viewModel = AiInsightViewModel(
+            habitInsightRepository = habitRepo,
+            settingsRepository = settingsRepo,
+            taskCompletionRepository = completionRepo,
+            insightCacheRepository = FakeCacheRepository()
+        )
+        advanceUntilIdle()
+
+        habitRepo.cooldownSeconds = 0L
+        habitRepo.generateResult = GeminiResult.Success(
+            HabitInsightResponse("Refreshed Summary", "Refreshed Suggestion", "Refreshed Cheer", generatedAt = 2000L)
+        )
+        viewModel.refreshInsight()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue("State must be Success", state is AiInsightUiState.Success)
+        val success = state as AiInsightUiState.Success
+        assertEquals("Refreshed Summary", success.insight.summary)
+        assertTrue(success.canRefresh)
+    }
 }

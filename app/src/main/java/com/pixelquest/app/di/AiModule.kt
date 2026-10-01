@@ -39,6 +39,22 @@ object AiModule {
     @Provides
     @Singleton
     fun provideHabitInsightRepository(
-        impl: com.pixelquest.app.data.repository.HabitInsightRepositoryImpl
-    ): com.pixelquest.app.domain.repository.HabitInsightRepository = impl
+        streakRepository: com.pixelquest.app.domain.repository.StreakRepository,
+        userProfileRepository: com.pixelquest.app.domain.repository.UserProfileRepository,
+        taskRepository: com.pixelquest.app.domain.repository.TaskRepository,
+        taskCompletionRepository: com.pixelquest.app.domain.repository.TaskCompletionRepository,
+        settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository,
+        geminiClient: GeminiClient,
+        insightCacheRepository: com.pixelquest.app.domain.repository.InsightCacheRepository
+    ): com.pixelquest.app.domain.repository.HabitInsightRepository {
+        return com.pixelquest.app.data.repository.HabitInsightRepositoryImpl(
+            streakRepository = streakRepository,
+            userProfileRepository = userProfileRepository,
+            taskRepository = taskRepository,
+            taskCompletionRepository = taskCompletionRepository,
+            settingsRepository = settingsRepository,
+            geminiClient = geminiClient,
+            insightCacheRepository = insightCacheRepository
+        )
+    }
 }
