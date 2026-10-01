@@ -55,7 +55,8 @@ object AiModule {
         settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository,
         geminiClient: GeminiClient,
         insightCacheRepository: com.pixelquest.app.domain.repository.InsightCacheRepository,
-        aiUsageTracker: com.pixelquest.app.domain.ai.AiUsageTracker
+        aiUsageTracker: com.pixelquest.app.domain.ai.AiUsageTracker,
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
     ): com.pixelquest.app.domain.repository.HabitInsightRepository {
         return com.pixelquest.app.data.repository.HabitInsightRepositoryImpl(
             streakRepository = streakRepository,
@@ -65,7 +66,13 @@ object AiModule {
             settingsRepository = settingsRepository,
             geminiClient = geminiClient,
             insightCacheRepository = insightCacheRepository,
-            usageTracker = aiUsageTracker
+            usageTracker = aiUsageTracker,
+            onLiveInsightGenerated = {
+                com.pixelquest.app.worker.InsightReadyWorker.scheduleAfter(
+                    context,
+                    com.pixelquest.app.data.repository.HabitInsightRepositoryImpl.MIN_CALL_INTERVAL_MS
+                )
+            }
         )
     }
 }

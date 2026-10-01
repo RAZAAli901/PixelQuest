@@ -32,7 +32,9 @@ class HabitInsightRepositoryImpl(
     private val insightCacheRepository: InsightCacheRepository = NoOpInsightCacheRepository(),
     private val toneHook: HabitInsightToneHook = DefaultHabitInsightToneHook(),
     private val usageTracker: com.pixelquest.app.domain.ai.AiUsageTracker = com.pixelquest.app.domain.ai.InMemoryAiUsageTracker(),
-    private val clock: () -> Long = { System.currentTimeMillis() }
+    private val clock: () -> Long = { System.currentTimeMillis() },
+    /** Called after each live Gemini insight with the call time (Day 26: schedules the "ready" notification). */
+    private val onLiveInsightGenerated: (Long) -> Unit = {}
 ) : HabitInsightRepository {
 
     constructor(
@@ -162,6 +164,7 @@ class HabitInsightRepositoryImpl(
                     // Update persistent rate limit timestamp
                     val callTime = clock()
                     try { settingsRepository.setLastAiInsightTimestamp(callTime) } catch (_: Exception) {}
+                    try { onLiveInsightGenerated(callTime) } catch (_: Exception) {}
                     GeminiResult.Success(parsed)
                 } catch (e: Exception) {
                     GeminiResult.MalformedResponse(
