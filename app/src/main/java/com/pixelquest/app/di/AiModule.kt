@@ -38,6 +38,14 @@ object AiModule {
 
     @Provides
     @Singleton
+    fun provideAiUsageTracker(
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
+    ): com.pixelquest.app.domain.ai.AiUsageTracker {
+        return com.pixelquest.app.data.local.prefs.PreferencesAiUsageTracker(context)
+    }
+
+    @Provides
+    @Singleton
     fun provideHabitInsightRepository(
         streakRepository: com.pixelquest.app.domain.repository.StreakRepository,
         userProfileRepository: com.pixelquest.app.domain.repository.UserProfileRepository,
@@ -45,7 +53,8 @@ object AiModule {
         taskCompletionRepository: com.pixelquest.app.domain.repository.TaskCompletionRepository,
         settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository,
         geminiClient: GeminiClient,
-        insightCacheRepository: com.pixelquest.app.domain.repository.InsightCacheRepository
+        insightCacheRepository: com.pixelquest.app.domain.repository.InsightCacheRepository,
+        aiUsageTracker: com.pixelquest.app.domain.ai.AiUsageTracker
     ): com.pixelquest.app.domain.repository.HabitInsightRepository {
         return com.pixelquest.app.data.repository.HabitInsightRepositoryImpl(
             streakRepository = streakRepository,
@@ -54,7 +63,8 @@ object AiModule {
             taskCompletionRepository = taskCompletionRepository,
             settingsRepository = settingsRepository,
             geminiClient = geminiClient,
-            insightCacheRepository = insightCacheRepository
+            insightCacheRepository = insightCacheRepository,
+            usageTracker = aiUsageTracker
         )
     }
 }

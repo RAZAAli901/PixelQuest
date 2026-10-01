@@ -31,6 +31,7 @@ class HabitInsightRepositoryImpl(
     private val geminiClient: GeminiClient,
     private val insightCacheRepository: InsightCacheRepository = NoOpInsightCacheRepository(),
     private val toneHook: HabitInsightToneHook = DefaultHabitInsightToneHook(),
+    private val usageTracker: com.pixelquest.app.domain.ai.AiUsageTracker = com.pixelquest.app.domain.ai.InMemoryAiUsageTracker(),
     private val clock: () -> Long = { System.currentTimeMillis() }
 ) : HabitInsightRepository {
 
@@ -51,6 +52,7 @@ class HabitInsightRepositoryImpl(
         geminiClient = geminiClient,
         insightCacheRepository = NoOpInsightCacheRepository(),
         toneHook = toneHook,
+        usageTracker = com.pixelquest.app.domain.ai.InMemoryAiUsageTracker(),
         clock = { System.currentTimeMillis() }
     )
 
@@ -124,6 +126,20 @@ class HabitInsightRepositoryImpl(
             )
         }
 
+        // Step 30 & 33: Check hard daily and monthly usage caps before dispatching live Gemini call
+        if (!usageTracker.canMakeCall()) {
+            val isMonthly = usageTracker.isMonthlyCapReached()
+            val message = if (isMonthly) {
+                "Monthly AI insight limit reached (${com.pixelquest.app.domain.ai.AiUsagePolicy.MAX_CALLS_PER_MONTH}/${com.pixelquest.app.domain.ai.AiUsagePolicy.MAX_CALLS_PER_MONTH} calls). Resets next month."
+            } else {
+                "You've reached today's insight limit (${com.pixelquest.app.domain.ai.AiUsagePolicy.MAX_CALLS_PER_DAY}/${com.pixelquest.app.domain.ai.AiUsagePolicy.MAX_CALLS_PER_DAY} calls). Check back tomorrow!"
+            }
+            return GeminiResult.RateLimited(
+                retryAfterSeconds = if (isMonthly) 86400L * 7 else 86400L,
+                message = message
+            )
+        }
+
         val prompt = HabitInsightPromptBuilder.buildPrompt(telemetry, tone)
         val systemInstruction = HabitInsightPromptBuilder.buildSystemInstruction(tone)
 
@@ -141,6 +157,8 @@ class HabitInsightRepositoryImpl(
                     _latestInsight.value = parsed
                     // Persist to local cache with dataHash
                     insightCacheRepository.saveInsight(parsed, dataHash)
+                    // Step 33: Record usage toward daily and monthly caps
+                    usageTracker.recordCall()
                     // Update persistent rate limit timestamp
                     val callTime = clock()
                     try { settingsRepository.setLastAiInsightTimestamp(callTime) } catch (_: Exception) {}

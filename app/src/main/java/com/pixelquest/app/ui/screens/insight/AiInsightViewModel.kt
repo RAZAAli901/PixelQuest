@@ -110,11 +110,19 @@ class AiInsightViewModel @Inject constructor(
                 is GeminiResult.Disabled -> AiInsightUiState.Disabled(result.message)
                 is GeminiResult.RateLimited -> {
                     val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()
-                    AiInsightUiState.RateLimited(
-                        retryAfterSeconds = result.retryAfterSeconds ?: updatedCooldown,
-                        message = result.message,
-                        lastInsight = fallback
-                    )
+                    if (result.message.contains("limit", ignoreCase = true) || result.message.contains("cap", ignoreCase = true)) {
+                        AiInsightUiState.CapReached(
+                            message = result.message,
+                            isMonthly = result.message.contains("monthly", ignoreCase = true),
+                            lastInsight = fallback
+                        )
+                    } else {
+                        AiInsightUiState.RateLimited(
+                            retryAfterSeconds = result.retryAfterSeconds ?: updatedCooldown,
+                            message = result.message,
+                            lastInsight = fallback
+                        )
+                    }
                 }
                 is GeminiResult.NetworkError -> {
                     val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()

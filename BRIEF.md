@@ -2340,6 +2340,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 29: Add UI test for Simple Mode + AI Insights interaction verifying framing and cache separation - d9a9149
 - Step 30: Add hard daily and monthly caps on Gemini calls and document safeguards in AI_INSIGHTS.md - ba69abf
 - Step 31: Add graceful UI messaging and theme-dispatched CapReached component when usage limits are hit - bb4a8f6
+- Step 32: Write unit test for daily and monthly cap-enforcement logic across boundary conditions - 8732104
 
 
 
