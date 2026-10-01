@@ -9,9 +9,11 @@ import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,6 +33,13 @@ class AiInsightViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<AiInsightUiState>(AiInsightUiState.Loading)
     val uiState: StateFlow<AiInsightUiState> = _uiState.asStateFlow()
+
+    val isSimpleMode: StateFlow<Boolean> = settingsRepository.simpleModeEnabled
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
 
     init {
         loadInsight(forceRefresh = false)

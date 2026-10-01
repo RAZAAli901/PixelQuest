@@ -207,6 +207,14 @@ When implementing the visual UI suppression in Day 19, developers must adhere to
 ### 6. CRT Filter Overlay (`PixelCrtOverlay.kt`)
 - Verify that `MainActivity.kt` continues to enforce `CrtFilterPolicy.shouldApplyCrt(..., isSimpleModeEnabled) == false`, preventing any scanlines from rendering while Simple Mode is active.
 
+### 7. AI Habit Insights (`PixelAiInsightView.kt`, `AiInsightScreen.kt`)
+- **When `isSimpleMode == true`**:
+  - Persona title shifts from `"QUESTMASTER COACH"` to `"HABIT COACH"`.
+  - Arcane Sage avatar (`🧙`) is replaced with clean habit growth icon (`🌱`) and emerald border.
+  - Section telemetry tags shift from `"► HEROIC BLESSING"` to `"► DAILY PERSPECTIVE"` and `"► STRATEGIC PROTOCOL"` to `"► SUGGESTED ACTION"`.
+  - Telemetry header displays `[HABIT TELEMETRY]` instead of `[QUEST TELEMETRY]`.
+  - Gemini prompt pipeline employs `HabitInsightTone.SIMPLE_MINIMALIST` producing calm, un-gamified habit copy without battle or level metaphors.
+
 ---
 
 ## Day 19 Completion Checklist & Final Sign-Off

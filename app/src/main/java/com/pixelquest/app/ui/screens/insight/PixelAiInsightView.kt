@@ -41,6 +41,7 @@ fun PixelAiInsightView(
     uiState: AiInsightUiState,
     onRefresh: () -> Unit,
     onNavigateToSettings: (() -> Unit)?,
+    isSimpleMode: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val colors = PixelTheme.colors
@@ -50,7 +51,7 @@ fun PixelAiInsightView(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Retro Arcade Questmaster Header Banner
+        // Retro Arcade Questmaster / Habit Coach Header Banner
         PixelCard(
             variant = PixelPanelVariant.BEIGE,
             modifier = Modifier.fillMaxWidth(),
@@ -60,22 +61,22 @@ fun PixelAiInsightView(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 8-bit Sage Avatar frame
+                // Avatar frame: Wizard/Sage in gamified mode, Nature sprout in simple mode
                 Box(
                     modifier = Modifier
                         .size(44.dp)
-                        .background(Color(0xFF2E1065))
-                        .border(2.dp, Color(0xFFFBBF24)),
+                        .background(if (isSimpleMode) Color(0xFF064E3B) else Color(0xFF2E1065))
+                        .border(2.dp, if (isSimpleMode) Color(0xFF10B981) else Color(0xFFFBBF24)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "🧙", fontSize = 24.sp)
+                    Text(text = if (isSimpleMode) "🌱" else "🧙", fontSize = 24.sp)
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "QUESTMASTER COACH",
+                        text = if (isSimpleMode) "HABIT COACH" else "QUESTMASTER COACH",
                         style = PixelTypography.titleMedium,
                         color = colors.primary,
                         fontWeight = FontWeight.Bold
@@ -90,7 +91,7 @@ fun PixelAiInsightView(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "SYS.GEMINI.AI // ONLINE",
+                            text = if (isSimpleMode) "SYS.HABIT.AI // ONLINE" else "SYS.GEMINI.AI // ONLINE",
                             style = PixelTypography.labelSmall,
                             color = Color(0xFF10B981),
                             fontSize = 9.sp
@@ -107,6 +108,7 @@ fun PixelAiInsightView(
             is AiInsightUiState.Success -> {
                 PixelSuccessCard(
                     uiState = uiState,
+                    isSimpleMode = isSimpleMode,
                     onRefresh = {
                         soundManager?.playClickSound()
                         onRefresh()
@@ -130,6 +132,7 @@ fun PixelAiInsightView(
 fun PixelSuccessCard(
     uiState: AiInsightUiState.Success,
     onRefresh: () -> Unit,
+    isSimpleMode: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val insight = uiState.insight
@@ -148,9 +151,9 @@ fun PixelSuccessCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "[QUEST TELEMETRY]",
+                    text = if (isSimpleMode) "[HABIT TELEMETRY]" else "[QUEST TELEMETRY]",
                     style = PixelTypography.labelMedium,
-                    color = Color(0xFFFBBF24),
+                    color = if (isSimpleMode) Color(0xFF34D399) else Color(0xFFFBBF24),
                     fontWeight = FontWeight.Bold
                 )
 
@@ -173,7 +176,7 @@ fun PixelSuccessCard(
 
             // Section 1: Observation Scan
             PixelTelemetryBlock(
-                tag = "► OBSERVATION SCAN",
+                tag = if (isSimpleMode) "► HABIT PATTERN SCAN" else "► OBSERVATION SCAN",
                 body = insight.summary,
                 tagColor = Color(0xFF60A5FA),
                 bodyColor = colors.onSurface
@@ -181,9 +184,9 @@ fun PixelSuccessCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Section 2: Strategic Protocol
+            // Section 2: Strategic Protocol / Suggested Adjustment
             PixelTelemetryBlock(
-                tag = "► STRATEGIC PROTOCOL",
+                tag = if (isSimpleMode) "► SUGGESTED ACTION" else "► STRATEGIC PROTOCOL",
                 body = insight.suggestion,
                 tagColor = Color(0xFF34D399),
                 bodyColor = colors.onSurface
@@ -191,12 +194,12 @@ fun PixelSuccessCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Section 3: Heroic Blessing
+            // Section 3: Daily Perspective / Heroic Blessing
             PixelTelemetryBlock(
-                tag = "► HEROIC BLESSING",
+                tag = if (isSimpleMode) "► DAILY PERSPECTIVE" else "► HEROIC BLESSING",
                 body = insight.encouragement,
-                tagColor = Color(0xFFFBBF24),
-                bodyColor = Color(0xFFFDE68A)
+                tagColor = if (isSimpleMode) Color(0xFF34D399) else Color(0xFFFBBF24),
+                bodyColor = if (isSimpleMode) colors.onSurface else Color(0xFFFDE68A)
             )
 
             Spacer(modifier = Modifier.height(16.dp))

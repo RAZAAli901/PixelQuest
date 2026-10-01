@@ -36,10 +36,12 @@ fun AiInsightScreen(
     onNavigateToSettings: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isSimpleMode by viewModel.isSimpleMode.collectAsState()
 
     AiInsightScreenContent(
         modifier = modifier,
         uiState = uiState,
+        isSimpleMode = isSimpleMode,
         onRefresh = { viewModel.refreshInsight() },
         onNavigateBack = onNavigateBack,
         onNavigateToSettings = onNavigateToSettings
@@ -50,6 +52,7 @@ fun AiInsightScreen(
 fun AiInsightScreenContent(
     modifier: Modifier = Modifier,
     uiState: AiInsightUiState,
+    isSimpleMode: Boolean = false,
     onRefresh: () -> Unit,
     onNavigateBack: (() -> Unit)? = null,
     onNavigateToSettings: (() -> Unit)? = null
@@ -61,9 +64,10 @@ fun AiInsightScreenContent(
         modifier = modifier.fillMaxSize(),
         topBar = {
             PixelTopAppBar(
-                title = when (themeMode) {
-                    ThemeMode.Comic -> "AI QUESTMASTER"
-                    ThemeMode.Light -> "Habit Insights"
+                title = when {
+                    isSimpleMode -> "HABIT COACH"
+                    themeMode == ThemeMode.Comic -> "AI QUESTMASTER"
+                    themeMode == ThemeMode.Light -> "Habit Insights"
                     else -> "AI COACH"
                 },
                 navigationIcon = if (onNavigateBack != null) {
@@ -106,7 +110,8 @@ fun AiInsightScreenContent(
                     AiInsightPixelDispatch(
                         uiState = uiState,
                         onRefresh = onRefresh,
-                        onNavigateToSettings = onNavigateToSettings
+                        onNavigateToSettings = onNavigateToSettings,
+                        isSimpleMode = isSimpleMode
                     )
                 }
             }
@@ -118,7 +123,8 @@ fun AiInsightScreenContent(
 fun AiInsightPixelDispatch(
     uiState: AiInsightUiState,
     onRefresh: () -> Unit,
-    onNavigateToSettings: (() -> Unit)?
+    onNavigateToSettings: (() -> Unit)?,
+    isSimpleMode: Boolean = false
 ) {
     Column(
         modifier = Modifier
@@ -130,7 +136,8 @@ fun AiInsightPixelDispatch(
         PixelAiInsightView(
             uiState = uiState,
             onRefresh = onRefresh,
-            onNavigateToSettings = onNavigateToSettings
+            onNavigateToSettings = onNavigateToSettings,
+            isSimpleMode = isSimpleMode
         )
     }
 }

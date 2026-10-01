@@ -201,3 +201,30 @@ PixelQuest resolves the discoverability placement by surfacing AI Habit Insights
    - On `TodayScreen`, an opt-in card smoothly communicates value when disabled, and blossoms into a live coaching HUD once enabled.
 4. **Focused Drilldown Accessibility**:
    - In addition to the dashboard card, `Screen.AiInsight.route` enables full-screen debriefs, deep-links from notifications, or tap-to-expand workflows without nav bar bloat.
+
+---
+
+## 13. Architectural Decision: Simple Mode Visual Framing Adaptation (Day 25 Step 28)
+
+### 13.1 Decision: Adjust Visual Framing Dynamically Under Simple Mode
+PixelQuest formally decides that the AI Insights UI itself must dynamically adjust its visual framing when Simple Mode is active, extending beyond prompt-level copy generation to align visual aesthetics with the user's desire for un-gamified habit tracking.
+
+### 13.2 Visual Treatment Comparison
+
+| Visual Element | Gamified Mode (Default) | Simple Mode (`isSimpleMode = true`) |
+| :--- | :--- | :--- |
+| **Top App Bar Title** | `"AI COACH"` / `"AI QUESTMASTER"` | `"HABIT COACH"` |
+| **Avatar Icon** | `🧙` (8-Bit Arcane Sage) | `🌱` (Clean Habit Sprout) |
+| **Avatar Frame Color** | `#2E1065` (Arcane Violet) / Gold border | `#064E3B` (Calm Forest) / Emerald border |
+| **Header Persona Title** | `"QUESTMASTER COACH"` | `"HABIT COACH"` |
+| **System Status Tag** | `SYS.GEMINI.AI // ONLINE` | `SYS.HABIT.AI // ONLINE` |
+| **Telemetry Badge** | `[QUEST TELEMETRY]` (Gold) | `[HABIT TELEMETRY]` (Emerald) |
+| **Summary Tag** | `► OBSERVATION SCAN` | `► HABIT PATTERN SCAN` |
+| **Action Tag** | `► STRATEGIC PROTOCOL` | `► SUGGESTED ACTION` |
+| **Encouragement Tag** | `► HEROIC BLESSING` | `► DAILY PERSPECTIVE` |
+
+### 13.3 Design Rationale
+1. **Elimination of Cognitive Dissonance**: Generating serene, pragmatic habit copy (e.g. "Focus on consistent morning hydration routines") inside a card adorned with an RPG wizard avatar, "HEROIC BLESSING", and "QUESTMASTER COACH" headers produces jarring visual conflict.
+2. **Respecting Simple Mode Philosophy**: Simple Mode users explicitly opted out of gamification, levels, and fantasy framing. The AI coach UI honors this contract by presenting a clean, objective coaching dashboard while preserving the chosen theme's surface identity (Pixel, Light, or Comic).
+3. **Deterministic Cache Invalidation**: Because `HabitInsightTone` is embedded directly into the SHA-256 `dataHash` (Step 27), toggling Simple Mode automatically invalidates cached copy and refreshes both the content and visual framing without stale overlap.
+
