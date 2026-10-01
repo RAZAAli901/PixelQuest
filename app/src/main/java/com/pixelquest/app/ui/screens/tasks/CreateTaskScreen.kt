@@ -58,6 +58,9 @@ fun CreateTaskScreen(
         onDayToggled = { viewModel.onDayToggled(it) },
         onTimeSelected = { viewModel.onTimeSelected(it) },
         onCategorySelected = { viewModel.onCategorySelected(it) },
+        onReminderEnabledChanged = { viewModel.onReminderEnabledChanged(it) },
+        onReminderLeadSelected = { viewModel.onReminderLeadSelected(it) },
+        onReminderStyleSelected = { viewModel.onReminderStyleSelected(it) },
         onSave = {
             viewModel.saveTask {
                 onNavigateBack()
@@ -82,6 +85,9 @@ fun TaskFormContent(
     onDayToggled: (java.time.DayOfWeek) -> Unit = {},
     onTimeSelected: (java.time.LocalTime) -> Unit = {},
     onCategorySelected: (com.pixelquest.app.domain.model.TaskCategory) -> Unit = {},
+    onReminderEnabledChanged: (Boolean) -> Unit = {},
+    onReminderLeadSelected: (Int) -> Unit = {},
+    onReminderStyleSelected: (com.pixelquest.app.domain.model.ReminderStyle) -> Unit = {},
     onSave: () -> Unit = {},
     onDelete: () -> Unit = {},
     onNavigateBack: () -> Unit = {}
@@ -179,6 +185,16 @@ fun TaskFormContent(
                 selectedCategory = formState.category,
                 onCategorySelected = onCategorySelected,
                 modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ReminderSettingsSection(
+                reminderEnabled = formState.reminderEnabled,
+                leadMinutes = formState.reminderLeadMinutes,
+                style = formState.reminderStyle,
+                onReminderEnabledChanged = onReminderEnabledChanged,
+                onLeadSelected = onReminderLeadSelected,
+                onStyleSelected = onReminderStyleSelected
             )
             Spacer(modifier = Modifier.height(24.dp))
 

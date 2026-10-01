@@ -2434,4 +2434,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 30: Reminder styles: SILENT uses the silent channel, PROMPT opens the full-screen prompt where Android allows it - ada1747
 - Step 31: Early reminders say how soon the task starts ("Quest in 15 min" / "Coming up in 15 min") - e1b9968
 - Step 32: Add Migration4To5Test (Robolectric): existing tasks keep default reminder settings; style converter and lead-time copy - 75d0a00
-- Step 33: Task form state and ViewModel handle reminder settings; edits keep the task's createdAt and active flag - pending
+- Step 33: Task form state and ViewModel handle reminder settings; edits keep the task's createdAt and active flag - 5401921
+- Step 34: Add a Reminder section to Create/Edit task: on/off, lead time chips and alert style chips - pending
