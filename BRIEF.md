@@ -2408,4 +2408,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 4: Fix AI Coach card ignoring opt-in until restart: AiInsightViewModel reloads on aiInsightsEnabled changes - 031c733
 - Step 5: Remove leftover "(Day 17 preview)" text from the Light theme description - 306665e
 - Step 6: Move Gemini model id to GEMINI_MODEL_ID and replace retired gemini-1.5-flash with gemini-2.5-flash - 542d0bf
-- Step 7: Restore unit test compilation: declare missing test dependencies and quarantine 91 non-compiling test files - pending
+- Step 7: Restore unit test compilation: declare missing test dependencies and quarantine 91 non-compiling test files - 4d6145c
+- Step 8: Honour the notifications master toggle in TaskAlarmReceiver and skip boot re-arm when notifications are off - pending

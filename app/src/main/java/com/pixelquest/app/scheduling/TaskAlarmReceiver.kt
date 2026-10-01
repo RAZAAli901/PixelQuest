@@ -7,17 +7,40 @@ import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 import com.pixelquest.app.notification.NotificationHelper
 import com.pixelquest.app.notification.TaskActionReceiver
+import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.ui.prompt.TaskPromptActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TaskAlarmReceiver : BroadcastReceiver() {
+
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
 
     override fun onReceive(context: Context, intent: Intent) {
         val taskId = intent.getLongExtra("EXTRA_TASK_ID", -1L)
         val taskName = intent.getStringExtra("EXTRA_TASK_NAME") ?: "Quest Reminder"
         if (taskId == -1L) return
 
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // An alarm armed before notifications were switched off must not post anything.
+                if (settingsRepository.isNotificationsEnabled.first()) {
+                    postReminder(context, taskId, taskName)
+                }
+            } finally {
+                pendingResult.finish()
+            }
+        }
+    }
+
+    private fun postReminder(context: Context, taskId: Long, taskName: String) {
         val promptIntent = Intent(context, TaskPromptActivity::class.java).apply {
             putExtra("EXTRA_TASK_ID", taskId)
             putExtra("EXTRA_TASK_NAME", taskName)
