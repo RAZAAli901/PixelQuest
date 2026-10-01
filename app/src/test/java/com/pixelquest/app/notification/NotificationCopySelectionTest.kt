@@ -57,10 +57,12 @@ class NotificationCopySelectionTest {
         val gamifiedText = NotificationHelper.getMissedTaskText(taskName, isSimpleMode = false)
         val simpleText = NotificationHelper.getMissedTaskText(taskName, isSimpleMode = true)
 
-        assertTrue("Gamified missed text must reference broken streak", gamifiedText.contains("broke your streak"))
+        // Day 26: one missed task doesn't always break the streak (perfect days use a percentage),
+        // so neither mode claims it did.
+        assertFalse("Gamified missed text must not claim the streak broke", gamifiedText.contains("broke", ignoreCase = true))
         assertEquals(
             "Simple Mode missed text must be calm and neutral",
-            "You missed a scheduled task: Evening Meditation.",
+            "Evening Meditation was due earlier today. You can still log it in the app.",
             simpleText
         )
         assertFalse("Simple Mode missed text must not mention broken streak", simpleText.contains("streak", ignoreCase = true))

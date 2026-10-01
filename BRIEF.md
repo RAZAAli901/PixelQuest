@@ -2452,4 +2452,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 48: Settings prompts for exact reminder times when Android blocks them, and reminders re-arm when that permission changes - f8daf19
 - Step 49: Re-arm every active task's reminder on app launch, repairing installs whose alarms were never set - a34f445
 - Step 50: Fix every background worker failing: initialise WorkManager with HiltWorkerFactory (missed tasks, streaks, sync, AI) - 7dd4461
-- Step 51: Inexact fallback alarms use a 10-minute window instead of Android's default of up to an hour - pending
+- Step 51: Inexact fallback alarms use a 10-minute window instead of Android's default of up to an hour - 79a4065
+- Step 52: Update notification copy tests for the new missed-task wording that no longer claims the streak broke - pending

@@ -41,6 +41,7 @@ class SimpleModeNotificationVisualIntegrityTest {
         assertTrue(reminderText.contains("streak"))
         assertTrue(missedTitle.contains("💔"))
         assertTrue(missedTitle.contains("Quest"))
-        assertTrue(missedText.contains("streak"))
+        assertTrue(missedText.contains(taskName))
+        assertTrue(missedText.contains("start fresh tomorrow"))
     }
 }
