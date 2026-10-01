@@ -246,7 +246,10 @@ fun SettingsScreen(
                 val aiMessagesOn by viewModel.isAiReminderMessagesEnabled.collectAsState()
                 PixelButton(
                     text = if (aiMessagesOn) "💬 AI REMINDER MESSAGES: ON" else "💬 AI REMINDER MESSAGES: OFF",
-                    onClick = { viewModel.setAiReminderMessagesEnabled(!aiMessagesOn) },
+                    onClick = {
+                        viewModel.setAiReminderMessagesEnabled(!aiMessagesOn)
+                        if (!aiMessagesOn) com.pixelquest.app.worker.EncouragementPackWorker.runNow(context)
+                    },
                     variant = PixelButtonVariant.BLUE,
                     modifier = Modifier.fillMaxWidth()
                 )

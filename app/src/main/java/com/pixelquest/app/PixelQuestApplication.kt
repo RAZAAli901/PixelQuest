@@ -27,6 +27,8 @@ class PixelQuestApplication : Application() {
         // Background async enqueue of periodic background workers
         scheduleMissedTaskWorker()
         scheduleStreakEvaluationWorker()
+        // Does nothing unless AI Coach and AI reminder messages are both on.
+        com.pixelquest.app.worker.EncouragementPackWorker.schedule(this)
     }
 
     private fun scheduleMissedTaskWorker() {
