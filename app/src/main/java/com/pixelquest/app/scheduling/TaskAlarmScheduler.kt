@@ -82,10 +82,6 @@ class TaskAlarmScheduler @Inject constructor(
             cancelAlarmForTask(task)
             return
         }
-        if (!canScheduleExactAlarms()) {
-            return
-        }
-
         // A one-time task whose time has passed has nothing left to remind about.
         val triggerTimeMillis = nextTriggerTimeMillis(task, notBefore) ?: return
         val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
@@ -100,11 +96,13 @@ class TaskAlarmScheduler @Inject constructor(
         )
 
         try {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                triggerTimeMillis,
-                pendingIntent
-            )
+            if (canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTimeMillis, pendingIntent)
+            } else {
+                // Android 12+ needs "Alarms & reminders" for exact alarms, and Android 14 starts with it off.
+                // Without it, still remind: Android may deliver this a few minutes late.
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTimeMillis, pendingIntent)
+            }
         } catch (e: SecurityException) {
             android.util.Log.w("TaskAlarmScheduler", "Exact alarm permission revoked or unavailable, degrading gracefully", e)
         } catch (e: Exception) {
