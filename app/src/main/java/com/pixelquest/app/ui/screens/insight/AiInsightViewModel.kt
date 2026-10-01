@@ -48,7 +48,23 @@ class AiInsightViewModel @Inject constructor(
             val logs = try { taskCompletionRepository.getAllLogs().first() } catch (e: Exception) { emptyList() }
             val distinctDays = logs.map { it.completedDate }.distinct().size
             if (distinctDays < 3 && logs.size < 3) {
-                _uiState.value = AiInsightUiState.NotEnoughData(daysLogged = distinctDays)
+                val isSimple = try { settingsRepository.simpleModeEnabled.first() } catch (e: Exception) { false }
+                val msg = if (isSimple) {
+                    "Keep up the steady effort! Complete habits for at least 3 days to unlock personalized AI habit coaching."
+                } else {
+                    "Keep adventuring! Complete daily quests for at least 3 days to unlock AI-powered Questmaster Insights."
+                }
+                val tip = if (isSimple) {
+                    "Consistent daily routines build sustainable habits over time."
+                } else {
+                    "Every hero's legend begins with a single quest. Return after logging more momentum!"
+                }
+                _uiState.value = AiInsightUiState.NotEnoughData(
+                    daysLogged = distinctDays,
+                    minimumRequiredDays = 3,
+                    message = msg,
+                    encouragingTip = tip
+                )
                 return@launch
             }
 

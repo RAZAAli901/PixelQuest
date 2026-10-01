@@ -3,7 +3,7 @@ package com.pixelquest.app.ui.screens.insight
 import com.pixelquest.app.domain.ai.HabitInsightResponse
 
 /**
- * Step 11: UI state hierarchy representing the AI habit insight screen.
+ * Step 11 & 13: UI state hierarchy representing the AI habit insight screen.
  */
 sealed interface AiInsightUiState {
 
@@ -44,13 +44,20 @@ sealed interface AiInsightUiState {
     ) : AiInsightUiState
 
     /**
-     * Insufficient habit history logged to synthesize meaningful insights (e.g. < 3 days/logs).
+     * Step 13: Distinct encouraging state when player has fewer than 3 days of logged habits,
+     * guiding them toward unlocking insights rather than presenting an error.
      */
     data class NotEnoughData(
         val daysLogged: Int = 0,
         val minimumRequiredDays: Int = 3,
-        val message: String = "Keep adventuring! Complete daily quests for at least 3 days to unlock AI-powered Questmaster Insights."
-    ) : AiInsightUiState
+        val message: String = "Keep adventuring! Complete daily quests for at least 3 days to unlock AI-powered Questmaster Insights.",
+        val encouragingTip: String = "Every legend begins with a single step. Return after logging more momentum!"
+    ) : AiInsightUiState {
+        val remainingDaysNeeded: Int
+            get() = (minimumRequiredDays - daysLogged).coerceAtLeast(1)
+        val progressRatio: Float
+            get() = (daysLogged.toFloat() / minimumRequiredDays).coerceIn(0f, 1f)
+    }
 
     /**
      * Unrecoverable error (e.g. offline with empty cache, API outage).

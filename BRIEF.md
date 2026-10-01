@@ -2320,6 +2320,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 9: Write unit test for rate-limit enforcement across boundary conditions - 19408f7
 - Step 10: Manual QA verification confirming rapid repeated requests hit rate limit without spamming Gemini - 594752b
 - Step 11: Create AiInsightViewModel exposing reactive AiInsightUiState - bb0587e
+- Step 12: Wire AiInsightViewModel to request cached insight on load and call Gemini only when stale or missing - 22b58db
 
 
 
