@@ -137,6 +137,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
             )
             val notificationManager = NotificationManagerCompat.from(context)
             notificationManager.notify(taskId.toInt(), notification)
+            NotificationHelper.updateReminderGroupSummary(context, isSimpleMode, soundEnabled)
         } catch (e: SecurityException) {
             // Permission missing
         }

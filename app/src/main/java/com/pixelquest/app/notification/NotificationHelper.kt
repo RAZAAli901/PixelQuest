@@ -1,9 +1,11 @@
 package com.pixelquest.app.notification
 
 import android.app.Notification
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.pixelquest.app.R
 
 object NotificationHelper {
@@ -17,6 +19,10 @@ object NotificationHelper {
      * against both dark (5.2:1) and light (4.6:1) OS notification shades.
      */
     const val NOTIFICATION_ACCENT_COLOR = 0xFFB45309.toInt()
+
+    /** Reminders share a group so several due at once collapse under one summary. */
+    const val REMINDER_GROUP_KEY = "com.pixelquest.app.REMINDERS"
+    const val REMINDER_SUMMARY_ID = 900_001
 
     /** Creates every PixelQuest channel and removes the pre-Day 26 single channel. */
     fun createNotificationChannel(context: Context) {
@@ -51,6 +57,7 @@ object NotificationHelper {
             .setContentText(copy?.text ?: getReminderText(taskName, isSimpleMode))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setGroup(REMINDER_GROUP_KEY)
             .setAutoCancel(true)
         if (copy != null) {
             builder.setStyle(NotificationCompat.BigTextStyle().bigText(copy.bigText))
@@ -121,5 +128,40 @@ object NotificationHelper {
             builder.setContentIntent(contentIntent)
         }
         return builder.build()
+    }
+
+    /**
+     * Posts (or clears) the reminder group summary based on which reminders are still showing.
+     * Android only bundles a group on screen when a summary exists.
+     */
+    fun updateReminderGroupSummary(context: Context, isSimpleMode: Boolean, soundEnabled: Boolean) {
+        val system = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val active = system.activeNotifications.filter {
+            it.notification.group == REMINDER_GROUP_KEY && it.id != REMINDER_SUMMARY_ID
+        }
+        val manager = NotificationManagerCompat.from(context)
+        if (active.size < 2) {
+            manager.cancel(REMINDER_SUMMARY_ID)
+            return
+        }
+        val noun = if (isSimpleMode) "tasks" else "quests"
+        val inbox = NotificationCompat.InboxStyle()
+        active.mapNotNull { it.notification.extras.getCharSequence(Notification.EXTRA_TITLE) }
+            .forEach { inbox.addLine(it) }
+        val summary = NotificationCompat.Builder(context, NotificationChannels.reminderChannel(soundEnabled).id)
+            .setSmallIcon(R.drawable.ic_tasks)
+            .setColor(NOTIFICATION_ACCENT_COLOR)
+            .setContentTitle("${active.size} $noun due")
+            .setStyle(inbox.setSummaryText("PixelQuest"))
+            .setGroup(REMINDER_GROUP_KEY)
+            .setGroupSummary(true)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
+            .setAutoCancel(true)
+            .build()
+        try {
+            manager.notify(REMINDER_SUMMARY_ID, summary)
+        } catch (e: SecurityException) {
+            // POST_NOTIFICATIONS not granted.
+        }
     }
 }
