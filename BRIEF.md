@@ -2341,6 +2341,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 30: Add hard daily and monthly caps on Gemini calls and document safeguards in AI_INSIGHTS.md - ba69abf
 - Step 31: Add graceful UI messaging and theme-dispatched CapReached component when usage limits are hit - bb4a8f6
 - Step 32: Write unit test for daily and monthly cap-enforcement logic across boundary conditions - 8732104
+- Step 33: Add lightweight local usage counter to track calls toward caps efficiently - 02eb696
 
 
 
