@@ -45,6 +45,7 @@ object NotificationHelper {
         yesIntent: PendingIntent? = null,
         noIntent: PendingIntent? = null,
         snoozeIntent: PendingIntent? = null,
+        fullScreenIntent: PendingIntent? = null,
         soundEnabled: Boolean = true,
         vibrationEnabled: Boolean = true,
         isSimpleMode: Boolean = false,
@@ -61,6 +62,9 @@ object NotificationHelper {
             .setAutoCancel(true)
         if (copy != null) {
             builder.setStyle(NotificationCompat.BigTextStyle().bigText(copy.bigText))
+        }
+        if (fullScreenIntent != null) {
+            builder.setFullScreenIntent(fullScreenIntent, true)
         }
 
         if (!soundEnabled) {
@@ -85,6 +89,13 @@ object NotificationHelper {
         }
 
         return builder.build()
+    }
+
+    /** Android 14 made full-screen intents opt-in for apps that aren't alarms or calls. */
+    fun canUseFullScreenIntent(context: Context): Boolean {
+        if (android.os.Build.VERSION.SDK_INT < 34) return true
+        val system = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        return system.canUseFullScreenIntent()
     }
 
     fun getMissedTaskTitle(taskName: String, isSimpleMode: Boolean): String {

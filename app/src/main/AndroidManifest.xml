@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Day 26: lets PROMPT-style reminders open the "did you do it?" screen over the lock screen.
+         Android 14+ may deny it for non-alarm apps; the reminder then shows as a heads-up instead. -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
     <application
         android:name=".PixelQuestApplication"

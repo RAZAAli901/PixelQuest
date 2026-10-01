@@ -9,6 +9,7 @@ import com.pixelquest.app.notification.NotificationContentBuilder
 import com.pixelquest.app.notification.NotificationHelper
 import com.pixelquest.app.notification.ReminderContext
 import com.pixelquest.app.notification.TaskActionReceiver
+import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
@@ -56,7 +57,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 val task = taskRepository.getTaskById(taskId).first()
                 if (task == null || !task.isActive || !task.reminderEnabled) return@launch
 
-                postReminder(context, taskId, task.name.ifBlank { taskName }, task.category)
+                postReminder(context, taskId, task.name.ifBlank { taskName }, task.category, task.reminderStyle)
                 // Exact alarms fire once, so arm the next daily/weekly/monthly occurrence now.
                 val occurrenceDate = LocalDateTime.now().plusMinutes(task.reminderLeadMinutes.toLong()).toLocalDate()
                 taskAlarmScheduler.scheduleNextOccurrence(task, handledDate = occurrenceDate)
@@ -70,10 +71,12 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         context: Context,
         taskId: Long,
         taskName: String,
-        category: TaskCategory
+        category: TaskCategory,
+        style: ReminderStyle
     ) {
         val isSimpleMode = settingsRepository.simpleModeEnabled.first()
-        val soundEnabled = settingsRepository.isNotificationSoundEnabled.first()
+        // A SILENT task stays quiet even when reminder sound is on.
+        val soundEnabled = settingsRepository.isNotificationSoundEnabled.first() && style != ReminderStyle.SILENT
         val vibrationEnabled = settingsRepository.isNotificationVibrationEnabled.first()
         val copy = NotificationContentBuilder.reminder(buildReminderContext(taskName, category, isSimpleMode))
 
@@ -132,6 +135,9 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 yesIntent = yesPendingIntent,
                 noIntent = noPendingIntent,
                 snoozeIntent = snoozePendingIntent,
+                fullScreenIntent = contentPendingIntent.takeIf {
+                    style == ReminderStyle.PROMPT && NotificationHelper.canUseFullScreenIntent(context)
+                },
                 soundEnabled = soundEnabled,
                 vibrationEnabled = vibrationEnabled,
                 isSimpleMode = isSimpleMode,
