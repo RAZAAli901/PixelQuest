@@ -2416,4 +2416,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 12: Quick complete and skip on Today re-arm the next occurrence instead of cancelling the task's reminders - 3b107dc
 - Step 13: MissedTaskWorker posts a missed-task notification (respecting the master toggle and Simple Mode) in place of the reminder - 23741af
 - Step 14: Add NOTIFICATIONS.md documenting the notification pipeline and the Day 26 audit findings - 8d5fdb0
-- Step 15: Add NotificationChannels registry: reminders, silent reminders, missed, progress and AI Coach channels in one group - pending
+- Step 15: Add NotificationChannels registry: reminders, silent reminders, missed, progress and AI Coach channels in one group - f1f51e3
+- Step 16: Create all channels at startup and delete the legacy pixelquest_reminders_channel - pending

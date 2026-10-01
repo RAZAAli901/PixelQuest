@@ -1,19 +1,16 @@
 package com.pixelquest.app.notification
 
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.pixelquest.app.R
 
 object NotificationHelper {
 
-    const val CHANNEL_ID = "pixelquest_reminders_channel"
-    const val CHANNEL_NAME = "PixelQuest Reminders"
-    const val CHANNEL_DESCRIPTION = "Notifications for task reminders and quest completion prompts"
+    /** Default reminder channel; see [NotificationChannels] for the full set. */
+    val CHANNEL_ID: String = NotificationChannels.Spec.REMINDERS.id
+
     /**
      * Accent color for system notifications.
      * Uses PixelQuest Daylight Gold / Retro Amber (0xFFB45309), providing >= 4.5:1 contrast
@@ -21,16 +18,9 @@ object NotificationHelper {
      */
     const val NOTIFICATION_ACCENT_COLOR = 0xFFB45309.toInt()
 
+    /** Creates every PixelQuest channel and removes the pre-Day 26 single channel. */
     fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
-                description = CHANNEL_DESCRIPTION
-                enableVibration(true)
-            }
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
+        NotificationChannels.createAll(context)
     }
 
     fun getReminderTitle(taskName: String, isSimpleMode: Boolean): String {

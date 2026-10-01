@@ -80,6 +80,7 @@ object NotificationChannels {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         manager.createNotificationChannelGroup(NotificationChannelGroup(GROUP_ID, GROUP_NAME))
         manager.createNotificationChannels(Spec.values().map { it.toChannel() })
+        manager.deleteNotificationChannel(LEGACY_CHANNEL_ID)
     }
 
     private fun Spec.toChannel(): NotificationChannel {
