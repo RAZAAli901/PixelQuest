@@ -2400,33 +2400,6 @@ The following capabilities are deliberately scoped for Day 25:
 - Proactive notification reminders when a new weekly insight is ready or cooldown expires.
 - Category-specific deep-dive charts linking habit drop-offs to specific times of day.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## Day 26 Progress Log
+_Each entry's commit hash is filled in by the following commit (a commit cannot contain its own hash)._
+- Step 1: Fix launch crash: align ktor-client-android with the Ktor 3.0.1 core pulled in by Supabase - pending
