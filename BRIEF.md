@@ -2450,4 +2450,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 46: Add InsightReadyWorkerTest (Robolectric + work-testing): posts on the AI Coach channel only when allowed - 1569c13
 - Step 47: Fix reminders never scheduling on Android 14: fall back to an inexact alarm when exact alarms aren't allowed - 289b999
 - Step 48: Settings prompts for exact reminder times when Android blocks them, and reminders re-arm when that permission changes - f8daf19
-- Step 49: Re-arm every active task's reminder on app launch, repairing installs whose alarms were never set - pending
+- Step 49: Re-arm every active task's reminder on app launch, repairing installs whose alarms were never set - a34f445
+- Step 50: Fix every background worker failing: initialise WorkManager with HiltWorkerFactory (missed tasks, streaks, sync, AI) - pending

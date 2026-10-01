@@ -1,6 +1,8 @@
 package com.pixelquest.app
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -13,7 +15,17 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @HiltAndroidApp
-class PixelQuestApplication : Application() {
+class PixelQuestApplication : Application(), Configuration.Provider {
+
+    // Without this factory WorkManager can't build @HiltWorker classes (they need injected repositories),
+    // and every background worker failed with NoSuchMethodException.
+    @javax.inject.Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     @javax.inject.Inject
     lateinit var connectivitySyncObserver: com.pixelquest.app.worker.ConnectivitySyncObserver
