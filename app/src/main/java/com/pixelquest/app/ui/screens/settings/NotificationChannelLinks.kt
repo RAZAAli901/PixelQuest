@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.notification.NotificationChannels
 import com.pixelquest.app.ui.components.pixelClickable
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 /**
  * One row per notification channel; tapping opens that channel's system settings, where
@@ -30,7 +30,7 @@ fun NotificationChannelLinks(modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
             text = "ALERT TYPES",
-            style = PixelTypography.labelSmall,
+            style = MaterialTheme.typography.labelSmall,
             color = colors.onSurfaceVariant
         )
         NotificationChannels.userFacing.forEach { spec ->
@@ -45,10 +45,10 @@ fun NotificationChannelLinks(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(text = spec.displayName, style = PixelTypography.labelMedium, color = colors.onSurface)
-                    Text(text = spec.description, style = PixelTypography.bodySmall, color = colors.onSurfaceVariant)
+                    Text(text = spec.displayName, style = MaterialTheme.typography.labelMedium, color = colors.onSurface)
+                    Text(text = spec.description, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
                 }
-                Text(text = "›", style = PixelTypography.labelLarge, color = colors.primary)
+                Text(text = "›", style = MaterialTheme.typography.labelLarge, color = colors.primary)
             }
         }
     }

@@ -2436,4 +2436,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 32: Add Migration4To5Test (Robolectric): existing tasks keep default reminder settings; style converter and lead-time copy - 75d0a00
 - Step 33: Task form state and ViewModel handle reminder settings; edits keep the task's createdAt and active flag - 5401921
 - Step 34: Add a Reminder section to Create/Edit task: on/off, lead time chips and alert style chips - 1ce4b90
-- Step 35: Add Compose previews of the reminder section in Pixel, Light and Comic, plus the off state - pending
+- Step 35: Add Compose previews of the reminder section in Pixel, Light and Comic, plus the off state - 15445da
+- Step 36: Reminder section and channel links use the theme's typography so Comic mode gets its comic font - pending

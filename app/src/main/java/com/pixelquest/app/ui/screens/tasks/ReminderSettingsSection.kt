@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,7 +21,6 @@ import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 /**
  * Per-task reminder settings on the Create/Edit task form: on/off, how early, and how loud.
@@ -60,7 +60,7 @@ fun ReminderSettingsSection(
             )
             Text(
                 text = styleHint(style),
-                style = PixelTypography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = PixelTheme.colors.onSurfaceVariant
             )
         }
@@ -96,7 +96,7 @@ private fun <T> OptionRow(
 ) {
     val colors = PixelTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(text = label, style = PixelTypography.labelLarge, color = colors.primary)
+        Text(text = label, style = MaterialTheme.typography.labelLarge, color = colors.primary)
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -113,7 +113,7 @@ private fun <T> OptionRow(
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = optionLabel(option),
-                            style = PixelTypography.labelSmall,
+                            style = MaterialTheme.typography.labelSmall,
                             color = if (isSelected) colors.onSurface else colors.onSurfaceVariant
                         )
                     }
