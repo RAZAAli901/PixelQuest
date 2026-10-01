@@ -118,13 +118,7 @@ class HabitInsightRepositoryImpl @Inject constructor(
         // Step 7 & 8: Enforce rate limiting before dispatching a live API call
         val cooldownSeconds = getRemainingCooldownSeconds()
         if (cooldownSeconds > 0L) {
-            val remainingHours = (cooldownSeconds + 3599) / 3600
-            val message = if (remainingHours > 1) {
-                "Check back in $remainingHours hours for a fresh insight."
-            } else {
-                val remainingMinutes = (cooldownSeconds + 59) / 60
-                "Check back in $remainingMinutes minutes for a fresh insight."
-            }
+            val message = com.pixelquest.app.domain.ai.AiRateLimitFormatter.formatCooldownMessage(cooldownSeconds)
             return GeminiResult.RateLimited(
                 retryAfterSeconds = cooldownSeconds,
                 message = message
