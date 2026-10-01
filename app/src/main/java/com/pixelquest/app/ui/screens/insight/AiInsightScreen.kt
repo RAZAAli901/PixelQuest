@@ -197,10 +197,12 @@ fun AiInsightStateRouter(
             )
         }
         is AiInsightUiState.Success -> {
-            Text(
-                text = uiState.insight.summary,
-                color = PixelTheme.colors.onBackground,
-                style = typography.bodyMedium
+            AiInsightCard(
+                insight = uiState.insight,
+                isCached = uiState.isCached,
+                canRefresh = uiState.canRefresh,
+                remainingCooldownSeconds = uiState.remainingCooldownSeconds,
+                onRefresh = onRefresh
             )
         }
         is AiInsightUiState.RateLimited -> {
