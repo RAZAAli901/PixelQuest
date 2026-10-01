@@ -97,4 +97,10 @@ abstract class RepositoryModule {
     abstract fun bindLeaderboardRepository(
         impl: com.pixelquest.app.data.repository.LeaderboardRepositoryImpl
     ): com.pixelquest.app.data.repository.LeaderboardRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindInsightCacheRepository(
+        impl: com.pixelquest.app.data.repository.InsightCacheRepositoryImpl
+    ): com.pixelquest.app.domain.repository.InsightCacheRepository
 }
