@@ -76,7 +76,7 @@ class HabitInsightRepositoryImpl(
         val lastCallTime = try { settingsRepository.lastAiInsightTimestamp.first() } catch (e: Exception) { 0L }
             .let { if (it > 0L) it else (insightCacheRepository.getLatestInsight()?.generatedAt ?: 0L) }
         val elapsed = now - lastCallTime
-        return if (lastCallTime > 0L && elapsed < MIN_CALL_INTERVAL_MS) {
+        return if (lastCallTime > 0L && elapsed in 0 until MIN_CALL_INTERVAL_MS) {
             (MIN_CALL_INTERVAL_MS - elapsed) / 1000L
         } else {
             0L

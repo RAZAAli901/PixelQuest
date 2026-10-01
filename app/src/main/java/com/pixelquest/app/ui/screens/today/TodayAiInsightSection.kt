@@ -62,6 +62,7 @@ fun TodayAiInsightSection(
     viewModel: AiInsightViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isSimpleMode by viewModel.isSimpleMode.collectAsState()
     val themeMode = PixelTheme.mode
 
     Box(modifier = modifier.fillMaxWidth()) {
@@ -96,6 +97,7 @@ fun TodayAiInsightSection(
             is AiInsightUiState.Disabled -> {
                 TodayAiInsightOptInCard(
                     themeMode = themeMode,
+                    isSimpleMode = isSimpleMode,
                     onEnableClick = onNavigateToSettings
                 )
             }
@@ -120,7 +122,8 @@ fun TodayAiInsightSection(
 fun TodayAiInsightOptInCard(
     themeMode: ThemeMode,
     onEnableClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSimpleMode: Boolean = false
 ) {
     when (themeMode) {
         ThemeMode.Comic -> {
@@ -131,10 +134,10 @@ fun TodayAiInsightOptInCard(
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "💥", fontSize = 24.sp)
+                        Text(text = if (isSimpleMode) "🌱" else "💥", fontSize = 24.sp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "UNLOCK AI QUESTMASTER!",
+                            text = if (isSimpleMode) "UNLOCK AI HABIT COACH!" else "UNLOCK AI QUESTMASTER!",
                             fontFamily = BangersFontFamily,
                             fontSize = 18.sp,
                             color = ComicTokens.SolidBlack
@@ -142,7 +145,11 @@ fun TodayAiInsightOptInCard(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Get daily tactical debriefs, habit analysis, and power surges powered by Google Gemini.",
+                        text = if (isSimpleMode) {
+                            "Get daily habit analysis, sustainable routines, and thoughtful guidance powered by Google Gemini."
+                        } else {
+                            "Get daily tactical debriefs, habit analysis, and power surges powered by Google Gemini."
+                        },
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = ComicTokens.SolidBlack.copy(alpha = 0.85f)
@@ -175,7 +182,7 @@ fun TodayAiInsightOptInCard(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "AI Habit Insights Available",
+                            text = if (isSimpleMode) "AI Habit Coach Available" else "AI Habit Insights Available",
                             style = MaterialTheme.typography.titleSmall,
                             color = Color(0xFF1E293B),
                             fontWeight = FontWeight.SemiBold
@@ -183,7 +190,11 @@ fun TodayAiInsightOptInCard(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Receive personalized habit guidance and consistency analysis. Enable anytime in Settings.",
+                        text = if (isSimpleMode) {
+                            "Receive personalized habit guidance, rhythm tracking, and consistency analysis. Enable anytime in Settings."
+                        } else {
+                            "Receive personalized habit guidance and consistency analysis. Enable anytime in Settings."
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = Color(0xFF64748B)
                     )
@@ -205,10 +216,10 @@ fun TodayAiInsightOptInCard(
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "✦", color = Color(0xFFFBBF24), fontSize = 16.sp)
+                        Text(text = if (isSimpleMode) "🌱" else "✦", color = Color(0xFFFBBF24), fontSize = 16.sp)
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "QUESTMASTER AI INTEL",
+                            text = if (isSimpleMode) "HABIT COACH INSIGHTS" else "QUESTMASTER AI INTEL",
                             style = PixelTypography.titleSmall,
                             color = PixelTheme.colors.primary,
                             fontWeight = FontWeight.Bold
@@ -216,7 +227,11 @@ fun TodayAiInsightOptInCard(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Receive tactical debriefs and streak coaching powered by Gemini AI.",
+                        text = if (isSimpleMode) {
+                            "Receive personalized habit guidance and consistency analysis powered by Gemini AI."
+                        } else {
+                            "Receive tactical debriefs and streak coaching powered by Gemini AI."
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = PixelTheme.colors.onSurface
                     )

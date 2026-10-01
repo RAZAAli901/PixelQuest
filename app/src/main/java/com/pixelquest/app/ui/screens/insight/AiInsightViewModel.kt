@@ -165,6 +165,7 @@ class AiInsightViewModel @Inject constructor(
                 val fallback = when (current) {
                     is AiInsightUiState.Success -> current.insight
                     is AiInsightUiState.RateLimited -> current.lastInsight
+                    is AiInsightUiState.CapReached -> current.lastInsight
                     is AiInsightUiState.Error -> current.fallbackInsight
                     else -> null
                 }

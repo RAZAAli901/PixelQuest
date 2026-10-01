@@ -2345,6 +2345,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 34: Write integration test for full user-facing flow verifying opt-in, generation, caching, and rate limiting - 482c95a
 - Step 35: Manual QA exercise across perfect, mixed, and struggling week scenarios assessing insight quality and tone - ef2384b
 - Step 36: Manual QA verification confirming feature renders correctly across Pixel, Light, and Comic themes - 77411aa
+- Step 37: Manual QA assessment verifying Simple Mode tone difference is genuinely noticeable and appropriate - 4dd27b4
 
 
 
