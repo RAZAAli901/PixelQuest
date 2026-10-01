@@ -2316,6 +2316,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 5: Wire HabitInsightRepositoryImpl to check caching layer before calling Gemini API - 38c4d1e
 - Step 6: Write unit tests for cache-hit, cache-miss, and cache-stale logic - 9e91057
 - Step 7: Enforce 6-hour minimum rate-limit interval in HabitInsightRepositoryImpl - 0d9b76f
+- Step 8: Add clear in-app message and AiRateLimitFormatter for throttled insight requests - c01d194
 
 
 
