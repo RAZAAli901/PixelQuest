@@ -45,13 +45,25 @@ class TaskAlarmScheduler @Inject constructor(
         }
     }
 
+    /**
+     * Next reminder time for [task] in epoch millis, or null when it has no future occurrence.
+     * [notBefore] skips occurrences before that date (used after the task is done for today).
+     */
+    fun nextTriggerTimeMillis(task: TaskEntity, notBefore: LocalDate? = null): Long? {
+        val next = ReminderSchedule.nextTriggerAt(
+            scheduledDay = task.scheduledDay,
+            scheduledTime = task.scheduledTime,
+            recurrence = task.recurrenceType,
+            now = LocalDateTime.now(),
+            notBefore = notBefore
+        ) ?: return null
+        return next.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    }
+
     fun calculateTriggerTimeMillis(task: TaskEntity): Long {
-        val now = LocalDateTime.now()
-        var scheduledDateTime = LocalDateTime.of(task.scheduledDay, task.scheduledTime)
-        if (scheduledDateTime.isBefore(now)) {
-            scheduledDateTime = scheduledDateTime.plusDays(1)
-        }
-        return scheduledDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        return nextTriggerTimeMillis(task)
+            ?: LocalDateTime.of(task.scheduledDay, task.scheduledTime)
+                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 
     fun calculateNextOccurrenceDate(task: TaskEntity, fromDate: LocalDate = LocalDate.now()): LocalDate {
@@ -63,12 +75,13 @@ class TaskAlarmScheduler @Inject constructor(
         }
     }
 
-    fun scheduleExactAlarmForTask(task: TaskEntity) {
+    fun scheduleExactAlarmForTask(task: TaskEntity, notBefore: LocalDate? = null) {
         if (!canScheduleExactAlarms()) {
             return
         }
 
-        val triggerTimeMillis = calculateTriggerTimeMillis(task)
+        // A one-time task whose time has passed has nothing left to remind about.
+        val triggerTimeMillis = nextTriggerTimeMillis(task, notBefore) ?: return
         val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
             putExtra("EXTRA_TASK_ID", task.id)
             putExtra("EXTRA_TASK_NAME", task.name)
@@ -93,11 +106,10 @@ class TaskAlarmScheduler @Inject constructor(
         }
     }
 
+    /** Arms the first occurrence after today, e.g. once today's reminder has fired or the task is done. */
     fun scheduleNextOccurrence(task: TaskEntity) {
         if (task.recurrenceType == RecurrenceType.ONE_TIME) return
-        val nextDate = calculateNextOccurrenceDate(task)
-        val updatedTask = task.copy(scheduledDay = nextDate)
-        scheduleExactAlarmForTask(updatedTask)
+        scheduleExactAlarmForTask(task, notBefore = LocalDate.now().plusDays(1))
     }
 
     fun cancelAlarmForTask(task: TaskEntity) {
