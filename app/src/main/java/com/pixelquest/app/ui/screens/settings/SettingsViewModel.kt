@@ -120,6 +120,16 @@ class SettingsViewModel @Inject constructor(
         initialValue = SettingsUiState()
     )
 
+    /** Off sends reminders to the silent channel (see NotificationChannels.reminderChannel). */
+    val isReminderSoundEnabled: StateFlow<Boolean> = settingsRepository.isNotificationSoundEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    fun setReminderSoundEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setNotificationSoundEnabled(enabled)
+        }
+    }
+
     fun setAiInsightsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setAiInsightsEnabled(enabled)

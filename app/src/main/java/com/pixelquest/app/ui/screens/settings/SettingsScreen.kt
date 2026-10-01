@@ -112,6 +112,15 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (state.isNotificationsEnabled) {
+                val reminderSoundOn by viewModel.isReminderSoundEnabled.collectAsState()
+                PixelButton(
+                    text = if (reminderSoundOn) "🔊 REMINDER SOUND: ON" else "🔇 REMINDER SOUND: OFF",
+                    onClick = { viewModel.setReminderSoundEnabled(!reminderSoundOn) },
+                    variant = PixelButtonVariant.BLUE,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             PixelButton(
                 text = "⚙️ OS NOTIFICATION SETTINGS",
                 onClick = {

@@ -2419,4 +2419,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 15: Add NotificationChannels registry: reminders, silent reminders, missed, progress and AI Coach channels in one group - f1f51e3
 - Step 16: Create all channels at startup and delete the legacy pixelquest_reminders_channel - d062d30
 - Step 17: Route reminders by sound preference, missed tasks to the missed channel, and leaderboard sync to a new low-importance sync channel - 9995d69
-- Step 18: Settings: add per-channel rows that open each channel's system notification settings - pending
+- Step 18: Settings: add per-channel rows that open each channel's system notification settings - 6c28dce
+- Step 19: Settings: add a Reminder sound toggle that switches reminders between the sound and silent channels - pending
