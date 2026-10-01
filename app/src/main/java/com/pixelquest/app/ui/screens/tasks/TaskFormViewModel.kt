@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.domain.model.RecurrenceType
+import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.scheduling.TaskAlarmScheduler
@@ -43,6 +44,11 @@ class TaskFormViewModel @Inject constructor(
                             scheduledTime = task.scheduledTime,
                             recurrenceType = task.recurrenceType,
                             category = task.category,
+                            reminderEnabled = task.reminderEnabled,
+                            reminderLeadMinutes = task.reminderLeadMinutes,
+                            reminderStyle = task.reminderStyle,
+                            createdAt = task.createdAt,
+                            isActive = task.isActive,
                             isEditMode = true
                         )
                     }
@@ -89,6 +95,18 @@ class TaskFormViewModel @Inject constructor(
         _formState.update { it.copy(category = category) }
     }
 
+    fun onReminderEnabledChanged(enabled: Boolean) {
+        _formState.update { it.copy(reminderEnabled = enabled) }
+    }
+
+    fun onReminderLeadSelected(minutes: Int) {
+        _formState.update { it.copy(reminderLeadMinutes = minutes.coerceIn(0, 120)) }
+    }
+
+    fun onReminderStyleSelected(style: ReminderStyle) {
+        _formState.update { it.copy(reminderStyle = style) }
+    }
+
     fun validateForm(): Boolean {
         val state = _formState.value
         val nameErr = if (state.name.isBlank()) "Quest title is required!" else null
@@ -119,7 +137,12 @@ class TaskFormViewModel @Inject constructor(
                 scheduledDay = state.scheduledDay,
                 scheduledTime = state.scheduledTime ?: LocalTime.of(9, 0),
                 recurrenceType = state.recurrenceType,
-                category = state.category
+                category = state.category,
+                isActive = state.isActive,
+                createdAt = state.createdAt ?: System.currentTimeMillis(),
+                reminderEnabled = state.reminderEnabled,
+                reminderLeadMinutes = state.reminderLeadMinutes,
+                reminderStyle = state.reminderStyle
             )
             if (state.isEditMode && state.taskId != null && state.taskId > 0) {
                 taskAlarmScheduler.cancelAlarmForTask(task)

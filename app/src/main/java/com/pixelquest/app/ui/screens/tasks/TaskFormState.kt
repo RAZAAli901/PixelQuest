@@ -1,6 +1,7 @@
 package com.pixelquest.app.ui.screens.tasks
 
 import com.pixelquest.app.domain.model.RecurrenceType
+import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -17,6 +18,12 @@ data class TaskFormState(
         DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY
     ),
     val category: TaskCategory = TaskCategory.FITNESS,
+    val reminderEnabled: Boolean = true,
+    val reminderLeadMinutes: Int = 0,
+    val reminderStyle: ReminderStyle = ReminderStyle.STANDARD,
+    /** Kept from the stored task so an edit doesn't reset them. */
+    val createdAt: Long? = null,
+    val isActive: Boolean = true,
     val nameError: String? = null,
     val timeError: String? = null,
     val daysError: String? = null,
@@ -28,3 +35,6 @@ data class TaskFormState(
     val isValid: Boolean
         get() = name.isNotBlank() && scheduledTime != null && (recurrenceType != RecurrenceType.WEEKLY || selectedDays.isNotEmpty())
 }
+
+/** Lead times offered in the reminder section, in minutes before the task. */
+val REMINDER_LEAD_OPTIONS = listOf(0, 5, 15, 30, 60)
