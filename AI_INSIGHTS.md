@@ -182,16 +182,22 @@ Day 25's user-facing AI Insights screen will natively support all three establis
 
 ---
 
-## 11. Day 25 Implementation Roadmap & Known Gaps
 
-The following components are scheduled for implementation in Day 25:
-1. **User-Facing AI Insights Screen**:
-   - Dedicated composable screen (`AiInsightsScreen.kt`) accessible via Bottom Navigation or Quest Hub.
-   - Three-theme rendering dispatch via `ComponentThemeFamily`.
-2. **Persistent Room Storage for Cached Insights**:
-   - `AiInsightEntity` and `AiInsightDao` storing cached insights locally with compound cache-key and timestamp.
-3. **Full Refresh & Throttling UI**:
-   - Countdown timer display indicating when next insight generation is available (if throttled within 6 hours).
-   - Manual pull-to-refresh / "Request New Debrief" button.
-4. **Settings Opt-In Flow & Educational Dialog**:
-   - Detailed consent explanation dialog when toggling `aiInsightsEnabled` on.
+---
+
+## 12. Architectural Decision: Screen Placement & Discoverability (Day 25 Step 23)
+
+### 12.1 Decision: Surface on Today Dashboard as Contextual Card Over Dedicated Bottom Nav Tab
+PixelQuest resolves the discoverability placement by surfacing AI Habit Insights as a first-class, theme-dispatching card on **`TodayScreen`** (the player's primary daily quest dashboard), supported by a focused destination route (`Screen.AiInsight.route`).
+
+### 12.2 Tradeoff Analysis & Rationale
+1. **Bottom Navigation Bar Ergonomics**:
+   - The app's bottom navigation bar already contains 5 primary tabs (Today, Quests, Stats, Leaderboard, Profile).
+   - Adding a 6th bottom navigation tab overcrowds mobile viewports, especially within the 8-bit retro arcade and comic design systems where touch targets require distinct padding and outlines.
+2. **Contextual Proximity to Action**:
+   - `TodayScreen` is where players plan, execute, and log daily habits. Presenting AI coaching alongside today's active quest list connects strategic advice directly to real-time player actions.
+3. **Respecting the Opt-In Default**:
+   - AI Insights defaults to disabled for data privacy. A persistent bottom tab dedicated to an optional disabled feature confuses players and wastes prime UI real estate.
+   - On `TodayScreen`, an opt-in card smoothly communicates value when disabled, and blossoms into a live coaching HUD once enabled.
+4. **Focused Drilldown Accessibility**:
+   - In addition to the dashboard card, `Screen.AiInsight.route` enables full-screen debriefs, deep-links from notifications, or tap-to-expand workflows without nav bar bloat.

@@ -2330,6 +2330,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 19: Build Light-mode visual treatment with clean surfaces and high-contrast typography - aebe329
 - Step 20: Build Comic-mode visual treatment presenting insights in speech and thought bubble panels - 1bd9fac
 - Step 21: Add loading, error, rate-limited, and not-enough-data UI states dispatch-aware across all three themes - 1c8ea56
+- Step 22: Add Compose Previews for AiInsightScreen across all three themes and every UI state - cfc973a
 
 
 
