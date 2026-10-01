@@ -43,6 +43,7 @@ sealed class Screen(val route: String) {
     object Account : Screen("account")
     object Leaderboard : Screen("leaderboard")
     object ThemeSelection : Screen("theme_selection")
+    object AiInsight : Screen("ai_insight")
 }
 
 @Composable
@@ -72,7 +73,29 @@ fun PixelNavHost(
             )
         }
         composable(Screen.Home.route) {
-            HomeScreen()
+            HomeScreen(
+                onNavigateToCreateTask = {
+                    navController.navigate(Screen.CreateTask.route)
+                },
+                onNavigateToEditTask = { taskId ->
+                    navController.navigate(Screen.EditTask.createRoute(taskId))
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route)
+                },
+                onNavigateToAiInsight = {
+                    navController.navigate(Screen.AiInsight.route)
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
+                }
+            )
+        }
+        composable(Screen.AiInsight.route) {
+            com.pixelquest.app.ui.screens.insight.AiInsightScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
+            )
         }
         composable(Screen.Tasks.route) {
             TasksScreen(

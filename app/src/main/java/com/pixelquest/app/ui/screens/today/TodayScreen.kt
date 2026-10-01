@@ -46,7 +46,9 @@ fun TodayScreen(
     viewModel: TodayViewModel = hiltViewModel(),
     onNavigateToCreateTask: () -> Unit = {},
     onNavigateToEditTask: (Long) -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToAiInsight: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val haptics = LocalHapticFeedback.current
@@ -93,7 +95,9 @@ fun TodayScreen(
                     onRefresh = { viewModel.refresh() },
                     onCreateQuestClick = onNavigateToCreateTask,
                     onNavigateToEditTask = onNavigateToEditTask,
-                    onNavigateToProfile = onNavigateToProfile
+                    onNavigateToProfile = onNavigateToProfile,
+                    onNavigateToAiInsight = onNavigateToAiInsight,
+                    onNavigateToSettings = onNavigateToSettings
                 )
             }
         }
@@ -109,6 +113,8 @@ fun TodayContent(
     onCreateQuestClick: () -> Unit,
     onNavigateToEditTask: (Long) -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToAiInsight: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var taskToSkip by remember { mutableStateOf<TaskEntity?>(null) }
@@ -200,6 +206,12 @@ fun TodayContent(
                     }
                 }
             }
+        }
+        item {
+            TodayAiInsightSection(
+                onNavigateToAiInsight = onNavigateToAiInsight,
+                onNavigateToSettings = onNavigateToSettings
+            )
         }
         if (state.flavorText.isNotBlank()) {
             item {

@@ -16,7 +16,9 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onNavigateToCreateTask: () -> Unit = {},
     onNavigateToEditTask: (Long) -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToAiInsight: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -24,7 +26,9 @@ fun HomeScreen(
         TodayScreen(
             onNavigateToCreateTask = onNavigateToCreateTask,
             onNavigateToEditTask = onNavigateToEditTask,
-            onNavigateToProfile = onNavigateToProfile
+            onNavigateToProfile = onNavigateToProfile,
+            onNavigateToAiInsight = onNavigateToAiInsight,
+            onNavigateToSettings = onNavigateToSettings
         )
 
         val pendingLevel = uiState.pendingLevelUp
