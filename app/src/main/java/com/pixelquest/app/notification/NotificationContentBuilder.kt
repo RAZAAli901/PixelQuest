@@ -25,11 +25,32 @@ data class NotificationCopy(
 object NotificationContentBuilder {
 
     fun reminder(ctx: ReminderContext): NotificationCopy {
-        val title = NotificationHelper.getReminderTitle(ctx.taskName, ctx.isSimpleMode)
+        val title = if (ctx.isSimpleMode) {
+            NotificationHelper.getReminderTitle(ctx.taskName, isSimpleMode = true)
+        } else {
+            "${categoryGlyph(ctx.category)} Quest Time: ${ctx.taskName}"
+        }
         val progress = progressLine(ctx)
-        val prompt = NotificationHelper.getReminderText(ctx.taskName, ctx.isSimpleMode)
+        val prompt = streakAtRiskLine(ctx) ?: NotificationHelper.getReminderText(ctx.taskName, ctx.isSimpleMode)
         val bigText = listOfNotNull(progress, prompt).joinToString("\n")
         return NotificationCopy(title = title, text = progress ?: prompt, bigText = bigText)
+    }
+
+    fun categoryGlyph(category: TaskCategory): String = when (category) {
+        TaskCategory.FITNESS -> "💪"
+        TaskCategory.HEALTH -> "❤️"
+        TaskCategory.LEARNING -> "📚"
+        TaskCategory.CHORES -> "🧹"
+        TaskCategory.OTHER -> "⚔️"
+    }
+
+    /** Only in gamified mode, and only while there is a streak to protect and work left today. */
+    internal fun streakAtRiskLine(ctx: ReminderContext): String? {
+        if (ctx.isSimpleMode || ctx.currentStreak <= 0) return null
+        val remaining = ctx.totalToday - ctx.doneToday
+        if (remaining <= 0) return null
+        val quests = if (remaining == 1) "quest" else "quests"
+        return "$remaining $quests left today. Keep your ${ctx.currentStreak}-day streak alive!"
     }
 
     /** "🔥 3-day streak · 1 of 3 quests done today", or null when there is nothing to report. */
