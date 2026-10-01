@@ -14,7 +14,9 @@ data class ReminderContext(
     val doneToday: Int,
     val totalToday: Int,
     /** Minutes until the task's time when the reminder fires early (lead time); 0 = due now. */
-    val startsInMinutes: Int = 0
+    val startsInMinutes: Int = 0,
+    /** Short encouraging line shown last in the expanded reminder. */
+    val encouragement: String? = null
 )
 
 data class NotificationCopy(
@@ -36,7 +38,7 @@ object NotificationContentBuilder {
         }
         val progress = progressLine(ctx)
         val prompt = streakAtRiskLine(ctx) ?: NotificationHelper.getReminderText(ctx.taskName, ctx.isSimpleMode)
-        val bigText = listOfNotNull(progress, prompt).joinToString("\n")
+        val bigText = listOfNotNull(progress, prompt, ctx.encouragement?.takeIf { it.isNotBlank() }).joinToString("\n")
         return NotificationCopy(title = title, text = progress ?: prompt, bigText = bigText)
     }
 

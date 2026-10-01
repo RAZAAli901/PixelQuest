@@ -22,6 +22,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.data.local.prefs.EncouragementPackStore
+import com.pixelquest.app.domain.ai.AiEncouragementProvider
+import com.pixelquest.app.domain.ai.EncouragementMessageProvider
+import com.pixelquest.app.domain.ai.StaticEncouragementBank
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,6 +48,9 @@ class TaskAlarmReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var taskCompletionRepository: TaskCompletionRepository
+
+    @Inject
+    lateinit var encouragementPackStore: EncouragementPackStore
 
     override fun onReceive(context: Context, intent: Intent) {
         val taskId = intent.getLongExtra("EXTRA_TASK_ID", -1L)
@@ -89,7 +96,10 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         val soundEnabled = settingsRepository.isNotificationSoundEnabled.first() && style != ReminderStyle.SILENT
         val vibrationEnabled = settingsRepository.isNotificationVibrationEnabled.first()
         val copy = NotificationContentBuilder.reminder(
-            buildReminderContext(taskName, category, isSimpleMode).copy(startsInMinutes = startsInMinutes)
+            buildReminderContext(taskName, category, isSimpleMode).copy(
+                startsInMinutes = startsInMinutes,
+                encouragement = encouragementProvider().messageFor(LocalDate.now(), taskId, isSimpleMode)
+            )
         )
 
         val promptIntent = Intent(context, TaskPromptActivity::class.java).apply {
@@ -161,6 +171,13 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         } catch (e: SecurityException) {
             // Permission missing
         }
+    }
+
+    /** AI-written lines only while both AI Coach and AI reminder messages are on. */
+    private suspend fun encouragementProvider(): EncouragementMessageProvider {
+        val useAi = settingsRepository.aiInsightsEnabled.first() &&
+            settingsRepository.aiReminderMessagesEnabled.first()
+        return if (useAi) AiEncouragementProvider({ encouragementPackStore.load() }) else StaticEncouragementBank
     }
 
     /** Minutes from now to the task's time on the day this reminder is for (0 if it is due now). */
