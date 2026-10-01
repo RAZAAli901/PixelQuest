@@ -2334,6 +2334,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 23: Decide and document placement on TodayScreen dashboard rather than dedicated bottom nav tab - 9fd9890
 - Step 24: Wire AiInsightScreen and contextual TodayAiInsightSection into TodayScreen and NavGraph - b65d73a
 - Step 25: Provide dedicated AI Habit Coach section in Settings with privacy disclosure dialog - fea9368
+- Step 26: Verify insight card and screen display clear opt-in prompt and block API calls when disabled - 0f58423
 
 
 
