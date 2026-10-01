@@ -124,6 +124,7 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
+            NotificationChannelLinks()
         },
         appearanceSection = {
             if (state.showComicModeHighlight && state.themeMode != com.pixelquest.app.ui.theme.ThemeMode.Comic) {

@@ -4,7 +4,10 @@ import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 
 /**
  * Every notification channel PixelQuest posts to. On Android 8+ sound and vibration are fixed per
@@ -82,6 +85,24 @@ object NotificationChannels {
     /** Reminder channel for the user's sound preference. */
     fun reminderChannel(soundEnabled: Boolean): Spec =
         if (soundEnabled) Spec.REMINDERS else Spec.REMINDERS_SILENT
+
+    /** Channels the user can tune from Settings (the sync channel is too minor to list). */
+    val userFacing: List<Spec> = listOf(Spec.REMINDERS, Spec.REMINDERS_SILENT, Spec.MISSED, Spec.PROGRESS, Spec.COACH)
+
+    /** Opens the system page for one channel; before Android 8 there are no channels, so open the app page. */
+    fun systemSettingsIntent(context: Context, spec: Spec): Intent {
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                putExtra(Settings.EXTRA_CHANNEL_ID, spec.id)
+            }
+        } else {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+        }
+        return intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
 
     fun createAll(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
