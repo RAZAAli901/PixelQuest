@@ -2441,4 +2441,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 37: Add EncouragementMessageProvider and a built-in tone-aware bank of reminder encouragement lines - 8db5a3f
 - Step 38: Add the AI reminder messages setting (off by default, shown only while AI Coach is on) - 4756bce
 - Step 39: Add EncouragementSanitizer: drop AI lines that are too long, contain links or markup, or use game words in Simple Mode - 8ec73dd
-- Step 40: Add EncouragementPackPrompt: aggregate-only prompt, tone-specific instructions and tolerant JSON parsing - pending
+- Step 40: Add EncouragementPackPrompt: aggregate-only prompt, tone-specific instructions and tolerant JSON parsing - 1955cec
+- Step 41: Add EncouragementPackStore and AiEncouragementProvider: fresh AI lines in the right tone, else the built-in bank - pending
