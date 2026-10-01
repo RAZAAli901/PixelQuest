@@ -2455,4 +2455,41 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 51: Inexact fallback alarms use a 10-minute window instead of Android's default of up to an hour - 79a4065
 - Step 52: Update notification copy tests for the new missed-task wording that no longer claims the streak broke - 12dfadc
 - Step 53: Rewrite NOTIFICATIONS.md: pipeline, channels, reminder content, per-task settings, AI messages, ids, audit and known gaps - caad707
-- Step 54: Final verification: clean build, unit test comparison against baseline, and emulator notification checks in VERIFICATION.md - pending
+- Step 54: Final verification: clean build, unit test comparison against baseline, and emulator notification checks in VERIFICATION.md - 070a594
+- Step 55: Update BRIEF.md with the Day 26 summary - (this commit)
+
+## Day 26 Summary — Enhanced Notifications
+
+### 1. Carry-over fixes from the Day 25 UI review (Steps 1–7)
+- Launch crash fixed: `ktor-client-android` 2.3.10 did not match the Ktor 3.0.1 core that Supabase pulls in.
+- Difficulty picker crash fixed: `ic_diff_easy.xml` path data was corrupted in Day 22 (`v8.8System.z`).
+- Onboarding now shows on first launch in every theme (the splash read a stale `onboardingComplete`).
+- The AI Coach card reacts to the opt-in immediately instead of after a restart.
+- Gemini model id centralised as `GEMINI_MODEL_ID` (`gemini-2.5-flash`; `gemini-1.5-flash` was retired).
+- The unit test source set did not compile (572 errors in 91 files). Missing test dependencies were added and the 91 files quarantined in `app/quarantined-unit-tests.txt` so the rest of the suite runs.
+
+### 2. Core fixes found while auditing notifications
+- No `@HiltWorker` could be constructed, so missed-task checks, streak evaluation and leaderboard sync never ran. WorkManager now uses `HiltWorkerFactory` (Step 50).
+- Reminders were never scheduled on Android 14, where exact alarms are off by default. They now fall back to 10-minute-window alarms, Settings prompts for "Alarms & reminders", and alarms re-arm when it is granted and on every launch (Steps 47–49, 51).
+- Recurring tasks only counted on the day they were created; `getTasksForDay` now matches daily, weekly and monthly occurrences (Step 22).
+- Alarms are re-armed after they fire, after quick complete or skip, and correctly after a reboot; the master toggle, Simple Mode, sound and vibration settings are honoured (Steps 8–13).
+
+### 3. Channels and content
+- Six channels in one group (reminders, silent reminders, missed, progress, AI Coach, sync); the legacy channel is deleted. Settings links to each channel's system page and has a reminder sound toggle.
+- Reminders show the category icon, today's progress, a streak-at-risk line, an encouragement line, and Yes / Not yet / Snooze 10 min actions, grouped under a summary when several are showing. Missed-task text no longer claims the streak broke.
+
+### 4. Per-task reminder settings
+- `reminderEnabled`, `reminderLeadMinutes` (0–60) and `reminderStyle` (Standard, Silent, Full screen) on `TaskEntity` via non-destructive `MIGRATION_4_5`, included in backups, and editable in a Reminder section on Create/Edit task in all three themes.
+
+### 5. Optional AI-written encouragement
+- Off by default, only while AI Coach is on. One daily Gemini call with aggregate numbers only, counted against the existing caps, sanitised, with built-in lines as the fallback. AI Coach also posts a quiet "insight ready" notification when its cooldown ends.
+
+### 6. Testing
+- 43 new unit tests (ReminderSchedule, TaskOccurrence, channels, content builder, migration, encouragement, insight-ready worker). Full run: 383 tests, 31 failing, all pre-dating Day 26 (baseline was 36). Emulator checks are listed in VERIFICATION.md Section E.
+
+### 7. Known gaps for Day 27 onwards
+- The Gemini API key in `local.properties` is invalid, so live AI features remain untested; the key is still sent as a URL query parameter (move to the `x-goog-api-key` header in Day 27).
+- 91 quarantined test files and 31 failing tests to repair in Day 29.
+- Light theme: text inside input fields is invisible (pre-existing, seen on Edit Quest and Settings).
+- Weekly tasks repeat on their first date's weekday; the form's day picker is not stored.
+- The AI Coach card shows raw API errors to the user.
