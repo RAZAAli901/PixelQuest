@@ -2347,6 +2347,56 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 36: Manual QA verification confirming feature renders correctly across Pixel, Light, and Comic themes - 77411aa
 - Step 37: Manual QA assessment verifying Simple Mode tone difference is genuinely noticeable and appropriate - 4dd27b4
 - Step 38: Fix edge cases and quality polish across cooldown calculation, cap fallback, and opt-in card framing - bb5c614
+- Step 39: Run full regression pass confirming zero impact to existing features, schema, and navigation - 4d00057
+
+## Day 25 Summary — AI Habit Insights: Caching, Rate Limiting & User-Facing Screen
+
+### 1. Caching Strategy Implemented
+- **Room Persistence Layer**: Built `InsightCacheEntity`, `InsightCacheDao`, `InsightCacheRepository`, and `InsightCacheRepositoryImpl`.
+- **Database Migration (`MIGRATION_3_4`)**: Safely bumped Room `AppDatabase` from version 3 to 4, non-destructively creating the `insight_cache` table with indices on `generatedAt` and `dataHash`.
+- **Cache Invalidation & Freshness Key**:
+  - `dataHash`: SHA-256 fingerprint generated from sanitized telemetry metrics (streak, completion percentage, task categories) and active tone mode.
+  - `CACHE_TTL_MILLIS`: 12-hour staleness window.
+  - If habit data has not meaningfully changed and the insight is under 12 hours old, cached insights are instantly returned with zero API overhead.
+
+### 2. Rate-Limiting & Cost Safeguards
+- **Minimum Call Interval**: Hard 6-hour cooldown (`MIN_CALL_INTERVAL_MS = 6 * 60 * 60 * 1000L`) enforced per user.
+- **Human-Readable Timing**: `AiRateLimitFormatter` formats remaining cooldowns into user-friendly strings ("Check back in X hours Y minutes").
+- **Hard Cost Safeguards (`AiUsagePolicy`)**:
+  - Daily Cap: Maximum 4 calls per calendar day (`MAX_CALLS_PER_DAY = 4`).
+  - Monthly Cap: Maximum 60 calls per calendar month (`MAX_CALLS_PER_MONTH = 60`).
+  - Backed by `PreferencesAiUsageTracker` maintaining lightweight persistent counters in SharedPreferences without remote server round-trips.
+  - When caps are reached, the system gracefully halts API calls and displays `AiInsightUiState.CapReached` with clear reset guidance.
+
+### 3. User-Facing Screen & Multi-Theme UI Architecture
+- **Theme-Dispatched Rendering**:
+  - **Pixel Theme**: Retro arcade CRT telemetry aesthetics, 3.dp block borders, monospace status displays, golden `HABIT COACH` header, and 8-bit sound integration.
+  - **Light Theme**: Modern clean slate/white cards, high-contrast typography, 1.dp subtle borders, and an executive coach tone.
+  - **Comic Theme**: Comic panels with speech/thought bubble tails, 2.5dp solid black ink outlines, Bangers headline typography, and vibrant pop colors (`BURNT_ORANGE`, `SKY_BLUE`, `LAVENDER`, `PAPER`).
+- **Contextual Dashboard Integration**: Contextual `TodayAiInsightSection` embedded directly in `TodayScreen.kt`, providing seamless access to daily habit debriefs alongside the quest feed. Full screen accessible via `Screen.AiInsight.route`.
+- **Exhaustive UI State Coverage**: All three themes natively support `Loading`, `Success` (fresh vs cached badge), `RateLimited`, `NotEnoughData` (with 3-day progress counter), `Disabled` (opt-in CTA), `CapReached` (safeguard banner), and `Error` (with retry affordance).
+
+### 4. Privacy & Consent Framework
+- Dedicated **AI Habit Coach** section in `SettingsScreen` with an opt-in toggle.
+- Modeled after the leaderboard disclosure, `AiInsightsPrivacyConfirmDialog` explicitly informs users that **zero custom task titles, personal notes, or identifying information** are ever sent to Gemini. Only sanitized aggregate metrics are transmitted.
+- Strict gating blocks all Gemini calls and Room queries until explicit user consent is given.
+
+### 5. Simple Mode Integration & Tone Specialization
+- **Tone-Hook Architecture**: `HabitInsightToneHook` dynamically resolves tone between `GAMIFIED_PIXEL` (RPG terms: mana, quests, dungeon, hero) and `CALM_SIMPLE` (grounded behavioral science: routines, habit stacking, anchors, consistency).
+- **Visual Adaptation**: Simple Mode eliminates cartoonish RPG framing, adopting a sprout 🌱 badge, `[HABIT TELEMETRY]` / `HABIT COACH` headers, and `DAILY PERSPECTIVE` card titling.
+
+### 6. QA Verification & Test Coverage
+- **Integration Test**: `AiInsightUserFlowIntegrationTest` verifies the full end-to-end lifecycle (opt-in -> initial live call -> instant cache hit on revisit -> cooldown gating -> explicit refresh).
+- **Scenario Quality QA**: `Day25InsightQualityManualQaTest` exercises perfect, mixed, and struggling week scenarios, verifying constructive, shame-free guidance.
+- **Theme Rendering QA**: `Day25ThemeRenderingManualQaTest` verifies exhaustive 3-theme coverage across all states.
+- **Tone QA**: `Day25SimpleModeToneQualityManualQaTest` confirms qualitative distinction between Gamified and Simple mode copy.
+- **Regression Pass**: `Day25FullRegressionPassTest` verifies zero regressions across database schema, navigation routes, and core habit tracking.
+
+### 7. Known Gaps for Day 26
+- Cloud backup / remote synchronization of historical insight summaries.
+- Proactive notification reminders when a new weekly insight is ready or cooldown expires.
+- Category-specific deep-dive charts linking habit drop-offs to specific times of day.
+
 
 
 
