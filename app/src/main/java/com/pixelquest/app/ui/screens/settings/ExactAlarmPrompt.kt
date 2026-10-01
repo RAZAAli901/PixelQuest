@@ -39,7 +39,7 @@ fun ExactAlarmPrompt(canScheduleExact: () -> Boolean, onAllow: () -> Unit) {
 
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
-            text = "Reminders may arrive a few minutes late. Allow \"Alarms & reminders\" so they fire on time.",
+            text = "Reminders can arrive up to 10 minutes late (longer if your phone is idle). Allow \"Alarms & reminders\" so they fire on time.",
             style = MaterialTheme.typography.bodySmall,
             color = PixelTheme.colors.onSurface
         )

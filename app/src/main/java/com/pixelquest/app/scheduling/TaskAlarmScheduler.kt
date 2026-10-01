@@ -100,8 +100,8 @@ class TaskAlarmScheduler @Inject constructor(
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTimeMillis, pendingIntent)
             } else {
                 // Android 12+ needs "Alarms & reminders" for exact alarms, and Android 14 starts with it off.
-                // Without it, still remind: Android may deliver this a few minutes late.
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTimeMillis, pendingIntent)
+                // Without it, still remind within a short window (an inexact alarm can otherwise drift ~1 hour).
+                alarmManager.setWindow(AlarmManager.RTC_WAKEUP, triggerTimeMillis, INEXACT_WINDOW_MS, pendingIntent)
             }
         } catch (e: SecurityException) {
             android.util.Log.w("TaskAlarmScheduler", "Exact alarm permission revoked or unavailable, degrading gracefully", e)
@@ -140,7 +140,7 @@ class TaskAlarmScheduler @Inject constructor(
             if (canScheduleExactAlarms()) {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
             } else {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+                alarmManager.setWindow(AlarmManager.RTC_WAKEUP, triggerAt, INEXACT_WINDOW_MS, pendingIntent)
             }
         } catch (e: SecurityException) {
             android.util.Log.w("TaskAlarmScheduler", "Could not schedule snooze for task $taskId", e)
@@ -171,6 +171,8 @@ class TaskAlarmScheduler @Inject constructor(
 
     companion object {
         const val SNOOZE_MINUTES = 10L
+        /** Shortest window Android 12+ honours for inexact alarms. */
+        const val INEXACT_WINDOW_MS = 10 * 60_000L
         fun snoozeRequestCode(taskId: Long): Int = (taskId * 10 + 4).toInt()
     }
 }
