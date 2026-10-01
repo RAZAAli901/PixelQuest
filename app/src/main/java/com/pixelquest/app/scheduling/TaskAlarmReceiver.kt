@@ -109,6 +109,18 @@ class TaskAlarmReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val snoozeIntent = Intent(context, TaskActionReceiver::class.java).apply {
+            action = TaskActionReceiver.ACTION_SNOOZE
+            putExtra("EXTRA_TASK_ID", taskId)
+            putExtra("EXTRA_TASK_NAME", taskName)
+        }
+        val snoozePendingIntent = PendingIntent.getBroadcast(
+            context,
+            TaskAlarmScheduler.snoozeRequestCode(taskId),
+            snoozeIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         try {
             val notification = NotificationHelper.buildTaskReminderNotification(
                 context = context,
@@ -117,6 +129,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 contentIntent = contentPendingIntent,
                 yesIntent = yesPendingIntent,
                 noIntent = noPendingIntent,
+                snoozeIntent = snoozePendingIntent,
                 soundEnabled = soundEnabled,
                 vibrationEnabled = vibrationEnabled,
                 isSimpleMode = isSimpleMode,

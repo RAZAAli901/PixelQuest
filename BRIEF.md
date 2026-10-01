@@ -2424,4 +2424,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 20: Add NotificationChannelsTest (Robolectric): unique ids, sound routing, channel creation, legacy channel removal - bd22358
 - Step 21: Add NotificationContentBuilder: reminders show streak and today's progress in an expandable BigText style - 7c55c25
 - Step 22: Fix recurring tasks appearing only on their first day: getTasksForDay matches daily/weekly/monthly occurrences - 2d9f70f
-- Step 23: Reminder copy: category icon in the title, streak-at-risk line, and missed-task text that no longer claims the streak broke - pending
+- Step 23: Reminder copy: category icon in the title, streak-at-risk line, and missed-task text that no longer claims the streak broke - 96582a2
+- Step 24: Add a Snooze 10 min action to reminders, backed by a separate one-off snooze alarm - pending

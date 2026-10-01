@@ -38,6 +38,7 @@ object NotificationHelper {
         contentIntent: PendingIntent? = null,
         yesIntent: PendingIntent? = null,
         noIntent: PendingIntent? = null,
+        snoozeIntent: PendingIntent? = null,
         soundEnabled: Boolean = true,
         vibrationEnabled: Boolean = true,
         isSimpleMode: Boolean = false,
@@ -71,6 +72,9 @@ object NotificationHelper {
         }
         if (noIntent != null) {
             builder.addAction(0, "Not yet", noIntent)
+        }
+        if (snoozeIntent != null) {
+            builder.addAction(0, "Snooze 10 min", snoozeIntent)
         }
 
         return builder.build()

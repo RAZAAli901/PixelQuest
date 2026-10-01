@@ -9,6 +9,7 @@ import com.pixelquest.app.domain.PointsCalculator
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
+import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,10 +30,20 @@ class TaskActionReceiver : BroadcastReceiver() {
     @Inject
     lateinit var streakRepository: StreakRepository
 
+    @Inject
+    lateinit var taskAlarmScheduler: TaskAlarmScheduler
+
     override fun onReceive(context: Context, intent: Intent) {
         val taskId = intent.getLongExtra("EXTRA_TASK_ID", -1L)
         val wasCompleted = intent.getBooleanExtra("EXTRA_WAS_COMPLETED", false)
         if (taskId == -1L) return
+
+        if (intent.action == ACTION_SNOOZE) {
+            val taskName = intent.getStringExtra("EXTRA_TASK_NAME") ?: "Quest Reminder"
+            taskAlarmScheduler.scheduleSnooze(taskId, taskName)
+            NotificationManagerCompat.from(context).cancel(taskId.toInt())
+            return
+        }
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
@@ -60,5 +71,9 @@ class TaskActionReceiver : BroadcastReceiver() {
                 pendingResult.finish()
             }
         }
+    }
+
+    companion object {
+        const val ACTION_SNOOZE = "com.pixelquest.app.action.SNOOZE_REMINDER"
     }
 }

@@ -112,6 +112,33 @@ class TaskAlarmScheduler @Inject constructor(
         scheduleExactAlarmForTask(task, notBefore = LocalDate.now().plusDays(1))
     }
 
+    /**
+     * One-off alarm [minutes] from now. Uses its own request code so it sits alongside the task's
+     * regular alarm instead of replacing it.
+     */
+    fun scheduleSnooze(taskId: Long, taskName: String, minutes: Long = SNOOZE_MINUTES) {
+        val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
+            putExtra("EXTRA_TASK_ID", taskId)
+            putExtra("EXTRA_TASK_NAME", taskName)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            snoozeRequestCode(taskId),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val triggerAt = System.currentTimeMillis() + minutes * 60_000L
+        try {
+            if (canScheduleExactAlarms()) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+            } else {
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+            }
+        } catch (e: SecurityException) {
+            android.util.Log.w("TaskAlarmScheduler", "Could not schedule snooze for task $taskId", e)
+        }
+    }
+
     fun cancelAlarmForTask(task: TaskEntity) {
         val intent = Intent(context, TaskAlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
@@ -132,5 +159,10 @@ class TaskAlarmScheduler @Inject constructor(
 
     fun rescheduleAllAlarms(tasks: List<TaskEntity>) {
         tasks.forEach { scheduleExactAlarmForTask(it) }
+    }
+
+    companion object {
+        const val SNOOZE_MINUTES = 10L
+        fun snoozeRequestCode(taskId: Long): Int = (taskId * 10 + 4).toInt()
     }
 }
