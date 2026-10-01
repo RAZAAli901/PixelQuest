@@ -2318,6 +2318,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 7: Enforce 6-hour minimum rate-limit interval in HabitInsightRepositoryImpl - 0d9b76f
 - Step 8: Add clear in-app message and AiRateLimitFormatter for throttled insight requests - c01d194
 - Step 9: Write unit test for rate-limit enforcement across boundary conditions - 19408f7
+- Step 10: Manual QA verification confirming rapid repeated requests hit rate limit without spamming Gemini - 594752b
 
 
 
