@@ -228,3 +228,31 @@ PixelQuest formally decides that the AI Insights UI itself must dynamically adju
 2. **Respecting Simple Mode Philosophy**: Simple Mode users explicitly opted out of gamification, levels, and fantasy framing. The AI coach UI honors this contract by presenting a clean, objective coaching dashboard while preserving the chosen theme's surface identity (Pixel, Light, or Comic).
 3. **Deterministic Cache Invalidation**: Because `HabitInsightTone` is embedded directly into the SHA-256 `dataHash` (Step 27), toggling Simple Mode automatically invalidates cached copy and refreshes both the content and visual framing without stale overlap.
 
+---
+
+## 14. Cost & Usage Safeguards: Hard Daily & Monthly Caps (Day 25 Step 30)
+
+### 14.1 Limits Overview
+To safeguard developer API budgets against infinite UI recomposition loops, background worker re-triggers, or client-side clock tampering, PixelQuest enforces two hard caps on total Gemini API calls independent of the per-request 6-hour cooldown window:
+
+| Cap Dimension | Limit | Enforcement Mechanism | Failure Response |
+| :--- | :--- | :--- | :--- |
+| **Hard Daily Cap** | **4 Calls / Day** | Local date bucket counter (`yyyy-MM-dd`) | "You've reached today's insight limit (4/day). Check back tomorrow for a fresh debrief." |
+| **Hard Monthly Cap** | **60 Calls / Month** | Local month bucket counter (`yyyy-MM`) | "You've reached this month's insight limit (60/month). Check back next month for fresh coaching." |
+
+### 14.2 Financial & Operational Rationale
+1. **Mathematical Alignment with 6-Hour Throttle**:
+   - A 24-hour day divided by a 6-hour cooldown window allows an absolute maximum of 4 legitimate calls per day under perfect conditions (e.g. 00:00, 06:00, 12:00, 18:00).
+   - Any attempt to exceed 4 calls in a single calendar day indicates either a clock anomaly, an automated script, or a logic defect. Capping at 4 requests/day enforces a zero-tolerance ceiling.
+2. **Cost Containment Under Pay-As-You-Go**:
+   - On Gemini 1.5 Flash:
+     - Input token cost: ~$0.075 per 1,000,000 tokens (~$0.0000375 per 500-token prompt).
+     - Output token cost: ~$0.30 per 1,000,000 tokens (~$0.000045 per 150-token JSON completion).
+     - Combined cost per call: **~$0.0000825 USD**.
+   - With a hard ceiling of 60 calls/month per user, the absolute maximum theoretical cost per user is **~$0.00495 USD / month** (< half a cent).
+   - Even with 10,000 active monthly players, the total API bill cannot exceed **$50.00 USD / month**.
+3. **Defense-in-Depth Against Runaway Costs**:
+   - While the 6-hour rate limit checks `currentTime - lastTimestamp >= 6 hours`, a software bug in timestamp serialization or device clock manipulation could theoretically bypass the time delta check.
+   - The daily/monthly usage counter tracks an independent integer count incremented only on confirmed API dispatches, creating a fail-safe circuit breaker that cannot be bypassed by clock adjustments.
+
+
