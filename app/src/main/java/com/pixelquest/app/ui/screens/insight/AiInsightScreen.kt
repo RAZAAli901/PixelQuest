@@ -169,9 +169,8 @@ fun AiInsightComicDispatch(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AiInsightStateRouter(
+        ComicAiInsightView(
             uiState = uiState,
-            themeMode = ThemeMode.Comic,
             onRefresh = onRefresh,
             onNavigateToSettings = onNavigateToSettings
         )
