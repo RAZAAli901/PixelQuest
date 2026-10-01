@@ -2348,6 +2348,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 37: Manual QA assessment verifying Simple Mode tone difference is genuinely noticeable and appropriate - 4dd27b4
 - Step 38: Fix edge cases and quality polish across cooldown calculation, cap fallback, and opt-in card framing - bb5c614
 - Step 39: Run full regression pass confirming zero impact to existing features, schema, and navigation - 4d00057
+- Step 40: Update BRIEF.md with full Day 25 summary of caching, rate limits, UI architecture, and QA - 610c21b
 
 ## Day 25 Summary — AI Habit Insights: Caching, Rate Limiting & User-Facing Screen
 

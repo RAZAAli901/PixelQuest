@@ -183,6 +183,34 @@ Day 25's user-facing AI Insights screen will natively support all three establis
 ---
 
 
+## 11. Room Caching Architecture & Database Migration (Day 25 Steps 1–6)
+
+### 11.1 Persistence Layer Details
+- **Entity**: `InsightCacheEntity` storing `id`, `generatedAt`, `summary`, `suggestion`, `encouragement`, and `dataHash`.
+- **DAO**: `InsightCacheDao` with conflict-replacement insertion, `getLatestInsight()`, reactive `observeLatestInsight()`, and `deleteOldInsights()`.
+- **Repository**: `InsightCacheRepository` and `InsightCacheRepositoryImpl` with `isCacheValid(dataHash, ttlMillis, nowMillis)`.
+- **Database Migration (`MIGRATION_3_4`)**: Bumps `AppDatabase` from version 3 to 4, safely creating `insight_cache` table:
+```sql
+CREATE TABLE IF NOT EXISTS insight_cache (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    generatedAt INTEGER NOT NULL,
+    summary TEXT NOT NULL,
+    suggestion TEXT NOT NULL,
+    encouragement TEXT NOT NULL,
+    dataHash TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS index_insight_cache_generatedAt ON insight_cache (generatedAt);
+CREATE INDEX IF NOT EXISTS index_insight_cache_dataHash ON insight_cache (dataHash);
+```
+
+### 11.2 Compound Invalidation Key
+- **`dataHash`**: SHA-256 hash computed over sanitized telemetry (`currentStreak`, `weeklyCompletionRate`, `totalScheduledQuestsPastWeek`, `categoryBreakdown`) plus the resolved `HabitInsightTone`.
+- Invalidation triggers:
+  1. Habit history changes (completions, missed tasks, streak adjustments).
+  2. Tone change (Simple Mode toggle).
+  3. Staleness: 12-hour TTL expiration.
+  4. Manual user-triggered refresh after the 6-hour rate-limit cooldown window.
+
 ---
 
 ## 12. Architectural Decision: Screen Placement & Discoverability (Day 25 Step 23)
@@ -254,5 +282,72 @@ To safeguard developer API budgets against infinite UI recomposition loops, back
 3. **Defense-in-Depth Against Runaway Costs**:
    - While the 6-hour rate limit checks `currentTime - lastTimestamp >= 6 hours`, a software bug in timestamp serialization or device clock manipulation could theoretically bypass the time delta check.
    - The daily/monthly usage counter tracks an independent integer count incremented only on confirmed API dispatches, creating a fail-safe circuit breaker that cannot be bypassed by clock adjustments.
+
+---
+
+## 15. UI State Machine Architecture
+
+### 15.1 Sealed UI State Contract (`AiInsightUiState`)
+The UI layer is driven strictly by reactive StateFlow emissions from `AiInsightViewModel`:
+
+```kotlin
+sealed interface AiInsightUiState {
+    data object Loading : AiInsightUiState
+    data class Success(
+        val insight: HabitInsightResponse,
+        val isCached: Boolean = false,
+        val remainingCooldownSeconds: Long = 0L,
+        val canRefresh: Boolean = true
+    ) : AiInsightUiState
+    data class RateLimited(
+        val retryAfterSeconds: Long,
+        val message: String,
+        val lastInsight: HabitInsightResponse? = null
+    ) : AiInsightUiState
+    data class NotEnoughData(
+        val daysLogged: Int,
+        val minimumRequiredDays: Int = 3,
+        val message: String,
+        val encouragingTip: String
+    ) : AiInsightUiState
+    data class Disabled(
+        val message: String = "AI Habit Insights are disabled. Enable them in Settings."
+    ) : AiInsightUiState
+    data class CapReached(
+        val message: String,
+        val isMonthly: Boolean = false,
+        val lastInsight: HabitInsightResponse? = null
+    ) : AiInsightUiState
+    data class Error(
+        val message: String,
+        val canRetry: Boolean = true,
+        val fallbackInsight: HabitInsightResponse? = null
+    ) : AiInsightUiState
+}
+```
+
+### 15.2 State Transition Lifecycle
+1. **Initial Load (`loadInsight(forceRefresh = false)`)**:
+   - Check `SettingsRepository.aiInsightsEnabled`. If false -> `Disabled`.
+   - Check completion history. If < 3 distinct days -> `NotEnoughData`.
+   - Query `InsightCacheRepository.getLatestInsight()`. If warm -> immediately emit `Success(isCached = true)` for instant rendering.
+   - Call `HabitInsightRepository.generateHabitInsight()`. If cache is valid (same `dataHash`), emit `Success(isCached = true)`. If stale, call Gemini and emit fresh `Success(isCached = false)`.
+2. **Rate Limit / Cooldown**:
+   - If user taps refresh before 6 hours elapse, emit `RateLimited` displaying countdown and preserving `lastInsight`.
+3. **Usage Limit Hit**:
+   - If user hits 4 calls/day or 60 calls/month, emit `CapReached` disabling refresh and showing friendly reset notice.
+
+---
+
+## 16. Feature Status: 100% Complete
+- **Backend & Model**: Google Gemini 1.5 Flash via direct Ktor REST.
+- **Privacy & Sanitization**: Zero PII, regex email/phone stripping, active username/task title redaction.
+- **Caching**: Room database v4 (`insight_cache`), 12h TTL, SHA-256 `dataHash`.
+- **Throttling & Caps**: 6-hour minimum interval, 4 calls/day, 60 calls/month.
+- **User-Facing UI**: Multi-theme dispatch (Pixel, Light, Comic) on `TodayScreen` and dedicated `AiInsightScreen`.
+- **Simple Mode**: Tone hook (`CALM_SIMPLE`) and visual framing adaptation.
+- **Settings**: Dedicated AI Habit Coach section with privacy confirmation dialog.
+- **QA Verification**: 100% passing unit, integration, theme rendering, and regression test suites.
+
 
 
