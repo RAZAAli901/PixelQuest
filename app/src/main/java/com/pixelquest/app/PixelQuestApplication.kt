@@ -8,6 +8,8 @@ import androidx.work.WorkManager
 import com.pixelquest.app.notification.NotificationHelper
 import com.pixelquest.app.worker.MissedTaskWorker
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @HiltAndroidApp
@@ -15,6 +17,17 @@ class PixelQuestApplication : Application() {
 
     @javax.inject.Inject
     lateinit var connectivitySyncObserver: com.pixelquest.app.worker.ConnectivitySyncObserver
+
+    @javax.inject.Inject
+    lateinit var taskRepository: com.pixelquest.app.domain.repository.TaskRepository
+
+    @javax.inject.Inject
+    lateinit var settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository
+
+    @javax.inject.Inject
+    lateinit var taskAlarmScheduler: com.pixelquest.app.scheduling.TaskAlarmScheduler
+
+    private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
@@ -29,6 +42,22 @@ class PixelQuestApplication : Application() {
         scheduleStreakEvaluationWorker()
         // Does nothing unless AI Coach and AI reminder messages are both on.
         com.pixelquest.app.worker.EncouragementPackWorker.schedule(this)
+        rearmReminders()
+    }
+
+    /**
+     * Re-arms every task's next reminder on launch. Each alarm replaces the task's existing one, so
+     * this is safe to repeat, and it repairs installs where earlier versions never armed alarms.
+     */
+    private fun rearmReminders() {
+        appScope.launch {
+            try {
+                if (!settingsRepository.isNotificationsEnabled.first()) return@launch
+                taskAlarmScheduler.rescheduleAllAlarms(taskRepository.getAllTasks().first().filter { it.isActive })
+            } catch (e: Exception) {
+                android.util.Log.w("PixelQuestApplication", "Could not re-arm reminders on launch", e)
+            }
+        }
     }
 
     private fun scheduleMissedTaskWorker() {
