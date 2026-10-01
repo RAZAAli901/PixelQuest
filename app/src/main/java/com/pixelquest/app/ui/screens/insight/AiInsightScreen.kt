@@ -127,9 +127,8 @@ fun AiInsightPixelDispatch(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AiInsightStateRouter(
+        PixelAiInsightView(
             uiState = uiState,
-            themeMode = ThemeMode.Pixel,
             onRefresh = onRefresh,
             onNavigateToSettings = onNavigateToSettings
         )
