@@ -1,0 +1,235 @@
+package com.pixelquest.app.ui.screens.insight
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.pixelquest.app.ui.components.PixelTopAppBar
+import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.ThemeMode
+
+/**
+ * Step 16: AiInsightScreen scaffolding with native theme-dispatching UI architecture.
+ * Evaluates the active [ThemeMode] (Pixel, Light, or Comic) and routes presentation
+ * through dedicated theme renderers.
+ */
+@Composable
+fun AiInsightScreen(
+    modifier: Modifier = Modifier,
+    viewModel: AiInsightViewModel = hiltViewModel(),
+    onNavigateBack: (() -> Unit)? = null,
+    onNavigateToSettings: (() -> Unit)? = null
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    AiInsightScreenContent(
+        modifier = modifier,
+        uiState = uiState,
+        onRefresh = { viewModel.refreshInsight() },
+        onNavigateBack = onNavigateBack,
+        onNavigateToSettings = onNavigateToSettings
+    )
+}
+
+@Composable
+fun AiInsightScreenContent(
+    modifier: Modifier = Modifier,
+    uiState: AiInsightUiState,
+    onRefresh: () -> Unit,
+    onNavigateBack: (() -> Unit)? = null,
+    onNavigateToSettings: (() -> Unit)? = null
+) {
+    val themeMode = PixelTheme.mode
+    val colors = PixelTheme.colors
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            PixelTopAppBar(
+                title = when (themeMode) {
+                    ThemeMode.Comic -> "AI QUESTMASTER"
+                    ThemeMode.Light -> "Habit Insights"
+                    else -> "AI COACH"
+                },
+                navigationIcon = if (onNavigateBack != null) {
+                    {
+                        androidx.compose.material3.IconButton(onClick = onNavigateBack) {
+                            Text(
+                                text = "◀",
+                                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                                color = colors.primary
+                            )
+                        }
+                    }
+                } else null
+            )
+        },
+        containerColor = colors.background
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(colors.background)
+        ) {
+            when (themeMode) {
+                ThemeMode.Comic -> {
+                    AiInsightComicDispatch(
+                        uiState = uiState,
+                        onRefresh = onRefresh,
+                        onNavigateToSettings = onNavigateToSettings
+                    )
+                }
+                ThemeMode.Light -> {
+                    AiInsightLightDispatch(
+                        uiState = uiState,
+                        onRefresh = onRefresh,
+                        onNavigateToSettings = onNavigateToSettings
+                    )
+                }
+                else -> {
+                    AiInsightPixelDispatch(
+                        uiState = uiState,
+                        onRefresh = onRefresh,
+                        onNavigateToSettings = onNavigateToSettings
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AiInsightPixelDispatch(
+    uiState: AiInsightUiState,
+    onRefresh: () -> Unit,
+    onNavigateToSettings: (() -> Unit)?
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AiInsightStateRouter(
+            uiState = uiState,
+            themeMode = ThemeMode.Pixel,
+            onRefresh = onRefresh,
+            onNavigateToSettings = onNavigateToSettings
+        )
+    }
+}
+
+@Composable
+fun AiInsightLightDispatch(
+    uiState: AiInsightUiState,
+    onRefresh: () -> Unit,
+    onNavigateToSettings: (() -> Unit)?
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AiInsightStateRouter(
+            uiState = uiState,
+            themeMode = ThemeMode.Light,
+            onRefresh = onRefresh,
+            onNavigateToSettings = onNavigateToSettings
+        )
+    }
+}
+
+@Composable
+fun AiInsightComicDispatch(
+    uiState: AiInsightUiState,
+    onRefresh: () -> Unit,
+    onNavigateToSettings: (() -> Unit)?
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AiInsightStateRouter(
+            uiState = uiState,
+            themeMode = ThemeMode.Comic,
+            onRefresh = onRefresh,
+            onNavigateToSettings = onNavigateToSettings
+        )
+    }
+}
+
+@Composable
+fun AiInsightStateRouter(
+    uiState: AiInsightUiState,
+    themeMode: ThemeMode,
+    onRefresh: () -> Unit,
+    onNavigateToSettings: (() -> Unit)?
+) {
+    val typography = androidx.compose.material3.MaterialTheme.typography
+    when (uiState) {
+        is AiInsightUiState.Loading -> {
+            Text(
+                text = "Summoning AI Habit Insights...",
+                color = PixelTheme.colors.onBackground,
+                style = typography.bodyMedium
+            )
+        }
+        is AiInsightUiState.Success -> {
+            Text(
+                text = uiState.insight.summary,
+                color = PixelTheme.colors.onBackground,
+                style = typography.bodyMedium
+            )
+        }
+        is AiInsightUiState.RateLimited -> {
+            Text(
+                text = uiState.message,
+                color = PixelTheme.colors.onBackground,
+                style = typography.bodyMedium
+            )
+        }
+        is AiInsightUiState.NotEnoughData -> {
+            Text(
+                text = uiState.message,
+                color = PixelTheme.colors.onBackground,
+                style = typography.bodyMedium
+            )
+        }
+        is AiInsightUiState.Disabled -> {
+            Text(
+                text = uiState.message,
+                color = PixelTheme.colors.onBackground,
+                style = typography.bodyMedium
+            )
+        }
+        is AiInsightUiState.Error -> {
+            Text(
+                text = uiState.message,
+                color = PixelTheme.colors.onBackground,
+                style = typography.bodyMedium
+            )
+        }
+    }
+}
