@@ -2346,6 +2346,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 35: Manual QA exercise across perfect, mixed, and struggling week scenarios assessing insight quality and tone - ef2384b
 - Step 36: Manual QA verification confirming feature renders correctly across Pixel, Light, and Comic themes - 77411aa
 - Step 37: Manual QA assessment verifying Simple Mode tone difference is genuinely noticeable and appropriate - 4dd27b4
+- Step 38: Fix edge cases and quality polish across cooldown calculation, cap fallback, and opt-in card framing - bb5c614
 
 
 
