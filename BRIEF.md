@@ -2444,4 +2444,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 40: Add EncouragementPackPrompt: aggregate-only prompt, tone-specific instructions and tolerant JSON parsing - 1955cec
 - Step 41: Add EncouragementPackStore and AiEncouragementProvider: fresh AI lines in the right tone, else the built-in bank - 4c876c6
 - Step 42: Add EncouragementPackWorker: one capped Gemini call per day for reminder lines, scheduled daily and on opt-in - 486c362
-- Step 43: Reminders end with an encouragement line: AI-written when enabled and fresh, otherwise from the built-in bank - pending
+- Step 43: Reminders end with an encouragement line: AI-written when enabled and fresh, otherwise from the built-in bank - 4a35b8d
+- Step 44: Add EncouragementMessagesTest (9 tests): sanitizer, JSON parsing, aggregate-only prompt, provider fallback and pack store - pending
