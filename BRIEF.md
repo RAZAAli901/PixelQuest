@@ -2414,4 +2414,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 10: Add ReminderSchedule so alarms (including boot re-arm) target the next future occurrence, with 9 unit tests - 69cc77d
 - Step 11: Re-arm the next occurrence after each reminder fires and ignore alarms for deleted or inactive tasks - 7c4b585
 - Step 12: Quick complete and skip on Today re-arm the next occurrence instead of cancelling the task's reminders - 3b107dc
-- Step 13: MissedTaskWorker posts a missed-task notification (respecting the master toggle and Simple Mode) in place of the reminder - pending
+- Step 13: MissedTaskWorker posts a missed-task notification (respecting the master toggle and Simple Mode) in place of the reminder - 23741af
+- Step 14: Add NOTIFICATIONS.md documenting the notification pipeline and the Day 26 audit findings - pending
