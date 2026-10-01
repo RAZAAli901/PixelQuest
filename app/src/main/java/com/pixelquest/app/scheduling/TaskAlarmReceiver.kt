@@ -5,9 +5,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
+import com.pixelquest.app.notification.NotificationContentBuilder
 import com.pixelquest.app.notification.NotificationHelper
+import com.pixelquest.app.notification.ReminderContext
 import com.pixelquest.app.notification.TaskActionReceiver
 import com.pixelquest.app.domain.repository.SettingsRepository
+import com.pixelquest.app.domain.repository.StreakRepository
+import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.ui.prompt.TaskPromptActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -28,6 +33,12 @@ class TaskAlarmReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var taskAlarmScheduler: TaskAlarmScheduler
+
+    @Inject
+    lateinit var streakRepository: StreakRepository
+
+    @Inject
+    lateinit var taskCompletionRepository: TaskCompletionRepository
 
     override fun onReceive(context: Context, intent: Intent) {
         val taskId = intent.getLongExtra("EXTRA_TASK_ID", -1L)
@@ -56,6 +67,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         val isSimpleMode = settingsRepository.simpleModeEnabled.first()
         val soundEnabled = settingsRepository.isNotificationSoundEnabled.first()
         val vibrationEnabled = settingsRepository.isNotificationVibrationEnabled.first()
+        val copy = NotificationContentBuilder.reminder(buildReminderContext(taskName, isSimpleMode))
 
         val promptIntent = Intent(context, TaskPromptActivity::class.java).apply {
             putExtra("EXTRA_TASK_ID", taskId)
@@ -101,12 +113,29 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 noIntent = noPendingIntent,
                 soundEnabled = soundEnabled,
                 vibrationEnabled = vibrationEnabled,
-                isSimpleMode = isSimpleMode
+                isSimpleMode = isSimpleMode,
+                copy = copy
             )
             val notificationManager = NotificationManagerCompat.from(context)
             notificationManager.notify(taskId.toInt(), notification)
         } catch (e: SecurityException) {
             // Permission missing
         }
+    }
+
+    private suspend fun buildReminderContext(taskName: String, isSimpleMode: Boolean): ReminderContext {
+        val today = LocalDate.now()
+        val tasksToday = taskRepository.getTasksForDay(today).first()
+        val doneIds = taskCompletionRepository.getLogsForDate(today).first()
+            .filter { it.wasCompleted }
+            .map { it.taskId }
+            .toSet()
+        return ReminderContext(
+            taskName = taskName,
+            isSimpleMode = isSimpleMode,
+            currentStreak = streakRepository.getCurrentStreak().first()?.currentStreak ?: 0,
+            doneToday = tasksToday.count { it.id in doneIds },
+            totalToday = tasksToday.size
+        )
     }
 }

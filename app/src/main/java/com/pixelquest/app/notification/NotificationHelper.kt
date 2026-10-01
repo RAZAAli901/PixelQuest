@@ -40,15 +40,20 @@ object NotificationHelper {
         noIntent: PendingIntent? = null,
         soundEnabled: Boolean = true,
         vibrationEnabled: Boolean = true,
-        isSimpleMode: Boolean = false
+        isSimpleMode: Boolean = false,
+        copy: NotificationCopy? = null
     ): Notification {
         val builder = NotificationCompat.Builder(context, NotificationChannels.reminderChannel(soundEnabled).id)
             .setSmallIcon(R.drawable.ic_tasks)
             .setColor(NOTIFICATION_ACCENT_COLOR)
-            .setContentTitle(getReminderTitle(taskName, isSimpleMode))
-            .setContentText(getReminderText(taskName, isSimpleMode))
+            .setContentTitle(copy?.title ?: getReminderTitle(taskName, isSimpleMode))
+            .setContentText(copy?.text ?: getReminderText(taskName, isSimpleMode))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(true)
+        if (copy != null) {
+            builder.setStyle(NotificationCompat.BigTextStyle().bigText(copy.bigText))
+        }
 
         if (!soundEnabled) {
             builder.setSound(null)
