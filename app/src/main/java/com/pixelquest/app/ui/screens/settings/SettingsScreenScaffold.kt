@@ -26,6 +26,7 @@ fun SettingsScreenScaffold(
     accountSection: @Composable () -> Unit = {},
     notificationsSection: @Composable () -> Unit = {},
     appearanceSection: @Composable () -> Unit = {},
+    aiSection: @Composable () -> Unit = {},
     simpleModeSection: @Composable () -> Unit = {},
     dataSection: @Composable () -> Unit = {},
     dangerZoneSection: @Composable () -> Unit = {}
@@ -80,6 +81,18 @@ fun SettingsScreenScaffold(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(text = "📺 APPEARANCE & AUDIO", style = MaterialTheme.typography.titleMedium, color = colors.primary)
                 appearanceSection()
+            }
+        }
+
+        // AI Habit Coach Section Card
+        PixelCard(
+            variant = PixelPanelVariant.BORDER,
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = 16.dp
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(text = "✨ AI HABIT COACH", style = MaterialTheme.typography.titleMedium, color = colors.primary)
+                aiSection()
             }
         }
 

@@ -2332,6 +2332,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 21: Add loading, error, rate-limited, and not-enough-data UI states dispatch-aware across all three themes - 1c8ea56
 - Step 22: Add Compose Previews for AiInsightScreen across all three themes and every UI state - cfc973a
 - Step 23: Decide and document placement on TodayScreen dashboard rather than dedicated bottom nav tab - 9fd9890
+- Step 24: Wire AiInsightScreen and contextual TodayAiInsightSection into TodayScreen and NavGraph - b65d73a
 
 
 

@@ -315,4 +315,25 @@ class SettingsViewModel @Inject constructor(
         _showSimpleModeDialog.value = false
         toggleSimpleMode(true)
     }
+
+    private val _showAiInsightsPrivacyDialog = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val showAiInsightsPrivacyDialog: StateFlow<Boolean> = _showAiInsightsPrivacyDialog.asStateFlow()
+
+    fun requestEnableAiInsights() {
+        _showAiInsightsPrivacyDialog.value = true
+    }
+
+    fun dismissAiInsightsPrivacyDialog() {
+        _showAiInsightsPrivacyDialog.value = false
+    }
+
+    fun confirmEnableAiInsights() {
+        _showAiInsightsPrivacyDialog.value = false
+        setAiInsightsEnabled(true)
+    }
+
+    fun disableAiInsights() {
+        setAiInsightsEnabled(false)
+    }
 }
+
