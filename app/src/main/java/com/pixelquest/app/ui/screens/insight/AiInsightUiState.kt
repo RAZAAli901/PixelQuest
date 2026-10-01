@@ -60,6 +60,15 @@ sealed interface AiInsightUiState {
     }
 
     /**
+     * Step 31: Distinct state when user hits the hard daily or monthly API cap.
+     */
+    data class CapReached(
+        val message: String = "You've reached today's insight limit (4/day). Check back tomorrow for a fresh debrief.",
+        val isMonthly: Boolean = false,
+        val lastInsight: HabitInsightResponse? = null
+    ) : AiInsightUiState
+
+    /**
      * Unrecoverable error (e.g. offline with empty cache, API outage).
      */
     data class Error(

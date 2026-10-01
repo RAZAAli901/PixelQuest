@@ -99,6 +99,12 @@ fun TodayAiInsightSection(
                     onEnableClick = onNavigateToSettings
                 )
             }
+            is AiInsightUiState.CapReached -> {
+                com.pixelquest.app.ui.screens.insight.AiInsightCapReachedState(
+                    state = state,
+                    themeMode = themeMode
+                )
+            }
             is AiInsightUiState.Error -> {
                 AiInsightErrorState(
                     state = state,

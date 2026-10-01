@@ -226,6 +226,12 @@ fun AiInsightStateRouter(
                 onNavigateToSettings = onNavigateToSettings
             )
         }
+        is AiInsightUiState.CapReached -> {
+            AiInsightCapReachedState(
+                state = uiState,
+                themeMode = themeMode
+            )
+        }
         is AiInsightUiState.Error -> {
             AiInsightErrorState(
                 state = uiState,

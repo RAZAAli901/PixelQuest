@@ -672,3 +672,147 @@ fun AiInsightErrorState(
         }
     }
 }
+
+/**
+ * Step 31: Graceful UI component rendered when user reaches the hard daily or monthly API cap.
+ * Dispatches natively across Comic, Light, and Pixel themes.
+ */
+@Composable
+fun AiInsightCapReachedState(
+    state: AiInsightUiState.CapReached,
+    themeMode: ThemeMode,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        when (themeMode) {
+            ThemeMode.Comic -> {
+                ComicPanel(
+                    variant = ComicPanelVariant.BURNT_ORANGE,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = 20.dp
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "⚡", fontSize = 32.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = if (state.isMonthly) "MONTHLY POWER LIMIT REACHED!" else "DAILY INSIGHT LIMIT REACHED!",
+                            fontFamily = BangersFontFamily,
+                            fontSize = 19.sp,
+                            color = ComicTokens.SolidBlack,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = state.message,
+                            fontSize = 12.sp,
+                            color = ComicTokens.TextSecondary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "Rest up and recharge your habit momentum!",
+                            fontSize = 11.sp,
+                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                            color = ComicTokens.SolidBlack.copy(alpha = 0.7f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+            ThemeMode.Light -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White)
+                        .border(1.5.dp, Color(0xFFF59E0B), RoundedCornerShape(12.dp))
+                        .padding(20.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "🛡️", fontSize = 28.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = if (state.isMonthly) "Monthly Insight Limit Reached" else "Daily Insight Limit Reached",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = Color(0xFF92400E),
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = state.message,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFF475569),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+            else -> {
+                PixelCard(
+                    variant = PixelPanelVariant.BEIGE,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = 18.dp
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (state.isMonthly) "[MONTHLY CEILING HIT]" else "[DAILY CEILING HIT]",
+                                style = PixelTypography.titleMedium,
+                                color = Color(0xFFFBBF24),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "🛡️ SAFEGUARD",
+                                style = PixelTypography.labelSmall,
+                                color = Color(0xFFF59E0B),
+                                fontSize = 9.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "SYS.SAFEGUARD // API USAGE CAP ACTIVE",
+                            style = PixelTypography.labelSmall,
+                            color = Color(0xFF60A5FA),
+                            fontSize = 9.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = state.message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = PixelTheme.colors.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "► Momentum is preserved. Your next tactical debrief will be ready after midnight.",
+                            style = PixelTypography.bodySmall,
+                            color = Color(0xFFFDE68A)
+                        )
+                    }
+                }
+            }
+        }
+
+        if (state.lastInsight != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            AiInsightCard(
+                insight = state.lastInsight,
+                isCached = true,
+                canRefresh = false,
+                remainingCooldownSeconds = 0L,
+                onRefresh = {}
+            )
+        }
+    }
+}
+
