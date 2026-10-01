@@ -8,6 +8,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.pixelquest.app.notification.NotificationHelper
 import com.pixelquest.app.notification.TaskActionReceiver
 import com.pixelquest.app.domain.repository.SettingsRepository
+import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.ui.prompt.TaskPromptActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +23,12 @@ class TaskAlarmReceiver : BroadcastReceiver() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
+    @Inject
+    lateinit var taskRepository: TaskRepository
+
+    @Inject
+    lateinit var taskAlarmScheduler: TaskAlarmScheduler
+
     override fun onReceive(context: Context, intent: Intent) {
         val taskId = intent.getLongExtra("EXTRA_TASK_ID", -1L)
         val taskName = intent.getStringExtra("EXTRA_TASK_NAME") ?: "Quest Reminder"
@@ -31,9 +38,14 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // An alarm armed before notifications were switched off must not post anything.
-                if (settingsRepository.isNotificationsEnabled.first()) {
-                    postReminder(context, taskId, taskName)
-                }
+                if (!settingsRepository.isNotificationsEnabled.first()) return@launch
+                // Skip alarms left over from deleted or deactivated tasks.
+                val task = taskRepository.getTaskById(taskId).first()
+                if (task == null || !task.isActive) return@launch
+
+                postReminder(context, taskId, task.name.ifBlank { taskName })
+                // Exact alarms fire once, so arm the next daily/weekly/monthly occurrence now.
+                taskAlarmScheduler.scheduleNextOccurrence(task)
             } finally {
                 pendingResult.finish()
             }

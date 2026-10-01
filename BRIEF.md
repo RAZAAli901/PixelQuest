@@ -2411,4 +2411,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 7: Restore unit test compilation: declare missing test dependencies and quarantine 91 non-compiling test files - 4d6145c
 - Step 8: Honour the notifications master toggle in TaskAlarmReceiver and skip boot re-arm when notifications are off - a66b41f
 - Step 9: Apply Simple Mode copy and notification sound/vibration preferences to task reminders - ec6fc49
-- Step 10: Add ReminderSchedule so alarms (including boot re-arm) target the next future occurrence, with 9 unit tests - pending
+- Step 10: Add ReminderSchedule so alarms (including boot re-arm) target the next future occurrence, with 9 unit tests - 69cc77d
+- Step 11: Re-arm the next occurrence after each reminder fires and ignore alarms for deleted or inactive tasks - pending
