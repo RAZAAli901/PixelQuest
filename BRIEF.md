@@ -2429,4 +2429,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 25: Group reminders and post an inbox-style summary when two or more are showing - c1b9938
 - Step 26: Add the category title icon and streak-at-risk line missing from Step 23, with NotificationContentBuilderTest (8 tests) - 78b81fc
 - Step 27: Add per-task reminder fields (enabled, lead minutes, style) to TaskEntity with non-destructive MIGRATION_4_5 - 7189751
-- Step 28: Include per-task reminder settings in JSON backup export and import (older backups keep defaults) - pending
+- Step 28: Include per-task reminder settings in JSON backup export and import (older backups keep defaults) - 7118e5c
+- Step 29: Scheduler applies each task's reminder lead time and skips tasks whose reminders are turned off - pending

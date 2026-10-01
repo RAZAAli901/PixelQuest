@@ -55,6 +55,7 @@ class TaskAlarmScheduler @Inject constructor(
             scheduledTime = task.scheduledTime,
             recurrence = task.recurrenceType,
             now = LocalDateTime.now(),
+            leadMinutes = task.reminderLeadMinutes,
             notBefore = notBefore
         ) ?: return null
         return next.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -76,6 +77,11 @@ class TaskAlarmScheduler @Inject constructor(
     }
 
     fun scheduleExactAlarmForTask(task: TaskEntity, notBefore: LocalDate? = null) {
+        if (!task.reminderEnabled) {
+            // Reminders switched off for this task: make sure nothing is left armed.
+            cancelAlarmForTask(task)
+            return
+        }
         if (!canScheduleExactAlarms()) {
             return
         }
@@ -106,10 +112,14 @@ class TaskAlarmScheduler @Inject constructor(
         }
     }
 
-    /** Arms the first occurrence after today, e.g. once today's reminder has fired or the task is done. */
-    fun scheduleNextOccurrence(task: TaskEntity) {
+    /**
+     * Arms the first occurrence after [handledDate], e.g. once that day's reminder has fired or the
+     * task is done. With a lead time a reminder can fire the evening before its task, so the
+     * receiver passes the task's date rather than today.
+     */
+    fun scheduleNextOccurrence(task: TaskEntity, handledDate: LocalDate = LocalDate.now()) {
         if (task.recurrenceType == RecurrenceType.ONE_TIME) return
-        scheduleExactAlarmForTask(task, notBefore = LocalDate.now().plusDays(1))
+        scheduleExactAlarmForTask(task, notBefore = handledDate.plusDays(1))
     }
 
     /**

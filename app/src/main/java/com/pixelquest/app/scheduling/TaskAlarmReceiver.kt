@@ -21,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -53,11 +54,12 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 if (!settingsRepository.isNotificationsEnabled.first()) return@launch
                 // Skip alarms left over from deleted or deactivated tasks.
                 val task = taskRepository.getTaskById(taskId).first()
-                if (task == null || !task.isActive) return@launch
+                if (task == null || !task.isActive || !task.reminderEnabled) return@launch
 
                 postReminder(context, taskId, task.name.ifBlank { taskName }, task.category)
                 // Exact alarms fire once, so arm the next daily/weekly/monthly occurrence now.
-                taskAlarmScheduler.scheduleNextOccurrence(task)
+                val occurrenceDate = LocalDateTime.now().plusMinutes(task.reminderLeadMinutes.toLong()).toLocalDate()
+                taskAlarmScheduler.scheduleNextOccurrence(task, handledDate = occurrenceDate)
             } finally {
                 pendingResult.finish()
             }
