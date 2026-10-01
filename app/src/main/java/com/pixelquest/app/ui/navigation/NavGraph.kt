@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -53,6 +54,9 @@ fun PixelNavHost(
     startDestination: String = Screen.Splash.route,
     onboardingComplete: Boolean = true
 ) {
+    // The NavHost keeps the first composable lambdas it is given, so read the flag through
+    // State; otherwise the splash timeout sees the initial value and skips onboarding.
+    val latestOnboardingComplete by rememberUpdatedState(onboardingComplete)
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -65,7 +69,7 @@ fun PixelNavHost(
         composable(Screen.Splash.route) {
             SplashScreen(
                 onSplashTimeout = {
-                    val target = if (!onboardingComplete) Screen.Onboarding.route else Screen.Home.route
+                    val target = if (!latestOnboardingComplete) Screen.Onboarding.route else Screen.Home.route
                     navController.navigate(target) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }

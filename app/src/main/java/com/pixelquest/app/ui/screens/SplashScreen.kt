@@ -14,7 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -34,13 +36,14 @@ fun SplashScreen(
     }
 
     val progressAnim = remember { Animatable(0f) }
+    val currentOnSplashTimeout by rememberUpdatedState(onSplashTimeout)
 
     LaunchedEffect(Unit) {
         progressAnim.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = 1500)
         )
-        onSplashTimeout()
+        currentOnSplashTimeout()
     }
 
     val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
