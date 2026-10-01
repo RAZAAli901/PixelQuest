@@ -3,6 +3,7 @@ package com.pixelquest.app.data.local.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.pixelquest.app.domain.model.RecurrenceType
+import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
 import java.time.LocalDate
 import java.time.LocalTime
@@ -18,5 +19,9 @@ data class TaskEntity(
     val recurrenceType: RecurrenceType,
     val category: TaskCategory,
     val isActive: Boolean = true,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    // Day 26: per-task reminder settings (MIGRATION_4_5 adds these with the defaults below)
+    val reminderEnabled: Boolean = true,
+    val reminderLeadMinutes: Int = 0,
+    val reminderStyle: ReminderStyle = ReminderStyle.STANDARD
 )

@@ -3,6 +3,7 @@ package com.pixelquest.app.data.local
 import androidx.room.TypeConverter
 import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.domain.model.RecurrenceType
+import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
 import java.time.LocalDate
 import java.time.LocalTime
@@ -41,6 +42,16 @@ class Converters {
     @TypeConverter
     fun toRecurrenceType(value: String?): RecurrenceType? {
         return value?.let { RecurrenceType.valueOf(it) }
+    }
+
+    @TypeConverter
+    fun fromReminderStyle(style: ReminderStyle?): String? {
+        return style?.name
+    }
+
+    @TypeConverter
+    fun toReminderStyle(value: String?): ReminderStyle? {
+        return value?.let { name -> ReminderStyle.values().firstOrNull { it.name == name } ?: ReminderStyle.STANDARD }
     }
 
     @TypeConverter

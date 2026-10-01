@@ -2427,4 +2427,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 23: Pass task category into reminders and reword missed-task text so it no longer claims the streak broke (the title icon and streak-at-risk line landed in Step 26) - 96582a2
 - Step 24: Add a Snooze 10 min action to reminders, backed by a separate one-off snooze alarm - e84f326
 - Step 25: Group reminders and post an inbox-style summary when two or more are showing - c1b9938
-- Step 26: Add the category title icon and streak-at-risk line missing from Step 23, with NotificationContentBuilderTest (8 tests) - pending
+- Step 26: Add the category title icon and streak-at-risk line missing from Step 23, with NotificationContentBuilderTest (8 tests) - 78b81fc
+- Step 27: Add per-task reminder fields (enabled, lead minutes, style) to TaskEntity with non-destructive MIGRATION_4_5 - pending
