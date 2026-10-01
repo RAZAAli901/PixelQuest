@@ -6,6 +6,7 @@ import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.domain.FlavorTextCatalog
 import com.pixelquest.app.domain.PointsCalculator
@@ -122,7 +123,7 @@ class TodayViewModel @Inject constructor(
 
     fun completeTask(task: TaskEntity) {
         viewModelScope.launch {
-            taskAlarmScheduler.cancelAlarmForTask(task)
+            rearmAfterToday(task)
             val currentStreak = streakRepository.getCurrentStreak().first()?.currentStreak ?: 0
             val points = PointsCalculator.calculateXpForTask(task, currentStreak)
             val log = TaskCompletionLogEntity(
@@ -143,6 +144,18 @@ class TodayViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Today's reminder is no longer needed, but a recurring task still needs tomorrow's.
+     * Re-arming replaces today's pending alarm (same request code); one-time tasks are cancelled.
+     */
+    private fun rearmAfterToday(task: TaskEntity) {
+        if (task.recurrenceType == RecurrenceType.ONE_TIME) {
+            taskAlarmScheduler.cancelAlarmForTask(task)
+        } else {
+            taskAlarmScheduler.scheduleNextOccurrence(task)
+        }
+    }
+
     fun refresh() {
         // StateFlow combined from Room repositories automatically emits on DB changes.
         // Explicit refresh hook provided for manual user pull/tap refresh.
@@ -150,7 +163,7 @@ class TodayViewModel @Inject constructor(
 
     fun skipTask(task: TaskEntity) {
         viewModelScope.launch {
-            taskAlarmScheduler.cancelAlarmForTask(task)
+            rearmAfterToday(task)
             val log = TaskCompletionLogEntity(
                 taskId = task.id,
                 completedDate = currentDate,
