@@ -2326,6 +2326,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 15: Add manual Refresh Insight action gated by rate-limit cooldown window - fe156a9
 - Step 16: Build AiInsightScreen scaffolding with theme-dispatch across Pixel, Light, and Comic modes - 90cb897
 - Step 17: Build base insight card layout using dispatch-aware PixelCard and components - 010a3dc
+- Step 18: Build Pixel-mode visual treatment with retro arcade identity and CRT telemetry aesthetics - e5ed5b0
 
 
 

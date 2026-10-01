@@ -148,9 +148,8 @@ fun AiInsightLightDispatch(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AiInsightStateRouter(
+        LightAiInsightView(
             uiState = uiState,
-            themeMode = ThemeMode.Light,
             onRefresh = onRefresh,
             onNavigateToSettings = onNavigateToSettings
         )
