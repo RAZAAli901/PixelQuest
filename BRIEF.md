@@ -2422,4 +2422,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 18: Settings: add per-channel rows that open each channel's system notification settings - 6c28dce
 - Step 19: Settings: add a Reminder sound toggle that switches reminders between the sound and silent channels - 22bc3bd
 - Step 20: Add NotificationChannelsTest (Robolectric): unique ids, sound routing, channel creation, legacy channel removal - bd22358
-- Step 21: Add NotificationContentBuilder: reminders show streak and today's progress in an expandable BigText style - pending
+- Step 21: Add NotificationContentBuilder: reminders show streak and today's progress in an expandable BigText style - 7c55c25
+- Step 22: Fix recurring tasks appearing only on their first day: getTasksForDay matches daily/weekly/monthly occurrences - pending

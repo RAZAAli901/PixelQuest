@@ -29,4 +29,8 @@ interface TaskDao {
 
     @Query("SELECT * FROM tasks WHERE scheduledDay = :day AND isActive = 1 ORDER BY scheduledTime ASC")
     fun getTasksForDay(day: LocalDate): Flow<List<TaskEntity>>
+
+    /** Active tasks whose first occurrence is on or before [day]; recurrence is filtered in TaskOccurrence. */
+    @Query("SELECT * FROM tasks WHERE scheduledDay <= :day AND isActive = 1 ORDER BY scheduledTime ASC")
+    fun getActiveTasksStartedBy(day: LocalDate): Flow<List<TaskEntity>>
 }
