@@ -40,7 +40,11 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun postReminder(context: Context, taskId: Long, taskName: String) {
+    private suspend fun postReminder(context: Context, taskId: Long, taskName: String) {
+        val isSimpleMode = settingsRepository.simpleModeEnabled.first()
+        val soundEnabled = settingsRepository.isNotificationSoundEnabled.first()
+        val vibrationEnabled = settingsRepository.isNotificationVibrationEnabled.first()
+
         val promptIntent = Intent(context, TaskPromptActivity::class.java).apply {
             putExtra("EXTRA_TASK_ID", taskId)
             putExtra("EXTRA_TASK_NAME", taskName)
@@ -82,7 +86,10 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 taskName = taskName,
                 contentIntent = contentPendingIntent,
                 yesIntent = yesPendingIntent,
-                noIntent = noPendingIntent
+                noIntent = noPendingIntent,
+                soundEnabled = soundEnabled,
+                vibrationEnabled = vibrationEnabled,
+                isSimpleMode = isSimpleMode
             )
             val notificationManager = NotificationManagerCompat.from(context)
             notificationManager.notify(taskId.toInt(), notification)
