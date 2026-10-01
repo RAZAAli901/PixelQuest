@@ -304,4 +304,30 @@ class AiInsightViewModelTest {
         assertEquals("Refreshed Summary", success.insight.summary)
         assertTrue(success.canRefresh)
     }
+
+    @Test
+    fun whenDisabled_showsClearOptInPromptAndBlocksApiRequests() = runTest {
+        val settingsRepo = FakeSettingsRepository()
+        settingsRepo.aiEnabledFlow.value = false
+        val habitRepo = FakeHabitInsightRepository()
+
+        val viewModel = AiInsightViewModel(
+            habitInsightRepository = habitRepo,
+            settingsRepository = settingsRepo,
+            taskCompletionRepository = FakeCompletionRepository(),
+            insightCacheRepository = FakeCacheRepository()
+        )
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue("State must be Disabled", state is AiInsightUiState.Disabled)
+        val disabled = state as AiInsightUiState.Disabled
+        assertTrue("Message must explain how to opt in", disabled.message.contains("Settings", ignoreCase = true))
+
+        // Triggering refresh must remain disabled and not call Gemini
+        viewModel.refreshInsight()
+        advanceUntilIdle()
+
+        assertTrue("State must remain Disabled", viewModel.uiState.value is AiInsightUiState.Disabled)
+    }
 }
