@@ -2306,6 +2306,11 @@ The following capabilities are deliberately scoped for Day 25:
 - **In-App Throttling & Refresh UI**: Visual countdown timer showing remaining throttle window and manual "Request New Debrief" trigger.
 - **Educational Consent Flow**: Explanatory dialog presented in Settings when enabling AI insights.
 
+---
+
+## Day 25 Progress Log
+- Step 1: Create InsightCacheEntity with dataHash and insight fields
+
 
 
 
