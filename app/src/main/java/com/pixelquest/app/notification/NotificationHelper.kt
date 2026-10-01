@@ -42,7 +42,7 @@ object NotificationHelper {
         vibrationEnabled: Boolean = true,
         isSimpleMode: Boolean = false
     ): Notification {
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, NotificationChannels.reminderChannel(soundEnabled).id)
             .setSmallIcon(R.drawable.ic_tasks)
             .setColor(NOTIFICATION_ACCENT_COLOR)
             .setContentTitle(getReminderTitle(taskName, isSimpleMode))
@@ -92,7 +92,7 @@ object NotificationHelper {
         vibrationEnabled: Boolean = true,
         isSimpleMode: Boolean = false
     ): Notification {
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, NotificationChannels.Spec.MISSED.id)
             .setSmallIcon(R.drawable.ic_tasks)
             .setColor(NOTIFICATION_ACCENT_COLOR)
             .setContentTitle(getMissedTaskTitle(taskName, isSimpleMode))

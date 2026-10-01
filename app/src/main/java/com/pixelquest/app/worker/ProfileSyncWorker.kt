@@ -107,7 +107,7 @@ class ProfileSyncWorker @AssistedInject constructor(
     override suspend fun getForegroundInfo(): androidx.work.ForegroundInfo {
         val notification = androidx.core.app.NotificationCompat.Builder(
             applicationContext,
-            com.pixelquest.app.notification.NotificationHelper.CHANNEL_ID
+            com.pixelquest.app.notification.NotificationChannels.Spec.SYNC.id
         )
             .setSmallIcon(com.pixelquest.app.R.drawable.ic_tasks)
             .setContentTitle("PixelQuest Sync")

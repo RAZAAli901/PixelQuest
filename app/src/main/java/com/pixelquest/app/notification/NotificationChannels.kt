@@ -68,6 +68,14 @@ object NotificationChannels {
             importance = Importance.LOW,
             sound = false,
             vibration = false
+        ),
+        SYNC(
+            id = "pq_sync",
+            displayName = "Leaderboard sync",
+            description = "Shown briefly while your stats sync to the leaderboard",
+            importance = Importance.LOW,
+            sound = false,
+            vibration = false
         );
     }
 
