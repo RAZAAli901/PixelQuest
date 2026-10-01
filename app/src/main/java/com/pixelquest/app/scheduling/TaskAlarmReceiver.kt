@@ -9,6 +9,7 @@ import com.pixelquest.app.notification.NotificationContentBuilder
 import com.pixelquest.app.notification.NotificationHelper
 import com.pixelquest.app.notification.ReminderContext
 import com.pixelquest.app.notification.TaskActionReceiver
+import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
@@ -54,7 +55,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 val task = taskRepository.getTaskById(taskId).first()
                 if (task == null || !task.isActive) return@launch
 
-                postReminder(context, taskId, task.name.ifBlank { taskName })
+                postReminder(context, taskId, task.name.ifBlank { taskName }, task.category)
                 // Exact alarms fire once, so arm the next daily/weekly/monthly occurrence now.
                 taskAlarmScheduler.scheduleNextOccurrence(task)
             } finally {
@@ -63,11 +64,16 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         }
     }
 
-    private suspend fun postReminder(context: Context, taskId: Long, taskName: String) {
+    private suspend fun postReminder(
+        context: Context,
+        taskId: Long,
+        taskName: String,
+        category: TaskCategory
+    ) {
         val isSimpleMode = settingsRepository.simpleModeEnabled.first()
         val soundEnabled = settingsRepository.isNotificationSoundEnabled.first()
         val vibrationEnabled = settingsRepository.isNotificationVibrationEnabled.first()
-        val copy = NotificationContentBuilder.reminder(buildReminderContext(taskName, isSimpleMode))
+        val copy = NotificationContentBuilder.reminder(buildReminderContext(taskName, category, isSimpleMode))
 
         val promptIntent = Intent(context, TaskPromptActivity::class.java).apply {
             putExtra("EXTRA_TASK_ID", taskId)
@@ -123,7 +129,11 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         }
     }
 
-    private suspend fun buildReminderContext(taskName: String, isSimpleMode: Boolean): ReminderContext {
+    private suspend fun buildReminderContext(
+        taskName: String,
+        category: TaskCategory,
+        isSimpleMode: Boolean
+    ): ReminderContext {
         val today = LocalDate.now()
         val tasksToday = taskRepository.getTasksForDay(today).first()
         val doneIds = taskCompletionRepository.getLogsForDate(today).first()
@@ -132,6 +142,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
             .toSet()
         return ReminderContext(
             taskName = taskName,
+            category = category,
             isSimpleMode = isSimpleMode,
             currentStreak = streakRepository.getCurrentStreak().first()?.currentStreak ?: 0,
             doneToday = tasksToday.count { it.id in doneIds },

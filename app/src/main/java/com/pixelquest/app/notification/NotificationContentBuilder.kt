@@ -1,11 +1,14 @@
 package com.pixelquest.app.notification
 
+import com.pixelquest.app.domain.model.TaskCategory
+
 /**
  * What a reminder knows about the user's day when it fires. Built in the receiver from Room;
  * kept free of Android types so the copy can be unit tested.
  */
 data class ReminderContext(
     val taskName: String,
+    val category: TaskCategory = TaskCategory.OTHER,
     val isSimpleMode: Boolean,
     val currentStreak: Int,
     val doneToday: Int,

@@ -80,11 +80,13 @@ object NotificationHelper {
         return if (isSimpleMode) "Task Missed: $taskName" else "💔 Quest Missed: $taskName"
     }
 
+    // Missing one task doesn't always break the streak (perfect days use a percentage),
+    // so the copy doesn't claim it did.
     fun getMissedTaskText(taskName: String, isSimpleMode: Boolean): String {
         return if (isSimpleMode) {
-            "You missed a scheduled task: $taskName."
+            "$taskName was due earlier today. You can still log it in the app."
         } else {
-            "You broke your streak on $taskName! Start a new streak tomorrow."
+            "$taskName slipped past its time. Log it now or start fresh tomorrow."
         }
     }
 
