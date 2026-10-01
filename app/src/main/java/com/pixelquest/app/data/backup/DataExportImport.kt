@@ -6,6 +6,7 @@ import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.domain.model.RecurrenceType
+import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
 import org.json.JSONArray
 import org.json.JSONObject
@@ -67,6 +68,9 @@ object DataExportImport {
                 put("recurrenceType", task.recurrenceType.name)
                 put("category", task.category.name)
                 put("isActive", task.isActive)
+                put("reminderEnabled", task.reminderEnabled)
+                put("reminderLeadMinutes", task.reminderLeadMinutes)
+                put("reminderStyle", task.reminderStyle.name)
             }
             tasksArray.put(tObj)
         }
@@ -147,7 +151,13 @@ object DataExportImport {
                                     scheduledDay = day,
                                     recurrenceType = rec,
                                     category = cat,
-                                    isActive = tObj.optBoolean("isActive", true)
+                                    isActive = tObj.optBoolean("isActive", true),
+                                    // Backups made before Day 26 have no reminder fields; keep the defaults.
+                                    reminderEnabled = tObj.optBoolean("reminderEnabled", true),
+                                    reminderLeadMinutes = tObj.optInt("reminderLeadMinutes", 0).coerceIn(0, 120),
+                                    reminderStyle = ReminderStyle.values()
+                                        .firstOrNull { it.name == tObj.optString("reminderStyle") }
+                                        ?: ReminderStyle.STANDARD
                                 )
                             )
                         } catch (e: Exception) {
