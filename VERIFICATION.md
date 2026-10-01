@@ -289,3 +289,36 @@
 
 
 
+
+## Section E -- Day 26 Enhanced Notifications Verification (Step 54)
+
+Verified on 2 Oct 2026 against a Pixel 6 emulator (Android 14, API 34) and the local Gradle build.
+
+### Build
+- `./gradlew clean :app:assembleDebug` succeeds.
+
+### Unit tests (`:app:testDebugUnitTest`)
+- Before Day 26 the unit test source set did not compile at all (572 errors in 91 files). Step 7 declared the missing test dependencies and quarantined those 91 files in `app/quarantined-unit-tests.txt`.
+- Baseline after Step 7: 340 tests, 36 failing.
+- After Day 26: 383 tests (43 new), 31 failing. No new failures; 7 previously failing tests now pass. The remaining 31 failures pre-date Day 26 (stale colour expectations, Room DAO tests that need an instrumentation runner, `Dispatchers.Main` not set, AudioAttributes not mocked) and are left for Day 29 together with the quarantined files.
+
+### Emulator checks
+| Check | Result |
+| --- | --- |
+| Fresh install opens onboarding in Pixel theme | Pass |
+| Upgrade from database v4 keeps tasks and XP (MIGRATION_4_5) | Pass |
+| Recurring tasks created yesterday appear on Today | Pass |
+| Reminders armed on launch with exact-alarm permission off (10-minute window) | Pass |
+| Granting "Alarms & reminders" re-arms all reminders as exact alarms | Pass |
+| Boot broadcast re-arms reminders | Pass |
+| Reminder content: category icon, progress line, prompt, encouragement line, three actions | Pass |
+| Simple Mode reminder: "Time to do", "tasks", "Completed", no game words | Pass |
+| Notifications switched off: firing an alarm posts nothing | Pass |
+| Silent style uses `pq_reminders_silent`; Full screen style sets a full-screen intent | Pass |
+| Two reminders showing are grouped under a "2 quests due" summary | Pass |
+| After a reminder fires, the next occurrence is armed (tomorrow) | Pass |
+| Snooze arms a one-off alarm about 10 minutes later | Pass |
+| MissedTaskWorker runs (after the HiltWorkerFactory fix) and posts on `pq_missed` | Pass |
+
+### Not verified
+- Live Gemini calls (reminder message pack, insights): the Gemini API key in `local.properties` is rejected by Google ("API key not valid").
