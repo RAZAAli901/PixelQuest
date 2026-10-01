@@ -230,4 +230,26 @@ object HabitInsightPromptBuilder {
             """.trimIndent()
         }
     }
+
+    /**
+     * Computes a deterministic SHA-256 hash of the underlying habit metrics and tone.
+     * When habit streaks, category completion counts, player level, or tone change,
+     * this hash changes, triggering a cache invalidation.
+     */
+    fun computeDataHash(
+        telemetry: HabitTelemetrySummary,
+        tone: HabitInsightTone = HabitInsightTone.GAMIFIED_HEROIC
+    ): String {
+        val catSummary = telemetry.categoryRatios.entries
+            .sortedBy { it.key }
+            .joinToString(separator = ",") { "${it.key}:${it.value.completedCount}/${it.value.scheduledCount}" }
+        val raw = "streak=${telemetry.currentStreak}|longest=${telemetry.longestStreak}|perfect=${telemetry.perfectDaysCount}|level=${telemetry.playerLevel}|rate=${telemetry.recent7DaysCompletionRate}|missed=${telemetry.recent7DaysMissedCount}|cats=$catSummary|tone=${tone.name}"
+        return try {
+            val digest = java.security.MessageDigest.getInstance("SHA-256")
+            val hashBytes = digest.digest(raw.toByteArray(Charsets.UTF_8))
+            hashBytes.joinToString("") { "%02x".format(it) }
+        } catch (e: Exception) {
+            raw.hashCode().toString()
+        }
+    }
 }

@@ -40,3 +40,12 @@ interface InsightCacheRepository {
      */
     suspend fun clearAll(): Int
 }
+
+class NoOpInsightCacheRepository : InsightCacheRepository {
+    override suspend fun saveInsight(response: HabitInsightResponse, dataHash: String) {}
+    override suspend fun getLatestInsight(): InsightCacheEntity? = null
+    override fun observeLatestInsight(): Flow<InsightCacheEntity?> = kotlinx.coroutines.flow.flowOf(null)
+    override suspend fun isCacheValid(currentDataHash: String, maxAgeMillis: Long): Boolean = false
+    override suspend fun clearExpired(maxAgeMillis: Long): Int = 0
+    override suspend fun clearAll(): Int = 0
+}

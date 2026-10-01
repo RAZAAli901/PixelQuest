@@ -8,6 +8,8 @@ import com.pixelquest.app.domain.ai.HabitInsightPromptBuilder
 import com.pixelquest.app.domain.ai.HabitInsightResponse
 import com.pixelquest.app.domain.ai.HabitInsightToneHook
 import com.pixelquest.app.domain.repository.HabitInsightRepository
+import com.pixelquest.app.domain.repository.InsightCacheRepository
+import com.pixelquest.app.domain.repository.NoOpInsightCacheRepository
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
@@ -28,8 +30,35 @@ class HabitInsightRepositoryImpl @Inject constructor(
     private val taskCompletionRepository: TaskCompletionRepository,
     private val settingsRepository: SettingsRepository,
     private val geminiClient: GeminiClient,
+    private val insightCacheRepository: InsightCacheRepository,
     private val toneHook: HabitInsightToneHook = DefaultHabitInsightToneHook()
 ) : HabitInsightRepository {
+
+    constructor(
+        streakRepository: StreakRepository,
+        userProfileRepository: UserProfileRepository,
+        taskRepository: TaskRepository,
+        taskCompletionRepository: TaskCompletionRepository,
+        settingsRepository: SettingsRepository,
+        geminiClient: GeminiClient,
+        toneHook: HabitInsightToneHook = DefaultHabitInsightToneHook()
+    ) : this(
+        streakRepository = streakRepository,
+        userProfileRepository = userProfileRepository,
+        taskRepository = taskRepository,
+        taskCompletionRepository = taskCompletionRepository,
+        settingsRepository = settingsRepository,
+        geminiClient = geminiClient,
+        insightCacheRepository = NoOpInsightCacheRepository(),
+        toneHook = toneHook
+    )
+
+    companion object {
+        /**
+         * 12-hour standard staleness window (TTL) per Day 24 Step 17 / AI_INSIGHTS.md.
+         */
+        const val CACHE_TTL_MILLIS: Long = 12 * 60 * 60 * 1000L
+    }
 
     private val _latestInsight = MutableStateFlow<HabitInsightResponse?>(null)
     override val latestInsight: Flow<HabitInsightResponse?> = _latestInsight.asStateFlow()
@@ -55,6 +84,18 @@ class HabitInsightRepositoryImpl @Inject constructor(
             logs = logs
         )
 
+        val dataHash = HabitInsightPromptBuilder.computeDataHash(telemetry, tone)
+
+        // Step 5: Check caching layer first (valid, non-stale, matching dataHash)
+        if (insightCacheRepository.isCacheValid(dataHash, CACHE_TTL_MILLIS)) {
+            val cached = insightCacheRepository.getLatestInsight()
+            if (cached != null) {
+                val cachedResponse = cached.toInsightResponse()
+                _latestInsight.value = cachedResponse
+                return GeminiResult.Success(cachedResponse)
+            }
+        }
+
         val prompt = HabitInsightPromptBuilder.buildPrompt(telemetry, tone)
         val systemInstruction = HabitInsightPromptBuilder.buildSystemInstruction(tone)
 
@@ -70,6 +111,8 @@ class HabitInsightRepositoryImpl @Inject constructor(
                 try {
                     val parsed = HabitInsightResponse.parseFromJson(rawCallResult.data)
                     _latestInsight.value = parsed
+                    // Persist to local cache with dataHash
+                    insightCacheRepository.saveInsight(parsed, dataHash)
                     GeminiResult.Success(parsed)
                 } catch (e: Exception) {
                     GeminiResult.MalformedResponse(
