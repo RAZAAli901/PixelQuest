@@ -184,13 +184,10 @@ fun AiInsightStateRouter(
     onRefresh: () -> Unit,
     onNavigateToSettings: (() -> Unit)?
 ) {
-    val typography = androidx.compose.material3.MaterialTheme.typography
     when (uiState) {
         is AiInsightUiState.Loading -> {
-            Text(
-                text = "Summoning AI Habit Insights...",
-                color = PixelTheme.colors.onBackground,
-                style = typography.bodyMedium
+            AiInsightLoadingState(
+                themeMode = themeMode
             )
         }
         is AiInsightUiState.Success -> {
@@ -203,31 +200,30 @@ fun AiInsightStateRouter(
             )
         }
         is AiInsightUiState.RateLimited -> {
-            Text(
-                text = uiState.message,
-                color = PixelTheme.colors.onBackground,
-                style = typography.bodyMedium
+            AiInsightRateLimitedState(
+                state = uiState,
+                themeMode = themeMode,
+                onRefresh = onRefresh
             )
         }
         is AiInsightUiState.NotEnoughData -> {
-            Text(
-                text = uiState.message,
-                color = PixelTheme.colors.onBackground,
-                style = typography.bodyMedium
+            AiInsightNotEnoughDataState(
+                state = uiState,
+                themeMode = themeMode
             )
         }
         is AiInsightUiState.Disabled -> {
-            Text(
-                text = uiState.message,
-                color = PixelTheme.colors.onBackground,
-                style = typography.bodyMedium
+            AiInsightDisabledState(
+                state = uiState,
+                themeMode = themeMode,
+                onNavigateToSettings = onNavigateToSettings
             )
         }
         is AiInsightUiState.Error -> {
-            Text(
-                text = uiState.message,
-                color = PixelTheme.colors.onBackground,
-                style = typography.bodyMedium
+            AiInsightErrorState(
+                state = uiState,
+                themeMode = themeMode,
+                onRetry = onRefresh
             )
         }
     }

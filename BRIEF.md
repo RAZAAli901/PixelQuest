@@ -2328,6 +2328,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 17: Build base insight card layout using dispatch-aware PixelCard and components - 010a3dc
 - Step 18: Build Pixel-mode visual treatment with retro arcade identity and CRT telemetry aesthetics - e5ed5b0
 - Step 19: Build Light-mode visual treatment with clean surfaces and high-contrast typography - aebe329
+- Step 20: Build Comic-mode visual treatment presenting insights in speech and thought bubble panels - 1bd9fac
 
 
 
