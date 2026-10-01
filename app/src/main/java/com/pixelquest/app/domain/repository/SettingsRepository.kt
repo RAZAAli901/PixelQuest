@@ -55,4 +55,12 @@ interface SettingsRepository {
         get() = kotlinx.coroutines.flow.flowOf(false)
 
     suspend fun setAiInsightsEnabled(enabled: Boolean) {}
+
+    /**
+     * Timestamp of the most recent live Gemini API call, for rate limiting and cooldown enforcement.
+     */
+    val lastAiInsightTimestamp: Flow<Long>
+        get() = kotlinx.coroutines.flow.flowOf(0L)
+
+    suspend fun setLastAiInsightTimestamp(timestamp: Long) {}
 }

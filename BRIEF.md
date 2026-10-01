@@ -2314,6 +2314,7 @@ The following capabilities are deliberately scoped for Day 25:
 - Step 3: Register InsightCacheEntity and InsightCacheDao on AppDatabase with MIGRATION_3_4 - 96c5262
 - Step 4: Create InsightCacheRepository wrapping InsightCacheDao - c557296
 - Step 5: Wire HabitInsightRepositoryImpl to check caching layer before calling Gemini API - 38c4d1e
+- Step 6: Write unit tests for cache-hit, cache-miss, and cache-stale logic - 9e91057
 
 
 

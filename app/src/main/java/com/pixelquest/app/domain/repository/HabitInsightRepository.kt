@@ -13,11 +13,19 @@ interface HabitInsightRepository {
 
     /**
      * Executes the end-to-end habit insight pipeline.
+     * When [forceRefresh] is true, ignores local cache and attempts a live refresh
+     * (subject to rate limiting).
      */
-    suspend fun generateHabitInsight(): GeminiResult<HabitInsightResponse>
+    suspend fun generateHabitInsight(forceRefresh: Boolean = false): GeminiResult<HabitInsightResponse>
 
     /**
      * Observable flow emitting the most recent generated insight, or null if none generated.
      */
     val latestInsight: Flow<HabitInsightResponse?>
+
+    /**
+     * Calculates the remaining seconds before a live Gemini API call is permitted.
+     * Returns 0 if no cooldown is active.
+     */
+    suspend fun getRemainingCooldownSeconds(): Long = 0L
 }

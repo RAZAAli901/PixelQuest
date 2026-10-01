@@ -216,6 +216,21 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_AI_INSIGHTS_ENABLED, enabled).apply()
     }
 
+    override val lastAiInsightTimestamp: Flow<Long> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_LAST_AI_INSIGHT_TIMESTAMP) {
+                trySend(prefs.getLong(KEY_LAST_AI_INSIGHT_TIMESTAMP, 0L))
+            }
+        }
+        trySend(prefs.getLong(KEY_LAST_AI_INSIGHT_TIMESTAMP, 0L))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setLastAiInsightTimestamp(timestamp: Long) {
+        prefs.edit().putLong(KEY_LAST_AI_INSIGHT_TIMESTAMP, timestamp).apply()
+    }
+
     companion object {
         private const val KEY_SOUND_ENABLED = "key_sound_enabled"
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
@@ -230,5 +245,6 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_SIMPLE_MODE_HIGHLIGHT_SEEN = "key_simple_mode_highlight_seen"
         private const val KEY_COMIC_MODE_HIGHLIGHT_SEEN = "key_comic_mode_highlight_seen"
         private const val KEY_AI_INSIGHTS_ENABLED = "key_ai_insights_enabled"
+        private const val KEY_LAST_AI_INSIGHT_TIMESTAMP = "key_last_ai_insight_timestamp"
     }
 }

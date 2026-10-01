@@ -31,7 +31,8 @@ class HabitInsightRepositoryImpl @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val geminiClient: GeminiClient,
     private val insightCacheRepository: InsightCacheRepository,
-    private val toneHook: HabitInsightToneHook = DefaultHabitInsightToneHook()
+    private val toneHook: HabitInsightToneHook = DefaultHabitInsightToneHook(),
+    private val clock: () -> Long = { System.currentTimeMillis() }
 ) : HabitInsightRepository {
 
     constructor(
@@ -50,7 +51,8 @@ class HabitInsightRepositoryImpl @Inject constructor(
         settingsRepository = settingsRepository,
         geminiClient = geminiClient,
         insightCacheRepository = NoOpInsightCacheRepository(),
-        toneHook = toneHook
+        toneHook = toneHook,
+        clock = { System.currentTimeMillis() }
     )
 
     companion object {
@@ -58,12 +60,29 @@ class HabitInsightRepositoryImpl @Inject constructor(
          * 12-hour standard staleness window (TTL) per Day 24 Step 17 / AI_INSIGHTS.md.
          */
         const val CACHE_TTL_MILLIS: Long = 12 * 60 * 60 * 1000L
+
+        /**
+         * 6-hour minimum interval between live Gemini API requests per user (Day 24 Step 16 / Day 25 Step 7).
+         */
+        const val MIN_CALL_INTERVAL_MS: Long = 6 * 60 * 60 * 1000L
     }
 
     private val _latestInsight = MutableStateFlow<HabitInsightResponse?>(null)
     override val latestInsight: Flow<HabitInsightResponse?> = _latestInsight.asStateFlow()
 
-    override suspend fun generateHabitInsight(): GeminiResult<HabitInsightResponse> {
+    override suspend fun getRemainingCooldownSeconds(): Long {
+        val now = clock()
+        val lastCallTime = try { settingsRepository.lastAiInsightTimestamp.first() } catch (e: Exception) { 0L }
+            .let { if (it > 0L) it else (insightCacheRepository.getLatestInsight()?.generatedAt ?: 0L) }
+        val elapsed = now - lastCallTime
+        return if (lastCallTime > 0L && elapsed < MIN_CALL_INTERVAL_MS) {
+            (MIN_CALL_INTERVAL_MS - elapsed) / 1000L
+        } else {
+            0L
+        }
+    }
+
+    override suspend fun generateHabitInsight(forceRefresh: Boolean): GeminiResult<HabitInsightResponse> {
         val isOptedIn = try { settingsRepository.aiInsightsEnabled.first() } catch (e: Exception) { false }
         if (!isOptedIn) {
             return GeminiResult.Disabled("AI Habit Insights are disabled. Enable them in Settings to receive personalized insights.")
@@ -86,14 +105,30 @@ class HabitInsightRepositoryImpl @Inject constructor(
 
         val dataHash = HabitInsightPromptBuilder.computeDataHash(telemetry, tone)
 
-        // Step 5: Check caching layer first (valid, non-stale, matching dataHash)
-        if (insightCacheRepository.isCacheValid(dataHash, CACHE_TTL_MILLIS)) {
+        // Step 5: Check caching layer first unless forceRefresh is explicitly requested
+        if (!forceRefresh && insightCacheRepository.isCacheValid(dataHash, CACHE_TTL_MILLIS)) {
             val cached = insightCacheRepository.getLatestInsight()
             if (cached != null) {
                 val cachedResponse = cached.toInsightResponse()
                 _latestInsight.value = cachedResponse
                 return GeminiResult.Success(cachedResponse)
             }
+        }
+
+        // Step 7 & 8: Enforce rate limiting before dispatching a live API call
+        val cooldownSeconds = getRemainingCooldownSeconds()
+        if (cooldownSeconds > 0L) {
+            val remainingHours = (cooldownSeconds + 3599) / 3600
+            val message = if (remainingHours > 1) {
+                "Check back in $remainingHours hours for a fresh insight."
+            } else {
+                val remainingMinutes = (cooldownSeconds + 59) / 60
+                "Check back in $remainingMinutes minutes for a fresh insight."
+            }
+            return GeminiResult.RateLimited(
+                retryAfterSeconds = cooldownSeconds,
+                message = message
+            )
         }
 
         val prompt = HabitInsightPromptBuilder.buildPrompt(telemetry, tone)
@@ -113,6 +148,9 @@ class HabitInsightRepositoryImpl @Inject constructor(
                     _latestInsight.value = parsed
                     // Persist to local cache with dataHash
                     insightCacheRepository.saveInsight(parsed, dataHash)
+                    // Update persistent rate limit timestamp
+                    val callTime = clock()
+                    try { settingsRepository.setLastAiInsightTimestamp(callTime) } catch (_: Exception) {}
                     GeminiResult.Success(parsed)
                 } catch (e: Exception) {
                     GeminiResult.MalformedResponse(
