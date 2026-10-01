@@ -243,6 +243,18 @@ fun SettingsScreen(
                     variant = PixelButtonVariant.BLUE,
                     modifier = Modifier.fillMaxWidth()
                 )
+                val aiMessagesOn by viewModel.isAiReminderMessagesEnabled.collectAsState()
+                PixelButton(
+                    text = if (aiMessagesOn) "💬 AI REMINDER MESSAGES: ON" else "💬 AI REMINDER MESSAGES: OFF",
+                    onClick = { viewModel.setAiReminderMessagesEnabled(!aiMessagesOn) },
+                    variant = PixelButtonVariant.BLUE,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = "Once a day, Gemini writes a few short encouraging lines for your reminders from the same anonymous stats. Task names are never sent.",
+                    style = PixelTypography.bodySmall,
+                    color = PixelTheme.colors.onSurfaceVariant
+                )
             } else {
                 PixelButton(
                     text = "✨ OPT IN & ENABLE AI COACH",

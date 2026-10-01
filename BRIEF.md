@@ -2438,4 +2438,5 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 34: Add a Reminder section to Create/Edit task: on/off, lead time chips and alert style chips - 1ce4b90
 - Step 35: Add Compose previews of the reminder section in Pixel, Light and Comic, plus the off state - 15445da
 - Step 36: Reminder section and channel links use the theme's typography so Comic mode gets its comic font - fcad3ae
-- Step 37: Add EncouragementMessageProvider and a built-in tone-aware bank of reminder encouragement lines - pending
+- Step 37: Add EncouragementMessageProvider and a built-in tone-aware bank of reminder encouragement lines - 8db5a3f
+- Step 38: Add the AI reminder messages setting (off by default, shown only while AI Coach is on) - pending

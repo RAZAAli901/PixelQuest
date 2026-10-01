@@ -216,6 +216,21 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_AI_INSIGHTS_ENABLED, enabled).apply()
     }
 
+    override val aiReminderMessagesEnabled: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_AI_REMINDER_MESSAGES_ENABLED) {
+                trySend(prefs.getBoolean(KEY_AI_REMINDER_MESSAGES_ENABLED, false))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_AI_REMINDER_MESSAGES_ENABLED, false))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setAiReminderMessagesEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_AI_REMINDER_MESSAGES_ENABLED, enabled).apply()
+    }
+
     override val lastAiInsightTimestamp: Flow<Long> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_LAST_AI_INSIGHT_TIMESTAMP) {
@@ -246,5 +261,6 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_COMIC_MODE_HIGHLIGHT_SEEN = "key_comic_mode_highlight_seen"
         private const val KEY_AI_INSIGHTS_ENABLED = "key_ai_insights_enabled"
         private const val KEY_LAST_AI_INSIGHT_TIMESTAMP = "key_last_ai_insight_timestamp"
+        private const val KEY_AI_REMINDER_MESSAGES_ENABLED = "key_ai_reminder_messages_enabled"
     }
 }

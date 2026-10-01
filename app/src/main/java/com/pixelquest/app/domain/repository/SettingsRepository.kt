@@ -63,4 +63,13 @@ interface SettingsRepository {
         get() = kotlinx.coroutines.flow.flowOf(0L)
 
     suspend fun setLastAiInsightTimestamp(timestamp: Long) {}
+
+    /**
+     * Day 26: let Gemini write the short encouraging line in task reminders. Defaults to false and
+     * only takes effect while [aiInsightsEnabled] is also true.
+     */
+    val aiReminderMessagesEnabled: Flow<Boolean>
+        get() = kotlinx.coroutines.flow.flowOf(false)
+
+    suspend fun setAiReminderMessagesEnabled(enabled: Boolean) {}
 }

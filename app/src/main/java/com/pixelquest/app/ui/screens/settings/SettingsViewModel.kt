@@ -130,6 +130,15 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    val isAiReminderMessagesEnabled: StateFlow<Boolean> = settingsRepository.aiReminderMessagesEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    fun setAiReminderMessagesEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setAiReminderMessagesEnabled(enabled)
+        }
+    }
+
     fun setAiInsightsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setAiInsightsEnabled(enabled)
