@@ -8,6 +8,7 @@ import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.model.CloudProfileDto
 import com.pixelquest.app.data.repository.LeaderboardRepository
 import com.pixelquest.app.data.repository.LeaderboardSortMode
+import com.pixelquest.app.data.repository.RankedProfile
 import com.pixelquest.app.data.repository.UserLeaderboardRank
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +27,12 @@ enum class LeaderboardTab {
     TOP_LEVELS
 }
 
+/** AROUND_YOU shows the heroes just above and below you; TOP shows the full ranked list. */
+enum class LeaderboardView {
+    AROUND_YOU,
+    TOP
+}
+
 sealed class LeaderboardAuthState {
     object NotSignedIn : LeaderboardAuthState()
     data class SignedInReadOnly(val userId: String) : LeaderboardAuthState()
@@ -38,6 +45,9 @@ data class LeaderboardUiState(
     val streakEntries: List<CloudProfileDto> = emptyList(),
     val levelEntries: List<CloudProfileDto> = emptyList(),
     val currentUserRank: UserLeaderboardRank? = null,
+    val selectedView: LeaderboardView = LeaderboardView.AROUND_YOU,
+    val aroundYouEntries: List<RankedProfile> = emptyList(),
+    val isLoadingAroundYou: Boolean = false,
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val canLoadMore: Boolean = true,
@@ -85,11 +95,12 @@ class LeaderboardViewModel @Inject constructor(
                         _uiState.value = _uiState.value.copy(
                             streakEntries = emptyList(),
                             levelEntries = emptyList(),
-                            currentUserRank = null
+                            currentUserRank = null,
+                            aroundYouEntries = emptyList()
                         )
                     }
                     is LeaderboardAuthState.SignedInReadOnly -> {
-                        _uiState.value = _uiState.value.copy(currentUserRank = null)
+                        _uiState.value = _uiState.value.copy(currentUserRank = null, aroundYouEntries = emptyList())
                         if (prevAuthState is LeaderboardAuthState.NotSignedIn) {
                             loadInitialData()
                         }
@@ -136,6 +147,7 @@ class LeaderboardViewModel @Inject constructor(
         val targetList = if (tab == LeaderboardTab.TOP_STREAKS) _uiState.value.streakEntries else _uiState.value.levelEntries
         _uiState.value = _uiState.value.copy(
             selectedTab = tab,
+            aroundYouEntries = emptyList(),
             errorMessage = null,
             canLoadMore = targetList.isEmpty() || targetList.size >= pageSize
         )
@@ -144,6 +156,10 @@ class LeaderboardViewModel @Inject constructor(
         } else {
             fetchCurrentUserRank()
         }
+    }
+
+    fun selectView(view: LeaderboardView) {
+        _uiState.value = _uiState.value.copy(selectedView = view)
     }
 
     fun refresh() {
@@ -265,13 +281,23 @@ class LeaderboardViewModel @Inject constructor(
                 LeaderboardSortMode.LEVEL
             }
 
-            when (val rankResult = leaderboardRepository.getCurrentUserRank(sortMode, userId)) {
+            _uiState.value = _uiState.value.copy(isLoadingAroundYou = true)
+            when (val result = leaderboardRepository.getPlayersAroundYou(sortMode, userId, radius = AROUND_YOU_RADIUS)) {
                 is SupabaseResult.Success -> {
-                    _uiState.value = _uiState.value.copy(currentUserRank = rankResult.data)
+                    _uiState.value = _uiState.value.copy(
+                        currentUserRank = result.data?.you,
+                        aroundYouEntries = result.data?.entries.orEmpty(),
+                        isLoadingAroundYou = false
+                    )
                 }
-                else -> Unit
+                else -> _uiState.value = _uiState.value.copy(isLoadingAroundYou = false)
             }
         }
+    }
+
+    companion object {
+        /** Heroes shown above and below you in the AROUND YOU view. */
+        const val AROUND_YOU_RADIUS = 3
     }
 
     fun clearError() {

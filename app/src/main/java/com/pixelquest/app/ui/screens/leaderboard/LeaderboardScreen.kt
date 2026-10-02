@@ -52,7 +52,7 @@ import com.pixelquest.app.ui.theme.PixelTheme
 @Composable
 fun LeaderboardScreen(
     viewModel: LeaderboardViewModel,
-    onNavigateBack: () -> Unit,
+    onNavigateBack: (() -> Unit)? = null,
     onNavigateToAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -63,6 +63,7 @@ fun LeaderboardScreen(
         onLoadMore = { viewModel.loadMore() },
         onRefresh = { viewModel.refresh() },
         onReportProfile = { id, name -> viewModel.reportProfile(id, "Flagged offensive display name: $name") },
+        onViewSelected = { viewModel.selectView(it) },
         onNavigateBack = onNavigateBack,
         onNavigateToAccount = onNavigateToAccount,
         modifier = modifier
@@ -77,7 +78,8 @@ fun LeaderboardContent(
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit,
     onReportProfile: (String, String) -> Unit = { _, _ -> },
-    onNavigateBack: () -> Unit,
+    onViewSelected: (LeaderboardView) -> Unit = {},
+    onNavigateBack: (() -> Unit)? = null,
     onNavigateToAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -124,13 +126,15 @@ fun LeaderboardContent(
         topBar = {
             com.pixelquest.app.ui.components.PixelTopAppBar(
                 title = "LEADERBOARD",
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Text(
-                            text = "◀",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.primary
-                        )
+                navigationIcon = onNavigateBack?.let { back ->
+                    {
+                        IconButton(onClick = back) {
+                            Text(
+                                text = "◀",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primary
+                            )
+                        }
                     }
                 },
                 actions = {
@@ -188,6 +192,16 @@ fun LeaderboardContent(
                     selectedTab = uiState.selectedTab,
                     onTabSelected = onTabSelected
                 )
+
+                val isOnBoard = uiState.authState is LeaderboardAuthState.SignedInAndOptedIn
+                val showAroundYou = isOnBoard && uiState.selectedView == LeaderboardView.AROUND_YOU
+                if (isOnBoard) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LeaderboardViewSwitch(
+                        selectedView = uiState.selectedView,
+                        onViewSelected = onViewSelected
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -285,6 +299,18 @@ fun LeaderboardContent(
                     }
                 }
 
+            if (showAroundYou) {
+                AroundYouList(
+                    entries = uiState.aroundYouEntries,
+                    selectedTab = uiState.selectedTab,
+                    currentUserId = currentUserId,
+                    isLoading = uiState.isLoadingAroundYou || uiState.isLoading,
+                    onReport = { id, name -> reportingItem = id to name },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
+            } else {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -401,7 +427,10 @@ fun LeaderboardContent(
                 }
             }
 
-            // Footer: Pinned Current User Rank (Opted In) OR Spectator Mode Banner (Read Only)
+            }
+
+            // Footer: Pinned Current User Rank (Opted In) OR Spectator Mode Banner (Read Only).
+            // The AROUND YOU view already shows your row, so it skips the pinned copy.
             when (uiState.authState) {
                 is LeaderboardAuthState.SignedInReadOnly -> {
                     Spacer(modifier = Modifier.height(12.dp))
@@ -411,7 +440,7 @@ fun LeaderboardContent(
                 }
                 is LeaderboardAuthState.SignedInAndOptedIn -> {
                     val userRank = uiState.currentUserRank
-                    if (userRank != null) {
+                    if (userRank != null && !showAroundYou) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Column(
                             modifier = Modifier
@@ -533,6 +562,112 @@ fun LeaderboardTabButton(
             color = textColor,
             fontSize = 9.sp
         )
+    }
+}
+
+@Composable
+fun LeaderboardViewSwitch(
+    selectedView: LeaderboardView,
+    onViewSelected: (LeaderboardView) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = PixelTheme.colors
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(colors.surface)
+            .border(1.dp, colors.pixelBorder, RoundedCornerShape(8.dp))
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        LeaderboardTabButton(
+            title = "⚔️ AROUND YOU",
+            isSelected = selectedView == LeaderboardView.AROUND_YOU,
+            onClick = { onViewSelected(LeaderboardView.AROUND_YOU) },
+            modifier = Modifier.weight(1f)
+        )
+        LeaderboardTabButton(
+            title = "🏆 TOP HEROES",
+            isSelected = selectedView == LeaderboardView.TOP,
+            onClick = { onViewSelected(LeaderboardView.TOP) },
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+/**
+ * The heroes ranked just above and below you, with their real leaderboard ranks and your row
+ * highlighted.
+ */
+@Composable
+fun AroundYouList(
+    entries: List<com.pixelquest.app.data.repository.RankedProfile>,
+    selectedTab: LeaderboardTab,
+    currentUserId: String?,
+    isLoading: Boolean,
+    onReport: (String, String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = PixelTheme.colors
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        when {
+            entries.isEmpty() && isLoading -> {
+                CircularProgressIndicator(color = colors.primary, modifier = Modifier.size(36.dp))
+            }
+            entries.isEmpty() -> {
+                Text(
+                    text = "YOU'RE NOT ON THE BOARD YET\nYour rank appears after your profile syncs. Pull down to refresh.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 18.sp
+                )
+            }
+            else -> {
+                androidx.compose.foundation.lazy.LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item(key = "around_you_header") {
+                        Text(
+                            text = "HEROES ABOVE AND BELOW YOU",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colors.primary,
+                            fontSize = 8.sp,
+                            modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
+                        )
+                    }
+                    items(
+                        count = entries.size,
+                        key = { index -> "around_" + entries[index].profile.id }
+                    ) { index ->
+                        val entry = entries[index]
+                        val profile = entry.profile
+                        val isCurrentUser = currentUserId != null && profile.id == currentUserId
+                        val report: ((String) -> Unit)? = if (isCurrentUser) null else { { _ -> onReport(profile.id, profile.displayName) } }
+                        when (selectedTab) {
+                            LeaderboardTab.TOP_STREAKS -> PixelLeaderboardRow(
+                                rank = entry.rank,
+                                displayName = profile.displayName,
+                                statLabel = "DAYS STREAK",
+                                statValue = "${profile.currentStreak} 🔥",
+                                isCurrentUser = isCurrentUser,
+                                onReportClicked = report
+                            )
+                            LeaderboardTab.TOP_LEVELS -> PixelLeaderboardRow(
+                                rank = entry.rank,
+                                displayName = profile.displayName,
+                                statLabel = "XP: ${profile.totalXp}",
+                                statValue = "LVL ${profile.level} ⚔️",
+                                isCurrentUser = isCurrentUser,
+                                onReportClicked = report
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
