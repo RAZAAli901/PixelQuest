@@ -27,6 +27,7 @@ import com.pixelquest.app.ui.components.PixelBottomNavBar
 import com.pixelquest.app.ui.components.PixelNotificationPermissionBanner
 import com.pixelquest.app.ui.navigation.PixelNavHost
 import com.pixelquest.app.ui.navigation.Screen
+import com.pixelquest.app.ui.navigation.navigateToTab
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -96,15 +97,7 @@ class MainActivity : ComponentActivity() {
                                 if (currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {
                                     PixelBottomNavBar(
                                         currentRoute = currentRoute,
-                                        onNavigate = { route ->
-                                            navController.navigate(route) {
-                                                popUpTo(Screen.Home.route) {
-                                                    saveState = true
-                                                }
-                                                launchSingleTop = true
-                                                restoreState = true
-                                            }
-                                        }
+                                        onNavigate = { route -> navController.navigateToTab(route) }
                                     )
                                 }
                             }

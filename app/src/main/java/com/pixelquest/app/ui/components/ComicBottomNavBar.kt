@@ -16,7 +16,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -77,6 +82,22 @@ fun ComicBottomNavBar(
         ) {
             bottomNavItems.forEachIndexed { index, item ->
                 val isSelected = currentRoute == item.route
+
+                if (item.isFeatured) {
+                    ComicFeaturedNavButton(
+                        item = item,
+                        isSelected = isSelected,
+                        onClick = {
+                            if (!isSelected) {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                soundManager?.playNavSound()
+                                onNavigate(item.route)
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                    return@forEachIndexed
+                }
 
                 val chipBackground by animateColorAsState(
                     targetValue = if (isSelected) ComicTokens.CoralRed else Color.Transparent,
@@ -153,8 +174,8 @@ fun ComicBottomNavBar(
                     }
                 }
 
-                // Comic panel vertical cell divider between tabs
-                if (index < bottomNavItems.lastIndex) {
+                // Comic panel vertical cell divider between tabs (none beside the round button)
+                if (index < bottomNavItems.lastIndex && !bottomNavItems[index + 1].isFeatured) {
                     Box(
                         modifier = Modifier
                             .width(ComicShapeTokens.BorderWidthThin)
@@ -163,6 +184,64 @@ fun ComicBottomNavBar(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * The round Leaderboard button: a gold disc with a black ink ring and hard shadow, coral-red while
+ * the leaderboard is the open tab, matching the active pill on the other tabs.
+ */
+@Composable
+private fun ComicFeaturedNavButton(
+    item: NavItem,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val fill by animateColorAsState(
+        targetValue = if (isSelected) ComicTokens.CoralRed else ComicTokens.GoldAccent,
+        animationSpec = tween(durationMillis = 150),
+        label = "comicFeaturedNavFill"
+    )
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = modifier.height(48.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .comicDropShadow(
+                    offsetX = ComicShapeTokens.ShadowOffsetSmall,
+                    offsetY = ComicShapeTokens.ShadowOffsetSmall,
+                    shape = CircleShape
+                )
+                .comicBorder(
+                    width = ComicShapeTokens.BorderWidthDefault,
+                    color = ComicTokens.SolidBlack,
+                    shape = CircleShape
+                )
+                .background(fill, CircleShape)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    role = Role.Tab,
+                    onClickLabel = item.title,
+                    onClick = onClick
+                )
+                .semantics {
+                    contentDescription = item.title
+                    selected = isSelected
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = item.iconRes),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(ComicTokens.SolidBlack),
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

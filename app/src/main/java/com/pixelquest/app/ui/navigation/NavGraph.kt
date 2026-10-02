@@ -157,7 +157,8 @@ fun PixelNavHost(
                     navController.navigate(Screen.TaskAnalytics.createRoute(taskId))
                 },
                 onNavigateToLeaderboard = {
-                    navController.navigate(Screen.Leaderboard.route)
+                    // The leaderboard is a bottom-bar tab, so open it like one.
+                    navController.navigateToTab(Screen.Leaderboard.route)
                 }
             )
         }
@@ -247,7 +248,6 @@ fun PixelNavHost(
             val leaderboardViewModel: com.pixelquest.app.ui.screens.leaderboard.LeaderboardViewModel = hiltViewModel()
             com.pixelquest.app.ui.screens.leaderboard.LeaderboardScreen(
                 viewModel = leaderboardViewModel,
-                onNavigateBack = { navController.popBackStack() },
                 onNavigateToAccount = { navController.navigate(Screen.Account.route) }
             )
         }
