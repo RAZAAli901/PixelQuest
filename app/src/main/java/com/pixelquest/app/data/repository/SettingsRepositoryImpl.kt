@@ -194,7 +194,20 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setThemeMode(mode: com.pixelquest.app.ui.theme.ThemeMode) {
-        prefs.edit().putString(KEY_THEME_MODE, mode.id).apply()
+        val editor = prefs.edit()
+        if (mode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+            val current = com.pixelquest.app.ui.theme.ThemeMode.fromId(prefs.getString(KEY_THEME_MODE, null))
+            if (current != com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+                editor.putString(KEY_THEME_MODE_BEFORE_COMIC, current.id)
+            }
+        }
+        editor.putString(KEY_THEME_MODE, mode.id).apply()
+    }
+
+    override suspend fun getThemeModeBeforeComic(): com.pixelquest.app.ui.theme.ThemeMode {
+        val id = prefs.getString(KEY_THEME_MODE_BEFORE_COMIC, null)
+        val mode = com.pixelquest.app.ui.theme.ThemeMode.fromId(id)
+        return if (mode == com.pixelquest.app.ui.theme.ThemeMode.Comic) com.pixelquest.app.ui.theme.ThemeMode.Pixel else mode
     }
 
     override suspend fun setSimpleModeEnabled(enabled: Boolean) {
@@ -256,6 +269,7 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"
         private const val KEY_NOTIFICATION_VIBRATION = "key_notification_vibration"
         private const val KEY_THEME_MODE = "key_theme_mode"
+        private const val KEY_THEME_MODE_BEFORE_COMIC = "key_theme_mode_before_comic"
         private const val KEY_SIMPLE_MODE_ENABLED = "key_simple_mode_enabled"
         private const val KEY_SIMPLE_MODE_HIGHLIGHT_SEEN = "key_simple_mode_highlight_seen"
         private const val KEY_COMIC_MODE_HIGHLIGHT_SEEN = "key_comic_mode_highlight_seen"

@@ -653,6 +653,12 @@ Following full-screen application of Comic mode across all primary application s
 - **Realized Swatch**: Theme selection card updated with final 6-tile comic swatch and comic ink framing.
 - **Discoverability Highlight**: Non-naggy one-time highlight ("💥 NEW: COMIC BOOK MODE!") added in Settings, matching Day 19's Simple Mode discoverability pattern.
 
+### 13.5 One-Tap Comic Toggle on Home
+- **Where**: The Home screen header has a "💥 COMIC MODE" button beside "🔄 REFRESH". In Comic it reads "👾 EXIT COMIC". Settings still offers the full theme list.
+- **Switching back**: `ThemeViewModel.toggleComicMode()` turns Comic on, or restores the theme that was active before Comic (Pixel, Light or Follow System).
+- **Remembering the previous theme**: `SettingsRepositoryImpl.setThemeMode` saves the outgoing theme under `key_theme_mode_before_comic` whenever Comic is chosen from any screen. `getThemeModeBeforeComic()` falls back to Pixel.
+- **Banner**: Turning Comic on from Home also marks the "NEW: COMIC BOOK MODE!" highlight as seen, the same as choosing it in Settings.
+
 
 ## 14. Master Multi-Theme Specification: Pixel vs. Light vs. Comic Reference Matrix
 

@@ -46,6 +46,14 @@ interface SettingsRepository {
     suspend fun setNotificationSoundEnabled(enabled: Boolean)
     suspend fun setNotificationVibrationEnabled(enabled: Boolean)
     suspend fun setThemeMode(mode: com.pixelquest.app.ui.theme.ThemeMode) {}
+
+    /**
+     * The theme that was active before the user last switched to Comic, so the Home screen's
+     * Comic toggle can switch back to it. Recorded by [setThemeMode] whenever Comic is chosen.
+     */
+    suspend fun getThemeModeBeforeComic(): com.pixelquest.app.ui.theme.ThemeMode =
+        com.pixelquest.app.ui.theme.ThemeMode.Pixel
+
     suspend fun setSimpleModeEnabled(enabled: Boolean) {}
 
     /**

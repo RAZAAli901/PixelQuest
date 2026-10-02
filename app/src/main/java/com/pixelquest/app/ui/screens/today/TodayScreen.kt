@@ -3,6 +3,7 @@ package com.pixelquest.app.ui.screens.today
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,6 +45,7 @@ import androidx.compose.material3.MaterialTheme
 @Composable
 fun TodayScreen(
     viewModel: TodayViewModel = hiltViewModel(),
+    themeViewModel: com.pixelquest.app.ui.theme.ThemeViewModel = hiltViewModel(),
     onNavigateToCreateTask: () -> Unit = {},
     onNavigateToEditTask: (Long) -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
@@ -97,7 +99,8 @@ fun TodayScreen(
                     onNavigateToEditTask = onNavigateToEditTask,
                     onNavigateToProfile = onNavigateToProfile,
                     onNavigateToAiInsight = onNavigateToAiInsight,
-                    onNavigateToSettings = onNavigateToSettings
+                    onNavigateToSettings = onNavigateToSettings,
+                    onToggleComicMode = { themeViewModel.toggleComicMode() }
                 )
             }
         }
@@ -115,6 +118,7 @@ fun TodayContent(
     onNavigateToProfile: () -> Unit,
     onNavigateToAiInsight: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
+    onToggleComicMode: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var taskToSkip by remember { mutableStateOf<TaskEntity?>(null) }
@@ -146,9 +150,8 @@ fun TodayContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
@@ -156,11 +159,25 @@ fun TodayContent(
                     style = MaterialTheme.typography.titleLarge,
                     color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
                 )
-                PixelButton(
-                    text = "🔄 REFRESH",
-                    onClick = onRefresh,
-                    variant = PixelButtonVariant.BLUE
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val isComicMode = com.pixelquest.app.ui.theme.PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Comic
+                    PixelButton(
+                        text = if (isComicMode) "👾 EXIT COMIC" else "💥 COMIC MODE",
+                        onClick = onToggleComicMode,
+                        variant = PixelButtonVariant.YELLOW,
+                        modifier = Modifier.weight(1f)
+                    )
+                    PixelButton(
+                        text = "🔄 REFRESH",
+                        onClick = onRefresh,
+                        variant = PixelButtonVariant.BLUE,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
         item {

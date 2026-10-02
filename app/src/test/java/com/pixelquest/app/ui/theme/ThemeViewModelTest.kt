@@ -46,6 +46,15 @@ class ThemeViewModelTest {
         override suspend fun setThemeMode(mode: ThemeMode) {
             themeModeFlow.value = mode
         }
+
+        var themeModeBeforeComic = ThemeMode.Pixel
+        var comicHighlightSeen = false
+
+        override suspend fun getThemeModeBeforeComic(): ThemeMode = themeModeBeforeComic
+
+        override suspend fun setComicModeHighlightSeen(seen: Boolean) {
+            comicHighlightSeen = seen
+        }
     }
 
     private lateinit var fakeRepo: FakeSettingsRepository
@@ -81,6 +90,28 @@ class ThemeViewModelTest {
         viewModel.setThemeMode(ThemeMode.Pixel)
         advanceUntilIdle()
         assertEquals(ThemeMode.Pixel, viewModel.themeMode.value)
+    }
+
+    @Test
+    fun toggleComicMode_turnsComicOnAndDismissesTheNewModeBanner() = runTest {
+        fakeRepo.themeModeFlow.value = ThemeMode.Light
+
+        viewModel.toggleComicMode()
+        advanceUntilIdle()
+
+        assertEquals(ThemeMode.Comic, fakeRepo.themeModeFlow.value)
+        assertEquals(true, fakeRepo.comicHighlightSeen)
+    }
+
+    @Test
+    fun toggleComicMode_fromComicRestoresTheThemeFromBeforeComic() = runTest {
+        fakeRepo.themeModeFlow.value = ThemeMode.Comic
+        fakeRepo.themeModeBeforeComic = ThemeMode.Light
+
+        viewModel.toggleComicMode()
+        advanceUntilIdle()
+
+        assertEquals(ThemeMode.Light, fakeRepo.themeModeFlow.value)
     }
 
     @Test
