@@ -1,9 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Skull and crossbones: 16 x 16 pixel art. Pixel mode shows this colour; Light and Comic tint it. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
+    android:viewportWidth="16"
+    android:viewportHeight="16">
     <path
         android:fillColor="#FF9800"
-        android:pathData="M12,1L3,5v6c0,5.55 3.84,10.74 9,12 5.16,-1.26 9,-6.45 9,-12V5l-9,-4z"/>
+        android:pathData="M0 0h2v1h-2zM14 0h2v1h-2zM0 1h3v1h-3zM13 1h3v1h-3zM1 2h3v1h-3zM5 2h6v1h-6zM12 2h3v1h-3zM3 3h10v1h-10zM2 4h12v1h-12zM2 5h12v1h-12zM2 6h2v1h-2zM7 6h2v1h-2zM12 6h2v1h-2zM2 7h2v1h-2zM7 7h2v1h-2zM12 7h2v1h-2zM2 8h12v1h-12zM3 9h4v1h-4zM9 9h4v1h-4zM4 10h8v1h-8zM4 11h2v1h-2zM7 11h2v1h-2zM10 11h2v1h-2zM4 12h8v1h-8zM2 13h3v1h-3zM11 13h3v1h-3zM0 14h3v1h-3zM13 14h3v1h-3zM0 15h2v1h-2zM14 15h2v1h-2z"/>
 </vector>

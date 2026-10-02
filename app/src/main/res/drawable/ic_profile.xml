@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Person: 16 x 16 pixel art. Pixel mode shows this colour; Light and Comic tint it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#F4C430"
+        android:pathData="M6 1h4v1h-4zM5 2h6v1h-6zM5 3h6v1h-6zM5 4h6v1h-6zM5 5h6v1h-6zM6 6h4v1h-4zM4 8h8v1h-8zM3 9h10v1h-10zM2 10h12v1h-12zM2 11h12v1h-12zM2 12h12v1h-12zM2 13h12v1h-12zM2 14h12v1h-12z"/>
+</vector>

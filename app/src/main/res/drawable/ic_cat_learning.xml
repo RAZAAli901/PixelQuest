@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Open book: 16 x 16 pixel art. Pixel mode shows this colour; Light and Comic tint it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#F4C430"
+        android:pathData="M1 2h6v1h-6zM9 2h6v1h-6zM0 3h7v1h-7zM9 3h7v1h-7zM0 4h1v1h-1zM6 4h1v1h-1zM9 4h1v1h-1zM15 4h1v1h-1zM0 5h7v1h-7zM9 5h7v1h-7zM0 6h1v1h-1zM6 6h1v1h-1zM9 6h1v1h-1zM15 6h1v1h-1zM0 7h7v1h-7zM9 7h7v1h-7zM0 8h1v1h-1zM6 8h1v1h-1zM9 8h1v1h-1zM15 8h1v1h-1zM0 9h7v1h-7zM9 9h7v1h-7zM0 10h1v1h-1zM6 10h1v1h-1zM9 10h1v1h-1zM15 10h1v1h-1zM0 11h16v1h-16zM1 12h6v1h-6zM9 12h6v1h-6z"/>
+</vector>

@@ -24,23 +24,26 @@
 - `pixel_bar_green_fill.png`: Bright 8-bit green progress bar fill indicator
 
 ### Navigation Icons (`res/drawable/`)
-- `ic_home.png`: 16x16 pixel-art home icon
-- `ic_tasks.png`: 16x16 pixel-art quest log icon
-- `ic_stats.png`: 16x16 pixel-art level stats icon
-- `ic_profile.png`: 16x16 pixel-art hero avatar icon
+16x16 pixel-art vector drawables in Pixel gold (`#F4C430`), drawn at 24dp:
+- `ic_home.xml`: house
+- `ic_tasks.xml`: checklist (also the notification small icon)
+- `ic_stats.xml`: bar chart
+- `ic_profile.xml`: person
 
 ### Task Category Icons (`res/drawable/`)
-- `ic_cat_fitness.png`: 16x16 pixel-art fitness category icon
-- `ic_cat_health.png`: 16x16 pixel-art health category icon
-- `ic_cat_learning.png`: 16x16 pixel-art learning category icon
-- `ic_cat_chores.png`: 16x16 pixel-art chores category icon
-- `ic_cat_other.png`: 16x16 pixel-art custom/other category icon
+16x16 pixel-art vector drawables in Pixel gold (`#F4C430`):
+- `ic_cat_fitness.xml`: dumbbell
+- `ic_cat_health.xml`: heart with a medical cross
+- `ic_cat_learning.xml`: open book
+- `ic_cat_chores.xml`: broom
+- `ic_cat_other.xml`: star
 
 ### Difficulty Tier Icons (`res/drawable/`)
-- `ic_diff_easy.xml`: Green shield icon for Easy difficulty
-- `ic_diff_medium.xml`: Blue shield icon for Medium difficulty
-- `ic_diff_hard.xml`: Orange shield icon for Hard difficulty
-- `ic_diff_hardest.xml`: Red shield icon for Hardest difficulty
+16x16 pixel-art skulls that get scarier with difficulty:
+- `ic_diff_easy.xml`: small green skull
+- `ic_diff_medium.xml`: blue skull
+- `ic_diff_hard.xml`: orange skull and crossbones
+- `ic_diff_hardest.xml`: red flaming skull and crossbones
 
 ### Fonts (`res/font/`)
 - `press_start_2p.ttf`: Open-source 8-bit retro font by CodeMan38 (SIL Open Font License 1.1) via Google Fonts
@@ -93,7 +96,7 @@
 ## Day 17 Light Mode Runtime Tinting Architecture (Step 15)
 - **Tinting Engine**: `PixelThemeAssetFilter` provides runtime `ColorFilter.tint(color, BlendMode.SrcAtop)` and theme-gated filters:
   1. **Category Icons (`ic_cat_*`)**:
-     - *In Pixel Mode*: Preserves original multi-color pixel art (null filter).
+     - *In Pixel Mode*: Shows the icons in Pixel gold (null filter).
      - *In Light Mode*: Dynamically tinted with `colors.primary` (`#B45309`) or `colors.onSurfaceVariant` (`#57534E`) in lists and selectors to achieve >= 4.5:1 contrast against light card surfaces.
   2. **Difficulty Tier Icons (`ic_diff_*`)**:
      - *In Pixel Mode*: Preserves saturated vector colors (Green/Blue/Orange/Red).

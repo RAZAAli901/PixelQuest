@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- House: 16 x 16 pixel art. Pixel mode shows this colour; Light and Comic tint it. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:fillColor="#F4C430"
+        android:pathData="M7 1h2v1h-2zM6 2h4v1h-4zM13 2h2v1h-2zM5 3h6v1h-6zM13 3h2v1h-2zM4 4h8v1h-8zM13 4h2v1h-2zM3 5h12v1h-12zM2 6h12v1h-12zM1 7h14v1h-14zM3 8h10v1h-10zM3 9h10v1h-10zM3 10h3v1h-3zM10 10h3v1h-3zM3 11h3v1h-3zM10 11h3v1h-3zM3 12h3v1h-3zM10 12h3v1h-3zM3 13h3v1h-3zM10 13h3v1h-3zM3 14h3v1h-3zM10 14h3v1h-3z"/>
+</vector>
