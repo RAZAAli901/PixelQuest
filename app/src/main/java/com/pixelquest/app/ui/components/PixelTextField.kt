@@ -13,10 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelTextMuted
-import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
@@ -47,12 +43,16 @@ fun PixelTextField(
         return
     }
 
+    // Theme roles, not fixed Pixel colours: in Pixel they resolve to the same gold, white, muted and
+    // red, and in Light they give dark text on the white field instead of white on white.
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+
     Column(modifier = modifier) {
         if (label != null) {
             Text(
                 text = label,
                 style = PixelTypography.labelLarge,
-                color = PixelGold,
+                color = colors.primary,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
         }
@@ -67,15 +67,15 @@ fun PixelTextField(
                 singleLine = singleLine,
                 keyboardOptions = keyboardOptions,
                 visualTransformation = visualTransformation,
-                textStyle = PixelTypography.bodyMedium.copy(color = PixelTextWhite),
-                cursorBrush = SolidColor(PixelGold),
+                textStyle = PixelTypography.bodyMedium.copy(color = colors.onSurface),
+                cursorBrush = SolidColor(colors.primary),
                 modifier = Modifier.fillMaxWidth(),
                 decorationBox = { innerTextField ->
                     if (value.isEmpty() && placeholder.isNotEmpty()) {
                         Text(
                             text = placeholder,
                             style = PixelTypography.bodyMedium,
-                            color = PixelTextMuted
+                            color = colors.onSurfaceVariant
                         )
                     }
                     innerTextField()
@@ -87,7 +87,7 @@ fun PixelTextField(
             Text(
                 text = errorText,
                 style = PixelTypography.bodySmall,
-                color = PixelRed,
+                color = colors.error,
                 modifier = Modifier.padding(start = 4.dp)
             )
         }

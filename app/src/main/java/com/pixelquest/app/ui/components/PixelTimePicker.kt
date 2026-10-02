@@ -15,10 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelRed
-import com.pixelquest.app.ui.theme.PixelTextMuted
-import com.pixelquest.app.ui.theme.PixelTextWhite
 import com.pixelquest.app.ui.theme.PixelTypography
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -43,6 +39,8 @@ fun PixelTimePicker(
         return
     }
 
+    // Theme roles: identical to the fixed Pixel colours in Pixel, readable on Light's white field.
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
     val context = LocalContext.current
     val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
 
@@ -63,7 +61,7 @@ fun PixelTimePicker(
         Text(
             text = label,
             style = PixelTypography.labelLarge,
-            color = PixelGold,
+            color = colors.primary,
             modifier = Modifier.padding(bottom = 6.dp)
         )
         PixelCard(
@@ -85,7 +83,7 @@ fun PixelTimePicker(
                 Text(
                     text = selectedTime?.format(timeFormatter) ?: "--:--",
                     style = PixelTypography.bodyMedium,
-                    color = if (selectedTime != null) PixelTextWhite else PixelTextMuted
+                    color = if (selectedTime != null) colors.onSurface else colors.onSurfaceVariant
                 )
             }
         }
@@ -94,7 +92,7 @@ fun PixelTimePicker(
             Text(
                 text = errorText,
                 style = PixelTypography.bodySmall,
-                color = PixelRed,
+                color = colors.error,
                 modifier = Modifier.padding(start = 4.dp)
             )
         }
