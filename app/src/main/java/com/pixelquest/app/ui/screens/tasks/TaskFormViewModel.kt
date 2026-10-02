@@ -43,6 +43,7 @@ class TaskFormViewModel @Inject constructor(
                             scheduledDay = task.scheduledDay,
                             scheduledTime = task.scheduledTime,
                             recurrenceType = task.recurrenceType,
+                            selectedDays = com.pixelquest.app.domain.WeeklyDays.effective(task.weeklyDays, task.scheduledDay),
                             category = task.category,
                             reminderEnabled = task.reminderEnabled,
                             reminderLeadMinutes = task.reminderLeadMinutes,
@@ -142,7 +143,8 @@ class TaskFormViewModel @Inject constructor(
                 createdAt = state.createdAt ?: System.currentTimeMillis(),
                 reminderEnabled = state.reminderEnabled,
                 reminderLeadMinutes = state.reminderLeadMinutes,
-                reminderStyle = state.reminderStyle
+                reminderStyle = state.reminderStyle,
+                weeklyDays = if (state.recurrenceType == RecurrenceType.WEEKLY) state.selectedDays else emptySet()
             )
             if (state.isEditMode && state.taskId != null && state.taskId > 0) {
                 taskAlarmScheduler.cancelAlarmForTask(task)

@@ -4,6 +4,7 @@ import com.pixelquest.app.domain.model.RecurrenceType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -42,6 +43,29 @@ class ReminderScheduleTest {
         val now = LocalDateTime.of(2026, 10, 2, 12, 0) // Friday
         val next = ReminderSchedule.nextTriggerAt(LocalDate.of(2026, 9, 7), eight, RecurrenceType.WEEKLY, now) // Monday
         assertEquals(LocalDateTime.of(2026, 10, 5, 8, 0), next)
+    }
+
+    @Test
+    fun weekly_withChosenDays_firesOnTheNextChosenDay() {
+        val tueThu = setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY)
+        val friday = LocalDateTime.of(2026, 10, 2, 12, 0)
+        val next = ReminderSchedule.nextTriggerAt(LocalDate.of(2026, 9, 7), eight, RecurrenceType.WEEKLY, friday, weeklyDays = tueThu)
+        assertEquals(LocalDateTime.of(2026, 10, 6, 8, 0), next) // Tuesday
+
+        val tuesdayAfterReminder = LocalDateTime.of(2026, 10, 6, 9, 0)
+        val after = ReminderSchedule.nextTriggerAt(LocalDate.of(2026, 9, 7), eight, RecurrenceType.WEEKLY, tuesdayAfterReminder, weeklyDays = tueThu)
+        assertEquals(LocalDateTime.of(2026, 10, 8, 8, 0), after) // Thursday, not next Tuesday
+    }
+
+    @Test
+    fun weekly_withChosenDays_doneToday_skipsToNextChosenDay() {
+        val monWed = setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)
+        val mondayMorning = LocalDateTime.of(2026, 10, 5, 7, 0)
+        val next = ReminderSchedule.nextTriggerAt(
+            LocalDate.of(2026, 9, 7), eight, RecurrenceType.WEEKLY, mondayMorning,
+            notBefore = LocalDate.of(2026, 10, 6), weeklyDays = monWed
+        )
+        assertEquals(LocalDateTime.of(2026, 10, 7, 8, 0), next) // Wednesday
     }
 
     @Test

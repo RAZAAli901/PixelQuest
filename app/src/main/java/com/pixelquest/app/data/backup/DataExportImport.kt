@@ -10,6 +10,7 @@ import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -71,6 +72,7 @@ object DataExportImport {
                 put("reminderEnabled", task.reminderEnabled)
                 put("reminderLeadMinutes", task.reminderLeadMinutes)
                 put("reminderStyle", task.reminderStyle.name)
+                put("weeklyDays", JSONArray(task.weeklyDays.sorted().map { it.name }))
             }
             tasksArray.put(tObj)
         }
@@ -157,7 +159,9 @@ object DataExportImport {
                                     reminderLeadMinutes = tObj.optInt("reminderLeadMinutes", 0).coerceIn(0, 120),
                                     reminderStyle = ReminderStyle.values()
                                         .firstOrNull { it.name == tObj.optString("reminderStyle") }
-                                        ?: ReminderStyle.STANDARD
+                                        ?: ReminderStyle.STANDARD,
+                                    // Backups made before Day 27 have no weeklyDays; empty keeps the first date's weekday.
+                                    weeklyDays = parseWeeklyDays(tObj.optJSONArray("weeklyDays"))
                                 )
                             )
                         } catch (e: Exception) {
@@ -172,5 +176,13 @@ object DataExportImport {
             android.util.Log.e("DataExportImport", "Failed to parse backup JSON, returning empty payload", e)
             BackupPayload(null, null, null, emptyList())
         }
+    }
+
+    /** Day names such as "MONDAY"; unknown entries are skipped. */
+    private fun parseWeeklyDays(array: JSONArray?): Set<DayOfWeek> {
+        if (array == null) return emptySet()
+        return (0 until array.length())
+            .mapNotNull { i -> DayOfWeek.values().firstOrNull { it.name == array.optString(i) } }
+            .toSet()
     }
 }

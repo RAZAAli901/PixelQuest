@@ -17,7 +17,7 @@ class TaskRepositoryImpl @Inject constructor(
     // Recurring tasks keep their first date, so match every task that is due on [day].
     override fun getTasksForDay(day: LocalDate): Flow<List<TaskEntity>> =
         taskDao.getActiveTasksStartedBy(day).map { tasks ->
-            tasks.filter { TaskOccurrence.occursOn(it.scheduledDay, it.recurrenceType, day) }
+            tasks.filter { TaskOccurrence.occursOn(it.scheduledDay, it.recurrenceType, day, it.weeklyDays) }
         }
     override suspend fun insertTask(task: TaskEntity): Long = com.pixelquest.app.util.safeDatabaseCall(-1L) { taskDao.insertTask(task) }
     override suspend fun updateTask(task: TaskEntity) = com.pixelquest.app.util.safeDatabaseCall(Unit) { taskDao.updateTask(task) }

@@ -30,7 +30,7 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         LevelHistoryEntity::class,
         InsightCacheEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -84,6 +84,21 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE tasks ADD COLUMN reminderEnabled INTEGER NOT NULL DEFAULT 1")
                 db.execSQL("ALTER TABLE tasks ADD COLUMN reminderLeadMinutes INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("ALTER TABLE tasks ADD COLUMN reminderStyle TEXT NOT NULL DEFAULT 'STANDARD'")
+            }
+        }
+
+        /**
+         * Day 27: store the weekdays a weekly task repeats on (bitmask, Monday = bit 0). Existing
+         * weekly tasks get their first date's weekday, so they keep repeating exactly as before.
+         * strftime('%w') is 0 for Sunday, so (w + 6) % 7 turns it into Monday = 0 ... Sunday = 6.
+         */
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE tasks ADD COLUMN weeklyDays INTEGER NOT NULL DEFAULT 0")
+                db.execSQL(
+                    "UPDATE tasks SET weeklyDays = 1 << ((CAST(strftime('%w', scheduledDay) AS INTEGER) + 6) % 7) " +
+                        "WHERE recurrenceType = 'WEEKLY'"
+                )
             }
         }
     }

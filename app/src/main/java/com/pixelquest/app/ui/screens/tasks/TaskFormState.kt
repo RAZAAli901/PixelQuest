@@ -13,10 +13,8 @@ data class TaskFormState(
     val scheduledDay: LocalDate = LocalDate.now(),
     val scheduledTime: LocalTime? = LocalTime.of(9, 0),
     val recurrenceType: RecurrenceType = RecurrenceType.DAILY,
-    val selectedDays: Set<DayOfWeek> = setOf(
-        DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
-        DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY
-    ),
+    // A new weekly quest starts on today's weekday; the picker adds or removes days from there.
+    val selectedDays: Set<DayOfWeek> = setOf(scheduledDay.dayOfWeek),
     val category: TaskCategory = TaskCategory.FITNESS,
     val reminderEnabled: Boolean = true,
     val reminderLeadMinutes: Int = 0,

@@ -56,7 +56,8 @@ class TaskAlarmScheduler @Inject constructor(
             recurrence = task.recurrenceType,
             now = LocalDateTime.now(),
             leadMinutes = task.reminderLeadMinutes,
-            notBefore = notBefore
+            notBefore = notBefore,
+            weeklyDays = task.weeklyDays
         ) ?: return null
         return next.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }

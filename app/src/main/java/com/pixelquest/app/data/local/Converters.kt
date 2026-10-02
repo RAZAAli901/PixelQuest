@@ -5,6 +5,8 @@ import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
+import com.pixelquest.app.domain.WeeklyDays
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -33,6 +35,12 @@ class Converters {
     fun toLocalTime(value: String?): LocalTime? {
         return value?.let { LocalTime.parse(it, timeFormatter) }
     }
+
+    @TypeConverter
+    fun fromWeeklyDays(days: Set<DayOfWeek>): Int = WeeklyDays.toMask(days)
+
+    @TypeConverter
+    fun toWeeklyDays(mask: Int): Set<DayOfWeek> = WeeklyDays.fromMask(mask)
 
     @TypeConverter
     fun fromRecurrenceType(type: RecurrenceType?): String? {

@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -23,5 +24,8 @@ data class TaskEntity(
     // Day 26: per-task reminder settings (MIGRATION_4_5 adds these with the defaults below)
     val reminderEnabled: Boolean = true,
     val reminderLeadMinutes: Int = 0,
-    val reminderStyle: ReminderStyle = ReminderStyle.STANDARD
+    val reminderStyle: ReminderStyle = ReminderStyle.STANDARD,
+    // Day 27: weekdays a WEEKLY task repeats on, stored as a bitmask (MIGRATION_5_6). Empty means
+    // the scheduledDay's weekday, which is how weekly tasks behaved before the picker was saved.
+    val weeklyDays: Set<DayOfWeek> = emptySet()
 )

@@ -52,13 +52,8 @@ class StatsRepositoryImpl @Inject constructor(
     companion object {
         fun isTaskScheduledOnDate(task: com.pixelquest.app.data.local.entity.TaskEntity, date: LocalDate): Boolean {
             if (!task.isActive) return false
-            if (date.isBefore(task.scheduledDay)) return false
-            return when (task.recurrenceType) {
-                com.pixelquest.app.domain.model.RecurrenceType.DAILY -> true
-                com.pixelquest.app.domain.model.RecurrenceType.WEEKLY -> date.dayOfWeek == task.scheduledDay.dayOfWeek
-                com.pixelquest.app.domain.model.RecurrenceType.MONTHLY -> date.dayOfMonth == task.scheduledDay.dayOfMonth
-                com.pixelquest.app.domain.model.RecurrenceType.ONE_TIME -> date == task.scheduledDay
-            }
+            // Same rule as the Today list and reminders, including a weekly task's chosen days.
+            return com.pixelquest.app.domain.TaskOccurrence.occursOn(task.scheduledDay, task.recurrenceType, date, task.weeklyDays)
         }
     }
 

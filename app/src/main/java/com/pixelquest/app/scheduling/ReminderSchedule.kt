@@ -1,6 +1,8 @@
 package com.pixelquest.app.scheduling
 
+import com.pixelquest.app.domain.WeeklyDays
 import com.pixelquest.app.domain.model.RecurrenceType
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -26,7 +28,8 @@ object ReminderSchedule {
         recurrence: RecurrenceType,
         now: LocalDateTime,
         leadMinutes: Int = 0,
-        notBefore: LocalDate? = null
+        notBefore: LocalDate? = null,
+        weeklyDays: Set<DayOfWeek> = emptySet()
     ): LocalDateTime? {
         val lead = leadMinutes.coerceAtLeast(0).toLong()
         val base = LocalDateTime.of(scheduledDay, scheduledTime)
@@ -36,11 +39,17 @@ object ReminderSchedule {
             return if (dayAllowed) triggerFor(base, lead, now) else null
         }
 
+        val repeatDays = WeeklyDays.effective(weeklyDays, scheduledDay)
         var step = 0L
         while (step < MAX_STEPS) {
+            // Weekly tasks can repeat on several weekdays, so they step a day at a time and skip the others.
+            if (recurrence == RecurrenceType.WEEKLY && base.plusDays(step).dayOfWeek !in repeatDays) {
+                step++
+                continue
+            }
             val occurrence = when (recurrence) {
                 RecurrenceType.DAILY -> base.plusDays(step)
-                RecurrenceType.WEEKLY -> base.plusWeeks(step)
+                RecurrenceType.WEEKLY -> base.plusDays(step)
                 // Step from the original date each time so a 31st does not drift to the 28th.
                 RecurrenceType.MONTHLY -> base.plusMonths(step)
                 RecurrenceType.ONE_TIME -> base
