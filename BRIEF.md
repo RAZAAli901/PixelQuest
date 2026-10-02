@@ -2493,3 +2493,53 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Light theme: text inside input fields is invisible (pre-existing, seen on Edit Quest and Settings).
 - Weekly tasks repeat on their first date's weekday; the form's day picker is not stored.
 - The AI Coach card shows raw API errors to the user.
+
+## Day 27 Progress Log
+_Each entry's commit hash is filled in by the following commit (a commit cannot contain its own hash)._
+- Step 1: Send the Gemini API key in the x-goog-api-key header instead of the URL - 7718e0c
+- Step 2: Show plain AI Coach error messages instead of raw Gemini responses and exception text - 2f67824
+- Step 3: Let the AI insight card's refresh button size itself so COOLDOWN is no longer clipped - ca4566c
+- Step 4: Fix invisible typed text in Light mode: text fields and the time picker use theme colours instead of fixed Pixel white - 7c41ce3
+- Step 5: Use the theme's primary colour for the recurrence, day and category labels so they are readable in Light mode - 2e9b91b
+- Step 6: Size category chips to their names and wrap the row, so labels like Learning no longer break mid-word - 4f5005f
+- Step 7: Show the active difficulty's skull icon on the Stats difficulty card instead of a shield emoji - d6aa938
+- Step 8: Open the "Did you do it?" reminder prompt in the saved theme instead of always Pixel - b511a4d
+- Step 9: Save the weekdays picked for weekly quests and use them for Today, stats, reminders and backups (MIGRATION_5_6) - 5ef56f3
+- Step 10: Update NOTIFICATIONS.md known gaps: weekly days are stored, and AI insights are verified against live Gemini - 499b7d4
+- Step 11: Day 27 verification: build, unit test comparison and emulator checks in VERIFICATION.md - c2df6e3
+- Step 12: Update BRIEF.md with the Day 27 summary - (this commit)
+
+## Day 27 Summary — AI Hardening, Weekly Days and UI Fixes
+
+### 1. Before Day 27 (same date, outside the step plan)
+- One-tap Comic Mode toggle in the Home header; EXIT COMIC returns to the theme used before Comic (25aef8f).
+- New 16x16 pixel-art vector icons: house, checklist, bar chart and person for navigation; dumbbell, heart, book, broom and star for categories; skulls that get scarier from Easy to Hardest (e3fbb56).
+- `.env` files added to `.gitignore` (9967c44). A valid Gemini key is now in `local.properties`.
+
+### 2. Gemini and the AI Coach (Steps 1–3)
+- The key travels in the `x-goog-api-key` header, so it no longer appears in URLs, logs or exception text.
+- Live insights confirmed end to end against `gemini-2.5-flash`.
+- Every failure shows one plain sentence (`AiErrorCopy`): key rejected, Gemini busy (429), server trouble, timeout, offline, unreadable answer or unknown. A Gemini 429 no longer looks like PixelQuest's daily cap, and timeouts are reported as timeouts because the client now lets coroutine cancellation through.
+
+### 3. Light theme readability (Steps 4–5)
+- Text fields and the time picker use theme colours, fixing white-on-white typed text. Pixel keeps identical colours.
+- Form labels use the theme's primary colour instead of fixed Pixel gold.
+
+### 4. Smaller fixes (Steps 6–8)
+- Category chips size to their names and wrap as whole chips in every theme.
+- The Stats difficulty card shows the difficulty skull.
+- The reminder prompt reads the saved theme before its first frame, so it opens in Comic or Light without a Pixel flash.
+
+### 5. Weekly quest days (Step 9)
+- `TaskEntity.weeklyDays` (bitmask, Monday = bit 0) added by `MIGRATION_5_6`, which back-fills each existing weekly task with its first date's weekday.
+- One occurrence rule (`TaskOccurrence`, `WeeklyDays.effective`) now drives the Today list, stats, heatmap and reminders; reminders step to the next chosen weekday.
+- The form saves and reloads the chosen days; new weekly quests start on today's weekday. Backups include `weeklyDays`, and older backups still import.
+
+### 6. Testing
+- 26 new unit tests. Full run: 416 tests, 29 failing, the same 29 as at the start of the day. Emulator checks are in VERIFICATION.md Section F.
+
+### 7. Known gaps for Day 28 onwards
+- 91 quarantined test files and 29 failing tests to repair in Day 29.
+- Release builds on GitHub do not receive `GEMINI_API_KEY` yet (Day 30).
+- The daily AI reminder-message pack has not been observed against live Gemini.
+- Comic mode still has low-contrast text pairs (coral-red quest names on orange cards, sky-blue times on orange, lavender text on sky-blue), and some Comic screens still use the Pixel font (onboarding, theme picker, heatmap labels, history and analytics).
