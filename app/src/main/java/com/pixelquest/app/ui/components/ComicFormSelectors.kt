@@ -3,6 +3,8 @@ package com.pixelquest.app.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +34,7 @@ import com.pixelquest.app.ui.theme.ComicTokens
  * Features Bangers label, ComicPanel category chips with Sky Blue selected fills,
  * crisp black borders, and high-contrast comic icons.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ComicCategorySelector(
     selectedCategory: TaskCategory,
@@ -49,9 +52,11 @@ fun ComicCategorySelector(
             modifier = Modifier.padding(bottom = 6.dp)
         )
 
-        Row(
+        // Chips size to their label and wrap onto a second line, so "Learning" never breaks mid-word.
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             TaskCategory.values().forEach { category ->
                 val isSelected = selectedCategory == category
@@ -63,12 +68,9 @@ fun ComicCategorySelector(
                     cornerRadius = ComicShapeTokens.ChipRadius,
                     shadowOffset = ComicShapeTokens.ShadowOffsetSmall,
                     borderWidth = ComicShapeTokens.BorderWidthThin,
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { onCategorySelected(category) }
+                    modifier = Modifier.clickable { onCategorySelected(category) }
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -84,7 +86,9 @@ fun ComicCategorySelector(
                             fontFamily = FontFamily.SansSerif,
                             fontSize = 11.sp,
                             fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
-                            color = ComicTokens.SolidBlack
+                            color = ComicTokens.SolidBlack,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }

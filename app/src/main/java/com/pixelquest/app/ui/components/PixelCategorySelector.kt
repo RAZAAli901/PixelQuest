@@ -3,6 +3,8 @@ package com.pixelquest.app.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +23,7 @@ import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelTextMuted
 import com.pixelquest.app.ui.theme.PixelTypography
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PixelCategorySelector(
     selectedCategory: TaskCategory,
@@ -46,9 +49,11 @@ fun PixelCategorySelector(
             color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
             modifier = Modifier.padding(bottom = 6.dp)
         )
-        Row(
+        // Chips size to their label and wrap onto more lines, so names never break mid-word.
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             TaskCategory.values().forEach { category ->
                 val isSelected = selectedCategory == category
@@ -57,12 +62,9 @@ fun PixelCategorySelector(
                 PixelCard(
                     variant = variant,
                     contentPadding = 6.dp,
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable { onCategorySelected(category) }
+                    modifier = Modifier.clickable { onCategorySelected(category) }
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
@@ -79,7 +81,9 @@ fun PixelCategorySelector(
                         Text(
                             text = category.displayName,
                             style = PixelTypography.bodySmall,
-                            color = if (isSelected) PixelCyan else PixelTextMuted
+                            color = if (isSelected) PixelCyan else PixelTextMuted,
+                            maxLines = 1,
+                            softWrap = false
                         )
                     }
                 }
