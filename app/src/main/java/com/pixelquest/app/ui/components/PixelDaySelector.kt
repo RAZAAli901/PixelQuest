@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelSurfaceDark
 import com.pixelquest.app.ui.theme.PixelTextMuted
@@ -60,7 +59,7 @@ fun PixelDaySelector(
         Text(
             text = label,
             style = PixelTypography.labelLarge,
-            color = PixelGold,
+            color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
             modifier = Modifier.padding(bottom = 6.dp)
         )
         Row(

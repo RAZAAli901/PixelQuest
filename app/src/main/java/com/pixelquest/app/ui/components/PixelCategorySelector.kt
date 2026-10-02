@@ -18,7 +18,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelTextMuted
 import com.pixelquest.app.ui.theme.PixelTypography
 
@@ -44,7 +43,7 @@ fun PixelCategorySelector(
         Text(
             text = label,
             style = PixelTypography.labelLarge,
-            color = PixelGold,
+            color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
             modifier = Modifier.padding(bottom = 6.dp)
         )
         Row(
