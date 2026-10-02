@@ -30,7 +30,7 @@ This document evaluates the architectural approaches available at time of implem
 1. **Zero Added Dependencies**: PixelQuest already integrates Ktor 2.3.10 and `kotlinx.serialization` 1.6.3 for its Supabase cloud integration (Day 13). Reusing Ktor prevents library duplication and avoids inflating the APK size.
 2. **Deterministic Error Handling**: Gemini API rate limiting (HTTP 429) and quota exhaustion require distinct handling from network timeouts or API key invalidation. Ktor's direct HTTP response inspectability allows parsing the exact status and retry-after metadata into a sealed `GeminiResult` hierarchy.
 3. **Full Kotlin 2.0 & Coroutines Harmony**: Ktor natively leverages Kotlin Coroutines and structured concurrency without blocking Android main threads or clashing with Gradle kapt/ksp stubs.
-4. **Target Model**: PixelQuest will target `gemini-2.5-flash` via `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}`, optimizing for low latency, high throughput, and cost-effective structured output generation.
+4. **Target Model**: PixelQuest will target `gemini-2.5-flash` via `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent` (key in the `x-goog-api-key` header), optimizing for low latency, high throughput, and cost-effective structured output generation.
 
 ---
 

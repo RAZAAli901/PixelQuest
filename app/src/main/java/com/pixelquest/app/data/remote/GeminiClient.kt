@@ -27,6 +27,9 @@ import kotlinx.serialization.json.putJsonObject
  */
 const val GEMINI_MODEL_ID = "gemini-2.5-flash"
 
+/** Request header that carries the Gemini API key. */
+const val API_KEY_HEADER = "x-goog-api-key"
+
 /**
  * Interface representing a remote Google Gemini generative AI client.
  */
@@ -77,7 +80,9 @@ class GeminiClientImpl(
             throw GeminiApiException(401, "Gemini API key is not configured.")
         }
 
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
+        // The key travels in the x-goog-api-key header, never in the URL, so it stays out of
+        // request logs and exception messages that include the URL.
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent"
 
         val requestPayload = buildJsonObject {
             putJsonArray("contents") {
@@ -110,6 +115,7 @@ class GeminiClientImpl(
         val response: HttpResponse = try {
             httpClient.post(url) {
                 header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                header(API_KEY_HEADER, apiKey)
                 setBody(requestPayload)
             }
         } catch (e: Exception) {

@@ -21,7 +21,7 @@ In Step 1, PixelQuest evaluated the official Google GenAI Android SDK vs. a dire
 - **Rationale**:
   1. **Zero Added APK Bloat**: Ktor and `kotlinx.serialization` were already bundled in Day 13 for Supabase, adding 0 MB to APK footprint.
   2. **Predictable Dependency Graph**: Bypasses heavy transitive OkHttp/gRPC and AndroidX lifecycle dependencies introduced by Google AI SDKs.
-  3. **Targeting Efficiency**: Direct `POST /v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}` gives complete control over connection timeouts (25s), request headers, and JSON serialization.
+  3. **Targeting Efficiency**: Direct `POST /v1beta/models/gemini-2.5-flash:generateContent`, with the key in the `x-goog-api-key` header, gives complete control over connection timeouts (25s), request headers, and JSON serialization.
 
 ---
 

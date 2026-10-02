@@ -82,4 +82,3 @@ Off by default and only available while AI Coach is on (Settings → AI Habit Co
 - `pq_progress` has no sender yet (planned streak-at-risk evening nudge).
 - Weekly tasks repeat on the weekday of their first date; the day picker on the task form is not stored.
 - AI-written lines could not be checked against live Gemini: the key in `local.properties` is rejected by Google ("API key not valid"), and the model id `gemini-2.5-flash` should be confirmed once a valid key is in place.
-- The Gemini key is still sent as a `?key=` query parameter; move it to the `x-goog-api-key` header in Day 27.
