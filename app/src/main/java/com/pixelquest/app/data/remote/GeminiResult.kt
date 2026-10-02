@@ -1,5 +1,6 @@
 package com.pixelquest.app.data.remote
 
+import com.pixelquest.app.domain.ai.AiErrorCopy
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import java.io.IOException
 
@@ -60,24 +61,23 @@ suspend fun <T> safeGeminiCall(
         }
         GeminiResult.Success(data)
     } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
-        GeminiResult.NetworkError(e, "AI request timed out after ${timeoutMs / 1000}s. Please check your internet connection.")
+        GeminiResult.NetworkError(e, AiErrorCopy.TIMEOUT)
     } catch (e: HttpRequestTimeoutException) {
-        GeminiResult.NetworkError(e, "AI request timed out. Please verify your connection.")
+        GeminiResult.NetworkError(e, AiErrorCopy.TIMEOUT)
     } catch (e: IOException) {
-        GeminiResult.NetworkError(e, "Network error contacting Gemini. Please verify your connection.")
+        GeminiResult.NetworkError(e, AiErrorCopy.OFFLINE)
     } catch (e: GeminiRateLimitException) {
-        GeminiResult.RateLimited(e.retryAfterSeconds, e.message ?: "Rate limit reached.")
+        // Google's own quota (HTTP 429), not PixelQuest's daily cap: the user can retry shortly.
+        GeminiResult.ApiError(429, AiErrorCopy.BUSY)
     } catch (e: GeminiApiException) {
-        if (e.statusCode == 429) {
-            GeminiResult.RateLimited(null, "Rate limit reached (429).")
-        } else {
-            GeminiResult.ApiError(e.statusCode, e.message ?: "API error")
-        }
+        GeminiResult.ApiError(e.statusCode, AiErrorCopy.forStatus(e.statusCode))
     } catch (e: GeminiNetworkException) {
-        GeminiResult.NetworkError(e.cause ?: e, e.message ?: "Network failure")
+        val cause = e.cause ?: e
+        val isTimeout = cause is HttpRequestTimeoutException || cause is java.net.SocketTimeoutException
+        GeminiResult.NetworkError(cause, if (isTimeout) AiErrorCopy.TIMEOUT else AiErrorCopy.OFFLINE)
     } catch (e: kotlinx.coroutines.CancellationException) {
         throw e
     } catch (e: Exception) {
-        GeminiResult.ApiError(null, e.message ?: "An unexpected error occurred during AI generation.")
+        GeminiResult.ApiError(null, AiErrorCopy.UNKNOWN)
     }
 }

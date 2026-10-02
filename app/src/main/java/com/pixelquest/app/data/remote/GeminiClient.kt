@@ -118,6 +118,9 @@ class GeminiClientImpl(
                 header(API_KEY_HEADER, apiKey)
                 setBody(requestPayload)
             }
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            // Let timeouts and cancellation through so safeGeminiCall can report them as timeouts.
+            throw e
         } catch (e: Exception) {
             throw GeminiNetworkException("Failed to connect to Gemini API: ${e.message}", e)
         }

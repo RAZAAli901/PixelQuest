@@ -151,7 +151,7 @@ class AiInsightViewModel @Inject constructor(
                 is GeminiResult.MalformedResponse -> {
                     val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()
                     AiInsightUiState.Error(
-                        message = "Could not parse AI response: ${result.message}",
+                        message = com.pixelquest.app.domain.ai.AiErrorCopy.UNREADABLE,
                         canRetry = true,
                         fallbackInsight = fallback
                     )
