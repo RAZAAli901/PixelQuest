@@ -147,8 +147,7 @@ fun AiInsightCard(
                     text = if (canRefresh) "REFRESH" else "COOLDOWN",
                     variant = if (canRefresh) PixelButtonVariant.YELLOW else PixelButtonVariant.BLUE,
                     onClick = onRefresh,
-                    enabled = canRefresh,
-                    modifier = Modifier.height(36.dp)
+                    enabled = canRefresh
                 )
             }
 
