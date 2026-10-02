@@ -141,9 +141,9 @@ fun StatsContent(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "🛡️",
-                        style = MaterialTheme.typography.displayMedium,
+                    com.pixelquest.app.ui.components.PixelDifficultyIcon(
+                        level = activeDifficulty,
+                        isSelected = true,
                         modifier = Modifier.padding(end = 12.dp)
                     )
                     Column(modifier = Modifier.weight(1f)) {
