@@ -322,3 +322,35 @@ Verified on 2 Oct 2026 against a Pixel 6 emulator (Android 14, API 34) and the l
 
 ### Not verified
 - Live Gemini calls (reminder message pack, insights): the Gemini API key in `local.properties` is rejected by Google ("API key not valid").
+
+## Section F -- Day 27 Verification (Step 11)
+
+Verified on 3 Oct 2026 against the Pixel 6 emulator (Android 14, API 34) and the local Gradle build.
+
+### Build
+- `./gradlew :app:assembleDebug` succeeds.
+
+### Unit tests (`:app:testDebugUnitTest`)
+- 416 tests (26 new), 29 failing. The 29 failures are the same tests that failed at the start of the day; none are new. They pre-date Day 27 and are left for Day 29 with the quarantined files.
+- New tests: `GeminiClientRequestTest` (4), `GeminiErrorMessagesTest` (8), `InputFieldThemeColorsTest` (2), `Migration5To6Test` (3), `TaskFormWeeklyDaysTest` (5), and weekly-day cases in `TaskOccurrenceTest` (2) and `ReminderScheduleTest` (2).
+
+### Emulator checks
+| Check | Result |
+| --- | --- |
+| Gemini key sent in the `x-goog-api-key` header; with 3 days of history the AI Coach card shows a LIVE insight from `gemini-2.5-flash` | Pass |
+| AI insight card's COOLDOWN button shows its full label | Pass (fixed in Step 3) |
+| Light theme: typed quest name and chosen time are readable on New Quest | Pass |
+| Light theme: RECURRENCE, SELECT DAYS and CATEGORY labels use the theme's amber | Pass |
+| Category chips show whole names in Light and Comic ("Learning" no longer wraps) | Pass |
+| Stats difficulty card shows the active difficulty's skull | Pass |
+| "Did you do it?" prompt opens in Comic when Comic is the saved theme | Pass |
+| Upgrade from database v5 keeps 3 tasks and 9 history records (MIGRATION_5_6) | Pass |
+| Weekly quest saved with Monday and Wednesday (mask 5), absent from Saturday's Today list | Pass |
+| Editing that quest shows Monday and Wednesday selected | Pass |
+| Its reminder is armed for Monday 09:00, not the next Saturday | Pass |
+
+Test data added for these checks (3 days of completion history and a weekly test quest) was removed afterwards.
+
+### Not verified
+- The AI error states on a device: each Gemini failure type is covered by `GeminiErrorMessagesTest` with a mock server, not by forcing real failures.
+- The daily AI reminder-message pack against live Gemini.
