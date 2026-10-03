@@ -70,7 +70,8 @@ fun ComicSnackbar(
                 Text(
                     text = "ALERT!",
                     style = MaterialTheme.typography.labelSmall,
-                    color = ComicTokens.PanelSurface,
+                    // Black on coral-red is 6.8:1; white was 3.1:1.
+                    color = ComicTokens.SolidBlack,
                     letterSpacing = 0.5.sp
                 )
             }
