@@ -231,7 +231,7 @@ fun SettingsScreen(
                 androidx.compose.material3.Text(
                     text = if (state.isAiInsightsEnabled) "✨ ENABLED" else "🔒 DISABLED (OPT-IN)",
                     style = MaterialTheme.typography.labelMedium,
-                    color = if (state.isAiInsightsEnabled) com.pixelquest.app.ui.theme.PixelTheme.colors.tertiary else com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(if (state.isAiInsightsEnabled) com.pixelquest.app.ui.theme.PixelTheme.colors.tertiary else com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant)
                 )
             }
             if (state.isAiInsightsEnabled) {
@@ -291,7 +291,7 @@ fun SettingsScreen(
                             Text(
                                 text = "✨ NEW: TRY SIMPLE MODE",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = PixelTheme.colors.secondary,
+                                color = com.pixelquest.app.ui.theme.inkOnPanel(PixelTheme.colors.secondary),
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
@@ -330,7 +330,7 @@ fun SettingsScreen(
                 androidx.compose.material3.Text(
                     text = if (state.isSimpleModeEnabled) "✨ SIMPLE (ACTIVE)" else "⚔️ GAMIFIED (ACTIVE)",
                     style = MaterialTheme.typography.labelMedium,
-                    color = if (state.isSimpleModeEnabled) com.pixelquest.app.ui.theme.PixelTheme.colors.secondary else com.pixelquest.app.ui.theme.PixelTheme.colors.tertiary
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(if (state.isSimpleModeEnabled) com.pixelquest.app.ui.theme.PixelTheme.colors.secondary else com.pixelquest.app.ui.theme.PixelTheme.colors.tertiary)
                 )
             }
             if (state.isSimpleModeEnabled) {
@@ -361,7 +361,7 @@ fun SettingsScreen(
                             Text(
                                 text = "RETURN TO ADVENTURE",
                                 style = MaterialTheme.typography.labelLarge,
-                                color = PixelTheme.colors.gold,
+                                color = com.pixelquest.app.ui.theme.inkOnPanel(PixelTheme.colors.gold),
                                 fontWeight = FontWeight.Bold
                             )
                         }
