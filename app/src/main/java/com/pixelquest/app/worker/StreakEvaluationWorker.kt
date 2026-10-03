@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.pixelquest.app.domain.DayOutcome
 import com.pixelquest.app.domain.StreakCalculator
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
@@ -47,83 +48,81 @@ class StreakEvaluationWorker @AssistedInject constructor(
      * to Full Game Mode.
      */
     override suspend fun doWork(): Result {
-        val targetDate = LocalDate.now(java.time.ZoneId.systemDefault()).minusDays(1)
-        val tasksForDay = taskRepository.getTasksForDay(targetDate).first()
+        val yesterday = LocalDate.now(java.time.ZoneId.systemDefault()).minusDays(1)
+        val initial = streakRepository.getCurrentStreak().first() ?: com.pixelquest.app.data.local.entity.StreakEntity()
 
-        val logsForDay = taskCompletionRepository.getLogsForDate(targetDate).first()
+        // lastCompletedDate is the last day already evaluated. Catch up on every day since then
+        // (the phone may have been off, or the worker delayed), up to MAX_CATCH_UP_DAYS.
+        val firstDay = initial.lastCompletedDate?.plusDays(1) ?: yesterday
+        if (firstDay.isAfter(yesterday)) return Result.success()
+        val from = maxOf(firstDay, yesterday.minusDays(MAX_CATCH_UP_DAYS - 1))
+
         val difficulty = difficultySettingsRepository.getCurrentDifficulty().first()
         val threshold = difficulty?.perfectDayThreshold ?: 0.7f
 
-        val isPerfect = StreakCalculator.isPerfectDay(
-            logs = logsForDay,
-            totalTaskCount = tasksForDay.size,
-            threshold = threshold
-        )
-
-        val streak = streakRepository.getCurrentStreak().first() ?: com.pixelquest.app.data.local.entity.StreakEntity()
-
-        // Idempotency safeguard: if yesterday was already evaluated, skip re-evaluating
-        if (streak.lastCompletedDate == targetDate) {
-            return Result.success()
-        }
-
-        if (isPerfect) {
-            val newCurrent = streak.currentStreak + 1
-            val newLongest = kotlin.math.max(streak.longestStreak, newCurrent)
-            val updatedStreak = streak.copy(
-                currentStreak = newCurrent,
-                longestStreak = newLongest,
-                lastCompletedDate = targetDate,
-                perfectDaysCount = streak.perfectDaysCount + 1
-            )
-            streakRepository.updateStreak(updatedStreak)
-
-            val profile = userProfileRepository.getProfile().first()
-            if (profile != null) {
-                val newProgress = profile.perfectDaysTowardNextLevel + 1
-                val daysRequired = difficulty?.daysRequiredPerLevel ?: 7
-                if (LevelCalculator.shouldLevelUp(newProgress, daysRequired)) {
-                    val newLevel = profile.level + 1
-                    userProfileRepository.updateProfile(
-                        profile.copy(
-                            level = newLevel,
-                            perfectDaysTowardNextLevel = LevelCalculator.getPostLevelUpProgress()
-                        )
-                    )
-                    levelHistoryRepository.insertLevelHistory(
-                        LevelHistoryEntity(
-                            level = newLevel,
-                            achievedDate = System.currentTimeMillis(),
-                            difficultyAtTimeOfLevelUp = difficulty?.difficultyLevel?.name ?: "MEDIUM"
-                        )
-                    )
-                    val isSimpleMode = settingsRepository?.simpleModeEnabled?.first() ?: false
-                    levelUpSignalManager.setPendingLevelUp(newLevel, suppressCelebration = isSimpleMode)
-                } else {
-                    userProfileRepository.updateProfile(
-                        profile.copy(perfectDaysTowardNextLevel = newProgress)
+        var streak = initial
+        var date = from
+        while (!date.isAfter(yesterday)) {
+            val scheduledIds = taskRepository.getTasksForDay(date).first().map { it.id }.toSet()
+            val logs = taskCompletionRepository.getLogsForDate(date).first()
+            streak = when (StreakCalculator.dayOutcome(scheduledIds, logs, threshold)) {
+                DayOutcome.PERFECT -> {
+                    addPerfectDayToLevel(difficulty)
+                    streak.copy(
+                        currentStreak = streak.currentStreak + 1,
+                        longestStreak = kotlin.math.max(streak.longestStreak, streak.currentStreak + 1),
+                        lastCompletedDate = date,
+                        perfectDaysCount = streak.perfectDaysCount + 1
                     )
                 }
+                /**
+                 * STREAK-BREAK RULE:
+                 * Breaking a streak resets currentStreak to 0 ONLY.
+                 * longestStreak, perfectDaysCount, and totalXp are strictly preserved.
+                 */
+                DayOutcome.MISSED -> streak.copy(currentStreak = 0, lastCompletedDate = date)
+                // Nothing was scheduled: the streak carries over unchanged.
+                DayOutcome.REST -> streak.copy(lastCompletedDate = date)
             }
-            syncScheduler?.scheduleProfileSync()
-        } else {
-            /**
-             * STREAK-BREAK RULE:
-             * Breaking a streak resets currentStreak to 0 ONLY.
-             * longestStreak, perfectDaysCount, and totalXp are strictly preserved.
-             * Level progress (Day 6 scope) is tracked separately via totalXp/perfectDaysCount.
-             */
-            val updatedStreak = streak.copy(
-                currentStreak = 0,
-                lastCompletedDate = targetDate
-            )
-            streakRepository.updateStreak(updatedStreak)
-            syncScheduler?.scheduleProfileSync()
+            date = date.plusDays(1)
         }
 
+        streakRepository.updateStreak(streak)
+        if (streak.currentStreak != initial.currentStreak || streak.perfectDaysCount != initial.perfectDaysCount) {
+            syncScheduler?.scheduleProfileSync()
+        }
         return Result.success()
     }
+
+    /** Counts one perfect day toward the next level, levelling up when enough have been reached. */
+    private suspend fun addPerfectDayToLevel(difficulty: com.pixelquest.app.data.local.entity.DifficultySettingsEntity?) {
+        val profile = userProfileRepository.getProfile().first() ?: return
+        val newProgress = profile.perfectDaysTowardNextLevel + 1
+        val daysRequired = difficulty?.daysRequiredPerLevel ?: 7
+        if (LevelCalculator.shouldLevelUp(newProgress, daysRequired)) {
+            val newLevel = profile.level + 1
+            userProfileRepository.updateProfile(
+                profile.copy(
+                    level = newLevel,
+                    perfectDaysTowardNextLevel = LevelCalculator.getPostLevelUpProgress()
+                )
+            )
+            levelHistoryRepository.insertLevelHistory(
+                LevelHistoryEntity(
+                    level = newLevel,
+                    achievedDate = System.currentTimeMillis(),
+                    difficultyAtTimeOfLevelUp = difficulty?.difficultyLevel?.name ?: "MEDIUM"
+                )
+            )
+            val isSimpleMode = settingsRepository?.simpleModeEnabled?.first() ?: false
+            levelUpSignalManager.setPendingLevelUp(newLevel, suppressCelebration = isSimpleMode)
+        } else {
+            userProfileRepository.updateProfile(profile.copy(perfectDaysTowardNextLevel = newProgress))
+        }
+    }
+
+    companion object {
+        /** Days evaluated at most in one run after a long gap. */
+        const val MAX_CATCH_UP_DAYS = 60L
+    }
 }
-
-
-
