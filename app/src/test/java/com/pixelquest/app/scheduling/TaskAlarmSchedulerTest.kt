@@ -41,6 +41,24 @@ class TaskAlarmSchedulerTest {
     }
 
     @Test
+    fun calculateNextOccurrenceDate_weekly_usesTheChosenDays() {
+        val friday = LocalDate.of(2026, 10, 2)
+        val task = TaskEntity(
+            id = 2,
+            name = "Swim",
+            description = "",
+            scheduledDay = LocalDate.of(2026, 9, 7),
+            scheduledTime = LocalTime.of(7, 0),
+            recurrenceType = RecurrenceType.WEEKLY,
+            category = TaskCategory.FITNESS,
+            weeklyDays = setOf(java.time.DayOfWeek.TUESDAY, java.time.DayOfWeek.THURSDAY)
+        )
+
+        assertEquals(LocalDate.of(2026, 10, 6), scheduler.calculateNextOccurrenceDate(task, friday))
+        assertEquals(LocalDate.of(2026, 10, 8), scheduler.calculateNextOccurrenceDate(task, LocalDate.of(2026, 10, 6)))
+    }
+
+    @Test
     fun calculateTriggerTimeMillis_returnsValidTimestamp() {
         val task = TaskEntity(
             id = 1,

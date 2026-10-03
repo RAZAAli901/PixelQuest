@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.domain.TaskOccurrence
 import com.pixelquest.app.domain.model.RecurrenceType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalDate
@@ -68,13 +69,19 @@ class TaskAlarmScheduler @Inject constructor(
                 .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 
+    /**
+     * The next date after [fromDate] on which [task] is due, using the same rule as the Today list
+     * (including a weekly task's chosen days). A one-time task returns its own date.
+     */
     fun calculateNextOccurrenceDate(task: TaskEntity, fromDate: LocalDate = LocalDate.now()): LocalDate {
-        return when (task.recurrenceType) {
-            RecurrenceType.DAILY -> fromDate.plusDays(1)
-            RecurrenceType.WEEKLY -> fromDate.plusWeeks(1)
-            RecurrenceType.MONTHLY -> fromDate.plusMonths(1)
-            RecurrenceType.ONE_TIME -> task.scheduledDay
+        if (task.recurrenceType == RecurrenceType.ONE_TIME) return task.scheduledDay
+        var date = maxOf(fromDate.plusDays(1), task.scheduledDay)
+        // A monthly task is due within 31 days and any other recurring task within 7.
+        repeat(400) {
+            if (TaskOccurrence.occursOn(task.scheduledDay, task.recurrenceType, date, task.weeklyDays)) return date
+            date = date.plusDays(1)
         }
+        return date
     }
 
     fun scheduleExactAlarmForTask(task: TaskEntity, notBefore: LocalDate? = null) {
