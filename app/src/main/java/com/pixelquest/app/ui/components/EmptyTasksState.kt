@@ -40,7 +40,7 @@ fun EmptyTasksState(
             Text(
                 text = "NO QUESTS YET",
                 style = MaterialTheme.typography.displaySmall,
-                color = colors.primary,
+                color = colors.primaryText,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(12.dp))

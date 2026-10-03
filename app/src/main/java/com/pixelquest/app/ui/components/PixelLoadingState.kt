@@ -55,7 +55,7 @@ fun PixelLoadingState(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
-                color = colors.primary,
+                color = colors.primaryText,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(16.dp))

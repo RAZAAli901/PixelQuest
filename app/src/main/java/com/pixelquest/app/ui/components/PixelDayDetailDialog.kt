@@ -54,7 +54,7 @@ fun PixelDayDetailDialog(
             Text(
                 text = dateText.uppercase(),
                 style = MaterialTheme.typography.labelLarge,
-                color = colors.primary
+                color = colors.primaryText
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -62,7 +62,7 @@ fun PixelDayDetailDialog(
             Text(
                 text = statusTitle,
                 style = MaterialTheme.typography.titleMedium,
-                color = statusColor
+                color = com.pixelquest.app.ui.theme.inkOnPanel(statusColor)
             )
 
             Spacer(modifier = Modifier.height(20.dp))
