@@ -2507,9 +2507,52 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 9: Save the weekdays picked for weekly quests and use them for Today, stats, reminders and backups (MIGRATION_5_6) - 5ef56f3
 - Step 10: Update NOTIFICATIONS.md known gaps: weekly days are stored, and AI insights are verified against live Gemini - 499b7d4
 - Step 11: Day 27 verification: build, unit test comparison and emulator checks in VERIFICATION.md - c2df6e3
-- Step 12: Update BRIEF.md with the Day 27 summary - (this commit)
+- Step 12: Update BRIEF.md with the Day 27 summary - 884afac
+- Step 13: Leaderboard rank counts fetch only profile ids instead of downloading every profile ranked above you - 4adea9a
+- Step 14: calculateNextOccurrenceDate follows the shared occurrence rule, including a weekly quest's chosen days - 5fb1560
+- Step 15: Tint bottom-bar icons in Light mode so they read on the white bar; Pixel keeps its gold art - 6d5f71f
+- Step 16: Add inkOnPanel and print Home quest card names, times and categories in black ink in Comic (coral on orange was 1.5:1) - b3bf965
+- Step 17: Print Tasks list names, times and recurrence in black ink in Comic - 33cbe60
+- Step 18: Print the Home streak, XP and level strip in black ink in Comic (sky-blue on sky-blue was 1:1) - 027203a
+- Step 19: Print Stats card labels in black ink in Comic instead of coral, sky-blue and lavender on orange - 58786ee
+- Step 20: Print the Stats difficulty card in black ink in Comic (lavender on sky-blue was 1.3:1) - 015b165
+- Step 21: Print Settings section titles in black ink in Comic (coral on sky-blue was 1.7:1) - 67708ed
+- Step 22: Comic snackbar ALERT! tag uses black text on coral-red instead of white (3.1:1 to 6.8:1) - 508992a
+- Step 23: Heatmap legend swatches use the same colours as the day cells in every theme - dc8938d
+- Step 24: Print the Profile panel's name and stats in black ink in Comic (sky-blue on white was 1.8:1) - e290a35
+- Step 25: Empty Home state uses theme colours and fonts instead of fixed Pixel gold, grey and Press Start 2P - 78a41e5
+- Step 26: Onboarding welcome screen uses the theme's fonts, so Comic shows Bangers and sans instead of Press Start 2P - ff1e742
+- Step 27: Onboarding name step uses the theme's fonts in Comic - 1819162
+- Step 28: Avatar picker (onboarding, Change Avatar and the avatar grid) uses the theme's fonts in Comic - a0ed4a4
+- Step 29: Difficulty picker (onboarding, Change Difficulty and the difficulty cards) uses the theme's fonts in Comic - fee9ee5
+- Step 30: Onboarding hero summary uses the theme's fonts in Comic - 9adc840
+- Step 31: Theme picker uses the theme's fonts in Comic - 9e6a9f1
+- Step 32: Settings screen text uses the theme's fonts in Comic - 63b2397
+- Step 33: Simple Mode dialog uses the theme's fonts in Comic - fe78f03
+- Step 34: AI Insights privacy dialog uses the theme's fonts in Comic - e5b9942
+- Step 35: Leaderboard privacy dialog uses the theme's fonts in Comic - d7a8ae0
+- Step 36: Restore-backup confirmation uses the app's themed dialog instead of a plain Material dialog - 93832f8
+- Step 37: Reset-progress confirmations use the app's themed dialog in both steps - 0bd5e49
+- Step 38: Cloud & Leaderboard account screen uses the theme's fonts in Comic - 89bf406
+- Step 39: Quest History, its filter chips and mini history use the theme's fonts in Comic - b79ad29
+- Step 40: Quest Analytics and its 7-day strip use the theme's fonts in Comic - 3754f71
+- Step 41: Heatmap month, weekday and legend labels and the day-detail dialog use the theme's fonts in Comic - 19492bc
+- Step 42: Error fallback screen uses the theme's fonts in Comic - 53abf20
+- Step 43: Let the Home AI opt-in button size itself in Pixel and Light so its label is not clipped - 1b52d10
+- Step 44: Move the theme picker preview into ThemeSelectionCardPreview.kt, fixing the failing hard-coded colour audit - 362c6c7
+- Step 45: Add ComicInkContrastTest: black ink reads on every Comic panel, and Pixel and Light keep their accents - 214701e
+- Step 46: Update the ThemeMode comment: Comic is unlocked and Follow System never picks Comic - 6719fc0
+- Step 47: Fix stale THEMING.md statements (Comic availability, switchable themes, storage) and document Comic ink and fonts - 45f30bf
+- Step 48: Correct the display-name rule in supabase/schema.md and document leaderboard ordering, ranks and the around-you window - f08f77a
+- Step 49: Heatmap legend swatches get the day cells' borders, so Partial no longer vanishes on Comic's orange panel - ec08f1b
+- Step 50: Print heatmap month, weekday and legend labels in black ink in Comic - 92eed37
+- Step 51: Print weekly trend percentages and week labels in black ink in Comic (sky-blue on orange was 1.1:1) - 43b656e
+- Step 52: Print the selected difficulty card's name, target and ACTIVE in black ink in Comic (its target line was sky-blue on sky-blue) - 39bd036
+- Step 53: Print the theme picker heading and the Comic row's ACTIVE label in black ink in Comic - e7afd08
+- Step 54: Day 27 verification for Steps 13-53 and the leaderboard: test comparison and Comic, Pixel and Light emulator checks - 18c3ec1
+- Step 55: Update BRIEF.md with the full Day 27 summary - (this commit)
 
-## Day 27 Summary — AI Hardening, Weekly Days and UI Fixes
+## Day 27 Summary — AI Hardening, Weekly Days, Leaderboard Tab and Comic Readability
 
 ### 1. Before Day 27 (same date, outside the step plan)
 - One-tap Comic Mode toggle in the Home header; EXIT COMIC returns to the theme used before Comic (25aef8f).
@@ -2535,11 +2578,24 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - One occurrence rule (`TaskOccurrence`, `WeeklyDays.effective`) now drives the Today list, stats, heatmap and reminders; reminders step to the next chosen weekday.
 - The form saves and reloads the chosen days; new weekly quests start on today's weekday. Backups include `weeklyDays`, and older backups still import.
 
-### 6. Testing
-- 26 new unit tests. Full run: 416 tests, 29 failing, the same 29 as at the start of the day. Emulator checks are in VERIFICATION.md Section F.
+### 6. Leaderboard tab (same date, outside the step plan)
+- A fifth, round, icon-only trophy button sits in the middle of the bottom bar in all three themes; its spoken label is LEADERBOARD (the word does not fit a fifth of a 360dp bar). This reverses the Day 13 decision not to add a fifth tab (06bdf07, 4986d97).
+- The leaderboard is now a tab with no back arrow. For heroes on the board it opens on AROUND YOU: the 3 heroes above you, you, and the 3 below, with real ranks; TOP HEROES shows the full list.
+- Ranks and lists share one order (first column, second column, then `id`), so ties no longer share a rank, and the rank counts fetch only ids (Step 13).
 
-### 7. Known gaps for Day 28 onwards
-- 91 quarantined test files and 29 failing tests to repair in Day 29.
+### 7. Comic readability and fonts (Steps 14–53)
+- `inkOnPanel` prints text on Comic's coloured panels in black ink: quest cards, task rows, the streak strip, Stats cards, the difficulty card, heatmap and weekly-trend labels, Settings section titles, the Profile panel, the difficulty picker and the theme picker. Pixel and Light keep their accents. The worst old pairs measured 1:1 to 1.7:1.
+- 18 screens and components stopped hard-coding `PixelTypography`, so Comic shows Bangers and sans everywhere (onboarding, avatar and difficulty pickers, theme picker, Settings, privacy and Simple Mode dialogs, Account, history, analytics, heatmap, day detail, error screen). Pixel and Light are unchanged.
+- Reset and restore confirmations use the themed dialog; the heatmap legend matches and outlines its cells; the snackbar ALERT! tag is black on coral; the empty Home state uses theme colours; Light's bottom-bar icons are tinted; the Home AI opt-in button is no longer clipped.
+- Also: weekly next-occurrence dates follow the chosen days (Step 14), the theme picker preview moved to its own file so the colour audit passes (Step 44), and THEMING.md, supabase/schema.md and the ThemeMode comment are current (Steps 46–48).
+
+### 8. Testing
+- 48 new unit tests across the day. Full run: 438 tests, 28 failing; no new failures, and one old failure fixed. Emulator checks are in VERIFICATION.md Section F.
+
+### 9. Known gaps for Day 28 onwards
+- 91 quarantined test files and 28 failing tests to repair in Day 29.
 - Release builds on GitHub do not receive `GEMINI_API_KEY` yet (Day 30).
 - The daily AI reminder-message pack has not been observed against live Gemini.
-- Comic mode still has low-contrast text pairs (coral-red quest names on orange cards, sky-blue times on orange, lavender text on sky-blue), and some Comic screens still use the Pixel font (onboarding, theme picker, heatmap labels, history and analytics).
+- Coral-red screen headings on paper are 2.9:1 (the brand colour at heading size); Comic onboarding has not been checked on a device.
+- The AROUND YOU view has not been seen with real players; the profiles table has no indexes on the leaderboard sort columns.
+- The Claude Design system and screens canvas still show the old four-tab bar and the pre-fix Comic colours.
