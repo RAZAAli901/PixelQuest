@@ -220,7 +220,7 @@ fun TodayAiInsightOptInCard(
                         Text(
                             text = if (isSimpleMode) "HABIT COACH INSIGHTS" else "QUESTMASTER AI INTEL",
                             style = PixelTypography.titleSmall,
-                            color = PixelTheme.colors.primary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(PixelTheme.colors.primary),
                             fontWeight = FontWeight.Bold
                         )
                     }

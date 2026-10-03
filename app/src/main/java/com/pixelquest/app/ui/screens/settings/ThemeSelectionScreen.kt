@@ -45,7 +45,7 @@ fun ThemeSelectionScreen(
         Text(
             text = "🎨 THEME SELECTION",
             style = MaterialTheme.typography.titleLarge,
-            color = colors.primary
+            color = colors.primaryText
         )
 
         ThemeSelectionCard(

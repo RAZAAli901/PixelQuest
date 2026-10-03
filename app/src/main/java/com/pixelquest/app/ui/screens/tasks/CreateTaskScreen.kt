@@ -117,7 +117,7 @@ fun TaskFormContent(
                             contentDescription = "Go Back"
                         }
                     ) {
-                        Text("◀", style = MaterialTheme.typography.titleMedium, color = PixelTheme.colors.primary)
+                        Text("◀", style = MaterialTheme.typography.titleMedium, color = PixelTheme.colors.primaryText)
                     }
                 },
                 actions = {

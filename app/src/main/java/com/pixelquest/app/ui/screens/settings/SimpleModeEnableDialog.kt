@@ -66,7 +66,7 @@ fun SimpleModeEnableDialog(
                     Text(
                         text = "📋 SIMPLE MODE",
                         style = MaterialTheme.typography.titleMedium,
-                        color = colors.primary,
+                        color = colors.primaryText,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -158,7 +158,7 @@ private fun ExplainingRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelMedium,
-                color = colors.primary,
+                color = colors.primaryText,
                 fontWeight = FontWeight.Bold
             )
             Text(

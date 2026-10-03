@@ -171,7 +171,7 @@ fun TodayContent(
                 Text(
                     text = terminology.todayHeader,
                     style = MaterialTheme.typography.titleLarge,
-                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primaryText
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -227,12 +227,12 @@ fun TodayContent(
                         Text(
                             text = "STATUS",
                             style = MaterialTheme.typography.labelLarge,
-                            color = com.pixelquest.app.ui.theme.PixelTheme.colors.secondary
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.secondary)
                         )
                         Text(
                             text = "$completedCount / $totalCount COMPLETED",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.primary)
                         )
                     }
                 }
@@ -281,7 +281,7 @@ fun TodayContent(
                 Text(
                     text = terminology.upNextHeader,
                     style = MaterialTheme.typography.titleMedium,
-                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
+                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primaryText,
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             }

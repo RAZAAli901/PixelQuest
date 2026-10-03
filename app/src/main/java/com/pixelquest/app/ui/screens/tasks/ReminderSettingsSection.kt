@@ -96,7 +96,7 @@ private fun <T> OptionRow(
 ) {
     val colors = PixelTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(text = label, style = MaterialTheme.typography.labelLarge, color = colors.primary)
+        Text(text = label, style = MaterialTheme.typography.labelLarge, color = colors.primaryText)
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
