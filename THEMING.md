@@ -19,14 +19,14 @@ PixelQuest formally adopts a 4th theme configuration: `ThemeMode.System` ("Follo
 #### Theme Modes:
 1. **`ThemeMode.Pixel`**: Explicitly locks to classic retro dark arcade palette and CRT scanlines.
 2. **`ThemeMode.Light`**: Explicitly locks to crisp light theme.
-3. **`ThemeMode.Comic`**: Explicitly locks to bold comic pop-art theme (coming soon).
+3. **`ThemeMode.Comic`**: Explicitly locks to bold comic pop-art theme (unlocked on Day 23).
 4. **`ThemeMode.System`**: Dynamically evaluates the Android OS system night mode:
    - If `isSystemInDarkTheme() == true` -> Resolves to `ThemeMode.Pixel`.
    - If `isSystemInDarkTheme() == false` -> Resolves to `ThemeMode.Light`.
 
 #### Default Policy:
 - Default installation preference remains `ThemeMode.Pixel` to preserve the signature arcade branding upon fresh installs.
-- Users can switch to `Follow System`, `Pixel`, or `Light` at any time from `Settings -> Theme Selection`.
+- Users can switch to `Follow System`, `Pixel`, `Light` or `Comic` at any time from `Settings -> Theme Selection`, and toggle Comic from the Home header (see 13.5).
 - Explicit selections (`Pixel`, `Light`, `Comic`) act as strict overrides that completely decouple from OS state.
 
 ## 2. Component-Level Theme Compatibility Audit
@@ -171,7 +171,7 @@ A comprehensive regression pass was conducted across all subsystems developed in
 | **Habit & Task Engine** | Days 1–2 | `TaskDao`, `TaskRepository`, `TodayViewModel`, `TaskCard` | Task creation, editing, deletion, completion toggles, daily rollover, and XP rewarding operate identically. | **PASS** |
 | **Pixel Design System** | Days 3–4 | `PixelButton`, `PixelCard`, `PixelPanel`, `PixelDialog`, `Typography.kt` | Pixel borders (outer 2dp, inner 1dp), Press-depression offsets (+2dp y), gold highlights, and retro PressStart2P fonts remain pixel-perfect. | **PASS** |
 | **Audio & Haptics** | Days 5–6 | `SoundEffectManager`, `HapticFeedbackHelper` | Level-up chimes, task completion clicks, button tap feedback, and mute preferences continue firing without delay. | **PASS** |
-| **Display & Settings** | Day 7 | `PixelCrtOverlay`, `SettingsRepository`, `SettingsViewModel` | Sound toggle, haptics toggle, CRT toggle, and theme mode toggle persist across app relaunch via Proto/DataStore. | **PASS** |
+| **Display & Settings** | Day 7 | `PixelCrtOverlay`, `SettingsRepository`, `SettingsViewModel` | Sound toggle, haptics toggle, CRT toggle, and theme mode toggle persist across app relaunch via SharedPreferences (`pixelquest_settings`). | **PASS** |
 | **Streaks & Background** | Days 8–10 | `StreakManager`, `GracePeriodWorker`, `BackupManager` | Daily streak incrementing, freeze consumables, grace period protection, JSON backup import/export function flawlessly. | **PASS** |
 | **Stats & Analytics** | Days 11–12 | `StatsScreen`, `HeatmapGrid`, `CompletionChart` | Heatmap cell color scaling, streak milestone badges, and weekly completion bar graphs render correctly across themes. | **PASS** |
 | **Cloud & Leaderboard** | Days 13–15 | `SupabaseClient`, `AuthRepository`, `LeaderboardScreen`, `SpectatorBanner` | Google OAuth sign-in, anonymous guest spectator mode, cloud profile sync, and global ranking pagination remain fully functional. | **PASS** |
@@ -535,7 +535,7 @@ A thorough regression verification was executed to guarantee that Day 16–17's 
 ### 11.9 Debug-Only QA Gate Enforcement (Step 37)
 Following the completion of all visual QA and regression passes, the QA preview harness was finalized:
 - **`DebugComicPreviewToggle` Gating**: Strictly gated behind `BuildConfig.DEBUG`. In release or non-debug builds, the composable immediately returns with zero emitted nodes, preventing test scaffolding from entering production.
-- **Production Theme Gating Status**: `ThemeMode.Comic.isAvailable` remains strictly `false` ("Comic Pop (Coming Soon)"). Comic mode cannot be selected or activated by standard end users on Day 21, adhering faithfully to the Day 20 gating policy. Full user enablement remains reserved for Day 23 after entire screens are restyled.
+- **Production Theme Gating Status (Day 21, historical)**: `ThemeMode.Comic.isAvailable` was `false` on Day 21. Day 23 unlocked Comic for everyone (see 13.4).
 
 ### 11.10 Component Completion & Day 22 Hand-off Status (Step 39)
 As Day 21 concludes, the component status across themes is codified as follows:
@@ -659,6 +659,11 @@ Following full-screen application of Comic mode across all primary application s
 - **Remembering the previous theme**: `SettingsRepositoryImpl.setThemeMode` saves the outgoing theme under `key_theme_mode_before_comic` whenever Comic is chosen from any screen. `getThemeModeBeforeComic()` falls back to Pixel.
 - **Banner**: Turning Comic on from Home also marks the "NEW: COMIC BOOK MODE!" highlight as seen, the same as choosing it in Settings.
 
+
+### 13.6 Comic Ink and Fonts (Day 27)
+- **Ink on panels**: In Comic, text on a coloured panel is black (`inkOnPanel` in `ComicInk.kt`). Comic's accents (coral-red, sky-blue, lavender, gold) measured as low as 1:1 on its own orange, sky-blue and white panels. Pixel and Light keep their accent colours. `ComicInkContrastTest` checks black on every Comic panel.
+- **Fonts**: Screens use `MaterialTheme.typography`, never `PixelTypography` directly, so Comic gets Bangers and sans. In Pixel and Light the theme's typography is `PixelTypography`, so they are unchanged. `PixelTypography` remains only inside Pixel/Light-only code paths.
+- **Dialogs**: Reset and restore confirmations use `PixelConfirmDialog`, which draws the Comic dialog in Comic.
 
 ## 14. Master Multi-Theme Specification: Pixel vs. Light vs. Comic Reference Matrix
 
