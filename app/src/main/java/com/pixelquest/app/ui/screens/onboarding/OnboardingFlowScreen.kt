@@ -13,6 +13,11 @@ fun OnboardingFlowScreen(
     val soundManager = com.pixelquest.app.audio.LocalSoundManager.current
     val uiState by viewModel.uiState.collectAsState()
 
+    // System back steps back through onboarding instead of closing the app and losing the answers.
+    androidx.activity.compose.BackHandler(enabled = uiState.currentStep != OnboardingStep.Welcome) {
+        viewModel.previousStep()
+    }
+
     when (uiState.currentStep) {
         OnboardingStep.Welcome -> {
             OnboardingWelcomeScreen(
