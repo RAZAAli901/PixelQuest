@@ -45,10 +45,11 @@ class TaskHistoryViewModel @Inject constructor(
         val tasksMap = tasks.associateBy { it.id }
 
         val today = LocalDate.now()
+        // "Last 7 days" is today and the 6 days before it (minusDays(7) gave 8 days).
         val filteredLogs = logs.filter { log ->
             when (filter) {
-                HistoryFilter.LAST_7_DAYS -> !log.completedDate.isBefore(today.minusDays(7))
-                HistoryFilter.LAST_30_DAYS -> !log.completedDate.isBefore(today.minusDays(30))
+                HistoryFilter.LAST_7_DAYS -> !log.completedDate.isBefore(today.minusDays(6))
+                HistoryFilter.LAST_30_DAYS -> !log.completedDate.isBefore(today.minusDays(29))
                 HistoryFilter.ALL_TIME -> true
             }
         }.sortedByDescending { it.completedDate }
