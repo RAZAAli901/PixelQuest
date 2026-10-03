@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.DailyStatus
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 import com.pixelquest.app.ui.theme.ThemeMode
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -53,7 +53,7 @@ fun PixelDayDetailDialog(
         ) {
             Text(
                 text = dateText.uppercase(),
-                style = PixelTypography.labelLarge,
+                style = MaterialTheme.typography.labelLarge,
                 color = colors.primary
             )
 
@@ -61,7 +61,7 @@ fun PixelDayDetailDialog(
 
             Text(
                 text = statusTitle,
-                style = PixelTypography.titleMedium,
+                style = MaterialTheme.typography.titleMedium,
                 color = statusColor
             )
 

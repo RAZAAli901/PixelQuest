@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.domain.model.DailyStatus
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -91,7 +91,7 @@ fun PixelCalendarHeatmap(
                     if (showMonthLabel) {
                         Text(
                             text = firstDayOfWeek.format(monthFormatter).uppercase(),
-                            style = PixelTypography.labelSmall.copy(fontSize = 7.sp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 7.sp),
                             color = colors.primary,
                             maxLines = 1
                         )
@@ -118,7 +118,7 @@ fun PixelCalendarHeatmap(
                         if (i % 2 == 0) {
                             Text(
                                 text = label,
-                                style = PixelTypography.labelSmall.copy(fontSize = 8.sp),
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
                                 color = colors.onSurfaceVariant,
                                 textAlign = TextAlign.Center
                             )
@@ -190,7 +190,7 @@ private fun HeatmapLegendItem(
         )
         Text(
             text = label,
-            style = PixelTypography.labelSmall.copy(fontSize = 7.sp),
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 7.sp),
             color = PixelTheme.colors.onSurfaceVariant
         )
     }
