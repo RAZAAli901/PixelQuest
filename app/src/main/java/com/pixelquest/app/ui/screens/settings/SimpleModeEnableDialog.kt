@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +30,6 @@ import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.haptics.PixelHaptics
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 /**
  * Step 34: Polished explanatory enable-dialog for Simple Mode with proper
@@ -65,7 +65,7 @@ fun SimpleModeEnableDialog(
                 ) {
                     Text(
                         text = "📋 SIMPLE MODE",
-                        style = PixelTypography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium,
                         color = colors.primary,
                         fontWeight = FontWeight.Bold
                     )
@@ -75,7 +75,7 @@ fun SimpleModeEnableDialog(
 
                 Text(
                     text = "Streamlines PixelQuest into a clean, minimalist task checklist without gamification pressure.",
-                    style = PixelTypography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = colors.onSurface,
                     lineHeight = 20.sp
                 )
@@ -151,19 +151,19 @@ private fun ExplainingRow(
     ) {
         Text(
             text = icon,
-            style = PixelTypography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(end = 8.dp)
         )
         Column {
             Text(
                 text = title,
-                style = PixelTypography.labelMedium,
+                style = MaterialTheme.typography.labelMedium,
                 color = colors.primary,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = description,
-                style = PixelTypography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurfaceVariant
             )
         }
