@@ -8,8 +8,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.pixelquest.app.MainActivity
-import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.domain.TaskResultRecorder
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
@@ -26,7 +26,8 @@ class MissedTaskWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val taskRepository: TaskRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val taskResultRecorder: TaskResultRecorder
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -36,22 +37,15 @@ class MissedTaskWorker @AssistedInject constructor(
         val logs = taskCompletionRepository.getLogsForDate(today).first()
         val loggedTaskIds = logs.map { it.taskId }.toSet()
 
-        val missedTasks = tasks.filter { task ->
+        val overdueTasks = tasks.filter { task ->
             if (loggedTaskIds.contains(task.id)) return@filter false
             val scheduledDateTime = LocalDateTime.of(today, task.scheduledTime)
             val cutoffTime = scheduledDateTime.plusHours(2)
             now.isAfter(cutoffTime)
         }
 
-        missedTasks.forEach { task ->
-            val missedLog = TaskCompletionLogEntity(
-                taskId = task.id,
-                completedDate = today,
-                wasCompleted = false,
-                pointsAwarded = 0
-            )
-            taskCompletionRepository.insertLog(missedLog)
-        }
+        // Recorded only if still without a result: a task completed a moment ago is left alone.
+        val missedTasks = overdueTasks.filter { task -> taskResultRecorder.recordNotDone(task.id, today) }
 
         if (missedTasks.isNotEmpty() && settingsRepository.isNotificationsEnabled.first()) {
             notifyMissed(missedTasks)
