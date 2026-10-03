@@ -42,7 +42,7 @@ fun StreakXpSummaryStrip(
                 Text(
                     text = "$currentStreak DAYS",
                     style = MaterialTheme.typography.titleMedium,
-                    color = colors.gold
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.gold)
                 )
             }
 
@@ -54,7 +54,7 @@ fun StreakXpSummaryStrip(
                 Text(
                     text = "$totalXp XP",
                     style = MaterialTheme.typography.titleMedium,
-                    color = colors.tertiary
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
                 )
             }
 
@@ -66,7 +66,7 @@ fun StreakXpSummaryStrip(
                 Text(
                     text = "LVL $level",
                     style = MaterialTheme.typography.titleMedium,
-                    color = colors.secondary
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary)
                 )
             }
         }
