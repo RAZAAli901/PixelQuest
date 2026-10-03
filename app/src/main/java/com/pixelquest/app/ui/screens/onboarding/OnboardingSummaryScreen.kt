@@ -130,7 +130,8 @@ fun OnboardingSummaryScreen(
                 modifier = Modifier.weight(1f)
             )
             PixelButton(
-                text = "BEGIN YOUR QUEST ▶",
+                // Short enough for one line beside BACK; the longer label wrapped in Comic.
+                text = "BEGIN QUEST ▶",
                 onClick = onConfirmClick,
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.weight(1f)
