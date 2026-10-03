@@ -66,16 +66,20 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 val task = taskRepository.getTaskById(taskId).first()
                 if (task == null || !task.isActive || !task.reminderEnabled) return@launch
 
-                postReminder(
-                    context = context,
-                    taskId = taskId,
-                    taskName = task.name.ifBlank { taskName },
-                    category = task.category,
-                    style = task.reminderStyle,
-                    startsInMinutes = minutesUntilTask(task)
-                )
-                // Exact alarms fire once, so arm the next daily/weekly/monthly occurrence now.
                 val occurrenceDate = LocalDateTime.now().plusMinutes(task.reminderLeadMinutes.toLong()).toLocalDate()
+                // Stay quiet if the task already has a result for that day (done or skipped in the
+                // app, or answered from an earlier reminder or a snooze).
+                if (taskCompletionRepository.getLogForTaskOnDate(taskId, occurrenceDate) == null) {
+                    postReminder(
+                        context = context,
+                        taskId = taskId,
+                        taskName = task.name.ifBlank { taskName },
+                        category = task.category,
+                        style = task.reminderStyle,
+                        startsInMinutes = minutesUntilTask(task)
+                    )
+                }
+                // Exact alarms fire once, so arm the next daily/weekly/monthly occurrence now.
                 taskAlarmScheduler.scheduleNextOccurrence(task, handledDate = occurrenceDate)
             } finally {
                 pendingResult.finish()
