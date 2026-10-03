@@ -150,13 +150,13 @@ fun StatsContent(
                         Text(
                             text = "ACTIVE DIFFICULTY",
                             style = MaterialTheme.typography.labelLarge,
-                            color = colors.secondary
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = DifficultyMode.getDisplayName(activeDifficulty).uppercase(),
                             style = MaterialTheme.typography.titleMedium,
-                            color = colors.tertiary
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
                         )
                         Text(
                             text = "${(DifficultyMode.getPerfectDayThreshold(activeDifficulty) * 100).toInt()}% Target Threshold",
