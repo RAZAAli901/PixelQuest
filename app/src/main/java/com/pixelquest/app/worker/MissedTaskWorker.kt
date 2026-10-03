@@ -32,26 +32,29 @@ class MissedTaskWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         val now = LocalDateTime.now()
-        val today = LocalDate.now()
-        val tasks = taskRepository.getTasksForDay(today).first()
-        val logs = taskCompletionRepository.getLogsForDate(today).first()
-        val loggedTaskIds = logs.map { it.taskId }.toSet()
+        val today = now.toLocalDate()
 
-        val overdueTasks = tasks.filter { task ->
-            if (loggedTaskIds.contains(task.id)) return@filter false
-            val scheduledDateTime = LocalDateTime.of(today, task.scheduledTime)
-            val cutoffTime = scheduledDateTime.plusHours(2)
-            now.isAfter(cutoffTime)
-        }
-
-        // Recorded only if still without a result: a task completed a moment ago is left alone.
-        val missedTasks = overdueTasks.filter { task -> taskResultRecorder.recordNotDone(task.id, today) }
+        // Yesterday too: a quest at 22:00 or later only passes its cutoff after midnight. Those are
+        // recorded quietly; a notification in the night about yesterday would help nobody.
+        recordMissed(today.minusDays(1), now)
+        val missedTasks = recordMissed(today, now)
 
         if (missedTasks.isNotEmpty() && settingsRepository.isNotificationsEnabled.first()) {
             notifyMissed(missedTasks)
         }
 
         return Result.success()
+    }
+
+    /** Records [day]'s quests still without a result 2 hours after their time, and returns them. */
+    private suspend fun recordMissed(day: LocalDate, now: LocalDateTime): List<TaskEntity> {
+        val loggedTaskIds = taskCompletionRepository.getLogsForDate(day).first().map { it.taskId }.toSet()
+        return taskRepository.getTasksForDay(day).first()
+            .filter { task ->
+                task.id !in loggedTaskIds && now.isAfter(LocalDateTime.of(day, task.scheduledTime).plusHours(2))
+            }
+            // Recorded only if still without a result: a task completed a moment ago is left alone.
+            .filter { task -> taskResultRecorder.recordNotDone(task.id, day) }
     }
 
     private suspend fun notifyMissed(missedTasks: List<TaskEntity>) {
