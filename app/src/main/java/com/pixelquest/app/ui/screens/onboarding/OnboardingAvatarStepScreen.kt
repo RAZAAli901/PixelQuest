@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,7 +20,6 @@ import com.pixelquest.app.ui.components.PixelAvatarGrid
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun OnboardingAvatarStepScreen(
@@ -39,14 +39,14 @@ fun OnboardingAvatarStepScreen(
     ) {
         Text(
             text = "🧙 CHOOSE YOUR AVATAR",
-            style = PixelTypography.titleLarge,
+            style = MaterialTheme.typography.titleLarge,
             color = colors.primary,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Pick an 8-bit avatar to represent your hero in PixelQuest.",
-            style = PixelTypography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium,
             color = colors.onSurface,
             textAlign = TextAlign.Center
         )

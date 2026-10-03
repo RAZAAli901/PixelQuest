@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +27,6 @@ import com.pixelquest.app.ui.components.PixelAvatarDisplay
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun AvatarSelectionScreen(
@@ -43,7 +43,7 @@ fun AvatarSelectionScreen(
     ) {
         Text(
             text = "🧙 CHOOSE AVATAR",
-            style = PixelTypography.headlineMedium,
+            style = MaterialTheme.typography.headlineMedium,
             color = colors.primary,
             modifier = Modifier.padding(bottom = 16.dp)
         )

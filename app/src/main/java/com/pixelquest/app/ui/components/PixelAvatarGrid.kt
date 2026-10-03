@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +27,6 @@ import com.pixelquest.app.domain.AvatarItem
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelGreen
 import com.pixelquest.app.ui.theme.PixelTextWhite
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun PixelAvatarGrid(
@@ -85,7 +85,7 @@ private fun AvatarGridItem(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = avatar.name.uppercase(),
-                    style = PixelTypography.titleSmall,
+                    style = MaterialTheme.typography.titleSmall,
                     color = if (isSelected) colors.primary else colors.onSurface,
                     textAlign = TextAlign.Center
                 )
@@ -93,7 +93,7 @@ private fun AvatarGridItem(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "★ SELECTED ★",
-                        style = PixelTypography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall,
                         color = colors.tertiary,
                         textAlign = TextAlign.Center
                     )
