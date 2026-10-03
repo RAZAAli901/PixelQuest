@@ -150,6 +150,8 @@ fun TodayContent(
         PixelConfirmDialog(
             title = terminology.skipDialogTitle,
             message = terminology.skipDialogMessage(taskToSkip?.name ?: ""),
+            // Not the dialog's default DELETE: skipping keeps the quest.
+            confirmText = "SKIP",
             onConfirm = {
                 taskToSkip?.let { onQuickSkip(it) }
                 taskToSkip = null

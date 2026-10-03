@@ -30,7 +30,7 @@ object TaskTerminology {
         emptyStateSubtitle = "The realm is quiet. Add a new quest to begin your adventure!",
         createButtonText = "+ CREATE QUEST",
         skipDialogTitle = "SKIP QUEST",
-        skipDialogMessage = { taskName -> "Are you sure you want to mark '$taskName' as missed/skipped?" },
+        skipDialogMessage = { taskName -> "Skip '$taskName' for today? It counts as not done, but you can still complete it later today." },
         historyButtonText = "📜 QUEST HISTORY"
     )
 
@@ -44,7 +44,7 @@ object TaskTerminology {
         emptyStateSubtitle = "No tasks scheduled. Add a new task to get started.",
         createButtonText = "+ CREATE TASK",
         skipDialogTitle = "SKIP TASK",
-        skipDialogMessage = { taskName -> "Are you sure you want to mark '$taskName' as skipped?" },
+        skipDialogMessage = { taskName -> "Skip '$taskName' for today? It counts as not done, but you can still complete it later today." },
         historyButtonText = "📜 TASK HISTORY"
     )
 
