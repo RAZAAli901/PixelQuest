@@ -155,6 +155,24 @@ class TaskAlarmScheduler @Inject constructor(
         }
     }
 
+    /**
+     * Clears what is left of a reminder once its task has a result: the notification still in the
+     * shade and a pending snooze, which would otherwise ring again for a task already done.
+     */
+    fun clearReminder(taskId: Long) {
+        androidx.core.app.NotificationManagerCompat.from(context).cancel(taskId.toInt())
+        val snooze = PendingIntent.getBroadcast(
+            context,
+            snoozeRequestCode(taskId),
+            Intent(context, TaskAlarmReceiver::class.java),
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )
+        if (snooze != null) {
+            alarmManager.cancel(snooze)
+            snooze.cancel()
+        }
+    }
+
     fun cancelAlarmForTask(task: TaskEntity) {
         val intent = Intent(context, TaskAlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(

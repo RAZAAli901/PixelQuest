@@ -126,6 +126,7 @@ class TodayViewModel @Inject constructor(
             // 0 means it was already done (a double tap, or completed from the reminder).
             if (taskResultRecorder.recordCompleted(task.id, currentDate) == 0) return@launch
             rearmAfterToday(task)
+            taskAlarmScheduler.clearReminder(task.id)
             val isSimple = settingsRepository?.simpleModeEnabled?.first() ?: false
             _quickCompleteFlourishEvent.value = !isSimple
             syncScheduler?.scheduleProfileSync()
@@ -151,7 +152,10 @@ class TodayViewModel @Inject constructor(
 
     fun skipTask(task: TaskEntity) {
         viewModelScope.launch {
-            if (taskResultRecorder.recordNotDone(task.id, currentDate)) rearmAfterToday(task)
+            if (taskResultRecorder.recordNotDone(task.id, currentDate)) {
+                rearmAfterToday(task)
+                taskAlarmScheduler.clearReminder(task.id)
+            }
         }
     }
 }

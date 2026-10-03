@@ -44,7 +44,7 @@ class TaskActionReceiver : BroadcastReceiver() {
                     taskResultRecorder.recordNotDone(taskId, LocalDate.now())
                 }
             } finally {
-                NotificationManagerCompat.from(context).cancel(taskId.toInt())
+                taskAlarmScheduler.clearReminder(taskId)
                 pendingResult.finish()
             }
         }
