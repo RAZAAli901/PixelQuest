@@ -14,7 +14,7 @@ import java.time.Instant
  *    the push is skipped to avoid overwriting a newer state produced by another device.
  *
  * 2. Defensive Anti-Regression Guard (Monotonic Progress):
- *    A sync must NEVER overwrite higher streak, level, or total XP values on the server with
+ *    A sync must NEVER overwrite a higher longest streak, level, or total XP on the server with
  *    lower local values, preventing a stale or neglected secondary device from wiping out
  *    real progress achieved on a primary device.
  */
@@ -50,15 +50,12 @@ object SyncConflictResolver {
         }
 
         // Rule 1: Monotonic Progress Guard (Staleness Protection)
-        // If the server currently holds higher level, streak, or XP, never regress cloud progress.
+        // If the server holds a higher level, longest streak or XP, never regress cloud progress.
+        // The current streak is not guarded: it legitimately drops to 0 when a streak breaks, and
+        // guarding it froze every later sync (XP, level and the broken streak) on the leaderboard.
         if (serverProfile.level > localLevel) {
             return SyncDecision.SkipServerHigherProgress(
                 "Server level (${serverProfile.level}) is higher than local level ($localLevel)"
-            )
-        }
-        if (serverProfile.currentStreak > localCurrentStreak) {
-            return SyncDecision.SkipServerHigherProgress(
-                "Server current streak (${serverProfile.currentStreak}) is higher than local streak ($localCurrentStreak)"
             )
         }
         if (serverProfile.longestStreak > localLongestStreak) {

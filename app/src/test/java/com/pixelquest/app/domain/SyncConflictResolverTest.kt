@@ -51,29 +51,29 @@ class SyncConflictResolverTest {
     }
 
     @Test
-    fun evaluate_whenServerHasHigherCurrentStreak_returnsSkipServerHigherProgress() {
+    fun evaluate_whenTheStreakBrokeLocally_stillPushes() {
+        // A current streak can legitimately fall to 0; only longest streak, level and XP never go down.
         val serverProfile = CloudProfileDto(
             id = "user-1",
             displayName = "Hero",
-            currentStreak = 10, // Higher than local
+            currentStreak = 10,
             longestStreak = 10,
             level = 3,
             totalXp = 500,
             leaderboardOptIn = true,
-            updatedAt = "2026-09-12T11:00:00Z"
+            updatedAt = "2026-09-12T09:00:00Z"
         )
 
         val decision = SyncConflictResolver.evaluate(
-            localCurrentStreak = 4, // Stale lower streak
+            localCurrentStreak = 0, // the streak just broke
             localLongestStreak = 10,
             localLevel = 3,
-            localTotalXp = 500,
+            localTotalXp = 550,
             localTriggerTime = baseTriggerTime,
             serverProfile = serverProfile
         )
 
-        assertTrue(decision is SyncDecision.SkipServerHigherProgress)
-        assertTrue((decision as SyncDecision.SkipServerHigherProgress).reason.contains("Server current streak (10) is higher"))
+        assertTrue(decision is SyncDecision.PushLocal)
     }
 
     @Test
