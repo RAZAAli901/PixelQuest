@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +23,6 @@ import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun OnboardingWelcomeScreen(
@@ -47,13 +47,13 @@ fun OnboardingWelcomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "⚔️ WELCOME HERO ⚔️",
-                style = PixelTypography.titleLarge,
+                style = MaterialTheme.typography.titleLarge,
                 color = colors.primary,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Turn your daily routines into retro RPG quests!",
-                style = PixelTypography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurface,
                 textAlign = TextAlign.Center
             )
@@ -65,24 +65,24 @@ fun OnboardingWelcomeScreen(
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "📜 ", style = PixelTypography.titleMedium)
+                        Text(text = "📜 ", style = MaterialTheme.typography.titleMedium)
                         Column {
-                            Text(text = "DAILY QUESTS", style = PixelTypography.titleSmall, color = colors.primary)
-                            Text(text = "Set daily habits and schedule alarm reminders.", style = PixelTypography.bodySmall, color = colors.onSurface)
+                            Text(text = "DAILY QUESTS", style = MaterialTheme.typography.titleSmall, color = colors.primary)
+                            Text(text = "Set daily habits and schedule alarm reminders.", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "🔥 ", style = PixelTypography.titleMedium)
+                        Text(text = "🔥 ", style = MaterialTheme.typography.titleMedium)
                         Column {
-                            Text(text = "BUILD STREAKS", style = PixelTypography.titleSmall, color = colors.secondary)
-                            Text(text = "Maintain consecutive perfect days for bonus XP.", style = PixelTypography.bodySmall, color = colors.onSurface)
+                            Text(text = "BUILD STREAKS", style = MaterialTheme.typography.titleSmall, color = colors.secondary)
+                            Text(text = "Maintain consecutive perfect days for bonus XP.", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "🛡️ ", style = PixelTypography.titleMedium)
+                        Text(text = "🛡️ ", style = MaterialTheme.typography.titleMedium)
                         Column {
-                            Text(text = "LEVEL UP HERO", style = PixelTypography.titleSmall, color = colors.tertiary)
-                            Text(text = "Earn levels, unlock avatars, and climb history.", style = PixelTypography.bodySmall, color = colors.onSurface)
+                            Text(text = "LEVEL UP HERO", style = MaterialTheme.typography.titleSmall, color = colors.tertiary)
+                            Text(text = "Earn levels, unlock avatars, and climb history.", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         }
                     }
                 }
