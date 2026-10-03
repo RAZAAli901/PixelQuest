@@ -78,15 +78,15 @@ fun PixelTaskListItem(
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         color = when (status) {
-                            TaskItemStatus.COMPLETED, TaskItemStatus.DONE -> colors.tertiary
+                            TaskItemStatus.COMPLETED, TaskItemStatus.DONE -> com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
                             TaskItemStatus.MISSED -> colors.error
-                            TaskItemStatus.PENDING, TaskItemStatus.GRACE_PERIOD -> colors.primary
+                            TaskItemStatus.PENDING, TaskItemStatus.GRACE_PERIOD -> com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
                         },
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     if (status == TaskItemStatus.COMPLETED) {
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(" [DONE]", style = MaterialTheme.typography.labelSmall, color = colors.tertiary)
+                        Text(" [DONE]", style = MaterialTheme.typography.labelSmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary))
                     } else if (status == TaskItemStatus.MISSED) {
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(" [MISSED]", style = MaterialTheme.typography.labelSmall, color = colors.error)
@@ -97,13 +97,13 @@ fun PixelTaskListItem(
                     Text(
                         text = "⏰ ${task.scheduledTime.format(timeFormatter)}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.secondary
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "🔄 ${task.recurrenceType.name}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = colors.onSurfaceVariant
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.onSurfaceVariant)
                     )
                 }
             }
