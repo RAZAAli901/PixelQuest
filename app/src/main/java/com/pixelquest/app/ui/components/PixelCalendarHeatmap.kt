@@ -93,7 +93,7 @@ fun PixelCalendarHeatmap(
                         Text(
                             text = firstDayOfWeek.format(monthFormatter).uppercase(),
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 7.sp),
-                            color = colors.primary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             maxLines = 1
                         )
                     }
@@ -120,7 +120,7 @@ fun PixelCalendarHeatmap(
                             Text(
                                 text = label,
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
-                                color = colors.onSurfaceVariant,
+                                color = com.pixelquest.app.ui.theme.inkOnPanel(colors.onSurfaceVariant),
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -198,7 +198,7 @@ private fun HeatmapLegendItem(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 7.sp),
-            color = PixelTheme.colors.onSurfaceVariant
+            color = com.pixelquest.app.ui.theme.inkOnPanel(PixelTheme.colors.onSurfaceVariant)
         )
     }
 }
