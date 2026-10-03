@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +26,6 @@ import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.DefaultComicColorScheme
 import com.pixelquest.app.ui.theme.DefaultLightColorScheme
 import com.pixelquest.app.ui.theme.DefaultPixelColorScheme
-import com.pixelquest.app.ui.theme.PixelTypography
 import com.pixelquest.app.ui.theme.ThemeMode
 
 /**
@@ -47,7 +47,7 @@ fun ThemeSelectionCard(
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
                 text = "🎨 THEME SELECTION",
-                style = PixelTypography.titleMedium,
+                style = MaterialTheme.typography.titleMedium,
                 color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
             )
 
@@ -193,14 +193,14 @@ fun ThemeOptionRow(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = title,
-                    style = PixelTypography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = if (isComingSoon) themeColors.onSurfaceVariant else themeColors.onSurface
                 )
                 if (isComingSoon) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "[COMING SOON]",
-                        style = PixelTypography.labelSmall.copy(fontSize = 9.sp),
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
                         color = themeColors.primary
                     )
                 }
@@ -208,7 +208,7 @@ fun ThemeOptionRow(
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = subtitle,
-                style = PixelTypography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = themeColors.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(6.dp))
@@ -219,7 +219,7 @@ fun ThemeOptionRow(
 
         Text(
             text = if (isSelected) "● ACTIVE" else "○",
-            style = PixelTypography.labelSmall,
+            style = MaterialTheme.typography.labelSmall,
             color = if (isSelected) {
                 if (isComicTheme) com.pixelquest.app.ui.theme.ComicTokens.CoralRed else themeColors.primary
             } else {

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,7 +20,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 /**
  * Dedicated Theme Selection Screen route accessible from Settings.
@@ -44,7 +44,7 @@ fun ThemeSelectionScreen(
     ) {
         Text(
             text = "🎨 THEME SELECTION",
-            style = PixelTypography.titleLarge,
+            style = MaterialTheme.typography.titleLarge,
             color = colors.primary
         )
 
