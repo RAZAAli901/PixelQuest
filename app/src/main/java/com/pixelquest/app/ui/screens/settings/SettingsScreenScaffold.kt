@@ -55,7 +55,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "👤 ACCOUNT", style = MaterialTheme.typography.titleMedium, color = colors.primary)
+                Text(text = "👤 ACCOUNT", style = MaterialTheme.typography.titleMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                 accountSection()
             }
         }
@@ -67,7 +67,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "🔔 NOTIFICATIONS", style = MaterialTheme.typography.titleMedium, color = colors.primary)
+                Text(text = "🔔 NOTIFICATIONS", style = MaterialTheme.typography.titleMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                 notificationsSection()
             }
         }
@@ -79,7 +79,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "📺 APPEARANCE & AUDIO", style = MaterialTheme.typography.titleMedium, color = colors.primary)
+                Text(text = "📺 APPEARANCE & AUDIO", style = MaterialTheme.typography.titleMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                 appearanceSection()
             }
         }
@@ -91,7 +91,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "✨ AI HABIT COACH", style = MaterialTheme.typography.titleMedium, color = colors.primary)
+                Text(text = "✨ AI HABIT COACH", style = MaterialTheme.typography.titleMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                 aiSection()
             }
         }
@@ -103,7 +103,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "📋 SIMPLE MODE", style = MaterialTheme.typography.titleMedium, color = colors.primary)
+                Text(text = "📋 SIMPLE MODE", style = MaterialTheme.typography.titleMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                 simpleModeSection()
             }
         }
@@ -115,7 +115,7 @@ fun SettingsScreenScaffold(
             contentPadding = 16.dp
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(text = "💾 DATA & BACKUP", style = MaterialTheme.typography.titleMedium, color = colors.primary)
+                Text(text = "💾 DATA & BACKUP", style = MaterialTheme.typography.titleMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                 dataSection()
             }
         }
