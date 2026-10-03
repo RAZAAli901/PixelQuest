@@ -40,7 +40,7 @@ class StatsRepositoryImpl @Inject constructor(
                 totalScheduled += scheduledTasksForDay.size
                 
                 val dayLogs = logsByDate[currentDate] ?: emptyList()
-                totalCompleted += dayLogs.count { it.wasCompleted }
+                totalCompleted += completedScheduledCount(scheduledTasksForDay, dayLogs)
                 
                 currentDate = currentDate.plusDays(1)
             }
@@ -50,6 +50,18 @@ class StatsRepositoryImpl @Inject constructor(
     }
 
     companion object {
+        /**
+         * Completed tasks among those scheduled that day, each counted once. Logs left by deleted
+         * or rescheduled tasks don't count, so they can't push a day (or the rate) to 100%.
+         */
+        fun completedScheduledCount(
+            scheduled: List<com.pixelquest.app.data.local.entity.TaskEntity>,
+            dayLogs: List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>
+        ): Int {
+            val scheduledIds = scheduled.map { it.id }.toSet()
+            return dayLogs.filter { it.wasCompleted && it.taskId in scheduledIds }.map { it.taskId }.toSet().size
+        }
+
         fun isTaskScheduledOnDate(task: com.pixelquest.app.data.local.entity.TaskEntity, date: LocalDate): Boolean {
             if (!task.isActive) return false
             // Same rule as the Today list and reminders, including a weekly task's chosen days.
@@ -80,7 +92,7 @@ class StatsRepositoryImpl @Inject constructor(
                     resultMap[currentDate] = DailyStatus.NO_TASKS_SCHEDULED
                 } else {
                     val dayLogs = logsByDate[currentDate] ?: emptyList()
-                    val completedCount = dayLogs.count { it.wasCompleted }
+                    val completedCount = completedScheduledCount(scheduledTasks, dayLogs)
                     val isPerfect = com.pixelquest.app.domain.StreakCalculator.isPerfectDay(completedCount, scheduledTasks.size, threshold)
                     val status = when {
                         isPerfect -> DailyStatus.PERFECT
