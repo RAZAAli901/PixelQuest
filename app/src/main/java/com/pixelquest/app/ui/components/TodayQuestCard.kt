@@ -100,9 +100,9 @@ fun TodayQuestCard(
                         textDecoration = if (isMissed) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
                     ),
                     color = when {
-                        isDone -> colors.tertiary
+                        isDone -> com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
                         isMissed -> colors.error
-                        else -> colors.primary
+                        else -> com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
                     }
                 )
                 Spacer(modifier = Modifier.height(4.dp))
@@ -110,13 +110,13 @@ fun TodayQuestCard(
                     Text(
                         text = "⏰ ${task.scheduledTime}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.secondary
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = task.category.displayName,
                         style = MaterialTheme.typography.labelSmall,
-                        color = colors.onSurfaceVariant
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.onSurfaceVariant)
                     )
                 }
             }
