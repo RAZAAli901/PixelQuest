@@ -89,13 +89,13 @@ fun TaskHistoryListItem(
                 Text(
                     text = if (item.wasCompleted) "COMPLETED" else "MISSED",
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (item.wasCompleted) colors.tertiary else colors.error
+                    color = if (item.wasCompleted) com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary) else colors.error
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "+${item.pointsAwarded} XP",
                     style = MaterialTheme.typography.labelMedium,
-                    color = colors.gold
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.gold)
                 )
             }
         }

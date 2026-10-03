@@ -239,7 +239,7 @@ fun PixelLeaderboardRow(
                 Text(
                     text = statValue,
                     style = MaterialTheme.typography.titleMedium,
-                    color = if (rank <= 3) tierColor else colors.secondary,
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(if (rank <= 3) tierColor else colors.secondary),
                     fontSize = 12.sp
                 )
                 Text(

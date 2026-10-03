@@ -94,7 +94,7 @@ private fun AvatarGridItem(
                     Text(
                         text = "★ SELECTED ★",
                         style = MaterialTheme.typography.labelSmall,
-                        color = colors.tertiary,
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary),
                         textAlign = TextAlign.Center
                     )
                 }
