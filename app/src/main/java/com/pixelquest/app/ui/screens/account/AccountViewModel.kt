@@ -285,11 +285,25 @@ class AccountViewModel @Inject constructor(
                 syncMessage = null
             )
 
-            // 1. Delete profiles row in Supabase
-            cloudProfileRepository.deleteCloudProfile()
+            // 1. Delete profiles row in Supabase. If that fails (e.g. offline), stop: nothing was
+            // deleted, so keep the local link and say so instead of claiming success.
+            if (cloudProfileRepository.deleteCloudProfile() !is com.pixelquest.app.data.remote.SupabaseResult.Success) {
+                _uiState.value = _uiState.value.copy(
+                    isDeletingCloudData = false,
+                    syncMessage = "Couldn't reach the cloud, so nothing was deleted. Check your connection and try again."
+                )
+                return@launch
+            }
 
             // 2. Call RPC to delete auth user from Supabase
-            authRepository?.deleteAccount()
+            val accountResult = authRepository?.deleteAccount()
+            if (accountResult != null && accountResult !is com.pixelquest.app.data.remote.SupabaseResult.Success) {
+                _uiState.value = _uiState.value.copy(
+                    isDeletingCloudData = false,
+                    syncMessage = "Your leaderboard entry was deleted, but the account couldn't be. Try again when you're online."
+                )
+                return@launch
+            }
 
             // 3. Clear local Room database cloud fields
             userProfileRepository.clearCloudData()
