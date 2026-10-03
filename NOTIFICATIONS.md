@@ -7,10 +7,11 @@ How PixelQuest schedules and posts notifications. Rewritten on Day 26.
 1. `TaskAlarmScheduler` arms one alarm per task (request code = task id). `ReminderSchedule` works out the next trigger from the task's first date, time, recurrence and lead time.
    - With "Alarms & reminders" allowed: `setExactAndAllowWhileIdle`.
    - Without it (Android 14 starts with it off): `setWindow` with a 10-minute window, and Settings shows an "Allow exact reminder times" prompt.
-2. `TaskAlarmReceiver` fires, checks the master toggle and the task (deleted, inactive or reminder off means nothing is posted), posts the reminder, then arms the next occurrence.
-3. Reminder actions go to `TaskActionReceiver`: "Yes, I did it" / "Not yet" log the result; "Snooze 10 min" arms a separate one-off alarm. Tapping opens `TaskPromptActivity`.
-4. `MissedTaskWorker` (every 30 min) logs tasks still open two hours after their time and replaces the reminder with a missed-task notification.
-5. Alarms are re-armed on app launch, after a reboot (`BootReceiver`), and when the exact-alarm permission changes.
+2. `TaskAlarmReceiver` fires, checks the master toggle and the task (deleted, inactive or reminder off means nothing is posted), posts the reminder unless the task already has a result for that day (Day 28), then arms the next occurrence.
+3. Reminder actions go to `TaskActionReceiver`: "Yes, I did it" records the task as done through `TaskResultRecorder` (once per day, so a second Yes or completing in the app as well awards nothing extra); "Not yet" records nothing and only dismisses the reminder (Day 28; it used to mark the day missed); "Snooze 10 min" arms a separate one-off alarm. Tapping opens `TaskPromptActivity`, whose answers behave the same way.
+4. `MissedTaskWorker` (every 30 min) records tasks still open two hours after their time as missed and replaces the reminder with a missed-task notification. It also checks yesterday, so quests at 22:00 or later are marked missed after midnight; those are recorded without a notification. A missed quest can still be completed from Today that day.
+5. Once a task has a result (done or skipped, in the app or from a reminder), `TaskAlarmScheduler.clearReminder` removes its reminder or missed notice from the shade and cancels a pending snooze.
+6. Alarms are re-armed on app launch, after a reboot (`BootReceiver`), and when the exact-alarm permission changes.
 
 All `@HiltWorker` workers depend on `PixelQuestApplication` providing `HiltWorkerFactory` (the default WorkManager initializer is removed in the manifest).
 
@@ -57,7 +58,7 @@ Off by default and only available while AI Coach is on (Settings → AI Habit Co
 | Notification | Id |
 | --- | --- |
 | Task reminder | `taskId` |
-| Missed task | `taskId * 10 + 3` (replaces the reminder) |
+| Missed task | `taskId` with tag `missed` (Day 28; `taskId * 10 + 3` collided with other tasks' reminders) |
 | Reminder group summary | `900001` |
 | AI Coach insight ready | `900002` |
 | Action / snooze request codes | `taskId * 10 + 1` (yes), `+ 2` (not yet), `+ 4` (snooze) |
@@ -80,4 +81,4 @@ Off by default and only available while AI Coach is on (Settings → AI Habit Co
 ## Known gaps
 
 - `pq_progress` has no sender yet (planned streak-at-risk evening nudge).
-- AI insights were verified against live Gemini (`gemini-2.5-flash`) on 3 Oct 2026. The daily AI reminder-message pack has not been observed live yet; it runs once a day from `EncouragementPackWorker`.
+- AI insights and the daily AI reminder-message pack were verified against live Gemini (`gemini-2.5-flash`) on 3 Oct 2026: the pack held five lines in the gamified tone, and a reminder ended with one of them.

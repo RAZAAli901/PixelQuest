@@ -665,6 +665,12 @@ Following full-screen application of Comic mode across all primary application s
 - **Fonts**: Screens use `MaterialTheme.typography`, never `PixelTypography` directly, so Comic gets Bangers and sans. In Pixel and Light the theme's typography is `PixelTypography`, so they are unchanged. `PixelTypography` remains only inside Pixel/Light-only code paths.
 - **Dialogs**: Reset and restore confirmations use `PixelConfirmDialog`, which draws the Comic dialog in Comic.
 
+### 13.7 Coral Ink for Text on Paper (Day 28)
+- **`primaryText`**: Every colour scheme has `primaryText`, the primary colour for text on `background` or `surface` (headings, labels, links). Pixel and Light return `primary`, so they are unchanged. Comic returns `ComicTokens.CoralInk` (`#C8372C`): 4.9:1 on paper, 5.2:1 on white and 4.5:1 on the surface variant. The brand coral `#FF5A4E` stays for fills (buttons, progress, the selected tab) but is only 2.9:1 as text on paper.
+- **Which to use**: text on paper or a white panel uses `colors.primaryText`; text on a coloured panel uses `inkOnPanel(...)` (black in Comic); fills, borders and indicators keep `colors.primary`.
+- **Animated themes**: `DynamicAnimatedColorScheme` cross-fades `primaryText` with the other tokens.
+- `ComicInkContrastTest` checks the coral ink on paper, white and the surface variant.
+
 ## 14. Master Multi-Theme Specification: Pixel vs. Light vs. Comic Reference Matrix
 
 With the conclusion of Day 23, the PixelQuest multi-theme system is **feature-complete**. The application natively supports three first-class, fully-realized visual design systems:
@@ -676,7 +682,7 @@ With the conclusion of Day 23, the PixelQuest multi-theme system is **feature-co
 | **Core Inspiration** | Classic 1980s 8-bit CRT arcade | High-contrast cartridge manuals | Nitnode pop-art graphic novels |
 | **Canvas Background**| Deep slate navy (`#12121E`) | Warm cartridge ivory (`#F8F6F0`) | Warm printed paper (`#FAF8F5`) |
 | **Surface Cards** | Dark retro indigo (`#1A1A2E`) | Crisp daylight white (`#FFFFFF`) | High-contrast panel white (`#FFFFFF`) |
-| **Primary Accent** | Radiant pixel gold (`#FFD700`) | Amber dungeon gold (`#B45309`) | Dynamic coral red (`#FF5A4E`) |
+| **Primary Accent** | Radiant pixel gold (`#FFD700`) | Amber dungeon gold (`#B45309`) | Dynamic coral red (`#FF5A4E`); text on paper uses coral ink (`#C8372C`) |
 | **Secondary Accent**| Electric cyan (`#00E5FF`) | Arcade daylight sky (`#0284C7`) | Signature sky blue (`#8ECAE6`) |
 | **Tertiary Accent** | Quest meadow green (`#00E676`) | Forest quest green (`#15803D`) | Lavender container (`#BDB2FF`) |
 | **Quaternary Accent**| Dungeon boss red (`#FF5252`) | Crimson alert red (`#DC2626`) | Burnt orange container (`#F0A868`) |
