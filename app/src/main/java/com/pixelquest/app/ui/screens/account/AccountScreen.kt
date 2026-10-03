@@ -119,7 +119,7 @@ fun AccountContent(
                     Text(
                         text = "☁️ CLOUD & LEADERBOARD",
                         style = MaterialTheme.typography.titleMedium,
-                        color = colors.primary,
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                         textAlign = TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -146,7 +146,7 @@ fun AccountContent(
                         Text(
                             text = "🏆 JOIN THE LEADERBOARD",
                             style = MaterialTheme.typography.titleSmall,
-                            color = colors.primary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             textAlign = TextAlign.Center
                         )
                         Text(
@@ -202,7 +202,7 @@ fun AccountContent(
                         Text(
                             text = "🛡️ LINKED CLOUD ACCOUNT",
                             style = MaterialTheme.typography.titleSmall,
-                            color = colors.primary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             textAlign = TextAlign.Center
                         )
                         Text(
@@ -213,7 +213,7 @@ fun AccountContent(
                         Text(
                             text = user.email ?: user.displayName ?: "Hero",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = colors.primary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             textAlign = TextAlign.Center
                         )
                         Text(
@@ -244,7 +244,7 @@ fun AccountContent(
                         Text(
                             text = "🏆 LEADERBOARD PARTICIPATION",
                             style = MaterialTheme.typography.titleSmall,
-                            color = colors.primary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             textAlign = TextAlign.Center
                         )
                         val optInStatusText = if (accountState.isOptedIn) {
@@ -255,7 +255,7 @@ fun AccountContent(
                         Text(
                             text = optInStatusText,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = if (accountState.isOptedIn) colors.tertiary else colors.primary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(if (accountState.isOptedIn) colors.tertiary else colors.primary),
                             textAlign = TextAlign.Center
                         )
                         com.pixelquest.app.ui.components.PixelTextField(
@@ -283,7 +283,7 @@ fun AccountContent(
                         Text(
                             text = "📋 Note: When Simple Mode is active, your habit completions, streaks, and XP points are still tracked in the background and accurately reflected on the global leaderboard.",
                             style = MaterialTheme.typography.bodySmall,
-                            color = colors.secondary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(4.dp))
@@ -310,7 +310,7 @@ fun AccountContent(
                             Text(
                                 text = "☁️ CLOUD SYNCHRONIZATION",
                                 style = MaterialTheme.typography.titleSmall,
-                                color = colors.primary,
+                                color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                                 textAlign = TextAlign.Center
                             )
                             if (accountState.lastSyncTime != null) {
@@ -326,7 +326,7 @@ fun AccountContent(
                                 Text(
                                     text = "☁️⚠️ Cloud sync currently unavailable (retrying in background) — local progress is safe",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = colors.primary,
+                                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                                     textAlign = TextAlign.Center
                                 )
                             }
@@ -335,9 +335,9 @@ fun AccountContent(
                                     text = accountState.syncMessage,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = if (accountState.syncMessage.contains("successful", ignoreCase = true)) {
-                                        colors.tertiary
+                                        com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
                                     } else {
-                                        colors.primary
+                                        com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
                                     },
                                     textAlign = TextAlign.Center
                                 )
@@ -372,7 +372,7 @@ fun AccountContent(
                         Text(
                             text = "🛡️ CLOUD DATA & PRIVACY",
                             style = MaterialTheme.typography.titleSmall,
-                            color = colors.primary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             textAlign = TextAlign.Center
                         )
                         Text(
@@ -496,7 +496,7 @@ fun PrivacyPolicyDialog(
             Text(
                 text = "🛡️ 100% LOCAL-FIRST OPERATION",
                 style = MaterialTheme.typography.titleSmall,
-                color = colors.primary
+                color = colors.primaryText
             )
             Text(
                 text = "By default, all your quests, schedule times, recurrence rules, completion logs, and streak history are stored strictly on your local device. We never run third-party advertising SDKs or tracking telemetry.",
@@ -506,7 +506,7 @@ fun PrivacyPolicyDialog(
             Text(
                 text = "🏆 OPTIONAL CLOUD LEADERBOARD",
                 style = MaterialTheme.typography.titleSmall,
-                color = colors.primary
+                color = colors.primaryText
             )
             Text(
                 text = "Leaderboard participation defaults to OFF. If you choose to sign in with Google and opt in, only your public display name, level, streak, and XP are synchronized. Your individual quest descriptions and Google email are NEVER shared.",
@@ -516,7 +516,7 @@ fun PrivacyPolicyDialog(
             Text(
                 text = "🗑️ RIGHT TO ERASE",
                 style = MaterialTheme.typography.titleSmall,
-                color = colors.primary
+                color = colors.primaryText
             )
             Text(
                 text = "You can leave the leaderboard at any time, or permanently delete your cloud account and public record with one tap from this screen. Local progress remains safe on your device.",
