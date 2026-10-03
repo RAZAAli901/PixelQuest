@@ -18,17 +18,26 @@ import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.Duration
+import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,7 +53,27 @@ class TodayViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository? = null
 ) : ViewModel() {
 
-    private val currentDate: LocalDate = LocalDate.now()
+    private val refreshRequests = MutableStateFlow(0)
+
+    /** Emits now, then at the start of every minute, while the screen is collecting. */
+    private val minuteTicks = flow {
+        while (true) {
+            val now = LocalDateTime.now()
+            emit(now)
+            delay(Duration.between(now, now.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1)).toMillis())
+        }
+    }
+
+    /**
+     * The time the screen is drawn for. It moves on every minute and on [refresh], so the list
+     * switches to the new day at midnight even if the app stayed open, and pending quests turn
+     * into grace-period ones as their time passes.
+     */
+    private val clock: StateFlow<LocalDateTime> = combine(minuteTicks, refreshRequests) { _, _ -> LocalDateTime.now() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LocalDateTime.now())
+
+    /** The day the screen shows, which completing and skipping record against. */
+    private val currentDate: LocalDate get() = clock.value.toLocalDate()
 
     private val _quickCompleteFlourishEvent = MutableStateFlow<Boolean?>(null)
     val quickCompleteFlourishEvent: StateFlow<Boolean?> = _quickCompleteFlourishEvent.asStateFlow()
@@ -53,22 +82,29 @@ class TodayViewModel @Inject constructor(
         _quickCompleteFlourishEvent.value = null
     }
 
-    val uiState: StateFlow<TodayUiState> = combine(
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val dayData = clock.map { it.toLocalDate() }.distinctUntilChanged().flatMapLatest { date ->
         combine(
-            taskRepository.getTasksForDay(currentDate),
-            taskCompletionRepository.getLogsForDate(currentDate),
+            taskRepository.getTasksForDay(date),
+            taskCompletionRepository.getLogsForDate(date),
             streakRepository.getCurrentStreak()
-        ) { tasks, logs, streak -> Triple(tasks, logs, streak) },
+        ) { tasks, logs, streak -> DayData(date, tasks, logs, streak) }
+    }
+
+    val uiState: StateFlow<TodayUiState> = combine(
+        dayData,
         combine(
             userProfileRepository.getProfile(),
             difficultySettingsRepository.getCurrentDifficulty(),
             settingsRepository?.simpleModeEnabled ?: flowOf(false)
-        ) { profile, difficulty, simpleMode -> Triple(profile, difficulty, simpleMode) }
-    ) { (tasks, logs, streak), (profile, difficulty, isSimpleMode) ->
+        ) { profile, difficulty, simpleMode -> Triple(profile, difficulty, simpleMode) },
+        clock
+    ) { (date, tasks, logs, streak), (profile, difficulty, isSimpleMode), now ->
         val logMap = logs.associateBy { it.taskId }
         val items = tasks.map { task ->
             val log = logMap[task.id]
-            val nowTime = LocalTime.now()
+            // A day still on screen after midnight (until the next tick) counts as fully past.
+            val nowTime = if (now.toLocalDate() == date) now.toLocalTime() else LocalTime.MAX
             val status = when {
                 log?.wasCompleted == true -> TaskItemStatus.DONE
                 log?.wasCompleted == false -> TaskItemStatus.MISSED
@@ -95,7 +131,7 @@ class TodayViewModel @Inject constructor(
             taskCount = totalCount,
             completedCount = completedCount,
             isPerfectDay = isPerfectDay,
-            date = currentDate,
+            date = date,
             isSimpleMode = isSimpleMode
         )
 
@@ -145,9 +181,9 @@ class TodayViewModel @Inject constructor(
         }
     }
 
+    /** Re-reads the clock: the REFRESH button, and returning to the app, can move to a new day. */
     fun refresh() {
-        // StateFlow combined from Room repositories automatically emits on DB changes.
-        // Explicit refresh hook provided for manual user pull/tap refresh.
+        refreshRequests.value++
     }
 
     fun skipTask(task: TaskEntity) {
@@ -159,3 +195,10 @@ class TodayViewModel @Inject constructor(
         }
     }
 }
+
+private data class DayData(
+    val date: LocalDate,
+    val tasks: List<TaskEntity>,
+    val logs: List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>,
+    val streak: StreakEntity?
+)
