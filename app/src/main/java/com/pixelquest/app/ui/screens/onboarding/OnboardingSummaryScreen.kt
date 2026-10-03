@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +26,6 @@ import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun OnboardingSummaryScreen(
@@ -53,13 +53,13 @@ fun OnboardingSummaryScreen(
         ) {
             Text(
                 text = "📜 HERO SUMMARY",
-                style = PixelTypography.titleLarge,
+                style = MaterialTheme.typography.titleLarge,
                 color = colors.primary,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Review your character choices before starting your adventure.",
-                style = PixelTypography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurface,
                 textAlign = TextAlign.Center
             )
@@ -83,24 +83,24 @@ fun OnboardingSummaryScreen(
                 ) {
                     Text(
                         text = username.uppercase(),
-                        style = PixelTypography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium,
                         color = colors.primary
                     )
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "AVATAR:", style = PixelTypography.bodySmall, color = colors.onSurface)
-                        Text(text = avatarId, style = PixelTypography.bodySmall, color = colors.tertiary)
+                        Text(text = "AVATAR:", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
+                        Text(text = avatarId, style = MaterialTheme.typography.bodySmall, color = colors.tertiary)
                     }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "DIFFICULTY:", style = PixelTypography.bodySmall, color = colors.onSurface)
+                        Text(text = "DIFFICULTY:", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         Text(
                             text = DifficultyMode.getDisplayName(difficultyLevel).uppercase(),
-                            style = PixelTypography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = colors.secondary
                         )
                     }
@@ -108,9 +108,9 @@ fun OnboardingSummaryScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "PERFECT DAY:", style = PixelTypography.bodySmall, color = colors.onSurface)
+                        Text(text = "PERFECT DAY:", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         val pct = (DifficultyMode.getPerfectDayThreshold(difficultyLevel) * 100).toInt()
-                        Text(text = "$pct%", style = PixelTypography.bodySmall, color = colors.primary)
+                        Text(text = "$pct%", style = MaterialTheme.typography.bodySmall, color = colors.primary)
                     }
                 }
             }
