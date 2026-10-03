@@ -121,13 +121,13 @@ fun PixelDifficultyCards(
                         Text(
                             text = DifficultyMode.getDisplayName(level).uppercase(),
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (isSelected) colors.primary else colors.onSurface
+                            color = if (isSelected) com.pixelquest.app.ui.theme.inkOnPanel(colors.primary) else colors.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Perfect Day: $thresholdPct% completed",
                             style = MaterialTheme.typography.bodySmall,
-                            color = if (isSelected) colors.secondary else colors.onSurfaceVariant
+                            color = if (isSelected) com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary) else colors.onSurfaceVariant
                         )
                         Text(
                             text = "Days per Level: $daysReq days",
@@ -139,7 +139,7 @@ fun PixelDifficultyCards(
                         Text(
                             text = "ACTIVE",
                             style = MaterialTheme.typography.labelMedium,
-                            color = colors.primary
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
                         )
                     }
                 }
