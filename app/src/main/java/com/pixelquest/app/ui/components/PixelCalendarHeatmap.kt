@@ -1,6 +1,7 @@
 package com.pixelquest.app.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -156,18 +157,22 @@ fun PixelCalendarHeatmap(
             val legendMode = PixelTheme.mode
             HeatmapLegendItem(
                 color = HeatmapColorMapper.getCellColor(DailyStatus.PERFECT, legendMode),
+                borderColor = HeatmapColorMapper.getBorderColor(DailyStatus.PERFECT, legendMode),
                 label = if (isSimpleMode) "Completed" else "Perfect Day"
             )
             HeatmapLegendItem(
                 color = HeatmapColorMapper.getCellColor(DailyStatus.PARTIAL, legendMode),
+                borderColor = HeatmapColorMapper.getBorderColor(DailyStatus.PARTIAL, legendMode),
                 label = "Partial"
             )
             HeatmapLegendItem(
                 color = HeatmapColorMapper.getCellColor(DailyStatus.MISSED, legendMode),
+                borderColor = HeatmapColorMapper.getBorderColor(DailyStatus.MISSED, legendMode),
                 label = "Missed"
             )
             HeatmapLegendItem(
                 color = HeatmapColorMapper.getCellColor(DailyStatus.NO_TASKS_SCHEDULED, legendMode),
+                borderColor = HeatmapColorMapper.getBorderColor(DailyStatus.NO_TASKS_SCHEDULED, legendMode),
                 label = if (isSimpleMode) "No Tasks" else "No Quests"
             )
         }
@@ -177,7 +182,8 @@ fun PixelCalendarHeatmap(
 @Composable
 private fun HeatmapLegendItem(
     color: androidx.compose.ui.graphics.Color,
-    label: String
+    label: String,
+    borderColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Transparent
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -187,6 +193,7 @@ private fun HeatmapLegendItem(
             modifier = Modifier
                 .size(8.dp)
                 .background(color)
+                .border(1.dp, borderColor)
         )
         Text(
             text = label,
