@@ -31,4 +31,4 @@ The `profiles` table stores cloud-synchronized leaderboard profiles for PixelQue
 - `id` breaks exact ties, so every hero has a distinct position and the same position in every page.
 - **Your rank** is 1 + the number of opted-in rows ordered ahead of you: higher first column, or equal first and higher second, or equal on both with a smaller `id`. The counts fetch only `id`.
 - **Around you**: the app fetches the same ordered list with `range(rank - 1 - 3, rank - 1 + 3)`, which gives up to 3 heroes above you, you, and up to 3 below.
-- No indexes exist on the sort columns yet; add them if the table grows large.
+- **Indexes** (`20261003000000_leaderboard_sort_indexes.sql`): one per order, matching its columns and directions, partial on `leaderboard_opt_in = TRUE`. Apply it in the Supabase SQL editor or with `supabase db push`; the app works without it, only slower on a large table.
