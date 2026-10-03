@@ -13,9 +13,12 @@ import com.pixelquest.app.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
+import com.pixelquest.app.util.todayFlow
 import javax.inject.Inject
 
 data class StatsUiState(
@@ -59,8 +62,16 @@ class StatsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository? = null
 ) : ViewModel() {
 
-    private val startDate = LocalDate.now().minusMonths(3)
-    private val endDate = LocalDate.now()
+    /** The last 3 months up to today; moves on at midnight (see [todayFlow]). */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val rangeData = todayFlow().flatMapLatest { today ->
+        val startDate = today.minusMonths(3)
+        combine(
+            statsRepository.getCompletionRateOverRange(startDate, today),
+            statsRepository.getDailyStatusForRange(startDate, today),
+            settingsRepository?.simpleModeEnabled ?: flowOf(false)
+        ) { rate, dailyStatusMap, isSimpleMode -> RangeData(today, rate, dailyStatusMap, isSimpleMode) }
+    }
 
     val uiState: StateFlow<StatsUiState> = combine(
         combine(
@@ -68,13 +79,9 @@ class StatsViewModel @Inject constructor(
             userProfileRepository.getProfile(),
             difficultySettingsRepository.getCurrentDifficulty()
         ) { streak, profile, difficulty -> Triple(streak, profile, difficulty) },
-        combine(
-            statsRepository.getCompletionRateOverRange(startDate, endDate),
-            statsRepository.getDailyStatusForRange(startDate, endDate),
-            settingsRepository?.simpleModeEnabled ?: flowOf(false)
-        ) { rate, dailyStatusMap, isSimpleMode -> Triple(rate, dailyStatusMap, isSimpleMode) }
-    ) { (streak, profile, difficulty), (rate, dailyStatusMap, isSimpleMode) ->
-        val weeklyTrend = StatsDataBucketer.calculateWeeklyBuckets(dailyStatusMap)
+        rangeData
+    ) { (streak, profile, difficulty), (today, rate, dailyStatusMap, isSimpleMode) ->
+        val weeklyTrend = StatsDataBucketer.calculateWeeklyBuckets(dailyStatusMap, today)
         StatsUiState(
             currentStreak = streak?.currentStreak ?: 0,
             longestStreak = streak?.longestStreak ?: 0,
@@ -91,3 +98,10 @@ class StatsViewModel @Inject constructor(
         initialValue = StatsUiState()
     )
 }
+
+private data class RangeData(
+    val today: LocalDate,
+    val completionRate: Float,
+    val dailyStatus: Map<LocalDate, DailyStatus>,
+    val isSimpleMode: Boolean
+)
