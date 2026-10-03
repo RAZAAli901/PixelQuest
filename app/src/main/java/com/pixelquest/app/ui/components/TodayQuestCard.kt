@@ -15,6 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.data.local.entity.TaskEntity
@@ -58,20 +61,30 @@ fun TodayQuestCard(
         contentPadding = 12.dp,
         modifier = modifier
             .fillMaxWidth()
+            // Swipe right to complete, left to skip (which asks first). The card follows the finger.
+            .offset { androidx.compose.ui.unit.IntOffset(offsetX.toInt(), 0) }
             .pointerInput(isDone, isMissed) {
                 if (!isDone && !isMissed) {
                     detectHorizontalDragGestures(
                         onDragEnd = {
-                            if (offsetX > 150f) {
-                                onQuickComplete()
+                            when {
+                                offsetX > 150f -> onQuickComplete()
+                                offsetX < -150f -> onQuickSkip()
                             }
                             offsetX = 0f
                         },
+                        onDragCancel = { offsetX = 0f },
                         onHorizontalDrag = { _, dragAmount ->
-                            if (dragAmount > 0) {
-                                offsetX = (offsetX + dragAmount).coerceAtMost(300f)
-                            }
+                            offsetX = (offsetX + dragAmount).coerceIn(-300f, 300f)
                         }
+                    )
+                }
+            }
+            .semantics {
+                if (isActivePending) {
+                    customActions = listOf(
+                        androidx.compose.ui.semantics.CustomAccessibilityAction("Complete") { onQuickComplete(); true },
+                        androidx.compose.ui.semantics.CustomAccessibilityAction("Skip") { onQuickSkip(); true }
                     )
                 }
             }
