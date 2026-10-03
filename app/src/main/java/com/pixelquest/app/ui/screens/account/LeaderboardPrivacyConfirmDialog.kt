@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,7 +15,6 @@ import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelDialog
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 /**
  * Confirmation dialog shown before enabling public leaderboard participation.
@@ -40,22 +40,22 @@ fun LeaderboardPrivacyConfirmDialog(
         ) {
             Text(
                 text = "The following will become publicly visible to other players:",
-                style = PixelTypography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = colors.primary
             )
             Text(
                 text = "• Display Name: \"$displayName\"",
-                style = PixelTypography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = colors.tertiary
             )
             Text(
                 text = "• Current & Longest Streaks",
-                style = PixelTypography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurface
             )
             Text(
                 text = "• Current Level & Total XP",
-                style = PixelTypography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurface
             )
 
@@ -63,12 +63,12 @@ fun LeaderboardPrivacyConfirmDialog(
 
             Text(
                 text = "🛡️ PRIVACY GUARANTEE:",
-                style = PixelTypography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = colors.primary
             )
             Text(
                 text = "Your Google email, real name, profile photo, and personal quest titles remain strictly private and will never be exposed.",
-                style = PixelTypography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurface
             )
 
