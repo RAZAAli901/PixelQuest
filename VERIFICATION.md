@@ -378,3 +378,35 @@ Test data added for these checks (3 days of completion history and a weekly test
 #### Not verified
 - The AROUND YOU list with real players: the emulator is not signed in. It is covered by `PlayersAroundYouTest` and `LeaderboardAroundYouUiTest`.
 - Onboarding in Comic: checking it needs a fresh install, which would wipe the emulator's data.
+
+## Section G -- Day 28 Verification (Step 58)
+
+Verified on 3 Oct 2026 against the Pixel 6 emulator (Android 14, API 34) and the local Gradle build.
+
+### Build
+- `./gradlew :app:assembleDebug` succeeds.
+
+### Unit tests (`:app:testDebugUnitTest`)
+- 471 tests (33 new), 28 failing. The 28 are the same tests that failed at the end of Day 27; none are new. They pre-date Day 27 and are left for Day 29 with the quarantined files.
+- New tests: `Migration6To7Test` (4), `TaskResultRecorderTest` (5), `DayOutcomeTest` (4), `StreakCatchUpTest` (5), `StatsScheduledTasksOnlyTest` (3), `ProgressResetTest` (2), `CloudDeletionResultTest` (3), `RecentConsistencyWindowTest` (2), `BackupRoundTripTest` (3), and 2 coral-ink cases in `ComicInkContrastTest`. One `SyncConflictResolverTest` case now expects a broken streak to sync.
+
+### Emulator checks (Comic)
+| Check | Result |
+| --- | --- |
+| Upgrade from database v6 with duplicate logs (task 1: missed, done, done; task 2: missed, missed) leaves one log per task and day, the completed one where there is one, and the unique index (MIGRATION_6_7) | Pass |
+| Today, Edit Quest, onboarding and Settings headings use the darker coral ink | Pass |
+| A missed quest shows a DONE button; tapping it twice records it once and adds 50 XP once | Pass |
+| Swiping a pending quest left opens the skip dialog (its button said DELETE; fixed in Step 53) | Pass |
+| Onboarding in Comic (opened by setting the onboarding flag, not by a reinstall): headings in coral ink, feature titles and summary values in black, summary shows MAGE, not avatar_mage | Pass |
+| System back on the onboarding summary goes to Difficulty, then Avatar; the app stays open | Pass |
+| AI reminder messages on: one live Gemini call stored five gamified lines for today | Pass |
+| A reminder for an unfinished quest ends with one of those lines and shows "2 of 3 quests done today" | Pass |
+| A reminder for a quest already done today is not posted | Pass |
+| "Not yet" dismisses the reminder and records nothing; "Yes" sent twice records one completion and 50 XP | Pass |
+
+Test data was removed afterwards: the completion logs and XP were put back as they were, the onboarding flag restored, and AI reminder messages turned off again.
+
+### Not verified
+- The AROUND YOU list with real players (the emulator is not signed in) and the new Supabase indexes, which are a migration file still to be applied to the live project.
+- Midnight rollover on a device: covered by code review; Today, Stats and Tasks now read the date from a ticking flow.
+- The Pixel and Light themes on a device: `primaryText` equals `primary` there, which `ComicInkContrastTest` checks.
