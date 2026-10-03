@@ -74,7 +74,8 @@ object HabitInsightPromptBuilder {
         streak: StreakEntity?,
         profile: UserProfileEntity?,
         tasks: List<TaskEntity>,
-        logs: List<TaskCompletionLogEntity>
+        logs: List<TaskCompletionLogEntity>,
+        today: java.time.LocalDate = java.time.LocalDate.now()
     ): HabitTelemetrySummary {
         val currentStreak = streak?.currentStreak ?: 0
         val longestStreak = streak?.longestStreak ?: 0
@@ -111,8 +112,10 @@ object HabitInsightPromptBuilder {
             )
         }
 
-        val totalLogs = logs.size
-        val completedLogs = logs.count { it.wasCompleted }
+        // "Recent Consistency" is the last 7 days (today and the 6 before); categories stay all-time.
+        val recentLogs = logs.filter { !it.completedDate.isBefore(today.minusDays(6)) && !it.completedDate.isAfter(today) }
+        val totalLogs = recentLogs.size
+        val completedLogs = recentLogs.count { it.wasCompleted }
         val completionRate = if (totalLogs > 0) completedLogs.toFloat() / totalLogs else 0f
         val missedCount = totalLogs - completedLogs
 
