@@ -10,9 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextMuted
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun EmptyTodayState(
@@ -33,19 +31,20 @@ fun EmptyTodayState(
         ) {
             Text(
                 text = if (isSimpleMode) "📋" else "🏰",
-                style = PixelTypography.displayMedium
+                style = MaterialTheme.typography.displayMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = terminology.emptyStateTitle,
-                style = PixelTypography.titleMedium,
-                color = if (isSimpleMode) colors.primary else PixelGold
+                style = MaterialTheme.typography.titleMedium,
+                // Theme roles: Pixel gold as before, Light amber, Comic black ink on the white panel.
+                color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = terminology.emptyStateSubtitle,
-                style = PixelTypography.bodyMedium,
-                color = PixelTextMuted
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(16.dp))
             PixelButton(
