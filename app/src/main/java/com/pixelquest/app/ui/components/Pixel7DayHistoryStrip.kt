@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +21,6 @@ import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelGreen
 import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTextMuted
-import com.pixelquest.app.ui.theme.PixelTypography
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -39,7 +39,7 @@ fun Pixel7DayHistoryStrip(
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "📅 RECENT 7-DAY HISTORY",
-                style = PixelTypography.titleMedium,
+                style = MaterialTheme.typography.titleMedium,
                 color = PixelGold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -63,14 +63,14 @@ fun Pixel7DayHistoryStrip(
                         ) {
                             Text(
                                 text = if (isPerfect) "✓" else "✕",
-                                style = PixelTypography.labelMedium,
+                                style = MaterialTheme.typography.labelMedium,
                                 color = PixelGold
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = date.format(dayFormatter).uppercase(),
-                            style = PixelTypography.labelSmall,
+                            style = MaterialTheme.typography.labelSmall,
                             color = PixelTextMuted
                         )
                     }

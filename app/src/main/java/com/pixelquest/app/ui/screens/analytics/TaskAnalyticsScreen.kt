@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,7 +28,6 @@ import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelStatCard
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun TaskAnalyticsContent(
@@ -55,7 +55,7 @@ fun TaskAnalyticsContent(
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = "QUEST ANALYTICS",
-                style = PixelTypography.titleMedium,
+                style = MaterialTheme.typography.titleMedium,
                 color = colors.primary
             )
         }
@@ -77,12 +77,12 @@ fun TaskAnalyticsContent(
                     Column {
                         Text(
                             text = task.name.uppercase(),
-                            style = PixelTypography.titleLarge,
+                            style = MaterialTheme.typography.titleLarge,
                             color = colors.onSurface
                         )
                         Text(
                             text = task.category.displayName,
-                            style = PixelTypography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = colors.onSurfaceVariant
                         )
                     }
