@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.domain.AvatarCatalog
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.ui.components.PixelAvatarFrame
@@ -91,7 +92,7 @@ fun OnboardingSummaryScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = "AVATAR:", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
-                        Text(text = avatarId, style = MaterialTheme.typography.bodySmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary))
+                        Text(text = AvatarCatalog.getAvatarById(avatarId).name.uppercase(), style = MaterialTheme.typography.bodySmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary))
                     }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
