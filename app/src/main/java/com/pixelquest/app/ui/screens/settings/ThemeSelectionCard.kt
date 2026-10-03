@@ -228,14 +228,3 @@ fun ThemeOptionRow(
         )
     }
 }
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, backgroundColor = 0xFF12121E)
-@Composable
-fun ThemeSelectionCardPreview() {
-    com.pixelquest.app.ui.theme.PixelQuestTheme {
-        ThemeSelectionCard(
-            currentTheme = ThemeMode.Pixel,
-            onThemeSelected = {}
-        )
-    }
-}
