@@ -36,7 +36,8 @@ data class DynamicAnimatedColorScheme(
     override val accentPurple: Color,
     override val gold: Color,
     override val pixelBorder: Color,
-    override val isDark: Boolean
+    override val isDark: Boolean,
+    override val primaryText: Color = primary
 ) : AppColorScheme {
     override fun toMaterialColorScheme(): ColorScheme {
         return if (isDark) {
@@ -115,6 +116,7 @@ fun rememberAnimatedAppColorScheme(
     val accentPurple by animateColorAsState(targetScheme.accentPurple, animationSpec, label = "theme_accentPurple")
     val gold by animateColorAsState(targetScheme.gold, animationSpec, label = "theme_gold")
     val pixelBorder by animateColorAsState(targetScheme.pixelBorder, animationSpec, label = "theme_pixelBorder")
+    val primaryText by animateColorAsState(targetScheme.primaryText, animationSpec, label = "theme_primaryText")
 
     return DynamicAnimatedColorScheme(
         themeMode = targetScheme.themeMode,
@@ -139,6 +141,7 @@ fun rememberAnimatedAppColorScheme(
         accentPurple = accentPurple,
         gold = gold,
         pixelBorder = pixelBorder,
-        isDark = targetScheme.isDark
+        isDark = targetScheme.isDark,
+        primaryText = primaryText
     )
 }

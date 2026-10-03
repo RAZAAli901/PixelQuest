@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.Color
  */
 object ComicTokens {
     val CoralRed = Color(0xFFFF5A4E)
+    /** Darker coral for text on paper and white: 4.9:1 on paper, 5.2:1 on white (CoralRed is 2.9:1). */
+    val CoralInk = Color(0xFFC8372C)
     val BurntOrange = Color(0xFFF0A868)
     val SkyBlue = Color(0xFF8ECAE6)
     val Lavender = Color(0xFFB8A4D4)
@@ -72,6 +74,7 @@ data class ComicColorScheme(
     override val gold: Color = ComicTokens.GoldAccent,
     override val pixelBorder: Color = ComicTokens.SolidBlack,
     override val isDark: Boolean = false,
+    override val primaryText: Color = ComicTokens.CoralInk,
     // Direct accessors for Comic container variants
     val burntOrange: Color = ComicTokens.BurntOrange,
     val skyBlue: Color = ComicTokens.SkyBlue,

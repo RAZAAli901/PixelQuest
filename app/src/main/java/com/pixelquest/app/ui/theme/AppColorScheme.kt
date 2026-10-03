@@ -34,6 +34,12 @@ interface AppColorScheme {
     val pixelBorder: Color
     val isDark: Boolean
 
+    /**
+     * The primary colour for text drawn on [background] or [surface] (headings, labels, links).
+     * Same as [primary] except in Comic, whose coral-red is only 2.9:1 on paper and gets a darker ink.
+     */
+    val primaryText: Color get() = primary
+
     fun toMaterialColorScheme(): ColorScheme
 }
 
