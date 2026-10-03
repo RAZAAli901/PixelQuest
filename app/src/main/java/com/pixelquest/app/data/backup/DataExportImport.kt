@@ -2,6 +2,7 @@ package com.pixelquest.app.data.backup
 
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
+import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.domain.model.DifficultyLevel
@@ -18,7 +19,9 @@ data class BackupPayload(
     val userProfile: UserProfileEntity?,
     val difficultySettings: DifficultySettingsEntity?,
     val streak: StreakEntity?,
-    val tasks: List<TaskEntity>
+    val tasks: List<TaskEntity>,
+    /** Completion history (Day 28). Null for older backups, which had none: a restore keeps the current history. */
+    val logs: List<TaskCompletionLogEntity>? = null
 )
 
 object DataExportImport {
@@ -53,7 +56,8 @@ object DataExportImport {
                 put("id", streak.id)
                 put("currentStreak", streak.currentStreak)
                 put("longestStreak", streak.longestStreak)
-                put("lastCompletedDate", streak.lastCompletedDate.toString())
+                streak.lastCompletedDate?.let { put("lastCompletedDate", it.toString()) }
+                put("perfectDaysCount", streak.perfectDaysCount)
             }
             root.put("streak", sObj)
         }
@@ -77,6 +81,19 @@ object DataExportImport {
             tasksArray.put(tObj)
         }
         root.put("tasks", tasksArray)
+
+        payload.logs?.let { logs ->
+            val logsArray = JSONArray()
+            logs.forEach { log ->
+                logsArray.put(JSONObject().apply {
+                    put("taskId", log.taskId)
+                    put("completedDate", log.completedDate.toString())
+                    put("wasCompleted", log.wasCompleted)
+                    put("pointsAwarded", log.pointsAwarded)
+                })
+            }
+            root.put("logs", logsArray)
+        }
 
         return root.toString(2)
     }
@@ -116,13 +133,14 @@ object DataExportImport {
             val streak = if (root.has("streak") && !root.isNull("streak")) {
                 try {
                     val sObj = root.getJSONObject("streak")
-                    val dateStr = sObj.optString("lastCompletedDate", LocalDate.now().toString())
-                    val parsedDate = try { LocalDate.parse(dateStr) } catch (e: Exception) { LocalDate.now() }
+                    // Missing (never evaluated) stays null rather than becoming today.
+                    val parsedDate = try { LocalDate.parse(sObj.optString("lastCompletedDate")) } catch (e: Exception) { null }
                     StreakEntity(
                         id = sObj.optLong("id", 1),
                         currentStreak = sObj.optInt("currentStreak", 0),
                         longestStreak = sObj.optInt("longestStreak", 0),
-                        lastCompletedDate = parsedDate
+                        lastCompletedDate = parsedDate,
+                        perfectDaysCount = sObj.optInt("perfectDaysCount", 0)
                     )
                 } catch (e: Exception) { null }
             } else null
@@ -171,7 +189,21 @@ object DataExportImport {
                 } catch (e: Exception) { }
             }
 
-            BackupPayload(profile, difficulty, streak, tasks)
+            val logs = root.optJSONArray("logs")?.let { array ->
+                (0 until array.length()).mapNotNull { i ->
+                    try {
+                        val lObj = array.getJSONObject(i)
+                        TaskCompletionLogEntity(
+                            taskId = lObj.getLong("taskId"),
+                            completedDate = LocalDate.parse(lObj.getString("completedDate")),
+                            wasCompleted = lObj.optBoolean("wasCompleted", false),
+                            pointsAwarded = lObj.optInt("pointsAwarded", 0)
+                        )
+                    } catch (e: Exception) { null } // Skip a corrupted entry
+                }
+            }
+
+            BackupPayload(profile, difficulty, streak, tasks, logs)
         } catch (e: Exception) {
             android.util.Log.e("DataExportImport", "Failed to parse backup JSON, returning empty payload", e)
             BackupPayload(null, null, null, emptyList())

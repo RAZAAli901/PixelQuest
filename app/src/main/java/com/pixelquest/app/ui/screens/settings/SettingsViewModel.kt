@@ -61,7 +61,8 @@ class SettingsViewModel @Inject constructor(
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val taskRepository: TaskRepository,
     private val taskAlarmScheduler: TaskAlarmScheduler,
-    private val progressReset: com.pixelquest.app.data.local.ProgressReset
+    private val progressReset: com.pixelquest.app.data.local.ProgressReset,
+    private val backupRestorer: com.pixelquest.app.data.backup.BackupRestorer
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(
@@ -214,15 +215,8 @@ class SettingsViewModel @Inject constructor(
     fun exportBackupToUri(context: android.content.Context, uri: android.net.Uri) {
         viewModelScope.launch {
             try {
-                val profile = userProfileRepository.getProfile().first()
-                val difficulty = difficultySettingsRepository.getCurrentDifficulty().first()
-                val tasks = taskRepository.getAllTasks().first()
-                val payload = com.pixelquest.app.data.backup.BackupPayload(
-                    userProfile = profile,
-                    difficultySettings = difficulty,
-                    streak = null,
-                    tasks = tasks
-                )
+                // Includes the streak and completion history (the streak used to be left out).
+                val payload = backupRestorer.snapshot()
                 val json = com.pixelquest.app.data.backup.DataExportImport.exportToJson(payload)
                 context.contentResolver.openOutputStream(uri)?.use { os ->
                     os.write(json.toByteArray())
@@ -248,15 +242,7 @@ class SettingsViewModel @Inject constructor(
     fun confirmImport() {
         viewModelScope.launch {
             val payload = pendingImportPayload ?: return@launch
-            payload.userProfile?.let { userProfileRepository.insertProfile(it) }
-            payload.difficultySettings?.let { difficultySettingsRepository.insertSettings(it) }
-            if (payload.tasks.isNotEmpty()) {
-                val currentTasks = taskRepository.getAllTasks().first()
-                taskAlarmScheduler.cancelAllAlarms(currentTasks)
-                currentTasks.forEach { taskRepository.deleteTask(it) }
-                payload.tasks.forEach { taskRepository.insertTask(it) }
-                taskAlarmScheduler.rescheduleAllAlarms(payload.tasks)
-            }
+            backupRestorer.restore(payload)
             pendingImportPayload = null
             _showRestoreConfirmDialog.value = false
         }
