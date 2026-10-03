@@ -101,6 +101,11 @@ fun PixelBottomNavBar(
                     Image(
                         painter = painterResource(id = item.iconRes),
                         contentDescription = item.title,
+                        // Pixel keeps its gold art; Light tints it so it reads on the white bar.
+                        colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
+                            activeMode,
+                            if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.height(2.dp))
