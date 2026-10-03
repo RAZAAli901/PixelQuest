@@ -38,10 +38,10 @@ class TaskActionReceiver : BroadcastReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // Does nothing if the task already has today's result, e.g. completed in the app.
+                // "Not yet" records nothing: the task can still be done today, and the missed-task
+                // check marks it missed only once its time has well passed.
                 if (wasCompleted) {
                     taskResultRecorder.recordCompleted(taskId, LocalDate.now())
-                } else {
-                    taskResultRecorder.recordNotDone(taskId, LocalDate.now())
                 }
             } finally {
                 taskAlarmScheduler.clearReminder(taskId)

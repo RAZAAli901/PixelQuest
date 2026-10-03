@@ -42,6 +42,7 @@ class TaskPromptViewModel @Inject constructor(
     }
 
     private suspend fun record(taskId: Long, wasCompleted: Boolean) {
+        // "Not yet" records nothing, so the task can still be completed later today.
         if (wasCompleted) {
             // 0 when the task was already completed today; no XP pop-up then.
             val earnedXp = taskResultRecorder.recordCompleted(taskId, LocalDate.now())
@@ -49,8 +50,6 @@ class TaskPromptViewModel @Inject constructor(
             if (earnedXp > 0 && !isSimpleMode) {
                 _pointsAwardedTrigger.value = earnedXp
             }
-        } else {
-            taskResultRecorder.recordNotDone(taskId, LocalDate.now())
         }
         taskAlarmScheduler.clearReminder(taskId)
     }
