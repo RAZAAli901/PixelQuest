@@ -76,7 +76,7 @@ fun AiInsightScreenContent(
                             Text(
                                 text = "◀",
                                 style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                                color = colors.primary
+                                color = colors.primaryText
                             )
                         }
                     }

@@ -70,7 +70,7 @@ fun AiInsightCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "✦",
-                        color = colors.primary,
+                        color = colors.primaryText,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -82,7 +82,7 @@ fun AiInsightCard(
                             else -> "QUESTMASTER LOG"
                         },
                         style = typography.titleMedium,
-                        color = colors.primary,
+                        color = colors.primaryText,
                         fontWeight = FontWeight.Bold
                     )
                 }

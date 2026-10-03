@@ -192,7 +192,7 @@ fun ComicSuccessView(
                         text = if (uiState.isCached) "ARCHIVED TRANSMISSION" else "FRESH FROM HQ!",
                         fontFamily = BangersFontFamily,
                         fontSize = 14.sp,
-                        color = if (uiState.isCached) ComicTokens.SkyBlue else ComicTokens.CoralRed
+                        color = if (uiState.isCached) ComicTokens.SolidBlack else ComicTokens.CoralInk
                     )
                     Text(
                         text = formattedTime,
