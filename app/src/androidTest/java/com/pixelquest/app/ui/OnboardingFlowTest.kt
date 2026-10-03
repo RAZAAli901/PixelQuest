@@ -90,7 +90,7 @@ class OnboardingFlowTest {
 
         // 5. Summary Screen
         composeTestRule.onNodeWithText("HERO SUMMARY").assertIsDisplayed()
-        composeTestRule.onNodeWithText("BEGIN YOUR QUEST ▶").performClick()
+        composeTestRule.onNodeWithText("BEGIN QUEST ▶").performClick()
 
         assertTrue(onboardingCompleted)
         assertEquals("KnightArthur", username)
