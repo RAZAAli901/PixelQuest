@@ -44,7 +44,7 @@ fun AvatarSelectionScreen(
         Text(
             text = "🧙 CHOOSE AVATAR",
             style = MaterialTheme.typography.headlineMedium,
-            color = colors.primary,
+            color = colors.primaryText,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 

@@ -48,7 +48,7 @@ fun NotificationChannelLinks(modifier: Modifier = Modifier) {
                     Text(text = spec.displayName, style = MaterialTheme.typography.labelMedium, color = colors.onSurface)
                     Text(text = spec.description, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
                 }
-                Text(text = "›", style = MaterialTheme.typography.labelLarge, color = colors.primary)
+                Text(text = "›", style = MaterialTheme.typography.labelLarge, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
             }
         }
     }

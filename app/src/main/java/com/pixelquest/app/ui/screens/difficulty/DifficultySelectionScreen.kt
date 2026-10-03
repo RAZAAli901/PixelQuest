@@ -66,7 +66,7 @@ fun DifficultySelectionScreen(
             Text(
                 text = "🛡️ CHOOSE DIFFICULTY",
                 style = MaterialTheme.typography.titleLarge,
-                color = colors.primary
+                color = colors.primaryText
             )
             Text(
                 text = "Select a difficulty level to balance your quest requirements.",

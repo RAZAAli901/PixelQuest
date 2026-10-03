@@ -56,7 +56,7 @@ fun TaskAnalyticsContent(
             Text(
                 text = "QUEST ANALYTICS",
                 style = MaterialTheme.typography.titleMedium,
-                color = colors.primary
+                color = colors.primaryText
             )
         }
 

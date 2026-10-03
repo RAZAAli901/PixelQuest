@@ -120,7 +120,7 @@ fun EmptyHistoryState(modifier: Modifier = Modifier) {
         Text(
             text = "NO QUEST HISTORY",
             style = MaterialTheme.typography.titleMedium,
-            color = colors.primary
+            color = colors.primaryText
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -149,7 +149,7 @@ fun TaskHistoryScreen(
         Text(
             text = "📜 QUEST HISTORY LOG",
             style = MaterialTheme.typography.titleLarge,
-            color = colors.primary
+            color = colors.primaryText
         )
 
         Spacer(modifier = Modifier.height(16.dp))

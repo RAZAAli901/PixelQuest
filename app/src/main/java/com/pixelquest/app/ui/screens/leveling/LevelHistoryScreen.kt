@@ -61,7 +61,7 @@ fun LevelHistoryScreenContent(
         Text(
             text = "📜 LEVEL HISTORY",
             style = MaterialTheme.typography.titleLarge,
-            color = colors.primary
+            color = colors.primaryText
         )
 
         if (history.isEmpty()) {
@@ -113,7 +113,7 @@ fun LevelHistoryScreenContent(
                                 Text(
                                     text = "LEVEL ${entry.level}",
                                     style = MaterialTheme.typography.titleMedium,
-                                    color = colors.primary
+                                    color = colors.primaryText
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(

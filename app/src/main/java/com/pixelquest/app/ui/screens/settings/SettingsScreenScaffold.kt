@@ -45,7 +45,7 @@ fun SettingsScreenScaffold(
         Text(
             text = "⚙️ SETTINGS",
             style = MaterialTheme.typography.titleLarge,
-            color = colors.primary
+            color = colors.primaryText
         )
 
         // Account Section Card

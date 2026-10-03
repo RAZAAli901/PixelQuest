@@ -80,7 +80,7 @@ fun SettingsScreen(
             androidx.compose.material3.Text(
                 text = "CURRENT DIFFICULTY: ${diffName.uppercase()}",
                 style = MaterialTheme.typography.bodyMedium,
-                color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.primary)
             )
             PixelButton(
                 text = "🛡️ CHANGE DIFFICULTY",
@@ -226,7 +226,7 @@ fun SettingsScreen(
                 androidx.compose.material3.Text(
                     text = "FEATURE STATUS:",
                     style = MaterialTheme.typography.labelSmall,
-                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.primary)
                 )
                 androidx.compose.material3.Text(
                     text = if (state.isAiInsightsEnabled) "✨ ENABLED" else "🔒 DISABLED (OPT-IN)",
@@ -325,7 +325,7 @@ fun SettingsScreen(
                 androidx.compose.material3.Text(
                     text = "MODE STATUS:",
                     style = MaterialTheme.typography.labelSmall,
-                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.primary)
                 )
                 androidx.compose.material3.Text(
                     text = if (state.isSimpleModeEnabled) "✨ SIMPLE (ACTIVE)" else "⚔️ GAMIFIED (ACTIVE)",
