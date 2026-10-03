@@ -75,7 +75,7 @@ fun DidYouDoItScreen(
                 Text(
                     text = copy.headerTitle,
                     style = MaterialTheme.typography.displaySmall,
-                    color = colors.primary,
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))

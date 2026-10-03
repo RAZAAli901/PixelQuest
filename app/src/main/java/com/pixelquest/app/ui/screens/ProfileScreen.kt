@@ -91,7 +91,7 @@ fun ProfileContent(
         Text(
             text = if (state.isSimpleMode) "👤 USER PROFILE" else "👤 HERO PROFILE",
             style = MaterialTheme.typography.titleLarge,
-            color = colors.primary
+            color = colors.primaryText
         )
 
         if (state.isSimpleMode) {
@@ -109,7 +109,7 @@ fun ProfileContent(
                     Text(
                         text = "📋 SIMPLE MODE ACTIVE",
                         style = MaterialTheme.typography.labelSmall,
-                        color = colors.primary
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
                     )
                 }
             }

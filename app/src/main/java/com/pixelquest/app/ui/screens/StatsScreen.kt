@@ -71,7 +71,7 @@ fun StatsContent(
         Text(
             text = if (state.isSimpleMode) "📊 TASK STATISTICS" else "📊 HERO STATISTICS",
             style = MaterialTheme.typography.titleLarge,
-            color = colors.primary
+            color = colors.primaryText
         )
 
         // Core Metrics Grid (Streak cards hidden in Simple Mode)
@@ -172,7 +172,7 @@ fun StatsContent(
         Text(
             text = if (state.isSimpleMode) "📅 TASK ACTIVITY HEATMAP" else "📅 QUEST ACTIVITY HEATMAP",
             style = MaterialTheme.typography.titleMedium,
-            color = colors.primary
+            color = colors.primaryText
         )
         PixelCard(
             variant = PixelPanelVariant.BEIGE,
