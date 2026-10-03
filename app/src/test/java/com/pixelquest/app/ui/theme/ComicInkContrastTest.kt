@@ -53,6 +53,23 @@ class ComicInkContrastTest {
         assertTrue(contrast(ComicTokens.Lavender, ComicTokens.SkyBlue) < 2.0)
     }
 
+    @Test
+    fun coralInk_isReadableOnPaperWhiteAndSurfaceVariant() {
+        listOf(ComicTokens.PaperBackground, ComicTokens.PanelSurface, ComicTokens.SurfaceVariant).forEach {
+            assertTrue(contrast(ComicTokens.CoralInk, it) >= 4.5)
+        }
+        // The brand coral it replaces for text was below 3:1 on paper.
+        assertTrue(contrast(ComicTokens.CoralRed, ComicTokens.PaperBackground) < 3.0)
+    }
+
+    @Test
+    fun primaryText_isCoralInkInComicAndPrimaryElsewhere() {
+        assertEquals(ComicTokens.CoralInk, ComicColorScheme().primaryText)
+        assertEquals(ComicTokens.CoralRed, ComicColorScheme().primary)
+        assertEquals(DefaultPixelColorScheme.primary, DefaultPixelColorScheme.primaryText)
+        assertEquals(LightColorScheme().primary, LightColorScheme().primaryText)
+    }
+
     private fun inkIn(mode: ThemeMode, accent: Color): Color {
         var result = Color.Unspecified
         composeTestRule.setContent {
