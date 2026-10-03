@@ -4,14 +4,22 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 @Dao
 interface TaskCompletionLogDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    /** Returns -1 when the task already has a result for that day (see TaskResultRecorder). */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertLog(log: TaskCompletionLogEntity): Long
+
+    @Update
+    suspend fun updateLog(log: TaskCompletionLogEntity)
+
+    @Query("SELECT * FROM task_completion_logs WHERE taskId = :taskId AND completedDate = :date LIMIT 1")
+    suspend fun getLogForTaskOnDate(taskId: Long, date: LocalDate): TaskCompletionLogEntity?
 
     @Query("SELECT * FROM task_completion_logs WHERE completedDate = :date")
     fun getLogsForDate(date: LocalDate): Flow<List<TaskCompletionLogEntity>>

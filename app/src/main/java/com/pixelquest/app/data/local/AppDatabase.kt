@@ -30,7 +30,7 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         LevelHistoryEntity::class,
         InsightCacheEntity::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -98,6 +98,34 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL(
                     "UPDATE tasks SET weeklyDays = 1 << ((CAST(strftime('%w', scheduledDay) AS INTEGER) + 6) % 7) " +
                         "WHERE recurrenceType = 'WEEKLY'"
+                )
+            }
+        }
+
+        /**
+         * Day 28: one completion log per task per day. Duplicates (a double tap, or the reminder's
+         * "Yes" after completing in the app) are removed first, keeping a completed log over a missed
+         * one and the newest among equals, then a unique index stops new ones.
+         */
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    DELETE FROM task_completion_logs WHERE id NOT IN (
+                        SELECT COALESCE(
+                            (SELECT MAX(done.id) FROM task_completion_logs done
+                                WHERE done.taskId = l.taskId AND done.completedDate = l.completedDate
+                                AND done.wasCompleted = 1),
+                            MAX(l.id)
+                        )
+                        FROM task_completion_logs l
+                        GROUP BY l.taskId, l.completedDate
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS `index_task_completion_logs_taskId_completedDate` " +
+                        "ON `task_completion_logs` (`taskId`, `completedDate`)"
                 )
             }
         }
