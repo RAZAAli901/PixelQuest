@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.domain.model.DailyStatus
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -29,7 +29,7 @@ fun PixelTaskMiniHistory(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "📅 RECENT HISTORY (LAST 14 LOGS)",
-            style = PixelTypography.labelMedium,
+            style = MaterialTheme.typography.labelMedium,
             color = colors.primary
         )
 
@@ -49,7 +49,7 @@ fun PixelTaskMiniHistory(
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = date.format(dayFormatter),
-                        style = PixelTypography.labelSmall.copy(fontSize = 7.sp),
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 7.sp),
                         color = colors.secondary
                     )
                 }

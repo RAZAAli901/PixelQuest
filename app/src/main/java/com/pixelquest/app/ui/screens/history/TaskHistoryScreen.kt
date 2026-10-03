@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,7 +29,6 @@ import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -74,13 +74,13 @@ fun TaskHistoryListItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.taskName,
-                    style = PixelTypography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     color = colors.onSurface
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = item.completedDate.format(dateFormatter).uppercase(),
-                    style = PixelTypography.labelSmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = colors.onSurfaceVariant
                 )
             }
@@ -88,13 +88,13 @@ fun TaskHistoryListItem(
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = if (item.wasCompleted) "COMPLETED" else "MISSED",
-                    style = PixelTypography.labelSmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = if (item.wasCompleted) colors.tertiary else colors.error
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "+${item.pointsAwarded} XP",
-                    style = PixelTypography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium,
                     color = colors.gold
                 )
             }
@@ -114,18 +114,18 @@ fun EmptyHistoryState(modifier: Modifier = Modifier) {
     ) {
         Text(
             text = "📜",
-            style = PixelTypography.displayLarge
+            style = MaterialTheme.typography.displayLarge
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = "NO QUEST HISTORY",
-            style = PixelTypography.titleMedium,
+            style = MaterialTheme.typography.titleMedium,
             color = colors.primary
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Complete your daily quests to build your log history!",
-            style = PixelTypography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium,
             color = colors.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
@@ -148,7 +148,7 @@ fun TaskHistoryScreen(
     ) {
         Text(
             text = "📜 QUEST HISTORY LOG",
-            style = PixelTypography.titleLarge,
+            style = MaterialTheme.typography.titleLarge,
             color = colors.primary
         )
 
