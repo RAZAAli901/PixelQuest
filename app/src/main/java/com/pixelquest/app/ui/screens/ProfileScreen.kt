@@ -139,7 +139,7 @@ fun ProfileContent(
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                    color = colors.primary
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 if (!state.isSimpleMode) {
@@ -148,22 +148,22 @@ fun ProfileContent(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = "LEVEL: $level", style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
-                        Text(text = "TOTAL XP: $totalXp", style = MaterialTheme.typography.bodyMedium, color = colors.tertiary)
+                        Text(text = "TOTAL XP: $totalXp", style = MaterialTheme.typography.bodyMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary))
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "STREAK: $streakCount DAYS", style = MaterialTheme.typography.bodyMedium, color = colors.secondary)
-                        Text(text = "MODE: ${DifficultyMode.getDisplayName(diffLevel)}", style = MaterialTheme.typography.bodyMedium, color = colors.primary)
+                        Text(text = "STREAK: $streakCount DAYS", style = MaterialTheme.typography.bodyMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary))
+                        Text(text = "MODE: ${DifficultyMode.getDisplayName(diffLevel)}", style = MaterialTheme.typography.bodyMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                     }
                 } else {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "TASKS COMPLETED: ${state.totalTasksCompleted}", style = MaterialTheme.typography.bodyMedium, color = colors.tertiary)
+                        Text(text = "TASKS COMPLETED: ${state.totalTasksCompleted}", style = MaterialTheme.typography.bodyMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary))
                         Text(text = "ACTIVE TASKS: ${state.activeTasksCount}", style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
                     }
                 }
