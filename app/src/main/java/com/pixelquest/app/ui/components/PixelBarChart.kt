@@ -65,7 +65,7 @@ fun PixelBarChart(
                         Text(
                             text = "$percentageInt%",
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 7.sp),
-                            color = colors.tertiary
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
@@ -83,7 +83,7 @@ fun PixelBarChart(
                         Text(
                             text = weekLabel,
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
-                            color = colors.secondary
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary)
                         )
                     }
                 }
