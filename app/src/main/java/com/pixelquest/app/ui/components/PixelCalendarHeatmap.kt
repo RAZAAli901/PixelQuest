@@ -152,20 +152,22 @@ fun PixelCalendarHeatmap(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Legend swatches come from the same mapper as the day cells, so they match in every theme.
+            val legendMode = PixelTheme.mode
             HeatmapLegendItem(
-                color = colors.tertiary,
+                color = HeatmapColorMapper.getCellColor(DailyStatus.PERFECT, legendMode),
                 label = if (isSimpleMode) "Completed" else "Perfect Day"
             )
             HeatmapLegendItem(
-                color = colors.gold,
+                color = HeatmapColorMapper.getCellColor(DailyStatus.PARTIAL, legendMode),
                 label = "Partial"
             )
             HeatmapLegendItem(
-                color = colors.error,
+                color = HeatmapColorMapper.getCellColor(DailyStatus.MISSED, legendMode),
                 label = "Missed"
             )
             HeatmapLegendItem(
-                color = colors.onSurfaceVariant.copy(alpha = 0.4f),
+                color = HeatmapColorMapper.getCellColor(DailyStatus.NO_TASKS_SCHEDULED, legendMode),
                 label = if (isSimpleMode) "No Tasks" else "No Quests"
             )
         }
