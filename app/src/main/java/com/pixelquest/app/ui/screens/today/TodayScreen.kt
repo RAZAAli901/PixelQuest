@@ -64,6 +64,11 @@ fun TodayScreen(
     }
     val haptics = LocalHapticFeedback.current
     val soundManager = LocalSoundManager.current
+    // The streak-broken sting plays once, not each time the banner scrolls back into view.
+    val showsStreakBroken = (uiState as? TodayUiState.Success)?.let { it.isStreakBroken && !it.isSimpleMode } == true
+    androidx.compose.runtime.LaunchedEffect(showsStreakBroken) {
+        if (showsStreakBroken && viewModel.shouldPlayStreakBrokenSound()) soundManager?.playTaskMissedSound()
+    }
 
     Box(
         modifier = Modifier
@@ -246,10 +251,6 @@ fun TodayContent(
         }
         if (state.isStreakBroken && !state.isSimpleMode) {
             item {
-                val soundManager = com.pixelquest.app.audio.LocalSoundManager.current
-                androidx.compose.runtime.LaunchedEffect(Unit) {
-                    soundManager?.playTaskMissedSound()
-                }
                 PixelCard(
                     variant = PixelPanelVariant.BORDER,
                     modifier = Modifier.fillMaxWidth()

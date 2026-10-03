@@ -135,7 +135,8 @@ class TodayViewModel @Inject constructor(
             isSimpleMode = isSimpleMode
         )
 
-        val isStreakBroken = (streak != null && streak.currentStreak == 0 && streak.lastCompletedDate != null)
+        // Only a streak that existed can break: a new player with no streak yet sees no banner.
+        val isStreakBroken = streak != null && streak.currentStreak == 0 && streak.longestStreak > 0
 
         TodayUiState.Success(
             tasks = sortedItems,
@@ -179,6 +180,15 @@ class TodayViewModel @Inject constructor(
         } else {
             taskAlarmScheduler.scheduleNextOccurrence(task)
         }
+    }
+
+    private var streakBrokenSoundPlayed = false
+
+    /** True the first time it's asked while the streak is broken, so the sting plays once. */
+    fun shouldPlayStreakBrokenSound(): Boolean {
+        if (streakBrokenSoundPlayed) return false
+        streakBrokenSoundPlayed = true
+        return true
     }
 
     /** Re-reads the clock: the REFRESH button, and returning to the app, can move to a new day. */
