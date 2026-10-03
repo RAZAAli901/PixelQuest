@@ -2599,3 +2599,125 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Coral-red screen headings on paper are 2.9:1 (the brand colour at heading size); Comic onboarding has not been checked on a device.
 - The AROUND YOU view has not been seen with real players; the profiles table has no indexes on the leaderboard sort columns.
 - The Claude Design system and screens canvas still show the old four-tab bar and the pre-fix Comic colours.
+
+## Day 28 Progress Log
+_Each entry's commit hash is filled in by the following commit (a commit cannot contain its own hash)._
+- Step 1: Add primaryText to the colour schemes: Comic text on paper uses a darker coral ink (4.9:1) instead of the 2.9:1 brand coral - 9d59117
+- Step 2: Test that Comic's coral ink reads at 4.5:1 or better on paper, white and surface variant, and that Pixel and Light are unchanged - f979582
+- Step 3: Comic: loading, empty-quests and day-detail headings use coral ink, and the day-detail status prints in black (lavender, gold and sky blue on white were about 2:1) - 98db890
+- Step 4: Comic: the weekly trend title, quest mini-history title and day numbers, and the selected avatar's name print in black ink on their orange panels - abb29ee
+- Step 5: Comic onboarding: the five step headings use coral ink on paper - 54c7c93
+- Step 6: Comic onboarding: the welcome feature titles and the summary's name and values print in black ink on the white panel (sky blue and lavender on white were about 2:1) - c7166fd
+- Step 7: Onboarding summary shows the avatar's name (HERO, MAGE...) instead of its internal id (avatar_hero) - d54044a
+- Step 8: Onboarding welcome no longer promises unlockable avatars (all six are available from the start) - 748f844
+- Step 9: Comic: Stats and Profile headings use coral ink; the Simple Mode badge and the reminder prompt's title print in black ink on their orange panels - 574a380
+- Step 10: Comic Account screen: titles, status lines and sync messages print in black ink on the sky-blue and orange panels; privacy policy headings use coral ink - 0fb481c
+- Step 11: Comic privacy dialogs (leaderboard and AI Coach): headings use coral ink and the lavender bullet lines print in black ink on white - f91eb36
+- Step 12: Comic Leaderboard: coral headings, tab labels and links use coral ink; sky-blue and lavender status lines print in black ink on white - 9e8d067
+- Step 13: Comic: Settings, History, Analytics, Level History, avatar and difficulty headings use coral ink; Settings status labels and channel arrows print in black ink on their panels - 88d539e
+- Step 14: Comic AI Coach: the card and screen headings use coral ink, and the insight footer's ARCHIVED label prints in black instead of sky blue on white (1.9:1) - a939206
+- Step 15: Comic form error messages and the level-up 'NEW POWER UNLOCKED!' line use coral ink (bright coral was 2.9:1 on paper) - 68ad185
+- Step 16: One completion log per task per day: MIGRATION_6_7 removes duplicates (keeping a completed log) and adds a unique index; the DAO can read and update a day's log - c1216dc
+- Step 17: Add Migration6To7Test: duplicates collapse to one log, completed beats missed, other days are kept, and a second log for the same day is rejected - eb6b5ad
+- Step 18: Add TaskResultRecorder: one result per task per day, XP awarded once, a missed task can still be completed that day, and a completed task is never marked missed - f437806
+- Step 19: Add TaskResultRecorderTest (5 tests), including a racing double tap that must award XP once - ac266c4
+- Step 20: Today and the full-screen prompt record results through TaskResultRecorder: a double tap or completing twice no longer adds a second log and XP - c193e78
+- Step 21: Reminder buttons and the missed-task worker use TaskResultRecorder: Yes after completing in the app awards nothing extra, and a just-completed task is never marked missed - 2d68917
+- Step 22: Reminders stay quiet for a task that already has today's result, e.g. completed in the morning before a relaunch re-armed its evening alarm - 6b0b485
+- Step 23: Completing or skipping a task in the app clears its reminder notification and any pending snooze, so it doesn't ring again - dbe4304
+- Step 24: The full-screen prompt saves its answer even though it closes at once (the save no longer runs in the scope that closing cancels) and clears the reminder - 8825865
+- Step 25: Today follows the clock: the list moves to the new day at midnight and on returning to the app (REFRESH now does this too), and quests turn to grace period as their time passes - a1d82b2
+- Step 26: Stats and the Tasks list also move to the new day at midnight (todayFlow) instead of keeping the date they were opened on - 0589518
+- Step 27: Add StreakCalculator.dayOutcome: only that day's scheduled tasks count, each once, and a day with nothing scheduled is a rest day (with DayOutcomeTest) - 066ad86
+- Step 28: The nightly streak check catches up on every day since it last ran (up to 60), and rest days no longer add to the streak or level progress - 5a195e6
+- Step 29: Add StreakCatchUpTest: missed days while off break the streak, caught-up perfect days count, rest days are neutral, deleted tasks don't count, no double scoring - 402cc0d
+- Step 30: STREAK BROKEN only shows once a streak has existed (new players saw it on day 2), and its sound plays once instead of every time the banner scrolls into view - 027fc91
+- Step 31: Stats count only completions of tasks scheduled that day, once each: a deleted task's history no longer shows every day as perfect - 929e45d
+- Step 32: Add StatsScheduledTasksOnlyTest: deleted tasks don't count, the rate is completed over scheduled, and full completion is perfect - 2602b4f
+- Step 33: RESET ALL PROGRESS really wipes progress: completion history, streak, level history, AI insights and a pending level-up are cleared in one transaction, and the dialog says what is kept - 6b67bfb
+- Step 34: Add ProgressResetTest (in-memory Room): every kind of progress is wiped and the cloud account link is kept - ca981ba
+- Step 35: Leaderboard sync no longer stops after a streak breaks: the current streak may go down; only longest streak, level and XP are protected (test updated) - 1eba7cc
+- Step 36: Deleting cloud data checks both server calls: offline it now says nothing was deleted and keeps the account link, instead of reporting success - 7422fe2
+- Step 37: Add CloudDeletionResultTest: offline deletes nothing, a failed account deletion keeps the link, and only full success clears it - c5eeb9f
+- Step 38: 'Not yet' on a reminder or the full-screen prompt no longer marks the quest missed for the day; it just dismisses the reminder - 509afbc
+- Step 39: A missed or skipped quest can still be completed today: its card on Today gets a DONE button (the missed notification already promised this) - 1e5bf29
+- Step 40: Skip is reachable on Today again: swipe a quest left to skip (it asks first), the card follows the finger, and TalkBack offers Complete and Skip actions - 1d8cee8
+- Step 41: System back during onboarding goes to the previous step instead of closing the app and losing the hero's name and avatar - 915643a
+- Step 42: The level-up celebration swallows taps (they reached the DONE buttons underneath) and back closes it instead of the app - b8e98c7
+- Step 43: Quest history's 7 DAYS and 30 DAYS filters show exactly 7 and 30 days (they included one extra day) - db0623d
+- Step 44: Missed-quest notices get their own notification tag, so one task's notice can no longer replace another task's reminder; completing a quest late clears its notice - e0cb7bd
+- Step 45: Quests at 22:00 or later are marked missed after midnight (the check only looked at today, so they never were); these are recorded without a notification - be2472e
+- Step 46: AI Coach's 'Recent Consistency' covers the last 7 days as labelled, not all history (with RecentConsistencyWindowTest) - cbcf236
+- Step 47: Backups now carry the streak (with perfect days) and completion history; restoring brings them back, and older backups without history keep the current one - 6d7b4e3
+- Step 48: Add BackupRoundTripTest: streak, tasks and history survive a backup and restore, the cloud link is kept, and pre-Day 28 backups keep the history - 8a7d58d
+- Step 49: Add a Supabase migration with partial indexes matching both leaderboard orders (opted-in rows only), and document it in supabase/schema.md - 12ccca1
+- Step 50: Comic: Today's dashboard and UP NEXT headings, the task form's reminder labels, and the theme picker and Simple Mode dialog headings use coral ink; Simple Mode status and AI intel title print in black on their panels - 69702e1
+- Step 51: Comic Settings: AI Coach and game mode status values, the Simple Mode tip and RETURN TO ADVENTURE print in black ink (sky blue, lavender and gold on the panels were about 1.5 to 2:1) - c8a0aac
+- Step 52: Comic: quest history COMPLETED and XP labels, leaderboard scores, and the avatar picker's SELECTED tag print in black ink (lavender, gold and sky blue on white were under 2:1) - 140aaa6
+- Step 53: The skip dialog's button says SKIP instead of DELETE (skipping keeps the quest), and its text says the quest can still be completed later today - a20e16d
+- Step 54: Comic avatar picker: unselected tiles lose the faint grey outline that showed around their black ink border - 9cbdd62
+- Step 55: Onboarding summary's confirm button reads BEGIN QUEST so it fits on one line (BEGIN YOUR QUEST wrapped onto two in Comic) - 9ff4235
+- Step 56: Update the onboarding instrumentation test for the BEGIN QUEST label - f14ad6e
+- Step 57: Update NOTIFICATIONS.md (one result per day, Not yet, missed tag, late-night misses, live AI pack verified) and THEMING.md (13.7 coral ink and primaryText) - 6c354a2
+- Step 58: Day 28 verification: unit test comparison (471 tests, no new failures) and Comic emulator checks for the migration, completions, onboarding, reminders and the live AI pack - 9b2f779
+- Step 59: Update BRIEF.md with the Day 28 summary - (this commit)
+
+## Day 28 Summary — Correctness Audit, Comic Coral Ink and Onboarding
+
+Day 28 had no plan in the repo. It took the open items from Day 27 and the results of a full code review of the app (31 suspected bugs, each checked in the code before being fixed).
+
+### 1. Comic readability, continued (Steps 1–15, 50–52, 54)
+- New `primaryText` colour token. Comic headings, labels and links on paper use coral ink `#C8372C` (4.9:1 on paper) instead of the brand coral `#FF5A4E` (2.9:1). Pixel and Light are unchanged because their `primaryText` is `primary`.
+- Remaining sky-blue, lavender and gold text on Comic panels now prints in black ink: day detail, mini history, onboarding, Account, privacy dialogs, Leaderboard, AI Coach, Settings, history and the avatar picker.
+- Comic onboarding was checked on the device for the first time.
+
+### 2. One result per task per day (Steps 16–24)
+- Completing a task could be counted twice: a double tap, or "Yes" on a reminder after completing in the app, added a second log and more XP. `MIGRATION_6_7` removes duplicates (a completed log wins) and adds a unique index. `TaskResultRecorder` is now the only writer: it awards XP once, lets a missed quest be completed later that day, and never turns a completed one into a missed one.
+- Reminders stay quiet for a task that already has today's result. Completing or skipping a task clears its notification and any pending snooze. The full-screen prompt saves its answer even though it closes immediately.
+
+### 3. Dates, streaks and stats (Steps 25–32, 43, 45, 46)
+- Today, Stats and Tasks move to the new day at midnight. Before, they kept the date they were opened on, so an app left open overnight logged completions against yesterday.
+- The nightly streak check catches up on every day it missed (up to 60). Days with nothing scheduled no longer count as perfect, so a player with no tasks no longer levels up every week.
+- Streaks and Stats count only completions of tasks scheduled that day. Before, a deleted task's history could show every day as perfect.
+- STREAK BROKEN shows only after a real streak, and its sound plays once.
+- Other fixes: the history filters show exactly 7 and 30 days; quests at 22:00 or later are marked missed after midnight; the AI Coach's "recent" numbers cover the last 7 days.
+
+### 4. Reset, backup and cloud (Steps 33–37, 47–49)
+- RESET ALL PROGRESS now also clears completion history, the streak, level history, AI insights and a pending level-up, in one transaction. The cloud account link is kept.
+- Backups now include the streak and completion history. A restore keeps this install's leaderboard link instead of opting the player out.
+- Leaderboard sync no longer freezes after a streak breaks.
+- Deleting cloud data while offline says nothing was deleted, instead of reporting success.
+- New Supabase migration adds indexes for both leaderboard orders. It still has to be applied to the live project.
+
+### 5. Today, reminders and navigation (Steps 38–42, 44, 53, 55)
+- "Not yet" no longer marks a quest missed for the day.
+- Missed quests have a DONE button.
+- Swipe left to skip; the skip dialog's button says SKIP, not DELETE. TalkBack offers Complete and Skip actions.
+- System back steps back through onboarding instead of closing the app, and closes the level-up celebration, which no longer passes taps through to the buttons underneath.
+- Missed-quest notices have their own notification tag.
+- The onboarding summary shows the avatar's name, and its button fits on one line.
+
+### 6. Testing
+- 33 new unit tests. Full run: 471 tests, 28 failing; none are new, all 28 were failing at the end of Day 27. Emulator checks are in VERIFICATION.md Section G.
+- On the device, the following were checked:
+  - the v6 to v7 upgrade with real duplicate data
+  - completing a missed quest late, with XP counted once
+  - swipe to skip
+  - onboarding in Comic, including Back
+  - the live AI reminder-message pack, its line inside a reminder
+  - no reminder for a done quest, "Not yet", and a double "Yes"
+
+### 7. Known gaps for Day 29 onwards
+- 91 quarantined test files and 28 failing tests to repair in Day 29. `TodayViewModel`, `TaskPromptViewModel`, `MissedTaskWorker`, `SettingsViewModel` and `TaskCompletionRepository` gained dependencies or methods on Day 28, which their quarantined tests will need.
+- Release builds on GitHub do not receive `GEMINI_API_KEY` yet (Day 30).
+- Apply `supabase/migrations/20261003000000_leaderboard_sort_indexes.sql` to the live Supabase project.
+- From the code review, not fixed yet:
+  - The task form loses unsaved edits on rotation.
+  - New tasks always start today; a one-time task whose time has passed gets no reminder and is marked missed.
+  - Two full-screen prompts at the same minute show only the first.
+  - The Settings name field saves on every keystroke without validation.
+  - An offline leaderboard opt-out is not queued.
+  - Day and recurrence chips, the ✕ dismiss buttons and heatmap cells lack accessibility labels.
+  - Simple Mode copy says streaks are paused, but they are not.
+- Backups do not include level history. XP earned twice before Day 28 stays in players' totals; only the duplicate logs were removed.
+- The Claude Design system and screens canvas still show the old four-tab bar and the pre-fix Comic colours.
