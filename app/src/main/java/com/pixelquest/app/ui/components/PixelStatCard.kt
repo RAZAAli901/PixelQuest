@@ -41,7 +41,7 @@ fun PixelStatCard(
                 Text(
                     text = label.uppercase(),
                     style = MaterialTheme.typography.labelSmall,
-                    color = accentColor
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(accentColor)
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
