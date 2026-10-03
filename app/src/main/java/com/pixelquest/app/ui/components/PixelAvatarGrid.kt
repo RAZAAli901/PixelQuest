@@ -65,7 +65,13 @@ private fun AvatarGridItem(
             .clip(shape)
             .border(
                 width = if (isSelected) 3.dp else 1.dp,
-                color = if (isSelected) colors.primary else colors.pixelBorder.copy(alpha = 0.5f),
+                // Comic panels draw their own black ink border; a faint outline around it showed
+                // as grey corners, so only the selection ring is drawn there.
+                color = when {
+                    isSelected -> colors.primary
+                    com.pixelquest.app.ui.theme.PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Comic -> androidx.compose.ui.graphics.Color.Transparent
+                    else -> colors.pixelBorder.copy(alpha = 0.5f)
+                },
                 shape = shape
             )
             .clickable { onSelect() }
