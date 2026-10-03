@@ -41,12 +41,12 @@ fun LeaderboardPrivacyConfirmDialog(
             Text(
                 text = "The following will become publicly visible to other players:",
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.primary
+                color = colors.primaryText
             )
             Text(
                 text = "• Display Name: \"$displayName\"",
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.tertiary
+                color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
             )
             Text(
                 text = "• Current & Longest Streaks",
@@ -64,7 +64,7 @@ fun LeaderboardPrivacyConfirmDialog(
             Text(
                 text = "🛡️ PRIVACY GUARANTEE:",
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.primary
+                color = colors.primaryText
             )
             Text(
                 text = "Your Google email, real name, profile photo, and personal quest titles remain strictly private and will never be exposed.",

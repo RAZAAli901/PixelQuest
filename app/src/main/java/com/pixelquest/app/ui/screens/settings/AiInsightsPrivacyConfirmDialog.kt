@@ -49,7 +49,7 @@ fun AiInsightsPrivacyConfirmDialog(
             Text(
                 text = "📊 WHAT IS ANALYZED:",
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.primary
+                color = colors.primaryText
             )
             Text(
                 text = "• Anonymized streak statistics (days, completion rates)",
@@ -72,17 +72,17 @@ fun AiInsightsPrivacyConfirmDialog(
             Text(
                 text = "🛡️ PRIVACY GUARANTEE:",
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.primary
+                color = colors.primaryText
             )
             Text(
                 text = "• ZERO Personal Identifiable Information (PII) is shared.",
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.tertiary
+                color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
             )
             Text(
                 text = "• Custom quest titles, descriptions, and notes are NEVER transmitted.",
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.tertiary
+                color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
             )
             Text(
                 text = "• Results are cached locally and rate-limited to avoid excessive cloud calls.",
