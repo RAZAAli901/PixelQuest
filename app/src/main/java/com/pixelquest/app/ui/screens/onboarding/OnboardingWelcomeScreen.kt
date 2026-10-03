@@ -48,7 +48,7 @@ fun OnboardingWelcomeScreen(
             Text(
                 text = "⚔️ WELCOME HERO ⚔️",
                 style = MaterialTheme.typography.titleLarge,
-                color = colors.primary,
+                color = colors.primaryText,
                 textAlign = TextAlign.Center
             )
             Text(

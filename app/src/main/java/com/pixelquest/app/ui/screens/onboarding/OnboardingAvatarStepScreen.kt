@@ -40,7 +40,7 @@ fun OnboardingAvatarStepScreen(
         Text(
             text = "🧙 CHOOSE YOUR AVATAR",
             style = MaterialTheme.typography.titleLarge,
-            color = colors.primary,
+            color = colors.primaryText,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))

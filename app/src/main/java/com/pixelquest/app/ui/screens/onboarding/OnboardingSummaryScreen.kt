@@ -54,7 +54,7 @@ fun OnboardingSummaryScreen(
             Text(
                 text = "📜 HERO SUMMARY",
                 style = MaterialTheme.typography.titleLarge,
-                color = colors.primary,
+                color = colors.primaryText,
                 textAlign = TextAlign.Center
             )
             Text(

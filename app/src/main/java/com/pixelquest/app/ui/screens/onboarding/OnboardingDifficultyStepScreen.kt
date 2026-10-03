@@ -49,7 +49,7 @@ fun OnboardingDifficultyStepScreen(
             Text(
                 text = "🛡️ CHOOSE DIFFICULTY",
                 style = MaterialTheme.typography.titleLarge,
-                color = colors.primary,
+                color = colors.primaryText,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
