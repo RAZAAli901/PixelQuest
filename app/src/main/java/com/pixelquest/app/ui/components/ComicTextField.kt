@@ -94,7 +94,7 @@ fun ComicTextField(
                 fontFamily = FontFamily.SansSerif,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
-                color = ComicTokens.CoralRed,
+                color = ComicTokens.CoralInk,
                 modifier = Modifier.padding(start = 4.dp)
             )
         }

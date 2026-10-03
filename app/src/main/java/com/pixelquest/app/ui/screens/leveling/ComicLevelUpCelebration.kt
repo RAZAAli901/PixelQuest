@@ -159,7 +159,7 @@ fun ComicLevelUpCelebration(
                         fontFamily = BangersFontFamily,
                         fontSize = 16.sp,
                         letterSpacing = 0.8.sp,
-                        color = ComicTokens.CoralRed
+                        color = ComicTokens.CoralInk
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
