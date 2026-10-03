@@ -80,7 +80,7 @@ class MissedTaskWorker @AssistedInject constructor(
                 isSimpleMode = isSimpleMode
             )
             try {
-                manager.notify(missedNotificationId(task.id), notification)
+                manager.notify(MISSED_TAG, task.id.toInt(), notification)
             } catch (e: SecurityException) {
                 // POST_NOTIFICATIONS not granted; the missed log is still recorded.
             }
@@ -88,6 +88,10 @@ class MissedTaskWorker @AssistedInject constructor(
     }
 
     companion object {
-        fun missedNotificationId(taskId: Long): Int = (taskId * 10 + 3).toInt()
+        /**
+         * Missed notices use the task id under this tag. A plain id of taskId * 10 + 3 collided
+         * with other tasks' reminders (task 1's notice replaced task 13's reminder).
+         */
+        const val MISSED_TAG = "missed"
     }
 }
