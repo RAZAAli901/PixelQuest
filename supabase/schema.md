@@ -9,7 +9,7 @@ The `profiles` table stores cloud-synchronized leaderboard profiles for PixelQue
 | Column Name | Data Type | Constraints | Default | Description |
 |---|---|---|---|---|
 | `id` | `UUID` | `PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE` | N/A | Unique identifier linked 1:1 to Supabase Auth user. |
-| `display_name` | `TEXT` | `NOT NULL, CHECK (char_length(display_name) >= 3 AND char_length(display_name) <= 20)` | `''` | Publicly visible leaderboard name. Separate from local username and Google account name. |
+| `display_name` | `TEXT` | `NOT NULL, CHECK (char_length(display_name) <= 20)`; the moderation trigger (`20260909000000_display_name_moderation.sql`) also requires `^[a-zA-Z0-9_]{3,20}$` | `''` | Publicly visible leaderboard name. Separate from local username and Google account name. |
 | `current_streak` | `INTEGER` | `NOT NULL, CHECK (current_streak >= 0)` | `0` | Active daily streak count. |
 | `longest_streak` | `INTEGER` | `NOT NULL, CHECK (longest_streak >= 0)` | `0` | All-time highest streak count. |
 | `level` | `INTEGER` | `NOT NULL, CHECK (level >= 1)` | `1` | Current hero level. |
@@ -21,3 +21,14 @@ The `profiles` table stores cloud-synchronized leaderboard profiles for PixelQue
 1. **Default Opt-In**: `leaderboard_opt_in` defaults to `FALSE`. An un-opted user's profile is never returned in public queries.
 2. **PII Isolation**: Never store Google email, real names, or OAuth tokens in this table.
 3. **Display Name**: The `display_name` is an independent pseudonym chosen by the user specifically for the leaderboard.
+
+## Leaderboard ordering
+
+`LeaderboardRepositoryImpl` reads opted-in rows only (`leaderboard_opt_in = TRUE`, enforced by row-level security for signed-in users).
+
+- **Streaks**: `current_streak DESC, longest_streak DESC, id ASC`.
+- **Levels**: `level DESC, total_xp DESC, id ASC`.
+- `id` breaks exact ties, so every hero has a distinct position and the same position in every page.
+- **Your rank** is 1 + the number of opted-in rows ordered ahead of you: higher first column, or equal first and higher second, or equal on both with a smaller `id`. The counts fetch only `id`.
+- **Around you**: the app fetches the same ordered list with `range(rank - 1 - 3, rank - 1 + 3)`, which gives up to 3 heroes above you, you, and up to 3 below.
+- No indexes exist on the sort columns yet; add them if the table grows large.
