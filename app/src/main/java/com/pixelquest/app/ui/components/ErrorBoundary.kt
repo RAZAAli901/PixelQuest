@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.PixelBackgroundDark
 import com.pixelquest.app.ui.theme.PixelRed
 import com.pixelquest.app.ui.theme.PixelTextWhite
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun ErrorBoundary(
@@ -51,13 +51,13 @@ fun ErrorBoundary(
                 ) {
                     Text(
                         text = "⚠️ SOMETHING WENT WRONG",
-                        style = PixelTypography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium,
                         color = PixelRed,
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = errorMessage ?: "An unexpected error occurred while rendering this screen.",
-                        style = PixelTypography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall,
                         color = PixelTextWhite,
                         textAlign = TextAlign.Center
                     )
