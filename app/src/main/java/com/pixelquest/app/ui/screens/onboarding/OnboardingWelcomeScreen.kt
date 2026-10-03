@@ -67,21 +67,21 @@ fun OnboardingWelcomeScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "📜 ", style = MaterialTheme.typography.titleMedium)
                         Column {
-                            Text(text = "DAILY QUESTS", style = MaterialTheme.typography.titleSmall, color = colors.primary)
+                            Text(text = "DAILY QUESTS", style = MaterialTheme.typography.titleSmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                             Text(text = "Set daily habits and schedule alarm reminders.", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "🔥 ", style = MaterialTheme.typography.titleMedium)
                         Column {
-                            Text(text = "BUILD STREAKS", style = MaterialTheme.typography.titleSmall, color = colors.secondary)
+                            Text(text = "BUILD STREAKS", style = MaterialTheme.typography.titleSmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary))
                             Text(text = "Maintain consecutive perfect days for bonus XP.", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "🛡️ ", style = MaterialTheme.typography.titleMedium)
                         Column {
-                            Text(text = "LEVEL UP HERO", style = MaterialTheme.typography.titleSmall, color = colors.tertiary)
+                            Text(text = "LEVEL UP HERO", style = MaterialTheme.typography.titleSmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary))
                             Text(text = "Earn levels, unlock avatars, and climb history.", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         }
                     }

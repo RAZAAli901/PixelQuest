@@ -84,14 +84,14 @@ fun OnboardingSummaryScreen(
                     Text(
                         text = username.uppercase(),
                         style = MaterialTheme.typography.titleMedium,
-                        color = colors.primary
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
                     )
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = "AVATAR:", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
-                        Text(text = avatarId, style = MaterialTheme.typography.bodySmall, color = colors.tertiary)
+                        Text(text = avatarId, style = MaterialTheme.typography.bodySmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary))
                     }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -101,7 +101,7 @@ fun OnboardingSummaryScreen(
                         Text(
                             text = DifficultyMode.getDisplayName(difficultyLevel).uppercase(),
                             style = MaterialTheme.typography.bodySmall,
-                            color = colors.secondary
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary)
                         )
                     }
                     Row(
@@ -110,7 +110,7 @@ fun OnboardingSummaryScreen(
                     ) {
                         Text(text = "PERFECT DAY:", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         val pct = (DifficultyMode.getPerfectDayThreshold(difficultyLevel) * 100).toInt()
-                        Text(text = "$pct%", style = MaterialTheme.typography.bodySmall, color = colors.primary)
+                        Text(text = "$pct%", style = MaterialTheme.typography.bodySmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                     }
                 }
             }
