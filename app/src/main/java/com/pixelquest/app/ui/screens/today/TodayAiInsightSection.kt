@@ -202,8 +202,7 @@ fun TodayAiInsightOptInCard(
                     PixelButton(
                         text = "Enable in Settings",
                         onClick = onEnableClick,
-                        variant = PixelButtonVariant.YELLOW,
-                        modifier = Modifier.height(36.dp)
+                        variant = PixelButtonVariant.YELLOW
                     )
                 }
             }
