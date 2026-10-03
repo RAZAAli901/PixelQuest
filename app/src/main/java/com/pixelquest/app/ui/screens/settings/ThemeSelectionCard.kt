@@ -48,7 +48,7 @@ fun ThemeSelectionCard(
             Text(
                 text = "🎨 THEME SELECTION",
                 style = MaterialTheme.typography.titleMedium,
-                color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.primary)
             )
 
             // Follow System Option
@@ -221,7 +221,8 @@ fun ThemeOptionRow(
             text = if (isSelected) "● ACTIVE" else "○",
             style = MaterialTheme.typography.labelSmall,
             color = if (isSelected) {
-                if (isComicTheme) com.pixelquest.app.ui.theme.ComicTokens.CoralRed else themeColors.primary
+                // Black ink in Comic: coral-red text on the sky-blue card was 1.7:1.
+                if (isComicTheme) com.pixelquest.app.ui.theme.ComicTokens.SolidBlack else themeColors.primary
             } else {
                 themeColors.onSurfaceVariant
             }
