@@ -132,7 +132,7 @@ fun LeaderboardContent(
                             Text(
                                 text = "◀",
                                 style = MaterialTheme.typography.titleMedium,
-                                color = colors.primary
+                                color = colors.primaryText
                             )
                         }
                     }
@@ -181,7 +181,7 @@ fun LeaderboardContent(
                                 else -> "▼ PULL TO REFRESH ▼"
                             },
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (pullOffset >= refreshThresholdPx) colors.primary else colors.secondary,
+                            color = if (pullOffset >= refreshThresholdPx) colors.primaryText else com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
                             fontSize = 8.sp
                         )
                     }
@@ -223,7 +223,7 @@ fun LeaderboardContent(
                         Text(
                             text = if (uiState.isLoading) "SYNCING..." else "ONLINE ●",
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (uiState.isLoading) colors.primary else colors.tertiary,
+                            color = if (uiState.isLoading) colors.primaryText else com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary),
                             fontSize = 7.sp
                         )
                     }
@@ -270,7 +270,7 @@ fun LeaderboardContent(
                             Text(
                                 text = "RETRY",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = colors.primary,
+                                color = colors.primaryText,
                                 fontSize = 8.sp,
                                 modifier = Modifier
                                     .clickable { onRefresh() }
@@ -293,7 +293,7 @@ fun LeaderboardContent(
                         Text(
                             text = "🚩 ${uiState.reportMessage}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = colors.tertiary,
+                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary),
                             fontSize = 8.sp
                         )
                     }
@@ -415,7 +415,7 @@ fun LeaderboardContent(
                                             Text(
                                                 text = "▼ LOAD MORE HEROES ▼",
                                                 style = MaterialTheme.typography.labelMedium,
-                                                color = colors.secondary,
+                                                color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
                                                 fontSize = 9.sp
                                             )
                                         }
@@ -453,7 +453,7 @@ fun LeaderboardContent(
                             Text(
                                 text = "★ YOUR RANKING",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = colors.primary,
+                                color = colors.primaryText,
                                 fontSize = 8.sp,
                                 modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
                             )
@@ -545,7 +545,7 @@ fun LeaderboardTabButton(
     val shape = RoundedCornerShape(6.dp)
     val backgroundColor = if (isSelected) colors.primary.copy(alpha = 0.2f) else Color.Transparent
     val borderColor = if (isSelected) colors.primary else Color.Transparent
-    val textColor = if (isSelected) colors.primary else colors.onSurfaceVariant
+    val textColor = if (isSelected) colors.primaryText else colors.onSurfaceVariant
 
     Box(
         modifier = modifier
@@ -633,7 +633,7 @@ fun AroundYouList(
                         Text(
                             text = "HEROES ABOVE AND BELOW YOU",
                             style = MaterialTheme.typography.labelSmall,
-                            color = colors.primary,
+                            color = colors.primaryText,
                             fontSize = 8.sp,
                             modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
                         )
@@ -701,7 +701,7 @@ fun NotSignedInLeaderboardState(
             Text(
                 text = "HALL OF FAME LOCKED",
                 style = MaterialTheme.typography.titleLarge,
-                color = colors.primary,
+                color = colors.primaryText,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
@@ -747,7 +747,7 @@ fun SpectatorModeBanner(
                 Text(
                     text = "👁️ SPECTATOR MODE",
                     style = MaterialTheme.typography.titleMedium,
-                    color = colors.secondary,
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
                     fontSize = 11.sp
                 )
             }
