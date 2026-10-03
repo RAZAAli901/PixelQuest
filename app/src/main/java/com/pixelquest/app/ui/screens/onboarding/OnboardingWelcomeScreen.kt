@@ -82,7 +82,7 @@ fun OnboardingWelcomeScreen(
                         Text(text = "🛡️ ", style = MaterialTheme.typography.titleMedium)
                         Column {
                             Text(text = "LEVEL UP HERO", style = MaterialTheme.typography.titleSmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary))
-                            Text(text = "Earn levels, unlock avatars, and climb history.", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
+                            Text(text = "Earn XP, level up your hero and look back on every level.", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
                         }
                     }
                 }
