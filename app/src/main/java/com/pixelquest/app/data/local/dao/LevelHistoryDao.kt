@@ -12,6 +12,9 @@ interface LevelHistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLevelHistory(entry: LevelHistoryEntity)
 
+    @Query("DELETE FROM level_history")
+    suspend fun deleteAll()
+
     @Query("SELECT * FROM level_history ORDER BY achievedDate DESC")
     fun getAllHistory(): Flow<List<LevelHistoryEntity>>
 }

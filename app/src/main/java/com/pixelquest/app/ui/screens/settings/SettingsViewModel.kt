@@ -60,7 +60,8 @@ class SettingsViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val taskRepository: TaskRepository,
-    private val taskAlarmScheduler: TaskAlarmScheduler
+    private val taskAlarmScheduler: TaskAlarmScheduler,
+    private val progressReset: com.pixelquest.app.data.local.ProgressReset
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(
@@ -287,30 +288,7 @@ class SettingsViewModel @Inject constructor(
 
     fun performFullReset(onResetComplete: () -> Unit) {
         viewModelScope.launch {
-            val tasks = taskRepository.getAllTasks().first()
-            taskAlarmScheduler.cancelAllAlarms(tasks)
-            tasks.forEach { taskRepository.deleteTask(it) }
-            
-            userProfileRepository.insertProfile(
-                UserProfileEntity(
-                    id = 1,
-                    username = "PixelHero",
-                    avatarId = "avatar_hero",
-                    level = 1,
-                    totalXp = 0,
-                    perfectDaysTowardNextLevel = 0
-                )
-            )
-
-            difficultySettingsRepository.insertSettings(
-                DifficultySettingsEntity(
-                    id = 1,
-                    difficultyLevel = com.pixelquest.app.domain.model.DifficultyLevel.MEDIUM,
-                    perfectDayThreshold = 0.7f,
-                    daysRequiredPerLevel = 7
-                )
-            )
-
+            progressReset.resetAll()
             settingsRepository.setOnboardingComplete(false)
             _resetStep.value = 0
             onResetComplete()

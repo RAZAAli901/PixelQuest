@@ -18,6 +18,9 @@ interface TaskCompletionLogDao {
     @Update
     suspend fun updateLog(log: TaskCompletionLogEntity)
 
+    @Query("DELETE FROM task_completion_logs")
+    suspend fun deleteAll()
+
     @Query("SELECT * FROM task_completion_logs WHERE taskId = :taskId AND completedDate = :date LIMIT 1")
     suspend fun getLogForTaskOnDate(taskId: Long, date: LocalDate): TaskCompletionLogEntity?
 
