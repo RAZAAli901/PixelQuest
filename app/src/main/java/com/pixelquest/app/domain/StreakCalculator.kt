@@ -37,5 +37,18 @@ object StreakCalculator {
         val pct = calculateCompletionPercentage(logs, totalTaskCount)
         return isPerfectDay(pct, threshold)
     }
+
+    /**
+     * How a past day counts for the streak. Only completions of tasks scheduled that day count, so
+     * logs left by deleted or rescheduled tasks can't make a day perfect. A day with nothing
+     * scheduled is a [DayOutcome.REST] day: it neither extends nor breaks the streak.
+     */
+    fun dayOutcome(scheduledTaskIds: Set<Long>, logs: List<TaskCompletionLogEntity>, threshold: Float): DayOutcome {
+        if (scheduledTaskIds.isEmpty()) return DayOutcome.REST
+        val completed = logs.filter { it.wasCompleted && it.taskId in scheduledTaskIds }.map { it.taskId }.toSet().size
+        return if (isPerfectDay(completed, scheduledTaskIds.size, threshold)) DayOutcome.PERFECT else DayOutcome.MISSED
+    }
 }
+
+enum class DayOutcome { PERFECT, MISSED, REST }
 
