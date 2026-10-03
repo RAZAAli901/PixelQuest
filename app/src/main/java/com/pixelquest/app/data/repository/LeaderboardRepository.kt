@@ -5,7 +5,11 @@ import com.pixelquest.app.data.remote.model.CloudProfileDto
 import com.pixelquest.app.data.remote.safeSupabaseCall
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.postgrest.query.filter.PostgrestFilterBuilder
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -164,56 +168,44 @@ open class LeaderboardRepositoryImpl @Inject constructor(
             // same order as getTopBy*: first column, second column, then id for exact ties.
             val rank = when (sortMode) {
                 LeaderboardSortMode.STREAK -> {
-                    val higherStreaks = postgrest["profiles"].select {
-                        filter {
-                            eq("leaderboard_opt_in", true)
-                            gt("current_streak", targetProfile.currentStreak)
-                        }
-                    }.decodeList<CloudProfileDto>().size
+                    val higherStreaks = countProfiles {
+                        eq("leaderboard_opt_in", true)
+                        gt("current_streak", targetProfile.currentStreak)
+                    }
 
-                    val sameStreakHigherLongest = postgrest["profiles"].select {
-                        filter {
-                            eq("leaderboard_opt_in", true)
-                            eq("current_streak", targetProfile.currentStreak)
-                            gt("longest_streak", targetProfile.longestStreak)
-                        }
-                    }.decodeList<CloudProfileDto>().size
+                    val sameStreakHigherLongest = countProfiles {
+                        eq("leaderboard_opt_in", true)
+                        eq("current_streak", targetProfile.currentStreak)
+                        gt("longest_streak", targetProfile.longestStreak)
+                    }
 
-                    val exactTiesBefore = postgrest["profiles"].select {
-                        filter {
-                            eq("leaderboard_opt_in", true)
-                            eq("current_streak", targetProfile.currentStreak)
-                            eq("longest_streak", targetProfile.longestStreak)
-                            lt("id", targetProfile.id)
-                        }
-                    }.decodeList<CloudProfileDto>().size
+                    val exactTiesBefore = countProfiles {
+                        eq("leaderboard_opt_in", true)
+                        eq("current_streak", targetProfile.currentStreak)
+                        eq("longest_streak", targetProfile.longestStreak)
+                        lt("id", targetProfile.id)
+                    }
 
                     higherStreaks + sameStreakHigherLongest + exactTiesBefore + 1
                 }
                 LeaderboardSortMode.LEVEL -> {
-                    val higherLevels = postgrest["profiles"].select {
-                        filter {
-                            eq("leaderboard_opt_in", true)
-                            gt("level", targetProfile.level)
-                        }
-                    }.decodeList<CloudProfileDto>().size
+                    val higherLevels = countProfiles {
+                        eq("leaderboard_opt_in", true)
+                        gt("level", targetProfile.level)
+                    }
 
-                    val sameLevelHigherXp = postgrest["profiles"].select {
-                        filter {
-                            eq("leaderboard_opt_in", true)
-                            eq("level", targetProfile.level)
-                            gt("total_xp", targetProfile.totalXp)
-                        }
-                    }.decodeList<CloudProfileDto>().size
+                    val sameLevelHigherXp = countProfiles {
+                        eq("leaderboard_opt_in", true)
+                        eq("level", targetProfile.level)
+                        gt("total_xp", targetProfile.totalXp)
+                    }
 
-                    val exactTiesBefore = postgrest["profiles"].select {
-                        filter {
-                            eq("leaderboard_opt_in", true)
-                            eq("level", targetProfile.level)
-                            eq("total_xp", targetProfile.totalXp)
-                            lt("id", targetProfile.id)
-                        }
-                    }.decodeList<CloudProfileDto>().size
+                    val exactTiesBefore = countProfiles {
+                        eq("leaderboard_opt_in", true)
+                        eq("level", targetProfile.level)
+                        eq("total_xp", targetProfile.totalXp)
+                        lt("id", targetProfile.id)
+                    }
 
                     higherLevels + sameLevelHigherXp + exactTiesBefore + 1
                 }
@@ -243,6 +235,15 @@ open class LeaderboardRepositoryImpl @Inject constructor(
             )
         }
     }
+
+    /** Counts matching profiles by fetching only their ids, not whole profiles. */
+    private suspend fun countProfiles(filters: PostgrestFilterBuilder.() -> Unit): Int =
+        postgrest["profiles"].select(columns = Columns.list("id")) {
+            filter(filters)
+        }.decodeList<ProfileIdRow>().size
+
+    @Serializable
+    private data class ProfileIdRow(@SerialName("id") val id: String)
 
     companion object {
         const val LEADERBOARD_TIMEOUT_MS = 10_000L
