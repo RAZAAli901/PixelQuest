@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +23,6 @@ import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun OnboardingNameEntryScreen(
@@ -53,13 +53,13 @@ fun OnboardingNameEntryScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "👑 NAME YOUR HERO",
-                style = PixelTypography.titleLarge,
+                style = MaterialTheme.typography.titleLarge,
                 color = colors.primary,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Every legendary quest begins with a hero's name.",
-                style = PixelTypography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurface,
                 textAlign = TextAlign.Center
             )
