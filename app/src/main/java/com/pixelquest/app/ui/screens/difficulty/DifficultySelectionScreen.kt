@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,7 +28,6 @@ import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun DifficultySelectionScreen(
@@ -65,12 +65,12 @@ fun DifficultySelectionScreen(
         ) {
             Text(
                 text = "🛡️ CHOOSE DIFFICULTY",
-                style = PixelTypography.titleLarge,
+                style = MaterialTheme.typography.titleLarge,
                 color = colors.primary
             )
             Text(
                 text = "Select a difficulty level to balance your quest requirements.",
-                style = PixelTypography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurfaceVariant
             )
 

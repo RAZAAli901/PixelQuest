@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +21,6 @@ import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelGreen
 import com.pixelquest.app.ui.theme.PixelTextWhite
-import com.pixelquest.app.ui.theme.PixelTypography
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
@@ -120,25 +120,25 @@ fun PixelDifficultyCards(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = DifficultyMode.getDisplayName(level).uppercase(),
-                            style = PixelTypography.titleMedium,
+                            style = MaterialTheme.typography.titleMedium,
                             color = if (isSelected) colors.primary else colors.onSurface
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Perfect Day: $thresholdPct% completed",
-                            style = PixelTypography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = if (isSelected) colors.secondary else colors.onSurfaceVariant
                         )
                         Text(
                             text = "Days per Level: $daysReq days",
-                            style = PixelTypography.labelSmall,
+                            style = MaterialTheme.typography.labelSmall,
                             color = colors.onSurfaceVariant
                         )
                     }
                     if (isSelected) {
                         Text(
                             text = "ACTIVE",
-                            style = PixelTypography.labelMedium,
+                            style = MaterialTheme.typography.labelMedium,
                             color = colors.primary
                         )
                     }
