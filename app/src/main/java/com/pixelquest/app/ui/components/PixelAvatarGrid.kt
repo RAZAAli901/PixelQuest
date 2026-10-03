@@ -86,7 +86,7 @@ private fun AvatarGridItem(
                 Text(
                     text = avatar.name.uppercase(),
                     style = MaterialTheme.typography.titleSmall,
-                    color = if (isSelected) colors.primary else colors.onSurface,
+                    color = if (isSelected) com.pixelquest.app.ui.theme.inkOnPanel(colors.primary) else colors.onSurface,
                     textAlign = TextAlign.Center
                 )
                 if (isSelected) {

@@ -36,7 +36,7 @@ fun PixelBarChart(
         Text(
             text = if (isSimpleMode) "📈 COMPLETION RATE TREND" else "📈 WEEKLY TREND",
             style = MaterialTheme.typography.titleMedium,
-            color = colors.primary
+            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
         )
 
         Spacer(modifier = Modifier.height(12.dp))

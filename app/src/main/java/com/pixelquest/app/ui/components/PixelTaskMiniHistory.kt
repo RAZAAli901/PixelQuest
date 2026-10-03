@@ -30,7 +30,7 @@ fun PixelTaskMiniHistory(
         Text(
             text = "📅 RECENT HISTORY (LAST 14 LOGS)",
             style = MaterialTheme.typography.labelMedium,
-            color = colors.primary
+            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -50,7 +50,7 @@ fun PixelTaskMiniHistory(
                     Text(
                         text = date.format(dayFormatter),
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 7.sp),
-                        color = colors.secondary
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary)
                     )
                 }
             }
