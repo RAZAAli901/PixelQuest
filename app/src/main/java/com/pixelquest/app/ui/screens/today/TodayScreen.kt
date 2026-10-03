@@ -315,7 +315,8 @@ fun TodayContent(
                 TodayQuestCard(
                     task = item.task,
                     status = item.status,
-                    onQuickComplete = {},
+                    // A missed quest can still be completed today (done ones ignore this).
+                    onQuickComplete = { if (item.status == TaskItemStatus.MISSED) onQuickComplete(item.task) },
                     onQuickSkip = {},
                     onClick = { onNavigateToEditTask(item.task.id) }
                 )

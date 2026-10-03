@@ -58,7 +58,6 @@ fun TodayQuestCard(
         contentPadding = 12.dp,
         modifier = modifier
             .fillMaxWidth()
-            .alpha(if (isMissed) 0.7f else 1.0f)
             .pointerInput(isDone, isMissed) {
                 if (!isDone && !isMissed) {
                     detectHorizontalDragGestures(
@@ -137,14 +136,23 @@ fun TodayQuestCard(
                     }
                 }
                 isMissed -> {
-                    PixelCard(
-                        variant = PixelPanelVariant.BORDER,
-                        contentPadding = 6.dp
-                    ) {
-                        Text(
-                            text = "✗ MISSED",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = colors.error
+                    // Missed or skipped, but still today: it can be completed late.
+                    Column(horizontalAlignment = Alignment.End) {
+                        PixelCard(
+                            variant = PixelPanelVariant.BORDER,
+                            contentPadding = 6.dp
+                        ) {
+                            Text(
+                                text = "✗ MISSED",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = colors.error
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        PixelButton(
+                            text = "✓ DONE",
+                            onClick = onQuickComplete,
+                            variant = PixelButtonVariant.BLUE
                         )
                     }
                 }
