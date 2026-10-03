@@ -4,12 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
-import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.domain.FlavorTextCatalog
-import com.pixelquest.app.domain.PointsCalculator
+import com.pixelquest.app.domain.TaskResultRecorder
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
@@ -40,6 +39,7 @@ class TodayViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val taskAlarmScheduler: TaskAlarmScheduler,
+    private val taskResultRecorder: TaskResultRecorder,
     private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
     private val settingsRepository: SettingsRepository? = null
 ) : ViewModel() {
@@ -123,21 +123,9 @@ class TodayViewModel @Inject constructor(
 
     fun completeTask(task: TaskEntity) {
         viewModelScope.launch {
+            // 0 means it was already done (a double tap, or completed from the reminder).
+            if (taskResultRecorder.recordCompleted(task.id, currentDate) == 0) return@launch
             rearmAfterToday(task)
-            val currentStreak = streakRepository.getCurrentStreak().first()?.currentStreak ?: 0
-            val points = PointsCalculator.calculateXpForTask(task, currentStreak)
-            val log = TaskCompletionLogEntity(
-                taskId = task.id,
-                completedDate = currentDate,
-                wasCompleted = true,
-                pointsAwarded = points
-            )
-            taskCompletionRepository.insertLog(log)
-
-            val profile = userProfileRepository.getProfile().first()
-            if (profile != null) {
-                userProfileRepository.updateProfile(profile.copy(totalXp = profile.totalXp + points))
-            }
             val isSimple = settingsRepository?.simpleModeEnabled?.first() ?: false
             _quickCompleteFlourishEvent.value = !isSimple
             syncScheduler?.scheduleProfileSync()
@@ -163,14 +151,7 @@ class TodayViewModel @Inject constructor(
 
     fun skipTask(task: TaskEntity) {
         viewModelScope.launch {
-            rearmAfterToday(task)
-            val log = TaskCompletionLogEntity(
-                taskId = task.id,
-                completedDate = currentDate,
-                wasCompleted = false,
-                pointsAwarded = 0
-            )
-            taskCompletionRepository.insertLog(log)
+            if (taskResultRecorder.recordNotDone(task.id, currentDate)) rearmAfterToday(task)
         }
     }
 }
