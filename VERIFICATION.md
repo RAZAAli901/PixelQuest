@@ -354,3 +354,27 @@ Test data added for these checks (3 days of completion history and a weekly test
 ### Not verified
 - The AI error states on a device: each Gemini failure type is covered by `GeminiErrorMessagesTest` with a mock server, not by forcing real failures.
 - The daily AI reminder-message pack against live Gemini.
+
+### Day 27, continued (Steps 13–53) -- verified 3 Oct 2026
+
+#### Unit tests
+- 438 tests, 28 failing. The leaderboard work added 16 tests (`PlayersAroundYouTest`, `LeaderboardNavButtonTest`, `LeaderboardAroundYouUiTest`) and Steps 13–53 added 6 (`ComicInkContrastTest`, a weekly case in `TaskAlarmSchedulerTest`). No test that passed before fails now. `ThemeHardcodedColorAuditTest` now passes (Step 44), so 28 of the original 29 failures remain.
+
+#### Emulator checks (Comic unless noted)
+| Check | Result |
+| --- | --- |
+| Round trophy Leaderboard button in the middle of the bar in Comic, Pixel and Light; opens the leaderboard with no back arrow | Pass |
+| Signed out, the Leaderboard tab shows the Hall of Fame Locked card | Pass |
+| Home: quest names, times and categories and the streak/XP/level strip are black | Pass |
+| Tasks: names, times and recurrence are black | Pass |
+| Stats: card labels, difficulty card, heatmap labels and weekly trend labels are black; legend swatches match the cells and are outlined | Pass |
+| Profile: name and stats are black | Pass |
+| Change Difficulty and Settings use Bangers and sans; the selected difficulty card's text is readable | Pass |
+| Theme picker heading and ACTIVE label are black | Pass |
+| Reset All Progress opens the comic dialog; CANCEL leaves the 3 quests and Medium difficulty untouched | Pass |
+| Light: bottom-bar icons tinted amber and graphite | Pass |
+| Pixel: Home and Stats look as before (gold art and text) | Pass |
+
+#### Not verified
+- The AROUND YOU list with real players: the emulator is not signed in. It is covered by `PlayersAroundYouTest` and `LeaderboardAroundYouUiTest`.
+- Onboarding in Comic: checking it needs a fresh install, which would wipe the emulator's data.
