@@ -16,6 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -55,7 +57,13 @@ fun ComicLevelUpCelebration(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(ComicTokens.PaperBackground.copy(alpha = 0.94f)),
+            .background(ComicTokens.PaperBackground.copy(alpha = 0.94f))
+            // The overlay swallows taps so they can't reach the quest buttons underneath.
+            .clickable(
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            ),
         contentAlignment = Alignment.Center
     ) {
         // Background comic radial action lines

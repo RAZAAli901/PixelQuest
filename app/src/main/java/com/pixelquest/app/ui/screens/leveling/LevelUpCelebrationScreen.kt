@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.components.PixelCard
@@ -60,6 +61,9 @@ fun LevelUpCelebrationScreen(
         visible = true
     }
 
+    // Back closes the celebration instead of the app.
+    androidx.activity.compose.BackHandler(onBack = onDismiss)
+
     val activeMode = PixelTheme.mode
     if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
         androidx.compose.animation.AnimatedVisibility(
@@ -79,7 +83,13 @@ fun LevelUpCelebrationScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colors.background.copy(alpha = 0.92f)),
+            .background(colors.background.copy(alpha = 0.92f))
+            // The overlay swallows taps so they can't reach the quest buttons underneath.
+            .clickable(
+                interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                indication = null,
+                onClick = {}
+            ),
         contentAlignment = Alignment.Center
     ) {
         androidx.compose.animation.AnimatedVisibility(
