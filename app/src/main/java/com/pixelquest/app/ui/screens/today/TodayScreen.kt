@@ -133,6 +133,13 @@ fun TodayContent(
     onNavigateToAiInsight: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onToggleComicMode: () -> Unit = {},
+    // A slot so tests can render Today without the AI Coach section, which gets its ViewModel from Hilt.
+    aiInsightSection: @Composable () -> Unit = {
+        TodayAiInsightSection(
+            onNavigateToAiInsight = onNavigateToAiInsight,
+            onNavigateToSettings = onNavigateToSettings
+        )
+    },
     modifier: Modifier = Modifier
 ) {
     var taskToSkip by remember { mutableStateOf<TaskEntity?>(null) }
@@ -241,10 +248,7 @@ fun TodayContent(
             }
         }
         item {
-            TodayAiInsightSection(
-                onNavigateToAiInsight = onNavigateToAiInsight,
-                onNavigateToSettings = onNavigateToSettings
-            )
+            aiInsightSection()
         }
         if (state.flavorText.isNotBlank()) {
             item {

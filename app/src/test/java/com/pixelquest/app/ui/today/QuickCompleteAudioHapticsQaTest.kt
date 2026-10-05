@@ -28,7 +28,7 @@ class QuickCompleteAudioHapticsQaTest {
     fun quickComplete_triggersAudioAndHapticsWithoutExceptions() {
         var completed = false
         val today = LocalDate.now()
-        val task = TaskEntity(id = 1, name = "Daily Pushups", scheduledTime = LocalTime.of(10, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
+        val task = TaskEntity(id = 1, name = "Daily Pushups", description = "", scheduledTime = LocalTime.of(10, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
 
         val state = TodayUiState.Success(
             tasks = listOf(TodayTaskItem(task = task, status = TaskItemStatus.PENDING, scheduledTime = LocalTime.of(10, 0))),
@@ -48,7 +48,8 @@ class QuickCompleteAudioHapticsQaTest {
                 onRefresh = {},
                 onCreateQuestClick = {},
                 onNavigateToEditTask = {},
-                onNavigateToProfile = {}
+                onNavigateToProfile = {},
+                aiInsightSection = {}
             )
         }
 

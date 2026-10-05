@@ -69,11 +69,9 @@ ui/theme/FollowSystemThemeSwitchingTest.kt
 ui/theme/PixelModeRegressionTest.kt
 ui/theme/SimpleModeThemeMatrixIntegrationTest.kt
 ui/theme/SimpleModeThemeOrthogonalityTest.kt
-ui/today/QuickCompleteAudioHapticsQaTest.kt
 ui/today/QuickCompleteFlowTest.kt
 ui/today/TodayFullDayCycleQaTest.kt
 ui/today/TodayGracePeriodTest.kt
-ui/today/TodayScreenEndToEndTest.kt
 ui/today/TodayViewModelTest.kt
 worker/MissedTaskWorkerTest.kt
 worker/OfflineRetrySyncTest.kt

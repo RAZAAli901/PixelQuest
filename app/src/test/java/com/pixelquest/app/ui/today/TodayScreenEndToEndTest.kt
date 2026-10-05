@@ -31,6 +31,7 @@ class TodayScreenEndToEndTest {
         val task = TaskEntity(
             id = 1,
             name = "Epic Workout",
+            description = "",
             scheduledTime = LocalTime.of(15, 0),
             scheduledDay = today,
             category = TaskCategory.FITNESS,
@@ -56,7 +57,8 @@ class TodayScreenEndToEndTest {
                 onRefresh = {},
                 onCreateQuestClick = {},
                 onNavigateToEditTask = {},
-                onNavigateToProfile = {}
+                onNavigateToProfile = {},
+                aiInsightSection = {}
             )
         }
 
