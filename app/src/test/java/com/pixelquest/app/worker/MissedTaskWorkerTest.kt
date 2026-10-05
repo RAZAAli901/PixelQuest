@@ -1,101 +1,78 @@
 package com.pixelquest.app.worker
 
+import android.app.Application
+import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
+import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
+import androidx.work.testing.TestListenableWorkerBuilder
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.domain.TaskResultRecorder
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.TaskCategory
-import com.pixelquest.app.domain.repository.TaskCompletionRepository
-import com.pixelquest.app.ui.FakeTaskRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import com.pixelquest.app.testing.FakeSettingsRepository
+import com.pixelquest.app.testing.FakeStreakRepository
+import com.pixelquest.app.testing.FakeTaskCompletionRepository
+import com.pixelquest.app.testing.FakeTaskRepository
+import com.pixelquest.app.testing.FakeUserProfileRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Before
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.LocalDate
-import java.time.LocalTime
-
-class FakeTaskCompletionRepository : TaskCompletionRepository {
-    private val logs = MutableStateFlow<List<TaskCompletionLogEntity>>(emptyList())
-
-    override fun getLogsForDate(date: LocalDate): Flow<List<TaskCompletionLogEntity>> =
-        logs.map { list -> list.filter { it.completedAt.toLocalDate() == date } }
-
-    override fun getLogsForTask(taskId: Long): Flow<List<TaskCompletionLogEntity>> =
-        logs.map { list -> list.filter { it.taskId == taskId } }
-
-    override fun getAllLogs(): Flow<List<TaskCompletionLogEntity>> = logs
-
-    override suspend fun logTaskCompletion(log: TaskCompletionLogEntity): Long {
-        val newId = (logs.value.maxOfOrNull { it.id } ?: 0L) + 1L
-        val newLog = log.copy(id = newId)
-        logs.value = logs.value + newLog
-        return newId
-    }
-
-    override suspend fun getCompletionCountBetween(
-        taskId: Long,
-        startDate: LocalDate,
-        endDate: LocalDate
-    ): Int {
-        return logs.value.count {
-            it.taskId == taskId &&
-            it.wasCompleted &&
-            !it.completedAt.toLocalDate().isBefore(startDate) &&
-            !it.completedAt.toLocalDate().isAfter(endDate)
-        }
-    }
-}
+import java.time.LocalDateTime
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], application = Application::class)
 class MissedTaskWorkerTest {
 
-    private lateinit var fakeTaskRepo: FakeTaskRepository
-    private lateinit var fakeCompletionRepo: FakeTaskCompletionRepository
+    private val context: Context = ApplicationProvider.getApplicationContext()
+    private val tasks = FakeTaskRepository()
+    private val logs = FakeTaskCompletionRepository()
+    private val recorder = TaskResultRecorder(logs, FakeUserProfileRepository(), FakeStreakRepository())
 
-    @Before
-    fun setUp() {
-        fakeTaskRepo = FakeTaskRepository()
-        fakeCompletionRepo = FakeTaskCompletionRepository()
+    /** A daily quest due three hours ago (yesterday's date if that crosses midnight). */
+    private val dueAt = LocalDateTime.now().minusHours(3)
+    private val dueDay: LocalDate = dueAt.toLocalDate()
+
+    private fun overdueQuest(id: Long) = TaskEntity(
+        id = id, name = "Missed Quest", description = "", scheduledDay = dueDay,
+        scheduledTime = dueAt.toLocalTime(), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS
+    )
+
+    private fun runWorker(): ListenableWorker.Result = runBlocking {
+        TestListenableWorkerBuilder<MissedTaskWorker>(context)
+            .setWorkerFactory(object : WorkerFactory() {
+                override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters) =
+                    MissedTaskWorker(appContext, workerParameters, tasks, logs, FakeSettingsRepository(), recorder)
+            })
+            .build()
+            .doWork()
     }
 
     @Test
     fun doWork_marksOverdueUnloggedTasksAsMissed() = runBlocking {
-        val pastTime = LocalTime.now().minusHours(3)
-        fakeTaskRepo.insertTask(
-            TaskEntity(
-                id = 1,
-                name = "Missed Quest",
-                description = "",
-                scheduledDay = LocalDate.now(),
-                scheduledTime = pastTime,
-                recurrenceType = RecurrenceType.DAILY,
-                category = TaskCategory.FITNESS
-            )
-        )
+        tasks.insertTask(overdueQuest(1))
 
-        val params = mock(WorkerParameters::class.java)
-        val worker = MissedTaskWorker(
-            ApplicationProvider.getApplicationContext(),
-            params,
-            fakeTaskRepo,
-            fakeCompletionRepo
-        )
+        assertEquals(ListenableWorker.Result.success(), runWorker())
 
-        val result = worker.doWork()
-        assertEquals(ListenableWorker.Result.success(), result)
+        val missed = logs.logs.value.single()
+        assertEquals(1L, missed.taskId)
+        assertEquals(dueDay, missed.completedDate)
+        assertEquals(false, missed.wasCompleted)
+    }
 
-        val logs = fakeCompletionRepo.getLogsForDate(LocalDate.now()).first()
-        assertEquals(1, logs.size)
-        assertEquals(1L, logs.first().taskId)
-        assertEquals(false, logs.first().wasCompleted)
+    @Test
+    fun doWork_leavesACompletedQuestAlone() = runBlocking {
+        tasks.insertTask(overdueQuest(1))
+        recorder.recordCompleted(1, dueDay)
+
+        runWorker()
+
+        assertTrue(logs.logs.value.single().wasCompleted)
     }
 }
