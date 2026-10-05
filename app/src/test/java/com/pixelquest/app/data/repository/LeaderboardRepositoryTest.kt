@@ -194,10 +194,12 @@ class LeaderboardRepositoryTest {
 
     @Test
     fun errorHandling_mapsFailureToNetworkError() = runTest {
-        repository.failure = IOException("Network connection lost")
-        val result = repository.getTopByStreak(10, 0)
+        // The real repository wraps every request in safeSupabaseCall, which maps I/O failures.
+        val result = com.pixelquest.app.data.remote.safeSupabaseCall<List<CloudProfileDto>> {
+            throw IOException("Network connection lost")
+        }
         assertTrue(result is SupabaseResult.NetworkError)
         val error = result as SupabaseResult.NetworkError
-        assertTrue(error.userMessage.contains("Network error", ignoreCase = true))
+        assertTrue(error.message.contains("Network error", ignoreCase = true))
     }
 }
