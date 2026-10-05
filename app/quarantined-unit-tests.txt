@@ -3,7 +3,6 @@
 auth/TokenExchangeFailureTest.kt
 data/backup/DataExportImportQaTest.kt
 data/backup/DataExportImportTest.kt
-data/repository/StatsPerformanceTest.kt
 domain/StreakCalculatorTest.kt
 domain/ai/AiInsightUserFlowIntegrationTest.kt
 domain/ai/Day25FullRegressionPassTest.kt
