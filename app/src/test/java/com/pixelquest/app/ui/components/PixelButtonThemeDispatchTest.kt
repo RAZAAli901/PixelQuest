@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.ui.graphics.Color
 import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.ComponentThemeFamily
 import com.pixelquest.app.ui.theme.DefaultComicColorScheme
@@ -42,11 +43,11 @@ class PixelButtonThemeDispatchTest {
         val lightScheme = DefaultLightColorScheme
         val comicScheme = DefaultComicColorScheme
 
-        // Pixel Primary CTA: Retro Arcade Yellow
-        assertEquals(0xFFFFCC00, pixelScheme.primary.value.toLong() shr 32 or (pixelScheme.primary.value.toLong() and 0xFFFFFFFFL))
+        // Pixel Primary CTA: Arcade Gold
+        assertEquals(Color(0xFFF4C430), pixelScheme.primary)
 
         // Light Primary CTA: Retro Daylight Amber
-        assertEquals(0xFFB45309, lightScheme.primary.value.toLong() shr 32 or (lightScheme.primary.value.toLong() and 0xFFFFFFFFL))
+        assertEquals(Color(0xFFB45309), lightScheme.primary)
 
         // Comic Primary CTA: Pop-Art Coral Red
         assertEquals(ComicTokens.CoralRed, comicScheme.primary)

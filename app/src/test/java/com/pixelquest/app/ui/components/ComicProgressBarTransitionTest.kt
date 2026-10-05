@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.ui.graphics.Color
 import com.pixelquest.app.ui.theme.ComicShapeTokens
 import com.pixelquest.app.ui.theme.ComicTokens
 import org.junit.Assert.assertEquals
@@ -35,7 +36,7 @@ class ComicProgressBarTransitionTest {
         assertEquals(8.0f, ComicShapeTokens.RadiusSmall.value, 0.001f)
 
         // Default fill color: Coral Red
-        assertEquals(0xFFFF5A4E, ComicTokens.CoralRed.value.toLong() shr 32 or (ComicTokens.CoralRed.value.toLong() and 0xFFFFFFFFL))
+        assertEquals(Color(0xFFFF5A4E), ComicTokens.CoralRed)
     }
 
     @Test
