@@ -5,8 +5,10 @@ import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.domain.LevelCalculator
 import com.pixelquest.app.domain.PointsCalculator
-import com.pixelquest.app.domain.manager.LevelUpSignalManager
-import com.pixelquest.app.domain.policy.CrtFilterPolicy
+import com.pixelquest.app.domain.LevelUpSignalManager
+import com.pixelquest.app.domain.model.CrtFilterPolicy
+import com.pixelquest.app.notification.NotificationContentBuilder
+import com.pixelquest.app.notification.ReminderContext
 import com.pixelquest.app.notification.NotificationHelper
 import com.pixelquest.app.ui.theme.ThemeMode
 import kotlinx.coroutines.runBlocking
@@ -22,7 +24,11 @@ import java.time.LocalDate
  * Step 33: Integration test verifying zero behavior change in normal gamified operation
  * when Simple Mode is OFF (regression baseline).
  */
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [34], application = android.app.Application::class)
 class GamifiedModeBaselineRegressionTest {
+
+    private val levelUps = LevelUpSignalManager(androidx.test.core.app.ApplicationProvider.getApplicationContext())
 
     private var profile = UserProfileEntity(
         id = 1,
@@ -43,7 +49,7 @@ class GamifiedModeBaselineRegressionTest {
 
     @Before
     fun setUp() {
-        LevelUpSignalManager.clear()
+        levelUps.clearPendingLevelUp()
     }
 
     @Test
@@ -74,24 +80,28 @@ class GamifiedModeBaselineRegressionTest {
         assertEquals(2, profile.level)
 
         // 4. Level-up celebration signal emission under Gamified Mode
-        LevelUpSignalManager.triggerLevelUp(newLevel = newLevel, isSimpleMode = isSimpleMode)
-        val pendingCelebration = LevelUpSignalManager.pendingLevelUp.value
+        levelUps.setPendingLevelUp(newLevel, suppressCelebration = isSimpleMode)
+        val pendingCelebration = levelUps.pendingLevelUp.value
         assertNotNull("Gamified mode must emit level-up celebration signal", pendingCelebration)
-        assertEquals(2, pendingCelebration?.newLevel)
+        assertEquals(2, pendingCelebration)
 
         // 5. CRT scanline policy in Gamified Mode (Pixel theme + user enabled)
         val crtActive = CrtFilterPolicy.shouldApplyCrt(
             isCrtSettingEnabled = true,
-            effectiveThemeMode = ThemeMode.PIXEL,
+            effectiveThemeMode = ThemeMode.Pixel,
             isSimpleModeEnabled = isSimpleMode
         )
         assertTrue("CRT scanlines must be permitted in Gamified Mode when user enabled", crtActive)
 
         // 6. Notification copy contains gamified streak urgency
-        val reminderText = NotificationHelper.buildReminderContentText("Meditate", isSimpleMode)
-        assertTrue("Gamified reminder must include streak motivation", reminderText.contains("streak", ignoreCase = true))
+        val reminder = NotificationContentBuilder.reminder(
+            ReminderContext(taskName = "Meditate", isSimpleMode = isSimpleMode, currentStreak = streak.currentStreak, doneToday = 0, totalToday = 1)
+        )
+        assertTrue("Gamified reminder must include streak motivation", reminder.bigText.contains("streak", ignoreCase = true))
 
-        val missedText = NotificationHelper.buildMissedTaskContentText("Meditate", isSimpleMode)
-        assertTrue("Gamified missed notice must reference streak break risk", missedText.contains("streak", ignoreCase = true))
+        // Since Day 26 a missed quest's notice no longer claims the streak broke (one miss may not).
+        val missedText = NotificationHelper.getMissedTaskText("Meditate", isSimpleMode)
+        assertTrue("Gamified missed notice keeps its quest tone", missedText.contains("slipped past its time"))
+        assertFalse(missedText.contains("streak", ignoreCase = true))
     }
 }
