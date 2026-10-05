@@ -7,7 +7,6 @@ integration/GamifiedModeBaselineRegressionTest.kt
 integration/NotificationCopyIntegrationTest.kt
 integration/ResetProgressIntegrationTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
-ui/SimpleModeFullChecklistUiTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
 ui/theme/FollowSystemThemeSwitchingTest.kt

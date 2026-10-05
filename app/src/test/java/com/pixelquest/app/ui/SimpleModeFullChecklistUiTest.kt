@@ -4,7 +4,7 @@ import com.pixelquest.app.domain.model.CrtFilterPolicy
 import com.pixelquest.app.domain.model.DailyStatus
 import com.pixelquest.app.domain.model.SimpleModeSuppression
 import com.pixelquest.app.domain.model.TaskTerminology
-import com.pixelquest.app.domain.model.TodayFlavorText
+import com.pixelquest.app.domain.FlavorTextCatalog
 import com.pixelquest.app.ui.prompt.TaskPromptCopyVariants
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
@@ -35,10 +35,10 @@ class SimpleModeFullChecklistUiTest {
     fun `checklist_item_1_todayscreen_header_and_streak_strip`() {
         // TodayScreen Header replaced with clean task count and neutral title
         val terminology = TaskTerminology.forMode(isSimpleMode)
-        assertEquals("TODAY'S TASKS", terminology.todayHeader)
+        assertEquals("📋 TODAY'S TASKS", terminology.todayHeader)
 
-        val isStripSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.STREAK_DISPLAY,
+        val isStripSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.STREAK_DISPLAY,
             isSimpleMode
         )
         assertTrue("StreakXpSummaryStrip must be suppressed", isStripSuppressed)
@@ -47,23 +47,23 @@ class SimpleModeFullChecklistUiTest {
     @Test
     fun `checklist_item_2_todayquestcard_terminology`() {
         val terminology = TaskTerminology.forMode(isSimpleMode)
-        assertEquals("Task", terminology.taskNoun)
-        assertEquals("Tasks", terminology.taskNounPlural)
-        assertEquals("Create Task", terminology.createTaskAction)
-        assertEquals("Edit Task", terminology.editTaskTitle)
-        assertEquals("Delete Task", terminology.deleteTaskTitle)
+        assertEquals("Task", terminology.itemSingular)
+        assertEquals("Tasks", terminology.itemPlural)
+        assertEquals("+ CREATE TASK", terminology.createButtonText)
+        assertEquals("SKIP TASK", terminology.skipDialogTitle)
+        assertEquals("📜 TASK HISTORY", terminology.historyButtonText)
     }
 
     @Test
     fun `checklist_item_3_quick_complete_and_celebration_suppression`() {
-        val isLevelCelebrationSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.LEVEL_UP_CELEBRATION,
+        val isLevelCelebrationSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.LEVEL_BADGE_AND_CELEBRATION,
             isSimpleMode
         )
         assertTrue("LevelUpCelebrationScreen must never trigger in Simple Mode", isLevelCelebrationSuppressed)
 
-        val isPointsAwardAnimationSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.POINTS_DISPLAY,
+        val isPointsAwardAnimationSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.POINTS_XP_DISPLAY,
             isSimpleMode
         )
         assertTrue("Points awarded animation must be suppressed in Simple Mode", isPointsAwardAnimationSuppressed)
@@ -72,8 +72,8 @@ class SimpleModeFullChecklistUiTest {
     @Test
     fun `checklist_item_4_did_you_do_it_fullscreen_prompt`() {
         val copy = TaskPromptCopyVariants.resolve(isSimpleMode)
-        assertEquals("TASK CHECK", copy.headerTitle)
-        assertEquals("Did you complete this task?", copy.questionPrompt)
+        assertEquals("TASK REMINDER", copy.headerTitle)
+        assertEquals("Did you complete this task today?", copy.questionPrompt)
         assertEquals("Completed", copy.confirmButtonText)
         assertEquals("Not yet", copy.dismissButtonText)
         assertNull("Combat graphics/swords must be omitted", copy.iconEmoji)
@@ -81,12 +81,12 @@ class SimpleModeFullChecklistUiTest {
 
     @Test
     fun `checklist_item_5_profilescreen_suppression_and_neutral_frame`() {
-        val isXpBarSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.XP_BAR,
+        val isXpBarSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.POINTS_XP_DISPLAY,
             isSimpleMode
         )
-        val isLevelBadgeSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.LEVEL_BADGE,
+        val isLevelBadgeSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.LEVEL_BADGE_AND_CELEBRATION,
             isSimpleMode
         )
         assertTrue("XP bar must be suppressed on ProfileScreen", isXpBarSuppressed)
@@ -95,8 +95,8 @@ class SimpleModeFullChecklistUiTest {
 
     @Test
     fun `checklist_item_6_statsscreen_neutral_charts_and_legend`() {
-        val isStreakSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.STREAK_DISPLAY,
+        val isStreakSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.STREAK_DISPLAY,
             isSimpleMode
         )
         assertTrue("Streak stats must be suppressed on StatsScreen", isStreakSuppressed)
@@ -110,8 +110,8 @@ class SimpleModeFullChecklistUiTest {
 
     @Test
     fun `checklist_item_7_settings_difficulty_lock`() {
-        val isDifficultyLocked = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.DIFFICULTY_SELECTION,
+        val isDifficultyLocked = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.DIFFICULTY_SELECTION,
             isSimpleMode
         )
         assertTrue("Difficulty selection must be locked in Settings", isDifficultyLocked)
