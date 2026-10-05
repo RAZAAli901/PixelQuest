@@ -30,7 +30,7 @@ class SimpleModeLevelUpSuppressionTest {
     fun `scenario A - easy mode threshold met in simple mode suppresses celebration`() {
         val (pendingLevel, isVisible) = evaluateLevelUpUiVisibility(
             perfectDays = 3,
-            daysRequired = DifficultyLevel.EASY.daysRequiredPerLevel,
+            daysRequired = com.pixelquest.app.domain.DifficultyMode.getDaysRequiredPerLevel(DifficultyLevel.EASY),
             isSimpleMode = true
         )
 
@@ -42,7 +42,7 @@ class SimpleModeLevelUpSuppressionTest {
     fun `scenario B - medium mode threshold met in simple mode suppresses celebration`() {
         val (pendingLevel, isVisible) = evaluateLevelUpUiVisibility(
             perfectDays = 7,
-            daysRequired = DifficultyLevel.MEDIUM.daysRequiredPerLevel,
+            daysRequired = com.pixelquest.app.domain.DifficultyMode.getDaysRequiredPerLevel(DifficultyLevel.MEDIUM),
             isSimpleMode = true
         )
 
@@ -54,7 +54,7 @@ class SimpleModeLevelUpSuppressionTest {
     fun `scenario C - hard mode threshold met in simple mode suppresses celebration`() {
         val (pendingLevel, isVisible) = evaluateLevelUpUiVisibility(
             perfectDays = 14,
-            daysRequired = DifficultyLevel.HARD.daysRequiredPerLevel,
+            daysRequired = com.pixelquest.app.domain.DifficultyMode.getDaysRequiredPerLevel(DifficultyLevel.HARD),
             isSimpleMode = true
         )
 
@@ -68,7 +68,7 @@ class SimpleModeLevelUpSuppressionTest {
         // 4 >= 3 triggers level-up immediately, but Simple Mode must suppress celebration overlay.
         val (pendingLevel, isVisible) = evaluateLevelUpUiVisibility(
             perfectDays = 4,
-            daysRequired = DifficultyLevel.EASY.daysRequiredPerLevel,
+            daysRequired = com.pixelquest.app.domain.DifficultyMode.getDaysRequiredPerLevel(DifficultyLevel.EASY),
             isSimpleMode = true
         )
 
@@ -80,7 +80,7 @@ class SimpleModeLevelUpSuppressionTest {
     fun `scenario E - gamified mode correctly triggers celebration overlay`() {
         val (pendingLevel, isVisible) = evaluateLevelUpUiVisibility(
             perfectDays = 7,
-            daysRequired = DifficultyLevel.MEDIUM.daysRequiredPerLevel,
+            daysRequired = com.pixelquest.app.domain.DifficultyMode.getDaysRequiredPerLevel(DifficultyLevel.MEDIUM),
             isSimpleMode = false
         )
 
