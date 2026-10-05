@@ -65,6 +65,7 @@ class FakeOfflineUserProfileRepo : UserProfileRepository {
     override suspend fun performLevelUp(): UserProfileEntity? = null
     override suspend fun updateSupabaseUserId(userId: String?) { this.profile = this.profile.copy(supabaseUserId = userId); flow.value = this.profile }
     override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) { this.profile = this.profile.copy(leaderboardOptIn = optIn, leaderboardDisplayName = displayName); flow.value = this.profile }
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) { this.profile = this.profile.copy(leaderboardOptIn = optIn); flow.value = this.profile }
 }
 
@@ -104,7 +105,7 @@ class OfflineRetrySyncTest {
 
         assertEquals(NetworkType.CONNECTED, request.workSpec.constraints.requiredNetworkType)
         assertEquals(BackoffPolicy.EXPONENTIAL, request.workSpec.backoffPolicy)
-        assertTrue(request.workSpec.backoffDelayMillis >= WorkRequest.MIN_BACKOFF_MILLIS)
+        assertTrue(request.workSpec.backoffDelayDuration >= WorkRequest.MIN_BACKOFF_MILLIS)
     }
 
     @Test

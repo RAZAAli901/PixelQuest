@@ -20,5 +20,4 @@ ui/theme/Day22FinalVerificationTest.kt
 ui/theme/FollowSystemThemeSwitchingTest.kt
 ui/theme/SimpleModeThemeMatrixIntegrationTest.kt
 worker/MissedTaskWorkerTest.kt
-worker/OfflineRetrySyncTest.kt
 worker/StreakEvaluationWorkerTest.kt
