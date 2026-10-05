@@ -35,11 +35,11 @@ class SimpleModeColdRestartPersistenceTest {
 
         // 3. UI layers initialize with simple mode active on first frame (no flash of gamified UI)
         val terminology = TaskTerminology.forMode(coldStartSimpleMode)
-        assertEquals("Task", terminology.taskNoun)
-        assertEquals("TODAY'S TASKS", terminology.todayHeader)
+        assertEquals("Task", terminology.itemSingular)
+        assertEquals("📋 TODAY'S TASKS", terminology.todayHeader)
 
-        val isStreakSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.STREAK_DISPLAY,
+        val isStreakSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.STREAK_DISPLAY,
             coldStartSimpleMode
         )
         assertTrue("Streak strip must be suppressed on first frame after restart", isStreakSuppressed)
@@ -50,7 +50,7 @@ class SimpleModeColdRestartPersistenceTest {
         assertFalse("Second cold start must read Simple Mode = false", secondColdStart)
 
         val restoredTerminology = TaskTerminology.forMode(secondColdStart)
-        assertEquals("Quest", restoredTerminology.taskNoun)
-        assertEquals("TODAY'S QUESTS", restoredTerminology.todayHeader)
+        assertEquals("Quest", restoredTerminology.itemSingular)
+        assertEquals("⚔️ TODAY'S DASHBOARD", restoredTerminology.todayHeader)
     }
 }

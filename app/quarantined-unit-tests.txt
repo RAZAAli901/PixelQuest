@@ -24,7 +24,6 @@ qa/Day19SimpleModeDisableReversalQaTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
 qa/ScreenStabilitySimpleModeQaTest.kt
 scheduling/NotificationMasterToggleTest.kt
-ui/SimpleModeColdRestartPersistenceTest.kt
 ui/SimpleModeFullChecklistUiTest.kt
 ui/components/HeatmapColorMapperTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
