@@ -118,7 +118,7 @@ fun LightPalettePreview() {
         )
         LightPaletteSwatchItem(
             name = "Secondary (Daylight Cyan)",
-            hex = "#0284C7",
+            hex = "#0369A1",
             color = scheme.secondary,
             contrastNote = "4.6:1 vs Surface (AA)"
         )

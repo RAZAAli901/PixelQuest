@@ -92,7 +92,7 @@ class Day17LightModeFinalVerificationTest {
         // Primary: Retro Arcade Amber / Dungeon Gold
         assertEquals(Color(0xFFB45309), lightColors.primary)
         // Secondary: Sky Blue
-        assertEquals(Color(0xFF0284C7), lightColors.secondary)
+        assertEquals(Color(0xFF0369A1), lightColors.secondary)
         // Tertiary: HP Meadow Emerald
         assertEquals(Color(0xFF15803D), lightColors.tertiary)
         // Error: Boss Trap Crimson

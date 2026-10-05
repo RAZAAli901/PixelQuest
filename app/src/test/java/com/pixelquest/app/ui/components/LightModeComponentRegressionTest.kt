@@ -28,8 +28,8 @@ class LightModeComponentRegressionTest {
         // Light Primary CTA: Retro Daylight Amber (#B45309)
         assertEquals(Color(0xFFB45309), lightScheme.primary)
 
-        // Light Secondary CTA: Daylight Sky (#0284C7); emerald (#15803D) is the tertiary
-        assertEquals(Color(0xFF0284C7), lightScheme.secondary)
+        // Light Secondary CTA: Daylight Sky (#0369A1); emerald (#15803D) is the tertiary
+        assertEquals(Color(0xFF0369A1), lightScheme.secondary)
         assertEquals(Color(0xFF15803D), lightScheme.tertiary)
 
         // Light OnPrimary and OnSecondary are crisp White (#FFFFFF)

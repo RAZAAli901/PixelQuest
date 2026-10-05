@@ -47,7 +47,7 @@ class Day20ComicModeFinalVerificationTest {
         assertEquals(Color(0xFFF8F6F0), lightScheme.background)
         assertEquals(Color(0xFFFFFFFF), lightScheme.surface)
         assertEquals(Color(0xFFB45309), lightScheme.primary)
-        assertEquals(Color(0xFF0284C7), lightScheme.secondary)
+        assertEquals(Color(0xFF0369A1), lightScheme.secondary)
         assertEquals(Color(0xFF15803D), lightScheme.tertiary)
         assertEquals(Color(0xFF1C1917), lightScheme.onBackground)
         assertEquals(Color(0xFF1C1917), lightScheme.onSurface)

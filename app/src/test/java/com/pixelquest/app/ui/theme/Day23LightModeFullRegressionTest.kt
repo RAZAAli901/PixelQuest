@@ -29,7 +29,7 @@ class Day23LightModeFullRegressionTest {
         assertEquals("Background must be warm ivory #F8F6F0", Color(0xFFF8F6F0), scheme.background)
         assertEquals("Surface must be crisp white #FFFFFF", Color(0xFFFFFFFF), scheme.surface)
         assertEquals("Primary must be amber gold #B45309", Color(0xFFB45309), scheme.primary)
-        assertEquals("Secondary must be daylight sky cyan #0284C7", Color(0xFF0284C7), scheme.secondary)
+        assertEquals("Secondary must be daylight sky #0369A1", Color(0xFF0369A1), scheme.secondary)
         assertEquals("Tertiary must be meadow green #15803D", Color(0xFF15803D), scheme.tertiary)
         assertEquals("OnBackground must be deep stone charcoal #1C1917", Color(0xFF1C1917), scheme.onBackground)
         assertEquals("OnSurface must be deep stone charcoal #1C1917", Color(0xFF1C1917), scheme.onSurface)

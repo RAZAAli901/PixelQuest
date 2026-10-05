@@ -15,7 +15,7 @@ data class LightColorScheme(
     override val onPrimary: Color = Color(0xFFFFFFFF),
     override val primaryContainer: Color = Color(0xFFFEF3C7),
     override val onPrimaryContainer: Color = Color(0xFF451A03),
-    override val secondary: Color = Color(0xFF0284C7), // Daylight Sky / Retro Cyan
+    override val secondary: Color = Color(0xFF0369A1), // Daylight Sky: 5.9:1 on white either way round (#0284C7 was 4.1:1)
     override val onSecondary: Color = Color(0xFFFFFFFF),
     override val secondaryContainer: Color = Color(0xFFE0F2FE),
     override val tertiary: Color = Color(0xFF15803D), // Meadow Quest Green / HP Green
