@@ -3,7 +3,6 @@
 domain/ai/AiInsightUserFlowIntegrationTest.kt
 domain/ai/Day25InsightQualityManualQaTest.kt
 integration/NotificationCopyIntegrationTest.kt
-integration/ResetProgressIntegrationTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
 ui/theme/FollowSystemThemeSwitchingTest.kt
