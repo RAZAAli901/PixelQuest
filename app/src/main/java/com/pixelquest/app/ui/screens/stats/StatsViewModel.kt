@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
-import com.pixelquest.app.util.todayFlow
 import javax.inject.Inject
 
 data class StatsUiState(
@@ -59,12 +58,13 @@ class StatsViewModel @Inject constructor(
     private val streakRepository: StreakRepository,
     private val userProfileRepository: UserProfileRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
-    private val settingsRepository: SettingsRepository? = null
+    private val settingsRepository: SettingsRepository? = null,
+    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
 ) : ViewModel() {
 
-    /** The last 3 months up to today; moves on at midnight (see [todayFlow]). */
+    /** The last 3 months up to today; moves on at midnight (see [com.pixelquest.app.util.AppClock.today]). */
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val rangeData = todayFlow().flatMapLatest { today ->
+    private val rangeData = appClock.today().flatMapLatest { today ->
         val startDate = today.minusMonths(3)
         combine(
             statsRepository.getCompletionRateOverRange(startDate, today),

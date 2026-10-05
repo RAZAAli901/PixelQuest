@@ -19,7 +19,6 @@ import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -28,16 +27,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,27 +46,19 @@ class TodayViewModel @Inject constructor(
     private val taskAlarmScheduler: TaskAlarmScheduler,
     private val taskResultRecorder: TaskResultRecorder,
     private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
-    private val settingsRepository: SettingsRepository? = null
+    private val settingsRepository: SettingsRepository? = null,
+    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
 ) : ViewModel() {
 
     private val refreshRequests = MutableStateFlow(0)
-
-    /** Emits now, then at the start of every minute, while the screen is collecting. */
-    private val minuteTicks = flow {
-        while (true) {
-            val now = LocalDateTime.now()
-            emit(now)
-            delay(Duration.between(now, now.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1)).toMillis())
-        }
-    }
 
     /**
      * The time the screen is drawn for. It moves on every minute and on [refresh], so the list
      * switches to the new day at midnight even if the app stayed open, and pending quests turn
      * into grace-period ones as their time passes.
      */
-    private val clock: StateFlow<LocalDateTime> = combine(minuteTicks, refreshRequests) { _, _ -> LocalDateTime.now() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LocalDateTime.now())
+    private val clock: StateFlow<LocalDateTime> = combine(appClock.minuteTicks(), refreshRequests) { _, _ -> appClock.now() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), appClock.now())
 
     /** The day the screen shows, which completing and skipping record against. */
     private val currentDate: LocalDate get() = clock.value.toLocalDate()

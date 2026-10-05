@@ -9,7 +9,6 @@ import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.ui.components.TaskItemStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
-import com.pixelquest.app.util.todayFlow
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,12 +22,13 @@ import javax.inject.Inject
 class TaskViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
-    private val difficultySettingsRepository: DifficultySettingsRepository
+    private val difficultySettingsRepository: DifficultySettingsRepository,
+    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
 ) : ViewModel() {
 
-    /** Today's results; moves on at midnight (see [todayFlow]). */
+    /** Today's results; moves on at midnight (see [com.pixelquest.app.util.AppClock.today]). */
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val todaysLogs = todayFlow().flatMapLatest { taskCompletionRepository.getLogsForDate(it) }
+    private val todaysLogs = appClock.today().flatMapLatest { taskCompletionRepository.getLogsForDate(it) }
 
     val uiState: StateFlow<TaskUiState> = combine(
         taskRepository.getAllTasks(),

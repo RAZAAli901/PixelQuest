@@ -172,3 +172,13 @@ class FakeSettingsRepository(
     override suspend fun setLastAiInsightTimestamp(timestamp: Long) { lastAiInsightTimestamp.value = timestamp }
     override suspend fun setAiReminderMessagesEnabled(enabled: Boolean) { aiReminderMessagesEnabled.value = enabled }
 }
+
+/**
+ * A clock stopped at [time]. Its tick and date flows emit once and complete, so a test's virtual
+ * time can run to idle; change [time] and call the screen's refresh to move it on.
+ */
+class FixedClock(var time: java.time.LocalDateTime = java.time.LocalDateTime.now()) : com.pixelquest.app.util.AppClock() {
+    override fun now(): java.time.LocalDateTime = time
+    override fun minuteTicks(): Flow<java.time.LocalDateTime> = kotlinx.coroutines.flow.flowOf(time)
+    override fun today(): Flow<LocalDate> = kotlinx.coroutines.flow.flowOf(time.toLocalDate())
+}
