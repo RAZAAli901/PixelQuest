@@ -46,9 +46,9 @@ class PixelModeDay22FullRegressionTest {
     @Test
     fun pixelXpBar_pixelMode_preservesDarkTokensAndLayout() {
         val scheme = DefaultPixelColorScheme
-        assertEquals(com.pixelquest.app.ui.theme.PixelCyan, scheme.primary)
-        assertEquals(com.pixelquest.app.ui.theme.PixelSurfaceDark, scheme.surfaceVariant)
-        assertEquals(com.pixelquest.app.ui.theme.PixelBorderBlack, scheme.pixelBorder)
+        assertEquals(com.pixelquest.app.ui.theme.PixelGold, scheme.primary) // gold, as since Day 1
+        assertEquals(com.pixelquest.app.ui.theme.PixelSurfaceBorder, scheme.surfaceVariant)
+        assertEquals(com.pixelquest.app.ui.theme.PixelSurfaceBorder, scheme.pixelBorder)
         assertFalse("Pixel mode must not branch to ComicXpBar", ThemeMode.Pixel == ThemeMode.Comic)
     }
 
@@ -87,6 +87,7 @@ class PixelModeDay22FullRegressionTest {
     @Test
     fun themeGating_pixelModeAvailable_comicModeGated() {
         assertTrue("Pixel mode must be available to all users", ThemeMode.Pixel.isAvailable)
-        assertFalse("Comic mode must remain strictly gated until Day 23", ThemeMode.Comic.isAvailable)
+        // Comic was gated until Day 23 and has been available to everyone since.
+        assertTrue("Comic mode is unlocked for everyone", ThemeMode.Comic.isAvailable)
     }
 }

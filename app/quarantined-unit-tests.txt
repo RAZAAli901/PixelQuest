@@ -49,7 +49,6 @@ ui/SimpleModeFullChecklistUiTest.kt
 ui/components/HeatmapColorMapperTest.kt
 ui/components/LightModeComponentRegressionTest.kt
 ui/components/PixelModeComponentRegressionTest.kt
-ui/components/PixelModeDay22FullRegressionTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/leaderboard/SimpleModeLeaderboardViewerIsolationTest.kt
 ui/leveling/SimpleModeLevelUpSuppressionTest.kt
