@@ -96,34 +96,13 @@ class Day25RateLimitManualQaTest {
             override suspend fun setNotificationVibrationEnabled(enabled: Boolean) {}
         }
 
-        val streakRepo = object : StreakRepository {
-            override suspend fun insertStreak(streak: StreakEntity) {}
-            override suspend fun updateStreak(streak: StreakEntity) {}
-            override fun getCurrentStreak(): Flow<StreakEntity?> = flowOf(StreakEntity(currentStreak = 7))
-        }
+        val streakRepo = com.pixelquest.app.testing.FakeStreakRepository(StreakEntity(currentStreak = 7))
 
-        val profileRepo = object : UserProfileRepository {
-            override suspend fun insertProfile(profile: UserProfileEntity) {}
-            override suspend fun updateProfile(profile: UserProfileEntity) {}
-            override fun getProfile(): Flow<UserProfileEntity?> = flowOf(UserProfileEntity(level = 3))
-        }
+        val profileRepo = com.pixelquest.app.testing.FakeUserProfileRepository(UserProfileEntity(avatarId = "avatar_hero", username = "Hero", level = 3))
 
-        val taskRepo = object : TaskRepository {
-            override suspend fun insertTask(task: com.pixelquest.app.data.local.entity.TaskEntity): Long = 1L
-            override suspend fun updateTask(task: com.pixelquest.app.data.local.entity.TaskEntity) {}
-            override suspend fun deleteTask(task: com.pixelquest.app.data.local.entity.TaskEntity) {}
-            override fun getAllTasks(): Flow<List<com.pixelquest.app.data.local.entity.TaskEntity>> = flowOf(emptyList())
-            override fun getTaskById(taskId: Long): Flow<com.pixelquest.app.data.local.entity.TaskEntity?> = flowOf(null)
-            override fun getTasksForDay(day: java.time.LocalDate): Flow<List<com.pixelquest.app.data.local.entity.TaskEntity>> = flowOf(emptyList())
-        }
+        val taskRepo = com.pixelquest.app.testing.FakeTaskRepository(emptyList())
 
-        val completionRepo = object : TaskCompletionRepository {
-            override suspend fun insertLog(log: com.pixelquest.app.data.local.entity.TaskCompletionLogEntity): Long = 1L
-            override fun getLogsForDate(date: java.time.LocalDate): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getLogsForTask(taskId: Long): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getCompletionHistory(startDate: java.time.LocalDate, endDate: java.time.LocalDate): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getAllLogs(): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-        }
+        val completionRepo = com.pixelquest.app.testing.FakeTaskCompletionRepository(emptyList())
 
         val repository = HabitInsightRepositoryImpl(
             streakRepository = streakRepo,

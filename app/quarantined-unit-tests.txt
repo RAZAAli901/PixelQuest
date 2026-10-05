@@ -26,7 +26,6 @@ qa/AppRestartPersistenceTest.kt
 qa/Day19GamifiedModeDefaultRegressionTest.kt
 qa/Day19SimpleModeActiveManualQaTest.kt
 qa/Day19SimpleModeDisableReversalQaTest.kt
-qa/Day25RateLimitManualQaTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
 qa/ScreenStabilitySimpleModeQaTest.kt
 qa/SyncConflictQaTest.kt
