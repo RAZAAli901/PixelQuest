@@ -20,17 +20,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class FakeDifficultySettingsRepository : DifficultySettingsRepository {
-    private val settingsFlow = MutableStateFlow<DifficultySettingsEntity?>(
-        DifficultySettingsEntity(id = 1, difficultyLevel = DifficultyLevel.MEDIUM, perfectDayThreshold = 0.7f)
-    )
-
-    override fun getCurrentDifficulty(): Flow<DifficultySettingsEntity?> = settingsFlow
-
-    override suspend fun updateDifficultySettings(settings: DifficultySettingsEntity) {
-        settingsFlow.value = settings
-    }
-}
+// Starts on Medium (70%), like the app's seeded settings.
+private typealias FakeDifficultySettingsRepository = com.pixelquest.app.testing.FakeDifficultySettingsRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class DifficultyViewModelTest {
