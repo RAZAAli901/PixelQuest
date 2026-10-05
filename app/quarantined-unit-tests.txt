@@ -3,4 +3,3 @@
 domain/ai/AiInsightUserFlowIntegrationTest.kt
 domain/ai/Day25InsightQualityManualQaTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
-worker/StreakEvaluationWorkerTest.kt

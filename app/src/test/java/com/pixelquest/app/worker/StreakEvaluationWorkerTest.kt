@@ -1,176 +1,111 @@
 package com.pixelquest.app.worker
 
+import android.app.Application
+import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.ListenableWorker
+import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import androidx.work.testing.TestListenableWorkerBuilder
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.domain.LevelUpSignalManager
 import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.TaskCategory
-import com.pixelquest.app.domain.repository.DifficultySettingsRepository
-import com.pixelquest.app.domain.repository.StreakRepository
-import com.pixelquest.app.ui.FakeTaskRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
+import com.pixelquest.app.testing.FakeDifficultySettingsRepository
+import com.pixelquest.app.testing.FakeLevelHistoryRepository
+import com.pixelquest.app.testing.FakeStreakRepository
+import com.pixelquest.app.testing.FakeTaskCompletionRepository
+import com.pixelquest.app.testing.FakeTaskRepository
+import com.pixelquest.app.testing.FakeUserProfileRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 
-class FakeStreakRepository : StreakRepository {
-    private val streakState = MutableStateFlow<StreakEntity?>(
-        StreakEntity(id = 1, currentStreak = 2, longestStreak = 5, perfectDaysCount = 10)
-    )
-
-    override fun getCurrentStreak(): Flow<StreakEntity?> = streakState
-
-    override suspend fun insertStreak(streak: StreakEntity): Long {
-        streakState.value = streak
-        return 1L
-    }
-
-    override suspend fun updateStreak(streak: StreakEntity) {
-        streakState.value = streak
-    }
-}
-
-class FakeDifficultyRepository : DifficultySettingsRepository {
-    private val diffState = MutableStateFlow<DifficultySettingsEntity?>(
-        DifficultySettingsEntity(id = 1, difficultyLevel = DifficultyLevel.MEDIUM, perfectDayThreshold = 0.7f)
-    )
-
-    override fun getCurrentDifficulty(): Flow<DifficultySettingsEntity?> = diffState
-
-    override suspend fun insertDifficultySettings(settings: DifficultySettingsEntity): Long {
-        diffState.value = settings
-        return 1L
-    }
-
-    override suspend fun updateDifficultySettings(settings: DifficultySettingsEntity) {
-        diffState.value = settings
-    }
-}
-
+/** The nightly check scores yesterday against the difficulty's perfect-day threshold. */
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], application = Application::class)
 class StreakEvaluationWorkerTest {
 
-    private lateinit var fakeTaskRepo: FakeTaskRepository
-    private lateinit var fakeCompletionRepo: FakeTaskCompletionRepository
-    private lateinit var fakeStreakRepo: FakeStreakRepository
-    private lateinit var fakeDiffRepo: FakeDifficultyRepository
+    private val context: Context = ApplicationProvider.getApplicationContext()
+    private val yesterday = LocalDate.now().minusDays(1)
 
-    @Before
-    fun setUp() {
-        fakeTaskRepo = FakeTaskRepository()
-        fakeCompletionRepo = FakeTaskCompletionRepository()
-        fakeStreakRepo = FakeStreakRepository()
-        fakeDiffRepo = FakeDifficultyRepository()
-    }
+    private val tasks = FakeTaskRepository()
+    private val logs = FakeTaskCompletionRepository()
+    // Medium: 70% of yesterday's quests make a perfect day.
+    private val difficulty = FakeDifficultySettingsRepository(
+        DifficultySettingsEntity(id = 1, difficultyLevel = DifficultyLevel.MEDIUM, perfectDayThreshold = 0.7f, daysRequiredPerLevel = 7)
+    )
+    private val streaks = FakeStreakRepository(
+        StreakEntity(id = 1, currentStreak = 5, longestStreak = 10, lastCompletedDate = yesterday.minusDays(1))
+    )
 
-    @Test
-    fun doWork_allTasksMissed_resetsCurrentStreakToZero() = runBlocking {
-        val yesterday = LocalDate.now().minusDays(1)
-        fakeTaskRepo.insertTask(
-            TaskEntity(
-                id = 1,
-                name = "Missed",
-                description = "",
-                scheduledDay = yesterday,
-                scheduledTime = LocalTime.of(9, 0),
-                recurrenceType = RecurrenceType.DAILY,
-                category = TaskCategory.FITNESS
+    private fun questsYesterday(count: Int) = (1L..count).forEach { id ->
+        runBlocking {
+            tasks.insertTask(
+                TaskEntity(
+                    id = id, name = "Quest $id", description = "", scheduledDay = yesterday.minusDays(7),
+                    scheduledTime = LocalTime.of(9, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS
+                )
             )
-        )
-        fakeCompletionRepo.logTaskCompletion(
-            TaskCompletionLogEntity(taskId = 1, completedAt = LocalDateTime.of(yesterday, LocalTime.of(10, 0)), wasCompleted = false)
-        )
+        }
+    }
 
-        val params = mock(WorkerParameters::class.java)
-        val worker = StreakEvaluationWorker(
-            ApplicationProvider.getApplicationContext(),
-            params,
-            fakeTaskRepo,
-            fakeCompletionRepo,
-            fakeStreakRepo,
-            fakeDiffRepo
-        )
+    private fun completed(vararg ids: Long) = runBlocking {
+        ids.forEach { logs.insertLog(TaskCompletionLogEntity(taskId = it, completedDate = yesterday, wasCompleted = true, pointsAwarded = 50)) }
+    }
 
-        val result = worker.doWork()
-        assertEquals(ListenableWorker.Result.success(), result)
-
-        val streak = fakeStreakRepo.getCurrentStreak().first()
-        assertEquals(0, streak?.currentStreak)
-        assertEquals(5, streak?.longestStreak) // preserved!
+    private fun runWorker(): ListenableWorker.Result = runBlocking {
+        TestListenableWorkerBuilder<StreakEvaluationWorker>(context)
+            .setWorkerFactory(object : WorkerFactory() {
+                override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters) =
+                    StreakEvaluationWorker(
+                        appContext, workerParameters, tasks, logs, streaks, difficulty,
+                        FakeUserProfileRepository(), FakeLevelHistoryRepository(), LevelUpSignalManager(appContext)
+                    )
+            })
+            .build()
+            .doWork()
     }
 
     @Test
-    fun doWork_exactThreshold_incrementsStreak() = runBlocking {
-        val yesterday = LocalDate.now().minusDays(1)
-        // 1 task, completed -> 100% >= 70% threshold
-        fakeTaskRepo.insertTask(
-            TaskEntity(
-                id = 1,
-                name = "Completed",
-                description = "",
-                scheduledDay = yesterday,
-                scheduledTime = LocalTime.of(9, 0),
-                recurrenceType = RecurrenceType.DAILY,
-                category = TaskCategory.FITNESS
-            )
-        )
-        fakeCompletionRepo.logTaskCompletion(
-            TaskCompletionLogEntity(taskId = 1, completedAt = LocalDateTime.of(yesterday, LocalTime.of(10, 0)), wasCompleted = true)
-        )
+    fun doWork_allTasksMissed_resetsCurrentStreakToZero() {
+        questsYesterday(2)
 
-        val params = mock(WorkerParameters::class.java)
-        val worker = StreakEvaluationWorker(
-            ApplicationProvider.getApplicationContext(),
-            params,
-            fakeTaskRepo,
-            fakeCompletionRepo,
-            fakeStreakRepo,
-            fakeDiffRepo
-        )
+        assertEquals(ListenableWorker.Result.success(), runWorker())
 
-        val result = worker.doWork()
-        assertEquals(ListenableWorker.Result.success(), result)
-
-        val streak = fakeStreakRepo.getCurrentStreak().first()
-        assertEquals(3, streak?.currentStreak) // 2 + 1 = 3
+        val streak = streaks.streak.value!!
+        assertEquals(0, streak.currentStreak)
+        assertEquals(10, streak.longestStreak)
+        assertEquals(yesterday, streak.lastCompletedDate)
     }
 
     @Test
-    fun doWork_secondCallSameDate_isIdempotent() = runBlocking {
-        val yesterday = LocalDate.now().minusDays(1)
-        fakeStreakRepo.updateStreak(
-            StreakEntity(id = 1, currentStreak = 5, longestStreak = 5, lastCompletedDate = yesterday)
-        )
+    fun doWork_exactThreshold_incrementsStreak() {
+        questsYesterday(10)
+        completed(1, 2, 3, 4, 5, 6, 7) // exactly 70%
 
-        val params = mock(WorkerParameters::class.java)
-        val worker = StreakEvaluationWorker(
-            ApplicationProvider.getApplicationContext(),
-            params,
-            fakeTaskRepo,
-            fakeCompletionRepo,
-            fakeStreakRepo,
-            fakeDiffRepo
-        )
+        runWorker()
 
-        val result = worker.doWork()
-        assertEquals(ListenableWorker.Result.success(), result)
+        assertEquals(6, streaks.streak.value!!.currentStreak)
+    }
 
-        val streak = fakeStreakRepo.getCurrentStreak().first()
-        assertEquals(5, streak?.currentStreak) // did not increment again!
+    @Test
+    fun doWork_secondCallSameDate_isIdempotent() {
+        questsYesterday(1)
+        completed(1)
+
+        runWorker()
+        runWorker()
+
+        assertEquals(6, streaks.streak.value!!.currentStreak)
     }
 }
-
