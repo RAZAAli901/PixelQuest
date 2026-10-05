@@ -270,7 +270,11 @@ class LeaderboardViewModel @Inject constructor(
         val authState = _uiState.value.authState
         val userId = when (authState) {
             is LeaderboardAuthState.SignedInAndOptedIn -> authState.userId
-            is LeaderboardAuthState.SignedInReadOnly -> authState.userId
+            // A spectator isn't on the board, so has no rank and nobody "around" them.
+            is LeaderboardAuthState.SignedInReadOnly -> {
+                _uiState.value = _uiState.value.copy(currentUserRank = null, aroundYouEntries = emptyList())
+                return
+            }
             LeaderboardAuthState.NotSignedIn -> return
         }
 

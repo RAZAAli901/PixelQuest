@@ -96,6 +96,7 @@ class FullLeaderboardFlowIntegrationTest {
             override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {
                 userProfileFlow.value = userProfileFlow.value?.copy(leaderboardOptIn = optIn, leaderboardDisplayName = displayName)
             }
+            override suspend fun clearCloudData() {}
             override suspend fun updateLeaderboardOptIn(optIn: Boolean) {
                 userProfileFlow.value = userProfileFlow.value?.copy(leaderboardOptIn = optIn)
             }
