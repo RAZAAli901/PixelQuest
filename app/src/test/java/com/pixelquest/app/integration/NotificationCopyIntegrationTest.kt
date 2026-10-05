@@ -1,6 +1,6 @@
 package com.pixelquest.app.integration
 
-import com.pixelquest.app.domain.model.TaskPromptCopyVariants
+import com.pixelquest.app.ui.prompt.TaskPromptCopyVariants
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.notification.NotificationHelper
 import kotlinx.coroutines.flow.Flow
@@ -60,48 +60,44 @@ class NotificationCopyIntegrationTest {
         assertFalse(settingsRepository.simpleModeEnabled.first())
         val gamifiedMode = settingsRepository.simpleModeEnabled.first()
 
-        val gamifiedReminder = NotificationHelper.buildReminderContentText(taskName, gamifiedMode)
-        assertEquals("Keep your streak! Time to do: Morning Meditation", gamifiedReminder)
+        val gamifiedReminder = NotificationHelper.getReminderText(taskName, gamifiedMode)
+        assertEquals("Did you complete this quest today? Keep your streak!", gamifiedReminder)
         assertTrue(gamifiedReminder.contains("streak", ignoreCase = true))
 
-        val gamifiedMissed = NotificationHelper.buildMissedTaskContentText(taskName, gamifiedMode)
-        assertEquals("Don't break your streak! You missed: Morning Meditation", gamifiedMissed)
-        assertTrue(gamifiedMissed.contains("break your streak", ignoreCase = true))
+        // A missed quest's notice no longer claims the streak broke (Day 26).
+        val gamifiedMissed = NotificationHelper.getMissedTaskText(taskName, gamifiedMode)
+        assertEquals("Morning Meditation slipped past its time. Log it now or start fresh tomorrow.", gamifiedMissed)
 
-        val gamifiedTitle = TaskPromptCopyVariants.getTitle(gamifiedMode)
-        assertEquals("⚔️ DID YOU DO IT?", gamifiedTitle)
-        assertEquals("YES!", TaskPromptCopyVariants.getConfirmButtonText(gamifiedMode))
-        assertEquals("NOT YET", TaskPromptCopyVariants.getDismissButtonText(gamifiedMode))
+        val gamifiedCopy = TaskPromptCopyVariants.resolve(gamifiedMode)
+        assertEquals("DID YOU DO IT?", gamifiedCopy.headerTitle)
+        assertEquals("YES!", gamifiedCopy.confirmButtonText)
+        assertEquals("NOT YET", gamifiedCopy.dismissButtonText)
 
         // --- PHASE 2: Toggle Simple Mode ON ---
         settingsRepository.setSimpleModeEnabled(true)
         assertTrue(settingsRepository.simpleModeEnabled.first())
         val simpleMode = settingsRepository.simpleModeEnabled.first()
 
-        val simpleReminder = NotificationHelper.buildReminderContentText(taskName, simpleMode)
-        assertEquals("Time to do: Morning Meditation", simpleReminder)
+        val simpleReminder = NotificationHelper.getReminderText(taskName, simpleMode)
+        assertEquals("Time to complete: Morning Meditation", simpleReminder)
         assertFalse("Simple reminder must not mention streak", simpleReminder.contains("streak", ignoreCase = true))
 
-        val simpleMissed = NotificationHelper.buildMissedTaskContentText(taskName, simpleMode)
-        assertEquals("You missed a task: Morning Meditation", simpleMissed)
+        val simpleMissed = NotificationHelper.getMissedTaskText(taskName, simpleMode)
+        assertEquals("Morning Meditation was due earlier today. You can still log it in the app.", simpleMissed)
         assertFalse("Simple missed notice must not mention streak", simpleMissed.contains("streak", ignoreCase = true))
 
-        val simpleTitle = TaskPromptCopyVariants.getTitle(simpleMode)
-        assertEquals("Did you complete this task?", simpleTitle)
-        assertEquals("Completed", TaskPromptCopyVariants.getConfirmButtonText(simpleMode))
-        assertEquals("Not yet", TaskPromptCopyVariants.getDismissButtonText(simpleMode))
+        val simpleCopy = TaskPromptCopyVariants.resolve(simpleMode)
+        assertEquals("TASK REMINDER", simpleCopy.headerTitle)
+        assertEquals("Completed", simpleCopy.confirmButtonText)
+        assertEquals("Not yet", simpleCopy.dismissButtonText)
 
         // --- PHASE 3: Toggle Simple Mode back to OFF ---
         settingsRepository.setSimpleModeEnabled(false)
         val revertedMode = settingsRepository.simpleModeEnabled.first()
         assertFalse(revertedMode)
 
-        val revertedReminder = NotificationHelper.buildReminderContentText(taskName, revertedMode)
-        assertEquals("Keep your streak! Time to do: Morning Meditation", revertedReminder)
-
-        val revertedMissed = NotificationHelper.buildMissedTaskContentText(taskName, revertedMode)
-        assertEquals("Don't break your streak! You missed: Morning Meditation", revertedMissed)
-
-        assertEquals("⚔️ DID YOU DO IT?", TaskPromptCopyVariants.getTitle(revertedMode))
+        assertEquals(gamifiedReminder, NotificationHelper.getReminderText(taskName, revertedMode))
+        assertEquals(gamifiedMissed, NotificationHelper.getMissedTaskText(taskName, revertedMode))
+        assertEquals("DID YOU DO IT?", TaskPromptCopyVariants.resolve(revertedMode).headerTitle)
     }
 }
