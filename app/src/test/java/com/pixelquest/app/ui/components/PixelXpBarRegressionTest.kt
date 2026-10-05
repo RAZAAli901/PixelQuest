@@ -33,10 +33,10 @@ class PixelXpBarRegressionTest {
     fun pixelXpBar_lightMode_preservesDaylightColorMapping() {
         val lightScheme = DefaultLightColorScheme
 
-        // Light mode primary and surfaceVariant colors remain unchanged
-        assertEquals(Color(0xFF2E7D32), lightScheme.primary)
-        assertEquals(Color(0xFFE8F5E9), lightScheme.surfaceVariant)
-        assertEquals(Color(0xFF1B5E20), lightScheme.pixelBorder)
+        // Light mode: amber primary, warm stone track, near-black stone border
+        assertEquals(Color(0xFFB45309), lightScheme.primary)
+        assertEquals(Color(0xFFE6E1D6), lightScheme.surfaceVariant)
+        assertEquals(Color(0xFF292524), lightScheme.pixelBorder)
 
         val isComic = ThemeMode.Light == ThemeMode.Comic
         assertFalse("Light mode must not enter Comic dispatch branch", isComic)

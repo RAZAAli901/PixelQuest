@@ -29,9 +29,10 @@ class LightModeDay22FullRegressionTest {
     @Test
     fun lightMode_paletteTokens_remainInvariant() {
         val scheme = DefaultLightColorScheme
-        assertEquals(Color(0xFF2E7D32), scheme.primary)
-        assertEquals(Color(0xFFE8F5E9), scheme.surfaceVariant)
-        assertEquals(Color(0xFF1B5E20), scheme.pixelBorder)
+        // Retro Daylight: amber primary, warm stone surfaceVariant, near-black stone border.
+        assertEquals(Color(0xFFB45309), scheme.primary)
+        assertEquals(Color(0xFFE6E1D6), scheme.surfaceVariant)
+        assertEquals(Color(0xFF292524), scheme.pixelBorder)
         assertEquals(Color(0xFF15803D), scheme.tertiary)
     }
 
