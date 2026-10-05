@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
@@ -15,6 +18,13 @@ import org.junit.Test
  * without requiring an activity recreation or app restart.
  */
 class LiveThemeSwitchingTest {
+
+    // ViewModels run in viewModelScope, which needs a Main dispatcher on the JVM.
+    @org.junit.Before
+    fun setUpMain() = kotlinx.coroutines.Dispatchers.setMain(kotlinx.coroutines.test.UnconfinedTestDispatcher())
+
+    @org.junit.After
+    fun tearDownMain() = kotlinx.coroutines.Dispatchers.resetMain()
 
     private class TestSettingsRepo : SettingsRepository {
         val flow = MutableStateFlow(ThemeMode.Pixel)
@@ -46,6 +56,8 @@ class LiveThemeSwitchingTest {
     fun liveThemeSwitching_updatesReactiveStateContinuouslyWithoutRestart() = runTest {
         val repo = TestSettingsRepo()
         val viewModel = ThemeViewModel(repo)
+        // themeMode is shared WhileSubscribed, so it only follows the setting while collected.
+        backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) { viewModel.themeMode.collect {} }
 
         // 1. Initially Pixel mode
         assertEquals(ThemeMode.Pixel, viewModel.themeMode.value)

@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -23,6 +26,13 @@ import org.junit.Test
  * - CRT filter is strictly active in Pixel mode and excluded in Comic and Light modes
  */
 class Day23FullThemeCyclingIntegrationTest {
+
+    // ViewModels run in viewModelScope, which needs a Main dispatcher on the JVM.
+    @org.junit.Before
+    fun setUpMain() = kotlinx.coroutines.Dispatchers.setMain(kotlinx.coroutines.test.UnconfinedTestDispatcher())
+
+    @org.junit.After
+    fun tearDownMain() = kotlinx.coroutines.Dispatchers.resetMain()
 
     private class MockSettingsRepository : SettingsRepository {
         private val _themeMode = MutableStateFlow(ThemeMode.Pixel)
@@ -74,6 +84,8 @@ class Day23FullThemeCyclingIntegrationTest {
     fun fullThemeCyclingAcrossScreens_maintainsFidelityAndZeroStaleState() = runTest {
         val settingsRepo = MockSettingsRepository()
         val themeViewModel = ThemeViewModel(settingsRepo)
+        // themeMode is shared WhileSubscribed, so it only follows the setting while collected.
+        backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) { themeViewModel.themeMode.collect {} }
 
         // Repeat the full cycle 3 times to ensure repeated switching does not leak state
         repeat(3) { cycleIteration ->

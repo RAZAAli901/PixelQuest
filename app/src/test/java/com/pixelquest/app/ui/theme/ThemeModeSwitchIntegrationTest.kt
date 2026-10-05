@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -16,6 +19,13 @@ import org.junit.Test
  * and verifying palette integrity, color resolution, and zero crashes across UI states.
  */
 class ThemeModeSwitchIntegrationTest {
+
+    // ViewModels run in viewModelScope, which needs a Main dispatcher on the JVM.
+    @org.junit.Before
+    fun setUpMain() = kotlinx.coroutines.Dispatchers.setMain(kotlinx.coroutines.test.UnconfinedTestDispatcher())
+
+    @org.junit.After
+    fun tearDownMain() = kotlinx.coroutines.Dispatchers.resetMain()
 
     private class TestSettingsRepo : SettingsRepository {
         val themeFlow = MutableStateFlow(ThemeMode.Pixel)
@@ -56,6 +66,8 @@ class ThemeModeSwitchIntegrationTest {
     fun cycleAllThemes_noCrashesAndAccuratePaletteMapping() = runTest {
         val repo = TestSettingsRepo()
         val viewModel = ThemeViewModel(repo)
+        // themeMode is shared WhileSubscribed, so it only follows the setting while collected.
+        backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) { viewModel.themeMode.collect {} }
 
         val modesToTest = listOf(
             ThemeMode.Pixel,
