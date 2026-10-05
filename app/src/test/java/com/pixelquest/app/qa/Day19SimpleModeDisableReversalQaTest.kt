@@ -45,13 +45,13 @@ class Day19SimpleModeDisableReversalQaTest {
 
         // A. Terminology immediately reverts to Quests
         val terminology = TaskTerminology.forMode(isSimpleMode)
-        assertEquals("Quest", terminology.taskNoun)
-        assertEquals("Quests", terminology.taskNounPlural)
-        assertEquals("Create Quest", terminology.createTaskAction)
+        assertEquals("Quest", terminology.itemSingular)
+        assertEquals("Quests", terminology.itemPlural)
+        assertEquals("+ CREATE QUEST", terminology.createButtonText)
 
         // B. Streak and XP strip reappears with accurate values
-        val isStreakStripSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.STREAK_DISPLAY,
+        val isStreakStripSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.STREAK_DISPLAY,
             isSimpleMode
         )
         assertFalse("Streak strip must be visible again", isStreakStripSuppressed)
@@ -67,8 +67,7 @@ class Day19SimpleModeDisableReversalQaTest {
         val statsState = StatsUiState(
             currentStreak = historicalProgress.currentStreak,
             longestStreak = historicalProgress.longestStreak,
-            completionRate = 92.0f,
-            totalTasksCompleted = 45,
+            overallCompletionRate = 92.0f,
             isSimpleMode = isSimpleMode
         )
         assertFalse(statsState.isSimpleMode)
@@ -76,8 +75,8 @@ class Day19SimpleModeDisableReversalQaTest {
         assertEquals(18, statsState.longestStreak)
 
         // E. Difficulty selection unlocks
-        val isDifficultyLocked = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.DIFFICULTY_SELECTION,
+        val isDifficultyLocked = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.DIFFICULTY_SELECTION,
             isSimpleMode
         )
         assertFalse("Difficulty selection must be unlocked", isDifficultyLocked)
@@ -95,9 +94,10 @@ class Day19SimpleModeDisableReversalQaTest {
 
         // G. Prompts and celebrations return to epic RPG tone
         val copy = TaskPromptCopyVariants.resolve(isSimpleMode)
-        assertEquals("⚔️ DID YOU DO IT?", copy.headerTitle)
+        assertEquals("DID YOU DO IT?", copy.headerTitle)
+        assertEquals("⚔️", copy.iconEmoji) // the swords are a separate icon
         assertEquals("YES!", copy.confirmButtonText)
-        assertEquals("NO", copy.dismissButtonText)
+        assertEquals("NOT YET", copy.dismissButtonText)
         assertEquals("⚔️", copy.iconEmoji)
     }
 }

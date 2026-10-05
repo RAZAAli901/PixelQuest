@@ -8,7 +8,6 @@ integration/NotificationCopyIntegrationTest.kt
 integration/ResetProgressIntegrationTest.kt
 qa/Day19GamifiedModeDefaultRegressionTest.kt
 qa/Day19SimpleModeActiveManualQaTest.kt
-qa/Day19SimpleModeDisableReversalQaTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
 ui/SimpleModeFullChecklistUiTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
