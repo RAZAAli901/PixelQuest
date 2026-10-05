@@ -126,7 +126,7 @@ class HabitInsightPipelineIntegrationTest {
                 scheduledDay = LocalDate.now(),
                 scheduledTime = LocalTime.of(21, 0),
                 recurrenceType = RecurrenceType.DAILY,
-                category = TaskCategory.STUDY
+                category = TaskCategory.LEARNING
             )
         )
         val testLogs = listOf(
@@ -136,34 +136,13 @@ class HabitInsightPipelineIntegrationTest {
             TaskCompletionLogEntity(id = 4, taskId = 103, completedDate = LocalDate.now(), wasCompleted = false, pointsAwarded = 0)
         )
 
-        val streakRepo = object : StreakRepository {
-            override suspend fun insertStreak(streak: StreakEntity) {}
-            override suspend fun updateStreak(streak: StreakEntity) {}
-            override fun getCurrentStreak(): Flow<StreakEntity?> = flowOf(testStreak)
-        }
+        val streakRepo = com.pixelquest.app.testing.FakeStreakRepository(testStreak)
 
-        val profileRepo = object : UserProfileRepository {
-            override suspend fun insertProfile(profile: UserProfileEntity) {}
-            override suspend fun updateProfile(profile: UserProfileEntity) {}
-            override fun getProfile(): Flow<UserProfileEntity?> = flowOf(testProfile)
-        }
+        val profileRepo = com.pixelquest.app.testing.FakeUserProfileRepository(testProfile)
 
-        val taskRepo = object : TaskRepository {
-            override suspend fun insertTask(task: TaskEntity): Long = 101L
-            override suspend fun updateTask(task: TaskEntity) {}
-            override suspend fun deleteTask(task: TaskEntity) {}
-            override fun getAllTasks(): Flow<List<TaskEntity>> = flowOf(testTasks)
-            override fun getTaskById(taskId: Long): Flow<TaskEntity?> = flowOf(testTasks.first())
-            override fun getTasksForDay(day: LocalDate): Flow<List<TaskEntity>> = flowOf(testTasks)
-        }
+        val taskRepo = com.pixelquest.app.testing.FakeTaskRepository(testTasks)
 
-        val completionRepo = object : TaskCompletionRepository {
-            override suspend fun insertLog(log: TaskCompletionLogEntity): Long = 1L
-            override fun getLogsForDate(date: LocalDate): Flow<List<TaskCompletionLogEntity>> = flowOf(testLogs)
-            override fun getLogsForTask(taskId: Long): Flow<List<TaskCompletionLogEntity>> = flowOf(testLogs)
-            override fun getCompletionHistory(startDate: LocalDate, endDate: LocalDate): Flow<List<TaskCompletionLogEntity>> = flowOf(testLogs)
-            override fun getAllLogs(): Flow<List<TaskCompletionLogEntity>> = flowOf(testLogs)
-        }
+        val completionRepo = com.pixelquest.app.testing.FakeTaskCompletionRepository(testLogs)
 
         val settingsRepo = FakeSettingsRepository(initialAiEnabled = true, initialSimpleMode = false)
 
@@ -203,7 +182,7 @@ class HabitInsightPipelineIntegrationTest {
         assertFalse("Prompt must not contain task descriptions", prompt.contains("Confidential medical prescription"))
 
         // Telemetry check: streak, level, categories present
-        assertTrue("Prompt should include streak info", prompt.contains("7-day streak") || prompt.contains("Streak:"))
+        assertTrue("Prompt should include streak info", prompt.contains("Current Streak = 7 days"))
         assertTrue("Prompt should include category metrics", prompt.contains("HEALTH") && prompt.contains("FITNESS"))
 
         // 4. Assert: Verify response parsing
@@ -223,34 +202,13 @@ class HabitInsightPipelineIntegrationTest {
 
     @Test
     fun fullPipeline_simpleMode_adaptsSystemInstructionAndTone() = runBlocking {
-        val streakRepo = object : StreakRepository {
-            override suspend fun insertStreak(streak: StreakEntity) {}
-            override suspend fun updateStreak(streak: StreakEntity) {}
-            override fun getCurrentStreak(): Flow<StreakEntity?> = flowOf(StreakEntity(currentStreak = 3))
-        }
+        val streakRepo = com.pixelquest.app.testing.FakeStreakRepository(StreakEntity(currentStreak = 3))
 
-        val profileRepo = object : UserProfileRepository {
-            override suspend fun insertProfile(profile: UserProfileEntity) {}
-            override suspend fun updateProfile(profile: UserProfileEntity) {}
-            override fun getProfile(): Flow<UserProfileEntity?> = flowOf(UserProfileEntity())
-        }
+        val profileRepo = com.pixelquest.app.testing.FakeUserProfileRepository(UserProfileEntity(avatarId = "avatar_hero", username = "Hero", ))
 
-        val taskRepo = object : TaskRepository {
-            override suspend fun insertTask(task: TaskEntity): Long = 1L
-            override suspend fun updateTask(task: TaskEntity) {}
-            override suspend fun deleteTask(task: TaskEntity) {}
-            override fun getAllTasks(): Flow<List<TaskEntity>> = flowOf(emptyList())
-            override fun getTaskById(taskId: Long): Flow<TaskEntity?> = flowOf(null)
-            override fun getTasksForDay(day: LocalDate): Flow<List<TaskEntity>> = flowOf(emptyList())
-        }
+        val taskRepo = com.pixelquest.app.testing.FakeTaskRepository(emptyList())
 
-        val completionRepo = object : TaskCompletionRepository {
-            override suspend fun insertLog(log: TaskCompletionLogEntity): Long = 1L
-            override fun getLogsForDate(date: LocalDate): Flow<List<TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getLogsForTask(taskId: Long): Flow<List<TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getCompletionHistory(startDate: LocalDate, endDate: LocalDate): Flow<List<TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getAllLogs(): Flow<List<TaskCompletionLogEntity>> = flowOf(emptyList())
-        }
+        val completionRepo = com.pixelquest.app.testing.FakeTaskCompletionRepository(emptyList())
 
         val settingsRepo = FakeSettingsRepository(initialAiEnabled = true, initialSimpleMode = true)
 
@@ -281,7 +239,7 @@ class HabitInsightPipelineIntegrationTest {
 
         val systemInstruction = mockGeminiClient.recordedSystemInstruction
         assertNotNull("System instruction must be passed to client", systemInstruction)
-        assertTrue("Simple Mode must use habit coach tone", systemInstruction!!.contains("supportive, grounded, pragmatic habit coach"))
-        assertFalse("Simple Mode must not mention fantasy questmaster", systemInstruction.contains("epic RPG dungeon master"))
+        assertTrue("Simple Mode must use habit coach tone", systemInstruction!!.contains("empathetic habit coach"))
+        assertFalse("Simple Mode must not mention the RPG questmaster", systemInstruction.contains("RPG questmaster"))
     }
 }
