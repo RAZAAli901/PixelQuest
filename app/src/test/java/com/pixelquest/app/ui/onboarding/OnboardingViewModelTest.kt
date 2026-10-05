@@ -1,41 +1,39 @@
 package com.pixelquest.app.ui.onboarding
 
 import com.pixelquest.app.domain.model.DifficultyLevel
-import com.pixelquest.app.domain.repository.DifficultySettingsRepository
-import com.pixelquest.app.domain.repository.SettingsRepository
-import com.pixelquest.app.domain.repository.UserProfileRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import com.pixelquest.app.testing.FakeDifficultySettingsRepository
+import com.pixelquest.app.testing.FakeSettingsRepository
+import com.pixelquest.app.testing.FakeUserProfileRepository
+import com.pixelquest.app.ui.screens.onboarding.OnboardingStep
+import com.pixelquest.app.ui.screens.onboarding.OnboardingViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class OnboardingViewModelTest {
 
     private lateinit var viewModel: OnboardingViewModel
 
     @Before
     fun setUp() {
-        val fakeUserRepo = object : UserProfileRepository {
-            override fun getProfile() = flowOf(null)
-            override suspend fun saveProfile(profile: com.pixelquest.app.data.local.entity.UserProfileEntity) {}
-        }
-        val fakeDiffRepo = object : DifficultySettingsRepository {
-            override fun getCurrentDifficulty() = flowOf(com.pixelquest.app.data.local.entity.DifficultySettingsEntity(1, DifficultyLevel.MEDIUM, 0.7f, 7))
-            override suspend fun updateDifficultySettings(settings: com.pixelquest.app.data.local.entity.DifficultySettingsEntity) {}
-        }
-        val fakeSettingsRepo = object : SettingsRepository {
-            override val isSoundEnabled: Flow<Boolean> = flowOf(true)
-            override val isCrtEnabled: Flow<Boolean> = flowOf(false)
-            override val onboardingComplete: Flow<Boolean> = flowOf(false)
-            override suspend fun setSoundEnabled(enabled: Boolean) {}
-            override suspend fun setCrtEnabled(enabled: Boolean) {}
-            override suspend fun setOnboardingComplete(complete: Boolean) {}
-        }
-
-        viewModel = OnboardingViewModel(fakeUserRepo, fakeDiffRepo, fakeSettingsRepo)
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        viewModel = OnboardingViewModel(
+            FakeUserProfileRepository(),
+            FakeDifficultySettingsRepository(),
+            FakeSettingsRepository(onboardingDone = false)
+        )
     }
+
+    @After
+    fun tearDown() = Dispatchers.resetMain()
 
     @Test
     fun testStepNavigationPreservesData() {
