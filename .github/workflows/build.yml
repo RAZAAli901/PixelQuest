@@ -63,3 +63,15 @@ jobs:
         with:
           name: pixelquest-release-apk
           path: app/build/outputs/apk/release/app-release.apk
+
+      # The whole unit suite compiles and passes since Day 29 (no quarantine). Live Gemini calls stay
+      # off: they only run with PIXELQUEST_LIVE_GEMINI=1, which CI never sets.
+      - name: Run Unit Tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload Unit Test Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixelquest-unit-test-report
+          path: app/build/reports/tests/testDebugUnitTest/
