@@ -21,16 +21,16 @@ class SimpleModeThemeOrthogonalityTest {
         for (theme in themeModes) {
             for (isSimple in simpleModeStates) {
                 // Verify suppression logic evaluates cleanly regardless of theme
-                val isStreakSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-                    SimpleModeSuppression.Feature.STREAK_DISPLAY,
+                val isStreakSuppressed = SimpleModeSuppression.isSuppressed(
+                    com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.STREAK_DISPLAY,
                     isSimple
                 )
-                val isCelebrationSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-                    SimpleModeSuppression.Feature.LEVEL_UP_CELEBRATION,
+                val isCelebrationSuppressed = SimpleModeSuppression.isSuppressed(
+                    com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.LEVEL_BADGE_AND_CELEBRATION,
                     isSimple
                 )
-                val isDifficultyLocked = SimpleModeSuppression.isFeatureSuppressed(
-                    SimpleModeSuppression.Feature.DIFFICULTY_SELECTION,
+                val isDifficultyLocked = SimpleModeSuppression.isSuppressed(
+                    com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.DIFFICULTY_SELECTION,
                     isSimple
                 )
 

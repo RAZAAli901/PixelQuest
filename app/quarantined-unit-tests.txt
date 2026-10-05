@@ -36,7 +36,6 @@ ui/theme/Day23ComicSimulatedDayJourneyQaTest.kt
 ui/theme/FollowSystemThemeSwitchingTest.kt
 ui/theme/PixelModeRegressionTest.kt
 ui/theme/SimpleModeThemeMatrixIntegrationTest.kt
-ui/theme/SimpleModeThemeOrthogonalityTest.kt
 worker/MissedTaskWorkerTest.kt
 worker/OfflineRetrySyncTest.kt
 worker/StreakEvaluationWorkerTest.kt
