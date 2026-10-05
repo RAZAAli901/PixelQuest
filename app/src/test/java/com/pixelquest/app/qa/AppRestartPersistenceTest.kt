@@ -62,22 +62,13 @@ class AppRestartPersistenceTest {
             leaderboardDisplayName = "PixelLegend_88"
         )
 
-        val fakeUserRepo = object : UserProfileRepository {
-            val flow = MutableStateFlow<UserProfileEntity?>(persistedProfile)
-            override fun getProfile(): Flow<UserProfileEntity?> = flow
-            override suspend fun insertProfile(profile: UserProfileEntity) {}
-            override suspend fun updateProfile(profile: UserProfileEntity) {}
-            override suspend fun performLevelUp(): UserProfileEntity? = null
-            override suspend fun updateSupabaseUserId(userId: String?) {}
-            override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {}
-            override suspend fun updateLeaderboardOptIn(optIn: Boolean) {}
-        }
+        val fakeUserRepo = com.pixelquest.app.testing.FakeUserProfileRepository(persistedProfile)
 
         val fakeAuthRepo = object : AuthRepository {
             override val currentUser = MutableStateFlow<AuthUser?>(
                 AuthUser("restored-user-uuid-888", "hero@gmail.com", "Hero")
             )
-            override suspend fun exchangeGoogleIdToken(idToken: String): SupabaseResult<AuthUser> =
+            override suspend fun exchangeGoogleIdToken(idToken: String, rawNonce: String?): SupabaseResult<AuthUser> =
                 SupabaseResult.Success(currentUser.value!!)
             override suspend fun signOut(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
             override suspend fun getInitialUser(): AuthUser? = currentUser.value

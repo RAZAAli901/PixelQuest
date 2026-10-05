@@ -19,7 +19,6 @@ integration/NotificationCopyIntegrationTest.kt
 integration/OnboardingIntegrationTest.kt
 integration/ResetProgressIntegrationTest.kt
 integration/StatsScreenIntegrationTest.kt
-qa/AppRestartPersistenceTest.kt
 qa/Day19GamifiedModeDefaultRegressionTest.kt
 qa/Day19SimpleModeActiveManualQaTest.kt
 qa/Day19SimpleModeDisableReversalQaTest.kt
