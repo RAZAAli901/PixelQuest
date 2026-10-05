@@ -12,7 +12,6 @@ domain/ai/AiRateLimitEnforcementTest.kt
 domain/ai/Day25FullRegressionPassTest.kt
 domain/ai/Day25InsightQualityManualQaTest.kt
 domain/ai/HabitInsightPipelineIntegrationTest.kt
-domain/ai/SimpleModeGeneratedCopyVerificationTest.kt
 integration/FreshInstallFirstImpressionTest.kt
 integration/FullSignInOptInSyncIntegrationTest.kt
 integration/GamifiedModeBaselineRegressionTest.kt
@@ -28,7 +27,6 @@ qa/OfflineLocalOnlyRegressionTest.kt
 qa/ScreenStabilitySimpleModeQaTest.kt
 qa/SyncConflictQaTest.kt
 scheduling/NotificationMasterToggleTest.kt
-ui/SimpleModeAiInsightInteractionUiTest.kt
 ui/SimpleModeColdRestartPersistenceTest.kt
 ui/SimpleModeFullChecklistUiTest.kt
 ui/components/HeatmapColorMapperTest.kt

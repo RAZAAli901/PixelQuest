@@ -81,10 +81,10 @@ class SimpleModeGeneratedCopyVerificationTest {
         val testStreak = StreakEntity(id = 1, currentStreak = 5, longestStreak = 10, perfectDaysCount = 12)
         val testProfile = UserProfileEntity(id = 1, username = "Alex", avatarId = "avatar_hero", level = 3, totalXp = 500)
         val testTasks = listOf(
-            TaskEntity(id = 1, name = "Meditation", scheduledTime = LocalTime.of(8, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.HEALTH)
+            TaskEntity(id = 1, name = "Meditation", description = "", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(8, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.HEALTH)
         )
         val testLogs = listOf(
-            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = LocalDate.now(), wasCompleted = true)
+            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = LocalDate.now(), wasCompleted = true, pointsAwarded = 50)
         )
 
         val telemetry = HabitInsightPromptBuilder.buildTelemetrySummary(testStreak, testProfile, testTasks, testLogs)

@@ -107,10 +107,10 @@ class SimpleModeAiInsightInteractionUiTest {
         val testStreak = StreakEntity(id = 1, currentStreak = 4, longestStreak = 7, perfectDaysCount = 10)
         val testProfile = UserProfileEntity(id = 1, username = "PixelUser", avatarId = "avatar_hero", level = 2, totalXp = 200)
         val testTasks = listOf(
-            TaskEntity(id = 1, name = "Reading", scheduledTime = LocalTime.of(21, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)
+            TaskEntity(id = 1, name = "Reading", description = "", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(21, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)
         )
         val testLogs = listOf(
-            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = LocalDate.now(), wasCompleted = true)
+            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = LocalDate.now(), wasCompleted = true, pointsAwarded = 50)
         )
 
         val telemetry = HabitInsightPromptBuilder.buildTelemetrySummary(testStreak, testProfile, testTasks, testLogs)
