@@ -30,7 +30,7 @@ data class LightColorScheme(
     override val error: Color = Color(0xFFDC2626), // Trap / boss red
     override val onError: Color = Color(0xFFFFFFFF),
     override val accentPurple: Color = Color(0xFF7E22CE), // Mystic rune purple
-    override val gold: Color = Color(0xFFA16207), // Deep Dungeon Gold (>5:1 on light bg)
+    override val gold: Color = Color(0xFFA16207), // Deep Dungeon Gold: 4.9:1 on white, 4.6:1 on the parchment background
     override val pixelBorder: Color = Color(0xFF292524), // 8-bit stone border
     override val isDark: Boolean = false
 ) : AppColorScheme {

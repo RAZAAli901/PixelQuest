@@ -48,9 +48,9 @@ fun PixelAvatarFrame(
         PixelTheme.colors.pixelBorder
     } else if (activeMode == ThemeMode.Light) {
         when (tier) {
-            AvatarTier.BRONZE -> Color(0xFF9A4F10) // Rich dark bronze (>5:1 on white)
-            AvatarTier.SILVER -> Color(0xFF475569) // Slate chrome silver (>7:1 on white)
-            AvatarTier.GOLD -> PixelTheme.colors.gold // Deep dungeon gold (>5.2:1 on white)
+            AvatarTier.BRONZE -> Color(0xFF9A4F10) // Rich dark bronze (6.0:1 on white)
+            AvatarTier.SILVER -> Color(0xFF475569) // Slate chrome silver (7.6:1 on white)
+            AvatarTier.GOLD -> PixelTheme.colors.gold // Deep dungeon gold (4.9:1 on white)
         }
     } else {
         Color(tier.borderColor)

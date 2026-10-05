@@ -15,8 +15,8 @@ object NotificationHelper {
 
     /**
      * Accent color for system notifications.
-     * Uses PixelQuest Daylight Gold / Retro Amber (0xFFB45309), providing >= 4.5:1 contrast
-     * against both dark (5.2:1) and light (4.6:1) OS notification shades.
+     * Uses PixelQuest Daylight Gold / Retro Amber (0xFFB45309): 5.0:1 on a white notification shade
+     * (text-safe) and 3.7:1 on a #121212 dark shade, which clears the 3:1 bar for the icon tint.
      */
     const val NOTIFICATION_ACCENT_COLOR = 0xFFB45309.toInt()
 
