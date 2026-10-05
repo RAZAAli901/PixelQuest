@@ -5,7 +5,6 @@ auth/TokenExchangeFailureTest.kt
 data/backup/DataExportImportQaTest.kt
 data/backup/DataExportImportTest.kt
 data/local/dao/TaskDaoTest.kt
-data/remote/SupabaseClientSmokeTest.kt
 data/repository/DatabaseQueryPerformanceTest.kt
 data/repository/StatsPerformanceTest.kt
 data/repository/StatsRepositoryTest.kt
