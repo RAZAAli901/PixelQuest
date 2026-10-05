@@ -15,7 +15,6 @@ domain/ai/Day25InsightQualityManualQaTest.kt
 domain/ai/GeminiErrorHandlingTest.kt
 domain/ai/HabitInsightPipelineIntegrationTest.kt
 domain/ai/HabitInsightPromptBuilderTest.kt
-domain/ai/InsightCacheLogicTest.kt
 domain/ai/SimpleModeGeneratedCopyVerificationTest.kt
 integration/FreshInstallFirstImpressionTest.kt
 integration/FullSignInOptInSyncIntegrationTest.kt

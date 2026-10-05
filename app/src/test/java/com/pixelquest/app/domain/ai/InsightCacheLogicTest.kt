@@ -88,34 +88,13 @@ class InsightCacheLogicTest {
         cacheRepository: InsightCacheRepository,
         streak: StreakEntity = StreakEntity(currentStreak = 5, longestStreak = 10, perfectDaysCount = 12)
     ): HabitInsightRepositoryImpl {
-        val streakRepo = object : StreakRepository {
-            override suspend fun insertStreak(streak: StreakEntity) {}
-            override suspend fun updateStreak(streak: StreakEntity) {}
-            override fun getCurrentStreak(): Flow<StreakEntity?> = flowOf(streak)
-        }
+        val streakRepo = com.pixelquest.app.testing.FakeStreakRepository(streak)
 
-        val profileRepo = object : UserProfileRepository {
-            override suspend fun insertProfile(profile: UserProfileEntity) {}
-            override suspend fun updateProfile(profile: UserProfileEntity) {}
-            override fun getProfile(): Flow<UserProfileEntity?> = flowOf(UserProfileEntity(level = 4))
-        }
+        val profileRepo = com.pixelquest.app.testing.FakeUserProfileRepository(UserProfileEntity(avatarId = "avatar_hero", username = "Hero", level = 4))
 
-        val taskRepo = object : TaskRepository {
-            override suspend fun insertTask(task: com.pixelquest.app.data.local.entity.TaskEntity): Long = 1L
-            override suspend fun updateTask(task: com.pixelquest.app.data.local.entity.TaskEntity) {}
-            override suspend fun deleteTask(task: com.pixelquest.app.data.local.entity.TaskEntity) {}
-            override fun getAllTasks(): Flow<List<com.pixelquest.app.data.local.entity.TaskEntity>> = flowOf(emptyList())
-            override fun getTaskById(taskId: Long): Flow<com.pixelquest.app.data.local.entity.TaskEntity?> = flowOf(null)
-            override fun getTasksForDay(day: java.time.LocalDate): Flow<List<com.pixelquest.app.data.local.entity.TaskEntity>> = flowOf(emptyList())
-        }
+        val taskRepo = com.pixelquest.app.testing.FakeTaskRepository(emptyList())
 
-        val completionRepo = object : TaskCompletionRepository {
-            override suspend fun insertLog(log: com.pixelquest.app.data.local.entity.TaskCompletionLogEntity): Long = 1L
-            override fun getLogsForDate(date: java.time.LocalDate): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getLogsForTask(taskId: Long): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getCompletionHistory(startDate: java.time.LocalDate, endDate: java.time.LocalDate): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getAllLogs(): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-        }
+        val completionRepo = com.pixelquest.app.testing.FakeTaskCompletionRepository(emptyList())
 
         val settingsRepo = object : SettingsRepository {
             override val aiInsightsEnabled: Flow<Boolean> = flowOf(true)
@@ -186,7 +165,7 @@ class InsightCacheLogicTest {
 
         // 3. Second call: data has not changed, TTL valid -> Cache HIT
         val secondResult = repository.generateHabitInsight()
-        assertTrue(secondResult is GeminiResult.Success)
+        assertTrue("second result was $secondResult", secondResult is GeminiResult.Success)
         assertEquals("Gemini call count must remain 1 on cache hit", 1, client.callCount)
 
         val insight = (secondResult as GeminiResult.Success).data
