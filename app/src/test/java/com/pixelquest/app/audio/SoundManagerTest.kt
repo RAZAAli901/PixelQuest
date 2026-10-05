@@ -7,6 +7,9 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito.mock
 
+// SoundManager builds a SoundPool with AudioAttributes, which only Robolectric implements on the JVM.
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [34], application = android.app.Application::class)
 class SoundManagerTest {
 
     private lateinit var mockContext: Context
@@ -14,7 +17,7 @@ class SoundManagerTest {
 
     @Before
     fun setUp() {
-        mockContext = mock(Context::class.java)
+        mockContext = androidx.test.core.app.ApplicationProvider.getApplicationContext()
         soundManager = SoundManager(mockContext)
     }
 
