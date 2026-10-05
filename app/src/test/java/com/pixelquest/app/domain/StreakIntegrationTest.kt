@@ -14,7 +14,7 @@ class StreakIntegrationTest {
         val day1Perfect = StreakCalculator.isPerfectDay(1, 1, 0.70f)
         if (day1Perfect) {
             currentStreak++
-            totalXp += PointsCalculator.calculateXpForTask(streakDays = currentStreak)
+            totalXp += PointsCalculator.calculateXpForTask(currentStreak = currentStreak)
         }
 
         assertEquals(1, currentStreak)
@@ -24,7 +24,7 @@ class StreakIntegrationTest {
         val day2Perfect = StreakCalculator.isPerfectDay(1, 1, 0.70f)
         if (day2Perfect) {
             currentStreak++
-            totalXp += PointsCalculator.calculateXpForTask(streakDays = currentStreak)
+            totalXp += PointsCalculator.calculateXpForTask(currentStreak = currentStreak)
         }
 
         assertEquals(2, currentStreak)
@@ -34,7 +34,7 @@ class StreakIntegrationTest {
         val day3Perfect = StreakCalculator.isPerfectDay(1, 1, 0.70f)
         if (day3Perfect) {
             currentStreak++
-            totalXp += PointsCalculator.calculateXpForTask(streakDays = currentStreak)
+            totalXp += PointsCalculator.calculateXpForTask(currentStreak = currentStreak)
         }
 
         assertEquals(3, currentStreak)
