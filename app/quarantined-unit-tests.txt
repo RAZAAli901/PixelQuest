@@ -29,7 +29,6 @@ ui/leveling/SimpleModeLevelUpSuppressionTest.kt
 ui/navigation/ScreenTransitionStateTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
 ui/screens/insight/AiInsightViewModelTest.kt
-ui/theme/Day20ComicModeFinalVerificationTest.kt
 ui/theme/Day22FinalVerificationTest.kt
 ui/theme/Day23ComicSimulatedDayJourneyQaTest.kt
 ui/theme/FollowSystemThemeSwitchingTest.kt

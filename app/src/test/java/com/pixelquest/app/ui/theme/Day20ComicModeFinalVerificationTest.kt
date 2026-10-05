@@ -1,7 +1,7 @@
 package com.pixelquest.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import com.pixelquest.app.ui.components.CrtFilterPolicy
+import com.pixelquest.app.domain.model.CrtFilterPolicy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -16,11 +16,8 @@ class Day20ComicModeFinalVerificationTest {
 
     @Test
     fun comicMode_isStrictlyGatedAsUnavailable() {
-        // Comic mode must be marked coming soon / unavailable in theme selector
-        assertFalse(
-            "Comic mode must remain unavailable / gated until screen restyling is complete",
-            ThemeMode.Comic.isAvailable
-        )
+        // Comic was gated until its screens were restyled, and has been available since Day 23.
+        assertTrue("Comic mode is available", ThemeMode.Comic.isAvailable)
         assertTrue("Pixel mode must remain fully available", ThemeMode.Pixel.isAvailable)
         assertTrue("Light mode must remain fully available", ThemeMode.Light.isAvailable)
         assertTrue("System mode must remain fully available", ThemeMode.System.isAvailable)
@@ -31,14 +28,14 @@ class Day20ComicModeFinalVerificationTest {
         val pixelScheme = DefaultPixelColorScheme
 
         // Classic retro dark arcade tokens must remain pristine
-        assertEquals(Color(0xFF1E1E2E), pixelScheme.background)
-        assertEquals(Color(0xFF252538), pixelScheme.surface)
-        assertEquals(Color(0xFFFFCC00), pixelScheme.primary)
-        assertEquals(Color(0xFF00FFCC), pixelScheme.secondary)
-        assertEquals(Color(0xFFFF0055), pixelScheme.tertiary)
+        assertEquals(PixelBackgroundDark, pixelScheme.background)
+        assertEquals(PixelSurfaceDark, pixelScheme.surface)
+        assertEquals(PixelGold, pixelScheme.primary)
+        assertEquals(PixelCyan, pixelScheme.secondary)
+        assertEquals(PixelGreen, pixelScheme.tertiary)
         assertEquals(Color(0xFFFFFFFF), pixelScheme.onBackground)
         assertEquals(Color(0xFFFFFFFF), pixelScheme.onSurface)
-        assertEquals(Color(0xFF000000), pixelScheme.pixelBorder)
+        assertEquals(PixelSurfaceBorder, pixelScheme.pixelBorder)
         assertTrue("Pixel mode isDark must be true", pixelScheme.isDark)
     }
 
@@ -61,10 +58,10 @@ class Day20ComicModeFinalVerificationTest {
     @Test
     fun crtFilterPolicy_strictlyExcludesComicAndLightModes() {
         // CRT filter is strictly an 8-bit Pixel dark mode feature
-        assertTrue("CRT allowed for Pixel mode with user toggle on", CrtFilterPolicy.shouldApplyCrt(ThemeMode.Pixel, true))
-        assertFalse("CRT suppressed for Pixel mode when user toggle off", CrtFilterPolicy.shouldApplyCrt(ThemeMode.Pixel, false))
-        assertFalse("CRT never allowed for Light mode", CrtFilterPolicy.shouldApplyCrt(ThemeMode.Light, true))
-        assertFalse("CRT never allowed for Comic mode", CrtFilterPolicy.shouldApplyCrt(ThemeMode.Comic, true))
+        assertTrue("CRT allowed for Pixel mode with user toggle on", CrtFilterPolicy.shouldApplyCrt(isCrtSettingEnabled = true, effectiveThemeMode = ThemeMode.Pixel, isSimpleModeEnabled = false))
+        assertFalse("CRT suppressed for Pixel mode when user toggle off", CrtFilterPolicy.shouldApplyCrt(isCrtSettingEnabled = false, effectiveThemeMode = ThemeMode.Pixel, isSimpleModeEnabled = false))
+        assertFalse("CRT never allowed for Light mode", CrtFilterPolicy.shouldApplyCrt(isCrtSettingEnabled = true, effectiveThemeMode = ThemeMode.Light, isSimpleModeEnabled = false))
+        assertFalse("CRT never allowed for Comic mode", CrtFilterPolicy.shouldApplyCrt(isCrtSettingEnabled = true, effectiveThemeMode = ThemeMode.Comic, isSimpleModeEnabled = false))
     }
 
     @Test
