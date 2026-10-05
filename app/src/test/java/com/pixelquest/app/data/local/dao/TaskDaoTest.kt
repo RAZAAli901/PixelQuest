@@ -56,7 +56,7 @@ class TaskDaoTest : BaseDaoTest() {
             scheduledDay = today,
             scheduledTime = LocalTime.of(9, 0),
             recurrenceType = RecurrenceType.DAILY,
-            category = TaskCategory.PRODUCTIVITY
+            category = TaskCategory.LEARNING
         )
         val task2 = TaskEntity(
             id = 2,
@@ -65,7 +65,7 @@ class TaskDaoTest : BaseDaoTest() {
             scheduledDay = tomorrow,
             scheduledTime = LocalTime.of(10, 0),
             recurrenceType = RecurrenceType.ONE_TIME,
-            category = TaskCategory.PRODUCTIVITY
+            category = TaskCategory.LEARNING
         )
 
         taskDao.insertTask(task1)

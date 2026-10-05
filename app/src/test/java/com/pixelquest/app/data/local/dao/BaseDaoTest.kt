@@ -6,6 +6,9 @@ import com.pixelquest.app.data.local.AppDatabase
 import org.junit.After
 import org.junit.Before
 
+/** Room needs an Android context; Robolectric provides one on the JVM (subclasses inherit the runner). */
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [34], application = android.app.Application::class)
 abstract class BaseDaoTest {
     protected lateinit var database: AppDatabase
 
