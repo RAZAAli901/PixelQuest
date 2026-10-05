@@ -61,7 +61,8 @@ class LightModeDay22FullRegressionTest {
 
         assertEquals(Color(0xFF9A4F10), resolveLightBorder(AvatarTier.BRONZE))
         assertEquals(Color(0xFF475569), resolveLightBorder(AvatarTier.SILVER))
-        assertEquals(Color(0xFFB8860B), resolveLightBorder(AvatarTier.GOLD))
+        // Gold follows the Light theme's gold token (A16207).
+        assertEquals(Color(0xFFA16207), resolveLightBorder(AvatarTier.GOLD))
         assertFalse("Light mode must not branch to ComicAvatarFrame", ThemeMode.Light == ThemeMode.Comic)
     }
 

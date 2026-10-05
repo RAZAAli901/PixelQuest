@@ -34,12 +34,13 @@ class PixelAvatarFrameRegressionTest {
         fun resolveLightBorderColor(tier: AvatarTier): Color = when (tier) {
             AvatarTier.BRONZE -> Color(0xFF9A4F10) // Rich dark bronze (>5:1 on white)
             AvatarTier.SILVER -> Color(0xFF475569) // Slate chrome silver (>7:1 on white)
-            AvatarTier.GOLD -> DefaultLightColorScheme.gold // Deep dungeon gold (>5.2:1 on white)
+            AvatarTier.GOLD -> DefaultLightColorScheme.gold // Deep dungeon gold (4.9:1 on white)
         }
 
         assertEquals(Color(0xFF9A4F10), resolveLightBorderColor(AvatarTier.BRONZE))
         assertEquals(Color(0xFF475569), resolveLightBorderColor(AvatarTier.SILVER))
-        assertEquals(Color(0xFFB8860B), resolveLightBorderColor(AvatarTier.GOLD))
+        // Gold follows the Light theme's gold token (A16207).
+        assertEquals(Color(0xFFA16207), resolveLightBorderColor(AvatarTier.GOLD))
 
         val isComic = ThemeMode.Light == ThemeMode.Comic
         assertFalse("Light mode must not enter Comic dispatch branch", isComic)
