@@ -15,18 +15,20 @@ class ScreenTransitionStateTest {
 
     @Test
     fun taskFormState_survivesScreenReEntry_whenNotReset() {
-        val viewModel = TaskFormViewModel(taskRepository)
+        val viewModel = TaskFormViewModel(taskRepository, mockk(relaxed = true))
 
         // Simulate user typing in form before navigating away/transitioning
         viewModel.onNameChanged("Epic Daily Workout")
-        viewModel.onTimeChanged(LocalTime.of(8, 30))
-        viewModel.onDaysChanged(setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY))
+        viewModel.onTimeSelected(LocalTime.of(8, 30))
+        // The form starts with today's weekday selected; each tap toggles a day.
+        val toggled = setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+        val startDays = viewModel.formState.value.selectedDays
+        toggled.forEach { viewModel.onDayToggled(it) }
 
         // State check after simulated transition departure & re-entry
         val state = viewModel.formState.value
         assertEquals("Epic Daily Workout", state.name)
-        assertEquals(LocalTime.of(8, 30), state.time)
-        assertEquals(3, state.selectedDays.size)
-        assertTrue(state.selectedDays.contains(DayOfWeek.MONDAY))
+        assertEquals(LocalTime.of(8, 30), state.scheduledTime)
+        assertEquals((startDays - toggled) + (toggled - startDays), state.selectedDays)
     }
 }

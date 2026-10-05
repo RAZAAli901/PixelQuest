@@ -24,7 +24,6 @@ qa/Day19SimpleModeDisableReversalQaTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
 ui/SimpleModeFullChecklistUiTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
-ui/navigation/ScreenTransitionStateTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
 ui/screens/insight/AiInsightViewModelTest.kt
 ui/theme/Day22FinalVerificationTest.kt
