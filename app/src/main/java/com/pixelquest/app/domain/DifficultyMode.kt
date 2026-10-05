@@ -13,12 +13,13 @@ object DifficultyMode {
         }
     }
 
+    /** Perfect days needed for each level: the Day 6 plan's 3/7/14/30 (Days 1–29 shipped 5/7/10/14). */
     fun getDaysRequiredPerLevel(level: DifficultyLevel): Int {
         return when (level) {
-            DifficultyLevel.EASY -> 5
+            DifficultyLevel.EASY -> 3
             DifficultyLevel.MEDIUM -> 7
-            DifficultyLevel.HARD -> 10
-            DifficultyLevel.HARDEST -> 14
+            DifficultyLevel.HARD -> 14
+            DifficultyLevel.HARDEST -> 30
         }
     }
 
