@@ -32,7 +32,6 @@ qa/Day19SimpleModeActiveManualQaTest.kt
 qa/Day19SimpleModeDisableReversalQaTest.kt
 qa/Day24LiveGeminiPipelineQaTest.kt
 qa/Day24MalformedResponseQaTest.kt
-qa/Day24OfflineGracefulDegradationQaTest.kt
 qa/Day25RateLimitManualQaTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
 qa/ScreenStabilitySimpleModeQaTest.kt
