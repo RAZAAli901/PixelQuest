@@ -66,6 +66,7 @@ private class FakeUserProfileRepoForErrorTest : UserProfileRepository {
     override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {
         profileFlow.value = profileFlow.value?.copy(leaderboardOptIn = optIn, leaderboardDisplayName = displayName)
     }
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {
         profileFlow.value = profileFlow.value?.copy(leaderboardOptIn = optIn)
     }
@@ -132,7 +133,8 @@ class LeaderboardErrorStateTest {
         assertFalse(state.isLoading)
         assertNotNull(state.errorMessage)
         assertTrue(state.errorMessage!!.contains("Network error", ignoreCase = true))
-        assertTrue(state.errorMessage!!.contains("Connection timed out"))
+        // The user sees the result's friendly message, not the raw exception text.
+        assertTrue(state.errorMessage!!.contains("Network connection unavailable."))
         assertTrue(state.streakEntries.isEmpty())
     }
 
@@ -152,7 +154,7 @@ class LeaderboardErrorStateTest {
 
     @Test
     fun whenRepositoryReturnsAuthError_uiStateReflectsAuthErrorMessage() = runTest(testDispatcher) {
-        fakeRepo.resultStreak = SupabaseResult.AuthError("Session token expired")
+        fakeRepo.resultStreak = SupabaseResult.AuthError(IllegalStateException("Session token expired"), "Session token expired")
 
         viewModel.loadInitialData()
         advanceUntilIdle()
