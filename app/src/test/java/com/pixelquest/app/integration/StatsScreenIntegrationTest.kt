@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -27,6 +29,13 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 class StatsScreenIntegrationTest {
+
+    // StatsViewModel computes in viewModelScope (Dispatchers.Main) while its state is collected.
+    @org.junit.Before
+    fun setUp() = kotlinx.coroutines.Dispatchers.setMain(kotlinx.coroutines.test.UnconfinedTestDispatcher())
+
+    @org.junit.After
+    fun tearDown() = kotlinx.coroutines.Dispatchers.resetMain()
 
     @Test
     fun statsScreen_endToEndMultiWeekDataset_reconcilesMetricsWithRawLogs() = runTest {
@@ -77,25 +86,32 @@ class StatsScreenIntegrationTest {
             override fun getCompletionHistory(startDate: LocalDate, endDate: LocalDate): Flow<List<TaskCompletionLogEntity>> =
                 flowOf(fakeLogs.filter { !it.completedDate.isBefore(startDate) && !it.completedDate.isAfter(endDate) })
             override fun getAllLogs(): Flow<List<TaskCompletionLogEntity>> = flowOf(fakeLogs)
+            override suspend fun updateLog(log: TaskCompletionLogEntity) {}
+            override suspend fun getLogForTaskOnDate(taskId: Long, date: LocalDate): TaskCompletionLogEntity? = null
         }
 
         val fakeDiffRepo = object : DifficultySettingsRepository {
             override fun getCurrentDifficulty(): Flow<DifficultySettingsEntity?> =
                 flowOf(DifficultySettingsEntity(id = 1, difficultyLevel = DifficultyLevel.EASY))
-            override suspend fun updateDifficulty(difficulty: DifficultySettingsEntity) {}
-            override suspend fun insertDifficulty(difficulty: DifficultySettingsEntity): Long = 1L
+            override suspend fun updateSettings(difficulty: DifficultySettingsEntity) {}
+            override suspend fun insertSettings(difficulty: DifficultySettingsEntity) {}
         }
 
         val fakeStreakRepo = object : StreakRepository {
             override fun getCurrentStreak(): Flow<StreakEntity?> = flowOf(StreakEntity(id = 1, currentStreak = 5, longestStreak = 12))
             override suspend fun updateStreak(streak: StreakEntity) {}
-            override suspend fun insertStreak(streak: StreakEntity): Long = 1L
+            override suspend fun insertStreak(streak: StreakEntity) {}
         }
 
         val fakeProfileRepo = object : UserProfileRepository {
-            override fun getProfile(): Flow<UserProfileEntity?> = flowOf(UserProfileEntity(id = 1, username = "Hero", totalXp = 850))
+            override fun getProfile(): Flow<UserProfileEntity?> = flowOf(UserProfileEntity(avatarId = "avatar_hero", id = 1, username = "Hero", totalXp = 850))
             override suspend fun updateProfile(profile: UserProfileEntity) {}
-            override suspend fun insertProfile(profile: UserProfileEntity): Long = 1L
+            override suspend fun insertProfile(profile: UserProfileEntity) {}
+            override suspend fun performLevelUp(): UserProfileEntity? = null
+            override suspend fun updateSupabaseUserId(userId: String?) {}
+            override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {}
+            override suspend fun updateLeaderboardOptIn(optIn: Boolean) {}
+            override suspend fun clearCloudData() {}
         }
 
         val statsRepo = StatsRepositoryImpl(
@@ -110,10 +126,12 @@ class StatsScreenIntegrationTest {
             statsRepository = statsRepo,
             streakRepository = fakeStreakRepo,
             userProfileRepository = fakeProfileRepo,
-            difficultySettingsRepository = fakeDiffRepo
+            difficultySettingsRepository = fakeDiffRepo,
+            appClock = com.pixelquest.app.testing.FixedClock(today.atTime(12, 0))
         )
 
-        val state = viewModel.uiState.first()
+        // The first value is the empty placeholder; wait for the computed stats.
+        val state = viewModel.uiState.first { it.heatmapStatusMap.isNotEmpty() }
 
         assertEquals(5, state.currentStreak)
         assertEquals(12, state.longestStreak)
