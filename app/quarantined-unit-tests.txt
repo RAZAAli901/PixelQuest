@@ -12,7 +12,6 @@ domain/ai/AiInsightUserFlowIntegrationTest.kt
 domain/ai/AiRateLimitEnforcementTest.kt
 domain/ai/Day25FullRegressionPassTest.kt
 domain/ai/Day25InsightQualityManualQaTest.kt
-domain/ai/GeminiErrorHandlingTest.kt
 domain/ai/HabitInsightPipelineIntegrationTest.kt
 domain/ai/HabitInsightPromptBuilderTest.kt
 domain/ai/SimpleModeGeneratedCopyVerificationTest.kt

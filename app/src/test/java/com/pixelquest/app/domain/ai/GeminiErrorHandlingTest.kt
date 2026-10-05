@@ -43,11 +43,9 @@ class GeminiErrorHandlingTest {
 
         assertFalse("Rate limit must not be Success", result.isSuccess)
         assertNull("getOrNull must return null on failure", result.getOrNull())
-        assertTrue("Result must be GeminiResult.RateLimited", result is GeminiResult.RateLimited)
-
-        val rateLimit = result as GeminiResult.RateLimited
-        assertEquals(60L, rateLimit.retryAfterSeconds)
-        assertTrue(rateLimit.message.contains("Quota exceeded"))
+        // Since Day 27 Google's own 429 is "Gemini is busy" (ApiError 429), so it isn't mistaken for
+        // PixelQuest's daily cap, which is what RateLimited means.
+        assertEquals(GeminiResult.ApiError(429, AiErrorCopy.BUSY), result)
     }
 
     @Test
@@ -56,9 +54,7 @@ class GeminiErrorHandlingTest {
             throw GeminiApiException(statusCode = 429, message = "Resource exhausted: rate limit exceeded")
         }
 
-        assertTrue("HTTP 429 must be classified as RateLimited", result is GeminiResult.RateLimited)
-        val rateLimit = result as GeminiResult.RateLimited
-        assertTrue(rateLimit.message.contains("429"))
+        assertEquals(GeminiResult.ApiError(429, AiErrorCopy.BUSY), result)
     }
 
     @Test
@@ -70,7 +66,7 @@ class GeminiErrorHandlingTest {
         assertTrue("IOException must be mapped to NetworkError", result is GeminiResult.NetworkError)
         val networkError = result as GeminiResult.NetworkError
         assertNotNull(networkError.cause)
-        assertTrue(networkError.message.contains("Network error"))
+        assertEquals(AiErrorCopy.OFFLINE, networkError.message)
     }
 
     @Test
@@ -81,7 +77,9 @@ class GeminiErrorHandlingTest {
 
         assertTrue("GeminiNetworkException must be mapped to NetworkError", result is GeminiResult.NetworkError)
         val networkError = result as GeminiResult.NetworkError
-        assertEquals("SSL handshake failed", networkError.message)
+        // The user sees plain copy; the exception stays available as the cause.
+        assertEquals(AiErrorCopy.OFFLINE, networkError.message)
+        assertNotNull(networkError.cause)
     }
 
     @Test
@@ -93,7 +91,7 @@ class GeminiErrorHandlingTest {
 
         assertTrue("Timeout must be mapped to NetworkError", result is GeminiResult.NetworkError)
         val timeoutError = result as GeminiResult.NetworkError
-        assertTrue(timeoutError.message.contains("timed out"))
+        assertEquals(AiErrorCopy.TIMEOUT, timeoutError.message)
     }
 
     @Test
@@ -105,7 +103,7 @@ class GeminiErrorHandlingTest {
         assertTrue("HTTP 500 must be mapped to ApiError", result is GeminiResult.ApiError)
         val apiError = result as GeminiResult.ApiError
         assertEquals(500, apiError.statusCode)
-        assertTrue(apiError.message.contains("Internal Generative AI Server Error"))
+        assertEquals(AiErrorCopy.SERVER_TROUBLE, apiError.message)
     }
 
     @Test
@@ -131,10 +129,7 @@ class GeminiErrorHandlingTest {
         val repository = createTestRepository(rateLimitedClient)
         val result = repository.generateHabitInsight()
 
-        assertTrue("Pipeline must return RateLimited", result is GeminiResult.RateLimited)
-        val rateLimited = result as GeminiResult.RateLimited
-        assertEquals(120L, rateLimited.retryAfterSeconds)
-        assertTrue(rateLimited.message.contains("RPM quota exhausted"))
+        assertEquals("Pipeline must report Gemini as busy", GeminiResult.ApiError(429, AiErrorCopy.BUSY), result)
     }
 
     @Test
@@ -148,61 +143,21 @@ class GeminiErrorHandlingTest {
         val repository = createTestRepository(offlineClient)
         val result = repository.generateHabitInsight()
 
-        assertTrue("Pipeline must return NetworkError on connectivity failure", result is GeminiResult.NetworkError)
+        assertTrue("Pipeline must return NetworkError on connectivity failure, was $result", result is GeminiResult.NetworkError)
         val networkError = result as GeminiResult.NetworkError
-        assertTrue(networkError.message.contains("Network error"))
+        assertEquals(AiErrorCopy.OFFLINE, networkError.message)
     }
 
     private fun createTestRepository(geminiClient: GeminiClient): HabitInsightRepositoryImpl {
-        val streakRepo = object : StreakRepository {
-            override suspend fun insertStreak(streak: StreakEntity) {}
-            override suspend fun updateStreak(streak: StreakEntity) {}
-            override fun getCurrentStreak(): Flow<StreakEntity?> = flowOf(StreakEntity())
-        }
+        val streakRepo = com.pixelquest.app.testing.FakeStreakRepository(StreakEntity())
 
-        val profileRepo = object : UserProfileRepository {
-            override suspend fun insertProfile(profile: UserProfileEntity) {}
-            override suspend fun updateProfile(profile: UserProfileEntity) {}
-            override fun getProfile(): Flow<UserProfileEntity?> = flowOf(UserProfileEntity())
-        }
+        val profileRepo = com.pixelquest.app.testing.FakeUserProfileRepository(UserProfileEntity(avatarId = "avatar_hero", username = "Hero", ))
 
-        val taskRepo = object : TaskRepository {
-            override suspend fun insertTask(task: com.pixelquest.app.data.local.entity.TaskEntity): Long = 1L
-            override suspend fun updateTask(task: com.pixelquest.app.data.local.entity.TaskEntity) {}
-            override suspend fun deleteTask(task: com.pixelquest.app.data.local.entity.TaskEntity) {}
-            override fun getAllTasks(): Flow<List<com.pixelquest.app.data.local.entity.TaskEntity>> = flowOf(emptyList())
-            override fun getTaskById(taskId: Long): Flow<com.pixelquest.app.data.local.entity.TaskEntity?> = flowOf(null)
-            override fun getTasksForDay(day: java.time.LocalDate): Flow<List<com.pixelquest.app.data.local.entity.TaskEntity>> = flowOf(emptyList())
-        }
+        val taskRepo = com.pixelquest.app.testing.FakeTaskRepository(emptyList())
 
-        val completionRepo = object : TaskCompletionRepository {
-            override suspend fun insertLog(log: com.pixelquest.app.data.local.entity.TaskCompletionLogEntity): Long = 1L
-            override fun getLogsForDate(date: java.time.LocalDate): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getLogsForTask(taskId: Long): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getCompletionHistory(startDate: java.time.LocalDate, endDate: java.time.LocalDate): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-            override fun getAllLogs(): Flow<List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>> = flowOf(emptyList())
-        }
+        val completionRepo = com.pixelquest.app.testing.FakeTaskCompletionRepository(emptyList())
 
-        val settingsRepo = object : SettingsRepository {
-            override val aiInsightsEnabled: Flow<Boolean> = flowOf(true)
-            override val simpleModeEnabled: Flow<Boolean> = flowOf(false)
-            override val isSoundEnabled: Flow<Boolean> = flowOf(true)
-            override val isCrtEnabled: Flow<Boolean> = flowOf(false)
-            override val isHapticsEnabled: Flow<Boolean> = flowOf(true)
-            override val isReduceMotionEnabled: Flow<Boolean> = flowOf(false)
-            override val onboardingComplete: Flow<Boolean> = flowOf(true)
-            override val isNotificationsEnabled: Flow<Boolean> = flowOf(true)
-            override val isNotificationSoundEnabled: Flow<Boolean> = flowOf(true)
-            override val isNotificationVibrationEnabled: Flow<Boolean> = flowOf(true)
-            override suspend fun setSoundEnabled(enabled: Boolean) {}
-            override suspend fun setCrtEnabled(enabled: Boolean) {}
-            override suspend fun setHapticsEnabled(enabled: Boolean) {}
-            override suspend fun setReduceMotionEnabled(enabled: Boolean) {}
-            override suspend fun setOnboardingComplete(complete: Boolean) {}
-            override suspend fun setNotificationsEnabled(enabled: Boolean) {}
-            override suspend fun setNotificationSoundEnabled(enabled: Boolean) {}
-            override suspend fun setNotificationVibrationEnabled(enabled: Boolean) {}
-        }
+        val settingsRepo = com.pixelquest.app.testing.FakeSettingsRepository(aiInsights = true)
 
         return HabitInsightRepositoryImpl(
             streakRepository = streakRepo,
