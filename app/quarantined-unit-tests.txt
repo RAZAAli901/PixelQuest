@@ -25,7 +25,6 @@ qa/OfflineLocalOnlyRegressionTest.kt
 qa/ScreenStabilitySimpleModeQaTest.kt
 scheduling/NotificationMasterToggleTest.kt
 ui/SimpleModeFullChecklistUiTest.kt
-ui/components/HeatmapColorMapperTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/leveling/SimpleModeLevelUpSuppressionTest.kt
 ui/navigation/ScreenTransitionStateTest.kt
