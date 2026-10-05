@@ -29,7 +29,6 @@ ui/screens/insight/AiInsightViewModelTest.kt
 ui/theme/Day22FinalVerificationTest.kt
 ui/theme/Day23ComicSimulatedDayJourneyQaTest.kt
 ui/theme/FollowSystemThemeSwitchingTest.kt
-ui/theme/PixelModeRegressionTest.kt
 ui/theme/SimpleModeThemeMatrixIntegrationTest.kt
 worker/MissedTaskWorkerTest.kt
 worker/OfflineRetrySyncTest.kt

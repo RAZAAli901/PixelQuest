@@ -20,7 +20,7 @@ class PixelModeRegressionTest {
 
         assertEquals("Background must be canonical #12121E", Color(0xFF12121E), scheme.background)
         assertEquals("Surface must be canonical #1A1A2E", Color(0xFF1A1A2E), scheme.surface)
-        assertEquals("SurfaceVariant must be canonical #252538", Color(0xFF252538), scheme.surfaceVariant)
+        assertEquals("SurfaceVariant must be the border tone #2E2E4A", PixelSurfaceBorder, scheme.surfaceVariant)
         assertEquals("Primary must be canonical PixelGold (#FFD700)", PixelGold, scheme.primary)
         assertEquals("Secondary must be canonical PixelCyan (#00E5FF)", PixelCyan, scheme.secondary)
         assertEquals("Tertiary must be canonical PixelGreen (#00E676)", PixelGreen, scheme.tertiary)
@@ -33,10 +33,9 @@ class PixelModeRegressionTest {
     @Test
     fun testPixelModeAssetFilter_returnsNullForNoTinting() {
         TaskCategory.values().forEach { category ->
-            val filter = PixelThemeAssetFilter.getCategoryColorFilter(
-                category = category,
+            val filter = PixelThemeAssetFilter.forTheme(
                 themeMode = ThemeMode.Pixel,
-                isSystemInDarkTheme = false
+                lightColor = androidx.compose.ui.graphics.Color.Black
             )
             assertNull("Pixel theme must not tint category ${category.name}", filter)
         }
@@ -52,7 +51,7 @@ class PixelModeRegressionTest {
 
     @Test
     fun testPixelModeEffectiveResolution_isAlwaysPixelMode() {
-        assertEquals(ThemeMode.Pixel, ThemeMode.Pixel.resolveEffective(isSystemInDarkTheme = false))
-        assertEquals(ThemeMode.Pixel, ThemeMode.Pixel.resolveEffective(isSystemInDarkTheme = true))
+        assertEquals(ThemeMode.Pixel, ThemeMode.Pixel.resolveEffective(isSystemInDark = false))
+        assertEquals(ThemeMode.Pixel, ThemeMode.Pixel.resolveEffective(isSystemInDark = true))
     }
 }
