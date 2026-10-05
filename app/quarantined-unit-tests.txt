@@ -39,7 +39,6 @@ ui/SimpleModeAiInsightInteractionUiTest.kt
 ui/SimpleModeColdRestartPersistenceTest.kt
 ui/SimpleModeFullChecklistUiTest.kt
 ui/components/HeatmapColorMapperTest.kt
-ui/components/LightModeComponentRegressionTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/leveling/SimpleModeLevelUpSuppressionTest.kt
 ui/navigation/ScreenTransitionStateTest.kt

@@ -26,10 +26,11 @@ class LightModeComponentRegressionTest {
         val lightScheme = DefaultLightColorScheme
 
         // Light Primary CTA: Retro Daylight Amber (#B45309)
-        assertEquals(0xFFB45309, lightScheme.primary.value.toLong() shr 32 or (lightScheme.primary.value.toLong() and 0xFFFFFFFFL))
+        assertEquals(Color(0xFFB45309), lightScheme.primary)
 
-        // Light Secondary CTA: Retro Daylight Emerald (#15803D)
-        assertEquals(0xFF15803D, lightScheme.secondary.value.toLong() shr 32 or (lightScheme.secondary.value.toLong() and 0xFFFFFFFFL))
+        // Light Secondary CTA: Daylight Sky (#0284C7); emerald (#15803D) is the tertiary
+        assertEquals(Color(0xFF0284C7), lightScheme.secondary)
+        assertEquals(Color(0xFF15803D), lightScheme.tertiary)
 
         // Light OnPrimary and OnSecondary are crisp White (#FFFFFF)
         assertEquals(Color.White, lightScheme.onPrimary)
@@ -40,11 +41,11 @@ class LightModeComponentRegressionTest {
     fun lightCard_usesDaylightSurfacesAndStoneBorders() {
         val lightScheme = DefaultLightColorScheme
 
-        // Daylight paper surface (#FAFAF8)
-        assertEquals(0xFFFAFAF8, lightScheme.surface.value.toLong() shr 32 or (lightScheme.surface.value.toLong() and 0xFFFFFFFFL))
+        // Crisp white card surface
+        assertEquals(androidx.compose.ui.graphics.Color(0xFFFFFFFF), lightScheme.surface)
 
-        // Stepped stone outline (#292524)
-        assertEquals(0xFF292524, lightScheme.outline.value.toLong() shr 32 or (lightScheme.outline.value.toLong() and 0xFFFFFFFFL))
+        // Stepped stone border (#292524)
+        assertEquals(androidx.compose.ui.graphics.Color(0xFF292524), lightScheme.pixelBorder)
 
         // Comic dispatch guard is false for Light mode
         val isComic = ThemeMode.Light == ThemeMode.Comic
@@ -69,6 +70,6 @@ class LightModeComponentRegressionTest {
     @Test
     fun lightMode_remainsAvailableInThemeRegistry() {
         assertTrue("ThemeMode.Light must remain available to users", ThemeMode.Light.isAvailable)
-        assertFalse("ThemeMode.Comic must remain gated from real users", ThemeMode.Comic.isAvailable)
+        assertTrue("ThemeMode.Comic has been available to everyone since Day 23", ThemeMode.Comic.isAvailable)
     }
 }
