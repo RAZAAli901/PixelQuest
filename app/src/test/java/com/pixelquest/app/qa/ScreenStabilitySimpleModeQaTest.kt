@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -111,6 +112,8 @@ class ScreenStabilitySimpleModeQaTest {
         // 1. Instantiate ViewModels
         val simpleModeVm = SimpleModeViewModel(settingsRepo)
         val difficultyVm = DifficultyViewModel(difficultyRepo, settingsRepo)
+        // simpleModeEnabled is shared WhileSubscribed, so it only follows the setting while collected.
+        backgroundScope.launch { simpleModeVm.simpleModeEnabled.collect {} }
 
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -127,13 +130,13 @@ class ScreenStabilitySimpleModeQaTest {
         assertTrue(difficultyVm.uiState.value.isSimpleModeEnabled)
 
         // 3. Verify Suppression Model definitions remain valid
-        val suppressionList = SimpleModeSuppression.ALL_SUPPRESSIONS
+        val suppressionList = SimpleModeSuppression.allSuppressedFeatures
         assertEquals(5, suppressionList.size)
-        assertTrue(suppressionList.contains(SimpleModeSuppression.STREAK_DISPLAY))
-        assertTrue(suppressionList.contains(SimpleModeSuppression.POINTS_XP_DISPLAY))
-        assertTrue(suppressionList.contains(SimpleModeSuppression.LEVEL_BADGE_CELEBRATION))
-        assertTrue(suppressionList.contains(SimpleModeSuppression.DIFFICULTY_SELECTION))
-        assertTrue(suppressionList.contains(SimpleModeSuppression.GAMIFICATION_FLOURISHES))
+        assertTrue(suppressionList.contains(com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.STREAK_DISPLAY))
+        assertTrue(suppressionList.contains(com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.POINTS_XP_DISPLAY))
+        assertTrue(suppressionList.contains(com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.LEVEL_BADGE_AND_CELEBRATION))
+        assertTrue(suppressionList.contains(com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.DIFFICULTY_SELECTION))
+        assertTrue(suppressionList.contains(com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.GAMIFICATION_AUDIO_VISUAL_FLOURISHES))
 
         // 4. Toggle Simple Mode OFF
         simpleModeVm.setSimpleModeEnabled(false)
