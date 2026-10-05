@@ -2721,3 +2721,183 @@ Day 28 had no plan in the repo. It took the open items from Day 27 and the resul
   - Simple Mode copy says streaks are paused, but they are not.
 - Backups do not include level history. XP earned twice before Day 28 stays in players' totals; only the duplicate logs were removed.
 - The Claude Design system and screens canvas still show the old four-tab bar and the pre-fix Comic colours.
+
+## Day 29 Progress Log
+_Each entry's commit hash is filled in by the following commit (a commit cannot contain its own hash)._
+- Step 1: Add shared in-memory test repositories (tasks, logs, profile, streak, difficulty, level history, settings) that follow the real rules, for repairing the quarantined tests - 6d2189d
+- Step 2: Fix spectators (signed in, not on the leaderboard) being shown a rank and an AROUND YOU list; repair and re-enable FullLeaderboardFlowIntegrationTest, which caught it - 14849dd
+- Step 3: Repair AuthViewModelTest: a mocked Context instead of an interface proxy, a restored session that also reports its user, and the new clearCloudData member - 610bdf0
+- Step 4: Repair three cloud sync tests: fakes implement clearCloudData and optOutFromLeaderboard, and a server error now reads 'Server error' - e47f6c0
+- Step 5: Repair LeaderboardFetchTimeoutTest: SupabaseResult errors expose message, not userMessage - be4bab4
+- Step 6: Repair LeaderboardRepositoryTest: its error case now checks the real safeSupabaseCall mapping instead of its own fake - 368c38c
+- Step 7: Repair DisplayNameModerationQaTest for ServerError(code, message) - 825878f
+- Step 8: Repair SupabaseClientSmokeTest: run under Robolectric and initialise Android settings, which Supabase Auth needs for sessions - d22217a
+- Step 9: Run Room DAO tests under Robolectric (they needed an instrumentation runner), fixing 4 failing DAO tests; repair and re-enable TaskDaoTest - 532f216
+- Step 10: Rewrite ThemeRecompositionTest: it collected a never-ending flow and tested its own helper; it now switches PixelQuestTheme live and checks CrtFilterPolicy - 33e8d5a
+- Step 11: Repair CrtFilterSimpleModeSuppressionTest: the retired Dark theme becomes Comic in its other-theme cases - 43cd3ce
+- Step 12: TodayContent takes the AI Coach section as a slot (default unchanged), so Today can be UI-tested without Hilt; repair two Today UI tests - b21df48
+- Step 13: Fix the display name filter letting doubled-letter words through in leetspeak (a$$hole, p1ss, pu$$y): it merged repeats before comparing; repair DisplayNameModeratorTest, which caught it - 52690f3
+- Step 14: Repair PixelModeDay22FullRegressionTest: Pixel's primary is gold and its surface variant the border tone, and Comic has been unlocked since Day 23 - 4f16d8c
+- Step 15: Repair DatabaseQueryPerformanceTest for TaskEntity's description and weeklyDays - ceaad7a
+- Step 16: Repair two AI trigger tests for generateHabitInsight(forceRefresh) - 6913f4e
+- Step 17: Repair AiInsightsOptInGatingTest with the shared test repositories - 485586b
+- Step 18: Repair Day24OfflineGracefulDegradationQaTest: shared test repositories and the Day 27 offline message (AiErrorCopy.OFFLINE) - 2055f4a
+- Step 19: Remove Day10TestSuiteVerificationTest: it called other tests' methods by hand (names that no longer exist) and asserted true; those tests run on their own - 7749827
+- Step 20: Repair DifficultyViewModelTest with the shared difficulty repository - bf67b73
+- Step 21: Repair LevelingIntegrationTest: a profile needs a username and avatar - 86328c1
+- Step 22: Repair ComicDropShadowTest for the Small/Default/Large shadow offsets - 32c4bf4
+- Step 23: Repair SimpleModeLeaderboardViewerIsolationTest for the two leaderboard tabs (TOP_STREAKS, TOP_LEVELS) - 78d18f8
+- Step 24: Repair PixelModeComponentRegressionTest: real panel assets, PixelGold primary, and Comic unlocked - e1e3bbf
+- Step 25: Repair LightModeComponentRegressionTest: compare Colors directly (the bit-shift comparison was wrong), with the real surface, border, secondary and tertiary - a663958
+- Step 26: Repair LeaderboardOptOutUiTest: AuthUser (not PixelAuthUser), a plain test Application, and scrolling to items on the account screen - 287fc0d
+- Step 27: Repair LeaderboardErrorStateTest: errors carry their exception, and the user sees the friendly message rather than raw exception text - d644e89
+- Step 28: Add AppClock (injected; the real one ticks as before) for Today, Stats and Tasks, and a FixedClock for tests, whose virtual time otherwise never went idle - 1765860
+- Step 29: Repair TodayViewModelTest: the shared repositories (now open) under its flow names, the result recorder, a fixed noon clock, and collecting uiState so it runs - 1bd5a43
+- Step 30: Repair the grace period, quick complete and full-day Today tests the same way (fixed clock, recorder, collected state) - 9253b3e
+- Step 31: Unit tests no longer call the live Gemini API when a real key is in local.properties: GeminiConnectivitySmokeTest makes its live call only with PIXELQUEST_LIVE_GEMINI=1 - 3c3c38d
+- Step 32: The insight cache stamps entries with its own clock (it read an injected clock but stamped with system time), so an injected clock measures ages correctly - 7feb894
+- Step 33: Repair InsightCacheLogicTest with the shared test repositories - 819ad22
+- Step 34: Repair GeminiErrorHandlingTest for the Day 27 contract: Gemini's 429 is ApiError(429, BUSY), and users see AiErrorCopy text, not exception messages - d61f3d3
+- Step 35: Repair Day24LiveGeminiPipelineQaTest: shared repositories, AI Coach opted in, current categories, and always the recorded response instead of a live call - f84beaf
+- Step 36: Repair Day24MalformedResponseQaTest with the shared test repositories - 53a1a88
+- Step 37: Repair Day25RateLimitManualQaTest with the shared test repositories - 2adc291
+- Step 38: Repair HabitInsightPromptBuilderTest for the current task categories (Learning and Other replace Study and Work) - dde3181
+- Step 39: Repair StreakIntegrationTest: PointsCalculator takes currentStreak - bcf46f1
+- Step 40: Repair two Simple Mode AI tests for the current task and log fields - fc9af31
+- Step 41: Repair SyncConflictQaTest: profiles have username and avatarId (heroName never existed) - f8012bf
+- Step 42: Repair AppRestartPersistenceTest: shared profile repository and exchangeGoogleIdToken's nonce parameter - 3da17e3
+- Step 43: Remove MemoryProfileLeakAuditTest: it measured JVM heap growth around building a 183-entry map (839 KB against a 500 KB limit), which depends on GC timing, not app code - 6ba6f3d
+- Step 44: Repair SimpleModeDifficultyEntryPointUiTest: its navigation callback is typed () -> Unit - e4e264a
+- Step 45: Repair ProfileSyncWorkerTriggerTest: a valid launch call and clearCloudData in its fake - 7323c05
+- Step 46: New installs are seeded with the real default avatar (avatar_hero) instead of hero_avatar_1, which matched none; repair FreshInstallFirstImpressionTest for SeedDataProvider's API and check the avatar - f33a3f5
+- Step 47: Repair SimpleModeColdRestartPersistenceTest for TaskTerminology (itemSingular, real headers) and SimpleModeSuppression.isSuppressed - db9ab10
+- Step 48: Repair HeatmapColorMapperTest: partial days are PixelGold and empty days the dark surface - 0a67d12
+- Step 49: Repair SimpleModeThemeOrthogonalityTest for SimpleModeSuppression.isSuppressed and SimpleModeSuppressedFeature - 3fee51d
+- Step 50: Repair ScreenStabilitySimpleModeQaTest: the suppressed feature list, and collecting the WhileSubscribed Simple Mode state - cce483e
+- Step 51: Repair Day20ComicModeFinalVerificationTest: CrtFilterPolicy's package and parameters, the real Pixel tokens, and Comic unlocked - c89ddb7
+- Step 52: Repair SimpleModeLevelUpSuppressionTest: days per level come from DifficultyMode - 12b9ad9
+- Step 53: Repair NotificationMasterToggleTest: TaskEntity built with named arguments (its positional order had changed) - 325477b
+- Step 54: Repair ScreenTransitionStateTest for TaskFormViewModel's API (onTimeSelected, onDayToggled, scheduledTime) - 5284cd3
+- Step 55: Repair PixelModeRegressionTest: PixelThemeAssetFilter.forTheme, resolveEffective(isSystemInDark), and the real surface variant - d538ada
+- Step 56: Repair OfflineSignInTest: GoogleAuthManager takes a context, exchangeGoogleIdToken a nonce, and its profile fake implements clearCloudData - c85c4b7
+- Step 57: Repair OnboardingIntegrationTest with the shared repositories; it checks the saved profile, difficulty and onboarding flag through them - 87e4c3d
+- Step 58: Repair AiInsightViewModelTest: its log fake implements updateLog and getLogForTaskOnDate, and logs carry pointsAwarded - 602776a
+- Step 59: Remove Day23ComicSimulatedDayJourneyQaTest: it tested its own made-up model (per-task difficulty XP, a level every 100 XP) rather than the app, whose levels come from perfect days - a840966
+- Step 60: Repair HabitInsightPipelineIntegrationTest: shared repositories, the Learning category, and the prompt's current streak and coach wording - 903a2bd
+- Step 61: Repair AiRateLimitEnforcementTest with the shared test repositories - 749c072
+- Step 62: Repair StatsRepositoryTest: its own fakes (which tests mutate) brought up to the current repository interfaces - d085e1d
+- Step 63: Repair StatsPerformanceTest's fakes for the current repository interfaces - ccf7314
+- Step 64: Repair StatsScreenIntegrationTest: current fakes, a test Main dispatcher and fixed clock, and waiting for computed stats instead of reading the placeholder - 664fe18
+- Step 65: Repair TokenExchangeFailureTest for the current auth APIs (nonce, GoogleAuthManager context, sign-in email, clearCloudData) - f951056
+- Step 66: Repair FullSignInOptInSyncIntegrationTest for the current auth and profile APIs - 460b507
+- Step 67: Repair OfflineRetrySyncTest: WorkSpec.backoffDelayDuration and clearCloudData - ec252f2
+- Step 68: Repair SimpleModeThemeMatrixIntegrationTest: a Comic branch, TaskPromptCopyVariants.resolve, isSuppressed and the current terminology names - fce8dcd
+- Step 69: Repair DataExportImportTest: tasks have a category (no priority or per-task difficulty), and it runs under Robolectric for the real org.json - 7925a9c
+- Step 70: Repair DataExportImportQaTest the same way, with tasks built by named arguments - d666789
+- Step 71: Rewrite MissedTaskWorkerTest on the shared repositories and TaskResultRecorder (its fake had a long-gone API), adding a case that a completed quest is left alone - de4f0be
+- Step 72: Repair StreakCalculatorTest: logs record completedDate and pointsAwarded - 0941d6d
+- Step 73: Repair Day22FinalVerificationTest: AvatarTierCalculator's package and level-based tiers, Comic shape tokens in dp, and Comic unlocked since Day 23 - 3ecdcff
+- Step 74: Repair Day19SimpleModeDisableReversalQaTest: current terminology, suppression and stats fields, and today's copy (+ CREATE QUEST, NOT YET) - 5680bd5
+- Step 75: Repair Day19GamifiedModeDefaultRegressionTest: FlavorTextCatalog, suppression features and the current gamified copy - a8b1fcb
+- Step 76: Repair Day19SimpleModeActiveManualQaTest: FlavorTextCatalog, suppression features, StatsUiState fields and the current Simple Mode copy - b7dd774
+- Step 77: Repair SimpleModeFullChecklistUiTest: real terminology fields (no edit/delete titles exist) and the current Simple Mode copy - 73a2869
+- Step 78: Repair GamifiedModeBaselineRegressionTest: the real LevelUpSignalManager (Robolectric), CrtFilterPolicy and notification copy, which no longer claims a miss broke the streak - 7c857ba
+- Step 79: Repair Day25FullRegressionPassTest: current entity fields, the Home route (there is no Today route), migrations through 6_7, and HabitInsightRepositoryImpl's package - 30984b9
+- Step 80: Repair OfflineLocalOnlyRegressionTest against the real rules: XP from PointsCalculator and levels from perfect days, instead of per-task difficulty XP and a level per 100 XP - 8c3c240
+- Step 81: Rewrite ResetProgressIntegrationTest: SettingsViewModel's reset against an in-memory database through ProgressReset, checking tasks, profile, difficulty and onboarding - 6ec7acd
+- Step 82: Repair NotificationCopyIntegrationTest for NotificationHelper's reminder and missed copy and TaskPromptCopyVariants.resolve - 7c0c600
+- Step 83: Repair FollowSystemThemeSwitchingTest: resolveEffective takes isSystemInDark - 6d9f83c
+- Step 84: Repair SimpleModeLeaderboardCoexistenceTest with CloudProfileDto and the real LeaderboardUiState - 1655073
+- Step 85: Rewrite StreakEvaluationWorkerTest on the shared repositories: a missed day resets the streak, exactly 70% on Medium extends it, and running twice scores once - fcb9890
+- Step 86: Repair OnboardingViewModelTest: the ViewModel's real package, the shared repositories and a test Main dispatcher - 18c5c45
+- Step 87: Repair AiInsightUserFlowIntegrationTest: shared repositories, a cache fake on today's interface and clock, and the screen's automatic reload on opt-in as the first fetch - a342746
+- Step 88: AI Coach's recent completion rate is completed over scheduled quests (unlogged ones count as not done; it reported 1 done of 14 due as 100%); tests updated - 842d841
+- Step 89: Repair Day25InsightQualityManualQaTest (current fields, tones and prompt wording, scenarios measured from their own week); no unit tests remain quarantined - 421db06
+- Step 90: Fix CloudAccountDeletionIntegrationTest failing to start: ViewModels need a test Main dispatcher on the JVM - 3491e52
+- Step 91: Fix ThemeViewModelTest: themeMode is shared WhileSubscribed, so the tests collect it before reading it - 2569c78
+- Step 92: Fix three theme-switching tests: a test Main dispatcher and an eager collector of the WhileSubscribed theme state - 086f192
+- Step 93: Fix SoundManagerTest: run under Robolectric, which implements the AudioAttributes SoundPool needs - 5fb34ec
+- Step 94: Fix CiBuildWorkflowTest: the workflow runs assembleDebug inside a multi-task Gradle call, which the exact-string check missed - ed1bb13
+- Step 95: Fix LevelCalculatorTest for the days per level the app uses and shows (Easy 5, Medium 7, Hard 10, Hardest 14), not the Day 6 plan of 3/7/14/30 - 4c0a694
+- Step 96: Light mode's secondary blue darkens to #0369A1 (5.9:1 on white, either way round): #0284C7 was 4.1:1 for blue text and white-on-blue buttons; fixes LightPaletteContrastTest - 073d976
+- Step 97: THEMING.md: Light's secondary is #0369A1, and the old blue's contrast was 4.1:1, not the 4.6:1 listed - 4bad037
+- Step 98: Light palette tests expect Retro Daylight (amber B45309, stone E6E1D6 surfaceVariant, 292524 border), not the old green 2E7D32/E8F5E9/1B5E20 - 5a93790
+- Step 99: LightModeDay22FullRegressionTest: Comic has been available since Day 23, so the gating check now expects isAvailable = true - 3eaab64
+- Step 100: Light avatar-frame tests expect the gold tier border to be the Light gold token A16207 (what PixelAvatarFrame draws), not B8860B - 393db5a
+- Step 101: Pixel palette tests use the real tokens: PixelGold primary (F4C430, not FFCC00 or cyan) and PixelSurfaceBorder 2E2E4A for surfaceVariant and pixelBorder - dddb718
+- Step 102: Colour tests compare Color values instead of a sign-extending bit shift of Color.value that could never equal the hex; Pixel primary is F4C430 - c90c400
+- Step 103: ComicButton's variant fill moves to comicButtonFill(), so PixelButtonThemeDispatchTest checks the real fills (and the disabled grey) instead of comparing each token with itself - 47ed252
+- Step 104: THEMING.md Light contrast tables recomputed with the WCAG 2.1 formula: gold is 4.9:1 (not 5.2), amber primary 5.0 (not 5.4), green 5.0, body text 17.5/16.2, graphite 7.6 (AAA); all still pass - 5be55c1
+- Step 105: Light palette preview contrast notes match the real ratios (secondary 5.9:1 since Step 96, amber 5.0, green 5.0, gold 4.9, charcoal 17.5, graphite 7.6 AAA, rune purple 6.98) - 8e91a25
+- Step 106: Contrast comments in LightColorScheme, PixelAvatarFrame and NotificationHelper give the real ratios (gold 4.9:1, not >5.2; the amber accent is 3.7:1 on a dark shade, not 5.2) - dda889f
+- Step 107: ThemingDocContrastTest recomputes every '#FG on #BG | N:1' ratio in THEMING.md (31 rows) and fails when the doc and the colours disagree - a303666
+- Step 108: Remove the unit-test quarantine: every one of the 91 listed files is repaired or deleted, so the exclude hook and quarantined-unit-tests.txt go and a test that stops compiling fails the build again - 6624ae9
+- Step 109: CI runs the unit suite (testDebugUnitTest) after uploading the APKs and uploads the test report when it fails; live Gemini calls stay off - 0c9eabc
+- Step 110: CiBuildWorkflowTest checks that CI runs testDebugUnitTest and that no active line opts in to PIXELQUEST_LIVE_GEMINI - c5a862a
+- Step 111: AI_INSIGHTS.md: the 7-day consistency is completed over scheduled quests (unlogged days count as missed, today only once a result exists), as changed earlier on Day 29 - d405d36
+- Step 112: Gemini calls turn 2.5 Flash thinking off (thinkingBudget 0): thinking tokens came out of the 800-token output budget, leaving the AI Coach's JSON cut off or empty ('garbled'); the answer's text parts are joined and an empty one names its finishReason - 3fdbcad
+- Step 113: Every AI Coach call Gemini answers counts toward the 4-a-day cap, usable or not: an unreadable reply wasn't counted, so it cost a live call on every visit to Today with no limit (the emulator showed 0 calls today after a failed one); offline, timeouts and 429s still don't count - f01b07c
+- Step 114: AI_INSIGHTS.md: the generation config (thinking off and why) and what counts toward the daily and monthly caps (every answered call, usable or not; not offline, timeouts or 429s) - 6d09dfb
+- Step 115: Day 29 verification: 755 unit tests, 0 failing (from 471 compiling, 28 failing and 91 quarantined files), and emulator checks of Today/Stats/Tasks on AppClock, the AI Coach fix and Light's new blue - 11f6fac
+- Step 116: Update BRIEF.md with the Day 29 log and summary - (this commit)
+
+## Day 29 Summary — Test Suite Repair, and the Bugs It Found
+
+Day 29 was the planned day to repair the 91 test files quarantined since Day 26 and the 28 failing tests. The whole unit suite now compiles and passes: 755 tests, 0 failing. The quarantine hook is gone, and CI runs the suite on every push.
+
+### 1. The test suite (Steps 1, 3–12, 14–27, 29–30, 33–45, 47–87, 89–103, 108–110)
+- Shared in-memory repositories in `testing/Fakes.kt` follow the real rules: one result per task per day, and task occurrence. Most repaired tests use them instead of their own stale fakes.
+- 88 quarantined files were repaired and 3 deleted, because they tested nothing real. The 28 failing tests pass.
+- Common causes of failure:
+  - ViewModels with no test Main dispatcher.
+  - Reading WhileSubscribed state without collecting it.
+  - Room, `SoundManager` and `org.json` on the plain JVM (now Robolectric).
+  - Colour tests comparing a sign-extending bit shift of `Color.value` that could never match.
+  - Old palette, copy and API expectations.
+- New `AppClock` (Step 28): Today, Stats and Tasks take an injected clock (the real one ticks as before), so tests can fix the time.
+- `TodayContent` takes the AI Coach section as a slot (Step 12), so Today can be UI-tested without Hilt.
+- CI runs `testDebugUnitTest` after the APK uploads, and uploads the report when it fails (Step 109).
+
+### 2. Bugs the repaired tests found (Steps 2, 13, 31–32, 46, 88, 96)
+- Spectators (signed in but not on the leaderboard) were shown a rank and an AROUND YOU list.
+- The display-name filter let doubled-letter leetspeak through (`a$$hole`, `p1ss`): it merged repeated letters before comparing.
+- Unit tests made live Gemini calls whenever a real key was in `local.properties`, spending the developer's quota. That now needs `PIXELQUEST_LIVE_GEMINI=1`.
+- The insight cache stamped entries with system time but measured their age with its injected clock.
+- New installs were seeded with avatar id `hero_avatar_1`, which matches no avatar. They now get `avatar_hero`.
+- The AI Coach's recent completion rate counted only logged quests: 1 done out of 14 due read as 100%. It is now completed over scheduled for the last 7 days.
+- Light's secondary blue `#0284C7` was 4.1:1 for blue text and white-on-blue buttons. It is now `#0369A1` at 5.9:1.
+
+### 3. Found on the device (Steps 112–114)
+- The AI Coach showed "came back garbled". Gemini 2.5 Flash thinks by default, and its thinking tokens come out of the 800-token output limit, which left the JSON cut off or empty. Thinking is now off for these short replies. The first live call after the fix returned a full insight.
+- A reply that failed to parse wasn't counted toward the 4-a-day cap, so it cost a live call on every visit to Today with no limit. Every call Gemini answers now counts. Offline, timed-out and 429 calls still don't, and only a usable insight starts the 6-hour cooldown.
+
+### 4. Docs (Steps 97, 104–107, 111, 114)
+- THEMING.md's Light contrast tables were recomputed with the WCAG 2.1 formula:
+  - gold: 4.9:1, not 5.2
+  - amber primary: 5.0, not 5.4
+  - body text: 17.5 and 16.2
+  - graphite: 7.6 (AAA)
+
+  All pairs still pass. `ThemingDocContrastTest` now recomputes every listed ratio. The palette preview notes and code comments say the same.
+- AI_INSIGHTS.md describes:
+  - the completed-over-scheduled rate
+  - the Gemini generation config, and why thinking is off
+  - what counts toward the caps
+
+### 5. Known gaps for Day 30 onwards
+- **Days per level.** The Day 6 plan said 3/7/14/30 days per level for Easy, Medium, Hard and Hardest. The app uses and shows 5/7/10/14, and the tests now follow the app. Decide which is intended.
+- **Release builds** on GitHub do not receive `GEMINI_API_KEY` yet (Day 30).
+- **Supabase.** Apply `supabase/migrations/20261003000000_leaderboard_sort_indexes.sql` to the live Supabase project.
+- **Day 28 code review**, still open:
+  - The task form loses edits on rotation.
+  - New tasks always start today.
+  - Two prompts in the same minute show only the first.
+  - The Settings name field saves on every keystroke.
+  - An offline leaderboard opt-out is not queued.
+  - Some chips, buttons and heatmap cells have no accessibility labels.
+  - The Simple Mode copy says streaks are paused, but they are not.
+- **Not checked on a device:**
+  - the spectator and moderator fixes (the emulator is not signed in)
+  - a fresh install's seeded avatar
+- **Not captured:** the raw garbled Gemini reply. The fix follows Gemini's documented behaviour, and the first call after it succeeded.
+- **Claude Design** canvases still show the old tab bar and the pre-fix Comic colours.
