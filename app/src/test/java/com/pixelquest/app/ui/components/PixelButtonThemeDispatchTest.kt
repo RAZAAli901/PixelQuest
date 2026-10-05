@@ -55,9 +55,17 @@ class PixelButtonThemeDispatchTest {
 
     @Test
     fun comicButtonVariants_haveExpectedDefaultFills() {
-        assertEquals(ComicTokens.CoralRed, ComicTokens.CoralRed)
-        assertEquals(ComicTokens.SkyBlue, ComicTokens.SkyBlue)
-        assertEquals(ComicTokens.BurntOrange, ComicTokens.BurntOrange)
-        assertEquals(ComicTokens.Lavender, ComicTokens.Lavender)
+        assertEquals(Color(0xFFFF5A4E), comicButtonFill(ComicButtonVariant.PRIMARY))
+        assertEquals(Color(0xFF8ECAE6), comicButtonFill(ComicButtonVariant.SKY_BLUE))
+        assertEquals(Color(0xFFF0A868), comicButtonFill(ComicButtonVariant.BURNT_ORANGE))
+        assertEquals(Color(0xFFB8A4D4), comicButtonFill(ComicButtonVariant.LAVENDER))
+        assertEquals(ComicTokens.PanelSurface, comicButtonFill(ComicButtonVariant.SURFACE))
+    }
+
+    @Test
+    fun disabledComicButtons_areFlatGreyWhateverTheVariant() {
+        ComicButtonVariant.values().forEach { variant ->
+            assertEquals(Color(0xFFE0DDD5), comicButtonFill(variant, enabled = false))
+        }
     }
 }

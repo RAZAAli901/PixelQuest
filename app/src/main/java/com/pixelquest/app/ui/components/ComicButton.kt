@@ -54,6 +54,20 @@ object ComicButtonPhysics {
     const val AnimationDurationMs: Int = 60
 }
 
+/** The fill a [ComicButton] of this [variant] paints; disabled buttons are a flat grey. */
+internal fun comicButtonFill(variant: ComicButtonVariant, enabled: Boolean = true): Color =
+    if (!enabled) {
+        Color(0xFFE0DDD5)
+    } else {
+        when (variant) {
+            ComicButtonVariant.PRIMARY -> ComicTokens.CoralRed
+            ComicButtonVariant.BURNT_ORANGE -> ComicTokens.BurntOrange
+            ComicButtonVariant.SKY_BLUE -> ComicTokens.SkyBlue
+            ComicButtonVariant.LAVENDER -> ComicTokens.Lavender
+            ComicButtonVariant.SURFACE -> ComicTokens.PanelSurface
+        }
+    }
+
 /**
  * Step 28: Proof-of-concept comic-styled button asset/composable.
  * Implements Compose-drawn vector geometry: solid color fill, solid black ink border,
@@ -90,17 +104,7 @@ fun ComicButton(
         label = "comic_btn_translation"
     )
 
-    val fillColor = if (!enabled) {
-        Color(0xFFE0DDD5)
-    } else {
-        when (variant) {
-            ComicButtonVariant.PRIMARY -> ComicTokens.CoralRed
-            ComicButtonVariant.BURNT_ORANGE -> ComicTokens.BurntOrange
-            ComicButtonVariant.SKY_BLUE -> ComicTokens.SkyBlue
-            ComicButtonVariant.LAVENDER -> ComicTokens.Lavender
-            ComicButtonVariant.SURFACE -> ComicTokens.PanelSurface
-        }
-    }
+    val fillColor = comicButtonFill(variant, enabled)
 
     val contentColor = if (!enabled) {
         Color(0xFF757575)
