@@ -155,18 +155,3 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
-
-// Unit tests that do not compile against the current code are listed in quarantined-unit-tests.txt
-// and excluded here so the rest of the suite can build and run. Remove entries as they are repaired.
-val quarantinedUnitTests = file("quarantined-unit-tests.txt")
-    .takeIf { it.exists() }
-    ?.readLines()
-    ?.map { it.trim() }
-    ?.filter { it.isNotEmpty() && !it.startsWith("#") }
-    ?: emptyList()
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    if (name.contains("UnitTest")) {
-        quarantinedUnitTests.forEach { exclude("**/com/pixelquest/app/$it") }
-    }
-}
