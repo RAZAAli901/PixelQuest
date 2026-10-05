@@ -114,25 +114,25 @@ fun LightPalettePreview() {
             name = "Primary (Quest Amber)",
             hex = "#B45309",
             color = scheme.primary,
-            contrastNote = "5.4:1 vs Surface (AA)"
+            contrastNote = "5.0:1 vs Surface (AA)"
         )
         LightPaletteSwatchItem(
             name = "Secondary (Daylight Cyan)",
             hex = "#0369A1",
             color = scheme.secondary,
-            contrastNote = "4.6:1 vs Surface (AA)"
+            contrastNote = "5.9:1 vs Surface (AA)"
         )
         LightPaletteSwatchItem(
             name = "Tertiary (HP Green)",
             hex = "#15803D",
             color = scheme.tertiary,
-            contrastNote = "4.7:1 vs Surface (AA)"
+            contrastNote = "5.0:1 vs Surface (AA)"
         )
         LightPaletteSwatchItem(
             name = "Gold (Trophy / Level)",
             hex = "#A16207",
             color = scheme.gold,
-            contrastNote = "5.2:1 vs Surface (AA)"
+            contrastNote = "4.9:1 vs Surface (AA)"
         )
         LightPaletteSwatchItem(
             name = "Pixel Border",
@@ -144,13 +144,13 @@ fun LightPalettePreview() {
             name = "On Surface (Charcoal)",
             hex = "#1C1917",
             color = scheme.onSurface,
-            contrastNote = "15.9:1 vs Surface (AAA)"
+            contrastNote = "17.5:1 vs Surface (AAA)"
         )
         LightPaletteSwatchItem(
             name = "On Surface Variant",
             hex = "#57534E",
             color = scheme.onSurfaceVariant,
-            contrastNote = "5.8:1 vs Surface (AA)"
+            contrastNote = "7.6:1 vs Surface (AAA)"
         )
         LightPaletteSwatchItem(
             name = "Error (Dungeon Red)",
@@ -162,7 +162,7 @@ fun LightPalettePreview() {
             name = "Accent Purple (Rune)",
             hex = "#7E22CE",
             color = scheme.accentPurple,
-            contrastNote = "6.5:1 vs Surface (AA)"
+            contrastNote = "6.98:1 vs Surface (AA)"
         )
     }
 }
