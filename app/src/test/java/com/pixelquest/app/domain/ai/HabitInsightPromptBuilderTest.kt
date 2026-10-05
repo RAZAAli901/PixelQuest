@@ -58,8 +58,8 @@ class HabitInsightPromptBuilderTest {
         val profile = UserProfileEntity(id = 1, username = "VeteranRanger", avatarId = "ranger_2", level = 8)
         val tasks = listOf(
             createTask(1, TaskCategory.FITNESS),
-            createTask(2, TaskCategory.STUDY),
-            createTask(3, TaskCategory.WORK)
+            createTask(2, TaskCategory.LEARNING),
+            createTask(3, TaskCategory.OTHER)
         )
         val logs = listOf(
             TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = LocalDate.now(), wasCompleted = true, pointsAwarded = 10),
@@ -76,8 +76,8 @@ class HabitInsightPromptBuilderTest {
         assertTrue(prompt.contains("Perfect Days = 42"))
         assertTrue(prompt.contains("Level 8"))
         assertTrue(prompt.contains("FITNESS: 100%"))
-        assertTrue(prompt.contains("STUDY: 100%"))
-        assertTrue(prompt.contains("WORK: 0%"))
+        assertTrue(prompt.contains("LEARNING: 100%"))
+        assertTrue(prompt.contains("OTHER: 0%"))
         assertFalse(prompt.contains("VeteranRanger"))
     }
 
@@ -109,7 +109,7 @@ class HabitInsightPromptBuilderTest {
         val streak = StreakEntity(id = 1, currentStreak = 0, longestStreak = 4, perfectDaysCount = 2)
         val profile = UserProfileEntity(id = 1, username = "TryingHero", avatarId = "mage_1", level = 2)
         val tasks = listOf(
-            createTask(1, TaskCategory.STUDY),
+            createTask(1, TaskCategory.LEARNING),
             createTask(2, TaskCategory.FITNESS)
         )
         val logs = listOf(
@@ -124,7 +124,7 @@ class HabitInsightPromptBuilderTest {
 
         assertTrue(prompt.contains("Current Streak = 0"))
         assertTrue(prompt.contains("25% completion rate (3 missed entries)"))
-        assertTrue(prompt.contains("STUDY: 0%"))
+        assertTrue(prompt.contains("LEARNING: 0%"))
         assertTrue(prompt.contains("FITNESS: 50%"))
     }
 }
