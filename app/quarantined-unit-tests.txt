@@ -13,6 +13,5 @@ qa/OfflineLocalOnlyRegressionTest.kt
 ui/SimpleModeFullChecklistUiTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
-ui/theme/Day22FinalVerificationTest.kt
 ui/theme/FollowSystemThemeSwitchingTest.kt
 worker/StreakEvaluationWorkerTest.kt
