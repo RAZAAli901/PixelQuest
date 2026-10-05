@@ -5,15 +5,16 @@ import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.domain.model.DifficultyLevel
-import com.pixelquest.app.domain.model.Priority
 import com.pixelquest.app.domain.model.RecurrenceType
-import com.pixelquest.app.domain.model.TaskDifficulty
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalTime
 
+// org.json is a stub on the plain JVM; Robolectric provides the real implementation.
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [34], application = android.app.Application::class)
 class DataExportImportTest {
 
     @Test
@@ -48,9 +49,7 @@ class DataExportImportTest {
             scheduledTime = LocalTime.of(8, 30),
             scheduledDay = LocalDate.of(2026, 8, 26),
             recurrenceType = RecurrenceType.DAILY,
-            priority = Priority.HIGH,
-            difficulty = TaskDifficulty.HARD,
-            isCompleted = false
+            category = com.pixelquest.app.domain.model.TaskCategory.FITNESS
         )
 
         val originalPayload = BackupPayload(

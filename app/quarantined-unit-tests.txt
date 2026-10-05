@@ -1,7 +1,6 @@
 # Unit tests excluded from compilation because they do not compile against the current code.
 # Paths are relative to app/src/test/java/com/pixelquest/app/. Repair and remove entries (Day 29).
 data/backup/DataExportImportQaTest.kt
-data/backup/DataExportImportTest.kt
 domain/StreakCalculatorTest.kt
 domain/ai/AiInsightUserFlowIntegrationTest.kt
 domain/ai/Day25FullRegressionPassTest.kt
