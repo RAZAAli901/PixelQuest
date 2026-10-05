@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -27,6 +29,13 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CloudAccountDeletionIntegrationTest {
+
+    // ViewModels run in viewModelScope, which needs a Main dispatcher on the JVM.
+    @org.junit.Before
+    fun setUpMain() = kotlinx.coroutines.Dispatchers.setMain(kotlinx.coroutines.test.UnconfinedTestDispatcher())
+
+    @org.junit.After
+    fun tearDownMain() = kotlinx.coroutines.Dispatchers.resetMain()
 
     @Test
     fun cloudAccountDeletion_removesCloudData_andPreservesLocalQuests() = runTest {
