@@ -28,7 +28,7 @@ class CrtFilterSimpleModeSuppressionTest {
         assertFalse(
             CrtFilterPolicy.shouldApplyCrt(
                 isCrtSettingEnabled = true,
-                effectiveThemeMode = ThemeMode.Dark,
+                effectiveThemeMode = ThemeMode.Comic,
                 isSimpleModeEnabled = true
             )
         )
@@ -75,7 +75,7 @@ class CrtFilterSimpleModeSuppressionTest {
         assertFalse(
             CrtFilterPolicy.shouldApplyCrt(
                 isCrtSettingEnabled = true,
-                effectiveThemeMode = ThemeMode.Dark,
+                effectiveThemeMode = ThemeMode.Comic,
                 isSimpleModeEnabled = false
             )
         )

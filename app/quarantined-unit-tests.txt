@@ -22,7 +22,6 @@ domain/ai/HabitInsightPipelineIntegrationTest.kt
 domain/ai/HabitInsightPromptBuilderTest.kt
 domain/ai/InsightCacheLogicTest.kt
 domain/ai/SimpleModeGeneratedCopyVerificationTest.kt
-domain/model/CrtFilterSimpleModeSuppressionTest.kt
 integration/Day10TestSuiteVerificationTest.kt
 integration/FreshInstallFirstImpressionTest.kt
 integration/FullSignInOptInSyncIntegrationTest.kt
