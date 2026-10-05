@@ -32,7 +32,6 @@ ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/leveling/SimpleModeLevelUpSuppressionTest.kt
 ui/navigation/ScreenTransitionStateTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
-ui/performance/MemoryProfileLeakAuditTest.kt
 ui/screens/insight/AiInsightViewModelTest.kt
 ui/settings/SimpleModeDifficultyEntryPointUiTest.kt
 ui/theme/Day20ComicModeFinalVerificationTest.kt
