@@ -29,7 +29,7 @@ class FakeAuthRepoForFailure : AuthRepository {
     var signOutCalled: Boolean = false
 
     override val currentUser = MutableStateFlow<AuthUser?>(null)
-    override suspend fun exchangeGoogleIdToken(idToken: String): SupabaseResult<AuthUser> = exchangeResult
+    override suspend fun exchangeGoogleIdToken(idToken: String, rawNonce: String?): SupabaseResult<AuthUser> = exchangeResult
     override suspend fun signOut(): SupabaseResult<Unit> {
         signOutCalled = true
         currentUser.value = null
@@ -38,9 +38,9 @@ class FakeAuthRepoForFailure : AuthRepository {
     override suspend fun getInitialUser(): AuthUser? = null
 }
 
-class FakeGoogleAuthManagerForFailure : GoogleAuthManager {
+class FakeGoogleAuthManagerForFailure : GoogleAuthManager(io.mockk.mockk(relaxed = true)) {
     var signOutCalled: Boolean = false
-    var resultToReturn: GoogleAuthResult = GoogleAuthResult.Success("sample-google-id-token")
+    var resultToReturn: GoogleAuthResult = GoogleAuthResult.Success("sample-google-id-token", email = "hero@gmail.com", displayName = null)
 
     override suspend fun signInWithGoogle(activityContext: Context): GoogleAuthResult = resultToReturn
     override suspend fun signOut() { signOutCalled = true }
@@ -54,6 +54,7 @@ class FakeUserProfileRepoForFailure : UserProfileRepository {
     override suspend fun performLevelUp(): UserProfileEntity? = null
     override suspend fun updateSupabaseUserId(userId: String?) { assignedUserId = userId }
     override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {}
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {}
 }
 
