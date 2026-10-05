@@ -42,7 +42,6 @@ qa/Day24LiveGeminiPipelineQaTest.kt
 qa/Day24MalformedResponseQaTest.kt
 qa/Day24OfflineGracefulDegradationQaTest.kt
 qa/Day25RateLimitManualQaTest.kt
-qa/DisplayNameModerationQaTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
 qa/ScreenStabilitySimpleModeQaTest.kt
 qa/SyncConflictQaTest.kt

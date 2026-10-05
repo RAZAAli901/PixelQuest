@@ -31,7 +31,7 @@ class DisplayNameModerationQaTest {
             val matchesRegex = profile.displayName.matches(Regex("^[a-zA-Z0-9_]{3,20}$"))
             return if (!matchesRegex || !isSafe) {
                 SupabaseResult.ServerError(
-                    Exception("check_violation: Display name contains disallowed or offensive terminology."),
+                    400, // PostgREST answers a check_violation with 400
                     "Server rejected display name due to moderation policy violation."
                 )
             } else {
@@ -53,7 +53,7 @@ class DisplayNameModerationQaTest {
         assertTrue("Server trigger must reject malicious bypass profile", result is SupabaseResult.ServerError)
         assertEquals(
             "Server rejected display name due to moderation policy violation.",
-            (result as SupabaseResult.ServerError).userMessage
+            (result as SupabaseResult.ServerError).message
         )
     }
 }
