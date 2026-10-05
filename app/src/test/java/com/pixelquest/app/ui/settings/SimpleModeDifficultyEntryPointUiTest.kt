@@ -72,7 +72,7 @@ class SimpleModeDifficultyEntryPointUiTest {
         var navigationCount = 0
         var isSimpleMode = false
 
-        val onNav = { navigationCount++ }
+        val onNav: () -> Unit = { navigationCount++ }
 
         // 1. Initially gamified
         var simulator = DifficultyEntryPointSimulator(isSimpleMode, onNav)
