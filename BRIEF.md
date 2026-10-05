@@ -2839,7 +2839,9 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 113: Every AI Coach call Gemini answers counts toward the 4-a-day cap, usable or not: an unreadable reply wasn't counted, so it cost a live call on every visit to Today with no limit (the emulator showed 0 calls today after a failed one); offline, timeouts and 429s still don't count - f01b07c
 - Step 114: AI_INSIGHTS.md: the generation config (thinking off and why) and what counts toward the daily and monthly caps (every answered call, usable or not; not offline, timeouts or 429s) - 6d09dfb
 - Step 115: Day 29 verification: 755 unit tests, 0 failing (from 471 compiling, 28 failing and 91 quarantined files), and emulator checks of Today/Stats/Tasks on AppClock, the AI Coach fix and Light's new blue - 11f6fac
-- Step 116: Update BRIEF.md with the Day 29 log and summary - (this commit)
+- Step 116: Update BRIEF.md with the Day 29 log and summary - e6a2c3a
+- Step 117: Days per level follow the Day 6 plan: Easy 3, Medium 7, Hard 14, Hardest 30 (were 5/7/10/14) - 797f933
+- Step 118: Record the days-per-level decision in BRIEF.md and VERIFICATION.md - (this commit)
 
 ## Day 29 Summary — Test Suite Repair, and the Bugs It Found
 
@@ -2885,7 +2887,7 @@ Day 29 was the planned day to repair the 91 test files quarantined since Day 26 
   - what counts toward the caps
 
 ### 5. Known gaps for Day 30 onwards
-- **Days per level.** The Day 6 plan said 3/7/14/30 days per level for Easy, Medium, Hard and Hardest. The app uses and shows 5/7/10/14, and the tests now follow the app. Decide which is intended.
+- **Days per level: decided (Step 117).** The app now uses the Day 6 plan's 3/7/14/30 (Easy, Medium, Hard, Hardest), not 5/7/10/14. The difficulty picker reads them from `DifficultyMode`. Existing players keep their perfect-day progress: an Easy player with 3 or 4 days levels up at the next nightly check, and Hard and Hardest players now need 14 and 30 days.
 - **Release builds** on GitHub do not receive `GEMINI_API_KEY` yet (Day 30).
 - **Supabase.** Apply `supabase/migrations/20261003000000_leaderboard_sort_indexes.sql` to the live Supabase project.
 - **Day 28 code review**, still open:

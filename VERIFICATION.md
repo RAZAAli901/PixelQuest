@@ -426,7 +426,7 @@ Verified on 5 Oct 2026 against the Pixel 6 emulator (Android 14, API 34) and the
   - `MemoryProfileLeakAuditTest` measured JVM heap noise.
   - `Day23ComicSimulatedDayJourneyQaTest` tested a made-up XP model, not the app.
 - All 28 failing tests now pass. Most expected old values; the expectations changed are:
-  - days per level: 5/7/10/14, as the app uses and shows
+  - days per level: 5/7/10/14, as the app used then. Step 117 changed them to the Day 6 plan's 3/7/14/30, and `LevelCalculatorTest` checks each threshold (755 tests, 0 failing)
   - the real Pixel and Light colour tokens
   - Comic is available
   - Robolectric for the DAO, `SoundManager` and `org.json` tests
