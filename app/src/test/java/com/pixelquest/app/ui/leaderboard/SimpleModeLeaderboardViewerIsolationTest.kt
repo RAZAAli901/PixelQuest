@@ -44,8 +44,7 @@ class SimpleModeLeaderboardViewerIsolationTest {
         assertEquals(simpleModeViewerContext.uiState.selectedTab, gamifiedViewerContext.uiState.selectedTab)
         assertEquals(LeaderboardTab.values().toList(), listOf(
             LeaderboardTab.TOP_STREAKS,
-            LeaderboardTab.HIGHEST_LEVEL,
-            LeaderboardTab.TOTAL_XP
+            LeaderboardTab.TOP_LEVELS
         ))
     }
 
