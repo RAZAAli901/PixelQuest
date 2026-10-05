@@ -44,6 +44,7 @@ class SimpleModeThemeMatrixIntegrationTest {
         val colorSchemeType = when (state.themeMode) {
             ThemeMode.Pixel -> "PixelColorScheme"
             ThemeMode.Light -> "LightColorScheme"
+            ThemeMode.Comic -> "ComicColorScheme"
             ThemeMode.System -> "SystemResolved"
         }
 
@@ -54,25 +55,25 @@ class SimpleModeThemeMatrixIntegrationTest {
         )
 
         val terminology = TaskTerminology.forMode(state.isSimpleMode)
-        val copyVariants = TaskPromptCopyVariants.forMode(state.isSimpleMode)
+        val copyVariants = TaskPromptCopyVariants.resolve(state.isSimpleMode)
 
-        val isStreakSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.STREAK_DISPLAY,
+        val isStreakSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.STREAK_DISPLAY,
             state.isSimpleMode
         )
 
-        val isDifficultyLocked = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.DIFFICULTY_SELECTION,
+        val isDifficultyLocked = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.DIFFICULTY_SELECTION,
             state.isSimpleMode
         )
 
         return EvaluatedMatrixResult(
             colorSchemeType = colorSchemeType,
             shouldApplyCrt = shouldApplyCrt,
-            taskNoun = terminology.taskNoun,
+            taskNoun = terminology.itemSingular,
             isStreakSuppressed = isStreakSuppressed,
             isDifficultyLocked = isDifficultyLocked,
-            promptConfirmText = copyVariants.confirmButton
+            promptConfirmText = copyVariants.confirmButtonText
         )
     }
 

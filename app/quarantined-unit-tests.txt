@@ -18,6 +18,5 @@ ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
 ui/theme/Day22FinalVerificationTest.kt
 ui/theme/FollowSystemThemeSwitchingTest.kt
-ui/theme/SimpleModeThemeMatrixIntegrationTest.kt
 worker/MissedTaskWorkerTest.kt
 worker/StreakEvaluationWorkerTest.kt
