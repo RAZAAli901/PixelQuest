@@ -22,13 +22,16 @@ class Day25FullRegressionPassTest {
 
     @Test
     fun databaseSchema_maintainsNonDestructiveIntegrity() {
-        // AppDatabase version is 4 with MIGRATION_3_4
+        // Every migration since version 3 is still present (the database is now version 7).
         assertNotNull(AppDatabase.MIGRATION_3_4)
+        assertNotNull(AppDatabase.MIGRATION_6_7)
 
         // Verify entity class signatures are non-destructively intact
         val task = TaskEntity(
             id = 1L,
-            title = "Daily Meditation",
+            name = "Daily Meditation",
+            description = "",
+            scheduledDay = java.time.LocalDate.now(),
             scheduledTime = java.time.LocalTime.of(8, 0),
             recurrenceType = com.pixelquest.app.domain.model.RecurrenceType.DAILY,
             category = com.pixelquest.app.domain.model.TaskCategory.HEALTH
@@ -37,12 +40,11 @@ class Day25FullRegressionPassTest {
             id = 1L,
             taskId = 1L,
             completedDate = java.time.LocalDate.now(),
-            completedTime = java.time.LocalTime.of(8, 5),
             wasCompleted = true,
             pointsAwarded = 25
         )
         val streak = StreakEntity(id = 1L, currentStreak = 5, longestStreak = 10, perfectDaysCount = 12)
-        val profile = UserProfileEntity(id = 1L, username = "PixelHero", avatarId = "warrior", currentLevel = 2, totalXp = 150)
+        val profile = UserProfileEntity(id = 1L, username = "PixelHero", avatarId = "warrior", level = 2, totalXp = 150)
         val cache = InsightCacheEntity(
             id = 1L,
             generatedAt = System.currentTimeMillis(),
@@ -62,7 +64,7 @@ class Day25FullRegressionPassTest {
     @Test
     fun navigationRoutes_allCoreRoutesPreservedAndAccessible() {
         val expectedRoutes = listOf(
-            Screen.Today.route,
+            Screen.Home.route,
             Screen.Tasks.route,
             Screen.CreateTask.route,
             Screen.EditTask.route,
@@ -76,7 +78,7 @@ class Day25FullRegressionPassTest {
             assertTrue("Route must be non-empty", route.isNotEmpty())
         }
 
-        assertEquals("today", Screen.Today.route)
+        assertEquals("home", Screen.Home.route)
         assertEquals("tasks", Screen.Tasks.route)
         assertEquals("settings", Screen.Settings.route)
         assertEquals("ai_insight", Screen.AiInsight.route)
@@ -96,8 +98,8 @@ class Day25FullRegressionPassTest {
     @Test
     fun rateLimitingAndCaps_operateIndependently() {
         // Enforce that rate limit interval and cost safeguard caps are complementary
-        assertTrue("Min interval must be 6 hours", HabitInsightRepositoryImpl.MIN_CALL_INTERVAL_MS == 6 * 3600 * 1000L)
-        assertTrue("Cache TTL must be 12 hours", HabitInsightRepositoryImpl.CACHE_TTL_MILLIS == 12 * 3600 * 1000L)
+        assertTrue("Min interval must be 6 hours", com.pixelquest.app.data.repository.HabitInsightRepositoryImpl.MIN_CALL_INTERVAL_MS == 6 * 3600 * 1000L)
+        assertTrue("Cache TTL must be 12 hours", com.pixelquest.app.data.repository.HabitInsightRepositoryImpl.CACHE_TTL_MILLIS == 12 * 3600 * 1000L)
         assertTrue("Daily cap must be 4 calls", AiUsagePolicy.MAX_CALLS_PER_DAY == 4)
         assertTrue("Monthly cap must be 60 calls", AiUsagePolicy.MAX_CALLS_PER_MONTH == 60)
     }
