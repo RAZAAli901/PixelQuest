@@ -21,10 +21,11 @@ class DatabaseQueryPerformanceTest {
         val task = TaskEntity(
             id = 1L,
             name = "Morning Stretch",
+            description = "",
             scheduledDay = startDate,
             scheduledTime = LocalTime.of(8, 0),
             recurrenceType = RecurrenceType.DAILY,
-            selectedDays = setOf(DayOfWeek.MONDAY),
+            weeklyDays = setOf(DayOfWeek.MONDAY),
             category = TaskCategory.HEALTH
         )
 
