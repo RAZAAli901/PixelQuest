@@ -24,7 +24,6 @@ ui/SimpleModeFullChecklistUiTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
 ui/theme/Day22FinalVerificationTest.kt
-ui/theme/Day23ComicSimulatedDayJourneyQaTest.kt
 ui/theme/FollowSystemThemeSwitchingTest.kt
 ui/theme/SimpleModeThemeMatrixIntegrationTest.kt
 worker/MissedTaskWorkerTest.kt
