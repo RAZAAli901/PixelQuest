@@ -53,9 +53,6 @@ ui/theme/FollowSystemThemeSwitchingTest.kt
 ui/theme/PixelModeRegressionTest.kt
 ui/theme/SimpleModeThemeMatrixIntegrationTest.kt
 ui/theme/SimpleModeThemeOrthogonalityTest.kt
-ui/today/QuickCompleteFlowTest.kt
-ui/today/TodayFullDayCycleQaTest.kt
-ui/today/TodayGracePeriodTest.kt
 worker/MissedTaskWorkerTest.kt
 worker/OfflineRetrySyncTest.kt
 worker/ProfileSyncWorkerTriggerTest.kt

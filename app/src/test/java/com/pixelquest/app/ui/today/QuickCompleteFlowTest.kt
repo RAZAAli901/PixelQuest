@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -53,7 +54,9 @@ class QuickCompleteFlowTest {
             streakRepository = streakRepo,
             userProfileRepository = profileRepo,
             difficultySettingsRepository = difficultyRepo,
-            taskAlarmScheduler = alarmScheduler
+            taskAlarmScheduler = alarmScheduler,
+            taskResultRecorder = com.pixelquest.app.domain.TaskResultRecorder(completionRepo, profileRepo, streakRepo),
+            appClock = com.pixelquest.app.testing.FixedClock(todayAtNoon())
         )
     }
 
@@ -64,8 +67,9 @@ class QuickCompleteFlowTest {
 
     @Test
     fun completeTask_insertsLogAndAwardsXp() = runTest {
+        backgroundScope.launch { viewModel.uiState.collect {} }
         val today = LocalDate.now()
-        val task = TaskEntity(id = 1, name = "Daily Quest", scheduledTime = LocalTime.of(10, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
+        val task = TaskEntity(id = 1, description = "", name = "Daily Quest", scheduledTime = LocalTime.of(10, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
         taskRepo.tasksFlow.value = listOf(task)
 
         testDispatcher.scheduler.advanceUntilIdle()
@@ -84,8 +88,9 @@ class QuickCompleteFlowTest {
 
     @Test
     fun skipTask_insertsMissedLogWithoutXp() = runTest {
+        backgroundScope.launch { viewModel.uiState.collect {} }
         val today = LocalDate.now()
-        val task = TaskEntity(id = 2, name = "Skipped Quest", scheduledTime = LocalTime.of(14, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)
+        val task = TaskEntity(id = 2, description = "", name = "Skipped Quest", scheduledTime = LocalTime.of(14, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)
         taskRepo.tasksFlow.value = listOf(task)
 
         testDispatcher.scheduler.advanceUntilIdle()

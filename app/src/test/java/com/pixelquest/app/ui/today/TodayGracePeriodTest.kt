@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -53,7 +54,9 @@ class TodayGracePeriodTest {
             streakRepository = streakRepo,
             userProfileRepository = profileRepo,
             difficultySettingsRepository = difficultyRepo,
-            taskAlarmScheduler = alarmScheduler
+            taskAlarmScheduler = alarmScheduler,
+            taskResultRecorder = com.pixelquest.app.domain.TaskResultRecorder(completionRepo, profileRepo, streakRepo),
+            appClock = com.pixelquest.app.testing.FixedClock(todayAtNoon())
         )
     }
 
@@ -64,6 +67,7 @@ class TodayGracePeriodTest {
 
     @Test
     fun noTasksToday_returnsEmptyTaskListInState() = runTest {
+        backgroundScope.launch { viewModel.uiState.collect {} }
         taskRepo.tasksFlow.value = emptyList()
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -74,10 +78,12 @@ class TodayGracePeriodTest {
 
     @Test
     fun overdueTaskWithoutLog_mapsToGracePeriodStatus() = runTest {
+        backgroundScope.launch { viewModel.uiState.collect {} }
         val today = LocalDate.now()
         val pastTask = TaskEntity(
             id = 1,
             name = "Morning Quest",
+            description = "",
             scheduledTime = LocalTime.of(0, 1), // 00:01 AM (past)
             scheduledDay = today,
             category = TaskCategory.FITNESS,

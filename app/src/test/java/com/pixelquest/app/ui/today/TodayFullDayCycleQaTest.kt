@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -54,7 +55,9 @@ class TodayFullDayCycleQaTest {
             streakRepository = streakRepo,
             userProfileRepository = profileRepo,
             difficultySettingsRepository = difficultyRepo,
-            taskAlarmScheduler = alarmScheduler
+            taskAlarmScheduler = alarmScheduler,
+            taskResultRecorder = com.pixelquest.app.domain.TaskResultRecorder(completionRepo, profileRepo, streakRepo),
+            appClock = com.pixelquest.app.testing.FixedClock(todayAtNoon())
         )
     }
 
@@ -65,9 +68,10 @@ class TodayFullDayCycleQaTest {
 
     @Test
     fun fullDayCycle_simulatesTaskCreationCountdownAndQuickCompletion() = runTest {
+        backgroundScope.launch { viewModel.uiState.collect {} }
         val today = LocalDate.now()
-        val task1 = TaskEntity(id = 1, name = "Morning Run", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
-        val task2 = TaskEntity(id = 2, name = "Evening Study", scheduledTime = LocalTime.of(20, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
+        val task1 = TaskEntity(id = 1, description = "", name = "Morning Run", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
+        val task2 = TaskEntity(id = 2, description = "", name = "Evening Study", scheduledTime = LocalTime.of(20, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
 
         // 1. Initial State: 2 pending tasks
         taskRepo.tasksFlow.value = listOf(task1, task2)
@@ -80,7 +84,7 @@ class TodayFullDayCycleQaTest {
         // 2. Quick-complete task1
         viewModel.completeTask(task1)
         completionRepo.logsFlow.value = listOf(
-            TaskCompletionLogEntity(id = 1, taskId = 1, completionDate = today, wasCompleted = true, pointsAwarded = 50)
+            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = today, wasCompleted = true, pointsAwarded = 50)
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -91,8 +95,8 @@ class TodayFullDayCycleQaTest {
         // 3. Quick-complete task2
         viewModel.completeTask(task2)
         completionRepo.logsFlow.value = listOf(
-            TaskCompletionLogEntity(id = 1, taskId = 1, completionDate = today, wasCompleted = true, pointsAwarded = 50),
-            TaskCompletionLogEntity(id = 2, taskId = 2, completionDate = today, wasCompleted = true, pointsAwarded = 50)
+            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = today, wasCompleted = true, pointsAwarded = 50),
+            TaskCompletionLogEntity(id = 2, taskId = 2, completedDate = today, wasCompleted = true, pointsAwarded = 50)
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
