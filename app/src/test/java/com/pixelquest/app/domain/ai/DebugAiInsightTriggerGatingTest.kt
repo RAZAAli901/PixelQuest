@@ -20,7 +20,7 @@ class DebugAiInsightTriggerGatingTest {
     private class RepositorySpy : HabitInsightRepository {
         var callCount = 0
 
-        override suspend fun generateHabitInsight(): GeminiResult<HabitInsightResponse> {
+        override suspend fun generateHabitInsight(forceRefresh: Boolean): GeminiResult<HabitInsightResponse> {
             callCount++
             return GeminiResult.Success(
                 HabitInsightResponse(

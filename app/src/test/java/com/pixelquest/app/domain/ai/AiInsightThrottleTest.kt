@@ -27,7 +27,7 @@ class AiInsightThrottleTest {
             )
         )
 
-        override suspend fun generateHabitInsight(): GeminiResult<HabitInsightResponse> {
+        override suspend fun generateHabitInsight(forceRefresh: Boolean): GeminiResult<HabitInsightResponse> {
             callCount++
             return resultToReturn
         }
