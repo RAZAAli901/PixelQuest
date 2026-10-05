@@ -23,7 +23,12 @@ class FakeAuthRepository : AuthRepository {
     var exchangeResult: SupabaseResult<AuthUser> = SupabaseResult.Success(
         AuthUser(id = "user_123", email = "test@pixelquest.com", displayName = "HeroTester")
     )
+    /** A restored session: like Supabase's sessionStatus, currentUser then reports the same user. */
     var initialUser: AuthUser? = null
+        set(value) {
+            field = value
+            userFlow.value = value
+        }
 
     override val currentUser: Flow<AuthUser?> = userFlow
 
@@ -69,6 +74,7 @@ class FakeUserProfileRepositoryForAuth : com.pixelquest.app.domain.repository.Us
         storedSupabaseUserId = userId
     }
     override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {}
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {}
 }
 
@@ -81,11 +87,8 @@ class AuthViewModelTest {
     private lateinit var fakeUserProfileRepo: FakeUserProfileRepositoryForAuth
     private lateinit var viewModel: AuthViewModel
 
-    // Mock Context using dynamic proxy or dummy implementation
-    private val dummyContext = java.lang.reflect.Proxy.newProxyInstance(
-        Context::class.java.classLoader,
-        arrayOf(Context::class.java)
-    ) { _, _, _ -> null } as Context
+    // Context is an abstract class, not an interface, so a java.lang.reflect.Proxy can't stand in for it.
+    private val dummyContext: Context = io.mockk.mockk(relaxed = true)
 
     @Before
     fun setUp() {
