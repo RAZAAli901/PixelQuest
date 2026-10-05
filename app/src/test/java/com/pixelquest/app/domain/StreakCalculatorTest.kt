@@ -42,9 +42,9 @@ class StreakCalculatorTest {
     @Test
     fun isPerfectDay_withLogsList_calculatesCorrectly() {
         val logs = listOf(
-            TaskCompletionLogEntity(taskId = 1, completedAt = LocalDateTime.now(), wasCompleted = true),
-            TaskCompletionLogEntity(taskId = 2, completedAt = LocalDateTime.now(), wasCompleted = true),
-            TaskCompletionLogEntity(taskId = 3, completedAt = LocalDateTime.now(), wasCompleted = false)
+            TaskCompletionLogEntity(taskId = 1, completedDate = java.time.LocalDate.now(), wasCompleted = true, pointsAwarded = 50),
+            TaskCompletionLogEntity(taskId = 2, completedDate = java.time.LocalDate.now(), wasCompleted = true, pointsAwarded = 50),
+            TaskCompletionLogEntity(taskId = 3, completedDate = java.time.LocalDate.now(), wasCompleted = false, pointsAwarded = 0)
         )
         // 2 out of 3 = 66.6% -> should pass 50% threshold, fail 70% threshold
         assertTrue(StreakCalculator.isPerfectDay(logs, 3, 0.50f))
