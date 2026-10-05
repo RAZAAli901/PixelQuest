@@ -13,7 +13,7 @@ class LevelingIntegrationTest {
     @Test
     fun testEndToEndLevelUpAndHistoryFlow() {
         // Initial state: Level 1, 0 perfect days, Easy mode (3 days per level)
-        var userProfile = UserProfileEntity(id = 1, level = 1, perfectDaysTowardNextLevel = 0)
+        var userProfile = UserProfileEntity(id = 1, username = "Hero", avatarId = "avatar_hero", level = 1, perfectDaysTowardNextLevel = 0)
         val difficulty = DifficultySettingsEntity(id = 1, difficultyLevel = DifficultyLevel.EASY, daysRequiredPerLevel = 3)
         val levelHistoryLog = mutableListOf<LevelHistoryEntity>()
 

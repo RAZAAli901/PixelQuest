@@ -20,7 +20,6 @@ domain/ai/SimpleModeGeneratedCopyVerificationTest.kt
 integration/FreshInstallFirstImpressionTest.kt
 integration/FullSignInOptInSyncIntegrationTest.kt
 integration/GamifiedModeBaselineRegressionTest.kt
-integration/LevelingIntegrationTest.kt
 integration/NotificationCopyIntegrationTest.kt
 integration/OnboardingIntegrationTest.kt
 integration/ResetProgressIntegrationTest.kt
