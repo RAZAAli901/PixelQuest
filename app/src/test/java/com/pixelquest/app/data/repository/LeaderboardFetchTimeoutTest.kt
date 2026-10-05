@@ -22,7 +22,7 @@ class LeaderboardFetchTimeoutTest {
 
         assertTrue("Expected NetworkError on timeout", result is SupabaseResult.NetworkError)
         val error = result as SupabaseResult.NetworkError
-        assertTrue("Error message should mention timeout", error.userMessage.contains("timed out", ignoreCase = true))
+        assertTrue("Error message should mention timeout", error.message.contains("timed out", ignoreCase = true))
     }
 
     @Test
