@@ -31,7 +31,7 @@ In Step 1, PixelQuest evaluated the official Google GenAI Android SDK vs. a dire
 The prompt builder gathers local Room data from `StreakDao`, `UserProfileDao`, `TaskDao`, and `TaskCompletionLogDao`, aggregating it into `HabitTelemetrySummary`:
 - **Current Streak**, **Longest Streak**, and **Perfect Days Count**.
 - **Player Progression Tier** (Level).
-- **7-Day Consistency**: Completion percentage and missed count.
+- **7-Day Consistency**: Completed over scheduled quests for today and the 6 days before it, and the missed count. Every quest that was due counts, so a day nobody logged is a miss (it used to be left out, and 1 completion out of 14 due quests read as 100%). Today only counts quests that already have a result, so an unfinished morning isn't held against the player. Older history is left out.
 - **Category Ratios**: Completion ratios by enum category (e.g. `FITNESS: 80% (4/5 completed)`).
 
 ### 3.2 Tone Resolution via HabitInsightToneHook
@@ -117,7 +117,7 @@ PixelQuest enforces an absolute data-minimization architecture for AI requests. 
 Only anonymized, abstract aggregate statistics are transmitted in the prompt payload:
 - **Streak Counts**: Integer metrics (`currentStreak`, `longestStreak`, `perfectDaysCount`).
 - **Category Completion Ratios**: Predefined enum category names and numeric ratios (e.g. `FITNESS: 80% (4/5 completed)`).
-- **Recent Momentum**: 7-day completion percentage and missed count.
+- **Recent Momentum**: 7-day completion percentage (completed over scheduled) and missed count.
 - **Progression Level**: Anonymous numeric tier (e.g. `Level 5`).
 
 ### 7.3 What Data is EXPLICITLY FORBIDDEN from Transmission
