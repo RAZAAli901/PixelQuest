@@ -24,7 +24,8 @@ class InsightCacheRepositoryImpl(
     )
 
     override suspend fun saveInsight(response: HabitInsightResponse, dataHash: String) {
-        val entity = InsightCacheEntity.fromInsightResponse(response, dataHash)
+        // Stamped with the same clock isCacheValid reads, so the age is measured consistently.
+        val entity = InsightCacheEntity.fromInsightResponse(response, dataHash).copy(generatedAt = clock())
         insightCacheDao.insertInsight(entity)
     }
 
