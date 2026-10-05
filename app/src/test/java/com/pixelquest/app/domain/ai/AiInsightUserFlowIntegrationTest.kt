@@ -57,7 +57,7 @@ class AiInsightUserFlowIntegrationTest {
         }
     }
 
-    private class FakeInsightCacheRepository : InsightCacheRepository {
+    private class FakeInsightCacheRepository(private val now: () -> Long) : InsightCacheRepository {
         var cachedEntity: InsightCacheEntity? = null
         val cacheFlow = MutableStateFlow<InsightCacheEntity?>(null)
 
@@ -65,33 +65,25 @@ class AiInsightUserFlowIntegrationTest {
 
         override fun observeLatestInsight(): Flow<InsightCacheEntity?> = cacheFlow
 
-        override suspend fun saveInsight(insight: HabitInsightResponse, dataHash: String): Long {
-            val entity = InsightCacheEntity(
-                id = 1L,
-                generatedAt = insight.generatedAt,
-                summary = insight.summary,
-                suggestion = insight.suggestion,
-                encouragement = insight.encouragement,
-                dataHash = dataHash
-            )
+        override suspend fun saveInsight(response: HabitInsightResponse, dataHash: String) {
+            val entity = InsightCacheEntity.fromInsightResponse(response, dataHash).copy(id = 1L, generatedAt = now())
             cachedEntity = entity
             cacheFlow.value = entity
-            return 1L
         }
 
-        override suspend fun deleteOldInsights(cutoffTimestamp: Long): Int {
-            return 0
-        }
-
-        override suspend fun clearAll() {
-            cachedEntity = null
-            cacheFlow.value = null
-        }
-
-        override suspend fun isCacheValid(currentDataHash: String, ttlMillis: Long, nowMillis: Long): Boolean {
+        override suspend fun isCacheValid(currentDataHash: String, maxAgeMillis: Long): Boolean {
             val current = cachedEntity ?: return false
             if (current.dataHash != currentDataHash) return false
-            return (nowMillis - current.generatedAt) < ttlMillis
+            return (now() - current.generatedAt) in 0..maxAgeMillis
+        }
+
+        override suspend fun clearExpired(maxAgeMillis: Long): Int = 0
+
+        override suspend fun clearAll(): Int {
+            val had = if (cachedEntity != null) 1 else 0
+            cachedEntity = null
+            cacheFlow.value = null
+            return had
         }
     }
 
@@ -137,41 +129,6 @@ class AiInsightUserFlowIntegrationTest {
         override suspend fun setNotificationVibrationEnabled(enabled: Boolean) {}
     }
 
-    private class FakeStreakRepository(private val streak: StreakEntity?) : StreakRepository {
-        override fun getCurrentStreak(): Flow<StreakEntity?> = flowOf(streak)
-        override suspend fun getStreakOnce(): StreakEntity? = streak
-        override suspend fun updateStreak(streak: StreakEntity) {}
-        override suspend fun incrementStreak(today: LocalDate) {}
-        override suspend fun resetStreak() {}
-    }
-
-    private class FakeUserProfileRepository(private val profile: UserProfileEntity?) : UserProfileRepository {
-        override fun getProfile(): Flow<UserProfileEntity?> = flowOf(profile)
-        override suspend fun getProfileOnce(): UserProfileEntity? = profile
-        override suspend fun updateUsername(username: String) {}
-        override suspend fun updateAvatar(avatarId: String) {}
-        override suspend fun addXp(points: Int) {}
-        override suspend fun levelUp() {}
-        override suspend fun updateDifficulty(difficulty: com.pixelquest.app.domain.model.DifficultyLevel) {}
-    }
-
-    private class FakeTaskRepository(private val tasks: List<TaskEntity>) : TaskRepository {
-        override fun getAllTasks(): Flow<List<TaskEntity>> = flowOf(tasks)
-        override fun getActiveTasks(): Flow<List<TaskEntity>> = flowOf(tasks)
-        override suspend fun getTaskById(taskId: Long): TaskEntity? = tasks.find { it.id == taskId }
-        override suspend fun insertTask(task: TaskEntity): Long = task.id
-        override suspend fun updateTask(task: TaskEntity) {}
-        override suspend fun deleteTask(task: TaskEntity) {}
-    }
-
-    private class FakeTaskCompletionRepository(private val logs: List<TaskCompletionLogEntity>) : TaskCompletionRepository {
-        override fun getLogsForDate(date: LocalDate): Flow<List<TaskCompletionLogEntity>> = flowOf(logs.filter { it.completedDate == date })
-        override fun getLogsForTask(taskId: Long): Flow<List<TaskCompletionLogEntity>> = flowOf(logs.filter { it.taskId == taskId })
-        override fun getAllLogs(): Flow<List<TaskCompletionLogEntity>> = flowOf(logs)
-        override suspend fun insertCompletionLog(log: TaskCompletionLogEntity): Long = log.id
-        override suspend fun getCompletionCountForDate(date: LocalDate): Int = logs.count { it.completedDate == date && it.wasCompleted }
-    }
-
     private var simulatedTime: Long = 1_000_000_000_000L
     private val timeProvider: () -> Long = { simulatedTime }
 
@@ -199,14 +156,14 @@ class AiInsightUserFlowIntegrationTest {
         )
 
         val settingsRepo = FakeSettingsRepository(initialAiEnabled = false)
-        val cacheRepo = FakeInsightCacheRepository()
+        val cacheRepo = FakeInsightCacheRepository(timeProvider)
         val usageTracker = InMemoryAiUsageTracker()
 
         val streakEntity = StreakEntity(id = 1, currentStreak = 7, longestStreak = 14, perfectDaysCount = 10)
-        val profileEntity = UserProfileEntity(id = 1, username = "PixelKnight", avatarId = "warrior", currentLevel = 3, totalXp = 350)
+        val profileEntity = UserProfileEntity(id = 1, username = "PixelKnight", avatarId = "warrior", level = 3, totalXp = 350)
         val tasks = listOf(
-            TaskEntity(id = 1, title = "Morning Run", scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS),
-            TaskEntity(id = 2, title = "Code Practice", scheduledTime = LocalTime.of(19, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)
+            TaskEntity(id = 1, name = "Morning Run", description = "", scheduledDay = LocalDate.of(2026, 9, 1), scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS),
+            TaskEntity(id = 2, name = "Code Practice", description = "", scheduledDay = LocalDate.of(2026, 9, 1), scheduledTime = LocalTime.of(19, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)
         )
         val today = LocalDate.of(2026, 10, 1)
         val completionLogs = (0..6).map { dayOffset ->
@@ -214,17 +171,16 @@ class AiInsightUserFlowIntegrationTest {
                 id = dayOffset.toLong() + 1,
                 taskId = 1,
                 completedDate = today.minusDays(dayOffset.toLong()),
-                completedTime = LocalTime.of(7, 30),
                 wasCompleted = true,
                 pointsAwarded = 25
             )
         }
 
         val habitInsightRepository = HabitInsightRepositoryImpl(
-            streakRepository = FakeStreakRepository(streakEntity),
-            userProfileRepository = FakeUserProfileRepository(profileEntity),
-            taskRepository = FakeTaskRepository(tasks),
-            taskCompletionRepository = FakeTaskCompletionRepository(completionLogs),
+            streakRepository = com.pixelquest.app.testing.FakeStreakRepository(streakEntity),
+            userProfileRepository = com.pixelquest.app.testing.FakeUserProfileRepository(profileEntity),
+            taskRepository = com.pixelquest.app.testing.FakeTaskRepository(tasks),
+            taskCompletionRepository = com.pixelquest.app.testing.FakeTaskCompletionRepository(completionLogs),
             settingsRepository = settingsRepo,
             geminiClient = mockGemini,
             insightCacheRepository = cacheRepo,
@@ -236,7 +192,7 @@ class AiInsightUserFlowIntegrationTest {
         val viewModel = AiInsightViewModel(
             habitInsightRepository = habitInsightRepository,
             settingsRepository = settingsRepo,
-            taskCompletionRepository = FakeTaskCompletionRepository(completionLogs),
+            taskCompletionRepository = com.pixelquest.app.testing.FakeTaskCompletionRepository(completionLogs),
             insightCacheRepository = cacheRepo
         )
         testDispatcher.scheduler.advanceUntilIdle()
@@ -245,12 +201,9 @@ class AiInsightUserFlowIntegrationTest {
         assertTrue("State must be Disabled when opt-in is false", viewModel.uiState.value is AiInsightUiState.Disabled)
         assertEquals(0, mockGemini.callCount)
 
-        // Step 2: User enables AI Habit Insights in Settings
+        // Step 2: User enables AI Habit Insights in Settings. The open screen reloads by itself
+        // (Day 26), so this is the first, fresh fetch.
         settingsRepo.setAiInsightsEnabled(true)
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Step 3: User opens/refreshes AI Insight screen
-        viewModel.loadInsight(forceRefresh = false)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Verify successful insight generation
@@ -269,7 +222,7 @@ class AiInsightUserFlowIntegrationTest {
         val secondViewModel = AiInsightViewModel(
             habitInsightRepository = habitInsightRepository,
             settingsRepository = settingsRepo,
-            taskCompletionRepository = FakeTaskCompletionRepository(completionLogs),
+            taskCompletionRepository = com.pixelquest.app.testing.FakeTaskCompletionRepository(completionLogs),
             insightCacheRepository = cacheRepo
         )
         testDispatcher.scheduler.advanceUntilIdle()
