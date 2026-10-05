@@ -70,7 +70,6 @@ ui/theme/FollowSystemThemeSwitchingTest.kt
 ui/theme/PixelModeRegressionTest.kt
 ui/theme/SimpleModeThemeMatrixIntegrationTest.kt
 ui/theme/SimpleModeThemeOrthogonalityTest.kt
-ui/theme/ThemeRecompositionTest.kt
 ui/today/QuickCompleteAudioHapticsQaTest.kt
 ui/today/QuickCompleteFlowTest.kt
 ui/today/TodayFullDayCycleQaTest.kt
