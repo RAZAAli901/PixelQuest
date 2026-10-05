@@ -29,11 +29,11 @@ class Day25InsightQualityManualQaTest {
     fun scenarioA_perfectWeek_producesCelebratoryAndTacticalInsight() {
         // Arrange perfect week data: 7 days, 100% completion across all quests
         val streak = StreakEntity(id = 1, currentStreak = 7, longestStreak = 14, perfectDaysCount = 20)
-        val profile = UserProfileEntity(id = 1, username = "AlexQuest", avatarId = "paladin", currentLevel = 5, totalXp = 820)
+        val profile = UserProfileEntity(id = 1, username = "AlexQuest", avatarId = "paladin", level = 5, totalXp = 820)
         val tasks = listOf(
-            TaskEntity(id = 1, title = "Morning Yoga", scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS),
-            TaskEntity(id = 2, title = "Language Practice", scheduledTime = LocalTime.of(18, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING),
-            TaskEntity(id = 3, title = "Evening Read", scheduledTime = LocalTime.of(21, 30), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.HEALTH)
+            TaskEntity(id = 1, name = "Morning Yoga", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS),
+            TaskEntity(id = 2, name = "Language Practice", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(18, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING),
+            TaskEntity(id = 3, name = "Evening Read", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(21, 30), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.HEALTH)
         )
         val logs = (0..6).flatMap { dayOffset ->
             val date = baseDate.minusDays(dayOffset.toLong())
@@ -42,7 +42,6 @@ class Day25InsightQualityManualQaTest {
                     id = (dayOffset * 10 + index).toLong() + 1,
                     taskId = task.id,
                     completedDate = date,
-                    completedTime = task.scheduledTime.plusMinutes(15),
                     wasCompleted = true,
                     pointsAwarded = 25
                 )
@@ -50,12 +49,12 @@ class Day25InsightQualityManualQaTest {
         }
 
         // Generate telemetry & verify prompt
-        val telemetry = HabitInsightPromptBuilder.buildTelemetrySummary(streak, profile, tasks, logs)
-        val prompt = HabitInsightPromptBuilder.buildPrompt(telemetry, HabitInsightTone.GAMIFIED_PIXEL)
+        val telemetry = HabitInsightPromptBuilder.buildTelemetrySummary(streak, profile, tasks, logs, today = baseDate)
+        val prompt = HabitInsightPromptBuilder.buildPrompt(telemetry, HabitInsightTone.GAMIFIED_HEROIC)
 
-        assertTrue("Telemetry must report high completion rate", telemetry.weeklyCompletionRate >= 0.95f)
+        assertTrue("Telemetry must report high completion rate", telemetry.recent7DaysCompletionRate >= 0.95f)
         assertTrue("Telemetry must capture current streak of 7", telemetry.currentStreak == 7)
-        assertTrue("Prompt must include streak data", prompt.contains("Current Streak: 7"))
+        assertTrue("Prompt must include streak data", prompt.contains("Current Streak = 7 days"))
 
         // Real generated response evaluation for Scenario A
         val generatedResponseJson = """
@@ -77,26 +76,26 @@ class Day25InsightQualityManualQaTest {
     fun scenarioB_mixedWeek_identifiesCategoryDropOffAndSuggestsHabitStacking() {
         // Arrange mixed week data: Fitness completed consistently (7/7), but Learning dropped mid-week (2/7)
         val streak = StreakEntity(id = 1, currentStreak = 3, longestStreak = 10, perfectDaysCount = 12)
-        val profile = UserProfileEntity(id = 1, username = "Jordan", avatarId = "mage", currentLevel = 3, totalXp = 410)
-        val fitnessTask = TaskEntity(id = 1, title = "Morning Jog", scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS)
-        val learningTask = TaskEntity(id = 2, title = "Study Japanese", scheduledTime = LocalTime.of(20, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)
+        val profile = UserProfileEntity(id = 1, username = "Jordan", avatarId = "mage", level = 3, totalXp = 410)
+        val fitnessTask = TaskEntity(id = 1, name = "Morning Jog", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS)
+        val learningTask = TaskEntity(id = 2, name = "Study Japanese", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(20, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)
         val tasks = listOf(fitnessTask, learningTask)
 
         val logs = mutableListOf<TaskCompletionLogEntity>()
         for (dayOffset in 0..6) {
             val date = baseDate.minusDays(dayOffset.toLong())
             // Jog completed every day
-            logs.add(TaskCompletionLogEntity(id = (dayOffset * 2 + 1).toLong(), taskId = fitnessTask.id, completedDate = date, completedTime = LocalTime.of(7, 20), wasCompleted = true, pointsAwarded = 25))
+            logs.add(TaskCompletionLogEntity(id = (dayOffset * 2 + 1).toLong(), taskId = fitnessTask.id, completedDate = date, wasCompleted = true, pointsAwarded = 25))
             // Learning only completed 2 days out of 7
             val learningDone = dayOffset in listOf(0, 1)
-            logs.add(TaskCompletionLogEntity(id = (dayOffset * 2 + 2).toLong(), taskId = learningTask.id, completedDate = date, completedTime = LocalTime.of(20, 15), wasCompleted = learningDone, pointsAwarded = if (learningDone) 25 else 0))
+            logs.add(TaskCompletionLogEntity(id = (dayOffset * 2 + 2).toLong(), taskId = learningTask.id, completedDate = date, wasCompleted = learningDone, pointsAwarded = if (learningDone) 25 else 0))
         }
 
-        val telemetry = HabitInsightPromptBuilder.buildTelemetrySummary(streak, profile, tasks, logs)
-        val prompt = HabitInsightPromptBuilder.buildPrompt(telemetry, HabitInsightTone.GAMIFIED_PIXEL)
+        val telemetry = HabitInsightPromptBuilder.buildTelemetrySummary(streak, profile, tasks, logs, today = baseDate)
+        val prompt = HabitInsightPromptBuilder.buildPrompt(telemetry, HabitInsightTone.GAMIFIED_HEROIC)
 
-        assertTrue("Weekly completion rate should reflect mixed performance (~64%)", telemetry.weeklyCompletionRate in 0.5f..0.75f)
-        assertTrue("Telemetry must report correct total and completed counts", telemetry.totalScheduledQuestsPastWeek == 14)
+        assertTrue("Weekly completion rate should reflect mixed performance (~64%)", telemetry.recent7DaysCompletionRate in 0.5f..0.75f)
+        assertEquals("Telemetry must report the missed entries", logs.count { !it.wasCompleted }, telemetry.recent7DaysMissedCount)
 
         // Real generated response evaluation for Scenario B
         val generatedResponseJson = """
@@ -118,20 +117,20 @@ class Day25InsightQualityManualQaTest {
     fun scenarioC_strugglingWeek_providesCompassionateFrictionReductionWithoutShame() {
         // Arrange struggling week: Streak = 0, only 1 task completed in past 7 days
         val streak = StreakEntity(id = 1, currentStreak = 0, longestStreak = 12, perfectDaysCount = 15)
-        val profile = UserProfileEntity(id = 1, username = "Riley", avatarId = "rogue", currentLevel = 2, totalXp = 210)
+        val profile = UserProfileEntity(id = 1, username = "Riley", avatarId = "rogue", level = 2, totalXp = 210)
         val tasks = listOf(
-            TaskEntity(id = 1, title = "Gym Workout", scheduledTime = LocalTime.of(8, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS),
-            TaskEntity(id = 2, title = "Read 30 Mins", scheduledTime = LocalTime.of(21, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)
+            TaskEntity(id = 1, name = "Gym Workout", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(8, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS),
+            TaskEntity(id = 2, name = "Read 30 Mins", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(21, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)
         )
         val logs = listOf(
-            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = baseDate.minusDays(5), completedTime = LocalTime.of(8, 30), wasCompleted = true, pointsAwarded = 25)
+            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = baseDate.minusDays(5), wasCompleted = true, pointsAwarded = 25)
         )
 
-        val telemetry = HabitInsightPromptBuilder.buildTelemetrySummary(streak, profile, tasks, logs)
-        val prompt = HabitInsightPromptBuilder.buildPrompt(telemetry, HabitInsightTone.CALM_SIMPLE)
+        val telemetry = HabitInsightPromptBuilder.buildTelemetrySummary(streak, profile, tasks, logs, today = baseDate)
+        val prompt = HabitInsightPromptBuilder.buildPrompt(telemetry, HabitInsightTone.SIMPLE_MINIMALIST)
 
         assertEquals(0, telemetry.currentStreak)
-        assertTrue("Completion rate must be low", telemetry.weeklyCompletionRate < 0.2f)
+        assertTrue("Completion rate must be low", telemetry.recent7DaysCompletionRate < 0.2f)
 
         // Real generated response evaluation for Scenario C
         val generatedResponseJson = """
