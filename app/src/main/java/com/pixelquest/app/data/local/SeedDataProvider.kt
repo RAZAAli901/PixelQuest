@@ -16,7 +16,7 @@ object SeedDataProvider {
         return UserProfileEntity(
             id = 1,
             username = "PixelHero",
-            avatarId = "hero_avatar_1",
+            avatarId = com.pixelquest.app.domain.AvatarCatalog.DEFAULT_AVATAR_ID, // "hero_avatar_1" matched no avatar
             level = 1,
             totalXp = 0
         )

@@ -4,19 +4,22 @@ import com.pixelquest.app.data.local.SeedDataProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FreshInstallFirstImpressionTest {
 
     @Test
     fun freshInstall_initialStateCohesivenessVerified() {
-        val defaultProfile = SeedDataProvider.getInitialProfile()
-        val defaultDifficulty = SeedDataProvider.getInitialDifficulty()
-        val seedTasks = SeedDataProvider.getSeedTasks()
+        val defaultProfile = SeedDataProvider.defaultProfile()
+        val defaultDifficulty = SeedDataProvider.defaultDifficultySettings()
+        val seedTasks = SeedDataProvider.initialTasks()
 
         // 1. Verify default profile username and level
-        assertEquals("Hero", defaultProfile.username)
+        assertEquals("PixelHero", defaultProfile.username)
         assertEquals(1, defaultProfile.level)
+        // The seeded avatar must be a real one, not just fall back to the first.
+        assertTrue(com.pixelquest.app.domain.AvatarCatalog.avatars.any { it.id == defaultProfile.avatarId })
 
         // 2. Verify default medium difficulty configuration
         assertNotNull(defaultDifficulty)
