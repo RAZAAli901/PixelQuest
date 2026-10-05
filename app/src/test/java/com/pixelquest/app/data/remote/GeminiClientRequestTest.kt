@@ -7,6 +7,7 @@ import io.ktor.client.request.HttpRequestData
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import kotlinx.serialization.json.jsonObject
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -49,6 +50,43 @@ class GeminiClientRequestTest {
         val client = clientReturning(HttpStatusCode.OK, okBody, mutableListOf())
 
         assertEquals("{\"reply\":\"hello\"}", client.generateContent("Say hello"))
+    }
+
+    @Test
+    fun request_turnsThinkingOff_soTheTokenBudgetGoesToTheAnswer() = runBlocking {
+        val requests = mutableListOf<HttpRequestData>()
+        clientReturning(HttpStatusCode.OK, okBody, requests).generateContent("Say hello")
+
+        val body = (requests.single().body as io.ktor.http.content.TextContent).text
+        val config = kotlinx.serialization.json.Json.parseToJsonElement(body).jsonObject["generationConfig"]!!.jsonObject
+        assertEquals("0", config["thinkingConfig"]!!.jsonObject["thinkingBudget"].toString())
+        assertEquals("\"application/json\"", config["responseMimeType"].toString())
+    }
+
+    @Test
+    fun answerInSeveralParts_isJoined_andThoughtSummariesAreSkipped() = runBlocking {
+        val body = """{"candidates":[{"content":{"parts":[
+            {"text":"planning the reply","thought":true},
+            {"text":"{\"reply\":"},
+            {"text":"\"hello\"}"}
+        ]}}]}"""
+        val client = clientReturning(HttpStatusCode.OK, body, mutableListOf())
+
+        assertEquals("{\"reply\":\"hello\"}", client.generateContent("Say hello"))
+    }
+
+    @Test
+    fun noAnswerText_isAnApiErrorNamingTheFinishReason() = runBlocking {
+        // What a reply cut off by the token limit looks like: a candidate with no text.
+        val body = """{"candidates":[{"content":{"role":"model"},"finishReason":"MAX_TOKENS"}]}"""
+        val client = clientReturning(HttpStatusCode.OK, body, mutableListOf())
+        try {
+            client.generateContent("Say hello")
+            fail("Expected GeminiApiException")
+        } catch (e: GeminiApiException) {
+            assertEquals(200, e.statusCode)
+            assertTrue(e.message.orEmpty().contains("MAX_TOKENS"))
+        }
     }
 
     @Test

@@ -109,6 +109,12 @@ class GeminiClientImpl(
                 put("temperature", 0.7)
                 put("maxOutputTokens", 800)
                 put("responseMimeType", "application/json")
+                // 2.5 Flash thinks by default, and thinking tokens come out of maxOutputTokens: a long
+                // think left the JSON cut off or missing ("garbled" in the AI Coach). These are short
+                // structured replies, so thinking is off and the whole budget goes to the answer.
+                putJsonObject("thinkingConfig") {
+                    put("thinkingBudget", 0)
+                }
             }
         }.toString()
 
@@ -151,9 +157,18 @@ class GeminiClientImpl(
 
             val firstCandidate = candidates[0].jsonObject
             val parts = firstCandidate["content"]?.jsonObject?.get("parts")?.jsonArray
-            val text = parts?.firstOrNull()?.jsonObject?.get("text")?.jsonPrimitive?.content
+            // The answer can arrive in several text parts; thought summaries (thought = true) are not part of it.
+            val text = parts
+                ?.map { it.jsonObject }
+                ?.filterNot { it["thought"]?.jsonPrimitive?.content == "true" }
+                ?.mapNotNull { it["text"]?.jsonPrimitive?.content }
+                ?.joinToString("")
+                ?.takeIf { it.isNotBlank() }
 
-            text ?: throw GeminiApiException(200, "Empty text in candidate: $responseBody")
+            text ?: throw GeminiApiException(
+                200,
+                "Empty text in candidate (finishReason ${firstCandidate["finishReason"]?.jsonPrimitive?.content}): $responseBody"
+            )
         } catch (e: GeminiException) {
             throw e
         } catch (e: Exception) {
