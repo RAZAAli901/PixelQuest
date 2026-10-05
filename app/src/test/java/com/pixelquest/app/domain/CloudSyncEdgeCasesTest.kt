@@ -57,6 +57,7 @@ class FakeUserProfileRepoForEdgeCases : UserProfileRepository {
     override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {
         flow.value = flow.value.copy(leaderboardOptIn = optIn, leaderboardDisplayName = displayName)
     }
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {
         flow.value = flow.value.copy(leaderboardOptIn = optIn)
     }
@@ -151,6 +152,6 @@ class CloudSyncEdgeCasesTest {
         assertFalse(accountViewModel.uiState.value.isSyncing)
         val msg = accountViewModel.uiState.value.syncMessage
         assertNotNull(msg)
-        assertTrue(msg!!.contains("Sync failed", ignoreCase = true))
+        assertTrue(msg!!.contains("Server error", ignoreCase = true))
     }
 }

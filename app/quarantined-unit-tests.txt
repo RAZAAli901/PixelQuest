@@ -11,12 +11,9 @@ data/repository/LeaderboardFetchTimeoutTest.kt
 data/repository/LeaderboardRepositoryTest.kt
 data/repository/StatsPerformanceTest.kt
 data/repository/StatsRepositoryTest.kt
-domain/CloudSyncEdgeCasesTest.kt
 domain/DisplayNameModeratorTest.kt
-domain/LeaderboardOptInValidationTest.kt
 domain/StreakCalculatorTest.kt
 domain/StreakIntegrationTest.kt
-domain/SyncCancellationOnSignOutTest.kt
 domain/ai/AiInsightThrottleTest.kt
 domain/ai/AiInsightUserFlowIntegrationTest.kt
 domain/ai/AiInsightsOptInGatingTest.kt

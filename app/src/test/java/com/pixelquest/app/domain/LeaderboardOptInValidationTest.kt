@@ -35,6 +35,12 @@ class FakeCloudProfileRepository : CloudProfileRepository {
     }
 
     override suspend fun syncProfileToCloud(): SupabaseResult<Unit> = syncResult
+
+    // Opting out has its own call since Day 15; record it like updateOptInAndSync(false).
+    override suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> {
+        lastOptIn = false
+        return syncResult
+    }
 }
 
 class FakeUserProfileRepositoryForOptIn : UserProfileRepository {
@@ -55,6 +61,7 @@ class FakeUserProfileRepositoryForOptIn : UserProfileRepository {
             leaderboardDisplayName = displayName
         )
     }
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {
         profileFlow.value = profileFlow.value.copy(leaderboardOptIn = optIn)
     }

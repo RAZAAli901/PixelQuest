@@ -58,6 +58,7 @@ class FakeUserProfileRepoForCancellation : UserProfileRepository {
     override suspend fun performLevelUp(): UserProfileEntity? = null
     override suspend fun updateSupabaseUserId(userId: String?) {}
     override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {}
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {}
 }
 
