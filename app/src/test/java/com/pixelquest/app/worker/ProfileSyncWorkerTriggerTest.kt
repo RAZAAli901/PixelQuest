@@ -4,6 +4,7 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.repository.CloudProfileRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -74,6 +75,7 @@ class FakeUserProfileRepoForWorker : UserProfileRepository {
         this.profile = this.profile.copy(leaderboardOptIn = optIn, leaderboardDisplayName = displayName)
         flow.value = this.profile
     }
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {
         this.profile = this.profile.copy(leaderboardOptIn = optIn)
         flow.value = this.profile
@@ -116,7 +118,7 @@ class ProfileSyncWorkerTriggerTest {
         // Simulate 5 rapid user clicks within 500ms
         for (i in 1..5) {
             debounceJob?.cancel()
-            debounceJob = kotlinx.coroutines.CoroutineScope(testDispatcher).kotlinx.coroutines.launch {
+            debounceJob = kotlinx.coroutines.CoroutineScope(testDispatcher).launch {
                 kotlinx.coroutines.delay(1000L)
                 executionsCount++
             }
