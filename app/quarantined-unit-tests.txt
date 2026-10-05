@@ -25,7 +25,6 @@ qa/Day19SimpleModeActiveManualQaTest.kt
 qa/Day19SimpleModeDisableReversalQaTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
 qa/ScreenStabilitySimpleModeQaTest.kt
-qa/SyncConflictQaTest.kt
 scheduling/NotificationMasterToggleTest.kt
 ui/SimpleModeColdRestartPersistenceTest.kt
 ui/SimpleModeFullChecklistUiTest.kt

@@ -43,7 +43,8 @@ class SyncConflictQaTest {
             longestStreak = 10
         )
         val localProfile = UserProfileEntity(
-            heroName = "Hero",
+            username = "Hero",
+            avatarId = "avatar_hero",
             level = 2, // Stale lower level
             totalXp = 450,
             supabaseUserId = "test-hero-uuid",
