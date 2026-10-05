@@ -6,7 +6,6 @@ domain/StreakCalculatorTest.kt
 domain/ai/AiInsightUserFlowIntegrationTest.kt
 domain/ai/Day25FullRegressionPassTest.kt
 domain/ai/Day25InsightQualityManualQaTest.kt
-integration/FullSignInOptInSyncIntegrationTest.kt
 integration/GamifiedModeBaselineRegressionTest.kt
 integration/NotificationCopyIntegrationTest.kt
 integration/ResetProgressIntegrationTest.kt

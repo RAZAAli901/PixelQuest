@@ -41,7 +41,7 @@ class TestSupabaseAuthRepository(
 ) : AuthRepository {
     override val currentUser = MutableStateFlow<AuthUser?>(null)
 
-    override suspend fun exchangeGoogleIdToken(idToken: String): SupabaseResult<AuthUser> {
+    override suspend fun exchangeGoogleIdToken(idToken: String, rawNonce: String?): SupabaseResult<AuthUser> {
         val authUser = AuthUser(
             id = "supabase-uuid-9999",
             email = "player@google.com",
@@ -67,7 +67,7 @@ class TestCloudProfileRepository(
 
     override suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit> {
         userProfileRepository.updateLeaderboardSettings(optIn, displayName)
-        val user = authRepository.currentUser.value
+        val user = (authRepository.currentUser as kotlinx.coroutines.flow.MutableStateFlow<AuthUser?>).value
             ?: return SupabaseResult.AuthError(IllegalStateException("Not authenticated"), "Auth required")
 
         val profile = (userProfileRepository as TestUserProfileRepository).currentProfile
@@ -86,7 +86,7 @@ class TestCloudProfileRepository(
     }
 
     override suspend fun syncProfileToCloud(): SupabaseResult<Unit> {
-        val user = authRepository.currentUser.value
+        val user = (authRepository.currentUser as kotlinx.coroutines.flow.MutableStateFlow<AuthUser?>).value
             ?: return SupabaseResult.AuthError(IllegalStateException("Not authenticated"), "Auth required")
         val profile = (userProfileRepository as TestUserProfileRepository).currentProfile
         val dto = CloudProfileDto(
@@ -134,13 +134,14 @@ class TestUserProfileRepository : UserProfileRepository {
         currentProfile = currentProfile.copy(leaderboardOptIn = optIn, leaderboardDisplayName = displayName)
         flow.value = currentProfile
     }
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {
         currentProfile = currentProfile.copy(leaderboardOptIn = optIn)
         flow.value = currentProfile
     }
 }
 
-class TestGoogleAuthManager : GoogleAuthManager {
+class TestGoogleAuthManager : GoogleAuthManager(io.mockk.mockk(relaxed = true)) {
     override suspend fun signInWithGoogle(activityContext: Context): GoogleAuthResult {
         return GoogleAuthResult.Success(
             idToken = "valid-mock-google-id-token",
