@@ -56,7 +56,6 @@ ui/theme/SimpleModeThemeOrthogonalityTest.kt
 ui/today/QuickCompleteFlowTest.kt
 ui/today/TodayFullDayCycleQaTest.kt
 ui/today/TodayGracePeriodTest.kt
-ui/today/TodayViewModelTest.kt
 worker/MissedTaskWorkerTest.kt
 worker/OfflineRetrySyncTest.kt
 worker/ProfileSyncWorkerTriggerTest.kt

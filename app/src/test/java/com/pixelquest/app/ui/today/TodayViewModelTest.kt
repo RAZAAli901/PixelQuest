@@ -23,10 +23,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -37,49 +39,38 @@ import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-class FakeTaskRepository : TaskRepository {
-    val tasksFlow = MutableStateFlow<List<TaskEntity>>(emptyList())
-    override fun getAllTasks(): Flow<List<TaskEntity>> = tasksFlow
-    override fun getTaskById(id: Long): Flow<TaskEntity?> = MutableStateFlow(null)
-    override fun getTasksForDay(day: LocalDate): Flow<List<TaskEntity>> = tasksFlow
-    override suspend fun insertTask(task: TaskEntity): Long = 1L
-    override suspend fun updateTask(task: TaskEntity) {}
-    override suspend fun deleteTask(task: TaskEntity) {}
+/*
+ * The Today tests share these: the in-memory repositories from com.pixelquest.app.testing, under
+ * the flow names the tests were written with, seeded with a level 3 hero on a 5-day streak.
+ */
+class FakeTaskRepository : com.pixelquest.app.testing.FakeTaskRepository() {
+    val tasksFlow get() = tasks
 }
 
-class FakeTaskCompletionRepository : TaskCompletionRepository {
-    val logsFlow = MutableStateFlow<List<TaskCompletionLogEntity>>(emptyList())
-    override suspend fun insertLog(log: TaskCompletionLogEntity): Long = 1L
-    override fun getLogsForDate(date: LocalDate): Flow<List<TaskCompletionLogEntity>> = logsFlow
-    override fun getLogsForTask(taskId: Long): Flow<List<TaskCompletionLogEntity>> = logsFlow
-    override fun getCompletionHistory(startDate: LocalDate, endDate: LocalDate): Flow<List<TaskCompletionLogEntity>> = logsFlow
+class FakeTaskCompletionRepository : com.pixelquest.app.testing.FakeTaskCompletionRepository() {
+    val logsFlow get() = logs
 }
 
-class FakeStreakRepository : StreakRepository {
-    val streakFlow = MutableStateFlow<StreakEntity?>(StreakEntity(id = 1, currentStreak = 5, longestStreak = 10))
-    override fun getCurrentStreak(): Flow<StreakEntity?> = streakFlow
-    override suspend fun insertStreak(streak: StreakEntity) {}
-    override suspend fun updateStreak(streak: StreakEntity) {}
+class FakeStreakRepository : com.pixelquest.app.testing.FakeStreakRepository(
+    StreakEntity(id = 1, currentStreak = 5, longestStreak = 10)
+) {
+    val streakFlow get() = streak
 }
 
-class FakeUserProfileRepository : UserProfileRepository {
-    val profileFlow = MutableStateFlow<UserProfileEntity?>(
-        UserProfileEntity(id = 1, username = "Hero", totalXp = 500, level = 3, perfectDaysTowardNextLevel = 2)
-    )
-    override fun getProfile(): Flow<UserProfileEntity?> = profileFlow
-    override suspend fun insertProfile(profile: UserProfileEntity) {}
-    override suspend fun updateProfile(profile: UserProfileEntity) {}
-    override suspend fun performLevelUp(): UserProfileEntity? = null
+class FakeUserProfileRepository : com.pixelquest.app.testing.FakeUserProfileRepository(
+    UserProfileEntity(id = 1, username = "Hero", avatarId = "avatar_hero", totalXp = 500, level = 3, perfectDaysTowardNextLevel = 2)
+) {
+    val profileFlow get() = profile
 }
 
-class FakeDifficultyRepo : DifficultySettingsRepository {
-    val difficultyFlow = MutableStateFlow<DifficultySettingsEntity?>(
-        DifficultySettingsEntity(id = 1, difficultyLevel = DifficultyLevel.MEDIUM, perfectDayThreshold = 0.7f, daysRequiredPerLevel = 7)
-    )
-    override fun getCurrentDifficulty(): Flow<DifficultySettingsEntity?> = difficultyFlow
-    override suspend fun insertSettings(settings: DifficultySettingsEntity) {}
-    override suspend fun updateSettings(settings: DifficultySettingsEntity) {}
+class FakeDifficultyRepo : com.pixelquest.app.testing.FakeDifficultySettingsRepository(
+    DifficultySettingsEntity(id = 1, difficultyLevel = DifficultyLevel.MEDIUM, perfectDayThreshold = 0.7f, daysRequiredPerLevel = 7)
+) {
+    val difficultyFlow get() = settings
 }
+
+/** Noon today: before an 18:00 quest, after an 08:00 one. */
+fun todayAtNoon() = java.time.LocalDate.now().atTime(12, 0)
 
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -110,7 +101,9 @@ class TodayViewModelTest {
             streakRepository = streakRepo,
             userProfileRepository = profileRepo,
             difficultySettingsRepository = difficultyRepo,
-            taskAlarmScheduler = alarmScheduler
+            taskAlarmScheduler = alarmScheduler,
+            taskResultRecorder = com.pixelquest.app.domain.TaskResultRecorder(completionRepo, profileRepo, streakRepo),
+            appClock = com.pixelquest.app.testing.FixedClock(todayAtNoon())
         )
     }
 
@@ -121,15 +114,16 @@ class TodayViewModelTest {
 
     @Test
     fun combineLogic_mapsTaskStatusCorrectly() = runTest {
+        backgroundScope.launch { viewModel.uiState.collect {} }
         val today = LocalDate.now()
-        val task1 = TaskEntity(id = 1, name = "Morning Workout", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
-        val task2 = TaskEntity(id = 2, name = "Read Book", scheduledTime = LocalTime.of(12, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
-        val task3 = TaskEntity(id = 3, name = "Clean Desk", scheduledTime = LocalTime.of(18, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)
+        val task1 = TaskEntity(id = 1, description = "", name = "Morning Workout", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
+        val task2 = TaskEntity(id = 2, description = "", name = "Read Book", scheduledTime = LocalTime.of(12, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
+        val task3 = TaskEntity(id = 3, description = "", name = "Clean Desk", scheduledTime = LocalTime.of(18, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)
 
         taskRepo.tasksFlow.value = listOf(task1, task2, task3)
         completionRepo.logsFlow.value = listOf(
-            TaskCompletionLogEntity(id = 10, taskId = 1, completionDate = today, wasCompleted = true),
-            TaskCompletionLogEntity(id = 11, taskId = 2, completionDate = today, wasCompleted = false)
+            TaskCompletionLogEntity(id = 10, taskId = 1, completedDate = today, wasCompleted = true, pointsAwarded = 0),
+            TaskCompletionLogEntity(id = 11, taskId = 2, completedDate = today, wasCompleted = false, pointsAwarded = 0)
         )
 
         testDispatcher.scheduler.advanceUntilIdle()
@@ -149,14 +143,15 @@ class TodayViewModelTest {
 
     @Test
     fun combineLogic_sortsPendingFirstByScheduledTime() = runTest {
+        backgroundScope.launch { viewModel.uiState.collect {} }
         val today = LocalDate.now()
-        val task1 = TaskEntity(id = 1, name = "Late Pending", scheduledTime = LocalTime.of(18, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
-        val task2 = TaskEntity(id = 2, name = "Early Completed", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
-        val task3 = TaskEntity(id = 3, name = "Early Pending", scheduledTime = LocalTime.of(9, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)
+        val task1 = TaskEntity(id = 1, description = "", name = "Late Pending", scheduledTime = LocalTime.of(18, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
+        val task2 = TaskEntity(id = 2, description = "", name = "Early Completed", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
+        val task3 = TaskEntity(id = 3, description = "", name = "Early Pending", scheduledTime = LocalTime.of(9, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)
 
         taskRepo.tasksFlow.value = listOf(task1, task2, task3)
         completionRepo.logsFlow.value = listOf(
-            TaskCompletionLogEntity(id = 10, taskId = 2, completionDate = today, wasCompleted = true)
+            TaskCompletionLogEntity(id = 10, taskId = 2, completedDate = today, wasCompleted = true, pointsAwarded = 0)
         )
 
         testDispatcher.scheduler.advanceUntilIdle()
@@ -170,9 +165,10 @@ class TodayViewModelTest {
 
     @Test
     fun completeTask_updatesCompletionPercentageAndIsPerfectDay() = runTest {
+        backgroundScope.launch { viewModel.uiState.collect {} }
         val today = LocalDate.now()
-        val task1 = TaskEntity(id = 1, name = "Task 1", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
-        val task2 = TaskEntity(id = 2, name = "Task 2", scheduledTime = LocalTime.of(12, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
+        val task1 = TaskEntity(id = 1, description = "", name = "Task 1", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)
+        val task2 = TaskEntity(id = 2, description = "", name = "Task 2", scheduledTime = LocalTime.of(12, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)
 
         taskRepo.tasksFlow.value = listOf(task1, task2)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -183,7 +179,7 @@ class TodayViewModelTest {
 
         // Complete task1 (1 of 2 completed = 50%, below Medium 70% threshold)
         completionRepo.logsFlow.value = listOf(
-            TaskCompletionLogEntity(id = 1, taskId = 1, completionDate = today, wasCompleted = true, pointsAwarded = 50)
+            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = today, wasCompleted = true, pointsAwarded = 50)
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -193,8 +189,8 @@ class TodayViewModelTest {
 
         // Complete task2 (2 of 2 completed = 100%, >= 70% threshold)
         completionRepo.logsFlow.value = listOf(
-            TaskCompletionLogEntity(id = 1, taskId = 1, completionDate = today, wasCompleted = true, pointsAwarded = 50),
-            TaskCompletionLogEntity(id = 2, taskId = 2, completionDate = today, wasCompleted = true, pointsAwarded = 50)
+            TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = today, wasCompleted = true, pointsAwarded = 50),
+            TaskCompletionLogEntity(id = 2, taskId = 2, completedDate = today, wasCompleted = true, pointsAwarded = 50)
         )
         testDispatcher.scheduler.advanceUntilIdle()
 

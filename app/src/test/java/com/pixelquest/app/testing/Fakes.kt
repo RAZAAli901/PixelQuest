@@ -27,7 +27,7 @@ import java.time.LocalDate
  * behaviour rather than a stub's. Tests seed state through the public MutableStateFlows.
  */
 
-class FakeTaskRepository(initial: List<TaskEntity> = emptyList()) : TaskRepository {
+open class FakeTaskRepository(initial: List<TaskEntity> = emptyList()) : TaskRepository {
     val tasks = MutableStateFlow(initial)
     private var nextId = (initial.maxOfOrNull { it.id } ?: 0L) + 1
 
@@ -56,7 +56,7 @@ class FakeTaskRepository(initial: List<TaskEntity> = emptyList()) : TaskReposito
 }
 
 /** Like the real table, holds at most one log per task per day (a second insert returns -1). */
-class FakeTaskCompletionRepository(initial: List<TaskCompletionLogEntity> = emptyList()) : TaskCompletionRepository {
+open class FakeTaskCompletionRepository(initial: List<TaskCompletionLogEntity> = emptyList()) : TaskCompletionRepository {
     val logs = MutableStateFlow(initial)
     private var nextId = (initial.maxOfOrNull { it.id } ?: 0L) + 1
 
@@ -80,7 +80,7 @@ class FakeTaskCompletionRepository(initial: List<TaskCompletionLogEntity> = empt
     override fun getAllLogs(): Flow<List<TaskCompletionLogEntity>> = logs.map { all -> all.sortedBy { it.completedDate } }
 }
 
-class FakeUserProfileRepository(
+open class FakeUserProfileRepository(
     initial: UserProfileEntity? = UserProfileEntity(username = "Hero", avatarId = "avatar_hero")
 ) : UserProfileRepository {
     val profile = MutableStateFlow(initial)
@@ -107,28 +107,28 @@ class FakeUserProfileRepository(
     }
 }
 
-class FakeStreakRepository(initial: StreakEntity? = StreakEntity()) : StreakRepository {
+open class FakeStreakRepository(initial: StreakEntity? = StreakEntity()) : StreakRepository {
     val streak = MutableStateFlow(initial)
     override fun getCurrentStreak(): Flow<StreakEntity?> = streak
     override suspend fun insertStreak(streak: StreakEntity) { this.streak.value = streak }
     override suspend fun updateStreak(streak: StreakEntity) { this.streak.value = streak }
 }
 
-class FakeDifficultySettingsRepository(initial: DifficultySettingsEntity? = DifficultySettingsEntity()) : DifficultySettingsRepository {
+open class FakeDifficultySettingsRepository(initial: DifficultySettingsEntity? = DifficultySettingsEntity()) : DifficultySettingsRepository {
     val settings = MutableStateFlow(initial)
     override fun getCurrentDifficulty(): Flow<DifficultySettingsEntity?> = settings
     override suspend fun insertSettings(settings: DifficultySettingsEntity) { this.settings.value = settings }
     override suspend fun updateSettings(settings: DifficultySettingsEntity) { this.settings.value = settings }
 }
 
-class FakeLevelHistoryRepository : LevelHistoryRepository {
+open class FakeLevelHistoryRepository : LevelHistoryRepository {
     val history = MutableStateFlow<List<LevelHistoryEntity>>(emptyList())
     override fun getAllHistory(): Flow<List<LevelHistoryEntity>> = history
     override suspend fun insertLevelHistory(entry: LevelHistoryEntity) { history.value = history.value + entry }
 }
 
 /** Every setting as a MutableStateFlow; the setters write through, like SharedPreferences would. */
-class FakeSettingsRepository(
+open class FakeSettingsRepository(
     simpleMode: Boolean = false,
     theme: ThemeMode = ThemeMode.Pixel,
     notifications: Boolean = true,
