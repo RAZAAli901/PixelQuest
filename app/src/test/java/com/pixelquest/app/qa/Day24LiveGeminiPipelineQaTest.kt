@@ -39,7 +39,7 @@ class Day24LiveGeminiPipelineQaTest {
     private val sampleProfile = UserProfileEntity(id = 1, username = "ArcadeKnight", avatarId = "knight_1", level = 4)
     private val sampleTasks = listOf(
         TaskEntity(id = 1, name = "Morning Run", description = "Run 5k", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS),
-        TaskEntity(id = 2, name = "Kotlin Study", description = "Read coroutines docs", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(14, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.STUDY),
+        TaskEntity(id = 2, name = "Kotlin Study", description = "Read coroutines docs", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(14, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING),
         TaskEntity(id = 3, name = "Hydrate", description = "Drink 2L water", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(20, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.HEALTH)
     )
     private val sampleLogs = listOf(
@@ -49,65 +49,22 @@ class Day24LiveGeminiPipelineQaTest {
         TaskCompletionLogEntity(id = 4, taskId = 3, completedDate = LocalDate.now(), wasCompleted = true, pointsAwarded = 10)
     )
 
-    private val fakeStreakRepo = object : StreakRepository {
-        override suspend fun insertStreak(streak: StreakEntity) {}
-        override suspend fun updateStreak(streak: StreakEntity) {}
-        override fun getCurrentStreak(): Flow<StreakEntity?> = flowOf(sampleStreak)
-    }
+    private val fakeStreakRepo = com.pixelquest.app.testing.FakeStreakRepository(sampleStreak)
 
-    private val fakeProfileRepo = object : UserProfileRepository {
-        override suspend fun insertProfile(profile: UserProfileEntity) {}
-        override suspend fun updateProfile(profile: UserProfileEntity) {}
-        override fun getProfile(): Flow<UserProfileEntity?> = flowOf(sampleProfile)
-    }
+    private val fakeProfileRepo = com.pixelquest.app.testing.FakeUserProfileRepository(sampleProfile)
 
-    private val fakeTaskRepo = object : TaskRepository {
-        override suspend fun insertTask(task: TaskEntity): Long = 1L
-        override suspend fun updateTask(task: TaskEntity) {}
-        override suspend fun deleteTask(task: TaskEntity) {}
-        override fun getAllTasks(): Flow<List<TaskEntity>> = flowOf(sampleTasks)
-        override fun getTaskById(taskId: Long): Flow<TaskEntity?> = flowOf(sampleTasks.first())
-        override fun getTasksForDay(day: LocalDate): Flow<List<TaskEntity>> = flowOf(sampleTasks)
-    }
+    private val fakeTaskRepo = com.pixelquest.app.testing.FakeTaskRepository(sampleTasks)
 
-    private val fakeCompletionRepo = object : TaskCompletionRepository {
-        override suspend fun insertLog(log: TaskCompletionLogEntity): Long = 1L
-        override fun getLogsForDate(date: LocalDate): Flow<List<TaskCompletionLogEntity>> = flowOf(sampleLogs)
-        override fun getLogsForTask(taskId: Long): Flow<List<TaskCompletionLogEntity>> = flowOf(sampleLogs)
-        override fun getCompletionHistory(startDate: LocalDate, endDate: LocalDate): Flow<List<TaskCompletionLogEntity>> = flowOf(sampleLogs)
-        override fun getAllLogs(): Flow<List<TaskCompletionLogEntity>> = flowOf(sampleLogs)
-    }
+    private val fakeCompletionRepo = com.pixelquest.app.testing.FakeTaskCompletionRepository(sampleLogs)
 
-    private val fakeSettingsRepo = object : SettingsRepository {
-        override val isSoundEnabled: Flow<Boolean> = flowOf(true)
-        override val isCrtEnabled: Flow<Boolean> = flowOf(false)
-        override val isHapticsEnabled: Flow<Boolean> = flowOf(true)
-        override val isReduceMotionEnabled: Flow<Boolean> = flowOf(false)
-        override val onboardingComplete: Flow<Boolean> = flowOf(true)
-        override val isNotificationsEnabled: Flow<Boolean> = flowOf(true)
-        override val isNotificationSoundEnabled: Flow<Boolean> = flowOf(true)
-        override val isNotificationVibrationEnabled: Flow<Boolean> = flowOf(true)
-        override val simpleModeEnabled: Flow<Boolean> = flowOf(false)
-        override suspend fun setSoundEnabled(enabled: Boolean) {}
-        override suspend fun setCrtEnabled(enabled: Boolean) {}
-        override suspend fun setHapticsEnabled(enabled: Boolean) {}
-        override suspend fun setReduceMotionEnabled(enabled: Boolean) {}
-        override suspend fun setOnboardingComplete(complete: Boolean) {}
-        override suspend fun setNotificationsEnabled(enabled: Boolean) {}
-        override suspend fun setNotificationSoundEnabled(enabled: Boolean) {}
-        override suspend fun setNotificationVibrationEnabled(enabled: Boolean) {}
-    }
+    private val fakeSettingsRepo = com.pixelquest.app.testing.FakeSettingsRepository(aiInsights = true)
 
     @Test
     fun testDebugPipeline_generatesCoherentHabitInsight() = runBlocking {
-        val currentKey = BuildConfig.GEMINI_API_KEY.trim()
-        val isLiveKey = currentKey.isNotBlank() && currentKey != "placeholder-gemini-key"
-
-        val geminiClient: GeminiClient = if (isLiveKey) {
-            com.pixelquest.app.data.remote.GeminiClientImpl(
-                apiKeyProvider = { currentKey }
-            )
-        } else {
+        // Always the recorded response: a unit test must not spend the developer's Gemini quota or
+        // depend on the network just because a real key is in local.properties. Live calls are
+        // checked on a device (VERIFICATION.md).
+        val geminiClient: GeminiClient = run {
             object : GeminiClient {
                 override suspend fun generateContent(prompt: String, systemInstruction: String?): String {
                     // Valid simulation response matching exact Gemini structured format
@@ -144,7 +101,7 @@ class Day24LiveGeminiPipelineQaTest {
         // Wait for asynchronous job or invoke directly
         val directResult = repository.generateHabitInsight()
         assertNotNull("Pipeline must return a non-null result", directResult)
-        assertTrue("Pipeline result should be Success", directResult is GeminiResult.Success)
+        assertTrue("Pipeline result should be Success, was $directResult", directResult is GeminiResult.Success)
 
         val insight = (directResult as GeminiResult.Success).data
         assertTrue("Summary must be coherent and informative", insight.summary.isNotBlank())
