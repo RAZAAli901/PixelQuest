@@ -87,8 +87,9 @@ class LightModeDay22FullRegressionTest {
     }
 
     @Test
-    fun themeGating_lightModeAvailable_comicModeGated() {
+    fun themeGating_lightAndComicModesAvailable() {
         assertTrue("Light mode must be available to all users", ThemeMode.Light.isAvailable)
-        assertFalse("Comic mode must remain strictly gated until Day 23", ThemeMode.Comic.isAvailable)
+        // Comic was gated during Day 22 and unlocked on Day 23.
+        assertTrue("Comic mode is available since Day 23", ThemeMode.Comic.isAvailable)
     }
 }
