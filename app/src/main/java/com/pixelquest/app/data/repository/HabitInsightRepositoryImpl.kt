@@ -152,6 +152,18 @@ class HabitInsightRepositoryImpl(
             )
         }
 
+        // Step 33: every call Gemini answered counts toward the daily and monthly caps, including an
+        // answer that could not be used: otherwise a reply that keeps failing to parse costs a live
+        // call on every visit with no cap. Calls that never got through (offline, timed out) and
+        // Gemini's own 429 refusals don't count. Only a usable answer starts the 6-hour cooldown,
+        // so the player can retry after a failure.
+        val geminiAnswered = when (rawCallResult) {
+            is GeminiResult.Success, is GeminiResult.MalformedResponse -> true
+            is GeminiResult.ApiError -> rawCallResult.statusCode != null && rawCallResult.statusCode != 429
+            else -> false
+        }
+        if (geminiAnswered) usageTracker.recordCall()
+
         return when (rawCallResult) {
             is GeminiResult.Success -> {
                 try {
@@ -159,8 +171,6 @@ class HabitInsightRepositoryImpl(
                     _latestInsight.value = parsed
                     // Persist to local cache with dataHash
                     insightCacheRepository.saveInsight(parsed, dataHash)
-                    // Step 33: Record usage toward daily and monthly caps
-                    usageTracker.recordCall()
                     // Update persistent rate limit timestamp
                     val callTime = clock()
                     try { settingsRepository.setLastAiInsightTimestamp(callTime) } catch (_: Exception) {}
