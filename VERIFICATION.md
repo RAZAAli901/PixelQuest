@@ -410,3 +410,49 @@ Test data was removed afterwards: the completion logs and XP were put back as th
 - The AROUND YOU list with real players (the emulator is not signed in) and the new Supabase indexes, which are a migration file still to be applied to the live project.
 - Midnight rollover on a device: covered by code review; Today, Stats and Tasks now read the date from a ticking flow.
 - The Pixel and Light themes on a device: `primaryText` equals `primary` there, which `ComicInkContrastTest` checks.
+
+## Section H -- Day 29 Verification (Step 115)
+
+Verified on 5 Oct 2026 against the Pixel 6 emulator (Android 14, API 34) and the local Gradle build.
+
+### Build
+- `./gradlew :app:assembleDebug` succeeds.
+- The unit-test quarantine is gone (Step 108). Every test file compiles, and a test that stops compiling fails the build again.
+
+### Unit tests (`:app:testDebugUnitTest`)
+- 755 tests in 228 classes: 0 failing, 0 skipped. At the start of the day, 471 tests compiled and 28 failed, and 91 test files were excluded from compilation.
+- Of the 91 quarantined files, 88 were repaired and 3 deleted:
+  - `Day10TestSuiteVerificationTest` called other tests by hand and asserted true.
+  - `MemoryProfileLeakAuditTest` measured JVM heap noise.
+  - `Day23ComicSimulatedDayJourneyQaTest` tested a made-up XP model, not the app.
+- All 28 failing tests now pass. Most expected old values; the expectations changed are:
+  - days per level: 5/7/10/14, as the app uses and shows
+  - the real Pixel and Light colour tokens
+  - Comic is available
+  - Robolectric for the DAO, `SoundManager` and `org.json` tests
+  - collecting WhileSubscribed state before reading it
+- One failure was a real bug: Light's secondary blue `#0284C7` was 4.1:1. It is now `#0369A1` at 5.9:1.
+- No unit test calls the live Gemini API. `GeminiConnectivitySmokeTest` makes a live call only with `PIXELQUEST_LIVE_GEMINI=1`. CI now runs the unit suite and never sets that variable (`CiBuildWorkflowTest`).
+- New tests:
+  - `InsightUsageCountingTest` (5)
+  - `ThemingDocContrastTest` (1; recomputes all 31 contrast rows in THEMING.md)
+  - Gemini request and parsing cases in `GeminiClientRequestTest` (3)
+  - `RecentConsistencyWindowTest` (1)
+  - the disabled Comic button fill (1)
+  - the CI unit-test step (1)
+
+### Emulator checks
+| Check | Result |
+| --- | --- |
+| App starts after a cold boot; Today, Stats and Tasks load with the date from the new injected `AppClock` (3 daily quests, 2 marked missed) | Pass |
+| AI Coach (Comic) before the fix: the card showed "came back garbled", and today's AI usage count stayed at 0 after the failed live call | Fail, fixed in Steps 112–113 |
+| After Step 112 (Gemini thinking off): the one automatic call on opening Today returned a full LIVE insight, and the usage count went to 1 | Pass |
+| Light theme: SFX and Haptics buttons are `#0369A1`, and the theme-settings button is the `#B45309` amber (sampled from the screenshot) | Pass |
+| Theme switched back to Comic afterwards | Pass |
+
+The emulator was shut down afterwards. The two live Gemini calls (the failing one and the one after the fix) were the app's own automatic calls on opening Today. No test data was added.
+
+### Not verified
+- The garbled-reply cause was not captured: the raw failing response isn't logged. The fix matches Gemini's documented behaviour (2.5 Flash thinking tokens count toward `maxOutputTokens`). The first call after the fix succeeded, and `GeminiClientRequestTest` checks the request now sends `thinkingBudget: 0`.
+- Leaderboard: the spectator rank fix (Step 2) and the moderator's doubled-letter leetspeak fix (Step 13). The emulator is not signed in, so these are covered by unit tests only.
+- A fresh install's seeded avatar (Step 46): checking it needs a reinstall, which would wipe the emulator's data.
