@@ -51,7 +51,6 @@ ui/screens/account/LeaderboardOptOutUiTest.kt
 ui/screens/insight/AiInsightViewModelTest.kt
 ui/screens/leaderboard/LeaderboardErrorStateTest.kt
 ui/settings/SimpleModeDifficultyEntryPointUiTest.kt
-ui/theme/ComicDropShadowTest.kt
 ui/theme/Day20ComicModeFinalVerificationTest.kt
 ui/theme/Day22FinalVerificationTest.kt
 ui/theme/Day23ComicSimulatedDayJourneyQaTest.kt

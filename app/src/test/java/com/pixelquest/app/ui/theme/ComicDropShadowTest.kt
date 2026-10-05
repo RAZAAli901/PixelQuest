@@ -90,12 +90,12 @@ class ComicDropShadowTest {
     @Test
     fun prominentAndSubtleOffsets_resolveProperHierarchy() {
         assertTrue(
-            "Subtle shadow (2dp) < Default shadow (4dp)",
-            ComicShapeTokens.ShadowOffsetSubtle < ComicShapeTokens.ShadowOffsetDefault
+            "Small shadow (3dp) < Default shadow (4dp)",
+            ComicShapeTokens.ShadowOffsetSmall < ComicShapeTokens.ShadowOffsetDefault
         )
         assertTrue(
-            "Default shadow (4dp) < Prominent shadow (6dp)",
-            ComicShapeTokens.ShadowOffsetDefault < ComicShapeTokens.ShadowOffsetProminent
+            "Default shadow (4dp) < Large shadow (6dp)",
+            ComicShapeTokens.ShadowOffsetDefault < ComicShapeTokens.ShadowOffsetLarge
         )
     }
 }
