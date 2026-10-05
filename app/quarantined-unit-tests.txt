@@ -14,7 +14,6 @@ domain/ai/HabitInsightPipelineIntegrationTest.kt
 integration/FullSignInOptInSyncIntegrationTest.kt
 integration/GamifiedModeBaselineRegressionTest.kt
 integration/NotificationCopyIntegrationTest.kt
-integration/OnboardingIntegrationTest.kt
 integration/ResetProgressIntegrationTest.kt
 integration/StatsScreenIntegrationTest.kt
 qa/Day19GamifiedModeDefaultRegressionTest.kt

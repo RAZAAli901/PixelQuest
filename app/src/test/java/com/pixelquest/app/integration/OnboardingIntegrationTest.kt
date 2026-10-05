@@ -25,10 +25,9 @@ import org.junit.Test
 class OnboardingIntegrationTest {
 
     private val testDispatcher = StandardTestDispatcher()
-
-    private var savedProfile: UserProfileEntity? = null
-    private var savedDifficulty: DifficultySettingsEntity? = null
-    private var onboardingCompletedFlag = false
+    private lateinit var fakeUserRepo: com.pixelquest.app.testing.FakeUserProfileRepository
+    private lateinit var fakeDiffRepo: com.pixelquest.app.testing.FakeDifficultySettingsRepository
+    private lateinit var fakeSettingsRepo: com.pixelquest.app.testing.FakeSettingsRepository
 
     private lateinit var viewModel: OnboardingViewModel
 
@@ -36,30 +35,10 @@ class OnboardingIntegrationTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
 
-        val fakeUserRepo = object : UserProfileRepository {
-            override fun getProfile() = flowOf(savedProfile)
-            override suspend fun saveProfile(profile: UserProfileEntity) {
-                savedProfile = profile
-            }
-        }
-
-        val fakeDiffRepo = object : DifficultySettingsRepository {
-            override fun getCurrentDifficulty() = flowOf(savedDifficulty ?: DifficultySettingsEntity(1, DifficultyLevel.MEDIUM, 0.7f, 7))
-            override suspend fun updateDifficultySettings(settings: DifficultySettingsEntity) {
-                savedDifficulty = settings
-            }
-        }
-
-        val fakeSettingsRepo = object : SettingsRepository {
-            override val isSoundEnabled: Flow<Boolean> = flowOf(true)
-            override val isCrtEnabled: Flow<Boolean> = flowOf(false)
-            override val onboardingComplete: Flow<Boolean> = flowOf(onboardingCompletedFlag)
-            override suspend fun setSoundEnabled(enabled: Boolean) {}
-            override suspend fun setCrtEnabled(enabled: Boolean) {}
-            override suspend fun setOnboardingComplete(complete: Boolean) {
-                onboardingCompletedFlag = complete
-            }
-        }
+        // New players start from the seeded (default) profile and Medium difficulty, like the app.
+        fakeUserRepo = com.pixelquest.app.testing.FakeUserProfileRepository()
+        fakeDiffRepo = com.pixelquest.app.testing.FakeDifficultySettingsRepository()
+        fakeSettingsRepo = com.pixelquest.app.testing.FakeSettingsRepository(onboardingDone = false)
 
         viewModel = OnboardingViewModel(fakeUserRepo, fakeDiffRepo, fakeSettingsRepo)
     }
@@ -83,9 +62,9 @@ class OnboardingIntegrationTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         assertTrue(completedCallbackFired)
-        assertTrue(onboardingCompletedFlag)
-        assertEquals("DragonSlayer", savedProfile?.username)
-        assertEquals("avatar_mage", savedProfile?.avatarId)
-        assertEquals(DifficultyLevel.HARD, savedDifficulty?.difficultyLevel)
+        assertTrue(fakeSettingsRepo.onboardingComplete.value)
+        assertEquals("DragonSlayer", fakeUserRepo.profile.value?.username)
+        assertEquals("avatar_mage", fakeUserRepo.profile.value?.avatarId)
+        assertEquals(DifficultyLevel.HARD, fakeDiffRepo.settings.value?.difficultyLevel)
     }
 }
