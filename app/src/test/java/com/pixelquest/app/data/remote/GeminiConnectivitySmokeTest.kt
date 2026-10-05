@@ -43,8 +43,11 @@ class GeminiConnectivitySmokeTest {
     fun geminiClient_connectivitySmokeTest() = runBlocking {
         val currentKey = BuildConfig.GEMINI_API_KEY.trim()
         val isRealKey = currentKey.isNotBlank() && currentKey != "placeholder-gemini-key"
+        // A live call spends the developer's quota and needs the network, so ordinary test runs
+        // never make one: set PIXELQUEST_LIVE_GEMINI=1 to opt in.
+        val liveOptIn = System.getenv("PIXELQUEST_LIVE_GEMINI") == "1"
 
-        if (isRealKey) {
+        if (isRealKey && liveOptIn) {
             // Live API key is provided and rotated by developer
             val client = AiModule.provideGeminiClient(AiModule.provideGeminiHttpClient())
             val response = try {
