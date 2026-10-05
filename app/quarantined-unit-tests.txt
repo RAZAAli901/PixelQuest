@@ -44,7 +44,6 @@ ui/leveling/SimpleModeLevelUpSuppressionTest.kt
 ui/navigation/ScreenTransitionStateTest.kt
 ui/onboarding/OnboardingViewModelTest.kt
 ui/performance/MemoryProfileLeakAuditTest.kt
-ui/screens/account/LeaderboardOptOutUiTest.kt
 ui/screens/insight/AiInsightViewModelTest.kt
 ui/screens/leaderboard/LeaderboardErrorStateTest.kt
 ui/settings/SimpleModeDifficultyEntryPointUiTest.kt

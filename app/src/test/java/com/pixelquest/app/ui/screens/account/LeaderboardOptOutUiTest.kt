@@ -4,8 +4,9 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.pixelquest.app.auth.AuthUiState
-import com.pixelquest.app.auth.PixelAuthUser
+import com.pixelquest.app.auth.AuthUser
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -13,12 +14,13 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [34], application = android.app.Application::class)
 class LeaderboardOptOutUiTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val fakeUser = PixelAuthUser(
+    private val fakeUser = AuthUser(
         id = "user-1234-abcd",
         email = "hero@pixelquest.test",
         displayName = "PixelHero"
@@ -42,8 +44,9 @@ class LeaderboardOptOutUiTest {
         }
 
         // Verify status and discoverable Leave Leaderboard action
-        composeTestRule.onNodeWithText("STATUS: ACTIVE (OPTED IN)").assertIsDisplayed()
-        composeTestRule.onNodeWithText("🔴 LEAVE LEADERBOARD (OPT OUT)").assertIsDisplayed()
+        // The account screen scrolls; bring each item into view first.
+        composeTestRule.onNodeWithText("STATUS: ACTIVE (OPTED IN)").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("🔴 LEAVE LEADERBOARD (OPT OUT)").performScrollTo().assertIsDisplayed()
 
         // Clicking triggers opt-out request
         composeTestRule.onNodeWithText("🔴 LEAVE LEADERBOARD (OPT OUT)").performClick()
