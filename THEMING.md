@@ -206,22 +206,22 @@ This section serves as the binding architectural contract that subsequent theme 
    - `accentPurple`: `#7E22CE` (Mystic Rune Purple).
 
 3. **WCAG AA Contrast Audit Results (Step 3 & 5)**:
-   All pairings exceed standard WCAG AA (4.5:1 for normal text, 3.0:1 for large UI components):
+   All pairings meet WCAG AA (4.5:1 for normal text, 3.0:1 for large UI components). Ratios were recomputed on Day 29 with the WCAG 2.1 relative-luminance formula; several earlier figures were estimates that were off by up to 1.8.
 
 | Foreground Token | Background Token | Hex Pair | Contrast Ratio | WCAG Compliance Level |
 | :--- | :--- | :--- | :--- | :--- |
-| `onSurface` | `surface` | `#1C1917` on `#FFFFFF` | **15.9:1** | **Pass (AAA)** |
-| `onBackground` | `background` | `#1C1917` on `#F8F6F0` | **14.7:1** | **Pass (AAA)** |
-| `onSurfaceVariant` | `surface` | `#57534E` on `#FFFFFF` | **5.8:1** | **Pass (AA)** |
-| `primary` | `surface` | `#B45309` on `#FFFFFF` | **5.4:1** | **Pass (AA)** |
-| `primary` | `background` | `#B45309` on `#F8F6F0` | **5.0:1** | **Pass (AA)** |
+| `onSurface` | `surface` | `#1C1917` on `#FFFFFF` | **17.5:1** | **Pass (AAA)** |
+| `onBackground` | `background` | `#1C1917` on `#F8F6F0` | **16.2:1** | **Pass (AAA)** |
+| `onSurfaceVariant` | `surface` | `#57534E` on `#FFFFFF` | **7.6:1** | **Pass (AAA)** |
+| `primary` | `surface` | `#B45309` on `#FFFFFF` | **5.0:1** | **Pass (AA)** |
+| `primary` | `background` | `#B45309` on `#F8F6F0` | **4.6:1** | **Pass (AA)** |
 | `secondary` | `surface` | `#0369A1` on `#FFFFFF` | **5.9:1** | **Pass (AA)** |
-| `tertiary` | `surface` | `#15803D` on `#FFFFFF` | **4.8:1** | **Pass (AA)** |
-| `gold` | `surface` | `#A16207` on `#FFFFFF` | **5.2:1** | **Pass (AA)** |
+| `tertiary` | `surface` | `#15803D` on `#FFFFFF` | **5.0:1** | **Pass (AA)** |
+| `gold` | `surface` | `#A16207` on `#FFFFFF` | **4.9:1** | **Pass (AA)** |
 | `error` | `surface` | `#DC2626` on `#FFFFFF` | **4.8:1** | **Pass (AA)** |
-| `onPrimary` | `primary` | `#FFFFFF` on `#B45309` | **5.4:1** | **Pass (AA)** |
+| `onPrimary` | `primary` | `#FFFFFF` on `#B45309` | **5.0:1** | **Pass (AA)** |
 | `onSecondary` | `secondary` | `#FFFFFF` on `#0369A1` | **5.9:1** | **Pass (AA)** |
-| `onTertiary` | `tertiary` | `#FFFFFF` on `#15803D` | **4.8:1** | **Pass (AA)** |
+| `onTertiary` | `tertiary` | `#FFFFFF` on `#15803D` | **5.0:1** | **Pass (AA)** |
 
 4. **Typography & Framing**: Retain `PressStart2P` headers with high-contrast `#1C1917` text and 2dp crisp pixel drop shadow (`Color(0x1F000000)`).
 
@@ -259,25 +259,25 @@ Every screen element and typography combination in Light Mode has been systemati
 
 | UI Context | Foreground Token | Background Token | Exact Hex Values | Contrast Ratio | WCAG Compliance | Result |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Screen Body Text | `onBackground` | `background` | `#1C1917` on `#F8F6F0` | **14.7:1** | WCAG AAA (>= 7.0:1) | **PASS** |
-| Card Body Text | `onSurface` | `surface` | `#1C1917` on `#FFFFFF` | **15.9:1** | WCAG AAA (>= 7.0:1) | **PASS** |
-| Subtitle / Muted Text | `onSurfaceVariant` | `surface` | `#57534E` on `#FFFFFF` | **5.8:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Screen Subtitle | `onSurfaceVariant` | `background` | `#57534E` on `#F8F6F0` | **5.4:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Headers & Primary Accents | `primary` | `surface` | `#B45309` on `#FFFFFF` | **5.4:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Screen Headers | `primary` | `background` | `#B45309` on `#F8F6F0` | **5.0:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Primary Button Text | `onPrimary` | `primary` | `#FFFFFF` on `#B45309` | **5.4:1** | WCAG AA (>= 4.5:1) | **PASS** |
+| Screen Body Text | `onBackground` | `background` | `#1C1917` on `#F8F6F0` | **16.2:1** | WCAG AAA (>= 7.0:1) | **PASS** |
+| Card Body Text | `onSurface` | `surface` | `#1C1917` on `#FFFFFF` | **17.5:1** | WCAG AAA (>= 7.0:1) | **PASS** |
+| Subtitle / Muted Text | `onSurfaceVariant` | `surface` | `#57534E` on `#FFFFFF` | **7.6:1** | WCAG AAA (>= 7.0:1) | **PASS** |
+| Screen Subtitle | `onSurfaceVariant` | `background` | `#57534E` on `#F8F6F0` | **7.1:1** | WCAG AAA (>= 7.0:1) | **PASS** |
+| Headers & Primary Accents | `primary` | `surface` | `#B45309` on `#FFFFFF` | **5.0:1** | WCAG AA (>= 4.5:1) | **PASS** |
+| Screen Headers | `primary` | `background` | `#B45309` on `#F8F6F0` | **4.6:1** | WCAG AA (>= 4.5:1) | **PASS** |
+| Primary Button Text | `onPrimary` | `primary` | `#FFFFFF` on `#B45309` | **5.0:1** | WCAG AA (>= 4.5:1) | **PASS** |
 | Secondary Action Chips | `secondary` | `surface` | `#0369A1` on `#FFFFFF` | **5.9:1** | WCAG AA (>= 4.5:1) | **PASS** |
 | Secondary Button Text | `onSecondary` | `secondary` | `#FFFFFF` on `#0369A1` | **5.9:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Success / Quest Badges | `tertiary` | `surface` | `#15803D` on `#FFFFFF` | **4.8:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Tertiary Button Text | `onTertiary` | `tertiary` | `#FFFFFF` on `#15803D` | **4.8:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Gold Indicators / Podium Rank 1 | `gold` | `surface` | `#A16207` on `#FFFFFF` | **5.2:1** | WCAG AA (>= 4.5:1) | **PASS** |
+| Success / Quest Badges | `tertiary` | `surface` | `#15803D` on `#FFFFFF` | **5.0:1** | WCAG AA (>= 4.5:1) | **PASS** |
+| Tertiary Button Text | `onTertiary` | `tertiary` | `#FFFFFF` on `#15803D` | **5.0:1** | WCAG AA (>= 4.5:1) | **PASS** |
+| Gold Indicators / Podium Rank 1 | `gold` | `surface` | `#A16207` on `#FFFFFF` | **4.9:1** | WCAG AA (>= 4.5:1) | **PASS** |
 | Error Text & Destructive Actions | `error` | `surface` | `#DC2626` on `#FFFFFF` | **4.8:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Stepped Pixel Panel Borders | `pixelBorder` | `surface` | `#292524` on `#FFFFFF` | **13.5:1** | WCAG AAA (>= 3.0:1 UI) | **PASS** |
-| Heatmap Perfect Cell | `LightPerfectCell` | `surface` | `#15803D` on `#FFFFFF` | **4.8:1** | WCAG AA (>= 3.0:1 UI) | **PASS** |
+| Stepped Pixel Panel Borders | `pixelBorder` | `surface` | `#292524` on `#FFFFFF` | **15.2:1** | WCAG AAA (>= 3.0:1 UI) | **PASS** |
+| Heatmap Perfect Cell | `LightPerfectCell` | `surface` | `#15803D` on `#FFFFFF` | **5.0:1** | WCAG AA (>= 3.0:1 UI) | **PASS** |
 | Heatmap Partial Cell | `LightPartialCell` | `surface` | `#D97706` on `#FFFFFF` | **3.2:1** | WCAG AA (>= 3.0:1 UI) | **PASS** |
 | Heatmap Missed Cell | `LightMissedCell` | `surface` | `#DC2626` on `#FFFFFF` | **4.8:1** | WCAG AA (>= 3.0:1 UI) | **PASS** |
-| Notification Accent (OS Light Shade) | `NOTIFICATION_ACCENT` | OS Light Surface | `#B45309` on `#FFFFFF` | **5.4:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Notification Accent (OS Dark Shade) | `NOTIFICATION_ACCENT` | OS Dark Shade | `#B45309` on `#121212` | **3.8:1** | WCAG AA (>= 3.0:1 UI) | **PASS** |
+| Notification Accent (OS Light Shade) | `NOTIFICATION_ACCENT` | OS Light Surface | `#B45309` on `#FFFFFF` | **5.0:1** | WCAG AA (>= 4.5:1) | **PASS** |
+| Notification Accent (OS Dark Shade) | `NOTIFICATION_ACCENT` | OS Dark Shade | `#B45309` on `#121212` | **3.7:1** | WCAG AA (>= 3.0:1 UI) | **PASS** |
 
 ### 8.6 Light Mode Manual QA Visual-Regression Baseline Specification (Step 35)
 During manual navigation in active Light Mode (`ThemeMode.Light`), all core application screens and modals were inspected to verify legibility, procedural border rendering, asset tinting, and zero color bleed:
@@ -336,7 +336,7 @@ As of Day 17, **Light Mode is 100% complete, fully audited, and production-ready
 ### 9.1 Completion Checklist & Sign-Off
 - [x] **Finished Palette**: "Retro Arcade in Daylight" palette (`DefaultLightColorScheme`) preserving the 8-bit identity with warm parchment background (`#F8F6F0`), crisp white surface (`#FFFFFF`), arcade amber primary (`#B45309`), sky blue secondary (`#0369A1`), and emerald tertiary (`#15803D`).
 - [x] **Semantic Tokens**: Full `AppColorScheme` token mapping (`background`, `surface`, `surfaceVariant`, `primary`, `secondary`, `tertiary`, `pixelBorder`, `gold`, `error`, `onBackground`, `onSurface`, `onSurfaceVariant`).
-- [x] **WCAG AA/AAA Accessibility**: All 14 key text/surface pairs audited and verified, exceeding standard WCAG AA contrast (normal text >= 4.5:1, UI elements >= 3.0:1) with body text achieving 14.7:1–15.9:1 (AAA).
+- [x] **WCAG AA/AAA Accessibility**: All 14 key text/surface pairs audited and verified, exceeding standard WCAG AA contrast (normal text >= 4.5:1, UI elements >= 3.0:1) with body text at 16.2:1–17.5:1 (AAA; figures recomputed on Day 29).
 - [x] **Component Elevation & Borders**: `PixelCard`, `PixelPanel`, `PixelButton`, `PixelDialog`, and `PixelAvatarFrame` fully adapted with procedural 2dp stepped pixel borders (`#292524`) and contrast-safe shadows.
 - [x] **Pixel Art Asset Tinting**: `PixelThemeAssetFilter` dynamically tints category icons, difficulty tiers, and avatar assets in light mode with zero PNG asset duplication.
 - [x] **Screen-by-Screen Light Mode Audit**: All 8 screens (`TodayScreen`, `TasksScreen`, `StatsScreen`, `ProfileScreen`, `SettingsScreen`, `AccountScreen`, `OnboardingScreen`, `LeaderboardScreen`) audited with zero hardcoded dark tokens remaining.
