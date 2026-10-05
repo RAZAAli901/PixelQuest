@@ -16,8 +16,8 @@ class NotificationMasterToggleTest {
         var rescheduledCount = 0
 
         val tasks = listOf(
-            TaskEntity(1, "Task 1", "Desc", LocalTime.of(9, 0), LocalDate.now(), RecurrenceType.DAILY),
-            TaskEntity(2, "Task 2", "Desc", LocalTime.of(18, 0), LocalDate.now(), RecurrenceType.DAILY)
+            TaskEntity(id = 1, name = "Task 1", description = "Desc", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(9, 0), recurrenceType = RecurrenceType.DAILY, category = com.pixelquest.app.domain.model.TaskCategory.OTHER),
+            TaskEntity(id = 2, name = "Task 2", description = "Desc", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(18, 0), recurrenceType = RecurrenceType.DAILY, category = com.pixelquest.app.domain.model.TaskCategory.OTHER)
         )
 
         fun onToggle(enabled: Boolean) {

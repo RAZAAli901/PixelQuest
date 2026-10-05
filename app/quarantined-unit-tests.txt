@@ -22,7 +22,6 @@ qa/Day19GamifiedModeDefaultRegressionTest.kt
 qa/Day19SimpleModeActiveManualQaTest.kt
 qa/Day19SimpleModeDisableReversalQaTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
-scheduling/NotificationMasterToggleTest.kt
 ui/SimpleModeFullChecklistUiTest.kt
 ui/leaderboard/SimpleModeLeaderboardCoexistenceTest.kt
 ui/navigation/ScreenTransitionStateTest.kt
