@@ -42,17 +42,17 @@ class PixelModeComponentRegressionTest {
 
         // Verify color scheme tokens for Pixel mode
         val pixelColors = DefaultPixelColorScheme
-        assertEquals(0xFFFFCC00, pixelColors.primary.value.toLong() shr 32 or (pixelColors.primary.value.toLong() and 0xFFFFFFFFL))
+        assertEquals(com.pixelquest.app.ui.theme.PixelGold, pixelColors.primary)
     }
 
     @Test
     fun pixelCard_usesPixelAssetsInPixelMode() {
-        // Pixel panels rely on classic wood/stone 9-patch assets
-        val woodPanel = R.drawable.panel_wood
-        val woodInset = R.drawable.panel_wood_inset
+        // Pixel panels (PixelCard) use these Kenney panel assets
+        val borderPanel = R.drawable.pixel_panel_border
+        val bluePanel = R.drawable.pixel_panel_blue
 
-        assertTrue("Wood panel drawable must be valid resource", woodPanel != 0)
-        assertTrue("Wood inset drawable must be valid resource", woodInset != 0)
+        assertTrue("Border panel drawable must be valid resource", borderPanel != 0)
+        assertTrue("Blue panel drawable must be valid resource", bluePanel != 0)
 
         // Comic dispatch guard is false for Pixel mode
         val isComic = ThemeMode.Pixel == ThemeMode.Comic
@@ -92,6 +92,6 @@ class PixelModeComponentRegressionTest {
     @Test
     fun pixelMode_remainsDefaultAndAvailable() {
         assertTrue("ThemeMode.Pixel must be available to users", ThemeMode.Pixel.isAvailable)
-        assertFalse("ThemeMode.Comic must remain gated from real users", ThemeMode.Comic.isAvailable)
+        assertTrue("ThemeMode.Comic has been available to everyone since Day 23", ThemeMode.Comic.isAvailable)
     }
 }
