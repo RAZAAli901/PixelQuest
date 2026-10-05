@@ -3,6 +3,7 @@ package com.pixelquest.app.ui.components
 import androidx.compose.ui.graphics.Color
 import com.pixelquest.app.ui.theme.DefaultLightColorScheme
 import com.pixelquest.app.ui.theme.DefaultPixelColorScheme
+import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -20,8 +21,8 @@ class ProgressComponentsThemeBoundaryTest {
         val pixelScheme = DefaultPixelColorScheme
         val lightScheme = DefaultLightColorScheme
 
-        // Pixel mode progress primary is Arcade Yellow
-        assertEquals(Color(0xFFFFCC00), pixelScheme.primary)
+        // Pixel mode progress primary is Arcade Gold (#F4C430)
+        assertEquals(PixelGold, pixelScheme.primary)
 
         // Light mode progress primary is Daylight Emerald Tertiary
         assertEquals(Color(0xFF15803D), lightScheme.tertiary)

@@ -4,6 +4,8 @@ import androidx.compose.ui.graphics.Color
 import com.pixelquest.app.ui.theme.ComponentThemeFamily
 import com.pixelquest.app.ui.theme.DefaultLightColorScheme
 import com.pixelquest.app.ui.theme.DefaultPixelColorScheme
+import com.pixelquest.app.ui.theme.PixelGold
+import com.pixelquest.app.ui.theme.PixelSurfaceBorder
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -20,10 +22,10 @@ class PixelXpBarRegressionTest {
     fun pixelXpBar_pixelMode_preservesDarkColorMapping() {
         val pixelScheme = DefaultPixelColorScheme
 
-        // Pixel mode primary (Cyan accent #00FFFF) and dark surfaceVariant (#2A2A2A)
-        assertEquals(Color(0xFF00FFFF), pixelScheme.primary)
-        assertEquals(Color(0xFF2A2A2A), pixelScheme.surfaceVariant)
-        assertEquals(Color(0xFF000000), pixelScheme.pixelBorder)
+        // Pixel mode: gold primary (#F4C430); the track and border share the indigo #2E2E4A
+        assertEquals(PixelGold, pixelScheme.primary)
+        assertEquals(PixelSurfaceBorder, pixelScheme.surfaceVariant)
+        assertEquals(PixelSurfaceBorder, pixelScheme.pixelBorder)
 
         val isComic = ThemeMode.Pixel == ThemeMode.Comic
         assertFalse("Pixel mode must not enter Comic dispatch branch", isComic)

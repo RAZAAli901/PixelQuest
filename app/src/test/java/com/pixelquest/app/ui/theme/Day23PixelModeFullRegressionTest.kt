@@ -29,7 +29,7 @@ class Day23PixelModeFullRegressionTest {
         assertTrue("Pixel mode must remain a dark mode", scheme.isDark)
         assertEquals(Color(0xFF12121E), scheme.background)
         assertEquals(Color(0xFF1A1A2E), scheme.surface)
-        assertEquals(Color(0xFF252538), scheme.surfaceVariant)
+        assertEquals(PixelSurfaceBorder, scheme.surfaceVariant)
         assertEquals(PixelGold, scheme.primary)
         assertEquals(PixelCyan, scheme.secondary)
         assertEquals(PixelGreen, scheme.tertiary)
