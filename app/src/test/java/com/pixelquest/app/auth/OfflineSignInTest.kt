@@ -21,7 +21,7 @@ import org.junit.Test
 import org.mockito.Mockito.mock
 import java.io.IOException
 
-class FakeGoogleAuthManagerForOffline : GoogleAuthManager {
+class FakeGoogleAuthManagerForOffline : GoogleAuthManager(io.mockk.mockk(relaxed = true)) {
     var isOffline = false
 
     override suspend fun signInWithGoogle(activityContext: Context): GoogleAuthResult {
@@ -41,7 +41,7 @@ class FakeGoogleAuthManagerForOffline : GoogleAuthManager {
 class FakeAuthRepoForOffline : AuthRepository {
     var returnNetworkError = false
     override val currentUser = MutableStateFlow<AuthUser?>(null)
-    override suspend fun exchangeGoogleIdToken(idToken: String): SupabaseResult<AuthUser> {
+    override suspend fun exchangeGoogleIdToken(idToken: String, rawNonce: String?): SupabaseResult<AuthUser> {
         return if (returnNetworkError) {
             SupabaseResult.NetworkError(IOException("Network unreachable"), "Failed to connect to Supabase server.")
         } else {
@@ -59,6 +59,7 @@ class FakeUserProfileRepoForOffline : UserProfileRepository {
     override suspend fun performLevelUp(): UserProfileEntity? = null
     override suspend fun updateSupabaseUserId(userId: String?) {}
     override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {}
+    override suspend fun clearCloudData() {}
     override suspend fun updateLeaderboardOptIn(optIn: Boolean) {}
 }
 
