@@ -194,7 +194,7 @@ This section serves as the binding architectural contract that subsequent theme 
    - `surfaceVariant`: `#E6E1D6` (Warm retro divider and border tone).
    - `primary`: `#B45309` (Warm Dungeon Gold / Adventurer Amber).
    - `primaryContainer`: `#FEF3C7` (Sunlight amber soft fill).
-   - `secondary`: `#0284C7` (Daylight Sky / Retro Arcade Cyan).
+   - `secondary`: `#0369A1` (Daylight Sky). Day 29: was `#0284C7`, which is only 4.1:1 on white (its contrast had been listed as 4.6:1).
    - `secondaryContainer`: `#E0F2FE` (Sky soft container).
    - `tertiary`: `#15803D` (Meadow Quest Green / HP Green for daylight).
    - `tertiaryContainer`: `#DCFCE7` (Mint soft container).
@@ -215,12 +215,12 @@ This section serves as the binding architectural contract that subsequent theme 
 | `onSurfaceVariant` | `surface` | `#57534E` on `#FFFFFF` | **5.8:1** | **Pass (AA)** |
 | `primary` | `surface` | `#B45309` on `#FFFFFF` | **5.4:1** | **Pass (AA)** |
 | `primary` | `background` | `#B45309` on `#F8F6F0` | **5.0:1** | **Pass (AA)** |
-| `secondary` | `surface` | `#0284C7` on `#FFFFFF` | **4.6:1** | **Pass (AA)** |
+| `secondary` | `surface` | `#0369A1` on `#FFFFFF` | **5.9:1** | **Pass (AA)** |
 | `tertiary` | `surface` | `#15803D` on `#FFFFFF` | **4.8:1** | **Pass (AA)** |
 | `gold` | `surface` | `#A16207` on `#FFFFFF` | **5.2:1** | **Pass (AA)** |
 | `error` | `surface` | `#DC2626` on `#FFFFFF` | **4.8:1** | **Pass (AA)** |
 | `onPrimary` | `primary` | `#FFFFFF` on `#B45309` | **5.4:1** | **Pass (AA)** |
-| `onSecondary` | `secondary` | `#FFFFFF` on `#0284C7` | **4.6:1** | **Pass (AA)** |
+| `onSecondary` | `secondary` | `#FFFFFF` on `#0369A1` | **5.9:1** | **Pass (AA)** |
 | `onTertiary` | `tertiary` | `#FFFFFF` on `#15803D` | **4.8:1** | **Pass (AA)** |
 
 4. **Typography & Framing**: Retain `PressStart2P` headers with high-contrast `#1C1917` text and 2dp crisp pixel drop shadow (`Color(0x1F000000)`).
@@ -266,8 +266,8 @@ Every screen element and typography combination in Light Mode has been systemati
 | Headers & Primary Accents | `primary` | `surface` | `#B45309` on `#FFFFFF` | **5.4:1** | WCAG AA (>= 4.5:1) | **PASS** |
 | Screen Headers | `primary` | `background` | `#B45309` on `#F8F6F0` | **5.0:1** | WCAG AA (>= 4.5:1) | **PASS** |
 | Primary Button Text | `onPrimary` | `primary` | `#FFFFFF` on `#B45309` | **5.4:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Secondary Action Chips | `secondary` | `surface` | `#0284C7` on `#FFFFFF` | **4.6:1** | WCAG AA (>= 4.5:1) | **PASS** |
-| Secondary Button Text | `onSecondary` | `secondary` | `#FFFFFF` on `#0284C7` | **4.6:1** | WCAG AA (>= 4.5:1) | **PASS** |
+| Secondary Action Chips | `secondary` | `surface` | `#0369A1` on `#FFFFFF` | **5.9:1** | WCAG AA (>= 4.5:1) | **PASS** |
+| Secondary Button Text | `onSecondary` | `secondary` | `#FFFFFF` on `#0369A1` | **5.9:1** | WCAG AA (>= 4.5:1) | **PASS** |
 | Success / Quest Badges | `tertiary` | `surface` | `#15803D` on `#FFFFFF` | **4.8:1** | WCAG AA (>= 4.5:1) | **PASS** |
 | Tertiary Button Text | `onTertiary` | `tertiary` | `#FFFFFF` on `#15803D` | **4.8:1** | WCAG AA (>= 4.5:1) | **PASS** |
 | Gold Indicators / Podium Rank 1 | `gold` | `surface` | `#A16207` on `#FFFFFF` | **5.2:1** | WCAG AA (>= 4.5:1) | **PASS** |
@@ -284,7 +284,7 @@ During manual navigation in active Light Mode (`ThemeMode.Light`), all core appl
 
 1. **Splash Screen (`SplashScreen.kt`)**:
    - Screen background renders `#F8F6F0` (warm parchment), system status bar switches to light background with dark system icons.
-   - Title `PIXELQUEST` renders in `#B45309` (Amber/Gold), subtitle in `#0284C7` (Sky Blue).
+   - Title `PIXELQUEST` renders in `#B45309` (Amber/Gold), subtitle in `#0369A1` (Sky Blue).
    - Card displays clean `#FFFFFF` surface with 2dp stepped pixel border (`#292524`) and subtle drop shadow.
    - `PixelProgressBar` renders `#15803D` emerald fill against `#E7E5E4` track.
 2. **Today Screen (`TodayScreen.kt`)**:
@@ -311,7 +311,7 @@ During manual navigation in active Light Mode (`ThemeMode.Light`), all core appl
    - Welcome, Name Entry, Avatar Selection, Difficulty Selection, and Summary steps all render against `#F8F6F0` background with `#FFFFFF` card panels and `#B45309` primary headers.
 8. **Leaderboard Screen (`LeaderboardScreen.kt`)**:
    - Top 3 podium pillars render gold `#A16207`, silver `#475569`, and bronze `#9A4F10` with dark rankings.
-   - Pinned user rank row renders elevated with `#0284C7` accent border.
+   - Pinned user rank row renders elevated with `#0369A1` accent border.
    - Not-signed-in state renders white lock card with `#B45309` title and sign-in button.
 
 ### 8.7 "Follow System" Dynamic OS Theme Resolution Verification (Step 36)
@@ -334,7 +334,7 @@ During manual navigation in active Light Mode (`ThemeMode.Light`), all core appl
 As of Day 17, **Light Mode is 100% complete, fully audited, and production-ready**:
 
 ### 9.1 Completion Checklist & Sign-Off
-- [x] **Finished Palette**: "Retro Arcade in Daylight" palette (`DefaultLightColorScheme`) preserving the 8-bit identity with warm parchment background (`#F8F6F0`), crisp white surface (`#FFFFFF`), arcade amber primary (`#B45309`), sky blue secondary (`#0284C7`), and emerald tertiary (`#15803D`).
+- [x] **Finished Palette**: "Retro Arcade in Daylight" palette (`DefaultLightColorScheme`) preserving the 8-bit identity with warm parchment background (`#F8F6F0`), crisp white surface (`#FFFFFF`), arcade amber primary (`#B45309`), sky blue secondary (`#0369A1`), and emerald tertiary (`#15803D`).
 - [x] **Semantic Tokens**: Full `AppColorScheme` token mapping (`background`, `surface`, `surfaceVariant`, `primary`, `secondary`, `tertiary`, `pixelBorder`, `gold`, `error`, `onBackground`, `onSurface`, `onSurfaceVariant`).
 - [x] **WCAG AA/AAA Accessibility**: All 14 key text/surface pairs audited and verified, exceeding standard WCAG AA contrast (normal text >= 4.5:1, UI elements >= 3.0:1) with body text achieving 14.7:1–15.9:1 (AAA).
 - [x] **Component Elevation & Borders**: `PixelCard`, `PixelPanel`, `PixelButton`, `PixelDialog`, and `PixelAvatarFrame` fully adapted with procedural 2dp stepped pixel borders (`#292524`) and contrast-safe shadows.
@@ -683,7 +683,7 @@ With the conclusion of Day 23, the PixelQuest multi-theme system is **feature-co
 | **Canvas Background**| Deep slate navy (`#12121E`) | Warm cartridge ivory (`#F8F6F0`) | Warm printed paper (`#FAF8F5`) |
 | **Surface Cards** | Dark retro indigo (`#1A1A2E`) | Crisp daylight white (`#FFFFFF`) | High-contrast panel white (`#FFFFFF`) |
 | **Primary Accent** | Radiant pixel gold (`#FFD700`) | Amber dungeon gold (`#B45309`) | Dynamic coral red (`#FF5A4E`); text on paper uses coral ink (`#C8372C`) |
-| **Secondary Accent**| Electric cyan (`#00E5FF`) | Arcade daylight sky (`#0284C7`) | Signature sky blue (`#8ECAE6`) |
+| **Secondary Accent**| Electric cyan (`#00E5FF`) | Arcade daylight sky (`#0369A1`) | Signature sky blue (`#8ECAE6`) |
 | **Tertiary Accent** | Quest meadow green (`#00E676`) | Forest quest green (`#15803D`) | Lavender container (`#BDB2FF`) |
 | **Quaternary Accent**| Dungeon boss red (`#FF5252`) | Crimson alert red (`#DC2626`) | Burnt orange container (`#F0A868`) |
 | **Typography Family**| `PressStart2P` (Pixelated) | `PressStart2P` / `PixelTypography` | `BangersFontFamily` (Comic headers) |
