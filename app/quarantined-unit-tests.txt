@@ -9,7 +9,6 @@ data/repository/StatsRepositoryTest.kt
 domain/StreakCalculatorTest.kt
 domain/StreakIntegrationTest.kt
 domain/ai/AiInsightUserFlowIntegrationTest.kt
-domain/ai/AiInsightsOptInGatingTest.kt
 domain/ai/AiRateLimitEnforcementTest.kt
 domain/ai/Day25FullRegressionPassTest.kt
 domain/ai/Day25InsightQualityManualQaTest.kt
