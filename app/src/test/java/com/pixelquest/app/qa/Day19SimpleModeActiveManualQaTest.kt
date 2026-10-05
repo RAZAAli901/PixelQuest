@@ -4,7 +4,7 @@ import com.pixelquest.app.domain.model.DailyStatus
 import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.domain.model.SimpleModeSuppression
 import com.pixelquest.app.domain.model.TaskTerminology
-import com.pixelquest.app.domain.model.TodayFlavorText
+import com.pixelquest.app.domain.FlavorTextCatalog
 import com.pixelquest.app.ui.prompt.TaskPromptCopyVariants
 import com.pixelquest.app.ui.screens.stats.StatsUiState
 import org.junit.Assert.assertEquals
@@ -27,14 +27,14 @@ class Day19SimpleModeActiveManualQaTest {
     @Test
     fun `qa_today_screen_suppression_and_rewordings`() {
         val terminology = TaskTerminology.forMode(isSimpleMode)
-        assertEquals("Task", terminology.taskNoun)
-        assertEquals("Tasks", terminology.taskNounPlural)
-        assertEquals("Create Task", terminology.createTaskAction)
-        assertEquals("No tasks for today. Take a breather!", terminology.emptyTasksDescription)
+        assertEquals("Task", terminology.itemSingular)
+        assertEquals("Tasks", terminology.itemPlural)
+        assertEquals("+ CREATE TASK", terminology.createButtonText)
+        assertEquals("No tasks scheduled. Add a new task to get started.", terminology.emptyStateSubtitle)
 
         // Today screen header and streak strip
-        val isStreakStripVisible = !SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.STREAK_DISPLAY,
+        val isStreakStripVisible = !SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.STREAK_DISPLAY,
             isSimpleMode
         )
         assertFalse("Streak/XP summary strip must be hidden", isStreakStripVisible)
@@ -44,32 +44,27 @@ class Day19SimpleModeActiveManualQaTest {
         assertEquals("All tasks done for today", allDoneBannerText)
 
         // Flavor text
-        val flavor = TodayFlavorText.forDay(
-            completedCount = 5,
-            totalCount = 5,
-            streakDays = 12,
-            isSimpleMode = isSimpleMode
-        )
-        assertFalse("Flavor text must not contain RPG jargon", flavor.quote.contains("quest", ignoreCase = true))
-        assertFalse("Flavor text must not contain streak references", flavor.quote.contains("streak", ignoreCase = true))
+        val flavor = FlavorTextCatalog.getFlavorText(taskCount = 5, completedCount = 5, isPerfectDay = 5 == 5, isSimpleMode = isSimpleMode)
+        assertFalse("Flavor text must not contain RPG jargon", flavor.contains("quest", ignoreCase = true))
+        assertFalse("Flavor text must not contain streak references", flavor.contains("streak", ignoreCase = true))
     }
 
     @Test
     fun `qa_profile_screen_clean_metrics_and_neutral_frame`() {
-        val isXpBarVisible = !SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.XP_BAR,
+        val isXpBarVisible = !SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.POINTS_XP_DISPLAY,
             isSimpleMode
         )
-        val isLevelBadgeVisible = !SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.LEVEL_BADGE,
+        val isLevelBadgeVisible = !SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.LEVEL_BADGE_AND_CELEBRATION,
             isSimpleMode
         )
         assertFalse("XP bar must be hidden on ProfileScreen", isXpBarVisible)
         assertFalse("Level badge must be hidden on ProfileScreen", isLevelBadgeVisible)
 
         // Difficulty locked on profile
-        val isDifficultyLocked = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.DIFFICULTY_SELECTION,
+        val isDifficultyLocked = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.DIFFICULTY_SELECTION,
             isSimpleMode
         )
         assertTrue("Difficulty change must be locked on ProfileScreen", isDifficultyLocked)
@@ -80,8 +75,7 @@ class Day19SimpleModeActiveManualQaTest {
         val statsState = StatsUiState(
             currentStreak = 14,
             longestStreak = 25,
-            completionRate = 88.5f,
-            totalTasksCompleted = 142,
+            overallCompletionRate = 88.5f,
             isSimpleMode = isSimpleMode
         )
         assertTrue(statsState.isSimpleMode)
@@ -105,7 +99,7 @@ class Day19SimpleModeActiveManualQaTest {
 
         // Full-screen DidYouDoIt prompt
         val copy = TaskPromptCopyVariants.resolve(isSimpleMode)
-        assertEquals("Did you complete this task?", copy.questionPrompt)
+        assertEquals("Did you complete this task today?", copy.questionPrompt)
         assertEquals("Completed", copy.confirmButtonText)
         assertEquals("Not yet", copy.dismissButtonText)
         assertNull("Combat swords icon emoji must be omitted in Simple Mode", copy.iconEmoji)
