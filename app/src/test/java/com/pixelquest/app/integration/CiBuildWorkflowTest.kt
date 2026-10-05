@@ -15,7 +15,9 @@ class CiBuildWorkflowTest {
         assertTrue("build.yml workflow file must exist", targetFile.exists())
 
         val content = targetFile.readText()
-        assertTrue("Workflow must run assembleDebug", content.contains("./gradlew assembleDebug"))
+        // The build step runs several tasks in one Gradle call (e.g. "./gradlew compileDebugKotlin assembleDebug ...").
+        val gradleRuns = content.lines().filter { it.contains("./gradlew ") }
+        assertTrue("Workflow must run assembleDebug", gradleRuns.any { it.contains(" assembleDebug") })
         assertTrue("Workflow must upload debug APK artifact", content.contains("pixelquest-debug-apk"))
     }
 }
