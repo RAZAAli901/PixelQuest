@@ -2,7 +2,6 @@ package com.pixelquest.app.qa
 
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
-import com.pixelquest.app.domain.model.TaskDifficulty
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -36,18 +35,19 @@ class OfflineLocalOnlyRegressionTest {
         assertFalse("Leaderboard opt-in must be false by default", profile.leaderboardOptIn)
         assertNull("Leaderboard display name must be null", profile.leaderboardDisplayName)
 
-        // 2. Task creation and XP gain in local mode
+        // 2. Task creation and XP gain in local mode (XP comes from PointsCalculator, not the task)
         val task = TaskEntity(
             id = 101,
-            title = "Morning Exercise",
+            name = "Morning Exercise",
             description = "15 minute stretch",
-            difficulty = TaskDifficulty.MEDIUM,
-            isCompleted = false,
-            createdAt = System.currentTimeMillis()
+            scheduledDay = java.time.LocalDate.now(),
+            scheduledTime = java.time.LocalTime.of(7, 0),
+            recurrenceType = com.pixelquest.app.domain.model.RecurrenceType.DAILY,
+            category = com.pixelquest.app.domain.model.TaskCategory.FITNESS
         )
-        val earnedXp = task.difficulty.xpReward // Medium = 20 XP
+        val earnedXp = com.pixelquest.app.domain.PointsCalculator.calculateXpForTask(task, currentStreak = 0)
         profile = profile.copy(totalXp = profile.totalXp + earnedXp)
-        assertEquals(20, profile.totalXp)
+        assertEquals(50, profile.totalXp)
 
         // 3. Completing tasks and streak progress
         var currentStreak = 0
@@ -60,12 +60,9 @@ class OfflineLocalOnlyRegressionTest {
         assertEquals(1, currentStreak)
         assertEquals(1, longestStreak)
 
-        // 4. Level up calculation operates locally
-        val nextLevelXpThreshold = profile.level * 100
-        if (profile.totalXp >= nextLevelXpThreshold) {
-            profile = profile.copy(level = profile.level + 1)
-        }
-        assertEquals(1, profile.level) // 20 XP < 100 XP
+        // 4. Levels come from perfect days (7 on Medium), worked out locally
+        assertFalse(com.pixelquest.app.domain.LevelCalculator.shouldLevelUp(currentStreak, 7))
+        assertEquals(1, profile.level)
 
         // 5. Assert signing in remains 100% optional: core game features are untouched
         assertEquals("OfflineAdventurer", profile.username)
