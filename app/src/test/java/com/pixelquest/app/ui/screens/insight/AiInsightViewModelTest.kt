@@ -102,6 +102,9 @@ class AiInsightViewModelTest {
     private class FakeCompletionRepository : TaskCompletionRepository {
         val logs = mutableListOf<TaskCompletionLogEntity>()
         override suspend fun insertLog(log: TaskCompletionLogEntity): Long = 1L
+        override suspend fun updateLog(log: TaskCompletionLogEntity) {}
+        override suspend fun getLogForTaskOnDate(taskId: Long, date: LocalDate) =
+            logs.firstOrNull { it.taskId == taskId && it.completedDate == date }
         override fun getLogsForDate(date: LocalDate): Flow<List<TaskCompletionLogEntity>> = flowOf(logs)
         override fun getLogsForTask(taskId: Long): Flow<List<TaskCompletionLogEntity>> = flowOf(logs)
         override fun getCompletionHistory(startDate: LocalDate, endDate: LocalDate): Flow<List<TaskCompletionLogEntity>> = flowOf(logs)
@@ -112,9 +115,9 @@ class AiInsightViewModelTest {
         val today = LocalDate.now()
         repo.logs.addAll(
             listOf(
-                TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = today, wasCompleted = true),
-                TaskCompletionLogEntity(id = 2, taskId = 1, completedDate = today.minusDays(1), wasCompleted = true),
-                TaskCompletionLogEntity(id = 3, taskId = 1, completedDate = today.minusDays(2), wasCompleted = true)
+                TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = today, wasCompleted = true, pointsAwarded = 50),
+                TaskCompletionLogEntity(id = 2, taskId = 1, completedDate = today.minusDays(1), wasCompleted = true, pointsAwarded = 50),
+                TaskCompletionLogEntity(id = 3, taskId = 1, completedDate = today.minusDays(2), wasCompleted = true, pointsAwarded = 50)
             )
         )
     }
@@ -141,7 +144,7 @@ class AiInsightViewModelTest {
         settingsRepo.aiEnabledFlow.value = true
 
         val completionRepo = FakeCompletionRepository()
-        completionRepo.logs.add(TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = LocalDate.now(), wasCompleted = true))
+        completionRepo.logs.add(TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = LocalDate.now(), wasCompleted = true, pointsAwarded = 50))
 
         val viewModel = AiInsightViewModel(
             habitInsightRepository = FakeHabitInsightRepository(),
