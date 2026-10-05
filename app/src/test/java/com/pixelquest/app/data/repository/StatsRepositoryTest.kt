@@ -78,6 +78,8 @@ class StatsRepositoryTest {
             flowOf(fakeCompletionLogs.filter { !it.completedDate.isBefore(startDate) && !it.completedDate.isAfter(endDate) })
         override fun getAllLogs(): Flow<List<TaskCompletionLogEntity>> =
             flowOf(fakeCompletionLogs)
+        override suspend fun updateLog(log: TaskCompletionLogEntity) {}
+        override suspend fun getLogForTaskOnDate(taskId: Long, date: LocalDate): TaskCompletionLogEntity? = null
     }
 
     private var currentDifficulty = DifficultyLevel.MEDIUM
@@ -85,20 +87,25 @@ class StatsRepositoryTest {
     private val fakeDifficultyRepo = object : DifficultySettingsRepository {
         override fun getCurrentDifficulty(): Flow<DifficultySettingsEntity?> =
             flowOf(DifficultySettingsEntity(id = 1, difficultyLevel = currentDifficulty))
-        override suspend fun updateDifficulty(difficulty: DifficultySettingsEntity) {}
-        override suspend fun insertDifficulty(difficulty: DifficultySettingsEntity): Long = 1L
+        override suspend fun updateSettings(difficulty: DifficultySettingsEntity) {}
+        override suspend fun insertSettings(difficulty: DifficultySettingsEntity) {}
     }
 
     private val fakeStreakRepo = object : StreakRepository {
         override fun getCurrentStreak(): Flow<StreakEntity?> = flowOf(StreakEntity(id = 1, currentStreak = 3, longestStreak = 5))
         override suspend fun updateStreak(streak: StreakEntity) {}
-        override suspend fun insertStreak(streak: StreakEntity): Long = 1L
+        override suspend fun insertStreak(streak: StreakEntity) {}
     }
 
     private val fakeProfileRepo = object : UserProfileRepository {
-        override fun getProfile(): Flow<UserProfileEntity?> = flowOf(UserProfileEntity(id = 1, username = "Hero", totalXp = 100))
+        override fun getProfile(): Flow<UserProfileEntity?> = flowOf(UserProfileEntity(avatarId = "avatar_hero", id = 1, username = "Hero", totalXp = 100))
         override suspend fun updateProfile(profile: UserProfileEntity) {}
-        override suspend fun insertProfile(profile: UserProfileEntity): Long = 1L
+        override suspend fun insertProfile(profile: UserProfileEntity) {}
+        override suspend fun performLevelUp(): UserProfileEntity? = null
+        override suspend fun updateSupabaseUserId(userId: String?) {}
+        override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) {}
+        override suspend fun updateLeaderboardOptIn(optIn: Boolean) {}
+        override suspend fun clearCloudData() {}
     }
 
     @Before
