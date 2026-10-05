@@ -22,6 +22,7 @@ In Step 1, PixelQuest evaluated the official Google GenAI Android SDK vs. a dire
   1. **Zero Added APK Bloat**: Ktor and `kotlinx.serialization` were already bundled in Day 13 for Supabase, adding 0 MB to APK footprint.
   2. **Predictable Dependency Graph**: Bypasses heavy transitive OkHttp/gRPC and AndroidX lifecycle dependencies introduced by Google AI SDKs.
   3. **Targeting Efficiency**: Direct `POST /v1beta/models/gemini-2.5-flash:generateContent`, with the key in the `x-goog-api-key` header, gives complete control over connection timeouts (25s), request headers, and JSON serialization.
+- **Generation config**: temperature 0.7, `maxOutputTokens` 800, `responseMimeType` `application/json`, and `thinkingConfig.thinkingBudget` 0. Gemini 2.5 Flash thinks by default, and its thinking tokens come out of `maxOutputTokens`. Until Day 29, a long think left the AI Coach's JSON cut off or empty, which the app showed as "came back garbled". These replies are short and structured, so thinking is off. The client joins the answer's text parts and skips thought summaries. An answer with no text is reported as an API error that names its `finishReason`.
 
 ---
 
@@ -281,7 +282,12 @@ To safeguard developer API budgets against infinite UI recomposition loops, back
    - Even with 10,000 active monthly players, the total API bill cannot exceed **$50.00 USD / month**.
 3. **Defense-in-Depth Against Runaway Costs**:
    - While the 6-hour rate limit checks `currentTime - lastTimestamp >= 6 hours`, a software bug in timestamp serialization or device clock manipulation could theoretically bypass the time delta check.
-   - The daily/monthly usage counter tracks an independent integer count incremented only on confirmed API dispatches, creating a fail-safe circuit breaker that cannot be bypassed by clock adjustments.
+   - The daily/monthly usage counter tracks an independent integer count, creating a fail-safe circuit breaker that cannot be bypassed by clock adjustments.
+4. **What counts toward the caps (Day 29)**:
+   - Every call Gemini answers counts. That includes an answer the app can't use: unparseable JSON, an empty reply, or a 4xx/5xx error. Before Day 29 only a usable insight counted. A reply that kept failing to parse then cost one live call on every visit to Today, with no limit.
+   - Calls that never got an answer don't count: offline, timed out, or refused by Gemini's own 429 quota.
+   - Only a usable insight starts the 6-hour cooldown, so the player can retry after a failure (up to the daily cap).
+   - The reminder-message pack (`EncouragementPackWorker`) counts every call it dispatches.
 
 ---
 
