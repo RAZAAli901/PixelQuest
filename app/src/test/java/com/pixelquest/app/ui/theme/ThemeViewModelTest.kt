@@ -10,6 +10,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -79,6 +80,7 @@ class ThemeViewModelTest {
 
     @Test
     fun setThemeModeUpdatesViewModelState() = runTest {
+        backgroundScope.launch { viewModel.themeMode.collect {} } // shared WhileSubscribed
         viewModel.setThemeMode(ThemeMode.Light)
         advanceUntilIdle()
         assertEquals(ThemeMode.Light, viewModel.themeMode.value)
@@ -116,6 +118,7 @@ class ThemeViewModelTest {
 
     @Test
     fun repositoryExternalChangeReflectsInViewModel() = runTest {
+        backgroundScope.launch { viewModel.themeMode.collect {} } // shared WhileSubscribed
         fakeRepo.themeModeFlow.value = ThemeMode.Light
         advanceUntilIdle()
         assertEquals(ThemeMode.Light, viewModel.themeMode.value)
