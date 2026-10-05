@@ -113,11 +113,25 @@ object HabitInsightPromptBuilder {
         }
 
         // "Recent Consistency" is the last 7 days (today and the 6 before); categories stay all-time.
-        val recentLogs = logs.filter { !it.completedDate.isBefore(today.minusDays(6)) && !it.completedDate.isAfter(today) }
-        val totalLogs = recentLogs.size
-        val completedLogs = recentLogs.count { it.wasCompleted }
-        val completionRate = if (totalLogs > 0) completedLogs.toFloat() / totalLogs else 0f
-        val missedCount = totalLogs - completedLogs
+        // Completed over scheduled, not over logged: a quest nobody logged still counts as not done
+        // (dividing by logs reported one completion out of 14 due as 100%). Today counts only the
+        // quests that already have a result, so ones still to come aren't counted as missed.
+        val doneByDay = logs.filter { it.wasCompleted }.groupBy { it.completedDate }
+            .mapValues { (_, dayLogs) -> dayLogs.map { it.taskId }.toSet() }
+        val loggedToday = logs.filter { it.completedDate == today }.map { it.taskId }.toSet()
+        var scheduled = 0
+        var completedLogs = 0
+        for (offset in 0L..6L) {
+            val day = today.minusDays(offset)
+            var dueIds = tasks.filter {
+                it.isActive && com.pixelquest.app.domain.TaskOccurrence.occursOn(it.scheduledDay, it.recurrenceType, day, it.weeklyDays)
+            }.map { it.id }.toSet()
+            if (day == today) dueIds = dueIds intersect loggedToday
+            scheduled += dueIds.size
+            completedLogs += (doneByDay[day].orEmpty() intersect dueIds).size
+        }
+        val completionRate = if (scheduled > 0) completedLogs.toFloat() / scheduled else 0f
+        val missedCount = scheduled - completedLogs
 
         return HabitTelemetrySummary(
             currentStreak = currentStreak,

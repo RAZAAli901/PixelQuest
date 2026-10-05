@@ -21,12 +21,12 @@ import java.time.LocalTime
  */
 class HabitInsightPromptBuilderTest {
 
-    private fun createTask(id: Long, category: TaskCategory): TaskEntity {
+    private fun createTask(id: Long, category: TaskCategory, startDay: LocalDate = LocalDate.now()): TaskEntity {
         return TaskEntity(
             id = id,
             name = "Task $id",
             description = "Description $id",
-            scheduledDay = LocalDate.now(),
+            scheduledDay = startDay,
             scheduledTime = LocalTime.NOON,
             recurrenceType = RecurrenceType.DAILY,
             category = category
@@ -109,8 +109,9 @@ class HabitInsightPromptBuilderTest {
         val streak = StreakEntity(id = 1, currentStreak = 0, longestStreak = 4, perfectDaysCount = 2)
         val profile = UserProfileEntity(id = 1, username = "TryingHero", avatarId = "mage_1", level = 2)
         val tasks = listOf(
-            createTask(1, TaskCategory.LEARNING),
-            createTask(2, TaskCategory.FITNESS)
+            // Started yesterday: this scenario has results for yesterday and today.
+            createTask(1, TaskCategory.LEARNING, startDay = LocalDate.now().minusDays(1)),
+            createTask(2, TaskCategory.FITNESS, startDay = LocalDate.now().minusDays(1))
         )
         val logs = listOf(
             TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = LocalDate.now(), wasCompleted = false, pointsAwarded = 0),
