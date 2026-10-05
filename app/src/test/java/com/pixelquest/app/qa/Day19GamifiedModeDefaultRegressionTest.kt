@@ -5,7 +5,7 @@ import com.pixelquest.app.domain.AvatarTierCalculator
 import com.pixelquest.app.domain.model.CrtFilterPolicy
 import com.pixelquest.app.domain.model.SimpleModeSuppression
 import com.pixelquest.app.domain.model.TaskTerminology
-import com.pixelquest.app.domain.model.TodayFlavorText
+import com.pixelquest.app.domain.FlavorTextCatalog
 import com.pixelquest.app.ui.prompt.TaskPromptCopyVariants
 import com.pixelquest.app.ui.screens.stats.StatsUiState
 import com.pixelquest.app.ui.theme.ThemeMode
@@ -27,15 +27,15 @@ class Day19GamifiedModeDefaultRegressionTest {
     fun `regression_today_screen_gamified_elements_fully_present`() {
         // 1. Terminology uses Quest
         val terminology = TaskTerminology.forMode(isSimpleMode)
-        assertEquals("Quest", terminology.taskNoun)
-        assertEquals("Quests", terminology.taskNounPlural)
-        assertEquals("TODAY'S QUESTS", terminology.todayHeader)
-        assertEquals("Create Quest", terminology.createTaskAction)
-        assertEquals("No quests for today. Take a breather!", terminology.emptyTasksDescription)
+        assertEquals("Quest", terminology.itemSingular)
+        assertEquals("Quests", terminology.itemPlural)
+        assertEquals("⚔️ TODAY'S DASHBOARD", terminology.todayHeader)
+        assertEquals("+ CREATE QUEST", terminology.createButtonText)
+        assertEquals("The realm is quiet. Add a new quest to begin your adventure!", terminology.emptyStateSubtitle)
 
         // 2. Streak/XP strip is NOT suppressed
-        val isStreakStripSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.STREAK_DISPLAY,
+        val isStreakStripSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.STREAK_DISPLAY,
             isSimpleMode
         )
         assertFalse("Streak strip must remain visible in default gamified mode", isStreakStripSuppressed)
@@ -45,23 +45,18 @@ class Day19GamifiedModeDefaultRegressionTest {
         assertEquals("🌟 PERFECT DAY! All quests completed!", allDoneBannerText)
 
         // 4. Flavor text utilizes RPG / streak motivational phrases
-        val flavor = TodayFlavorText.forDay(
-            completedCount = 3,
-            totalCount = 3,
-            streakDays = 5,
-            isSimpleMode = isSimpleMode
-        )
-        assertNotNull(flavor.quote)
+        val flavor = FlavorTextCatalog.getFlavorText(taskCount = 3, completedCount = 3, isPerfectDay = 3 == 3, isSimpleMode = isSimpleMode)
+        assertNotNull(flavor)
     }
 
     @Test
     fun `regression_profile_screen_level_xp_and_tier_frames_intact`() {
-        val isXpBarSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.XP_BAR,
+        val isXpBarSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.POINTS_XP_DISPLAY,
             isSimpleMode
         )
-        val isLevelBadgeSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.LEVEL_BADGE,
+        val isLevelBadgeSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.LEVEL_BADGE_AND_CELEBRATION,
             isSimpleMode
         )
         assertFalse("XP bar must remain visible in Gamified Mode", isXpBarSuppressed)
@@ -72,8 +67,8 @@ class Day19GamifiedModeDefaultRegressionTest {
         assertEquals(AvatarTier.SILVER, level5Tier)
 
         // Difficulty change entry point is enabled
-        val isDifficultyLocked = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.DIFFICULTY_SELECTION,
+        val isDifficultyLocked = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.DIFFICULTY_SELECTION,
             isSimpleMode
         )
         assertFalse("Difficulty selection must NOT be locked in default Gamified Mode", isDifficultyLocked)
@@ -103,13 +98,14 @@ class Day19GamifiedModeDefaultRegressionTest {
     @Test
     fun `regression_prompts_and_celebrations_active`() {
         val copy = TaskPromptCopyVariants.resolve(isSimpleMode)
-        assertEquals("⚔️ DID YOU DO IT?", copy.headerTitle)
+        assertEquals("DID YOU DO IT?", copy.headerTitle)
+        assertEquals("⚔️", copy.iconEmoji) // the swords are a separate icon
         assertEquals("YES!", copy.confirmButtonText)
-        assertEquals("NO", copy.dismissButtonText)
+        assertEquals("NOT YET", copy.dismissButtonText)
         assertEquals("⚔️", copy.iconEmoji)
 
-        val isCelebrationSuppressed = SimpleModeSuppression.isFeatureSuppressed(
-            SimpleModeSuppression.Feature.LEVEL_UP_CELEBRATION,
+        val isCelebrationSuppressed = SimpleModeSuppression.isSuppressed(
+            com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.LEVEL_BADGE_AND_CELEBRATION,
             isSimpleMode
         )
         assertFalse("Celebrations must remain active in Gamified Mode", isCelebrationSuppressed)

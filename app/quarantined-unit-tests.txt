@@ -6,7 +6,6 @@ domain/ai/Day25InsightQualityManualQaTest.kt
 integration/GamifiedModeBaselineRegressionTest.kt
 integration/NotificationCopyIntegrationTest.kt
 integration/ResetProgressIntegrationTest.kt
-qa/Day19GamifiedModeDefaultRegressionTest.kt
 qa/Day19SimpleModeActiveManualQaTest.kt
 qa/OfflineLocalOnlyRegressionTest.kt
 ui/SimpleModeFullChecklistUiTest.kt
