@@ -24,7 +24,23 @@ object DisplayNameModerator {
      * - Removes special characters and repeating redundant characters
      */
     fun normalize(input: String): String {
-        var normalized = input.lowercase()
+        val normalized = substituteLeetspeak(input)
+
+        // Collapse duplicate letters (e.g. "fuuuck" -> "fuck")
+        val collapsed = StringBuilder()
+        var lastChar: Char? = null
+        for (ch in normalized) {
+            if (ch != lastChar) {
+                collapsed.append(ch)
+                lastChar = ch
+            }
+        }
+        return collapsed.toString()
+    }
+
+    /** Lowercase with l33tspeak characters mapped back to letters, repeats kept. */
+    private fun substituteLeetspeak(input: String): String {
+        return input.lowercase()
             .replace('@', 'a')
             .replace('4', 'a')
             .replace('8', 'b')
@@ -39,17 +55,6 @@ object DisplayNameModerator {
             .replace('+', 't')
             .replace('_', ' ')
             .replace('-', ' ')
-
-        // Collapse duplicate letters (e.g. "fuuuck" -> "fuck")
-        val collapsed = StringBuilder()
-        var lastChar: Char? = null
-        for (ch in normalized) {
-            if (ch != lastChar) {
-                collapsed.append(ch)
-                lastChar = ch
-            }
-        }
-        return collapsed.toString()
     }
 
     /**
@@ -67,10 +72,13 @@ object DisplayNameModerator {
             }
         }
 
-        // Normalized check (with leetspeak substitutions collapsed)
+        // Normalized check (with leetspeak substitutions collapsed). normalize() also merges
+        // repeated letters, which catches "fuuuck" but turns "a$$hole" into "ashole"; so also check
+        // the substituted text before merging, which catches "a$$hole" and "p1ss".
         val normalized = normalize(name).replace(" ", "")
+        val substituted = substituteLeetspeak(name).replace(" ", "")
         for (term in BLOCKED_TERMS) {
-            if (normalized.contains(term)) {
+            if (normalized.contains(term) || substituted.contains(term)) {
                 return false
             }
         }

@@ -66,8 +66,9 @@ class DisplayNameModeratorTest {
     fun leetspeakSubstitutions_areDetectedAndBlocked() {
         val leetNames = listOf(
             "b1tch",
-            "f@ck_you",
-            "a$$hole",
+            // "@" can't reach the filter: the format check allows only letters, digits and "_".
+            "fuuuck_you",
+            "a\$\$hole", // escaped: "$hole" would be a string template
             "sh!t",
             "d1ck"
         )

@@ -7,7 +7,6 @@ data/backup/DataExportImportTest.kt
 data/repository/DatabaseQueryPerformanceTest.kt
 data/repository/StatsPerformanceTest.kt
 data/repository/StatsRepositoryTest.kt
-domain/DisplayNameModeratorTest.kt
 domain/StreakCalculatorTest.kt
 domain/StreakIntegrationTest.kt
 domain/ai/AiInsightThrottleTest.kt
