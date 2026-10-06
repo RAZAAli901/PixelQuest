@@ -32,4 +32,12 @@ class CiBuildWorkflowTest {
         val activeLines = content.lines().filterNot { it.trim().startsWith("#") }
         assertTrue("CI must not opt in to live Gemini calls", activeLines.none { it.contains("PIXELQUEST_LIVE_GEMINI") })
     }
+
+    @Test
+    fun verifyCiWorkflow_testsTheEdgeFunctions() {
+        val targetFile = listOf(File("../.github/workflows/build.yml"), File(".github/workflows/build.yml")).first { it.exists() }
+        val activeLines = targetFile.readLines().filterNot { it.trim().startsWith("#") }
+
+        assertTrue("CI must run the Edge Function tests", activeLines.any { it.contains("node --test") && it.contains("supabase/functions") })
+    }
 }
