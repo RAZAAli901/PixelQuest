@@ -93,4 +93,12 @@ class DaysPerLevelFromDifficultyTest {
         assertEquals(30, DifficultyMode.daysRequiredPerLevel(stale))
         assertEquals("No setting yet means Medium", 7, DifficultyMode.daysRequiredPerLevel(null))
     }
+
+    @Test
+    fun theThreshold_comesFromTheDifficultyToo() {
+        // E.g. a hand-edited backup restored a 10% threshold for Hard.
+        val edited = DifficultySettingsEntity(difficultyLevel = DifficultyLevel.HARD, perfectDayThreshold = 0.1f)
+        assertEquals(0.9f, DifficultyMode.perfectDayThreshold(edited), 0.0001f)
+        assertEquals(0.7f, DifficultyMode.perfectDayThreshold(null), 0.0001f)
+    }
 }

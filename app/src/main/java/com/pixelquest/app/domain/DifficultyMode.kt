@@ -31,6 +31,13 @@ object DifficultyMode {
     fun daysRequiredPerLevel(settings: com.pixelquest.app.data.local.entity.DifficultySettingsEntity?): Int =
         getDaysRequiredPerLevel(settings?.difficultyLevel ?: DifficultyLevel.MEDIUM)
 
+    /**
+     * Perfect-day threshold for the player's saved difficulty, from the difficulty itself rather than
+     * the number stored beside it (which a restored or hand-edited backup could set to anything).
+     */
+    fun perfectDayThreshold(settings: com.pixelquest.app.data.local.entity.DifficultySettingsEntity?): Float =
+        getPerfectDayThreshold(settings?.difficultyLevel ?: DifficultyLevel.MEDIUM)
+
     fun getDisplayName(level: DifficultyLevel): String {
         return when (level) {
             DifficultyLevel.EASY -> "Easy"

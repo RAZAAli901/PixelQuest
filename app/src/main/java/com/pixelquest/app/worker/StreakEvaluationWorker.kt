@@ -58,7 +58,7 @@ class StreakEvaluationWorker @AssistedInject constructor(
         val from = maxOf(firstDay, yesterday.minusDays(MAX_CATCH_UP_DAYS - 1))
 
         val difficulty = difficultySettingsRepository.getCurrentDifficulty().first()
-        val threshold = difficulty?.perfectDayThreshold ?: 0.7f
+        val threshold = com.pixelquest.app.domain.DifficultyMode.perfectDayThreshold(difficulty)
 
         var streak = initial
         var date = from

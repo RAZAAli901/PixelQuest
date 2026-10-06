@@ -45,7 +45,7 @@ class TaskViewModel @Inject constructor(
             }
             TaskWithStatus(task, status)
         }
-        val targetThreshold = difficulty?.perfectDayThreshold ?: 0.7f
+        val targetThreshold = com.pixelquest.app.domain.DifficultyMode.perfectDayThreshold(difficulty)
         val pct = StreakCalculator.calculateCompletionPercentage(logs, tasks.size)
         val isPerfect = StreakCalculator.isPerfectDay(pct, targetThreshold)
 

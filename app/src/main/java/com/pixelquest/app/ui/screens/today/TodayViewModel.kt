@@ -113,7 +113,7 @@ class TodayViewModel @Inject constructor(
         val completedCount = sortedItems.count { it.status == TaskItemStatus.DONE }
         val totalCount = sortedItems.size
         val completionPct = if (totalCount > 0) completedCount.toFloat() / totalCount else 0f
-        val threshold = difficulty?.perfectDayThreshold ?: 0.7f
+        val threshold = com.pixelquest.app.domain.DifficultyMode.perfectDayThreshold(difficulty)
         val isPerfectDay = totalCount > 0 && completionPct >= threshold
         val flavorText = FlavorTextCatalog.getFlavorText(
             taskCount = totalCount,
