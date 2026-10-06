@@ -14,7 +14,7 @@ import androidx.work.WorkerParameters
 import com.pixelquest.app.data.local.prefs.EncouragementPack
 import com.pixelquest.app.data.local.prefs.EncouragementPackStore
 import com.pixelquest.app.data.remote.GeminiClient
-import com.pixelquest.app.data.remote.GeminiException
+import com.pixelquest.app.data.remote.reachedGemini
 import com.pixelquest.app.domain.ai.AiUsageTracker
 import com.pixelquest.app.domain.ai.EncouragementPackInput
 import com.pixelquest.app.domain.ai.EncouragementPackPrompt
@@ -66,15 +66,16 @@ class EncouragementPackWorker @AssistedInject constructor(
             tone = tone
         )
 
-        aiUsageTracker.recordCall(today)
-        val raw = try {
+        // Counted like the AI Coach: only a call Gemini answered uses up one of today's calls, so an
+        // offline attempt doesn't (it used to be counted before sending).
+        val call = com.pixelquest.app.data.remote.safeGeminiCall {
             geminiClient.generateContent(
                 prompt = EncouragementPackPrompt.prompt(input),
                 systemInstruction = EncouragementPackPrompt.systemInstruction(tone)
             )
-        } catch (e: GeminiException) {
-            return Result.success()
         }
+        if (call.reachedGemini()) aiUsageTracker.recordCall(today)
+        val raw = (call as? com.pixelquest.app.data.remote.GeminiResult.Success)?.data ?: return Result.success()
 
         val lines = EncouragementSanitizer.clean(EncouragementPackPrompt.parse(raw), isSimpleMode)
         if (lines.size >= MIN_USABLE_LINES) {

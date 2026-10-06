@@ -2,6 +2,7 @@ package com.pixelquest.app.data.repository
 
 import com.pixelquest.app.data.remote.GeminiClient
 import com.pixelquest.app.data.remote.GeminiResult
+import com.pixelquest.app.data.remote.reachedGemini
 import com.pixelquest.app.data.remote.safeGeminiCall
 import com.pixelquest.app.domain.ai.DefaultHabitInsightToneHook
 import com.pixelquest.app.domain.ai.HabitInsightPromptBuilder
@@ -157,12 +158,7 @@ class HabitInsightRepositoryImpl(
         // call on every visit with no cap. Calls that never got through (offline, timed out) and
         // Gemini's own 429 refusals don't count. Only a usable answer starts the 6-hour cooldown,
         // so the player can retry after a failure.
-        val geminiAnswered = when (rawCallResult) {
-            is GeminiResult.Success, is GeminiResult.MalformedResponse -> true
-            is GeminiResult.ApiError -> rawCallResult.statusCode != null && rawCallResult.statusCode != 429
-            else -> false
-        }
-        if (geminiAnswered) usageTracker.recordCall()
+        if (rawCallResult.reachedGemini()) usageTracker.recordCall()
 
         return when (rawCallResult) {
             is GeminiResult.Success -> {

@@ -78,6 +78,8 @@ class InsightUsageCountingTest {
     fun callsThatNeverGotAnAnswer_doNotCount() = runBlocking {
         repository { throw GeminiNetworkException("offline", java.io.IOException("no route")) }.generateHabitInsight()
         repository { throw GeminiRateLimitException("Gemini rate limit exceeded (HTTP 429).") }.generateHabitInsight()
+        // PixelQuest's own check that the build has no key or proxy: nothing was sent.
+        repository { throw GeminiApiException(401, "Gemini API key is not configured.") }.generateHabitInsight()
 
         assertEquals(0, usage.getDailyCallsCount())
     }

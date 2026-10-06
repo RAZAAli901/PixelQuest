@@ -53,6 +53,18 @@ const val DEFAULT_GEMINI_TIMEOUT_MS = 25_000L
  */
 private val PROXY_DAILY_LIMITS = setOf("device_daily_limit", "global_daily_limit")
 
+/**
+ * Whether a call got an answer from Gemini (or the proxy in front of it), which is what counts toward
+ * PixelQuest's daily and monthly AI caps: a usable answer, an unreadable one, or an HTTP error. Calls
+ * that never got through (offline, timed out), 429 refusals and PixelQuest's own "not configured"
+ * check (401, before anything is sent) don't count.
+ */
+fun GeminiResult<*>.reachedGemini(): Boolean = when (this) {
+    is GeminiResult.Success, is GeminiResult.MalformedResponse -> true
+    is GeminiResult.ApiError -> statusCode != null && statusCode != 401 && statusCode != 429
+    else -> false
+}
+
 suspend fun <T> safeGeminiCall(
     timeoutMs: Long = DEFAULT_GEMINI_TIMEOUT_MS,
     block: suspend () -> T
