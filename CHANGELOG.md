@@ -4,6 +4,41 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
+## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–30)
+
+### 🎨 Themes
+- **Light mode** (Days 16–17): a warm daylight palette, with every screen, chart and dialog adapted and checked for contrast.
+- **Comic mode** (Days 20–23, 27–28): a pop-art theme with ink borders, halftone panels and comic versions of every component, unlocked for everyone. Headings use a darker coral ink so they read on paper.
+
+### 🧘 Simple Mode (Days 18–19)
+- An un-gamified view: quests become tasks, and XP, levels, flourishes and celebrations are hidden. Streaks, perfect days and levels keep counting in the background with your current difficulty.
+
+### 🤖 AI Coach (Days 24–30)
+- Optional, off by default: Google Gemini writes short habit debriefs and daily reminder lines from anonymous stats. Task names never leave the device.
+- Cached for 12 hours, at most one live call per 6 hours, and capped at 4 calls a day and 60 a month.
+- Released builds reach Gemini through PixelQuest's own server, which holds the key. The key is never inside the APK.
+
+### 🔔 Reminders (Days 26–28)
+- Reminder lead times and styles, a "Did you do it?" prompt, missed-quest notices, and snooze.
+- One result per quest per day: double taps and late answers no longer count twice.
+- Two quests due in the same minute both get their prompt.
+
+### 🗓️ Quests and progress
+- Weekly quests on chosen days (Day 27).
+- Days per level are 3 / 7 / 14 / 30 for Easy, Medium, Hard and Hardest (Day 29).
+- A new quest created after its time of day starts tomorrow (Day 30).
+- The task form keeps your edits when the screen rotates (Day 30).
+- Backups now include the streak, completion history and level timeline (Days 28, 30).
+- Leaving the leaderboard while offline is queued until you're back online (Day 30).
+
+### ♿ Accessibility (Day 30)
+- TalkBack reads full day names, which chips are selected, heatmap days with their results, and named close buttons.
+
+### Release notes
+- Releases built without the signing or Supabase secrets now say so at the top of their notes.
+
+---
+
 ## [1.1.0] - 2026-09-12 — The Global Leaderboard Extension
 
 ### 🏆 Cloud Leaderboard & Community Competition (Days 13–15)
