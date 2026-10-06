@@ -36,7 +36,8 @@ class AccountViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val cloudProfileRepository: com.pixelquest.app.data.repository.CloudProfileRepository,
     private val authRepository: com.pixelquest.app.auth.AuthRepository? = null,
-    private val settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null
+    private val settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null,
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountUiState())
@@ -178,11 +179,25 @@ class AccountViewModel @Inject constructor(
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.NetworkError -> {
+                        // The local flag is already off; the sync worker (which opts out when the flag
+                        // is off) runs once the device is online, and WorkManager keeps it across restarts.
+                        syncScheduler?.scheduleProfileSync(debounceMs = 0L)
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isOptedIn = false,
                             showOptOutSuccessNotice = true,
                             syncMessage = "You've left the leaderboard. Server sync queued when online."
+                        )
+                    }
+                    is com.pixelquest.app.data.remote.SupabaseResult.ServerError,
+                    is com.pixelquest.app.data.remote.SupabaseResult.UnknownError -> {
+                        // Retried in the background until the server confirms.
+                        syncScheduler?.scheduleProfileSync(debounceMs = 0L)
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            isOptedIn = false,
+                            showOptOutSuccessNotice = true,
+                            syncMessage = "You've left the leaderboard. The server will be updated shortly."
                         )
                     }
                     else -> {
