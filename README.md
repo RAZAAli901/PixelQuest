@@ -84,6 +84,27 @@ cd PixelQuest
 The compiled APK will be generated at:
 `app/build/outputs/apk/release/app-release.apk`
 
+### Optional settings (`local.properties`, never committed)
+
+| Setting | Used for |
+| --- | --- |
+| `SUPABASE_URL`, `SUPABASE_ANON_KEY` | Sign-in, cloud sync, the leaderboard, and the AI proxy in release builds. Without them the app is fully playable offline. |
+| `GOOGLE_WEB_CLIENT_ID` | Google Sign-In. |
+| `GEMINI_API_KEY` | The AI Coach in **debug** builds only. Release builds never contain it; they reach Gemini through the `gemini-proxy` Supabase Edge Function, which holds the key ([docs/GEMINI_PROXY.md](docs/GEMINI_PROXY.md)). Add `GEMINI_VIA_PROXY=true` to make a debug build use the proxy too. |
+| `KEYSTORE_FILE`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` | Signing release builds with your own key (or set them as environment variables). Without them, release builds are signed with the debug key. |
+
+### Tests
+
+```bash
+./gradlew testDebugUnitTest
+```
+
+```bash
+node --test "supabase/functions/**/*.test.ts"
+```
+
+CI runs both on every push. Unit tests never call the live Gemini API; `GeminiConnectivitySmokeTest` makes a live call only when `PIXELQUEST_LIVE_GEMINI=1` is set.
+
 ---
 
 ## 🛡️ Real-Device Verification Status
