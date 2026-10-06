@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -27,32 +28,34 @@ class TaskFormViewModel @Inject constructor(
     private val _formState = MutableStateFlow(TaskFormState())
     val formState: StateFlow<TaskFormState> = _formState.asStateFlow()
 
-    fun resetForm() {
-        _formState.value = TaskFormState()
-    }
+    private var loadedTaskId: Long? = null
 
+    /**
+     * Fills the form from the stored task once. Calling it again for the same task (the screen does
+     * after a rotation) keeps the player's unsaved edits, and later database changes don't overwrite them.
+     */
     fun loadTask(taskId: Long) {
+        if (loadedTaskId == taskId) return
+        loadedTaskId = taskId
         viewModelScope.launch {
-            taskRepository.getTaskById(taskId).collect { task ->
-                if (task != null) {
-                    _formState.update {
-                        it.copy(
-                            taskId = task.id,
-                            name = task.name,
-                            description = task.description,
-                            scheduledDay = task.scheduledDay,
-                            scheduledTime = task.scheduledTime,
-                            recurrenceType = task.recurrenceType,
-                            selectedDays = com.pixelquest.app.domain.WeeklyDays.effective(task.weeklyDays, task.scheduledDay),
-                            category = task.category,
-                            reminderEnabled = task.reminderEnabled,
-                            reminderLeadMinutes = task.reminderLeadMinutes,
-                            reminderStyle = task.reminderStyle,
-                            createdAt = task.createdAt,
-                            isActive = task.isActive,
-                            isEditMode = true
-                        )
-                    }
+            taskRepository.getTaskById(taskId).first()?.let { task ->
+                _formState.update {
+                    it.copy(
+                        taskId = task.id,
+                        name = task.name,
+                        description = task.description,
+                        scheduledDay = task.scheduledDay,
+                        scheduledTime = task.scheduledTime,
+                        recurrenceType = task.recurrenceType,
+                        selectedDays = com.pixelquest.app.domain.WeeklyDays.effective(task.weeklyDays, task.scheduledDay),
+                        category = task.category,
+                        reminderEnabled = task.reminderEnabled,
+                        reminderLeadMinutes = task.reminderLeadMinutes,
+                        reminderStyle = task.reminderStyle,
+                        createdAt = task.createdAt,
+                        isActive = task.isActive,
+                        isEditMode = true
+                    )
                 }
             }
         }

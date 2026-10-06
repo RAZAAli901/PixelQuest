@@ -118,10 +118,9 @@ fun PixelNavHost(
             popEnterTransition = { PixelTransitions.ModalPopEnter },
             popExitTransition = { PixelTransitions.ModalPopExit }
         ) {
+            // A fresh ViewModel per visit starts empty; no reset here, which used to run again on
+            // rotation and wipe what the player had typed.
             val formViewModel: TaskFormViewModel = hiltViewModel()
-            LaunchedEffect(Unit) {
-                formViewModel.resetForm()
-            }
             CreateTaskScreen(
                 viewModel = formViewModel,
                 onNavigateBack = { navController.popBackStack() }
