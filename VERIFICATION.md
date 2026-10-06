@@ -456,3 +456,51 @@ The emulator was shut down afterwards. The two live Gemini calls (the failing on
 - The garbled-reply cause was not captured: the raw failing response isn't logged. The fix matches Gemini's documented behaviour (2.5 Flash thinking tokens count toward `maxOutputTokens`). The first call after the fix succeeded, and `GeminiClientRequestTest` checks the request now sends `thinkingBudget: 0`.
 - Leaderboard: the spectator rank fix (Step 2) and the moderator's doubled-letter leetspeak fix (Step 13). The emulator is not signed in, so these are covered by unit tests only.
 - A fresh install's seeded avatar (Step 46): checking it needs a reinstall, which would wipe the emulator's data.
+
+## Section I -- Day 30 Verification (Step 44)
+
+Verified on 6 Oct 2026 against the Pixel 6 emulator (Android 14, API 34), the local Gradle build and Node 24.
+
+### Build
+- `./gradlew :app:assembleDebug :app:assembleRelease` succeeds. The release build is minified with R8 and, with no keystore here, signed with the debug key.
+- Release `BuildConfig`: `GEMINI_API_KEY = ""` and `GEMINI_VIA_PROXY = true`. Debug builds still use `GEMINI_VIA_PROXY = false`.
+- I scanned every file in a release APK built with the real key in `local.properties` for that key. It wasn't found.
+
+### Tests
+- `:app:testDebugUnitTest`: 819 tests in 244 classes, 0 failing, 0 skipped (755 at the end of Day 29).
+- The first full run had 1 failure. A Robolectric test running with the real application had left background database seeding behind, and it failed in `TodayViewModelTest`. Step 43 gave nine such tests a plain `Application`.
+- `node --test "supabase/functions/**/*.test.ts"`: 11 of 11 pass. CI now runs both suites.
+
+### Gemini proxy, end to end (not deployed)
+I called the function's handler (`handler.ts`) in Node with the real key from `local.properties`, an in-memory usage counter, and a request shaped exactly like `GeminiProxyClient`'s. That was one live Gemini call.
+- Gemini accepted the server-built request: HTTP 200, `finishReason` STOP, 0 thinking tokens.
+- The answer had the `summary`, `suggestion` and `encouragement` fields the AI Coach needs.
+- The key was not in the response.
+- The counter recorded one claimed call for the install id.
+
+### Emulator checks
+| Check | Result |
+| --- | --- |
+| Release build (R8) starts. With the placeholder Supabase settings, the AI Coach says "isn't set up in this build", keeps the cached insight below, and shows no RETRY button | Pass |
+| That error card's heading said "COMMUNICATION GLITCH!" | Fixed in Step 35 (unit-tested; at the re-check the cache was valid, so no error card showed) |
+| Stats heatmap squares have TalkBack labels ("Friday 2 October: missed") | Pass |
+| At 08:35 today's square read "missed" and later days "nothing scheduled" | Fixed in Steps 34, 36 and 38: "Tuesday 6 October, today: nothing done yet", later days "upcoming" and not tappable |
+| Today's day dialog says "⏳ DAY IN PROGRESS" instead of "MISSED QUESTS" | Pass |
+| New Quest at 08:40 with an 8:00 time shows "Today's time has passed, so this quest starts from tomorrow." | Pass |
+| Rotating to landscape keeps the typed name, 8:00 AM, the note, Weekly with Tuesday, and the category | Pass |
+| Leaving the form without saving adds no quest | Pass |
+| Settings hero name: typing shows SAVE NAME and saves nothing; leaving keeps the saved name ("cbf") | Pass |
+| Day chips are named "Monday" … "Sunday" for TalkBack and are checkable (Comic); Tuesday is selected by default | Pass |
+| Leaderboard refresh is named "Refresh the leaderboard"; no bare ◀ or 🔄 is exposed | Pass |
+
+Rotation was restored to automatic and the theme left on Comic. No quests or names were changed, and the emulator was shut down afterwards.
+
+Live Gemini calls on Day 30: 2. One was the proxy handler check above. The other was the debug build's own automatic AI Coach call when I opened the app at about 08:38: the cache had expired, and the usage count for 6 Oct went to 1.
+
+### Not verified
+- The proxy on Supabase: it isn't deployed yet. The project in `local.properties` is the placeholder; see `docs/GEMINI_PROXY.md` for the deploy steps.
+- The `ai_proxy_usage` migration's SQL: no Postgres here (Docker isn't running). It was reviewed, not executed.
+- Two "Did you do it?" prompts in the same minute on a device: covered by `PromptQueueTest`.
+- Leaving the leaderboard offline on a device (the emulator isn't signed in): covered by `OfflineOptOutQueueTest`.
+- An audible TalkBack pass: the labels were checked with `uiautomator dump`.
+- Release signing with a real keystore: none exists here.
