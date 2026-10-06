@@ -173,7 +173,7 @@ fun ProfileContent(
         // Level XP Bar
         if (!state.isSimpleMode) {
             val perfectDays = profile?.perfectDaysTowardNextLevel ?: 0
-            val daysRequired = difficulty?.daysRequiredPerLevel ?: 7
+            val daysRequired = com.pixelquest.app.domain.DifficultyMode.daysRequiredPerLevel(difficulty)
             PixelXpBar(
                 currentProgress = perfectDays,
                 maxProgress = daysRequired,

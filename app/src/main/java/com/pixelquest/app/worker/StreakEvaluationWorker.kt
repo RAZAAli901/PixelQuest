@@ -98,7 +98,7 @@ class StreakEvaluationWorker @AssistedInject constructor(
     private suspend fun addPerfectDayToLevel(difficulty: com.pixelquest.app.data.local.entity.DifficultySettingsEntity?) {
         val profile = userProfileRepository.getProfile().first() ?: return
         val newProgress = profile.perfectDaysTowardNextLevel + 1
-        val daysRequired = difficulty?.daysRequiredPerLevel ?: 7
+        val daysRequired = com.pixelquest.app.domain.DifficultyMode.daysRequiredPerLevel(difficulty)
         if (LevelCalculator.shouldLevelUp(newProgress, daysRequired)) {
             val newLevel = profile.level + 1
             userProfileRepository.updateProfile(

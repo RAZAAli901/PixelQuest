@@ -132,7 +132,7 @@ class TodayViewModel @Inject constructor(
             totalXp = profile?.totalXp ?: 0,
             level = profile?.level ?: 1,
             perfectDaysTowardNextLevel = profile?.perfectDaysTowardNextLevel ?: 0,
-            daysRequiredPerLevel = difficulty?.daysRequiredPerLevel ?: 7,
+            daysRequiredPerLevel = com.pixelquest.app.domain.DifficultyMode.daysRequiredPerLevel(difficulty),
             completionPercentage = completionPct,
             targetThreshold = threshold,
             isPerfectDay = isPerfectDay,

@@ -23,6 +23,14 @@ object DifficultyMode {
         }
     }
 
+    /**
+     * Days per level for the player's saved difficulty. Always taken from the difficulty itself: the
+     * value stored alongside it was written when the difficulty was picked, so it went stale when
+     * Day 29 changed 5/7/10/14 to 3/7/14/30. No setting (fresh install) means Medium.
+     */
+    fun daysRequiredPerLevel(settings: com.pixelquest.app.data.local.entity.DifficultySettingsEntity?): Int =
+        getDaysRequiredPerLevel(settings?.difficultyLevel ?: DifficultyLevel.MEDIUM)
+
     fun getDisplayName(level: DifficultyLevel): String {
         return when (level) {
             DifficultyLevel.EASY -> "Easy"
