@@ -73,8 +73,9 @@ fun AiInsightScreenContent(
                 navigationIcon = if (onNavigateBack != null) {
                     {
                         androidx.compose.material3.IconButton(onClick = onNavigateBack) {
-                            Text(
-                                text = "◀",
+                            com.pixelquest.app.ui.components.SymbolIcon(
+                                symbol = "◀",
+                                contentDescription = "Back",
                                 style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
                                 color = colors.primaryText
                             )

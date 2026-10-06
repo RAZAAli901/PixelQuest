@@ -111,24 +111,19 @@ fun TaskFormContent(
             com.pixelquest.app.ui.components.PixelTopAppBar(
                 title = if (formState.isEditMode) "EDIT QUEST" else "NEW QUEST",
                 navigationIcon = {
-                    IconButton(
-                        onClick = onNavigateBack,
-                        modifier = Modifier.semantics {
-                            contentDescription = "Go Back"
-                        }
-                    ) {
-                        Text("◀", style = MaterialTheme.typography.titleMedium, color = PixelTheme.colors.primaryText)
+                    IconButton(onClick = onNavigateBack) {
+                        com.pixelquest.app.ui.components.SymbolIcon(
+                            "◀", contentDescription = "Go Back",
+                            style = MaterialTheme.typography.titleMedium, color = PixelTheme.colors.primaryText
+                        )
                     }
                 },
                 actions = {
                     if (formState.isEditMode) {
-                        IconButton(
-                            onClick = { onShowDeleteConfirm(true) },
-                            modifier = Modifier.semantics {
-                                contentDescription = "Delete Quest"
-                            }
-                        ) {
-                            Text("🗑️", style = MaterialTheme.typography.titleMedium)
+                        IconButton(onClick = { onShowDeleteConfirm(true) }) {
+                            com.pixelquest.app.ui.components.SymbolIcon(
+                                "🗑️", contentDescription = "Delete Quest", style = MaterialTheme.typography.titleMedium
+                            )
                         }
                     }
                 }

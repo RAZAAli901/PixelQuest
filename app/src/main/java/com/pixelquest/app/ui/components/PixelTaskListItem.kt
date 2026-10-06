@@ -109,7 +109,7 @@ fun PixelTaskListItem(
             }
             if (onDeleteClick != null) {
                 IconButton(onClick = onDeleteClick) {
-                    Text("🗑️", style = MaterialTheme.typography.titleMedium)
+                    SymbolIcon("🗑️", contentDescription = "Delete ${task.name}", style = MaterialTheme.typography.titleMedium)
                 }
             }
         }

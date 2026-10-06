@@ -129,8 +129,9 @@ fun LeaderboardContent(
                 navigationIcon = onNavigateBack?.let { back ->
                     {
                         IconButton(onClick = back) {
-                            Text(
-                                text = "◀",
+                            com.pixelquest.app.ui.components.SymbolIcon(
+                                symbol = "◀",
+                                contentDescription = "Back",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = colors.primaryText
                             )
@@ -139,8 +140,9 @@ fun LeaderboardContent(
                 },
                 actions = {
                     IconButton(onClick = onRefresh) {
-                        Text(
-                            text = "🔄",
+                        com.pixelquest.app.ui.components.SymbolIcon(
+                            symbol = "🔄",
+                            contentDescription = "Refresh the leaderboard",
                             style = MaterialTheme.typography.titleMedium,
                             color = colors.secondary
                         )
