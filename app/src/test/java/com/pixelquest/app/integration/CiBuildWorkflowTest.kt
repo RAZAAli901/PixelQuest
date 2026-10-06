@@ -45,6 +45,17 @@ class CiBuildWorkflowTest {
     }
 
     @Test
+    fun releaseWorkflow_saysInTheNotesWhenSigningOrSupabaseSecretsAreMissing() {
+        val workflow = listOf(File("../.github/workflows/release.yml"), File(".github/workflows/release.yml")).first { it.exists() }
+        val content = workflow.readText()
+
+        assertTrue(content.contains("name: Check Release Secrets"))
+        assertTrue("A missing keystore is flagged", content.contains("-z \"${'$'}KEYSTORE_BASE64\""))
+        assertTrue("Missing Supabase settings are flagged", content.contains("-z \"${'$'}SUPABASE_URL\""))
+        assertTrue("The warnings lead the release notes", content.contains("cat RELEASE_WARNINGS.md > RELEASE_NOTES.md"))
+    }
+
+    @Test
     fun verifyCiWorkflow_testsTheEdgeFunctions() {
         val targetFile = listOf(File("../.github/workflows/build.yml"), File(".github/workflows/build.yml")).first { it.exists() }
         val activeLines = targetFile.readLines().filterNot { it.trim().startsWith("#") }
