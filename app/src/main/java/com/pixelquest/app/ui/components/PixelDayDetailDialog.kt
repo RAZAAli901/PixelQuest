@@ -37,6 +37,7 @@ fun PixelDayDetailDialog(
         DailyStatus.PERFECT -> (if (isSimpleMode) "✓ COMPLETED" else "🌟 PERFECT DAY!") to colors.tertiary
         DailyStatus.PARTIAL -> (if (isSimpleMode) "⚡ PARTIAL" else "⚡ PARTIAL PROGRESS") to colors.gold
         DailyStatus.MISSED -> (if (isSimpleMode) "✗ MISSED" else "💀 MISSED QUESTS") to colors.error
+        DailyStatus.IN_PROGRESS -> (if (isSimpleMode) "IN PROGRESS" else "⏳ DAY IN PROGRESS") to colors.onSurfaceVariant
         DailyStatus.NO_TASKS_SCHEDULED -> (if (isSimpleMode) "NO TASKS SCHEDULED" else "🛡️ NO QUESTS SCHEDULED") to colors.secondary
     }
 

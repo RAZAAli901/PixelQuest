@@ -19,7 +19,8 @@ class StatsRepositoryImpl @Inject constructor(
     private val streakRepository: StreakRepository,
     private val userProfileRepository: UserProfileRepository,
     private val taskRepository: TaskRepository,
-    private val difficultySettingsRepository: DifficultySettingsRepository
+    private val difficultySettingsRepository: DifficultySettingsRepository,
+    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
 ) : StatsRepository {
 
     override fun getCompletionRateOverRange(startDate: LocalDate, endDate: LocalDate): Flow<Float> {
@@ -84,6 +85,7 @@ class StatsRepositoryImpl @Inject constructor(
             
             val logsByDate = logs.groupBy { it.completedDate }
             val resultMap = mutableMapOf<LocalDate, DailyStatus>()
+            val today = appClock.now().toLocalDate()
 
             var currentDate = startDate
             while (!currentDate.isAfter(endDate)) {
@@ -97,6 +99,8 @@ class StatsRepositoryImpl @Inject constructor(
                     val status = when {
                         isPerfect -> DailyStatus.PERFECT
                         completedCount > 0 -> DailyStatus.PARTIAL
+                        // Today isn't over: nothing done yet is not a missed day.
+                        currentDate == today -> DailyStatus.IN_PROGRESS
                         else -> DailyStatus.MISSED
                     }
                     resultMap[currentDate] = status

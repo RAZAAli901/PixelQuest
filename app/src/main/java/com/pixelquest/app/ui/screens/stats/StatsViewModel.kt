@@ -42,7 +42,8 @@ object StatsDataBucketer {
             val weekStart = weekEnd.minusDays(6)
             val weekDays = statusMap.filterKeys { !it.isBefore(weekStart) && !it.isAfter(weekEnd) }
 
-            val totalScheduledDays = weekDays.values.count { it != DailyStatus.NO_TASKS_SCHEDULED }
+            // Today counts once something is done (or the day ends); until then it isn't a day missed.
+            val totalScheduledDays = weekDays.values.count { it != DailyStatus.NO_TASKS_SCHEDULED && it != DailyStatus.IN_PROGRESS }
             val completedDays = weekDays.values.count { it == DailyStatus.PERFECT || it == DailyStatus.PARTIAL }
 
             val rate = if (totalScheduledDays == 0) 0f else (completedDays.toFloat() / totalScheduledDays.toFloat()).coerceIn(0f, 1f)

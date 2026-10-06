@@ -14,6 +14,7 @@ object HeatmapCellLabels {
         DailyStatus.PARTIAL -> "partly done"
         DailyStatus.MISSED -> "missed"
         DailyStatus.NO_TASKS_SCHEDULED -> "nothing scheduled"
+        DailyStatus.IN_PROGRESS -> "nothing done yet"
     }
 
     /**
@@ -29,6 +30,7 @@ object HeatmapCellLabels {
                 DailyStatus.PARTIAL -> "$day, today: partly done so far"
                 DailyStatus.MISSED -> "$day, today: nothing done yet"
                 DailyStatus.NO_TASKS_SCHEDULED -> "$day, today: nothing scheduled"
+                DailyStatus.IN_PROGRESS -> "$day, today: nothing done yet"
             }
             else -> "$day: ${status(status)}"
         }

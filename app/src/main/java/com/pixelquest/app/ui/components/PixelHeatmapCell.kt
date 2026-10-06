@@ -62,14 +62,14 @@ object HeatmapColorMapper {
                 DailyStatus.PERFECT -> LightPerfectCell
                 DailyStatus.PARTIAL -> LightPartialCell
                 DailyStatus.MISSED -> LightMissedCell
-                DailyStatus.NO_TASKS_SCHEDULED -> LightEmptyCell
+                DailyStatus.NO_TASKS_SCHEDULED, DailyStatus.IN_PROGRESS -> LightEmptyCell
             }
         } else {
             when (status) {
                 DailyStatus.PERFECT -> DarkPerfectCell
                 DailyStatus.PARTIAL -> DarkPartialCell
                 DailyStatus.MISSED -> DarkMissedCell
-                DailyStatus.NO_TASKS_SCHEDULED -> DarkEmptyCell
+                DailyStatus.NO_TASKS_SCHEDULED, DailyStatus.IN_PROGRESS -> DarkEmptyCell
             }
         }
     }
@@ -80,19 +80,19 @@ object HeatmapColorMapper {
                 DailyStatus.PERFECT -> ComicPerfectCell
                 DailyStatus.PARTIAL -> ComicPartialCell
                 DailyStatus.MISSED -> ComicMissedCell
-                DailyStatus.NO_TASKS_SCHEDULED -> ComicEmptyCell
+                DailyStatus.NO_TASKS_SCHEDULED, DailyStatus.IN_PROGRESS -> ComicEmptyCell
             }
             com.pixelquest.app.ui.theme.ThemeMode.Light -> when (status) {
                 DailyStatus.PERFECT -> LightPerfectCell
                 DailyStatus.PARTIAL -> LightPartialCell
                 DailyStatus.MISSED -> LightMissedCell
-                DailyStatus.NO_TASKS_SCHEDULED -> LightEmptyCell
+                DailyStatus.NO_TASKS_SCHEDULED, DailyStatus.IN_PROGRESS -> LightEmptyCell
             }
             else -> when (status) {
                 DailyStatus.PERFECT -> DarkPerfectCell
                 DailyStatus.PARTIAL -> DarkPartialCell
                 DailyStatus.MISSED -> DarkMissedCell
-                DailyStatus.NO_TASKS_SCHEDULED -> DarkEmptyCell
+                DailyStatus.NO_TASKS_SCHEDULED, DailyStatus.IN_PROGRESS -> DarkEmptyCell
             }
         }
     }
@@ -103,14 +103,14 @@ object HeatmapColorMapper {
                 DailyStatus.PERFECT -> LightPerfectBorder
                 DailyStatus.PARTIAL -> LightPartialBorder
                 DailyStatus.MISSED -> LightMissedBorder
-                DailyStatus.NO_TASKS_SCHEDULED -> LightEmptyBorder
+                DailyStatus.NO_TASKS_SCHEDULED, DailyStatus.IN_PROGRESS -> LightEmptyBorder
             }
         } else {
             when (status) {
                 DailyStatus.PERFECT -> DarkPerfectBorder
                 DailyStatus.PARTIAL -> DarkPartialBorder
                 DailyStatus.MISSED -> DarkMissedBorder
-                DailyStatus.NO_TASKS_SCHEDULED -> DarkEmptyBorder
+                DailyStatus.NO_TASKS_SCHEDULED, DailyStatus.IN_PROGRESS -> DarkEmptyBorder
             }
         }
     }
@@ -122,13 +122,13 @@ object HeatmapColorMapper {
                 DailyStatus.PERFECT -> LightPerfectBorder
                 DailyStatus.PARTIAL -> LightPartialBorder
                 DailyStatus.MISSED -> LightMissedBorder
-                DailyStatus.NO_TASKS_SCHEDULED -> LightEmptyBorder
+                DailyStatus.NO_TASKS_SCHEDULED, DailyStatus.IN_PROGRESS -> LightEmptyBorder
             }
             else -> when (status) {
                 DailyStatus.PERFECT -> DarkPerfectBorder
                 DailyStatus.PARTIAL -> DarkPartialBorder
                 DailyStatus.MISSED -> DarkMissedBorder
-                DailyStatus.NO_TASKS_SCHEDULED -> DarkEmptyBorder
+                DailyStatus.NO_TASKS_SCHEDULED, DailyStatus.IN_PROGRESS -> DarkEmptyBorder
             }
         }
     }
