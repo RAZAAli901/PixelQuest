@@ -32,3 +32,16 @@ The `profiles` table stores cloud-synchronized leaderboard profiles for PixelQue
 - **Your rank** is 1 + the number of opted-in rows ordered ahead of you: higher first column, or equal first and higher second, or equal on both with a smaller `id`. The counts fetch only `id`.
 - **Around you**: the app fetches the same ordered list with `range(rank - 1 - 3, rank - 1 + 3)`, which gives up to 3 heroes above you, you, and up to 3 below.
 - **Indexes** (`20261003000000_leaderboard_sort_indexes.sql`): one per order, matching its columns and directions, partial on `leaderboard_opt_in = TRUE`. Apply it in the Supabase SQL editor or with `supabase db push`; the app works without it, only slower on a large table.
+
+## Table: `public.ai_proxy_usage` (`20261006000000_ai_proxy_usage.sql`)
+
+Daily Gemini call counts for the `gemini-proxy` Edge Function, which holds the Gemini API key so it never ships in the app.
+
+| Column Name | Data Type | Constraints | Description |
+|---|---|---|---|
+| `device_id` | `TEXT` | part of `PRIMARY KEY` | A random id each install generates for AI calls (not linked to an account), or `'*'` for the project-wide total. |
+| `day` | `DATE` | part of `PRIMARY KEY` | UTC day. |
+| `calls` | `INTEGER` | `NOT NULL, CHECK (calls >= 0)` | Calls claimed that day. |
+
+- `claim_ai_proxy_call(device, device_limit, global_limit)` claims one call. It returns `'ok'`, `'device_limit'` or `'global_limit'`. Both counters move in one transaction, and a refused global claim gives the device's call back. The first call of a day deletes rows older than 30 days.
+- Only the service role can use either one. RLS is on with no policies, and the function is not executable by `anon` or `authenticated`.
