@@ -107,8 +107,8 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         )
 
         val promptIntent = Intent(context, TaskPromptActivity::class.java).apply {
-            putExtra("EXTRA_TASK_ID", taskId)
-            putExtra("EXTRA_TASK_NAME", taskName)
+            putExtra(com.pixelquest.app.ui.prompt.PromptQueue.EXTRA_TASK_ID, taskId)
+            putExtra(com.pixelquest.app.ui.prompt.PromptQueue.EXTRA_TASK_NAME, taskName)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         val contentPendingIntent = PendingIntent.getActivity(
