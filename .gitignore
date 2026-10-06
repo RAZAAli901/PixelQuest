@@ -19,3 +19,6 @@ local.properties
 .kotlin/
 .env
 .env.*
+
+# Supabase function secrets (e.g. GEMINI_API_KEY for gemini-proxy); set them with supabase secrets set --env-file
+supabase/.env*

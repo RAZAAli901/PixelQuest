@@ -56,11 +56,11 @@ You need a Supabase project and the Supabase CLI (`npx supabase` runs it without
    ```bash
    npx supabase db push
    ```
-4. Store the Gemini key as a function secret. The CLI prompts are the safest place to type it; don't commit it:
+4. Store the Gemini key as a function secret. Put it in `supabase/.env.proxy` (gitignored) as `GEMINI_API_KEY=<your key>`, rather than typing it on the command line where it lands in your shell history. Then:
    ```bash
-   npx supabase secrets set GEMINI_API_KEY=<your key>
+   npx supabase secrets set --env-file supabase/.env.proxy
    ```
-   Optional: `GEMINI_MODEL`, `AI_PROXY_DEVICE_DAILY_LIMIT`, `AI_PROXY_GLOBAL_DAILY_LIMIT`.
+   The same file can also set `GEMINI_MODEL`, `AI_PROXY_DEVICE_DAILY_LIMIT` and `AI_PROXY_GLOBAL_DAILY_LIMIT`. Delete it afterwards if you like; Supabase keeps the secret.
 5. Deploy the function. Use `--no-verify-jwt`: the anon key is public, so checking it adds nothing, and new-style publishable keys aren't JWTs.
    ```bash
    npx supabase functions deploy gemini-proxy --no-verify-jwt
