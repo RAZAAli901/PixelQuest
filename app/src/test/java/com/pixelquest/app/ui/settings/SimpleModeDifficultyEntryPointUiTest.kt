@@ -25,7 +25,7 @@ class SimpleModeDifficultyEntryPointUiTest {
 
         fun getExplanation(): String? {
             return if (isSimpleModeEnabled) {
-                "🔒 Difficulty selection is locked while Simple Mode is active. Thresholds and streaks are paused."
+                com.pixelquest.app.ui.screens.settings.DIFFICULTY_LOCKED_IN_SIMPLE_MODE
             } else {
                 null
             }
@@ -48,7 +48,7 @@ class SimpleModeDifficultyEntryPointUiTest {
 
         val explanation = simulator.getExplanation()
         assertNotNull(explanation)
-        assertTrue(explanation!!.contains("Difficulty selection is locked"))
+        assertTrue(explanation!!.contains("Difficulty can't be changed"))
     }
 
     @Test

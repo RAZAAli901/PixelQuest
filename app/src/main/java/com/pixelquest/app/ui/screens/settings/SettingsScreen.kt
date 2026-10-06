@@ -105,7 +105,7 @@ fun SettingsScreen(
             if (state.isSimpleModeEnabled) {
                 androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(4.dp))
                 androidx.compose.material3.Text(
-                    text = "🔒 Difficulty selection is locked while Simple Mode is active. Thresholds and streaks are paused.",
+                    text = DIFFICULTY_LOCKED_IN_SIMPLE_MODE,
                     style = MaterialTheme.typography.labelSmall,
                     color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant
                 )

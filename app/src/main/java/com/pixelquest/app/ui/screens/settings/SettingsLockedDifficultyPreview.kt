@@ -62,7 +62,7 @@ fun SettingsLockedDifficultyPreview() {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "🔒 Difficulty selection is locked while Simple Mode is active. Thresholds and streaks are paused.",
+                    text = DIFFICULTY_LOCKED_IN_SIMPLE_MODE,
                     style = PixelTypography.labelSmall,
                     color = PixelTheme.colors.onSurfaceVariant
                 )

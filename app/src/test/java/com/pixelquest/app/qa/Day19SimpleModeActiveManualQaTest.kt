@@ -110,7 +110,10 @@ class Day19SimpleModeActiveManualQaTest {
         val difficultyClickable = !isSimpleMode
         assertFalse("Difficulty entry point must be disabled", difficultyClickable)
 
-        val explanation = "🔒 Difficulty selection is locked while Simple Mode is active. Thresholds and streaks are paused."
-        assertTrue(explanation.contains("locked while Simple Mode is active"))
+        val explanation = com.pixelquest.app.ui.screens.settings.DIFFICULTY_LOCKED_IN_SIMPLE_MODE
+        assertTrue(explanation.contains("can't be changed while Simple Mode is on"))
+        // Simple Mode doesn't pause anything: the nightly check keeps counting.
+        assertTrue(explanation.contains("keep counting"))
+        assertFalse(explanation.contains("paused"))
     }
 }

@@ -21,7 +21,7 @@ class SimpleModeDifficultyDisabledStateTest {
         val isButtonEnabled = !isSimpleMode
         val buttonAlpha = if (!isButtonEnabled) 0.5f else 1.0f
         val explanation = if (isSimpleMode) {
-            "🔒 Difficulty selection is locked while Simple Mode is active. Thresholds and streaks are paused."
+            com.pixelquest.app.ui.screens.settings.DIFFICULTY_LOCKED_IN_SIMPLE_MODE
         } else {
             null
         }
@@ -42,7 +42,7 @@ class SimpleModeDifficultyDisabledStateTest {
         assertFalse("Difficulty button must be disabled in Simple Mode", ui.isButtonEnabled)
         assertEquals("Disabled button must use 0.5 alpha styling", 0.5f, ui.buttonAlpha, 0.001f)
         assertNotNull("Explanatory text must be present", ui.explanatoryText)
-        assertTrue(ui.explanatoryText!!.contains("Difficulty selection is locked"))
+        assertTrue(ui.explanatoryText!!.contains("Difficulty can't be changed"))
     }
 
     @Test

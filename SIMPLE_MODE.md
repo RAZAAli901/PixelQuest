@@ -48,7 +48,7 @@ The following 5 core gamification systems are suppressed when Simple Mode is ena
   - Difficulty selection card on `SettingsScreen` and dedicated `DifficultyScreen`.
   - Difficulty tier badges.
 - **Underlying Logic**:
-  - Difficulty is locked to standard internal default (`DifficultyLevel.MEDIUM`, 70% threshold, 7 days per level).
+  - Difficulty is locked at the player's current setting (it is not reset to Medium). Streaks, perfect days and levels keep being counted with it every night; nothing is paused. (Corrected on Day 30: this said Medium, and the Settings note said streaks were paused.)
   - Modification via `DifficultyViewModel` or data layer is rejected while Simple Mode is active.
 
 ### 5. Gamification Audio & Visual Flourishes
@@ -121,7 +121,7 @@ The following 5 core gamification systems are suppressed when Simple Mode is ena
 ## Difficulty Setting Interaction Decision (Section E, Step 24)
 
 ### Decision: Difficulty Locked to Fixed Internal Default (Medium) Under Simple Mode
-**When Simple Mode is active, difficulty setting modifications are locked and suppressed. The system locks difficulty to the standard internal default (`DifficultyLevel.MEDIUM`: 70% threshold, 7 days per level) without exposing difficulty choices to the user.**
+**When Simple Mode is active, difficulty setting modifications are locked and suppressed. The player's current difficulty stays in effect (the nightly check keeps using its threshold and days per level), without exposing difficulty choices to the user.** (Day 30 correction: earlier versions of this section said the difficulty was locked to Medium; the code never did that.)
 
 ### Architectural Rationale:
 1. **Difficulty Is a Gamification Concept**: Difficulty tiers in PixelQuest (Easy: 50%, Medium: 70%, Hard: 90%) dictate perfect-day thresholds for leveling and XP multipliers. In Simple Mode, leveling and XP displays are suppressed; tasks are simply tasks to be checked off. Presenting difficulty options in an un-gamified mode contradicts the purpose of simplification.
