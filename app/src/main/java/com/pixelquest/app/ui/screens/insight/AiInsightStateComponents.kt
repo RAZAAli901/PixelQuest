@@ -554,6 +554,32 @@ fun AiInsightDisabledState(
     }
 }
 
+/**
+ * The error card's heading. A build without AI set up, or a used-up day, isn't a glitch, so those get
+ * their own headings; other failures keep each theme's original one.
+ */
+internal fun aiErrorHeading(message: String, themeMode: ThemeMode): String {
+    val notSetUp = message == com.pixelquest.app.domain.ai.AiErrorCopy.NOT_CONFIGURED
+    val usedUp = message == com.pixelquest.app.domain.ai.AiErrorCopy.DAILY_LIMIT
+    return when (themeMode) {
+        ThemeMode.Comic -> when {
+            notSetUp -> "COACH NOT SET UP"
+            usedUp -> "THAT'S ALL FOR TODAY!"
+            else -> "COMMUNICATION GLITCH!"
+        }
+        ThemeMode.Light -> when {
+            notSetUp -> "AI Coach not set up"
+            usedUp -> "Today's insights are used up"
+            else -> "Insight Generation Error"
+        }
+        else -> when {
+            notSetUp -> "[COACH OFFLINE]"
+            usedUp -> "[DAILY LIMIT REACHED]"
+            else -> "[TRANSMISSION FAILED]"
+        }
+    }
+}
+
 @Composable
 fun AiInsightErrorState(
     state: AiInsightUiState.Error,
@@ -571,7 +597,7 @@ fun AiInsightErrorState(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "COMMUNICATION GLITCH!",
+                            text = aiErrorHeading(state.message, ThemeMode.Comic),
                             fontFamily = BangersFontFamily,
                             fontSize = 20.sp,
                             color = ComicTokens.SolidBlack
@@ -604,7 +630,7 @@ fun AiInsightErrorState(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "Insight Generation Error",
+                            text = aiErrorHeading(state.message, ThemeMode.Light),
                             style = MaterialTheme.typography.titleSmall,
                             color = Color(0xFF991B1B),
                             fontWeight = FontWeight.Bold
@@ -635,7 +661,7 @@ fun AiInsightErrorState(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = "[TRANSMISSION FAILED]",
+                            text = aiErrorHeading(state.message, themeMode),
                             style = PixelTypography.titleMedium,
                             color = Color(0xFFEF4444),
                             fontWeight = FontWeight.Bold
