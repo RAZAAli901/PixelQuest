@@ -42,16 +42,11 @@ class OnboardingViewModel @Inject constructor(
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
 
     fun updateUsername(name: String) {
-        val trimmed = name.take(20)
-        val isNonBlank = trimmed.trim().isNotBlank()
-        val isWithinLength = trimmed.length in 1..20
-        val isValid = isNonBlank && isWithinLength
-        val error = when {
-            trimmed.isEmpty() -> null
-            !isNonBlank -> "Name cannot be blank"
-            trimmed.length > 20 -> "Name must be 20 characters or less"
-            else -> null
-        }
+        val trimmed = com.pixelquest.app.domain.HeroName.clamp(name)
+        val rule = com.pixelquest.app.domain.HeroName.error(trimmed)
+        val isValid = rule == null
+        // No error before the player has typed anything.
+        val error = if (trimmed.isEmpty()) null else rule
         _uiState.update {
             it.copy(username = trimmed, isNameValid = isValid, nameError = error)
         }

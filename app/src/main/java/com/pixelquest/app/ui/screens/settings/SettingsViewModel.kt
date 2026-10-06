@@ -253,11 +253,26 @@ class SettingsViewModel @Inject constructor(
         _showRestoreConfirmDialog.value = false
     }
 
-    fun updateUsername(newName: String) {
+    // The hero name being edited, or null when the field shows the saved name. Typing only changes
+    // the draft; SAVE NAME stores it. (Every keystroke used to be written to the database, without
+    // validation, with the field's text coming back from that write.)
+    private val _nameDraft = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    val nameDraft: StateFlow<String?> = _nameDraft.asStateFlow()
+
+    fun onNameDraftChanged(text: String) {
+        _nameDraft.value = com.pixelquest.app.domain.HeroName.clamp(text)
+    }
+
+    /** Saves the draft if it's a valid name. Returns false (and keeps the draft) if it isn't. */
+    fun saveName(): Boolean {
+        val draft = _nameDraft.value ?: return true
+        if (com.pixelquest.app.domain.HeroName.error(draft) != null) return false
         viewModelScope.launch {
             val current = userProfileRepository.getProfile().first() ?: return@launch
-            userProfileRepository.insertProfile(current.copy(username = newName))
+            userProfileRepository.insertProfile(current.copy(username = draft.trim()))
+            _nameDraft.value = null
         }
+        return true
     }
 
     fun onResetProgressClicked() {

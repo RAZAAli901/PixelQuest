@@ -54,14 +54,27 @@ fun SettingsScreen(
 
     SettingsScreenScaffold(
         accountSection = {
-            val username = state.profile?.username ?: "PixelHero"
+            val savedName = state.profile?.username ?: "PixelHero"
+            val nameDraft by viewModel.nameDraft.collectAsState()
+            val shownName = nameDraft ?: savedName
+            val nameError = nameDraft?.let { com.pixelquest.app.domain.HeroName.error(it) }
             com.pixelquest.app.ui.components.PixelTextField(
-                value = username,
-                onValueChange = { viewModel.updateUsername(it) },
+                value = shownName,
+                onValueChange = { viewModel.onNameDraftChanged(it) },
                 label = "EDIT HERO NAME",
                 placeholder = "Enter username",
+                errorText = nameError,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (nameDraft != null && nameDraft != savedName) {
+                PixelButton(
+                    text = "💾 SAVE NAME",
+                    onClick = { viewModel.saveName() },
+                    variant = PixelButtonVariant.YELLOW,
+                    enabled = nameError == null,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             val avatarId = state.profile?.avatarId ?: "avatar_hero"
             val level = state.profile?.level ?: 1
             com.pixelquest.app.ui.components.PixelAvatarFrame(
