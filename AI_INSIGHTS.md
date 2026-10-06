@@ -286,9 +286,10 @@ To safeguard developer API budgets against infinite UI recomposition loops, back
    - The daily/monthly usage counter tracks an independent integer count, creating a fail-safe circuit breaker that cannot be bypassed by clock adjustments.
 4. **What counts toward the caps (Day 29)**:
    - Every call Gemini answers counts. That includes an answer the app can't use: unparseable JSON, an empty reply, or a 4xx/5xx error. Before Day 29 only a usable insight counted. A reply that kept failing to parse then cost one live call on every visit to Today, with no limit.
-   - Calls that never got an answer don't count: offline, timed out, or refused by Gemini's own 429 quota.
+   - Calls that never got an answer don't count: offline, timed out, refused with a 429 (Gemini's quota, or the proxy's own daily limits), or stopped by PixelQuest's "not configured" check (401) before anything was sent.
    - Only a usable insight starts the 6-hour cooldown, so the player can retry after a failure (up to the daily cap).
-   - The reminder-message pack (`EncouragementPackWorker`) counts every call it dispatches.
+   - The reminder-message pack (`EncouragementPackWorker`) follows the same rule (`GeminiResult.reachedGemini()`). Until Day 30 it counted each attempt before sending, so an offline try used up one of the day's calls.
+   - When retrying can't help (no AI set up in the build, or the proxy's daily limit), the AI Coach shows no RETRY button, and its heading says so ("COACH NOT SET UP", "THAT'S ALL FOR TODAY!").
 
 ---
 
