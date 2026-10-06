@@ -60,6 +60,9 @@ jobs:
           echo "SUPABASE_URL=${SUPABASE_URL:-https://placeholder-project.supabase.co}" >> local.properties
           echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-placeholder-anon-key}" >> local.properties
           echo "GOOGLE_WEB_CLIENT_ID=${GOOGLE_WEB_CLIENT_ID:-}" >> local.properties
+          # APKs built here are public, so even the debug one reaches Gemini only through the
+          # gemini-proxy Edge Function. The Gemini key is never given to a build.
+          echo "GEMINI_VIA_PROXY=true" >> local.properties
 
       - name: Build Debug & Release APKs
         env:

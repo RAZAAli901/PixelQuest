@@ -34,6 +34,17 @@ class CiBuildWorkflowTest {
     }
 
     @Test
+    fun noWorkflow_givesTheGeminiKeyToABuild_andCiApksUseTheProxy() {
+        for (name in listOf("build.yml", "release.yml")) {
+            val workflow = listOf(File("../.github/workflows/$name"), File(".github/workflows/$name")).first { it.exists() }
+            val activeLines = workflow.readLines().filterNot { it.trim().startsWith("#") }
+
+            assertTrue("$name must not read the Gemini key secret", activeLines.none { it.contains("GEMINI_API_KEY") })
+            assertTrue("$name must build with the proxy", activeLines.any { it.contains("GEMINI_VIA_PROXY=true") })
+        }
+    }
+
+    @Test
     fun verifyCiWorkflow_testsTheEdgeFunctions() {
         val targetFile = listOf(File("../.github/workflows/build.yml"), File(".github/workflows/build.yml")).first { it.exists() }
         val activeLines = targetFile.readLines().filterNot { it.trim().startsWith("#") }
