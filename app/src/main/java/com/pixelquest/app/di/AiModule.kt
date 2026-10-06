@@ -4,6 +4,7 @@ import com.pixelquest.app.BuildConfig
 import com.pixelquest.app.data.remote.GEMINI_MODEL_ID
 import com.pixelquest.app.data.remote.GeminiClient
 import com.pixelquest.app.data.remote.GeminiClientImpl
+import com.pixelquest.app.data.remote.GeminiProxyClient
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,16 +26,33 @@ object AiModule {
         return HttpClient(Android)
     }
 
+    /**
+     * Release builds (and debug builds with GEMINI_VIA_PROXY=true) go through the gemini-proxy Edge
+     * Function and contain no Gemini key. Other debug builds call Gemini directly with the developer's
+     * key from local.properties.
+     */
     @Provides
     @Singleton
     fun provideGeminiClient(
-        httpClient: HttpClient
-    ): GeminiClient {
-        return GeminiClientImpl(
-            apiKeyProvider = { BuildConfig.GEMINI_API_KEY },
-            httpClient = httpClient,
-            model = GEMINI_MODEL_ID
-        )
+        httpClient: HttpClient,
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
+    ): GeminiClient = createGeminiClient(
+        viaProxy = BuildConfig.GEMINI_VIA_PROXY,
+        httpClient = httpClient,
+        deviceId = { com.pixelquest.app.data.local.prefs.AiDeviceId(context).get() }
+    )
+
+    internal fun createGeminiClient(
+        viaProxy: Boolean,
+        httpClient: HttpClient,
+        deviceId: () -> String,
+        supabaseUrl: String = BuildConfig.SUPABASE_URL,
+        anonKey: String = BuildConfig.SUPABASE_ANON_KEY,
+        geminiApiKey: String = BuildConfig.GEMINI_API_KEY
+    ): GeminiClient = if (viaProxy) {
+        GeminiProxyClient(supabaseUrl, anonKey, deviceId, httpClient)
+    } else {
+        GeminiClientImpl(apiKeyProvider = { geminiApiKey }, httpClient = httpClient, model = GEMINI_MODEL_ID)
     }
 
     @Provides
