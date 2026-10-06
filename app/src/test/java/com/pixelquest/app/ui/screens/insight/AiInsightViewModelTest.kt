@@ -21,6 +21,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -194,6 +195,34 @@ class AiInsightViewModelTest {
         val success = state as AiInsightUiState.Success
         assertEquals("Cached Heroic Summary", success.insight.summary)
         assertTrue("Must indicate cached status", success.isCached)
+    }
+
+    private suspend fun kotlinx.coroutines.test.TestScope.errorStateFor(result: GeminiResult<HabitInsightResponse>): AiInsightUiState.Error {
+        val completionRepo = FakeCompletionRepository()
+        populateSufficientLogs(completionRepo)
+        val habitRepo = FakeHabitInsightRepository().apply { generateResult = result }
+        val viewModel = AiInsightViewModel(
+            habitInsightRepository = habitRepo,
+            settingsRepository = FakeSettingsRepository(),
+            taskCompletionRepository = completionRepo,
+            insightCacheRepository = FakeCacheRepository()
+        )
+        advanceUntilIdle()
+        return viewModel.uiState.value as AiInsightUiState.Error
+    }
+
+    @Test
+    fun errorsThatRetryingCantFix_offerNoRetry() = runTest {
+        val notSetUp = errorStateFor(GeminiResult.ApiError(401, com.pixelquest.app.domain.ai.AiErrorCopy.NOT_CONFIGURED))
+        assertFalse(notSetUp.canRetry)
+        val usedUp = errorStateFor(GeminiResult.ApiError(429, com.pixelquest.app.domain.ai.AiErrorCopy.DAILY_LIMIT))
+        assertFalse(usedUp.canRetry)
+    }
+
+    @Test
+    fun passingErrors_stillOfferRetry() = runTest {
+        assertTrue(errorStateFor(GeminiResult.ApiError(429, com.pixelquest.app.domain.ai.AiErrorCopy.BUSY)).canRetry)
+        assertTrue(errorStateFor(GeminiResult.ApiError(503, com.pixelquest.app.domain.ai.AiErrorCopy.SERVER_TROUBLE)).canRetry)
     }
 
     @Test

@@ -144,7 +144,9 @@ class AiInsightViewModel @Inject constructor(
                     val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()
                     AiInsightUiState.Error(
                         message = result.message,
-                        canRetry = true,
+                        // Retrying can't help a build without AI set up, or before tomorrow's limit resets.
+                        canRetry = result.message != com.pixelquest.app.domain.ai.AiErrorCopy.NOT_CONFIGURED &&
+                            result.message != com.pixelquest.app.domain.ai.AiErrorCopy.DAILY_LIMIT,
                         fallbackInsight = fallback
                     )
                 }
