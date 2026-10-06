@@ -49,9 +49,14 @@ Stored on `TaskEntity` (added by `MIGRATION_4_5`; existing tasks keep the defaul
 Off by default and only available while AI Coach is on (Settings → AI Habit Coach → AI reminder messages).
 
 - `EncouragementPackWorker` runs at most once a day with a network connection. It sends only the streak length, the 7-day completion rate and the number of active habits; task names are never sent.
-- The call counts toward the existing AI caps (4 per day, 60 per month). Failures are not retried.
+- The call counts toward the existing AI caps (4 per day, 60 per month) when Gemini answered; an offline or refused attempt doesn't (Day 30). Failures are not retried.
+- Release builds send it through the `gemini-proxy` Edge Function, which holds the Gemini key (see `docs/GEMINI_PROXY.md`).
 - `EncouragementSanitizer` drops lines that are too long (over 90 characters), contain links or markup, or use game words in Simple Mode.
 - Reminders use a pack from today or yesterday in the matching tone; otherwise they use the built-in lines in `StaticEncouragementBank`.
+
+## "Did you do it?" prompts
+
+`TaskPromptActivity` is `singleTop`, so a second quest's prompt arriving while one is open reaches the open activity as a new intent. Since Day 30 it joins a queue (`PromptQueue`): answering or dismissing a prompt shows the next one, and the activity closes when the queue is empty. The queue survives rotation, and the same quest is queued only once. Before Day 30 the second prompt was dropped, so two quests due in the same minute showed only the first.
 
 ## Notification ids
 
