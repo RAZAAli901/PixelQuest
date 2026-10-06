@@ -56,6 +56,15 @@ class GeminiErrorMessagesTest {
     }
 
     @Test
+    fun aBuildWithoutAKey_saysTheCoachIsNotSetUp() = runBlocking {
+        val noKey = GeminiClientImpl(apiKeyProvider = { "placeholder-gemini-key" }, httpClient = HttpClient(MockEngine { error("must not send") }))
+        val noProject = GeminiProxyClient("https://placeholder-project.supabase.co", "placeholder-anon-key", { "id" }, HttpClient(MockEngine { error("must not send") }))
+
+        assertEquals(AiErrorCopy.NOT_CONFIGURED, messageOf(safeGeminiCall { noKey.generateContent("hi") }))
+        assertEquals(AiErrorCopy.NOT_CONFIGURED, messageOf(safeGeminiCall { noProject.generateContent("hi") }))
+    }
+
+    @Test
     fun forbidden_showsUnavailable() = runBlocking {
         val result = safeGeminiCall { client(json(HttpStatusCode.Forbidden, """{"error":{"status":"PERMISSION_DENIED"}}""")).generateContent("hi") }
 
@@ -107,7 +116,7 @@ class GeminiErrorMessagesTest {
 
     @Test
     fun statusTable_coversEveryCategory() {
-        assertEquals(AiErrorCopy.UNAVAILABLE, AiErrorCopy.forStatus(401))
+        assertEquals(AiErrorCopy.NOT_CONFIGURED, AiErrorCopy.forStatus(401))
         assertEquals(AiErrorCopy.UNAVAILABLE, AiErrorCopy.forStatus(404))
         assertEquals(AiErrorCopy.BUSY, AiErrorCopy.forStatus(429))
         assertEquals(AiErrorCopy.SERVER_TROUBLE, AiErrorCopy.forStatus(500))
