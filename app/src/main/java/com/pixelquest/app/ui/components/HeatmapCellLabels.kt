@@ -16,5 +16,21 @@ object HeatmapCellLabels {
         DailyStatus.NO_TASKS_SCHEDULED -> "nothing scheduled"
     }
 
-    fun describe(date: LocalDate, status: DailyStatus): String = "${date.format(dateFormat)}: ${status(status)}"
+    /**
+     * [today] is the heatmap's last day: later days (the rest of this week's column) haven't happened,
+     * and today isn't over, so neither gets a final verdict such as "missed" or "nothing scheduled".
+     */
+    fun describe(date: LocalDate, status: DailyStatus, today: LocalDate? = null): String {
+        val day = date.format(dateFormat)
+        return when {
+            today != null && date.isAfter(today) -> "$day: upcoming"
+            today != null && date == today -> when (status) {
+                DailyStatus.PERFECT -> "$day, today: perfect day"
+                DailyStatus.PARTIAL -> "$day, today: partly done so far"
+                DailyStatus.MISSED -> "$day, today: nothing done yet"
+                DailyStatus.NO_TASKS_SCHEDULED -> "$day, today: nothing scheduled"
+            }
+            else -> "$day: ${status(status)}"
+        }
+    }
 }

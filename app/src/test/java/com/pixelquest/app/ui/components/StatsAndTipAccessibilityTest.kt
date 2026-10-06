@@ -69,12 +69,18 @@ class StatsAndTipAccessibilityTest {
         }
 
         composeTestRule.onNodeWithContentDescription("Friday 2 October: perfect day").assertHasClickAction()
-        composeTestRule.onNodeWithContentDescription("Saturday 3 October: missed").assertHasClickAction()
         composeTestRule.onNodeWithContentDescription("Thursday 1 October: nothing scheduled").assertHasClickAction()
+        // Saturday is the heatmap's today: not over yet, so not "missed".
+        composeTestRule.onNodeWithContentDescription("Saturday 3 October, today: nothing done yet").assertHasClickAction()
+        // The rest of the week's column hasn't happened.
+        composeTestRule.onNodeWithContentDescription("Sunday 4 October: upcoming").assertExists()
     }
 
     @Test
     fun theLabels() {
-        assertEquals("Friday 2 October: partly done", HeatmapCellLabels.describe(LocalDate.of(2026, 10, 2), DailyStatus.PARTIAL))
+        val friday = LocalDate.of(2026, 10, 2)
+        assertEquals("Friday 2 October: partly done", HeatmapCellLabels.describe(friday, DailyStatus.PARTIAL))
+        assertEquals("Friday 2 October, today: partly done so far", HeatmapCellLabels.describe(friday, DailyStatus.PARTIAL, today = friday))
+        assertEquals("Friday 2 October: upcoming", HeatmapCellLabels.describe(friday, DailyStatus.NO_TASKS_SCHEDULED, today = friday.minusDays(1)))
     }
 }
