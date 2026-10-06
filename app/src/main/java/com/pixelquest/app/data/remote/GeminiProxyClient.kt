@@ -65,7 +65,9 @@ class GeminiProxyClient(
         when (response.status) {
             HttpStatusCode.OK -> GeminiResponseParser.extractText(responseBody)
             // Gemini busy, or this device or the whole app has used today's calls.
-            HttpStatusCode.TooManyRequests -> throw GeminiRateLimitException("AI proxy limit reached (${errorCode(responseBody)}).")
+            HttpStatusCode.TooManyRequests -> errorCode(responseBody).let { code ->
+                throw GeminiRateLimitException("AI proxy limit reached ($code).", reason = code)
+            }
             else -> throw GeminiApiException(response.status.value, "AI proxy error: ${errorCode(responseBody)}")
         }
     }

@@ -9,6 +9,7 @@ object AiErrorCopy {
     const val UNAVAILABLE = "The AI coach isn't available right now. Your quests and progress are safe. Try again later."
     const val NOT_CONFIGURED = "The AI coach isn't set up in this build of PixelQuest. Your quests and progress are safe."
     const val BUSY = "Gemini is busy right now. Try again in a few minutes."
+    const val DAILY_LIMIT = "The AI coach has used up today's requests. Try again tomorrow."
     const val SERVER_TROUBLE = "Gemini is having trouble right now. Try again in a few minutes."
     const val TIMEOUT = "Gemini took too long to answer. Check your internet connection and try again."
     const val OFFLINE = "Can't reach Gemini. Check your internet connection and try again."

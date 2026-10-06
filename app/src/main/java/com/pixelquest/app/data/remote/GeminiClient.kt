@@ -52,7 +52,8 @@ interface GeminiClient {
  * Exception thrown when the Gemini API returns an error or unexpected response.
  */
 open class GeminiException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
-class GeminiRateLimitException(message: String, val retryAfterSeconds: Long? = null) : GeminiException(message)
+/** [reason] is the gemini-proxy's code when the proxy refused the call (e.g. "device_daily_limit"). */
+class GeminiRateLimitException(message: String, val retryAfterSeconds: Long? = null, val reason: String? = null) : GeminiException(message)
 class GeminiApiException(val statusCode: Int, message: String) : GeminiException("Gemini API error ($statusCode): $message")
 class GeminiNetworkException(message: String, cause: Throwable) : GeminiException(message, cause)
 

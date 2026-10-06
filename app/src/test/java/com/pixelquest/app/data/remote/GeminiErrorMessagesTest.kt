@@ -65,6 +65,18 @@ class GeminiErrorMessagesTest {
     }
 
     @Test
+    fun theProxysDailyLimits_sayTryTomorrow_butGeminiBusyThroughTheProxySaysMinutes() = runBlocking {
+        fun proxy(code: String) = GeminiProxyClient(
+            "https://abcd.supabase.co", "anon", { "3f2b8c1e-9a4d-4e6f-8b2a-1c3d5e7f9a0b" },
+            HttpClient(MockEngine { respond("""{"error":"$code"}""", HttpStatusCode.TooManyRequests) })
+        )
+
+        assertEquals(AiErrorCopy.DAILY_LIMIT, messageOf(safeGeminiCall { proxy("device_daily_limit").generateContent("hi") }))
+        assertEquals(AiErrorCopy.DAILY_LIMIT, messageOf(safeGeminiCall { proxy("global_daily_limit").generateContent("hi") }))
+        assertEquals(AiErrorCopy.BUSY, messageOf(safeGeminiCall { proxy("upstream_busy").generateContent("hi") }))
+    }
+
+    @Test
     fun forbidden_showsUnavailable() = runBlocking {
         val result = safeGeminiCall { client(json(HttpStatusCode.Forbidden, """{"error":{"status":"PERMISSION_DENIED"}}""")).generateContent("hi") }
 

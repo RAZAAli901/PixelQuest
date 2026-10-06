@@ -51,6 +51,8 @@ const val DEFAULT_GEMINI_TIMEOUT_MS = 25_000L
  * Executes a suspending Gemini API operation safely with a timeout,
  * catching network, timeout, rate-limit, and API exceptions.
  */
+private val PROXY_DAILY_LIMITS = setOf("device_daily_limit", "global_daily_limit")
+
 suspend fun <T> safeGeminiCall(
     timeoutMs: Long = DEFAULT_GEMINI_TIMEOUT_MS,
     block: suspend () -> T
@@ -67,8 +69,13 @@ suspend fun <T> safeGeminiCall(
     } catch (e: IOException) {
         GeminiResult.NetworkError(e, AiErrorCopy.OFFLINE)
     } catch (e: GeminiRateLimitException) {
-        // Google's own quota (HTTP 429), not PixelQuest's daily cap: the user can retry shortly.
-        GeminiResult.ApiError(429, AiErrorCopy.BUSY)
+        if (e.reason in PROXY_DAILY_LIMITS) {
+            // The gemini-proxy's per-install or project-wide limit: it resets at midnight UTC.
+            GeminiResult.ApiError(429, AiErrorCopy.DAILY_LIMIT)
+        } else {
+            // Google's own quota (HTTP 429), not PixelQuest's daily cap: the user can retry shortly.
+            GeminiResult.ApiError(429, AiErrorCopy.BUSY)
+        }
     } catch (e: GeminiApiException) {
         GeminiResult.ApiError(e.statusCode, AiErrorCopy.forStatus(e.statusCode))
     } catch (e: GeminiNetworkException) {
