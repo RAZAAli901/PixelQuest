@@ -61,6 +61,24 @@ class TodayInProgressStatusTest {
         assertEquals(DailyStatus.PERFECT, statusesWith(listOf(done(1, today), done(2, today)))[today])
     }
 
+    private fun rateWith(logs: List<TaskCompletionLogEntity>): Float = runBlocking {
+        val taskRepo = mockk<TaskRepository> { every { getAllTasks() } returns flowOf(listOf(daily(1), daily(2))) }
+        val logRepo = mockk<TaskCompletionRepository> { every { getAllLogs() } returns flowOf(logs) }
+        StatsRepositoryImpl(logRepo, mockk(), mockk(), taskRepo, mockk(), FixedClock(morning))
+            .getCompletionRateOverRange(today.minusDays(1), today).first()
+    }
+
+    @Test
+    fun theCompletionRate_countsTodayOnlyForQuestsWithAResult() {
+        // Yesterday 2 of 2 done; this morning nothing yet: still 100%, not 50%.
+        val yesterdayDone = listOf(done(1, today.minusDays(1)), done(2, today.minusDays(1)))
+        assertEquals(1f, rateWith(yesterdayDone), 0.0001f)
+
+        // One of today's quests answered "not done": that one counts (2 of 3).
+        val notDoneToday = TaskCompletionLogEntity(taskId = 1, completedDate = today, wasCompleted = false, pointsAwarded = 0)
+        assertEquals(2f / 3f, rateWith(yesterdayDone + notDoneToday), 0.0001f)
+    }
+
     @Test
     fun theWeeklyRate_leavesTodayOutWhileInProgress() {
         // Six earlier days all partly done, today not started: 6 of 6, not 6 of 7.

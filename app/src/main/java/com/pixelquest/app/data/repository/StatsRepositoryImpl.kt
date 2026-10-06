@@ -34,13 +34,21 @@ class StatsRepositoryImpl @Inject constructor(
             var totalCompleted = 0
             
             val logsByDate = logs.groupBy { it.completedDate }
+            val today = appClock.now().toLocalDate()
 
             var currentDate = startDate
             while (!currentDate.isAfter(endDate)) {
-                val scheduledTasksForDay = tasks.filter { isTaskScheduledOnDate(it, currentDate) }
-                totalScheduled += scheduledTasksForDay.size
-                
                 val dayLogs = logsByDate[currentDate] ?: emptyList()
+                val scheduledTasksForDay = tasks.filter { isTaskScheduledOnDate(it, currentDate) }.let { due ->
+                    // Today isn't over: only quests that already have a result count, as in the AI
+                    // Coach's 7-day rate, so the rate doesn't drop every morning.
+                    if (currentDate == today) {
+                        val logged = dayLogs.map { it.taskId }.toSet()
+                        due.filter { it.id in logged }
+                    } else due
+                }
+                totalScheduled += scheduledTasksForDay.size
+
                 totalCompleted += completedScheduledCount(scheduledTasksForDay, dayLogs)
                 
                 currentDate = currentDate.plusDays(1)
