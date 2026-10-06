@@ -2841,7 +2841,7 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 115: Day 29 verification: 755 unit tests, 0 failing (from 471 compiling, 28 failing and 91 quarantined files), and emulator checks of Today/Stats/Tasks on AppClock, the AI Coach fix and Light's new blue - 11f6fac
 - Step 116: Update BRIEF.md with the Day 29 log and summary - e6a2c3a
 - Step 117: Days per level follow the Day 6 plan: Easy 3, Medium 7, Hard 14, Hardest 30 (were 5/7/10/14) - 797f933
-- Step 118: Record the days-per-level decision in BRIEF.md and VERIFICATION.md - (this commit)
+- Step 118: Record the days-per-level decision in BRIEF.md and VERIFICATION.md - db0db6d
 
 ## Day 29 Summary — Test Suite Repair, and the Bugs It Found
 
@@ -2903,3 +2903,117 @@ Day 29 was the planned day to repair the 91 test files quarantined since Day 26 
   - a fresh install's seeded avatar
 - **Not captured:** the raw garbled Gemini reply. The fix follows Gemini's documented behaviour, and the first call after it succeeded.
 - **Claude Design** canvases still show the old tab bar and the pre-fix Comic colours.
+
+## Day 30 Progress Log
+_Each entry's commit hash is filled in by the following commit (a commit cannot contain its own hash)._
+- Step 1: Add the ai_proxy_usage table and claim_ai_proxy_call(): per-device and project-wide daily Gemini call limits for a server-side proxy, usable only by the service role - 5e35eec6
+- Step 2: Add the gemini-proxy Edge Function: holds the Gemini key server-side, fixes the model and output limits, caps prompt sizes, and claims each call against per-device and project-wide daily limits before calling Gemini - 4c4ac878
+- Step 3: Test the gemini-proxy handler under Node (11 cases): fixed model and limits, key only in a header, malformed requests refused before claiming, daily limits, Gemini errors mapped without echoing their bodies, and the claim RPC - d5ba651e
+- Step 4: CI runs the Edge Function tests with Node 24 before the Gradle build; CiBuildWorkflowTest checks the step is there - 2ba920af
+- Step 5: Move Gemini response parsing into GeminiResponseParser, so the direct client and the coming proxy client read answers the same way (no behaviour change) - 84fe19d1
+- Step 6: Add AiDeviceId: a random per-install UUID, kept in preferences and not tied to the account, that AI requests send so the proxy can count calls per device - 80bd97dc
+- Step 7: Add GeminiProxyClient: sends the prompt and the install's device id to the gemini-proxy Edge Function (never a Gemini key), maps its daily limits to rate limits, and sends nothing when the build has no Supabase project - c4bcf032
+- Step 8: Release builds never contain the Gemini key (GEMINI_API_KEY is blank in the release build type, even with a key in local.properties) and set GEMINI_VIA_PROXY; debug builds can opt in with GEMINI_VIA_PROXY=true - 3b2cb13a
+- Step 9: AiModule uses GeminiProxyClient when GEMINI_VIA_PROXY is set (all release builds) and the direct client otherwise; a release APK built with the real key in local.properties was checked to contain no trace of it - f5ba5caa
+- Step 10: CI and release builds write GEMINI_VIA_PROXY=true, so the public debug APK also reaches Gemini only through the proxy; CiBuildWorkflowTest checks no workflow reads the GEMINI_API_KEY secret - aa1d6fb3
+- Step 11: Privacy: the AI Coach consent dialog (in proxy builds) and PRIVACY.md say requests pass through PixelQuest's server, which holds the key and counts calls by a random install ID kept 30 days; prompts and answers aren't stored - bb440a17
+- Step 12: Add docs/GEMINI_PROXY.md: which builds use the proxy, what limits protect the key's quota, and the one-time deploy steps (Supabase secrets, migration, function deploy, end-to-end check) - 4e99ed18
+- Step 13: Gitignore supabase/.env* and have the proxy guide set the Gemini secret from that file, so the key doesn't land in shell history or git - 3a1997ce
+- Step 14: Docs: the secret-injection readiness plan is marked superseded (its R8 claim was wrong: R8 leaves string constants readable), RELEASE_PIPELINE.md lists the Supabase and OAuth secrets and says no Gemini key, and AI_INSIGHTS.md describes the proxy transport - fbc891fc
+- Step 15: The release workflow warns, in the run and at the top of the release notes, when the keystore secret is missing (each run then signs with a new debug key, so releases can't update each other) or the Supabase secrets are - 17852874
+- Step 16: Release signing takes the keystore passwords from the environment or local.properties only; the public build script no longer defaults them to pixelquest123, and without them release builds use the debug key - 5e88aedb
+- Step 17: A build with no Gemini key or no Supabase project for the proxy tells the player the AI coach isn't set up in this build, instead of 'not available right now, try again later' - ee6e4f92
+- Step 18: When the proxy's per-install or project-wide daily limit is reached, the AI coach says it has used up today's requests and to try tomorrow, not that Gemini is busy for a few minutes - 60b6be5f
+- Step 19: The task form keeps unsaved edits on rotation: New Quest no longer resets on every recomposition (its ViewModel is fresh per visit), and Edit Quest loads the stored task once instead of re-collecting it over the player's changes - 9a142f54
+- Step 20: A new quest created after its time of day starts tomorrow instead of being missed the moment it's saved (which lowered today's result), and the form says so under the time; edits keep their start day - 62bbe520
+- Step 21: Two quests due in the same minute both get their 'Did you do it?' prompt: the singleTop prompt activity ignored the second launch, and now queues it and shows it after the first is answered or dismissed (kept across rotation) - 381faaf4
+- Step 22: Settings' hero name is edited as a draft and stored with SAVE NAME, using onboarding's rules (not blank, 20 characters, trimmed): every keystroke used to be written to the database unvalidated, with the field's text coming back from that write - b875064d
+- Step 23: Leaving the leaderboard offline (or during a server error) now really queues the opt-out: the sync worker is scheduled, waits for a network, survives restarts and opts out because the local flag is off; before, the row stayed public despite 'queued when online' - 13415921
+- Step 24: TalkBack on the quest form: day chips are checkboxes named with the full day ('Tuesday, checked', not a lone 'T' that Thursday shares), recurrence and category chips are radio buttons that say which is selected, and category icons no longer repeat the name; Pixel and Comic - c5c528b4
+- Step 25: TalkBack on Settings and Stats: the tip cards' ✕ is a button named for what it closes with a 48dp target, heatmap squares say their day and result ('Friday 2 October: perfect day'), and the 7-day and quest history marks read as perfect/not perfect and done/missed - bb28c929
+- Step 26: Simple Mode's Settings note no longer says streaks are paused: difficulty can't be changed, and streaks, perfect days and levels keep counting with the current difficulty (SIMPLE_MODE.md also said it was locked to Medium; it never was) - 5db0943c
+- Step 27: Fix Step 117 not reaching existing players: levelling, Today's XP bar and Profile read days per level from the saved difficulty via DifficultyMode, not the number stored when it was picked (an existing Hard player still levelled at 10, not 14) - 4bcbb8c2
+- Step 28: Perfect-day thresholds come from the saved difficulty too (Today, Tasks and the nightly check), so a restored or hand-edited backup can't carry its own threshold - b3ea07e1
+- Step 29: Backups include the level-up timeline (level, date, difficulty) and a restore brings it back; backups made before Day 30 leave the current timeline as it is - 338b6af4
+- Step 30: One rule (reachedGemini) for what counts toward the AI caps, used by the AI Coach and the reminder-message pack: the pack no longer counts a call before sending (an offline try used one of the day's 4), and a build with no key or proxy counts nothing - d7b1c776
+- Step 31: The AI Coach hides RETRY when retrying can't help: a build with no AI set up, or the proxy's daily limit (back tomorrow); passing errors such as Gemini being busy still offer it - 6fad4f30
+- Step 32: README: which local.properties settings do what (Supabase, Google Sign-In, the debug-only Gemini key and the proxy, release signing), and how to run the unit and Edge Function tests - 6e4bbe78
+- Step 33: CHANGELOG: an Unreleased section for everything since 1.1.0 (themes, Simple Mode, AI Coach via the proxy, reminders, quest and progress fixes, accessibility), which the release workflow will use as the next release's notes - 1e2e61a7
+- Step 34: Heatmap labels found on the emulator: days after today (the rest of this week's column) say 'upcoming' instead of 'nothing scheduled', and today says 'nothing done yet' or 'partly done so far' instead of a final 'missed' at 8 am - 97ce0c47
+- Step 35: The AI Coach's error card heading fits the case: 'COACH NOT SET UP' and 'THAT'S ALL FOR TODAY!' (and Light/Pixel equivalents) instead of 'COMMUNICATION GLITCH!' over 'not set up in this build', as seen on the emulator's release build - ee7b1f41
+- Step 36: Today isn't 'missed' before it's over: a new IN_PROGRESS status (today, nothing done yet) shows as a neutral square and 'DAY IN PROGRESS' in the day dialog instead of red 'MISSED QUESTS' at 8:35 am, and the weekly rate leaves it out until something is done - 3584d511
+- Step 37: AI_INSIGHTS.md: the reminder-message pack now counts toward the caps only when Gemini answered (it said every dispatched call), the full list of calls that don't count, and when RETRY is hidden - 84ea45e1
+- Step 38: Heatmap days after today (the rest of this week's column) can't be tapped, so they no longer open a 'NO QUESTS SCHEDULED' dialog for a day that hasn't happened - 17852988
+- Step 39: Stats' completion rate counts today only for quests that already have a result (the AI Coach's rule), so it no longer drops every morning because today's quests aren't done yet - 760ae72a
+- Step 40: NOTIFICATIONS.md: how queued "Did you do it?" prompts work (two quests in the same minute), and that the reminder-message pack counts only answered calls and goes through the proxy in release builds - fc7115da
+- Step 41: Add docs/ACCESSIBILITY.md: the chip, dismiss-button and heatmap-label helpers to reuse, what Day 30 covered, how it's tested, and what isn't covered yet - 4d0dc3c2
+- Step 42: Symbol buttons have names for TalkBack: Back (AI Coach, Leaderboard), Refresh the leaderboard and 'Delete <quest>' in the quest list were unlabeled, and New/Edit Quest's Back and Delete no longer also read the symbol's Unicode name - a66a0c1e
+- Step 43: Nine Robolectric tests ran with the real Hilt application, which built the real database and seeded it in the background; when that outlived its test it failed a later one (TodayViewModelTest in the full run). They now use a plain Application like the rest; 819 tests pass - ecefc316
+- Step 44: Day 30 verification: 819 unit tests and 11 Edge Function tests pass, the release APK holds no Gemini key, the proxy handler works against live Gemini, and emulator checks of the release build, heatmap, quest form, rotation, hero name and TalkBack labels - 500e72fd
+- Step 45: Update BRIEF.md with the Day 30 log and summary - (this commit)
+
+## Day 30 Summary — Gemini Behind a Server, and the Day 28 Review List
+
+Day 30 was the planned day for getting `GEMINI_API_KEY` into release builds. Doing it as planned would have exposed the key: the repository and its release APKs are public, and a key compiled into an APK can be read out of it. You chose a server-side proxy instead. The rest of the day closed the Day 28 code-review list and fixed what the emulator turned up.
+
+### 1. Gemini proxy (Steps 1–18)
+- **Edge Function `gemini-proxy`.** It holds the Gemini key in Supabase secrets and fixes the model, the 800-token limit, JSON output and no thinking. It caps prompt sizes and claims every call against a per-install limit (6 a day) and a project-wide limit (200 a day) before calling Gemini. It never passes Gemini's error bodies back.
+- **Database.** `ai_proxy_usage` and `claim_ai_proxy_call()` are usable only by the service role.
+- **Tests.** The handler is runtime-neutral TypeScript, tested under Node (11 tests), and CI runs those tests.
+- **App.** `GeminiProxyClient` sends the prompt and a random per-install id (`AiDeviceId`), never a key. Release builds blank `GEMINI_API_KEY` and always use the proxy, and CI-built debug APKs do too. A release APK built with the real key in `local.properties` was scanned and doesn't contain it. Local debug builds still call Gemini directly unless `GEMINI_VIA_PROXY=true`.
+- **Check without deploying.** The handler, run locally against live Gemini, returned a usable insight.
+- **Messages.** A build with no AI set up says so, and the proxy's daily limit says to try tomorrow. Neither offers RETRY, and each error card has a fitting heading.
+- **Docs.**
+  - `docs/GEMINI_PROXY.md` has the deploy steps.
+  - The consent dialog, `PRIVACY.md`, `AI_INSIGHTS.md` and `README.md` describe the new path.
+  - The old readiness doc is marked superseded; its claim that R8 hides the key was wrong.
+- **Release hygiene.**
+  - The build script no longer defaults the keystore passwords to `pixelquest123`.
+  - The release workflow and notes now warn when the signing or Supabase secrets are missing. The repository has none of them, so every past release was signed with a key made for that run. Releases can't update one another, and their sign-in, sync and leaderboard don't work.
+
+### 2. The Day 28 review list (Steps 19–26, 29)
+- The task form keeps unsaved edits on rotation.
+- A new quest created after its time of day starts tomorrow, and the form says so, instead of being missed the moment it's saved.
+- Two quests due in the same minute both get their "Did you do it?" prompt (`PromptQueue`).
+- Settings' hero name is a draft saved with SAVE NAME, using onboarding's rules. Before, every keystroke wrote the database unvalidated.
+- Leaving the leaderboard offline is really queued (WorkManager, waits for a network).
+- TalkBack labels:
+  - day chips by full name
+  - which recurrence and category chip is selected
+  - named ✕ buttons with 48dp targets
+  - heatmap squares by day and result
+- Simple Mode no longer claims streaks are paused, and `SIMPLE_MODE.md` no longer says the difficulty is locked to Medium.
+- Backups include the level timeline.
+
+### 3. Other fixes (Steps 27–28, 30–31, 34–36, 38–39, 42–43)
+- **Yesterday's 3/7/14/30 change hadn't reached existing players.** Levelling, Today and Profile read the days per level stored when the difficulty was picked, so an existing Hard player still levelled at 10. Days per level and thresholds now come from the difficulty itself.
+- **One counting rule for the AI caps.** Only calls Gemini answered count toward them. The reminder-message pack used to count an offline attempt.
+- **Stats in the morning.**
+  - Today isn't "missed" before it ends: a new `IN_PROGRESS` status shows as a neutral square, and the dialog says "DAY IN PROGRESS".
+  - Days after today aren't tappable.
+  - The completion rate counts today only for quests that already have a result.
+- **Symbol buttons have names:** Back, Refresh the leaderboard, Delete <quest>.
+- **Test isolation:** nine tests that used the real application were flaky.
+
+### 4. Testing
+- 819 unit tests, 0 failing (755 at the end of Day 29), plus 11 Edge Function tests. Emulator checks are in VERIFICATION.md Section I.
+- Two live Gemini calls today: the proxy handler check, and the debug app's own automatic AI Coach call.
+
+### 5. Known gaps for Day 31 onwards
+- **Deploy the proxy** (`docs/GEMINI_PROXY.md`):
+  - It needs a real Supabase project; `local.properties` still has the placeholder.
+  - Apply the migrations (`ai_proxy_usage` and the Day 28 leaderboard indexes).
+  - Set the function secret and deploy with `--no-verify-jwt`.
+  - Add `SUPABASE_URL` and `SUPABASE_ANON_KEY` to the GitHub secrets.
+  - The `GEMINI_API_KEY` GitHub secret is now unused and can be deleted.
+- **Release signing.** Create a release keystore and add the four keystore secrets. Players on v1.0.3 or v1.1.0 will have to uninstall once, because those APKs were signed with one-off debug keys.
+- **Not checked on a device:**
+  - two prompts in the same minute
+  - an offline leaderboard opt-out
+  - an audible TalkBack pass
+  - the proxy against a deployed function
+- **Accessibility.** Clickable rows and cards built from plain `Modifier.clickable` haven't been audited one by one.
+- **Leftovers.**
+  - XP earned twice before Day 28 stays in totals.
+  - The Claude Design canvases are still out of date.
+  - `versionName` is still 1.1.0. CHANGELOG.md has an Unreleased section ready for the next release.
