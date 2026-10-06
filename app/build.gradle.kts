@@ -49,13 +49,20 @@ android {
 
     signingConfigs {
         create("release") {
-            val keystorePath = System.getenv("KEYSTORE_FILE") ?: "pixelquest-release.jks"
+            // Passwords come from the environment (CI secrets) or the gitignored local.properties,
+            // never from this public file. Without a keystore and both passwords, release builds
+            // are signed with the debug key.
+            fun secret(name: String): String? =
+                (System.getenv(name) ?: localProps.getProperty(name))?.takeIf { it.isNotBlank() }
+            val keystorePath = secret("KEYSTORE_FILE") ?: "pixelquest-release.jks"
             val storeFileObj = file(keystorePath)
-            if (storeFileObj.exists() && storeFileObj.length() > 0L) {
+            val storePasswordValue = secret("KEYSTORE_PASSWORD")
+            val keyPasswordValue = secret("KEY_PASSWORD")
+            if (storeFileObj.exists() && storeFileObj.length() > 0L && storePasswordValue != null && keyPasswordValue != null) {
                 storeFile = storeFileObj
-                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "pixelquest123"
-                keyAlias = System.getenv("KEY_ALIAS") ?: "pixelquest"
-                keyPassword = System.getenv("KEY_PASSWORD") ?: "pixelquest123"
+                storePassword = storePasswordValue
+                keyAlias = secret("KEY_ALIAS") ?: "pixelquest"
+                keyPassword = keyPasswordValue
             } else {
                 initWith(signingConfigs.getByName("debug"))
             }
