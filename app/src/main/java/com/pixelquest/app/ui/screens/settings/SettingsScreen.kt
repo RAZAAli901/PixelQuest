@@ -181,13 +181,10 @@ fun SettingsScreen(
                                 color = PixelTheme.colors.onSurface
                             )
                         }
-                        Text(
-                            text = "✕",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = PixelTheme.colors.onSurfaceVariant,
-                            modifier = Modifier
-                                .clickable { viewModel.dismissComicModeHighlight() }
-                                .padding(start = 8.dp, top = 4.dp, bottom = 4.dp, end = 4.dp)
+                        com.pixelquest.app.ui.components.DismissButton(
+                            contentDescription = "Dismiss the Comic mode tip",
+                            onClick = { viewModel.dismissComicModeHighlight() },
+                            color = PixelTheme.colors.onSurfaceVariant
                         )
                     }
                 }
@@ -313,13 +310,10 @@ fun SettingsScreen(
                                 color = PixelTheme.colors.onSurface
                             )
                         }
-                        Text(
-                            text = "✕",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = PixelTheme.colors.onSurfaceVariant,
-                            modifier = Modifier
-                                .clickable { viewModel.dismissSimpleModeHighlight() }
-                                .padding(start = 8.dp, top = 4.dp, bottom = 4.dp, end = 4.dp)
+                        com.pixelquest.app.ui.components.DismissButton(
+                            contentDescription = "Dismiss the Simple Mode tip",
+                            onClick = { viewModel.dismissSimpleModeHighlight() },
+                            color = PixelTheme.colors.onSurfaceVariant
                         )
                     }
                 }

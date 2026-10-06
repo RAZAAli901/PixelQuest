@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.domain.model.DailyStatus
@@ -41,10 +42,15 @@ fun PixelTaskMiniHistory(
             modifier = Modifier.fillMaxWidth()
         ) {
             recentHistory.takeLast(14).forEach { (date, wasCompleted) ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // Read as one item: "done" or "missed", then the day.
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.semantics(mergeDescendants = true) {}
+                ) {
                     PixelHeatmapCell(
                         status = if (wasCompleted) DailyStatus.PERFECT else DailyStatus.MISSED,
-                        size = 18.dp
+                        size = 18.dp,
+                        contentDescription = if (wasCompleted) "done" else "missed"
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(

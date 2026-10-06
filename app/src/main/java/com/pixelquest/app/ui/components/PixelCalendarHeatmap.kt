@@ -136,6 +136,7 @@ fun PixelCalendarHeatmap(
                             val status = statusMap[date] ?: DailyStatus.NO_TASKS_SCHEDULED
                             PixelHeatmapCell(
                                 status = status,
+                                contentDescription = HeatmapCellLabels.describe(date, status),
                                 onClick = {
                                     selectedDay = Pair(date, status)
                                     onDayClick?.invoke(date, status)

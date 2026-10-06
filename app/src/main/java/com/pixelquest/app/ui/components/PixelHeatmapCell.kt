@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -137,7 +140,9 @@ fun PixelHeatmapCell(
     modifier: Modifier = Modifier,
     size: Dp = 14.dp,
     isLightOverride: Boolean? = null,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    /** What TalkBack reads for this square, e.g. "Friday 3 October: perfect day". */
+    contentDescription: String? = null
 ) {
     val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
     val isComic = activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic && isLightOverride != true
@@ -165,7 +170,10 @@ fun PixelHeatmapCell(
             .background(fillColor, shape = RoundedCornerShape(cornerRadius))
             .border(borderWidth, borderColor, shape = RoundedCornerShape(cornerRadius))
             .then(
-                if (onClick != null) Modifier.clickable { onClick() } else Modifier
+                if (onClick != null) Modifier.clickable(onClickLabel = "show the day", role = Role.Button) { onClick() } else Modifier
+            )
+            .then(
+                if (contentDescription != null) Modifier.semantics { this.contentDescription = contentDescription } else Modifier
             )
     )
 }

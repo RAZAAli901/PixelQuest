@@ -16,6 +16,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.PixelGold
 import com.pixelquest.app.ui.theme.PixelGreen
@@ -50,7 +53,8 @@ fun Pixel7DayHistoryStrip(
             ) {
                 days.forEach { (date, isPerfect) ->
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.semantics(mergeDescendants = true) {}
                     ) {
                         Box(
                             modifier = Modifier
@@ -64,7 +68,10 @@ fun Pixel7DayHistoryStrip(
                             Text(
                                 text = if (isPerfect) "✓" else "✕",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = PixelGold
+                                color = PixelGold,
+                                modifier = Modifier.clearAndSetSemantics {
+                                    contentDescription = if (isPerfect) "perfect day" else "not a perfect day"
+                                }
                             )
                         }
                         Spacer(modifier = Modifier.height(4.dp))
