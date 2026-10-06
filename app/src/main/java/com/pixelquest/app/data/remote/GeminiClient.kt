@@ -66,11 +66,6 @@ class GeminiClientImpl(
     private val model: String = GEMINI_MODEL_ID
 ) : GeminiClient {
 
-    private val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-    }
-
     override suspend fun generateContent(
         prompt: String,
         systemInstruction: String?
@@ -136,7 +131,7 @@ class GeminiClientImpl(
 
         when (response.status) {
             HttpStatusCode.OK -> {
-                extractTextFromResponse(responseBody)
+                GeminiResponseParser.extractText(responseBody)
             }
             HttpStatusCode.TooManyRequests -> {
                 throw GeminiRateLimitException("Gemini rate limit exceeded (HTTP 429).")
@@ -146,8 +141,19 @@ class GeminiClientImpl(
             }
         }
     }
+}
 
-    private fun extractTextFromResponse(responseBody: String): String {
+/**
+ * Reads the answer text out of a generateContent response, from Gemini directly or through the
+ * gemini-proxy Edge Function (which passes Gemini's response through unchanged).
+ */
+object GeminiResponseParser {
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
+
+    fun extractText(responseBody: String): String {
         return try {
             val root = json.parseToJsonElement(responseBody).jsonObject
             val candidates = root["candidates"]?.jsonArray
