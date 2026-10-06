@@ -6,6 +6,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -73,7 +74,7 @@ class StatsAndTipAccessibilityTest {
         // Saturday is the heatmap's today: not over yet, so not "missed".
         composeTestRule.onNodeWithContentDescription("Saturday 3 October, today: nothing done yet").assertHasClickAction()
         // The rest of the week's column hasn't happened.
-        composeTestRule.onNodeWithContentDescription("Sunday 4 October: upcoming").assertExists()
+        composeTestRule.onNodeWithContentDescription("Sunday 4 October: upcoming").assertHasNoClickAction()
     }
 
     @Test

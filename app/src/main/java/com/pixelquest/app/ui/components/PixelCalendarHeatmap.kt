@@ -137,9 +137,12 @@ fun PixelCalendarHeatmap(
                             PixelHeatmapCell(
                                 status = status,
                                 contentDescription = HeatmapCellLabels.describe(date, status, today = endDate),
-                                onClick = {
-                                    selectedDay = Pair(date, status)
-                                    onDayClick?.invoke(date, status)
+                                // The rest of this week's column hasn't happened: nothing to open.
+                                onClick = if (date.isAfter(endDate)) null else {
+                                    {
+                                        selectedDay = Pair(date, status)
+                                        onDayClick?.invoke(date, status)
+                                    }
                                 }
                             )
                         }
