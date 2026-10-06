@@ -1,6 +1,7 @@
 package com.pixelquest.app.data.backup
 
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
+import com.pixelquest.app.data.local.entity.LevelHistoryEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
@@ -21,7 +22,9 @@ data class BackupPayload(
     val streak: StreakEntity?,
     val tasks: List<TaskEntity>,
     /** Completion history (Day 28). Null for older backups, which had none: a restore keeps the current history. */
-    val logs: List<TaskCompletionLogEntity>? = null
+    val logs: List<TaskCompletionLogEntity>? = null,
+    /** Level-up timeline (Day 30). Null for older backups, which had none: a restore keeps the current timeline. */
+    val levelHistory: List<LevelHistoryEntity>? = null
 )
 
 object DataExportImport {
@@ -93,6 +96,18 @@ object DataExportImport {
                 })
             }
             root.put("logs", logsArray)
+        }
+
+        payload.levelHistory?.let { history ->
+            root.put("levelHistory", JSONArray().apply {
+                history.forEach { entry ->
+                    put(JSONObject().apply {
+                        put("level", entry.level)
+                        put("achievedDate", entry.achievedDate)
+                        put("difficulty", entry.difficultyAtTimeOfLevelUp)
+                    })
+                }
+            })
         }
 
         return root.toString(2)
@@ -203,7 +218,20 @@ object DataExportImport {
                 }
             }
 
-            BackupPayload(profile, difficulty, streak, tasks, logs)
+            val levelHistory = root.optJSONArray("levelHistory")?.let { array ->
+                (0 until array.length()).mapNotNull { i ->
+                    try {
+                        val hObj = array.getJSONObject(i)
+                        LevelHistoryEntity(
+                            level = hObj.getInt("level"),
+                            achievedDate = hObj.getLong("achievedDate"),
+                            difficultyAtTimeOfLevelUp = hObj.optString("difficulty", DifficultyLevel.MEDIUM.name)
+                        )
+                    } catch (e: Exception) { null } // Skip a corrupted entry
+                }
+            }
+
+            BackupPayload(profile, difficulty, streak, tasks, logs, levelHistory)
         } catch (e: Exception) {
             android.util.Log.e("DataExportImport", "Failed to parse backup JSON, returning empty payload", e)
             BackupPayload(null, null, null, emptyList())

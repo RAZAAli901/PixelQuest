@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.pixelquest.app.data.local.AppDatabase
+import com.pixelquest.app.data.local.entity.LevelHistoryEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
@@ -26,7 +27,7 @@ import org.robolectric.annotation.Config
 import java.time.LocalDate
 import java.time.LocalTime
 
-/** A backup brings back the streak and completion history, and a restore keeps this install's cloud link. */
+/** A backup brings back the streak, completion history and level timeline, and a restore keeps this install's cloud link. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = Application::class)
 class BackupRoundTripTest {
@@ -97,6 +98,36 @@ class BackupRoundTripTest {
         BackupRestorer(newPhone, TaskAlarmScheduler(context)).restore(payload)
 
         assertEquals(1, newPhone.taskCompletionLogDao().getAllLogs().first().size)
+    }
+
+    @Test
+    fun restore_bringsBackTheLevelTimeline() = runBlocking {
+        val oldPhone = newDb().also { seedOldPhone(it) }
+        oldPhone.levelHistoryDao().insertLevelHistory(LevelHistoryEntity(level = 2, achievedDate = 1_000L, difficultyAtTimeOfLevelUp = "EASY"))
+        oldPhone.levelHistoryDao().insertLevelHistory(LevelHistoryEntity(level = 3, achievedDate = 2_000L, difficultyAtTimeOfLevelUp = "HARD"))
+        val json = backupJson(oldPhone)
+
+        val newPhone = newDb()
+        newPhone.levelHistoryDao().insertLevelHistory(LevelHistoryEntity(level = 2, achievedDate = 9_999L, difficultyAtTimeOfLevelUp = "MEDIUM"))
+        BackupRestorer(newPhone, TaskAlarmScheduler(context)).restore(DataExportImport.importFromJson(json))
+
+        val timeline = newPhone.levelHistoryDao().getAllHistory().first().sortedBy { it.level }
+        assertEquals(listOf(Triple(2, 1_000L, "EASY"), Triple(3, 2_000L, "HARD")), timeline.map { Triple(it.level, it.achievedDate, it.difficultyAtTimeOfLevelUp) })
+    }
+
+    @Test
+    fun aBackupFromBeforeDay30_keepsTheCurrentLevelTimeline() = runBlocking {
+        val oldPhone = newDb().also { seedOldPhone(it) }
+        val legacy = JSONObject(backupJson(oldPhone)).apply { remove("levelHistory") }.toString()
+
+        val newPhone = newDb()
+        newPhone.levelHistoryDao().insertLevelHistory(LevelHistoryEntity(level = 2, achievedDate = 9_999L, difficultyAtTimeOfLevelUp = "MEDIUM"))
+        val payload = DataExportImport.importFromJson(legacy)
+        assertNull(payload.levelHistory)
+
+        BackupRestorer(newPhone, TaskAlarmScheduler(context)).restore(payload)
+
+        assertEquals(1, newPhone.levelHistoryDao().getAllHistory().first().size)
     }
 
     @Test

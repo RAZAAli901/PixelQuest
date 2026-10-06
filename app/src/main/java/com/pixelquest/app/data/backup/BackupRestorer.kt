@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Makes and restores backups: profile, difficulty, streak, tasks and their completion history. */
+/** Makes and restores backups: profile, difficulty, streak, tasks, their completion history and the level-up timeline. */
 @Singleton
 class BackupRestorer @Inject constructor(
     private val db: AppDatabase,
@@ -18,7 +18,8 @@ class BackupRestorer @Inject constructor(
         difficultySettings = db.difficultySettingsDao().getCurrentDifficulty().first(),
         streak = db.streakDao().getCurrentStreak().first(),
         tasks = db.taskDao().getAllTasks().first(),
-        logs = db.taskCompletionLogDao().getAllLogs().first()
+        logs = db.taskCompletionLogDao().getAllLogs().first(),
+        levelHistory = db.levelHistoryDao().getAllHistory().first()
     )
 
     /**
@@ -54,6 +55,11 @@ class BackupRestorer @Inject constructor(
                     db.taskCompletionLogDao().deleteAll()
                     logs.filter { it.taskId in taskIds }.forEach { db.taskCompletionLogDao().insertLog(it) }
                 }
+            }
+            // Older backups carry no level timeline; then the current one is left as it is.
+            payload.levelHistory?.let { history ->
+                db.levelHistoryDao().deleteAll()
+                history.forEach { db.levelHistoryDao().insertLevelHistory(it.copy(id = 0)) }
             }
         }
 
