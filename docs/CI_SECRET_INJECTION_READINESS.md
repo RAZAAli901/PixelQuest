@@ -1,5 +1,8 @@
 # GitHub Actions Secret-Injection Readiness Verification: Gemini API Key
 
+> **Superseded on Day 30.** This plan was replaced: release builds no longer receive `GEMINI_API_KEY`. The repository is public and so are its release APKs, and a key compiled into `BuildConfig` can be read straight out of an APK. R8 renames classes and members but leaves string constants as they are, so the "obfuscated via ProGuard/R8" point below was wrong. The key now lives only in the `gemini-proxy` Supabase Edge Function's secrets; see `docs/GEMINI_PROXY.md`.
+
+
 ## 1. Context & Objective
 In Day 13 (Step 8), PixelQuest established a secure CI/CD build secret injection pattern in `.github/workflows/build.yml` for Supabase credentials and Google OAuth client IDs. 
 
