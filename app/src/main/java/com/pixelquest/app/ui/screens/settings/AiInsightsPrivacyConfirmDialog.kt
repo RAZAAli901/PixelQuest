@@ -16,6 +16,11 @@ import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelDialog
 import com.pixelquest.app.ui.theme.PixelTheme
 
+/** Shown in builds that reach Gemini through the gemini-proxy Edge Function (all release builds). */
+internal const val AI_PROXY_PRIVACY_NOTE =
+    "• Requests pass through PixelQuest's server, which keeps the AI key private and counts calls " +
+        "by a random install ID that isn't linked to your account."
+
 /**
  * Informed consent and privacy disclosure dialog for AI Habit Insights.
  * Explains data minimization, anonymized metrics sent to Google Gemini,
@@ -89,6 +94,13 @@ fun AiInsightsPrivacyConfirmDialog(
                 style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurfaceVariant
             )
+            if (com.pixelquest.app.BuildConfig.GEMINI_VIA_PROXY) {
+                Text(
+                    text = AI_PROXY_PRIVACY_NOTE,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 

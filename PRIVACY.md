@@ -65,15 +65,20 @@ PixelQuest offers AI-powered habit analysis and coaching powered by Google's Gem
 ### B. What Habit-Summary Data is Transmitted
 When you request or receive an AI insight, PixelQuest transmits strictly anonymized, high-level summary metrics:
 - **Streak Totals**: Current streak count, longest streak count, and total perfect days.
-- **Category Ratios**: Predefined category tags (e.g. `FITNESS`, `STUDY`, `HEALTH`) paired with completion percentages and counts (e.g. `80% (4/5 completed)`).
+- **Category Ratios**: Predefined category tags (e.g. `FITNESS`, `LEARNING`, `HEALTH`) paired with completion percentages and counts (e.g. `80% (4/5 completed)`).
 - **Recent Momentum**: Aggregate 7-day completion percentage and missed task count.
 - **Progression Tier**: Your numeric player level (e.g. `Level 5`).
 
 ### C. What is NEVER Transmitted to Google Gemini
 - **Verbatim Task Names & Notes**: We **never** transmit individual task titles (such as "Take heart medication" or "Call counselor") or notes. Raw task descriptions remain 100% on your device.
 - **Personal Identifiers**: No usernames, real names, emails, Google OAuth credentials, or Supabase user IDs are ever included in AI prompts.
-- **Device & Location Data**: Zero device telemetry, GPS coordinates, or advertising IDs.
+- **Device & Location Data**: Zero device telemetry, GPS coordinates, advertising IDs or hardware identifiers. (The random install ID described below is made by the app, not read from the device.)
 - **Active Sanitization Defense**: PixelQuest executes an active client-side regex and blacklist sanitization pass prior to prompt dispatch, actively scrubbing emails, phone numbers, and names even in accidental edge cases.
+
+### D. How AI Requests Reach Gemini
+- The released app doesn't contain the Gemini API key. Its AI requests go to PixelQuest's own server, a Supabase Edge Function called `gemini-proxy`. That server holds the key and passes each request on to Google Gemini.
+- Along with the anonymized summary above, the app sends a **random install ID**. The app makes this ID when it first uses AI. It isn't linked to your account, your name or your device's hardware, and a reinstall gets a new one.
+- The server stores only how many AI calls each install ID made on each day, so it can enforce daily limits. Those counts are deleted after 30 days. It doesn't store your prompts or Gemini's answers.
 
 ---
 
