@@ -179,6 +179,14 @@ fun TaskFormContent(
                 errorText = formState.timeError,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (formState.startsTomorrow) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Today's time has passed, so this quest starts from tomorrow.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PixelTheme.colors.onSurfaceVariant
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             PixelCategorySelector(

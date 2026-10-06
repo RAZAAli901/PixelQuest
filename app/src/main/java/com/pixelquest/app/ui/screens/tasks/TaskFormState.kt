@@ -28,7 +28,9 @@ data class TaskFormState(
     val isEditMode: Boolean = false,
     val taskId: Long? = null,
     val isSubmitting: Boolean = false,
-    val isSaveSuccess: Boolean = false
+    val isSaveSuccess: Boolean = false,
+    /** For a new quest: its time has already passed today, so it starts tomorrow (see QuestStart). */
+    val startsTomorrow: Boolean = false
 ) {
     val isValid: Boolean
         get() = name.isNotBlank() && scheduledTime != null && (recurrenceType != RecurrenceType.WEEKLY || selectedDays.isNotEmpty())

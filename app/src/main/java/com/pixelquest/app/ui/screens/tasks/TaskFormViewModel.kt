@@ -3,6 +3,7 @@ package com.pixelquest.app.ui.screens.tasks
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.domain.QuestStart
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
@@ -22,10 +23,18 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskFormViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
-    private val taskAlarmScheduler: TaskAlarmScheduler
+    private val taskAlarmScheduler: TaskAlarmScheduler,
+    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
 ) : ViewModel() {
 
-    private val _formState = MutableStateFlow(TaskFormState())
+    private val _formState = MutableStateFlow(withStart(TaskFormState()))
+
+    /** Refreshes [TaskFormState.startsTomorrow] for a new quest; edited quests keep their start day. */
+    private fun withStart(state: TaskFormState): TaskFormState {
+        val time = state.scheduledTime
+        val startsTomorrow = !state.isEditMode && time != null && QuestStart.startsTomorrow(appClock.now(), time)
+        return state.copy(startsTomorrow = startsTomorrow)
+    }
     val formState: StateFlow<TaskFormState> = _formState.asStateFlow()
 
     private var loadedTaskId: Long? = null
@@ -54,7 +63,8 @@ class TaskFormViewModel @Inject constructor(
                         reminderStyle = task.reminderStyle,
                         createdAt = task.createdAt,
                         isActive = task.isActive,
-                        isEditMode = true
+                        isEditMode = true,
+                        startsTomorrow = false
                     )
                 }
             }
@@ -82,7 +92,7 @@ class TaskFormViewModel @Inject constructor(
     fun onTimeSelected(time: LocalTime?) {
         _formState.update { state ->
             val error = if (time == null) "Time is required!" else null
-            state.copy(scheduledTime = time, timeError = error)
+            withStart(state.copy(scheduledTime = time, timeError = error))
         }
     }
 
@@ -134,12 +144,14 @@ class TaskFormViewModel @Inject constructor(
         val state = _formState.value
         viewModelScope.launch {
             _formState.update { it.copy(isSubmitting = true) }
+            val time = state.scheduledTime ?: LocalTime.of(9, 0)
             val task = TaskEntity(
                 id = state.taskId ?: 0,
                 name = state.name.trim(),
                 description = state.description,
-                scheduledDay = state.scheduledDay,
-                scheduledTime = state.scheduledTime ?: LocalTime.of(9, 0),
+                // A new quest whose time has passed today starts tomorrow; an edit keeps its start day.
+                scheduledDay = if (state.isEditMode) state.scheduledDay else QuestStart.firstDay(appClock.now(), time),
+                scheduledTime = time,
                 recurrenceType = state.recurrenceType,
                 category = state.category,
                 isActive = state.isActive,
