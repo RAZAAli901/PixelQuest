@@ -10,6 +10,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+// A plain Application: the real one builds the real database, whose background seeding outlived the test
+@org.robolectric.annotation.Config(sdk = [34], application = android.app.Application::class)
 class StreakXpSummaryStripTest {
 
     @get:Rule

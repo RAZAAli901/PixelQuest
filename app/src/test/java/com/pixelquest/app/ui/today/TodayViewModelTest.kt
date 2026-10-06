@@ -73,6 +73,8 @@ class FakeDifficultyRepo : com.pixelquest.app.testing.FakeDifficultySettingsRepo
 fun todayAtNoon() = java.time.LocalDate.now().atTime(12, 0)
 
 @RunWith(RobolectricTestRunner::class)
+// A plain Application: the real one builds the real database, whose background seeding outlived the test
+@org.robolectric.annotation.Config(sdk = [34], application = android.app.Application::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class TodayViewModelTest {
 
