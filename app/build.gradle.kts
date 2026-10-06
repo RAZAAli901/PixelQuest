@@ -21,6 +21,8 @@ val supabaseUrlProp = localProps.getProperty("SUPABASE_URL") ?: "https://placeho
 val supabaseAnonKeyProp = localProps.getProperty("SUPABASE_ANON_KEY") ?: "placeholder-anon-key"
 val googleWebClientIdProp = localProps.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
 val geminiApiKeyProp = localProps.getProperty("GEMINI_API_KEY") ?: "placeholder-gemini-key"
+// Debug builds call Gemini directly with the local key unless GEMINI_VIA_PROXY=true (to try the proxy).
+val geminiViaProxyProp = localProps.getProperty("GEMINI_VIA_PROXY")?.trim()?.toBoolean() ?: false
 
 android {
     namespace = "com.pixelquest.app"
@@ -37,6 +39,7 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKeyProp\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientIdProp\"")
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKeyProp\"")
+        buildConfigField("boolean", "GEMINI_VIA_PROXY", "$geminiViaProxyProp")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -61,6 +64,10 @@ android {
 
     buildTypes {
         release {
+            // Release APKs are public and the key would be readable in them, so they never contain
+            // the Gemini key and always go through the gemini-proxy Edge Function, which holds it.
+            buildConfigField("String", "GEMINI_API_KEY", "\"\"")
+            buildConfigField("boolean", "GEMINI_VIA_PROXY", "true")
             isMinifyEnabled = true
             isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
