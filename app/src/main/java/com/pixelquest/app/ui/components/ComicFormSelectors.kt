@@ -1,7 +1,6 @@
 package com.pixelquest.app.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -68,7 +67,7 @@ fun ComicCategorySelector(
                     cornerRadius = ComicShapeTokens.ChipRadius,
                     shadowOffset = ComicShapeTokens.ShadowOffsetSmall,
                     borderWidth = ComicShapeTokens.BorderWidthThin,
-                    modifier = Modifier.clickable { onCategorySelected(category) }
+                    modifier = Modifier.choiceChip(isSelected) { onCategorySelected(category) }
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -76,7 +75,7 @@ fun ComicCategorySelector(
                     ) {
                         Image(
                             painter = painterResource(id = category.iconResId),
-                            contentDescription = category.displayName,
+                            contentDescription = null, // the label beside it names the category
                             colorFilter = ColorFilter.tint(ComicTokens.SolidBlack),
                             modifier = Modifier.size(16.dp)
                         )
@@ -140,7 +139,7 @@ fun ComicRecurrenceSelector(
                     borderWidth = ComicShapeTokens.BorderWidthThin,
                     modifier = Modifier
                         .weight(1f)
-                        .clickable { onTypeSelected(type) }
+                        .choiceChip(isSelected) { onTypeSelected(type) }
                 ) {
                     Box(
                         modifier = Modifier.fillMaxWidth(),

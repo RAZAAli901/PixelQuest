@@ -1,7 +1,6 @@
 package com.pixelquest.app.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -62,7 +61,7 @@ fun PixelCategorySelector(
                 PixelCard(
                     variant = variant,
                     contentPadding = 6.dp,
-                    modifier = Modifier.clickable { onCategorySelected(category) }
+                    modifier = Modifier.choiceChip(isSelected) { onCategorySelected(category) }
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -70,7 +69,7 @@ fun PixelCategorySelector(
                     ) {
                         Image(
                             painter = painterResource(id = category.iconResId),
-                            contentDescription = category.displayName,
+                            contentDescription = null, // the label beside it names the category
                             colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
                                 com.pixelquest.app.ui.theme.PixelTheme.mode,
                                 if (isSelected) com.pixelquest.app.ui.theme.PixelTheme.colors.primary else com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant

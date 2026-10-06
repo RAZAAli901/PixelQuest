@@ -1,6 +1,5 @@
 package com.pixelquest.app.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.PixelCyan
 import com.pixelquest.app.ui.theme.PixelRed
@@ -77,7 +77,7 @@ fun PixelDaySelector(
                     contentPadding = 0.dp,
                     modifier = Modifier
                         .size(48.dp)
-                        .clickable { onDayToggled(day) }
+                        .dayChip(day, isSelected) { onDayToggled(day) }
                 ) {
                     Box(
                         modifier = Modifier.size(48.dp),
@@ -86,7 +86,8 @@ fun PixelDaySelector(
                         Text(
                             text = shortName,
                             style = PixelTypography.bodyMedium,
-                            color = if (isSelected) PixelCyan else PixelTextMuted
+                            color = if (isSelected) PixelCyan else PixelTextMuted,
+                            modifier = Modifier.clearAndSetSemantics {}
                         )
                     }
                 }

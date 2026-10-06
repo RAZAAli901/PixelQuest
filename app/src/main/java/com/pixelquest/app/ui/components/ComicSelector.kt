@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -168,7 +169,7 @@ fun ComicDaySelector(
                     borderWidth = ComicShapeTokens.BorderWidthThin,
                     modifier = Modifier
                         .size(48.dp)
-                        .clickable { onDayToggled(day) }
+                        .dayChip(day, isSelected) { onDayToggled(day) }
                 ) {
                     Box(
                         modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -179,7 +180,8 @@ fun ComicDaySelector(
                             fontFamily = FontFamily.SansSerif,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Black,
-                            color = ComicTokens.SolidBlack
+                            color = ComicTokens.SolidBlack,
+                            modifier = Modifier.clearAndSetSemantics {}
                         )
                     }
                 }
