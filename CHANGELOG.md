@@ -18,10 +18,11 @@ All notable changes to **PixelQuest** are documented in this file.
 - Cached for 12 hours, at most one live call per 6 hours, and capped at 4 calls a day and 60 a month.
 - Released builds reach Gemini through PixelQuest's own server, which holds the key. The key is never inside the APK.
 
-### 🔔 Reminders (Days 26–28)
+### 🔔 Reminders (Days 26–28, 31)
 - Reminder lead times and styles, a "Did you do it?" prompt, missed-quest notices, and snooze.
 - One result per quest per day: double taps and late answers no longer count twice.
 - Two quests due in the same minute both get their prompt.
+- An evening nudge (around 19:00) when your streak is at risk, saying how many more quests keep it (Day 31).
 
 ### 🗓️ Quests and progress
 - Weekly quests on chosen days (Day 27).
@@ -31,8 +32,11 @@ All notable changes to **PixelQuest** are documented in this file.
 - Backups now include the streak, completion history and level timeline (Days 28, 30).
 - Leaving the leaderboard while offline is queued until you're back online (Day 30).
 
-### ♿ Accessibility (Day 30)
-- TalkBack reads full day names, which chips are selected, heatmap days with their results, and named close buttons.
+### ♿ Accessibility (Days 30–31)
+- TalkBack reads full day names, which chips, difficulty cards and history filters are selected, heatmap days with their results, and named close, back, delete and refresh buttons.
+
+### ☁️ Builds without cloud or AI (Day 31)
+- A build without a Supabase project says sign-in, sync and the leaderboard aren't set up, instead of offering a sign-in that can't work. A build that can't reach Gemini doesn't offer the AI Coach.
 
 ### ⚠️ Upgrading from 1.1.0 or earlier
 - From this release on, PixelQuest is signed with a permanent release key. Earlier releases were each signed with a temporary key, so Android won't install this one over them.
