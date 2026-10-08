@@ -52,6 +52,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         // Background async enqueue of periodic background workers
         scheduleMissedTaskWorker()
         scheduleStreakEvaluationWorker()
+        // Evening streak-at-risk nudge; posts nothing unless a live streak is actually at risk.
+        com.pixelquest.app.worker.StreakAtRiskWorker.schedule(this)
         // Does nothing unless AI Coach and AI reminder messages are both on.
         com.pixelquest.app.worker.EncouragementPackWorker.schedule(this)
         rearmReminders()
