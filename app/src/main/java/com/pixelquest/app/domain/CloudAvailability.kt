@@ -3,10 +3,10 @@ package com.pixelquest.app.domain
 import com.pixelquest.app.BuildConfig
 
 /**
- * Whether this build can sign in at all, which cloud sync and the leaderboard need: a Supabase
- * project and the Google web client id that Sign in with Google asks for. Builds made without them
- * (the placeholders in app/build.gradle.kts) would open Google's account picker and then fail, so
- * they say the features aren't available instead of offering them.
+ * Whether this build can sign in at all, which cloud sync, the leaderboard and the AI Coach need: a
+ * Supabase project (then email-code sign-in works). Sign in with Google also needs the Google web
+ * client id, so its button only shows when the build has one. Builds made without a project (the
+ * placeholders in app/build.gradle.kts) say the features aren't available instead of offering them.
  */
 object CloudAvailability {
     private const val PLACEHOLDER_URL = "https://placeholder-project.supabase.co"
@@ -18,15 +18,20 @@ object CloudAvailability {
         return url.startsWith("https://") && url != PLACEHOLDER_URL
     }
 
-    fun isConfigured(supabaseUrl: String, anonKey: String, googleWebClientId: String): Boolean {
+    fun isConfigured(supabaseUrl: String, anonKey: String): Boolean {
         val key = anonKey.trim()
-        return isRealProjectUrl(supabaseUrl) &&
-            key.isNotEmpty() && key != PLACEHOLDER_ANON_KEY &&
-            googleWebClientId.isNotBlank()
+        return isRealProjectUrl(supabaseUrl) && key.isNotEmpty() && key != PLACEHOLDER_ANON_KEY
     }
 
+    /** Sign in with Google: a Supabase project and the Google web client id. */
+    fun isGoogleConfigured(supabaseUrl: String, anonKey: String, googleWebClientId: String): Boolean =
+        isConfigured(supabaseUrl, anonKey) && googleWebClientId.isNotBlank()
+
     val inThisBuild: Boolean
-        get() = isConfigured(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_ANON_KEY, BuildConfig.GOOGLE_WEB_CLIENT_ID)
+        get() = isConfigured(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_ANON_KEY)
+
+    val googleInThisBuild: Boolean
+        get() = isGoogleConfigured(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_ANON_KEY, BuildConfig.GOOGLE_WEB_CLIENT_ID)
 
     const val NOT_IN_THIS_BUILD =
         "Sign-in, cloud sync and the leaderboard aren't set up in this build of PixelQuest. Your progress is saved on this device."

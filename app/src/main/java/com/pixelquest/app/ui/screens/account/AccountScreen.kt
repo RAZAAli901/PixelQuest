@@ -41,6 +41,7 @@ fun AccountScreen(
     accountViewModel: AccountViewModel = hiltViewModel()
 ) {
     val authState by viewModel.uiState.collectAsState()
+    val emailState by viewModel.emailState.collectAsState()
     val accountState by accountViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
@@ -48,6 +49,14 @@ fun AccountScreen(
         authState = authState,
         accountState = accountState,
         onSignInWithGoogle = { viewModel.signInWithGoogle(context) },
+        emailState = emailState,
+        onOpenEmailSignIn = { viewModel.openEmailSignIn() },
+        onEmailChange = { viewModel.onEmailChanged(it) },
+        onSendEmailCode = { viewModel.sendEmailCode() },
+        onEmailCodeChange = { viewModel.onCodeChanged(it) },
+        onVerifyEmailCode = { viewModel.verifyEmailCode() },
+        onUseDifferentEmail = { viewModel.useDifferentEmail() },
+        onCloseEmailSignIn = { viewModel.closeEmailSignIn() },
         onSignOut = {
             accountViewModel.cancelActiveSync()
             viewModel.signOut()
@@ -76,6 +85,14 @@ fun AccountContent(
     authState: com.pixelquest.app.auth.AuthUiState,
     accountState: AccountUiState,
     onSignInWithGoogle: () -> Unit = {},
+    emailState: com.pixelquest.app.auth.EmailSignInState = com.pixelquest.app.auth.EmailSignInState(),
+    onOpenEmailSignIn: () -> Unit = {},
+    onEmailChange: (String) -> Unit = {},
+    onSendEmailCode: () -> Unit = {},
+    onEmailCodeChange: (String) -> Unit = {},
+    onVerifyEmailCode: () -> Unit = {},
+    onUseDifferentEmail: () -> Unit = {},
+    onCloseEmailSignIn: () -> Unit = {},
     onSignOut: () -> Unit = {},
     onDisplayNameChange: (String) -> Unit = {},
     onOptInToggle: (Boolean) -> Unit = {},
@@ -94,7 +111,9 @@ fun AccountContent(
     onNavigateBack: () -> Unit = {},
     modifier: Modifier = Modifier,
     /** False in a build without a Supabase project: sign-in can't work there, so it isn't offered. */
-    cloudAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.inThisBuild
+    cloudAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.inThisBuild,
+    /** Sign in with Google also needs the Google web client id; email-code sign-in doesn't. */
+    googleAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.googleInThisBuild
 ) {
     val colors = PixelTheme.colors
 
@@ -127,7 +146,7 @@ fun AccountContent(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = if (cloudAvailable) {
-                            "Connect your Google account to join the community quest leaderboard and synchronize your stats."
+                            "Sign in with Google or your email to join the community quest leaderboard, sync your stats and use the AI Coach."
                         } else {
                             "Cloud features are off in this build."
                         },
@@ -157,17 +176,29 @@ fun AccountContent(
                         )
                         if (cloudAvailable) {
                             Text(
-                                text = "Sign in with Google to join the leaderboard. By default, your stats remain private until you explicitly choose to opt in.",
+                                text = "Sign in to join the leaderboard and use the AI Coach. By default, your stats remain private until you explicitly choose to opt in.",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = colors.onSurface,
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            PixelButton(
-                                text = "🌐 SIGN IN WITH GOOGLE",
-                                onClick = onSignInWithGoogle,
-                                variant = PixelButtonVariant.YELLOW,
-                                modifier = Modifier.fillMaxWidth()
+                            if (googleAvailable && !emailState.isOpen) {
+                                PixelButton(
+                                    text = "🌐 SIGN IN WITH GOOGLE",
+                                    onClick = onSignInWithGoogle,
+                                    variant = PixelButtonVariant.YELLOW,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            EmailSignInSection(
+                                state = emailState,
+                                onOpen = onOpenEmailSignIn,
+                                onEmailChange = onEmailChange,
+                                onSendCode = onSendEmailCode,
+                                onCodeChange = onEmailCodeChange,
+                                onVerifyCode = onVerifyEmailCode,
+                                onUseDifferentEmail = onUseDifferentEmail,
+                                onClose = onCloseEmailSignIn
                             )
                         } else {
                             Text(

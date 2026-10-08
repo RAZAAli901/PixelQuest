@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +26,8 @@ fun PixelTextField(
     errorText: String? = null,
     singleLine: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
     if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
@@ -38,6 +40,7 @@ fun PixelTextField(
             errorText = errorText,
             singleLine = singleLine,
             keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
             visualTransformation = visualTransformation
         )
         return
@@ -66,6 +69,7 @@ fun PixelTextField(
                 onValueChange = onValueChange,
                 singleLine = singleLine,
                 keyboardOptions = keyboardOptions,
+                keyboardActions = keyboardActions,
                 visualTransformation = visualTransformation,
                 textStyle = PixelTypography.bodyMedium.copy(color = colors.onSurface),
                 cursorBrush = SolidColor(colors.primary),

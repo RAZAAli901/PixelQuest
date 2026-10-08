@@ -33,11 +33,14 @@ class CloudAvailabilityUiTest {
     @Test
     fun theRule() {
         val clientId = "123-abc.apps.googleusercontent.com"
-        assertTrue(CloudAvailability.isConfigured("https://abcd.supabase.co", "sb_publishable_x", clientId))
-        assertFalse(CloudAvailability.isConfigured("https://placeholder-project.supabase.co", "sb_publishable_x", clientId))
-        assertFalse(CloudAvailability.isConfigured("https://abcd.supabase.co", "placeholder-anon-key", clientId))
-        assertFalse("Sign in with Google needs the web client id", CloudAvailability.isConfigured("https://abcd.supabase.co", "sb_publishable_x", ""))
-        assertFalse(CloudAvailability.isConfigured("", "", ""))
+        assertTrue(CloudAvailability.isConfigured("https://abcd.supabase.co", "sb_publishable_x"))
+        assertFalse(CloudAvailability.isConfigured("https://placeholder-project.supabase.co", "sb_publishable_x"))
+        assertFalse(CloudAvailability.isConfigured("https://abcd.supabase.co", "placeholder-anon-key"))
+        assertFalse(CloudAvailability.isConfigured("", ""))
+        // Email-code sign-in needs only the project; Sign in with Google also needs the web client id.
+        assertTrue(CloudAvailability.isGoogleConfigured("https://abcd.supabase.co", "sb_publishable_x", clientId))
+        assertFalse(CloudAvailability.isGoogleConfigured("https://abcd.supabase.co", "sb_publishable_x", ""))
+        assertFalse(CloudAvailability.isGoogleConfigured("https://placeholder-project.supabase.co", "sb_publishable_x", clientId))
     }
 
     @Test
@@ -49,6 +52,7 @@ class CloudAvailabilityUiTest {
         }
         composeTestRule.onNodeWithText(CloudAvailability.NOT_IN_THIS_BUILD).assertIsDisplayed()
         assertEquals(0, composeTestRule.onAllNodesWithText("🌐 SIGN IN WITH GOOGLE").fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodesWithText("✉️ SIGN IN WITH EMAIL").fetchSemanticsNodes().size)
         // Nothing above it still invites the player to connect or join.
         assertEquals(0, composeTestRule.onAllNodesWithText("Connect your Google account", substring = true).fetchSemanticsNodes().size)
         assertEquals(0, composeTestRule.onAllNodesWithText("🏆 JOIN THE LEADERBOARD").fetchSemanticsNodes().size)
@@ -58,10 +62,22 @@ class CloudAvailabilityUiTest {
     fun account_withCloud_offersSignIn() {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) {
-                AccountContent(authState = AuthUiState.SignedOut, accountState = AccountUiState(), cloudAvailable = true)
+                AccountContent(authState = AuthUiState.SignedOut, accountState = AccountUiState(), cloudAvailable = true, googleAvailable = true)
             }
         }
         composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").assertIsDisplayed()
+        composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").assertIsDisplayed()
+    }
+
+    @Test
+    fun account_withoutTheGoogleClientId_stillOffersEmail() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                AccountContent(authState = AuthUiState.SignedOut, accountState = AccountUiState(), cloudAvailable = true, googleAvailable = false)
+            }
+        }
+        assertEquals(0, composeTestRule.onAllNodesWithText("🌐 SIGN IN WITH GOOGLE").fetchSemanticsNodes().size)
+        composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").assertIsDisplayed()
     }
 
     @Test
