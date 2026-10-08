@@ -136,48 +136,33 @@ class StatsRepositoryImpl @Inject constructor(
                 )
             }
 
-            val today = LocalDate.now()
-            var totalScheduled = 0
-            var checkDate = task.scheduledDay
-            while (!checkDate.isAfter(today)) {
-                if (isTaskScheduledOnDate(task, checkDate)) {
-                    totalScheduled++
-                }
-                checkDate = checkDate.plusDays(1)
-            }
-            val totalScheduledCount = maxOf(totalScheduled, logs.size)
+            val today = appClock.now().toLocalDate()
+            val doneDates = logs.filter { it.wasCompleted }.map { it.completedDate }.toSet()
+            val loggedDates = logs.map { it.completedDate }.toSet()
 
-            val completedLogs = logs.filter { it.wasCompleted }
-            val completionCount = completedLogs.size
+            // The quest's occurrences so far: every day it was due before today, and any day with a
+            // result (including today once answered, and days from before a schedule change). A past
+            // due day with no result counts as not done; today doesn't count until it has a result,
+            // so the rate doesn't dip every morning. Whether the quest is still active doesn't matter
+            // for its own history.
+            val dueDays = generateSequence(task.scheduledDay) { it.plusDays(1) }
+                .takeWhile { it.isBefore(today) }
+                .filter { com.pixelquest.app.domain.TaskOccurrence.occursOn(task.scheduledDay, task.recurrenceType, it, task.weeklyDays) }
+            val occurrences = (dueDays.toSet() + loggedDates.filter { !it.isAfter(today) }).sorted()
+
+            val totalScheduledCount = occurrences.size
+            val completionCount = occurrences.count { it in doneDates }
             val rate = if (totalScheduledCount == 0) 0f else (completionCount.toFloat() / totalScheduledCount.toFloat()).coerceIn(0f, 1f)
 
-            // Calculate streaks from chronological logs
-            val sortedLogs = logs.sortedBy { it.completedDate }
+            // Streaks run over occurrences in order: a done one extends, anything else resets.
             var currentStreak = 0
             var longestStreak = 0
-            var tempStreak = 0
-
-            for (log in sortedLogs) {
-                if (log.wasCompleted) {
-                    tempStreak++
-                    if (tempStreak > longestStreak) {
-                        longestStreak = tempStreak
-                    }
-                } else {
-                    tempStreak = 0
-                }
+            for (day in occurrences) {
+                currentStreak = if (day in doneDates) currentStreak + 1 else 0
+                longestStreak = maxOf(longestStreak, currentStreak)
             }
 
-            // Current streak counts backward from latest log
-            for (log in sortedLogs.reversed()) {
-                if (log.wasCompleted) {
-                    currentStreak++
-                } else {
-                    break
-                }
-            }
-
-            val recentHistory = sortedLogs.takeLast(14).map { Pair(it.completedDate, it.wasCompleted) }
+            val recentHistory = occurrences.takeLast(14).map { Pair(it, it in doneDates) }
 
             PerTaskStats(
                 taskId = taskId,
