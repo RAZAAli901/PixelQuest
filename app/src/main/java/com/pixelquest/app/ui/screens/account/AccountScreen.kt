@@ -555,7 +555,7 @@ fun PrivacyPolicyDialog(
                 color = colors.primaryText
             )
             Text(
-                text = "Leaderboard participation defaults to OFF. If you choose to sign in with Google and opt in, only your public display name, level, streak, and XP are synchronized. Your individual quest descriptions and Google email are NEVER shared.",
+                text = "Leaderboard participation defaults to OFF. You can sign in with Google or with a code sent to your email; signing in alone shares nothing. If you opt in, only your public display name, level, streak, and XP are synchronized. Your individual quest descriptions and email are NEVER shared. The AI Coach is for signed-in players.",
                 style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurface
             )

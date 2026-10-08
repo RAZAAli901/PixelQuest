@@ -18,8 +18,9 @@ import com.pixelquest.app.ui.theme.PixelTheme
 
 /** Shown in builds that reach Gemini through the gemini-proxy Edge Function (all release builds). */
 internal const val AI_PROXY_PRIVACY_NOTE =
-    "• Requests pass through PixelQuest's server, which keeps the AI key private and counts calls " +
-        "by a random install ID that isn't linked to your account."
+    "• Requests pass through PixelQuest's server, which keeps the AI key private. The AI Coach is for " +
+        "signed-in players, so the server checks your sign-in and counts your calls per account per day. " +
+        "Your name and email are never put in the prompt."
 
 /**
  * Informed consent and privacy disclosure dialog for AI Habit Insights.

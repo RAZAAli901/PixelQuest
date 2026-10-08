@@ -18,7 +18,7 @@ By default, PixelQuest operates **100% locally and offline**:
 
 ## 2. Optional Cloud Leaderboard & Authentication
 
-If you choose to participate in the global community leaderboard, PixelQuest offers an optional cloud connection powered by Supabase and Google Sign-In.
+If you choose to participate in the global community leaderboard, or to use the AI Coach, PixelQuest offers an optional cloud account powered by Supabase. You can sign in with Google, or with your email address and a one-time code we email you (no password). Signing in on its own uploads nothing to the leaderboard.
 
 ### What Data is Collected (and What is NOT)
 When you sign in and choose to join the leaderboard, the following data is transmitted and stored:
@@ -26,7 +26,7 @@ When you sign in and choose to join the leaderboard, the following data is trans
 | Data Field | Purpose | Publicly Visible? |
 | :--- | :--- | :--- |
 | **Supabase User ID (UUID)** | Unique cryptographic identifier for database record association. | No (internal identifier) |
-| **Google Email & OAuth Credentials** | Used strictly by Supabase Auth to authenticate your session and issue secure JWTs. | **Never.** Email is never stored in public profile tables or shown on the leaderboard. |
+| **Email Address (and Google OAuth credentials, if you use Google)** | Used strictly by Supabase Auth to sign you in: to send your one-time code by email, or to check your Google sign-in, and to issue secure session tokens. | **Never.** Email is never stored in public profile tables or shown on the leaderboard. |
 | **Public Display Name** | Pseudonym chosen by you for the leaderboard. Moderated for offensive language. | **Yes**, visible to other authenticated players on rankings. |
 | **Current & Longest Streak** | Number of consecutive perfect days completed. | **Yes**, used for "Top Streaks" ranking. |
 | **Player Level & Total XP** | Current RPG level and total accumulated experience points. | **Yes**, used for "Top Levels" ranking. |
@@ -38,7 +38,7 @@ When you sign in and choose to join the leaderboard, the following data is trans
 
 ### When Data is Collected & Synced
 Data synchronization occurs strictly when:
-1. You explicitly tap "Sign in with Google" in `AccountScreen`.
+1. You explicitly tap "Sign in with Google" or "Sign in with email" in `AccountScreen`.
 2. You explicitly choose to opt into the leaderboard and confirm your public display name.
 3. Background synchronization (`ProfileSyncWorker`) runs after you complete a quest or level up, pushing updated aggregate stats.
 
@@ -61,6 +61,7 @@ PixelQuest offers AI-powered habit analysis and coaching powered by Google's Gem
 ### A. Strict Opt-In Architecture
 - **Disabled by Default**: AI Habit Insights are turned **OFF** by default on all installations.
 - **Player Consent Required**: No network requests are ever sent to Google Gemini unless you explicitly navigate to **Settings > AI Habit Insights** and enable the feature.
+- **Signed-In Players Only**: The AI Coach works only while you're signed in (Google or an emailed code). Signed out, the app sends no AI requests at all and doesn't show insights or AI-written reminder lines saved earlier.
 
 ### B. What Habit-Summary Data is Transmitted
 When you request or receive an AI insight, PixelQuest transmits strictly anonymized, high-level summary metrics:
@@ -72,13 +73,14 @@ When you request or receive an AI insight, PixelQuest transmits strictly anonymi
 ### C. What is NEVER Transmitted to Google Gemini
 - **Verbatim Task Names & Notes**: We **never** transmit individual task titles (such as "Take heart medication" or "Call counselor") or notes. Raw task descriptions remain 100% on your device.
 - **Personal Identifiers**: No usernames, real names, emails, Google OAuth credentials, or Supabase user IDs are ever included in AI prompts.
-- **Device & Location Data**: Zero device telemetry, GPS coordinates, advertising IDs or hardware identifiers. (The random install ID described below is made by the app, not read from the device.)
+- **Device & Location Data**: Zero device telemetry, GPS coordinates, advertising IDs or hardware identifiers.
 - **Active Sanitization Defense**: PixelQuest executes an active client-side regex and blacklist sanitization pass prior to prompt dispatch, actively scrubbing emails, phone numbers, and names even in accidental edge cases.
 
 ### D. How AI Requests Reach Gemini
 - The released app doesn't contain the Gemini API key. Its AI requests go to PixelQuest's own server, a Supabase Edge Function called `gemini-proxy`. That server holds the key and passes each request on to Google Gemini.
-- Along with the anonymized summary above, the app sends a **random install ID**. The app makes this ID when it first uses AI. It isn't linked to your account, your name or your device's hardware, and a reinstall gets a new one.
-- The server stores only how many AI calls each install ID made on each day, so it can enforce daily limits. Those counts are deleted after 30 days. It doesn't store your prompts or Gemini's answers.
+- Along with the anonymized summary above, the app sends your **sign-in session token** (in a request header, never in the prompt). The server uses it only to check with Supabase Auth that you're a signed-in player, and to learn your account ID. Nothing from it is passed to Google.
+- The server stores only how many AI calls each account ID made on each day, so it can enforce daily limits. Those counts are deleted after 30 days. It doesn't store your prompts or Gemini's answers.
+- Earlier versions sent a random install ID instead; the app no longer makes or sends one.
 
 ---
 
