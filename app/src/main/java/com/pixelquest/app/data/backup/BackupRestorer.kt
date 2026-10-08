@@ -11,7 +11,8 @@ import javax.inject.Singleton
 @Singleton
 class BackupRestorer @Inject constructor(
     private val db: AppDatabase,
-    private val taskAlarmScheduler: TaskAlarmScheduler
+    private val taskAlarmScheduler: TaskAlarmScheduler,
+    private val levelUpSignalManager: com.pixelquest.app.domain.LevelUpSignalManager
 ) {
     suspend fun snapshot(): BackupPayload = BackupPayload(
         userProfile = db.userProfileDao().getProfile().first(),
@@ -67,5 +68,8 @@ class BackupRestorer @Inject constructor(
             taskAlarmScheduler.cancelAllAlarms(currentTasks)
             taskAlarmScheduler.rescheduleAllAlarms(payload.tasks.filter { it.isActive })
         }
+        // A level-up still waiting to be celebrated belongs to the progress just replaced (restoring
+        // a level-2 backup used to greet the player with "YOU ARE NOW LEVEL 5"), as on a reset.
+        levelUpSignalManager.clearPendingLevelUp()
     }
 }

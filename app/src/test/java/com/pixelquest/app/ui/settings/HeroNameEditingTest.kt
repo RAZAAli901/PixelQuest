@@ -56,7 +56,7 @@ class HeroNameEditingTest {
             FakeTaskRepository(),
             scheduler,
             ProgressReset(db, scheduler, LevelUpSignalManager(context)),
-            BackupRestorer(db, scheduler)
+            BackupRestorer(db, scheduler, LevelUpSignalManager(context))
         )
     }
 

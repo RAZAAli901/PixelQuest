@@ -10,6 +10,7 @@ import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
+import com.pixelquest.app.domain.LevelUpSignalManager
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.scheduling.TaskAlarmScheduler
@@ -57,7 +58,7 @@ class BackupRoundTripTest {
     }
 
     private fun backupJson(db: AppDatabase) = runBlocking {
-        DataExportImport.exportToJson(BackupRestorer(db, TaskAlarmScheduler(context)).snapshot())
+        DataExportImport.exportToJson(BackupRestorer(db, TaskAlarmScheduler(context), LevelUpSignalManager(context)).snapshot())
     }
 
     @Test
@@ -70,7 +71,7 @@ class BackupRoundTripTest {
         newPhone.userProfileDao().insertProfile(
             UserProfileEntity(username = "PixelHero", avatarId = "avatar_hero", supabaseUserId = "u1", leaderboardOptIn = true, leaderboardDisplayName = "Aly_Q")
         )
-        BackupRestorer(newPhone, TaskAlarmScheduler(context)).restore(DataExportImport.importFromJson(json))
+        BackupRestorer(newPhone, TaskAlarmScheduler(context), LevelUpSignalManager(context)).restore(DataExportImport.importFromJson(json))
 
         assertEquals(StreakEntity(currentStreak = 6, longestStreak = 9, lastCompletedDate = day, perfectDaysCount = 21), newPhone.streakDao().getCurrentStreak().first())
         assertEquals(listOf("Read", "Run"), newPhone.taskDao().getAllTasks().first().map { it.name }.sorted())
@@ -95,7 +96,7 @@ class BackupRoundTripTest {
         val payload = DataExportImport.importFromJson(legacy)
         assertNull(payload.logs)
 
-        BackupRestorer(newPhone, TaskAlarmScheduler(context)).restore(payload)
+        BackupRestorer(newPhone, TaskAlarmScheduler(context), LevelUpSignalManager(context)).restore(payload)
 
         assertEquals(1, newPhone.taskCompletionLogDao().getAllLogs().first().size)
     }
@@ -109,7 +110,7 @@ class BackupRoundTripTest {
 
         val newPhone = newDb()
         newPhone.levelHistoryDao().insertLevelHistory(LevelHistoryEntity(level = 2, achievedDate = 9_999L, difficultyAtTimeOfLevelUp = "MEDIUM"))
-        BackupRestorer(newPhone, TaskAlarmScheduler(context)).restore(DataExportImport.importFromJson(json))
+        BackupRestorer(newPhone, TaskAlarmScheduler(context), LevelUpSignalManager(context)).restore(DataExportImport.importFromJson(json))
 
         val timeline = newPhone.levelHistoryDao().getAllHistory().first().sortedBy { it.level }
         assertEquals(listOf(Triple(2, 1_000L, "EASY"), Triple(3, 2_000L, "HARD")), timeline.map { Triple(it.level, it.achievedDate, it.difficultyAtTimeOfLevelUp) })
@@ -125,9 +126,21 @@ class BackupRoundTripTest {
         val payload = DataExportImport.importFromJson(legacy)
         assertNull(payload.levelHistory)
 
-        BackupRestorer(newPhone, TaskAlarmScheduler(context)).restore(payload)
+        BackupRestorer(newPhone, TaskAlarmScheduler(context), LevelUpSignalManager(context)).restore(payload)
 
         assertEquals(1, newPhone.levelHistoryDao().getAllHistory().first().size)
+    }
+
+    @Test
+    fun restore_dropsALevelUpStillWaitingToBeCelebrated() = runBlocking {
+        val oldPhone = newDb().also { seedOldPhone(it) }
+        val json = backupJson(oldPhone)
+        val signals = LevelUpSignalManager(context)
+        signals.setPendingLevelUp(5)
+
+        BackupRestorer(newDb(), TaskAlarmScheduler(context), signals).restore(DataExportImport.importFromJson(json))
+
+        assertNull(signals.pendingLevelUp.value)
     }
 
     @Test
