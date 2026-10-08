@@ -676,7 +676,9 @@ fun AroundYouList(
 @Composable
 fun NotSignedInLeaderboardState(
     onNavigateToAccount: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** False in a build without a Supabase project, where signing in can't work. */
+    cloudAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.inThisBuild
 ) {
     val colors = PixelTheme.colors
     Box(
@@ -708,18 +710,24 @@ fun NotSignedInLeaderboardState(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             Text(
-                text = "Sign in with your Google Account to view live global rankings, streaks, and top heroes across the realm.",
+                text = if (cloudAvailable) {
+                    "Sign in with your Google Account to view live global rankings, streaks, and top heroes across the realm."
+                } else {
+                    com.pixelquest.app.domain.CloudAvailability.NOT_IN_THIS_BUILD
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurface,
                 textAlign = TextAlign.Center,
                 lineHeight = 18.sp,
                 modifier = Modifier.padding(bottom = 20.dp)
             )
-            com.pixelquest.app.ui.components.PixelButton(
-                text = "🔑 SIGN IN VIA ACCOUNT",
-                onClick = onNavigateToAccount,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (cloudAvailable) {
+                com.pixelquest.app.ui.components.PixelButton(
+                    text = "🔑 SIGN IN VIA ACCOUNT",
+                    onClick = onNavigateToAccount,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }

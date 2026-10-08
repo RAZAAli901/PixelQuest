@@ -92,7 +92,9 @@ fun AccountContent(
     onConfirmDeleteCloudData: () -> Unit = {},
     onDismissDeleteDialog: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** False in a build without a Supabase project: sign-in can't work there, so it isn't offered. */
+    cloudAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.inThisBuild
 ) {
     val colors = PixelTheme.colors
 
@@ -149,19 +151,28 @@ fun AccountContent(
                             color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             textAlign = TextAlign.Center
                         )
-                        Text(
-                            text = "Sign in with Google to join the leaderboard. By default, your stats remain private until you explicitly choose to opt in.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colors.onSurface,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        PixelButton(
-                            text = "🌐 SIGN IN WITH GOOGLE",
-                            onClick = onSignInWithGoogle,
-                            variant = PixelButtonVariant.YELLOW,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        if (cloudAvailable) {
+                            Text(
+                                text = "Sign in with Google to join the leaderboard. By default, your stats remain private until you explicitly choose to opt in.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = colors.onSurface,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            PixelButton(
+                                text = "🌐 SIGN IN WITH GOOGLE",
+                                onClick = onSignInWithGoogle,
+                                variant = PixelButtonVariant.YELLOW,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        } else {
+                            Text(
+                                text = com.pixelquest.app.domain.CloudAvailability.NOT_IN_THIS_BUILD,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = colors.onSurface,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                         PixelButton(
                             text = "📜 VIEW PRIVACY POLICY",
                             onClick = onViewPrivacyPolicy,
