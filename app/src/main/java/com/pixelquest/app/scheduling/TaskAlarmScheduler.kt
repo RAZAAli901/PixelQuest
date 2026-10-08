@@ -87,8 +87,10 @@ class TaskAlarmScheduler @Inject constructor(
     }
 
     fun scheduleExactAlarmForTask(task: TaskEntity, notBefore: LocalDate? = null) {
-        if (!task.reminderEnabled) {
-            // Reminders switched off for this task: make sure nothing is left armed.
+        if (!task.reminderEnabled || !task.isActive) {
+            // Reminders switched off for this task, or the quest is paused: make sure nothing is
+            // left armed. Turning notifications back on (and every boot) re-armed paused quests,
+            // whose alarms then woke the device to show nothing.
             cancelAlarmForTask(task)
             return
         }
