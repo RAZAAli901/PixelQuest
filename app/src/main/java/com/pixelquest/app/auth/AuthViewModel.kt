@@ -23,6 +23,19 @@ sealed class AuthUiState {
     ) : AuthUiState()
 }
 
+/** The email-code sign-in form on Account (see [EmailSignIn]). */
+data class EmailSignInState(
+    val isOpen: Boolean = false,
+    val email: String = "",
+    val code: String = "",
+    /** The address the last code went to; null until one was sent. */
+    val codeSentTo: String? = null,
+    val isWorking: Boolean = false,
+    val error: String? = null,
+    /** Seconds until another code can be asked for. */
+    val resendInSeconds: Long = 0
+)
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val googleAuthManager: GoogleAuthManager,
@@ -32,6 +45,10 @@ class AuthViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.SignedOut)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+
+    private val _emailState = MutableStateFlow(EmailSignInState())
+    val emailState: StateFlow<EmailSignInState> = _emailState.asStateFlow()
+    private var resendTicker: kotlinx.coroutines.Job? = null
 
     init {
         checkCurrentSession()
@@ -145,5 +162,85 @@ class AuthViewModel @Inject constructor(
 
     fun dismissError() {
         _uiState.value = AuthUiState.SignedOut
+    }
+
+    // Sign in with a code sent by email.
+
+    fun openEmailSignIn() {
+        _emailState.value = _emailState.value.copy(isOpen = true, error = null)
+    }
+
+    fun closeEmailSignIn() {
+        resendTicker?.cancel()
+        _emailState.value = EmailSignInState()
+    }
+
+    fun onEmailChanged(email: String) {
+        _emailState.value = _emailState.value.copy(email = email, error = null)
+    }
+
+    fun onCodeChanged(code: String) {
+        // Digits only, and no longer than the longest code Supabase sends.
+        _emailState.value = _emailState.value.copy(code = EmailSignIn.normalizeCode(code).take(10), error = null)
+    }
+
+    /** Back to the address field, to fix a typo or use another address. */
+    fun useDifferentEmail() {
+        _emailState.value = _emailState.value.copy(codeSentTo = null, code = "", error = null)
+    }
+
+    fun sendEmailCode() {
+        val state = _emailState.value
+        if (state.isWorking || state.resendInSeconds > 0) return
+        val email = EmailSignIn.normalizeEmail(state.email)
+        if (!EmailSignIn.isValidEmail(email)) {
+            _emailState.value = state.copy(error = EmailSignIn.INVALID_EMAIL)
+            return
+        }
+        _emailState.value = state.copy(isWorking = true, error = null)
+        viewModelScope.launch {
+            val result = authRepository.sendEmailCode(email)
+            if (result is SupabaseResult.Success) {
+                _emailState.value = _emailState.value.copy(
+                    isWorking = false, email = email, codeSentTo = email, code = "",
+                    resendInSeconds = EmailSignIn.RESEND_AFTER_SECONDS
+                )
+                startResendCountdown()
+            } else {
+                _emailState.value = _emailState.value.copy(isWorking = false, error = EmailSignIn.sendFailure(result))
+            }
+        }
+    }
+
+    fun verifyEmailCode() {
+        val state = _emailState.value
+        val email = state.codeSentTo ?: return
+        if (state.isWorking) return
+        if (!EmailSignIn.isValidCode(state.code)) {
+            _emailState.value = state.copy(error = EmailSignIn.INVALID_CODE)
+            return
+        }
+        _emailState.value = state.copy(isWorking = true, error = null)
+        viewModelScope.launch {
+            when (val result = authRepository.verifyEmailCode(email, EmailSignIn.normalizeCode(state.code))) {
+                is SupabaseResult.Success -> {
+                    userProfileRepository.updateSupabaseUserId(result.data.id)
+                    _uiState.value = AuthUiState.SignedIn(result.data)
+                    closeEmailSignIn()
+                }
+                else -> _emailState.value = _emailState.value.copy(isWorking = false, error = EmailSignIn.verifyFailure(result))
+            }
+        }
+    }
+
+    /** Counts [EmailSignInState.resendInSeconds] down to 0, one second at a time. */
+    private fun startResendCountdown() {
+        resendTicker?.cancel()
+        resendTicker = viewModelScope.launch {
+            while (_emailState.value.resendInSeconds > 0) {
+                kotlinx.coroutines.delay(1_000)
+                _emailState.value = _emailState.value.copy(resendInSeconds = _emailState.value.resendInSeconds - 1)
+            }
+        }
     }
 }
