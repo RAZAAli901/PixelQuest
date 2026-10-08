@@ -35,6 +35,9 @@ class BootReceiver : BroadcastReceiver() {
                     tasks.forEach { task ->
                         taskAlarmScheduler.scheduleExactAlarmForTask(task)
                     }
+                } catch (e: Exception) {
+                    // An uncaught exception here crashed the app on every boot.
+                    android.util.Log.e("BootReceiver", "Could not re-arm reminders after boot", e)
                 } finally {
                     pendingResult.finish()
                 }

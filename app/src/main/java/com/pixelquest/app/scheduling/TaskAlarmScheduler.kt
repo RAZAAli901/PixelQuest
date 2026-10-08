@@ -90,8 +90,18 @@ class TaskAlarmScheduler @Inject constructor(
             cancelAlarmForTask(task)
             return
         }
-        // A one-time task whose time has passed has nothing left to remind about.
-        val triggerTimeMillis = nextTriggerTimeMillis(task, notBefore) ?: return
+        // A one-time task whose time has passed has nothing left to remind about. A date the clock
+        // can't represent (e.g. an edited backup's year 999999999 overflows toEpochMilli) is skipped
+        // rather than crashing whoever is re-arming every reminder.
+        val triggerTimeMillis = try {
+            nextTriggerTimeMillis(task, notBefore)
+        } catch (e: ArithmeticException) {
+            android.util.Log.w("TaskAlarmScheduler", "Task ${task.id} has an unrepresentable date; no reminder armed", e)
+            null
+        } catch (e: java.time.DateTimeException) {
+            android.util.Log.w("TaskAlarmScheduler", "Task ${task.id} has an unrepresentable date; no reminder armed", e)
+            null
+        } ?: return
         val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
             putExtra("EXTRA_TASK_ID", task.id)
             putExtra("EXTRA_TASK_NAME", task.name)
