@@ -231,11 +231,61 @@ object DataExportImport {
                 }
             }
 
-            BackupPayload(profile, difficulty, streak, tasks, logs, levelHistory)
+            sanitize(BackupPayload(profile, difficulty, streak, tasks, logs, levelHistory))
         } catch (e: Exception) {
             android.util.Log.e("DataExportImport", "Failed to parse backup JSON, returning empty payload", e)
             BackupPayload(null, null, null, emptyList())
         }
+    }
+
+    // Plausible ranges for imported values. A backup is a file the player can edit (or be sent), and
+    // out-of-range values used to crash or corrupt the app: a far-future quest date overflowed the
+    // alarm time and crashed on every boot, a very old one hung Analytics, a huge streak overflowed
+    // the XP bonus into negative XP, a future "last evaluated" date froze streaks, and a profile id
+    // other than 1 restored nothing (the app only reads row 1).
+    private val EARLIEST_DATE: LocalDate = LocalDate.of(2000, 1, 1)
+    private const val MAX_LEVEL = 999
+    private const val MAX_XP = 10_000_000
+    private const val MAX_DAYS = 36_500
+    private const val MAX_POINTS_PER_LOG = 10_000
+
+    /** Brings every imported value into a range the app can handle; see the notes above. */
+    internal fun sanitize(payload: BackupPayload, today: LocalDate = LocalDate.now()): BackupPayload {
+        val latestTaskDate = today.plusYears(5)
+        fun inRange(date: LocalDate, latest: LocalDate) = !date.isBefore(EARLIEST_DATE) && !date.isAfter(latest)
+
+        val tasks = payload.tasks
+            .filter { it.id > 0 }
+            .distinctBy { it.id }
+            .map { if (inRange(it.scheduledDay, latestTaskDate)) it else it.copy(scheduledDay = today) }
+        return BackupPayload(
+            userProfile = payload.userProfile?.let {
+                it.copy(
+                    id = 1,
+                    level = it.level.coerceIn(1, MAX_LEVEL),
+                    totalXp = it.totalXp.coerceIn(0, MAX_XP),
+                    perfectDaysTowardNextLevel = it.perfectDaysTowardNextLevel.coerceIn(0, MAX_DAYS)
+                )
+            },
+            difficultySettings = payload.difficultySettings?.copy(id = 1),
+            streak = payload.streak?.let {
+                it.copy(
+                    id = 1,
+                    currentStreak = it.currentStreak.coerceIn(0, MAX_DAYS),
+                    longestStreak = it.longestStreak.coerceIn(0, MAX_DAYS),
+                    perfectDaysCount = it.perfectDaysCount.coerceIn(0, MAX_DAYS),
+                    // A day not yet over can't have been evaluated.
+                    lastCompletedDate = it.lastCompletedDate?.takeIf { d -> inRange(d, today.minusDays(1)) }
+                )
+            },
+            tasks = tasks,
+            logs = payload.logs
+                ?.filter { inRange(it.completedDate, today) }
+                ?.map { it.copy(pointsAwarded = it.pointsAwarded.coerceIn(0, MAX_POINTS_PER_LOG)) },
+            levelHistory = payload.levelHistory
+                ?.filter { it.achievedDate in 0..(System.currentTimeMillis() + 86_400_000L) }
+                ?.map { it.copy(level = it.level.coerceIn(1, MAX_LEVEL)) }
+        )
     }
 
     /** Day names such as "MONDAY"; unknown entries are skipped. */
