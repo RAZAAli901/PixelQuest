@@ -23,6 +23,8 @@ To build and publish signed release APKs, the following secrets must be set in G
 
 **Missing secrets are not fatal.** Without the keystore secrets, the release APK is signed with a throwaway debug key. Without the Supabase secrets, it gets placeholder Supabase settings. Each case adds a warning to the workflow run and a line to the release notes, so the release page says what's missing. v1.0.3 and v1.1.0 were built this way: the repository had none of these secrets.
 
+**Signing since Day 31.** The release keystore exists, and its four secrets were added on 8 Oct 2026 (see `docs/RELEASE_SIGNING.md`). The **Verify Release Signature** step runs after the build and before publishing. When the keystore secret is set, the APK's signer must match `app/release-signing-cert.sha256`, or the release fails. The Supabase secrets are still missing, so the next release will still say "Built without a Supabase project" until they're added.
+
 ## Local Test Tag Verification Script
 ```bash
 # Push test tag to trigger release workflow run
