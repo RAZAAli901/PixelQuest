@@ -16,6 +16,19 @@ import javax.inject.Singleton
 interface CloudProfileRepository {
     suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit>
     suspend fun syncProfileToCloud(): SupabaseResult<Unit>
+
+    /**
+     * [syncProfileToCloud] that says whether anything was sent: Success(false) when the leaderboard
+     * already holds more progress for this account (from another device) and the push was skipped.
+     */
+    suspend fun pushProfileToCloud(): SupabaseResult<Boolean> = when (val result = syncProfileToCloud()) {
+        is SupabaseResult.Success -> SupabaseResult.Success(true)
+        is SupabaseResult.NetworkError -> result
+        is SupabaseResult.AuthError -> result
+        is SupabaseResult.ServerError -> result
+        is SupabaseResult.UnknownError -> result
+    }
+
     suspend fun fetchCloudProfile(userId: String): SupabaseResult<CloudProfileDto?> = SupabaseResult.Success(null)
     suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
     suspend fun deleteCloudProfile(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
@@ -57,7 +70,15 @@ open class CloudProfileRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun syncProfileToCloud(): SupabaseResult<Unit> {
+    override suspend fun syncProfileToCloud(): SupabaseResult<Unit> = when (val result = pushProfileToCloud()) {
+        is SupabaseResult.Success -> SupabaseResult.Success(Unit)
+        is SupabaseResult.NetworkError -> result
+        is SupabaseResult.AuthError -> result
+        is SupabaseResult.ServerError -> result
+        is SupabaseResult.UnknownError -> result
+    }
+
+    override suspend fun pushProfileToCloud(): SupabaseResult<Boolean> {
         val user = auth.currentUserOrNull()
             ?: return SupabaseResult.AuthError(
                 IllegalStateException("No authenticated user"),
@@ -95,11 +116,12 @@ open class CloudProfileRepositoryImpl @Inject constructor(
                     serverProfile = remoteProfile
                 )
                 if (decision is com.pixelquest.app.domain.SyncDecision.SkipServerHigherProgress) {
-                    return@safeSupabaseCall
+                    return@safeSupabaseCall false
                 }
             }
 
             postgrest["profiles"].upsert(dto)
+            true
         }
     }
 

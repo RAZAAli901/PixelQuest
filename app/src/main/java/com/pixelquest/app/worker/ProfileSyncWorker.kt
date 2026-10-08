@@ -52,9 +52,10 @@ class ProfileSyncWorker @AssistedInject constructor(
                 }
             }
 
-            // Check server state for multi-device Last-Write-Wins and Anti-Regression guards
-            val triggerEpochMs = inputData.getLong(KEY_TRIGGER_TIMESTAMP, System.currentTimeMillis())
-            val localTriggerTime = java.time.Instant.ofEpochMilli(triggerEpochMs)
+            // Check server state for multi-device Last-Write-Wins and Anti-Regression guards. The
+            // local time is when this sync runs (it was read from an input key that nothing ever
+            // set, so it always fell back to this).
+            val localTriggerTime = java.time.Instant.now()
 
             val serverProfileResult = cloudProfileRepository.fetchCloudProfile(profile.supabaseUserId!!)
             val serverProfile = when (serverProfileResult) {
@@ -119,6 +120,5 @@ class ProfileSyncWorker @AssistedInject constructor(
 
     companion object {
         const val SYNC_NOTIFICATION_ID = 9001
-        const val KEY_TRIGGER_TIMESTAMP = "key_trigger_timestamp"
     }
 }

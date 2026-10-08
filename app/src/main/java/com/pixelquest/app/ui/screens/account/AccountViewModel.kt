@@ -225,14 +225,20 @@ class AccountViewModel @Inject constructor(
         syncJob = viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isSyncing = true, syncMessage = null)
-                when (val result = cloudProfileRepository.syncProfileToCloud()) {
+                when (val result = cloudProfileRepository.pushProfileToCloud()) {
                     is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
-                        _uiState.value = _uiState.value.copy(
-                            isSyncing = false,
-                            isSyncFailed = false,
-                            lastSyncTime = System.currentTimeMillis(),
-                            syncMessage = "Cloud sync successful!"
-                        )
+                        // Nothing sent is not a failure, but it isn't a successful sync either: it
+                        // used to say "successful" while the leaderboard kept the other numbers.
+                        _uiState.value = if (result.data) {
+                            _uiState.value.copy(
+                                isSyncing = false,
+                                isSyncFailed = false,
+                                lastSyncTime = System.currentTimeMillis(),
+                                syncMessage = SYNC_SUCCESSFUL
+                            )
+                        } else {
+                            _uiState.value.copy(isSyncing = false, isSyncFailed = false, syncMessage = SYNC_SKIPPED_SERVER_AHEAD)
+                        }
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.NetworkError -> {
                         _uiState.value = _uiState.value.copy(
@@ -337,6 +343,10 @@ class AccountViewModel @Inject constructor(
     }
 
     companion object {
+        const val SYNC_SUCCESSFUL = "Cloud sync successful!"
+        const val SYNC_SKIPPED_SERVER_AHEAD =
+            "Nothing sent: the leaderboard already has more progress for this account, from another device."
+
         fun validateDisplayName(name: String): String? {
             val trimmed = name.trim()
             return when {
