@@ -33,7 +33,7 @@ class MissedTaskWorkerTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val tasks = FakeTaskRepository()
     private val logs = FakeTaskCompletionRepository()
-    private val recorder = TaskResultRecorder(logs, FakeUserProfileRepository(), FakeStreakRepository())
+    private val recorder = TaskResultRecorder(logs, FakeUserProfileRepository(), FakeStreakRepository(), tasks)
 
     /** A daily quest due three hours ago (yesterday's date if that crosses midnight). */
     private val dueAt = LocalDateTime.now().minusHours(3)

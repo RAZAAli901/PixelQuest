@@ -23,13 +23,17 @@ import javax.inject.Singleton
 class TaskResultRecorder @Inject constructor(
     private val taskCompletionRepository: TaskCompletionRepository,
     private val userProfileRepository: UserProfileRepository,
-    private val streakRepository: StreakRepository
+    private val streakRepository: StreakRepository,
+    private val taskRepository: com.pixelquest.app.domain.repository.TaskRepository
 ) {
     // Serialises a double tap, or the app and a notification button racing each other.
     private val mutex = Mutex()
 
     /** Marks the task done on [date]. Returns the XP awarded: 0 when it was already done. */
     suspend fun recordCompleted(taskId: Long, date: LocalDate): Int = mutex.withLock {
+        // A deleted quest's reminder can still be in the shade; "Yes" there used to award XP and
+        // leave a log for a quest that no longer exists.
+        if (taskRepository.getTaskById(taskId).first() == null) return@withLock 0
         val existing = taskCompletionRepository.getLogForTaskOnDate(taskId, date)
         if (existing?.wasCompleted == true) return@withLock 0
 
@@ -53,6 +57,7 @@ class TaskResultRecorder @Inject constructor(
      * when the task already has a result that day.
      */
     suspend fun recordNotDone(taskId: Long, date: LocalDate): Boolean = mutex.withLock {
+        if (taskRepository.getTaskById(taskId).first() == null) return@withLock false
         if (taskCompletionRepository.getLogForTaskOnDate(taskId, date) != null) return@withLock false
         taskCompletionRepository.insertLog(
             TaskCompletionLogEntity(taskId = taskId, completedDate = date, wasCompleted = false, pointsAwarded = 0)

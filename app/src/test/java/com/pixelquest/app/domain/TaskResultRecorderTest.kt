@@ -69,7 +69,17 @@ class TaskResultRecorderTest {
     private val day = LocalDate.of(2026, 10, 3)
     private val logs = FakeLogs()
     private val profile = FakeProfile()
-    private val recorder = TaskResultRecorder(logs, profile, FakeStreak(days = 2))
+    private val quests = com.pixelquest.app.testing.FakeTaskRepository(
+        listOf(1L, 2L).map {
+            com.pixelquest.app.data.local.entity.TaskEntity(
+                id = it, name = "Quest $it", description = "", scheduledDay = LocalDate.of(2026, 9, 1),
+                scheduledTime = java.time.LocalTime.of(9, 0),
+                recurrenceType = com.pixelquest.app.domain.model.RecurrenceType.DAILY,
+                category = com.pixelquest.app.domain.model.TaskCategory.FITNESS
+            )
+        }
+    )
+    private val recorder = TaskResultRecorder(logs, profile, FakeStreak(days = 2), quests)
 
     private val xp get() = profile.profile.value!!.totalXp
 
@@ -113,5 +123,13 @@ class TaskResultRecorderTest {
         recorder.recordCompleted(1, day.plusDays(1))
         assertEquals(3, logs.logs.value.size)
         assertEquals(210, xp)
+    }
+
+    @Test
+    fun aDeletedQuest_getsNoResultAndNoXp() = runTest {
+        // Its reminder can still be in the shade after it's deleted.
+        assertEquals(0, recorder.recordCompleted(99, day))
+        assertFalse(recorder.recordNotDone(99, day))
+        assertEquals(0, profile.profile.value!!.totalXp)
     }
 }

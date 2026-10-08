@@ -58,7 +58,7 @@ class TodayFullDayCycleQaTest {
             userProfileRepository = profileRepo,
             difficultySettingsRepository = difficultyRepo,
             taskAlarmScheduler = alarmScheduler,
-            taskResultRecorder = com.pixelquest.app.domain.TaskResultRecorder(completionRepo, profileRepo, streakRepo),
+            taskResultRecorder = com.pixelquest.app.domain.TaskResultRecorder(completionRepo, profileRepo, streakRepo, taskRepo),
             appClock = com.pixelquest.app.testing.FixedClock(todayAtNoon())
         )
     }

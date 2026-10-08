@@ -188,6 +188,8 @@ class TaskFormViewModel @Inject constructor(
                 category = state.category
             )
             taskAlarmScheduler.cancelAlarmForTask(task)
+            // Its reminder or missed notice in the shade, and any pending snooze, go too.
+            taskAlarmScheduler.clearReminder(id)
             taskRepository.deleteTask(task)
             onSuccess()
         }
