@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,21 +54,13 @@ class TaskPromptActivity : ComponentActivity() {
             PixelQuestTheme(themeMode = themeMode, isReduceMotion = isReduceMotion) {
                 CompositionLocalProvider(LocalSoundManager provides soundManager) {
                     val prompt = queue.current ?: return@CompositionLocalProvider
-                    // A fresh screen per quest, so one prompt's state doesn't carry into the next.
-                    key(prompt.taskId) {
-                        DidYouDoItScreen(
-                            taskId = prompt.taskId,
-                            taskName = prompt.taskName,
-                            onDismiss = { showNext() },
-                            isSimpleMode = isSimpleMode,
-                            onYesClick = {
-                                viewModel.onTaskCompleted(prompt.taskId, true) { showNext() }
-                            },
-                            onNoClick = {
-                                viewModel.onTaskCompleted(prompt.taskId, false) { showNext() }
-                            }
-                        )
-                    }
+                    PromptQueueContent(
+                        prompt = prompt,
+                        isSimpleMode = isSimpleMode,
+                        // The save completes even if the activity closes (see onTaskCompleted).
+                        onAnswer = { taskId, done -> viewModel.onTaskCompleted(taskId, done) {} },
+                        onNext = { showNext() }
+                    )
                 }
             }
         }
@@ -87,5 +80,30 @@ class TaskPromptActivity : ComponentActivity() {
     private fun showNext() {
         queue = queue.advance()
         if (queue.current == null) finish()
+    }
+}
+
+/**
+ * One queued prompt. The answer buttons call their handler and then onDismiss, so only [onNext]
+ * moves the queue on, once per answer. (On Day 30 the activity also advanced when the save
+ * finished, which skipped the next queued prompt.)
+ */
+@Composable
+internal fun PromptQueueContent(
+    prompt: PromptRequest,
+    isSimpleMode: Boolean,
+    onAnswer: (taskId: Long, done: Boolean) -> Unit,
+    onNext: () -> Unit
+) {
+    // A fresh screen per quest, so one prompt's state doesn't carry into the next.
+    key(prompt.taskId) {
+        DidYouDoItScreen(
+            taskId = prompt.taskId,
+            taskName = prompt.taskName,
+            onDismiss = onNext,
+            isSimpleMode = isSimpleMode,
+            onYesClick = { onAnswer(prompt.taskId, true) },
+            onNoClick = { onAnswer(prompt.taskId, false) }
+        )
     }
 }
