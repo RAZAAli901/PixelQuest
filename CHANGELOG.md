@@ -4,7 +4,7 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
-## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–30)
+## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–31)
 
 ### 🎨 Themes
 - **Light mode** (Days 16–17): a warm daylight palette, with every screen, chart and dialog adapted and checked for contrast.
@@ -29,6 +29,9 @@ All notable changes to **PixelQuest** are documented in this file.
   - A reminder can't ring twice for the same day after the app restarts.
   - Reminders follow you across time zones.
   - A deleted quest's leftover reminder can't award XP.
+  - A "Yes" tapped after midnight for a late-evening quest now counts toward your streak. The nightly streak check runs at 02:05, and stays at 02:05 when the clocks change.
+  - Paused quests no longer get reminder alarms.
+  - Missed-quest notices follow the quest's own settings. A quest with reminders off gets none, and a SILENT quest's notice doesn't vibrate.
 
 ### 🗓️ Quests and progress
 - Weekly quests on chosen days (Day 27).
@@ -38,6 +41,20 @@ All notable changes to **PixelQuest** are documented in this file.
 - Backups now include the streak, completion history and level timeline (Days 28, 30).
 - Backups are checked when imported (Day 31). A file that isn't a backup says so. Out-of-range values in an edited file are corrected instead of crashing the app. Settings now says whether a backup was saved or restored.
 - Leaving the leaderboard while offline is queued until you're back online (Day 30).
+- If the nightly streak check is interrupted, the perfect days it had counted aren't counted again. A quest completed while it runs keeps its XP (Day 31).
+- RESET ALL PROGRESS keeps your cloud sign-in and leaderboard choice, as its dialog says (Day 31).
+
+### 🏆 Leaderboard (Day 31)
+- LOAD MORE no longer crashes when ranks change between pages.
+- Switching tabs while a list loads no longer mixes up the two tabs' lists, LOAD MORE or "around you" ranks.
+- Ranks beyond 1,000th are counted correctly.
+- Quests completed from a reminder or the full-screen prompt now reach the leaderboard too.
+- Privacy: if you're signed in but haven't joined the leaderboard, your level, XP and streaks are no longer uploaded.
+- SYNC NOW says when nothing was sent because the leaderboard already has more progress from another device.
+
+### ⚙️ Settings (Day 31)
+- SFX: OFF silences the whole app, and HAPTICS: OFF stops every vibration, including the full-screen prompt.
+- New REDUCE MOTION switch: looping animations stay still and theme colours change instantly.
 
 ### ♿ Accessibility (Days 30–31)
 - TalkBack reads full day names, which chips, difficulty cards and history filters are selected, heatmap days with their results, and named close, back, delete and refresh buttons.
