@@ -95,11 +95,14 @@ fun TodayAiInsightSection(
                 )
             }
             is AiInsightUiState.Disabled -> {
-                TodayAiInsightOptInCard(
-                    themeMode = themeMode,
-                    isSimpleMode = isSimpleMode,
-                    onEnableClick = onNavigateToSettings
-                )
+                // No "unlock" teaser in a build that can't reach Gemini: the opt-in isn't offered there.
+                if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
+                    TodayAiInsightOptInCard(
+                        themeMode = themeMode,
+                        isSimpleMode = isSimpleMode,
+                        onEnableClick = onNavigateToSettings
+                    )
+                }
             }
             is AiInsightUiState.CapReached -> {
                 com.pixelquest.app.ui.screens.insight.AiInsightCapReachedState(

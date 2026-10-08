@@ -238,8 +238,15 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.labelSmall,
                     color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.primary)
                 )
+                val aiSetting = com.pixelquest.app.domain.ai.AiCoachSetting.of(
+                    state.isAiInsightsEnabled, com.pixelquest.app.domain.ai.AiAvailability.inThisBuild
+                )
                 androidx.compose.material3.Text(
-                    text = if (state.isAiInsightsEnabled) "✨ ENABLED" else "🔒 DISABLED (OPT-IN)",
+                    text = when (aiSetting) {
+                        com.pixelquest.app.domain.ai.AiCoachSetting.ENABLED -> "✨ ENABLED"
+                        com.pixelquest.app.domain.ai.AiCoachSetting.CAN_OPT_IN -> "🔒 DISABLED (OPT-IN)"
+                        com.pixelquest.app.domain.ai.AiCoachSetting.NOT_IN_THIS_BUILD -> "⛔ NOT IN THIS BUILD"
+                    },
                     style = MaterialTheme.typography.labelMedium,
                     color = com.pixelquest.app.ui.theme.inkOnPanel(if (state.isAiInsightsEnabled) com.pixelquest.app.ui.theme.PixelTheme.colors.tertiary else com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant)
                 )
@@ -272,12 +279,18 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = PixelTheme.colors.onSurfaceVariant
                 )
-            } else {
+            } else if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
                 PixelButton(
                     text = "✨ OPT IN & ENABLE AI COACH",
                     onClick = { viewModel.requestEnableAiInsights() },
                     variant = PixelButtonVariant.YELLOW,
                     modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                Text(
+                    text = "This build of PixelQuest has no AI service set up, so AI Coach can't be turned on. Everything else works as usual.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PixelTheme.colors.onSurfaceVariant
                 )
             }
         },
