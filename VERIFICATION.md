@@ -504,3 +504,50 @@ Live Gemini calls on Day 30: 2. One was the proxy handler check above. The other
 - Leaving the leaderboard offline on a device (the emulator isn't signed in): covered by `OfflineOptOutQueueTest`.
 - An audible TalkBack pass: the labels were checked with `uiautomator dump`.
 - Release signing with a real keystore: none exists here.
+
+## Section J -- Day 31 Verification (Step 47)
+
+Verified on 8 Oct 2026 using the Pixel 6 emulator (Android 14, API 34), the local Gradle build, Node 24 and the repository's GitHub secret list.
+
+### Release key
+- `app/pixelquest-release.jks` (PKCS12, alias `pixelquest`) holds a 4096-bit RSA key with SHA384withRSA, valid from 8 Oct 2026 to 23 Feb 2054.
+- The keystore and its passwords are gitignored; `git status` showed nothing new after they were created.
+- `./gradlew :app:assembleRelease` now signs with this key. `apksigner verify --print-certs` reports:
+  - one signer, `CN=PixelQuest, O=PixelQuest`;
+  - APK Signature Scheme v2;
+  - SHA-256 `9a84b2cff2f6125c6b10d5d38fd565e4d9213518f6d2c1b9653cb4dad99acbb8`, the value in `app/release-signing-cert.sha256`.
+- The release workflow's signature check (Step 2) passed when its script was run locally against that APK.
+- The tag check (Step 17) was simulated: `v1.1.0` and `v1.1.0-rc1` pass, and `v1.2.0` is refused while `versionName` is 1.1.0.
+- `gh secret list` shows `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD`, uploaded at 15:22 UTC. No tagged CI release has used them yet.
+
+### Tests
+- `:app:testDebugUnitTest`: 903 tests in 272 classes, 0 failing, 0 skipped. That's up from 819 at the end of Day 30 and 870 at Step 33.
+- `node --test` in `supabase/functions/gemini-proxy`: 13 of 13 pass.
+- `LeaderboardPagingRaceTest` was also run against the ViewModel from before Step 38. All 5 of its tests failed there, one for each race it covers.
+
+### Emulator checks (debug build)
+| Check | Result |
+| --- | --- |
+| Account with the placeholder Supabase project shows the not-set-up note | The note showed, but the subtitle and heading above it still said "Connect your Google account to join…" and "JOIN THE LEADERBOARD". Step 12 changed them to "Cloud features are off in this build" and "LEADERBOARD", which `CloudAvailabilityUiTest` checks. Not re-checked on the emulator |
+| Leaderboard tab: "HALL OF FAME LOCKED: Sign-in, cloud sync and the leaderboard aren't set up in this build", with no sign-in button. Re-checked after Step 38's ViewModel change | Pass |
+| Quest History filters: ALL TIME is `checked="true"`, 7 DAYS and 30 DAYS are `checked="false"` (uiautomator) | Pass |
+| EXPORT QUEST DATA through the system file picker shows "Backup saved." and writes the file to Downloads | Pass |
+| Every tab opens with today's changes, and the crash log is empty | Pass |
+| REDUCE MOTION goes OFF → ON and is stored (`key_reduce_motion_enabled = true`). It is still ON after a force-stop and relaunch, then switched back OFF | Pass |
+
+No quests or names were changed. Reduce Motion was left off. The backup file stays in the emulator's Downloads. The emulator was shut down afterwards.
+
+Live Gemini calls on Day 31: one, the debug build's automatic AI Coach call when the app was opened. Its card says "Generated Oct 8, 8:41 PM". Unit tests make no live calls.
+
+### Not verified
+- **A tagged release signed by CI from the new secrets.** Nothing has been tagged, and `versionName` is still 1.1.0.
+- **Google Sign-In with the release key.** Its SHA-1 (`8C:41:C5:…:8E:9E:E6`, in `docs/RELEASE_SIGNING.md`) isn't registered with the OAuth client yet.
+- **The gemini-proxy on Supabase.** It still isn't deployed.
+- **Leaderboard paging, "around you" and rank counts against a real project.**
+  - There is no project to test against.
+  - `LeaderboardPagingRaceTest` and `LeaderboardRankCountTest` use a mocked HTTP engine.
+  - It hasn't been checked whether the `HEAD` count respects row-level security the way the old id fetch did.
+- **A sync after completing a quest from its notification.** The emulator isn't signed in. Covered by `CompletionSyncTest`.
+- **The streak-at-risk nudge on a device.** Covered by `StreakAtRiskWorkerTest`.
+- **Reminder day handling across midnight, time-zone changes, paused quests and missed-notice settings.** Covered by unit tests only.
+- **The nightly check's per-day transaction.** Run against Room in memory (`NightlyStreakAtomicityTest`), not on a device.
