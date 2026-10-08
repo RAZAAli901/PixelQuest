@@ -109,21 +109,13 @@ open class CloudProfileRepositoryImpl @Inject constructor(
         val user = auth.currentUserOrNull()
             ?: return SupabaseResult.Success(Unit)
 
-        val profile = userProfileRepository.getProfile().first()
-        val streak = streakRepository.getCurrentStreak().first()
-        val displayName = profile?.leaderboardDisplayName?.ifBlank { "Hero" } ?: "Hero"
-
-        val dto = buildProfileDto(
-            userId = user.id,
-            displayName = displayName,
-            optIn = false,
-            profile = profile,
-            currentStreak = streak?.currentStreak ?: 0,
-            longestStreak = streak?.longestStreak ?: 0
-        )
-
+        // Only the flag, and only on a row that exists. This used to upsert a full row (level, XP,
+        // streaks, display name), and the sync worker calls it for every signed-in player who isn't
+        // opted in: a spectator who never joined uploaded their stats on each completion.
         return safeSupabaseCall {
-            postgrest["profiles"].upsert(dto)
+            postgrest["profiles"].update({ set("leaderboard_opt_in", false) }) {
+                filter { eq("id", user.id) }
+            }
         }
     }
 
