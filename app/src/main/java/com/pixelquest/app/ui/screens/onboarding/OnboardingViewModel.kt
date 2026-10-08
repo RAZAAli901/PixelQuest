@@ -10,6 +10,7 @@ import com.pixelquest.app.domain.model.DifficultyLevel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -89,13 +90,20 @@ class OnboardingViewModel @Inject constructor(
     fun completeOnboarding(onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             val state = _uiState.value
+            // After RESET ALL PROGRESS the existing profile keeps this install's cloud link and
+            // leaderboard choice; carry them over. A fresh profile here used to drop them, so the old
+            // public row stayed on the leaderboard while Account said the player wasn't opted in.
+            val existing = userProfileRepository.getProfile().first()
             val userProfile = com.pixelquest.app.data.local.entity.UserProfileEntity(
                 id = 1,
                 username = state.username.ifBlank { "PixelHero" },
                 avatarId = state.avatarId,
                 level = 1,
                 totalXp = 0,
-                perfectDaysTowardNextLevel = 0
+                perfectDaysTowardNextLevel = 0,
+                supabaseUserId = existing?.supabaseUserId,
+                leaderboardOptIn = existing?.leaderboardOptIn ?: false,
+                leaderboardDisplayName = existing?.leaderboardDisplayName
             )
             userProfileRepository.insertProfile(userProfile)
 
