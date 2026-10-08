@@ -182,3 +182,11 @@ class FixedClock(var time: java.time.LocalDateTime = java.time.LocalDateTime.now
     override fun minuteTicks(): Flow<java.time.LocalDateTime> = kotlinx.coroutines.flow.flowOf(time)
     override fun today(): Flow<LocalDate> = kotlinx.coroutines.flow.flowOf(time.toLocalDate())
 }
+
+/** [com.pixelquest.app.domain.ai.AiAccess] for tests: signed in with [token] unless it's null. */
+class FakeAiAccess(token: String? = "test-access-token") : com.pixelquest.app.domain.ai.AiAccess {
+    var token: String? = token
+        set(value) { field = value; isSignedIn.value = value != null }
+    override val isSignedIn = MutableStateFlow(token != null)
+    override suspend fun accessToken(): String? = token
+}

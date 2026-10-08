@@ -15,6 +15,7 @@ object AiErrorCopy {
     const val OFFLINE = "Can't reach Gemini. Check your internet connection and try again."
     const val UNREADABLE = "The AI coach's answer came back garbled. Try again in a few minutes."
     const val UNKNOWN = "Something went wrong while getting your insight. Try again later."
+    const val SIGN_IN_REQUIRED = "The AI coach is for signed-in players. Sign in with Google or an emailed code in Account to use it."
 
     /**
      * Message for a Gemini HTTP status. 401 is what PixelQuest's own clients report before sending

@@ -30,6 +30,11 @@ sealed class GeminiResult<out T> {
         val message: String = "AI Habit Insights are currently disabled in Settings."
     ) : GeminiResult<Nothing>()
 
+    /** Nobody is signed in, so nothing was sent: the AI Coach is for signed-in players. */
+    data class SignInRequired(
+        val message: String = AiErrorCopy.SIGN_IN_REQUIRED
+    ) : GeminiResult<Nothing>()
+
     data class MalformedResponse(
         val cause: Throwable,
         val rawResponse: String? = null,
@@ -51,7 +56,7 @@ const val DEFAULT_GEMINI_TIMEOUT_MS = 25_000L
  * Executes a suspending Gemini API operation safely with a timeout,
  * catching network, timeout, rate-limit, and API exceptions.
  */
-private val PROXY_DAILY_LIMITS = setOf("device_daily_limit", "global_daily_limit")
+private val PROXY_DAILY_LIMITS = setOf("account_daily_limit", "global_daily_limit")
 
 /**
  * Whether a call got an answer from Gemini (or the proxy in front of it), which is what counts toward
@@ -82,12 +87,14 @@ suspend fun <T> safeGeminiCall(
         GeminiResult.NetworkError(e, AiErrorCopy.OFFLINE)
     } catch (e: GeminiRateLimitException) {
         if (e.reason in PROXY_DAILY_LIMITS) {
-            // The gemini-proxy's per-install or project-wide limit: it resets at midnight UTC.
+            // The gemini-proxy's per-account or project-wide limit: it resets at midnight UTC.
             GeminiResult.ApiError(429, AiErrorCopy.DAILY_LIMIT)
         } else {
             // Google's own quota (HTTP 429), not PixelQuest's daily cap: the user can retry shortly.
             GeminiResult.ApiError(429, AiErrorCopy.BUSY)
         }
+    } catch (e: GeminiSignInRequiredException) {
+        GeminiResult.SignInRequired()
     } catch (e: GeminiApiException) {
         GeminiResult.ApiError(e.statusCode, AiErrorCopy.forStatus(e.statusCode))
     } catch (e: GeminiNetworkException) {

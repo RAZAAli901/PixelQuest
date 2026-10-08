@@ -1,5 +1,6 @@
 package com.pixelquest.app.di
 
+import com.pixelquest.app.data.remote.AccountRequiredGeminiClient
 import com.pixelquest.app.data.remote.GeminiClientImpl
 import com.pixelquest.app.data.remote.GeminiProxyClient
 import io.ktor.client.HttpClient
@@ -19,14 +20,14 @@ class GeminiClientSelectionTest {
 
     @Test
     fun viaProxy_usesTheProxyClient() {
-        val client = AiModule.createGeminiClient(viaProxy = true, httpClient = http, deviceId = { "id" })
-        assertTrue(client is GeminiProxyClient)
+        val client = AiModule.createGeminiClient(viaProxy = true, httpClient = http, aiAccess = com.pixelquest.app.testing.FakeAiAccess())
+        assertTrue((client as AccountRequiredGeminiClient).delegate is GeminiProxyClient)
     }
 
     @Test
     fun otherwise_callsGeminiDirectly() {
-        val client = AiModule.createGeminiClient(viaProxy = false, httpClient = http, deviceId = { "id" })
-        assertTrue(client is GeminiClientImpl)
+        val client = AiModule.createGeminiClient(viaProxy = false, httpClient = http, aiAccess = com.pixelquest.app.testing.FakeAiAccess())
+        assertTrue((client as AccountRequiredGeminiClient).delegate is GeminiClientImpl)
     }
 
     @Test

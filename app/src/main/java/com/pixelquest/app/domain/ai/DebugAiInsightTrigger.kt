@@ -82,6 +82,7 @@ class DebugAiInsightTrigger @Inject constructor(
                 is GeminiResult.NetworkError -> "NETWORK_ERROR: ${result.message}"
                 is GeminiResult.ApiError -> "API_ERROR: ${result.message}"
                 is GeminiResult.Disabled -> "DISABLED: ${result.message}"
+                is GeminiResult.SignInRequired -> "SIGN_IN_REQUIRED: ${result.message}"
                 is GeminiResult.MalformedResponse -> "MALFORMED: ${result.message}"
             }
             onComplete?.invoke(result)
@@ -125,6 +126,7 @@ class DebugAiInsightTrigger @Inject constructor(
             is GeminiResult.NetworkError -> "NETWORK_ERROR: ${result.message}"
             is GeminiResult.ApiError -> "API_ERROR: ${result.message}"
             is GeminiResult.Disabled -> "DISABLED: ${result.message}"
+            is GeminiResult.SignInRequired -> "SIGN_IN_REQUIRED: ${result.message}"
             is GeminiResult.MalformedResponse -> "MALFORMED: ${result.message}"
         }
         return result

@@ -17,18 +17,16 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
-/** Header the gemini-proxy Edge Function counts calls by (see supabase/functions/gemini-proxy). */
-const val AI_DEVICE_HEADER = "x-pixelquest-device"
-
 /**
  * [GeminiClient] for release builds: sends the prompt to PixelQuest's gemini-proxy Supabase Edge
- * Function, which holds the Gemini API key, enforces daily limits and returns Gemini's response
- * unchanged. The app never has the key.
+ * Function, which holds the Gemini API key, checks that the caller is a signed-in account, enforces
+ * daily limits and returns Gemini's response unchanged. The app never has the key.
  */
 class GeminiProxyClient(
     private val supabaseUrl: String,
     private val anonKey: String,
-    private val deviceIdProvider: () -> String,
+    /** The signed-in account's access token, or null when nobody is signed in (see AiAccess). */
+    private val accessTokenProvider: suspend () -> String?,
     private val httpClient: HttpClient = HttpClient(Android)
 ) : GeminiClient {
 
@@ -43,6 +41,9 @@ class GeminiProxyClient(
             throw GeminiApiException(401, "The AI proxy is not configured (no Supabase project in this build).")
         }
 
+        // The proxy serves signed-in accounts only, so without one nothing is sent.
+        val accessToken = accessTokenProvider() ?: throw GeminiSignInRequiredException()
+
         val body = buildJsonObject {
             put("prompt", prompt)
             if (!systemInstruction.isNullOrBlank()) put("systemInstruction", systemInstruction)
@@ -52,7 +53,7 @@ class GeminiProxyClient(
             httpClient.post("$baseUrl/functions/v1/gemini-proxy") {
                 header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                 header("apikey", anonKey)
-                header(AI_DEVICE_HEADER, deviceIdProvider())
+                header(HttpHeaders.Authorization, "Bearer $accessToken")
                 setBody(body)
             }
         } catch (e: kotlinx.coroutines.CancellationException) {
@@ -64,7 +65,13 @@ class GeminiProxyClient(
         val responseBody = response.bodyAsText()
         when (response.status) {
             HttpStatusCode.OK -> GeminiResponseParser.extractText(responseBody)
-            // Gemini busy, or this device or the whole app has used today's calls.
+            // The account's session ended or was revoked: the player has to sign in again.
+            HttpStatusCode.Unauthorized -> if (errorCode(responseBody) == "sign_in_required") {
+                throw GeminiSignInRequiredException()
+            } else {
+                throw GeminiApiException(401, "AI proxy error: ${errorCode(responseBody)}")
+            }
+            // Gemini busy, or this account or the whole app has used today's calls.
             HttpStatusCode.TooManyRequests -> errorCode(responseBody).let { code ->
                 throw GeminiRateLimitException("AI proxy limit reached ($code).", reason = code)
             }
@@ -72,7 +79,7 @@ class GeminiProxyClient(
         }
     }
 
-    /** The proxy's short error code (e.g. "device_daily_limit"); never Gemini's own error text. */
+    /** The proxy's short error code (e.g. "account_daily_limit"); never Gemini's own error text. */
     private fun errorCode(body: String): String = try {
         json.parseToJsonElement(body).jsonObject["error"]?.jsonPrimitive?.content ?: "unknown"
     } catch (e: Exception) {

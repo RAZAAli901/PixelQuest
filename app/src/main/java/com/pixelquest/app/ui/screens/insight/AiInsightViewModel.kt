@@ -116,6 +116,7 @@ class AiInsightViewModel @Inject constructor(
                     )
                 }
                 is GeminiResult.Disabled -> AiInsightUiState.Disabled(result.message)
+                is GeminiResult.SignInRequired -> AiInsightUiState.Error(message = result.message, canRetry = false)
                 is GeminiResult.RateLimited -> {
                     val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()
                     if (result.message.contains("limit", ignoreCase = true) || result.message.contains("cap", ignoreCase = true)) {

@@ -36,6 +36,7 @@ class GeminiErrorMessagesTest {
         is GeminiResult.RateLimited -> result.message
         is GeminiResult.MalformedResponse -> result.message
         is GeminiResult.Disabled -> result.message
+        is GeminiResult.SignInRequired -> result.message
         is GeminiResult.Success -> error("Expected a failure")
     }
 
@@ -58,7 +59,7 @@ class GeminiErrorMessagesTest {
     @Test
     fun aBuildWithoutAKey_saysTheCoachIsNotSetUp() = runBlocking {
         val noKey = GeminiClientImpl(apiKeyProvider = { "placeholder-gemini-key" }, httpClient = HttpClient(MockEngine { error("must not send") }))
-        val noProject = GeminiProxyClient("https://placeholder-project.supabase.co", "placeholder-anon-key", { "id" }, HttpClient(MockEngine { error("must not send") }))
+        val noProject = GeminiProxyClient("https://placeholder-project.supabase.co", "placeholder-anon-key", { "account-token" }, HttpClient(MockEngine { error("must not send") }))
 
         assertEquals(AiErrorCopy.NOT_CONFIGURED, messageOf(safeGeminiCall { noKey.generateContent("hi") }))
         assertEquals(AiErrorCopy.NOT_CONFIGURED, messageOf(safeGeminiCall { noProject.generateContent("hi") }))
@@ -67,11 +68,11 @@ class GeminiErrorMessagesTest {
     @Test
     fun theProxysDailyLimits_sayTryTomorrow_butGeminiBusyThroughTheProxySaysMinutes() = runBlocking {
         fun proxy(code: String) = GeminiProxyClient(
-            "https://abcd.supabase.co", "anon", { "3f2b8c1e-9a4d-4e6f-8b2a-1c3d5e7f9a0b" },
+            "https://abcd.supabase.co", "anon", { "account-token" },
             HttpClient(MockEngine { respond("""{"error":"$code"}""", HttpStatusCode.TooManyRequests) })
         )
 
-        assertEquals(AiErrorCopy.DAILY_LIMIT, messageOf(safeGeminiCall { proxy("device_daily_limit").generateContent("hi") }))
+        assertEquals(AiErrorCopy.DAILY_LIMIT, messageOf(safeGeminiCall { proxy("account_daily_limit").generateContent("hi") }))
         assertEquals(AiErrorCopy.DAILY_LIMIT, messageOf(safeGeminiCall { proxy("global_daily_limit").generateContent("hi") }))
         assertEquals(AiErrorCopy.BUSY, messageOf(safeGeminiCall { proxy("upstream_busy").generateContent("hi") }))
     }

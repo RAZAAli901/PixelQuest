@@ -35,25 +35,33 @@ object AiModule {
     @Singleton
     fun provideGeminiClient(
         httpClient: HttpClient,
-        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
+        aiAccess: com.pixelquest.app.domain.ai.AiAccess
     ): GeminiClient = createGeminiClient(
         viaProxy = BuildConfig.GEMINI_VIA_PROXY,
         httpClient = httpClient,
-        deviceId = { com.pixelquest.app.data.local.prefs.AiDeviceId(context).get() }
+        aiAccess = aiAccess
     )
 
+    /** Either way, nothing is sent unless an account is signed in ([AccountRequiredGeminiClient]). */
     internal fun createGeminiClient(
         viaProxy: Boolean,
         httpClient: HttpClient,
-        deviceId: () -> String,
+        aiAccess: com.pixelquest.app.domain.ai.AiAccess,
         supabaseUrl: String = BuildConfig.SUPABASE_URL,
         anonKey: String = BuildConfig.SUPABASE_ANON_KEY,
         geminiApiKey: String = BuildConfig.GEMINI_API_KEY
-    ): GeminiClient = if (viaProxy) {
-        GeminiProxyClient(supabaseUrl, anonKey, deviceId, httpClient)
-    } else {
-        GeminiClientImpl(apiKeyProvider = { geminiApiKey }, httpClient = httpClient, model = GEMINI_MODEL_ID)
-    }
+    ): GeminiClient = com.pixelquest.app.data.remote.AccountRequiredGeminiClient(
+        delegate = if (viaProxy) {
+            GeminiProxyClient(supabaseUrl, anonKey, { aiAccess.accessToken() }, httpClient)
+        } else {
+            GeminiClientImpl(apiKeyProvider = { geminiApiKey }, httpClient = httpClient, model = GEMINI_MODEL_ID)
+        },
+        access = aiAccess
+    )
+
+    @Provides
+    @Singleton
+    fun provideAiAccess(impl: com.pixelquest.app.auth.SupabaseAiAccess): com.pixelquest.app.domain.ai.AiAccess = impl
 
     @Provides
     @Singleton

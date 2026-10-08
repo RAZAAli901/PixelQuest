@@ -19,29 +19,33 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 
-/** Release builds reach Gemini only through the gemini-proxy Edge Function, without the key. */
+/**
+ * Release builds reach Gemini only through the gemini-proxy Edge Function, without the key, and only
+ * for a signed-in account: the request carries the account's access token, which the proxy checks.
+ */
 class GeminiProxyClientTest {
 
     private val supabaseUrl = "https://abcd1234.supabase.co"
     private val anonKey = "sb_publishable_test"
-    private val deviceId = "3f2b8c1e-9a4d-4e6f-8b2a-1c3d5e7f9a0b"
+    private val accessToken = "account-access-token"
     private val geminiOk = """{"candidates":[{"content":{"parts":[{"text":"{\"reply\":\"hello\"}"}]}}]}"""
 
     private fun client(
         status: HttpStatusCode,
         body: String,
         requests: MutableList<HttpRequestData> = mutableListOf(),
-        url: String = supabaseUrl
+        url: String = supabaseUrl,
+        token: String? = accessToken
     ): GeminiProxyClient {
         val engine = MockEngine { request ->
             requests += request
             respond(body, status, headersOf(HttpHeaders.ContentType, "application/json"))
         }
-        return GeminiProxyClient(url, anonKey, { deviceId }, HttpClient(engine))
+        return GeminiProxyClient(url, anonKey, { token }, HttpClient(engine))
     }
 
     @Test
-    fun request_goesToTheEdgeFunction_withTheDeviceId_andNoGeminiKey() = runBlocking {
+    fun request_goesToTheEdgeFunction_withTheAccountsToken_andNoGeminiKey() = runBlocking {
         val requests = mutableListOf<HttpRequestData>()
 
         val text = client(HttpStatusCode.OK, geminiOk, requests).generateContent("How am I doing?", "Reply in JSON")
@@ -49,7 +53,8 @@ class GeminiProxyClientTest {
         assertEquals("{\"reply\":\"hello\"}", text)
         val request = requests.single()
         assertEquals("$supabaseUrl/functions/v1/gemini-proxy", request.url.toString())
-        assertEquals(deviceId, request.headers[AI_DEVICE_HEADER])
+        assertEquals("Bearer $accessToken", request.headers[HttpHeaders.Authorization])
+        assertNull("No install id any more", request.headers["x-pixelquest-device"])
         assertEquals(anonKey, request.headers["apikey"])
         assertNull("No Gemini key header", request.headers[API_KEY_HEADER])
 
@@ -82,8 +87,29 @@ class GeminiProxyClientTest {
     }
 
     @Test
+    fun signedOut_nothingIsSent() = runBlocking {
+        val requests = mutableListOf<HttpRequestData>()
+        try {
+            client(HttpStatusCode.OK, geminiOk, requests, token = null).generateContent("hi")
+            fail("Expected GeminiSignInRequiredException")
+        } catch (e: GeminiSignInRequiredException) {
+            assertTrue(requests.isEmpty())
+        }
+    }
+
+    @Test
+    fun aTokenTheProxyRefuses_meansSignInAgain() = runBlocking {
+        try {
+            client(HttpStatusCode.Unauthorized, """{"error":"sign_in_required"}""").generateContent("hi")
+            fail("Expected GeminiSignInRequiredException")
+        } catch (e: GeminiSignInRequiredException) {
+            // The AI Coach then asks the player to sign in again.
+        }
+    }
+
+    @Test
     fun dailyLimits_areRateLimits() = runBlocking {
-        for (code in listOf("device_daily_limit", "global_daily_limit", "upstream_busy")) {
+        for (code in listOf("account_daily_limit", "global_daily_limit", "upstream_busy")) {
             try {
                 client(HttpStatusCode.TooManyRequests, """{"error":"$code"}""").generateContent("hi")
                 fail("Expected GeminiRateLimitException")
@@ -127,7 +153,7 @@ class GeminiProxyClientTest {
     fun networkFailure_isANetworkError() = runBlocking {
         val engine = MockEngine { throw java.io.IOException("no route to host") }
         try {
-            GeminiProxyClient(supabaseUrl, anonKey, { deviceId }, HttpClient(engine)).generateContent("hi")
+            GeminiProxyClient(supabaseUrl, anonKey, { accessToken }, HttpClient(engine)).generateContent("hi")
             fail("Expected GeminiNetworkException")
         } catch (e: GeminiNetworkException) {
             // Ktor may wrap the IOException; what matters is that it's reported as a network error.

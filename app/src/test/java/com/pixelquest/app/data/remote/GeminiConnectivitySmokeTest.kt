@@ -21,7 +21,7 @@ class GeminiConnectivitySmokeTest {
         val client = AiModule.createGeminiClient(
             viaProxy = com.pixelquest.app.BuildConfig.GEMINI_VIA_PROXY,
             httpClient = httpClient,
-            deviceId = { "3f2b8c1e-9a4d-4e6f-8b2a-1c3d5e7f9a0b" }
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
         assertNotNull("AiModule should provide GeminiClient", client)
     }
@@ -54,7 +54,7 @@ class GeminiConnectivitySmokeTest {
         if (isRealKey && liveOptIn) {
             // Live API key is provided and rotated by developer
             // The live smoke test checks the developer's key, so it calls Gemini directly.
-            val client = AiModule.createGeminiClient(viaProxy = false, httpClient = AiModule.provideGeminiHttpClient(), deviceId = { "" })
+            val client = AiModule.createGeminiClient(viaProxy = false, httpClient = AiModule.provideGeminiHttpClient(), aiAccess = com.pixelquest.app.testing.FakeAiAccess())
             val response = try {
                 client.generateContent(
                     prompt = "Say hello in one word",

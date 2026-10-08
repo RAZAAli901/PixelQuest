@@ -52,10 +52,26 @@ interface GeminiClient {
  * Exception thrown when the Gemini API returns an error or unexpected response.
  */
 open class GeminiException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
-/** [reason] is the gemini-proxy's code when the proxy refused the call (e.g. "device_daily_limit"). */
+/** [reason] is the gemini-proxy's code when the proxy refused the call (e.g. "account_daily_limit"). */
 class GeminiRateLimitException(message: String, val retryAfterSeconds: Long? = null, val reason: String? = null) : GeminiException(message)
 class GeminiApiException(val statusCode: Int, message: String) : GeminiException("Gemini API error ($statusCode): $message")
 class GeminiNetworkException(message: String, cause: Throwable) : GeminiException(message, cause)
+/** No account is signed in (or the proxy didn't accept its token): the AI Coach is for signed-in players. */
+class GeminiSignInRequiredException(message: String = "Sign in to use the AI coach.") : GeminiException(message)
+
+/**
+ * Sends nothing unless an account is signed in. Wraps every client the app uses, so the direct
+ * client in developer builds follows the same rule as the proxy, which checks the account itself.
+ */
+class AccountRequiredGeminiClient(
+    val delegate: GeminiClient,
+    private val access: com.pixelquest.app.domain.ai.AiAccess
+) : GeminiClient {
+    override suspend fun generateContent(prompt: String, systemInstruction: String?): String {
+        if (access.accessToken() == null) throw GeminiSignInRequiredException()
+        return delegate.generateContent(prompt, systemInstruction)
+    }
+}
 
 /**
  * Default implementation of [GeminiClient] communicating directly with the Generative Language API
