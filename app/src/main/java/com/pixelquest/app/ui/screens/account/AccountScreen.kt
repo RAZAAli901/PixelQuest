@@ -126,7 +126,11 @@ fun AccountContent(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Connect your Google account to join the community quest leaderboard and synchronize your stats.",
+                        text = if (cloudAvailable) {
+                            "Connect your Google account to join the community quest leaderboard and synchronize your stats."
+                        } else {
+                            "Cloud features are off in this build."
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = colors.onSurface,
                         textAlign = TextAlign.Center
@@ -146,7 +150,7 @@ fun AccountContent(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Text(
-                            text = "🏆 JOIN THE LEADERBOARD",
+                            text = if (cloudAvailable) "🏆 JOIN THE LEADERBOARD" else "🏆 LEADERBOARD",
                             style = MaterialTheme.typography.titleSmall,
                             color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             textAlign = TextAlign.Center

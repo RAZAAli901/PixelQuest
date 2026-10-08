@@ -47,6 +47,9 @@ class CloudAvailabilityUiTest {
         }
         composeTestRule.onNodeWithText(CloudAvailability.NOT_IN_THIS_BUILD).assertIsDisplayed()
         assertEquals(0, composeTestRule.onAllNodesWithText("🌐 SIGN IN WITH GOOGLE").fetchSemanticsNodes().size)
+        // Nothing above it still invites the player to connect or join.
+        assertEquals(0, composeTestRule.onAllNodesWithText("Connect your Google account", substring = true).fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodesWithText("🏆 JOIN THE LEADERBOARD").fetchSemanticsNodes().size)
     }
 
     @Test
