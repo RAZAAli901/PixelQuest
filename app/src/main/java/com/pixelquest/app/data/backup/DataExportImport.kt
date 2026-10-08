@@ -25,7 +25,10 @@ data class BackupPayload(
     val logs: List<TaskCompletionLogEntity>? = null,
     /** Level-up timeline (Day 30). Null for older backups, which had none: a restore keeps the current timeline. */
     val levelHistory: List<LevelHistoryEntity>? = null
-)
+) {
+    /** False for a file that isn't a PixelQuest backup (or couldn't be read): nothing to restore. */
+    val isUsable: Boolean get() = userProfile != null || tasks.isNotEmpty()
+}
 
 object DataExportImport {
 

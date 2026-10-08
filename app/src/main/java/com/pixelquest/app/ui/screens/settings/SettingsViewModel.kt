@@ -212,16 +212,22 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    // One line under the backup buttons saying what happened; saving, reading and restoring used to
+    // fail (or succeed) silently, and an unreadable file still opened the restore dialog.
+    private val _backupMessage = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    val backupMessage: StateFlow<String?> = _backupMessage.asStateFlow()
+
     fun exportBackupToUri(context: android.content.Context, uri: android.net.Uri) {
         viewModelScope.launch {
-            try {
+            _backupMessage.value = try {
                 // Includes the streak and completion history (the streak used to be left out).
                 val payload = backupRestorer.snapshot()
                 val json = com.pixelquest.app.data.backup.DataExportImport.exportToJson(payload)
-                context.contentResolver.openOutputStream(uri)?.use { os ->
-                    os.write(json.toByteArray())
-                }
-            } catch (e: Exception) {}
+                val written = context.contentResolver.openOutputStream(uri)?.use { os -> os.write(json.toByteArray()) } != null
+                if (written) BackupMessages.SAVED else BackupMessages.SAVE_FAILED
+            } catch (e: Exception) {
+                BackupMessages.SAVE_FAILED
+            }
         }
     }
 
@@ -232,17 +238,29 @@ class SettingsViewModel @Inject constructor(
                     isStream.bufferedReader().use { it.readText() }
                 } ?: return@launch
                 val payload = com.pixelquest.app.data.backup.DataExportImport.importFromJson(json)
+                if (!payload.isUsable) {
+                    _backupMessage.value = BackupMessages.NOT_A_BACKUP
+                    return@launch
+                }
+                _backupMessage.value = null
                 // Stores draft payload to trigger confirmation dialog in Step 38
                 pendingImportPayload = payload
                 _showRestoreConfirmDialog.value = true
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+                _backupMessage.value = BackupMessages.READ_FAILED
+            }
         }
     }
 
     fun confirmImport() {
         viewModelScope.launch {
             val payload = pendingImportPayload ?: return@launch
-            backupRestorer.restore(payload)
+            _backupMessage.value = try {
+                backupRestorer.restore(payload)
+                BackupMessages.RESTORED
+            } catch (e: Exception) {
+                BackupMessages.RESTORE_FAILED
+            }
             pendingImportPayload = null
             _showRestoreConfirmDialog.value = false
         }
@@ -340,3 +358,12 @@ class SettingsViewModel @Inject constructor(
     }
 }
 
+/** What the backup buttons report. */
+object BackupMessages {
+    const val SAVED = "Backup saved."
+    const val SAVE_FAILED = "Couldn't save the backup. Try another location."
+    const val NOT_A_BACKUP = "That file isn't a PixelQuest backup. Nothing was changed."
+    const val READ_FAILED = "Couldn't read that file. Nothing was changed."
+    const val RESTORED = "Backup restored."
+    const val RESTORE_FAILED = "The restore didn't finish. Try again."
+}

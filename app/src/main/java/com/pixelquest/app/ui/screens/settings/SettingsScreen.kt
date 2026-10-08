@@ -424,6 +424,14 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
+            val backupMessage by viewModel.backupMessage.collectAsState()
+            backupMessage?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PixelTheme.colors.onSurface
+                )
+            }
         },
         dangerZoneSection = {
             PixelButton(
