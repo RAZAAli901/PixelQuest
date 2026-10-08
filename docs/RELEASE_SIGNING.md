@@ -45,4 +45,4 @@ Google Sign-In checks the signing certificate of the app asking for it. Add the 
 
 ## Players on v1.0.3 or v1.1.0
 
-Those APKs were signed with keys made for one CI run each, so the next release can't install over them. Their players need to back up their progress (Settings → EXPORT QUEST DATA), uninstall, install the new release and restore. Say this in the next release's notes.
+Those APKs were signed with keys made for one CI run each, so the next release can't install over them. Their players need to back up their progress (Settings → EXPORT QUEST DATA), uninstall, install the new release and restore it (Settings → IMPORT QUEST DATA). Say this in the next release's notes.

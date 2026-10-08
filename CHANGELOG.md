@@ -36,7 +36,7 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ### ⚠️ Upgrading from 1.1.0 or earlier
 - From this release on, PixelQuest is signed with a permanent release key. Earlier releases were each signed with a temporary key, so Android won't install this one over them.
-- Before upgrading, open Settings → **EXPORT QUEST DATA** and save the backup. Then uninstall the old app, install this one, and restore the backup from Settings.
+- Before upgrading, open Settings → **EXPORT QUEST DATA** and save the backup. Then uninstall the old app, install this one, and restore the backup with Settings → **IMPORT QUEST DATA**.
 
 ### Release notes
 - Releases built without the signing or Supabase secrets now say so at the top of their notes.
