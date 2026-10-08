@@ -69,6 +69,15 @@ class LeaderboardViewModel @Inject constructor(
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
     private val pageSize = 20L
 
+    // Per-tab bookkeeping, declared before init (whose collector may run at once). Both tabs used to
+    // share isLoading and canLoadMore, so a load finishing for the tab the player had just left turned
+    // the spinner off or hid LOAD MORE on the other one. A refresh starts a new generation, so a page
+    // from before it that arrives late is dropped instead of written over (or appended to) the new list.
+    private val loadingTabs = mutableSetOf<LeaderboardTab>()
+    private val canLoadMoreByTab = mutableMapOf<LeaderboardTab, Boolean>()
+    private val generation = mutableMapOf<LeaderboardTab, Int>()
+    private var aroundYouRequest = 0
+
     init {
         observeAuthAndProfile()
     }
@@ -92,7 +101,13 @@ class LeaderboardViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(authState = newAuthState)
                 when (newAuthState) {
                     is LeaderboardAuthState.NotSignedIn -> {
+                        // Pages still loading from before sign-out are dropped when they arrive.
+                        LeaderboardTab.entries.forEach { generation[it] = (generation[it] ?: 0) + 1 }
+                        loadingTabs.clear()
+                        aroundYouRequest++
                         _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            isLoadingAroundYou = false,
                             streakEntries = emptyList(),
                             levelEntries = emptyList(),
                             currentUserRank = null,
@@ -142,15 +157,26 @@ class LeaderboardViewModel @Inject constructor(
         }
     }
 
+    private fun entriesOf(state: LeaderboardUiState, tab: LeaderboardTab) =
+        if (tab == LeaderboardTab.TOP_STREAKS) state.streakEntries else state.levelEntries
+
+    private fun LeaderboardUiState.withEntries(tab: LeaderboardTab, entries: List<CloudProfileDto>) =
+        if (tab == LeaderboardTab.TOP_STREAKS) copy(streakEntries = entries) else copy(levelEntries = entries)
+
+    /** isLoading and canLoadMore always describe the selected tab. */
+    private fun LeaderboardUiState.withSelectedTabFlags() = copy(
+        isLoading = selectedTab in loadingTabs,
+        canLoadMore = canLoadMoreByTab[selectedTab] ?: true
+    )
+
     fun selectTab(tab: LeaderboardTab) {
         if (_uiState.value.selectedTab == tab) return
-        val targetList = if (tab == LeaderboardTab.TOP_STREAKS) _uiState.value.streakEntries else _uiState.value.levelEntries
+        val targetList = entriesOf(_uiState.value, tab)
         _uiState.value = _uiState.value.copy(
             selectedTab = tab,
             aroundYouEntries = emptyList(),
-            errorMessage = null,
-            canLoadMore = targetList.isEmpty() || targetList.size >= pageSize
-        )
+            errorMessage = null
+        ).withSelectedTabFlags()
         if (targetList.isEmpty()) {
             loadInitialData()
         } else {
@@ -167,97 +193,79 @@ class LeaderboardViewModel @Inject constructor(
     }
 
     fun loadInitialData() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
-                isLoading = true,
-                errorMessage = null,
-                canLoadMore = true
-            )
+        val currentTab = _uiState.value.selectedTab
+        val myGeneration = (generation[currentTab] ?: 0) + 1
+        generation[currentTab] = myGeneration
+        loadingTabs += currentTab
+        canLoadMoreByTab[currentTab] = true
+        _uiState.value = _uiState.value.copy(errorMessage = null).withSelectedTabFlags()
 
-            val currentTab = _uiState.value.selectedTab
+        viewModelScope.launch {
             val result = when (currentTab) {
                 LeaderboardTab.TOP_STREAKS -> leaderboardRepository.getTopByStreak(limit = pageSize, offset = 0)
                 LeaderboardTab.TOP_LEVELS -> leaderboardRepository.getTopByLevel(limit = pageSize, offset = 0)
             }
+            // A newer refresh of this tab has started since: its result wins.
+            if (generation[currentTab] != myGeneration) return@launch
+            loadingTabs -= currentTab
 
             when (result) {
                 is SupabaseResult.Success -> {
                     val timestamp = LocalTime.now().format(timeFormatter)
-                    _uiState.value = when (currentTab) {
-                        LeaderboardTab.TOP_STREAKS -> _uiState.value.copy(
-                            streakEntries = result.data,
-                            isLoading = false,
-                            canLoadMore = result.data.size >= pageSize,
-                            lastUpdatedTimestamp = timestamp
-                        )
-                        LeaderboardTab.TOP_LEVELS -> _uiState.value.copy(
-                            levelEntries = result.data,
-                            isLoading = false,
-                            canLoadMore = result.data.size >= pageSize,
-                            lastUpdatedTimestamp = timestamp
-                        )
-                    }
-                    fetchCurrentUserRank()
+                    canLoadMoreByTab[currentTab] = result.data.size >= pageSize
+                    _uiState.value = _uiState.value
+                        .withEntries(currentTab, result.data.distinctBy { it.id })
+                        .copy(lastUpdatedTimestamp = timestamp)
+                        .withSelectedTabFlags()
+                    // Ranks for the tab on screen only: the player may have switched while this loaded.
+                    if (_uiState.value.selectedTab == currentTab) fetchCurrentUserRank()
                 }
-                is SupabaseResult.NetworkError -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = "Network error: ${result.message}"
-                    )
-                }
-                is SupabaseResult.ServerError -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = "Leaderboard service unavailable (Code ${result.code})."
-                    )
-                }
-                is SupabaseResult.AuthError -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = "Authentication error: ${result.message}"
-                    )
-                }
-                is SupabaseResult.UnknownError -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = "Failed to load leaderboard: ${result.message}"
-                    )
-                }
+                is SupabaseResult.NetworkError -> showLoadError(currentTab, "Network error: ${result.message}")
+                is SupabaseResult.ServerError -> showLoadError(currentTab, "Leaderboard service unavailable (Code ${result.code}).")
+                is SupabaseResult.AuthError -> showLoadError(currentTab, "Authentication error: ${result.message}")
+                is SupabaseResult.UnknownError -> showLoadError(currentTab, "Failed to load leaderboard: ${result.message}")
             }
         }
+    }
+
+    /** A failed load for a tab the player has since left isn't theirs to see on this one. */
+    private fun showLoadError(tab: LeaderboardTab, message: String) {
+        val state = _uiState.value
+        _uiState.value = (if (state.selectedTab == tab) state.copy(errorMessage = message) else state).withSelectedTabFlags()
     }
 
     fun loadMore() {
         val state = _uiState.value
         if (state.isLoading || state.isLoadingMore || !state.canLoadMore) return
 
-        val currentList = if (state.selectedTab == LeaderboardTab.TOP_STREAKS) state.streakEntries else state.levelEntries
-        val offset = currentList.size.toLong()
+        val tab = state.selectedTab
+        val offset = entriesOf(state, tab).size.toLong()
+        val myGeneration = generation[tab] ?: 0
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoadingMore = true)
 
-            val result = when (state.selectedTab) {
+            val result = when (tab) {
                 LeaderboardTab.TOP_STREAKS -> leaderboardRepository.getTopByStreak(limit = pageSize, offset = offset)
                 LeaderboardTab.TOP_LEVELS -> leaderboardRepository.getTopByLevel(limit = pageSize, offset = offset)
+            }
+            // The list was refreshed meanwhile, so this page continues the old one.
+            if ((generation[tab] ?: 0) != myGeneration) {
+                _uiState.value = _uiState.value.copy(isLoadingMore = false)
+                return@launch
             }
 
             when (result) {
                 is SupabaseResult.Success -> {
                     val newItems = result.data
-                    val updatedList = currentList + newItems
-                    _uiState.value = when (state.selectedTab) {
-                        LeaderboardTab.TOP_STREAKS -> _uiState.value.copy(
-                            streakEntries = updatedList,
-                            isLoadingMore = false,
-                            canLoadMore = newItems.size >= pageSize
-                        )
-                        LeaderboardTab.TOP_LEVELS -> _uiState.value.copy(
-                            levelEntries = updatedList,
-                            isLoadingMore = false,
-                            canLoadMore = newItems.size >= pageSize
-                        )
-                    }
+                    canLoadMoreByTab[tab] = newItems.size >= pageSize
+                    // Ranks shift between pages (someone climbs past a player on page one), so the same
+                    // hero can come back on the next page; a repeated id crashed the list's keys.
+                    val updatedList = (entriesOf(_uiState.value, tab) + newItems).distinctBy { it.id }
+                    _uiState.value = _uiState.value
+                        .withEntries(tab, updatedList)
+                        .copy(isLoadingMore = false)
+                        .withSelectedTabFlags()
                 }
                 else -> {
                     _uiState.value = _uiState.value.copy(isLoadingMore = false)
@@ -285,8 +293,18 @@ class LeaderboardViewModel @Inject constructor(
                 LeaderboardSortMode.LEVEL
             }
 
+            val requestedTab = _uiState.value.selectedTab
+            val myRequest = ++aroundYouRequest
             _uiState.value = _uiState.value.copy(isLoadingAroundYou = true)
-            when (val result = leaderboardRepository.getPlayersAroundYou(sortMode, userId, radius = AROUND_YOU_RADIUS)) {
+            val result = leaderboardRepository.getPlayersAroundYou(sortMode, userId, radius = AROUND_YOU_RADIUS)
+            // A newer request (the other tab's, or a refresh) owns the result and the spinner.
+            if (myRequest != aroundYouRequest) return@launch
+            // The player switched tabs meanwhile, so these ranks are in the other order.
+            if (_uiState.value.selectedTab != requestedTab) {
+                _uiState.value = _uiState.value.copy(isLoadingAroundYou = false)
+                return@launch
+            }
+            when (result) {
                 is SupabaseResult.Success -> {
                     _uiState.value = _uiState.value.copy(
                         currentUserRank = result.data?.you,
