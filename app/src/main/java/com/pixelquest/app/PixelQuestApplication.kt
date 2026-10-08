@@ -39,6 +39,9 @@ class PixelQuestApplication : Application(), Configuration.Provider {
     @javax.inject.Inject
     lateinit var taskAlarmScheduler: com.pixelquest.app.scheduling.TaskAlarmScheduler
 
+    @javax.inject.Inject
+    lateinit var soundManager: com.pixelquest.app.audio.SoundManager
+
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     override fun onCreate() {
@@ -47,6 +50,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         com.pixelquest.app.util.PixelCrashHandler.init(this)
         // Fast cold-start: lightweight notification channel creation
         NotificationHelper.createNotificationChannel(this)
+        // SFX and haptics settings apply everywhere, including the full-screen prompt.
+        com.pixelquest.app.audio.FeedbackSettingsSync.start(appScope, settingsRepository, soundManager)
         // Start connectivity observer for prompt sync retry on reconnection
         connectivitySyncObserver.startObserving()
         // Background async enqueue of periodic background workers

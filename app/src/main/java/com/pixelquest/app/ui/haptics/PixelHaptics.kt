@@ -10,25 +10,31 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
  * Success moment: quest quick-complete, level-up celebration
  */
 object PixelHaptics {
+    /** Settings → HAPTICS, kept up to date by FeedbackSettingsSync. Every pattern respects it. */
     var isHapticsEnabledGlobal: Boolean = true
 
-    fun performLightTap(haptic: HapticFeedback?, enabled: Boolean = isHapticsEnabledGlobal) {
-        if (!enabled || haptic == null) return
-        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    // [enabled] lets a caller switch a pattern off (e.g. in Simple Mode); it can't switch on what the
+    // player turned off. Only the light tap used to check the setting, so completing or skipping a
+    // quest and confirm dialogs still vibrated with HAPTICS: OFF.
+    private fun allowed(haptic: HapticFeedback?, enabled: Boolean) = enabled && isHapticsEnabledGlobal && haptic != null
+
+    fun performLightTap(haptic: HapticFeedback?, enabled: Boolean = true) {
+        if (!allowed(haptic, enabled)) return
+        haptic!!.performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
     fun performMediumConfirm(haptic: HapticFeedback?, enabled: Boolean = true) {
-        if (!enabled || haptic == null) return
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        if (!allowed(haptic, enabled)) return
+        haptic!!.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 
     fun performSuccessPattern(haptic: HapticFeedback?, enabled: Boolean = true) {
-        if (!enabled || haptic == null) return
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        if (!allowed(haptic, enabled)) return
+        haptic!!.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 
     fun performWarning(haptic: HapticFeedback?, enabled: Boolean = true) {
-        if (!enabled || haptic == null) return
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        if (!allowed(haptic, enabled)) return
+        haptic!!.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 }
