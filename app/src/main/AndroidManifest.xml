@@ -46,6 +46,9 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <!-- Re-arm reminders as exact alarms once the user allows "Alarms & reminders". -->
                 <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+                <!-- Alarms are absolute times: re-arm when the time zone or the clock changes. -->
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
 
