@@ -58,4 +58,17 @@ class PromptQueueTest {
         assertNull(PromptQueue.restoreFrom(null))
         assertNull(PromptQueue.restoreFrom(Bundle()))
     }
+
+    @Test
+    fun theReminderDay_travelsWithThePrompt_andSurvivesARotation() {
+        val day = java.time.LocalDate.of(2026, 10, 7)
+        val request = PromptQueue.requestFrom(
+            launch(1, "Run").putExtra(com.pixelquest.app.scheduling.TaskAlarmScheduler.EXTRA_OCCURRENCE_DATE, day.toEpochDay())
+        )!!
+        assertEquals(day, request.occurrenceDate)
+
+        val queue = PromptQueue(listOf(request, PromptRequest(2, "Read")))
+        val state = Bundle().also { queue.saveTo(it) }
+        assertEquals(queue, PromptQueue.restoreFrom(state))
+    }
 }

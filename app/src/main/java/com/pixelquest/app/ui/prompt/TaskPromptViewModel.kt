@@ -32,20 +32,22 @@ class TaskPromptViewModel @Inject constructor(
     private val _pointsAwardedTrigger = MutableStateFlow<Int?>(null)
     val pointsAwardedTrigger: StateFlow<Int?> = _pointsAwardedTrigger.asStateFlow()
 
-    fun onTaskCompleted(taskId: Long, wasCompleted: Boolean, onDone: () -> Unit) {
+    /** [occurrenceDate]: the day of the quest the prompt is for (see ReminderAnswer). */
+    fun onTaskCompleted(taskId: Long, wasCompleted: Boolean, occurrenceDate: LocalDate? = null, onDone: () -> Unit) {
         viewModelScope.launch {
             // The prompt closes as soon as an answer is tapped, which cancels viewModelScope; the
             // answer must still be saved.
-            withContext(NonCancellable) { record(taskId, wasCompleted) }
+            withContext(NonCancellable) { record(taskId, wasCompleted, occurrenceDate) }
             onDone()
         }
     }
 
-    private suspend fun record(taskId: Long, wasCompleted: Boolean) {
+    private suspend fun record(taskId: Long, wasCompleted: Boolean, occurrenceDate: LocalDate?) {
         // "Not yet" records nothing, so the task can still be completed later today.
-        if (wasCompleted) {
-            // 0 when the task was already completed today; no XP pop-up then.
-            val earnedXp = taskResultRecorder.recordCompleted(taskId, LocalDate.now())
+        val day = com.pixelquest.app.domain.ReminderAnswer.dateToRecord(occurrenceDate, LocalDate.now())
+        if (wasCompleted && day != null) {
+            // 0 when the task was already completed that day; no XP pop-up then.
+            val earnedXp = taskResultRecorder.recordCompleted(taskId, day)
             val isSimpleMode = settingsRepository?.simpleModeEnabled?.first() ?: false
             if (earnedXp > 0 && !isSimpleMode) {
                 _pointsAwardedTrigger.value = earnedXp

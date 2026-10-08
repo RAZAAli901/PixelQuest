@@ -58,7 +58,7 @@ class TaskPromptActivity : ComponentActivity() {
                         prompt = prompt,
                         isSimpleMode = isSimpleMode,
                         // The save completes even if the activity closes (see onTaskCompleted).
-                        onAnswer = { taskId, done -> viewModel.onTaskCompleted(taskId, done) {} },
+                        onAnswer = { request, done -> viewModel.onTaskCompleted(request.taskId, done, request.occurrenceDate) {} },
                         onNext = { showNext() }
                     )
                 }
@@ -92,7 +92,7 @@ class TaskPromptActivity : ComponentActivity() {
 internal fun PromptQueueContent(
     prompt: PromptRequest,
     isSimpleMode: Boolean,
-    onAnswer: (taskId: Long, done: Boolean) -> Unit,
+    onAnswer: (prompt: PromptRequest, done: Boolean) -> Unit,
     onNext: () -> Unit
 ) {
     // A fresh screen per quest, so one prompt's state doesn't carry into the next.
@@ -102,8 +102,8 @@ internal fun PromptQueueContent(
             taskName = prompt.taskName,
             onDismiss = onNext,
             isSimpleMode = isSimpleMode,
-            onYesClick = { onAnswer(prompt.taskId, true) },
-            onNoClick = { onAnswer(prompt.taskId, false) }
+            onYesClick = { onAnswer(prompt, true) },
+            onNoClick = { onAnswer(prompt, false) }
         )
     }
 }

@@ -74,6 +74,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 if (taskCompletionRepository.getLogForTaskOnDate(taskId, occurrenceDate) == null) {
                     postReminder(
                         context = context,
+                        occurrenceDate = occurrenceDate,
                         taskId = taskId,
                         taskName = task.name.ifBlank { taskName },
                         category = task.category,
@@ -91,6 +92,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
 
     private suspend fun postReminder(
         context: Context,
+        occurrenceDate: LocalDate,
         taskId: Long,
         taskName: String,
         category: TaskCategory,
@@ -111,6 +113,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         val promptIntent = Intent(context, TaskPromptActivity::class.java).apply {
             putExtra(com.pixelquest.app.ui.prompt.PromptQueue.EXTRA_TASK_ID, taskId)
             putExtra(com.pixelquest.app.ui.prompt.PromptQueue.EXTRA_TASK_NAME, taskName)
+            putExtra(TaskAlarmScheduler.EXTRA_OCCURRENCE_DATE, occurrenceDate.toEpochDay())
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         val contentPendingIntent = PendingIntent.getActivity(
@@ -123,6 +126,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         val yesIntent = Intent(context, TaskActionReceiver::class.java).apply {
             putExtra("EXTRA_TASK_ID", taskId)
             putExtra("EXTRA_WAS_COMPLETED", true)
+            putExtra(TaskAlarmScheduler.EXTRA_OCCURRENCE_DATE, occurrenceDate.toEpochDay())
         }
         val yesPendingIntent = PendingIntent.getBroadcast(
             context,
@@ -134,6 +138,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         val noIntent = Intent(context, TaskActionReceiver::class.java).apply {
             putExtra("EXTRA_TASK_ID", taskId)
             putExtra("EXTRA_WAS_COMPLETED", false)
+            putExtra(TaskAlarmScheduler.EXTRA_OCCURRENCE_DATE, occurrenceDate.toEpochDay())
         }
         val noPendingIntent = PendingIntent.getBroadcast(
             context,
@@ -146,6 +151,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
             action = TaskActionReceiver.ACTION_SNOOZE
             putExtra("EXTRA_TASK_ID", taskId)
             putExtra("EXTRA_TASK_NAME", taskName)
+            putExtra(TaskAlarmScheduler.EXTRA_OCCURRENCE_DATE, occurrenceDate.toEpochDay())
         }
         val snoozePendingIntent = PendingIntent.getBroadcast(
             context,

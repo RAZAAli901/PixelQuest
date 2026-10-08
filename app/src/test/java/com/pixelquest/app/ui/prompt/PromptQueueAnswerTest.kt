@@ -42,7 +42,7 @@ class PromptQueueAnswerTest {
                     PromptQueueContent(
                         prompt = prompt,
                         isSimpleMode = false,
-                        onAnswer = { id, done -> pendingSaves += { answers += id to done } },
+                        onAnswer = { request, done -> pendingSaves += { answers += request.taskId to done } },
                         onNext = { queue = queue.advance() }
                     )
                 }
