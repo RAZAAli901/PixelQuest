@@ -1,6 +1,5 @@
 package com.pixelquest.app.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -105,7 +104,7 @@ fun PixelDifficultyCards(
                 contentPadding = 16.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onLevelSelected(level) }
+                    .choiceChip(isSelected) { onLevelSelected(level) }
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

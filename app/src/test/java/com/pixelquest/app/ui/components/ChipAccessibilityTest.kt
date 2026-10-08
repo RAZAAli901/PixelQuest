@@ -90,6 +90,21 @@ class ChipAccessibilityTest {
     }
 
     @Test
+    fun difficultyCards_sayWhichIsSelected() {
+        var level by mutableStateOf(com.pixelquest.app.domain.model.DifficultyLevel.MEDIUM)
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                PixelDifficultyCards(selectedLevel = level, onLevelSelected = { level = it })
+            }
+        }
+
+        composeTestRule.onNodeWithText("MEDIUM").assertIsSelected().assert(hasRole(Role.RadioButton))
+        composeTestRule.onNodeWithText("HARD").assertIsNotSelected().performClick()
+        assertEquals(com.pixelquest.app.domain.model.DifficultyLevel.HARD, level)
+        composeTestRule.onNodeWithText("HARD").assertIsSelected()
+    }
+
+    @Test
     fun recurrenceAndCategoryChips_pixel() = choiceChips(ThemeMode.Pixel)
 
     @Test

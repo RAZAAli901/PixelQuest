@@ -7,7 +7,7 @@ What TalkBack users get, and the helpers to use so new screens stay consistent. 
 | Helper | Use it for | TalkBack reads |
 | --- | --- | --- |
 | `Modifier.dayChip(day, selected, onToggle)` | A weekday chip in a multi-select row. Also hide the chip's letter with `Modifier.clearAndSetSemantics {}`. | "Tuesday, checkbox, checked" (not a lone "T" that Thursday shares) |
-| `Modifier.choiceChip(selected, onSelect)` | One option of a single-choice row (recurrence, category). | "Weekly, radio button, selected" |
+| `Modifier.choiceChip(selected, onSelect)` | One option of a single-choice row (recurrence, category, difficulty card, history filter). | "Weekly, radio button, selected" |
 | `DismissButton(contentDescription, onClick, color)` | The small ✕ that closes a tip card. It has a 48dp touch target. | "Dismiss the Simple Mode tip, button" (not "✕") |
 | `SymbolIcon(symbol, contentDescription, style)` | An emoji or symbol inside an `IconButton` (◀, 🗑️, 🔄). | "Back, button", "Delete Morning Run, button" (not "black left-pointing triangle" or "wastebasket") |
 | `HeatmapCellLabels.describe(date, status, today)` | A heatmap square, which on screen is only a colour. | "Friday 2 October: perfect day", "Tuesday 6 October, today: nothing done yet", "Thursday 8 October: upcoming" |
@@ -17,6 +17,7 @@ An icon next to a text label is decorative: give it `contentDescription = null`,
 ## What's covered (Day 30)
 
 - **Quest form**: day chips (Pixel and Comic), recurrence and category chips.
+- **Difficulty** (onboarding and Settings) and **quest history filters** (Day 31): which one is selected. Avatar tiles already say "★ SELECTED ★".
 - **Settings**: the Comic mode and Simple Mode tip cards' close buttons.
 - **Symbol buttons**: Back on New/Edit Quest, AI Coach and Leaderboard; Delete on Edit Quest and on each quest in the list ("Delete Morning Run"); Leaderboard refresh.
 - **Stats**: heatmap squares. Days after today aren't tappable, and today isn't called "missed" before it ends. The quest mini-history reads "done" / "missed" with the day.
@@ -30,4 +31,4 @@ Compose exposes a chip as a focusable checkable node whose name comes from a chi
 ## Not covered yet
 
 - A full TalkBack pass on a device. Day 30 checked the labels with `uiautomator dump` on the emulator, not by listening.
-- Buttons drawn with `IconButton` were audited on Day 30; clickable rows and cards built from plain `Modifier.clickable` have not been audited one by one.
+- Buttons drawn with `IconButton` were audited on Day 30, and the selectable cards and chips built from plain `Modifier.clickable` on Day 31. The rest are rows and buttons whose own text says what they do.
