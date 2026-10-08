@@ -41,15 +41,19 @@ fun LevelUpCelebrationScreen(
     onDismiss: () -> Unit
 ) {
     val colors = PixelTheme.colors
-    val infiniteTransition = rememberInfiniteTransition()
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 800),
-            repeatMode = RepeatMode.Reverse
-        )
-    )
+    val scale = if (com.pixelquest.app.ui.theme.LocalReduceMotion.current) {
+        1f
+    } else {
+        val infiniteTransition = rememberInfiniteTransition()
+        infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.05f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 800),
+                repeatMode = RepeatMode.Reverse
+            )
+        ).value
+    }
 
     val soundManager = com.pixelquest.app.audio.LocalSoundManager.current
     LaunchedEffect(Unit) {

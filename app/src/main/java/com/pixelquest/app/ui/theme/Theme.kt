@@ -9,6 +9,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 
 /**
+ * Settings > REDUCE MOTION. Looping animations (pulses, spinners, the level-up bounce) hold still
+ * while it is on; the theme's colour change is instant.
+ */
+val LocalReduceMotion = androidx.compose.runtime.staticCompositionLocalOf { false }
+
+/**
  * PixelQuest Theme wrapper supporting multiple theme modes:
  * - [ThemeMode.Pixel]: Classic retro dark arcade theme.
  * - [ThemeMode.Light]: Crisp light theme (full design Day 17).
@@ -54,7 +60,8 @@ fun PixelQuestTheme(
 
     androidx.compose.runtime.CompositionLocalProvider(
         LocalAppColorScheme provides appColorScheme,
-        LocalAppThemeMode provides effectiveMode
+        LocalAppThemeMode provides effectiveMode,
+        LocalReduceMotion provides isReduceMotion
     ) {
         MaterialTheme(
             colorScheme = materialColorScheme,

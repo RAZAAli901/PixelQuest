@@ -221,6 +221,13 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )
+            val reduceMotionOn by viewModel.isReduceMotionEnabled.collectAsState()
+            PixelButton(
+                text = if (reduceMotionOn) "🧘 REDUCE MOTION: ON" else "🎞️ REDUCE MOTION: OFF",
+                onClick = { viewModel.setReduceMotionEnabled(!reduceMotionOn) },
+                variant = PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
         },
         aiSection = {
             androidx.compose.material3.Text(

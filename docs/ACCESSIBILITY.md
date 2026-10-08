@@ -22,6 +22,15 @@ An icon next to a text label is decorative: give it `contentDescription = null`,
 - **Symbol buttons**: Back on New/Edit Quest, AI Coach and Leaderboard; Delete on Edit Quest and on each quest in the list ("Delete Morning Run"); Leaderboard refresh.
 - **Stats**: heatmap squares. Days after today aren't tappable, and today isn't called "missed" before it ends. The quest mini-history reads "done" / "missed" with the day.
 
+## Reduce Motion (Day 31)
+
+Settings > APPEARANCE & AUDIO > **REDUCE MOTION**. The setting existed before Day 31, but nothing could switch it on. When it is on:
+
+- the theme changes colour at once instead of fading;
+- looping animations hold still: the pulse on your own leaderboard row, the AI Coach "thinking" spinner and the level-up bounce.
+
+Screens read it from `LocalReduceMotion`, which `PixelQuestTheme` provides. Any new looping animation should check it. One-off transitions (screen changes, the level-up entrance) still play. The app doesn't follow Android's own "Remove animations" setting yet.
+
 Compose exposes a chip as a focusable checkable node whose name comes from a child node, the same shape as a Compose `Button` with a `Text` inside. TalkBack reads them together.
 
 ## Tests

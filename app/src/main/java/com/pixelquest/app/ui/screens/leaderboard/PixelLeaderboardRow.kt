@@ -78,7 +78,7 @@ fun PixelLeaderboardRow(
     val rankTextColor = if (tier != null) tierColor else colors.onSurfaceVariant
 
     // Subtle highlight pulse animation when current user's row is visible
-    val pulseAlpha = if (isCurrentUser) {
+    val pulseAlpha = if (isCurrentUser && !com.pixelquest.app.ui.theme.LocalReduceMotion.current) {
         val transition = rememberInfiniteTransition(label = "currentUserPulse")
         val alphaState = transition.animateFloat(
             initialValue = 0.45f,

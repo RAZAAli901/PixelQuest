@@ -131,6 +131,16 @@ class SettingsViewModel @Inject constructor(
     val isReminderSoundEnabled: StateFlow<Boolean> = settingsRepository.isNotificationSoundEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
+    /** The setting existed (and the theme read it) but nothing could switch it on. */
+    val isReduceMotionEnabled: StateFlow<Boolean> = settingsRepository.isReduceMotionEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    fun setReduceMotionEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setReduceMotionEnabled(enabled)
+        }
+    }
+
     fun setReminderSoundEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setNotificationSoundEnabled(enabled)

@@ -61,16 +61,20 @@ fun AiInsightLoadingState(
     modifier: Modifier = Modifier
 ) {
     val colors = PixelTheme.colors
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "spin"
-    )
+    val rotation = if (com.pixelquest.app.ui.theme.LocalReduceMotion.current) {
+        0f
+    } else {
+        val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+        infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(2000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "spin"
+        ).value
+    }
 
     when (themeMode) {
         ThemeMode.Comic -> {
