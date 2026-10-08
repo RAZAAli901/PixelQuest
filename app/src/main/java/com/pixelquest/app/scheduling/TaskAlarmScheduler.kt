@@ -134,6 +134,7 @@ class TaskAlarmScheduler @Inject constructor(
      */
     fun scheduleSnooze(taskId: Long, taskName: String, minutes: Long = SNOOZE_MINUTES) {
         val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
+            action = ACTION_SNOOZED_REMINDER
             putExtra("EXTRA_TASK_ID", taskId)
             putExtra("EXTRA_TASK_NAME", taskName)
         }
@@ -166,7 +167,7 @@ class TaskAlarmScheduler @Inject constructor(
         val snooze = PendingIntent.getBroadcast(
             context,
             snoozeRequestCode(taskId),
-            Intent(context, TaskAlarmReceiver::class.java),
+            Intent(context, TaskAlarmReceiver::class.java).setAction(ACTION_SNOOZED_REMINDER),
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
         )
         if (snooze != null) {
@@ -202,5 +203,12 @@ class TaskAlarmScheduler @Inject constructor(
         /** Shortest window Android 12+ honours for inexact alarms. */
         const val INEXACT_WINDOW_MS = 10 * 60_000L
         fun snoozeRequestCode(taskId: Long): Int = (taskId * 10 + 4).toInt()
+
+        /**
+         * Snoozes carry their own action. Android matches PendingIntents by request code and action
+         * (not extras), and a regular reminder's code is the task id, so without it quest 1's snooze
+         * (code 14) was quest 14's reminder: snoozing or finishing quest 1 replaced or cancelled it.
+         */
+        const val ACTION_SNOOZED_REMINDER = "com.pixelquest.app.action.SNOOZED_REMINDER"
     }
 }
