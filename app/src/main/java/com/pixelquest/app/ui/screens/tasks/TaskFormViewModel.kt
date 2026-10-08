@@ -163,6 +163,9 @@ class TaskFormViewModel @Inject constructor(
             )
             if (state.isEditMode && state.taskId != null && state.taskId > 0) {
                 taskAlarmScheduler.cancelAlarmForTask(task)
+                // A changed time may need today's reminder after all; a quest already done today
+                // stays quiet (the receiver checks today's result).
+                taskAlarmScheduler.forgetHandled(task.id)
                 taskRepository.updateTask(task)
                 taskAlarmScheduler.scheduleExactAlarmForTask(task)
             } else {

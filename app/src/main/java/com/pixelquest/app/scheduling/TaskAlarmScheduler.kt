@@ -95,8 +95,11 @@ class TaskAlarmScheduler @Inject constructor(
         // A one-time task whose time has passed has nothing left to remind about. A date the clock
         // can't represent (e.g. an edited backup's year 999999999 overflows toEpochMilli) is skipped
         // rather than crashing whoever is re-arming every reminder.
+        // Never go back to an occurrence already handled (reminded, done or skipped): a cold start
+        // inside a quest's lead window used to re-arm the same day's reminder at the task time.
+        val firstAllowed = listOfNotNull(notBefore, lastHandled(task.id)?.plusDays(1)).maxOrNull()
         val next = try {
-            nextReminder(task, notBefore)?.let { it to it.at.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() }
+            nextReminder(task, firstAllowed)?.let { it to it.at.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() }
         } catch (e: ArithmeticException) {
             android.util.Log.w("TaskAlarmScheduler", "Task ${task.id} has an unrepresentable date; no reminder armed", e)
             null
@@ -138,8 +141,25 @@ class TaskAlarmScheduler @Inject constructor(
      * receiver passes the task's date rather than today.
      */
     fun scheduleNextOccurrence(task: TaskEntity, handledDate: LocalDate = LocalDate.now()) {
+        markHandled(task.id, handledDate)
         if (task.recurrenceType == RecurrenceType.ONE_TIME) return
         scheduleExactAlarmForTask(task, notBefore = handledDate.plusDays(1))
+    }
+
+    private val handledPrefs by lazy { context.getSharedPreferences(HANDLED_PREFS, Context.MODE_PRIVATE) }
+
+    /** The latest occurrence of [taskId] already reminded, done or skipped. */
+    fun lastHandled(taskId: Long): LocalDate? =
+        handledPrefs.getLong("task_$taskId", Long.MIN_VALUE).takeIf { it != Long.MIN_VALUE }?.let { LocalDate.ofEpochDay(it) }
+
+    private fun markHandled(taskId: Long, date: LocalDate) {
+        if (lastHandled(taskId)?.isAfter(date) == true) return
+        handledPrefs.edit().putLong("task_$taskId", date.toEpochDay()).apply()
+    }
+
+    /** After an edit (a new time may need today's reminder after all). */
+    fun forgetHandled(taskId: Long) {
+        handledPrefs.edit().remove("task_$taskId").apply()
     }
 
     /**
@@ -233,6 +253,7 @@ class TaskAlarmScheduler @Inject constructor(
          * 00:15 for a 23:00 quest credited the new day.
          */
         const val EXTRA_OCCURRENCE_DATE = "EXTRA_OCCURRENCE_DATE"
+        private const val HANDLED_PREFS = "pixelquest_reminders_handled"
 
         fun occurrenceDateFrom(intent: Intent?): LocalDate? =
             intent?.takeIf { it.hasExtra(EXTRA_OCCURRENCE_DATE) }?.let { LocalDate.ofEpochDay(it.getLongExtra(EXTRA_OCCURRENCE_DATE, 0L)) }
