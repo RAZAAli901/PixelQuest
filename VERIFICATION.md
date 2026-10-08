@@ -528,7 +528,7 @@ Verified on 8 Oct 2026 using the Pixel 6 emulator (Android 14, API 34), the loca
 ### Emulator checks (debug build)
 | Check | Result |
 | --- | --- |
-| Account with the placeholder Supabase project shows the not-set-up note | The note showed, but the subtitle and heading above it still said "Connect your Google account to join…" and "JOIN THE LEADERBOARD". Step 12 changed them to "Cloud features are off in this build" and "LEADERBOARD", which `CloudAvailabilityUiTest` checks. Not re-checked on the emulator |
+| Account with the placeholder Supabase project shows the not-set-up note | The note showed, but the subtitle and heading above it still said "Connect your Google account to join…" and "JOIN THE LEADERBOARD". Step 12 changed them to "Cloud features are off in this build" and "LEADERBOARD". `CloudAvailabilityUiTest` checks that the old invitations are gone. Not re-checked on the emulator |
 | Leaderboard tab: "HALL OF FAME LOCKED: Sign-in, cloud sync and the leaderboard aren't set up in this build", with no sign-in button. Re-checked after Step 38's ViewModel change | Pass |
 | Quest History filters: ALL TIME is `checked="true"`, 7 DAYS and 30 DAYS are `checked="false"` (uiautomator) | Pass |
 | EXPORT QUEST DATA through the system file picker shows "Backup saved." and writes the file to Downloads | Pass |

@@ -3017,3 +3017,156 @@ Day 30 was the planned day for getting `GEMINI_API_KEY` into release builds. Doi
   - XP earned twice before Day 28 stays in totals.
   - The Claude Design canvases are still out of date.
   - `versionName` is still 1.1.0. CHANGELOG.md has an Unreleased section ready for the next release.
+
+## Day 31 Progress Log
+_Each entry's commit hash is filled in by the following commit (a commit cannot contain its own hash)._
+- Step 1: Add the release signing key's public record: docs/RELEASE_SIGNING.md (fingerprints, where the keystore and password live, backups, Google Sign-In SHA-1, what v1.0.x/1.1.0 players need to do) and app/release-signing-cert.sha256 for CI to check against - e8007061
+- Step 2: Tagged releases fail unless the APK is signed with the PixelQuest release key: with the keystore secret set, apksigner's signer SHA-256 must equal app/release-signing-cert.sha256 before anything is published (step run locally against today's signed APK) - 6ded2631
+- Step 3: Release docs: the keystore secrets are set and checked before publishing (RELEASE_PIPELINE.md), and the Unreleased changelog tells 1.1.0 players to export, uninstall and restore, since earlier releases were signed with temporary keys - c48fbdf7
+- Step 4: Name the restore button (IMPORT QUEST DATA) in the upgrade instructions in CHANGELOG.md and RELEASE_SIGNING.md - 38c47213
+- Step 5: Fix a fresh install with no network losing the player's onboarding choices: onboarding's save opened the database, and the background seed then REPLACEd the name, avatar and difficulty with defaults; the seed now only adds rows that don't exist (reproduced by FirstLaunchSeedRaceTest before the fix) - 4e34683c
+- Step 6: A build that can't reach Gemini (a release before the proxy is set up) doesn't offer the AI Coach: Settings says NOT IN THIS BUILD instead of an opt-in that could only fail, and Today hides the unlock card; a player who already turned it on can still turn it off - 1059491c
+- Step 7: A build without a Supabase project says sign-in, sync and the leaderboard aren't set up, instead of offering Sign in with Google (which opened the account picker and then failed against the placeholder server); Account and the Leaderboard tab - abd1f3ad
+- Step 8: TalkBack says which difficulty card (onboarding and Settings) and which quest-history filter is selected; both were plain clickables whose selection was only a colour - 32091c33
+- Step 9: Add StreakAtRisk: how many more of today's quests keep a live streak (by the difficulty's perfect-day threshold), or nothing to warn about, and the nudge's wording in gamified and Simple Mode - b35be7fc
+- Step 10: Add StreakAtRiskWorker, the first sender on the 'Streaks and progress' channel: once a day around 19:00, if a live streak isn't yet safe, it says how many more quests keep it (not before 18:00, not twice a day, not with notifications off) - 8460db0a
+- Step 11: NOTIFICATIONS.md: the streak-at-risk nudge (when it sends, its wording, once a day, notification id 900003), replacing the 'pq_progress has no sender yet' gap - 58b22d2f
+- Step 12: On the emulator the Account screen still said 'Connect your Google account to join…' and 'JOIN THE LEADERBOARD' above the not-set-up note; in a build without cloud they now read 'Cloud features are off in this build' and 'LEADERBOARD' - 68ea86ca
+- Step 13: Cloud features count as available only with the Google web client id as well (Sign in with Google needs it), and releases warn when that secret is missing; the proxy guide says to add it - bfefceb8
+- Step 14: One check for a real Supabase project URL (CloudAvailability.isRealProjectUrl), used by the AI proxy client and the cloud gate instead of two copies of the placeholder test (no behaviour change) - 985cf3ff
+- Step 15: CHANGELOG Unreleased: the streak-at-risk nudge, the wider accessibility work, and builds without cloud or AI saying so - 21c89e33
+- Step 16: The gemini-proxy logs a short JSON event when a daily limit is hit or Gemini/usage tracking fails (never the prompt, answer or install id), so the Supabase logs show how often limits bite; 13 function tests - 8af03b43
+- Step 17: A release tag must match versionName in app/build.gradle.kts (v1.2.0 can't publish an APK that still says 1.1.0 with the old versionCode); simulated for v1.1.0, v1.2.0 and v1.1.0-rc1 - f12a4697
+- Step 18: Fix Day 30's prompt queue skipping the second prompt: each answer moved the queue on twice (on dismiss, and again when the answer was saved); the per-prompt wiring is now PromptQueueContent, which advances once per answer - 5527ab83
+- Step 19: Fix snoozes clobbering other quests' reminders: quest N's snooze (request code N*10+4, no action) was the same PendingIntent as quest N*10+4's reminder, so snoozing or finishing quest 1 replaced or cancelled quest 14's; snoozes now carry their own action - 8aa03c96
+- Step 20: A quest's own stats (Analytics) count its occurrences: today only once answered (a quest done 9 days running showed 90% every morning) and unlogged past due days as not done, which now break the quest's streak; archived quests keep their history - 00bff11e
+- Step 21: Restoring a backup drops a level-up still waiting to be celebrated, as a reset does (restoring a level-2 backup greeted the player with 'YOU ARE NOW LEVEL 5') - a14cd796
+- Step 22: Backup import brings every value into range: a quest dated in the year 999999999 overflowed the alarm time and crashed on every boot, an ancient one hung Analytics, a huge streak turned XP negative, a future evaluation date froze streaks, and a profile id other than 1 restored nothing - 5eea5d33
+- Step 23: Arming reminders survives a quest whose date the clock can't represent (it's skipped and logged instead of throwing), and the boot receiver catches errors: its try/finally had no catch, so one bad quest crashed the app on every boot - 51a315f5
+- Step 24: Settings says what happened to a backup: saved, couldn't save, restored, couldn't read, or 'isn't a PixelQuest backup' (an unreadable or unrelated file used to open the restore dialog and then do nothing, silently) - fb8cfe47
+- Step 25: Reminders are re-armed when the time zone or the clock changes, not only after a reboot: alarms are absolute times, so after flying across zones an 08:00 reminder rang at the old zone's 08:00 - cfb631b4
+- Step 26: A deleted quest can't earn XP: 'Yes' on its leftover reminder used to award XP and leave an orphan log ('Unknown Quest' in History); the recorder now ignores unknown quests, and deleting a quest clears its notification and pending snooze - cfe8a196
+- Step 27: Each reminder alarm carries the day of the quest it's for, and the receiver uses it instead of working the day out from when it fired (a snooze at 00:02 or a late inexact alarm handled the next day and so skipped the next day's reminder); ReminderSchedule.nextReminder returns the day with the time - 5139be8b
+- Step 28: Answers from a reminder count for the quest's day, not the day they're tapped: 'Yes' at 00:15 for a 23:00 quest credited the new day (leaving the real one to be marked missed); the day travels to the notification's buttons, its snooze and the prompt, and answers for days before yesterday are too late to record - 4d9b33a6
+- Step 29: Re-arming never goes back to an occurrence already reminded, done or skipped: a cold start inside a quest's lead window re-armed that day's reminder at the task time, so it rang twice; editing a quest clears this so a new time can still remind today - 0d939f1e
+- Step 30: Remove the prompt's unused XP pop-up trigger: it was set on every completion but nothing read it, and the prompt closes the moment an answer is tapped - 56e2a799
+- Step 31: Quest History and Level History show a loading state until their data arrives, instead of briefly saying there's no history yet - 764f221e
+- Step 32: NOTIFICATIONS.md: which day a reminder is for and how it travels to the buttons and prompt, the handled-occurrence record, snooze actions, time-zone re-arm, unrepresentable dates and deleted quests - 470283f1
+- Step 33: CHANGELOG Unreleased: the Day 31 reminder fixes and backup import checks in player-facing words - a3975b32
+- Step 34: SFX: OFF now silences the app (the setting never reached SoundManager) and HAPTICS: OFF stops every vibration (only the light tap checked it; completing, skipping and confirm dialogs still buzzed); both apply app-wide, including the full-screen prompt - 1549797b
+- Step 35: The nightly streak check runs at 02:05 local time, chained night to night: at 00:05 it settled yesterday while a 23:00 quest still had an hour left (a 'Yes' at 00:30 never reached the streak, a gap Step 28 exposed), and as a 24-hour periodic job it drifted to 23:05 after the clocks went back - 3cacf2c7
+- Step 36: Onboarding after RESET ALL PROGRESS keeps the cloud link and leaderboard choice the reset preserved: it saved a brand-new profile, so sync stopped and the old public row stayed on the leaderboard while Account said the player wasn't opted in - 179a173d
+- Step 37: Privacy: leaving the leaderboard writes only the opt-in flag on an existing row; it upserted a full row with level, XP and streaks, and the sync worker calls it for every signed-in player who isn't opted in, so spectators who never joined uploaded their stats on each completion - f0477cef
+- Step 38: Leaderboard: LOAD MORE no longer crashes when ranks shift between pages (a hero repeated on the next page gave two rows the same key), a page from before a refresh is dropped instead of appended to the new list, and each tab keeps its own spinner, LOAD MORE and around-you ranks, so results for the tab just left don't land on the one on screen - 47ddb33e
+- Step 39: Cloud sync: a quest completed from its reminder or the full-screen prompt now reaches the leaderboard (only the Today screen asked for a sync); the request is made where every completion is recorded, and its 1.5 s debounce is a WorkManager delay instead of an in-memory one that ended with the notification receiver's process - 1f460651
+- Step 40: Sync now says when nothing was sent: if the leaderboard already had more progress for the account (from another device) it reported 'Cloud sync successful!' and a new last-synced time; the sync worker reads the clock directly instead of an input key that nothing ever set - 6a6ab518
+- Step 41: Paused quests get no reminder alarm whoever re-arms: turning notifications back on in Settings and every boot armed all quests, paused ones included, and their alarms woke the device to show nothing; saving a quest as paused now clears the alarm it had - e601273c
+- Step 42: Missed-quest notices follow the quest's own reminder settings: a quest with reminders switched off is still recorded as missed but gets no notice, and a SILENT quest's notice no longer vibrates on the missed channel - f72fa956
+- Step 43: Leaderboard ranks past the first thousand are right: the heroes ahead of you were counted by downloading their ids, and the API returns at most 1000 rows per request; the server now counts them (a HEAD request with an exact count), and no rows are downloaded - b1e82bf6
+- Step 44: Settings has a REDUCE MOTION switch: the setting was stored and the theme read it, but nothing could turn it on; when on, the looping animations hold still (your leaderboard row's pulse, the AI Coach spinner, the level-up bounce) and the theme changes colour at once - 1cd8ee93
+- Step 45: The nightly streak check saves each day as a whole (its streak and level progress in one transaction): it counted perfect days toward the next level as it went but saved the streak only at the end, so a run stopped part-way counted them again; XP and level are now written as single columns, so a quest completed while the check runs keeps its XP - 6eb10fc8
+- Step 46: CHANGELOG Unreleased: Day 31's leaderboard, sync, settings, reminder and nightly-check fixes in player-facing words, including the Steps 34-37 changes that weren't listed yet - f247af10
+- Step 47: Day 31 verification: the release key signs local release builds (apksigner matches the committed SHA-256) and its four secrets are on GitHub; 903 unit tests and 13 Edge Function tests pass; emulator checks of the not-set-up states, history filters, backup status, Reduce Motion and the leaderboard tab - 2b9ba4c8
+- Step 48: Update BRIEF.md with the Day 31 log and summary, and say exactly what CloudAvailabilityUiTest checks in VERIFICATION.md Section J - (this commit)
+
+## Day 31 Summary — A Permanent Release Key, and Two Bug Hunts
+
+Day 31 started with the release keystore. Every earlier release was signed with a key made for that one CI run, so no release could update another. PixelQuest now has a permanent key, and its four secrets are on GitHub (your choice when asked). The rest of the day went to two bug hunts over the app (twenty findings, all fixed) and to builds without cloud or AI saying so plainly.
+
+### 1. Release signing (Steps 1–4, 13, 17)
+- **The keystore.**
+  - `app/pixelquest-release.jks`: PKCS12, alias `pixelquest`, 4096-bit RSA, valid until 2054.
+  - It and its passwords exist only in gitignored files on this PC and in the GitHub secrets.
+  - Local release builds are signed with it. `apksigner` confirms the certificate.
+- **`docs/RELEASE_SIGNING.md`** covers:
+  - the public fingerprints;
+  - where the key lives and how to back it up (OneDrive alone isn't a backup);
+  - the SHA-1 Google Sign-In needs;
+  - what 1.1.0 players must do: export, uninstall, install, restore.
+- **Release workflow.**
+  - A tagged release fails unless its APK is signed with the key in `app/release-signing-cert.sha256`.
+  - It also fails if the tag doesn't match `versionName`.
+  - It warns when `GOOGLE_WEB_CLIENT_ID` is missing.
+
+### 2. Builds without cloud or AI, and the proxy (Steps 6–7, 12–14, 16)
+- A build that can't reach Gemini (any release until the proxy is deployed) says the AI Coach is NOT IN THIS BUILD instead of offering an opt-in that could only fail.
+- A build without a Supabase project, or without the Google web client id, says sign-in, sync and the leaderboard aren't set up. It no longer offers a Google sign-in that fails against the placeholder server.
+- There is now one check for a real project URL (`CloudAvailability`).
+- The gemini-proxy logs a short JSON event when a daily limit is hit or Gemini fails. The event never includes the prompt, the answer or the install id. The proxy now has 13 tests.
+
+### 3. Reminders and which day they're for (Steps 18–19, 23, 25–30, 35, 41–42)
+- **The prompt queue.** Day 30's queue skipped the second prompt, because each answer moved it on twice.
+- **Snoozes.** A snooze's PendingIntent could be the same as another quest's reminder: quest 1's snooze replaced quest 14's. Snoozes now have their own action.
+- **The day a reminder is for.**
+  - Each alarm carries its quest's day, and the buttons and the prompt record against it. A "Yes" at 00:15 for a 23:00 quest used to credit the new day.
+  - The nightly streak check moved to 02:05, so that answer still counts toward the streak.
+  - The check is chained night to night in local time, so it no longer drifts when the clocks change.
+- **Not twice, not lost.**
+  - Re-arming never goes back to a day already reminded, so a cold start can't ring it again.
+  - Reminders are re-armed when the time zone or clock changes.
+  - One quest with a date the clock can't represent no longer crashes the boot receiver.
+- **Settings respected.**
+  - Paused quests get no alarms.
+  - Missed-quest notices follow the quest's own settings: none when its reminders are off, and silent for SILENT.
+
+### 4. Progress, backups and stats (Steps 5, 20–22, 24, 26, 36, 45)
+- **Backups.**
+  - Imports are brought into range. An edited file could crash the app on every boot, hang Analytics or turn XP negative.
+  - Settings now says whether a backup was saved, restored, unreadable or not a backup.
+  - A restore drops a pending level-up celebration.
+- **Quests.**
+  - A deleted quest's leftover reminder can't award XP.
+  - A quest's own stats count its occurrences: an unanswered today isn't a miss, and unlogged past days are.
+- **RESET ALL PROGRESS** keeps the cloud link and leaderboard choice that its dialog promises.
+- **The nightly check** saves each day in one transaction. A run stopped part-way had counted perfect days toward the level and then counted them again. XP and level are now single-column updates, so a quest completed while the check runs keeps its XP.
+
+### 5. Leaderboard and sync (Steps 37–40, 43)
+- **Privacy.** A signed-in player who hadn't joined the leaderboard uploaded a full stats row on every completion. Opting out now writes only the flag.
+- **Paging.**
+  - LOAD MORE crashed when ranks shifted between pages (duplicate keys).
+  - A page from before a refresh was appended to the new list.
+  - Both tabs shared one spinner and one LOAD MORE state.
+  - "Around you" ranks could land on the wrong tab.
+- **Ranks past 1,000** were wrong, because the counting fetched rows and the API caps them at 1,000. The server now counts.
+- **Sync after any completion.** A quest completed from a notification or the prompt now reaches the leaderboard. The sync's debounce is a WorkManager delay, so it survives the process ending.
+- **SYNC NOW** says when nothing was sent because the server already holds more progress.
+
+### 6. Settings, accessibility and the streak nudge (Steps 8–11, 31, 34, 44)
+- **Streak nudge.** A new evening reminder, sent once a day around 19:00, says how many more quests keep a live streak.
+- **Feedback settings.** SFX: OFF now silences the app, and HAPTICS: OFF stops every vibration.
+- **REDUCE MOTION** can finally be switched on. Looping animations then hold still.
+- **TalkBack** says which difficulty card and which history filter is selected.
+- **Loading states.** Quest History and Level History show one instead of briefly saying there's no history.
+
+### 7. Docs (Steps 11, 15, 32–33, 46)
+- `NOTIFICATIONS.md` covers the streak nudge, which day a reminder is for, snooze actions and time-zone re-arming.
+- `ACCESSIBILITY.md` covers Reduce Motion.
+- The CHANGELOG's Unreleased section has every player-visible change from Day 31.
+
+### 8. Correction: Step 5
+Step 5's message says a fresh install with no network lost the player's onboarding choices to the background seed. That overstates it. At launch the app re-arms reminders, which opens the database and runs the seed before onboarding can save, so the race couldn't happen in today's app. The change (the seed only adds missing rows) is a safeguard in case the launch order changes. `FirstLaunchSeedRaceTest` shows the seed can't overwrite saved choices; it doesn't reproduce a failure in the shipped app.
+
+### 9. Testing
+- 903 unit tests, 0 failing (819 at the end of Day 30), plus 13 Edge Function tests. Details are in VERIFICATION.md Section J.
+- One live Gemini call: the debug build's own AI Coach call when the app was opened.
+
+### 10. Known gaps for Day 32 onwards
+- **Back up the keystore and its password now.**
+  - Keep a copy somewhere other than this PC and OneDrive, for example a password manager or an offline drive.
+  - Losing either means no future update can install over this one.
+- **Cloud setup.**
+  - Deploy the proxy (`docs/GEMINI_PROXY.md`).
+  - Add the `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `GOOGLE_WEB_CLIENT_ID` secrets.
+  - Register the release SHA-1 with the Google Cloud OAuth client.
+  - Until then, release builds have no AI Coach, sign-in or leaderboard. They now say so.
+- **Upgrading players.** Anyone on 1.1.0 or earlier must export, uninstall and reinstall once. CHANGELOG.md and RELEASE_SIGNING.md explain how.
+- **Before the next tag.** `versionName` is still 1.1.0, and the tag check will refuse `v1.2.0` until it's bumped. No tagged CI release has used the new secrets yet.
+- **Unused secret.** The `GEMINI_API_KEY` GitHub secret can be deleted.
+- **Not seen on a device:**
+  - the streak-at-risk nudge;
+  - a sync after a notification completion;
+  - leaderboard paging and exact rank counts against a real project. Whether the `HEAD` count respects row-level security like the old fetch hasn't been checked.
+- **Leftovers.**
+  - The app doesn't follow Android's own "Remove animations" setting.
+  - SYNC NOW's button still says "(DEBUG)".
+  - The Claude Design canvases are still out of date.
