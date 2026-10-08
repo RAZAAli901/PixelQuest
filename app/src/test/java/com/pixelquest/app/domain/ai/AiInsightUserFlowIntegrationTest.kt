@@ -193,7 +193,8 @@ class AiInsightUserFlowIntegrationTest {
             habitInsightRepository = habitInsightRepository,
             settingsRepository = settingsRepo,
             taskCompletionRepository = com.pixelquest.app.testing.FakeTaskCompletionRepository(completionLogs),
-            insightCacheRepository = cacheRepo
+            insightCacheRepository = cacheRepo,
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
         testDispatcher.scheduler.advanceUntilIdle()
 
@@ -223,7 +224,8 @@ class AiInsightUserFlowIntegrationTest {
             habitInsightRepository = habitInsightRepository,
             settingsRepository = settingsRepo,
             taskCompletionRepository = com.pixelquest.app.testing.FakeTaskCompletionRepository(completionLogs),
-            insightCacheRepository = cacheRepo
+            insightCacheRepository = cacheRepo,
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
         testDispatcher.scheduler.advanceUntilIdle()
 

@@ -442,6 +442,58 @@ fun AiInsightDisabledState(
     themeMode: ThemeMode,
     onNavigateToSettings: (() -> Unit)?,
     modifier: Modifier = Modifier
+) = AiInsightLockedState(
+    themeMode = themeMode,
+    icon = "🔒",
+    heading = when (themeMode) {
+        ThemeMode.Comic -> "AI INSIGHTS ARE SLEEPING!"
+        ThemeMode.Light -> "AI Insights Disabled"
+        else -> "[AI COACH DORMANT]"
+    },
+    message = state.message,
+    buttonText = when (themeMode) {
+        ThemeMode.Comic -> "ACTIVATE IN SETTINGS"
+        ThemeMode.Light -> "Open Settings"
+        else -> "ENABLE IN SETTINGS"
+    },
+    onClick = onNavigateToSettings,
+    modifier = modifier
+)
+
+/** Nobody is signed in: the AI Coach is for signed-in players, so the card leads to Account. */
+@Composable
+fun AiInsightSignInRequiredState(
+    state: AiInsightUiState.SignInRequired,
+    themeMode: ThemeMode,
+    onNavigateToAccount: (() -> Unit)?,
+    modifier: Modifier = Modifier
+) = AiInsightLockedState(
+    themeMode = themeMode,
+    icon = "🔐",
+    heading = when (themeMode) {
+        ThemeMode.Comic -> "SIGN IN TO UNLOCK!"
+        ThemeMode.Light -> "Sign in to use the AI Coach"
+        else -> "[SIGN-IN REQUIRED]"
+    },
+    message = state.message,
+    buttonText = when (themeMode) {
+        ThemeMode.Comic -> "SIGN IN"
+        ThemeMode.Light -> "Sign in"
+        else -> "SIGN IN"
+    },
+    onClick = onNavigateToAccount,
+    modifier = modifier
+)
+
+@Composable
+private fun AiInsightLockedState(
+    themeMode: ThemeMode,
+    icon: String,
+    heading: String,
+    message: String,
+    buttonText: String,
+    onClick: (() -> Unit)?,
+    modifier: Modifier = Modifier
 ) {
     when (themeMode) {
         ThemeMode.Comic -> {
@@ -454,26 +506,26 @@ fun AiInsightDisabledState(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "🔒", fontSize = 32.sp)
+                    Text(text = icon, fontSize = 32.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "AI INSIGHTS ARE SLEEPING!",
+                        text = heading,
                         fontFamily = BangersFontFamily,
                         fontSize = 20.sp,
                         color = ComicTokens.SolidBlack
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = state.message,
+                        text = message,
                         fontSize = 12.sp,
                         color = ComicTokens.TextSecondary,
                         textAlign = TextAlign.Center
                     )
-                    if (onNavigateToSettings != null) {
+                    if (onClick != null) {
                         Spacer(modifier = Modifier.height(16.dp))
                         ComicButton(
-                            text = "ACTIVATE IN SETTINGS",
-                            onClick = onNavigateToSettings,
+                            text = buttonText,
+                            onClick = onClick,
                             variant = ComicButtonVariant.PRIMARY
                         )
                     }
@@ -491,26 +543,26 @@ fun AiInsightDisabledState(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "🔒", fontSize = 28.sp)
+                    Text(text = icon, fontSize = 28.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "AI Insights Disabled",
+                        text = heading,
                         style = MaterialTheme.typography.titleMedium,
                         color = Color(0xFF1E293B),
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = state.message,
+                        text = message,
                         style = MaterialTheme.typography.bodySmall,
                         color = Color(0xFF64748B),
                         textAlign = TextAlign.Center
                     )
-                    if (onNavigateToSettings != null) {
+                    if (onClick != null) {
                         Spacer(modifier = Modifier.height(16.dp))
                         PixelButton(
-                            text = "Open Settings",
-                            onClick = onNavigateToSettings,
+                            text = buttonText,
+                            onClick = onClick,
                             variant = PixelButtonVariant.YELLOW,
                             modifier = Modifier.height(38.dp)
                         )
@@ -528,26 +580,26 @@ fun AiInsightDisabledState(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "🔒", fontSize = 28.sp)
+                    Text(text = icon, fontSize = 28.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "[AI COACH DORMANT]",
+                        text = heading,
                         style = PixelTypography.titleMedium,
                         color = Color(0xFFFBBF24),
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = state.message,
+                        text = message,
                         style = MaterialTheme.typography.bodyMedium,
                         color = PixelTheme.colors.onSurface,
                         textAlign = TextAlign.Center
                     )
-                    if (onNavigateToSettings != null) {
+                    if (onClick != null) {
                         Spacer(modifier = Modifier.height(16.dp))
                         PixelButton(
-                            text = "ENABLE IN SETTINGS",
-                            onClick = onNavigateToSettings,
+                            text = buttonText,
+                            onClick = onClick,
                             variant = PixelButtonVariant.YELLOW,
                             modifier = Modifier.height(38.dp)
                         )

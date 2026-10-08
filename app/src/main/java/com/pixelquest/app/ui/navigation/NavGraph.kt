@@ -92,13 +92,17 @@ fun PixelNavHost(
                 },
                 onNavigateToSettings = {
                     navController.navigate(Screen.Settings.route)
+                },
+                onNavigateToAccount = {
+                    navController.navigate(Screen.Account.route)
                 }
             )
         }
         composable(Screen.AiInsight.route) {
             com.pixelquest.app.ui.screens.insight.AiInsightScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
+                onNavigateToAccount = { navController.navigate(Screen.Account.route) }
             )
         }
         composable(Screen.Tasks.route) {

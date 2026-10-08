@@ -50,7 +50,8 @@ fun TodayScreen(
     onNavigateToEditTask: (Long) -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
     onNavigateToAiInsight: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToAccount: () -> Unit = onNavigateToSettings
 ) {
     val uiState by viewModel.uiState.collectAsState()
     // Coming back to the app (e.g. the next morning) re-reads the date.
@@ -114,6 +115,7 @@ fun TodayScreen(
                     onNavigateToProfile = onNavigateToProfile,
                     onNavigateToAiInsight = onNavigateToAiInsight,
                     onNavigateToSettings = onNavigateToSettings,
+                    onNavigateToAccount = onNavigateToAccount,
                     onToggleComicMode = { themeViewModel.toggleComicMode() }
                 )
             }
@@ -132,12 +134,14 @@ fun TodayContent(
     onNavigateToProfile: () -> Unit,
     onNavigateToAiInsight: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
+    onNavigateToAccount: () -> Unit = onNavigateToSettings,
     onToggleComicMode: () -> Unit = {},
     // A slot so tests can render Today without the AI Coach section, which gets its ViewModel from Hilt.
     aiInsightSection: @Composable () -> Unit = {
         TodayAiInsightSection(
             onNavigateToAiInsight = onNavigateToAiInsight,
-            onNavigateToSettings = onNavigateToSettings
+            onNavigateToSettings = onNavigateToSettings,
+            onNavigateToAccount = onNavigateToAccount
         )
     },
     modifier: Modifier = Modifier

@@ -30,6 +30,11 @@ sealed interface AiInsightUiState {
     /**
      * AI Habit Insights are disabled in Settings (opt-in = false).
      */
+    /** Nobody is signed in: the AI Coach is for signed-in players (Google or an emailed code). */
+    data class SignInRequired(
+        val message: String = com.pixelquest.app.domain.ai.AiErrorCopy.SIGN_IN_REQUIRED
+    ) : AiInsightUiState
+
     data class Disabled(
         val message: String = "AI Habit Insights are disabled. Enable them in Settings to receive personalized habit coaching."
     ) : AiInsightUiState

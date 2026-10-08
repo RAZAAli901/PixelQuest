@@ -33,7 +33,8 @@ fun AiInsightScreen(
     modifier: Modifier = Modifier,
     viewModel: AiInsightViewModel = hiltViewModel(),
     onNavigateBack: (() -> Unit)? = null,
-    onNavigateToSettings: (() -> Unit)? = null
+    onNavigateToSettings: (() -> Unit)? = null,
+    onNavigateToAccount: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isSimpleMode by viewModel.isSimpleMode.collectAsState()
@@ -44,9 +45,16 @@ fun AiInsightScreen(
         isSimpleMode = isSimpleMode,
         onRefresh = { viewModel.refreshInsight() },
         onNavigateBack = onNavigateBack,
-        onNavigateToSettings = onNavigateToSettings
+        onNavigateToSettings = onNavigateToSettings,
+        onNavigateToAccount = onNavigateToAccount
     )
 }
+
+/**
+ * Where the AI Coach's SIGN IN button goes. [AiInsightScreenContent] provides it, so the theme views
+ * between the screen and [AiInsightStateRouter] don't each pass it on.
+ */
+val LocalAiSignInAction = androidx.compose.runtime.staticCompositionLocalOf<(() -> Unit)?> { null }
 
 @Composable
 fun AiInsightScreenContent(
@@ -55,65 +63,68 @@ fun AiInsightScreenContent(
     isSimpleMode: Boolean = false,
     onRefresh: () -> Unit,
     onNavigateBack: (() -> Unit)? = null,
-    onNavigateToSettings: (() -> Unit)? = null
+    onNavigateToSettings: (() -> Unit)? = null,
+    onNavigateToAccount: (() -> Unit)? = null
 ) {
     val themeMode = PixelTheme.mode
     val colors = PixelTheme.colors
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            PixelTopAppBar(
-                title = when {
-                    isSimpleMode -> "HABIT COACH"
-                    themeMode == ThemeMode.Comic -> "AI QUESTMASTER"
-                    themeMode == ThemeMode.Light -> "Habit Insights"
-                    else -> "AI COACH"
-                },
-                navigationIcon = if (onNavigateBack != null) {
-                    {
-                        androidx.compose.material3.IconButton(onClick = onNavigateBack) {
-                            com.pixelquest.app.ui.components.SymbolIcon(
-                                symbol = "◀",
-                                contentDescription = "Back",
-                                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                                color = colors.primaryText
-                            )
+    androidx.compose.runtime.CompositionLocalProvider(LocalAiSignInAction provides onNavigateToAccount) {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            topBar = {
+                PixelTopAppBar(
+                    title = when {
+                        isSimpleMode -> "HABIT COACH"
+                        themeMode == ThemeMode.Comic -> "AI QUESTMASTER"
+                        themeMode == ThemeMode.Light -> "Habit Insights"
+                        else -> "AI COACH"
+                    },
+                    navigationIcon = if (onNavigateBack != null) {
+                        {
+                            androidx.compose.material3.IconButton(onClick = onNavigateBack) {
+                                com.pixelquest.app.ui.components.SymbolIcon(
+                                    symbol = "◀",
+                                    contentDescription = "Back",
+                                    style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                                    color = colors.primaryText
+                                )
+                            }
                         }
+                    } else null
+                )
+            },
+            containerColor = colors.background
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .background(colors.background)
+            ) {
+                when (themeMode) {
+                    ThemeMode.Comic -> {
+                        AiInsightComicDispatch(
+                            uiState = uiState,
+                            onRefresh = onRefresh,
+                            onNavigateToSettings = onNavigateToSettings
+                        )
                     }
-                } else null
-            )
-        },
-        containerColor = colors.background
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(colors.background)
-        ) {
-            when (themeMode) {
-                ThemeMode.Comic -> {
-                    AiInsightComicDispatch(
-                        uiState = uiState,
-                        onRefresh = onRefresh,
-                        onNavigateToSettings = onNavigateToSettings
-                    )
-                }
-                ThemeMode.Light -> {
-                    AiInsightLightDispatch(
-                        uiState = uiState,
-                        onRefresh = onRefresh,
-                        onNavigateToSettings = onNavigateToSettings
-                    )
-                }
-                else -> {
-                    AiInsightPixelDispatch(
-                        uiState = uiState,
-                        onRefresh = onRefresh,
-                        onNavigateToSettings = onNavigateToSettings,
-                        isSimpleMode = isSimpleMode
-                    )
+                    ThemeMode.Light -> {
+                        AiInsightLightDispatch(
+                            uiState = uiState,
+                            onRefresh = onRefresh,
+                            onNavigateToSettings = onNavigateToSettings
+                        )
+                    }
+                    else -> {
+                        AiInsightPixelDispatch(
+                            uiState = uiState,
+                            onRefresh = onRefresh,
+                            onNavigateToSettings = onNavigateToSettings,
+                            isSimpleMode = isSimpleMode
+                        )
+                    }
                 }
             }
         }
@@ -225,6 +236,13 @@ fun AiInsightStateRouter(
                 state = uiState,
                 themeMode = themeMode,
                 onNavigateToSettings = onNavigateToSettings
+            )
+        }
+        is AiInsightUiState.SignInRequired -> {
+            AiInsightSignInRequiredState(
+                state = uiState,
+                themeMode = themeMode,
+                onNavigateToAccount = LocalAiSignInAction.current
             )
         }
         is AiInsightUiState.CapReached -> {

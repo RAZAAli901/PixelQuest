@@ -53,8 +53,10 @@ class AiInsightViewModelTest {
         )
         var cooldownSeconds: Long = 0L
         val latestInsightFlow = MutableStateFlow<HabitInsightResponse?>(null)
+        var calls = 0
 
         override suspend fun generateHabitInsight(forceRefresh: Boolean): GeminiResult<HabitInsightResponse> {
+            calls++
             if (generateResult is GeminiResult.Success) {
                 latestInsightFlow.value = (generateResult as GeminiResult.Success).data
             }
@@ -132,7 +134,8 @@ class AiInsightViewModelTest {
             habitInsightRepository = FakeHabitInsightRepository(),
             settingsRepository = settingsRepo,
             taskCompletionRepository = FakeCompletionRepository(),
-            insightCacheRepository = FakeCacheRepository()
+            insightCacheRepository = FakeCacheRepository(),
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
 
         advanceUntilIdle()
@@ -151,7 +154,8 @@ class AiInsightViewModelTest {
             habitInsightRepository = FakeHabitInsightRepository(),
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
-            insightCacheRepository = FakeCacheRepository()
+            insightCacheRepository = FakeCacheRepository(),
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
 
         advanceUntilIdle()
@@ -186,7 +190,8 @@ class AiInsightViewModelTest {
             habitInsightRepository = habitRepo,
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
-            insightCacheRepository = cacheRepo
+            insightCacheRepository = cacheRepo,
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
 
         advanceUntilIdle()
@@ -205,7 +210,8 @@ class AiInsightViewModelTest {
             habitInsightRepository = habitRepo,
             settingsRepository = FakeSettingsRepository(),
             taskCompletionRepository = completionRepo,
-            insightCacheRepository = FakeCacheRepository()
+            insightCacheRepository = FakeCacheRepository(),
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
         advanceUntilIdle()
         return viewModel.uiState.value as AiInsightUiState.Error
@@ -242,7 +248,8 @@ class AiInsightViewModelTest {
             habitInsightRepository = habitRepo,
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
-            insightCacheRepository = FakeCacheRepository()
+            insightCacheRepository = FakeCacheRepository(),
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
 
         advanceUntilIdle()
@@ -269,7 +276,8 @@ class AiInsightViewModelTest {
             habitInsightRepository = habitRepo,
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
-            insightCacheRepository = FakeCacheRepository()
+            insightCacheRepository = FakeCacheRepository(),
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
 
         advanceUntilIdle()
@@ -291,7 +299,8 @@ class AiInsightViewModelTest {
             habitInsightRepository = habitRepo,
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
-            insightCacheRepository = FakeCacheRepository()
+            insightCacheRepository = FakeCacheRepository(),
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
         advanceUntilIdle()
         assertTrue(viewModel.uiState.value is AiInsightUiState.Success)
@@ -319,7 +328,8 @@ class AiInsightViewModelTest {
             habitInsightRepository = habitRepo,
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
-            insightCacheRepository = FakeCacheRepository()
+            insightCacheRepository = FakeCacheRepository(),
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
         advanceUntilIdle()
 
@@ -347,7 +357,8 @@ class AiInsightViewModelTest {
             habitInsightRepository = habitRepo,
             settingsRepository = settingsRepo,
             taskCompletionRepository = FakeCompletionRepository(),
-            insightCacheRepository = FakeCacheRepository()
+            insightCacheRepository = FakeCacheRepository(),
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
         )
         advanceUntilIdle()
 
@@ -361,5 +372,46 @@ class AiInsightViewModelTest {
         advanceUntilIdle()
 
         assertTrue("State must remain Disabled", viewModel.uiState.value is AiInsightUiState.Disabled)
+    }
+
+    // The AI Coach is for signed-in players (Google or an emailed code).
+
+    @Test
+    fun signedOut_asksToSignIn_withoutShowingTheSavedInsight_orCallingGemini() = runTest {
+        val completionRepo = FakeCompletionRepository().also { populateSufficientLogs(it) }
+        val cacheRepo = FakeCacheRepository().apply {
+            cachedEntity = InsightCacheEntity(
+                id = 1, summary = "Saved summary", suggestion = "s", encouragement = "e", dataHash = "h", generatedAt = 1000L
+            )
+        }
+        val habitRepo = FakeHabitInsightRepository()
+        val access = com.pixelquest.app.testing.FakeAiAccess(token = null)
+
+        val viewModel = AiInsightViewModel(habitRepo, FakeSettingsRepository(), completionRepo, cacheRepo, access)
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value is AiInsightUiState.SignInRequired)
+        assertEquals(0, habitRepo.calls)
+
+        access.token = "signed-in" // signing in brings the coach back at once
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value is AiInsightUiState.Success)
+
+        access.token = null // and signing out hides it again
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value is AiInsightUiState.SignInRequired)
+    }
+
+    @Test
+    fun aSessionThatEndsDuringTheCall_asksToSignInAgain() = runTest {
+        val completionRepo = FakeCompletionRepository().also { populateSufficientLogs(it) }
+        val habitRepo = FakeHabitInsightRepository().apply { generateResult = GeminiResult.SignInRequired() }
+
+        val viewModel = AiInsightViewModel(
+            habitRepo, FakeSettingsRepository(), completionRepo, FakeCacheRepository(), com.pixelquest.app.testing.FakeAiAccess()
+        )
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value is AiInsightUiState.SignInRequired)
     }
 }

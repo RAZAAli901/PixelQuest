@@ -31,7 +31,8 @@ class AiInsightViewModel @Inject constructor(
     private val habitInsightRepository: HabitInsightRepository,
     private val settingsRepository: SettingsRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
-    private val insightCacheRepository: InsightCacheRepository
+    private val insightCacheRepository: InsightCacheRepository,
+    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AiInsightUiState>(AiInsightUiState.Loading)
@@ -45,9 +46,12 @@ class AiInsightViewModel @Inject constructor(
         )
 
     init {
-        // Reload whenever the opt-in changes, so the card updates as soon as the user
-        // enables or disables AI Coach in Settings (the first emission does the initial load).
-        settingsRepository.aiInsightsEnabled
+        // Reload whenever the opt-in or the sign-in changes, so the card updates as soon as the
+        // player enables AI Coach in Settings or signs in or out (the first emission does the
+        // initial load).
+        kotlinx.coroutines.flow.combine(settingsRepository.aiInsightsEnabled, aiAccess.isSignedIn) { enabled, signedIn ->
+            enabled to signedIn
+        }
             .distinctUntilChanged()
             .onEach { loadInsight(forceRefresh = false) }
             .launchIn(viewModelScope)
@@ -55,6 +59,11 @@ class AiInsightViewModel @Inject constructor(
 
     fun loadInsight(forceRefresh: Boolean = false) {
         viewModelScope.launch {
+            // The AI Coach is for signed-in players: signed out, not even a saved insight is shown.
+            if (!aiAccess.isSignedIn.first()) {
+                _uiState.value = AiInsightUiState.SignInRequired()
+                return@launch
+            }
             val isOptedIn = try { settingsRepository.aiInsightsEnabled.first() } catch (e: Exception) { false }
             if (!isOptedIn) {
                 _uiState.value = AiInsightUiState.Disabled()
@@ -116,7 +125,8 @@ class AiInsightViewModel @Inject constructor(
                     )
                 }
                 is GeminiResult.Disabled -> AiInsightUiState.Disabled(result.message)
-                is GeminiResult.SignInRequired -> AiInsightUiState.Error(message = result.message, canRetry = false)
+                // The session ended or was revoked between the check above and the call.
+                is GeminiResult.SignInRequired -> AiInsightUiState.SignInRequired(result.message)
                 is GeminiResult.RateLimited -> {
                     val fallback = cachedEntry?.toInsightResponse() ?: habitInsightRepository.latestInsight.first()
                     if (result.message.contains("limit", ignoreCase = true) || result.message.contains("cap", ignoreCase = true)) {

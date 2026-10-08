@@ -62,8 +62,13 @@ class SettingsViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val taskAlarmScheduler: TaskAlarmScheduler,
     private val progressReset: com.pixelquest.app.data.local.ProgressReset,
-    private val backupRestorer: com.pixelquest.app.data.backup.BackupRestorer
+    private val backupRestorer: com.pixelquest.app.data.backup.BackupRestorer,
+    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null
 ) : ViewModel() {
+
+    /** The AI Coach is for signed-in players; Settings offers signing in when nobody is. */
+    val isSignedIn: StateFlow<Boolean> = (aiAccess?.isSignedIn ?: kotlinx.coroutines.flow.flowOf(true))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     val uiState: StateFlow<SettingsUiState> = combine(
         userProfileRepository.getProfile(),

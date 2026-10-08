@@ -59,6 +59,7 @@ fun TodayAiInsightSection(
     onNavigateToAiInsight: () -> Unit,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToAccount: () -> Unit = onNavigateToSettings,
     viewModel: AiInsightViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -104,6 +105,17 @@ fun TodayAiInsightSection(
                     )
                 }
             }
+            is AiInsightUiState.SignInRequired -> {
+                // Same rule as the opt-in teaser: nothing to offer in a build that can't reach Gemini.
+                if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
+                    TodayAiInsightOptInCard(
+                        themeMode = themeMode,
+                        isSimpleMode = isSimpleMode,
+                        onEnableClick = onNavigateToAccount,
+                        needsSignIn = true
+                    )
+                }
+            }
             is AiInsightUiState.CapReached -> {
                 com.pixelquest.app.ui.screens.insight.AiInsightCapReachedState(
                     state = state,
@@ -126,8 +138,11 @@ fun TodayAiInsightOptInCard(
     themeMode: ThemeMode,
     onEnableClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isSimpleMode: Boolean = false
+    isSimpleMode: Boolean = false,
+    /** Signed out: the card asks the player to sign in (the AI Coach is for signed-in players). */
+    needsSignIn: Boolean = false
 ) {
+    val signInLine = "Sign in with Google or an emailed code to unlock it."
     when (themeMode) {
         ThemeMode.Comic -> {
             ComicPanel(
@@ -148,18 +163,18 @@ fun TodayAiInsightOptInCard(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = if (isSimpleMode) {
+                        text = (if (isSimpleMode) {
                             "Get daily habit analysis, sustainable routines, and thoughtful guidance powered by Google Gemini."
                         } else {
                             "Get daily tactical debriefs, habit analysis, and power surges powered by Google Gemini."
-                        },
+                        }) + if (needsSignIn) " $signInLine" else "",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = ComicTokens.SolidBlack.copy(alpha = 0.85f)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     ComicButton(
-                        text = "ENABLE IN SETTINGS",
+                        text = if (needsSignIn) "SIGN IN" else "ENABLE IN SETTINGS",
                         onClick = onEnableClick,
                         variant = ComicButtonVariant.PRIMARY
                     )
@@ -193,7 +208,9 @@ fun TodayAiInsightOptInCard(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = if (isSimpleMode) {
+                        text = if (needsSignIn) {
+                            "Receive personalized habit guidance and consistency analysis. $signInLine"
+                        } else if (isSimpleMode) {
                             "Receive personalized habit guidance, rhythm tracking, and consistency analysis. Enable anytime in Settings."
                         } else {
                             "Receive personalized habit guidance and consistency analysis. Enable anytime in Settings."
@@ -203,7 +220,7 @@ fun TodayAiInsightOptInCard(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     PixelButton(
-                        text = "Enable in Settings",
+                        text = if (needsSignIn) "Sign in" else "Enable in Settings",
                         onClick = onEnableClick,
                         variant = PixelButtonVariant.YELLOW
                     )
@@ -229,17 +246,17 @@ fun TodayAiInsightOptInCard(
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = if (isSimpleMode) {
+                        text = (if (isSimpleMode) {
                             "Receive personalized habit guidance and consistency analysis powered by Gemini AI."
                         } else {
                             "Receive tactical debriefs and streak coaching powered by Gemini AI."
-                        },
+                        }) + if (needsSignIn) " $signInLine" else "",
                         style = MaterialTheme.typography.bodySmall,
                         color = PixelTheme.colors.onSurface
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     PixelButton(
-                        text = "ENABLE IN SETTINGS",
+                        text = if (needsSignIn) "SIGN IN" else "ENABLE IN SETTINGS",
                         onClick = onEnableClick,
                         variant = PixelButtonVariant.YELLOW,
                         modifier = Modifier.height(34.dp)

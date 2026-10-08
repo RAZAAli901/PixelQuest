@@ -18,7 +18,8 @@ fun HomeScreen(
     onNavigateToEditTask: (Long) -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
     onNavigateToAiInsight: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToAccount: () -> Unit = onNavigateToSettings
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -28,7 +29,8 @@ fun HomeScreen(
             onNavigateToEditTask = onNavigateToEditTask,
             onNavigateToProfile = onNavigateToProfile,
             onNavigateToAiInsight = onNavigateToAiInsight,
-            onNavigateToSettings = onNavigateToSettings
+            onNavigateToSettings = onNavigateToSettings,
+            onNavigateToAccount = onNavigateToAccount
         )
 
         val pendingLevel = uiState.pendingLevelUp

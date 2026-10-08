@@ -27,4 +27,13 @@ class AiAvailabilityTest {
         assertEquals(AiCoachSetting.NOT_IN_THIS_BUILD, AiCoachSetting.of(isEnabled = false, availableInBuild = false))
         assertEquals(AiCoachSetting.ENABLED, AiCoachSetting.of(isEnabled = true, availableInBuild = false))
     }
+
+    @Test
+    fun signedOut_theCoachOffersSigningIn_whetherOrNotItWasTurnedOn() {
+        assertEquals(AiCoachSetting.NEEDS_SIGN_IN, AiCoachSetting.of(isEnabled = false, availableInBuild = true, isSignedIn = false))
+        assertEquals(AiCoachSetting.NEEDS_SIGN_IN, AiCoachSetting.of(isEnabled = true, availableInBuild = true, isSignedIn = false))
+        // A build without AI has nothing to sign in for; a coach left on there can still be turned off.
+        assertEquals(AiCoachSetting.NOT_IN_THIS_BUILD, AiCoachSetting.of(isEnabled = false, availableInBuild = false, isSignedIn = false))
+        assertEquals(AiCoachSetting.ENABLED, AiCoachSetting.of(isEnabled = true, availableInBuild = false, isSignedIn = false))
+    }
 }
