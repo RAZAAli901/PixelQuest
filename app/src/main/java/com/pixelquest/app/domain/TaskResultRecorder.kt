@@ -17,14 +17,17 @@ import javax.inject.Singleton
  * - a task has at most one result per day (the table also has a unique index),
  * - completing a task twice awards its XP once,
  * - a missed or skipped task can still be completed later that day, and earns XP then,
- * - nothing turns a completed task back into a missed one.
+ * - nothing turns a completed task back into a missed one,
+ * - every completion that earns XP is synced to the cloud profile (only Today used to ask for that,
+ *   so a quest done from its reminder reached the leaderboard only with the next in-app one).
  */
 @Singleton
 class TaskResultRecorder @Inject constructor(
     private val taskCompletionRepository: TaskCompletionRepository,
     private val userProfileRepository: UserProfileRepository,
     private val streakRepository: StreakRepository,
-    private val taskRepository: com.pixelquest.app.domain.repository.TaskRepository
+    private val taskRepository: com.pixelquest.app.domain.repository.TaskRepository,
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
 ) {
     // Serialises a double tap, or the app and a notification button racing each other.
     private val mutex = Mutex()
@@ -49,6 +52,7 @@ class TaskResultRecorder @Inject constructor(
         userProfileRepository.getProfile().first()?.let { profile ->
             userProfileRepository.updateProfile(profile.copy(totalXp = profile.totalXp + points))
         }
+        syncScheduler?.scheduleProfileSync()
         points
     }
 

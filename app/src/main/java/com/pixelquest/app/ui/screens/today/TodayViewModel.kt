@@ -45,7 +45,6 @@ class TodayViewModel @Inject constructor(
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val taskAlarmScheduler: TaskAlarmScheduler,
     private val taskResultRecorder: TaskResultRecorder,
-    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
     private val settingsRepository: SettingsRepository? = null,
     private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
 ) : ViewModel() {
@@ -154,7 +153,6 @@ class TodayViewModel @Inject constructor(
             taskAlarmScheduler.clearReminder(task.id)
             val isSimple = settingsRepository?.simpleModeEnabled?.first() ?: false
             _quickCompleteFlourishEvent.value = !isSimple
-            syncScheduler?.scheduleProfileSync()
         }
     }
 
