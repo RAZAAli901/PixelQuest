@@ -47,7 +47,14 @@ class StreakEvaluationWorker @AssistedInject constructor(
      * and persisted to Room DB so that historical consistency is preserved if a user later switches back
      * to Full Game Mode.
      */
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = try {
+        evaluate()
+    } finally {
+        // Each night queues the next one (see RUN_AT). WorkManager isn't initialised in unit tests.
+        try { scheduleNextRun(applicationContext) } catch (e: IllegalStateException) { }
+    }
+
+    private suspend fun evaluate(): Result {
         val yesterday = LocalDate.now(java.time.ZoneId.systemDefault()).minusDays(1)
         val initial = streakRepository.getCurrentStreak().first() ?: com.pixelquest.app.data.local.entity.StreakEntity()
 
@@ -124,5 +131,41 @@ class StreakEvaluationWorker @AssistedInject constructor(
     companion object {
         /** Days evaluated at most in one run after a long gap. */
         const val MAX_CATCH_UP_DAYS = 60L
+
+        /**
+         * When yesterday is settled: after the 2-hour window of a quest as late as 23:59, so a "Yes"
+         * for a late-evening quest answered after midnight still counts. (It ran at 00:05, when a 23:00
+         * quest still had an hour left, and that answer never reached the streak.)
+         */
+        val RUN_AT: java.time.LocalTime = java.time.LocalTime.of(2, 5)
+        private const val WORK_NAME = "StreakEvaluationWorkerNightly"
+        private const val LEGACY_PERIODIC_WORK = "StreakEvaluationWorkerPeriodic"
+
+        /**
+         * Real time until the next [RUN_AT] in [zone]. Computed in the zone, so a clock change
+         * doesn't move the run: the 24-hour periodic job it replaces drifted to 23:05 for the winter.
+         */
+        fun delayUntilNextRun(now: java.time.ZonedDateTime): java.time.Duration {
+            val todayAt = now.toLocalDate().atTime(RUN_AT).atZone(now.zone)
+            val next = if (now.isBefore(todayAt)) todayAt else now.toLocalDate().plusDays(1).atTime(RUN_AT).atZone(now.zone)
+            return java.time.Duration.between(now, next)
+        }
+
+        private fun request() = androidx.work.OneTimeWorkRequestBuilder<StreakEvaluationWorker>()
+            .setInitialDelay(delayUntilNextRun(java.time.ZonedDateTime.now()).toMillis(), java.util.concurrent.TimeUnit.MILLISECONDS)
+            .build()
+
+        /** At launch: start the nightly chain unless a run is already waiting. */
+        fun schedule(context: android.content.Context) {
+            val workManager = androidx.work.WorkManager.getInstance(context)
+            workManager.cancelUniqueWork(LEGACY_PERIODIC_WORK)
+            workManager.enqueueUniqueWork(WORK_NAME, androidx.work.ExistingWorkPolicy.KEEP, request())
+        }
+
+        /** From a run: queue the next night after this one finishes. */
+        fun scheduleNextRun(context: android.content.Context) {
+            androidx.work.WorkManager.getInstance(context)
+                .enqueueUniqueWork(WORK_NAME, androidx.work.ExistingWorkPolicy.APPEND_OR_REPLACE, request())
+        }
     }
 }

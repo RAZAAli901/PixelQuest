@@ -56,7 +56,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         connectivitySyncObserver.startObserving()
         // Background async enqueue of periodic background workers
         scheduleMissedTaskWorker()
-        scheduleStreakEvaluationWorker()
+        // Nightly at 02:05 local time; replaces the old 24-hour periodic job (see StreakEvaluationWorker.RUN_AT).
+        com.pixelquest.app.worker.StreakEvaluationWorker.schedule(this)
         // Evening streak-at-risk nudge; posts nothing unless a live streak is actually at risk.
         com.pixelquest.app.worker.StreakAtRiskWorker.schedule(this)
         // Does nothing unless AI Coach and AI reminder messages are both on.
@@ -90,22 +91,6 @@ class PixelQuestApplication : Application(), Configuration.Provider {
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "MissedTaskWorkerPeriodic",
-            ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
-        )
-    }
-
-    private fun scheduleStreakEvaluationWorker() {
-        val now = java.time.LocalDateTime.now()
-        val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay().plusMinutes(5)
-        val initialDelayMinutes = java.time.Duration.between(now, nextMidnight).toMinutes()
-
-        val workRequest = PeriodicWorkRequestBuilder<com.pixelquest.app.worker.StreakEvaluationWorker>(1, TimeUnit.DAYS)
-            .setInitialDelay(initialDelayMinutes, TimeUnit.MINUTES)
-            .build()
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "StreakEvaluationWorkerPeriodic",
             ExistingPeriodicWorkPolicy.KEEP,
             workRequest
         )
