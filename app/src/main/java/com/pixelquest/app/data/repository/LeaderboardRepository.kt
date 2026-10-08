@@ -6,10 +6,9 @@ import com.pixelquest.app.data.remote.safeSupabaseCall
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.query.filter.PostgrestFilterBuilder
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -236,14 +235,17 @@ open class LeaderboardRepositoryImpl @Inject constructor(
         }
     }
 
-    /** Counts matching profiles by fetching only their ids, not whole profiles. */
+    /**
+     * Counts matching profiles on the server (a HEAD request; the total comes back in Content-Range).
+     * It used to fetch their ids and count them, but the API returns at most 1000 rows per request,
+     * so anyone with more than 1000 heroes ahead was shown a rank of about 1000.
+     */
     private suspend fun countProfiles(filters: PostgrestFilterBuilder.() -> Unit): Int =
         postgrest["profiles"].select(columns = Columns.list("id")) {
+            head = true
+            count(Count.EXACT)
             filter(filters)
-        }.decodeList<ProfileIdRow>().size
-
-    @Serializable
-    private data class ProfileIdRow(@SerialName("id") val id: String)
+        }.countOrNull()?.toInt() ?: throw IllegalStateException("The leaderboard count was missing from the response")
 
     companion object {
         const val LEADERBOARD_TIMEOUT_MS = 10_000L
