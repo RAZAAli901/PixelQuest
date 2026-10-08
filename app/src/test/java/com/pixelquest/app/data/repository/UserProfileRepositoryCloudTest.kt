@@ -31,6 +31,14 @@ class FakeUserProfileDao : UserProfileDao {
 
     override fun getProfile(): Flow<UserProfileEntity?> = profileFlow
 
+    override suspend fun addXp(points: Int) {
+        profileFlow.value = profileFlow.value?.let { it.copy(totalXp = it.totalXp + points) }
+    }
+
+    override suspend fun setLevelProgress(level: Int, progress: Int) {
+        profileFlow.value = profileFlow.value?.copy(level = level, perfectDaysTowardNextLevel = progress)
+    }
+
     override suspend fun updateSupabaseUserId(userId: String?) {
         profileFlow.value = profileFlow.value?.copy(supabaseUserId = userId)
     }

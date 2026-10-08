@@ -37,8 +37,13 @@ class StreakEvaluationWorker @AssistedInject constructor(
     private val levelHistoryRepository: LevelHistoryRepository,
     private val levelUpSignalManager: LevelUpSignalManager,
     private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
-    private val settingsRepository: SettingsRepository? = null
+    private val settingsRepository: SettingsRepository? = null,
+    private val transactionRunner: com.pixelquest.app.data.local.TransactionRunner? = null
 ) : CoroutineWorker(appContext, workerParams) {
+
+    private suspend fun <T> inTransaction(block: suspend () -> T): T =
+        if (transactionRunner != null) transactionRunner.inTransaction(block) else block()
+
 
     /**
      * ARCHITECTURAL CONTRACT (Day 18 Simple Mode):
@@ -69,12 +74,13 @@ class StreakEvaluationWorker @AssistedInject constructor(
 
         var streak = initial
         var date = from
+        var reachedLevel: Int? = null
         while (!date.isAfter(yesterday)) {
             val scheduledIds = taskRepository.getTasksForDay(date).first().map { it.id }.toSet()
             val logs = taskCompletionRepository.getLogsForDate(date).first()
-            streak = when (StreakCalculator.dayOutcome(scheduledIds, logs, threshold)) {
+            val outcome = StreakCalculator.dayOutcome(scheduledIds, logs, threshold)
+            val next = when (outcome) {
                 DayOutcome.PERFECT -> {
-                    addPerfectDayToLevel(difficulty)
                     streak.copy(
                         currentStreak = streak.currentStreak + 1,
                         longestStreak = kotlin.math.max(streak.longestStreak, streak.currentStreak + 1),
@@ -91,41 +97,50 @@ class StreakEvaluationWorker @AssistedInject constructor(
                 // Nothing was scheduled: the streak carries over unchanged.
                 DayOutcome.REST -> streak.copy(lastCompletedDate = date)
             }
+            // Each day is saved whole: its streak (which marks the day evaluated) with its level
+            // progress. The streak used to be saved only after the last day, so a run stopped part-way
+            // had already counted those perfect days toward the next level and counted them again.
+            inTransaction {
+                if (outcome == DayOutcome.PERFECT) addPerfectDayToLevel(difficulty)?.let { reachedLevel = it }
+                streakRepository.updateStreak(next)
+            }
+            streak = next
             date = date.plusDays(1)
         }
 
-        streakRepository.updateStreak(streak)
+        reachedLevel?.let { level ->
+            val isSimpleMode = settingsRepository?.simpleModeEnabled?.first() ?: false
+            levelUpSignalManager.setPendingLevelUp(level, suppressCelebration = isSimpleMode)
+        }
         if (streak.currentStreak != initial.currentStreak || streak.perfectDaysCount != initial.perfectDaysCount) {
             syncScheduler?.scheduleProfileSync()
         }
         return Result.success()
     }
 
-    /** Counts one perfect day toward the next level, levelling up when enough have been reached. */
-    private suspend fun addPerfectDayToLevel(difficulty: com.pixelquest.app.data.local.entity.DifficultySettingsEntity?) {
-        val profile = userProfileRepository.getProfile().first() ?: return
+    /**
+     * Counts one perfect day toward the next level, levelling up when enough have been reached.
+     * Returns the new level when it levelled up. Only the level columns are written: writing the
+     * whole profile back put back the XP it had read, so a quest completed meanwhile lost its XP.
+     */
+    private suspend fun addPerfectDayToLevel(difficulty: com.pixelquest.app.data.local.entity.DifficultySettingsEntity?): Int? {
+        val profile = userProfileRepository.getProfile().first() ?: return null
         val newProgress = profile.perfectDaysTowardNextLevel + 1
         val daysRequired = com.pixelquest.app.domain.DifficultyMode.daysRequiredPerLevel(difficulty)
-        if (LevelCalculator.shouldLevelUp(newProgress, daysRequired)) {
-            val newLevel = profile.level + 1
-            userProfileRepository.updateProfile(
-                profile.copy(
-                    level = newLevel,
-                    perfectDaysTowardNextLevel = LevelCalculator.getPostLevelUpProgress()
-                )
-            )
-            levelHistoryRepository.insertLevelHistory(
-                LevelHistoryEntity(
-                    level = newLevel,
-                    achievedDate = System.currentTimeMillis(),
-                    difficultyAtTimeOfLevelUp = difficulty?.difficultyLevel?.name ?: "MEDIUM"
-                )
-            )
-            val isSimpleMode = settingsRepository?.simpleModeEnabled?.first() ?: false
-            levelUpSignalManager.setPendingLevelUp(newLevel, suppressCelebration = isSimpleMode)
-        } else {
-            userProfileRepository.updateProfile(profile.copy(perfectDaysTowardNextLevel = newProgress))
+        if (!LevelCalculator.shouldLevelUp(newProgress, daysRequired)) {
+            userProfileRepository.setLevelProgress(profile.level, newProgress)
+            return null
         }
+        val newLevel = profile.level + 1
+        userProfileRepository.setLevelProgress(newLevel, LevelCalculator.getPostLevelUpProgress())
+        levelHistoryRepository.insertLevelHistory(
+            LevelHistoryEntity(
+                level = newLevel,
+                achievedDate = System.currentTimeMillis(),
+                difficultyAtTimeOfLevelUp = difficulty?.difficultyLevel?.name ?: "MEDIUM"
+            )
+        )
+        return newLevel
     }
 
     companion object {

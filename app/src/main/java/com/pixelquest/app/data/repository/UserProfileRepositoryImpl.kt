@@ -28,6 +28,11 @@ class UserProfileRepositoryImpl @Inject constructor(
         return updated
     }
 
+    override suspend fun addXp(points: Int) = userProfileDao.addXp(points)
+
+    override suspend fun setLevelProgress(level: Int, perfectDaysTowardNextLevel: Int) =
+        userProfileDao.setLevelProgress(level, perfectDaysTowardNextLevel)
+
     override suspend fun updateSupabaseUserId(userId: String?) {
         userProfileDao.updateSupabaseUserId(userId)
     }

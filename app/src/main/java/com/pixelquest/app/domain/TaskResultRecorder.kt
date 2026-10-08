@@ -49,9 +49,7 @@ class TaskResultRecorder @Inject constructor(
                 TaskCompletionLogEntity(taskId = taskId, completedDate = date, wasCompleted = true, pointsAwarded = points)
             )
         }
-        userProfileRepository.getProfile().first()?.let { profile ->
-            userProfileRepository.updateProfile(profile.copy(totalXp = profile.totalXp + points))
-        }
+        userProfileRepository.addXp(points)
         syncScheduler?.scheduleProfileSync()
         points
     }

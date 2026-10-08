@@ -25,6 +25,11 @@ object DaoModule {
 
     @Provides
     @Singleton
+    fun provideTransactionRunner(database: AppDatabase): com.pixelquest.app.data.local.TransactionRunner =
+        com.pixelquest.app.data.local.RoomTransactionRunner(database)
+
+    @Provides
+    @Singleton
     fun provideStreakDao(database: AppDatabase): StreakDao = database.streakDao()
 
     @Provides

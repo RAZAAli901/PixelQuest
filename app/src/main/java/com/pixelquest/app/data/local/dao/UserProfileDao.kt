@@ -23,6 +23,17 @@ interface UserProfileDao {
     @Query("SELECT * FROM user_profile WHERE id = 1")
     fun getProfile(): Flow<UserProfileEntity?>
 
+    /**
+     * Adds XP in one statement. Completions and the nightly level check used to read the whole
+     * profile and write it back, so whichever wrote second put back the other's old values.
+     */
+    @Query("UPDATE user_profile SET totalXp = totalXp + :points WHERE id = 1")
+    suspend fun addXp(points: Int)
+
+    /** Level and progress only (see [addXp]). */
+    @Query("UPDATE user_profile SET level = :level, perfectDaysTowardNextLevel = :progress WHERE id = 1")
+    suspend fun setLevelProgress(level: Int, progress: Int)
+
     @Query("UPDATE user_profile SET supabaseUserId = :userId WHERE id = 1")
     suspend fun updateSupabaseUserId(userId: String?)
 

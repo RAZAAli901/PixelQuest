@@ -74,6 +74,9 @@ class StreakCatchUpTest {
         val profiles = mockk<UserProfileRepository> {
             every { getProfile() } returns profileFlow
             coEvery { updateProfile(any()) } answers { profileFlow.value = firstArg() }
+            coEvery { setLevelProgress(any(), any()) } answers {
+                profileFlow.value = profileFlow.value!!.copy(level = firstArg(), perfectDaysTowardNextLevel = secondArg())
+            }
         }
         val history = mockk<LevelHistoryRepository>(relaxed = true)
         val worker = TestListenableWorkerBuilder<StreakEvaluationWorker>(context)
