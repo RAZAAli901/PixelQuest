@@ -50,8 +50,12 @@ class TaskAlarmScheduler @Inject constructor(
      * Next reminder time for [task] in epoch millis, or null when it has no future occurrence.
      * [notBefore] skips occurrences before that date (used after the task is done for today).
      */
-    fun nextTriggerTimeMillis(task: TaskEntity, notBefore: LocalDate? = null): Long? {
-        val next = ReminderSchedule.nextTriggerAt(
+    fun nextTriggerTimeMillis(task: TaskEntity, notBefore: LocalDate? = null): Long? =
+        nextReminder(task, notBefore)?.at?.atZone(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
+
+    /** The next reminder for [task] and the day of the occurrence it is for. */
+    fun nextReminder(task: TaskEntity, notBefore: LocalDate? = null): ReminderSchedule.NextReminder? =
+        ReminderSchedule.nextReminder(
             scheduledDay = task.scheduledDay,
             scheduledTime = task.scheduledTime,
             recurrence = task.recurrenceType,
@@ -59,9 +63,7 @@ class TaskAlarmScheduler @Inject constructor(
             leadMinutes = task.reminderLeadMinutes,
             notBefore = notBefore,
             weeklyDays = task.weeklyDays
-        ) ?: return null
-        return next.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-    }
+        )
 
     fun calculateTriggerTimeMillis(task: TaskEntity): Long {
         return nextTriggerTimeMillis(task)
@@ -93,8 +95,8 @@ class TaskAlarmScheduler @Inject constructor(
         // A one-time task whose time has passed has nothing left to remind about. A date the clock
         // can't represent (e.g. an edited backup's year 999999999 overflows toEpochMilli) is skipped
         // rather than crashing whoever is re-arming every reminder.
-        val triggerTimeMillis = try {
-            nextTriggerTimeMillis(task, notBefore)
+        val next = try {
+            nextReminder(task, notBefore)?.let { it to it.at.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() }
         } catch (e: ArithmeticException) {
             android.util.Log.w("TaskAlarmScheduler", "Task ${task.id} has an unrepresentable date; no reminder armed", e)
             null
@@ -102,9 +104,11 @@ class TaskAlarmScheduler @Inject constructor(
             android.util.Log.w("TaskAlarmScheduler", "Task ${task.id} has an unrepresentable date; no reminder armed", e)
             null
         } ?: return
+        val (reminder, triggerTimeMillis) = next
         val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
             putExtra("EXTRA_TASK_ID", task.id)
             putExtra("EXTRA_TASK_NAME", task.name)
+            putExtra(EXTRA_OCCURRENCE_DATE, reminder.occurrenceDate.toEpochDay())
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -142,9 +146,10 @@ class TaskAlarmScheduler @Inject constructor(
      * One-off alarm [minutes] from now. Uses its own request code so it sits alongside the task's
      * regular alarm instead of replacing it.
      */
-    fun scheduleSnooze(taskId: Long, taskName: String, minutes: Long = SNOOZE_MINUTES) {
+    fun scheduleSnooze(taskId: Long, taskName: String, minutes: Long = SNOOZE_MINUTES, occurrenceDate: LocalDate? = null) {
         val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
             action = ACTION_SNOOZED_REMINDER
+            occurrenceDate?.let { putExtra(EXTRA_OCCURRENCE_DATE, it.toEpochDay()) }
             putExtra("EXTRA_TASK_ID", taskId)
             putExtra("EXTRA_TASK_NAME", taskName)
         }
@@ -220,5 +225,16 @@ class TaskAlarmScheduler @Inject constructor(
          * (code 14) was quest 14's reminder: snoozing or finishing quest 1 replaced or cancelled it.
          */
         const val ACTION_SNOOZED_REMINDER = "com.pixelquest.app.action.SNOOZED_REMINDER"
+
+        /**
+         * The day of the quest occurrence a reminder is for (epoch day), carried from the alarm to the
+         * notification's buttons and the prompt. Working it out from the time things happen went
+         * wrong after midnight: a snooze firing at 00:02 handled the next day, and "Yes" tapped at
+         * 00:15 for a 23:00 quest credited the new day.
+         */
+        const val EXTRA_OCCURRENCE_DATE = "EXTRA_OCCURRENCE_DATE"
+
+        fun occurrenceDateFrom(intent: Intent?): LocalDate? =
+            intent?.takeIf { it.hasExtra(EXTRA_OCCURRENCE_DATE) }?.let { LocalDate.ofEpochDay(it.getLongExtra(EXTRA_OCCURRENCE_DATE, 0L)) }
     }
 }

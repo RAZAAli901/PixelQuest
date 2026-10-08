@@ -18,6 +18,9 @@ object ReminderSchedule {
 
     private const val MAX_STEPS = 10_000
 
+    /** When to remind, and the day of the quest occurrence the reminder is for. */
+    data class NextReminder(val at: LocalDateTime, val occurrenceDate: LocalDate)
+
     /**
      * Returns the next reminder time, or null when the task has no future occurrence
      * (a one-time task whose time has passed).
@@ -30,13 +33,28 @@ object ReminderSchedule {
         leadMinutes: Int = 0,
         notBefore: LocalDate? = null,
         weeklyDays: Set<DayOfWeek> = emptySet()
-    ): LocalDateTime? {
+    ): LocalDateTime? = nextReminder(scheduledDay, scheduledTime, recurrence, now, leadMinutes, notBefore, weeklyDays)?.at
+
+    /**
+     * Like [nextTriggerAt], with the occurrence's own day. The day can't be worked out from the
+     * trigger later: with a lead time a reminder can fire the evening before, and when the lead
+     * window has already started it fires at the task time instead.
+     */
+    fun nextReminder(
+        scheduledDay: LocalDate,
+        scheduledTime: LocalTime,
+        recurrence: RecurrenceType,
+        now: LocalDateTime,
+        leadMinutes: Int = 0,
+        notBefore: LocalDate? = null,
+        weeklyDays: Set<DayOfWeek> = emptySet()
+    ): NextReminder? {
         val lead = leadMinutes.coerceAtLeast(0).toLong()
         val base = LocalDateTime.of(scheduledDay, scheduledTime)
 
         if (recurrence == RecurrenceType.ONE_TIME) {
             val dayAllowed = notBefore == null || !scheduledDay.isBefore(notBefore)
-            return if (dayAllowed) triggerFor(base, lead, now) else null
+            return if (dayAllowed) triggerFor(base, lead, now)?.let { NextReminder(it, scheduledDay) } else null
         }
 
         val repeatDays = WeeklyDays.effective(weeklyDays, scheduledDay)
@@ -56,7 +74,7 @@ object ReminderSchedule {
             }
             val dayAllowed = notBefore == null || !occurrence.toLocalDate().isBefore(notBefore)
             val trigger = if (dayAllowed) triggerFor(occurrence, lead, now) else null
-            if (trigger != null) return trigger
+            if (trigger != null) return NextReminder(trigger, occurrence.toLocalDate())
             step++
         }
         return null

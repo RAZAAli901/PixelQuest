@@ -66,7 +66,9 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 val task = taskRepository.getTaskById(taskId).first()
                 if (task == null || !task.isActive || !task.reminderEnabled) return@launch
 
-                val occurrenceDate = LocalDateTime.now().plusMinutes(task.reminderLeadMinutes.toLong()).toLocalDate()
+                // The day the alarm was armed for; alarms armed before Day 31 don't carry it.
+                val occurrenceDate = TaskAlarmScheduler.occurrenceDateFrom(intent)
+                    ?: LocalDateTime.now().plusMinutes(task.reminderLeadMinutes.toLong()).toLocalDate()
                 // Stay quiet if the task already has a result for that day (done or skipped in the
                 // app, or answered from an earlier reminder or a snooze).
                 if (taskCompletionRepository.getLogForTaskOnDate(taskId, occurrenceDate) == null) {
