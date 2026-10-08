@@ -70,6 +70,14 @@ class CiBuildWorkflowTest {
     }
 
     @Test
+    fun releaseWorkflow_refusesATagThatDoesntMatchTheAppVersion() {
+        val workflow = listOf(File("../.github/workflows/release.yml"), File(".github/workflows/release.yml")).first { it.exists() }
+        val content = workflow.readText()
+        assertTrue(content.contains("name: Check Version Matches Tag"))
+        assertTrue("It runs before the build", content.indexOf("name: Check Version Matches Tag") < content.indexOf("name: Build Debug & Release APKs"))
+    }
+
+    @Test
     fun verifyCiWorkflow_testsTheEdgeFunctions() {
         val targetFile = listOf(File("../.github/workflows/build.yml"), File(".github/workflows/build.yml")).first { it.exists() }
         val activeLines = targetFile.readLines().filterNot { it.trim().startsWith("#") }
