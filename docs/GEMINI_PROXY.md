@@ -45,6 +45,10 @@ You need a Supabase project and the Supabase CLI (`npx supabase` runs it without
    ```bash
    gh secret set SUPABASE_ANON_KEY
    ```
+   Sign-in also needs `GOOGLE_WEB_CLIENT_ID` (already in `local.properties`; add it as a secret too, or release builds say cloud features are off):
+   ```bash
+   gh secret set GOOGLE_WEB_CLIENT_ID
+   ```
 2. Sign in and link the project:
    ```bash
    npx supabase login

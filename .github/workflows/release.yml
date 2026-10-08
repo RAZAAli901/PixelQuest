@@ -57,6 +57,7 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
         run: |
           : > RELEASE_WARNINGS.md
           if [ -z "$KEYSTORE_BASE64" ]; then
@@ -66,6 +67,9 @@ jobs:
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
             echo "::warning::SUPABASE_URL or SUPABASE_ANON_KEY is not set: sign-in, cloud sync, the leaderboard and the AI Coach won't work in this build."
             echo "> **Built without a Supabase project.** Sign-in, cloud sync, the leaderboard and the AI Coach are unavailable in this build." >> RELEASE_WARNINGS.md
+          elif [ -z "$GOOGLE_WEB_CLIENT_ID" ]; then
+            echo "::warning::GOOGLE_WEB_CLIENT_ID is not set: Sign in with Google (and so cloud sync and the leaderboard) won't work in this build."
+            echo "> **Built without a Google sign-in client id.** Sign-in, cloud sync and the leaderboard are unavailable in this build." >> RELEASE_WARNINGS.md
           fi
 
       - name: Inject Supabase & OAuth Build Secrets

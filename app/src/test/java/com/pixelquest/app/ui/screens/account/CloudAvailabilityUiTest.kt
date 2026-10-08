@@ -32,10 +32,12 @@ class CloudAvailabilityUiTest {
 
     @Test
     fun theRule() {
-        assertTrue(CloudAvailability.isConfigured("https://abcd.supabase.co", "sb_publishable_x"))
-        assertFalse(CloudAvailability.isConfigured("https://placeholder-project.supabase.co", "sb_publishable_x"))
-        assertFalse(CloudAvailability.isConfigured("https://abcd.supabase.co", "placeholder-anon-key"))
-        assertFalse(CloudAvailability.isConfigured("", ""))
+        val clientId = "123-abc.apps.googleusercontent.com"
+        assertTrue(CloudAvailability.isConfigured("https://abcd.supabase.co", "sb_publishable_x", clientId))
+        assertFalse(CloudAvailability.isConfigured("https://placeholder-project.supabase.co", "sb_publishable_x", clientId))
+        assertFalse(CloudAvailability.isConfigured("https://abcd.supabase.co", "placeholder-anon-key", clientId))
+        assertFalse("Sign in with Google needs the web client id", CloudAvailability.isConfigured("https://abcd.supabase.co", "sb_publishable_x", ""))
+        assertFalse(CloudAvailability.isConfigured("", "", ""))
     }
 
     @Test
