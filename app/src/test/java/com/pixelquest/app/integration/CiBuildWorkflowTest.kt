@@ -56,6 +56,20 @@ class CiBuildWorkflowTest {
     }
 
     @Test
+    fun releaseWorkflow_failsUnlessSignedWithTheReleaseKey() {
+        val workflow = listOf(File("../.github/workflows/release.yml"), File(".github/workflows/release.yml")).first { it.exists() }
+        val content = workflow.readText()
+        assertTrue(content.contains("name: Verify Release Signature"))
+        assertTrue(content.contains("app/release-signing-cert.sha256"))
+        // The check comes after the build and before anything is published.
+        assertTrue(content.indexOf("name: Verify Release Signature") > content.indexOf("name: Build Debug & Release APKs"))
+        assertTrue(content.indexOf("name: Verify Release Signature") < content.indexOf("name: Create GitHub Release"))
+
+        val certFile = listOf(File("release-signing-cert.sha256"), File("app/release-signing-cert.sha256")).first { it.exists() }
+        assertTrue("A lower-case SHA-256 hex digest", Regex("^[0-9a-f]{64}$").matches(certFile.readText().trim()))
+    }
+
+    @Test
     fun verifyCiWorkflow_testsTheEdgeFunctions() {
         val targetFile = listOf(File("../.github/workflows/build.yml"), File(".github/workflows/build.yml")).first { it.exists() }
         val activeLines = targetFile.readLines().filterNot { it.trim().startsWith("#") }

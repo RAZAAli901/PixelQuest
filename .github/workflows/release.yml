@@ -89,6 +89,25 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew compileDebugKotlin assembleDebug assembleRelease
 
+      # With the keystore secret present, the APK must be signed with the PixelQuest release key
+      # (app/release-signing-cert.sha256), or it couldn't update existing installs: fail instead.
+      - name: Verify Release Signature
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "No release keystore secret: skipping the certificate check (this APK is debug-signed)."
+            exit 0
+          fi
+          APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner"
+          ACTUAL=$("$APKSIGNER" verify --print-certs app/build/outputs/apk/release/app-release.apk | tr -d '\r' | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+          EXPECTED=$(tr -d ' \r\n' < app/release-signing-cert.sha256)
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "::error::The release APK is signed with '$ACTUAL', not the PixelQuest release key ($EXPECTED). Check the keystore secrets."
+            exit 1
+          fi
+          echo "Release APK signed with the PixelQuest release key ($EXPECTED)."
+
       - name: Generate Release Notes
         run: |
           cat RELEASE_WARNINGS.md > RELEASE_NOTES.md
