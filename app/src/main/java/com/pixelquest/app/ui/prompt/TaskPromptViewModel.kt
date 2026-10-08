@@ -6,10 +6,7 @@ import com.pixelquest.app.domain.TaskResultRecorder
 import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import com.pixelquest.app.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -29,9 +26,6 @@ class TaskPromptViewModel @Inject constructor(
     val isSimpleMode: StateFlow<Boolean> = (settingsRepository?.simpleModeEnabled ?: flowOf(false))
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    private val _pointsAwardedTrigger = MutableStateFlow<Int?>(null)
-    val pointsAwardedTrigger: StateFlow<Int?> = _pointsAwardedTrigger.asStateFlow()
-
     /** [occurrenceDate]: the day of the quest the prompt is for (see ReminderAnswer). */
     fun onTaskCompleted(taskId: Long, wasCompleted: Boolean, occurrenceDate: LocalDate? = null, onDone: () -> Unit) {
         viewModelScope.launch {
@@ -46,12 +40,7 @@ class TaskPromptViewModel @Inject constructor(
         // "Not yet" records nothing, so the task can still be completed later today.
         val day = com.pixelquest.app.domain.ReminderAnswer.dateToRecord(occurrenceDate, LocalDate.now())
         if (wasCompleted && day != null) {
-            // 0 when the task was already completed that day; no XP pop-up then.
-            val earnedXp = taskResultRecorder.recordCompleted(taskId, day)
-            val isSimpleMode = settingsRepository?.simpleModeEnabled?.first() ?: false
-            if (earnedXp > 0 && !isSimpleMode) {
-                _pointsAwardedTrigger.value = earnedXp
-            }
+            taskResultRecorder.recordCompleted(taskId, day)
         }
         taskAlarmScheduler.clearReminder(taskId)
     }
