@@ -161,7 +161,10 @@ fun TaskHistoryScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (state.items.isEmpty()) {
+        if (state.isLoading) {
+            // Not "no history yet" before the history has loaded.
+            com.pixelquest.app.ui.components.PixelLoadingState(message = "LOADING HISTORY...", modifier = Modifier.weight(1f))
+        } else if (state.items.isEmpty()) {
             EmptyHistoryState(modifier = Modifier.weight(1f))
         } else {
             LazyColumn(

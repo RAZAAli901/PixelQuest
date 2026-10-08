@@ -37,10 +37,15 @@ fun LevelHistoryScreen(
     modifier: Modifier = Modifier
 ) {
     val historyList by viewModel.history.collectAsState()
-    LevelHistoryScreenContent(
-        history = historyList,
-        modifier = modifier
-    )
+    val loaded = historyList
+    if (loaded == null) {
+        com.pixelquest.app.ui.components.PixelLoadingState(
+            message = "LOADING LEVEL HISTORY...",
+            modifier = modifier.fillMaxSize().background(PixelTheme.colors.background).padding(16.dp)
+        )
+    } else {
+        LevelHistoryScreenContent(history = loaded, modifier = modifier)
+    }
 }
 
 @Composable

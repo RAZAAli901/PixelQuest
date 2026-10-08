@@ -15,10 +15,11 @@ class LevelHistoryViewModel @Inject constructor(
     private val levelHistoryRepository: LevelHistoryRepository
 ) : ViewModel() {
 
-    val history: StateFlow<List<LevelHistoryEntity>> = levelHistoryRepository.getAllHistory()
+    /** Null until the history has loaded, so the screen doesn't flash "no level-ups yet" first. */
+    val history: StateFlow<List<LevelHistoryEntity>?> = levelHistoryRepository.getAllHistory()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
+            initialValue = null
         )
 }
