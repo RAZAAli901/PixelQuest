@@ -42,6 +42,12 @@ class PixelQuestApplication : Application(), Configuration.Provider {
     @javax.inject.Inject
     lateinit var soundManager: com.pixelquest.app.audio.SoundManager
 
+    @javax.inject.Inject
+    lateinit var aiAccess: dagger.Lazy<com.pixelquest.app.domain.ai.AiAccess>
+
+    @javax.inject.Inject
+    lateinit var encouragementPackStore: com.pixelquest.app.data.local.prefs.EncouragementPackStore
+
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     override fun onCreate() {
@@ -52,6 +58,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         NotificationHelper.createNotificationChannel(this)
         // SFX and haptics settings apply everywhere, including the full-screen prompt.
         com.pixelquest.app.audio.FeedbackSettingsSync.start(appScope, settingsRepository, soundManager)
+        // Signed out, saved AI-written reminder lines are dropped (the AI Coach is for signed-in players).
+        com.pixelquest.app.auth.AiSignOutCleanup.start(appScope, { aiAccess.get() }, encouragementPackStore)
         // Start connectivity observer for prompt sync retry on reconnection
         connectivitySyncObserver.startObserving()
         // Background async enqueue of periodic background workers
