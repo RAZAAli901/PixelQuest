@@ -119,7 +119,8 @@ object NotificationHelper {
         contentIntent: PendingIntent? = null,
         soundEnabled: Boolean = true,
         vibrationEnabled: Boolean = true,
-        isSimpleMode: Boolean = false
+        isSimpleMode: Boolean = false,
+        silent: Boolean = false
     ): Notification {
         val builder = NotificationCompat.Builder(context, NotificationChannels.Spec.MISSED.id)
             .setSmallIcon(R.drawable.ic_tasks)
@@ -134,6 +135,10 @@ object NotificationHelper {
         }
         if (!vibrationEnabled) {
             builder.setVibrate(longArrayOf(0L))
+        }
+        if (silent) {
+            // The missed channel vibrates; a SILENT quest's notice shouldn't, like its reminder.
+            builder.setSilent(true)
         }
         if (contentIntent != null) {
             builder.setContentIntent(contentIntent)

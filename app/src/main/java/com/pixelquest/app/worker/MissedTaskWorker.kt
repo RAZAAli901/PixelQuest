@@ -10,6 +10,7 @@ import androidx.work.WorkerParameters
 import com.pixelquest.app.MainActivity
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.domain.TaskResultRecorder
+import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
@@ -70,7 +71,9 @@ class MissedTaskWorker @AssistedInject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         val manager = NotificationManagerCompat.from(applicationContext)
-        missedTasks.forEach { task ->
+        // A quest with its reminders switched off gets no missed notice either (the miss is still
+        // recorded), and a SILENT quest's notice is silent too: both used to be notified like any other.
+        missedTasks.filter { it.reminderEnabled }.forEach { task ->
             // Replace the task's reminder (same id) so the shade doesn't show both.
             manager.cancel(task.id.toInt())
             val notification = NotificationHelper.buildMissedTaskNotification(
@@ -80,7 +83,8 @@ class MissedTaskWorker @AssistedInject constructor(
                 contentIntent = openApp,
                 soundEnabled = soundEnabled,
                 vibrationEnabled = vibrationEnabled,
-                isSimpleMode = isSimpleMode
+                isSimpleMode = isSimpleMode,
+                silent = task.reminderStyle == ReminderStyle.SILENT
             )
             try {
                 manager.notify(MISSED_TAG, task.id.toInt(), notification)
