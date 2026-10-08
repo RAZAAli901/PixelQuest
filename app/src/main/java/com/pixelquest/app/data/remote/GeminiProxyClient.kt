@@ -80,11 +80,7 @@ class GeminiProxyClient(
     }
 
     companion object {
-        private const val PLACEHOLDER_URL = "https://placeholder-project.supabase.co"
-
-        fun isConfigured(supabaseUrl: String): Boolean {
-            val url = supabaseUrl.trim().trimEnd('/')
-            return url.startsWith("https://") && url != PLACEHOLDER_URL
-        }
+        /** The proxy needs only the project URL (the function doesn't check the anon key). */
+        fun isConfigured(supabaseUrl: String): Boolean = com.pixelquest.app.domain.CloudAvailability.isRealProjectUrl(supabaseUrl)
     }
 }

@@ -12,10 +12,15 @@ object CloudAvailability {
     private const val PLACEHOLDER_URL = "https://placeholder-project.supabase.co"
     private const val PLACEHOLDER_ANON_KEY = "placeholder-anon-key"
 
-    fun isConfigured(supabaseUrl: String, anonKey: String, googleWebClientId: String): Boolean {
+    /** A real Supabase project URL: https, and not the build's placeholder. */
+    fun isRealProjectUrl(supabaseUrl: String): Boolean {
         val url = supabaseUrl.trim().trimEnd('/')
+        return url.startsWith("https://") && url != PLACEHOLDER_URL
+    }
+
+    fun isConfigured(supabaseUrl: String, anonKey: String, googleWebClientId: String): Boolean {
         val key = anonKey.trim()
-        return url.startsWith("https://") && url != PLACEHOLDER_URL &&
+        return isRealProjectUrl(supabaseUrl) &&
             key.isNotEmpty() && key != PLACEHOLDER_ANON_KEY &&
             googleWebClientId.isNotBlank()
     }
