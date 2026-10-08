@@ -13,6 +13,10 @@ interface DifficultySettingsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSettings(settings: DifficultySettingsEntity)
 
+    /** For the first-launch seed: adds the row only if it doesn't exist, so the player's own choices win. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertSettingsIfAbsent(settings: DifficultySettingsEntity)
+
     @Update
     suspend fun updateSettings(settings: DifficultySettingsEntity)
 

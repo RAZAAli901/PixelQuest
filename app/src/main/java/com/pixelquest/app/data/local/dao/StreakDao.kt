@@ -13,6 +13,10 @@ interface StreakDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertStreak(streak: StreakEntity)
 
+    /** For the first-launch seed: adds the row only if it doesn't exist, so the player's own choices win. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertStreakIfAbsent(streak: StreakEntity)
+
     @Update
     suspend fun updateStreak(streak: StreakEntity)
 

@@ -13,6 +13,10 @@ interface UserProfileDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProfile(profile: UserProfileEntity)
 
+    /** For the first-launch seed: adds the row only if it doesn't exist, so the player's own choices win. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertProfileIfAbsent(profile: UserProfileEntity)
+
     @Update
     suspend fun updateProfile(profile: UserProfileEntity)
 

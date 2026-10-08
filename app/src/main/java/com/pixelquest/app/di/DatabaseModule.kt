@@ -40,11 +40,14 @@ object DatabaseModule {
                     super.onCreate(db)
                     CoroutineScope(Dispatchers.IO).launch {
                         val appDb = databaseProvider.get()
-                        appDb.userProfileDao().insertProfile(SeedDataProvider.defaultProfile())
-                        appDb.difficultySettingsDao().insertSettings(SeedDataProvider.defaultDifficultySettings())
-                        appDb.streakDao().insertStreak(SeedDataProvider.defaultStreak())
+                        // Only rows that don't exist yet: on a first launch with no network, onboarding's
+                        // save is what opens (and creates) the database, and the seed used to REPLACE the
+                        // name, avatar and difficulty the player had just chosen.
+                        appDb.userProfileDao().insertProfileIfAbsent(SeedDataProvider.defaultProfile())
+                        appDb.difficultySettingsDao().insertSettingsIfAbsent(SeedDataProvider.defaultDifficultySettings())
+                        appDb.streakDao().insertStreakIfAbsent(SeedDataProvider.defaultStreak())
                         SeedDataProvider.initialTasks().forEach { task ->
-                            appDb.taskDao().insertTask(task)
+                            appDb.taskDao().insertTaskIfAbsent(task)
                         }
                         Log.d("PixelQuestSeed", "Database seeded successfully with initial profile, settings, streak, and tasks.")
                     }

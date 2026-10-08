@@ -15,6 +15,10 @@ interface TaskDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTask(task: TaskEntity): Long
 
+    /** For the first-launch seed: adds the row only if it doesn't exist, so the player's own choices win. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertTaskIfAbsent(task: TaskEntity): Long
+
     @Update
     suspend fun updateTask(task: TaskEntity)
 

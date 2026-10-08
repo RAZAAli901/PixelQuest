@@ -21,6 +21,10 @@ class FakeUserProfileDao : UserProfileDao {
         profileFlow.value = profile
     }
 
+    override suspend fun insertProfileIfAbsent(profile: UserProfileEntity) {
+        if (profileFlow.value == null) profileFlow.value = profile
+    }
+
     override suspend fun updateProfile(profile: UserProfileEntity) {
         profileFlow.value = profile
     }
