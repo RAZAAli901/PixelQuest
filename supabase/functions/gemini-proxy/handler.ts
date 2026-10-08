@@ -18,6 +18,11 @@ export interface ProxyDeps {
   claimCall: (deviceId: string) => Promise<ClaimResult>;
   fetchGemini: (url: string, init: RequestInit) => Promise<Response>;
   model?: string;
+  /**
+   * Operational events for the function's logs: limits reached and Gemini failures. They never
+   * carry the prompt, the answer or the install id.
+   */
+  log?: (event: Record<string, unknown>) => void;
 }
 
 export const DEFAULT_MODEL = "gemini-2.5-flash";
@@ -82,10 +87,17 @@ export async function handleProxyRequest(req: Request, deps: ProxyDeps): Promise
   try {
     claim = await deps.claimCall(deviceId.toLowerCase());
   } catch {
+    deps.log?.({ event: "usage_unavailable" });
     return json(503, { error: "usage_unavailable" });
   }
-  if (claim === "device_limit") return json(429, { error: "device_daily_limit" });
-  if (claim === "global_limit") return json(429, { error: "global_daily_limit" });
+  if (claim === "device_limit") {
+    deps.log?.({ event: "limit", scope: "device" });
+    return json(429, { error: "device_daily_limit" });
+  }
+  if (claim === "global_limit") {
+    deps.log?.({ event: "limit", scope: "global" });
+    return json(429, { error: "global_daily_limit" });
+  }
 
   const model = deps.model?.trim() || DEFAULT_MODEL;
   let upstream: Response;
@@ -99,6 +111,7 @@ export async function handleProxyRequest(req: Request, deps: ProxyDeps): Promise
       },
     );
   } catch {
+    deps.log?.({ event: "upstream_unreachable" });
     return json(502, { error: "upstream_unreachable" });
   }
 
@@ -106,7 +119,8 @@ export async function handleProxyRequest(req: Request, deps: ProxyDeps): Promise
     // Gemini's own response, so the app parses it the same way as a direct call.
     return new Response(await upstream.text(), { status: 200, headers: { "Content-Type": "application/json" } });
   }
-  // Gemini's error bodies are not passed on.
+  // Gemini's error bodies are not passed on (or logged).
+  deps.log?.({ event: "upstream_error", status: upstream.status });
   if (upstream.status === 429) return json(429, { error: "upstream_busy" });
   return json(502, { error: "upstream_error", status: upstream.status });
 }

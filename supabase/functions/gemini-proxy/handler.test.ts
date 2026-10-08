@@ -186,3 +186,34 @@ test("rpcClaim fails on an error status or an unexpected answer", async () => {
   const odd = rpcClaim(async () => new Response(JSON.stringify("maybe"), { status: 200 }), "https://abc.supabase.co", "k", 6, 200);
   await assert.rejects(odd(DEVICE));
 });
+
+test("limits and Gemini failures are logged without the prompt, answer or install id", async () => {
+  const events: Record<string, unknown>[] = [];
+  const cases: [ClaimResult | Error, Response | Error | undefined][] = [
+    ["device_limit", undefined],
+    ["global_limit", undefined],
+    ["ok", new Response("{}", { status: 503 })],
+    ["ok", new Error("reset")],
+    [new Error("db down"), undefined],
+  ];
+  for (const [claim, gemini] of cases) {
+    const { d } = deps({ claim, gemini });
+    await handleProxyRequest(request({ prompt: "secret habit details" }), { ...d, log: (e) => events.push(e) });
+  }
+  assert.deepEqual(events, [
+    { event: "limit", scope: "device" },
+    { event: "limit", scope: "global" },
+    { event: "upstream_error", status: 503 },
+    { event: "upstream_unreachable" },
+    { event: "usage_unavailable" },
+  ]);
+  const text = JSON.stringify(events);
+  assert.ok(!text.includes("secret habit") && !text.includes(DEVICE));
+});
+
+test("a successful call logs nothing", async () => {
+  const events: Record<string, unknown>[] = [];
+  const { d } = deps();
+  await handleProxyRequest(request({ prompt: "hi" }), { ...d, log: (e) => events.push(e) });
+  assert.equal(events.length, 0);
+});

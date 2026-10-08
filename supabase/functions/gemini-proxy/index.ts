@@ -31,5 +31,6 @@ Deno.serve((req: Request) =>
     claimCall,
     fetchGemini: fetch,
     model: Deno.env.get("GEMINI_MODEL"),
+    log: (event) => console.log(JSON.stringify(event)),
   })
 );

@@ -28,6 +28,8 @@ The anon key ships in every APK, so anyone can call the function. These are the 
 - **Project-wide daily limit**, default 200 calls per UTC day. This is the hard ceiling: a client that keeps inventing new install ids still stops here.
 - Malformed requests are refused before a call is claimed. Gemini's error bodies are never passed back.
 
+The function logs one JSON line per refusal or failure: `{"event":"limit","scope":"device"}` or `"global"`, `{"event":"upstream_error","status":503}`, `upstream_unreachable` and `usage_unavailable`. It never logs the prompt, the answer or the install id. In the Supabase dashboard, open Edge Functions → gemini-proxy → Logs to see how often limits are hit.
+
 If the global limit is reached, every player sees the AI as busy until the next UTC day. Raise `AI_PROXY_GLOBAL_DAILY_LIMIT` as the player count grows, keeping it within your Gemini quota and budget.
 
 ## Deploying (one time, then after changes to the function)
