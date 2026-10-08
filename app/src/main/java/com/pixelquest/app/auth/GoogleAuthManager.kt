@@ -19,7 +19,12 @@ sealed class GoogleAuthResult {
     data class Success(
         val idToken: String,
         val email: String,
-        val displayName: String?
+        val displayName: String?,
+        /**
+         * The nonce before hashing. Google puts its SHA-256 in the ID token; Supabase needs the raw
+         * value to check it, and refuses a token that has a nonce when none is passed.
+         */
+        val rawNonce: String? = null
     ) : GoogleAuthResult()
 
     data class Cancelled(val message: String = "Sign-in was cancelled.") : GoogleAuthResult()
@@ -82,7 +87,8 @@ open class GoogleAuthManager @Inject constructor(
                 GoogleAuthResult.Success(
                     idToken = googleIdTokenCredential.idToken,
                     email = googleIdTokenCredential.id,
-                    displayName = googleIdTokenCredential.displayName
+                    displayName = googleIdTokenCredential.displayName,
+                    rawNonce = rawNonce
                 )
             } else {
                 GoogleAuthResult.Failure(

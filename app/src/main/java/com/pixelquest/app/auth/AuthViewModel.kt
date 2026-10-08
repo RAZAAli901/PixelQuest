@@ -85,7 +85,7 @@ class AuthViewModel @Inject constructor(
             _uiState.value = AuthUiState.SigningIn
             when (val googleResult = googleAuthManager.signInWithGoogle(activityContext)) {
                 is GoogleAuthResult.Success -> {
-                    when (val exchangeResult = authRepository.exchangeGoogleIdToken(googleResult.idToken)) {
+                    when (val exchangeResult = authRepository.exchangeGoogleIdToken(googleResult.idToken, googleResult.rawNonce)) {
                         is SupabaseResult.Success -> {
                             val user = exchangeResult.data
                             userProfileRepository.updateSupabaseUserId(user.id)
