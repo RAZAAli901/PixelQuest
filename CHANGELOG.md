@@ -23,6 +23,12 @@ All notable changes to **PixelQuest** are documented in this file.
 - One result per quest per day: double taps and late answers no longer count twice.
 - Two quests due in the same minute both get their prompt.
 - An evening nudge (around 19:00) when your streak is at risk, saying how many more quests keep it (Day 31).
+- Reminder fixes (Day 31):
+  - Snoozing one quest no longer cancels another's reminder.
+  - Answering a late-evening reminder after midnight counts for the right day.
+  - A reminder can't ring twice for the same day after the app restarts.
+  - Reminders follow you across time zones.
+  - A deleted quest's leftover reminder can't award XP.
 
 ### 🗓️ Quests and progress
 - Weekly quests on chosen days (Day 27).
@@ -30,6 +36,7 @@ All notable changes to **PixelQuest** are documented in this file.
 - A new quest created after its time of day starts tomorrow (Day 30).
 - The task form keeps your edits when the screen rotates (Day 30).
 - Backups now include the streak, completion history and level timeline (Days 28, 30).
+- Backups are checked when imported (Day 31). A file that isn't a backup says so. Out-of-range values in an edited file are corrected instead of crashing the app. Settings now says whether a backup was saved or restored.
 - Leaving the leaderboard while offline is queued until you're back online (Day 30).
 
 ### ♿ Accessibility (Days 30–31)
