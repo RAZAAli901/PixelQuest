@@ -54,6 +54,21 @@ Off by default and only available while AI Coach is on (Settings → AI Habit Co
 - `EncouragementSanitizer` drops lines that are too long (over 90 characters), contain links or markup, or use game words in Simple Mode.
 - Reminders use a pack from today or yesterday in the matching tone; otherwise they use the built-in lines in `StaticEncouragementBank`.
 
+## Which day a reminder is for (Day 31)
+
+Every reminder alarm carries the day of the quest occurrence it's for (`EXTRA_OCCURRENCE_DATE`, an epoch day), taken from `ReminderSchedule.nextReminder` when the alarm is armed. The day travels with the reminder:
+
+- The receiver checks that day's result and arms the next occurrence after it. Before, it worked the day out from when the alarm fired, so a snooze that rang at 00:02, or an inexact alarm that ran late past midnight, handled the next day and skipped that day's reminder.
+- The notification's Yes / Not yet / Snooze buttons and the full-screen prompt carry the same day, and answers are recorded against it (`ReminderAnswer`). "Yes" at 00:15 for a 23:00 quest used to credit the new day, leaving the real one to be marked missed. An answer for a day before yesterday is too late to record. Alarms armed before Day 31 carry no day and fall back to the old behaviour once.
+- Re-arming never goes back to an occurrence already reminded, done or skipped (`TaskAlarmScheduler.lastHandled`). Before, a cold start inside a quest's lead window re-armed the same day's reminder at the task time, so it rang twice. Editing a quest clears this, so a new time can still remind today.
+
+Other Day 31 fixes:
+
+- Snoozes have their own intent action. A snooze's request code (`taskId * 10 + 4`) equals another quest's reminder code, and Android matches PendingIntents by code and action, so quest 1's snooze used to replace or cancel quest 14's reminder.
+- Reminders are re-armed on `TIMEZONE_CHANGED` and `TIME_SET` as well as after a reboot, since alarms are absolute times.
+- A quest whose date the clock can't represent is skipped while arming, and the boot receiver catches errors. One bad quest used to crash the app on every boot.
+- Deleting a quest clears its notification and pending snooze. "Yes" on a deleted quest's leftover reminder records nothing.
+
 ## Streak at risk (Day 31)
 
 `StreakAtRiskWorker` is the sender for the "Streaks and progress" channel (`pq_progress`). It runs once a day around 19:00. It posts one notification only when all of these hold:
