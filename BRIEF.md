@@ -3067,7 +3067,7 @@ _Each entry's commit hash is filled in by the following commit (a commit cannot 
 - Step 45: The nightly streak check saves each day as a whole (its streak and level progress in one transaction): it counted perfect days toward the next level as it went but saved the streak only at the end, so a run stopped part-way counted them again; XP and level are now written as single columns, so a quest completed while the check runs keeps its XP - 6eb10fc8
 - Step 46: CHANGELOG Unreleased: Day 31's leaderboard, sync, settings, reminder and nightly-check fixes in player-facing words, including the Steps 34-37 changes that weren't listed yet - f247af10
 - Step 47: Day 31 verification: the release key signs local release builds (apksigner matches the committed SHA-256) and its four secrets are on GitHub; 903 unit tests and 13 Edge Function tests pass; emulator checks of the not-set-up states, history filters, backup status, Reduce Motion and the leaderboard tab - 2b9ba4c8
-- Step 48: Update BRIEF.md with the Day 31 log and summary, and say exactly what CloudAvailabilityUiTest checks in VERIFICATION.md Section J - (this commit)
+- Step 48: Update BRIEF.md with the Day 31 log and summary, and say exactly what CloudAvailabilityUiTest checks in VERIFICATION.md Section J - 1413ddfa
 
 ## Day 31 Summary — A Permanent Release Key, and Two Bug Hunts
 
@@ -3170,3 +3170,86 @@ Step 5's message says a fresh install with no network lost the player's onboardi
   - The app doesn't follow Android's own "Remove animations" setting.
   - SYNC NOW's button still says "(DEBUG)".
   - The Claude Design canvases are still out of date.
+
+## Day 31 Follow-up Progress Log
+_Asked after the Day 31 push: the AI Coach only for signed-in players, email sign-in, and how to set up the whole cloud. Hashes as above._
+- Step 49: The gemini-proxy serves signed-in accounts only: each request must carry the account's access token, checked with Supabase Auth (the anon key, expired tokens and anonymous users get 401 sign_in_required before anything is read or claimed), and the daily limit counts per account instead of per install; 17 function tests - c4d178ae
+- Step 50: The app sends no AI request unless an account is signed in: every Gemini client (the proxy, and the developer's direct key) is wrapped in AccountRequiredGeminiClient, the proxy client sends the account's access token instead of an install id (AiDeviceId is gone), and a refusal is GeminiResult.SignInRequired, which doesn't count toward the caps - aa36ab67
+- Step 51: Signed out, the AI Coach asks you to sign in: Today's card, the AI Coach screen (all three themes) and Settings show a SIGN IN button that opens Account instead of an insight or the opt-in, a saved insight isn't shown either, and signing in or out updates the card at once; the AI Coach needs a build where sign-in works - 1a9e8233
+- Step 52: Sign in with a code sent by email: Supabase emails a one-time code to the address (making the account the first time) and entering it signs in, with no password; addresses and codes are checked first, a new code can be asked for once a minute, failures say what to do, and the requests were checked against supabase-kt with a mock server - d5521567
+- Step 53: Account offers SIGN IN WITH EMAIL next to Google: enter your address, then the code from the email, with a resend countdown, a way back to fix the address, and the failure messages; cloud features now need only a Supabase project, and the Google button shows only when the build has the Google web client id - dff4816c
+- Step 54: Signing out drops the AI-written reminder lines saved earlier, so reminders go back to the built-in lines at once instead of using AI text until the next day (the sign-in state is watched in the background, without building the Supabase client on the main thread) - bf470550
+- Step 55: Privacy: PRIVACY.md, the AI Coach consent note and Account's privacy dialog say the AI Coach is for signed-in players, that the server counts AI calls per account (not a random install ID, which the app no longer makes) using the sign-in token in a header, never the prompt, and that email sign-in uses your address only to send the code - 4c8a4e60
+- Step 56: Fix Sign in with Google failing at Supabase: the app sent Google the SHA-256 of a nonce, so the ID token carries it, but dropped the raw nonce, and Supabase refuses a token with a nonce when none is passed; the raw nonce now goes with the token exchange (checked against supabase-kt's request) - c6e63446
+- Step 57: Add docs/CLOUD_SETUP.md, the whole cloud setup from nothing: the Supabase project and tables, email-code sign-in (code templates, why the built-in mailer isn't enough, custom SMTP), Google sign-in (consent screen, Web and Android clients with the release and debug SHA-1s), deploying the AI server, local.properties and GitHub secrets, an end-to-end check and troubleshooting - 4c2faa63
+- Step 58: Docs for signed-in AI: GEMINI_PROXY.md describes the account check, per-account limits, the new log events and the quick curl check (deploy steps now in CLOUD_SETUP.md); AI_INSIGHTS.md, README and CHANGELOG cover email sign-in and the sign-in rule; a release without the Google client id now warns that only the Google button is missing - 9d7061de
+- Step 59: Verification of the follow-up: 927 unit tests and 17 Edge Function tests pass, the email-code and Google requests were checked against supabase-kt with a mock server, the Hilt graph assembles; nothing has run against a real Supabase project yet - 19c1cf6e
+- Step 60: Update BRIEF.md with the Day 31 follow-up log and summary - (this commit)
+
+## Day 31 Follow-up — AI Coach for Signed-In Players, Email Sign-In, and the Cloud Setup Guide
+
+You asked for the AI Coach to be available only to signed-in players, with email sign-in as well, and for the steps to set up the whole cloud. You chose Google plus an emailed code (no passwords).
+
+### 1. AI only for signed-in players (Steps 49–51, 54)
+- **On the server.** The gemini-proxy only serves signed-in accounts.
+  - Each request carries the account's access token, which the proxy checks with Supabase Auth.
+  - The anon key, expired tokens and anonymous users get `401 sign_in_required`. Nothing is read or counted for them.
+  - The daily limit now counts per account (`user:<id>`) instead of per install. The claim function and its table are unchanged, so there's no new migration.
+- **In the app.**
+  - `AccountRequiredGeminiClient` wraps both the proxy and the developer's direct client, so nothing is sent while signed out.
+  - The install ID (`AiDeviceId`) is gone.
+  - A refusal is `GeminiResult.SignInRequired`, which doesn't count toward the caps.
+- **What players see.**
+  - Signed out, Today's coach card, the AI Coach screen (all three themes) and Settings show a SIGN IN button that opens Account. Saved insights aren't shown.
+  - Signing in or out updates the card at once.
+  - Signing out also drops the AI-written reminder lines saved earlier.
+- **Builds without a Supabase project** don't offer the AI Coach at all now, including local debug builds with a Gemini key: you can't sign in there.
+
+### 2. Sign in with email (Steps 52–53)
+- **The flow.** Account → SIGN IN WITH EMAIL → address → SEND CODE → the code from the email → SIGN IN.
+- **Behind it.** Supabase `signInWith(OTP)` with `createUser`, then `verifyEmailOtp(type = EMAIL)`. Both requests were checked against supabase-kt with a mock server, and so was the session `SupabaseAiAccess` reads.
+- **Checks and limits.**
+  - Addresses and codes are checked before sending.
+  - A new code can be asked for once a minute, with a countdown.
+  - Each failure says what to do, including Supabase's built-in mailer refusing non-team addresses.
+- **Cloud availability** now needs only a Supabase project. The Google button appears only when the build has the Google web client id.
+
+### 3. Google sign-in fixed (Step 56)
+The app sent Google the SHA-256 of a nonce, then dropped the raw nonce. Supabase refuses an ID token that carries a nonce when none is passed, so Google sign-in could never have worked against a real project. Nobody noticed because no real project has existed yet. The raw nonce now goes with the token exchange.
+
+### 4. Privacy and docs (Steps 55, 57–58)
+- `PRIVACY.md`, the AI consent note and Account's privacy dialog say:
+  - the AI Coach is for signed-in players;
+  - the server counts calls per account, using the token in a header and never the prompt;
+  - email sign-in uses the address only to send the code.
+- **`docs/CLOUD_SETUP.md`** is the whole setup from nothing:
+  1. Supabase project
+  2. `db push`
+  3. Email sign-in: code templates, custom SMTP
+  4. Google: consent screen, Web client, and Android clients for the release and this PC's debug SHA-1
+  5. Deploying the proxy
+  6. `local.properties` and `gh secret set`
+  7. An end-to-end check
+
+  It ends with a troubleshooting table.
+- `GEMINI_PROXY.md`, `AI_INSIGHTS.md`, the README and the CHANGELOG are updated.
+- A release built without the Google client id now warns only that the Google button is missing.
+
+### 5. Testing
+- See VERIFICATION.md Section J, "Follow-up".
+- New tests:
+  - `AiNeedsAccountTest`
+  - `AiCoachSignInUiTest`
+  - the AI ViewModel sign-in cases
+  - `EmailCodeSignInTest`
+  - `EmailCodeRequestsTest`
+  - `AccountEmailSignInUiTest`
+  - `GoogleNonceTest`
+  - `AiSignOutCleanupTest`
+  - 17 proxy tests (13 before)
+
+### 6. Known gaps
+- **Nothing here has run against a real Supabase project.** Not email delivery, the code templates, Google sign-in or the deployed proxy. That needs the setup in `docs/CLOUD_SETUP.md`.
+- **Email for real players needs custom SMTP.** It needs a domain you own. The built-in mailer reaches only your Supabase team, about 2 emails an hour.
+- **Making email accounts is cheap**, so the project-wide AI limit is what bounds the cost. If abuse appears, lower the per-account limit or add CAPTCHA (which needs app work).
+- **Not seen on a device.** The emulator build has no Supabase project, so the email form can't appear there. It's covered by Robolectric UI tests.
