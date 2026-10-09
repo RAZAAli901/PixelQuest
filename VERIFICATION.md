@@ -551,3 +551,38 @@ Live Gemini calls on Day 31: one, the debug build's automatic AI Coach call when
 - **The streak-at-risk nudge on a device.** Covered by `StreakAtRiskWorkerTest`.
 - **Reminder day handling across midnight, time-zone changes, paused quests and missed-notice settings.** Covered by unit tests only.
 - **The nightly check's per-day transaction.** Run against Room in memory (`NightlyStreakAtomicityTest`), not on a device.
+
+### Follow-up: AI for signed-in players and email sign-in (Steps 49–58, verified in Step 59)
+
+Verified on 9 Oct 2026 with the local Gradle build and Node 24. No emulator was used, because its build has no Supabase project, so the new sign-in screens can't appear there.
+
+- **Unit tests.** `:app:testDebugUnitTest`: 927 tests in 278 classes, 0 failing, 0 skipped (903 before this follow-up). `AiDeviceIdTest` was removed with the install ID.
+- **Proxy tests.** `node --test "supabase/functions/**/*.test.ts"`: 17 of 17 pass (13 before). The new tests cover:
+  - no `Authorization` header, a non-bearer header, the anon key, an expired token and an anonymous user, which all get 401 with nothing claimed;
+  - Supabase Auth unreachable, which gets 503 with nothing claimed;
+  - per-account claim keys;
+  - `authUserId` against `/auth/v1/user`;
+  - the RPC's `device_limit` answer read as the account's limit;
+  - logs that never contain the token or account id.
+- **The supabase-kt calls the app makes**, run through a mock HTTP server:
+  - Asking for a code posts `/auth/v1/otp` with the address and `create_user: true`.
+  - Entering it posts `/auth/v1/verify` with `type: email` and the code, and leaves the session signed in.
+  - An expired code comes back as `otp_expired`.
+  - `SupabaseAiAccess` reports signed in and returns that session's token, and returns null after sign-out.
+  - The Google token exchange now sends the raw `nonce` (`GoogleNonceTest`).
+- **The app's gate.**
+  - Neither the proxy client nor the direct client sends a request while signed out (`AiNeedsAccountTest`).
+  - The AI Coach shows SIGN IN instead of a saved insight, and updates when the player signs in or out.
+  - The screen and Today's card lead to Account in all three themes.
+  - Signing out drops the saved AI reminder lines.
+- **Email sign-in through the Account screen.** `AccountEmailSignInUiTest` covers:
+  - address;
+  - code sent;
+  - resend disabled during the countdown;
+  - a wrong code says so;
+  - the right code signs in.
+- **Hilt graph.** `:app:assembleDebug` succeeds with the new bindings: `AiAccess`, and the lazy injection into the Application.
+
+#### Not verified
+- **Anything against a real Supabase project.** Not email delivery, the code templates, Google sign-in, or the deployed proxy's Auth check. None of it exists yet; `docs/CLOUD_SETUP.md` has the steps and an end-to-end check.
+- **The new screens on a device.**
