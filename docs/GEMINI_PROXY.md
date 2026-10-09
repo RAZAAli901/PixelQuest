@@ -1,12 +1,14 @@
 # Gemini proxy (`supabase/functions/gemini-proxy`)
 
-PixelQuest's release APKs are public on GitHub. A key compiled into an APK can be read out of it in seconds, because R8 renames code but leaves string constants as they are. So since Day 30, release builds don't contain the Gemini API key. They send AI requests to a Supabase Edge Function that holds the key.
+PixelQuest's release APKs are public on GitHub. A key compiled into an APK can be read out of it in seconds, because R8 renames code but leaves string constants as they are. So since Day 30, release builds don't contain the Gemini API key. They send AI requests to a Supabase Edge Function that holds the key. Since Day 31, only **signed-in accounts** can use it: the AI Coach is for signed-in players (Google, or a code sent by email).
 
 ```
-App (release)                      Supabase                                   Google
-GeminiProxyClient  --POST-->  functions/v1/gemini-proxy  --x-goog-api-key-->  Gemini generateContent
-  prompt, systemInstruction      checks size, claims a call                    (response passed back
-  x-pixelquest-device: <uuid>    (claim_ai_proxy_call)                          unchanged)
+App (release)                          Supabase                                       Google
+GeminiProxyClient  --POST-->  functions/v1/gemini-proxy          --x-goog-api-key-->  Gemini generateContent
+  prompt, systemInstruction      1. checks the token with Auth                         (response passed back
+  Authorization: Bearer <the        (/auth/v1/user): signed-in account?                 unchanged)
+    account's access token>      2. checks sizes, claims a call for
+                                    user:<account id> (claim_ai_proxy_call)
 ```
 
 ## Which builds use it
@@ -17,68 +19,39 @@ GeminiProxyClient  --POST-->  functions/v1/gemini-proxy  --x-goog-api-key-->  Ge
 | Debug built by CI (attached to releases) | Proxy: the workflows write `GEMINI_VIA_PROXY=true`. |
 | Debug built locally | Direct, with `GEMINI_API_KEY` from `local.properties`. Set `GEMINI_VIA_PROXY=true` there to try the proxy instead. |
 
-The proxy needs a real Supabase project in the build (`SUPABASE_URL`, `SUPABASE_ANON_KEY`). With the placeholders, `GeminiProxyClient` sends nothing, and the AI Coach reports that AI isn't configured.
+Every build needs a real Supabase project (`SUPABASE_URL`, `SUPABASE_ANON_KEY`) for the AI Coach, because the player has to be signed in. Without one, the AI Coach isn't offered. Signed out, no client sends anything (`AccountRequiredGeminiClient` wraps both the proxy and the direct client), and the AI Coach card asks the player to sign in.
 
 ## What protects the key's quota
 
-The anon key ships in every APK, so anyone can call the function. These are the limits:
+The function is public: anyone can call it. These are the limits:
 
+- **Signed-in accounts only.** Each request must carry a Supabase user access token in `Authorization: Bearer`. The function asks Supabase Auth (`/auth/v1/user`) whose it is. The public anon key, expired or made-up tokens, and anonymous users (if the project ever enables them) get `401 {"error":"sign_in_required"}` before anything is read or counted. If Auth can't be reached, the answer is `503 auth_unavailable` and nothing is counted.
 - **Fixed request shape.** The server picks the model (`gemini-2.5-flash`), 800 output tokens, JSON output and no thinking. The app only supplies the prompt (up to 6,000 characters) and system instruction (up to 3,000).
-- **Per-install daily limit**, default 6 calls per UTC day. An honest install makes at most 5: 4 AI Coach insights and 1 reminder-message pack.
-- **Project-wide daily limit**, default 200 calls per UTC day. This is the hard ceiling: a client that keeps inventing new install ids still stops here.
+- **Per-account daily limit**, default 6 calls per UTC day (`AI_PROXY_ACCOUNT_DAILY_LIMIT`). An honest player makes at most 5: 4 AI Coach insights and 1 reminder-message pack. Calls are counted under `user:<account id>` in `ai_proxy_usage`, so reinstalling doesn't reset them.
+- **Project-wide daily limit**, default 200 calls per UTC day (`AI_PROXY_GLOBAL_DAILY_LIMIT`). The hard ceiling, however many accounts someone creates.
 - Malformed requests are refused before a call is claimed. Gemini's error bodies are never passed back.
 
-The function logs one JSON line per refusal or failure: `{"event":"limit","scope":"device"}` or `"global"`, `{"event":"upstream_error","status":503}`, `upstream_unreachable` and `usage_unavailable`. It never logs the prompt, the answer or the install id. In the Supabase dashboard, open Edge Functions → gemini-proxy → Logs to see how often limits are hit.
+Email sign-up makes making accounts cheap, so the global limit is what bounds the cost. If abuse shows up in the logs, lower `AI_PROXY_ACCOUNT_DAILY_LIMIT`, or turn on CAPTCHA for sign-ups in Supabase (**Authentication → Attack Protection**; the app would then need to send a CAPTCHA token).
 
-If the global limit is reached, every player sees the AI as busy until the next UTC day. Raise `AI_PROXY_GLOBAL_DAILY_LIMIT` as the player count grows, keeping it within your Gemini quota and budget.
+The function logs one JSON line per refusal or failure: `{"event":"limit","scope":"account"}` or `"global"`, `{"event":"upstream_error","status":503}`, `upstream_unreachable`, `usage_unavailable` and `auth_unavailable`. It never logs the prompt, the answer, the token or the account id. In the Supabase dashboard, open **Edge Functions → gemini-proxy → Logs** to see how often limits are hit.
 
-## Deploying (one time, then after changes to the function)
+If the global limit is reached, every player sees "used up today's requests" until the next UTC day. Raise `AI_PROXY_GLOBAL_DAILY_LIMIT` as the player count grows, keeping it within your Gemini quota and budget.
 
-You need a Supabase project and the Supabase CLI (`npx supabase` runs it without installing).
+## Deploying
 
-1. Put the project's real values in `local.properties` and in the GitHub repository secrets, so CI builds get them:
-   ```
-   SUPABASE_URL=https://<project-ref>.supabase.co
-   SUPABASE_ANON_KEY=<anon or publishable key>
-   ```
-   ```bash
-   gh secret set SUPABASE_URL
-   ```
-   ```bash
-   gh secret set SUPABASE_ANON_KEY
-   ```
-   Sign-in also needs `GOOGLE_WEB_CLIENT_ID` (already in `local.properties`; add it as a secret too, or release builds say cloud features are off):
-   ```bash
-   gh secret set GOOGLE_WEB_CLIENT_ID
-   ```
-2. Sign in and link the project:
-   ```bash
-   npx supabase login
-   ```
-   ```bash
-   npx supabase link --project-ref <project-ref>
-   ```
-3. Apply the migrations, including `20261006000000_ai_proxy_usage.sql`:
-   ```bash
-   npx supabase db push
-   ```
-4. Store the Gemini key as a function secret. Put it in `supabase/.env.proxy` (gitignored) as `GEMINI_API_KEY=<your key>`, rather than typing it on the command line where it lands in your shell history. Then:
-   ```bash
-   npx supabase secrets set --env-file supabase/.env.proxy
-   ```
-   The same file can also set `GEMINI_MODEL`, `AI_PROXY_DEVICE_DAILY_LIMIT` and `AI_PROXY_GLOBAL_DAILY_LIMIT`. Delete it afterwards if you like; Supabase keeps the secret.
-5. Deploy the function. Use `--no-verify-jwt`: the anon key is public, so checking it adds nothing, and new-style publishable keys aren't JWTs.
-   ```bash
-   npx supabase functions deploy gemini-proxy --no-verify-jwt
-   ```
-6. Check it end to end (any UUID works as the install id):
-   ```bash
-   curl -s -X POST "https://<project-ref>.supabase.co/functions/v1/gemini-proxy" -H "Content-Type: application/json" -H "x-pixelquest-device: 3f2b8c1e-9a4d-4e6f-8b2a-1c3d5e7f9a0b" -d "{\"prompt\":\"Reply with {\\\"ok\\\":true}\"}"
-   ```
-   A working proxy returns Gemini's JSON (`{"candidates":[...]}`). `{"error":"not_configured"}` means step 4 is missing.
-7. The `GEMINI_API_KEY` GitHub secret is no longer used by any workflow and can be deleted.
+Step 5 of [CLOUD_SETUP.md](CLOUD_SETUP.md) has the full steps (Gemini key → `supabase/.env.proxy` → `npx supabase secrets set --env-file supabase/.env.proxy` → `npx supabase functions deploy gemini-proxy --no-verify-jwt`). Redeploy with the same command after changing the function.
+
+`--no-verify-jwt` is deliberate: the handler checks the token itself, with Supabase Auth, which works with both legacy JWT keys and the newer key types.
+
+Quick check that it's deployed and protected:
+
+```bash
+curl -s -X POST "https://<project-ref>.supabase.co/functions/v1/gemini-proxy" -H "Content-Type: application/json" -d "{\"prompt\":\"hi\"}"
+```
+
+`{"error":"sign_in_required"}` means it's working. `{"error":"not_configured"}` means the `GEMINI_API_KEY` secret is missing. To try a real call, sign in on a debug build with `GEMINI_VIA_PROXY=true` and open the AI Coach.
 
 ## Tests
 
-- `supabase/functions/gemini-proxy/handler.test.ts` runs under Node: `node --test "supabase/functions/**/*.test.ts"`. CI runs it on every push.
-- App side: `GeminiProxyClientTest`, `GeminiClientSelectionTest` (including a check that the release build type blanks the key) and `AiDeviceIdTest`.
+- `supabase/functions/gemini-proxy/handler.test.ts` runs under Node: `node --test "supabase/functions/**/*.test.ts"` (17 tests). CI runs it on every push.
+- App side: `GeminiProxyClientTest`, `GeminiClientSelectionTest` (including a check that the release build type blanks the key) and `AiNeedsAccountTest` (nothing is sent while signed out, with either client).

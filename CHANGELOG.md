@@ -13,10 +13,15 @@ All notable changes to **PixelQuest** are documented in this file.
 ### 🧘 Simple Mode (Days 18–19)
 - An un-gamified view: quests become tasks, and XP, levels, flourishes and celebrations are hidden. Streaks, perfect days and levels keep counting in the background with your current difficulty.
 
-### 🤖 AI Coach (Days 24–30)
+### 🤖 AI Coach (Days 24–31)
 - Optional, off by default: Google Gemini writes short habit debriefs and daily reminder lines from anonymous stats. Task names never leave the device.
 - Cached for 12 hours, at most one live call per 6 hours, and capped at 4 calls a day and 60 a month.
 - Released builds reach Gemini through PixelQuest's own server, which holds the key. The key is never inside the APK.
+- **For signed-in players only (Day 31).** Sign in with Google or an emailed code to use it. Signed out, the coach card and Settings show a SIGN IN button, and no AI requests are sent. The server checks your sign-in and counts the daily limit per account.
+
+### 🔑 Sign in with email (Day 31)
+- Account has **SIGN IN WITH EMAIL** next to Google. Type your address, get a 6-digit code by email, and enter it. There's no password, and the account is made the first time.
+- Sign in with Google works against a real Supabase project. The app was dropping a security value (the nonce) that Supabase checks.
 
 ### 🔔 Reminders (Days 26–28, 31)
 - Reminder lead times and styles, a "Did you do it?" prompt, missed-quest notices, and snooze.
@@ -61,6 +66,7 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ### ☁️ Builds without cloud or AI (Day 31)
 - A build without a Supabase project says sign-in, sync and the leaderboard aren't set up, instead of offering a sign-in that can't work. A build that can't reach Gemini doesn't offer the AI Coach.
+- A build without the Google client id still offers email sign-in; only the Google button is hidden.
 
 ### ⚠️ Upgrading from 1.1.0 or earlier
 - From this release on, PixelQuest is signed with a permanent release key. Earlier releases were each signed with a temporary key, so Android won't install this one over them.

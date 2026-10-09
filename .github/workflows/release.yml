@@ -81,8 +81,8 @@ jobs:
             echo "::warning::SUPABASE_URL or SUPABASE_ANON_KEY is not set: sign-in, cloud sync, the leaderboard and the AI Coach won't work in this build."
             echo "> **Built without a Supabase project.** Sign-in, cloud sync, the leaderboard and the AI Coach are unavailable in this build." >> RELEASE_WARNINGS.md
           elif [ -z "$GOOGLE_WEB_CLIENT_ID" ]; then
-            echo "::warning::GOOGLE_WEB_CLIENT_ID is not set: Sign in with Google (and so cloud sync and the leaderboard) won't work in this build."
-            echo "> **Built without a Google sign-in client id.** Sign-in, cloud sync and the leaderboard are unavailable in this build." >> RELEASE_WARNINGS.md
+            echo "::warning::GOOGLE_WEB_CLIENT_ID is not set: this build has no Sign in with Google button (email-code sign-in still works)."
+            echo "> **Built without a Google sign-in client id.** Sign in with Google isn't available in this build; players can sign in with a code sent by email." >> RELEASE_WARNINGS.md
           fi
 
       - name: Inject Supabase & OAuth Build Secrets
