@@ -45,13 +45,20 @@ class AccountViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            // The account whose name is in the field. Found on the emulator: after another account
+            // signed in on the same phone, the field still offered the previous person's public name.
+            var nameFieldAccount: String? = null
             userProfileRepository.getProfile().collect { profile ->
+                val account = profile?.supabaseUserId
+                val otherAccount = account != null && nameFieldAccount != null && account != nameFieldAccount
+                if (account != null) nameFieldAccount = account
                 _uiState.value = _uiState.value.copy(
                     profile = profile,
                     isOptedIn = profile?.leaderboardOptIn ?: false,
-                    displayNameInput = if (_uiState.value.displayNameInput.isBlank()) {
+                    displayNameInput = if (otherAccount || _uiState.value.displayNameInput.isBlank()) {
                         profile?.leaderboardDisplayName ?: ""
-                    } else _uiState.value.displayNameInput
+                    } else _uiState.value.displayNameInput,
+                    displayNameError = if (otherAccount) null else _uiState.value.displayNameError
                 )
             }
         }
