@@ -586,3 +586,81 @@ Verified on 9 Oct 2026 with the local Gradle build and Node 24. No emulator was 
 #### Not verified
 - **Anything against a real Supabase project.** Not email delivery, the code templates, Google sign-in, or the deployed proxy's Auth check. None of it exists yet; `docs/CLOUD_SETUP.md` has the steps and an end-to-end check.
 - **The new screens on a device.**
+
+## Section K -- Day 32 Verification (Step 45)
+
+Verified on 10 Oct 2026 with a local Supabase stack in Docker (Supabase CLI 2.120.0, Docker 29.6.2), the Pixel 6 emulator (Android 14, API 34), the local Gradle build and Node 24. Nothing ran against a hosted Supabase project, because none exists yet.
+
+### The local stack
+- Started with `npx supabase@2.120.0 start`, leaving out Studio, Storage, Realtime, logging and the pooler. `docs/LOCAL_SUPABASE.md` has the commands.
+- All 12 migrations apply, including today's five, with `migration up --local`.
+- `db lint --local`: no schema errors.
+- Today's three Advisor fixes (Steps 23–25) were each written against a lint that Supabase's hosted Security and Performance Advisors run. Those Advisors weren't run here; they need a hosted project.
+- `gemini-proxy` was served with `functions serve`, using a fake Gemini key (`local-test-not-a-real-key`) and a limit of 2 calls per account. Both are in the gitignored `supabase/functions/.env.local`.
+- Sign-in codes were read from Mailpit, the stack's mail catcher. No email left this computer.
+
+### Tests
+| Suite | Result |
+| --- | --- |
+| `:app:testDebugUnitTest` with `PIXELQUEST_LOCAL_SUPABASE=1` | 973 tests in 290 classes, 0 failing, 0 skipped (927 at the end of the Day 31 follow-up). Without the variable, the 7 bench tests are skipped |
+| Local bench, Node: `SUPABASE_LOCAL=1 node --test "supabase/tests/**/*.test.ts"` | 15 of 15: sign-in 3, row-level security 4, reports and deletion 3, the proxy 4, display names 1 |
+| Kotlin bench: `LocalSupabaseAppTest` and `LocalSupabaseSyncAndBoardTest` | 2 and 5 tests pass, run, not skipped |
+| Edge Function unit tests: `node --test "supabase/functions/**/*.test.ts"` | 17 of 17 |
+| Instrumented tests on the emulator (`am instrument`) | 15 of 20 at first, 20 of 20 after Step 40, and 20 of 20 again after Steps 41–42 |
+
+### What the bench found
+- **Server name filter.** It refused ordinary names (Titan_Slayer, Stitch, Altitude, Scrappy, Dickens), because every listed word matched anywhere inside a name. Fixed in Step 9. The app's own check then followed the same rules (Step 10). A later review found that the two still disagreed on stretched letters (Step 36). Both filters now pass `supabase/tests/display_names.json`.
+- **PATCH requests.** The JVM's HTTP client can't send them, so the Kotlin bench uses Ktor's CIO engine. On the emulator, the app's own Android engine sent PATCH without trouble.
+- **Checked against the real services:**
+  - **Sign-in and accounts:**
+    - email codes;
+    - the error codes the app turns into messages;
+    - a returning player getting the same account;
+    - account deletion;
+    - an expiring session being refreshed before an AI call.
+  - **Leaderboard and sync:**
+    - the row-level rules for the leaderboard and reports;
+    - the rank count respecting those rules (the open question from Day 31);
+    - paging past 20;
+    - the real `ProfileSyncWorker`.
+  - **AI proxy:**
+    - the AI call counter being closed to players;
+    - the proxy's sign-in check and per-account limit.
+
+### Emulator checks (debug build pointed at the stack with `PIXELQUEST_SUPABASE_*`)
+| Check | Result |
+| --- | --- |
+| Signed out, Today's AI card shows SIGN IN | Pass |
+| Email sign-in with the code from Mailpit | Pass |
+| Join the leaderboard as Titan_Slayer | Refused by the server's filter at first. Pass after Step 9 |
+| Completing a quest syncs its 50 XP to the server row | Pass, about 2 s later |
+| An AI request counts against the signed-in account | Pass. With the fake key, Google answered 400 |
+| "Around you" on the leaderboard | Pass, the player at #7 |
+| Leaving the board, through the app's real PATCH | Pass |
+| After signing out, the AI card shows SIGN IN again | Pass |
+| HOME on an Account screen opened from Today did nothing | Fixed in Step 12. Re-tapping PROFILE now returns to Profile |
+| A Google button showed for the placeholder client id | Fixed in Step 13 |
+| Signed in by email, Account still said "Sign in with Google" | Fixed in Step 14 |
+| Account B signing in after account A | B is off the board, with no server row (Step 28). The name field still offered A's name; fixed in Step 39, and B's field is now empty |
+| Account A signing in again after B | A showed as off the board while its row was still opted in, and the next sync would have taken it off. Fixed in Step 41: A is back on the board as Titan_Slayer, and its row is unchanged |
+| Account header for a player on the board | Said "Join the leaderboard below". Fixed in Step 42 and seen on the device |
+
+- **Emulator freeze.** Midway, the emulator stopped answering `adb shell` during an install. It was shut down and booted again, and the last instrumented run and checks were made after that.
+- **What's left on the emulator.** It still has the local-stack debug build, signed in as a test account. Install an ordinary debug build before using it normally.
+- **Shut down.** The emulator was shut down afterwards.
+
+**Gemini on Day 32:**
+- 17 requests reached Google's Gemini endpoint from the local proxy, all with the fake key, and Google refused each with 400.
+- The real key wasn't used, so no quota was spent.
+- Unit tests make no live calls.
+
+### Not verified
+- **Anything on a hosted Supabase project.** This includes:
+  - email through real SMTP;
+  - Google sign-in, which isn't configured on the local stack;
+  - the deployed proxy;
+  - the Advisors' own reports.
+- **`cloud-tests.yml` on GitHub.** It runs for the first time on this push.
+- **A sync after answering "Yes" on a reminder notification.** Covered by `CompletionSyncTest` and the bench's `ProfileSyncWorker` test.
+- **The streak-at-risk nudge on a device.**
+- **Restoring a returning account's board choice when its row can't be read** (offline right after signing in). The app then starts it off the board, and the next sync takes it off. Covered by `AccountSwitchTest` only.
