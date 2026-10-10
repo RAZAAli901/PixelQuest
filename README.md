@@ -107,6 +107,12 @@ node --test "supabase/functions/**/*.test.ts"
 
 CI runs both on every push. Unit tests never call the live Gemini API; `GeminiConnectivitySmokeTest` makes a live call only when `PIXELQUEST_LIVE_GEMINI=1` is set.
 
+The cloud side (database rules, email sign-in, the AI server and the app's repositories) is tested against a Supabase stack running locally in Docker: see [docs/LOCAL_SUPABASE.md](docs/LOCAL_SUPABASE.md). CI runs those tests too (`cloud-tests.yml`), and compiles the instrumented tests (`assembleDebugAndroidTest`); running them needs a device or emulator:
+
+```bash
+./gradlew connectedDebugAndroidTest
+```
+
 ---
 
 ## 🛡️ Real-Device Verification Status
