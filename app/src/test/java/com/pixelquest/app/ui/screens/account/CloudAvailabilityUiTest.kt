@@ -41,6 +41,9 @@ class CloudAvailabilityUiTest {
         assertTrue(CloudAvailability.isGoogleConfigured("https://abcd.supabase.co", "sb_publishable_x", clientId))
         assertFalse(CloudAvailability.isGoogleConfigured("https://abcd.supabase.co", "sb_publishable_x", ""))
         assertFalse(CloudAvailability.isGoogleConfigured("https://placeholder-project.supabase.co", "sb_publishable_x", clientId))
+        // Found on the emulator: a placeholder showed a Google button that could only fail.
+        assertFalse(CloudAvailability.isGoogleConfigured("https://abcd.supabase.co", "sb_publishable_x", "placeholder-google-client-id"))
+        assertFalse(CloudAvailability.isGoogleConfigured("https://abcd.supabase.co", "sb_publishable_x", "123-abc"))
     }
 
     @Test

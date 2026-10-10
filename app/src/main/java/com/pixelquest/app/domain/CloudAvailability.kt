@@ -30,9 +30,16 @@ object CloudAvailability {
         return isRealProjectUrl(supabaseUrl) && key.isNotEmpty() && key != PLACEHOLDER_ANON_KEY
     }
 
-    /** Sign in with Google: a Supabase project and the Google web client id. */
-    fun isGoogleConfigured(supabaseUrl: String, anonKey: String, googleWebClientId: String): Boolean =
-        isConfigured(supabaseUrl, anonKey) && googleWebClientId.isNotBlank()
+    /**
+     * Sign in with Google: a Supabase project and a real Google web client id. Those always end in
+     * ".apps.googleusercontent.com"; a placeholder used to show a Google button that could only fail.
+     */
+    fun isGoogleConfigured(supabaseUrl: String, anonKey: String, googleWebClientId: String): Boolean {
+        val clientId = googleWebClientId.trim()
+        return isConfigured(supabaseUrl, anonKey) &&
+            !clientId.startsWith("placeholder") &&
+            clientId.endsWith(".apps.googleusercontent.com")
+    }
 
     val inThisBuild: Boolean
         get() = isConfigured(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_ANON_KEY)
