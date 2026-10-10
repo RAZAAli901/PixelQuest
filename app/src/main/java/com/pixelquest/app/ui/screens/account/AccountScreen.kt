@@ -397,7 +397,7 @@ fun AccountContent(
                                 textAlign = TextAlign.Center
                             )
                             PixelButton(
-                                text = if (accountState.isSyncing) "⏳ SYNCING..." else "🔄 FORCE SYNC NOW (DEBUG)",
+                                text = if (accountState.isSyncing) "⏳ SYNCING..." else "🔄 SYNC NOW",
                                 onClick = onSyncNow,
                                 enabled = !accountState.isSyncing,
                                 variant = PixelButtonVariant.YELLOW,
