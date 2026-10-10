@@ -97,8 +97,20 @@ class AuthRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun signOut(): SupabaseResult<Unit> = safeSupabaseCall {
-        auth.signOut()
+    override suspend fun signOut(): SupabaseResult<Unit> {
+        val result = safeSupabaseCall { auth.signOut() }
+        if (result !is SupabaseResult.Success) {
+            // Offline (or a server error), supabase-kt throws before it forgets the session, which
+            // then came back on the next launch and kept the AI Coach working. Forget it on this
+            // device anyway; the session on the server just expires.
+            try {
+                auth.clearSession()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (_: Exception) {
+            }
+        }
+        return result
     }
 
     override suspend fun getInitialUser(): AuthUser? {
