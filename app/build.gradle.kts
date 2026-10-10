@@ -160,6 +160,9 @@ dependencies {
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.work.testing)
     testImplementation(libs.ktor.client.mock)
+    // The local Supabase bench (LocalSupabase.kt): the JVM's HttpURLConnection, under the Android
+    // engine, can't send PATCH; phones can. Tests only.
+    testImplementation(libs.ktor.client.cio)
     testImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.androidx.junit)
