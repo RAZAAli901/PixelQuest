@@ -11,6 +11,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
@@ -68,7 +69,14 @@ class AccountRequiredGeminiClient(
     private val access: com.pixelquest.app.domain.ai.AiAccess
 ) : GeminiClient {
     override suspend fun generateContent(prompt: String, systemInstruction: String?): String {
-        if (access.accessToken() == null) throw GeminiSignInRequiredException()
+        if (access.accessToken() == null) {
+            // Still signed in, but the session couldn't be refreshed (offline, or Supabase had
+            // trouble): a connection problem the player can retry, not a reason to sign in again.
+            if (access.isSignedIn.first()) {
+                throw GeminiNetworkException("Couldn't refresh the sign-in", java.io.IOException("session refresh failed"))
+            }
+            throw GeminiSignInRequiredException()
+        }
         return delegate.generateContent(prompt, systemInstruction)
     }
 }

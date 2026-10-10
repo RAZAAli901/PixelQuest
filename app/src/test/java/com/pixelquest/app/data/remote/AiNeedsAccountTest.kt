@@ -68,4 +68,15 @@ class AiNeedsAccountTest {
         assertTrue(safeGeminiCall { client.generateContent("hi") } is GeminiResult.SignInRequired)
         assertEquals(1, sent)
     }
+
+    @Test
+    fun signedInButTheSessionCouldntBeRefreshed_isAConnectionProblem_notSignIn() = runBlocking {
+        val access = FakeAiAccess(token = null).apply { isSignedIn.value = true } // a failed refresh
+
+        val result = safeGeminiCall { clientFor(viaProxy = true, access = access).generateContent("hi") }
+
+        assertTrue("$result", result is GeminiResult.NetworkError)
+        assertFalse(result.reachedGemini())
+        assertEquals(0, sent)
+    }
 }

@@ -24,6 +24,9 @@ class SupabaseAiAccess @Inject constructor(private val auth: Auth) : AiAccess {
         .distinctUntilChanged()
 
     override suspend fun accessToken(): String? {
+        // A fresh process (the daily reminder-lines worker, say) can ask before the saved session
+        // has loaded; that read as "signed out".
+        auth.awaitInitialization()
         val session = auth.currentSessionOrNull() ?: return null
         // The proxy refuses an expired token, so refresh one that is about to expire.
         if (session.expiresAt <= Clock.System.now() + 60.seconds) {
