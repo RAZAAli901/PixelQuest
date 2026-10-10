@@ -18,6 +18,8 @@ Keep every key and password in a password manager. The Supabase **secret** (`ser
 
 You need: Node.js (already installed for the function tests; `npx supabase` runs the Supabase CLI without installing it) and the GitHub CLI `gh` (already signed in).
 
+Everything below can be tried first on this computer, with no account: [LOCAL_SUPABASE.md](LOCAL_SUPABASE.md) runs the same database, email sign-in and AI server in Docker, and the app's cloud code is tested against it on every push. The settings in `supabase/config.toml` (code length, one code a minute, confirmations on) are the ones to choose in the dashboard.
+
 ---
 
 ## 1. Create the Supabase project
@@ -59,7 +61,7 @@ Players type their email, get a one-time code, and type it into the app. No pass
    - **Allow new users to sign up**: on.
    - **Email** provider: on (it is by default). **Confirm email** can stay on; entering the code confirms the address.
    - In the Email provider settings, **Email OTP Length** should be 6 (the app accepts 6–10) and **Email OTP Expiration** 3600 seconds (or shorter, e.g. 900).
-2. **Authentication → Emails → Templates**. Supabase sends a link by default; the app needs the code. Edit **both** **Magic Link** (returning players) and **Confirm signup** (first sign-in) so the body shows `{{ .Token }}`. For example:
+2. **Authentication → Emails → Templates**. Supabase sends a link by default; the app needs the code. Edit **both** **Magic Link** (returning players) and **Confirm signup** (first sign-in) so the body shows `{{ .Token }}`. Paste the contents of `supabase/templates/sign_in_code.html` (the template the local test bench uses), or for example:
    - Subject: `Your PixelQuest sign-in code`
    - Body:
      ```html
