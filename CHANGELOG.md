@@ -23,6 +23,8 @@ All notable changes to **PixelQuest** are documented in this file.
 - Account has **SIGN IN WITH EMAIL** next to Google. Type your address, get a 6-digit code by email, and enter it. There's no password, and the account is made the first time.
 - Sign in with Google works against a real Supabase project. The app was dropping a security value (the nonce) that Supabase checks.
 - Sharing a phone (Day 32): when a different account signs in, the leaderboard choice, public name and AI Coach consent start fresh. The next person was put on the leaderboard under the previous person's name.
+- Signing back in after someone else, after reinstalling, or on a second phone brings back your own leaderboard choice and public name. Such an account used to be shown as off the leaderboard, and the next sync took it off.
+- Account no longer asks a player who is already on the leaderboard to join it.
 - Signing out with no connection now really signs you out on the phone. The next launch used to sign you back in.
 - A failed Google sign-in no longer hides email sign-in.
 - Email codes: another address can get a code straight away, and CANCEL stops a code check that's still running.

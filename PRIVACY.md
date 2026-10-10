@@ -42,7 +42,7 @@ Data synchronization occurs strictly when:
 2. You explicitly choose to opt into the leaderboard and confirm your public display name.
 3. Background synchronization (`ProfileSyncWorker`) runs after you complete a quest or level up, pushing updated aggregate stats.
 
-**Sharing a phone:** the leaderboard choice, your public display name and your AI Coach consent belong to your account. If a different account signs in on the same phone, they're reset, so the next person chooses for themselves and is never put on the leaderboard under your name.
+**Sharing a phone:** the leaderboard choice, your public display name and your AI Coach consent belong to your account. If a different account signs in on the same phone, they're reset, so the next person chooses for themselves and is never put on the leaderboard under your name. When you sign in again (also after reinstalling the app, or on another phone), your leaderboard choice and public name come back from your account's own record on the server. The AI Coach consent isn't stored there, so it stays off until you turn it on again.
 
 ---
 

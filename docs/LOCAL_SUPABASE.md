@@ -66,6 +66,7 @@ The bench tests are skipped unless you opt in, so ordinary test runs don't need 
 | --- | --- | --- |
 | `supabase/tests/local/*.test.ts` (Node) | Email sign-in and its error codes; leaderboard row-level security and rank counting; reports and account deletion; the AI counter's lock-down; `gemini-proxy`'s sign-in check and per-account limit; the display-name rules | `SUPABASE_LOCAL=1 node --test "supabase/tests/**/*.test.ts"` |
 | `LocalSupabaseAppTest` (Kotlin) | The app's own repositories against the stack: email sign-in, joining, leaderboard and rank, sync decisions, leaving, account deletion, the AI proxy with a real session | `PIXELQUEST_LOCAL_SUPABASE=1 ./gradlew :app:testDebugUnitTest --tests "*LocalSupabaseAppTest"` |
+| `LocalSupabaseSyncAndBoardTest` (Kotlin) | The real `ProfileSyncWorker`, reporting a player, paging the leaderboard past 20, refreshing an expiring session before an AI call, and an account new to a phone keeping its place on the board | `PIXELQUEST_LOCAL_SUPABASE=1 ./gradlew :app:testDebugUnitTest --tests "*LocalSupabase*"` runs both |
 
 Run the proxy tests with the function served as above. In PowerShell, set the variable first, for example `$env:SUPABASE_LOCAL = "1"`.
 
