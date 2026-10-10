@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.pixelquest.app.auth.AuthUiState
 import com.pixelquest.app.auth.AuthUser
 import com.pixelquest.app.ui.screens.account.AccountContent
@@ -49,6 +50,8 @@ class AccountDeletionFlowTest {
                 AccountContent(
                     authState = authState,
                     accountState = accountState,
+                    cloudAvailable = true,
+                    googleAvailable = true,
                     onRequestDeleteCloudData = {
                         accountState = accountState.copy(showDeleteConfirmDialog = true)
                     },
@@ -89,7 +92,7 @@ class AccountDeletionFlowTest {
         composeTestRule.onNodeWithText("DragonSlayer").assertIsDisplayed()
 
         // 2. Tap "DELETE MY CLOUD DATA"
-        composeTestRule.onNodeWithText("🗑️ DELETE MY CLOUD DATA").performClick()
+        composeTestRule.onNodeWithText("🗑️ DELETE MY CLOUD DATA").performScrollTo().performClick()
         assertTrue(accountState.showDeleteConfirmDialog)
 
         // 3. First Confirmation Dialog
@@ -115,7 +118,7 @@ class AccountDeletionFlowTest {
         assertEquals("", accountState.displayNameInput)
 
         // 7. UI updates immediately to SignedOut state
-        composeTestRule.onNodeWithText("🏆 JOIN THE LEADERBOARD").assertIsDisplayed()
-        composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").assertIsDisplayed()
+        composeTestRule.onNodeWithText("🏆 JOIN THE LEADERBOARD").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").performScrollTo().assertIsDisplayed()
     }
 }

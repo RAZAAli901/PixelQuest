@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -76,20 +77,20 @@ class OnboardingFlowTest {
         composeTestRule.onNodeWithText("START YOUR JOURNEY ▶").performClick()
 
         // 2. Name Entry Screen
-        composeTestRule.onNodeWithText("ENTER HERO NAME").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Enter your name...").performTextInput("KnightArthur")
-        composeTestRule.onNodeWithText("NEXT: CHOOSE AVATAR ▶").performClick()
+        composeTestRule.onNodeWithText("👑 NAME YOUR HERO").assertIsDisplayed()
+        composeTestRule.onNode(hasSetTextAction()).performTextInput("KnightArthur")
+        composeTestRule.onNodeWithText("NEXT ▶").performClick()
 
         // 3. Avatar Selection Screen
-        composeTestRule.onNodeWithText("CHOOSE YOUR AVATAR").assertIsDisplayed()
-        composeTestRule.onNodeWithText("NEXT: DIFFICULTY ▶").performClick()
+        composeTestRule.onNodeWithText("🧙 CHOOSE YOUR AVATAR").assertIsDisplayed()
+        composeTestRule.onNodeWithText("NEXT ▶").performClick()
 
         // 4. Difficulty Pick Screen
-        composeTestRule.onNodeWithText("SELECT DIFFICULTY").assertIsDisplayed()
-        composeTestRule.onNodeWithText("NEXT: SUMMARY ▶").performClick()
+        composeTestRule.onNodeWithText("🛡️ CHOOSE DIFFICULTY").assertIsDisplayed()
+        composeTestRule.onNodeWithText("NEXT ▶").performClick()
 
         // 5. Summary Screen
-        composeTestRule.onNodeWithText("HERO SUMMARY").assertIsDisplayed()
+        composeTestRule.onNodeWithText("📜 HERO SUMMARY").assertIsDisplayed()
         composeTestRule.onNodeWithText("BEGIN QUEST ▶").performClick()
 
         assertTrue(onboardingCompleted)

@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.pixelquest.app.auth.AuthUiState
 import com.pixelquest.app.auth.AuthUser
 import com.pixelquest.app.data.remote.SupabaseResult
@@ -80,6 +81,7 @@ class OfflineSyncQueueTest {
                 AccountContent(
                     authState = AuthUiState.SignedIn(testUser),
                     accountState = accountState,
+                    cloudAvailable = true,
                     onSyncNow = {
                         accountState = accountState.copy(isSyncing = true)
                         executeSync()
@@ -89,10 +91,10 @@ class OfflineSyncQueueTest {
         }
 
         // 1. Initially offline: tap Sync Now
-        composeTestRule.onNodeWithText("🔄 SYNC NOW").performClick()
+        composeTestRule.onNodeWithText("🔄 SYNC NOW").performScrollTo().performClick()
 
         // 2. Verify subtle offline warning is displayed without crashing
-        composeTestRule.onNodeWithText("☁️⚠️ Cloud sync currently unavailable (retrying in background) — local progress is safe").assertIsDisplayed()
+        composeTestRule.onNodeWithText("☁️⚠️ Cloud sync currently unavailable (retrying in background) — local progress is safe").performScrollTo().assertIsDisplayed()
         assertTrue(accountState.isSyncFailed)
         assertEquals(null, cloudServerProfile)
 
@@ -103,10 +105,10 @@ class OfflineSyncQueueTest {
         isNetworkConnected = true
 
         // 5. Trigger sync upon reconnect
-        composeTestRule.onNodeWithText("🔄 SYNC NOW").performClick()
+        composeTestRule.onNodeWithText("🔄 SYNC NOW").performScrollTo().performClick()
 
         // 6. Verify sync succeeds and server receives updated streak
-        composeTestRule.onNodeWithText("Cloud sync successful!").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Cloud sync successful!").performScrollTo().assertIsDisplayed()
         assertFalse(accountState.isSyncFailed)
         assertTrue(cloudServerProfile != null)
         assertEquals(6, cloudServerProfile?.currentStreak)

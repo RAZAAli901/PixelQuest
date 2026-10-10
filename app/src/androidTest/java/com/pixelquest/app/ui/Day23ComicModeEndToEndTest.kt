@@ -116,22 +116,22 @@ class Day23ComicModeEndToEndTest {
         assertEquals(ThemeMode.Comic, currentTheme)
 
         // 3. Navigate to Today Screen
-        composeTestRule.onNodeWithText("Today").performClick()
+        composeTestRule.onNodeWithText("HOME").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("TODAY_SCREEN_ACTIVE").assertIsDisplayed()
 
         // 4. Navigate to Tasks Screen
-        composeTestRule.onNodeWithText("Tasks").performClick()
+        composeTestRule.onNodeWithText("TASKS").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("TASKS_SCREEN_ACTIVE").assertIsDisplayed()
 
         // 5. Navigate to Stats Screen
-        composeTestRule.onNodeWithText("Stats").performClick()
+        composeTestRule.onNodeWithText("STATS").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("STATS_SCREEN_ACTIVE").assertIsDisplayed()
 
         // 6. Navigate to Profile Screen
-        composeTestRule.onNodeWithText("Profile").performClick()
+        composeTestRule.onNodeWithText("PROFILE").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("PROFILE_SCREEN_ACTIVE").assertIsDisplayed()
 

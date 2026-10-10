@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -141,7 +144,7 @@ class TaskLifecycleTest {
 
         // 3. Delete Task
         composeTestRule.onNodeWithText("DELETE").performClick()
-        composeTestRule.onNodeWithText("CONFIRM").performClick()
+        composeTestRule.onNode(hasText("DELETE") and hasAnyAncestor(isDialog())).performClick()
 
         // Verify deleted
         assertEquals(0, tasks.size)
