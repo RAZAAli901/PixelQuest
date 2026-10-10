@@ -22,3 +22,6 @@ local.properties
 
 # Supabase function secrets (e.g. GEMINI_API_KEY for gemini-proxy); set them with supabase secrets set --env-file
 supabase/.env*
+
+# Local-only function settings for the Supabase test bench (docs/LOCAL_SUPABASE.md)
+supabase/functions/.env*
