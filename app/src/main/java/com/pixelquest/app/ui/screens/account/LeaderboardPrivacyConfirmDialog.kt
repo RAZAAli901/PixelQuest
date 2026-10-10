@@ -67,7 +67,7 @@ fun LeaderboardPrivacyConfirmDialog(
                 color = colors.primaryText
             )
             Text(
-                text = "Your Google email, real name, profile photo, and personal quest titles remain strictly private and will never be exposed.",
+                text = "Your email, real name, profile photo, and personal quest titles remain strictly private and will never be exposed.",
                 style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurface
             )

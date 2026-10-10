@@ -145,10 +145,12 @@ fun AccountContent(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = if (cloudAvailable) {
-                            "Sign in with Google or your email to join the community quest leaderboard, sync your stats and use the AI Coach."
-                        } else {
-                            "Cloud features are off in this build."
+                        text = when {
+                            !cloudAvailable -> "Cloud features are off in this build."
+                            // Signed in (by email or Google): no more invitation to sign in.
+                            authState is com.pixelquest.app.auth.AuthUiState.SignedIn ->
+                                "You're signed in. Join the leaderboard below to compare streaks with other players."
+                            else -> "Sign in with Google or your email to join the community quest leaderboard, sync your stats and use the AI Coach."
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = colors.onSurface,
@@ -320,7 +322,7 @@ fun AccountContent(
                             )
                         }
                         Text(
-                            text = "ℹ️ Shown publicly on the leaderboard. Decoupled from local hero name and never exposes Google email or real name.",
+                            text = "ℹ️ Shown publicly on the leaderboard. Decoupled from local hero name and never shows your email or real name.",
                             style = MaterialTheme.typography.bodySmall,
                             color = colors.onSurfaceVariant,
                             textAlign = TextAlign.Center
