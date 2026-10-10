@@ -414,4 +414,28 @@ class AiInsightViewModelTest {
 
         assertTrue(viewModel.uiState.value is AiInsightUiState.SignInRequired)
     }
+
+    @Test
+    fun anInsightArrivingAfterSignOut_doesntReplaceTheSignInPrompt() = runTest {
+        val completionRepo = FakeCompletionRepository().also { populateSufficientLogs(it) }
+        val answer = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val slowRepo = object : HabitInsightRepository {
+            override suspend fun generateHabitInsight(forceRefresh: Boolean): GeminiResult<HabitInsightResponse> {
+                answer.await()
+                return GeminiResult.Success(HabitInsightResponse("Late summary", "s", "e", generatedAt = 2000L))
+            }
+            override val latestInsight: Flow<HabitInsightResponse?> = MutableStateFlow(null)
+            override suspend fun getRemainingCooldownSeconds(): Long = 0L
+        }
+        val access = com.pixelquest.app.testing.FakeAiAccess()
+        val viewModel = AiInsightViewModel(slowRepo, FakeSettingsRepository(), completionRepo, FakeCacheRepository(), access)
+        advanceUntilIdle() // the call is in flight
+
+        access.token = null // signed out meanwhile
+        advanceUntilIdle()
+        answer.complete(Unit)
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value is AiInsightUiState.SignInRequired)
+    }
 }

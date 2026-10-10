@@ -57,8 +57,13 @@ class AiInsightViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
+    /** The load in progress. A newer one replaces it: an older call finishing late (say, after the
+     *  player signed out) used to put its insight back over the newer state. */
+    private var loadJob: kotlinx.coroutines.Job? = null
+
     fun loadInsight(forceRefresh: Boolean = false) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             // The AI Coach is for signed-in players: signed out, not even a saved insight is shown.
             if (!aiAccess.isSignedIn.first()) {
                 _uiState.value = AiInsightUiState.SignInRequired()
