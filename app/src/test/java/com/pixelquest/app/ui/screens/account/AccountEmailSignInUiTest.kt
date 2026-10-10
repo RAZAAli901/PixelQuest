@@ -98,4 +98,38 @@ class AccountEmailSignInUiTest {
         assertTrue(viewModel.uiState.value is AuthUiState.SignedIn)
         composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").assertDoesNotExist()
     }
+
+    @Test
+    fun afterAFailedGoogleSignIn_emailSignInIsStillThere() {
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val google = FakeGoogleAuthManager(context).apply {
+            signInResult = com.pixelquest.app.auth.GoogleAuthResult.Failure(IllegalStateException(), "No credentials available")
+        }
+        val viewModel = AuthViewModel(google, EmailAuth(), FakeUserProfileRepositoryForAuth())
+
+        composeTestRule.setContent {
+            val authState by viewModel.uiState.collectAsState()
+            val emailState by viewModel.emailState.collectAsState()
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                AccountContent(
+                    authState = authState,
+                    accountState = AccountUiState(),
+                    onSignInWithGoogle = { viewModel.signInWithGoogle(context) },
+                    emailState = emailState,
+                    onOpenEmailSignIn = viewModel::openEmailSignIn,
+                    cloudAvailable = true,
+                    googleAvailable = true
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("No credentials available").assertExists()
+
+        composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("No credentials available").assertDoesNotExist()
+        composeTestRule.onNodeWithText("📨 SEND CODE").assertExists()
+    }
 }

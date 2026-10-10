@@ -173,6 +173,8 @@ class AuthViewModel @Inject constructor(
     // Sign in with a code sent by email.
 
     fun openEmailSignIn() {
+        // Trying email after a failed Google sign-in: the Google error no longer applies.
+        if (_uiState.value is AuthUiState.Error) _uiState.value = AuthUiState.SignedOut
         _emailState.value = _emailState.value.copy(isOpen = true, error = null)
     }
 

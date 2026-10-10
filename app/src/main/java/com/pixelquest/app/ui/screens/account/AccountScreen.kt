@@ -160,7 +160,18 @@ fun AccountContent(
             }
 
             // Entry Point Card
-            if (authState is com.pixelquest.app.auth.AuthUiState.SignedOut) {
+            // A failed sign-in (say, Google with no Google account on the phone) shows its error
+            // above the sign-in card, so email sign-in is still there; it used to replace the card.
+            if (authState is com.pixelquest.app.auth.AuthUiState.Error) {
+                val errorMsg = (authState as com.pixelquest.app.auth.AuthUiState.Error).message
+                com.pixelquest.app.ui.components.PixelErrorState(
+                    errorMessage = errorMsg,
+                    onRetry = onSignInWithGoogle,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (authState is com.pixelquest.app.auth.AuthUiState.SignedOut || authState is com.pixelquest.app.auth.AuthUiState.Error) {
                 PixelCard(
                     variant = PixelPanelVariant.BEIGE,
                     contentPadding = 20.dp,
@@ -223,15 +234,6 @@ fun AccountContent(
             if (authState is com.pixelquest.app.auth.AuthUiState.SigningIn) {
                 com.pixelquest.app.ui.components.PixelLoadingState(
                     message = "AUTHENTICATING QUEST HERO...",
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            if (authState is com.pixelquest.app.auth.AuthUiState.Error) {
-                val errorMsg = (authState as com.pixelquest.app.auth.AuthUiState.Error).message
-                com.pixelquest.app.ui.components.PixelErrorState(
-                    errorMessage = errorMsg,
-                    onRetry = onSignInWithGoogle,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
