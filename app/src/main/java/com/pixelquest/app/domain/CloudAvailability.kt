@@ -12,11 +12,18 @@ object CloudAvailability {
     private const val PLACEHOLDER_URL = "https://placeholder-project.supabase.co"
     private const val PLACEHOLDER_ANON_KEY = "placeholder-anon-key"
 
-    /** A real Supabase project URL: https, and not the build's placeholder. */
-    fun isRealProjectUrl(supabaseUrl: String): Boolean {
+    /**
+     * A real Supabase project URL: https, and not the build's placeholder. A debug build may also
+     * point at a Supabase stack on the developer's computer (npx supabase start) over plain http;
+     * the emulator reaches it as 10.0.2.2. See docs/LOCAL_SUPABASE.md.
+     */
+    fun isRealProjectUrl(supabaseUrl: String, allowLocalHttp: Boolean = BuildConfig.DEBUG): Boolean {
         val url = supabaseUrl.trim().trimEnd('/')
-        return url.startsWith("https://") && url != PLACEHOLDER_URL
+        if (url.startsWith("https://")) return url != PLACEHOLDER_URL
+        return allowLocalHttp && LOCAL_STACK_URL.matches(url)
     }
+
+    private val LOCAL_STACK_URL = Regex("^http://(127\\.0\\.0\\.1|localhost|10\\.0\\.2\\.2)(:\\d{1,5})?$")
 
     fun isConfigured(supabaseUrl: String, anonKey: String): Boolean {
         val key = anonKey.trim()
