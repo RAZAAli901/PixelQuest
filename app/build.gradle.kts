@@ -17,12 +17,17 @@ if (localPropertiesFile.exists()) {
         localProps.load(stream)
     }
 }
-val supabaseUrlProp = localProps.getProperty("SUPABASE_URL") ?: "https://placeholder-project.supabase.co"
-val supabaseAnonKeyProp = localProps.getProperty("SUPABASE_ANON_KEY") ?: "placeholder-anon-key"
-val googleWebClientIdProp = localProps.getProperty("GOOGLE_WEB_CLIENT_ID") ?: ""
-val geminiApiKeyProp = localProps.getProperty("GEMINI_API_KEY") ?: "placeholder-gemini-key"
+// A PIXELQUEST_<NAME> environment variable overrides <NAME> from local.properties for one build, e.g.
+// to point a debug build at the local Supabase test bench without editing the file (docs/LOCAL_SUPABASE.md).
+fun buildSetting(name: String): String? =
+    System.getenv("PIXELQUEST_$name")?.takeIf { it.isNotBlank() } ?: localProps.getProperty(name)
+
+val supabaseUrlProp = buildSetting("SUPABASE_URL") ?: "https://placeholder-project.supabase.co"
+val supabaseAnonKeyProp = buildSetting("SUPABASE_ANON_KEY") ?: "placeholder-anon-key"
+val googleWebClientIdProp = buildSetting("GOOGLE_WEB_CLIENT_ID") ?: ""
+val geminiApiKeyProp = buildSetting("GEMINI_API_KEY") ?: "placeholder-gemini-key"
 // Debug builds call Gemini directly with the local key unless GEMINI_VIA_PROXY=true (to try the proxy).
-val geminiViaProxyProp = localProps.getProperty("GEMINI_VIA_PROXY")?.trim()?.toBoolean() ?: false
+val geminiViaProxyProp = buildSetting("GEMINI_VIA_PROXY")?.trim()?.toBoolean() ?: false
 
 android {
     namespace = "com.pixelquest.app"
