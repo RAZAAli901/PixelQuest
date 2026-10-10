@@ -53,4 +53,19 @@ class AccountWordingTest {
         composeTestRule.onNodeWithText("Your email, real name", substring = true).assertExists()
         assertEquals(0, composeTestRule.onAllNodesWithText("Google email", substring = true).fetchSemanticsNodes().size)
     }
+
+    @Test
+    fun onTheBoard_theHeaderDoesntAskYouToJoin() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                AccountContent(
+                    authState = AuthUiState.SignedIn(AuthUser("user-1", "hero@pixelquest.test", null)),
+                    accountState = AccountUiState(isOptedIn = true, displayNameInput = "Titan_Slayer"),
+                    cloudAvailable = true
+                )
+            }
+        }
+        composeTestRule.onNodeWithText("You're signed in and on the leaderboard", substring = true).assertExists()
+        assertEquals(0, composeTestRule.onAllNodesWithText("Join the leaderboard below", substring = true).fetchSemanticsNodes().size)
+    }
 }

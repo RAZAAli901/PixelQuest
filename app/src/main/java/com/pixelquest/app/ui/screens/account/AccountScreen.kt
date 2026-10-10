@@ -147,7 +147,10 @@ fun AccountContent(
                     Text(
                         text = when {
                             !cloudAvailable -> "Cloud features are off in this build."
-                            // Signed in (by email or Google): no more invitation to sign in.
+                            // Signed in (by email or Google): no more invitation to sign in, nor to join
+                            // a board the player is already on (seen on the emulator).
+                            authState is com.pixelquest.app.auth.AuthUiState.SignedIn && accountState.isOptedIn ->
+                                "You're signed in and on the leaderboard. Your streaks and level sync as you play."
                             authState is com.pixelquest.app.auth.AuthUiState.SignedIn ->
                                 "You're signed in. Join the leaderboard below to compare streaks with other players."
                             else -> "Sign in with Google or your email to join the community quest leaderboard, sync your stats and use the AI Coach."
