@@ -86,4 +86,15 @@ class CiBuildWorkflowTest {
 
         assertTrue("CI must run the Edge Function tests", activeLines.any { it.contains("node --test") && it.contains("supabase/functions") })
     }
+
+    @Test
+    fun theCloudTests_runOnTheLocalStack_withAFakeGeminiKey_neverASecret() {
+        val workflow = listOf(File("../.github/workflows/cloud-tests.yml"), File(".github/workflows/cloud-tests.yml")).first { it.exists() }
+        val active = workflow.readLines().filterNot { it.trim().startsWith("#") }
+        assertTrue(active.any { it.contains("supabase@2.120.0 start") })
+        assertTrue(active.any { it.contains("SUPABASE_LOCAL: '1'") })
+        assertTrue(active.any { it.contains("PIXELQUEST_LOCAL_SUPABASE: '1'") })
+        assertTrue("No secrets in the cloud tests", active.none { it.contains("secrets.") })
+        assertTrue(active.any { it.contains("GEMINI_API_KEY=local-test-not-a-real-key") })
+    }
 }

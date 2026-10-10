@@ -1,0 +1,73 @@
+name: Cloud Tests (local Supabase)
+
+# Runs the local Supabase test bench (docs/LOCAL_SUPABASE.md) on every push: the migrations and
+# row-level security on a real Postgres, email sign-in against real Supabase Auth, the gemini-proxy
+# Edge Function's sign-in check and per-account limit, and the app's own repositories against all of it.
+# Nothing touches a hosted project: everything runs in Docker on the runner.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cloud:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Start the local Supabase stack
+        run: npx --yes supabase@2.120.0 start -x studio,postgres-meta,storage-api,imgproxy,realtime,logflare,vector,supavisor
+
+      # A fake key: calls that pass the proxy's checks reach Google, which refuses it, so no quota is used.
+      - name: Serve gemini-proxy with a fake Gemini key
+        run: |
+          printf 'GEMINI_API_KEY=local-test-not-a-real-key\nAI_PROXY_ACCOUNT_DAILY_LIMIT=2\nAI_PROXY_GLOBAL_DAILY_LIMIT=200\n' > supabase/functions/.env.local
+          nohup npx --yes supabase@2.120.0 functions serve --env-file supabase/functions/.env.local > functions.log 2>&1 &
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://127.0.0.1:54321/functions/v1/gemini-proxy -H "Content-Type: application/json" -d '{"prompt":"hi"}')
+            if [ "$code" = "401" ]; then echo "gemini-proxy is up"; exit 0; fi
+            sleep 2
+          done
+          echo "::error::gemini-proxy didn't start"; cat functions.log; exit 1
+
+      - name: Database, sign-in and AI server tests
+        env:
+          SUPABASE_LOCAL: '1'
+        run: node --test "supabase/tests/**/*.test.ts"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.4'
+
+      - name: Make Gradlew Executable
+        run: chmod +x gradlew
+
+      - name: The app's cloud code against the local stack
+        env:
+          PIXELQUEST_LOCAL_SUPABASE: '1'
+        run: ./gradlew :app:testDebugUnitTest --tests "*LocalSupabaseAppTest"
+
+      - name: Edge Function log
+        if: failure()
+        run: cat functions.log || true
