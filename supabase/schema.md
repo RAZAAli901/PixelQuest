@@ -33,7 +33,7 @@ All for signed-in players (`authenticated`); signed-out callers read nothing.
 
 ## Display names (`20261010000000_display_name_word_matching.sql`)
 
-The trigger `check_display_name_moderation` refuses a name that isn't 3-20 letters, digits or `_`, or that contains an offensive term. Unambiguous terms are refused anywhere in the name; words that are only offensive on their own (`tit`, `crap`, `dick`, ...) only as whole words, split at `_` and at lower-to-upper case changes, so `Titan_Slayer` passes and `DickHead` doesn't. Digits used as letters (`sh1t`) are read as letters. The app's `DisplayNameModerator` follows the same rules; both are tested on `supabase/tests/display_names.json`.
+The trigger `check_display_name_moderation` refuses a name that isn't 3-20 letters, digits or `_`, or that contains an offensive term. Unambiguous terms are refused anywhere in the name; words that are only offensive on their own (`tit`, `crap`, `dick`, ...) only as whole words, split at `_` and at lower-to-upper case changes, so `Titan_Slayer` passes and `DickHead` doesn't. Digits used as letters (`sh1t`) are read as letters, and stretched letters as one (`fuuuck`, `Titt`; `20261010000004_display_name_repeated_letters.sql`). The app's `DisplayNameModerator` follows the same rules; both are tested on `supabase/tests/display_names.json`.
 
 ## Leaderboard ordering
 
