@@ -3253,3 +3253,162 @@ The app sent Google the SHA-256 of a nonce, then dropped the raw nonce. Supabase
 - **Email for real players needs custom SMTP.** It needs a domain you own. The built-in mailer reaches only your Supabase team, about 2 emails an hour.
 - **Making email accounts is cheap**, so the project-wide AI limit is what bounds the cost. If abuse appears, lower the per-account limit or add CAPTCHA (which needs app work).
 - **Not seen on a device.** The emulator build has no Supabase project, so the email form can't appear there. It's covered by Robolectric UI tests.
+
+## Day 32 Progress Log
+_A local Supabase test bench in Docker, chosen at the start of the day: run the cloud code for real, fix what it finds, plus Day 31's leftovers._
+- Step 1: Add the Supabase CLI config for a local stack (supabase/config.toml): email sign-in by code with the one-minute resend limit and confirmations on, like a hosted project, a code email template (supabase/templates/sign_in_code.html, also for the hosted project), and gemini-proxy without the gateway's JWT check; all seven migrations apply cleanly on Postgres 17 for the first time - c28b9f52
+- Step 2: Android's own Remove animations (animator scale 0) now reduces motion in PixelQuest like its REDUCE MOTION switch, in the app and the full-screen prompt, and follows changes while the app is open; Settings says when the system setting is doing it - 250d8849
+- Step 3: Add a local Supabase test bench (supabase/tests, opt-in with SUPABASE_LOCAL=1) and test email-code sign-in against real GoTrue: the email carries a 6-digit code and no link, the code signs in and confirms the address, a returning player gets the same account, and the error codes the app maps (over_email_send_rate_limit, otp_expired, validation_failed) are the ones Supabase sends - 0e1e0794
+- Step 4: Test the leaderboard's row-level security on a real Postgres: players write only their own row (a forged id gets 42501, a patch of another's row matches nothing), signed-out callers read nothing, leaving the board hides the row from others but not its owner, a spectator's opt-out creates no row, negative stats are refused, and the rank count (HEAD, count=exact) only counts rows the caller may see - 06fa995a
+- Step 5: Test reports, account deletion and the AI call counter on the local stack: a report is filed only in the reporter's name and can't be read back by players, delete_user_account removes the profile and the sign-in (and refuses anyone signed out), and claim_ai_proxy_call and ai_proxy_usage are closed to players while the service role's claims stop at the limit without counting the refused one - 27e7dea4
+- Step 6: Test gemini-proxy in the real Deno Edge runtime with real sign-in tokens: no token, the publishable key and made-up tokens get 401 sign_in_required with nothing counted, a signed-in player's calls are counted on their account and stop at its limit (each account has its own), a token from a signed-out session is refused, and malformed requests cost nothing; a fake Gemini key keeps it off anyone's quota (supabase/functions/.env* is gitignored) - 5bd5fe77
+- Step 7: A debug build can point at a Supabase stack on the developer's computer: http is accepted for 127.0.0.1, localhost and the emulator's 10.0.2.2 only, through a debug-only network security config, so the real app can be tried against the local bench; release builds stay https-only (checked in the merged manifests) - 82ebb4b9
+- Step 8: Run the app's real cloud code against the local stack (LocalSupabaseAppTest, opt-in with PIXELQUEST_LOCAL_SUPABASE=1): AuthRepositoryImpl signs in with an emailed code, CloudProfileRepositoryImpl joins the board, LeaderboardRepositoryImpl lists, ranks and finds the players around you, pushProfileToCloud sends more progress and holds back less, leaving hides the row, deleteAccount removes row and sign-in, and the proxy client counts a real session's call; the JVM tests use Ktor CIO because the JVM can't PATCH - 0d712f5e
+- Step 9: The server's display-name filter no longer rejects ordinary names: Titan_Slayer, Stitch, Altitude, Scrappy and Dickens were refused because every listed word matched anywhere inside a name; ambiguous words (tit, crap, dick, ...) now match whole words only (split at underscores and case changes, so DickHead is still caught), and digits read as letters (sh1t); tested on Postgres with a shared list of names - 192371a3
+- Step 10: The app's display-name check follows the same rules as the server, so the Account screen accepts Titan_Slayer, Stitch or Scrappy too: ambiguous words match whole words only, while l33tspeak and repeated-letter tricks are still caught; DisplayNameRulesTest runs the shared list the database test uses - bc461ffe
+- Step 11: PIXELQUEST_<NAME> environment variables override the cloud settings from local.properties for one build, so a debug build can be pointed at the local Supabase bench without editing the file (checked: BuildConfig.SUPABASE_URL follows the variable, then returns to local.properties) - 25135eb0
+- Step 12: Tapping the tab you're in takes you back to its first screen: found on the emulator, HOME did nothing on the Account screen opened from Today's AI card (and PROFILE nothing on a screen opened from Profile), because the tab's saved state, that same screen, was restored; switching tabs still keeps each tab's place - 5a95044c
+- Step 13: The Sign in with Google button shows only with a real Google web client id (ending .apps.googleusercontent.com): found on the emulator, the placeholder from local.properties showed a button that could only fail; email sign-in is offered either way - deb21dd6
+- Step 14: Account's wording fits email sign-in too, from the emulator run: signed in, the header says so instead of still inviting you to sign in with Google or email, and the display-name note and the leaderboard consent say your email (not your Google email) stays private - 276cf09f
+- Step 15: The Account screen's sync button says SYNC NOW: it said FORCE SYNC NOW (DEBUG) in every build, though it's an ordinary player feature (and now reports when nothing was sent) - ca5194b5
+- Step 16: The instrumented tests compile again: the shared fakes move to src/sharedTest (used by unit and instrumented tests), and seven tests are brought up to date (AuthUser, the LEARNING category, TaskViewModel's difficulty repository, UserProfileRepositoryImpl's constructor, a missing import); they had stopped compiling unnoticed because CI never built them - c9072d17
+- Step 17: Remove five instrumented leaderboard tests that never compiled (written on Day 15 against classes the app never had: LeaderboardItemUiModel, LeaderboardEntryDto, QuestUser); what they meant to check is covered by LeaderboardPagingRaceTest, LeaderboardOptOutUiTest, DisplayNameRulesTest, the local-stack tests and the emulator run; CI now compiles the instrumented tests (assembleDebugAndroidTest) so they can't silently rot again - f1e2f731
+- Step 18: Add docs/LOCAL_SUPABASE.md: starting and stopping the local stack, serving gemini-proxy with a fake key, reading sign-in codes in Mailpit, running the Node and Kotlin bench tests, and pointing a debug build at the bench with the PIXELQUEST_ variables - 77325ed9
+- Step 19: CI runs the local Supabase bench on every push (cloud-tests.yml): the stack starts in Docker on the runner, gemini-proxy is served with a fake Gemini key, and the Node database/sign-in/AI-server tests and LocalSupabaseAppTest run against it; no secrets and no hosted project involved - 9fa07ff5
+- Step 20: More of the app's cloud code on the local stack (LocalSupabaseSyncAndBoardTest): the real ProfileSyncWorker makes the row, sends more progress, holds back numbers older than another device's, clears only the flag after leaving and uploads nothing for a spectator; a report is filed under the reporter; the leaderboard pages past 20 in order without repeats; and an expired session is refreshed before an AI call the proxy then accepts - cfd357db
+- Step 21: CHANGELOG Unreleased: Day 32's player-visible changes so far (names like Titan_Slayer accepted, Android's Remove animations honoured, SYNC NOW, tab re-tap goes back to the first screen, Account wording for email sign-in, the Google button only when set up) - befd212f
+- Step 22: CLOUD_SETUP.md points to the local bench (try every step on this computer first) and to supabase/templates/sign_in_code.html for the hosted project's code email, and says supabase/config.toml holds the settings to choose in the dashboard - 761e3e16
+- Step 23: Pin the search_path of the two trigger functions (display-name check, updated_at stamp), which Supabase's Security Advisor flags when it's mutable; the other two functions already were; db lint finds no schema errors and the name and leaderboard tests still pass on the local stack - bf0d84c1
+- Step 24: The leaderboard's row-level security in the form Supabase's Performance Advisor recommends, same rules: auth.uid() is worked out once per query instead of per row, and the two read policies are one; the database tests and the app's bench tests pass unchanged - dc8a2b0c
+- Step 25: Index public.reports' two foreign keys (reporter, reported profile), which Supabase's Performance Advisor flags: deleting an account cascades into reports and scanned the whole table each time; the report and deletion tests still pass - 3e2b97f1
+- Step 26: supabase/schema.md describes today's database: the row-level security rules and where they're tested, the display-name rules shared with the app, the reports table and its indexes, and ai_proxy_usage keyed per account since Day 31 - 91109eb5
+- Step 27: README's test section covers the local Supabase bench (and its CI workflow) and the instrumented tests, which CI now compiles and connectedDebugAndroidTest runs on a device - 25a8dec4
+- Step 28: Privacy fix from the review: a second account signed in on the same phone was put on the public leaderboard under the first account's name, because the opt-in and display name (and the AI Coach consent) live on the device and sign-out only unlinked the account; CloudAccountLink now resets them when a different account signs in, while the same account keeps its choices - 97033eae
+- Step 29: Signing out with no connection signs you out on this device: supabase-kt threw before forgetting the session, so the screen said signed out while the AI Coach kept working and the next launch signed the account back in; a failed server sign-out now clears the local session anyway (from the review) - 91777bd9
+- Step 30: A signed-in player is never told to sign in just because their session was still loading or couldn't be refreshed (from the review): the AI access waits for the saved session to load (a worker in a fresh process skipped the day's AI reminder lines), and a failed refresh is a retryable connection problem, not SIGN IN - acc86dfa
+- Step 31: A failed Google sign-in no longer hides email sign-in (from the review): its error used to replace the sign-in card, so on a phone without a Google account email sign-in couldn't be reached; the error now shows above the card, and opening email sign-in clears it - 39b974e0
+- Step 32: Email sign-in's minute between codes is per address, like Supabase's, and CANCEL stops what's in progress (from the review): USE A DIFFERENT EMAIL left SEND CODE greyed out for the new address, CANCEL let a pending code check still sign you in, and it reset the countdown so the next send hit the server's limit - 1e22c685
+- Step 33: The AI Coach card runs one load at a time (from the review): an insight request still in flight when the player signed out finished afterwards and put its insight back over the SIGN IN prompt; a newer load now cancels the older one - 8bfc53a2
+- Step 34: No AI output after sign-out (from the review): the reminder-lines worker saved a pack Gemini finished after the player signed out, bringing AI text back into reminders until the next day, and the fresh-insight notice was still posted; both workers now check the sign-in (the pack worker again before saving) - 9a6add8e
+- Step 35: Proxy failures that never reached Gemini no longer use up the day's AI calls (from the review): the server's own auth or usage check failing, a missing key or Gemini being unreachable counted like an answer, so four of them used up the day; the proxy's error code now says whether Gemini saw the request - 95b93dc3
+- Step 36: The server's name check also reads stretched letters as one (fuuuck, Titt), as the app's does (from the review): the two disagreed on such names though both claim the same rules; the shared test list gains these names and both filters pass it, and the redefined trigger keeps its fixed search_path - 129ccc36
+- Step 37: Today's AI insight links to the AI Coach's own screen (OPEN AI COACH): the screen and its states, including the new sign-in prompt, have had no way in since Day 24 (from the review) - 7394f3cb
+- Step 38: CHANGELOG Unreleased: the fixes from Day 32's review in player-facing words (a shared phone starts fresh for a new account, offline sign-out, email sign-in after a Google error, per-address codes and CANCEL, no AI output after sign-out, connection message instead of SIGN IN, proxy failures not counted, OPEN AI COACH) - a2a734a4
+- Step 39: The public-name field belongs to the signed-in account, found on the emulator while checking Step 28: after account B signed in on the phone account A had used, B was correctly off the board, but the field still offered A's public name to join under; it now clears when a different account is linked, while the same account keeps its draft - 7177429d
+- Step 40: The last five instrumented tests pass on the emulator (20 of 20): they looked for wording the app has since changed (the bottom bar's HOME/TASKS/STATS/PROFILE, the onboarding screens' titles and NEXT buttons, the delete dialog's DELETE button) or tapped Account controls below the fold; they now scroll to them and switch cloud and Google on themselves instead of taking them from the build - 04b02955
+- Step 41: An account that is new to this phone gets its leaderboard choice and public name back from its own server row, found on the emulator: after account B, account A came back shown as off the board while the board still listed it, and the next sync would have taken it off without A asking (the same for a reinstall or a second phone); the row is read before the account is linked, and if it can't be read a different account still starts with everything off - 1b6e777b
+- Step 42: Account's header no longer asks a player who is already on the leaderboard to join it (seen on the emulator after Step 41): on the board it says they're signed in and on the leaderboard, and that their streaks and level sync as they play - a9e5ba6a
+- Step 43: Bench test for Step 41 against the local stack: a reinstalled app signing in to an account that is on the board reads its own row through the row-level rules, gets its choice and name back, and the next real ProfileSyncWorker run keeps it on the board with this phone's progress (it used to clear the flag) - da64fe3c
+- Step 44: Docs for Steps 41-43: PRIVACY.md says your leaderboard choice and public name come back from your account's own record when you sign in again (also after a reinstall or on another phone) while the AI Coach consent stays off; CHANGELOG adds that and the Account header; LOCAL_SUPABASE.md's bench table gains LocalSupabaseSyncAndBoardTest, which it left out - 574976a2
+- Step 45: VERIFICATION.md Section K (Day 32): the local Supabase stack (12 migrations, db lint clean), 973 unit tests with the bench on (0 failing, 0 skipped), 15 Node bench tests, 17 Edge Function tests, 20 of 20 instrumented tests on the emulator, what the bench found, the emulator checks and the four bugs they found (Steps 12-14, 39, 41-42), the 17 fake-key requests Google refused, and what still isn't verified - a2751094
+- Step 46: CI's cloud tests run every Kotlin bench class (*LocalSupabase*), not only LocalSupabaseAppTest: LocalSupabaseSyncAndBoardTest (the real sync worker, paging, session refresh and Step 43's returning account) was left out since Step 20; CiBuildWorkflowTest checks it - a853cbaa
+- Step 47: Update BRIEF.md with the Day 32 progress log and summary - (this commit)
+
+## Day 32 — A Local Supabase Test Bench
+
+You chose to run Supabase locally in Docker. Until today, none of the cloud code (database rules, sign-in, the AI server, the app's repositories) had run against a real Supabase, because there's no hosted project. Now all of it runs against the same services on this computer. That found bugs the mocks couldn't.
+
+### 1. The bench (Steps 1, 3–8, 11, 18–20, 43, 46)
+- **The stack.**
+  - `supabase/config.toml` sets up email sign-in by code with the one-minute resend limit, and a code email template that the hosted project can use too.
+  - All 12 migrations apply cleanly on Postgres 17. Before today they had never been applied anywhere.
+- **Node tests** (`supabase/tests/local`, opt-in with `SUPABASE_LOCAL=1`) run against real GoTrue, Postgres and the Deno Edge runtime. They cover:
+  - email codes and error codes;
+  - row-level security for the leaderboard and reports, including the rank count;
+  - account deletion;
+  - the AI call counter;
+  - `gemini-proxy` with real sign-in tokens. Its fake Gemini key keeps the tests off any quota.
+- **The app's own code against the stack** (opt-in with `PIXELQUEST_LOCAL_SUPABASE=1`): `LocalSupabaseAppTest` and `LocalSupabaseSyncAndBoardTest` run the real repositories, `ProfileSyncWorker`, paging and session refresh.
+- **A debug build can use the stack.**
+  - Plain http is accepted only for this computer and the emulator's `10.0.2.2`, through a debug-only network config.
+  - `PIXELQUEST_<NAME>` environment variables override `local.properties` for one build.
+- **CI.** `cloud-tests.yml` starts the stack on GitHub's runner and runs all of it, with no secrets.
+- **Docs.** `docs/LOCAL_SUPABASE.md` explains how to do all of this.
+
+### 2. Server fixes (Steps 9–10, 23–25, 36)
+- **Display names.**
+  - The server's filter refused ordinary names (Titan_Slayer, Stitch, Altitude, Scrappy, Dickens), because every listed word matched anywhere inside a name.
+  - Ambiguous words now match whole words only, so DickHead is still caught. Digits read as letters, and stretched letters as one (fuuuck).
+  - The app's check follows the same rules. Both pass one shared list, `supabase/tests/display_names.json`.
+- **Supabase Advisor findings.**
+  - The trigger functions have a fixed `search_path`.
+  - The leaderboard's policies work out `auth.uid()` once per query, and the two read policies are now one.
+  - The reports table's foreign keys are indexed.
+  - The rules themselves are unchanged, and the tests prove it.
+
+### 3. Found on the emulator (Steps 12–15, 39–42)
+The debug app was run against the bench: sign in by email, join, sync a quest, use the AI Coach, rank "around you", leave, sign out, and switch accounts. Fixes:
+- **Tabs.** Tapping the tab you're in takes you back to its first screen. HOME used to do nothing on an Account screen opened from Today.
+- **Google button.** It shows only with a real Google client id. A placeholder gave a button that could only fail.
+- **Wording.**
+  - Account no longer invites a signed-in player to sign in, or a player on the board to join it.
+  - It says "your email", not "your Google email".
+  - The sync button says SYNC NOW, not FORCE SYNC NOW (DEBUG).
+- **Sharing a phone.**
+  - The public-name field belongs to the signed-in account. Account B used to be offered A's name.
+  - An account new to this phone gets its leaderboard choice and name back from its own server row. This covers a returning player, a reinstall and a second phone. Before, such an account showed as off the board, and the next sync took it off. The bench checks this against the real worker.
+
+### 4. From the review (Steps 28–37)
+A review of the day's cloud code found nine problems, all fixed:
+- **Shared phone (privacy).** A second account on the same phone was put on the public leaderboard under the first account's name. The opt-in, name and AI consent now start fresh for a different account.
+- **Signing out.**
+  - Signing out with no connection now really signs out on the phone. The next launch used to sign the account back in.
+  - Nothing AI-written appears after signing out: not an insight still loading, and not reminder lines Gemini finished afterwards.
+- **Sign-in.**
+  - A session that is loading or couldn't refresh is a connection problem, not "sign in".
+  - A failed Google sign-in no longer hides email sign-in.
+  - The minute between email codes is per address, and CANCEL stops a pending check.
+- **The AI Coach.**
+  - Proxy failures that never reached Gemini don't use up the day's calls.
+  - The AI Coach screen is reachable again (OPEN AI COACH on Today's card).
+- The server's name check also reads stretched letters as one, like the app's.
+
+### 5. Day 31 leftovers (Steps 2, 15–17)
+- **Remove animations.** Android's own setting now reduces motion, like PixelQuest's REDUCE MOTION switch.
+- **SYNC NOW.** The sync button lost its "(DEBUG)" label.
+- **Instrumented tests.**
+  - They compile again: the shared fakes moved to `src/sharedTest`.
+  - Five that never compiled were removed.
+  - The rest pass on the emulator, 20 of 20, after five were brought up to date with today's wording (Step 40).
+  - CI now compiles them, so they can't rot unnoticed.
+
+### 6. Docs (Steps 18, 21–22, 26–27, 38, 44)
+- New: `LOCAL_SUPABASE.md`.
+- Updated: `CLOUD_SETUP.md` (try every step locally first), `supabase/schema.md` (the rules and where they're tested), the README's test section, and `PRIVACY.md` (sharing a phone).
+- The CHANGELOG's Unreleased section has the day's player-visible changes.
+
+### 7. Testing
+- **973 unit tests**, 0 failing, 0 skipped, with the bench on. There were 927 at the end of the Day 31 follow-up.
+- **Other suites.** All pass:
+  - 15 Node bench tests;
+  - 17 Edge Function tests;
+  - 20 of 20 instrumented tests on the emulator.
+- `db lint` is clean.
+- Details are in VERIFICATION.md Section K.
+- **Gemini.** No real Gemini key was used. The local proxy's 17 requests with the fake key were refused by Google.
+
+### 8. Correction
+Step 45's message says the emulator checks found "four bugs". They led to six fixes: Steps 12, 13, 14, 39, 41 and 42.
+
+### 9. Known gaps for Day 33 onwards
+- **Hosted project.** Still nothing has run against a hosted Supabase project:
+  - email through real SMTP;
+  - Google sign-in, which the local stack doesn't have;
+  - the deployed proxy;
+  - the Advisors' own reports.
+
+  `docs/CLOUD_SETUP.md` has the steps.
+- **First CI run.** `cloud-tests.yml` runs for the first time with this push.
+- **Anti-cheat.** The leaderboard trusts the stats the app sends. Row-level security stops writing another player's row, but not inflating your own.
+- **Accounts across phones.**
+  - If a returning account's row can't be read right after sign-in (offline), it starts off the board, and the next sync takes it off.
+  - With one account on two phones, the phone that syncs last decides the opt-in.
+- **Account screen while offline.** It shows "signed out" while a session can't be refreshed. The AI Coach already says it's a connection problem.
+- **Not seen on a device:**
+  - a sync after answering "Yes" on a reminder notification;
+  - the streak-at-risk nudge.
+- **Before the next tag.** `versionName` is still 1.1.0.
+- **Your computer.**
+  - The local stack's Docker images take about 9 GB.
+  - The stack was stopped at the end of the day; `docs/LOCAL_SUPABASE.md` has how to start it, and its data stays.
+  - The emulator still has the local-stack debug build, signed in as a test account. Install an ordinary debug build before using it normally.
