@@ -108,4 +108,11 @@ object LocalSupabase {
     /** Sets columns on a player's row as the service role (an upsert, since the JVM can't PATCH). */
     fun setProfileColumns(userId: String, json: String) =
         asService("/rest/v1/profiles?on_conflict=id", "POST", """{"id":"$userId",$json}""", prefer = "resolution=merge-duplicates")
+
+    /** A confirmed player made with the admin API (no email round trip); returns their id. */
+    fun createPlayer(email: String): String {
+        val reply = asService("/auth/v1/admin/users", "POST", """{"email":"$email","email_confirm":true}""")
+        check(reply.status in 200..201) { "admin create user: ${reply.status} ${reply.body}" }
+        return Json.parseToJsonElement(reply.body).jsonObject["id"]!!.jsonPrimitive.content
+    }
 }
