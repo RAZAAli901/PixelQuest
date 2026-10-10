@@ -8,6 +8,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.pixelquest.app.auth.AuthRepositoryImpl
+import com.pixelquest.app.auth.CloudAccountLink
 import com.pixelquest.app.auth.SupabaseAiAccess
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
@@ -17,6 +18,7 @@ import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.safeGeminiCall
 import com.pixelquest.app.data.repository.CloudProfileRepositoryImpl
 import com.pixelquest.app.data.repository.LeaderboardRepositoryImpl
+import com.pixelquest.app.testing.FakeSettingsRepository
 import com.pixelquest.app.testing.FakeStreakRepository
 import com.pixelquest.app.testing.FakeUserProfileRepository
 import com.pixelquest.app.testing.LocalSupabase
@@ -43,8 +45,8 @@ import kotlin.time.Duration.Companion.seconds
 
 /**
  * More of the app's cloud code against the local stack (opt-in: PIXELQUEST_LOCAL_SUPABASE=1): the
- * real ProfileSyncWorker, reporting a player, paging the leaderboard, and refreshing an expiring
- * session before an AI call.
+ * real ProfileSyncWorker, reporting a player, paging the leaderboard, refreshing an expiring
+ * session before an AI call, and an account that is new to a phone keeping its place on the board.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = Application::class)
@@ -168,5 +170,29 @@ class LocalSupabaseSyncAndBoardTest {
         val proxy = GeminiProxyClient(LocalSupabase.status.apiUrl, LocalSupabase.status.publishableKey, { access.accessToken() }, HttpClient(Android))
         val result = safeGeminiCall { proxy.generateContent("How am I doing?") }
         assertTrue("The proxy accepted it (the fake Gemini key then fails): $result", result is GeminiResult.ApiError && result.statusCode == 502)
+    }
+
+    @Test
+    fun anAccountNewToThisPhone_keepsItsPlaceOnTheBoard_throughTheNextSync() = runBlocking {
+        val (supabase, userId) = signedIn("returning")
+        val name = "Back_${userId.take(5)}"
+        LocalSupabase.setProfileColumns(userId, """"display_name":"$name","leaderboard_opt_in":true,"total_xp":300""")
+        // A reinstalled app: nothing linked or chosen on this phone yet.
+        val profiles = FakeUserProfileRepository(UserProfileEntity(username = "Rook", avatarId = "avatar_hero", totalXp = 400))
+        val streaks = FakeStreakRepository(StreakEntity(currentStreak = 2, longestStreak = 2))
+        val cloud = CloudProfileRepositoryImpl(supabase.postgrest, supabase.auth, profiles, streaks)
+        val prefs = context.getSharedPreferences(CloudAccountLink.PREFS_NAME, Context.MODE_PRIVATE)
+
+        CloudAccountLink(prefs, profiles, FakeSettingsRepository(), cloud).onSignedIn(userId)
+
+        // Its own row, read through the row-level rules, gives back its choice and name.
+        assertEquals(userId, profiles.profile.value!!.supabaseUserId)
+        assertTrue(profiles.profile.value!!.leaderboardOptIn)
+        assertEquals(name, profiles.profile.value!!.leaderboardDisplayName)
+
+        // The next sync keeps it on the board (it used to clear the flag), with this phone's progress.
+        assertEquals(ListenableWorker.Result.success(), runSync(profiles, cloud, streaks))
+        assertEquals("true", row(userId)!!["leaderboard_opt_in"]!!.jsonPrimitive.content)
+        assertEquals("400", row(userId)!!["total_xp"]!!.jsonPrimitive.content)
     }
 }
