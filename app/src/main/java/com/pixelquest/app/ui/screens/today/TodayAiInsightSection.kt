@@ -77,6 +77,14 @@ fun TodayAiInsightSection(
                         remainingCooldownSeconds = state.remainingCooldownSeconds,
                         onRefresh = { viewModel.refreshInsight() }
                     )
+                    // The AI Coach's own screen had no way in since Day 24.
+                    Spacer(modifier = Modifier.height(8.dp))
+                    PixelButton(
+                        text = if (isSimpleMode) "OPEN HABIT COACH ▶" else "OPEN AI COACH ▶",
+                        onClick = onNavigateToAiInsight,
+                        variant = PixelButtonVariant.BLUE,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
             is AiInsightUiState.Loading -> {
