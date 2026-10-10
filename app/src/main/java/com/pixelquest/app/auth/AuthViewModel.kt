@@ -40,8 +40,14 @@ data class EmailSignInState(
 class AuthViewModel @Inject constructor(
     private val googleAuthManager: GoogleAuthManager,
     private val authRepository: AuthRepository,
-    private val userProfileRepository: com.pixelquest.app.domain.repository.UserProfileRepository
+    private val userProfileRepository: com.pixelquest.app.domain.repository.UserProfileRepository,
+    private val accountLink: CloudAccountLink? = null
 ) : ViewModel() {
+
+    /** Links [accountId] to this device's profile; a different account than last time starts fresh (see CloudAccountLink). */
+    private suspend fun linkAccount(accountId: String) {
+        if (accountLink != null) accountLink.onSignedIn(accountId) else userProfileRepository.updateSupabaseUserId(accountId)
+    }
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.SignedOut)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
@@ -59,7 +65,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             val user = authRepository.getInitialUser()
             if (user != null) {
-                userProfileRepository.updateSupabaseUserId(user.id)
+                linkAccount(user.id)
                 _uiState.value = AuthUiState.SignedIn(user)
             } else {
                 _uiState.value = AuthUiState.SignedOut
@@ -71,7 +77,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             authRepository.currentUser.collect { user ->
                 if (user != null) {
-                    userProfileRepository.updateSupabaseUserId(user.id)
+                    linkAccount(user.id)
                     _uiState.value = AuthUiState.SignedIn(user)
                 } else if (_uiState.value !is AuthUiState.SigningIn && _uiState.value !is AuthUiState.Error) {
                     _uiState.value = AuthUiState.SignedOut
@@ -88,7 +94,7 @@ class AuthViewModel @Inject constructor(
                     when (val exchangeResult = authRepository.exchangeGoogleIdToken(googleResult.idToken, googleResult.rawNonce)) {
                         is SupabaseResult.Success -> {
                             val user = exchangeResult.data
-                            userProfileRepository.updateSupabaseUserId(user.id)
+                            linkAccount(user.id)
                             _uiState.value = AuthUiState.SignedIn(user)
                         }
                         is SupabaseResult.NetworkError -> {
@@ -224,7 +230,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = authRepository.verifyEmailCode(email, EmailSignIn.normalizeCode(state.code))) {
                 is SupabaseResult.Success -> {
-                    userProfileRepository.updateSupabaseUserId(result.data.id)
+                    linkAccount(result.data.id)
                     _uiState.value = AuthUiState.SignedIn(result.data)
                     closeEmailSignIn()
                 }

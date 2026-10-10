@@ -42,6 +42,8 @@ Data synchronization occurs strictly when:
 2. You explicitly choose to opt into the leaderboard and confirm your public display name.
 3. Background synchronization (`ProfileSyncWorker`) runs after you complete a quest or level up, pushing updated aggregate stats.
 
+**Sharing a phone:** the leaderboard choice, your public display name and your AI Coach consent belong to your account. If a different account signs in on the same phone, they're reset, so the next person chooses for themselves and is never put on the leaderboard under your name.
+
 ---
 
 ## 3. Database Security & Row-Level Security (RLS)
