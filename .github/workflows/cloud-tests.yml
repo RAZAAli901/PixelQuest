@@ -66,7 +66,8 @@ jobs:
       - name: The app's cloud code against the local stack
         env:
           PIXELQUEST_LOCAL_SUPABASE: '1'
-        run: ./gradlew :app:testDebugUnitTest --tests "*LocalSupabaseAppTest"
+        # Both Kotlin bench classes: LocalSupabaseAppTest and LocalSupabaseSyncAndBoardTest.
+        run: ./gradlew :app:testDebugUnitTest --tests "*LocalSupabase*"
 
       - name: Edge Function log
         if: failure()

@@ -94,6 +94,8 @@ class CiBuildWorkflowTest {
         assertTrue(active.any { it.contains("supabase@2.120.0 start") })
         assertTrue(active.any { it.contains("SUPABASE_LOCAL: '1'") })
         assertTrue(active.any { it.contains("PIXELQUEST_LOCAL_SUPABASE: '1'") })
+        // Every Kotlin bench class, not only LocalSupabaseAppTest (the sync worker and account-link tests were left out).
+        assertTrue(active.any { it.contains("--tests \"*LocalSupabase*\"") })
         assertTrue("No secrets in the cloud tests", active.none { it.contains("secrets.") })
         assertTrue(active.any { it.contains("GEMINI_API_KEY=local-test-not-a-real-key") })
     }
