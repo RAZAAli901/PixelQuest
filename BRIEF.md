@@ -3302,7 +3302,9 @@ _A local Supabase test bench in Docker, chosen at the start of the day: run the 
 - Step 44: Docs for Steps 41-43: PRIVACY.md says your leaderboard choice and public name come back from your account's own record when you sign in again (also after a reinstall or on another phone) while the AI Coach consent stays off; CHANGELOG adds that and the Account header; LOCAL_SUPABASE.md's bench table gains LocalSupabaseSyncAndBoardTest, which it left out - 574976a2
 - Step 45: VERIFICATION.md Section K (Day 32): the local Supabase stack (12 migrations, db lint clean), 973 unit tests with the bench on (0 failing, 0 skipped), 15 Node bench tests, 17 Edge Function tests, 20 of 20 instrumented tests on the emulator, what the bench found, the emulator checks and the four bugs they found (Steps 12-14, 39, 41-42), the 17 fake-key requests Google refused, and what still isn't verified - a2751094
 - Step 46: CI's cloud tests run every Kotlin bench class (*LocalSupabase*), not only LocalSupabaseAppTest: LocalSupabaseSyncAndBoardTest (the real sync worker, paging, session refresh and Step 43's returning account) was left out since Step 20; CiBuildWorkflowTest checks it - a853cbaa
-- Step 47: Update BRIEF.md with the Day 32 progress log and summary - (this commit)
+- Step 47: Update BRIEF.md with the Day 32 progress log and summary - 1e354ad5
+- Step 48: Fix the race that turned CI red since the Day 31 follow-up (927 tests, 1 failed): Day24LiveGeminiPipelineQaTest started the debug trigger on Dispatchers.IO and also called the repository directly, and whichever finished second met the 6-hour cooldown the first had started; it failed whenever the trigger won, as on CI's runner on 9 Oct; the test now awaits the trigger's own result - 6ae6eba7
+- Step 49: BRIEF.md and VERIFICATION.md after the push: Step 48's CI fix and the first cloud-tests run on GitHub - (this commit)
 
 ## Day 32 — A Local Supabase Test Bench
 
@@ -3398,7 +3400,7 @@ Step 45's message says the emulator checks found "four bugs". They led to six fi
   - the Advisors' own reports.
 
   `docs/CLOUD_SETUP.md` has the steps.
-- **First CI run.** `cloud-tests.yml` runs for the first time with this push.
+- **First CI run.** `cloud-tests.yml` ran on GitHub for the first time with the Day 32 push. See section 10.
 - **Anti-cheat.** The leaderboard trusts the stats the app sends. Row-level security stops writing another player's row, but not inflating your own.
 - **Accounts across phones.**
   - If a returning account's row can't be read right after sign-in (offline), it starts off the board, and the next sync takes it off.
@@ -3412,3 +3414,14 @@ Step 45's message says the emulator checks found "four bugs". They led to six fi
   - The local stack's Docker images take about 9 GB.
   - The stack was stopped at the end of the day; `docs/LOCAL_SUPABASE.md` has how to start it, and its data stays.
   - The emulator still has the local-stack debug build, signed in as a test account. Install an ordinary debug build before using it normally.
+
+### 10. After the push (Steps 48–49)
+- **CI had been red since the Day 31 follow-up.** That push's Android build failed one of its 927 tests, and nobody noticed.
+  - The test, `Day24LiveGeminiPipelineQaTest`, raced itself. It started the debug AI trigger in the background and also called the repository directly.
+  - Whichever call finished second hit the 6-hour cooldown that the first had started. It failed whenever the background call won, as it did on GitHub's slower runner.
+  - Step 48 makes it wait for the trigger's own result. The app itself was never affected.
+- **`cloud-tests.yml` on GitHub, first run.**
+  - The stack started on the runner, and the proxy was served with the fake key.
+  - The Node database, sign-in and AI-server tests passed.
+  - The Kotlin bench and the Android build were still running when this was written. Their results are reported in the chat, and recorded here on Day 33.
+

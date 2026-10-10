@@ -664,3 +664,13 @@ Verified on 10 Oct 2026 with a local Supabase stack in Docker (Supabase CLI 2.12
 - **A sync after answering "Yes" on a reminder notification.** Covered by `CompletionSyncTest` and the bench's `ProfileSyncWorker` test.
 - **The streak-at-risk nudge on a device.**
 - **Restoring a returning account's board choice when its row can't be read** (offline right after signing in). The app then starts it off the board, and the next sync takes it off. Covered by `AccountSwitchTest` only.
+
+### After the push (Step 49)
+- **The Day 31 follow-up's CI run failed.** Its Android build ran 927 tests, and `Day24LiveGeminiPipelineQaTest` failed. The test raced its own background call into the 6-hour cooldown. Step 48 fixed it, and the test passes locally.
+- **`cloud-tests.yml` on GitHub, first run (commit `1e354ad5`).**
+  - The local Supabase stack started on the runner.
+  - `gemini-proxy` was served with the fake key.
+  - The Node database, sign-in and AI-server tests passed.
+  - The Kotlin bench step was still running when this was written.
+- **The Android build for `1e354ad5`** was also still running. It doesn't include Step 48.
+
