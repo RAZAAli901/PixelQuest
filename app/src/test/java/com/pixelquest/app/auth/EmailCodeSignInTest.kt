@@ -164,4 +164,67 @@ class EmailCodeSignInTest {
         assertNull(viewModel.emailState.value.codeSentTo)
         assertEquals("hero@pixelquest.test", viewModel.emailState.value.email)
     }
+
+    // From the review: the countdown is per address, and CANCEL stops what's in progress.
+
+    @Test
+    fun anotherAddress_canGetACodeAtOnce_whileTheFirstStillWaits() = runTest(dispatcher) {
+        viewModel.onEmailChanged("first@pixelquest.test")
+        viewModel.sendEmailCode()
+        runCurrent()
+
+        viewModel.useDifferentEmail()
+        viewModel.onEmailChanged("second@pixelquest.test")
+        assertTrue(viewModel.emailState.value.canSendTo("second@pixelquest.test"))
+        viewModel.sendEmailCode()
+        runCurrent()
+        assertEquals(listOf("first@pixelquest.test", "second@pixelquest.test"), auth.sentTo)
+
+        viewModel.useDifferentEmail()
+        viewModel.onEmailChanged("second@pixelquest.test")
+        viewModel.sendEmailCode()
+        runCurrent()
+        assertEquals("The address just used still waits its minute", 2, auth.sentTo.size)
+    }
+
+    @Test
+    fun cancel_keepsTheCountdown_soReopeningDoesntHitTheServersLimit() = runTest(dispatcher) {
+        viewModel.openEmailSignIn()
+        viewModel.onEmailChanged("hero@pixelquest.test")
+        viewModel.sendEmailCode()
+        runCurrent()
+
+        viewModel.closeEmailSignIn()
+        viewModel.openEmailSignIn()
+        viewModel.onEmailChanged("hero@pixelquest.test")
+
+        assertFalse(viewModel.emailState.value.canSendTo("hero@pixelquest.test"))
+        assertTrue(viewModel.emailState.value.resendInSeconds > 0)
+    }
+
+    @Test
+    fun cancel_duringTheCodeCheck_doesntSignYouIn() = runTest(dispatcher) {
+        val answer = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val slowAuth = object : AuthRepository by FakeAuthRepository() {
+            override suspend fun sendEmailCode(email: String) = SupabaseResult.Success(Unit)
+            override suspend fun verifyEmailCode(email: String, code: String): SupabaseResult<AuthUser> {
+                answer.await()
+                return SupabaseResult.Success(AuthUser("user-late", email, null))
+            }
+        }
+        val vm = AuthViewModel(FakeGoogleAuthManager(io.mockk.mockk(relaxed = true)), slowAuth, profiles)
+        vm.onEmailChanged("hero@pixelquest.test")
+        vm.sendEmailCode()
+        runCurrent()
+        vm.onCodeChanged("123456")
+        vm.verifyEmailCode()
+        runCurrent()
+
+        vm.closeEmailSignIn() // CANCEL while the check is still running
+        answer.complete(Unit)
+        advanceUntilIdle()
+
+        assertTrue(vm.uiState.value is AuthUiState.SignedOut)
+        assertNull(profiles.storedSupabaseUserId)
+    }
 }

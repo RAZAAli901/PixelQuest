@@ -70,10 +70,15 @@ fun EmailSignInSection(
                 keyboardActions = KeyboardActions(onSend = { onSendCode() }),
                 modifier = Modifier.fillMaxWidth()
             )
+            val canSend = state.canSendTo(state.email)
             PixelButton(
-                text = if (state.isWorking) "⏳ SENDING..." else "📨 SEND CODE",
+                text = when {
+                    state.isWorking -> "⏳ SENDING..."
+                    !canSend -> "📨 SEND CODE (${state.resendInSeconds}s)"
+                    else -> "📨 SEND CODE"
+                },
                 onClick = onSendCode,
-                enabled = !state.isWorking && state.resendInSeconds == 0L,
+                enabled = canSend,
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )

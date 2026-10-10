@@ -32,9 +32,15 @@ data class EmailSignInState(
     val codeSentTo: String? = null,
     val isWorking: Boolean = false,
     val error: String? = null,
-    /** Seconds until another code can be asked for. */
-    val resendInSeconds: Long = 0
-)
+    /** Seconds until another code can be asked for for [countdownFor]. */
+    val resendInSeconds: Long = 0,
+    /** The address the countdown is for: Supabase allows one code a minute per address, not per phone. */
+    val countdownFor: String? = null
+) {
+    /** Whether a code can be asked for [email] now. */
+    fun canSendTo(email: String): Boolean =
+        !isWorking && !(resendInSeconds > 0 && countdownFor == EmailSignIn.normalizeEmail(email))
+}
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
@@ -55,6 +61,8 @@ class AuthViewModel @Inject constructor(
     private val _emailState = MutableStateFlow(EmailSignInState())
     val emailState: StateFlow<EmailSignInState> = _emailState.asStateFlow()
     private var resendTicker: kotlinx.coroutines.Job? = null
+    /** The send or code check in progress, so CANCEL can stop it. */
+    private var emailRequest: kotlinx.coroutines.Job? = null
 
     init {
         checkCurrentSession()
@@ -179,8 +187,11 @@ class AuthViewModel @Inject constructor(
     }
 
     fun closeEmailSignIn() {
-        resendTicker?.cancel()
-        _emailState.value = EmailSignInState()
+        // A send or a code check still running stops here: CANCEL used to let a pending check
+        // sign you in anyway. The countdown carries on (Supabase still counts that minute).
+        emailRequest?.cancel()
+        val state = _emailState.value
+        _emailState.value = EmailSignInState(resendInSeconds = state.resendInSeconds, countdownFor = state.countdownFor)
     }
 
     fun onEmailChanged(email: String) {
@@ -192,26 +203,27 @@ class AuthViewModel @Inject constructor(
         _emailState.value = _emailState.value.copy(code = EmailSignIn.normalizeCode(code).take(10), error = null)
     }
 
-    /** Back to the address field, to fix a typo or use another address. */
+    /** Back to the address field, to fix a typo or use another address (which can get a code at once). */
     fun useDifferentEmail() {
-        _emailState.value = _emailState.value.copy(codeSentTo = null, code = "", error = null)
+        emailRequest?.cancel()
+        _emailState.value = _emailState.value.copy(codeSentTo = null, code = "", error = null, isWorking = false)
     }
 
     fun sendEmailCode() {
         val state = _emailState.value
-        if (state.isWorking || state.resendInSeconds > 0) return
         val email = EmailSignIn.normalizeEmail(state.email)
+        if (!state.canSendTo(email)) return
         if (!EmailSignIn.isValidEmail(email)) {
             _emailState.value = state.copy(error = EmailSignIn.INVALID_EMAIL)
             return
         }
         _emailState.value = state.copy(isWorking = true, error = null)
-        viewModelScope.launch {
+        emailRequest = viewModelScope.launch {
             val result = authRepository.sendEmailCode(email)
             if (result is SupabaseResult.Success) {
                 _emailState.value = _emailState.value.copy(
                     isWorking = false, email = email, codeSentTo = email, code = "",
-                    resendInSeconds = EmailSignIn.RESEND_AFTER_SECONDS
+                    resendInSeconds = EmailSignIn.RESEND_AFTER_SECONDS, countdownFor = email
                 )
                 startResendCountdown()
             } else {
@@ -229,7 +241,7 @@ class AuthViewModel @Inject constructor(
             return
         }
         _emailState.value = state.copy(isWorking = true, error = null)
-        viewModelScope.launch {
+        emailRequest = viewModelScope.launch {
             when (val result = authRepository.verifyEmailCode(email, EmailSignIn.normalizeCode(state.code))) {
                 is SupabaseResult.Success -> {
                     linkAccount(result.data.id)
