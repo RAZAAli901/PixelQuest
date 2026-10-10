@@ -4,7 +4,7 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
-## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–31)
+## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–32)
 
 ### 🎨 Themes
 - **Light mode** (Days 16–17): a warm daylight palette, with every screen, chart and dialog adapted and checked for contrast.
@@ -56,10 +56,18 @@ All notable changes to **PixelQuest** are documented in this file.
 - Quests completed from a reminder or the full-screen prompt now reach the leaderboard too.
 - Privacy: if you're signed in but haven't joined the leaderboard, your level, XP and streaks are no longer uploaded.
 - SYNC NOW says when nothing was sent because the leaderboard already has more progress from another device.
+- Ordinary leaderboard names like Titan_Slayer, Stitch, Altitude, Scrappy and Dickens are accepted (Day 32). The name filter used to find a rude word inside them; such words now count only as whole words.
 
 ### ⚙️ Settings (Day 31)
 - SFX: OFF silences the whole app, and HAPTICS: OFF stops every vibration, including the full-screen prompt.
 - New REDUCE MOTION switch: looping animations stay still and theme colours change instantly.
+- Android's own "Remove animations" setting reduces motion in PixelQuest too (Day 32).
+- The sync button is just SYNC NOW; it used to say "(DEBUG)" (Day 32).
+
+### 🧭 Navigation (Day 32)
+- Tapping the bottom-bar tab you're already in goes back to that tab's first screen. HOME used to do nothing on a screen opened from Today, such as Account.
+- Account fits email sign-in. It no longer invites you to sign in once you are, and the privacy notes say "your email" rather than "your Google email".
+- The Sign in with Google button only appears in builds that have a Google client set up.
 
 ### ♿ Accessibility (Days 30–31)
 - TalkBack reads full day names, which chips, difficulty cards and history filters are selected, heatmap days with their results, and named close, back, delete and refresh buttons.
