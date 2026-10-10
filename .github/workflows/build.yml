@@ -62,7 +62,9 @@ jobs:
           echo "GEMINI_VIA_PROXY=true" >> local.properties
 
       - name: Build Debug & Release APKs
-        run: ./gradlew compileDebugKotlin assembleDebug assembleRelease
+        # assembleDebugAndroidTest compiles the instrumented tests (no device here to run them); they had
+        # stopped compiling without anyone noticing.
+        run: ./gradlew compileDebugKotlin assembleDebug assembleRelease assembleDebugAndroidTest
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4

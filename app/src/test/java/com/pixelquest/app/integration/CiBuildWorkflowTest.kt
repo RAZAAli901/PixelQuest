@@ -18,6 +18,8 @@ class CiBuildWorkflowTest {
         // The build step runs several tasks in one Gradle call (e.g. "./gradlew compileDebugKotlin assembleDebug ...").
         val gradleRuns = content.lines().filter { it.contains("./gradlew ") }
         assertTrue("Workflow must run assembleDebug", gradleRuns.any { it.contains(" assembleDebug") })
+        // The instrumented tests can't run on CI, but they must compile: five of them never had.
+        assertTrue("Workflow must compile the instrumented tests", gradleRuns.any { it.contains(" assembleDebugAndroidTest") })
         assertTrue("Workflow must upload debug APK artifact", content.contains("pixelquest-debug-apk"))
     }
 
