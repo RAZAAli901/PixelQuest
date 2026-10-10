@@ -39,7 +39,7 @@ class EncouragementPackUsageTest {
     private val store = EncouragementPackStore(context.getSharedPreferences("pack_test", Context.MODE_PRIVATE))
     private val today = LocalDate.now()
 
-    private fun run(answer: () -> String) = runBlocking {
+    private fun run(access: com.pixelquest.app.testing.FakeAiAccess? = null, answer: () -> String) = runBlocking {
         val settings = FakeSettingsRepository(aiInsights = true).apply { aiReminderMessagesEnabled.value = true }
         val client = object : GeminiClient {
             override suspend fun generateContent(prompt: String, systemInstruction: String?): String = answer()
@@ -49,7 +49,7 @@ class EncouragementPackUsageTest {
                 override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters) =
                     EncouragementPackWorker(
                         appContext, workerParameters, settings, client, usage, store,
-                        FakeStreakRepository(), FakeTaskRepository(), FakeTaskCompletionRepository()
+                        FakeStreakRepository(), FakeTaskRepository(), FakeTaskCompletionRepository(), access
                     )
             })
             .build()
@@ -85,5 +85,25 @@ class EncouragementPackUsageTest {
 
         assertEquals(1, usage.getDailyCallsCount(today))
         assertNotNull(store.load())
+    }
+
+    @Test
+    fun signingOutWhileGeminiAnswers_savesNoLines() {
+        val access = com.pixelquest.app.testing.FakeAiAccess()
+        run(access) {
+            access.token = null // signed out while the call was in flight
+            """{"messages":["Keep the streak alive!","One quest at a time.","Small wins add up."]}"""
+        }
+
+        assertNull(store.load())
+    }
+
+    @Test
+    fun signedOut_nothingIsAsked() {
+        var asked = false
+        run(com.pixelquest.app.testing.FakeAiAccess(token = null)) { asked = true; "{}" }
+
+        assertEquals(false, asked)
+        assertEquals(0, usage.getDailyCallsCount(today))
     }
 }

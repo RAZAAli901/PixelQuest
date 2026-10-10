@@ -51,11 +51,11 @@ class InsightReadyWorkerTest {
         override suspend fun setNotificationVibrationEnabled(enabled: Boolean) {}
     }
 
-    private fun run(settings: SettingsRepository): ListenableWorker.Result = runBlocking {
+    private fun run(settings: SettingsRepository, access: com.pixelquest.app.testing.FakeAiAccess? = null): ListenableWorker.Result = runBlocking {
         val worker = TestListenableWorkerBuilder<InsightReadyWorker>(context)
             .setWorkerFactory(object : WorkerFactory() {
                 override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters) =
-                    InsightReadyWorker(appContext, workerParameters, settings)
+                    InsightReadyWorker(appContext, workerParameters, settings, access)
             })
             .build()
         worker.doWork()
@@ -94,5 +94,12 @@ class InsightReadyWorkerTest {
         listOf("quest", "intel", "hero").forEach {
             assertFalse("'$it' in: $copy", copy.contains(it, ignoreCase = true))
         }
+    }
+
+    @Test
+    fun signedOut_noFreshInsightNotice() {
+        run(FakeSettings(ai = true, notifications = true), com.pixelquest.app.testing.FakeAiAccess(token = null))
+
+        assertEquals(0, manager.activeNotifications.size)
     }
 }

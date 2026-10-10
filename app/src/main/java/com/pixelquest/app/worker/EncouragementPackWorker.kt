@@ -45,10 +45,15 @@ class EncouragementPackWorker @AssistedInject constructor(
     private val packStore: EncouragementPackStore,
     private val streakRepository: StreakRepository,
     private val taskRepository: TaskRepository,
-    private val taskCompletionRepository: TaskCompletionRepository
+    private val taskCompletionRepository: TaskCompletionRepository,
+    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null
 ) : CoroutineWorker(appContext, workerParams) {
 
+    /** The AI lines are for signed-in players (see AiAccess). */
+    private suspend fun signedIn(): Boolean = aiAccess?.isSignedIn?.first() ?: true
+
     override suspend fun doWork(): Result {
+        if (!signedIn()) return Result.success()
         if (!settingsRepository.aiInsightsEnabled.first()) return Result.success()
         if (!settingsRepository.aiReminderMessagesEnabled.first()) return Result.success()
 
@@ -78,6 +83,9 @@ class EncouragementPackWorker @AssistedInject constructor(
         val raw = (call as? com.pixelquest.app.data.remote.GeminiResult.Success)?.data ?: return Result.success()
 
         val lines = EncouragementSanitizer.clean(EncouragementPackPrompt.parse(raw), isSimpleMode)
+        // Signed out while Gemini was answering: AiSignOutCleanup has already cleared the lines, and
+        // saving these would bring AI text back into reminders until the next day.
+        if (!signedIn()) return Result.success()
         if (lines.size >= MIN_USABLE_LINES) {
             packStore.save(EncouragementPack(generatedOn = today, tone = tone, messages = lines))
         }

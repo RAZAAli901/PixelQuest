@@ -29,10 +29,13 @@ import java.util.concurrent.TimeUnit
 class InsightReadyWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
+        // A fresh insight is only for a signed-in player; signed out, the card asks them to sign in.
+        if (aiAccess != null && !aiAccess.isSignedIn.first()) return Result.success()
         if (!settingsRepository.aiInsightsEnabled.first()) return Result.success()
         if (!settingsRepository.isNotificationsEnabled.first()) return Result.success()
         val isSimpleMode = settingsRepository.simpleModeEnabled.first()
