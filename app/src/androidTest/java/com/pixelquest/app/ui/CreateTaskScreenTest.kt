@@ -7,6 +7,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import com.pixelquest.app.scheduling.TaskAlarmScheduler
+import com.pixelquest.app.testing.FakeTaskRepository
 import com.pixelquest.app.ui.screens.tasks.CreateTaskScreen
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 import com.pixelquest.app.ui.theme.PixelQuestTheme

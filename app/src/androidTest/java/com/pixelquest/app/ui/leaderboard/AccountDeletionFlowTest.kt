@@ -8,7 +8,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.pixelquest.app.auth.AuthUiState
-import com.pixelquest.app.auth.PixelAuthUser
+import com.pixelquest.app.auth.AuthUser
 import com.pixelquest.app.ui.screens.account.AccountContent
 import com.pixelquest.app.ui.screens.account.AccountUiState
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -25,7 +25,7 @@ class AccountDeletionFlowTest {
 
     @Test
     fun accountDeletion_doubleConfirmationAndPurgeExecution() {
-        val testUser = PixelAuthUser(
+        val testUser = AuthUser(
             id = "user-delete-test-99",
             email = "slayer@pixelquest.test",
             displayName = "DragonSlayer"

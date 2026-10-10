@@ -9,7 +9,9 @@ import com.pixelquest.app.domain.model.TaskCategory
 import com.pixelquest.app.ui.screens.TasksScreen
 import com.pixelquest.app.ui.screens.tasks.TaskViewModel
 import com.pixelquest.app.ui.theme.PixelQuestTheme
-import com.pixelquest.app.worker.FakeTaskCompletionRepository
+import com.pixelquest.app.testing.FakeDifficultySettingsRepository
+import com.pixelquest.app.testing.FakeTaskCompletionRepository
+import com.pixelquest.app.testing.FakeTaskRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -25,7 +27,7 @@ class TasksScreenTest {
     fun emptyState_rendersCorrectly() {
         val fakeRepo = FakeTaskRepository()
         val fakeCompletionRepo = FakeTaskCompletionRepository()
-        val viewModel = TaskViewModel(fakeRepo, fakeCompletionRepo)
+        val viewModel = TaskViewModel(fakeRepo, fakeCompletionRepo, FakeDifficultySettingsRepository())
 
         composeTestRule.setContent {
             PixelQuestTheme {
@@ -54,7 +56,7 @@ class TasksScreenTest {
                 )
             )
         }
-        val viewModel = TaskViewModel(fakeRepo, fakeCompletionRepo)
+        val viewModel = TaskViewModel(fakeRepo, fakeCompletionRepo, FakeDifficultySettingsRepository())
 
         composeTestRule.setContent {
             PixelQuestTheme {

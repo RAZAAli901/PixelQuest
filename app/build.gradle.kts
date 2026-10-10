@@ -31,6 +31,12 @@ val geminiViaProxyProp = buildSetting("GEMINI_VIA_PROXY")?.trim()?.toBoolean() ?
 
 android {
     namespace = "com.pixelquest.app"
+
+    // Fakes shared by the unit tests and the instrumented tests (src/sharedTest/.../testing/Fakes.kt).
+    sourceSets {
+        getByName("test").java.srcDir("src/sharedTest/java")
+        getByName("androidTest").java.srcDir("src/sharedTest/java")
+    }
     compileSdk = 34 // Latest stable compileSdk
 
     defaultConfig {

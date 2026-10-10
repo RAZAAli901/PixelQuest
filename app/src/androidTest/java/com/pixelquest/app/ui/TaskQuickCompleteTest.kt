@@ -35,7 +35,7 @@ class TaskQuickCompleteTest {
             scheduledDay = LocalDate.now(),
             scheduledTime = LocalTime.of(9, 0),
             recurrenceType = RecurrenceType.DAILY,
-            category = TaskCategory.KNOWLEDGE
+            category = TaskCategory.LEARNING
         )
 
         var currentStatus by mutableStateOf(TaskItemStatus.PENDING)

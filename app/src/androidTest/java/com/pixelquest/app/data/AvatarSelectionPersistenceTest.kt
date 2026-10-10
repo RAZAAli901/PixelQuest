@@ -32,7 +32,7 @@ class AvatarSelectionPersistenceTest {
 
     @Test
     fun avatarSelection_persistsCorrectlyInRoomDatabase() = runBlocking {
-        val repository = UserProfileRepositoryImpl(db.userProfileDao(), db.levelHistoryDao())
+        val repository = UserProfileRepositoryImpl(db.userProfileDao())
         val defaultProfile = UserProfileEntity(id = 1, username = "PixelHero", avatarId = "avatar_hero", level = 1)
         repository.insertProfile(defaultProfile)
 

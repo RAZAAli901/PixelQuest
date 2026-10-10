@@ -8,7 +8,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.pixelquest.app.auth.AuthUiState
-import com.pixelquest.app.auth.PixelAuthUser
+import com.pixelquest.app.auth.AuthUser
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.model.CloudProfileDto
 import com.pixelquest.app.ui.screens.account.AccountContent
@@ -27,7 +27,7 @@ class OfflineSyncQueueTest {
 
     @Test
     fun offlineSync_queuesGracefullyAndSucceedsOnReconnect() {
-        val testUser = PixelAuthUser(
+        val testUser = AuthUser(
             id = "offline-test-user-1",
             email = "offline@pixelquest.test",
             displayName = "OfflineHero"
