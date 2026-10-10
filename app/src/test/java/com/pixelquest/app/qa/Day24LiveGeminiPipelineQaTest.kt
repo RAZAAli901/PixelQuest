@@ -18,6 +18,7 @@ import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -93,13 +94,12 @@ class Day24LiveGeminiPipelineQaTest {
 
         val trigger = DebugAiInsightTrigger(repository)
 
-        var finalResult: GeminiResult<HabitInsightResponse>? = null
-        trigger.triggerInsightGeneration { result ->
-            finalResult = result
-        }
-
-        // Wait for asynchronous job or invoke directly
-        val directResult = repository.generateHabitInsight()
+        // The trigger's own result, awaited. The test used to also call the repository directly
+        // while the trigger ran on Dispatchers.IO: whichever finished second met the 6-hour cooldown
+        // the first had started, so it failed whenever the trigger won the race (CI, 9 Oct).
+        val triggered = CompletableDeferred<GeminiResult<HabitInsightResponse>>()
+        trigger.triggerInsightGeneration(scope = this) { result -> triggered.complete(result) }
+        val directResult = triggered.await()
         assertNotNull("Pipeline must return a non-null result", directResult)
         assertTrue("Pipeline result should be Success, was $directResult", directResult is GeminiResult.Success)
 
