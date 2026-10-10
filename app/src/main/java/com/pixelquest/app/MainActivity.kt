@@ -71,7 +71,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themeMode by themeViewModel.themeMode.collectAsState()
             val isReduceMotionEnabled by settingsRepository.isReduceMotionEnabled.collectAsState(initial = false)
-            PixelQuestTheme(themeMode = themeMode, isReduceMotion = isReduceMotionEnabled) {
+            PixelQuestTheme(
+                themeMode = themeMode,
+                isReduceMotion = com.pixelquest.app.ui.theme.rememberReduceMotion(isReduceMotionEnabled)
+            ) {
                 CompositionLocalProvider(LocalSoundManager provides soundManager) {
                     val isCrtEnabled by settingsRepository.isCrtEnabled.collectAsState(initial = false)
                     val isSimpleModeEnabled by settingsRepository.simpleModeEnabled.collectAsState(initial = false)

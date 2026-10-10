@@ -51,7 +51,10 @@ class TaskPromptActivity : ComponentActivity() {
             val isSimpleMode by viewModel.isSimpleMode.collectAsState()
             val themeMode by settingsRepository.themeMode.collectAsState(initial = initialTheme)
             val isReduceMotion by settingsRepository.isReduceMotionEnabled.collectAsState(initial = initialReduceMotion)
-            PixelQuestTheme(themeMode = themeMode, isReduceMotion = isReduceMotion) {
+            PixelQuestTheme(
+                themeMode = themeMode,
+                isReduceMotion = com.pixelquest.app.ui.theme.rememberReduceMotion(isReduceMotion)
+            ) {
                 CompositionLocalProvider(LocalSoundManager provides soundManager) {
                     val prompt = queue.current ?: return@CompositionLocalProvider
                     PromptQueueContent(

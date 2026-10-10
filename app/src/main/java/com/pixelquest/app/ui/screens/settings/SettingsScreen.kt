@@ -228,6 +228,13 @@ fun SettingsScreen(
                 variant = PixelButtonVariant.BLUE,
                 modifier = Modifier.fillMaxWidth()
             )
+            if (!reduceMotionOn && com.pixelquest.app.ui.theme.rememberReduceMotion(appSetting = false)) {
+                Text(
+                    text = "Android's \"Remove animations\" is on, so motion is reduced anyway.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PixelTheme.colors.onSurfaceVariant
+                )
+            }
         },
         aiSection = {
             val signedIn by viewModel.isSignedIn.collectAsState()
