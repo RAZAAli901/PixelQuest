@@ -160,4 +160,22 @@ class GeminiProxyClientTest {
             assertTrue(e.message!!.startsWith("Failed to reach the AI proxy"))
         }
     }
+
+    @Test
+    fun proxyFailuresBeforeGemini_dontUseUpTheDaysCalls() = runBlocking {
+        val notReached = listOf(
+            HttpStatusCode.ServiceUnavailable to "usage_unavailable",
+            HttpStatusCode.ServiceUnavailable to "auth_unavailable",
+            HttpStatusCode.ServiceUnavailable to "not_configured",
+            HttpStatusCode.BadGateway to "upstream_unreachable"
+        )
+        for ((status, code) in notReached) {
+            val result = safeGeminiCall { client(status, """{"error":"$code"}""").generateContent("hi") }
+            assertTrue(code, result is GeminiResult.ApiError)
+            assertFalse("$code didn't reach Gemini", result.reachedGemini())
+        }
+        // Gemini answered with an error: that one counts.
+        val geminiError = safeGeminiCall { client(HttpStatusCode.BadGateway, """{"error":"upstream_error","status":500}""").generateContent("hi") }
+        assertTrue(geminiError.reachedGemini())
+    }
 }

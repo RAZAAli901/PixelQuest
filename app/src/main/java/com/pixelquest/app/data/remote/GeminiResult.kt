@@ -23,7 +23,9 @@ sealed class GeminiResult<out T> {
 
     data class ApiError(
         val statusCode: Int? = null,
-        val message: String = "Gemini API request failed."
+        val message: String = "Gemini API request failed.",
+        /** False when the proxy failed before Gemini saw the request (see GeminiApiException). */
+        val reachedGemini: Boolean = true
     ) : GeminiResult<Nothing>()
 
     data class Disabled(
@@ -66,7 +68,7 @@ private val PROXY_DAILY_LIMITS = setOf("account_daily_limit", "global_daily_limi
  */
 fun GeminiResult<*>.reachedGemini(): Boolean = when (this) {
     is GeminiResult.Success, is GeminiResult.MalformedResponse -> true
-    is GeminiResult.ApiError -> statusCode != null && statusCode != 401 && statusCode != 429
+    is GeminiResult.ApiError -> reachedGemini && statusCode != null && statusCode != 401 && statusCode != 429
     else -> false
 }
 
@@ -96,7 +98,7 @@ suspend fun <T> safeGeminiCall(
     } catch (e: GeminiSignInRequiredException) {
         GeminiResult.SignInRequired()
     } catch (e: GeminiApiException) {
-        GeminiResult.ApiError(e.statusCode, AiErrorCopy.forStatus(e.statusCode))
+        GeminiResult.ApiError(e.statusCode, AiErrorCopy.forStatus(e.statusCode), e.reachedGemini)
     } catch (e: GeminiNetworkException) {
         val cause = e.cause ?: e
         val isTimeout = cause is HttpRequestTimeoutException || cause is java.net.SocketTimeoutException

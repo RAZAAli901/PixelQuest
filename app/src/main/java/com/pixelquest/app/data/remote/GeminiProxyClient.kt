@@ -75,7 +75,9 @@ class GeminiProxyClient(
             HttpStatusCode.TooManyRequests -> errorCode(responseBody).let { code ->
                 throw GeminiRateLimitException("AI proxy limit reached ($code).", reason = code)
             }
-            else -> throw GeminiApiException(response.status.value, "AI proxy error: ${errorCode(responseBody)}")
+            else -> errorCode(responseBody).let { code ->
+                throw GeminiApiException(response.status.value, "AI proxy error: $code", reachedGemini = code !in NOT_SENT_TO_GEMINI)
+            }
         }
     }
 
@@ -87,6 +89,12 @@ class GeminiProxyClient(
     }
 
     companion object {
+        /**
+         * The proxy's errors for calls that never got to Gemini (see gemini-proxy/handler.ts). They
+         * don't count toward the app's daily caps: four of them used to use up the day.
+         */
+        private val NOT_SENT_TO_GEMINI = setOf("not_configured", "auth_unavailable", "usage_unavailable", "upstream_unreachable")
+
         /** The proxy needs only the project URL (the function doesn't check the anon key). */
         fun isConfigured(supabaseUrl: String): Boolean = com.pixelquest.app.domain.CloudAvailability.isRealProjectUrl(supabaseUrl)
     }

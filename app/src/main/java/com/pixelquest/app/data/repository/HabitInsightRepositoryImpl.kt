@@ -182,7 +182,7 @@ class HabitInsightRepositoryImpl(
             }
             is GeminiResult.RateLimited -> GeminiResult.RateLimited(rawCallResult.retryAfterSeconds, rawCallResult.message)
             is GeminiResult.NetworkError -> GeminiResult.NetworkError(rawCallResult.cause, rawCallResult.message)
-            is GeminiResult.ApiError -> GeminiResult.ApiError(rawCallResult.statusCode, rawCallResult.message)
+            is GeminiResult.ApiError -> rawCallResult
             is GeminiResult.Disabled -> GeminiResult.Disabled(rawCallResult.message)
             is GeminiResult.SignInRequired -> rawCallResult
             is GeminiResult.MalformedResponse -> rawCallResult

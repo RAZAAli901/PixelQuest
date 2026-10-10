@@ -55,7 +55,15 @@ interface GeminiClient {
 open class GeminiException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 /** [reason] is the gemini-proxy's code when the proxy refused the call (e.g. "account_daily_limit"). */
 class GeminiRateLimitException(message: String, val retryAfterSeconds: Long? = null, val reason: String? = null) : GeminiException(message)
-class GeminiApiException(val statusCode: Int, message: String) : GeminiException("Gemini API error ($statusCode): $message")
+/**
+ * [reachedGemini] is false when PixelQuest's proxy refused or failed before Gemini saw the request
+ * (its own checks, usage tracking, or Gemini unreachable); such calls don't count toward the caps.
+ */
+class GeminiApiException(
+    val statusCode: Int,
+    message: String,
+    val reachedGemini: Boolean = true
+) : GeminiException("Gemini API error ($statusCode): $message")
 class GeminiNetworkException(message: String, cause: Throwable) : GeminiException(message, cause)
 /** No account is signed in (or the proxy didn't accept its token): the AI Coach is for signed-in players. */
 class GeminiSignInRequiredException(message: String = "Sign in to use the AI coach.") : GeminiException(message)
