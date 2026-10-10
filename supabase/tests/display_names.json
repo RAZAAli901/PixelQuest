@@ -1,0 +1,39 @@
+{
+  "_about": "Display names shared by the server trigger's test (supabase/tests/local/display_names.test.ts) and the app's (DisplayNameRulesTest), so both filters agree.",
+  "allowed": [
+    "Titan_Slayer",
+    "TitanSlayer",
+    "Stitch",
+    "Altitude",
+    "Titus",
+    "Scrappy",
+    "Dickens",
+    "Constantine",
+    "Pissarro",
+    "Homer_Hero",
+    "Penistone_FC",
+    "Damnation_Knight",
+    "Sir_Lancelot",
+    "Quest_Master_99",
+    "Assassin"
+  ],
+  "blocked": [
+    "fuck",
+    "Fuck_You",
+    "xXshitXx",
+    "Sh1t_Lord",
+    "Tit",
+    "big_tit",
+    "Big_Tits",
+    "DickHead",
+    "dick_head",
+    "Crap",
+    "Damn_It",
+    "Piss_Off",
+    "Nazi_Lord",
+    "n4zi_lord",
+    "bitch",
+    "Homo",
+    "PrickHero"
+  ]
+}
