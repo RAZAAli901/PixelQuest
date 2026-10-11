@@ -673,4 +673,7 @@ Verified on 10 Oct 2026 with a local Supabase stack in Docker (Supabase CLI 2.12
   - The Node database, sign-in and AI-server tests passed.
   - The Kotlin bench step was still running when this was written.
 - **The Android build for `1e354ad5`** was also still running. It doesn't include Step 48.
+- **Results, recorded on Day 33.** All four runs passed:
+  - For `1e354ad5`: the Kotlin bench step (about 4 minutes) and the Android build. The racy test happened to pass there.
+  - For `6da054a0`, which includes Step 48: Cloud Tests and the Android build.
 

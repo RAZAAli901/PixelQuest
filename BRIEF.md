@@ -3423,5 +3423,5 @@ Step 45's message says the emulator checks found "four bugs". They led to six fi
 - **`cloud-tests.yml` on GitHub, first run.**
   - The stack started on the runner, and the proxy was served with the fake key.
   - The Node database, sign-in and AI-server tests passed.
-  - The Kotlin bench and the Android build were still running when this was written. Their results are reported in the chat, and recorded here on Day 33.
+  - The Kotlin bench and the Android build were still running when this was written. Recorded on Day 33: both passed, and so did both runs for `6da054a0`, which includes Step 48.
 
