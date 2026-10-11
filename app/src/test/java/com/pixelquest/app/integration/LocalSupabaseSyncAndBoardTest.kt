@@ -75,12 +75,13 @@ class LocalSupabaseSyncAndBoardTest {
         profiles: FakeUserProfileRepository,
         cloud: CloudProfileRepositoryImpl,
         streaks: FakeStreakRepository,
-        pending: PendingLeaderboardChoice? = null
+        pending: PendingLeaderboardChoice? = null,
+        resets: com.pixelquest.app.data.repository.PendingProgressReset? = null
     ) = runBlocking {
         TestListenableWorkerBuilder<ProfileSyncWorker>(context)
             .setWorkerFactory(object : WorkerFactory() {
                 override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters) =
-                    ProfileSyncWorker(appContext, workerParameters, profiles, cloud, streaks, pending)
+                    ProfileSyncWorker(appContext, workerParameters, profiles, cloud, streaks, pending, resets)
             })
             .build()
             .doWork()
@@ -288,6 +289,62 @@ class LocalSupabaseSyncAndBoardTest {
         assertEquals(SupabaseResult.Success(false), cloudB.pushProfileToCloud())
         assertEquals(false, profilesB.profile.value!!.leaderboardOptIn)
         assertEquals("false", row(userId)!!["leaderboard_opt_in"]!!.jsonPrimitive.content)
+    }
+
+    @Test
+    fun resetAllProgress_reachesTheBoard_onceAndPastTheGuard() = runBlocking {
+        val (supabase, userId) = LocalSupabase.signedInPlayer("reset")
+        val name = "Reset_${userId.take(6)}"
+        val profiles = FakeUserProfileRepository(
+            UserProfileEntity(username = "Hero", avatarId = "avatar_hero", level = 6, totalXp = 2_000, supabaseUserId = userId,
+                leaderboardOptIn = true, leaderboardDisplayName = name)
+        )
+        val streaks = FakeStreakRepository(StreakEntity(currentStreak = 12, longestStreak = 30))
+        val pending = PendingLeaderboardChoice(context.getSharedPreferences("reset-$userId", Context.MODE_PRIVATE)).also { it.startTracking() }
+        val resets = com.pixelquest.app.data.repository.PendingProgressReset(context.getSharedPreferences("resets-$userId", Context.MODE_PRIVATE))
+        val cloud = CloudProfileRepositoryImpl(supabase.postgrest, supabase.auth, profiles, streaks, pending)
+        assertEquals(SupabaseResult.Success(Unit), cloud.updateOptInAndSync(optIn = true, displayName = name))
+        assertEquals("6", row(userId)!!["level"]!!.jsonPrimitive.content)
+
+        // RESET ALL PROGRESS on this phone (ProgressReset): a new player's numbers.
+        profiles.profile.value = profiles.profile.value!!.copy(level = 1, totalXp = 0)
+        streaks.streak.value = StreakEntity()
+
+        // Without the reset mark the usual guard holds the lower numbers back for good.
+        assertEquals(ListenableWorker.Result.success(), runSync(profiles, cloud, streaks, pending, resets))
+        assertEquals("6", row(userId)!!["level"]!!.jsonPrimitive.content)
+
+        resets.mark(userId)
+        assertEquals(ListenableWorker.Result.success(), runSync(profiles, cloud, streaks, pending, resets))
+        assertEquals("1", row(userId)!!["level"]!!.jsonPrimitive.content)
+        assertEquals("0", row(userId)!!["total_xp"]!!.jsonPrimitive.content)
+        assertEquals("still on the board", "true", row(userId)!!["leaderboard_opt_in"]!!.jsonPrimitive.content)
+        assertEquals(false, resets.isPendingFor(userId))
+    }
+
+    @Test
+    fun aBrokenStreak_reachesTheBoard() = runBlocking {
+        val (supabase, userId) = LocalSupabase.signedInPlayer("broken")
+        val name = "Broken_${userId.take(6)}"
+        val profiles = FakeUserProfileRepository(
+            UserProfileEntity(username = "Hero", avatarId = "avatar_hero", level = 2, totalXp = 600, supabaseUserId = userId,
+                leaderboardOptIn = true, leaderboardDisplayName = name)
+        )
+        val streaks = FakeStreakRepository(StreakEntity(currentStreak = 5, longestStreak = 5))
+        val cloud = CloudProfileRepositoryImpl(supabase.postgrest, supabase.auth, profiles, streaks)
+        assertEquals(SupabaseResult.Success(Unit), cloud.updateOptInAndSync(optIn = true, displayName = name))
+        fun stored(column: String) =
+            (LocalSupabase.rows("/rest/v1/profiles?id=eq.$userId&select=$column").single() as JsonObject)[column]!!.jsonPrimitive.content
+        assertEquals("5", stored("current_streak"))
+
+        // A missed day: the streak is back to 0, and the next completion syncs.
+        streaks.streak.value = StreakEntity(currentStreak = 0, longestStreak = 5)
+        profiles.profile.value = profiles.profile.value!!.copy(totalXp = 650)
+        assertEquals(ListenableWorker.Result.success(), runSync(profiles, cloud, streaks))
+
+        // A 0 equals the field's default, which supabase-kt's JSON left out, so the board kept the 5.
+        assertEquals("0", stored("current_streak"))
+        assertEquals("650", stored("total_xp"))
     }
 }
 
