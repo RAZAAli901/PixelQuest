@@ -33,7 +33,7 @@ All notable changes to **PixelQuest** are documented in this file.
 - AI calls that failed on PixelQuest's server before reaching Gemini no longer use up the day's limit.
 - Today's AI insight has an OPEN AI COACH button to the AI Coach's own screen, which had no way in.
 
-### 🔔 Reminders (Days 26–28, 31)
+### 🔔 Reminders (Days 26–28, 31, 33)
 - Reminder lead times and styles, a "Did you do it?" prompt, missed-quest notices, and snooze.
 - One result per quest per day: double taps and late answers no longer count twice.
 - Two quests due in the same minute both get their prompt.
@@ -47,6 +47,7 @@ All notable changes to **PixelQuest** are documented in this file.
   - A "Yes" tapped after midnight for a late-evening quest now counts toward your streak. The nightly streak check runs at 02:05, and stays at 02:05 when the clocks change.
   - Paused quests no longer get reminder alarms.
   - Missed-quest notices follow the quest's own settings. A quest with reminders off gets none, and a SILENT quest's notice doesn't vibrate.
+- The quest form says when reminders may ring up to 10 minutes late, and offers to allow exact reminder times. Android 14 doesn't allow them by default, and the note used to be only in Settings (Day 33).
 
 ### 🗓️ Quests and progress
 - Weekly quests on chosen days (Day 27).
@@ -72,6 +73,12 @@ All notable changes to **PixelQuest** are documented in this file.
 - **One account on two phones (Day 33).** Joining or leaving the leaderboard on one phone now applies to the other, which follows at its next sync. It used to undo the change, whichever phone synced last. A choice made offline is sent once you're back online, and joining offline is queued too.
 - **Offline (Day 33).** Account no longer says you're signed out when the server can't be reached. It says the connection is the problem, and you stay signed in.
 - If the server refuses a sync outright, the app stops retrying it every few hours (Day 33).
+- **Broken streaks show on the board (Day 33).** A streak that dropped to 0, and the fresh numbers after RESET ALL PROGRESS, never reached the leaderboard. It went on showing the old streak.
+- **RESET ALL PROGRESS starts your leaderboard numbers over too (Day 33)**, under the same name. Before, the board kept your old streak and level until you passed them again.
+- **Phone clock behind (Day 33).** A phone whose clock ran a little behind could lose a sync made soon after another. Those syncs now go through.
+- **Waiting choices (Day 33).** Joining or leaving the leaderboard while offline shows "Waiting to reach the server" until it's sent. It's sent as soon as you're back online, and a waiting leave is sent before you sign out.
+- **Reports (Day 33).** You can report a player once a day, and reporting again says it's already in. The message no longer blames your connection when the server answered.
+- Account's note under your public name says names are unique (Day 33).
 
 ### ⚙️ Settings (Day 31)
 - SFX: OFF silences the whole app, and HAPTICS: OFF stops every vibration, including the full-screen prompt.
