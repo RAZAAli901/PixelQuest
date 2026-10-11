@@ -129,10 +129,11 @@ This release has undergone an extensive 39-step verification pass post-release:
 PixelQuest is built with a **local-first, privacy-respecting philosophy**:
 - **Local-Only by Default**: 100% of your daily habits, scheduled times, recurrence rules, completion logs, and streak history are stored strictly on your device inside a local Room SQLite database.
 - **Zero Third-Party Trackers**: No advertising SDKs, no behavioral telemetry, and no device fingerprinting.
-- **Optional Cloud Leaderboard**: You can browse the community leaderboard or participate by signing in with Google.
-  - Participation is strictly **opt-in (defaults to OFF)**.
+- **Optional Cloud Leaderboard**: You can browse the community leaderboard or participate by signing in with your email (a one-time code) or Google.
+  - Participation is strictly **opt-in (defaults to OFF)**, and the choice belongs to your account: your other phones follow it.
   - Only your chosen public pseudonym, player level, streak, and XP are synchronized when opted in.
-  - Individual quest titles, schedules, and Google email addresses are **never** uploaded or exposed.
+  - Individual quest titles, schedules, and email addresses are **never** uploaded or exposed.
+  - **Fair play.** Public names are unique. The server keeps streaks and levels within what the game allows: a streak grows by at most one day a day, a level takes at least three perfect days, and both need the XP to match. Reports are limited to one per player a day.
 - **Full Erasure Control**: Players can opt out at any time to instantly vanish from public rankings, or permanently purge their cloud account and data with one tap via **Settings > Cloud & Leaderboard > Delete My Cloud Data**.
 
 For complete technical and security details, see [`PRIVACY.md`](PRIVACY.md).
