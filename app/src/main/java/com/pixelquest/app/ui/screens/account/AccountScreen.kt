@@ -343,7 +343,7 @@ fun AccountContent(
                             )
                         }
                         Text(
-                            text = "ℹ️ Shown publicly on the leaderboard. Decoupled from local hero name and never shows your email or real name.",
+                            text = "ℹ️ Shown publicly on the leaderboard. Decoupled from local hero name and never shows your email or real name. Names are unique: nobody else can use yours while your account has it.",
                             style = MaterialTheme.typography.bodySmall,
                             color = colors.onSurfaceVariant,
                             textAlign = TextAlign.Center
