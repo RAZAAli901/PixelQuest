@@ -266,5 +266,28 @@ class LocalSupabaseSyncAndBoardTest {
         assertEquals(null, pending.pendingFor(secondId))
         assertEquals("the second player has no row", null, row(secondId))
     }
+
+    @Test
+    fun syncNowOnTheOtherPhone_followsALeave_insteadOfUndoingIt() = runBlocking {
+        val (phoneA, userId) = LocalSupabase.signedInPlayer("syncnow")
+        val phoneB = LocalSupabase.client().also { it.auth.importSession(phoneA.auth.currentSessionOrNull()!!) }
+        val name = "Sync_${userId.take(6)}"
+        val streaks = FakeStreakRepository(StreakEntity(currentStreak = 1, longestStreak = 1))
+        fun phone(tag: String) = FakeUserProfileRepository(
+            UserProfileEntity(username = "Duo", avatarId = "avatar_hero", level = 1, totalXp = 100, supabaseUserId = userId,
+                leaderboardOptIn = true, leaderboardDisplayName = name)
+        ) to PendingLeaderboardChoice(context.getSharedPreferences("syncnow-$tag-${userId.take(5)}", Context.MODE_PRIVATE)).also { it.startTracking() }
+        val (profilesA, pendingA) = phone("a")
+        val (profilesB, pendingB) = phone("b")
+        val cloudA = CloudProfileRepositoryImpl(phoneA.postgrest, phoneA.auth, profilesA, streaks, pendingA)
+        val cloudB = CloudProfileRepositoryImpl(phoneB.postgrest, phoneB.auth, profilesB, streaks, pendingB)
+        assertEquals(SupabaseResult.Success(Unit), cloudA.updateOptInAndSync(optIn = true, displayName = name))
+
+        // Left on phone A; SYNC NOW on phone B sends nothing and follows.
+        assertEquals(SupabaseResult.Success(Unit), cloudA.optOutFromLeaderboard())
+        assertEquals(SupabaseResult.Success(false), cloudB.pushProfileToCloud())
+        assertEquals(false, profilesB.profile.value!!.leaderboardOptIn)
+        assertEquals("false", row(userId)!!["leaderboard_opt_in"]!!.jsonPrimitive.content)
+    }
 }
 

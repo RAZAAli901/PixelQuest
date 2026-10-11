@@ -258,6 +258,9 @@ class AccountViewModel @Inject constructor(
                                 lastSyncTime = System.currentTimeMillis(),
                                 syncMessage = heldBack ?: SYNC_SUCCESSFUL
                             )
+                        } else if (userProfileRepository.getProfile().first()?.leaderboardOptIn == false) {
+                            // The account left the board on another phone, and this one followed.
+                            _uiState.value.copy(isSyncing = false, isSyncFailed = false, isOptedIn = false, syncMessage = SYNC_LEFT_ELSEWHERE)
                         } else {
                             _uiState.value.copy(isSyncing = false, isSyncFailed = false, syncMessage = SYNC_SKIPPED_SERVER_AHEAD)
                         }
@@ -382,6 +385,7 @@ class AccountViewModel @Inject constructor(
 
     companion object {
         const val SYNC_SUCCESSFUL = "Cloud sync successful!"
+        const val SYNC_LEFT_ELSEWHERE = "This account left the leaderboard on another device, so nothing was sent."
         const val SYNC_SKIPPED_SERVER_AHEAD =
             "Nothing sent: the leaderboard already has more progress for this account, from another device."
 

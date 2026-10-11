@@ -103,23 +103,37 @@ open class CloudProfileRepositoryImpl @Inject constructor(
         val profile = userProfileRepository.getProfile().first()
         val streak = streakRepository.getCurrentStreak().first()
 
-        val displayName = profile?.leaderboardDisplayName?.ifBlank { "Hero" } ?: "Hero"
-
-        val dto = buildProfileDto(
-            userId = user.id,
-            displayName = displayName,
-            optIn = profile?.leaderboardOptIn ?: false,
-            profile = profile,
-            currentStreak = streak?.currentStreak ?: 0,
-            longestStreak = streak?.longestStreak ?: 0
-        )
-
         return safeSupabaseCall {
             val remoteProfile = postgrest["profiles"].select {
                 filter {
                     eq("id", user.id)
                 }
             }.decodeList<CloudProfileDto>().firstOrNull()
+
+            var optIn = profile?.leaderboardOptIn ?: false
+            var displayName = profile?.leaderboardDisplayName?.ifBlank { null }
+            val pending = pendingChoice?.pendingFor(user.id)
+            // Joining or leaving belongs to the account (PendingLeaderboardChoice). With no choice of
+            // its own waiting to be sent, this phone follows the account's row: SYNC NOW used to send
+            // this phone's flag and undo a leave made on the account's other phone.
+            if (pendingChoice != null && pending == null && remoteProfile != null && remoteProfile.leaderboardOptIn != optIn) {
+                optIn = remoteProfile.leaderboardOptIn
+                displayName = remoteProfile.displayName.ifBlank { null } ?: displayName
+                userProfileRepository.updateLeaderboardSettings(optIn = optIn, displayName = displayName)
+                if (!optIn) return@safeSupabaseCall false
+            }
+            // A name, or nobody sees this row: the fallback "Hero" was everyone's, and names are unique.
+            displayName = displayName ?: remoteProfile?.displayName?.ifBlank { null }
+            if (displayName == null) optIn = false
+
+            val dto = buildProfileDto(
+                userId = user.id,
+                displayName = displayName.orEmpty(),
+                optIn = optIn,
+                profile = profile,
+                currentStreak = streak?.currentStreak ?: 0,
+                longestStreak = streak?.longestStreak ?: 0
+            )
 
             if (remoteProfile != null) {
                 val decision = com.pixelquest.app.domain.SyncConflictResolver.evaluate(
@@ -136,6 +150,7 @@ open class CloudProfileRepositoryImpl @Inject constructor(
             }
 
             postgrest["profiles"].upsert(dto)
+            if (pending != null) pendingChoice?.confirmed(user.id, optIn)
             true
         }
     }

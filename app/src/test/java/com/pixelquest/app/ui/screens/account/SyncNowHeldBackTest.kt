@@ -29,7 +29,7 @@ class SyncNowHeldBackTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun syncNowWith(storedStreak: Int, storedLevel: Int): String? {
+    private fun syncNowWith(storedStreak: Int, storedLevel: Int, pushed: Boolean = true, leftElsewhere: Boolean = false): String? {
         val profiles = FakeUserProfileRepository(
             UserProfileEntity(username = "Aria", avatarId = "avatar_hero", level = 4, totalXp = 3000, supabaseUserId = "acct",
                 leaderboardOptIn = true, leaderboardDisplayName = "Titan_Slayer")
@@ -37,6 +37,11 @@ class SyncNowHeldBackTest {
         val cloud = object : CloudProfileRepository {
             override suspend fun updateOptInAndSync(optIn: Boolean, displayName: String) = SupabaseResult.Success(Unit)
             override suspend fun syncProfileToCloud() = SupabaseResult.Success(Unit)
+            override suspend fun pushProfileToCloud(): SupabaseResult<Boolean> {
+                // What the repository does when the account left on another phone: follow, send nothing.
+                if (leftElsewhere) profiles.updateLeaderboardOptIn(false)
+                return SupabaseResult.Success(pushed)
+            }
             override suspend fun fetchCloudProfile(userId: String): SupabaseResult<CloudProfileDto?> = SupabaseResult.Success(
                 CloudProfileDto(id = "acct", displayName = "Titan_Slayer", currentStreak = storedStreak, longestStreak = storedStreak,
                     level = storedLevel, totalXp = 3000, leaderboardOptIn = true)
@@ -69,4 +74,18 @@ class SyncNowHeldBackTest {
     fun aLevelHeldBack_saysSoToo() {
         assertEquals(true, syncNowWith(storedStreak = 25, storedLevel = 3)?.contains("level 3 for now"))
     }
+
+    @Test
+    fun leftOnAnotherPhone_saysSo() {
+        assertEquals(
+            AccountViewModel.SYNC_LEFT_ELSEWHERE,
+            syncNowWith(storedStreak = 25, storedLevel = 4, pushed = false, leftElsewhere = true)
+        )
+    }
+
+    @Test
+    fun theServerAhead_stillSaysSo() {
+        assertEquals(AccountViewModel.SYNC_SKIPPED_SERVER_AHEAD, syncNowWith(storedStreak = 25, storedLevel = 4, pushed = false))
+    }
 }
+
