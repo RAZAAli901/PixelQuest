@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,7 +38,8 @@ class AccountViewModel @Inject constructor(
     private val cloudProfileRepository: com.pixelquest.app.data.repository.CloudProfileRepository,
     private val authRepository: com.pixelquest.app.auth.AuthRepository? = null,
     private val settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null,
-    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
+    private val streakRepository: com.pixelquest.app.domain.repository.StreakRepository? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountUiState())
@@ -240,11 +242,12 @@ class AccountViewModel @Inject constructor(
                         // Nothing sent is not a failure, but it isn't a successful sync either: it
                         // used to say "successful" while the leaderboard kept the other numbers.
                         _uiState.value = if (result.data) {
+                            val heldBack = heldBackByTheBoard()
                             _uiState.value.copy(
                                 isSyncing = false,
                                 isSyncFailed = false,
                                 lastSyncTime = System.currentTimeMillis(),
-                                syncMessage = SYNC_SUCCESSFUL
+                                syncMessage = heldBack ?: SYNC_SUCCESSFUL
                             )
                         } else {
                             _uiState.value.copy(isSyncing = false, isSyncFailed = false, syncMessage = SYNC_SKIPPED_SERVER_AHEAD)
@@ -283,6 +286,22 @@ class AccountViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isSyncing = false, syncMessage = "Sync cancelled.")
             }
         }
+    }
+
+    /**
+     * What the leaderboard stored, when it's less than this phone sent: the server adds at most one
+     * streak day a day and one level per three days (a catch-up after nights the nightly check missed
+     * arrives over the next syncs). Null when it stored everything, or it can't be read.
+     */
+    private suspend fun heldBackByTheBoard(): String? {
+        val profile = userProfileRepository.getProfile().first() ?: return null
+        val accountId = profile.supabaseUserId ?: return null
+        val streak = streakRepository?.getCurrentStreak()?.first()?.currentStreak ?: return null
+        val stored = (cloudProfileRepository.fetchCloudProfile(accountId) as? com.pixelquest.app.data.remote.SupabaseResult.Success)
+            ?.data ?: return null
+        if (stored.currentStreak >= streak && stored.level >= profile.level) return null
+        return "Synced. The leaderboard shows a ${stored.currentStreak}-day streak and level ${stored.level} for now: " +
+            "it adds at most one streak day a day and one level per three days, so the rest follows over the next few days."
     }
 
     fun dismissConfirmDialog() {
