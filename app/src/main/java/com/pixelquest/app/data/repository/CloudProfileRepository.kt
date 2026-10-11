@@ -147,7 +147,6 @@ open class CloudProfileRepositoryImpl @Inject constructor(
                     localLongestStreak = streak?.longestStreak ?: 0,
                     localLevel = profile?.level ?: 1,
                     localTotalXp = profile?.totalXp ?: 0,
-                    localTriggerTime = Instant.now(),
                     serverProfile = remoteProfile
                 )
                 if (decision is com.pixelquest.app.domain.SyncDecision.SkipServerHigherProgress) {

@@ -1,26 +1,24 @@
 package com.pixelquest.app.domain
 
 import com.pixelquest.app.data.remote.model.CloudProfileDto
-import java.time.Instant
 
 /**
  * Defines conflict resolution and staleness protection rules for PixelQuest cloud synchronization.
  *
  * Applicable when the same account is signed in on two devices concurrently.
  *
- * Conflict Resolution Semantics:
- * 1. Last-Write-Wins (LWW) by updated_at timestamp:
- *    If the server's updated_at timestamp is strictly newer than the local event trigger timestamp,
- *    the push is skipped to avoid overwriting a newer state produced by another device.
+ * Anti-regression guard (monotonic progress): a sync never overwrites a higher longest streak,
+ * level or total XP on the server with lower local values, so a stale or neglected second device
+ * can't wipe out progress made on the main one. (RESET ALL PROGRESS goes past it once, on purpose:
+ * PendingProgressReset.)
  *
- * 2. Defensive Anti-Regression Guard (Monotonic Progress):
- *    A sync must NEVER overwrite a higher longest streak, level, or total XP on the server with
- *    lower local values, preventing a stale or neglected secondary device from wiping out
- *    real progress achieved on a primary device.
+ * There used to be a second rule, last-write-wins: skip the push when the server's updated_at was
+ * later than this phone's clock. The server stamps updated_at with its own clock, so on a phone
+ * whose clock ran a little behind, a push soon after the previous one was skipped, and nothing
+ * retried it. The guard above already keeps a stale phone from lowering anything.
  */
 sealed class SyncDecision {
     object PushLocal : SyncDecision()
-    data class SkipServerNewer(val serverUpdatedAt: String, val localTriggerTime: String) : SyncDecision()
     data class SkipServerHigherProgress(val reason: String) : SyncDecision()
 }
 
@@ -33,7 +31,6 @@ object SyncConflictResolver {
      * @param localLongestStreak longest streak on this device
      * @param localLevel character level on this device
      * @param localTotalXp accumulated XP on this device
-     * @param localTriggerTime timestamp when the local event/sync was initiated
      * @param serverProfile current row fetched from Supabase profiles table, or null if no remote row exists
      * @return SyncDecision indicating whether to push or skip with rationale
      */
@@ -42,7 +39,6 @@ object SyncConflictResolver {
         localLongestStreak: Int,
         localLevel: Int,
         localTotalXp: Int,
-        localTriggerTime: Instant,
         serverProfile: CloudProfileDto?
     ): SyncDecision {
         if (serverProfile == null) {
@@ -67,22 +63,6 @@ object SyncConflictResolver {
             return SyncDecision.SkipServerHigherProgress(
                 "Server total XP (${serverProfile.totalXp}) is higher than local total XP ($localTotalXp)"
             )
-        }
-
-        // Rule 2: Last-Write-Wins (LWW) by updated_at timestamp comparison
-        val serverUpdatedAt = serverProfile.updatedAt
-        if (!serverUpdatedAt.isNullOrBlank()) {
-            try {
-                val serverTime = Instant.parse(serverUpdatedAt)
-                if (serverTime.isAfter(localTriggerTime)) {
-                    return SyncDecision.SkipServerNewer(
-                        serverUpdatedAt = serverUpdatedAt,
-                        localTriggerTime = localTriggerTime.toString()
-                    )
-                }
-            } catch (_: Exception) {
-                // If timestamp parsing fails, proceed with push assuming local is valid
-            }
         }
 
         return SyncDecision.PushLocal

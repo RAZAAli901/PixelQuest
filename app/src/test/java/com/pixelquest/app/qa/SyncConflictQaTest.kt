@@ -53,13 +53,11 @@ class SyncConflictQaTest {
         )
 
         // Step 3: Trigger sync evaluation
-        val syncTriggerTime = Instant.parse("2026-09-12T10:00:00Z")
         val decision = SyncConflictResolver.evaluate(
             localCurrentStreak = localStreak.currentStreak,
             localLongestStreak = localStreak.longestStreak,
             localLevel = localProfile.level,
             localTotalXp = localProfile.totalXp,
-            localTriggerTime = syncTriggerTime,
             serverProfile = serverProfile
         )
 
@@ -74,7 +72,7 @@ class SyncConflictQaTest {
     }
 
     @Test
-    fun manualQa_whenServerHasNewerTimestamp_pushIsSkippedUnderLastWriteWins() = runBlocking {
+    fun manualQa_whenServerHasNewerTimestamp_morePushesStillGoThrough() = runBlocking {
         val serverProfile = CloudProfileDto(
             id = "test-hero-uuid",
             displayName = "QuestMaster",
@@ -85,18 +83,16 @@ class SyncConflictQaTest {
             leaderboardOptIn = true,
             updatedAt = "2026-09-12T11:45:00Z" // Newer than local trigger
         )
-
-        val localTriggerTime = Instant.parse("2026-09-12T11:30:00Z") // 15 mins older
         val decision = SyncConflictResolver.evaluate(
             localCurrentStreak = 10,
             localLongestStreak = 10,
             localLevel = 4,
-            localTotalXp = 1000,
-            localTriggerTime = localTriggerTime,
+            localTotalXp = 1050,
             serverProfile = serverProfile
         )
 
-        assertTrue(decision is SyncDecision.SkipServerNewer)
+        // A server clock ahead of the phone's no longer drops the push (last-write-wins is gone).
+        assertTrue(decision is SyncDecision.PushLocal)
     }
 
     @Test
@@ -111,14 +107,11 @@ class SyncConflictQaTest {
             leaderboardOptIn = true,
             updatedAt = "2026-09-12T08:00:00Z"
         )
-
-        val localTriggerTime = Instant.parse("2026-09-12T12:00:00Z")
         val decision = SyncConflictResolver.evaluate(
             localCurrentStreak = 6, // Incremented
             localLongestStreak = 6,
             localLevel = 3, // Level up
             localTotalXp = 500,
-            localTriggerTime = localTriggerTime,
             serverProfile = serverProfile
         )
 

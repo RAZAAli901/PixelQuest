@@ -8,8 +8,6 @@ import java.time.Instant
 
 class SyncConflictResolverTest {
 
-    private val baseTriggerTime = Instant.parse("2026-09-12T12:00:00Z")
-
     @Test
     fun evaluate_whenServerProfileIsNull_returnsPushLocal() {
         val decision = SyncConflictResolver.evaluate(
@@ -17,7 +15,6 @@ class SyncConflictResolverTest {
             localLongestStreak = 10,
             localLevel = 3,
             localTotalXp = 500,
-            localTriggerTime = baseTriggerTime,
             serverProfile = null
         )
 
@@ -42,7 +39,6 @@ class SyncConflictResolverTest {
             localLongestStreak = 2,
             localLevel = 3, // Lower than server
             localTotalXp = 100,
-            localTriggerTime = baseTriggerTime,
             serverProfile = serverProfile
         )
 
@@ -69,7 +65,6 @@ class SyncConflictResolverTest {
             localLongestStreak = 10,
             localLevel = 3,
             localTotalXp = 550,
-            localTriggerTime = baseTriggerTime,
             serverProfile = serverProfile
         )
 
@@ -94,7 +89,6 @@ class SyncConflictResolverTest {
             localLongestStreak = 10, // Stale lower
             localLevel = 3,
             localTotalXp = 500,
-            localTriggerTime = baseTriggerTime,
             serverProfile = serverProfile
         )
 
@@ -120,7 +114,6 @@ class SyncConflictResolverTest {
             localLongestStreak = 4,
             localLevel = 3,
             localTotalXp = 1200, // Stale lower XP
-            localTriggerTime = baseTriggerTime,
             serverProfile = serverProfile
         )
 
@@ -129,8 +122,9 @@ class SyncConflictResolverTest {
     }
 
     @Test
-    fun evaluate_whenServerTimestampIsNewer_returnsSkipServerNewer() {
-        val newerServerTime = "2026-09-12T13:00:00Z" // Newer than baseTriggerTime (12:00:00Z)
+    fun evaluate_whenTheServersClockIsAhead_stillPushesMoreProgress() {
+        // The server stamps updated_at with its own clock; this phone's runs behind.
+        val newerServerTime = "2999-01-01T00:00:00Z"
         val serverProfile = CloudProfileDto(
             id = "user-1",
             displayName = "Hero",
@@ -146,19 +140,17 @@ class SyncConflictResolverTest {
             localCurrentStreak = 5,
             localLongestStreak = 10,
             localLevel = 3,
-            localTotalXp = 500,
-            localTriggerTime = baseTriggerTime,
+            localTotalXp = 550,
             serverProfile = serverProfile
         )
 
-        assertTrue(decision is SyncDecision.SkipServerNewer)
-        val skip = decision as SyncDecision.SkipServerNewer
-        assertEquals(newerServerTime, skip.serverUpdatedAt)
+        // The last-write-wins rule skipped this, and nothing retried it.
+        assertEquals(SyncDecision.PushLocal, decision)
     }
 
     @Test
     fun evaluate_whenLocalIsNewerAndEqualOrHigherProgress_returnsPushLocal() {
-        val olderServerTime = "2026-09-12T11:00:00Z" // Older than baseTriggerTime (12:00:00Z)
+        val olderServerTime = "2026-09-12T11:00:00Z"
         val serverProfile = CloudProfileDto(
             id = "user-1",
             displayName = "Hero",
@@ -175,7 +167,6 @@ class SyncConflictResolverTest {
             localLongestStreak = 10,
             localLevel = 3,
             localTotalXp = 550,
-            localTriggerTime = baseTriggerTime,
             serverProfile = serverProfile
         )
 
@@ -200,7 +191,6 @@ class SyncConflictResolverTest {
             localLongestStreak = 10,
             localLevel = 3,
             localTotalXp = 500,
-            localTriggerTime = baseTriggerTime,
             serverProfile = serverProfile
         )
 

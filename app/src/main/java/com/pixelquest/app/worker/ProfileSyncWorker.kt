@@ -104,10 +104,7 @@ class ProfileSyncWorker @AssistedInject constructor(
                 return outcome(sent)
             }
 
-            // Check server state for multi-device Last-Write-Wins and Anti-Regression guards. The
-            // local time is when this sync runs (it was read from an input key that nothing ever
-            // set, so it always fell back to this).
-            val localTriggerTime = java.time.Instant.now()
+            // The anti-regression guard (SyncConflictResolver): never lower the board's numbers.
 
             val serverProfileResult = serverRead ?: cloudProfileRepository.fetchCloudProfile(accountId)
             val serverProfile = when (serverProfileResult) {
@@ -121,7 +118,6 @@ class ProfileSyncWorker @AssistedInject constructor(
                 localLongestStreak = streak?.longestStreak ?: 0,
                 localLevel = profile.level,
                 localTotalXp = profile.totalXp,
-                localTriggerTime = localTriggerTime,
                 serverProfile = serverProfile
             )
 
@@ -129,10 +125,6 @@ class ProfileSyncWorker @AssistedInject constructor(
                 is com.pixelquest.app.domain.SyncDecision.SkipServerHigherProgress -> {
                     // Defensive check: server holds higher streak/level/xp than local.
                     // Never push lower values to avoid regressing user progress.
-                    return Result.success()
-                }
-                is com.pixelquest.app.domain.SyncDecision.SkipServerNewer -> {
-                    // Last-Write-Wins: server was updated more recently by another device.
                     return Result.success()
                 }
                 is com.pixelquest.app.domain.SyncDecision.PushLocal -> {
