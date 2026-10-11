@@ -14,7 +14,7 @@ The `profiles` table stores cloud-synchronized leaderboard profiles for PixelQue
 | `longest_streak` | `INTEGER` | `NOT NULL, CHECK (longest_streak >= 0)` | `0` | All-time highest streak count. |
 | `level` | `INTEGER` | `NOT NULL, CHECK (level >= 1)` | `1` | Current hero level. |
 | `total_xp` | `INTEGER` | `NOT NULL, CHECK (total_xp >= 0)` | `0` | Total cumulative quest experience points. |
-| `leaderboard_opt_in` | `BOOLEAN` | `NOT NULL` | `FALSE` | Explicit player opt-in to public leaderboard visibility. Defaults to OFF. |
+| `leaderboard_opt_in` | `BOOLEAN` | `NOT NULL`; only with a name (`on_the_board_with_a_name`, `20261011000002_named_board_rows.sql`) | `FALSE` | Explicit player opt-in to public leaderboard visibility. Defaults to OFF. Nobody is on the board without a name. |
 | `updated_at` | `TIMESTAMPTZ` | `NOT NULL` | `timezone('utc'::text, now())` | Time of the latest write, by the server's clock. What the client sends is replaced, on a first insert too. |
 
 ### Privacy Design Requirements
@@ -91,6 +91,11 @@ How the app handles it:
 ## Table: `public.reports` (`20260909000001_create_reports_table.sql`)
 
 Players report offensive display names. A signed-in player can insert a report in their own name only; nobody but the project (service role, dashboard) can read them. Both foreign keys are indexed (`20261010000003_reports_foreign_key_indexes.sql`), and deleting an account deletes its reports.
+
+**Limits** (`20261011000003_report_limits.sql`):
+- **Once a day.** A player reports another player at most once a UTC day, through a unique index on reporter, reported player and day. A repeat fails with `23505` (HTTP 409), and the app says it's already reported.
+- **Not yourself.** A player can't report themselves (`reports_not_yourself`, `23514`). The app shows no report button on your own row.
+- **Server time.** `created_at` is the server's clock (trigger `stamp_report_time`), because a client-set date would get round the daily limit.
 
 ## Table: `public.ai_proxy_usage` (`20261006000000_ai_proxy_usage.sql`)
 
