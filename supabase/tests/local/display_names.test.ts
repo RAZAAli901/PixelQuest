@@ -1,7 +1,7 @@
 // The display-name trigger on a local Postgres, with the names the app's filter is tested on too.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { call, localTest, newEmail, signInWithEmailCode } from "./stack.ts";
+import { asService, call, localTest, newEmail, signInWithEmailCode } from "./stack.ts";
 
 const names = JSON.parse(readFileSync(new URL("../display_names.json", import.meta.url), "utf8")) as {
   allowed: string[];
@@ -9,6 +9,9 @@ const names = JSON.parse(readFileSync(new URL("../display_names.json", import.me
 };
 
 localTest("ordinary names are accepted and offensive ones refused, the same as in the app", async () => {
+  // Names are unique: free these from earlier runs (and the emulator's test accounts) first.
+  const list = names.allowed.map((n) => `"${n}"`).join(",");
+  assert.equal((await asService(`/rest/v1/profiles?display_name=in.(${list})`, { method: "DELETE" })).status, 204);
   const player = await signInWithEmailCode(newEmail("names"));
   const upsert = (displayName: string) =>
     call("/rest/v1/profiles?on_conflict=id", {
