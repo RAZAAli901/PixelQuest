@@ -15,7 +15,7 @@ The `profiles` table stores cloud-synchronized leaderboard profiles for PixelQue
 | `level` | `INTEGER` | `NOT NULL, CHECK (level >= 1)` | `1` | Current hero level. |
 | `total_xp` | `INTEGER` | `NOT NULL, CHECK (total_xp >= 0)` | `0` | Total cumulative quest experience points. |
 | `leaderboard_opt_in` | `BOOLEAN` | `NOT NULL` | `FALSE` | Explicit player opt-in to public leaderboard visibility. Defaults to OFF. |
-| `updated_at` | `TIMESTAMPTZ` | `NOT NULL` | `timezone('utc'::text, now())` | Timestamp of latest sync. |
+| `updated_at` | `TIMESTAMPTZ` | `NOT NULL` | `timezone('utc'::text, now())` | Time of the latest write, by the server's clock. What the client sends is replaced, on a first insert too. |
 
 ### Privacy Design Requirements
 1. **Default Opt-In**: `leaderboard_opt_in` defaults to `FALSE`. An un-opted user's profile is never returned in public queries.
@@ -30,6 +30,37 @@ All for signed-in players (`authenticated`); signed-out callers read nothing.
 - **Insert / update / delete**: your own row only (`id` = your account).
 - `auth.uid()` is written `(SELECT auth.uid())`, so it's worked out once per query, not per row.
 - `supabase/tests/local/profiles_rls.test.ts` checks these rules on a local Postgres (docs/LOCAL_SUPABASE.md).
+
+## Plausible progress (`20261011000000_profile_progress_plausibility.sql`)
+
+The trigger `keep_profile_progress_plausible` runs before every insert and update of a profile. It keeps the numbers within what the app's own rules allow, so the leaderboard no longer takes whatever a client sends.
+
+The rules come from the app:
+- **XP.** Every completed quest earns at least 50 XP, and a perfect day needs at least one. So:
+  - the longest streak is at most `total_xp / 50`;
+  - a level takes at least 3 perfect days, so the level is at most `1 + total_xp / 150`.
+- **Streaks.** The current streak is never longer than the longest.
+- **Pace.** Both allow two days of slack, for time zones and a nightly check that ran a night late:
+  - a streak (current or longest) grows by at most one a calendar day since the streak last changed;
+  - a level grows by at most one per 3 days since the level last changed, plus one sooner when progress carries over from a harder difficulty.
+- **Caps.** The caps from the app's backup import: XP 10,000,000, level 999, streaks 36,500.
+
+How the rules are applied:
+- **Lowered, not refused.** A refusal would leave the app's sync retrying forever.
+  - An honest catch-up, after nights the nightly check missed, arrives over the next syncs.
+  - SYNC NOW says what the board shows for now.
+  - Dropping back (RESET ALL PROGRESS, an older backup) is always accepted.
+- **XP itself isn't checked further**, because the number of quests a player may have is unlimited.
+  - A first upload is checked only against XP and the caps, since a player may have played offline for years before signing in.
+  - So a client that invents completions can still climb, but only at the pace a real player could.
+- **The service role is not limited.** That is the project's own server code and the test bench.
+
+When each player's streak and level last changed is kept in `public.profile_progress_marks` (`id`, `streak_changed_at`, `level_changed_at`).
+- Only the trigger reads and writes it. Players can't, so they can't move the times back to widen their allowance.
+- RLS is on with no policies, and `anon` and `authenticated` have no privileges.
+- It is deleted with the account.
+
+`supabase/tests/local/profile_progress.test.ts` tests these rules.
 
 ## Display names (`20261010000000_display_name_word_matching.sql`)
 
