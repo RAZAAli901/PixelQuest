@@ -3425,3 +3425,138 @@ Step 45's message says the emulator checks found "four bugs". They led to six fi
   - The Node database, sign-in and AI-server tests passed.
   - The Kotlin bench and the Android build were still running when this was written. Recorded on Day 33: both passed, and so did both runs for `6da054a0`, which includes Step 48.
 
+
+## Day 33 Progress Log
+_Leaderboard integrity and accounts across phones, from Day 32's known gaps, checked on the local Supabase stack and the emulator._
+- Step 1: Record Day 32's CI results, pending when its docs were written: all four runs passed (Cloud Tests and the Android build for 1e354ad5 and for 6da054a0, which includes Step 48's fix) - 28729b47
+- Step 2: A signed-in player whose session can't be refreshed (offline, or the server failing) stays signed in on Account, with a note that the server can't be reached and that sync, the leaderboard and the AI Coach come back with the connection (a Day 32 gap): supabase-kt keeps such a session saved but not current, so Account said signed out and the leaderboard asked them to sign in; the saved session is read instead, nothing is sent while it loads, and the screen's first check waits for it - 1be741e3
+- Step 3: Two bench helpers: newPlayer makes a confirmed player with the admin API and signs in with a password, so tests that only need a signed-in player don't use up the stack's 30 emails an hour (a full run was getting close); sql runs a statement as the database owner in the stack's Postgres container, for what the API can't do, such as pretending days have passed - c073560a
+- Step 4: The leaderboard keeps players' numbers within what the app's rules allow (a Day 32 gap: it trusted whatever the app sent): before a row is written, the longest streak is at most XP / 50 (each perfect day takes a quest worth 50 XP or more), the current streak at most the longest, the level at most 1 + XP / 150 (three perfect days a level), a streak grows by one a day and a level by one per three days since they last changed (two days of slack), with the app's backup caps; values are lowered, not refused, so the app's sync never retries forever and an honest catch-up arrives over the next syncs; updated_at is the server's clock, even on a first insert; when the streak and level last changed is kept in a private table, since the app decodes profile rows strictly and a new column would break installed apps; the service role is not limited; 9 bench tests, and two older tests now use believable numbers - 675ef406
+- Step 5: Guard that a column the server adds later can't break the leaderboard in installed apps: the app reads whole profile rows, and its Supabase client ignores columns it doesn't know (checked; Step 4's migration comment said it would break, which was wrong and is corrected: the progress marks have their own table because players must not read or set them, and every profiles column is readable by the app and writable by the row's owner) - 1474035b
+- Step 6: Deleting the account also deletes the player's progress marks (when their streak and level last changed): checked on the local stack, where joining the board creates the marks and delete_user_account leaves none, through the cascade from the sign-in - 624794d7
+- Step 7: Joining or leaving the leaderboard belongs to the account, so one account on two phones follows its latest choice (a Day 32 gap: a phone off the board re-sent "off" on every sync and a phone on it re-sent "on", so whichever synced last decided): a choice made on this phone stays pending until the server confirms it and is sent first; otherwise the sync reads the account's row and follows it (on or off, and a rename); a spectator who never joined still sends nothing; the first sync after updating treats a phone that is off the board as its own unsent leave, so an opt-out that never reached the server can't be undone; this also closes the gap where a returning account whose row couldn't be read at sign-in was taken off the board by the next sync - 9aae893d
+- Step 8: An account returning to this phone with a leaderboard choice that never reached the server (left while offline, then someone else signed in here) gets that choice back, not its older row, and the sync sends it; an account new to this phone starts following its own row, so its first sync doesn't read "off" as the player's own leaving - 0d13d838
+- Step 9: Bench test for Steps 7-8 on the local stack: one account on two phones (two app states, one signed-in account) with the real repository and ProfileSyncWorker: joined on phone A, phone B follows onto the board with the name; left on A, B's next sync follows instead of re-joining; joined again on B, A follows instead of leaving again; no choice is left pending - 9b67cb9e
+- Step 10: A sync the server refuses as it stands (400, 403, 404, 409, 422: a name its filter rejects, a forbidden write) is no longer retried: every attempt got the same answer, and WorkManager retried it with backoff for as long as the app was installed; the next completion or SYNC NOW starts a fresh sync; outages, rate limits and an expired session (401) are still retried; the worker's three copies of the result mapping are now one - 06a89f62
+- Step 11: Joining the leaderboard offline queues the join: Account said "Cloud sync will retry" but nothing was scheduled, so the join waited for some later completion; the sync worker now runs once online and sends the pending join (as leaving offline already did) - b270a2a0
+- Step 12: SYNC NOW says when the leaderboard stored less than the phone sent (Step 4's limits): "The leaderboard shows a 19-day streak and level 4 for now: it adds at most one streak day a day and one level per three days, so the rest follows over the next few days", instead of "Cloud sync successful!" next to lower numbers; the stored row is read back after the push - 935c3d96
+- Step 13: supabase/schema.md describes the leaderboard's plausibility rules (Step 4): what the trigger checks and why (from the app's own rules), that values are lowered rather than refused, what it can't check (XP, a first upload's history), the private progress-marks table, the service role's exemption, and updated_at being the server's clock - 5808cd57
+- Step 14: LOCAL_SUPABASE.md: the Node tests now cover the plausibility rules and need docker on the PATH (they run SQL in the database container to pretend days have passed); only the sign-in tests send real code emails, the rest use newPlayer; the Kotlin bench row adds the two-phone test - 96b3bcdd
+- Step 15: PRIVACY.md: the two private timestamps the leaderboard now keeps (when your streak and level last changed, used only to check the numbers' pace, unreadable through the app, deleted with your account), updated_at being the server's clock, and joining or leaving on one phone applying to the account's other phone too - 90e7a9f6
+- Step 16: Public names are unique, ignoring case: two players could both appear as Titan_Slayer, so anyone could pass as someone else on the leaderboard; a name stays its owner's while their row exists (also off the board), a rename or deleting the account frees it, and players who haven't chosen a name don't collide; taking someone's name fails with 23505 (409); rows already sharing a name keep it for the least recently updated one (local test data had two such groups); 3 bench tests, and the display-name test frees its names first - 9b189a87
+- Step 17: Joining under a name another player has says so: Account shows "That name is taken on the leaderboard. Try another one." under the name field, instead of "Opt-in saved locally. Cloud sync will retry." for a join that could never succeed; the phone goes back off the board keeping the name to edit, the pending join is dropped and nothing is queued (a sync puts back what the server holds, if the player was already on the board under another name) - 9c525703
+- Step 18: Bench test for Steps 16-17 with the app's real repository: a second player joining under the first player's name (in lower case) gets the name-taken result, stays off the board with no pending join, and no row is written; the Kotlin bench gains signedInPlayer (admin-made player, password sign-in) for tests that don't need the email-code path, keeping a full run under the stack's 30 emails an hour - bbb50ec1
+- Step 19: supabase/schema.md documents unique public names (Step 16): the partial unique index on lower(display_name), a name staying its owner's while the row exists, empty names not counting, the 409 the app turns into "name taken", and what happened to rows that already shared a name - 9d5f1485
+- Step 20: SYNC NOW follows the account's leaderboard choice too, found while setting up the emulator check of Step 7: it pushed this phone's own opt-in flag, so SYNC NOW on a phone still on the board undid a leave made on the account's other phone; with no choice of its own pending, the push now follows the account's row, sends nothing when the account is off the board, and Account says it left on another device; a push no longer falls back to the name "Hero" (everyone's, and names are unique now): it keeps the server's name, and with no name at all the row stays off the board - a222436f
+- Step 21: CHANGELOG Unreleased covers Day 33 in player-facing words: fair numbers on the leaderboard (and SYNC NOW explaining a catch-up), unique names, one account on two phones following the latest choice (and offline choices queued), Account staying signed in when the server can't be reached, and refused syncs no longer retried - 8b8b1c7a
+- Step 22: Nobody is on the leaderboard without a name: a row could be opted in with an empty display_name (a direct API write; the app's push used to fall back to "Hero") and the board showed a blank; such rows leave the board and a check refuses new ones (23514), while a spectator's nameless row stays fine; bench test - 8b0b605e
+- Step 23: Reports can't be used to spam: a player reports another at most once a UTC day (23505, 409), can't report themselves (23514, 400), and created_at is the server's clock (a client could set it and get round the daily limit); same-day duplicates and self-reports already stored are removed; bench test - bb564556
+- Step 24: Reporting a player says what happened: a repeat on the same day says "You've already reported this player today. Thanks, it's in." (Step 23's limit), and any other answer from the server no longer reads "check network connection"; offline still does - 09dda462
+- Step 25: supabase/schema.md documents Steps 22-23: nobody on the board without a name (on_the_board_with_a_name), and the report limits (once a UTC day per reported player, never yourself, server-stamped created_at) with the errors the app turns into messages - 295d5825
+- Step 26: Fix a broken streak never reaching the leaderboard, found by the bench while testing RESET: supabase-kt's JSON leaves out values equal to a field's default, and CloudProfileDto defaulted the streaks to 0, the level to 1 and XP to 0, so a push of those sent nothing for them and the upsert kept the old ones; a player whose streak broke went on showing the old streak on TOP STREAKS until it grew past it; the numbers and the opt-in are now always sent; a unit test reads the upload itself (it fails without the fix) - bbe52c3b
+- Step 27: RESET ALL PROGRESS reaches the leaderboard: the sync never sends numbers lower than the board's (another phone may be further on), so a reset player's old streak and level stayed on the board until passed again; a reset on a phone whose account is on the board now marks it (PendingProgressReset) and schedules a sync, which sends the fresh numbers once past that guard; the mark stays until the server has them, so a reset made offline arrives later; a reset off the board sends nothing - 2334ed96
+- Step 28: Bench tests for Steps 26-27 with the real repository and ProfileSyncWorker: a streak broken to 0 reaches the board (it stayed at 5 before Step 26), and after RESET the usual guard holds the lower numbers back while the reset mark sends them once (level 1, 0 XP, still on the board) - 239874c9
+- Step 29: The quest form says when reminders may ring late: seen on the emulator, Android 14 doesn't let a new install set exact alarms, and a reminder came 10 minutes late; the note and ALLOW EXACT REMINDER TIMES button were only in Settings, not where the reminder is set; they now show under the form's reminder settings while a reminder is on and exact alarms aren't allowed - 39709d1d
+- Step 30: Signing out sends a leave from the leaderboard that is still waiting (made offline, say) while the session can still send it: the player used to stay public on the board until they signed in again; a waiting join isn't sent this way, and if the leave can't be sent now it stays pending for the next sign-in - 98886e3e
+- Step 31: Account says when joining or leaving the leaderboard hasn't reached the server yet ("Waiting to reach the server: it's sent as soon as you're online.") and clears it when the background sync gets it there: a choice made offline used to show its new status as if it were done; the pending store publishes its changes as a flow - 92beae0a
+- Step 32: RESET ALL PROGRESS's first warning says that on the leaderboard the player's numbers start over too, under the same name (Step 27 made the reset reach the board; the dialog only listed what happens on the phone) - c3186808
+- Step 33: Account's note under the public name says names are unique and nobody else can use yours while your account has it (Step 16), so "That name is taken" doesn't come as a surprise - f1eb229b
+- Step 34: Remove the sync's last-write-wins rule, which only dropped pushes: it skipped a push whenever the server's updated_at was later than this phone's clock, and since the server stamps updated_at with its own clock (Step 4), a phone whose clock ran a little behind lost the push after any recent one, with nothing retrying it (the worker reported success); the anti-regression guard already keeps a stale phone from lowering the board; the two tests that pinned the old rule now check that more progress still goes through - 622eacd6
+- Step 35: A leave from the leaderboard that is still waiting reaches the server sooner: coming back online now syncs a phone that has anything to send (on the board, or a join, leave or reset waiting), where a phone off the board with a leave waiting got no sync and its player stayed public until the next completed quest; and when a leave couldn't actually be sent (a session that can't refresh returns success without sending), the sync tries again instead of reporting it done - e5e111bf
+- Step 36: PRIVACY.md catches up with Steps 20-35: updated_at is just the server's time of the last write (last-write-wins is gone), what a report holds and its limits (once a day, never yourself, the server's time), a leave made offline is sent once you're back online or before you sign out and your other phones follow it, and RESET ALL PROGRESS starts your leaderboard numbers over too - ee0fe8e3
+- Step 37: CHANGELOG Unreleased adds Steps 20-35 for players: broken streaks and RESET's fresh numbers now reach the board, syncs no longer lost on a phone whose clock is behind, waiting joins and leaves shown and sent once online or before signing out, report limits and clearer report messages, the unique-names note, and the quest form's note about late reminders - c687cf86
+- Step 38: NOTIFICATIONS.md: without "Alarms & reminders" the quest form shows the allow prompt too while a reminder is on (Step 29), and how late an inexact reminder came on the emulator (set for 11:18, rang at 11:28, the end of its 10-minute window) - cf77a337
+- Step 39: LOCAL_SUPABASE.md's bench table covers what the bench tests since Step 14: unique names, no unnamed players on the board, report limits, SYNC NOW following another phone, a taken name refused, a broken streak and RESET reaching the board - 0c32140e
+- Step 40: CLOUD_SETUP.md: db push applies all 16 migrations (it still said seven), with what Days 32-33 added and that schema.md describes each; afterwards run the dashboard's Security and Performance Advisors, and which notes to expect (RLS without policies on the two server-only tables, on purpose) - b6979879
+- Step 41: CI's cloud tests lint the database after the stack applies every migration (db lint --fail-on error), so a schema error in a migration fails the run instead of waiting for a hosted project; checked locally with all 16 migrations applied from scratch (db reset), and CiBuildWorkflowTest checks the step is there - 0bfd488e
+- Step 42: The bench sends far fewer real emails: the row-level-security and gemini-proxy tests only need signed-in players, so they use newPlayer (admin-made, password sign-in, same kind of token) instead of 13 emailed codes; only the sign-in, display-name and report tests still go through email, which keeps a full CI run well under the stack's 30 emails an hour - 8080dcb9
+- Step 43: README's leaderboard bullet: sign in by email code or Google (it said Google only), the leaderboard choice belongs to the account, and a fair-play line (unique names, streaks and levels kept within the game's rules, reports once a day) - 60dd2167
+- Step 44: VERIFICATION.md Section L (Day 33): all 16 migrations from scratch and lint clean, 1,028 unit tests with the bench on (0 failing, 0 skipped), 29 Node bench and 17 Edge Function tests, 20 of 20 instrumented tests twice, what the bench found (implausible numbers, the broken streak, shared names), the emulator checks (offline Account, following another phone, a taken name, a reminder's Yes reaching the board, report limits), the 28 fake-key requests Google refused, and what isn't verified - a0a717bf
+- Step 45: Update BRIEF.md with the Day 33 progress log and summary - (this commit)
+
+## Day 33 — Leaderboard Integrity and Accounts Across Phones
+
+Day 32's known gaps set the theme. The leaderboard trusted whatever numbers the app sent, one account on two phones fought over its own choice, and Account said "signed out" whenever the server couldn't be reached. Everything was tested on the local Supabase stack and checked on the emulator. That turned up a real leaderboard bug: broken streaks never reached the board.
+
+### 1. Fair numbers on the leaderboard (Steps 4–6, 12–13, 26–28, 34)
+- **Server checks.** Before a row is written, a trigger keeps the streaks and level within the game's own rules:
+  - the longest streak is at most XP / 50;
+  - the level is at most 1 + XP / 150;
+  - a streak grows by at most one a day, and a level by one per three days, since they last changed;
+  - the backup caps apply.
+- **Lowered, not refused.** Impossible values are lowered rather than refused, so the sync never retries forever, and an honest catch-up arrives over a few syncs. SYNC NOW says so.
+- **Private change times.** When the streak and level last changed is kept in a private table. The service role isn't limited.
+- **A broken streak reaches the board (Step 26).**
+  - The app's upload left out any value equal to its field's default, a quirk of kotlinx.serialization.
+  - So a streak broken to 0 never reached the board, which went on showing the old one.
+  - Neither did RESET's fresh numbers.
+- **RESET ALL PROGRESS reaches the board (Step 27).** The fresh numbers are sent once, past the "never send lower numbers" guard.
+- **Last-write-wins is gone (Step 34).**
+  - It skipped a push whenever the server's clock was ahead of the phone's, and nothing retried it.
+  - The server stamps its own time, so a phone whose clock ran a little behind lost syncs.
+
+### 2. Names and reports (Steps 16–19, 22–25, 33)
+- **Unique names.** Public names are unique, whatever the capitals. Taking someone's name says "That name is taken", and Account's note says names are unique.
+- **No unnamed players.** Nobody can be on the board without a name.
+- **Report limits.** A player can be reported once a day per reporter, never by themselves, and on the server's clock.
+  - A repeat says it's already in.
+  - A server answer no longer reads as a network problem.
+
+### 3. One account, two phones (Steps 7–11, 20, 30–31, 35)
+- **The account's choice.** Joining or leaving belongs to the account.
+  - A choice made on this phone stays pending until the server confirms it.
+  - Otherwise every sync, and SYNC NOW, follows the account's row.
+- **First run after updating.** A phone that is off the board treats that as its own unsent leave, so it can't be undone.
+- **Waiting choices.**
+  - A returning account gets back its unsent choice.
+  - Joining offline is queued.
+  - Account says a choice is waiting.
+  - A waiting leave is sent before signing out and on reconnecting.
+- **Refused syncs.** A sync the server refuses (4xx) is no longer retried for as long as the app is installed.
+
+### 4. Signed in while offline (Steps 2, 5)
+- **Still signed in.** When the session can't refresh, Account keeps you signed in with a note that the server can't be reached. It used to say "signed out". The note cleared on its own about 10 s after the server came back on the emulator.
+- **New server columns.** A guard test confirms that a column the server adds later doesn't break installed apps.
+
+### 5. Reminders (Step 29)
+A reminder rang 10 minutes late on the emulator, because Android 14 doesn't grant exact alarms by default. The quest form now shows the "allow exact reminder times" prompt, which was only in Settings.
+
+### 6. Bench and CI (Steps 3, 9, 14, 18, 39–42)
+- **Fewer emails.** `newPlayer` (admin-made, password sign-in) means only the sign-in, display-name and report tests send real code emails.
+- **Simulated time.** `sql` runs SQL in the database container, to pretend days have passed.
+- **CI lints the database** after applying every migration.
+- **Coverage.** The bench now covers two phones, unique names, a broken streak and RESET.
+
+### 7. Docs (Steps 1, 13–15, 19, 21, 25, 36–40, 43)
+- **Updated:**
+  - `schema.md`;
+  - `PRIVACY.md` (the private change times, the report limits, leaves sent at sign-out and on reconnect, RESET);
+  - `LOCAL_SUPABASE.md`;
+  - `CLOUD_SETUP.md` (16 migrations, run the Advisors);
+  - `NOTIFICATIONS.md`;
+  - the README's fair-play line;
+  - the CHANGELOG.
+- **Day 32's CI result.** All four runs passed. It was recorded first thing (Step 1).
+
+### 8. Testing
+- 1,028 unit tests, 0 failing, 0 skipped with the bench on. There were 973 on Day 32.
+- 29 Node bench tests and 17 Edge Function tests pass.
+- 20 of 20 instrumented tests pass, run twice.
+- Details are in VERIFICATION.md Section L.
+
+### 9. Corrections
+- **Step 4's migration comment.** It said a new `profiles` column would break installed apps. Step 5 checked, and supabase-kt ignores unknown columns. The private table is kept because players mustn't read or set the change times, and the comment was corrected.
+
+### 10. Known gaps for Day 34 onwards
+- **Hosted project.** Still nothing has run against a hosted Supabase project, and the dashboard Advisors haven't checked today's migrations. `docs/CLOUD_SETUP.md` has the steps.
+- **What the server can't check.**
+  - XP itself, because quests are unlimited.
+  - A first upload's history.
+  - A client that invents completions can still climb, but only at a real player's pace.
+- **Two real phones.** One account on two real phones hasn't been tried. The bench simulates it with two app states.
+- **Not seen on a device:** the streak-at-risk nudge (it needs an evening and a live streak).
+- **CI.** The new lint step in `cloud-tests.yml` runs on GitHub for the first time with this push.
+- **Before the next tag.** `versionName` is still 1.1.0.
+- **Your computer.**
+  - The emulator still has the local-stack debug build, and its test account's row was removed by the final `db reset`. Install an ordinary debug build before using it normally.
+  - The local stack is stopped at the end of the day, and its Docker images take about 9 GB.
