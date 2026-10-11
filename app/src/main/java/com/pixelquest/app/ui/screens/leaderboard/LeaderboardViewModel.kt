@@ -320,6 +320,7 @@ class LeaderboardViewModel @Inject constructor(
     companion object {
         /** Heroes shown above and below you in the AROUND YOU view. */
         const val AROUND_YOU_RADIUS = 3
+        const val REPORT_ALREADY_FILED = "You've already reported this player today. Thanks, it's in."
     }
 
     fun clearError() {
@@ -338,6 +339,13 @@ class LeaderboardViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(
                         errorMessage = "Please sign in to report players."
                     )
+                }
+                // The server takes one report per player a day (20261011000003_report_limits.sql).
+                is SupabaseResult.ServerError -> _uiState.value = if (result.code == 409) {
+                    _uiState.value.copy(reportMessage = REPORT_ALREADY_FILED)
+                } else {
+                    // An answer from the server isn't a network problem, which this used to say.
+                    _uiState.value.copy(errorMessage = "Could not submit the report. Please try again later.")
                 }
                 else -> {
                     _uiState.value = _uiState.value.copy(
