@@ -1,6 +1,6 @@
 // Reports, account deletion and the AI call counter, against a local Supabase.
 import assert from "node:assert/strict";
-import { asService, call, localTest, newEmail, signInWithEmailCode, sql } from "./stack.ts";
+import { asService, call, localTest, newEmail, newPlayer, signInWithEmailCode, sql } from "./stack.ts";
 
 async function joinBoard(session: { accessToken: string; userId: string }) {
   const res = await call("/rest/v1/profiles?on_conflict=id", {
@@ -74,3 +74,31 @@ localTest("the AI call counter is closed to players: only the Edge Function's se
   const counted = await asService(`/rest/v1/ai_proxy_usage?device_id=eq.user:${player.userId}&select=calls`);
   assert.deepEqual(counted.body, [{ calls: 2 }], "a refused claim isn't counted");
 });
+
+localTest("reports can't be used to spam: once a day per player, never yourself, on the server's clock", async () => {
+  const [reporter, reported] = await Promise.all([newPlayer("spammer"), newPlayer("target")]);
+  await joinBoard(reported);
+  await joinBoard(reporter);
+  const report = (about: string, extra: Record<string, unknown> = {}) =>
+    call("/rest/v1/reports", {
+      token: reporter.accessToken,
+      body: { reporter_id: reporter.userId, reported_profile_id: about, reason: "Flagged offensive display name: x", ...extra },
+    });
+
+  assert.equal((await report(reported.userId)).status, 201);
+  const again = await report(reported.userId);
+  assert.equal(again.status, 409, JSON.stringify(again.body));
+  assert.equal(again.body.code, "23505");
+
+  // A made-up date doesn't get round it: the server stamps its own time.
+  assert.equal((await report(reported.userId, { created_at: "2001-01-01T00:00:00Z" })).status, 409);
+
+  const self = await report(reporter.userId);
+  assert.equal(self.status, 400, JSON.stringify(self.body));
+  assert.equal(self.body.code, "23514");
+
+  const stored = await asService(`/rest/v1/reports?reporter_id=eq.${reporter.userId}&select=created_at`);
+  assert.equal(stored.body.length, 1);
+  assert.ok(Math.abs(Date.parse(stored.body[0].created_at) - Date.now()) < 10 * 60_000);
+});
+
