@@ -32,6 +32,10 @@ jobs:
       - name: Start the local Supabase stack
         run: npx --yes supabase@2.120.0 start -x studio,postgres-meta,storage-api,imgproxy,realtime,logflare,vector,supavisor
 
+      # Every migration applied above; the linter fails the run on a schema error in any of them.
+      - name: Lint the database
+        run: npx --yes supabase@2.120.0 db lint --local --fail-on error
+
       # A fake key: calls that pass the proxy's checks reach Google, which refuses it, so no quota is used.
       - name: Serve gemini-proxy with a fake Gemini key
         run: |

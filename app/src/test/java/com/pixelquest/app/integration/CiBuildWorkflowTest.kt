@@ -92,6 +92,7 @@ class CiBuildWorkflowTest {
         val workflow = listOf(File("../.github/workflows/cloud-tests.yml"), File(".github/workflows/cloud-tests.yml")).first { it.exists() }
         val active = workflow.readLines().filterNot { it.trim().startsWith("#") }
         assertTrue(active.any { it.contains("supabase@2.120.0 start") })
+        assertTrue("The migrations are linted", active.any { it.contains("db lint --local --fail-on error") })
         assertTrue(active.any { it.contains("SUPABASE_LOCAL: '1'") })
         assertTrue(active.any { it.contains("PIXELQUEST_LOCAL_SUPABASE: '1'") })
         // Every Kotlin bench class, not only LocalSupabaseAppTest (the sync worker and account-link tests were left out).
