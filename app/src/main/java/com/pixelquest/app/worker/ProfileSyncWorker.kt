@@ -31,7 +31,11 @@ class ProfileSyncWorker @AssistedInject constructor(
     private fun outcome(result: SupabaseResult<*>): Result = when (result) {
         is SupabaseResult.Success -> Result.success()
         is SupabaseResult.NetworkError -> Result.retry()
-        is SupabaseResult.ServerError -> Result.retry()
+        // The server refused this request (a name its filter rejects, say): sending it again gets the
+        // same answer, and used to retry with backoff for as long as the app was installed. The next
+        // completion or SYNC NOW starts a fresh sync. Outages, rate limits and an expired session
+        // (401, refreshed meanwhile) are worth retrying.
+        is SupabaseResult.ServerError -> if (result.code in REFUSED) Result.failure() else Result.retry()
         is SupabaseResult.AuthError -> Result.failure()
         is SupabaseResult.UnknownError -> Result.retry()
     }
@@ -99,10 +103,7 @@ class ProfileSyncWorker @AssistedInject constructor(
             val serverProfileResult = serverRead ?: cloudProfileRepository.fetchCloudProfile(accountId)
             val serverProfile = when (serverProfileResult) {
                 is SupabaseResult.Success -> serverProfileResult.data
-                is SupabaseResult.NetworkError -> return Result.retry()
-                is SupabaseResult.ServerError -> return Result.retry()
-                is SupabaseResult.AuthError -> return Result.failure()
-                is SupabaseResult.UnknownError -> return Result.retry()
+                else -> return outcome(serverProfileResult)
             }
 
             val streak = streakRepository.getCurrentStreak().first()
@@ -130,13 +131,7 @@ class ProfileSyncWorker @AssistedInject constructor(
                 }
             }
 
-            when (val syncResult = cloudProfileRepository.syncProfileToCloud()) {
-                is SupabaseResult.Success -> Result.success()
-                is SupabaseResult.NetworkError -> Result.retry()
-                is SupabaseResult.ServerError -> Result.retry()
-                is SupabaseResult.AuthError -> Result.failure()
-                is SupabaseResult.UnknownError -> Result.retry()
-            }
+            outcome(cloudProfileRepository.syncProfileToCloud())
         } catch (e: Exception) {
             // Graceful degradation: Supabase outage or transient network crash retries via WorkManager backoff
             // without blocking local app functions (alarms, quests, leveling, etc.)
@@ -158,6 +153,9 @@ class ProfileSyncWorker @AssistedInject constructor(
     }
 
     companion object {
+        /** Statuses for a request the server refused as it stands: bad request, forbidden, conflict, unprocessable. */
+        private val REFUSED = setOf(400, 403, 404, 409, 422)
+
         const val SYNC_NOTIFICATION_ID = 9001
     }
 }
