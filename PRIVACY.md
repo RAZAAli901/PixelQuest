@@ -31,7 +31,7 @@ When you sign in and choose to join the leaderboard, the following data is trans
 | **Current & Longest Streak** | Number of consecutive perfect days completed. | **Yes**, used for "Top Streaks" ranking. |
 | **Player Level & Total XP** | Current RPG level and total accumulated experience points. | **Yes**, used for "Top Levels" ranking. |
 | **Leaderboard Opt-In Flag** | Boolean flag indicating active participation. | Used by database security policies. |
-| **Last Updated Timestamp** | UTC timestamp, from the server's clock, used for Last-Write-Wins multi-device synchronization. | Used for sync conflict resolution. |
+| **Last Updated Timestamp** | UTC timestamp of the last write, from the server's clock. | Stored with the row; not shown in rankings. |
 | **When your streak and level last changed** | Two server-side timestamps used only to check that leaderboard numbers grow at a pace the game allows (a streak by at most one day a day). Kept in a separate table that players, including you, can't read through the app. | **No.** |
 
 > [!IMPORTANT]
@@ -54,6 +54,9 @@ Our cloud database utilizes PostgreSQL with strict **Row-Level Security (RLS)**:
 - **Read Restrictions**: Profiles are only queryable if `leaderboard_opt_in` is explicitly `true`.
 - **Spectator Mode**: Signed-in players who have not opted in can browse the leaderboard in read-only mode without appearing on the leaderboard.
 - **Moderation Reports**: Display name abuse reports are stored in an insert-only table accessible strictly to moderation tooling.
+  - Each report holds your account ID as the reporter, the reported player and a reason.
+  - You can report a player once a day and can't report yourself.
+  - The time recorded is the server's.
 
 ---
 
@@ -95,6 +98,9 @@ PixelQuest provides transparent, immediate mechanisms to modify or erase your da
 - Go to **Settings > Cloud & Leaderboard**.
 - Tap **"LEAVE LEADERBOARD (OPT OUT)"** and confirm.
 - **Result**: Your cloud row immediately sets `leaderboard_opt_in = false`. You disappear in real time from public rankings, while keeping your cloud account linked. You can rejoin at any time.
+- **Offline:** Account says the leave is waiting, and it's sent as soon as you're back online.
+- **Signing out:** if you sign out first, the app sends the leave before signing out.
+- **Other phones:** your account's other phones follow the leave instead of undoing it.
 
 ### B. Permanent Cloud Data & Account Deletion
 - Go to **Settings > Cloud & Leaderboard**.
@@ -109,6 +115,7 @@ PixelQuest provides transparent, immediate mechanisms to modify or erase your da
 ### C. Complete Local Device Reset
 - Go to **Settings > Danger Zone > Reset All Progress**.
 - **Result**: Wipes the local Room database, resetting all quests, streaks, and settings back to a fresh install.
+- **On the leaderboard**, your numbers start over too (sent with the next sync). Your name and your choice to be on the board are kept.
 
 ---
 
