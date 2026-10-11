@@ -30,6 +30,12 @@ interface CloudProfileRepository {
     }
 
     suspend fun fetchCloudProfile(userId: String): SupabaseResult<CloudProfileDto?> = SupabaseResult.Success(null)
+
+    /**
+     * After RESET ALL PROGRESS: this phone's fresh numbers, sent even though the board holds higher
+     * ones (the usual push never sends lower numbers; see PendingProgressReset).
+     */
+    suspend fun sendProgressAfterReset(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
     suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
     suspend fun deleteCloudProfile(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
@@ -153,6 +159,23 @@ open class CloudProfileRepositoryImpl @Inject constructor(
             if (pending != null) pendingChoice?.confirmed(user.id, optIn)
             true
         }
+    }
+
+    override suspend fun sendProgressAfterReset(): SupabaseResult<Unit> {
+        val user = auth.currentUserOrNull()
+            ?: return SupabaseResult.AuthError(IllegalStateException("No authenticated user"), "Sign in to synchronize profile.")
+        val profile = userProfileRepository.getProfile().first()
+        val name = profile?.leaderboardDisplayName?.ifBlank { null }
+        val streak = streakRepository.getCurrentStreak().first()
+        val dto = buildProfileDto(
+            userId = user.id,
+            displayName = name.orEmpty(),
+            optIn = name != null && profile?.leaderboardOptIn == true,
+            profile = profile,
+            currentStreak = streak?.currentStreak ?: 0,
+            longestStreak = streak?.longestStreak ?: 0
+        )
+        return safeSupabaseCall<Unit> { postgrest["profiles"].upsert(dto) }
     }
 
     override suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> {

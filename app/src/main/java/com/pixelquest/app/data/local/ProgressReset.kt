@@ -15,13 +15,17 @@ import javax.inject.Singleton
  * RESET ALL PROGRESS. In one transaction it deletes every task, completion log, level-history
  * entry and cached AI insight, and resets the streak, XP, level and difficulty to a new player's.
  * Reminders and a pending level-up celebration are cleared too. Kept: the cloud account link and
- * leaderboard choice, and app settings such as theme, sound and notifications.
+ * leaderboard choice, and app settings such as theme, sound and notifications. On the leaderboard,
+ * the fresh numbers are sent too (PendingProgressReset): the board used to keep the old streak and
+ * level until the player passed them again.
  */
 @Singleton
 class ProgressReset @Inject constructor(
     private val db: AppDatabase,
     private val taskAlarmScheduler: TaskAlarmScheduler,
-    private val levelUpSignalManager: LevelUpSignalManager
+    private val levelUpSignalManager: LevelUpSignalManager,
+    private val pendingProgressReset: com.pixelquest.app.data.repository.PendingProgressReset? = null,
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
 ) {
     suspend fun resetAll() {
         val tasks = db.taskDao().getAllTasks().first()
@@ -47,5 +51,11 @@ class ProgressReset @Inject constructor(
             db.difficultySettingsDao().insertSettings(DifficultySettingsEntity())
         }
         levelUpSignalManager.clearPendingLevelUp()
+
+        val accountId = profile?.supabaseUserId
+        if (accountId != null && profile.leaderboardOptIn) {
+            pendingProgressReset?.mark(accountId)
+            syncScheduler?.scheduleProfileSync(debounceMs = 0L)
+        }
     }
 }

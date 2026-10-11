@@ -103,4 +103,36 @@ class ProgressResetTest {
         assertTrue(profile.leaderboardOptIn)
         assertEquals("Aly_Q", profile.leaderboardDisplayName)
     }
+
+    @Test
+    fun resetAll_onTheLeaderboard_sendsTheFreshNumbersThere() = runBlocking {
+        seedAPlayedGame()
+        val pending = com.pixelquest.app.data.repository.PendingProgressReset(
+            context.getSharedPreferences("reset-test", android.content.Context.MODE_PRIVATE)
+        )
+        val scheduler = com.pixelquest.app.worker.RecordingSyncScheduler()
+
+        ProgressReset(db, TaskAlarmScheduler(context), levelUps, pending, scheduler).resetAll()
+
+        // The board used to keep the old streak and level until the player passed them again.
+        assertTrue(pending.isPendingFor("user-1"))
+        assertEquals(1, scheduler.callCount)
+        assertEquals(0L, scheduler.lastDebounceMs)
+    }
+
+    @Test
+    fun resetAll_offTheLeaderboard_sendsNothing() = runBlocking {
+        seedAPlayedGame()
+        db.userProfileDao().updateLeaderboardOptIn(false)
+        val pending = com.pixelquest.app.data.repository.PendingProgressReset(
+            context.getSharedPreferences("reset-test-off", android.content.Context.MODE_PRIVATE)
+        )
+        val scheduler = com.pixelquest.app.worker.RecordingSyncScheduler()
+
+        ProgressReset(db, TaskAlarmScheduler(context), levelUps, pending, scheduler).resetAll()
+
+        assertEquals(false, pending.isPendingFor("user-1"))
+        assertEquals(0, scheduler.callCount)
+    }
 }
+

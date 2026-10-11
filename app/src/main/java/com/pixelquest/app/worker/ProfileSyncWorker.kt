@@ -25,7 +25,8 @@ class ProfileSyncWorker @AssistedInject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val cloudProfileRepository: CloudProfileRepository,
     private val streakRepository: com.pixelquest.app.domain.repository.StreakRepository,
-    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null
+    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null,
+    private val pendingProgressReset: com.pixelquest.app.data.repository.PendingProgressReset? = null
 ) : CoroutineWorker(appContext, workerParams) {
 
     private fun outcome(result: SupabaseResult<*>): Result = when (result) {
@@ -93,6 +94,14 @@ class ProfileSyncWorker @AssistedInject constructor(
                     }
                     !profile.leaderboardOptIn -> return Result.success()
                 }
+            }
+
+            // RESET ALL PROGRESS on this phone: its fresh numbers go to the board once, though the
+            // board holds higher ones (the checks below would hold them back for good).
+            if (pendingProgressReset?.isPendingFor(accountId) == true) {
+                val sent = cloudProfileRepository.sendProgressAfterReset()
+                if (sent is SupabaseResult.Success) pendingProgressReset.sent(accountId)
+                return outcome(sent)
             }
 
             // Check server state for multi-device Last-Write-Wins and Anti-Regression guards. The

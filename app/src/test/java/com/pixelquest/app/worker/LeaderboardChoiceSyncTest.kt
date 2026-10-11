@@ -55,6 +55,11 @@ class LeaderboardChoiceSyncTest {
             calls += "leave"
             return SupabaseResult.Success(Unit)
         }
+        var resetAnswer: SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+        override suspend fun sendProgressAfterReset(): SupabaseResult<Unit> {
+            calls += "reset"
+            return resetAnswer
+        }
     }
 
     private fun row(optIn: Boolean, name: String = "Titan_Slayer") =
@@ -64,11 +69,13 @@ class LeaderboardChoiceSyncTest {
         UserProfileEntity(username = "Hero", avatarId = "avatar_hero", supabaseUserId = "acct", leaderboardOptIn = optIn, leaderboardDisplayName = name)
     )
 
+    private val resets = com.pixelquest.app.data.repository.PendingProgressReset(context.getSharedPreferences("reset-sync-test", Context.MODE_PRIVATE))
+
     private fun sync(profiles: FakeUserProfileRepository, server: Server): ListenableWorker.Result = runBlocking {
         TestListenableWorkerBuilder<ProfileSyncWorker>(context)
             .setWorkerFactory(object : WorkerFactory() {
                 override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters) =
-                    ProfileSyncWorker(appContext, workerParameters, profiles, server, FakeStreakRepository(StreakEntity()), pending)
+                    ProfileSyncWorker(appContext, workerParameters, profiles, server, FakeStreakRepository(StreakEntity()), pending, resets)
             })
             .build()
             .doWork()
@@ -161,4 +168,30 @@ class LeaderboardChoiceSyncTest {
         assertFalse(profiles.profile.value!!.leaderboardOptIn)
         assertEquals("its leaving is sent, not undone", listOf("leave"), server.calls)
     }
+
+    @Test
+    fun afterAReset_theFreshNumbersAreSentOnce_pastTheNoLowerNumbersGuard() {
+        pending.startTracking()
+        resets.mark("acct")
+        val profiles = phone(optIn = true, name = "Titan_Slayer")
+        val server = Server(row(optIn = true))
+
+        assertEquals(ListenableWorker.Result.success(), sync(profiles, server))
+        assertEquals(listOf("reset"), server.calls)
+        assertFalse(resets.isPendingFor("acct"))
+
+        sync(profiles, server)
+        assertEquals("then ordinary syncs again", listOf("reset", "push"), server.calls)
+    }
+
+    @Test
+    fun aResetMadeOffline_isSentLater() {
+        pending.startTracking()
+        resets.mark("acct")
+        val server = Server(row(optIn = true)).also { it.resetAnswer = SupabaseResult.NetworkError(java.io.IOException("offline")) }
+
+        assertEquals(ListenableWorker.Result.retry(), sync(phone(optIn = true, name = "Titan_Slayer"), server))
+        assertTrue(resets.isPendingFor("acct"))
+    }
 }
+
