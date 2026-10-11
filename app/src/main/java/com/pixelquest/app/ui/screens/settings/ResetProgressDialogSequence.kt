@@ -17,7 +17,7 @@ fun ResetProgressDialogSequence(
     when (step) {
         1 -> PixelConfirmDialog(
             title = "⚠️ RESET ALL PROGRESS?",
-            message = "This will delete all your quests and their history, your streak, XP and level, and restart setup. Your theme, sound and notification settings are kept. Proceed?",
+            message = "This will delete all your quests and their history, your streak, XP and level, and restart setup. If you're on the leaderboard, your numbers there start over too, under the same name. Your theme, sound and notification settings are kept. Proceed?",
             confirmText = "YES, CONTINUE",
             dismissText = "CANCEL",
             onConfirm = onNextStep,
