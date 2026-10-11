@@ -2,7 +2,7 @@
 // set SUPABASE_LOCAL=1, or every test in supabase/tests is skipped. See docs/LOCAL_SUPABASE.md.
 //
 // Nothing here talks to a hosted project: the URLs and keys come from `supabase status` on this PC.
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { test } from "node:test";
 
 export const LOCAL = process.env.SUPABASE_LOCAL === "1";
@@ -119,3 +119,28 @@ export async function signInWithEmailCode(email: string): Promise<Session> {
   if (verified.status !== 200) throw new Error(`verify ${verified.status} ${JSON.stringify(verified.body)}`);
   return { accessToken: verified.body.access_token, userId: verified.body.user.id, email };
 }
+
+/**
+ * A confirmed player made with the admin API and signed in with a password: no email, so tests
+ * that only need a signed-in player don't use up the stack's emails an hour (config.toml).
+ */
+export async function newPlayer(tag: string): Promise<Session> {
+  const email = newEmail(tag);
+  const password = `pw-${Math.random().toString(36).slice(2)}-${Date.now()}`;
+  const made = await asService("/auth/v1/admin/users", { body: { email, password, email_confirm: true } });
+  if (made.status !== 200 && made.status !== 201) throw new Error(`admin create ${made.status} ${JSON.stringify(made.body)}`);
+  const signedIn = await call("/auth/v1/token?grant_type=password", { body: { email, password } });
+  if (signedIn.status !== 200) throw new Error(`password sign-in ${signedIn.status} ${JSON.stringify(signedIn.body)}`);
+  return { accessToken: signedIn.body.access_token, userId: signedIn.body.user.id, email };
+}
+
+/**
+ * Runs SQL as the database owner, in the stack's Postgres container (`supabase_db_<project_id>`),
+ * for what the API can't do, such as pretending some days have passed. Needs Docker on the PATH.
+ */
+export function sql(statement: string): string {
+  return execFileSync("docker", ["exec", "-i", "supabase_db_pixelquest", "psql", "-U", "postgres", "-t", "-A", "-c", statement], {
+    encoding: "utf8",
+  }).trim();
+}
+
