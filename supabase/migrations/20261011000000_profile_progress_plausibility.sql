@@ -18,9 +18,9 @@
 --   * The caps the app's backup import applies: XP 10,000,000, level 999, streaks 36,500.
 -- XP itself can't be checked further: the number of quests a player may have is unlimited.
 --
--- When each player's streak and level last changed is kept in its own table. Every row of
--- profiles is public to the app, which decodes it strictly, so a new column there would break
--- installed apps. The client can't read or set these times.
+-- When each player's streak and level last changed is kept in its own table, where players can
+-- neither read nor set it: every column of profiles is readable by the app and writable by the
+-- row's owner, who could otherwise move the times back to widen their allowance.
 -- The service role (the project's own server code and test bench) is trusted and not limited.
 
 CREATE TABLE IF NOT EXISTS public.profile_progress_marks (
