@@ -64,11 +64,15 @@ The bench tests are skipped unless you opt in, so ordinary test runs don't need 
 
 | Tests | What they check | Command |
 | --- | --- | --- |
-| `supabase/tests/local/*.test.ts` (Node) | Email sign-in and its error codes; leaderboard row-level security and rank counting; reports and account deletion; the AI counter's lock-down; `gemini-proxy`'s sign-in check and per-account limit; the display-name rules | `SUPABASE_LOCAL=1 node --test "supabase/tests/**/*.test.ts"` |
+| `supabase/tests/local/*.test.ts` (Node) | Email sign-in and its error codes; leaderboard row-level security and rank counting; the leaderboard's plausibility rules; reports and account deletion; the AI counter's lock-down; `gemini-proxy`'s sign-in check and per-account limit; the display-name rules | `SUPABASE_LOCAL=1 node --test "supabase/tests/**/*.test.ts"` |
 | `LocalSupabaseAppTest` (Kotlin) | The app's own repositories against the stack: email sign-in, joining, leaderboard and rank, sync decisions, leaving, account deletion, the AI proxy with a real session | `PIXELQUEST_LOCAL_SUPABASE=1 ./gradlew :app:testDebugUnitTest --tests "*LocalSupabaseAppTest"` |
-| `LocalSupabaseSyncAndBoardTest` (Kotlin) | The real `ProfileSyncWorker`, reporting a player, paging the leaderboard past 20, refreshing an expiring session before an AI call, and an account new to a phone keeping its place on the board | `PIXELQUEST_LOCAL_SUPABASE=1 ./gradlew :app:testDebugUnitTest --tests "*LocalSupabase*"` runs both |
+| `LocalSupabaseSyncAndBoardTest` (Kotlin) | The real `ProfileSyncWorker`, reporting a player, paging the leaderboard past 20, refreshing an expiring session before an AI call, an account new to a phone keeping its place on the board, and one account on two phones following its latest leaderboard choice | `PIXELQUEST_LOCAL_SUPABASE=1 ./gradlew :app:testDebugUnitTest --tests "*LocalSupabase*"` runs both |
 
 Run the proxy tests with the function served as above. In PowerShell, set the variable first, for example `$env:SUPABASE_LOCAL = "1"`.
+
+Notes on the Node tests:
+- **Docker on the `PATH`.** The plausibility tests run SQL in the database container (`supabase_db_pixelquest`) to pretend days have passed, so `docker` must be on the `PATH`. Docker Desktop on Windows puts it in `%LOCALAPPDATA%\Programs\DockerDesktop\resources\bin`.
+- **Emails.** Only the sign-in tests send real code emails. The rest use `newPlayer` in `stack.ts`, which makes a confirmed player with the admin API and signs in with a password. That keeps a full run well under the stack's 30 emails an hour.
 
 ## The real app against the bench
 
