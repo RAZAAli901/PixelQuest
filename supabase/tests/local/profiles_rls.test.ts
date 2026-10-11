@@ -90,13 +90,18 @@ localTest("leaving the board hides the row from others but not from its owner", 
 });
 
 localTest("rank counting (HEAD with an exact count) sees only rows the player may see", async () => {
-  // Streaks no other test uses, cleared from earlier runs, so the count is about these rows only.
-  assert.equal((await asService("/rest/v1/profiles?current_streak=gte.900000", { method: "DELETE" })).status, 204);
-  const streak = 900_000 + Math.floor(Math.random() * 90_000);
+  // Streaks no other test uses (20,000 to 29,999 days), cleared from earlier runs, so the count is
+  // about these rows only. Each comes with the XP and longest streak the server needs to believe it.
+  assert.equal(
+    (await asService("/rest/v1/profiles?current_streak=gte.20000&current_streak=lt.30000", { method: "DELETE" })).status,
+    204,
+  );
+  const streak = 20_000 + Math.floor(Math.random() * 9_000);
+  const believable = (days: number) => ({ current_streak: days, longest_streak: days, total_xp: 50 * days });
   const players = await Promise.all(["e1", "e2", "e3"].map((t) => signInWithEmailCode(newEmail(t))));
-  await upsertOwn(players[0], { current_streak: streak + 2 });
-  await upsertOwn(players[1], { current_streak: streak + 1, leaderboard_opt_in: false });
-  await upsertOwn(players[2], { current_streak: streak });
+  await upsertOwn(players[0], believable(streak + 2));
+  await upsertOwn(players[1], { ...believable(streak + 1), leaderboard_opt_in: false });
+  await upsertOwn(players[2], believable(streak));
 
   // What LeaderboardRepository.countProfiles sends for "higher streaks than mine".
   const res = await fetch(

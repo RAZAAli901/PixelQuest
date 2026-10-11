@@ -60,8 +60,10 @@ class LocalSupabaseAppTest {
 
         val (supabase, userId) = signedIn("whole")
         val suffix = userId.take(6)
+        // With the XP such a streak takes (50 a perfect day at least), or the server lowers it.
+        val xp = 50 * 36_100
         val profiles = FakeUserProfileRepository(
-            UserProfileEntity(username = "Aria", avatarId = "avatar_hero", level = 4, totalXp = 1234, supabaseUserId = userId)
+            UserProfileEntity(username = "Aria", avatarId = "avatar_hero", level = 4, totalXp = xp, supabaseUserId = userId)
         )
         val cloud = CloudProfileRepositoryImpl(
             supabase.postgrest, supabase.auth, profiles, FakeStreakRepository(StreakEntity(currentStreak = streak, longestStreak = streak))
@@ -71,7 +73,8 @@ class LocalSupabaseAppTest {
         assertEquals(SupabaseResult.Success(Unit), cloud.updateOptInAndSync(optIn = true, displayName = "Aria_$suffix"))
         val stored = LocalSupabase.rows("/rest/v1/profiles?id=eq.$userId&select=display_name,level,total_xp,current_streak,leaderboard_opt_in").single()
         assertEquals("Aria_$suffix", stored.jsonObjectField("display_name"))
-        assertEquals("1234", stored.jsonObjectField("total_xp"))
+        assertEquals("$xp", stored.jsonObjectField("total_xp"))
+        assertEquals("$streak", stored.jsonObjectField("current_streak"))
         assertEquals("true", stored.jsonObjectField("leaderboard_opt_in"))
 
         // The leaderboard: top of the streak board, rank 1, and "around you".
@@ -85,9 +88,9 @@ class LocalSupabaseAppTest {
         assertEquals(userId, around.entries.first().profile.id)
 
         // More progress on this device is sent; less than the server has (another device) is not.
-        profiles.profile.value = profiles.profile.value!!.copy(totalXp = 2000)
+        profiles.profile.value = profiles.profile.value!!.copy(totalXp = xp + 500)
         assertEquals(SupabaseResult.Success(true), cloud.pushProfileToCloud())
-        LocalSupabase.setProfileColumns(userId, """"total_xp":900000""")
+        LocalSupabase.setProfileColumns(userId, """"total_xp":9000000""")
         assertEquals(SupabaseResult.Success(false), cloud.pushProfileToCloud())
 
         // Leaving the board: another player no longer sees the row.
