@@ -31,7 +31,8 @@ When you sign in and choose to join the leaderboard, the following data is trans
 | **Current & Longest Streak** | Number of consecutive perfect days completed. | **Yes**, used for "Top Streaks" ranking. |
 | **Player Level & Total XP** | Current RPG level and total accumulated experience points. | **Yes**, used for "Top Levels" ranking. |
 | **Leaderboard Opt-In Flag** | Boolean flag indicating active participation. | Used by database security policies. |
-| **Last Updated Timestamp** | UTC timestamp used for Last-Write-Wins multi-device synchronization. | Used for sync conflict resolution. |
+| **Last Updated Timestamp** | UTC timestamp, from the server's clock, used for Last-Write-Wins multi-device synchronization. | Used for sync conflict resolution. |
+| **When your streak and level last changed** | Two server-side timestamps used only to check that leaderboard numbers grow at a pace the game allows (a streak by at most one day a day). Kept in a separate table that players, including you, can't read through the app. | **No.** |
 
 > [!IMPORTANT]
 > **Your individual task names, quest descriptions, scheduled times, and private completion logs are NEVER uploaded to the cloud.** Only your aggregate statistics (level, streak, XP) and chosen display name are synchronized.
@@ -42,7 +43,7 @@ Data synchronization occurs strictly when:
 2. You explicitly choose to opt into the leaderboard and confirm your public display name.
 3. Background synchronization (`ProfileSyncWorker`) runs after you complete a quest or level up, pushing updated aggregate stats.
 
-**Sharing a phone:** the leaderboard choice, your public display name and your AI Coach consent belong to your account. If a different account signs in on the same phone, they're reset, so the next person chooses for themselves and is never put on the leaderboard under your name. When you sign in again (also after reinstalling the app, or on another phone), your leaderboard choice and public name come back from your account's own record on the server. The AI Coach consent isn't stored there, so it stays off until you turn it on again.
+**Sharing a phone:** the leaderboard choice, your public display name and your AI Coach consent belong to your account. If a different account signs in on the same phone, they're reset, so the next person chooses for themselves and is never put on the leaderboard under your name. When you sign in again (also after reinstalling the app, or on another phone), your leaderboard choice and public name come back from your account's own record on the server. With one account on two phones, joining or leaving on either one applies to both: the other phone follows at its next sync instead of undoing it. The AI Coach consent isn't stored there, so it stays off until you turn it on again.
 
 ---
 
@@ -100,7 +101,7 @@ PixelQuest provides transparent, immediate mechanisms to modify or erase your da
 - Scroll to **"Cloud Data & Privacy"** and tap **"DELETE MY CLOUD DATA"**.
 - Confirm through the double-confirmation prompt.
 - **Result**:
-  1. Your row in `public.profiles` is permanently deleted.
+  1. Your row in `public.profiles` is permanently deleted, with the record of when your streak and level last changed.
   2. The `delete_user_account()` RPC purges your Supabase authentication record from `auth.users`.
   3. Local cloud identifiers and credentials on your device are completely wiped, and you are signed out locally.
   4. Local quests, streaks, and levels remain safe on your device.
