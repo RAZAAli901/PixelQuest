@@ -29,6 +29,11 @@ class TaskFormViewModel @Inject constructor(
 
     private val _formState = MutableStateFlow(withStart(TaskFormState()))
 
+    /** Whether Android lets reminders fire at their exact time ("Alarms & reminders"). */
+    fun canScheduleExactAlarms(): Boolean = taskAlarmScheduler.canScheduleExactAlarms()
+
+    fun exactAlarmSettingsIntent(): android.content.Intent = taskAlarmScheduler.openExactAlarmSettingsIntent()
+
     /** Refreshes [TaskFormState.startsTomorrow] for a new quest; edited quests keep their start day. */
     private fun withStart(state: TaskFormState): TaskFormState {
         val time = state.scheduledTime

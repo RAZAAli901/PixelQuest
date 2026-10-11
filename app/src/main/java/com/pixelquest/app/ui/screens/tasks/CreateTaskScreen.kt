@@ -48,6 +48,7 @@ fun CreateTaskScreen(
 ) {
     val formState by viewModel.formState.collectAsState()
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     TaskFormContent(
         formState = formState,
@@ -71,7 +72,9 @@ fun CreateTaskScreen(
                 onNavigateBack()
             }
         },
-        onNavigateBack = onNavigateBack
+        onNavigateBack = onNavigateBack,
+        canScheduleExact = { viewModel.canScheduleExactAlarms() },
+        onAllowExact = { context.startActivity(viewModel.exactAlarmSettingsIntent()) }
     )
 }
 
@@ -90,7 +93,9 @@ fun TaskFormContent(
     onReminderStyleSelected: (com.pixelquest.app.domain.model.ReminderStyle) -> Unit = {},
     onSave: () -> Unit = {},
     onDelete: () -> Unit = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    canScheduleExact: () -> Boolean = { true },
+    onAllowExact: () -> Unit = {}
 ) {
     if (showDeleteConfirm) {
         PixelConfirmDialog(
@@ -199,6 +204,12 @@ fun TaskFormContent(
                 onLeadSelected = onReminderLeadSelected,
                 onStyleSelected = onReminderStyleSelected
             )
+            // Where the reminder is set: without "Alarms & reminders" Android may ring it up to 10
+            // minutes late (seen on the emulator), and the note was only in Settings.
+            if (formState.reminderEnabled) {
+                Spacer(modifier = Modifier.height(8.dp))
+                com.pixelquest.app.ui.screens.settings.ExactAlarmPrompt(canScheduleExact = canScheduleExact, onAllow = onAllowExact)
+            }
             Spacer(modifier = Modifier.height(24.dp))
 
             PixelButton(
