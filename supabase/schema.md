@@ -9,7 +9,7 @@ The `profiles` table stores cloud-synchronized leaderboard profiles for PixelQue
 | Column Name | Data Type | Constraints | Default | Description |
 |---|---|---|---|---|
 | `id` | `UUID` | `PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE` | N/A | Unique identifier linked 1:1 to Supabase Auth user. |
-| `display_name` | `TEXT` | `NOT NULL, CHECK (char_length(display_name) <= 20)`; the moderation trigger also requires `^[a-zA-Z0-9_]{3,20}$` and refuses offensive words (see "Display names" below) | `''` | Publicly visible leaderboard name. Separate from the local hero name and the sign-in email. |
+| `display_name` | `TEXT` | `NOT NULL, CHECK (char_length(display_name) <= 20)`; unique ignoring case when not empty; the moderation trigger also requires `^[a-zA-Z0-9_]{3,20}$` and refuses offensive words (see "Display names" below) | `''` | Publicly visible leaderboard name. Separate from the local hero name and the sign-in email. |
 | `current_streak` | `INTEGER` | `NOT NULL, CHECK (current_streak >= 0)` | `0` | Active daily streak count. |
 | `longest_streak` | `INTEGER` | `NOT NULL, CHECK (longest_streak >= 0)` | `0` | All-time highest streak count. |
 | `level` | `INTEGER` | `NOT NULL, CHECK (level >= 1)` | `1` | Current hero level. |
@@ -65,6 +65,17 @@ When each player's streak and level last changed is kept in `public.profile_prog
 ## Display names (`20261010000000_display_name_word_matching.sql`)
 
 The trigger `check_display_name_moderation` refuses a name that isn't 3-20 letters, digits or `_`, or that contains an offensive term. Unambiguous terms are refused anywhere in the name; words that are only offensive on their own (`tit`, `crap`, `dick`, ...) only as whole words, split at `_` and at lower-to-upper case changes, so `Titan_Slayer` passes and `DickHead` doesn't. Digits used as letters (`sh1t`) are read as letters, and stretched letters as one (`fuuuck`, `Titt`; `20261010000004_display_name_repeated_letters.sql`). The app's `DisplayNameModerator` follows the same rules; both are tested on `supabase/tests/display_names.json`.
+
+**Unique names** (`20261011000001_unique_display_names.sql`). The rule:
+- A partial unique index on `lower(display_name)` where the name isn't empty, so no two players share a name in any case.
+- A name stays its owner's while their row exists, also while they're off the board. A rename or deleting the account frees it.
+- Empty names (a linked profile that hasn't joined yet) don't count.
+
+How the app handles it:
+- Taking someone's name fails with `23505` (HTTP 409), and Account says the name is taken.
+- Rows that already shared a name when the index was added: the least recently updated one kept it, and the others lost the name and left the board.
+
+`supabase/tests/local/unique_names.test.ts` tests the rule.
 
 ## Leaderboard ordering
 
