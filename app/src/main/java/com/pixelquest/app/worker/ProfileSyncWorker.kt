@@ -60,7 +60,11 @@ class ProfileSyncWorker @AssistedInject constructor(
             pendingChoice?.startTrackingAfterUpdate(accountId, profile.leaderboardOptIn)
             val pending = pendingChoice?.pendingFor(accountId)
             if (pending != null && !pending.optIn) {
-                return outcome(cloudProfileRepository.optOutFromLeaderboard())
+                val left = cloudProfileRepository.optOutFromLeaderboard()
+                // Not signed in at the moment (a session that can't refresh): the call sends nothing
+                // and says so by leaving the choice pending. Try again rather than call it done.
+                if (left is SupabaseResult.Success && pendingChoice?.pendingFor(accountId) != null) return Result.retry()
+                return outcome(left)
             }
             if (pending != null) {
                 val name = pending.displayName ?: profile.leaderboardDisplayName.orEmpty()

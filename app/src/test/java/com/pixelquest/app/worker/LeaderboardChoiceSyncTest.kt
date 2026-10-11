@@ -40,10 +40,12 @@ class LeaderboardChoiceSyncTest {
     private val pending = PendingLeaderboardChoice(prefs)
 
     /** The account's row on the server, and what the worker asked of it. */
-    private class Server(var row: CloudProfileDto?) : CloudProfileRepository {
+    private inner class Server(var row: CloudProfileDto?) : CloudProfileRepository {
+        var leaveReachesTheServer = true
         val calls = mutableListOf<String>()
         override suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit> {
             calls += "join:$displayName"
+            pending.confirmed("acct", optIn) // as CloudProfileRepositoryImpl does
             return SupabaseResult.Success(Unit)
         }
         override suspend fun syncProfileToCloud(): SupabaseResult<Unit> {
@@ -53,6 +55,7 @@ class LeaderboardChoiceSyncTest {
         override suspend fun fetchCloudProfile(userId: String) = SupabaseResult.Success(row)
         override suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> {
             calls += "leave"
+            if (leaveReachesTheServer) pending.confirmed("acct", optIn = false)
             return SupabaseResult.Success(Unit)
         }
         var resetAnswer: SupabaseResult<Unit> = SupabaseResult.Success(Unit)
@@ -192,6 +195,16 @@ class LeaderboardChoiceSyncTest {
 
         assertEquals(ListenableWorker.Result.retry(), sync(phone(optIn = true, name = "Titan_Slayer"), server))
         assertTrue(resets.isPendingFor("acct"))
+    }
+
+    @Test
+    fun aLeaveThatCouldntBeSent_isTriedAgain() {
+        pending.startTracking()
+        pending.choose("acct", optIn = false, displayName = null)
+        // The session can't refresh: CloudProfileRepositoryImpl returns success without sending.
+        val server = Server(row(optIn = true)).also { it.leaveReachesTheServer = false }
+
+        assertEquals("used to report success, and nothing tried again", ListenableWorker.Result.retry(), sync(phone(optIn = false), server))
     }
 }
 

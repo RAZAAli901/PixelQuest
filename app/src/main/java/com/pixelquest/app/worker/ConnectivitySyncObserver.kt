@@ -16,15 +16,17 @@ import javax.inject.Singleton
 
 /**
  * Monitors device network connectivity state transitions.
- * When network connectivity is restored on an authenticated, opted-in device,
- * this observer immediately schedules a retry of pending profile syncs
- * rather than waiting for the next gameplay trigger event.
+ * When network connectivity is restored on a signed-in device with something to send (on the
+ * leaderboard, or a join, leave or reset still waiting), this observer immediately schedules a
+ * profile sync rather than waiting for the next gameplay trigger event.
  */
 @Singleton
 class ConnectivitySyncObserver @Inject constructor(
     @ApplicationContext private val context: Context,
     private val syncScheduler: SyncScheduler,
-    private val userProfileRepository: UserProfileRepository
+    private val userProfileRepository: UserProfileRepository,
+    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null,
+    private val pendingProgressReset: com.pixelquest.app.data.repository.PendingProgressReset? = null
 ) {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
@@ -33,14 +35,21 @@ class ConnectivitySyncObserver @Inject constructor(
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
-            scope.launch {
-                val profile = userProfileRepository.getProfile().first()
-                val isLinked = !profile?.supabaseUserId.isNullOrBlank()
-                val isOptedIn = profile?.leaderboardOptIn == true
-                if (isLinked && isOptedIn) {
-                    syncScheduler.scheduleProfileSync(debounceMs = 500L)
-                }
-            }
+            scope.launch { onBackOnline() }
+        }
+    }
+
+    /**
+     * Back online: sync if there's anything to send. A phone off the board with a leave still
+     * waiting used to get no sync here, so its player stayed public until the next completed quest.
+     */
+    internal suspend fun onBackOnline() {
+        val profile = userProfileRepository.getProfile().first()
+        val accountId = profile?.supabaseUserId?.ifBlank { null } ?: return
+        val choiceWaiting = pendingChoice?.pendingFor(accountId) != null
+        val resetWaiting = pendingProgressReset?.isPendingFor(accountId) == true
+        if (profile.leaderboardOptIn || choiceWaiting || resetWaiting) {
+            syncScheduler.scheduleProfileSync(debounceMs = 500L)
         }
     }
 
