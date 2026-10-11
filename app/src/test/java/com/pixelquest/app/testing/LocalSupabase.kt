@@ -4,6 +4,7 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.MemoryCodeVerifierCache
 import io.github.jan.supabase.auth.MemorySessionManager
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.serialization.json.Json
@@ -110,9 +111,26 @@ object LocalSupabase {
         asService("/rest/v1/profiles?on_conflict=id", "POST", """{"id":"$userId",$json}""", prefer = "resolution=merge-duplicates")
 
     /** A confirmed player made with the admin API (no email round trip); returns their id. */
-    fun createPlayer(email: String): String {
-        val reply = asService("/auth/v1/admin/users", "POST", """{"email":"$email","email_confirm":true}""")
+    fun createPlayer(email: String, password: String? = null): String {
+        val withPassword = if (password != null) ""","password":"$password"""" else ""
+        val reply = asService("/auth/v1/admin/users", "POST", """{"email":"$email","email_confirm":true$withPassword}""")
         check(reply.status in 200..201) { "admin create user: ${reply.status} ${reply.body}" }
         return Json.parseToJsonElement(reply.body).jsonObject["id"]!!.jsonPrimitive.content
+    }
+
+    /**
+     * A signed-in client for a new player, signed in with a password instead of an emailed code, for
+     * tests that only need a signed-in player: the stack sends 30 emails an hour (config.toml).
+     */
+    suspend fun signedInPlayer(tag: String): Pair<SupabaseClient, String> {
+        val email = newEmail(tag)
+        val password = "pw-${(100000..999999).random()}-${System.currentTimeMillis()}"
+        val id = createPlayer(email, password)
+        val supabase = client()
+        supabase.auth.signInWith(io.github.jan.supabase.auth.providers.builtin.Email) {
+            this.email = email
+            this.password = password
+        }
+        return supabase to id
     }
 }

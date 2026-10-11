@@ -242,5 +242,29 @@ class LocalSupabaseSyncAndBoardTest {
         assertEquals(null, pendingA.pendingFor(userId))
         assertEquals(null, pendingB.pendingFor(userId))
     }
+
+    @Test
+    fun aNameAnotherPlayerHas_isRefused_andThisPhoneStaysOffTheBoard() = runBlocking {
+        val (first, firstId) = LocalSupabase.signedInPlayer("taken1")
+        val (second, secondId) = LocalSupabase.signedInPlayer("taken2")
+        val name = "Taken_${firstId.take(6)}"
+        val streaks = FakeStreakRepository(StreakEntity())
+        fun phone(id: String) = FakeUserProfileRepository(UserProfileEntity(username = "Hero", avatarId = "avatar_hero", supabaseUserId = id))
+
+        assertEquals(
+            SupabaseResult.Success(Unit),
+            CloudProfileRepositoryImpl(first.postgrest, first.auth, phone(firstId), streaks).updateOptInAndSync(optIn = true, displayName = name)
+        )
+
+        val secondPhone = phone(secondId)
+        val pending = PendingLeaderboardChoice(context.getSharedPreferences("taken-${secondId.take(5)}", Context.MODE_PRIVATE))
+        val refused = CloudProfileRepositoryImpl(second.postgrest, second.auth, secondPhone, streaks, pending)
+            .updateOptInAndSync(optIn = true, displayName = name.lowercase())
+
+        assertEquals(SupabaseResult.ServerError(409, CloudProfileRepositoryImpl.NAME_TAKEN), refused)
+        assertEquals(false, secondPhone.profile.value!!.leaderboardOptIn)
+        assertEquals(null, pending.pendingFor(secondId))
+        assertEquals("the second player has no row", null, row(secondId))
+    }
 }
 
