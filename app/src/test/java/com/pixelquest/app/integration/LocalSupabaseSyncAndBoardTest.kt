@@ -18,6 +18,7 @@ import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.safeGeminiCall
 import com.pixelquest.app.data.repository.CloudProfileRepositoryImpl
 import com.pixelquest.app.data.repository.LeaderboardRepositoryImpl
+import com.pixelquest.app.data.repository.PendingLeaderboardChoice
 import com.pixelquest.app.testing.FakeSettingsRepository
 import com.pixelquest.app.testing.FakeStreakRepository
 import com.pixelquest.app.testing.FakeUserProfileRepository
@@ -46,7 +47,8 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * More of the app's cloud code against the local stack (opt-in: PIXELQUEST_LOCAL_SUPABASE=1): the
  * real ProfileSyncWorker, reporting a player, paging the leaderboard, refreshing an expiring
- * session before an AI call, and an account that is new to a phone keeping its place on the board.
+ * session before an AI call, an account that is new to a phone keeping its place on the board, and
+ * one account on two phones following the latest leaderboard choice.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = Application::class)
@@ -69,11 +71,16 @@ class LocalSupabaseSyncAndBoardTest {
     private fun row(userId: String) =
         LocalSupabase.rows("/rest/v1/profiles?id=eq.$userId&select=level,total_xp,leaderboard_opt_in").singleOrNull() as JsonObject?
 
-    private fun runSync(profiles: FakeUserProfileRepository, cloud: CloudProfileRepositoryImpl, streaks: FakeStreakRepository) = runBlocking {
+    private fun runSync(
+        profiles: FakeUserProfileRepository,
+        cloud: CloudProfileRepositoryImpl,
+        streaks: FakeStreakRepository,
+        pending: PendingLeaderboardChoice? = null
+    ) = runBlocking {
         TestListenableWorkerBuilder<ProfileSyncWorker>(context)
             .setWorkerFactory(object : WorkerFactory() {
                 override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters) =
-                    ProfileSyncWorker(appContext, workerParameters, profiles, cloud, streaks)
+                    ProfileSyncWorker(appContext, workerParameters, profiles, cloud, streaks, pending)
             })
             .build()
             .doWork()
@@ -195,4 +202,45 @@ class LocalSupabaseSyncAndBoardTest {
         assertEquals("true", row(userId)!!["leaderboard_opt_in"]!!.jsonPrimitive.content)
         assertEquals("400", row(userId)!!["total_xp"]!!.jsonPrimitive.content)
     }
+
+    @Test
+    fun oneAccountOnTwoPhones_followsTheLatestChoice() = runBlocking {
+        val (phoneA, userId) = signedIn("twophones")
+        // The second phone signed in to the same account (its session, without another email).
+        val phoneB = LocalSupabase.client().also { it.auth.importSession(phoneA.auth.currentSessionOrNull()!!) }
+        val name = "Duo_${userId.take(5)}"
+        val streaks = FakeStreakRepository(StreakEntity(currentStreak = 2, longestStreak = 2))
+        fun phone(tag: String, client: SupabaseClient): Triple<FakeUserProfileRepository, PendingLeaderboardChoice, CloudProfileRepositoryImpl> {
+            val profiles = FakeUserProfileRepository(
+                UserProfileEntity(username = "Duo", avatarId = "avatar_hero", level = 1, totalXp = 300, supabaseUserId = userId)
+            )
+            val pending = PendingLeaderboardChoice(context.getSharedPreferences("phone-$tag-${userId.take(5)}", Context.MODE_PRIVATE))
+                .also { it.startTracking() }
+            return Triple(profiles, pending, CloudProfileRepositoryImpl(client.postgrest, client.auth, profiles, streaks, pending))
+        }
+        val (profilesA, pendingA, cloudA) = phone("a", phoneA)
+        val (profilesB, pendingB, cloudB) = phone("b", phoneB)
+        fun onTheBoard() = row(userId)!!["leaderboard_opt_in"]!!.jsonPrimitive.content == "true"
+
+        // Joined on phone A; phone B follows the account onto the board.
+        assertEquals(SupabaseResult.Success(Unit), cloudA.updateOptInAndSync(optIn = true, displayName = name))
+        runSync(profilesB, cloudB, streaks, pendingB)
+        assertTrue(profilesB.profile.value!!.leaderboardOptIn)
+        assertEquals(name, profilesB.profile.value!!.leaderboardDisplayName)
+
+        // Left on phone A: phone B's next sync follows instead of putting the account back.
+        assertEquals(SupabaseResult.Success(Unit), cloudA.optOutFromLeaderboard())
+        assertEquals(ListenableWorker.Result.success(), runSync(profilesB, cloudB, streaks, pendingB))
+        assertEquals(false, profilesB.profile.value!!.leaderboardOptIn)
+        assertEquals(false, onTheBoard())
+
+        // Joined again on phone B: phone A's next sync follows instead of taking it off again.
+        assertEquals(SupabaseResult.Success(Unit), cloudB.updateOptInAndSync(optIn = true, displayName = name))
+        assertEquals(ListenableWorker.Result.success(), runSync(profilesA, cloudA, streaks, pendingA))
+        assertTrue(profilesA.profile.value!!.leaderboardOptIn)
+        assertEquals(true, onTheBoard())
+        assertEquals(null, pendingA.pendingFor(userId))
+        assertEquals(null, pendingB.pendingFor(userId))
+    }
 }
+
