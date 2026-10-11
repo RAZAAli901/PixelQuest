@@ -8,7 +8,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +33,9 @@ data class AccountUiState(
     val showPrivacyDialog: Boolean = false,
     val isDeletingCloudData: Boolean = false,
     val isSimpleModeEnabled: Boolean = false,
-    val isLeaderboardAllowedUnderSimpleMode: Boolean = true
+    val isLeaderboardAllowedUnderSimpleMode: Boolean = true,
+    /** Joining or leaving was chosen here and hasn't reached the server yet (PendingLeaderboardChoice). */
+    val choiceWaiting: Boolean = false
 )
 
 @HiltViewModel
@@ -39,7 +45,8 @@ class AccountViewModel @Inject constructor(
     private val authRepository: com.pixelquest.app.auth.AuthRepository? = null,
     private val settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null,
     private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
-    private val streakRepository: com.pixelquest.app.domain.repository.StreakRepository? = null
+    private val streakRepository: com.pixelquest.app.domain.repository.StreakRepository? = null,
+    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountUiState())
@@ -63,6 +70,15 @@ class AccountViewModel @Inject constructor(
                     displayNameError = if (otherAccount) null else _uiState.value.displayNameError
                 )
             }
+        }
+        if (pendingChoice != null) viewModelScope.launch {
+            // Says on Account when a join or leave hasn't reached the server yet, and clears when
+            // the background sync gets it there.
+            userProfileRepository.getProfile()
+                .map { it?.supabaseUserId }
+                .distinctUntilChanged()
+                .flatMapLatest { account -> if (account == null) flowOf(null) else pendingChoice.pendingChanges(account) }
+                .collect { waiting -> _uiState.value = _uiState.value.copy(choiceWaiting = waiting != null) }
         }
         viewModelScope.launch {
             settingsRepository?.simpleModeEnabled?.collect { simpleMode ->

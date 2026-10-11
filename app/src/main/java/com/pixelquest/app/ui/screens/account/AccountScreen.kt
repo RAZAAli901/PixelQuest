@@ -319,6 +319,14 @@ fun AccountContent(
                             color = com.pixelquest.app.ui.theme.inkOnPanel(if (accountState.isOptedIn) colors.tertiary else colors.primary),
                             textAlign = TextAlign.Center
                         )
+                        if (accountState.choiceWaiting) {
+                            Text(
+                                text = "⏳ Waiting to reach the server: it's sent as soon as you're online.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.onSurface,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                         com.pixelquest.app.ui.components.PixelTextField(
                             value = accountState.displayNameInput,
                             onValueChange = onDisplayNameChange,

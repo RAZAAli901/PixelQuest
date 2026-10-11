@@ -3,6 +3,10 @@ package com.pixelquest.app.data.repository
 import android.content.Context
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,6 +33,14 @@ class PendingLeaderboardChoice internal constructor(private val prefs: SharedPre
         if (prefs.getString(KEY_ACCOUNT, null) != accountId || !prefs.contains(KEY_OPT_IN)) return null
         return Choice(prefs.getBoolean(KEY_OPT_IN, false), prefs.getString(KEY_NAME, null))
     }
+
+    /** [accountId]'s pending choice now and whenever it changes (chosen here, or confirmed by a sync). */
+    fun pendingChanges(accountId: String): Flow<Choice?> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> trySend(pendingFor(accountId)) }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(pendingFor(accountId))
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }.distinctUntilChanged()
 
     /** The player chose on this phone: it stays pending until the server confirms it. */
     fun choose(accountId: String, optIn: Boolean, displayName: String?) {
