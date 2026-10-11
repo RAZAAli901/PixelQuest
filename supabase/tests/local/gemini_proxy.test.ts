@@ -3,7 +3,7 @@
 // holds a fake GEMINI_API_KEY and AI_PROXY_ACCOUNT_DAILY_LIMIT=2 (docs/LOCAL_SUPABASE.md): calls that
 // get past the checks reach Google, which refuses the fake key, so no quota is used.
 import assert from "node:assert/strict";
-import { asService, call, localTest, newEmail, signInWithEmailCode, stack } from "./stack.ts";
+import { asService, call, localTest, newPlayer, stack } from "./stack.ts";
 
 const proxy = (token?: string, body: unknown = { prompt: "How am I doing?" }) =>
   call("/functions/v1/gemini-proxy", { token, body });
@@ -23,7 +23,7 @@ localTest("callers who aren't signed in are turned away before anything is count
 });
 
 localTest("a signed-in player's calls are counted on their account and stop at its daily limit", async () => {
-  const player = await signInWithEmailCode(newEmail("coach"));
+  const player = await newPlayer("coach");
 
   // Past the checks: Google refuses the fake key, which the proxy reports without its body.
   for (let i = 0; i < 2; i++) {
@@ -39,12 +39,12 @@ localTest("a signed-in player's calls are counted on their account and stop at i
   assert.deepEqual(counted.body, [{ calls: 2 }]);
 
   // Another account has its own allowance.
-  const other = await signInWithEmailCode(newEmail("coach2"));
+  const other = await newPlayer("coach2");
   assert.equal((await proxy(other.accessToken)).status, 502);
 });
 
 localTest("after signing out, the old token no longer works", async () => {
-  const player = await signInWithEmailCode(newEmail("signout"));
+  const player = await newPlayer("signout");
   assert.equal((await call("/auth/v1/logout", { token: player.accessToken, body: {} })).status, 204);
 
   const res = await proxy(player.accessToken);
@@ -53,7 +53,7 @@ localTest("after signing out, the old token no longer works", async () => {
 });
 
 localTest("malformed requests from a signed-in player don't use up a call", async () => {
-  const player = await signInWithEmailCode(newEmail("malformed"));
+  const player = await newPlayer("malformed");
   assert.equal((await proxy(player.accessToken, { prompt: "" })).status, 400);
   assert.equal((await proxy(player.accessToken, { prompt: "x".repeat(6001) })).status, 413);
   const counted = await asService(`/rest/v1/ai_proxy_usage?device_id=eq.user:${player.userId}&select=calls`);

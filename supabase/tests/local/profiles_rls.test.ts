@@ -1,7 +1,7 @@
 // Row-level security on public.profiles (the leaderboard), against a local Postgres.
 // The requests mirror CloudProfileRepository and LeaderboardRepository.
 import assert from "node:assert/strict";
-import { asService, call, localTest, newEmail, signInWithEmailCode, stack, type Session } from "./stack.ts";
+import { asService, call, localTest, newPlayer, stack, type Session } from "./stack.ts";
 
 const upsertHeaders = { Prefer: "resolution=merge-duplicates,return=minimal" };
 
@@ -27,8 +27,8 @@ async function upsertOwn(session: Session, overrides: Record<string, unknown> = 
 }
 
 localTest("players can write only their own row, and nobody signed out can read the board", async () => {
-  const alice = await signInWithEmailCode(newEmail("alice"));
-  const bob = await signInWithEmailCode(newEmail("bob"));
+  const alice = await newPlayer("alice");
+  const bob = await newPlayer("bob");
 
   assert.equal((await upsertOwn(alice)).status, 201);
   assert.ok([200, 201].includes((await upsertOwn(alice, { total_xp: 450 })).status), "upserting again updates");
@@ -61,8 +61,8 @@ localTest("players can write only their own row, and nobody signed out can read 
 });
 
 localTest("leaving the board hides the row from others but not from its owner", async () => {
-  const carol = await signInWithEmailCode(newEmail("carol"));
-  const dave = await signInWithEmailCode(newEmail("dave"));
+  const carol = await newPlayer("carol");
+  const dave = await newPlayer("dave");
   assert.equal((await upsertOwn(carol)).status, 201);
 
   // optOutFromLeaderboard: only the flag, only on the existing row.
@@ -98,7 +98,7 @@ localTest("rank counting (HEAD with an exact count) sees only rows the player ma
   );
   const streak = 20_000 + Math.floor(Math.random() * 9_000);
   const believable = (days: number) => ({ current_streak: days, longest_streak: days, total_xp: 50 * days });
-  const players = await Promise.all(["e1", "e2", "e3"].map((t) => signInWithEmailCode(newEmail(t))));
+  const players = await Promise.all(["e1", "e2", "e3"].map((t) => newPlayer(t)));
   await upsertOwn(players[0], believable(streak + 2));
   await upsertOwn(players[1], { ...believable(streak + 1), leaderboard_opt_in: false });
   await upsertOwn(players[2], believable(streak));
@@ -121,7 +121,7 @@ localTest("rank counting (HEAD with an exact count) sees only rows the player ma
 });
 
 localTest("stored stats can't be negative", async () => {
-  const erin = await signInWithEmailCode(newEmail("erin"));
+  const erin = await newPlayer("erin");
   const res = await upsertOwn(erin, { total_xp: -5 });
   assert.equal(res.status, 400);
   assert.equal(res.body.code, "23514");
