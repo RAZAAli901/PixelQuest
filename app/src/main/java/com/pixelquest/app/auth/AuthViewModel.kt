@@ -15,7 +15,9 @@ sealed class AuthUiState {
     object SignedOut : AuthUiState()
     object SigningIn : AuthUiState()
     data class SignedIn(
-        val user: AuthUser
+        val user: AuthUser,
+        /** Signed in, but the session can't be refreshed right now (see AuthRepository.serverUnreachable). */
+        val serverUnreachable: Boolean = false
     ) : AuthUiState()
     data class Error(
         val message: String,
@@ -83,10 +85,12 @@ class AuthViewModel @Inject constructor(
 
     private fun observeAuthChanges() {
         viewModelScope.launch {
-            authRepository.currentUser.collect { user ->
+            kotlinx.coroutines.flow.combine(authRepository.currentUser, authRepository.serverUnreachable) { user, unreachable ->
+                user to unreachable
+            }.collect { (user, unreachable) ->
                 if (user != null) {
                     linkAccount(user.id)
-                    _uiState.value = AuthUiState.SignedIn(user)
+                    _uiState.value = AuthUiState.SignedIn(user, serverUnreachable = unreachable)
                 } else if (_uiState.value !is AuthUiState.SigningIn && _uiState.value !is AuthUiState.Error) {
                     _uiState.value = AuthUiState.SignedOut
                 }

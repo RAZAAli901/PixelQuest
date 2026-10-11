@@ -9,7 +9,11 @@ import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,7 +25,15 @@ data class AuthUser(
 )
 
 interface AuthRepository {
+    /** The signed-in account, or null when signed out. Nothing is sent while the saved session loads. */
     val currentUser: Flow<AuthUser?>
+
+    /**
+     * True while the account is signed in but its session couldn't be refreshed (offline, or the
+     * server failing). It is still the player's account: sync, the leaderboard and the AI Coach
+     * come back with the connection.
+     */
+    val serverUnreachable: Flow<Boolean> get() = flowOf(false)
     suspend fun exchangeGoogleIdToken(idToken: String, rawNonce: String? = null): SupabaseResult<AuthUser>
     suspend fun signOut(): SupabaseResult<Unit>
     suspend fun getInitialUser(): AuthUser?
@@ -42,22 +54,37 @@ class AuthRepositoryImpl @Inject constructor(
     private val postgrest: Postgrest
 ) : AuthRepository {
 
-    override val currentUser: Flow<AuthUser?> = auth.sessionStatus.map { status ->
-        when (status) {
-            is SessionStatus.Authenticated -> {
-                val user = status.session.user
-                if (user != null) {
-                    AuthUser(
-                        id = user.id,
-                        email = user.email,
-                        displayName = (user.userMetadata?.get("full_name") as? String)
-                            ?: (user.userMetadata?.get("name") as? String)
-                    )
-                } else null
+    override val currentUser: Flow<AuthUser?> = auth.sessionStatus
+        // Still loading the saved session: not an answer yet (it read as signed out).
+        .filterNot { it is SessionStatus.Initializing }
+        .map { status ->
+            when (status) {
+                is SessionStatus.Authenticated -> status.session.user?.toAuthUser()
+                // The refresh failed (offline, say): supabase-kt keeps the session saved but no
+                // longer current, and Account used to say "signed out" until the connection was back.
+                is SessionStatus.RefreshFailure -> savedUser()
+                else -> null
             }
-            else -> null
         }
+
+    override val serverUnreachable: Flow<Boolean> = auth.sessionStatus
+        .filterNot { it is SessionStatus.Initializing }
+        .map { it is SessionStatus.RefreshFailure }
+        .distinctUntilChanged()
+
+    private suspend fun savedUser(): AuthUser? = try {
+        auth.sessionManager.loadSession()?.user?.toAuthUser()
+    } catch (e: kotlinx.coroutines.CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        null
     }
+
+    private fun UserInfo.toAuthUser() = AuthUser(
+        id = id,
+        email = email,
+        displayName = (userMetadata?.get("full_name") as? String) ?: (userMetadata?.get("name") as? String)
+    )
 
     override suspend fun sendEmailCode(email: String): SupabaseResult<Unit> = safeSupabaseCall {
         auth.signInWith(OTP) {
@@ -114,13 +141,10 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getInitialUser(): AuthUser? {
-        val user = auth.currentUserOrNull() ?: return null
-        return AuthUser(
-            id = user.id,
-            email = user.email,
-            displayName = (user.userMetadata?.get("full_name") as? String)
-                ?: (user.userMetadata?.get("name") as? String)
-        )
+        // Asked as the screen opens, before the saved session has loaded, this said signed out.
+        auth.awaitInitialization()
+        return auth.currentUserOrNull()?.toAuthUser()
+            ?: if (auth.sessionStatus.value is SessionStatus.RefreshFailure) savedUser() else null
     }
 
     override suspend fun deleteAccount(): SupabaseResult<Unit> = safeSupabaseCall {

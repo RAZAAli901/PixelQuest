@@ -258,6 +258,14 @@ fun AccountContent(
                             color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             textAlign = TextAlign.Center
                         )
+                        if ((authState as com.pixelquest.app.auth.AuthUiState.SignedIn).serverUnreachable) {
+                            Text(
+                                text = "📡 Can't reach the server right now. You're still signed in: sync, the leaderboard and the AI Coach come back with the connection.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.onSurface,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                         Text(
                             text = "Signed in as:",
                             style = MaterialTheme.typography.bodySmall,
