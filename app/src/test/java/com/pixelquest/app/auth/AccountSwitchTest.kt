@@ -7,6 +7,7 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.model.CloudProfileDto
 import com.pixelquest.app.data.repository.CloudProfileRepository
+import com.pixelquest.app.data.repository.PendingLeaderboardChoice
 import com.pixelquest.app.testing.FakeSettingsRepository
 import com.pixelquest.app.testing.FakeUserProfileRepository
 import kotlinx.coroutines.Dispatchers
@@ -205,4 +206,33 @@ class AccountSwitchTest {
         assertEquals("not read", rows.linkedWhenRead)
         assertTrue(profiles.profile.value!!.leaderboardOptIn)
     }
+
+    @Test
+    fun aChoiceThatNeverReachedTheServer_winsOverTheOlderRow() = runBlocking {
+        // Alice left the board on this phone while offline; then Bob signed in here.
+        val pending = PendingLeaderboardChoice(context.getSharedPreferences("switch-pending", Context.MODE_PRIVATE))
+        val rows = Rows(row("alice", "Alpha", optIn = true))
+        val link = CloudAccountLink(prefs, profiles, settings, rows, pending)
+        link.onSignedIn("alice")
+        pending.choose("alice", optIn = false, displayName = null)
+        link.onSignedIn("bob")
+
+        link.onSignedIn("alice")
+
+        assertFalse("her leaving stands; the row still says she's on the board", profiles.profile.value!!.leaderboardOptIn)
+        assertEquals("and the sync will send it", PendingLeaderboardChoice.Choice(false, null), pending.pendingFor("alice"))
+    }
+
+    @Test
+    fun anAccountNewToThisPhone_startsFollowingItsRow() = runBlocking {
+        val choicePrefs = context.getSharedPreferences("switch-tracking", Context.MODE_PRIVATE)
+        val pending = PendingLeaderboardChoice(choicePrefs)
+
+        CloudAccountLink(prefs, profiles, settings, Rows(), pending).onSignedIn("alice")
+
+        // So the first sync doesn't treat "off" on this new phone as the player's own leaving.
+        pending.startTrackingAfterUpdate("alice", onTheBoardHere = false)
+        assertNull(pending.pendingFor("alice"))
+    }
 }
+

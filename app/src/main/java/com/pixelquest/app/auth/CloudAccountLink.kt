@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.repository.CloudProfileRepository
+import com.pixelquest.app.data.repository.PendingLeaderboardChoice
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -29,15 +30,23 @@ class CloudAccountLink internal constructor(
     private val prefs: SharedPreferences,
     private val userProfileRepository: UserProfileRepository,
     private val settingsRepository: SettingsRepository,
-    private val cloudProfiles: CloudProfileRepository? = null
+    private val cloudProfiles: CloudProfileRepository? = null,
+    private val pendingChoice: PendingLeaderboardChoice? = null
 ) {
     @Inject
     constructor(
         @ApplicationContext context: Context,
         userProfileRepository: UserProfileRepository,
         settingsRepository: SettingsRepository,
-        cloudProfiles: CloudProfileRepository
-    ) : this(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE), userProfileRepository, settingsRepository, cloudProfiles)
+        cloudProfiles: CloudProfileRepository,
+        pendingChoice: PendingLeaderboardChoice
+    ) : this(
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE),
+        userProfileRepository,
+        settingsRepository,
+        cloudProfiles,
+        pendingChoice
+    )
 
     /**
      * Call whenever an account is signed in (a new sign-in or a restored session). Returns true when
@@ -54,10 +63,20 @@ class CloudAccountLink internal constructor(
         }
         val otherAccount = previous != null || (linked != null && linked != accountId)
 
+        // From now on the phone follows the account's row on the server (see PendingLeaderboardChoice).
+        pendingChoice?.startTracking()
+        // A choice this account made here that never reached the server (made offline, before
+        // someone else signed in) is newer than its row.
+        val unsent = pendingChoice?.pendingFor(accountId)
+
         // Read before the account is linked: a sync in between would send "not opted in" for it.
         // Unreadable (offline), a different account still starts with everything off.
         val own = (cloudProfiles?.fetchCloudProfile(accountId) as? SupabaseResult.Success)?.data
         when {
+            unsent != null -> userProfileRepository.updateLeaderboardSettings(
+                optIn = unsent.optIn,
+                displayName = unsent.displayName ?: own?.displayName?.ifBlank { null }
+            )
             own != null -> userProfileRepository.updateLeaderboardSettings(
                 optIn = own.leaderboardOptIn,
                 displayName = own.displayName.ifBlank { null }
