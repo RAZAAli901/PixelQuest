@@ -145,6 +145,9 @@ class AccountViewModel @Inject constructor(
                         )
                     }
                     else -> {
+                        // The join stays pending (PendingLeaderboardChoice) and the sync worker sends
+                        // it once online. It said "will retry" without queueing anything.
+                        syncScheduler?.scheduleProfileSync(debounceMs = 0L)
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isOptedIn = true,

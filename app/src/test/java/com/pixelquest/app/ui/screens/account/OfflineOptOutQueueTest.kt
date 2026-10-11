@@ -18,7 +18,8 @@ import org.junit.Test
 /**
  * Leaving the leaderboard offline used to say "queued when online" without queueing anything: the
  * player's row stayed public until some later progress sync. A failed opt-out now schedules the sync
- * worker, which opts out whenever the local flag is off.
+ * worker, which sends the leave still pending (PendingLeaderboardChoice). Joining offline said "will
+ * retry" without queueing anything either.
  */
 class OfflineOptOutQueueTest {
 
@@ -29,7 +30,7 @@ class OfflineOptOutQueueTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private class CloudReturning(private val result: SupabaseResult<Unit>) : CloudProfileRepository {
-        override suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+        override suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit> = result
         override suspend fun syncProfileToCloud(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
         override suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> = result
     }
@@ -63,4 +64,31 @@ class OfflineOptOutQueueTest {
     fun aConfirmedOptOut_needsNoRetry() {
         assertEquals(0, optOutWith(SupabaseResult.Success(Unit)).callCount)
     }
+
+    private fun joinWith(result: SupabaseResult<Unit>): RecordingSyncScheduler {
+        val scheduler = RecordingSyncScheduler()
+        val profiles = FakeUserProfileRepository(
+            UserProfileEntity(username = "Aria", avatarId = "avatar_hero", supabaseUserId = "user-1", leaderboardOptIn = false)
+        )
+        val viewModel = AccountViewModel(profiles, CloudReturning(result), syncScheduler = scheduler)
+        viewModel.onDisplayNameChanged("Titan_Slayer")
+
+        viewModel.confirmOptIn()
+
+        assertEquals(true, viewModel.uiState.value.isOptedIn)
+        return scheduler
+    }
+
+    @Test
+    fun joiningOffline_queuesTheJoin_withoutDelay() {
+        val scheduler = joinWith(SupabaseResult.NetworkError(java.io.IOException("offline")))
+        assertEquals(1, scheduler.callCount)
+        assertEquals(0L, scheduler.lastDebounceMs)
+    }
+
+    @Test
+    fun aConfirmedJoin_needsNoRetry() {
+        assertEquals(0, joinWith(SupabaseResult.Success(Unit)).callCount)
+    }
 }
+
