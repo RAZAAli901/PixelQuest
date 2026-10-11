@@ -24,8 +24,17 @@ class ProfileSyncWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val userProfileRepository: UserProfileRepository,
     private val cloudProfileRepository: CloudProfileRepository,
-    private val streakRepository: com.pixelquest.app.domain.repository.StreakRepository
+    private val streakRepository: com.pixelquest.app.domain.repository.StreakRepository,
+    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null
 ) : CoroutineWorker(appContext, workerParams) {
+
+    private fun outcome(result: SupabaseResult<*>): Result = when (result) {
+        is SupabaseResult.Success -> Result.success()
+        is SupabaseResult.NetworkError -> Result.retry()
+        is SupabaseResult.ServerError -> Result.retry()
+        is SupabaseResult.AuthError -> Result.failure()
+        is SupabaseResult.UnknownError -> Result.retry()
+    }
 
     override suspend fun doWork(): Result {
         return try {
@@ -39,16 +48,46 @@ class ProfileSyncWorker @AssistedInject constructor(
                 return Result.success()
             }
 
-            val isOptedIn = profile.leaderboardOptIn
-            if (!isOptedIn) {
-                // Safeguard: Ensure server-side leaderboard_opt_in is false promptly,
-                // never leaving a dangling opted-in record on the cloud
-                return when (cloudProfileRepository.optOutFromLeaderboard()) {
-                    is SupabaseResult.Success -> Result.success()
-                    is SupabaseResult.NetworkError -> Result.retry()
-                    is SupabaseResult.ServerError -> Result.retry()
-                    is SupabaseResult.AuthError -> Result.failure()
-                    is SupabaseResult.UnknownError -> Result.retry()
+            val accountId = profile.supabaseUserId!!
+
+            // Joining or leaving belongs to the account (see PendingLeaderboardChoice). A choice made
+            // on this phone that the server hasn't confirmed is the newest: send it.
+            pendingChoice?.startTrackingAfterUpdate(accountId, profile.leaderboardOptIn)
+            val pending = pendingChoice?.pendingFor(accountId)
+            if (pending != null && !pending.optIn) {
+                return outcome(cloudProfileRepository.optOutFromLeaderboard())
+            }
+            if (pending != null) {
+                val name = pending.displayName ?: profile.leaderboardDisplayName.orEmpty()
+                return outcome(cloudProfileRepository.updateOptInAndSync(optIn = true, displayName = name))
+            }
+
+            // The server's row, when it was already read for the choice below.
+            var serverRead: SupabaseResult<com.pixelquest.app.data.remote.model.CloudProfileDto?>? = null
+            if (pendingChoice == null) {
+                // Without the pending store (older callers): the phone's own flag decides, as before.
+                if (!profile.leaderboardOptIn) return outcome(cloudProfileRepository.optOutFromLeaderboard())
+            } else {
+                // Otherwise the server's row holds the account's choice, made on this phone or another.
+                val fetched = cloudProfileRepository.fetchCloudProfile(accountId)
+                val server = when (fetched) {
+                    is SupabaseResult.Success -> fetched.data
+                    else -> return outcome(fetched)
+                }
+                serverRead = fetched
+                val serverName = server?.displayName?.ifBlank { null }
+                when {
+                    // Never joined: a spectator uploads nothing.
+                    server == null && !profile.leaderboardOptIn -> return Result.success()
+                    server != null && (server.leaderboardOptIn != profile.leaderboardOptIn ||
+                        (server.leaderboardOptIn && serverName != null && serverName != profile.leaderboardDisplayName)) -> {
+                        userProfileRepository.updateLeaderboardSettings(
+                            optIn = server.leaderboardOptIn,
+                            displayName = serverName ?: profile.leaderboardDisplayName
+                        )
+                        if (!server.leaderboardOptIn) return Result.success()
+                    }
+                    !profile.leaderboardOptIn -> return Result.success()
                 }
             }
 
@@ -57,7 +96,7 @@ class ProfileSyncWorker @AssistedInject constructor(
             // set, so it always fell back to this).
             val localTriggerTime = java.time.Instant.now()
 
-            val serverProfileResult = cloudProfileRepository.fetchCloudProfile(profile.supabaseUserId!!)
+            val serverProfileResult = serverRead ?: cloudProfileRepository.fetchCloudProfile(accountId)
             val serverProfile = when (serverProfileResult) {
                 is SupabaseResult.Success -> serverProfileResult.data
                 is SupabaseResult.NetworkError -> return Result.retry()

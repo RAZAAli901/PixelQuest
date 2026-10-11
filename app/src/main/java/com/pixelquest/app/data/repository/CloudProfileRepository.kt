@@ -39,12 +39,18 @@ open class CloudProfileRepositoryImpl @Inject constructor(
     private val postgrest: Postgrest,
     private val auth: Auth,
     private val userProfileRepository: UserProfileRepository,
-    private val streakRepository: StreakRepository
+    private val streakRepository: StreakRepository,
+    private val pendingChoice: PendingLeaderboardChoice? = null
 ) : CloudProfileRepository {
 
+    /** The account the choice belongs to: signed in, or still linked while its session can't refresh. */
+    private suspend fun accountId(): String? =
+        auth.currentUserOrNull()?.id ?: userProfileRepository.getProfile().first()?.supabaseUserId
+
     override suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit> {
-        // 1. Update local Room database
+        // 1. Update local Room database, and keep the choice until the server has it
         userProfileRepository.updateLeaderboardSettings(optIn = optIn, displayName = displayName)
+        accountId()?.let { pendingChoice?.choose(it, optIn, displayName) }
 
         // 2. Sync to Supabase
         val user = auth.currentUserOrNull()
@@ -65,9 +71,9 @@ open class CloudProfileRepositoryImpl @Inject constructor(
             longestStreak = streak?.longestStreak ?: 0
         )
 
-        return safeSupabaseCall {
+        return safeSupabaseCall<Unit> {
             postgrest["profiles"].upsert(dto)
-        }
+        }.also { if (it is SupabaseResult.Success) pendingChoice?.confirmed(user.id, optIn) }
     }
 
     override suspend fun syncProfileToCloud(): SupabaseResult<Unit> = when (val result = pushProfileToCloud()) {
@@ -127,18 +133,19 @@ open class CloudProfileRepositoryImpl @Inject constructor(
 
     override suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> {
         userProfileRepository.updateLeaderboardOptIn(false)
+        accountId()?.let { pendingChoice?.choose(it, optIn = false, displayName = null) }
 
+        // Not signed in right now: the choice stays pending and the sync worker sends it later.
         val user = auth.currentUserOrNull()
             ?: return SupabaseResult.Success(Unit)
 
         // Only the flag, and only on a row that exists. This used to upsert a full row (level, XP,
-        // streaks, display name), and the sync worker calls it for every signed-in player who isn't
-        // opted in: a spectator who never joined uploaded their stats on each completion.
-        return safeSupabaseCall {
+        // streaks, display name): a spectator who never joined uploaded their stats.
+        return safeSupabaseCall<Unit> {
             postgrest["profiles"].update({ set("leaderboard_opt_in", false) }) {
                 filter { eq("id", user.id) }
             }
-        }
+        }.also { if (it is SupabaseResult.Success) pendingChoice?.confirmed(user.id, optIn = false) }
     }
 
     override suspend fun fetchCloudProfile(userId: String): SupabaseResult<CloudProfileDto?> {
