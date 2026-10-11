@@ -51,7 +51,24 @@ If it complains that `supabase/config.toml` is missing, run `npx supabase init` 
 npx supabase db push
 ```
 
-This applies the seven files in `supabase/migrations`: the `profiles` table and its row-level security, display-name moderation, `reports`, the account-deletion function, the leaderboard indexes and the AI call counter (`ai_proxy_usage`). In the dashboard's **Table Editor** you should now see `profiles`, `reports` and `ai_proxy_usage`.
+This applies every file in `supabase/migrations` in order (16 as of Day 33):
+- **Tables:** the `profiles` table with its row-level security, `reports`, and the AI call counter (`ai_proxy_usage`).
+- **Functions and indexes:** display-name moderation, the account-deletion function and the leaderboard indexes.
+- **Day 32:**
+  - fixed `search_path`s;
+  - per-query policies;
+  - report indexes.
+- **Day 33:**
+  - the leaderboard's plausibility checks, with `profile_progress_marks`;
+  - unique names;
+  - no unnamed players on the board;
+  - report limits.
+
+`supabase/schema.md` describes each one. In the dashboard's **Table Editor** you should now see `profiles`, `reports`, `ai_proxy_usage` and `profile_progress_marks`.
+
+Then open **Advisors** in the dashboard and run the Security and Performance checks.
+- **Expected warnings:** none from these migrations. The Day 32–33 ones were written for exactly the lints those Advisors run.
+- **Expected info notes:** "RLS enabled, no policy" on `ai_proxy_usage` and `profile_progress_marks`. That's on purpose: only the server's own code uses them.
 
 ## 3. Email-code sign-in
 
