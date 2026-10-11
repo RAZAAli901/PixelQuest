@@ -1,6 +1,6 @@
 // Reports, account deletion and the AI call counter, against a local Supabase.
 import assert from "node:assert/strict";
-import { asService, call, localTest, newEmail, signInWithEmailCode } from "./stack.ts";
+import { asService, call, localTest, newEmail, signInWithEmailCode, sql } from "./stack.ts";
 
 async function joinBoard(session: { accessToken: string; userId: string }) {
   const res = await call("/rest/v1/profiles?on_conflict=id", {
@@ -36,9 +36,11 @@ localTest("a report is filed in the reporter's own name, and nobody can read rep
   assert.deepEqual(stored.body, [{ reason: "Flagged offensive display name: x" }]);
 });
 
-localTest("delete_user_account removes the player's row and their sign-in, and only for a signed-in player", async () => {
+localTest("delete_user_account removes the player's row, their progress marks and their sign-in, and only for a signed-in player", async () => {
   const leaving = await signInWithEmailCode(newEmail("leaving"));
   await joinBoard(leaving);
+  const marks = () => sql(`SELECT count(*) FROM public.profile_progress_marks WHERE id = '${leaving.userId}'`);
+  assert.equal(marks(), "1", "joining records when the streak and level changed");
 
   const signedOut = await call("/rest/v1/rpc/delete_user_account", { body: {} });
   assert.ok([401, 403].includes(signedOut.status), `anon got ${signedOut.status}`);
@@ -50,6 +52,7 @@ localTest("delete_user_account removes the player's row and their sign-in, and o
   assert.deepEqual((await asService(`/rest/v1/profiles?id=eq.${leaving.userId}`)).body, []);
   const authUser = await asService(`/auth/v1/admin/users/${leaving.userId}`);
   assert.equal(authUser.status, 404, "the sign-in is gone too");
+  assert.equal(marks(), "0", "and so are the progress marks");
 });
 
 localTest("the AI call counter is closed to players: only the Edge Function's service role can claim", async () => {
