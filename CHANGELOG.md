@@ -4,7 +4,7 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
-## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–32)
+## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–33)
 
 ### 🎨 Themes
 - **Light mode** (Days 16–17): a warm daylight palette, with every screen, chart and dialog adapted and checked for contrast.
@@ -59,7 +59,7 @@ All notable changes to **PixelQuest** are documented in this file.
 - If the nightly streak check is interrupted, the perfect days it had counted aren't counted again. A quest completed while it runs keeps its XP (Day 31).
 - RESET ALL PROGRESS keeps your cloud sign-in and leaderboard choice, as its dialog says (Day 31).
 
-### 🏆 Leaderboard (Day 31)
+### 🏆 Leaderboard (Days 31–33)
 - LOAD MORE no longer crashes when ranks change between pages.
 - Switching tabs while a list loads no longer mixes up the two tabs' lists, LOAD MORE or "around you" ranks.
 - Ranks beyond 1,000th are counted correctly.
@@ -67,6 +67,11 @@ All notable changes to **PixelQuest** are documented in this file.
 - Privacy: if you're signed in but haven't joined the leaderboard, your level, XP and streaks are no longer uploaded.
 - SYNC NOW says when nothing was sent because the leaderboard already has more progress from another device.
 - Ordinary leaderboard names like Titan_Slayer, Stitch, Altitude, Scrappy and Dickens are accepted (Day 32). The name filter used to find a rude word inside them; such words now count only as whole words.
+- **Fair numbers (Day 33).** The leaderboard checks streaks and levels against the game's own rules: a streak grows by at most one day a day, a level takes at least three perfect days, and both need the XP to match. Impossible numbers are lowered instead of shown. If you catch up after the app missed a few nights, the board shows the rest over the next few days, and SYNC NOW says so.
+- **Names are unique (Day 33)**, whatever the capitals, so nobody can appear under your name. Choosing a taken name says "That name is taken". Your name stays yours while you're off the board.
+- **One account on two phones (Day 33).** Joining or leaving the leaderboard on one phone now applies to the other, which follows at its next sync. It used to undo the change, whichever phone synced last. A choice made offline is sent once you're back online, and joining offline is queued too.
+- **Offline (Day 33).** Account no longer says you're signed out when the server can't be reached. It says the connection is the problem, and you stay signed in.
+- If the server refuses a sync outright, the app stops retrying it every few hours (Day 33).
 
 ### ⚙️ Settings (Day 31)
 - SFX: OFF silences the whole app, and HAPTICS: OFF stops every vibration, including the full-screen prompt.
