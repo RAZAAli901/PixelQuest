@@ -6,7 +6,7 @@ How PixelQuest schedules and posts notifications. Rewritten on Day 26.
 
 1. `TaskAlarmScheduler` arms one alarm per task (request code = task id). `ReminderSchedule` works out the next trigger from the task's first date, time, recurrence and lead time.
    - With "Alarms & reminders" allowed: `setExactAndAllowWhileIdle`.
-   - Without it (Android 14 starts with it off): `setWindow` with a 10-minute window, and Settings shows an "Allow exact reminder times" prompt.
+   - Without it (Android 14 starts with it off): `setWindow` with a 10-minute window. Settings shows an "Allow exact reminder times" prompt, and so does the quest form while a reminder is on (Day 33). On the emulator a reminder set for 11:18 rang at 11:28, the end of its window.
 2. `TaskAlarmReceiver` fires, checks the master toggle and the task (deleted, inactive or reminder off means nothing is posted), posts the reminder unless the task already has a result for that day (Day 28), then arms the next occurrence.
 3. Reminder actions go to `TaskActionReceiver`: "Yes, I did it" records the task as done through `TaskResultRecorder` (once per day, so a second Yes or completing in the app as well awards nothing extra); "Not yet" records nothing and only dismisses the reminder (Day 28; it used to mark the day missed); "Snooze 10 min" arms a separate one-off alarm. Tapping opens `TaskPromptActivity`, whose answers behave the same way.
 4. `MissedTaskWorker` (every 30 min) records tasks still open two hours after their time as missed and replaces the reminder with a missed-task notification. It also checks yesterday, so quests at 22:00 or later are marked missed after midnight; those are recorded without a notification. A missed quest can still be completed from Today that day.
