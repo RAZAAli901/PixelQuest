@@ -677,3 +677,64 @@ Verified on 10 Oct 2026 with a local Supabase stack in Docker (Supabase CLI 2.12
   - For `1e354ad5`: the Kotlin bench step (about 4 minutes) and the Android build. The racy test happened to pass there.
   - For `6da054a0`, which includes Step 48: Cloud Tests and the Android build.
 
+
+## Section L -- Day 33 Verification (Step 44)
+
+Verified on 11 Oct 2026 with:
+- the local Supabase stack in Docker (CLI 2.120.0);
+- the Pixel 6 emulator (Android 14, API 34);
+- the local Gradle build and Node 24.
+
+Nothing ran against a hosted Supabase project; none exists.
+
+### The local stack
+- **All 16 migrations apply from scratch.** `db reset --local` reapplied them in order, including today's four, which reset the local test data.
+- **`db lint --local`:** no schema errors. CI now runs the same lint with `--fail-on error` (Step 41).
+- **Fake key only.** The proxy was served with `functions serve` and the fake Gemini key. 28 requests reached Google's endpoint with that key, all from the proxy bench tests, and Google refused each with 400. No real key was used, and unit tests make no live calls.
+
+### Tests
+| Suite | Result |
+| --- | --- |
+| `:app:testDebugUnitTest` with `PIXELQUEST_LOCAL_SUPABASE=1` | 1,028 tests in 303 classes: 0 failing, 0 skipped. 973 at the end of Day 32 |
+| Kotlin bench | `LocalSupabaseAppTest` 2 and `LocalSupabaseSyncAndBoardTest` 10, run (not skipped) |
+| Node bench: `SUPABASE_LOCAL=1 node --test "supabase/tests/**/*.test.ts"` | 29 of 29 (15 on Day 32), including the new plausibility (9), unique-name (4) and report-limit tests |
+| Edge Function unit tests | 17 of 17 |
+| Instrumented tests on the emulator | 20 of 20, run twice: at 11:30 and after the last app change (Step 35) |
+| `:app:assembleDebug` | The Hilt graph builds with today's new injected stores |
+
+### What the bench found
+- **The leaderboard took whatever numbers a client sent** (Day 32's gap). Step 4's trigger now keeps them within the game's rules. Its tests cover:
+  - a first upload of a long offline history kept;
+  - impossible numbers lowered;
+  - a streak adding at most one day a day;
+  - a level at most one per three days;
+  - drops accepted;
+  - a player returning after 100 days off the board not held back;
+  - the marks private, and deleted with the account.
+- **A broken streak never reached the board** (Step 26).
+  - kotlinx.serialization leaves out values equal to a field's default, and `CloudProfileDto` defaulted streaks to 0, level to 1 and XP to 0.
+  - So a streak dropping to 0 sent nothing for it, and TOP STREAKS kept the old one.
+  - Found while testing RESET. A bench test and a unit test that reads the upload both failed before the fix.
+- **Two players could share a name.** Step 16 makes names unique. The local test data held two duplicate groups, and the migration resolved them.
+
+### Emulator checks (debug build pointed at the stack)
+| Check | Result |
+| --- | --- |
+| Server unreachable (the stack's gateway stopped) with an expired saved session | Account shows alpha still signed in, with "Can't reach the server right now…". It used to say signed out. The note cleared about 10 s after the gateway came back |
+| First sync after updating, with the server row off the board | The phone followed: INACTIVE, the name kept in the field, nothing pushed. The row was alpha's, which today's unique-names migration had taken off the board |
+| Joining as `taken_name` while another player holds `Taken_Name` | "That name is taken on the leaderboard. Try another one.", still INACTIVE, server row unchanged |
+| Joining as `Titan_Slayer` | ACTIVE, and the server row has the name and 100 XP |
+| The account left from "another phone" (a server-side change), then the app opened | The phone followed at launch through the reconnect sync |
+| A reminder's "Yes, I did it" (Day 32's gap) | The 50 XP reached the server row about 3 s after the tap (100 → 150). The reminder was set for 11:18 and rang at 11:28: without "Alarms & reminders", Android uses a 10-minute window. That led to Step 29 |
+| Reporting the same player twice | "Report submitted…", then "You've already reported this player today…", and one report stored |
+
+- The emulator's System UI froze once ("System UI isn't responding"). Choosing Wait cleared it.
+- Airplane mode didn't cut the emulator's route to the host (10.0.2.2 still answered), so the offline check stopped the stack's gateway instead.
+- The emulator was shut down afterwards. It still has the local-stack debug build, signed in as a test account whose server row the final `db reset` removed.
+
+### Not verified
+- **Anything on a hosted project**, including the dashboard Advisors' reports for today's migrations.
+- **The streak-at-risk nudge on a device.** It needs an evening hour and a live streak.
+- **One account on two real phones.** The bench uses two app states with one session, and the emulator check simulated the other phone from the server side.
+- **SYNC NOW following another phone on a device.** The phone had already followed at launch. Covered by the bench.
+- **The `cloud-tests.yml` lint step on GitHub.** It runs for the first time with this push.
