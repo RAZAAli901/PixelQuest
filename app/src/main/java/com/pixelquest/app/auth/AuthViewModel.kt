@@ -7,6 +7,7 @@ import com.pixelquest.app.data.remote.SupabaseResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,7 +50,9 @@ class AuthViewModel @Inject constructor(
     private val googleAuthManager: GoogleAuthManager,
     private val authRepository: AuthRepository,
     private val userProfileRepository: com.pixelquest.app.domain.repository.UserProfileRepository,
-    private val accountLink: CloudAccountLink? = null
+    private val accountLink: CloudAccountLink? = null,
+    private val cloudProfiles: com.pixelquest.app.data.repository.CloudProfileRepository? = null,
+    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null
 ) : ViewModel() {
 
     /** Links [accountId] to this device's profile; a different account than last time starts fresh (see CloudAccountLink). */
@@ -161,9 +164,28 @@ class AuthViewModel @Inject constructor(
         _uiState.value = AuthUiState.SignedOut
     }
 
+    /**
+     * A leave from the leaderboard made on this phone and not yet sent can only be sent while signed
+     * in. Signing out without it left the player public on the board until they signed in again.
+     */
+    private suspend fun sendPendingLeave() {
+        val accountId = (_uiState.value as? AuthUiState.SignedIn)?.user?.id
+            ?: userProfileRepository.getProfile().first()?.supabaseUserId
+            ?: return
+        if (pendingChoice?.pendingFor(accountId)?.optIn != false) return
+        try {
+            cloudProfiles?.optOutFromLeaderboard()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // Still pending: sent after the next sign-in to this account.
+        }
+    }
+
     fun signOut(onSignedOut: (() -> Unit)? = null) {
         authJob?.cancel()
         authJob = viewModelScope.launch {
+            sendPendingLeave()
             try {
                 authRepository.signOut()
             } catch (_: Exception) {}
