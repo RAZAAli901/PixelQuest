@@ -55,3 +55,15 @@ localTest("players who haven't chosen a name yet don't collide", async () => {
   assert.ok(ok((await setName(a, "", false)).status));
   assert.ok(ok((await setName(b, "", false)).status));
 });
+
+localTest("nobody is on the board without a name (20261011000002_named_board_rows.sql)", async () => {
+  const player = await newPlayer("nameless");
+  const onTheBoard = await setName(player, "", true);
+  assert.equal(onTheBoard.status, 400, JSON.stringify(onTheBoard.body));
+  assert.equal(onTheBoard.body.code, "23514");
+
+  // Off the board without a name is fine (a spectator's row), and joining with one works.
+  assert.ok(ok((await setName(player, "", false)).status));
+  assert.ok(ok((await setName(player, fresh(), true)).status));
+});
+
