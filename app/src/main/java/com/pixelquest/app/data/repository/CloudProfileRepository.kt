@@ -71,9 +71,18 @@ open class CloudProfileRepositoryImpl @Inject constructor(
             longestStreak = streak?.longestStreak ?: 0
         )
 
-        return safeSupabaseCall<Unit> {
-            postgrest["profiles"].upsert(dto)
-        }.also { if (it is SupabaseResult.Success) pendingChoice?.confirmed(user.id, optIn) }
+        return when (val result = safeSupabaseCall<Unit> { postgrest["profiles"].upsert(dto) }) {
+            is SupabaseResult.Success -> result.also { pendingChoice?.confirmed(user.id, optIn) }
+            is SupabaseResult.ServerError -> if (result.code == NAME_TAKEN_STATUS) {
+                // Another player has this name (names are unique, ignoring case) and nothing changed
+                // on the server. The join can't succeed as it stands: this phone is off the board again,
+                // keeping the name to edit, and a sync puts back what the server holds.
+                pendingChoice?.confirmed(user.id, optIn)
+                userProfileRepository.updateLeaderboardSettings(optIn = false, displayName = displayName)
+                SupabaseResult.ServerError(NAME_TAKEN_STATUS, NAME_TAKEN)
+            } else result
+            else -> result
+        }
     }
 
     override suspend fun syncProfileToCloud(): SupabaseResult<Unit> = when (val result = pushProfileToCloud()) {
@@ -175,6 +184,10 @@ open class CloudProfileRepositoryImpl @Inject constructor(
     }
 
     companion object {
+        /** The status PostgREST answers when a write would take another player's name (23505). */
+        const val NAME_TAKEN_STATUS = 409
+        const val NAME_TAKEN = "That name is taken on the leaderboard. Try another one."
+
         fun buildProfileDto(
             userId: String,
             displayName: String,

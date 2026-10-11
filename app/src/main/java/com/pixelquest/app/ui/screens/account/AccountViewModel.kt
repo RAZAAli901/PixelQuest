@@ -137,7 +137,7 @@ class AccountViewModel @Inject constructor(
                     showConfirmDialog = false,
                     displayNameError = null
                 )
-                when (cloudProfileRepository.updateOptInAndSync(optIn = true, displayName = name)) {
+                when (val result = cloudProfileRepository.updateOptInAndSync(optIn = true, displayName = name)) {
                     is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
@@ -146,7 +146,16 @@ class AccountViewModel @Inject constructor(
                             syncMessage = "Opt-in complete! Profile synced to cloud."
                         )
                     }
-                    else -> {
+                    else -> if (result is com.pixelquest.app.data.remote.SupabaseResult.ServerError &&
+                        result.code == com.pixelquest.app.data.repository.CloudProfileRepositoryImpl.NAME_TAKEN_STATUS
+                    ) {
+                        // Another player has the name: nothing to retry, the player picks another.
+                        _uiState.value = _uiState.value.copy(
+                            isSyncing = false,
+                            isOptedIn = false,
+                            displayNameError = com.pixelquest.app.data.repository.CloudProfileRepositoryImpl.NAME_TAKEN
+                        )
+                    } else {
                         // The join stays pending (PendingLeaderboardChoice) and the sync worker sends
                         // it once online. It said "will retry" without queueing anything.
                         syncScheduler?.scheduleProfileSync(debounceMs = 0L)
