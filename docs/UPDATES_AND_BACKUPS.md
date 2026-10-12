@@ -60,5 +60,10 @@ There's no wipe-and-start-over for updates any more (`fallbackToDestructiveMigra
 - Read new fields with defaults, as older files won't have them.
 - Add a test with an old file as the old app wrote it. `OldBackupRestoreTest` has v1.0.0's and v1.1.0's.
 
+### Trying an update on a device
+Unit tests check the database and backups. Before a release, also try a real update, which covers what they can't: the start-up path, onboarding, alarms. `scripts/update-check.sh <from> [to]` builds the two versions as a separate app (`com.pixelquest.app.updatecheck`), so the installed PixelQuest and its data aren't touched. The script prints the install and update commands.
+
+On Day 34, `scripts/update-check.sh v1.1.0` found a real bug. The database came through, but every 1.1.0 player was sent through onboarding, and finishing it reset their level and XP (fixed: `OnboardingGate`). After the fix the update keeps everything (VERIFICATION.md, Section M).
+
 ### Settings
 Settings are stored in SharedPreferences (`pixelquest_settings`) under fixed key names. Renaming a key resets that setting for every player on update. `ReleasedSettingsKeysTest` reads the released names. Add new keys; don't rename old ones.
