@@ -43,11 +43,24 @@ class AutoBackups internal constructor(private val dir: File) {
         days().drop(KEEP).forEach { fileFor(it).delete() }
     }
 
+    /**
+     * Backups up to this day aren't offered again when the game is found empty (LostProgress): the
+     * player said not now, started a new hero instead, or reset their progress on purpose.
+     */
+    fun declinedThrough(): LocalDate? =
+        File(dir, DECLINED).takeIf { it.exists() }?.readText()?.trim()?.let { runCatching { LocalDate.parse(it) }.getOrNull() }
+
+    fun decline(through: LocalDate) {
+        dir.mkdirs()
+        File(dir, DECLINED).writeText(through.toString())
+    }
+
     private fun fileFor(day: LocalDate) = File(dir, "pixelquest-auto-$day.json")
 
     companion object {
         const val DIR_NAME = "auto-backups"
         const val KEEP = 3
+        private const val DECLINED = "declined-through.txt"
         private val NAME = Regex("""pixelquest-auto-(\d{4}-\d{2}-\d{2})\.json""")
     }
 }
