@@ -60,6 +60,8 @@ class MainActivity : ComponentActivity() {
 
     private val themeViewModel: ThemeViewModel by viewModels()
 
+    private val lostProgressViewModel: com.pixelquest.app.ui.screens.settings.LostProgressViewModel by viewModels()
+
     var isNotificationPermissionGranted by mutableStateOf(true)
         private set
 
@@ -138,6 +140,10 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.weight(1f),
                                     onboardingComplete = onboardingComplete
                                 )
+                                // An empty game while the phone kept an automatic backup: a lost database.
+                                if (onboardingComplete && currentRoute != null && currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {
+                                    com.pixelquest.app.ui.screens.settings.LostProgressPrompt(lostProgressViewModel)
+                                }
                             }
                         }
                     }
