@@ -56,8 +56,9 @@ class AutoBackupRestoreTest {
             """{"formatVersion": 4, "userProfile": {"id": 1, "username": "Aria", "avatarId": "avatar_mage", "level": 4, "totalXp": 1800}, "tasks": []}"""
         )
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).allowMainThreadQueries().build()
-        // What the phone has now: the progress lost to a corrupt database, say.
-        db.userProfileDao().insertProfile(UserProfileEntity(username = "PixelHero", avatarId = "avatar_hero"))
+        // What the phone has now: a game started over after the database was lost, and played a little
+        // (with nothing played, a restore offers no undo: RestoreUndoTest).
+        db.userProfileDao().insertProfile(UserProfileEntity(username = "PixelHero", avatarId = "avatar_hero", totalXp = 100))
         val scheduler = TaskAlarmScheduler(context)
         val signals = LevelUpSignalManager(context)
         viewModel = SettingsViewModel(

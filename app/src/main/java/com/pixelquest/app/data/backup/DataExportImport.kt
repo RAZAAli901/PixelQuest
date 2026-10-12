@@ -34,6 +34,13 @@ data class BackupPayload(
 ) {
     /** False for a file that isn't a PixelQuest backup (or couldn't be read): nothing to restore. */
     val isUsable: Boolean get() = userProfile != null || tasks.isNotEmpty()
+
+    /**
+     * Whether there's progress worth keeping a copy of: XP, a level, or a completed quest. A fresh
+     * install isn't, though it already has "missed" results for starter quests whose time has passed.
+     */
+    val hasProgress: Boolean
+        get() = com.pixelquest.app.domain.OnboardingGate.hasPlayed(userProfile) || logs.orEmpty().any { it.wasCompleted }
 }
 
 /**

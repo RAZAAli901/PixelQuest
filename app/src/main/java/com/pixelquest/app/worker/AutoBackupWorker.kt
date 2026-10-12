@@ -11,7 +11,6 @@ import androidx.work.WorkerParameters
 import com.pixelquest.app.data.backup.AutoBackups
 import com.pixelquest.app.data.backup.BackupRestorer
 import com.pixelquest.app.data.backup.DataExportImport
-import com.pixelquest.app.domain.OnboardingGate
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.time.LocalDate
@@ -20,9 +19,8 @@ import java.util.concurrent.TimeUnit
 /**
  * Once a day, a backup of the player's progress kept on the phone (AutoBackups), so a corrupt
  * database or a mistake doesn't cost everything when no backup was exported. Nothing is saved
- * before there's something to keep: XP, a level, or a completed quest. A fresh install already has
- * "missed" results for starter quests whose time has passed; counting those saved a new player's
- * empty game, which the welcome screen then offered to restore (seen on the emulator).
+ * before there's something to keep (BackupPayload.hasProgress). Counting a fresh install's "missed"
+ * starter quests saved a new player's empty game, which the welcome screen then offered to restore.
  */
 @HiltWorker
 class AutoBackupWorker @AssistedInject constructor(
@@ -34,7 +32,7 @@ class AutoBackupWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = try {
         val payload = backupRestorer.snapshot()
-        if (OnboardingGate.hasPlayed(payload.userProfile) || payload.logs.orEmpty().any { it.wasCompleted }) {
+        if (payload.hasProgress) {
             autoBackups.save(LocalDate.now(), DataExportImport.exportToJson(payload))
         }
         Result.success()

@@ -103,4 +103,17 @@ class RestoreUndoTest {
 
         assertEquals("one step back, to the first restore's result", "Other", db.userProfileDao().getProfile().first()!!.username)
     }
+
+    @Test
+    fun aRestoreOntoAGameNotYetPlayed_offersNoUndo() = runBlocking {
+        // The welcome screen: a reinstall has only the unplayed starter hero, and maybe an old copy.
+        db.clearAllTables()
+        db.userProfileDao().insertProfile(UserProfileEntity(username = "PixelHero", avatarId = "avatar_hero"))
+        safetyCopy.save(someoneElsesBackup)
+
+        restorer.restore(DataExportImport.importFromJson(someoneElsesBackup.replace("Other", "Aria")))
+
+        assertFalse("undo would wipe the restored game", restorer.canUndoLastRestore())
+        assertEquals("Aria", db.userProfileDao().getProfile().first()!!.username)
+    }
 }

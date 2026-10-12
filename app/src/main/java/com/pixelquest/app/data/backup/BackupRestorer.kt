@@ -59,8 +59,13 @@ class BackupRestorer @Inject constructor(
     suspend fun restore(payload: BackupPayload) = restore(payload, keepSafetyCopy = true)
 
     private suspend fun restore(payload: BackupPayload, keepSafetyCopy: Boolean) {
-        // What the phone has now, so this restore can be undone.
-        if (keepSafetyCopy) safetyCopy?.save(DataExportImport.exportToJson(snapshot()))
+        // What the phone has now, so this restore can be undone. A game not yet played (a restore from
+        // the welcome screen) has nothing to go back to: undoing would wipe the restored game, and an
+        // older copy would undo an earlier restore instead, so neither is offered.
+        if (keepSafetyCopy) {
+            val now = snapshot()
+            if (now.hasProgress) safetyCopy?.save(DataExportImport.exportToJson(now)) else safetyCopy?.clear()
+        }
         val currentTasks = db.taskDao().getAllTasks().first()
         val current = db.userProfileDao().getProfile().first()
 
