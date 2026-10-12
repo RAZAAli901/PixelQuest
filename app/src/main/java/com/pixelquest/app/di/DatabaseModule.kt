@@ -22,16 +22,29 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
+    const val DATABASE_NAME = "pixelquest.db"
+
     @Provides
     @Singleton
     fun provideAppDatabase(
         @ApplicationContext context: Context,
         databaseProvider: Provider<AppDatabase>
     ): AppDatabase {
+        // Before the migrations below change the saved game, a copy of the old file (PreUpdateCopy).
+        // A copy that fails (a full disk, say) mustn't stop the game from opening.
+        try {
+            com.pixelquest.app.data.local.PreUpdateCopy.keepIfOlder(
+                context.getDatabasePath(DATABASE_NAME),
+                java.io.File(context.filesDir, com.pixelquest.app.data.local.PreUpdateCopy.DIR_NAME),
+                AppDatabase.ALL_MIGRATIONS.maxOf { it.endVersion }
+            )
+        } catch (e: Exception) {
+            Log.w("PixelQuestDb", "No copy kept before the update", e)
+        }
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "pixelquest.db"
+            DATABASE_NAME
         )
             .addMigrations(*AppDatabase.ALL_MIGRATIONS)
             // Only a downgrade may start over. An update with no migration path used to wipe the

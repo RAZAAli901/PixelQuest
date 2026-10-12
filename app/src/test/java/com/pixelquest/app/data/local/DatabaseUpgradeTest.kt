@@ -200,5 +200,27 @@ class DatabaseUpgradeTest {
         assertTrue("no wipe on a missing update path", "fallbackToDestructiveMigration()" !in module)
         assertTrue(".fallbackToDestructiveMigrationOnDowngrade()" in module)
     }
+
+    @Test
+    fun theAppKeepsACopyOfTheOldFile_beforeUpdatingIt(): Unit = runBlocking {
+        // The 1.1.0 release's file, opened the way the app opens it.
+        val name = com.pixelquest.app.di.DatabaseModule.DATABASE_NAME
+        createAt(3, name)
+        val copies = File(context.filesDir, PreUpdateCopy.DIR_NAME).apply { deleteRecursively() }
+        lateinit var db: AppDatabase
+        db = com.pixelquest.app.di.DatabaseModule.provideAppDatabase(context) { db }
+        try {
+            db.openHelper.writableDatabase
+            assertEquals("Aria", db.userProfileDao().getProfile().first()!!.username)
+        } finally {
+            db.close()
+        }
+
+        val copy = File(copies, "pixelquest-v3.db")
+        assertEquals("the old file, as 1.1.0 left it", 3, PreUpdateCopy.versionOf(copy))
+        assertEquals("and the updated one", 7, PreUpdateCopy.versionOf(context.getDatabasePath(name)))
+        context.deleteDatabase(name)
+        copies.deleteRecursively()
+    }
 }
 
