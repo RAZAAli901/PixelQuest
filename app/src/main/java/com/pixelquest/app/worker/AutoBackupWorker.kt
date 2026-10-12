@@ -5,6 +5,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -42,12 +44,24 @@ class AutoBackupWorker @AssistedInject constructor(
 
     companion object {
         private const val WORK_NAME = "AutoBackupDaily"
+        const val AFTER_PLAY_WORK_NAME = "AutoBackupAfterPlay"
 
         fun schedule(context: Context) {
             val request = PeriodicWorkRequestBuilder<AutoBackupWorker>(1, TimeUnit.DAYS)
                 .setConstraints(Constraints.Builder().setRequiresBatteryNotLow(true).build())
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
+        }
+
+        /**
+         * A backup an hour after the app is opened, so it holds that session's play: the daily one
+         * runs at the time of day the app was installed, which can come before the day's play, so
+         * a lost database cost everything played since. Opening the app again while one waits
+         * doesn't push it back (KEEP); the day's file is replaced, so it's still the last 3 days.
+         */
+        fun scheduleAfterPlay(context: Context) {
+            val request = OneTimeWorkRequestBuilder<AutoBackupWorker>().setInitialDelay(1, TimeUnit.HOURS).build()
+            WorkManager.getInstance(context).enqueueUniqueWork(AFTER_PLAY_WORK_NAME, ExistingWorkPolicy.KEEP, request)
         }
     }
 }

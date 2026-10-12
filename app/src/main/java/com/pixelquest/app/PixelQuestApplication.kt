@@ -68,8 +68,10 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         com.pixelquest.app.worker.StreakEvaluationWorker.schedule(this)
         // Evening streak-at-risk nudge; posts nothing unless a live streak is actually at risk.
         com.pixelquest.app.worker.StreakAtRiskWorker.schedule(this)
-        // A daily backup kept on the phone (AutoBackups), restorable from Settings.
+        // A daily backup kept on the phone (AutoBackups), restorable from Settings, and one an hour
+        // after the app is opened, so it holds that session's play.
         com.pixelquest.app.worker.AutoBackupWorker.schedule(this)
+        com.pixelquest.app.worker.AutoBackupWorker.scheduleAfterPlay(this)
         // Does nothing unless AI Coach and AI reminder messages are both on.
         com.pixelquest.app.worker.EncouragementPackWorker.schedule(this)
         rearmReminders()

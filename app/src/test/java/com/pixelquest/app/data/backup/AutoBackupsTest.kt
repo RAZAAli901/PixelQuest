@@ -114,4 +114,20 @@ class AutoBackupsTest {
 
         assertTrue("used to save the empty game", store.days().isEmpty())
     }
+
+    @Test
+    fun openingTheApp_queuesOneBackupAfterPlay_andOpeningAgainDoesntPushItBack() {
+        androidx.work.testing.WorkManagerTestInitHelper.initializeTestWorkManager(
+            context,
+            androidx.work.Configuration.Builder().setExecutor(androidx.work.testing.SynchronousExecutor()).build()
+        )
+        AutoBackupWorker.scheduleAfterPlay(context)
+        val first = androidx.work.WorkManager.getInstance(context).getWorkInfosForUniqueWork(AutoBackupWorker.AFTER_PLAY_WORK_NAME).get().single()
+
+        AutoBackupWorker.scheduleAfterPlay(context)
+
+        val waiting = androidx.work.WorkManager.getInstance(context).getWorkInfosForUniqueWork(AutoBackupWorker.AFTER_PLAY_WORK_NAME).get()
+        assertEquals(listOf(first.id), waiting.map { it.id })
+        assertEquals(androidx.work.WorkInfo.State.ENQUEUED, waiting.single().state)
+    }
 }
