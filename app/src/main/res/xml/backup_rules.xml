@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    What Android's own backup may copy (Android 11 and lower; data_extraction_rules.xml is the same for
+    Android 12 and up). Only the player's progress and settings: the database and a few preferences.
+    Everything else stays out, above all the sign-in session (supabase-kt keeps its tokens in
+    preferences): restored onto another phone it would sign that phone in without the player. Also
+    out: AI usage counts and cached AI lines, reminder bookkeeping and pending leaderboard syncs, which
+    belong to this device. Day 34; before, android:allowBackup copied everything.
+-->
+<full-backup-content>
+    <include domain="database" path="pixelquest.db" />
+    <include domain="database" path="pixelquest.db-wal" />
+    <include domain="database" path="pixelquest.db-shm" />
+    <include domain="sharedpref" path="pixelquest_settings.xml" />
+    <include domain="sharedpref" path="pixelquest_level_up.xml" />
+    <include domain="sharedpref" path="pixelquest_cloud_account.xml" />
+</full-backup-content>
