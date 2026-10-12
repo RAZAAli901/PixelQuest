@@ -34,7 +34,11 @@ object DatabaseModule {
             "pixelquest.db"
         )
             .addMigrations(*AppDatabase.ALL_MIGRATIONS)
-            .fallbackToDestructiveMigration()
+            // Only a downgrade may start over. An update with no migration path used to wipe the
+            // player's quests, streak and level silently; every path is now tested
+            // (DatabaseUpgradeTest), and a missing one fails at start, data intact, until a fixed
+            // update ships.
+            .fallbackToDestructiveMigrationOnDowngrade()
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)

@@ -188,4 +188,17 @@ class DatabaseUpgradeTest {
             AppDatabase.ALL_MIGRATIONS.map { it.startVersion to it.endVersion }
         )
     }
+
+    @Test
+    fun anUpdateNeverStartsOver() {
+        val module = listOf("src/main/java", "app/src/main/java")
+            .map { File(it, "com/pixelquest/app/di/DatabaseModule.kt") }
+            .first { it.exists() }
+            .readLines()
+            .filterNot { it.trim().startsWith("//") }
+            .joinToString("\n")
+        assertTrue("no wipe on a missing update path", "fallbackToDestructiveMigration()" !in module)
+        assertTrue(".fallbackToDestructiveMigrationOnDowngrade()" in module)
+    }
 }
+
