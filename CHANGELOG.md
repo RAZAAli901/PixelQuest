@@ -4,7 +4,7 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
-## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–33)
+## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–34)
 
 ### 🎨 Themes
 - **Light mode** (Days 16–17): a warm daylight palette, with every screen, chart and dialog adapted and checked for contrast.
@@ -59,6 +59,21 @@ All notable changes to **PixelQuest** are documented in this file.
 - Leaving the leaderboard while offline is queued until you're back online (Day 30).
 - If the nightly streak check is interrupted, the perfect days it had counted aren't counted again. A quest completed while it runs keeps its XP (Day 31).
 - RESET ALL PROGRESS keeps your cloud sign-in and leaderboard choice, as its dialog says (Day 31).
+
+### 💾 Updates and backups (Day 34)
+- **Updating keeps your progress**, from every earlier version.
+  - Players updating from 1.1.0 were sent through the welcome screens again, and finishing them reset their level and XP. Fixed.
+  - An update can no longer silently wipe everything if it can't upgrade the app's data.
+- **Backups:**
+  - **Include your settings** (sound, haptics, reduce motion, notifications, theme, Simple Mode).
+  - **Say which version made them.** A backup from a newer version restores what this one knows.
+  - **Are checked after saving**, and get dated file names. Settings shows when you last saved one.
+- **Restoring:**
+  - The dialog says what the backup holds before anything is replaced.
+  - **UNDO LAST RESTORE** puts back what you had before.
+  - Results ticked on a fresh install's starter quests no longer land on the backup's quests.
+- **Automatic backups on the phone:** a daily copy of your progress, the last 3 days, restorable from Settings. It's there if the app's data is ever damaged.
+- **Android's own backup:** your progress and settings come back after a reinstall or on a new phone. Your sign-in doesn't, so you sign in again.
 
 ### 🏆 Leaderboard (Days 31–33)
 - LOAD MORE no longer crashes when ranks change between pages.
