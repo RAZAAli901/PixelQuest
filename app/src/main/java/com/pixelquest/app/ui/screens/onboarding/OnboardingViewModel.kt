@@ -57,7 +57,7 @@ class OnboardingViewModel @Inject constructor(
      * The newest automatic backup kept on the phone, if any. Onboarding with one means the database
      * was lost (Android deletes a corrupt one) while the backups survived, so the welcome screen offers it.
      */
-    val latestAutoBackup: java.time.LocalDate? = if (backupRestorer != null) autoBackups?.offerable()?.firstOrNull() else null
+    val latestAutoBackup: java.time.LocalDate? = if (backupRestorer != null) autoBackups?.newestWorthOffering()?.first else null
 
     fun onAutoBackupSelected(day: java.time.LocalDate) {
         val payload = autoBackups?.read(day)?.let { com.pixelquest.app.data.backup.DataExportImport.importFromJson(it) }

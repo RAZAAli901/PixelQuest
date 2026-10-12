@@ -66,6 +66,19 @@ class AutoBackups internal constructor(private val dir: File) {
         return days().filter { declined == null || it > declined }
     }
 
+    /**
+     * The newest offerable backup that reads back and has progress (BackupPayload.hasProgress), for
+     * the welcome screen and the dashboard alike: a file cut short, or an empty game saved before
+     * Step 29, is skipped for an older one rather than offered and then failing.
+     */
+    fun newestWorthOffering(): Pair<LocalDate, BackupPayload>? =
+        offerable().firstNotNullOfOrNull { day ->
+            read(day)
+                ?.let { runCatching { DataExportImport.importFromJson(it) }.getOrNull() }
+                ?.takeIf { it.isUsable && it.hasProgress }
+                ?.let { day to it }
+        }
+
     private fun fileFor(day: LocalDate) = File(dir, "pixelquest-auto-$day.json")
 
     companion object {

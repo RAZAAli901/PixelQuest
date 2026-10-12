@@ -85,6 +85,11 @@ class RestoreFromWelcomeTest {
         assertEquals(2400, db.userProfileDao().getProfile().first()!!.totalXp)
     }
 
+    private companion object {
+        const val ARIA_LEVEL_3 =
+            """{"formatVersion": 4, "userProfile": {"id": 1, "username": "Aria", "avatarId": "avatar_mage", "level": 3, "totalXp": 1200}, "tasks": []}"""
+    }
+
     @Test
     fun aFileThatIsntABackup_saysSo() {
         pick("""{"something": "else"}""")
@@ -133,7 +138,7 @@ class RestoreFromWelcomeTest {
         val dir = File(context.filesDir, "welcome-new-hero").apply { deleteRecursively() }
         val backups = com.pixelquest.app.data.backup.AutoBackups(dir)
         val day = java.time.LocalDate.of(2026, 10, 11)
-        backups.save(day, "{}")
+        backups.save(day, ARIA_LEVEL_3)
         val restorer = BackupRestorer(db, TaskAlarmScheduler(context), LevelUpSignalManager(context))
         val vm = OnboardingViewModel(FakeUserProfileRepository(), FakeDifficultySettingsRepository(), settings, restorer, backups)
         assertEquals(day, vm.latestAutoBackup)
@@ -147,6 +152,22 @@ class RestoreFromWelcomeTest {
             "and after a reset, the welcome screen doesn't offer it",
             null, OnboardingViewModel(FakeUserProfileRepository(), FakeDifficultySettingsRepository(), settings, restorer, backups).latestAutoBackup
         )
+        dir.deleteRecursively()
+    }
+
+    @Test
+    fun aBackupCutShort_orOfAnEmptyGame_isSkippedForAnOlderOne() {
+        val dir = File(context.filesDir, "welcome-skip").apply { deleteRecursively() }
+        val backups = com.pixelquest.app.data.backup.AutoBackups(dir)
+        val oct9 = java.time.LocalDate.of(2026, 10, 9)
+        backups.save(oct9, ARIA_LEVEL_3)
+        backups.save(oct9.plusDays(1), ARIA_LEVEL_3.replace("\"totalXp\": 1200", "\"totalXp\": 0").replace("\"level\": 3", "\"level\": 1"))
+        backups.save(oct9.plusDays(2), ARIA_LEVEL_3.take(40))
+        val restorer = BackupRestorer(db, TaskAlarmScheduler(context), LevelUpSignalManager(context))
+
+        val vm = OnboardingViewModel(FakeUserProfileRepository(), FakeDifficultySettingsRepository(), settings, restorer, backups)
+
+        assertEquals(oct9, vm.latestAutoBackup)
         dir.deleteRecursively()
     }
 
