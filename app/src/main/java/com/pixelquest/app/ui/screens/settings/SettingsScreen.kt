@@ -459,6 +459,23 @@ fun SettingsScreen(
                     color = PixelTheme.colors.onSurface
                 )
             }
+            val autoBackupDays by viewModel.autoBackupDays.collectAsState()
+            if (autoBackupDays.isNotEmpty()) {
+                // Kept on the phone by AutoBackupWorker, in case of a corrupt database or a mistake.
+                Text(
+                    text = "Automatic backups on this phone (the last ${com.pixelquest.app.data.backup.AutoBackups.KEEP} days):",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PixelTheme.colors.onSurface
+                )
+                autoBackupDays.forEach { day ->
+                    PixelButton(
+                        text = "↺ RESTORE " + day.format(java.time.format.DateTimeFormatter.ofPattern("d MMM", java.util.Locale.ENGLISH)).uppercase(),
+                        onClick = { viewModel.onAutoBackupSelected(day) },
+                        variant = PixelButtonVariant.BLUE,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
             val canUndoRestore by viewModel.canUndoRestore.collectAsState()
             if (canUndoRestore) {
                 // What the phone had before the last restore is kept until it's used or replaced.

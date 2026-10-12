@@ -64,8 +64,28 @@ class SettingsViewModel @Inject constructor(
     private val taskAlarmScheduler: TaskAlarmScheduler,
     private val progressReset: com.pixelquest.app.data.local.ProgressReset,
     private val backupRestorer: com.pixelquest.app.data.backup.BackupRestorer,
-    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null
+    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null,
+    private val autoBackups: com.pixelquest.app.data.backup.AutoBackups? = null
 ) : ViewModel() {
+
+    private val _autoBackupDays = kotlinx.coroutines.flow.MutableStateFlow(autoBackups?.days().orEmpty())
+    /** The automatic backups kept on the phone (AutoBackupWorker), newest first. */
+    val autoBackupDays: StateFlow<List<java.time.LocalDate>> = _autoBackupDays.asStateFlow()
+
+    /** Restoring an automatic backup: the same confirmation, summary and undo as a file. */
+    fun onAutoBackupSelected(day: java.time.LocalDate) {
+        val json = autoBackups?.read(day)
+        val payload = json?.let { com.pixelquest.app.data.backup.DataExportImport.importFromJson(it) }
+        if (payload == null || !payload.isUsable) {
+            _backupMessage.value = BackupMessages.READ_FAILED
+            _autoBackupDays.value = autoBackups?.days().orEmpty()
+            return
+        }
+        _backupMessage.value = null
+        pendingImportPayload = payload
+        _pendingImportSummary.value = com.pixelquest.app.data.backup.BackupSummary.describe(payload)
+        _showRestoreConfirmDialog.value = true
+    }
 
     /** The AI Coach is for signed-in players; Settings offers signing in when nobody is. */
     val isSignedIn: StateFlow<Boolean> = (aiAccess?.isSignedIn ?: kotlinx.coroutines.flow.flowOf(true))
