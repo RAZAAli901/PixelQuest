@@ -14,3 +14,8 @@ This document tracks the manual regression test suite executed against the minif
 | 6 | Settings & Toggles | Sound, CRT filter, haptics, and notification toggles persist | PASSED |
 | 7 | Data Backup Export/Import | JSON backup payload exports and imports cleanly without R8 obfuscation errors | PASSED |
 | 8 | Alarm & WorkManager | AlarmManager exact alarms and WorkManager periodic workers execute | PASSED |
+| 9 | Update from the last release | `scripts/update-check.sh <last tag>`, then play and update: quests, results, XP and level kept, no welcome steps (docs/UPDATES_AND_BACKUPS.md) | Not yet run on a release build. Passed on a debug build from v1.1.0 (Day 34) |
+| 10 | Restore on the welcome screen | After a reinstall, I HAVE A BACKUP restores an exported file once its summary is confirmed | Not yet run on a release build. Passed on a debug build (Day 34) |
+| 11 | Lost database | With `pixelquest.db`, `-wal` and `-shm` deleted, the next start asks RESTORE YOUR GAME? with the newest automatic backup | Debug builds only (`run-as` needs a debuggable app). Passed (Day 34) |
+
+Rows 9 to 11 were added on Day 34 (VERIFICATION.md, Section M). Run 9 and 10 on the minified build before the next release: R8 could break what a debug build doesn't show.
