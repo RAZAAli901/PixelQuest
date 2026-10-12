@@ -125,5 +125,24 @@ class OldBackupRestoreTest {
 
         assertEquals(1, db.taskCompletionLogDao().getAllLogs().first().size)
     }
+
+    @Test
+    fun aV1_0_0Backup_restoresItsQuestsToo() = runBlocking {
+        // v1.0.0 wrote priority, difficulty and isCompleted for a quest, and no category or isActive.
+        restore("""
+            {
+              "userProfile": {"id": 1, "username": "Early", "avatarId": "avatar_hero", "level": 2, "totalXp": 300, "perfectDaysTowardNextLevel": 1},
+              "streak": {"id": 1, "currentStreak": 1, "longestStreak": 2, "lastCompletedDate": "2026-08-30"},
+              "tasks": [
+                {"id": 1, "name": "Stretch", "description": "", "scheduledTime": "08:00", "scheduledDay": "2026-08-25", "recurrenceType": "DAILY", "priority": "HIGH", "difficulty": "MEDIUM", "isCompleted": false}
+              ]
+            }
+        """.trimIndent())
+
+        val stretch = db.taskDao().getAllTasks().first().single()
+        assertEquals("Stretch", stretch.name)
+        assertTrue("active, as every v1.0.0 quest was", stretch.isActive)
+        assertEquals(2, db.userProfileDao().getProfile().first()!!.level)
+    }
 }
 
