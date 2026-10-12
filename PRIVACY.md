@@ -13,6 +13,11 @@ By default, PixelQuest operates **100% locally and offline**:
 - **All Core Gameplay Stored On-Device**: Your quests, tasks, schedule times, recurrence rules, completion logs, streaks, experience points (XP), level-up history, avatar preferences, and notification settings are stored strictly in a local SQLite database on your device using Android Room.
 - **Zero Third-Party Trackers**: PixelQuest contains **zero** commercial advertising SDKs, zero behavioral analytics, zero telemetry frameworks, and zero device fingerprinting trackers.
 - **No Cloud Account Required**: You can play and enjoy the complete PixelQuest experience without ever creating an account, signing in, or connecting to the internet.
+- **Copies Kept on the Phone**: PixelQuest keeps two kinds of copy of your progress in its own private storage, which other apps can't read:
+  - a daily automatic backup, for the last 3 days;
+  - what you had just before your last restore, so the restore can be undone.
+
+  They never leave the phone, aren't part of Android's backup, and go when you uninstall the app or use **Clear storage**.
 - **Android's Own Backup**: If backup is on in your phone's settings, Android saves PixelQuest's data with the rest of your phone's backup, and restores it after a reinstall or on a new phone (also when moving phones directly).
   - **What it copies:** only your progress and settings (the quest database, settings, a pending level-up, and which account last signed in).
   - **What it never copies:** your sign-in session, so a restored phone asks you to sign in again. Nor AI Coach data, reminder bookkeeping or leaderboard choices still waiting to sync.
