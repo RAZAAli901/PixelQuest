@@ -446,10 +446,19 @@ fun SettingsScreen(
         dataSection = {
             PixelButton(
                 text = "📤 EXPORT QUEST DATA (JSON)",
-                onClick = { exportLauncher.launch("pixelquest_backup.json") },
+                // Dated, so several backups can sit side by side.
+                onClick = { exportLauncher.launch("pixelquest-backup-${java.time.LocalDate.now()}.json") },
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )
+            val lastBackup by viewModel.lastBackupText.collectAsState()
+            if (lastBackup.isNotEmpty()) {
+                Text(
+                    text = lastBackup,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = PixelTheme.colors.onSurface
+                )
+            }
             PixelButton(
                 text = "📥 IMPORT QUEST DATA (JSON)",
                 onClick = { importLauncher.launch(arrayOf("application/json", "*/*")) },

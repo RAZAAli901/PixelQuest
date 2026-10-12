@@ -150,6 +150,8 @@ open class FakeSettingsRepository(
     override val aiInsightsEnabled = MutableStateFlow(aiInsights)
     override val lastAiInsightTimestamp = MutableStateFlow(0L)
     override val aiReminderMessagesEnabled = MutableStateFlow(false)
+    override val lastBackupAt = MutableStateFlow(0L)
+    override suspend fun setLastBackupAt(timestamp: Long) { lastBackupAt.value = timestamp }
     var themeBeforeComic: ThemeMode = ThemeMode.Pixel
 
     override suspend fun setSimpleModeHighlightSeen(seen: Boolean) { hasSeenSimpleModeHighlight.value = seen }

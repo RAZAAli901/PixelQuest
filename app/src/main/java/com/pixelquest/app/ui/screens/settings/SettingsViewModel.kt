@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import com.pixelquest.app.ui.theme.ThemeMode
@@ -239,12 +240,49 @@ class SettingsViewModel @Inject constructor(
                 val payload = backupRestorer.snapshot()
                 val json = com.pixelquest.app.data.backup.DataExportImport.exportToJson(payload)
                 val written = context.contentResolver.openOutputStream(uri)?.use { os -> os.write(json.toByteArray()) } != null
-                if (written) BackupMessages.SAVED else BackupMessages.SAVE_FAILED
+                when {
+                    !written -> BackupMessages.SAVE_FAILED
+                    !readsBackTheSame(context, uri, payload) -> BackupMessages.SAVE_NOT_CHECKED
+                    else -> {
+                        settingsRepository.setLastBackupAt(System.currentTimeMillis())
+                        BackupMessages.SAVED
+                    }
+                }
             } catch (e: Exception) {
                 BackupMessages.SAVE_FAILED
             }
         }
     }
+
+    /**
+     * Reads the saved file back and checks it holds what was written: a storage provider can fail to
+     * save in full without saying so, and the player would only find out when restoring. A provider
+     * that won't let the file be read back can't be checked, which isn't a failure.
+     */
+    private fun readsBackTheSame(
+        context: android.content.Context,
+        uri: android.net.Uri,
+        written: com.pixelquest.app.data.backup.BackupPayload
+    ): Boolean {
+        val text = try {
+            context.contentResolver.openInputStream(uri)?.use { it.bufferedReader().readText() }
+        } catch (e: Exception) {
+            null
+        } ?: return true
+        val back = com.pixelquest.app.data.backup.DataExportImport.importFromJson(text)
+        return back.userProfile?.totalXp == written.userProfile?.totalXp &&
+            back.tasks.size == written.tasks.size &&
+            back.logs.orEmpty().size == written.logs.orEmpty().size
+    }
+
+    /** When a backup was last saved and checked: "Last backup: 12 Oct 2026", or "Never backed up". */
+    val lastBackupText: StateFlow<String> = settingsRepository.lastBackupAt
+        .map { at ->
+            if (at <= 0L) "No backup saved yet."
+            else "Last backup: " + java.time.Instant.ofEpochMilli(at).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                .format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy", java.util.Locale.ENGLISH))
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
     fun onImportFileSelected(context: android.content.Context, uri: android.net.Uri) {
         viewModelScope.launch {
@@ -385,6 +423,7 @@ class SettingsViewModel @Inject constructor(
 object BackupMessages {
     const val SAVED = "Backup saved."
     const val SAVE_FAILED = "Couldn't save the backup. Try another location."
+    const val SAVE_NOT_CHECKED = "The backup didn't read back complete. Save it again, or try another location."
     const val NOT_A_BACKUP = "That file isn't a PixelQuest backup. Nothing was changed."
     const val READ_FAILED = "Couldn't read that file. Nothing was changed."
     const val RESTORED = "Backup restored."

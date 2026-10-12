@@ -229,6 +229,19 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_AI_INSIGHTS_ENABLED, enabled).apply()
     }
 
+    override val lastBackupAt: Flow<Long> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_LAST_BACKUP_AT) trySend(prefs.getLong(KEY_LAST_BACKUP_AT, 0L))
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(prefs.getLong(KEY_LAST_BACKUP_AT, 0L))
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setLastBackupAt(timestamp: Long) {
+        prefs.edit().putLong(KEY_LAST_BACKUP_AT, timestamp).apply()
+    }
+
     override val aiReminderMessagesEnabled: Flow<Boolean> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_AI_REMINDER_MESSAGES_ENABLED) {
@@ -264,6 +277,7 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
         private const val KEY_HAPTICS_ENABLED = "key_haptics_enabled"
         private const val KEY_REDUCE_MOTION_ENABLED = "key_reduce_motion_enabled"
+        private const val KEY_LAST_BACKUP_AT = "key_last_backup_at"
         private const val KEY_ONBOARDING_COMPLETE = "key_onboarding_complete"
         private const val KEY_NOTIFICATIONS_ENABLED = "key_notifications_enabled"
         private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"
