@@ -1,0 +1,4 @@
+# Shell scripts keep LF line endings so they run in bash, also when checked out on Windows
+# (core.autocrlf=true would turn them into CRLF, and bash fails on the carriage returns).
+*.sh text eol=lf
+gradlew text eol=lf
