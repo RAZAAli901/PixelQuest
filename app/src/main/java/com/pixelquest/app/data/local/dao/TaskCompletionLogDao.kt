@@ -21,6 +21,9 @@ interface TaskCompletionLogDao {
     @Query("DELETE FROM task_completion_logs")
     suspend fun deleteAll()
 
+    @Query("DELETE FROM task_completion_logs WHERE taskId NOT IN (:keptTaskIds)")
+    suspend fun deleteAllExceptFor(keptTaskIds: List<Long>)
+
     @Query("SELECT * FROM task_completion_logs WHERE taskId = :taskId AND completedDate = :date LIMIT 1")
     suspend fun getLogForTaskOnDate(taskId: Long, date: LocalDate): TaskCompletionLogEntity?
 

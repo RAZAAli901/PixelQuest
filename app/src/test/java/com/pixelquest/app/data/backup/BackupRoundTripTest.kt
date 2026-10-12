@@ -91,7 +91,11 @@ class BackupRoundTripTest {
         val oldPhone = newDb().also { seedOldPhone(it) }
         val legacy = JSONObject(backupJson(oldPhone)).apply { remove("logs") }.toString()
 
+        // The phone has the backup's quest "Run" (same id and name), so its result is that quest's.
+        // A result for an id the phone has under another name, or not at all, isn't kept
+        // (OldBackupRestoreTest): it would land on a different quest.
         val newPhone = newDb()
+        newPhone.taskDao().insertTask(task(1, "Run"))
         newPhone.taskCompletionLogDao().insertLog(TaskCompletionLogEntity(taskId = 1, completedDate = day.plusDays(1), wasCompleted = true, pointsAwarded = 50))
         val payload = DataExportImport.importFromJson(legacy)
         assertNull(payload.logs)

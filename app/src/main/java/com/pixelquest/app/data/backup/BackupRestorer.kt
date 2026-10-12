@@ -50,11 +50,20 @@ class BackupRestorer @Inject constructor(
             if (payload.tasks.isNotEmpty()) {
                 db.taskDao().deleteAll()
                 payload.tasks.forEach { db.taskDao().insertTask(it) }
-                // Older backups carry no history; then the current history is left as it is.
-                payload.logs?.let { logs ->
+                val logs = payload.logs
+                if (logs != null) {
                     val taskIds = payload.tasks.map { it.id }.toSet()
                     db.taskCompletionLogDao().deleteAll()
                     logs.filter { it.taskId in taskIds }.forEach { db.taskCompletionLogDao().insertLog(it) }
+                } else {
+                    // Older backups (before Day 31, and all of v1.1.0's) carry no history. The current
+                    // history stays only for quests the backup has too, by id and name: restoring this
+                    // phone's own older backup keeps it, but after a reinstall the starter quests'
+                    // results used to land on whichever backup quests had their ids.
+                    val sameQuests = payload.tasks.filter { restored ->
+                        currentTasks.any { it.id == restored.id && it.name == restored.name }
+                    }.map { it.id }
+                    db.taskCompletionLogDao().deleteAllExceptFor(sameQuests)
                 }
             }
             // Older backups carry no level timeline; then the current one is left as it is.
