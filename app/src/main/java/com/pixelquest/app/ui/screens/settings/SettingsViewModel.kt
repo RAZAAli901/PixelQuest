@@ -272,7 +272,11 @@ class SettingsViewModel @Inject constructor(
             val payload = pendingImportPayload ?: return@launch
             _backupMessage.value = try {
                 backupRestorer.restore(payload)
-                BackupMessages.RESTORED
+                if (payload.formatVersion > com.pixelquest.app.data.backup.DataExportImport.FORMAT_VERSION) {
+                    BackupMessages.RESTORED_FROM_NEWER
+                } else {
+                    BackupMessages.RESTORED
+                }
             } catch (e: Exception) {
                 BackupMessages.RESTORE_FAILED
             }
@@ -380,5 +384,6 @@ object BackupMessages {
     const val NOT_A_BACKUP = "That file isn't a PixelQuest backup. Nothing was changed."
     const val READ_FAILED = "Couldn't read that file. Nothing was changed."
     const val RESTORED = "Backup restored."
+    const val RESTORED_FROM_NEWER = "Backup restored. It's from a newer version of PixelQuest, so anything this version doesn't have yet was left out."
     const val RESTORE_FAILED = "The restore didn't finish. Try again."
 }

@@ -24,7 +24,9 @@ data class BackupPayload(
     /** Completion history (Day 28). Null for older backups, which had none: a restore keeps the current history. */
     val logs: List<TaskCompletionLogEntity>? = null,
     /** Level-up timeline (Day 30). Null for older backups, which had none: a restore keeps the current timeline. */
-    val levelHistory: List<LevelHistoryEntity>? = null
+    val levelHistory: List<LevelHistoryEntity>? = null,
+    /** The file's format (DataExportImport.FORMAT_VERSION when it was written); 0 before formats were numbered. */
+    val formatVersion: Int = DataExportImport.FORMAT_VERSION
 ) {
     /** False for a file that isn't a PixelQuest backup (or couldn't be read): nothing to restore. */
     val isUsable: Boolean get() = userProfile != null || tasks.isNotEmpty()
@@ -32,8 +34,20 @@ data class BackupPayload(
 
 object DataExportImport {
 
+    /**
+     * The backup format this app writes. Files before Day 34 have no number (read as 0):
+     *   v1.0.x: quests with priority, difficulty and isCompleted, no category or active flag.
+     *   v1.1.0: quests with category and active flag.
+     *   Days 26-31: reminder settings, weekdays, results (logs), level history, perfect days.
+     *   3 (Day 34): numbered, with the app version that wrote it.
+     * A newer file still restores what this version knows, and Settings says so.
+     */
+    const val FORMAT_VERSION = 3
+
     fun exportToJson(payload: BackupPayload): String {
         val root = JSONObject()
+        root.put("formatVersion", FORMAT_VERSION)
+        root.put("appVersion", com.pixelquest.app.BuildConfig.VERSION_NAME)
 
         payload.userProfile?.let { profile ->
             val pObj = JSONObject().apply {
@@ -234,7 +248,7 @@ object DataExportImport {
                 }
             }
 
-            sanitize(BackupPayload(profile, difficulty, streak, tasks, logs, levelHistory))
+            sanitize(BackupPayload(profile, difficulty, streak, tasks, logs, levelHistory, formatVersion = root.optInt("formatVersion", 0)))
         } catch (e: Exception) {
             android.util.Log.e("DataExportImport", "Failed to parse backup JSON, returning empty payload", e)
             BackupPayload(null, null, null, emptyList())
@@ -287,7 +301,8 @@ object DataExportImport {
                 ?.map { it.copy(pointsAwarded = it.pointsAwarded.coerceIn(0, MAX_POINTS_PER_LOG)) },
             levelHistory = payload.levelHistory
                 ?.filter { it.achievedDate in 0..(System.currentTimeMillis() + 86_400_000L) }
-                ?.map { it.copy(level = it.level.coerceIn(1, MAX_LEVEL)) }
+                ?.map { it.copy(level = it.level.coerceIn(1, MAX_LEVEL)) },
+            formatVersion = payload.formatVersion
         )
     }
 
