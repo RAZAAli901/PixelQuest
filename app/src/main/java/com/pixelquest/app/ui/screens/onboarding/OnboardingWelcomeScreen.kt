@@ -29,7 +29,10 @@ fun OnboardingWelcomeScreen(
     onStartClick: () -> Unit = {},
     /** Offers to restore a backup instead of starting a new hero; hidden when null. */
     onRestoreClick: (() -> Unit)? = null,
-    restoreMessage: String? = null
+    restoreMessage: String? = null,
+    /** "11 Oct": the newest automatic backup on the phone, offered when the database was lost. */
+    autoBackupDay: String? = null,
+    onAutoBackupClick: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
 
@@ -100,6 +103,14 @@ fun OnboardingWelcomeScreen(
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
+        if (autoBackupDay != null) {
+            PixelButton(
+                text = "↺ RESTORE MY GAME FROM ${autoBackupDay.uppercase()}",
+                onClick = onAutoBackupClick,
+                variant = PixelButtonVariant.YELLOW,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            )
+        }
         if (onRestoreClick != null) {
             PixelButton(
                 text = "📥 I HAVE A BACKUP",

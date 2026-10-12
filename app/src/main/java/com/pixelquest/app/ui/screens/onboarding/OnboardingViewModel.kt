@@ -41,7 +41,8 @@ class OnboardingViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val settingsRepository: SettingsRepository,
-    private val backupRestorer: com.pixelquest.app.data.backup.BackupRestorer? = null
+    private val backupRestorer: com.pixelquest.app.data.backup.BackupRestorer? = null,
+    private val autoBackups: com.pixelquest.app.data.backup.AutoBackups? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -51,6 +52,25 @@ class OnboardingViewModel @Inject constructor(
     val canRestoreBackup: Boolean get() = backupRestorer != null
 
     private var pendingBackup: com.pixelquest.app.data.backup.BackupPayload? = null
+
+    /**
+     * The newest automatic backup kept on the phone, if any. Onboarding with one means the database
+     * was lost (Android deletes a corrupt one) while the backups survived, so the welcome screen offers it.
+     */
+    val latestAutoBackup: java.time.LocalDate? = if (backupRestorer != null) autoBackups?.days()?.firstOrNull() else null
+
+    fun onAutoBackupSelected(day: java.time.LocalDate) {
+        val payload = autoBackups?.read(day)?.let { com.pixelquest.app.data.backup.DataExportImport.importFromJson(it) }
+        if (payload == null || !payload.isUsable) {
+            _uiState.value = _uiState.value.copy(restoreMessage = RESTORE_FAILED, restoreSummary = null)
+            return
+        }
+        pendingBackup = payload
+        _uiState.value = _uiState.value.copy(
+            restoreSummary = com.pixelquest.app.data.backup.BackupSummary.describe(payload),
+            restoreMessage = null
+        )
+    }
 
     /**
      * A backup picked on the welcome screen. The upgrade path from 1.1.0 is export, reinstall,

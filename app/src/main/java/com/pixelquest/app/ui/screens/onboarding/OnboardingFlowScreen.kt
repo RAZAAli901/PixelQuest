@@ -38,7 +38,11 @@ fun OnboardingFlowScreen(
                 onRestoreClick = if (viewModel.canRestoreBackup) {
                     { backupPicker.launch(arrayOf("application/json", "*/*")) }
                 } else null,
-                restoreMessage = uiState.restoreMessage
+                restoreMessage = uiState.restoreMessage,
+                autoBackupDay = viewModel.latestAutoBackup?.format(
+                    java.time.format.DateTimeFormatter.ofPattern("d MMM", java.util.Locale.ENGLISH)
+                ),
+                onAutoBackupClick = { viewModel.latestAutoBackup?.let { viewModel.onAutoBackupSelected(it) } }
             )
         }
         OnboardingStep.NameEntry -> {

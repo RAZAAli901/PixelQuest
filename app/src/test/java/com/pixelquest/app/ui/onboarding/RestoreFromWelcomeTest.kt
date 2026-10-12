@@ -106,4 +106,34 @@ class RestoreFromWelcomeTest {
         }
         assertEquals(0, composeTestRule.onAllNodesWithText("📥 I HAVE A BACKUP").fetchSemanticsNodes().size)
     }
+
+    @Test
+    fun afterTheDatabaseWasLost_theWelcomeScreenOffersTheAutomaticBackup(): Unit = runBlocking {
+        val dir = File(context.filesDir, "welcome-auto").apply { deleteRecursively() }
+        val day = java.time.LocalDate.of(2026, 10, 11)
+        com.pixelquest.app.data.backup.AutoBackups(dir).save(
+            day, """{"formatVersion": 4, "userProfile": {"id": 1, "username": "Aria", "avatarId": "avatar_mage", "level": 3, "totalXp": 1200}, "tasks": []}"""
+        )
+        val restorer = BackupRestorer(db, TaskAlarmScheduler(context), LevelUpSignalManager(context))
+        val vm = OnboardingViewModel(FakeUserProfileRepository(), FakeDifficultySettingsRepository(), settings, restorer, com.pixelquest.app.data.backup.AutoBackups(dir))
+
+        assertEquals(day, vm.latestAutoBackup)
+        vm.onAutoBackupSelected(day)
+        assertTrue(vm.uiState.value.restoreSummary!!.startsWith("Aria, level 3"))
+        var finished = false
+        vm.confirmRestore { finished = true }
+        repeat(50) { if (!finished) Thread.sleep(20) }
+
+        assertEquals(1200, db.userProfileDao().getProfile().first()!!.totalXp)
+        dir.deleteRecursively()
+    }
+
+    @Test
+    fun theWelcomeScreen_showsTheAutomaticBackupsDay() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) { OnboardingWelcomeScreen(onRestoreClick = {}, autoBackupDay = "11 Oct") }
+        }
+        composeTestRule.onNodeWithText("↺ RESTORE MY GAME FROM 11 OCT").assertExists()
+    }
 }
+
