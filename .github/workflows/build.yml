@@ -66,6 +66,11 @@ jobs:
         # stopped compiling without anyone noticing.
         run: ./gradlew compileDebugKotlin assembleDebug assembleRelease assembleDebugAndroidTest
 
+      # The build re-exports the database layout (app/schemas). A difference means a table changed
+      # without a new version and migration, which would crash every update (DatabaseUpgradeTest).
+      - name: Database layouts match the code
+        run: git diff --exit-code -- app/schemas
+
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:

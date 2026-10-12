@@ -88,6 +88,13 @@ class CiBuildWorkflowTest {
     }
 
     @Test
+    fun theBuild_checksTheDatabaseLayoutsMatchTheCode() {
+        val workflow = listOf(File("../.github/workflows/build.yml"), File(".github/workflows/build.yml")).first { it.exists() }
+        val active = workflow.readLines().filterNot { it.trim().startsWith("#") }
+        assertTrue(active.any { it.contains("git diff --exit-code -- app/schemas") })
+    }
+
+    @Test
     fun theCloudTests_runOnTheLocalStack_withAFakeGeminiKey_neverASecret() {
         val workflow = listOf(File("../.github/workflows/cloud-tests.yml"), File(".github/workflows/cloud-tests.yml")).first { it.exists() }
         val active = workflow.readLines().filterNot { it.trim().startsWith("#") }
