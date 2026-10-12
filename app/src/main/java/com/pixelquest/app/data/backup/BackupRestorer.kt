@@ -12,7 +12,8 @@ import javax.inject.Singleton
 class BackupRestorer @Inject constructor(
     private val db: AppDatabase,
     private val taskAlarmScheduler: TaskAlarmScheduler,
-    private val levelUpSignalManager: com.pixelquest.app.domain.LevelUpSignalManager
+    private val levelUpSignalManager: com.pixelquest.app.domain.LevelUpSignalManager,
+    private val settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null
 ) {
     suspend fun snapshot(): BackupPayload = BackupPayload(
         userProfile = db.userProfileDao().getProfile().first(),
@@ -20,7 +21,20 @@ class BackupRestorer @Inject constructor(
         streak = db.streakDao().getCurrentStreak().first(),
         tasks = db.taskDao().getAllTasks().first(),
         logs = db.taskCompletionLogDao().getAllLogs().first(),
-        levelHistory = db.levelHistoryDao().getAllHistory().first()
+        levelHistory = db.levelHistoryDao().getAllHistory().first(),
+        settings = settingsRepository?.let { s ->
+            BackupSettings(
+                sound = s.isSoundEnabled.first(),
+                crtEffect = s.isCrtEnabled.first(),
+                haptics = s.isHapticsEnabled.first(),
+                reduceMotion = s.isReduceMotionEnabled.first(),
+                notifications = s.isNotificationsEnabled.first(),
+                notificationSound = s.isNotificationSoundEnabled.first(),
+                notificationVibration = s.isNotificationVibrationEnabled.first(),
+                theme = s.themeMode.first().name,
+                simpleMode = s.simpleModeEnabled.first()
+            )
+        }
     )
 
     /**
@@ -77,8 +91,27 @@ class BackupRestorer @Inject constructor(
             taskAlarmScheduler.cancelAllAlarms(currentTasks)
             taskAlarmScheduler.rescheduleAllAlarms(payload.tasks.filter { it.isActive })
         }
+        payload.settings?.let { applySettings(it) }
+
         // A level-up still waiting to be celebrated belongs to the progress just replaced (restoring
         // a level-2 backup used to greet the player with "YOU ARE NOW LEVEL 5"), as on a reset.
         levelUpSignalManager.clearPendingLevelUp()
     }
+
+    /** The settings the backup has; one it doesn't have, or a theme this version lacks, is left alone. */
+    private suspend fun applySettings(settings: BackupSettings) {
+        val repo = settingsRepository ?: return
+        settings.sound?.let { repo.setSoundEnabled(it) }
+        settings.crtEffect?.let { repo.setCrtEnabled(it) }
+        settings.haptics?.let { repo.setHapticsEnabled(it) }
+        settings.reduceMotion?.let { repo.setReduceMotionEnabled(it) }
+        settings.notifications?.let { repo.setNotificationsEnabled(it) }
+        settings.notificationSound?.let { repo.setNotificationSoundEnabled(it) }
+        settings.notificationVibration?.let { repo.setNotificationVibrationEnabled(it) }
+        settings.theme
+            ?.let { name -> com.pixelquest.app.ui.theme.ThemeMode.entries.firstOrNull { it.name == name } }
+            ?.let { repo.setThemeMode(it) }
+        settings.simpleMode?.let { repo.setSimpleModeEnabled(it) }
+    }
 }
+

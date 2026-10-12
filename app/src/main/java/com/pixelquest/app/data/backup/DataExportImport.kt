@@ -26,11 +26,30 @@ data class BackupPayload(
     /** Level-up timeline (Day 30). Null for older backups, which had none: a restore keeps the current timeline. */
     val levelHistory: List<LevelHistoryEntity>? = null,
     /** The file's format (DataExportImport.FORMAT_VERSION when it was written); 0 before formats were numbered. */
-    val formatVersion: Int = DataExportImport.FORMAT_VERSION
+    val formatVersion: Int = DataExportImport.FORMAT_VERSION,
+    /** App settings (format 4 on); null in older files, which leaves the phone's settings as they are. */
+    val settings: BackupSettings? = null
 ) {
     /** False for a file that isn't a PixelQuest backup (or couldn't be read): nothing to restore. */
     val isUsable: Boolean get() = userProfile != null || tasks.isNotEmpty()
 }
+
+/**
+ * The app settings a backup carries. Each is optional: a value missing from the file isn't changed.
+ * Not included: the AI Coach consent (given again, not restored from a file), the leaderboard and
+ * account (they belong to the install), onboarding and one-time hints.
+ */
+data class BackupSettings(
+    val sound: Boolean? = null,
+    val crtEffect: Boolean? = null,
+    val haptics: Boolean? = null,
+    val reduceMotion: Boolean? = null,
+    val notifications: Boolean? = null,
+    val notificationSound: Boolean? = null,
+    val notificationVibration: Boolean? = null,
+    val theme: String? = null,
+    val simpleMode: Boolean? = null
+)
 
 object DataExportImport {
 
@@ -40,9 +59,10 @@ object DataExportImport {
      *   v1.1.0: quests with category and active flag.
      *   Days 26-31: reminder settings, weekdays, results (logs), level history, perfect days.
      *   3 (Day 34): numbered, with the app version that wrote it.
+     *   4 (Day 34): app settings (BackupSettings). Before, a reinstall restored without them.
      * A newer file still restores what this version knows, and Settings says so.
      */
-    const val FORMAT_VERSION = 3
+    const val FORMAT_VERSION = 4
 
     fun exportToJson(payload: BackupPayload): String {
         val root = JSONObject()
@@ -113,6 +133,20 @@ object DataExportImport {
                 })
             }
             root.put("logs", logsArray)
+        }
+
+        payload.settings?.let { s ->
+            root.put("settings", JSONObject().apply {
+                s.sound?.let { put("sound", it) }
+                s.crtEffect?.let { put("crtEffect", it) }
+                s.haptics?.let { put("haptics", it) }
+                s.reduceMotion?.let { put("reduceMotion", it) }
+                s.notifications?.let { put("notifications", it) }
+                s.notificationSound?.let { put("notificationSound", it) }
+                s.notificationVibration?.let { put("notificationVibration", it) }
+                s.theme?.let { put("theme", it) }
+                s.simpleMode?.let { put("simpleMode", it) }
+            })
         }
 
         payload.levelHistory?.let { history ->
@@ -248,7 +282,28 @@ object DataExportImport {
                 }
             }
 
-            sanitize(BackupPayload(profile, difficulty, streak, tasks, logs, levelHistory, formatVersion = root.optInt("formatVersion", 0)))
+            val settings = root.optJSONObject("settings")?.let { s ->
+                fun flag(key: String): Boolean? = if (s.has(key)) s.optBoolean(key) else null
+                BackupSettings(
+                    sound = flag("sound"),
+                    crtEffect = flag("crtEffect"),
+                    haptics = flag("haptics"),
+                    reduceMotion = flag("reduceMotion"),
+                    notifications = flag("notifications"),
+                    notificationSound = flag("notificationSound"),
+                    notificationVibration = flag("notificationVibration"),
+                    theme = s.optString("theme").ifBlank { null },
+                    simpleMode = flag("simpleMode")
+                )
+            }
+
+            sanitize(
+                BackupPayload(
+                    profile, difficulty, streak, tasks, logs, levelHistory,
+                    formatVersion = root.optInt("formatVersion", 0),
+                    settings = settings
+                )
+            )
         } catch (e: Exception) {
             android.util.Log.e("DataExportImport", "Failed to parse backup JSON, returning empty payload", e)
             BackupPayload(null, null, null, emptyList())
@@ -302,7 +357,8 @@ object DataExportImport {
             levelHistory = payload.levelHistory
                 ?.filter { it.achievedDate in 0..(System.currentTimeMillis() + 86_400_000L) }
                 ?.map { it.copy(level = it.level.coerceIn(1, MAX_LEVEL)) },
-            formatVersion = payload.formatVersion
+            formatVersion = payload.formatVersion,
+            settings = payload.settings
         )
     }
 
