@@ -93,6 +93,21 @@ class ProgressResetTest {
     }
 
     @Test
+    fun resetAll_onPurpose_isntOfferedItsAutomaticBackups(): Unit = runBlocking {
+        seedAPlayedGame()
+        val dir = java.io.File(context.filesDir, "reset-auto-backups").apply { deleteRecursively() }
+        val backups = com.pixelquest.app.data.backup.AutoBackups(dir)
+        backups.save(LocalDate.of(2026, 10, 11), "{}")
+
+        ProgressReset(db, TaskAlarmScheduler(context), levelUps, autoBackups = backups).resetAll()
+
+        // Otherwise the welcome screen would offer to undo the reset, and the dashboard after it.
+        assertTrue(backups.offerable().isEmpty())
+        assertEquals("still listed in Settings", listOf(LocalDate.of(2026, 10, 11)), backups.days())
+        dir.deleteRecursively()
+    }
+
+    @Test
     fun resetAll_keepsTheCloudAccountLink() = runBlocking {
         seedAPlayedGame()
 

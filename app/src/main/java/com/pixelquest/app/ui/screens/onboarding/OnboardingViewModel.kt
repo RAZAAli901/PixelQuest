@@ -57,7 +57,7 @@ class OnboardingViewModel @Inject constructor(
      * The newest automatic backup kept on the phone, if any. Onboarding with one means the database
      * was lost (Android deletes a corrupt one) while the backups survived, so the welcome screen offers it.
      */
-    val latestAutoBackup: java.time.LocalDate? = if (backupRestorer != null) autoBackups?.days()?.firstOrNull() else null
+    val latestAutoBackup: java.time.LocalDate? = if (backupRestorer != null) autoBackups?.offerable()?.firstOrNull() else null
 
     fun onAutoBackupSelected(day: java.time.LocalDate) {
         val payload = autoBackups?.read(day)?.let { com.pixelquest.app.data.backup.DataExportImport.importFromJson(it) }
@@ -170,6 +170,8 @@ class OnboardingViewModel @Inject constructor(
     fun completeOnboarding(onSuccess: () -> Unit = {}) {
         viewModelScope.launch {
             val state = _uiState.value
+            // A new hero over the backup the welcome screen offered: the dashboard doesn't ask again.
+            latestAutoBackup?.let { autoBackups?.decline(it) }
             // After RESET ALL PROGRESS the existing profile keeps this install's cloud link and
             // leaderboard choice; carry them over. A fresh profile here used to drop them, so the old
             // public row stayed on the leaderboard while Account said the player wasn't opted in.

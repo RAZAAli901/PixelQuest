@@ -22,9 +22,7 @@ class LostProgress @Inject constructor(
     /** The newest automatic backup with progress, when the game has none and it wasn't declined. */
     suspend fun check(): Offer? = withContext(Dispatchers.IO) {
         if (backupRestorer.snapshot().hasProgress) return@withContext null
-        val declined = autoBackups.declinedThrough()
-        autoBackups.days()
-            .filter { declined == null || it > declined }
+        autoBackups.offerable()
             .firstNotNullOfOrNull { day ->
                 autoBackups.read(day)
                     ?.let { runCatching { DataExportImport.importFromJson(it) }.getOrNull() }

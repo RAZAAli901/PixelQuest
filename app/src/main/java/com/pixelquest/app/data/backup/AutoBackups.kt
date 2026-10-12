@@ -55,6 +55,17 @@ class AutoBackups internal constructor(private val dir: File) {
         File(dir, DECLINED).writeText(through.toString())
     }
 
+    /** Declines every backup kept so far (RESET ALL PROGRESS); they stay listed in Settings. */
+    fun declineAll() {
+        days().firstOrNull()?.let { decline(it) }
+    }
+
+    /** The days that may still be offered when the game is found empty, newest first. */
+    fun offerable(): List<LocalDate> {
+        val declined = declinedThrough()
+        return days().filter { declined == null || it > declined }
+    }
+
     private fun fileFor(day: LocalDate) = File(dir, "pixelquest-auto-$day.json")
 
     companion object {

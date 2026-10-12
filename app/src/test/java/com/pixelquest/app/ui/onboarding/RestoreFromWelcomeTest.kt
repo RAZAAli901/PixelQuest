@@ -129,6 +129,28 @@ class RestoreFromWelcomeTest {
     }
 
     @Test
+    fun startingANewHeroInstead_isntAskedAgainOnTheDashboard() {
+        val dir = File(context.filesDir, "welcome-new-hero").apply { deleteRecursively() }
+        val backups = com.pixelquest.app.data.backup.AutoBackups(dir)
+        val day = java.time.LocalDate.of(2026, 10, 11)
+        backups.save(day, "{}")
+        val restorer = BackupRestorer(db, TaskAlarmScheduler(context), LevelUpSignalManager(context))
+        val vm = OnboardingViewModel(FakeUserProfileRepository(), FakeDifficultySettingsRepository(), settings, restorer, backups)
+        assertEquals(day, vm.latestAutoBackup)
+
+        var finished = false
+        vm.completeOnboarding { finished = true }
+        repeat(50) { if (!finished) Thread.sleep(20) }
+
+        assertEquals(day, backups.declinedThrough())
+        assertEquals(
+            "and after a reset, the welcome screen doesn't offer it",
+            null, OnboardingViewModel(FakeUserProfileRepository(), FakeDifficultySettingsRepository(), settings, restorer, backups).latestAutoBackup
+        )
+        dir.deleteRecursively()
+    }
+
+    @Test
     fun theWelcomeScreen_showsTheAutomaticBackupsDay() {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) { OnboardingWelcomeScreen(onRestoreClick = {}, autoBackupDay = "11 Oct") }

@@ -25,7 +25,8 @@ class ProgressReset @Inject constructor(
     private val taskAlarmScheduler: TaskAlarmScheduler,
     private val levelUpSignalManager: LevelUpSignalManager,
     private val pendingProgressReset: com.pixelquest.app.data.repository.PendingProgressReset? = null,
-    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
+    private val autoBackups: com.pixelquest.app.data.backup.AutoBackups? = null
 ) {
     suspend fun resetAll() {
         val tasks = db.taskDao().getAllTasks().first()
@@ -51,6 +52,9 @@ class ProgressReset @Inject constructor(
             db.difficultySettingsDao().insertSettings(DifficultySettingsEntity())
         }
         levelUpSignalManager.clearPendingLevelUp()
+        // A reset on purpose: the empty game isn't a lost one, so its automatic backups aren't
+        // offered on the welcome screen or the dashboard. Settings still lists them.
+        autoBackups?.declineAll()
 
         val accountId = profile?.supabaseUserId
         if (accountId != null && profile.leaderboardOptIn) {
