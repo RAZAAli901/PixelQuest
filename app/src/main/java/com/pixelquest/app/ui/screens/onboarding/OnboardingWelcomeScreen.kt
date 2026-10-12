@@ -26,7 +26,10 @@ import com.pixelquest.app.ui.theme.PixelTheme
 
 @Composable
 fun OnboardingWelcomeScreen(
-    onStartClick: () -> Unit = {}
+    onStartClick: () -> Unit = {},
+    /** Offers to restore a backup instead of starting a new hero; hidden when null. */
+    onRestoreClick: (() -> Unit)? = null,
+    restoreMessage: String? = null
 ) {
     val colors = PixelTheme.colors
 
@@ -97,5 +100,22 @@ fun OnboardingWelcomeScreen(
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
         )
+        if (onRestoreClick != null) {
+            PixelButton(
+                text = "📥 I HAVE A BACKUP",
+                onClick = onRestoreClick,
+                variant = PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        restoreMessage?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurface,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
     }
 }

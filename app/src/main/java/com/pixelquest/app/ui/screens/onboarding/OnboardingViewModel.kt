@@ -29,18 +29,78 @@ data class OnboardingUiState(
     val avatarId: String = "avatar_hero",
     val difficultyLevel: DifficultyLevel = DifficultyLevel.MEDIUM,
     val isNameValid: Boolean = false,
-    val nameError: String? = null
+    val nameError: String? = null,
+    /** What the backup picked on the welcome screen holds, while its restore waits to be confirmed. */
+    val restoreSummary: String? = null,
+    /** Why a picked file couldn't be restored. */
+    val restoreMessage: String? = null
 )
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val backupRestorer: com.pixelquest.app.data.backup.BackupRestorer? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
+
+    /** Whether the welcome screen offers to restore a backup instead (a reinstall, or a new phone). */
+    val canRestoreBackup: Boolean get() = backupRestorer != null
+
+    private var pendingBackup: com.pixelquest.app.data.backup.BackupPayload? = null
+
+    /**
+     * A backup picked on the welcome screen. The upgrade path from 1.1.0 is export, reinstall,
+     * import, and the import used to wait until onboarding had made a new hero to replace.
+     */
+    fun onBackupFileSelected(context: android.content.Context, uri: android.net.Uri) {
+        viewModelScope.launch {
+            val payload = try {
+                context.contentResolver.openInputStream(uri)?.use { it.bufferedReader().readText() }
+                    ?.let { com.pixelquest.app.data.backup.DataExportImport.importFromJson(it) }
+            } catch (e: Exception) {
+                null
+            }
+            if (payload == null || !payload.isUsable) {
+                _uiState.value = _uiState.value.copy(restoreMessage = NOT_A_BACKUP, restoreSummary = null)
+                return@launch
+            }
+            pendingBackup = payload
+            _uiState.value = _uiState.value.copy(
+                restoreSummary = com.pixelquest.app.data.backup.BackupSummary.describe(payload),
+                restoreMessage = null
+            )
+        }
+    }
+
+    fun dismissRestore() {
+        pendingBackup = null
+        _uiState.value = _uiState.value.copy(restoreSummary = null)
+    }
+
+    /** Restores the picked backup; its hero replaces onboarding, which is then done. */
+    fun confirmRestore(onRestored: () -> Unit = {}) {
+        val payload = pendingBackup ?: return
+        viewModelScope.launch {
+            try {
+                backupRestorer?.restore(payload)
+                settingsRepository.setOnboardingComplete(true)
+                pendingBackup = null
+                _uiState.value = _uiState.value.copy(restoreSummary = null)
+                onRestored()
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(restoreSummary = null, restoreMessage = RESTORE_FAILED)
+            }
+        }
+    }
+
+    companion object {
+        const val NOT_A_BACKUP = "That file isn't a PixelQuest backup. Pick another, or start a new hero."
+        const val RESTORE_FAILED = "The restore didn't finish. Try again, or start a new hero."
+    }
 
     fun updateUsername(name: String) {
         val trimmed = com.pixelquest.app.domain.HeroName.clamp(name)

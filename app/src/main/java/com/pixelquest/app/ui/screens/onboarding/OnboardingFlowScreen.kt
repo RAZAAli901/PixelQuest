@@ -18,10 +18,27 @@ fun OnboardingFlowScreen(
         viewModel.previousStep()
     }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val backupPicker = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri -> if (uri != null) viewModel.onBackupFileSelected(context, uri) }
+
+    uiState.restoreSummary?.let { summary ->
+        com.pixelquest.app.ui.screens.settings.RestoreDataConfirmDialog(
+            onConfirm = { viewModel.confirmRestore { onOnboardingComplete() } },
+            onDismiss = { viewModel.dismissRestore() },
+            summary = summary
+        )
+    }
+
     when (uiState.currentStep) {
         OnboardingStep.Welcome -> {
             OnboardingWelcomeScreen(
-                onStartClick = { viewModel.nextStep() }
+                onStartClick = { viewModel.nextStep() },
+                onRestoreClick = if (viewModel.canRestoreBackup) {
+                    { backupPicker.launch(arrayOf("application/json", "*/*")) }
+                } else null,
+                restoreMessage = uiState.restoreMessage
             )
         }
         OnboardingStep.NameEntry -> {
