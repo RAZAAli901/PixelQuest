@@ -738,3 +738,56 @@ Nothing ran against a hosted Supabase project; none exists.
 - **One account on two real phones.** The bench uses two app states with one session, and the emulator check simulated the other phone from the server side.
 - **SYNC NOW following another phone on a device.** The phone had already followed at launch. Covered by the bench.
 - **The `cloud-tests.yml` lint step on GitHub.** It ran for the first time with this push. Recorded on Day 34: it passed, and so did both runs for `f36688ce` (Cloud Tests, with the 29 Node tests and the Kotlin bench, and the Android build).
+
+## Section M -- Day 34 Verification (Step 45)
+
+Verified on 12 Oct 2026 with:
+- the local Gradle build;
+- the PixelQuest_API34 emulator (Android 14, API 34).
+
+Day 34's changes are all in the app, so the local Supabase stack wasn't started. Nothing ran against a hosted project; none exists. No Gemini call was made.
+
+### The database layouts players have
+- `app/schemas` holds versions 1 to 7. Room had never exported a layout (`exportSchema = false`), so the migrations had never been checked against what players' phones hold.
+- **Recovered by building old code** in throwaway worktrees: v1.0.3 (version 2, shipped in v1.0.0 to v1.0.3), v1.1.0 (version 3) and the last commit of versions 4 to 6 (debug builds only).
+- **Version 1 never shipped**, and its commits don't build on their own. Its layout is version 2 minus what `MIGRATION_1_2` adds. `app/schemas/README.md` says where each came from.
+- **CI checks the layouts** ("Database layouts match the code"): a fresh build left `app/schemas` unchanged.
+
+### Tests
+| Suite | Result |
+| --- | --- |
+| `:app:testDebugUnitTest` | 1,100 tests in 320 classes: 0 failing. The 12 local-stack bench tests were skipped: the stack wasn't started, and nothing they cover changed today. 1,028 at the end of Day 33 (with the bench) |
+| `DatabaseUpgradeTest` | 9 of 9. A played game in each earlier version's file (1 to 6) opens the way the app opens it, with every quest, result, streak and level kept. The 1.1.0 file also leaves a version 3 copy in `files/pre-update` |
+| Backup tests | Old files as v1.0.0 and v1.1.0 wrote them, format versions, settings, summaries, undo, automatic backups, the welcome-screen restore and the lost-game prompt |
+| `:app:assembleDebug` | Built four times for the device checks, as `com.pixelquest.app.updatecheck` |
+
+### Emulator checks (debug builds installed as `com.pixelquest.app.updatecheck`)
+The installed PixelQuest (`com.pixelquest.app`) and its data weren't touched.
+
+**Updating from v1.1.0** (`scripts/update-check.sh v1.1.0`):
+- A v1.1.0 build was installed and played (two quests completed, 100 XP), then today's build was installed over it.
+- **First try:** the database migrated from version 3 to 7 with every quest, result and the 100 XP. But the welcome screen came up, and finishing it would have reset the level and XP. 1.1.0's splash had never set the onboarding flag. Fixed in Steps 14 and 15.
+- **After the fix:** the dashboard showed 100 XP and both completed quests, with no welcome screen.
+
+**Backups**, on the build from Step 29 onwards:
+| Check | Result |
+| --- | --- |
+| Fresh install, evening | Before Step 29, the welcome screen offered "RESTORE MY GAME FROM 12 OCT": the daily backup had saved the empty game, because missed starter quests counted as play. After: only START YOUR JOURNEY and I HAVE A BACKUP, and no backup file |
+| Export after playing (50 XP) | The picker suggested `pixelquest-backup-2026-10-12.json` next to an older file it left alone. "Backup saved." and "Last backup: 12 Oct 2026". The file has `formatVersion` 4, `appVersion` 1.1.0, the settings and the results |
+| Uninstall, reinstall, I HAVE A BACKUP | "This backup has Aria, level 1 and 3 quests, with settings. Saved by PixelQuest 1.1.0." Restoring opened the dashboard with 50 XP and the completed quest, without the welcome steps |
+| Settings after that restore | Before Step 30, it offered UNDO LAST RESTORE, which would have put the empty starter hero back over the restored game |
+| Import an older file over the game, then UNDO LAST RESTORE | The dialog showed "cbf, level 1 and 3 quests. Saved by an earlier PixelQuest." and the overwrite warning. "Backup restored.", then "Restore undone: everything is back as it was before.", and the dashboard had Aria's 50 XP again |
+| Database deleted (`pixelquest.db`, `-wal`, `-shm`), automatic backup from 11 Oct present | Before Step 33, the app opened an empty dashboard (0 XP), because the onboarding flag survived in the settings, so the backup was never offered. After: "RESTORE YOUR GAME?", with the backup's day and summary. RESTORE 11 OCT brought back Aria with 50 XP |
+| RESET ALL PROGRESS, then onboarding again, then a fresh launch | The welcome screen offered only I HAVE A BACKUP, and the dashboard didn't ask. The 11 Oct backup was still listed in Settings |
+
+- The automatic backup for 11 Oct was placed by hand (`adb exec-in run-as ...`). The daily job had already run at install, before there was anything to save, and WorkManager skips a forced run before it's due. `AutoBackupsTest` runs the worker itself.
+- Afterwards the test app was uninstalled, the export file it made was deleted from Downloads, and the emulator was shut down.
+
+### Not verified
+- **The minified release build.** All device checks used debug builds. RELEASE_QA.md rows 9 and 10 are marked to run before the next release.
+- **Android's own backup and restore** on a device. Backup Manager is off on the emulator.
+- **A real corrupt database.** The check deleted the file, which is what Android does with a corrupt one.
+- **The automatic backups made by WorkManager on a device**, daily or an hour after opening the app. Covered by unit tests only.
+- **The streak-at-risk nudge on a device** (carried over from Day 33).
+- **Anything on a hosted Supabase project.**
+- `versionName` is still 1.1.0, so today's backups say "Saved by PixelQuest 1.1.0". Bumping it, and tagging a release, is the owner's call.
