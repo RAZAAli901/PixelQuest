@@ -42,6 +42,24 @@ Set the settings again once. Backups made from now on include them.
 
 A backup made by a newer version restores what this version knows, and Settings says the rest was left out.
 
+### Saving, restoring and undoing
+- **Saving:** EXPORT QUEST DATA saves a dated file, such as `pixelquest-backup-2026-10-12.json`.
+  - The app reads the file back to check it's complete before saying "Backup saved."
+  - Settings shows when the last good backup was saved.
+- **Restoring:** the dialog says what the file holds, and which PixelQuest saved it, before anything is replaced.
+- **Undoing:** before restoring, the app keeps what the phone had. **UNDO LAST RESTORE** in Settings puts it back, until the next restore replaces that copy.
+
+### Automatic backups on the phone
+Once a day, PixelQuest keeps a backup of your progress in its own storage on the phone, for the last 3 days. Nothing is saved before there's a game to keep.
+- If the database file is ever corrupted, Android deletes it and the app starts over.
+- In that case, or after a mistake, Settings → **Automatic backups on this phone** restores one, with the same confirmation and undo as a file.
+- These copies stay on the phone. They are not your exported file.
+
+### Android's own backup
+If backup is on in your phone's settings, Android saves PixelQuest's progress and settings with the rest of the phone's backup, and restores them after a reinstall or on a new phone.
+- **What's included:** only the quest database, the settings, a pending level-up, and which account last signed in (`res/xml/backup_rules.xml` and `data_extraction_rules.xml`).
+- **What's never included:** your sign-in session, so you sign in again. Nor AI Coach data, reminder bookkeeping, or the automatic backups and undo copy.
+
 ## For developers
 
 ### Changing a database table
