@@ -74,7 +74,7 @@ All notable changes to **PixelQuest** are documented in this file.
   - **UNDO LAST RESTORE** puts back what you had before, when there was progress to go back to.
   - Results ticked on a fresh install's starter quests no longer land on the backup's quests.
   - **After a reinstall or on a new phone**, restore straight from the welcome screen: **I HAVE A BACKUP**. The 1.1.0 upgrade no longer needs a throwaway hero first.
-- **Automatic backups on the phone:** a daily copy of your progress, the last 3 days, once you've played. Settings can restore any of them.
+- **Automatic backups on the phone:** a daily copy of your progress, the last 3 days, once you've played. It's also updated an hour after you open the app, so it has that day's play. Settings can restore any of them.
   - If the app's data is ever damaged and your game comes back empty, PixelQuest asks **RESTORE YOUR GAME?** with the newest one.
   - **NOT NOW**, a new hero, or RESET ALL PROGRESS on purpose isn't asked again.
 - **Android's own backup:** your progress and settings come back after a reinstall or on a new phone. Your sign-in doesn't, so you sign in again.

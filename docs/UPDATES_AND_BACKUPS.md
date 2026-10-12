@@ -53,7 +53,7 @@ A backup made by a newer version restores what this version knows, and Settings 
   - It's kept only when there was progress to go back to. A restore on the welcome screen, or into a game not yet played, has nothing to undo.
 
 ### Automatic backups on the phone
-Once a day, PixelQuest keeps a backup of your progress in its own storage on the phone, for the last 3 days. Nothing is saved before you've played (some XP, a level, or a completed quest).
+Once a day, and again an hour after you open the app, PixelQuest keeps a backup of your progress in its own storage on the phone. It keeps one per day, for the last 3 days. Nothing is saved before you've played (some XP, a level, or a completed quest).
 - If the database file is ever corrupted, Android deletes it and the game starts over empty. The next time you open PixelQuest, it asks **RESTORE YOUR GAME?** with the newest automatic backup, what it holds and its day.
   - **NOT NOW** leaves the game as it is. That backup isn't offered again.
   - If the app hadn't yet recorded that you'd finished the welcome steps, the welcome screen offers **RESTORE MY GAME FROM 11 OCT** instead.
