@@ -27,7 +27,8 @@ fun OnboardingFlowScreen(
         com.pixelquest.app.ui.screens.settings.RestoreDataConfirmDialog(
             onConfirm = { viewModel.confirmRestore { onOnboardingComplete() } },
             onDismiss = { viewModel.dismissRestore() },
-            summary = summary
+            summary = summary,
+            replacesAGame = false
         )
     }
 

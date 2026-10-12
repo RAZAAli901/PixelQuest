@@ -2,6 +2,7 @@ package com.pixelquest.app.data.backup
 
 import android.app.Application
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import com.pixelquest.app.ui.screens.settings.RestoreDataConfirmDialog
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -58,5 +59,17 @@ class BackupSummaryTest {
             }
         }
         composeTestRule.onNodeWithText("This backup has Aria, level 5 and 2 quests.", substring = true).assertExists()
+    }
+
+    @Test
+    fun onTheWelcomeScreen_itDoesntWarnAboutAHeroThatIsntThere() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                RestoreDataConfirmDialog(onConfirm = {}, onDismiss = {}, summary = "Aria, level 5 and 2 quests.", replacesAGame = false)
+            }
+        }
+        composeTestRule.onNodeWithText("💾 RESTORE THIS BACKUP?").assertExists()
+        composeTestRule.onNodeWithText("come back from it", substring = true).assertExists()
+        assertEquals(0, composeTestRule.onAllNodesWithText("overwrite", substring = true).fetchSemanticsNodes().size)
     }
 }

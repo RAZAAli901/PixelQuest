@@ -12,12 +12,21 @@ fun RestoreDataConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     /** What the file holds (BackupSummary), so the player sees what they're restoring. */
-    summary: String? = null
+    summary: String? = null,
+    /**
+     * False on the welcome screen, where there's no hero yet: warning that the restore overwrites
+     * "your current hero" there (as it did on the emulator) only made a new install look risky.
+     */
+    replacesAGame: Boolean = true
 ) {
     PixelConfirmDialog(
-        title = "💾 OVERWRITE QUEST DATA?",
+        title = if (replacesAGame) "💾 OVERWRITE QUEST DATA?" else "💾 RESTORE THIS BACKUP?",
         message = (summary?.let { "This backup has $it\n\n" } ?: "") +
-            "Restoring it will completely overwrite your current hero profile, streak, and tasks. Are you sure you want to proceed?",
+            if (replacesAGame) {
+                "Restoring it will completely overwrite your current hero profile, streak, and tasks. Are you sure you want to proceed?"
+            } else {
+                "Your hero, quests and history come back from it, and the welcome steps are skipped."
+            },
         confirmText = "RESTORE BACKUP",
         dismissText = "CANCEL",
         onConfirm = onConfirm,
