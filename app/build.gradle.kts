@@ -29,6 +29,14 @@ val geminiApiKeyProp = buildSetting("GEMINI_API_KEY") ?: "placeholder-gemini-key
 // Debug builds call Gemini directly with the local key unless GEMINI_VIA_PROXY=true (to try the proxy).
 val geminiViaProxyProp = buildSetting("GEMINI_VIA_PROXY")?.trim()?.toBoolean() ?: false
 
+// Room writes each database version's layout to app/schemas (committed), so updates can be tested
+// against the real layouts of earlier versions (DatabaseUpgradeTest).
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
+}
+
 android {
     namespace = "com.pixelquest.app"
 

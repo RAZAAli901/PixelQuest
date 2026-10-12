@@ -31,7 +31,7 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         InsightCacheEntity::class
     ],
     version = 7,
-    exportSchema = false
+    exportSchema = true
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
