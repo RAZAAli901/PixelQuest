@@ -64,15 +64,19 @@ All notable changes to **PixelQuest** are documented in this file.
 - **Updating keeps your progress**, from every earlier version.
   - Players updating from 1.1.0 were sent through the welcome screens again, and finishing them reset their level and XP. Fixed.
   - An update can no longer silently wipe everything if it can't upgrade the app's data.
+  - Before an update changes how your game is stored, a copy of the old one is kept on the phone.
 - **Backups:**
   - **Include your settings** (sound, haptics, reduce motion, notifications, theme, Simple Mode).
   - **Say which version made them.** A backup from a newer version restores what this one knows.
   - **Are checked after saving**, and get dated file names. Settings shows when you last saved one.
 - **Restoring:**
   - The dialog says what the backup holds before anything is replaced.
-  - **UNDO LAST RESTORE** puts back what you had before.
+  - **UNDO LAST RESTORE** puts back what you had before, when there was progress to go back to.
   - Results ticked on a fresh install's starter quests no longer land on the backup's quests.
-- **Automatic backups on the phone:** a daily copy of your progress, the last 3 days, restorable from Settings. It's there if the app's data is ever damaged.
+  - **After a reinstall or on a new phone**, restore straight from the welcome screen: **I HAVE A BACKUP**. The 1.1.0 upgrade no longer needs a throwaway hero first.
+- **Automatic backups on the phone:** a daily copy of your progress, the last 3 days, once you've played. Settings can restore any of them.
+  - If the app's data is ever damaged and your game comes back empty, PixelQuest asks **RESTORE YOUR GAME?** with the newest one.
+  - **NOT NOW**, a new hero, or RESET ALL PROGRESS on purpose isn't asked again.
 - **Android's own backup:** your progress and settings come back after a reinstall or on a new phone. Your sign-in doesn't, so you sign in again.
 
 ### 🏆 Leaderboard (Days 31–33)
