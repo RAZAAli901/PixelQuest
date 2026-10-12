@@ -10,11 +10,14 @@ import com.pixelquest.app.ui.components.PixelConfirmDialog
 @Composable
 fun RestoreDataConfirmDialog(
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    /** What the file holds (BackupSummary), so the player sees what they're restoring. */
+    summary: String? = null
 ) {
     PixelConfirmDialog(
         title = "💾 OVERWRITE QUEST DATA?",
-        message = "Restoring this backup file will completely overwrite your current hero profile, streak, and tasks. Are you sure you want to proceed?",
+        message = (summary?.let { "This backup has $it\n\n" } ?: "") +
+            "Restoring it will completely overwrite your current hero profile, streak, and tasks. Are you sure you want to proceed?",
         confirmText = "RESTORE BACKUP",
         dismissText = "CANCEL",
         onConfirm = onConfirm,

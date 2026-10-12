@@ -485,9 +485,11 @@ fun SettingsScreen(
 
     val showRestoreDialog by viewModel.showRestoreConfirmDialog.collectAsState()
     if (showRestoreDialog) {
+        val restoreSummary by viewModel.pendingImportSummary.collectAsState()
         RestoreDataConfirmDialog(
             onConfirm = { viewModel.confirmImport() },
-            onDismiss = { viewModel.dismissImportDialog() }
+            onDismiss = { viewModel.dismissImportDialog() },
+            summary = restoreSummary
         )
     }
 

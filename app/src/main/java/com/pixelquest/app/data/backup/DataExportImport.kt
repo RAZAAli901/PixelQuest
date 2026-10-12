@@ -28,7 +28,9 @@ data class BackupPayload(
     /** The file's format (DataExportImport.FORMAT_VERSION when it was written); 0 before formats were numbered. */
     val formatVersion: Int = DataExportImport.FORMAT_VERSION,
     /** App settings (format 4 on); null in older files, which leaves the phone's settings as they are. */
-    val settings: BackupSettings? = null
+    val settings: BackupSettings? = null,
+    /** The app version that wrote the file (format 3 on); null for older files and for a snapshot. */
+    val appVersion: String? = null
 ) {
     /** False for a file that isn't a PixelQuest backup (or couldn't be read): nothing to restore. */
     val isUsable: Boolean get() = userProfile != null || tasks.isNotEmpty()
@@ -301,7 +303,8 @@ object DataExportImport {
                 BackupPayload(
                     profile, difficulty, streak, tasks, logs, levelHistory,
                     formatVersion = root.optInt("formatVersion", 0),
-                    settings = settings
+                    settings = settings,
+                    appVersion = root.optString("appVersion").ifBlank { null }
                 )
             )
         } catch (e: Exception) {
@@ -358,7 +361,8 @@ object DataExportImport {
                 ?.filter { it.achievedDate in 0..(System.currentTimeMillis() + 86_400_000L) }
                 ?.map { it.copy(level = it.level.coerceIn(1, MAX_LEVEL)) },
             formatVersion = payload.formatVersion,
-            settings = payload.settings
+            settings = payload.settings,
+            appVersion = payload.appVersion
         )
     }
 

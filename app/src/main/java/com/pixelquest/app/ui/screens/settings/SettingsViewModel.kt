@@ -260,6 +260,7 @@ class SettingsViewModel @Inject constructor(
                 _backupMessage.value = null
                 // Stores draft payload to trigger confirmation dialog in Step 38
                 pendingImportPayload = payload
+                _pendingImportSummary.value = com.pixelquest.app.data.backup.BackupSummary.describe(payload)
                 _showRestoreConfirmDialog.value = true
             } catch (e: Exception) {
                 _backupMessage.value = BackupMessages.READ_FAILED
@@ -337,6 +338,9 @@ class SettingsViewModel @Inject constructor(
     val resetStep: StateFlow<Int> = _resetStep.asStateFlow()
 
     private var pendingImportPayload: com.pixelquest.app.data.backup.BackupPayload? = null
+    private val _pendingImportSummary = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    /** What the file being restored holds, for the confirm dialog. */
+    val pendingImportSummary: StateFlow<String?> = _pendingImportSummary.asStateFlow()
     private val _showRestoreConfirmDialog = kotlinx.coroutines.flow.MutableStateFlow(false)
     val showRestoreConfirmDialog: StateFlow<Boolean> = _showRestoreConfirmDialog.asStateFlow()
 
