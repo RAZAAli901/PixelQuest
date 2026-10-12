@@ -101,4 +101,17 @@ class AutoBackupsTest {
 
         assertTrue(store.days().isEmpty())
     }
+
+    @Test
+    fun aFreshInstallsMissedStarterQuests_dontCount() = runBlocking {
+        // What a fresh install looks like in the evening: starter quests whose time has passed, logged as missed.
+        db.userProfileDao().insertProfile(UserProfileEntity(username = "PixelHero", avatarId = "avatar_hero"))
+        db.taskCompletionLogDao().insertLog(
+            com.pixelquest.app.data.local.entity.TaskCompletionLogEntity(taskId = 1, completedDate = LocalDate.now(), wasCompleted = false, pointsAwarded = 0)
+        )
+
+        runWorker()
+
+        assertTrue("used to save the empty game", store.days().isEmpty())
+    }
 }

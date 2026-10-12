@@ -20,7 +20,9 @@ import java.util.concurrent.TimeUnit
 /**
  * Once a day, a backup of the player's progress kept on the phone (AutoBackups), so a corrupt
  * database or a mistake doesn't cost everything when no backup was exported. Nothing is saved
- * before there's something to keep: a played game, or quests of the player's own.
+ * before there's something to keep: XP, a level, or a completed quest. A fresh install already has
+ * "missed" results for starter quests whose time has passed; counting those saved a new player's
+ * empty game, which the welcome screen then offered to restore (seen on the emulator).
  */
 @HiltWorker
 class AutoBackupWorker @AssistedInject constructor(
@@ -32,7 +34,7 @@ class AutoBackupWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result = try {
         val payload = backupRestorer.snapshot()
-        if (OnboardingGate.hasPlayed(payload.userProfile) || !payload.logs.isNullOrEmpty()) {
+        if (OnboardingGate.hasPlayed(payload.userProfile) || payload.logs.orEmpty().any { it.wasCompleted }) {
             autoBackups.save(LocalDate.now(), DataExportImport.exportToJson(payload))
         }
         Result.success()
