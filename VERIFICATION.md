@@ -737,4 +737,4 @@ Nothing ran against a hosted Supabase project; none exists.
 - **The streak-at-risk nudge on a device.** It needs an evening hour and a live streak.
 - **One account on two real phones.** The bench uses two app states with one session, and the emulator check simulated the other phone from the server side.
 - **SYNC NOW following another phone on a device.** The phone had already followed at launch. Covered by the bench.
-- **The `cloud-tests.yml` lint step on GitHub.** It runs for the first time with this push.
+- **The `cloud-tests.yml` lint step on GitHub.** It ran for the first time with this push. Recorded on Day 34: it passed, and so did both runs for `f36688ce` (Cloud Tests, with the 29 Node tests and the Kotlin bench, and the Android build).

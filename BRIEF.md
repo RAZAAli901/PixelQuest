@@ -3555,7 +3555,7 @@ A reminder rang 10 minutes late on the emulator, because Android 14 doesn't gran
   - A client that invents completions can still climb, but only at a real player's pace.
 - **Two real phones.** One account on two real phones hasn't been tried. The bench simulates it with two app states.
 - **Not seen on a device:** the streak-at-risk nudge (it needs an evening and a live streak).
-- **CI.** The new lint step in `cloud-tests.yml` runs on GitHub for the first time with this push.
+- **CI.** The new lint step in `cloud-tests.yml` ran on GitHub for the first time with this push. Recorded on Day 34: it passed, as did both runs for `f36688ce`.
 - **Before the next tag.** `versionName` is still 1.1.0.
 - **Your computer.**
   - The emulator still has the local-stack debug build, and its test account's row was removed by the final `db reset`. Install an ordinary debug build before using it normally.
