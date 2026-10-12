@@ -321,6 +321,22 @@ class SettingsViewModel @Inject constructor(
             }
             pendingImportPayload = null
             _showRestoreConfirmDialog.value = false
+            _canUndoRestore.value = backupRestorer.canUndoLastRestore()
+        }
+    }
+
+    private val _canUndoRestore = kotlinx.coroutines.flow.MutableStateFlow(backupRestorer.canUndoLastRestore())
+    /** Settings offers UNDO LAST RESTORE while what the phone had before it is kept (RestoreSafetyCopy). */
+    val canUndoRestore: StateFlow<Boolean> = _canUndoRestore.asStateFlow()
+
+    fun undoLastRestore() {
+        viewModelScope.launch {
+            _backupMessage.value = try {
+                if (backupRestorer.undoLastRestore()) BackupMessages.RESTORE_UNDONE else BackupMessages.NOTHING_TO_UNDO
+            } catch (e: Exception) {
+                BackupMessages.RESTORE_FAILED
+            }
+            _canUndoRestore.value = backupRestorer.canUndoLastRestore()
         }
     }
 
@@ -427,6 +443,8 @@ object BackupMessages {
     const val NOT_A_BACKUP = "That file isn't a PixelQuest backup. Nothing was changed."
     const val READ_FAILED = "Couldn't read that file. Nothing was changed."
     const val RESTORED = "Backup restored."
+    const val RESTORE_UNDONE = "Restore undone: everything is back as it was before."
+    const val NOTHING_TO_UNDO = "There's no restore to undo."
     const val RESTORED_FROM_NEWER = "Backup restored. It's from a newer version of PixelQuest, so anything this version doesn't have yet was left out."
     const val RESTORE_FAILED = "The restore didn't finish. Try again."
 }

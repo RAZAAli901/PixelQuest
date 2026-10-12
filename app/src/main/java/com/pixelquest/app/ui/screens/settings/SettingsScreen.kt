@@ -459,6 +459,16 @@ fun SettingsScreen(
                     color = PixelTheme.colors.onSurface
                 )
             }
+            val canUndoRestore by viewModel.canUndoRestore.collectAsState()
+            if (canUndoRestore) {
+                // What the phone had before the last restore is kept until it's used or replaced.
+                PixelButton(
+                    text = "↩ UNDO LAST RESTORE",
+                    onClick = { viewModel.undoLastRestore() },
+                    variant = PixelButtonVariant.BLUE,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             PixelButton(
                 text = "📥 IMPORT QUEST DATA (JSON)",
                 onClick = { importLauncher.launch(arrayOf("application/json", "*/*")) },

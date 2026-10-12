@@ -13,8 +13,22 @@ class BackupRestorer @Inject constructor(
     private val db: AppDatabase,
     private val taskAlarmScheduler: TaskAlarmScheduler,
     private val levelUpSignalManager: com.pixelquest.app.domain.LevelUpSignalManager,
-    private val settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null
+    private val settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null,
+    private val safetyCopy: RestoreSafetyCopy? = null
 ) {
+    /** Whether the last restore can be undone (see RestoreSafetyCopy). */
+    fun canUndoLastRestore(): Boolean = safetyCopy?.exists() == true
+
+    /** Puts back what the phone had before the last restore. False when there's nothing to put back. */
+    suspend fun undoLastRestore(): Boolean {
+        val json = safetyCopy?.read() ?: return false
+        val before = DataExportImport.importFromJson(json)
+        if (!before.isUsable) return false
+        restore(before, keepSafetyCopy = false)
+        safetyCopy.clear()
+        return true
+    }
+
     suspend fun snapshot(): BackupPayload = BackupPayload(
         userProfile = db.userProfileDao().getProfile().first(),
         difficultySettings = db.difficultySettingsDao().getCurrentDifficulty().first(),
@@ -42,7 +56,11 @@ class BackupRestorer @Inject constructor(
      * leaderboard choice belong to this install, not the backup, so they are kept; otherwise a
      * restore would quietly take an opted-in player off the leaderboard at the next sync.
      */
-    suspend fun restore(payload: BackupPayload) {
+    suspend fun restore(payload: BackupPayload) = restore(payload, keepSafetyCopy = true)
+
+    private suspend fun restore(payload: BackupPayload, keepSafetyCopy: Boolean) {
+        // What the phone has now, so this restore can be undone.
+        if (keepSafetyCopy) safetyCopy?.save(DataExportImport.exportToJson(snapshot()))
         val currentTasks = db.taskDao().getAllTasks().first()
         val current = db.userProfileDao().getProfile().first()
 
