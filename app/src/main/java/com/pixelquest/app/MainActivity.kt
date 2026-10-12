@@ -55,6 +55,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
+    @Inject
+    lateinit var userProfileRepository: com.pixelquest.app.domain.repository.UserProfileRepository
+
     private val themeViewModel: ThemeViewModel by viewModels()
 
     var isNotificationPermissionGranted by mutableStateOf(true)
@@ -78,7 +81,14 @@ class MainActivity : ComponentActivity() {
                 CompositionLocalProvider(LocalSoundManager provides soundManager) {
                     val isCrtEnabled by settingsRepository.isCrtEnabled.collectAsState(initial = false)
                     val isSimpleModeEnabled by settingsRepository.simpleModeEnabled.collectAsState(initial = false)
-                    val onboardingComplete by settingsRepository.onboardingComplete.collectAsState(initial = true)
+                    // A player who has played counts as onboarded even without the flag (OnboardingGate).
+                    val onboardingFlow = androidx.compose.runtime.remember {
+                        kotlinx.coroutines.flow.combine(
+                            settingsRepository.onboardingComplete,
+                            userProfileRepository.getProfile()
+                        ) { flag, profile -> com.pixelquest.app.domain.OnboardingGate.isDone(flag, profile) }
+                    }
+                    val onboardingComplete by onboardingFlow.collectAsState(initial = true)
                     // CRT overlay is architecturally restricted to Pixel theme mode only, and forced OFF in Simple Mode.
                     val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
                     val effectiveTheme = themeMode.resolveEffective(isSystemDark)
