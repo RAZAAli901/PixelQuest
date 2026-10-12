@@ -94,13 +94,17 @@ class OnboardingViewModel @Inject constructor(
             // leaderboard choice; carry them over. A fresh profile here used to drop them, so the old
             // public row stayed on the leaderboard while Account said the player wasn't opted in.
             val existing = userProfileRepository.getProfile().first()
+            // Onboarding names the hero; it never takes progress away. An existing player's level and
+            // XP stay (after RESET ALL PROGRESS they're already a new player's). It used to write
+            // level 1 and 0 XP over a player sent here by an update (see OnboardingGate).
             val userProfile = com.pixelquest.app.data.local.entity.UserProfileEntity(
                 id = 1,
                 username = state.username.ifBlank { "PixelHero" },
                 avatarId = state.avatarId,
-                level = 1,
-                totalXp = 0,
-                perfectDaysTowardNextLevel = 0,
+                level = existing?.level ?: 1,
+                totalXp = existing?.totalXp ?: 0,
+                perfectDaysTowardNextLevel = existing?.perfectDaysTowardNextLevel ?: 0,
+                createdAt = existing?.createdAt ?: System.currentTimeMillis(),
                 supabaseUserId = existing?.supabaseUserId,
                 leaderboardOptIn = existing?.leaderboardOptIn ?: false,
                 leaderboardDisplayName = existing?.leaderboardDisplayName
