@@ -4,9 +4,18 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
-## [Unreleased] — Themes, Simple Mode, AI Coach and a Correctness Pass (Days 16–34)
+## [1.2.0] - 2026-10-14 — Comic Pop, Sign-in and the Live Leaderboard, AI Coach and Backups (Days 16–35)
+
+### ⚠️ Upgrading from 1.1.0 or earlier
+From 1.2.0 on, PixelQuest is signed with a permanent release key. Earlier releases were each signed with a temporary key, so Android won't install 1.2.0 over them. Before upgrading:
+1. In the old app, Settings → **EXPORT QUEST DATA**, and save the file.
+2. Uninstall the old app and install 1.2.0.
+3. On the welcome screen, tap **I HAVE A BACKUP** and pick the file.
+
+A 1.1.0 backup brings back your hero, level, difficulty, streak and every quest. It has no day-by-day results, level history or settings, because 1.1.0 didn't save them. Backups made from now on include all of these. See docs/UPDATES_AND_BACKUPS.md.
 
 ### 🎨 Themes
+- **Comic Pop is the default theme** (1.2.0): new players start in it. A theme you already chose is kept, and the Home screen's COMIC MODE button switches to Retro Pixel.
 - **Light mode** (Days 16–17): a warm daylight palette, with every screen, chart and dialog adapted and checked for contrast.
 - **Comic mode** (Days 20–23, 27–28): a pop-art theme with ink borders, halftone panels and comic versions of every component, unlocked for everyone. Headings use a darker coral ink so they read on paper.
 
@@ -116,11 +125,6 @@ All notable changes to **PixelQuest** are documented in this file.
 ### ☁️ Builds without cloud or AI (Day 31)
 - A build without a Supabase project says sign-in, sync and the leaderboard aren't set up, instead of offering a sign-in that can't work. A build that can't reach Gemini doesn't offer the AI Coach.
 - A build without the Google client id still offers email sign-in; only the Google button is hidden.
-
-### ⚠️ Upgrading from 1.1.0 or earlier
-- From this release on, PixelQuest is signed with a permanent release key. Earlier releases were each signed with a temporary key, so Android won't install this one over them.
-- Before upgrading, open Settings → **EXPORT QUEST DATA** and save the backup. Then uninstall the old app, install this one, and restore the backup with Settings → **IMPORT QUEST DATA**.
-- A 1.1.0 backup brings back your hero, level, difficulty, streak and every quest. It has no day-by-day results, level history or settings, because 1.1.0 didn't save them. Backups made from now on include all of these. See docs/UPDATES_AND_BACKUPS.md.
 
 ### Release notes
 - Releases built without the signing or Supabase secrets now say so at the top of their notes.
