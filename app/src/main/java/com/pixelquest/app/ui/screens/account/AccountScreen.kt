@@ -113,7 +113,12 @@ fun AccountContent(
     /** False in a build without a Supabase project: sign-in can't work there, so it isn't offered. */
     cloudAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.inThisBuild,
     /** Sign in with Google also needs the Google web client id; email-code sign-in doesn't. */
-    googleAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.googleInThisBuild
+    googleAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.googleInThisBuild,
+    /**
+     * Email-code sign-in also needs an email service on the project, or the codes reach only its
+     * team; a build made before one is set up turns it off (EMAIL_SIGN_IN=false, docs/CLOUD_SETUP.md).
+     */
+    emailAvailable: Boolean = com.pixelquest.app.BuildConfig.EMAIL_SIGN_IN
 ) {
     val colors = PixelTheme.colors
 
@@ -190,7 +195,7 @@ fun AccountContent(
                             color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
                             textAlign = TextAlign.Center
                         )
-                        if (cloudAvailable) {
+                        if (cloudAvailable && (googleAvailable || emailAvailable)) {
                             Text(
                                 text = "Sign in to join the leaderboard and use the AI Coach. By default, your stats remain private until you explicitly choose to opt in.",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -206,16 +211,18 @@ fun AccountContent(
                                     modifier = Modifier.fillMaxWidth()
                                 )
                             }
-                            EmailSignInSection(
-                                state = emailState,
-                                onOpen = onOpenEmailSignIn,
-                                onEmailChange = onEmailChange,
-                                onSendCode = onSendEmailCode,
-                                onCodeChange = onEmailCodeChange,
-                                onVerifyCode = onVerifyEmailCode,
-                                onUseDifferentEmail = onUseDifferentEmail,
-                                onClose = onCloseEmailSignIn
-                            )
+                            if (emailAvailable) {
+                                EmailSignInSection(
+                                    state = emailState,
+                                    onOpen = onOpenEmailSignIn,
+                                    onEmailChange = onEmailChange,
+                                    onSendCode = onSendEmailCode,
+                                    onCodeChange = onEmailCodeChange,
+                                    onVerifyCode = onVerifyEmailCode,
+                                    onUseDifferentEmail = onUseDifferentEmail,
+                                    onClose = onCloseEmailSignIn
+                                )
+                            }
                         } else {
                             Text(
                                 text = com.pixelquest.app.domain.CloudAvailability.NOT_IN_THIS_BUILD,

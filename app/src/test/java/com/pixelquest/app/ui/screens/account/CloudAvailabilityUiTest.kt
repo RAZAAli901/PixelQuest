@@ -65,7 +65,7 @@ class CloudAvailabilityUiTest {
     fun account_withCloud_offersSignIn() {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) {
-                AccountContent(authState = AuthUiState.SignedOut, accountState = AccountUiState(), cloudAvailable = true, googleAvailable = true)
+                AccountContent(authState = AuthUiState.SignedOut, accountState = AccountUiState(), cloudAvailable = true, googleAvailable = true, emailAvailable = true)
             }
         }
         composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").assertIsDisplayed()
@@ -76,11 +76,40 @@ class CloudAvailabilityUiTest {
     fun account_withoutTheGoogleClientId_stillOffersEmail() {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) {
-                AccountContent(authState = AuthUiState.SignedOut, accountState = AccountUiState(), cloudAvailable = true, googleAvailable = false)
+                AccountContent(authState = AuthUiState.SignedOut, accountState = AccountUiState(), cloudAvailable = true, googleAvailable = false, emailAvailable = true)
             }
         }
         assertEquals(0, composeTestRule.onAllNodesWithText("🌐 SIGN IN WITH GOOGLE").fetchSemanticsNodes().size)
         composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").assertIsDisplayed()
+    }
+
+    @Test
+    fun account_withEmailSignInOff_offersGoogleOnly() {
+        // A release made before the project has an email service: its codes would reach only the team.
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                AccountContent(
+                    authState = AuthUiState.SignedOut, accountState = AccountUiState(),
+                    cloudAvailable = true, googleAvailable = true, emailAvailable = false
+                )
+            }
+        }
+        composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").assertIsDisplayed()
+        assertEquals(0, composeTestRule.onAllNodesWithText("✉️ SIGN IN WITH EMAIL").fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun account_withNeitherSignIn_saysItIsntSetUp() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                AccountContent(
+                    authState = AuthUiState.SignedOut, accountState = AccountUiState(),
+                    cloudAvailable = true, googleAvailable = false, emailAvailable = false
+                )
+            }
+        }
+        composeTestRule.onNodeWithText(CloudAvailability.NOT_IN_THIS_BUILD).assertIsDisplayed()
+        assertEquals(0, composeTestRule.onAllNodesWithText("✉️ SIGN IN WITH EMAIL").fetchSemanticsNodes().size)
     }
 
     @Test

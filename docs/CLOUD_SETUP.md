@@ -94,6 +94,12 @@ Players type their email, get a one-time code, and type it into the app. No pass
 
    Players can ask for a new code once a minute; the app counts that down for them.
 
+   **Release builds leave email sign-in out until you've done this**, so players aren't offered codes that can't reach them. Once custom SMTP works, turn it on for the next release:
+   ```bash
+   gh variable set EMAIL_SIGN_IN --body true
+   ```
+   Debug builds always offer it (set `EMAIL_SIGN_IN=false` in `local.properties` to check what players see).
+
 ## 4. Google sign-in (optional)
 
 Skip this and the Account screen simply shows email sign-in only.

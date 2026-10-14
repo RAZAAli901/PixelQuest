@@ -28,6 +28,9 @@ val googleWebClientIdProp = buildSetting("GOOGLE_WEB_CLIENT_ID") ?: ""
 val geminiApiKeyProp = buildSetting("GEMINI_API_KEY") ?: "placeholder-gemini-key"
 // Debug builds call Gemini directly with the local key unless GEMINI_VIA_PROXY=true (to try the proxy).
 val geminiViaProxyProp = buildSetting("GEMINI_VIA_PROXY")?.trim()?.toBoolean() ?: false
+// Email-code sign-in needs an email service on the Supabase project (custom SMTP): Supabase's own
+// mailer only reaches the project's team. EMAIL_SIGN_IN=false hides it until one is set up.
+val emailSignInProp = buildSetting("EMAIL_SIGN_IN")?.trim()?.toBoolean() ?: true
 
 // Room writes each database version's layout to app/schemas (committed), so updates can be tested
 // against the real layouts of earlier versions (DatabaseUpgradeTest).
@@ -59,6 +62,7 @@ android {
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientIdProp\"")
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKeyProp\"")
         buildConfigField("boolean", "GEMINI_VIA_PROXY", "$geminiViaProxyProp")
+        buildConfigField("boolean", "EMAIL_SIGN_IN", "$emailSignInProp")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -90,6 +90,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
+          EMAIL_SIGN_IN: ${{ vars.EMAIL_SIGN_IN }}
         run: |
           echo "SUPABASE_URL=${SUPABASE_URL:-https://placeholder-project.supabase.co}" >> local.properties
           echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-placeholder-anon-key}" >> local.properties
@@ -97,6 +98,10 @@ jobs:
           # APKs built here are public, so even the debug one reaches Gemini only through the
           # gemini-proxy Edge Function. The Gemini key is never given to a build.
           echo "GEMINI_VIA_PROXY=true" >> local.properties
+          # Email-code sign-in needs an email service on the Supabase project, or the codes reach
+          # only its team (docs/CLOUD_SETUP.md, step 3). It's off in releases until the repository
+          # variable EMAIL_SIGN_IN is set to true.
+          echo "EMAIL_SIGN_IN=${EMAIL_SIGN_IN:-false}" >> local.properties
 
       - name: Build Debug & Release APKs
         env:

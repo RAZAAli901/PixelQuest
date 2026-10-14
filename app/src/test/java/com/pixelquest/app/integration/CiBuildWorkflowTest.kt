@@ -47,6 +47,16 @@ class CiBuildWorkflowTest {
     }
 
     @Test
+    fun releaseWorkflow_offersEmailSignIn_onlyWhenTheProjectCanSendTheCodes() {
+        val workflow = listOf(File("../.github/workflows/release.yml"), File(".github/workflows/release.yml")).first { it.exists() }
+        val activeLines = workflow.readLines().filterNot { it.trim().startsWith("#") }
+
+        // Supabase's own mailer reaches only the project's team: players would get a button that fails.
+        assertTrue(activeLines.any { it.contains("EMAIL_SIGN_IN: ${'$'}{{ vars.EMAIL_SIGN_IN }}") })
+        assertTrue(activeLines.any { it.contains("EMAIL_SIGN_IN=${'$'}{EMAIL_SIGN_IN:-false}") })
+    }
+
+    @Test
     fun releaseWorkflow_saysInTheNotesWhenSigningOrSupabaseSecretsAreMissing() {
         val workflow = listOf(File("../.github/workflows/release.yml"), File(".github/workflows/release.yml")).first { it.exists() }
         val content = workflow.readText()
