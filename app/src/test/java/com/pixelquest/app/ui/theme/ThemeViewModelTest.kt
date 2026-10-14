@@ -74,8 +74,8 @@ class ThemeViewModelTest {
     }
 
     @Test
-    fun initialThemeModeIsPixel() {
-        assertEquals(ThemeMode.Pixel, viewModel.themeMode.value)
+    fun beforeTheSavedThemeLoads_itShowsTheDefault_ComicPop() {
+        assertEquals(ThemeMode.Comic, viewModel.themeMode.value)
     }
 
     @Test

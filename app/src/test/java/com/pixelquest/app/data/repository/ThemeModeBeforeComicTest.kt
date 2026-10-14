@@ -31,8 +31,16 @@ class ThemeModeBeforeComicTest {
     }
 
     @Test
-    fun freshInstall_defaultsToPixel() = runBlocking {
+    fun freshInstall_isComic_andTheToggleSwitchesToPixel() = runBlocking {
+        assertEquals("Comic Pop is the default from 1.2.0", ThemeMode.Comic, repository.themeMode.first())
         assertEquals(ThemeMode.Pixel, repository.getThemeModeBeforeComic())
+    }
+
+    @Test
+    fun aThemeChosenBefore1_2_0_isKept() = runBlocking {
+        context.getSharedPreferences("pixelquest_settings", Context.MODE_PRIVATE).edit().putString("key_theme_mode", "pixel").commit()
+
+        assertEquals(ThemeMode.Pixel, SettingsRepositoryImpl(context).themeMode.first())
     }
 
     @Test
@@ -62,7 +70,8 @@ class ThemeModeBeforeComicTest {
     }
 
     @Test
-    fun choosingComicOnFreshInstall_recordsTheDefaultPixel() = runBlocking {
+    fun choosingComicOnFreshInstall_leavesPixelToSwitchBackTo() = runBlocking {
+        // Already Comic by default, so there's nothing to record; the toggle goes to Pixel.
         repository.setThemeMode(ThemeMode.Comic)
 
         assertEquals(ThemeMode.Pixel, repository.getThemeModeBeforeComic())

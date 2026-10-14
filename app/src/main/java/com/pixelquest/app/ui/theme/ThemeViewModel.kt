@@ -20,7 +20,7 @@ class ThemeViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = ThemeMode.Pixel
+            initialValue = ThemeMode.DEFAULT
         )
 
     fun setThemeMode(mode: ThemeMode) {

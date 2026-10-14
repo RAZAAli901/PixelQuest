@@ -30,6 +30,12 @@ enum class ThemeMode(
     }
 
     companion object {
+        /**
+         * The theme of a player who hasn't chosen one: Comic Pop from 1.2.0 (Retro Pixel before).
+         * A theme chosen in Settings or with the Home screen's toggle is kept through updates.
+         */
+        val DEFAULT: ThemeMode get() = Comic
+
         fun fromId(id: String?): ThemeMode {
             val cleanId = id?.trim()
             return entries.firstOrNull { it.id.equals(cleanId, ignoreCase = true) } ?: Pixel

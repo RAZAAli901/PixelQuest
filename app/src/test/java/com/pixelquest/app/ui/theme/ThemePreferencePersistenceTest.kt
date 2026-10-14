@@ -22,7 +22,7 @@ class ThemePreferencePersistenceTest {
     // Fake implementation simulating SettingsRepository backed by persistentStore
     private inner class TestableSettingsRepository : SettingsRepository {
         private val _themeFlow = MutableStateFlow(
-            ThemeMode.fromId(persistentStore[KEY_THEME_MODE] ?: ThemeMode.Pixel.id)
+            ThemeMode.fromId(persistentStore[KEY_THEME_MODE] ?: ThemeMode.DEFAULT.id)
         )
 
         override val themeMode: Flow<ThemeMode> = _themeFlow.asStateFlow()
@@ -59,9 +59,9 @@ class ThemePreferencePersistenceTest {
     }
 
     @Test
-    fun defaultThemePreferenceIsPixel() = runBlocking {
+    fun defaultThemePreferenceIsComicPop() = runBlocking {
         val initialMode = repository.themeMode.first()
-        assertEquals(ThemeMode.Pixel, initialMode)
+        assertEquals(ThemeMode.Comic, initialMode)
     }
 
     @Test

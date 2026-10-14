@@ -110,11 +110,11 @@ class SettingsRepositoryImpl @Inject constructor(
     override val themeMode: Flow<com.pixelquest.app.ui.theme.ThemeMode> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_THEME_MODE) {
-                val modeId = prefs.getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.Pixel.id)
+                val modeId = prefs.getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.DEFAULT.id)
                 trySend(com.pixelquest.app.ui.theme.ThemeMode.fromId(modeId))
             }
         }
-        val initialId = prefs.getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.Pixel.id)
+        val initialId = prefs.getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.DEFAULT.id)
         trySend(com.pixelquest.app.ui.theme.ThemeMode.fromId(initialId))
         prefs.registerOnSharedPreferenceChangeListener(listener)
         awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
@@ -196,7 +196,7 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setThemeMode(mode: com.pixelquest.app.ui.theme.ThemeMode) {
         val editor = prefs.edit()
         if (mode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-            val current = com.pixelquest.app.ui.theme.ThemeMode.fromId(prefs.getString(KEY_THEME_MODE, null))
+            val current = com.pixelquest.app.ui.theme.ThemeMode.fromId(prefs.getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.DEFAULT.id))
             if (current != com.pixelquest.app.ui.theme.ThemeMode.Comic) {
                 editor.putString(KEY_THEME_MODE_BEFORE_COMIC, current.id)
             }
