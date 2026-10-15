@@ -121,10 +121,18 @@ jobs:
             echo "No release keystore secret: skipping the certificate check (this APK is debug-signed)."
             exit 0
           fi
-          APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner"
-          ACTUAL=$("$APKSIGNER" verify --print-certs app/build/outputs/apk/release/app-release.apk | tr -d '\r' | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+          # The build-tools the app builds with (AGP 8.3's 34.0.0). The runner's newest one printed
+          # nothing this check could read, which failed v1.2.0's first release run.
+          BUILD_TOOLS="$ANDROID_HOME/build-tools/34.0.0"
+          [ -x "$BUILD_TOOLS/apksigner" ] || BUILD_TOOLS="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)"
+          CERTS=$("$BUILD_TOOLS/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk 2>&1 | tr -d '\r') || true
+          ACTUAL=$(printf '%s\n' "$CERTS" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
           EXPECTED=$(tr -d ' \r\n' < app/release-signing-cert.sha256)
           if [ "$ACTUAL" != "$EXPECTED" ]; then
+            # What apksigner said, and which APKs were built (certificates and file names only).
+            echo "apksigner from $BUILD_TOOLS:"
+            echo "$CERTS"
+            ls -la app/build/outputs/apk/release/ || true
             echo "::error::The release APK is signed with '$ACTUAL', not the PixelQuest release key ($EXPECTED). Check the keystore secrets."
             exit 1
           fi
