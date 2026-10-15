@@ -6,6 +6,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.pixelquest.app.BuildConfig
@@ -99,18 +100,33 @@ open class GoogleAuthManager @Inject constructor(
         } catch (e: GetCredentialCancellationException) {
             GoogleAuthResult.Cancelled("Sign-in cancelled by user.")
         } catch (e: GetCredentialException) {
-            val isNetworkErr = e.message?.contains("network", ignoreCase = true) == true ||
-                    e.message?.contains("connection", ignoreCase = true) == true ||
-                    e.cause is java.io.IOException
-            if (isNetworkErr) {
-                GoogleAuthResult.Failure(e, "No internet connection detected. Please connect to the internet to sign in.")
-            } else {
-                GoogleAuthResult.Failure(e, e.message ?: "Google Sign-In failed.")
-            }
+            GoogleAuthResult.Failure(e, failureMessage(e))
         } catch (e: java.io.IOException) {
             GoogleAuthResult.Failure(e, "No internet connection detected. Please connect to the internet to sign in.")
         } catch (e: Exception) {
             GoogleAuthResult.Failure(e, e.message ?: "An unexpected error occurred during Google Sign-In.")
+        }
+    }
+
+    companion object {
+        const val NO_GOOGLE_ACCOUNT =
+            "There's no Google account on this phone to sign in with. Add one in your phone's Settings (Passwords & accounts), then try again."
+
+        /**
+         * What the player is told when Android's sign-in service fails. With no Google account on
+         * the phone it says only "No credentials available" (seen on the emulator), which doesn't
+         * tell a player what to do.
+         */
+        internal fun failureMessage(e: GetCredentialException): String {
+            if (e is NoCredentialException) return NO_GOOGLE_ACCOUNT
+            val isNetworkErr = e.message?.contains("network", ignoreCase = true) == true ||
+                e.message?.contains("connection", ignoreCase = true) == true ||
+                e.cause is java.io.IOException
+            return if (isNetworkErr) {
+                "No internet connection detected. Please connect to the internet to sign in."
+            } else {
+                e.message ?: "Google Sign-In failed."
+            }
         }
     }
 
