@@ -1,8 +1,10 @@
 # 🏁 PixelQuest v1.1.0 — Project Completion Marker
 
+> **Superseded by [v1.2.0](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.2.0).** The v1.1.0 and v1.0.3 release pages were removed on 15 Oct 2026; their code stays under the git tags.
+
 **Date**: September 12, 2026  
 **Release Version**: `1.1.0` (Version Code `101`)  
-**Git Tag**: [`v1.1.0`](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.1.0)  
+**Git Tag**: [`v1.1.0`](https://github.com/RAZAAli901/PixelQuest/tree/v1.1.0)  
 **Status**: **OFFICIALLY COMPLETE & PUBLICLY AVAILABLE VIA GITHUB RELEASES**
 
 ---
@@ -29,7 +31,7 @@ PixelQuest is a production-grade retro 8-bit gamified habit tracker and RPG adve
 
 ## 📦 GitHub Release Distribution
 The production release is publicly available via GitHub Releases:
-- **Release Page**: [PixelQuest Release v1.1.0](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.1.0)
+- **Release Page**: PixelQuest Release v1.1.0 (removed on 15 Oct 2026; the code is at the [`v1.1.0` tag](https://github.com/RAZAAli901/PixelQuest/tree/v1.1.0))
 - **Release Assets**:
   - `app-release.apk` (Production signed APK with full R8 code shrinking and resource optimization)
   - `app-debug.apk` (Debug APK for testing and inspection)
