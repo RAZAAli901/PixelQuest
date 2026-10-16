@@ -166,6 +166,9 @@ dependencies {
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.auth)
+
+    // Prayer times, calculated on the phone (Namaz Tracker)
+    implementation(libs.adhan2)
     implementation(libs.ktor.client.android)
     implementation(libs.kotlinx.serialization.json)
 
