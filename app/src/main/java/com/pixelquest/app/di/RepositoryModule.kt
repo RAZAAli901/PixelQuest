@@ -103,4 +103,10 @@ abstract class RepositoryModule {
     abstract fun bindInsightCacheRepository(
         impl: com.pixelquest.app.data.repository.InsightCacheRepositoryImpl
     ): com.pixelquest.app.domain.repository.InsightCacheRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNamazRepository(
+        impl: com.pixelquest.app.data.repository.NamazRepositoryImpl
+    ): com.pixelquest.app.domain.repository.NamazRepository
 }

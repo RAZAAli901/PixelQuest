@@ -51,4 +51,14 @@ object DaoModule {
     @Provides
     @Singleton
     fun provideInsightCacheDao(database: AppDatabase): InsightCacheDao = database.insightCacheDao()
+
+    // The Namaz Tracker (docs/namaz-design.md).
+
+    @Provides
+    @Singleton
+    fun provideNamazLogDao(database: AppDatabase): com.pixelquest.app.data.local.dao.NamazLogDao = database.namazLogDao()
+
+    @Provides
+    @Singleton
+    fun provideNamazSettingsDao(database: AppDatabase): com.pixelquest.app.data.local.dao.NamazSettingsDao = database.namazSettingsDao()
 }
