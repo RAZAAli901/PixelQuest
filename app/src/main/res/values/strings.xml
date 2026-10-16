@@ -10,4 +10,8 @@
     <string name="coach_cooldown_hours">%1$dh</string>
     <string name="coach_refresh_description">Get a fresh insight</string>
     <string name="coach_cooldown_description">A fresh insight is ready in about %1$d hours</string>
+
+    <!-- Side menu (docs/ai-coach-compact.md, Phase 2). -->
+    <string name="menu_open">Open menu</string>
+    <string name="menu_close">Close menu</string>
 </resources>
