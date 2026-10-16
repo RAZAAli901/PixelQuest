@@ -1,6 +1,16 @@
 package com.pixelquest.app.ui.screens.insight
 
 import androidx.compose.foundation.background
+import com.pixelquest.app.ui.theme.LocalReduceMotion
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.AnimatedVisibility
 import com.pixelquest.app.R
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.semantics.Role
@@ -75,6 +85,26 @@ fun CoachInsightCard(
         )
     }
 }
+
+/**
+ * The part of a card that only shows when expanded. It slides open and fades in, unless the player
+ * asked for less motion (Reduce Motion, or Android's own setting).
+ */
+@Composable
+fun ColumnScope.CoachExpandable(visible: Boolean, content: @Composable ColumnScope.() -> Unit) {
+    val reduceMotion = LocalReduceMotion.current
+    AnimatedVisibility(
+        visible = visible,
+        enter = if (reduceMotion) EnterTransition.None else expandVertically() + fadeIn(),
+        exit = if (reduceMotion) ExitTransition.None else shrinkVertically() + fadeOut()
+    ) {
+        Column(modifier = Modifier.fillMaxWidth(), content = content)
+    }
+}
+
+/** Grows and shrinks smoothly as a preview's lines change, unless the player asked for less motion. */
+@Composable
+fun Modifier.coachAnimateSize(): Modifier = if (LocalReduceMotion.current) this else this.animateContentSize()
 
 /**
  * SHOW MORE / SHOW LESS under a previewed insight, in the theme's type and colour.
@@ -160,10 +190,11 @@ fun PixelSuccessCard(
                 body = insight.summary,
                 tagColor = Color(0xFF60A5FA),
                 bodyColor = colors.onSurface,
-                maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE
+                maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE,
+                modifier = Modifier.coachAnimateSize()
             )
 
-            if (!preview) {
+            CoachExpandable(visible = !preview) {
                 Spacer(modifier = Modifier.height(CoachDimens.Card.SectionGap))
 
                 // Section 2: Strategic Protocol / Suggested Adjustment
@@ -283,10 +314,11 @@ fun ComicSuccessView(
             body = insight.summary,
             tagColor = ComicTokens.BurntOrange,
             bubbleBg = ComicTokens.PanelSurface,
-            maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE
+            maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE,
+            modifier = Modifier.coachAnimateSize()
         )
 
-        if (!preview) {
+        CoachExpandable(visible = !preview) {
             Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
 
             // Speech Bubble 2: Action Directive (Suggestion)
@@ -495,10 +527,11 @@ fun LightSuccessCard(
                 body = insight.summary,
                 accentColor = Color(0xFF3B82F6),
                 backgroundColor = Color(0xFFF8FAFC),
-                maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE
+                maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE,
+                modifier = Modifier.coachAnimateSize()
             )
 
-            if (!preview) {
+            CoachExpandable(visible = !preview) {
                 Spacer(modifier = Modifier.height(CoachDimens.Card.LightSectionGap))
 
                 // Section 2: Strategy / Suggestion

@@ -106,10 +106,11 @@ fun AiInsightCard(
                 },
                 content = insight.summary,
                 accentColor = colors.secondary,
-                maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE
+                maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE,
+                modifier = Modifier.coachAnimateSize()
             )
 
-            if (!preview) {
+            CoachExpandable(visible = !preview) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 // Section 2: Suggestion / Strategy
