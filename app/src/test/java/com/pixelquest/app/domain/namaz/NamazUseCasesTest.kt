@@ -1,0 +1,198 @@
+package com.pixelquest.app.domain.namaz
+
+import com.pixelquest.app.data.local.entity.NamazSettingsEntity
+import com.pixelquest.app.testing.FakeNamazRepository
+import com.pixelquest.app.testing.FixedClock
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+
+/**
+ * The prayer-day rules (docs/namaz-design.md) in Lahore on 17 October 2026, whose times are about
+ * Fajr 04:46, Dhuhr 11:48, Asr 15:50, Maghrib 17:29 and Isha 18:50. Each moment used is well
+ * away from a prayer's start, so a minute's difference in the calculation doesn't matter.
+ */
+class NamazUseCasesTest {
+
+    private val lahoreZone = ZoneId.of("Asia/Karachi")
+    private val day = LocalDate.of(2026, 10, 17)
+    private val yesterday = day.minusDays(1)
+    private val tomorrow = day.plusDays(1)
+
+    private val repository = FakeNamazRepository(NamazSettingsEntity(enabled = true))
+    private val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), FixedClock()) { lahoreZone }
+    private val nextPrayer = NextPrayerUseCase(provider)
+    private val getToday = GetTodayNamazUseCase(provider, repository)
+    private val mark = MarkPrayerUseCase(provider, repository, nextPrayer)
+    private val undo = UndoPrayerUseCase(provider, repository, nextPrayer)
+    private val autoMarkMissed = AutoMarkMissedUseCase(provider, repository, nextPrayer)
+
+    private fun at(date: LocalDate, hour: Int, minute: Int = 0): ZonedDateTime =
+        LocalDateTime.of(date, java.time.LocalTime.of(hour, minute)).atZone(lahoreZone)
+
+    // NextPrayerUseCase
+
+    @Test
+    fun inTheAfternoon_dhuhrIsCurrent_andAsrIsNext() = runBlocking {
+        val now = at(day, 13)
+        val result = nextPrayer(now)
+
+        assertEquals(Prayer.DHUHR, result.current.prayer)
+        assertEquals(Prayer.ASR, result.next.prayer)
+        assertEquals(day, result.prayerDay)
+        assertEquals(Duration.between(now, provider.timesFor(day).asr), result.remaining)
+    }
+
+    @Test
+    fun afterMidnight_beforeFajr_itIsStillYesterdaysPrayerDay() = runBlocking {
+        val result = nextPrayer(at(tomorrow, 3))
+
+        assertEquals(PrayerMoment(Prayer.ISHA, day, provider.timesFor(day).isha), result.current)
+        assertEquals(PrayerMoment(Prayer.FAJR, tomorrow, provider.timesFor(tomorrow).fajr), result.next)
+        assertEquals(day, result.prayerDay)
+    }
+
+    @Test
+    fun lateAtNight_theNextPrayerIsTomorrowsFajr() = runBlocking {
+        val result = nextPrayer(at(day, 23, 30))
+
+        assertEquals(Prayer.ISHA, result.current.prayer)
+        assertEquals(PrayerMoment(Prayer.FAJR, tomorrow, provider.timesFor(tomorrow).fajr), result.next)
+        assertEquals(day, result.prayerDay)
+    }
+
+    // GetTodayNamazUseCase
+
+    @Test
+    fun theDay_showsPrayedMissedAndPending_asOfNow() = runBlocking {
+        repository.logPrayer(day, Prayer.FAJR, prayedAtMillis = at(day, 5).toInstant().toEpochMilli())
+
+        val shown = getToday(day, at(day, 16))
+        val statuses = shown.slots.associate { it.prayer to it.status }
+
+        assertEquals(Prayer.entries, shown.slots.map { it.prayer })
+        assertEquals(PrayerStatus.PRAYED, statuses[Prayer.FAJR])
+        // Asr started at 15:50, so Dhuhr's window has passed with nothing marked.
+        assertEquals(PrayerStatus.MISSED, statuses[Prayer.DHUHR])
+        assertEquals(PrayerStatus.PENDING, statuses[Prayer.ASR])
+        assertEquals(PrayerStatus.PENDING, statuses[Prayer.MAGHRIB])
+        assertEquals(listOf(true, true, true, false, false), shown.slots.map { it.started })
+        assertEquals(1, shown.prayedCount)
+        // Isha's window runs to tomorrow's Fajr.
+        assertEquals(provider.timesFor(tomorrow).fajr, shown.slots.last().windowEnd)
+    }
+
+    // MarkPrayerUseCase
+
+    @Test
+    fun aPrayerThatHasStarted_isMarkedPrayed_once() = runBlocking {
+        val now = at(day, 16)
+
+        assertEquals(MarkPrayerResult.Marked, mark(day, Prayer.ASR, now))
+        assertEquals(MarkPrayerResult.AlreadyPrayed, mark(day, Prayer.ASR, now.plusMinutes(5)))
+
+        val row = repository.rows.value[day to Prayer.ASR]!!
+        assertEquals(PrayerStatus.PRAYED, row.status)
+        assertEquals(now.toInstant().toEpochMilli(), row.prayedAt)
+        assertEquals(0, row.xpAwarded)
+    }
+
+    @Test
+    fun aPrayerThatHasNotStarted_cannotBeMarked() = runBlocking {
+        val result = mark(day, Prayer.MAGHRIB, at(day, 16))
+
+        assertEquals(MarkPrayerResult.NotStartedYet(provider.timesFor(day).maghrib), result)
+        assertTrue(mark(tomorrow, Prayer.FAJR, at(day, 16)) is MarkPrayerResult.NotStartedYet)
+        assertTrue(repository.rows.value.isEmpty())
+    }
+
+    @Test
+    fun yesterdaysPrayers_canBeMarkedLate_butNotOlderOnes() = runBlocking {
+        val now = at(day, 16)
+
+        assertEquals(MarkPrayerResult.Marked, mark(yesterday, Prayer.ISHA, now))
+        assertEquals(MarkPrayerResult.TooOld, mark(yesterday.minusDays(1), Prayer.ISHA, now))
+        assertEquals(PrayerStatus.PRAYED, repository.statusOf(yesterday, Prayer.ISHA))
+        assertNull(repository.statusOf(yesterday.minusDays(1), Prayer.ISHA))
+    }
+
+    @Test
+    fun beforeFajr_ishaIsMarkedOnThePreviousPrayerDay() = runBlocking {
+        assertEquals(MarkPrayerResult.Marked, mark(day, Prayer.ISHA, at(tomorrow, 2)))
+        assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.ISHA))
+    }
+
+    // UndoPrayerUseCase
+
+    @Test
+    fun undo_returnsToPending_whileTheWindowIsOpen_andToMissedAfter() = runBlocking {
+        val now = at(day, 16)
+        mark(day, Prayer.DHUHR, at(day, 13))
+        mark(day, Prayer.ASR, now)
+
+        assertEquals(UndoPrayerResult.Undone(PrayerStatus.PENDING), undo(day, Prayer.ASR, now))
+        assertEquals(UndoPrayerResult.Undone(PrayerStatus.MISSED), undo(day, Prayer.DHUHR, now))
+        assertEquals(PrayerStatus.PENDING, repository.statusOf(day, Prayer.ASR))
+        assertEquals(PrayerStatus.MISSED, repository.statusOf(day, Prayer.DHUHR))
+        assertNull(repository.rows.value[day to Prayer.ASR]!!.prayedAt)
+    }
+
+    @Test
+    fun undo_onlyTakesBackPrayedMarks_onTheCurrentPrayerDay() = runBlocking {
+        val now = at(day, 16)
+        mark(yesterday, Prayer.ISHA, now)
+
+        assertEquals(UndoPrayerResult.NotPrayed, undo(day, Prayer.FAJR, now))
+        assertEquals(UndoPrayerResult.PastDay, undo(yesterday, Prayer.ISHA, now))
+        assertEquals(PrayerStatus.PRAYED, repository.statusOf(yesterday, Prayer.ISHA))
+    }
+
+    // AutoMarkMissedUseCase
+
+    @Test
+    fun autoMark_writesMissed_forSeededPrayersWhoseWindowHasPassed() = runBlocking {
+        repository.seedDay(day)
+        repository.logPrayer(day, Prayer.FAJR, prayedAtMillis = at(day, 5).toInstant().toEpochMilli())
+
+        assertEquals(1, autoMarkMissed(at(day, 16)))
+
+        assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.FAJR))
+        assertEquals(PrayerStatus.MISSED, repository.statusOf(day, Prayer.DHUHR))
+        assertEquals(PrayerStatus.PENDING, repository.statusOf(day, Prayer.ASR))
+        // A second run has nothing left to do.
+        assertEquals(0, autoMarkMissed(at(day, 16, 30)))
+    }
+
+    @Test
+    fun autoMark_settlesYesterday_onceTodaysFajrHasStarted() = runBlocking {
+        repository.seedDay(yesterday)
+        repository.seedDay(day)
+
+        // Before Fajr, yesterday's Isha is still open.
+        assertEquals(4, autoMarkMissed(at(day, 3)))
+        assertEquals(PrayerStatus.PENDING, repository.statusOf(yesterday, Prayer.ISHA))
+
+        assertEquals(1, autoMarkMissed(at(day, 6)))
+        assertEquals(PrayerStatus.MISSED, repository.statusOf(yesterday, Prayer.ISHA))
+        assertEquals(PrayerStatus.PENDING, repository.statusOf(day, Prayer.FAJR))
+    }
+
+    @Test
+    fun autoMark_leavesDaysWithoutRows_andDoesNothingWhileOff() = runBlocking {
+        assertEquals(0, autoMarkMissed(at(day, 23)))
+        assertTrue(repository.rows.value.isEmpty())
+
+        repository.seedDay(day)
+        repository.saveSettings(repository.getSettings().copy(enabled = false))
+        assertEquals(0, autoMarkMissed(at(day, 23)))
+        assertFalse(repository.rows.value.values.any { it.status == PrayerStatus.MISSED })
+    }
+}
