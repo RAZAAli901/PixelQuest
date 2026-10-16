@@ -115,4 +115,10 @@ abstract class RepositoryModule {
     abstract fun bindPrayerTimeProvider(
         impl: com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
     ): com.pixelquest.app.domain.namaz.PrayerTimeProvider
+
+    @Binds
+    @Singleton
+    abstract fun bindLocationProvider(
+        impl: com.pixelquest.app.namaz.AndroidLocationProvider
+    ): com.pixelquest.app.namaz.LocationProvider
 }
