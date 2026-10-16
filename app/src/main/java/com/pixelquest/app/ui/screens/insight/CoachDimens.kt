@@ -8,8 +8,11 @@ import androidx.compose.ui.unit.sp
  * (docs/ai-coach-compact.md) is tuned here instead of across the three theme views.
  */
 object CoachDimens {
-    /** Around the whole screen's content. */
-    val ScreenPadding = 16.dp
+    /** Around the whole screen's content (16dp before the compact layout). */
+    val ScreenPadding = 8.dp
+
+    /** Between the screen's items: the header, the card, its sections and its footer (12-20dp before). */
+    val ItemGap = 8.dp
 
     /** The screen's header banner. */
     object Header {
@@ -29,8 +32,8 @@ object CoachDimens {
         val ComicSubtitle = 11.sp
         val ComicChip = 13.sp
         /** Between the header and the state below it. */
-        val PixelBottomGap = 14.dp
-        val BottomGap = 16.dp
+        val PixelBottomGap = ItemGap
+        val BottomGap = ItemGap
     }
 
     /** The insight card. */
@@ -38,13 +41,13 @@ object CoachDimens {
         val PixelPadding = 16.dp
         val LightPadding = 20.dp
         val ComicBubblePadding = 16.dp
-        val TitleGap = 14.dp
-        val LightTitleGap = 16.dp
-        val SectionGap = 12.dp
-        val ComicSectionGap = 14.dp
-        val LightSectionGap = 14.dp
-        val FooterGap = 16.dp
-        val LightFooterGap = 20.dp
+        val TitleGap = ItemGap
+        val LightTitleGap = ItemGap
+        val SectionGap = ItemGap
+        val ComicSectionGap = ItemGap
+        val LightSectionGap = ItemGap
+        val FooterGap = ItemGap
+        val LightFooterGap = ItemGap
         val PixelBlockPadding = 10.dp
         val LightBlockPadding = 12.dp
         val BodyLineHeight = 20.sp
