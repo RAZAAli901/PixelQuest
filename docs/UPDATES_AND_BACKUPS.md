@@ -41,8 +41,9 @@ Set the settings again once. Backups made from now on include them.
 | Quests with their reminders and weekdays | Sign-in sessions and keys |
 | Every day's results, and the level history | |
 | Settings: sound, CRT, haptics, reduce motion, notifications, theme, Simple Mode | |
+| Namaz Tracker: the prayers marked, and its settings with its place | |
 
-A backup made by a newer version restores what this version knows, and Settings says the rest was left out.
+A backup from before the Namaz Tracker leaves the phone's prayer log and Namaz settings as they are. A backup made by a newer version restores what this version knows, and Settings says the rest was left out.
 
 ### Saving, restoring and undoing
 - **Saving:** EXPORT QUEST DATA saves a dated file, such as `pixelquest-backup-2026-10-12.json`.

@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** Makes and restores backups: profile, difficulty, streak, tasks, their completion history and the level-up timeline. */
+/** Makes and restores backups: profile, difficulty, streak, tasks, their completion history, the level-up timeline and the Namaz Tracker. */
 @Singleton
 class BackupRestorer @Inject constructor(
     private val db: AppDatabase,
@@ -48,7 +48,9 @@ class BackupRestorer @Inject constructor(
                 theme = s.themeMode.first().name,
                 simpleMode = s.simpleModeEnabled.first()
             )
-        }
+        },
+        namazLogs = db.namazLogDao().getAll(),
+        namazSettings = db.namazSettingsDao().get()
     )
 
     /**
@@ -108,6 +110,12 @@ class BackupRestorer @Inject constructor(
                 db.levelHistoryDao().deleteAll()
                 history.forEach { db.levelHistoryDao().insertLevelHistory(it.copy(id = 0)) }
             }
+            // Files before format 5 carry no Namaz data; then the phone's is left as it is.
+            payload.namazLogs?.let { namazLogs ->
+                db.namazLogDao().deleteAll()
+                namazLogs.forEach { db.namazLogDao().upsert(it.copy(id = 0)) }
+            }
+            payload.namazSettings?.let { db.namazSettingsDao().save(it) }
         }
 
         if (payload.tasks.isNotEmpty()) {

@@ -2,6 +2,8 @@ package com.pixelquest.app.data.backup
 
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.data.local.entity.LevelHistoryEntity
+import com.pixelquest.app.data.local.entity.NamazLogEntity
+import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
@@ -10,6 +12,8 @@ import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
+import com.pixelquest.app.domain.namaz.Prayer
+import com.pixelquest.app.domain.namaz.PrayerStatus
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.DayOfWeek
@@ -30,17 +34,24 @@ data class BackupPayload(
     /** App settings (format 4 on); null in older files, which leaves the phone's settings as they are. */
     val settings: BackupSettings? = null,
     /** The app version that wrote the file (format 3 on); null for older files and for a snapshot. */
-    val appVersion: String? = null
+    val appVersion: String? = null,
+    /** The Namaz Tracker's prayer log (format 5 on). Null in older files: a restore keeps the phone's. */
+    val namazLogs: List<NamazLogEntity>? = null,
+    /** The Namaz Tracker's settings, with its place (format 5 on). Null when there were none to save. */
+    val namazSettings: NamazSettingsEntity? = null
 ) {
     /** False for a file that isn't a PixelQuest backup (or couldn't be read): nothing to restore. */
     val isUsable: Boolean get() = userProfile != null || tasks.isNotEmpty()
 
     /**
-     * Whether there's progress worth keeping a copy of: XP, a level, or a completed quest. A fresh
-     * install isn't, though it already has "missed" results for starter quests whose time has passed.
+     * Whether there's progress worth keeping a copy of: XP, a level, a completed quest or a prayed
+     * prayer. A fresh install isn't, though it already has "missed" results for starter quests whose
+     * time has passed.
      */
     val hasProgress: Boolean
-        get() = com.pixelquest.app.domain.OnboardingGate.hasPlayed(userProfile) || logs.orEmpty().any { it.wasCompleted }
+        get() = com.pixelquest.app.domain.OnboardingGate.hasPlayed(userProfile) ||
+            logs.orEmpty().any { it.wasCompleted } ||
+            namazLogs.orEmpty().any { it.status == PrayerStatus.PRAYED }
 }
 
 /**
@@ -69,9 +80,10 @@ object DataExportImport {
      *   Days 26-31: reminder settings, weekdays, results (logs), level history, perfect days.
      *   3 (Day 34): numbered, with the app version that wrote it.
      *   4 (Day 34): app settings (BackupSettings). Before, a reinstall restored without them.
+     *   5 (Namaz Tracker): the prayer log and the tracker's settings, with its place.
      * A newer file still restores what this version knows, and Settings says so.
      */
-    const val FORMAT_VERSION = 4
+    const val FORMAT_VERSION = 5
 
     fun exportToJson(payload: BackupPayload): String {
         val root = JSONObject()
@@ -165,6 +177,44 @@ object DataExportImport {
                         put("level", entry.level)
                         put("achievedDate", entry.achievedDate)
                         put("difficulty", entry.difficultyAtTimeOfLevelUp)
+                    })
+                }
+            })
+        }
+
+        payload.namazSettings?.let { n ->
+            root.put("namazSettings", JSONObject().apply {
+                put("enabled", n.enabled)
+                put("method", n.method)
+                put("asrMadhab", n.asrMadhab)
+                n.highLatitudeRule?.let { put("highLatitudeRule", it) }
+                n.latitude?.let { put("latitude", it) }
+                n.longitude?.let { put("longitude", it) }
+                n.city?.let { put("city", it) }
+                put("reminderOffsetMin", n.reminderOffsetMin)
+                put("remindFajr", n.remindFajr)
+                put("remindDhuhr", n.remindDhuhr)
+                put("remindAsr", n.remindAsr)
+                put("remindMaghrib", n.remindMaghrib)
+                put("remindIsha", n.remindIsha)
+                put("adjustFajr", n.adjustFajr)
+                put("adjustDhuhr", n.adjustDhuhr)
+                put("adjustAsr", n.adjustAsr)
+                put("adjustMaghrib", n.adjustMaghrib)
+                put("adjustIsha", n.adjustIsha)
+                put("xpEnabled", n.xpEnabled)
+            })
+        }
+
+        payload.namazLogs?.let { namazLogs ->
+            root.put("namazLog", JSONArray().apply {
+                namazLogs.forEach { log ->
+                    put(JSONObject().apply {
+                        put("date", log.date.toString())
+                        put("prayer", log.prayer.name)
+                        put("status", log.status.name)
+                        log.prayedAt?.let { put("prayedAt", it) }
+                        put("xpAwarded", log.xpAwarded)
                     })
                 }
             })
@@ -306,12 +356,55 @@ object DataExportImport {
                 )
             }
 
+            val namazSettings = root.optJSONObject("namazSettings")?.let { n ->
+                val defaults = NamazSettingsEntity()
+                fun number(key: String): Double? = if (n.has(key) && !n.isNull(key)) n.optDouble(key).takeIf { !it.isNaN() } else null
+                NamazSettingsEntity(
+                    enabled = n.optBoolean("enabled", defaults.enabled),
+                    method = n.optString("method").ifBlank { defaults.method },
+                    asrMadhab = n.optString("asrMadhab").ifBlank { defaults.asrMadhab },
+                    highLatitudeRule = n.optString("highLatitudeRule").ifBlank { null },
+                    latitude = number("latitude"),
+                    longitude = number("longitude"),
+                    city = n.optString("city").ifBlank { null },
+                    reminderOffsetMin = n.optInt("reminderOffsetMin", defaults.reminderOffsetMin),
+                    remindFajr = n.optBoolean("remindFajr", defaults.remindFajr),
+                    remindDhuhr = n.optBoolean("remindDhuhr", defaults.remindDhuhr),
+                    remindAsr = n.optBoolean("remindAsr", defaults.remindAsr),
+                    remindMaghrib = n.optBoolean("remindMaghrib", defaults.remindMaghrib),
+                    remindIsha = n.optBoolean("remindIsha", defaults.remindIsha),
+                    adjustFajr = n.optInt("adjustFajr", 0),
+                    adjustDhuhr = n.optInt("adjustDhuhr", 0),
+                    adjustAsr = n.optInt("adjustAsr", 0),
+                    adjustMaghrib = n.optInt("adjustMaghrib", 0),
+                    adjustIsha = n.optInt("adjustIsha", 0),
+                    xpEnabled = n.optBoolean("xpEnabled", defaults.xpEnabled)
+                )
+            }
+
+            val namazLogs = root.optJSONArray("namazLog")?.let { array ->
+                (0 until array.length()).mapNotNull { i ->
+                    try {
+                        val nObj = array.getJSONObject(i)
+                        NamazLogEntity(
+                            date = LocalDate.parse(nObj.getString("date")),
+                            prayer = Prayer.valueOf(nObj.getString("prayer")),
+                            status = PrayerStatus.valueOf(nObj.getString("status")),
+                            prayedAt = if (nObj.has("prayedAt") && !nObj.isNull("prayedAt")) nObj.getLong("prayedAt") else null,
+                            xpAwarded = nObj.optInt("xpAwarded", 0)
+                        )
+                    } catch (e: Exception) { null } // Skip a corrupted entry
+                }
+            }
+
             sanitize(
                 BackupPayload(
                     profile, difficulty, streak, tasks, logs, levelHistory,
                     formatVersion = root.optInt("formatVersion", 0),
                     settings = settings,
-                    appVersion = root.optString("appVersion").ifBlank { null }
+                    appVersion = root.optString("appVersion").ifBlank { null },
+                    namazLogs = namazLogs,
+                    namazSettings = namazSettings
                 )
             )
         } catch (e: Exception) {
@@ -330,6 +423,9 @@ object DataExportImport {
     private const val MAX_XP = 10_000_000
     private const val MAX_DAYS = 36_500
     private const val MAX_POINTS_PER_LOG = 10_000
+    private const val MAX_REMINDER_OFFSET_MIN = 120
+    private const val MAX_PRAYER_ADJUST_MIN = 60
+    private const val MAX_CITY_LENGTH = 80
 
     /** Brings every imported value into a range the app can handle; see the notes above. */
     internal fun sanitize(payload: BackupPayload, today: LocalDate = LocalDate.now()): BackupPayload {
@@ -369,7 +465,29 @@ object DataExportImport {
                 ?.map { it.copy(level = it.level.coerceIn(1, MAX_LEVEL)) },
             formatVersion = payload.formatVersion,
             settings = payload.settings,
-            appVersion = payload.appVersion
+            appVersion = payload.appVersion,
+            // One row per prayer per day, as the table's unique index needs; none for a day ahead.
+            namazLogs = payload.namazLogs
+                ?.filter { inRange(it.date, today) }
+                ?.distinctBy { it.date to it.prayer }
+                ?.map { it.copy(id = 0, prayedAt = it.prayedAt?.takeIf { t -> t >= 0 }, xpAwarded = it.xpAwarded.coerceIn(0, MAX_POINTS_PER_LOG)) },
+            namazSettings = payload.namazSettings?.let { n ->
+                fun adjust(minutes: Int) = minutes.coerceIn(-MAX_PRAYER_ADJUST_MIN, MAX_PRAYER_ADJUST_MIN)
+                // A place off the map is dropped (the times fall back to Lahore), not half kept.
+                val placeOk = n.latitude != null && n.longitude != null && n.latitude in -90.0..90.0 && n.longitude in -180.0..180.0
+                n.copy(
+                    id = NamazSettingsEntity.SINGLE_ROW_ID,
+                    latitude = n.latitude.takeIf { placeOk },
+                    longitude = n.longitude.takeIf { placeOk },
+                    city = n.city?.take(MAX_CITY_LENGTH),
+                    reminderOffsetMin = n.reminderOffsetMin.coerceIn(0, MAX_REMINDER_OFFSET_MIN),
+                    adjustFajr = adjust(n.adjustFajr),
+                    adjustDhuhr = adjust(n.adjustDhuhr),
+                    adjustAsr = adjust(n.adjustAsr),
+                    adjustMaghrib = adjust(n.adjustMaghrib),
+                    adjustIsha = adjust(n.adjustIsha)
+                )
+            }
         )
     }
 
