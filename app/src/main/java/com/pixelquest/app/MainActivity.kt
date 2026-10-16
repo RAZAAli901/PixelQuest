@@ -123,7 +123,12 @@ class MainActivity : ComponentActivity() {
                                     selected = menuSelected,
                                     onItemClick = { item ->
                                         menuViewModel.select(item.id)
-                                        navController.navigate(item.route) { launchSingleTop = true }
+                                        // The Leaderboard is also a tab: open it the way its tab does.
+                                        if (com.pixelquest.app.ui.navigation.Routes.isTab(item.route)) {
+                                            navController.navigateToTab(item.route)
+                                        } else {
+                                            navController.navigate(item.route) { launchSingleTop = true }
+                                        }
                                     }
                                 )
                             }

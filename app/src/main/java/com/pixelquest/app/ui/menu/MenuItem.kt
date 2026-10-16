@@ -48,5 +48,35 @@ object MenuItems {
         visibleWhen = { it.namazAvailable }
     )
 
-    val all: List<MenuItem> = listOf(Namaz)
+    // Shortcuts to screens that are otherwise a few taps deep (Profile, then Settings, then Account).
+    val History = MenuItem(
+        id = MenuItemId.HISTORY,
+        label = R.string.menu_history,
+        simpleLabel = R.string.menu_history_simple,
+        icon = "📜",
+        route = Screen.TaskHistory.route
+    )
+
+    val Leaderboard = MenuItem(
+        id = MenuItemId.LEADERBOARD,
+        label = R.string.menu_leaderboard,
+        icon = "🏆",
+        route = Screen.Leaderboard.route
+    )
+
+    val Account = MenuItem(
+        id = MenuItemId.ACCOUNT,
+        label = R.string.menu_account,
+        icon = "👤",
+        route = Screen.Account.route
+    )
+
+    val Settings = MenuItem(
+        id = MenuItemId.SETTINGS,
+        label = R.string.menu_settings,
+        icon = "⚙️",
+        route = Screen.Settings.route
+    )
+
+    val all: List<MenuItem> = listOf(Namaz, History, Leaderboard, Account, Settings)
 }
