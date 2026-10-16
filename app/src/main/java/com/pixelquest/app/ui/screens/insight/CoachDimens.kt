@@ -14,6 +14,9 @@ object CoachDimens {
     /** Between the screen's items: the header, the card, its sections and its footer (12-20dp before). */
     val ItemGap = 8.dp
 
+    /** The smallest touch target for anything tappable, however small it looks (Android's 48dp). */
+    val MinTouchTarget = 48.dp
+
     /** The screen's header banner. */
     object Header {
         /** A slim row now: 12-16dp before, around a 44-52dp avatar. */

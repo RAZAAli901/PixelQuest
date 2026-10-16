@@ -1,6 +1,7 @@
 package com.pixelquest.app.ui.screens.insight
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.sizeIn
 import com.pixelquest.app.ui.theme.ThemeMode
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
@@ -75,24 +76,30 @@ fun CoachRefreshButton(action: CoachRefreshAction, themeMode: ThemeMode, modifie
         ThemeMode.Light -> Triple(if (action.enabled) Color(0xFFEEF2FF) else Color(0xFFF1F5F9), if (action.enabled) Color(0xFF4F46E5) else Color(0xFF64748B), Color(0xFFC7D2FE))
         else -> Triple(Color.Transparent, if (action.enabled) Color(0xFFFBBF24) else Color(0xFF94A3B8), if (action.enabled) Color(0xFFFBBF24) else Color(0xFF475569))
     }
-    Text(
-        text = text,
-        style = when (themeMode) {
-            ThemeMode.Comic -> MaterialTheme.typography.labelLarge.copy(fontFamily = BangersFontFamily)
-            ThemeMode.Light -> MaterialTheme.typography.labelLarge
-            else -> PixelTypography.labelSmall
-        },
-        color = ink,
-        fontWeight = FontWeight.Bold,
-        maxLines = 1,
+    Box(
         modifier = modifier
-            .clip(shape)
-            .background(fill, shape)
-            .border(if (themeMode == ThemeMode.Comic) 2.dp else 1.dp, edge, shape)
+            .sizeIn(minWidth = CoachDimens.MinTouchTarget, minHeight = CoachDimens.MinTouchTarget)
             .clickable(enabled = action.enabled, role = Role.Button, onClickLabel = description, onClick = action.onClick)
-            .semantics { contentDescription = description }
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-    )
+            .semantics { contentDescription = description },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            style = when (themeMode) {
+                ThemeMode.Comic -> MaterialTheme.typography.labelLarge.copy(fontFamily = BangersFontFamily)
+                ThemeMode.Light -> MaterialTheme.typography.labelLarge
+                else -> PixelTypography.labelSmall
+            },
+            color = ink,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            modifier = Modifier
+                .clip(shape)
+                .background(fill, shape)
+                .border(if (themeMode == ThemeMode.Comic) 2.dp else 1.dp, edge, shape)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        )
+    }
 }
 
 /** Pixel: the Questmaster, or the Habit Coach in Simple Mode. */

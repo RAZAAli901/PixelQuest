@@ -1,6 +1,7 @@
 package com.pixelquest.app.ui.screens.insight
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.heightIn
 import com.pixelquest.app.ui.theme.LocalReduceMotion
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.animation.shrinkVertically
@@ -117,21 +118,28 @@ fun CoachExpandToggle(
 ) {
     val label = stringResource(if (expanded) R.string.coach_collapse else R.string.coach_expand)
     val shown = (if (themeMode == ThemeMode.Light) label else label.uppercase()) + if (expanded) " ▴" else " ▾"
-    Text(
-        text = shown,
-        style = when (themeMode) {
-            ThemeMode.Light -> MaterialTheme.typography.labelLarge
-            ThemeMode.Comic -> MaterialTheme.typography.labelLarge.copy(fontFamily = BangersFontFamily, letterSpacing = 0.5.sp)
-            else -> PixelTypography.labelMedium
-        },
-        color = when (themeMode) {
-            ThemeMode.Light -> Color(0xFF4F46E5)
-            ThemeMode.Comic -> ComicTokens.SolidBlack
-            else -> PixelTheme.colors.primary
-        },
-        fontWeight = FontWeight.Bold,
-        modifier = modifier.clickable(onClickLabel = label, role = Role.Button, onClick = onToggle)
-    )
+    Box(
+        modifier = modifier
+            .heightIn(min = CoachDimens.MinTouchTarget)
+            .clickable(onClickLabel = label, role = Role.Button, onClick = onToggle)
+            .padding(end = 8.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(
+            text = shown,
+            style = when (themeMode) {
+                ThemeMode.Light -> MaterialTheme.typography.labelLarge
+                ThemeMode.Comic -> MaterialTheme.typography.labelLarge.copy(fontFamily = BangersFontFamily, letterSpacing = 0.5.sp)
+                else -> PixelTypography.labelMedium
+            },
+            color = when (themeMode) {
+                ThemeMode.Light -> Color(0xFF4F46E5)
+                ThemeMode.Comic -> ComicTokens.SolidBlack
+                else -> PixelTheme.colors.primary
+            },
+            fontWeight = FontWeight.Bold
+        )
+    }
 }
 
 @Composable

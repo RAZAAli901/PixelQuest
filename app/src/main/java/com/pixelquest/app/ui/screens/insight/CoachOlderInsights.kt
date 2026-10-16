@@ -2,12 +2,14 @@ package com.pixelquest.app.ui.screens.insight
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -89,8 +91,10 @@ private fun OlderInsightRow(
 ) {
     val date = rememberDateFormatted(item.insight.generatedAt)
     Column(
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
+            .heightIn(min = CoachDimens.MinTouchTarget)
             .border(1.dp, accent.copy(alpha = 0.35f), RoundedCornerShape(6.dp))
             .clickable(onClickLabel = stringResource(if (expanded) R.string.coach_collapse else R.string.coach_expand), role = Role.Button, onClick = onToggle)
             .padding(horizontal = 8.dp, vertical = 6.dp)
