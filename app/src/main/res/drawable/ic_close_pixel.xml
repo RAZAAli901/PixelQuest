@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Close icon, pixel style: an X stepped out of 2-unit blocks. Tinted where it's used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M5,5 h2v2h-2z M17,5 h2v2h-2z M7,7 h2v2h-2z M15,7 h2v2h-2z M9,9 h2v2h-2z M13,9 h2v2h-2z M11,11 h2v2h-2z M11,11 h2v2h-2z M13,13 h2v2h-2z M9,13 h2v2h-2z M15,15 h2v2h-2z M7,15 h2v2h-2z M17,17 h2v2h-2z M5,17 h2v2h-2z" />
+</vector>
