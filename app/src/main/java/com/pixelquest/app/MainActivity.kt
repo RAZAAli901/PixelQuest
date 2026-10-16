@@ -122,6 +122,7 @@ class MainActivity : ComponentActivity() {
                                     context = com.pixelquest.app.ui.menu.MenuContext(isSimpleMode = menuHeader.isSimpleMode),
                                     selected = menuSelected,
                                     onItemClick = { item ->
+                                        menuDrawer.close()
                                         menuViewModel.select(item.id)
                                         // The Leaderboard is also a tab: open it the way its tab does.
                                         if (com.pixelquest.app.ui.navigation.Routes.isTab(item.route)) {

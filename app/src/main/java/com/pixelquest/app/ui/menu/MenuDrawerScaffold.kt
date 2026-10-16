@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.menu
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ModalDrawerSheet
@@ -27,6 +28,8 @@ fun MenuDrawerScaffold(
     gesturesEnabled: Boolean = controller.isOpen,
     content: @Composable () -> Unit
 ) {
+    // Back closes an open menu before it leaves the screen.
+    BackHandler(enabled = controller.isOpen) { controller.close() }
     CompositionLocalProvider(LocalMenuDrawer provides controller) {
         ModalNavigationDrawer(
             drawerState = controller.drawerState,
