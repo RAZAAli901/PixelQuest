@@ -55,7 +55,18 @@ fun PixelAiInsightView(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PixelCoachHeader(isSimpleMode = isSimpleMode)
+        // A fresh insight is asked for from the header, once there is one to replace.
+        val refresh = (uiState as? AiInsightUiState.Success)?.let { success ->
+            CoachRefreshAction(
+                enabled = success.canRefresh,
+                remainingSeconds = success.remainingCooldownSeconds,
+                onClick = {
+                    soundManager?.playClickSound()
+                    onRefresh()
+                }
+            )
+        }
+        PixelCoachHeader(isSimpleMode = isSimpleMode, refresh = refresh)
 
         Spacer(modifier = Modifier.height(CoachDimens.Header.PixelBottomGap))
 
@@ -68,10 +79,6 @@ fun PixelAiInsightView(
                     expanded = !display.compact || display.latestExpanded,
                     onToggleExpanded = if (display.compact) onToggleLatestExpanded else null,
                     isSimpleMode = isSimpleMode,
-                    onRefresh = {
-                        soundManager?.playClickSound()
-                        onRefresh()
-                    }
                 )
                 CoachOlderInsights(
                     items = olderInsights,

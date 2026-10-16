@@ -54,7 +54,18 @@ fun LightAiInsightView(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LightCoachHeader()
+        // A fresh insight is asked for from the header, once there is one to replace.
+        val refresh = (uiState as? AiInsightUiState.Success)?.let { success ->
+            CoachRefreshAction(
+                enabled = success.canRefresh,
+                remainingSeconds = success.remainingCooldownSeconds,
+                onClick = {
+                    soundManager?.playClickSound()
+                    onRefresh()
+                }
+            )
+        }
+        LightCoachHeader(refresh = refresh)
 
         Spacer(modifier = Modifier.height(CoachDimens.Header.BottomGap))
 
@@ -66,10 +77,6 @@ fun LightAiInsightView(
                     themeMode = com.pixelquest.app.ui.theme.ThemeMode.Light,
                     expanded = !display.compact || display.latestExpanded,
                     onToggleExpanded = if (display.compact) onToggleLatestExpanded else null,
-                    onRefresh = {
-                        soundManager?.playClickSound()
-                        onRefresh()
-                    }
                 )
                 CoachOlderInsights(
                     items = olderInsights,

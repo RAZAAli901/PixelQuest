@@ -58,7 +58,18 @@ fun ComicAiInsightView(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        ComicCoachHeader()
+        // A fresh insight is asked for from the header, once there is one to replace.
+        val refresh = (uiState as? AiInsightUiState.Success)?.let { success ->
+            CoachRefreshAction(
+                enabled = success.canRefresh,
+                remainingSeconds = success.remainingCooldownSeconds,
+                onClick = {
+                    soundManager?.playClickSound()
+                    onRefresh()
+                }
+            )
+        }
+        ComicCoachHeader(refresh = refresh)
 
         Spacer(modifier = Modifier.height(CoachDimens.Header.BottomGap))
 
@@ -70,10 +81,6 @@ fun ComicAiInsightView(
                     themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic,
                     expanded = !display.compact || display.latestExpanded,
                     onToggleExpanded = if (display.compact) onToggleLatestExpanded else null,
-                    onRefresh = {
-                        soundManager?.playClickSound()
-                        onRefresh()
-                    }
                 )
                 CoachOlderInsights(
                     items = olderInsights,

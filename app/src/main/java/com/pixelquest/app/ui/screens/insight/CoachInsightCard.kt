@@ -60,15 +60,14 @@ import com.pixelquest.app.ui.theme.comicBorder
 import com.pixelquest.app.ui.theme.comicDropShadow
 
 /**
- * The AI Coach's insight card: the latest insight's summary, suggestion and encouragement, when it
- * was made, and the refresh. Each theme has its own look ([PixelSuccessCard], [ComicSuccessView],
+ * The AI Coach's insight card: the latest insight's summary, suggestion and encouragement, and when
+ * it was made. Asking for a fresh one is the header's job (CoachRefreshButton). Each theme has its own look ([PixelSuccessCard], [ComicSuccessView],
  * [LightSuccessCard]).
  */
 @Composable
 fun CoachInsightCard(
     uiState: AiInsightUiState.Success,
     themeMode: ThemeMode,
-    onRefresh: () -> Unit,
     isSimpleMode: Boolean = false,
     modifier: Modifier = Modifier,
     /** False shows a short preview: the summary's first lines, without the other two sections. */
@@ -77,10 +76,10 @@ fun CoachInsightCard(
     onToggleExpanded: (() -> Unit)? = null
 ) {
     when (themeMode) {
-        ThemeMode.Comic -> ComicSuccessView(uiState = uiState, onRefresh = onRefresh, modifier = modifier, expanded = expanded, onToggleExpanded = onToggleExpanded)
-        ThemeMode.Light -> LightSuccessCard(uiState = uiState, onRefresh = onRefresh, modifier = modifier, expanded = expanded, onToggleExpanded = onToggleExpanded)
+        ThemeMode.Comic -> ComicSuccessView(uiState = uiState, modifier = modifier, expanded = expanded, onToggleExpanded = onToggleExpanded)
+        ThemeMode.Light -> LightSuccessCard(uiState = uiState, modifier = modifier, expanded = expanded, onToggleExpanded = onToggleExpanded)
         else -> PixelSuccessCard(
-            uiState = uiState, onRefresh = onRefresh, isSimpleMode = isSimpleMode, modifier = modifier,
+            uiState = uiState, isSimpleMode = isSimpleMode, modifier = modifier,
             expanded = expanded, onToggleExpanded = onToggleExpanded
         )
     }
@@ -138,7 +137,6 @@ fun CoachExpandToggle(
 @Composable
 fun PixelSuccessCard(
     uiState: AiInsightUiState.Success,
-    onRefresh: () -> Unit,
     isSimpleMode: Boolean = false,
     modifier: Modifier = Modifier,
     expanded: Boolean = true,
@@ -235,26 +233,6 @@ fun PixelSuccessCard(
                     color = colors.onSurface.copy(alpha = 0.6f),
                     fontSize = CoachDimens.Card.Badge
                 )
-
-                PixelButton(
-                    text = if (uiState.canRefresh) "REFRESH" else "COOLDOWN",
-                    variant = if (uiState.canRefresh) PixelButtonVariant.YELLOW else PixelButtonVariant.BLUE,
-                    onClick = onRefresh,
-                    enabled = uiState.canRefresh,
-                    modifier = Modifier.height(CoachDimens.Card.PixelButtonHeight)
-                )
-            }
-
-            if (!uiState.canRefresh && uiState.remainingCooldownSeconds > 0L) {
-                Spacer(modifier = Modifier.height(CoachDimens.Card.CooldownGap))
-                val hours = (uiState.remainingCooldownSeconds + 3599) / 3600
-                Text(
-                    text = "RECHARGE IN ~${hours}H",
-                    style = PixelTypography.labelSmall,
-                    color = Color(0xFF94A3B8),
-                    fontSize = CoachDimens.Card.PixelCooldownText,
-                    modifier = Modifier.align(Alignment.End)
-                )
             }
         }
     }
@@ -299,7 +277,6 @@ fun PixelTelemetryBlock(
 @Composable
 fun ComicSuccessView(
     uiState: AiInsightUiState.Success,
-    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
     expanded: Boolean = true,
     onToggleExpanded: (() -> Unit)? = null
@@ -372,26 +349,7 @@ fun ComicSuccessView(
                         color = ComicTokens.TextSecondary
                     )
                 }
-
-                ComicButton(
-                    text = if (uiState.canRefresh) "REFRESH INTEL!" else "RECHARGING...",
-                    onClick = onRefresh,
-                    variant = if (uiState.canRefresh) ComicButtonVariant.PRIMARY else ComicButtonVariant.SKY_BLUE,
-                    enabled = uiState.canRefresh
-                )
             }
-        }
-
-        if (!uiState.canRefresh && uiState.remainingCooldownSeconds > 0L) {
-            Spacer(modifier = Modifier.height(CoachDimens.Card.CooldownGap))
-            val hours = (uiState.remainingCooldownSeconds + 3599) / 3600
-            Text(
-                text = "Next transmission ready in ~$hours hrs!",
-                fontWeight = FontWeight.Bold,
-                fontSize = CoachDimens.Card.ComicCooldownText,
-                color = ComicTokens.TextSecondary,
-                modifier = Modifier.align(Alignment.End).padding(end = 4.dp)
-            )
         }
     }
 }
@@ -458,7 +416,6 @@ fun ComicSpeechBubble(
 @Composable
 fun LightSuccessCard(
     uiState: AiInsightUiState.Success,
-    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
     expanded: Boolean = true,
     onToggleExpanded: (() -> Unit)? = null
@@ -570,25 +527,6 @@ fun LightSuccessCard(
                     text = "Generated on $formattedTime",
                     style = typography.labelSmall,
                     color = Color(0xFF64748B)
-                )
-
-                PixelButton(
-                    text = if (uiState.canRefresh) "Refresh Insight" else "Cooldown",
-                    variant = if (uiState.canRefresh) PixelButtonVariant.YELLOW else PixelButtonVariant.BLUE,
-                    onClick = onRefresh,
-                    enabled = uiState.canRefresh,
-                    modifier = Modifier.height(CoachDimens.Card.LightButtonHeight)
-                )
-            }
-
-            if (!uiState.canRefresh && uiState.remainingCooldownSeconds > 0L) {
-                Spacer(modifier = Modifier.height(CoachDimens.Card.CooldownGap))
-                val hours = (uiState.remainingCooldownSeconds + 3599) / 3600
-                Text(
-                    text = "Next insight available in ~$hours hours",
-                    style = typography.labelSmall,
-                    color = Color(0xFF94A3B8),
-                    modifier = Modifier.align(Alignment.End)
                 )
             }
         }

@@ -1,6 +1,11 @@
 package com.pixelquest.app.ui.screens.insight
 
 import androidx.compose.foundation.background
+import com.pixelquest.app.ui.theme.ThemeMode
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,11 +41,63 @@ import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PixelTypography
 
-// The AI Coach screen's header in each theme: the coach's avatar, its name and a status.
+// The AI Coach screen's header in each theme: the coach's avatar, its name, a status and the refresh.
+
+/**
+ * The header's request for a fresh insight. [remainingSeconds] is the wait before one is allowed
+ * (the 6-hour limit); while it runs the button shows the hours left instead.
+ */
+data class CoachRefreshAction(
+    val enabled: Boolean,
+    val remainingSeconds: Long,
+    val onClick: () -> Unit
+)
+
+/** "↻ NEW", or "⏳ 3H" while recharging: what was a full-width REFRESH / COOLDOWN button (C13). */
+@Composable
+fun CoachRefreshButton(action: CoachRefreshAction, themeMode: ThemeMode, modifier: Modifier = Modifier) {
+    val hours = (action.remainingSeconds + 3599) / 3600
+    val label = if (action.enabled || hours <= 0L) {
+        stringResource(R.string.coach_refresh)
+    } else {
+        stringResource(R.string.coach_cooldown_hours, hours)
+    }
+    val icon = if (action.enabled || hours <= 0L) "↻" else "⏳"
+    val text = "$icon " + if (themeMode == ThemeMode.Light) label else label.uppercase()
+    val description = if (action.enabled) {
+        stringResource(R.string.coach_refresh_description)
+    } else {
+        stringResource(R.string.coach_cooldown_description, hours)
+    }
+    val shape = RoundedCornerShape(if (themeMode == ThemeMode.Pixel || themeMode == ThemeMode.System) 0.dp else 6.dp)
+    val (fill, ink, edge) = when (themeMode) {
+        ThemeMode.Comic -> Triple(if (action.enabled) ComicTokens.GoldAccent else ComicTokens.PanelSurface, ComicTokens.SolidBlack, ComicTokens.SolidBlack)
+        ThemeMode.Light -> Triple(if (action.enabled) Color(0xFFEEF2FF) else Color(0xFFF1F5F9), if (action.enabled) Color(0xFF4F46E5) else Color(0xFF64748B), Color(0xFFC7D2FE))
+        else -> Triple(Color.Transparent, if (action.enabled) Color(0xFFFBBF24) else Color(0xFF94A3B8), if (action.enabled) Color(0xFFFBBF24) else Color(0xFF475569))
+    }
+    Text(
+        text = text,
+        style = when (themeMode) {
+            ThemeMode.Comic -> MaterialTheme.typography.labelLarge.copy(fontFamily = BangersFontFamily)
+            ThemeMode.Light -> MaterialTheme.typography.labelLarge
+            else -> PixelTypography.labelSmall
+        },
+        color = ink,
+        fontWeight = FontWeight.Bold,
+        maxLines = 1,
+        modifier = modifier
+            .clip(shape)
+            .background(fill, shape)
+            .border(if (themeMode == ThemeMode.Comic) 2.dp else 1.dp, edge, shape)
+            .clickable(enabled = action.enabled, role = Role.Button, onClickLabel = description, onClick = action.onClick)
+            .semantics { contentDescription = description }
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    )
+}
 
 /** Pixel: the Questmaster, or the Habit Coach in Simple Mode. */
 @Composable
-fun PixelCoachHeader(isSimpleMode: Boolean) {
+fun PixelCoachHeader(isSimpleMode: Boolean, refresh: CoachRefreshAction? = null) {
     val colors = PixelTheme.colors
     // Retro Arcade Questmaster / Habit Coach Header Banner
     PixelCard(
@@ -97,13 +154,17 @@ fun PixelCoachHeader(isSimpleMode: Boolean) {
                     maxLines = 1
                 )
             }
+            if (refresh != null) {
+                Spacer(modifier = Modifier.width(CoachDimens.Header.ChipGap))
+                CoachRefreshButton(refresh, ThemeMode.Pixel)
+            }
         }
     }
 }
 
 /** Comic: the oracle's panel with its issue chip. */
 @Composable
-fun ComicCoachHeader() {
+fun ComicCoachHeader(refresh: CoachRefreshAction? = null) {
     // Comic Coach Header Banner
     ComicPanel(
         variant = ComicPanelVariant.BURNT_ORANGE,
@@ -154,13 +215,17 @@ fun ComicCoachHeader() {
                     color = ComicTokens.SolidBlack
                 )
             }
+            if (refresh != null) {
+                Spacer(modifier = Modifier.width(CoachDimens.Header.ChipGap))
+                CoachRefreshButton(refresh, ThemeMode.Comic)
+            }
         }
     }
 }
 
 /** Light: a clean card with the coach's sprout. */
 @Composable
-fun LightCoachHeader() {
+fun LightCoachHeader(refresh: CoachRefreshAction? = null) {
     val colors = PixelTheme.colors
     val typography = MaterialTheme.typography
     // Clean Daytime Coach Header Banner
@@ -211,6 +276,10 @@ fun LightCoachHeader() {
                     .background(Color(0xFFEEF2FF))
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             )
+            if (refresh != null) {
+                Spacer(modifier = Modifier.width(CoachDimens.Header.ChipGap))
+                CoachRefreshButton(refresh, ThemeMode.Light)
+            }
         }
     }
 }
