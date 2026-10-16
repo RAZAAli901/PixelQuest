@@ -38,18 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pixelquest.app.audio.LocalSoundManager
-import com.pixelquest.app.domain.ai.HabitInsightResponse
-import com.pixelquest.app.ui.components.ComicButton
-import com.pixelquest.app.ui.components.ComicButtonVariant
 import com.pixelquest.app.ui.components.ComicPanel
 import com.pixelquest.app.ui.components.ComicPanelVariant
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.BangersFontFamily
@@ -188,7 +181,7 @@ fun PixelSuccessCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(CoachDimens.Card.TitleGap))
+            Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
             // Section 1: Observation Scan
             PixelTelemetryBlock(
@@ -201,7 +194,7 @@ fun PixelSuccessCard(
             )
 
             CoachExpandable(visible = !preview) {
-                Spacer(modifier = Modifier.height(CoachDimens.Card.SectionGap))
+                Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
                 // Section 2: Strategic Protocol / Suggested Adjustment
                 PixelTelemetryBlock(
@@ -211,7 +204,7 @@ fun PixelSuccessCard(
                     bodyColor = colors.onSurface
                 )
 
-                Spacer(modifier = Modifier.height(CoachDimens.Card.SectionGap))
+                Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
                 // Section 3: Daily Perspective / Heroic Blessing
                 PixelTelemetryBlock(
@@ -226,7 +219,7 @@ fun PixelSuccessCard(
                 CoachExpandToggle(expanded = expanded, onToggle = onToggleExpanded, themeMode = ThemeMode.Pixel)
             }
 
-            Spacer(modifier = Modifier.height(CoachDimens.Card.FooterGap))
+            Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
             // Footer Terminal Action
             Row(
@@ -304,7 +297,7 @@ fun ComicSuccessView(
         )
 
         CoachExpandable(visible = !preview) {
-            Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
+            Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
             // Speech Bubble 2: Action Directive (Suggestion)
             ComicSpeechBubble(
@@ -314,7 +307,7 @@ fun ComicSuccessView(
                 bubbleBg = Color(0xFFF0F9FF)
             )
 
-            Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
+            Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
             // Speech Bubble 3: Power Surge (Encouragement)
             ComicSpeechBubble(
@@ -329,7 +322,7 @@ fun ComicSuccessView(
             CoachExpandToggle(expanded = expanded, onToggle = onToggleExpanded, themeMode = ThemeMode.Comic)
         }
 
-        Spacer(modifier = Modifier.height(CoachDimens.Card.FooterGap))
+        Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
         // Comic Action Footer Panel
         ComicPanel(
@@ -484,7 +477,7 @@ fun LightSuccessCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(CoachDimens.Card.LightTitleGap))
+            Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
             // Section 1: Observation
             LightInsightSection(
@@ -497,7 +490,7 @@ fun LightSuccessCard(
             )
 
             CoachExpandable(visible = !preview) {
-                Spacer(modifier = Modifier.height(CoachDimens.Card.LightSectionGap))
+                Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
                 // Section 2: Strategy / Suggestion
                 LightInsightSection(
@@ -507,7 +500,7 @@ fun LightSuccessCard(
                     backgroundColor = Color(0xFFF0FDF4)
                 )
 
-                Spacer(modifier = Modifier.height(CoachDimens.Card.LightSectionGap))
+                Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
                 // Section 3: Encouragement
                 LightInsightSection(
@@ -522,7 +515,7 @@ fun LightSuccessCard(
                 CoachExpandToggle(expanded = expanded, onToggle = onToggleExpanded, themeMode = ThemeMode.Light)
             }
 
-            Spacer(modifier = Modifier.height(CoachDimens.Card.LightFooterGap))
+            Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
 
             // Footer
             Row(

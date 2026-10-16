@@ -1,17 +1,10 @@
 package com.pixelquest.app.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,8 +31,6 @@ data class NavItem(
     val title: String,
     val route: String,
     val iconRes: Int,
-    /** Drawn as a round icon-only button in the middle of the bar; [title] becomes its spoken label. */
-    val isFeatured: Boolean = false,
     /** The visible label, when [title] is too long for a tab (LEADERBOARD is 88dp in the pixel font). */
     val label: String = title
 )
@@ -47,7 +38,7 @@ data class NavItem(
 val bottomNavItems = listOf(
     NavItem("HOME", Screen.Home.route, R.drawable.ic_home),
     NavItem("TASKS", Screen.Tasks.route, R.drawable.ic_tasks),
-    NavItem("LEADERBOARD", Screen.Leaderboard.route, R.drawable.ic_leaderboard, isFeatured = true, label = "RANKS"),
+    NavItem("LEADERBOARD", Screen.Leaderboard.route, R.drawable.ic_leaderboard, label = "RANKS"),
     NavItem("STATS", Screen.Stats.route, R.drawable.ic_stats),
     NavItem("PROFILE", Screen.Profile.route, R.drawable.ic_profile)
 )
@@ -120,42 +111,5 @@ fun PixelBottomNavBar(
                 }
             }
         }
-    }
-}
-
-/**
- * The round Leaderboard button in the Pixel and Light bars: a primary-coloured circle with the
- * icon tinted to read on it. The selected state thickens the ring in the secondary colour.
- */
-@Composable
-private fun FeaturedNavButton(
-    item: NavItem,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .clip(CircleShape)
-            .background(colors.primary)
-            .border(
-                width = if (isSelected) 3.dp else 2.dp,
-                color = if (isSelected) colors.secondary else colors.pixelBorder,
-                shape = CircleShape
-            )
-            .clickable(role = Role.Tab, onClickLabel = item.title, onClick = onClick)
-            .semantics {
-                contentDescription = item.title
-                selected = isSelected
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Image(
-            painter = painterResource(id = item.iconRes),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(colors.onPrimary),
-            modifier = Modifier.size(26.dp)
-        )
     }
 }

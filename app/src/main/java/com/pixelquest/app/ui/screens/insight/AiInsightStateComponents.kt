@@ -24,7 +24,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,12 +37,10 @@ import com.pixelquest.app.ui.components.ComicButton
 import com.pixelquest.app.ui.components.ComicButtonVariant
 import com.pixelquest.app.ui.components.ComicPanel
 import com.pixelquest.app.ui.components.ComicPanelVariant
-import com.pixelquest.app.ui.components.ComicProgressBar
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.components.PixelProgressBar
 import com.pixelquest.app.ui.theme.BangersFontFamily
 import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.PixelTheme

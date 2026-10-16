@@ -9,11 +9,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -119,7 +117,7 @@ fun PixelCoachHeader(isSimpleMode: Boolean, refresh: CoachRefreshAction? = null)
             // Avatar frame: Wizard/Sage in gamified mode, Nature sprout in simple mode
             Box(
                 modifier = Modifier
-                    .size(CoachDimens.Header.PixelAvatar)
+                    .size(CoachDimens.Header.Avatar)
                     .background(if (isSimpleMode) Color(0xFF064E3B) else Color(0xFF2E1065))
                     .border(2.dp, if (isSimpleMode) Color(0xFF10B981) else Color(0xFFFBBF24)),
                 contentAlignment = Alignment.Center
@@ -185,7 +183,7 @@ fun ComicCoachHeader(refresh: CoachRefreshAction? = null) {
             // Comic Hero Oracle Avatar
             Box(
                 modifier = Modifier
-                    .size(CoachDimens.Header.ComicAvatar)
+                    .size(CoachDimens.Header.Avatar)
                     .clip(CircleShape)
                     .background(ComicTokens.PanelSurface)
                     .border(2.5.dp, ComicTokens.SolidBlack, CircleShape),
@@ -252,7 +250,7 @@ fun LightCoachHeader(refresh: CoachRefreshAction? = null) {
             // Modern clean coach avatar frame
             Box(
                 modifier = Modifier
-                    .size(CoachDimens.Header.LightAvatar)
+                    .size(CoachDimens.Header.Avatar)
                     .clip(CircleShape)
                     .background(Color(0xFFEEF2FF))
                     .border(1.5.dp, Color(0xFF6366F1), CircleShape),

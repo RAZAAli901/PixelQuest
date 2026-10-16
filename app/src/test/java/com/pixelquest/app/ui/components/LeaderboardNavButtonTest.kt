@@ -16,7 +16,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * The bottom bar has a fifth, round LEADERBOARD button in the middle, in every theme.
+ * The bottom bar has a LEADERBOARD tab in the middle, in every theme. It was a larger round button
+ * until the compact pass (docs/ai-coach-compact.md); now it's a tab like the others, labelled RANKS.
  */
 @RunWith(RobolectricTestRunner::class)
 // A plain Application keeps the real app's start-up (database seeding) out of these UI tests.
@@ -29,7 +30,7 @@ class LeaderboardNavButtonTest {
     @Test
     fun barHasFiveTabs_withLeaderboardInTheMiddle() {
         assertEquals(listOf("HOME", "TASKS", "LEADERBOARD", "STATS", "PROFILE"), bottomNavItems.map { it.title })
-        assertEquals(listOf("LEADERBOARD"), bottomNavItems.filter { it.isFeatured }.map { it.title })
+        assertEquals("the pixel font's LEADERBOARD is wider than a tab", "RANKS", bottomNavItems[2].label)
         assertEquals(Screen.Leaderboard.route, bottomNavItems[2].route)
     }
 
