@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -94,7 +95,9 @@ fun MenuDrawerHeader(state: MenuHeaderState, modifier: Modifier = Modifier) {
             // The line under it says the same in words, so TalkBack reads that instead of the bar.
             PixelProgressBar(progress = state.levelProgress, height = 10.dp, modifier = Modifier.clearAndSetSemantics {})
             Text(
-                text = stringResource(R.string.menu_level_progress, state.perfectDays, state.daysPerLevel, state.level + 1),
+                text = LocalContext.current.resources.getQuantityString(
+                    R.plurals.menu_level_progress, state.daysPerLevel, state.perfectDays, state.daysPerLevel, state.level + 1
+                ),
                 style = MaterialTheme.typography.labelSmall,
                 color = colors.onSurface.copy(alpha = 0.75f)
             )

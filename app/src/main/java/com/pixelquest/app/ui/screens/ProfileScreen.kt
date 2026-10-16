@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
-import com.pixelquest.app.ui.components.PixelAvatarDisplay
 import com.pixelquest.app.ui.components.PixelAvatarFrame
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
@@ -28,13 +27,8 @@ import com.pixelquest.app.ui.components.PixelXpBar
 import com.pixelquest.app.ui.screens.profile.ProfileUiState
 import com.pixelquest.app.ui.screens.profile.ProfileViewModel
 import com.pixelquest.app.ui.theme.PixelTheme
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.sp
 import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.foundation.clickable

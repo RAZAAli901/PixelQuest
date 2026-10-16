@@ -81,3 +81,17 @@ A three-line icon at the top left of the main screens opens a side drawer with N
 | AI Coach | `PixelTopAppBar` with a back arrow: it's opened from Home, not a tab | Its left slot is the way back, so the menu isn't added there (the plan lists it; noted in C30). |
 
 The screens reach the drawer through a `CompositionLocal` that `MainActivity` provides, so previews and tests without the drawer simply don't show the icon.
+
+### Result (C22–C45)
+
+- **Where it opens:** the three-line icon (`MenuTopBarAction`) sits left of the title on Home, Tasks (which got a title row: 📜 QUEST LOG, or 📋 ALL TASKS in Simple Mode), the Leaderboard (when it's a tab; opened from Stats it keeps its back arrow), Stats and Profile. On those five tabs a swipe in from the left edge opens it too (`Routes.Tabs`). Back, the close button, a tap outside, a swipe, or choosing an entry closes it.
+- **What's in it** (`MenuItems.all`, `ui/menu/`):
+  - a header with the player's avatar and name and, outside Simple Mode, LVL · XP and a bar of the perfect days toward the next level;
+  - 🕌 Namaz Tracker (a placeholder screen until Phases 3–4; shown while `SettingsRepository.namazAvailable`, on by default);
+  - 📜 Quest History (Task History in Simple Mode), 🏆 Leaderboard (opens like its tab), 👤 Account, ⚙️ Settings.
+- **Breathing room:** 300dp wide, 24–28dp around the header, 56dp entries (taller than the 48dp minimum) with 16dp between icon and label, icons lined up with the header.
+- **Per theme** (`MenuStyle`): Pixel has square corners, a pixel border, the retro font in capitals and a bordered block for the current entry. Comic has a black ink border, rounded corners, the comic font and a coral pill with a flat shadow. Light, and Simple Mode in any theme, are a plain list with a soft tint.
+- **Remembered:** the current entry follows the screen the player is on and survives rotation and the app being stopped in the background (`MenuViewModel`, saved state).
+- **Accessibility:** TalkBack hears "Menu open" / "Menu closed", entries read as their labels (not their emoji), the name is a heading, and the icons say Open menu and Close menu.
+- **Tests:** `MenuStateTest` (entries, visibility, wording, the ViewModel) and `MenuDrawerUiTest` (icon → menu → Namaz in each theme, Back, the close button, Simple Mode, Namaz unavailable).
+- **Not changed:** the bottom tabs, Home's cards, and how Settings and Account were reached before (Profile → APP SETTINGS still works).

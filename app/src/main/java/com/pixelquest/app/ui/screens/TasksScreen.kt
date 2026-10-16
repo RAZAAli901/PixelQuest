@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,16 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.EmptyTasksState
-import com.pixelquest.app.ui.components.PixelDailyProgressRing
 import com.pixelquest.app.ui.components.PixelErrorState
 import com.pixelquest.app.ui.components.PixelLoadingState
-import com.pixelquest.app.ui.components.PixelPerfectDayBanner
 import com.pixelquest.app.ui.components.PixelSnackbar
 import com.pixelquest.app.ui.components.PixelTaskListItem
 import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.screens.tasks.TaskUiState
 import com.pixelquest.app.ui.screens.tasks.TaskViewModel
-import com.pixelquest.app.ui.theme.PixelTypography
 
 @Composable
 fun TasksScreen(

@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -66,7 +67,7 @@ fun CoachRefreshButton(action: CoachRefreshAction, themeMode: ThemeMode, modifie
     val description = if (action.enabled) {
         stringResource(R.string.coach_refresh_description)
     } else {
-        stringResource(R.string.coach_cooldown_description, hours)
+        LocalContext.current.resources.getQuantityString(R.plurals.coach_cooldown_description, hours.toInt(), hours.toInt())
     }
     val shape = RoundedCornerShape(if (themeMode == ThemeMode.Pixel || themeMode == ThemeMode.System) 0.dp else 6.dp)
     val (fill, ink, edge) = when (themeMode) {
