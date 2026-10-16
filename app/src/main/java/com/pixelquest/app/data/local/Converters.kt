@@ -81,4 +81,20 @@ class Converters {
     fun toDifficultyLevel(value: String?): DifficultyLevel? {
         return value?.let { DifficultyLevel.valueOf(it) }
     }
+
+    // The Namaz Tracker's enums, stored by name like the others (docs/namaz-design.md).
+
+    @TypeConverter
+    fun fromPrayer(prayer: com.pixelquest.app.domain.namaz.Prayer?): String? = prayer?.name
+
+    @TypeConverter
+    fun toPrayer(value: String?): com.pixelquest.app.domain.namaz.Prayer? =
+        value?.let { com.pixelquest.app.domain.namaz.Prayer.valueOf(it) }
+
+    @TypeConverter
+    fun fromPrayerStatus(status: com.pixelquest.app.domain.namaz.PrayerStatus?): String? = status?.name
+
+    @TypeConverter
+    fun toPrayerStatus(value: String?): com.pixelquest.app.domain.namaz.PrayerStatus? =
+        value?.let { com.pixelquest.app.domain.namaz.PrayerStatus.valueOf(it) }
 }
