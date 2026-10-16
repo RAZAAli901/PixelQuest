@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -80,24 +81,9 @@ fun ComicBottomNavBar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Every tab is a pill: the Leaderboard was a larger gold disc in the middle.
             bottomNavItems.forEachIndexed { index, item ->
                 val isSelected = currentRoute == item.route
-
-                if (item.isFeatured) {
-                    ComicFeaturedNavButton(
-                        item = item,
-                        isSelected = isSelected,
-                        onClick = {
-                            if (!isSelected) {
-                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                soundManager?.playNavSound()
-                                onNavigate(item.route)
-                            }
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                    return@forEachIndexed
-                }
 
                 val chipBackground by animateColorAsState(
                     targetValue = if (isSelected) ComicTokens.CoralRed else Color.Transparent,
@@ -114,13 +100,18 @@ fun ComicBottomNavBar(
                         .padding(horizontal = 4.dp, vertical = 2.dp)
                         .clickable(
                             interactionSource = interactionSource,
-                            indication = null
+                            indication = null,
+                            role = Role.Tab
                         ) {
                             if (!isSelected) {
                                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                                 soundManager?.playNavSound()
                                 onNavigate(item.route)
                             }
+                        }
+                        .clearAndSetSemantics {
+                            contentDescription = item.title
+                            selected = isSelected
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -156,7 +147,7 @@ fun ComicBottomNavBar(
                         ) {
                             Image(
                                 painter = painterResource(id = item.iconRes),
-                                contentDescription = item.title,
+                                contentDescription = null,
                                 modifier = Modifier.size(if (isSelected) 20.dp else 18.dp),
                                 colorFilter = ColorFilter.tint(
                                     if (isSelected) ComicTokens.SolidBlack else ComicTokens.TextSecondary
@@ -164,7 +155,8 @@ fun ComicBottomNavBar(
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = item.title,
+                                text = item.label,
+                                maxLines = 1,
                                 style = ComicTypography.labelSmall,
                                 fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold,
                                 color = if (isSelected) ComicTokens.SolidBlack else ComicTokens.TextSecondary,
@@ -174,8 +166,8 @@ fun ComicBottomNavBar(
                     }
                 }
 
-                // Comic panel vertical cell divider between tabs (none beside the round button)
-                if (index < bottomNavItems.lastIndex && !bottomNavItems[index + 1].isFeatured) {
+                // Comic panel vertical cell divider between tabs
+                if (index < bottomNavItems.lastIndex) {
                     Box(
                         modifier = Modifier
                             .width(ComicShapeTokens.BorderWidthThin)
