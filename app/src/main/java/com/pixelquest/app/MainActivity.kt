@@ -107,6 +107,8 @@ class MainActivity : ComponentActivity() {
                         val menuViewModel: com.pixelquest.app.ui.menu.MenuViewModel = androidx.hilt.navigation.compose.hiltViewModel()
                         val menuHeader by menuViewModel.header.collectAsState()
                         val menuSelected by menuViewModel.selected.collectAsState()
+                        // The highlight follows where the player is, however they got there.
+                        androidx.compose.runtime.LaunchedEffect(currentRoute) { menuViewModel.syncWithRoute(currentRoute) }
 
                         // The side menu slides in over the screens and the bottom bar (docs/ai-coach-compact.md).
                         com.pixelquest.app.ui.menu.MenuDrawerScaffold(

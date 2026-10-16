@@ -8,6 +8,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
@@ -60,6 +61,7 @@ val LocalMenuDrawer = staticCompositionLocalOf<MenuDrawerController?> { null }
 /** The side menu's data: who's playing, for its header, and which entry was chosen last. */
 @HiltViewModel
 class MenuViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     userProfileRepository: UserProfileRepository,
     difficultySettingsRepository: DifficultySettingsRepository,
     settingsRepository: SettingsRepository
@@ -81,15 +83,31 @@ class MenuViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuHeaderState())
 
-    private val _selected = MutableStateFlow<MenuItemId?>(null)
+    // Kept in the saved state, so the last entry opened is still highlighted after a rotation, or
+    // after Android stopped the app in the background and the player came back to it.
+    private val _selected = MutableStateFlow(
+        savedStateHandle.get<String>(SELECTED_KEY)?.let { name -> MenuItemId.entries.firstOrNull { it.name == name } }
+    )
     val selected: StateFlow<MenuItemId?> = _selected.asStateFlow()
 
     fun select(id: MenuItemId) {
         _selected.value = id
+        savedStateHandle[SELECTED_KEY] = id.name
     }
 
     /** Back on a tab, no menu entry is the current place. */
     fun clearSelection() {
         _selected.value = null
+        savedStateHandle[SELECTED_KEY] = null
+    }
+
+    /** Follows where the player is: the entry for [route], or none (a tab, a form). */
+    fun syncWithRoute(route: String?) {
+        val here = MenuItems.all.firstOrNull { it.route == route }
+        if (here != null) select(here.id) else if (route != null) clearSelection()
+    }
+
+    private companion object {
+        const val SELECTED_KEY = "menu_selected"
     }
 }
