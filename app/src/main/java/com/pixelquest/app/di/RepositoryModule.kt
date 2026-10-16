@@ -109,4 +109,10 @@ abstract class RepositoryModule {
     abstract fun bindNamazRepository(
         impl: com.pixelquest.app.data.repository.NamazRepositoryImpl
     ): com.pixelquest.app.domain.repository.NamazRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPrayerTimeProvider(
+        impl: com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
+    ): com.pixelquest.app.domain.namaz.PrayerTimeProvider
 }
