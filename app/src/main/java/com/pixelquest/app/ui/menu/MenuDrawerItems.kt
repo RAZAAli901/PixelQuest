@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.comicDropShadow
 
 /**
  * The side menu's entries, one row each: its icon and label, the current one highlighted. Rows
@@ -73,6 +74,15 @@ fun MenuDrawerItemRow(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = MenuSpacing.ItemHeight)
+            .then(
+                if (isSelected && style.selectedShadow) {
+                    Modifier
+                        .padding(end = 3.dp, bottom = 3.dp)
+                        .comicDropShadow(offsetX = 3.dp, offsetY = 3.dp, shape = shape)
+                } else {
+                    Modifier
+                }
+            )
             .clip(shape)
             .background(if (isSelected) style.selectedFill else colors.background, shape)
             .then(if (isSelected && selectedBorder != null) Modifier.border(selectedBorder, shape) else Modifier)

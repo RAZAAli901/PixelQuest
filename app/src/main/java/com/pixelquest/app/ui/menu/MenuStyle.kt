@@ -12,7 +12,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
+import androidx.compose.ui.unit.sp
+import com.pixelquest.app.ui.theme.BangersFontFamily
+import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.ThemeMode
 import com.pixelquest.app.ui.theme.PixelTypography
 
 /** How the side menu looks in the current theme. */
@@ -26,11 +30,34 @@ data class MenuStyle(
     val labelStyle: TextStyle,
     val uppercaseLabels: Boolean,
     @DrawableRes val closeIcon: Int,
-    val ink: Color
+    val ink: Color,
+    /** A flat black shadow under the current entry, like the Comic tabs' pill. */
+    val selectedShadow: Boolean = false
 )
 
 @Composable
-fun menuStyle(): MenuStyle = pixelMenuStyle()
+fun menuStyle(): MenuStyle = when (PixelTheme.mode) {
+    ThemeMode.Comic -> comicMenuStyle()
+    else -> pixelMenuStyle()
+}
+
+/**
+ * Comic: a 2.5dp black ink border with rounded outer corners, entries in the comic font, and the
+ * current one a coral pill with a black outline and a flat shadow, matching the Comic tab bar.
+ */
+@Composable
+private fun comicMenuStyle(): MenuStyle = MenuStyle(
+    sheetShape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp),
+    sheetBorder = BorderStroke(2.5.dp, ComicTokens.SolidBlack),
+    itemShape = RoundedCornerShape(10.dp),
+    selectedFill = ComicTokens.CoralRed,
+    selectedBorder = BorderStroke(2.dp, ComicTokens.SolidBlack),
+    labelStyle = MaterialTheme.typography.titleMedium.copy(fontFamily = BangersFontFamily, letterSpacing = 0.6.sp),
+    uppercaseLabels = true,
+    closeIcon = R.drawable.ic_close_comic,
+    ink = ComicTokens.SolidBlack,
+    selectedShadow = true
+)
 
 /**
  * Pixel: square corners everywhere, a pixel border down the menu's edge, the retro font for the
