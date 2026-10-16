@@ -63,3 +63,21 @@ Every generated insight is a row in `insight_cache`. `InsightCacheRepository.cle
 | C17 | 48dp touch targets on everything that shrank |
 | C18–C19 | Compose tests in Pixel, Comic, Light and Simple Mode (including a 6-inch fit check), ViewModel tests |
 | C20 | Remove what the compression left unused |
+
+## Phase 2: the three-line menu (C21–C45)
+
+A three-line icon at the top left of the main screens opens a side drawer with Namaz (a placeholder until Phase 4), Account, Settings and shortcuts to History and the Leaderboard. The bottom tabs stay as they are. The drawer is spaced generously, so the screens get room rather than more buttons.
+
+### Map (C21)
+
+| Piece | Where it is | Where the menu attaches |
+| --- | --- | --- |
+| App frame | `MainActivity`: `Scaffold` with the bottom bar (`PixelBottomNavBar`), the notification banner and `PixelNavHost` in a column | The drawer (`ModalNavigationDrawer`) wraps this `Scaffold`, so it slides over the screen and the bottom bar. It's open to swipes only on the five tabs. |
+| Routes | `Screen` in `ui/navigation/NavGraph.kt` (`home`, `tasks`, `leaderboard`, `stats`, `profile`, `settings`, `account`, `task_history`, `ai_insight`, …). No route string is written anywhere else. | C22 moves `Screen` into its own `Routes.kt`; `Screen.Namaz` comes with C33. |
+| Home | `TodayScreen`: a `titleLarge` line ("⚔️ TODAY'S DASHBOARD", from `TaskTerminology`) inside the list, then the COMIC MODE and REFRESH buttons | The icon goes left of the title (C28). |
+| Tasks | `TasksContent`: no title row at all, just the list and the add button | A title row with the icon (C29). |
+| Leaderboard | `PixelTopAppBar("LEADERBOARD")`, whose left slot holds a back arrow only when opened from Stats | The icon takes that slot when there's no back arrow (C30). |
+| Stats, Profile | A `titleLarge` line at the top of a scrolling column | Left of the title (C30). |
+| AI Coach | `PixelTopAppBar` with a back arrow: it's opened from Home, not a tab | Its left slot is the way back, so the menu isn't added there (the plan lists it; noted in C30). |
+
+The screens reach the drawer through a `CompositionLocal` that `MainActivity` provides, so previews and tests without the drawer simply don't show the icon.
