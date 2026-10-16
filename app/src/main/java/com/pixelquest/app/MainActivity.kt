@@ -106,12 +106,26 @@ class MainActivity : ComponentActivity() {
                         val menuDrawer = com.pixelquest.app.ui.menu.rememberMenuDrawerController()
                         val menuViewModel: com.pixelquest.app.ui.menu.MenuViewModel = androidx.hilt.navigation.compose.hiltViewModel()
                         val menuHeader by menuViewModel.header.collectAsState()
+                        val menuSelected by menuViewModel.selected.collectAsState()
 
                         // The side menu slides in over the screens and the bottom bar (docs/ai-coach-compact.md).
                         com.pixelquest.app.ui.menu.MenuDrawerScaffold(
                             controller = menuDrawer,
                             drawerContent = {
                                 com.pixelquest.app.ui.menu.MenuDrawerHeader(menuHeader)
+                                androidx.compose.material3.HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurface.copy(alpha = 0.15f)
+                                )
+                                com.pixelquest.app.ui.menu.MenuDrawerItems(
+                                    items = com.pixelquest.app.ui.menu.MenuItems.all,
+                                    context = com.pixelquest.app.ui.menu.MenuContext(isSimpleMode = menuHeader.isSimpleMode),
+                                    selected = menuSelected,
+                                    onItemClick = { item ->
+                                        menuViewModel.select(item.id)
+                                        navController.navigate(item.route) { launchSingleTop = true }
+                                    }
+                                )
                             }
                         ) {
                         Scaffold(

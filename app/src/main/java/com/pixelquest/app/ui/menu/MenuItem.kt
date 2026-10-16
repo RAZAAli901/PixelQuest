@@ -35,3 +35,8 @@ data class MenuItem(
 
 /** The entries [context] shows, in order. */
 fun List<MenuItem>.visibleIn(context: MenuContext): List<MenuItem> = filter { it.visibleWhen(context) }
+
+/** The side menu's entries, in order. Added by C33-C34. */
+object MenuItems {
+    val all: List<MenuItem> = emptyList()
+}
