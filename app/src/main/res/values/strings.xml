@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AI Coach (docs/ai-coach-compact.md). Older text is still inline in the composables. -->
+    <string name="coach_status_online">ONLINE</string>
+    <string name="coach_status_light">Gemini AI</string>
+</resources>

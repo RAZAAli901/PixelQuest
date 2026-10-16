@@ -28,9 +28,11 @@ object CoachDimens {
         val PixelAvatarGap = 12.dp
         val AvatarGap = 14.dp
         val StatusText = 9.sp
-        val ComicTitle = 22.sp
-        val ComicSubtitle = 11.sp
+        /** One line now (it was 22sp over a subtitle). */
+        val ComicTitle = 18.sp
         val ComicChip = 13.sp
+        /** Between the title and its inline status chip. */
+        val ChipGap = 6.dp
         /** Between the header and the state below it. */
         val PixelBottomGap = ItemGap
         val BottomGap = ItemGap

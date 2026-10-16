@@ -21,9 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pixelquest.app.R
 import com.pixelquest.app.ui.components.ComicPanel
 import com.pixelquest.app.ui.components.ComicPanelVariant
 import com.pixelquest.app.ui.components.PixelCard
@@ -62,29 +65,37 @@ fun PixelCoachHeader(isSimpleMode: Boolean) {
 
             Spacer(modifier = Modifier.width(CoachDimens.Header.PixelAvatarGap))
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (isSimpleMode) "HABIT COACH" else "QUESTMASTER COACH",
-                    style = PixelTypography.titleMedium,
-                    color = colors.primary,
-                    fontWeight = FontWeight.Bold
+            Text(
+                text = if (isSimpleMode) "HABIT COACH" else "QUESTMASTER COACH",
+                style = PixelTypography.titleSmall,
+                color = colors.primary,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(CoachDimens.Header.ChipGap))
+            // The status, inline: it was a second line under the title.
+            Row(
+                modifier = Modifier
+                    .border(1.dp, Color(0xFF10B981))
+                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF10B981))
                 )
-                Spacer(modifier = Modifier.height(2.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF10B981))
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = if (isSimpleMode) "SYS.HABIT.AI // ONLINE" else "SYS.GEMINI.AI // ONLINE",
-                        style = PixelTypography.labelSmall,
-                        color = Color(0xFF10B981),
-                        fontSize = CoachDimens.Header.StatusText
-                    )
-                }
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = stringResource(R.string.coach_status_online),
+                    style = PixelTypography.labelSmall,
+                    color = Color(0xFF10B981),
+                    fontSize = CoachDimens.Header.StatusText,
+                    maxLines = 1
+                )
             }
         }
     }
@@ -117,28 +128,24 @@ fun ComicCoachHeader() {
 
             Spacer(modifier = Modifier.width(CoachDimens.Header.AvatarGap))
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "COACH ORACLE SPEAKS!",
-                    fontFamily = BangersFontFamily,
-                    fontSize = CoachDimens.Header.ComicTitle,
-                    letterSpacing = 0.8.sp,
-                    color = ComicTokens.SolidBlack
-                )
-                Text(
-                    text = "TACTICAL HABIT BRIEFING",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = CoachDimens.Header.ComicSubtitle,
-                    color = ComicTokens.SolidBlack.copy(alpha = 0.75f)
-                )
-            }
+            Text(
+                text = "COACH ORACLE SPEAKS!",
+                fontFamily = BangersFontFamily,
+                fontSize = CoachDimens.Header.ComicTitle,
+                letterSpacing = 0.8.sp,
+                color = ComicTokens.SolidBlack,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(CoachDimens.Header.ChipGap))
 
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(6.dp))
                     .background(ComicTokens.GoldAccent)
                     .border(2.dp, ComicTokens.SolidBlack, RoundedCornerShape(6.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
                     text = "ISSUE #25",
@@ -184,20 +191,26 @@ fun LightCoachHeader() {
 
             Spacer(modifier = Modifier.width(CoachDimens.Header.AvatarGap))
 
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Habit Insights & Coaching",
-                    style = typography.titleMedium,
-                    color = Color(0xFF0F172A),
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = "Personalized feedback powered by Gemini AI",
-                    style = typography.bodySmall,
-                    color = Color(0xFF64748B)
-                )
-            }
+            Text(
+                text = "Habit Insights & Coaching",
+                style = typography.titleSmall,
+                color = Color(0xFF0F172A),
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(CoachDimens.Header.ChipGap))
+            Text(
+                text = stringResource(R.string.coach_status_light),
+                style = typography.labelSmall,
+                color = Color(0xFF4F46E5),
+                maxLines = 1,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Color(0xFFEEF2FF))
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            )
         }
     }
 }
