@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 
 /**
  * Every notification channel PixelQuest posts to. On Android 8+ sound and vibration are fixed per
@@ -120,6 +121,7 @@ object NotificationChannels {
         manager.deleteNotificationChannel(LEGACY_CHANNEL_ID)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun Spec.toChannel(): NotificationChannel {
         val androidImportance = when (importance) {
             Importance.HIGH -> NotificationManager.IMPORTANCE_HIGH
