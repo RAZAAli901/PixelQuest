@@ -38,11 +38,13 @@ fun AiInsightScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isSimpleMode by viewModel.isSimpleMode.collectAsState()
+    val displayState by viewModel.displayState.collectAsState()
 
     AiInsightScreenContent(
         modifier = modifier,
         uiState = uiState,
         isSimpleMode = isSimpleMode,
+        displayState = displayState,
         onRefresh = { viewModel.refreshInsight() },
         onNavigateBack = onNavigateBack,
         onNavigateToSettings = onNavigateToSettings,
@@ -61,6 +63,8 @@ fun AiInsightScreenContent(
     modifier: Modifier = Modifier,
     uiState: AiInsightUiState,
     isSimpleMode: Boolean = false,
+    /** Compact or full, and what's expanded; the screen's previews and tests pass their own. */
+    displayState: CoachDisplayState = CoachDisplayState(),
     onRefresh: () -> Unit,
     onNavigateBack: (() -> Unit)? = null,
     onNavigateToSettings: (() -> Unit)? = null,

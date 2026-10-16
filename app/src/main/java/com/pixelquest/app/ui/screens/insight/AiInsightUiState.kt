@@ -82,3 +82,15 @@ sealed interface AiInsightUiState {
         val fallbackInsight: HabitInsightResponse? = null
     ) : AiInsightUiState
 }
+
+/**
+ * How the AI Coach lays out what it shows, apart from [AiInsightUiState] (what there is to show).
+ * Compact, the default, previews the latest insight in a few lines and folds older ones into
+ * one-line rows (docs/ai-coach-compact.md); [latestExpanded] and [expandedOlderId] are what the
+ * player opened. Not compact, everything is shown in full, as before.
+ */
+data class CoachDisplayState(
+    val compact: Boolean = true,
+    val latestExpanded: Boolean = false,
+    val expandedOlderId: Long? = null
+)

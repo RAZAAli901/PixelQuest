@@ -38,6 +38,15 @@ class AiInsightViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<AiInsightUiState>(AiInsightUiState.Loading)
     val uiState: StateFlow<AiInsightUiState> = _uiState.asStateFlow()
 
+    private val _displayState = MutableStateFlow(CoachDisplayState())
+
+    /** Compact or full, and what the player has expanded (see [CoachDisplayState]). */
+    val displayState: StateFlow<CoachDisplayState> = _displayState.asStateFlow()
+
+    fun setCompact(compact: Boolean) {
+        _displayState.value = _displayState.value.copy(compact = compact)
+    }
+
     val isSimpleMode: StateFlow<Boolean> = settingsRepository.simpleModeEnabled
         .stateIn(
             scope = viewModelScope,
