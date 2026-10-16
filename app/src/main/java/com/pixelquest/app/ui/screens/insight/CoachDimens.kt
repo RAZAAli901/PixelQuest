@@ -16,17 +16,20 @@ object CoachDimens {
 
     /** The screen's header banner. */
     object Header {
-        val PixelPadding = 12.dp
-        val ComicPadding = 14.dp
-        val LightPadding = 16.dp
-        val PixelAvatar = 44.dp
-        val ComicAvatar = 52.dp
-        val LightAvatar = 48.dp
-        val PixelAvatarEmoji = 24.sp
-        val ComicAvatarEmoji = 28.sp
-        val LightAvatarEmoji = 24.sp
-        val PixelAvatarGap = 12.dp
-        val AvatarGap = 14.dp
+        /** A slim row now: 12-16dp before, around a 44-52dp avatar. */
+        val PixelPadding = 6.dp
+        val ComicPadding = 6.dp
+        val LightPadding = 8.dp
+        /** The coach's avatar beside the title, the same in every theme. */
+        val Avatar = 40.dp
+        val PixelAvatar = Avatar
+        val ComicAvatar = Avatar
+        val LightAvatar = Avatar
+        val PixelAvatarEmoji = 20.sp
+        val ComicAvatarEmoji = 22.sp
+        val LightAvatarEmoji = 20.sp
+        val PixelAvatarGap = 8.dp
+        val AvatarGap = 8.dp
         val StatusText = 9.sp
         /** One line now (it was 22sp over a subtitle). */
         val ComicTitle = 18.sp
