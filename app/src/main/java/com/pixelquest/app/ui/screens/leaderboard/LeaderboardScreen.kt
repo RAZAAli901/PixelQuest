@@ -126,6 +126,7 @@ fun LeaderboardContent(
         topBar = {
             com.pixelquest.app.ui.components.PixelTopAppBar(
                 title = "LEADERBOARD",
+                // Opened from Stats it has a way back; as a tab, the side menu's icon takes that place.
                 navigationIcon = onNavigateBack?.let { back ->
                     {
                         IconButton(onClick = back) {
@@ -137,7 +138,7 @@ fun LeaderboardContent(
                             )
                         }
                     }
-                },
+                } ?: { com.pixelquest.app.ui.menu.MenuTopBarAction() },
                 actions = {
                     IconButton(onClick = onRefresh) {
                         com.pixelquest.app.ui.components.SymbolIcon(
