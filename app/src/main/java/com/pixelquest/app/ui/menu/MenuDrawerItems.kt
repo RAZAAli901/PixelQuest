@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.comicDropShadow
+
+/** Everything inside the side menu: the header, a divider, and the entries ([MenuItems.all]). */
+@Composable
+fun MenuDrawerContent(
+    header: MenuHeaderState,
+    context: MenuContext,
+    selected: MenuItemId?,
+    onItemClick: (MenuItem) -> Unit
+) {
+    MenuDrawerHeader(header)
+    HorizontalDivider(
+        modifier = Modifier.padding(horizontal = MenuSpacing.Edge, vertical = 8.dp),
+        color = PixelTheme.colors.onSurface.copy(alpha = 0.15f)
+    )
+    MenuDrawerItems(items = MenuItems.all, context = context, selected = selected, onItemClick = onItemClick)
+}
 
 /**
  * The side menu's entries, one row each: its icon and label, the current one highlighted. Rows

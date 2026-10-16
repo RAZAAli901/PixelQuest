@@ -119,13 +119,8 @@ class MainActivity : ComponentActivity() {
                             gesturesEnabled = com.pixelquest.app.ui.navigation.Routes.isTab(currentRoute),
                             isSimpleMode = menuHeader.isSimpleMode,
                             drawerContent = {
-                                com.pixelquest.app.ui.menu.MenuDrawerHeader(menuHeader)
-                                androidx.compose.material3.HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurface.copy(alpha = 0.15f)
-                                )
-                                com.pixelquest.app.ui.menu.MenuDrawerItems(
-                                    items = com.pixelquest.app.ui.menu.MenuItems.all,
+                                com.pixelquest.app.ui.menu.MenuDrawerContent(
+                                    header = menuHeader,
                                     context = menuContext,
                                     selected = menuSelected,
                                     onItemClick = { item ->
