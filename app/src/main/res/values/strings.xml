@@ -22,6 +22,13 @@
     <string name="namaz_title">Namaz Tracker</string>
     <string name="namaz_coming_soon">Coming soon: today\'s prayer times, a button for each of the five prayers, and a reminder when each one starts.</string>
     <string name="navigate_back">Back</string>
+
+    <!-- Namaz Tracker (docs/namaz-design.md). -->
+    <string name="prayer_fajr">Fajr</string>
+    <string name="prayer_dhuhr">Dhuhr</string>
+    <string name="prayer_asr">Asr</string>
+    <string name="prayer_maghrib">Maghrib</string>
+    <string name="prayer_isha">Isha</string>
     <string name="menu_history">Quest History</string>
     <string name="menu_history_simple">Task History</string>
     <string name="menu_leaderboard">Leaderboard</string>
