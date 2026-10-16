@@ -14,6 +14,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -70,7 +71,10 @@ class AiInsightViewModelTest {
 
     private class FakeCacheRepository : InsightCacheRepository by NoOpInsightCacheRepository() {
         var cachedEntity: InsightCacheEntity? = null
+        /** Every insight kept, newest first (what the AI Coach lists under the latest). */
+        var recent: List<InsightCacheEntity> = emptyList()
         override suspend fun getLatestInsight(): InsightCacheEntity? = cachedEntity
+        override fun observeRecentInsights(limit: Int): Flow<List<InsightCacheEntity>> = flowOf(recent.take(limit))
     }
 
     private class FakeSettingsRepository : SettingsRepository {
@@ -437,5 +441,86 @@ class AiInsightViewModelTest {
         advanceUntilIdle()
 
         assertTrue(viewModel.uiState.value is AiInsightUiState.SignInRequired)
+    }
+
+    // The compact AI Coach (docs/ai-coach-compact.md): what's expanded is the ViewModel's to keep.
+
+    private fun compactViewModel(cache: FakeCacheRepository = FakeCacheRepository()) = AiInsightViewModel(
+        habitInsightRepository = FakeHabitInsightRepository(),
+        settingsRepository = FakeSettingsRepository(),
+        taskCompletionRepository = FakeCompletionRepository(),
+        insightCacheRepository = cache,
+        aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+    )
+
+    @Test
+    fun theCoach_startsCompact_withNothingExpanded() = runTest {
+        val display = compactViewModel().displayState.value
+
+        assertTrue(display.compact)
+        assertFalse(display.latestExpanded)
+        assertEquals(null, display.expandedOlderId)
+    }
+
+    @Test
+    fun theLatestInsight_expandsAndCollapses() = runTest {
+        val viewModel = compactViewModel()
+
+        viewModel.toggleLatestExpanded()
+        assertTrue(viewModel.displayState.value.latestExpanded)
+
+        viewModel.toggleLatestExpanded()
+        assertFalse(viewModel.displayState.value.latestExpanded)
+    }
+
+    @Test
+    fun earlierInsights_openOneAtATime_andCloseOnASecondTap() = runTest {
+        val viewModel = compactViewModel()
+
+        viewModel.toggleOlder(7)
+        assertEquals(7L, viewModel.displayState.value.expandedOlderId)
+
+        viewModel.toggleOlder(3)
+        assertEquals("opening another closes the first", 3L, viewModel.displayState.value.expandedOlderId)
+
+        viewModel.toggleOlder(3)
+        assertEquals(null, viewModel.displayState.value.expandedOlderId)
+    }
+
+    @Test
+    fun expandingTheLatest_leavesAnOpenEarlierOneAlone() = runTest {
+        val viewModel = compactViewModel()
+        viewModel.toggleOlder(3)
+
+        viewModel.toggleLatestExpanded()
+
+        assertTrue(viewModel.displayState.value.latestExpanded)
+        assertEquals(3L, viewModel.displayState.value.expandedOlderId)
+    }
+
+    @Test
+    fun turningCompactOff_keepsWhatWasExpanded() = runTest {
+        val viewModel = compactViewModel()
+        viewModel.toggleLatestExpanded()
+
+        viewModel.setCompact(false)
+
+        assertFalse(viewModel.displayState.value.compact)
+        assertTrue(viewModel.displayState.value.latestExpanded)
+    }
+
+    @Test
+    fun earlierInsights_leaveOutTheLatest_andStopAtFive() = runTest {
+        val cache = FakeCacheRepository()
+        cache.recent = (10L downTo 1L).map { id ->
+            InsightCacheEntity(id = id, summary = "Insight $id", suggestion = "s", encouragement = "e", dataHash = "h", generatedAt = id * 1000L)
+        }
+        val viewModel = compactViewModel(cache)
+        backgroundScope.launch { viewModel.olderInsights.collect {} }
+
+        advanceUntilIdle()
+
+        assertEquals("the newest is the latest, shown above", listOf(9L, 8L, 7L, 6L, 5L), viewModel.olderInsights.value.map { it.id })
+        assertEquals("Insight 9", viewModel.olderInsights.value.first().insight.summary)
     }
 }
