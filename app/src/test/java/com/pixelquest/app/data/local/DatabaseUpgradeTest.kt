@@ -118,7 +118,10 @@ class DatabaseUpgradeTest {
             if (present.isEmpty()) return@forEach
             tableRows.forEach { row ->
                 val kept = row.filterKeys { it in present }
-                val sql = "INSERT INTO `$table` (${kept.keys.joinToString { "`$it`" }}) VALUES (${kept.keys.joinToString { "?" }})"
+                // From version 7 a quest can't have two results on one day (its unique index), so a file
+                // of that age never held the double record; it's left out (the completed one is first).
+                val verb = if (version >= 7) "INSERT OR IGNORE" else "INSERT"
+                val sql = "$verb INTO `$table` (${kept.keys.joinToString { "`$it`" }}) VALUES (${kept.keys.joinToString { "?" }})"
                 sqlite.execSQL(sql, kept.values.toTypedArray())
             }
         }
@@ -162,6 +165,10 @@ class DatabaseUpgradeTest {
             assertTrue("the completed one of a double record is kept", logs.single { it.taskId == 1L }.wasCompleted)
 
             if (version >= 2) assertEquals(listOf(2), db.levelHistoryDao().getAllHistory().first().map { it.level })
+
+            // Version 8's Namaz Tracker tables are there, empty: nothing is logged until it's turned on.
+            assertTrue(db.namazLogDao().getAll().isEmpty())
+            assertEquals(null, db.namazSettingsDao().get())
         } finally {
             db.close()
         }
@@ -173,10 +180,11 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion4() = updateFrom(4)
     @Test fun fromVersion5() = updateFrom(5)
     @Test fun fromVersion6() = updateFrom(6)
+    @Test fun fromVersion7_theV1_2_0Release() = updateFrom(7)
 
     @Test
     fun everyEarlierVersion_hasALayoutAndAMigration() {
-        val current = schema(7).getInt("version")
+        val current = schema(8).getInt("version")
         assertEquals(
             "a layout file per version, 1 to $current: bump the version, and its file is written at the next build",
             (1..current).map { "$it.json" }.toSet(),
@@ -218,9 +226,27 @@ class DatabaseUpgradeTest {
 
         val copy = File(copies, "pixelquest-v3.db")
         assertEquals("the old file, as 1.1.0 left it", 3, PreUpdateCopy.versionOf(copy))
-        assertEquals("and the updated one", 7, PreUpdateCopy.versionOf(context.getDatabasePath(name)))
+        assertEquals("and the updated one", 8, PreUpdateCopy.versionOf(context.getDatabasePath(name)))
         context.deleteDatabase(name)
         copies.deleteRecursively()
     }
-}
 
+    @Test
+    fun aNamazLogRow_isOnePerPrayerPerDay_afterTheUpdate(): Unit = runBlocking {
+        val name = "upgrade-namaz-unique.db"
+        createAt(7, name)
+        val db = openLikeTheApp(name)
+        try {
+            val day = LocalDate.of(2026, 10, 17)
+            db.namazLogDao().upsert(com.pixelquest.app.data.local.entity.NamazLogEntity(date = day, prayer = com.pixelquest.app.domain.namaz.Prayer.FAJR, status = com.pixelquest.app.domain.namaz.PrayerStatus.PENDING))
+            db.namazLogDao().upsert(com.pixelquest.app.data.local.entity.NamazLogEntity(date = day, prayer = com.pixelquest.app.domain.namaz.Prayer.FAJR, status = com.pixelquest.app.domain.namaz.PrayerStatus.PRAYED, prayedAt = 1L))
+
+            val rows = db.namazLogDao().getForDate(day)
+            assertEquals("the migration's unique index keeps one row per prayer per day", 1, rows.size)
+            assertEquals(com.pixelquest.app.domain.namaz.PrayerStatus.PRAYED, rows.single().status)
+        } finally {
+            db.close()
+            context.deleteDatabase(name)
+        }
+    }
+}
