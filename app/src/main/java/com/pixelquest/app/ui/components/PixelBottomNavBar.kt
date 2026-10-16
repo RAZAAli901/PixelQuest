@@ -1,6 +1,12 @@
 package com.pixelquest.app.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -27,18 +33,18 @@ import com.pixelquest.app.audio.LocalSoundManager
 import com.pixelquest.app.ui.navigation.Screen
 
 data class NavItem(
-    /** What TalkBack says, and the tab's label unless [label] is shorter. */
+    /** The tab's label, and what TalkBack says. */
     val title: String,
     val route: String,
     val iconRes: Int,
-    /** The visible label, when [title] is too long for a tab (LEADERBOARD is 88dp in the pixel font). */
-    val label: String = title
+    /** Drawn as a round, icon-only button in the middle of the bar; [title] becomes its spoken label. */
+    val isFeatured: Boolean = false
 )
 
 val bottomNavItems = listOf(
     NavItem("HOME", Screen.Home.route, R.drawable.ic_home),
     NavItem("TASKS", Screen.Tasks.route, R.drawable.ic_tasks),
-    NavItem("LEADERBOARD", Screen.Leaderboard.route, R.drawable.ic_leaderboard, label = "RANKS"),
+    NavItem("LEADERBOARD", Screen.Leaderboard.route, R.drawable.ic_leaderboard, isFeatured = true),
     NavItem("STATS", Screen.Stats.route, R.drawable.ic_stats),
     NavItem("PROFILE", Screen.Profile.route, R.drawable.ic_profile)
 )
@@ -72,9 +78,21 @@ fun PixelBottomNavBar(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Every tab the same size: the Leaderboard was a larger round button in the middle.
+            // Five equal slots, so the round Leaderboard button sits exactly in the middle.
             bottomNavItems.forEach { item ->
                 val isSelected = currentRoute == item.route
+                if (item.isFeatured) {
+                    FeaturedNavButton(
+                        item = item,
+                        isSelected = isSelected,
+                        onClick = {
+                            soundManager?.playNavSound()
+                            onNavigate(item.route)
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                    return@forEach
+                }
                 Column(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier
@@ -103,13 +121,58 @@ fun PixelBottomNavBar(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = item.label,
+                        text = item.title,
                         maxLines = 1,
                         style = MaterialTheme.typography.labelSmall,
                         color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * The round Leaderboard button in the Pixel and Light bars: a primary-coloured 48dp circle with the
+ * icon tinted to read on it, centred in a slot as wide as the other tabs. Selected, its ring
+ * thickens in the secondary colour. The whole slot is the tap target.
+ */
+@Composable
+private fun FeaturedNavButton(
+    item: NavItem,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
+    Box(
+        modifier = modifier
+            .heightIn(min = 48.dp)
+            .clickable(role = Role.Tab, onClickLabel = item.title, onClick = onClick)
+            .clearAndSetSemantics {
+                contentDescription = item.title
+                selected = isSelected
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(colors.primary)
+                .border(
+                    width = if (isSelected) 3.dp else 2.dp,
+                    color = if (isSelected) colors.secondary else colors.pixelBorder,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = item.iconRes),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(colors.onPrimary),
+                modifier = Modifier.size(26.dp)
+            )
         }
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -79,9 +80,25 @@ fun ComicBottomNavBar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Every tab is a pill: the Leaderboard was a larger gold disc in the middle.
+            // Five equal slots, so the gold Leaderboard disc sits exactly in the middle.
             bottomNavItems.forEachIndexed { index, item ->
                 val isSelected = currentRoute == item.route
+
+                if (item.isFeatured) {
+                    ComicFeaturedNavButton(
+                        item = item,
+                        isSelected = isSelected,
+                        onClick = {
+                            if (!isSelected) {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                soundManager?.playNavSound()
+                                onNavigate(item.route)
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                    return@forEachIndexed
+                }
 
                 val chipBackground by animateColorAsState(
                     targetValue = if (isSelected) ComicTokens.CoralRed else Color.Transparent,
@@ -154,7 +171,7 @@ fun ComicBottomNavBar(
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = item.label,
+                                text = item.title,
                                 maxLines = 1,
                                 style = ComicTypography.labelSmall,
                                 fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Bold,
@@ -165,8 +182,9 @@ fun ComicBottomNavBar(
                     }
                 }
 
-                // Comic panel vertical cell divider between tabs
-                if (index < bottomNavItems.lastIndex) {
+                // Ink dividers between the pill tabs, none on either side of the disc: one on just
+                // its right side (as before) pushed it off the bar's centre.
+                if (index < bottomNavItems.lastIndex && !item.isFeatured && !bottomNavItems[index + 1].isFeatured) {
                     Box(
                         modifier = Modifier
                             .width(ComicShapeTokens.BorderWidthThin)
@@ -175,6 +193,66 @@ fun ComicBottomNavBar(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * The round Leaderboard button: a gold 44dp disc with a black ink ring and hard shadow, coral-red
+ * while the leaderboard is the open tab, centred in a slot as wide as the other tabs, which is
+ * the 48dp tap target.
+ */
+@Composable
+private fun ComicFeaturedNavButton(
+    item: NavItem,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val fill by animateColorAsState(
+        targetValue = if (isSelected) ComicTokens.CoralRed else ComicTokens.GoldAccent,
+        animationSpec = tween(durationMillis = 150),
+        label = "comicFeaturedNavFill"
+    )
+    val interactionSource = remember { MutableInteractionSource() }
+    Box(
+        modifier = modifier
+            .height(48.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                role = Role.Tab,
+                onClickLabel = item.title,
+                onClick = onClick
+            )
+            .clearAndSetSemantics {
+                contentDescription = item.title
+                selected = isSelected
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .comicDropShadow(
+                    offsetX = ComicShapeTokens.ShadowOffsetSmall,
+                    offsetY = ComicShapeTokens.ShadowOffsetSmall,
+                    shape = CircleShape
+                )
+                .comicBorder(
+                    width = ComicShapeTokens.BorderWidthDefault,
+                    color = ComicTokens.SolidBlack,
+                    shape = CircleShape
+                )
+                .background(fill, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = item.iconRes),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(ComicTokens.SolidBlack),
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
