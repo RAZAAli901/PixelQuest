@@ -336,6 +336,19 @@ fun AiInsightErrorState(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // A build without AI set up isn't a failure to retry: one short row, like signed out (C16).
+    if (state.message == com.pixelquest.app.domain.ai.AiErrorCopy.NOT_CONFIGURED) {
+        AiInsightLockedState(
+            themeMode = themeMode,
+            icon = "🛠",
+            heading = aiErrorHeading(state.message, themeMode),
+            message = state.message,
+            buttonText = "",
+            onClick = null,
+            modifier = modifier
+        )
+        return
+    }
     Column(modifier = modifier.fillMaxWidth()) {
         when (themeMode) {
             ThemeMode.Comic -> {

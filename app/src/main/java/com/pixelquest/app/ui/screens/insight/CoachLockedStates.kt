@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.components.ComicButton
@@ -101,6 +102,11 @@ fun AiInsightSignInRequiredState(
     modifier = modifier
 )
 
+/**
+ * A state that can't show the coach yet, as one short row (C16): an icon, a one-line heading over at
+ * most two lines of explanation, and the action that fixes it, if there is one. It was a centred
+ * card with a large icon, about 220dp tall for a sentence of information.
+ */
 @Composable
 internal fun AiInsightLockedState(
     themeMode: ThemeMode,
@@ -111,117 +117,67 @@ internal fun AiInsightLockedState(
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
+    val row: @Composable () -> Unit = {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(text = icon, fontSize = 20.sp)
+            Spacer(modifier = Modifier.width(8.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = heading,
+                    style = when (themeMode) {
+                        ThemeMode.Comic -> MaterialTheme.typography.titleSmall.copy(fontFamily = BangersFontFamily)
+                        ThemeMode.Light -> MaterialTheme.typography.titleSmall
+                        else -> PixelTypography.labelMedium
+                    },
+                    color = when (themeMode) {
+                        ThemeMode.Comic -> ComicTokens.SolidBlack
+                        ThemeMode.Light -> Color(0xFF1E293B)
+                        else -> Color(0xFFFBBF24)
+                    },
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = when (themeMode) {
+                        ThemeMode.Comic -> ComicTokens.TextSecondary
+                        ThemeMode.Light -> Color(0xFF64748B)
+                        else -> PixelTheme.colors.onSurface
+                    },
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            if (onClick != null) {
+                Spacer(modifier = Modifier.width(8.dp))
+                if (themeMode == ThemeMode.Comic) {
+                    ComicButton(text = buttonText, onClick = onClick, variant = ComicButtonVariant.PRIMARY)
+                } else {
+                    PixelButton(text = buttonText, onClick = onClick, variant = PixelButtonVariant.YELLOW)
+                }
+            }
+        }
+    }
     when (themeMode) {
-        ThemeMode.Comic -> {
-            ComicPanel(
-                variant = ComicPanelVariant.SURFACE,
-                modifier = modifier.fillMaxWidth(),
-                contentPadding = 20.dp
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = icon, fontSize = 32.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = heading,
-                        fontFamily = BangersFontFamily,
-                        fontSize = 20.sp,
-                        color = ComicTokens.SolidBlack
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = message,
-                        fontSize = 12.sp,
-                        color = ComicTokens.TextSecondary,
-                        textAlign = TextAlign.Center
-                    )
-                    if (onClick != null) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        ComicButton(
-                            text = buttonText,
-                            onClick = onClick,
-                            variant = ComicButtonVariant.PRIMARY
-                        )
-                    }
-                }
-            }
-        }
-        ThemeMode.Light -> {
-            Box(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-                    .padding(24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = icon, fontSize = 28.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = heading,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFF1E293B),
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = message,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF64748B),
-                        textAlign = TextAlign.Center
-                    )
-                    if (onClick != null) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        PixelButton(
-                            text = buttonText,
-                            onClick = onClick,
-                            variant = PixelButtonVariant.YELLOW,
-                            modifier = Modifier.height(38.dp)
-                        )
-                    }
-                }
-            }
-        }
-        else -> {
-            PixelCard(
-                variant = PixelPanelVariant.BEIGE,
-                modifier = modifier.fillMaxWidth(),
-                contentPadding = 20.dp
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(text = icon, fontSize = 28.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = heading,
-                        style = PixelTypography.titleMedium,
-                        color = Color(0xFFFBBF24),
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = message,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = PixelTheme.colors.onSurface,
-                        textAlign = TextAlign.Center
-                    )
-                    if (onClick != null) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        PixelButton(
-                            text = buttonText,
-                            onClick = onClick,
-                            variant = PixelButtonVariant.YELLOW,
-                            modifier = Modifier.height(38.dp)
-                        )
-                    }
-                }
-            }
-        }
+        ThemeMode.Comic -> ComicPanel(
+            variant = ComicPanelVariant.SURFACE,
+            modifier = modifier.fillMaxWidth(),
+            contentPadding = 10.dp
+        ) { row() }
+        ThemeMode.Light -> Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White)
+                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                .padding(10.dp)
+        ) { row() }
+        else -> PixelCard(
+            variant = PixelPanelVariant.BEIGE,
+            modifier = modifier.fillMaxWidth(),
+            contentPadding = 10.dp
+        ) { row() }
     }
 }
