@@ -1,6 +1,7 @@
 package com.pixelquest.app.ui.menu
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ModalDrawerSheet
@@ -35,8 +36,12 @@ fun MenuDrawerScaffold(
             gesturesEnabled = gesturesEnabled || controller.isOpen,
             modifier = modifier,
             drawerContent = {
+                val style = menuStyle()
                 ModalDrawerSheet(
-                    modifier = Modifier.width(MenuDrawerWidth),
+                    modifier = Modifier
+                        .width(MenuDrawerWidth)
+                        .then(style.sheetBorder?.let { Modifier.border(it, style.sheetShape) } ?: Modifier),
+                    drawerShape = style.sheetShape,
                     drawerContainerColor = PixelTheme.colors.background
                 ) {
                     // Back closes an open menu instead of leaving the screen. Registered here, in the

@@ -8,11 +8,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -67,6 +71,17 @@ fun MenuDrawerHeader(state: MenuHeaderState, modifier: Modifier = Modifier) {
                         text = stringResource(R.string.menu_level_xp, state.level, state.totalXp),
                         style = MaterialTheme.typography.labelMedium,
                         color = colors.onSurface
+                    )
+                }
+            }
+            LocalMenuDrawer.current?.let { menu ->
+                val style = menuStyle()
+                IconButton(onClick = menu::close) {
+                    Icon(
+                        painter = painterResource(style.closeIcon),
+                        contentDescription = stringResource(R.string.menu_close),
+                        tint = style.ink,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }

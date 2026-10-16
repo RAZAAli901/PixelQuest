@@ -1,6 +1,7 @@
 package com.pixelquest.app.ui.menu
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -64,14 +65,17 @@ fun MenuDrawerItemRow(
     modifier: Modifier = Modifier
 ) {
     val colors = PixelTheme.colors
-    val shape = RoundedCornerShape(12.dp)
+    val style = menuStyle()
+    val shape = style.itemShape
+    val selectedBorder = style.selectedBorder
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = MenuSpacing.ItemHeight)
             .clip(shape)
-            .background(if (isSelected) colors.primary.copy(alpha = 0.16f) else colors.background, shape)
+            .background(if (isSelected) style.selectedFill else colors.background, shape)
+            .then(if (isSelected && selectedBorder != null) Modifier.border(selectedBorder, shape) else Modifier)
             .clickable(role = Role.Button, onClick = onClick)
             .semantics { selected = isSelected }
             .padding(horizontal = 16.dp)
@@ -79,9 +83,9 @@ fun MenuDrawerItemRow(
         Text(text = icon, fontSize = 20.sp)
         Spacer(modifier = Modifier.width(16.dp))
         Text(
-            text = label,
-            style = MaterialTheme.typography.titleSmall,
-            color = colors.primaryText,
+            text = if (style.uppercaseLabels) label.uppercase() else label,
+            style = style.labelStyle,
+            color = style.ink,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
     }
