@@ -22,31 +22,6 @@ import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 
 import com.pixelquest.app.ui.screens.leveling.LevelHistoryScreen
 
-sealed class Screen(val route: String) {
-    object Splash : Screen("splash")
-    object Home : Screen("home")
-    object Tasks : Screen("tasks")
-    object Stats : Screen("stats")
-    object Profile : Screen("profile")
-    object AvatarSelection : Screen("avatar_selection")
-    object DifficultySelection : Screen("difficulty_selection")
-    object LevelHistory : Screen("level_history")
-    object TaskHistory : Screen("task_history")
-    object TaskAnalytics : Screen("task_analytics/{taskId}") {
-        fun createRoute(taskId: Long) = "task_analytics/$taskId"
-    }
-    object CreateTask : Screen("create_task")
-    object EditTask : Screen("edit_task/{taskId}") {
-        fun createRoute(taskId: Long) = "edit_task/$taskId"
-    }
-    object Onboarding : Screen("onboarding")
-    object Settings : Screen("settings")
-    object Account : Screen("account")
-    object Leaderboard : Screen("leaderboard")
-    object ThemeSelection : Screen("theme_selection")
-    object AiInsight : Screen("ai_insight")
-}
-
 @Composable
 fun PixelNavHost(
     navController: NavHostController,
