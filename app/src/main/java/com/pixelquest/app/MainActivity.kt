@@ -104,11 +104,15 @@ class MainActivity : ComponentActivity() {
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentRoute = navBackStackEntry?.destination?.route
                         val menuDrawer = com.pixelquest.app.ui.menu.rememberMenuDrawerController()
+                        val menuViewModel: com.pixelquest.app.ui.menu.MenuViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+                        val menuHeader by menuViewModel.header.collectAsState()
 
                         // The side menu slides in over the screens and the bottom bar (docs/ai-coach-compact.md).
                         com.pixelquest.app.ui.menu.MenuDrawerScaffold(
                             controller = menuDrawer,
-                            drawerContent = {}
+                            drawerContent = {
+                                com.pixelquest.app.ui.menu.MenuDrawerHeader(menuHeader)
+                            }
                         ) {
                         Scaffold(
                             modifier = Modifier.fillMaxSize(),

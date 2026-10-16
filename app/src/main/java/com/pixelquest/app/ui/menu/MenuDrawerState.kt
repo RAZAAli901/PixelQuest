@@ -9,9 +9,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.pixelquest.app.domain.repository.DifficultySettingsRepository
+import com.pixelquest.app.domain.repository.SettingsRepository
+import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -50,9 +57,29 @@ fun rememberMenuDrawerController(initial: DrawerValue = DrawerValue.Closed): Men
  */
 val LocalMenuDrawer = staticCompositionLocalOf<MenuDrawerController?> { null }
 
-/** Which menu entry was chosen last, so the drawer can show it as selected. */
+/** The side menu's data: who's playing, for its header, and which entry was chosen last. */
 @HiltViewModel
-class MenuViewModel @Inject constructor() : ViewModel() {
+class MenuViewModel @Inject constructor(
+    userProfileRepository: UserProfileRepository,
+    difficultySettingsRepository: DifficultySettingsRepository,
+    settingsRepository: SettingsRepository
+) : ViewModel() {
+
+    val header: StateFlow<MenuHeaderState> = combine(
+        userProfileRepository.getProfile(),
+        difficultySettingsRepository.getCurrentDifficulty(),
+        settingsRepository.simpleModeEnabled
+    ) { profile, difficulty, simple ->
+        MenuHeaderState(
+            name = profile?.username.orEmpty(),
+            avatarId = profile?.avatarId.orEmpty(),
+            level = profile?.level ?: 1,
+            totalXp = profile?.totalXp ?: 0,
+            perfectDays = profile?.perfectDaysTowardNextLevel ?: 0,
+            daysPerLevel = difficulty?.daysRequiredPerLevel ?: 7,
+            isSimpleMode = simple
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuHeaderState())
 
     private val _selected = MutableStateFlow<MenuItemId?>(null)
     val selected: StateFlow<MenuItemId?> = _selected.asStateFlow()
