@@ -55,7 +55,7 @@ fun PixelAiInsightView(
         PixelCard(
             variant = PixelPanelVariant.BEIGE,
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = 12.dp
+            contentPadding = CoachDimens.Header.PixelPadding
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -64,15 +64,15 @@ fun PixelAiInsightView(
                 // Avatar frame: Wizard/Sage in gamified mode, Nature sprout in simple mode
                 Box(
                     modifier = Modifier
-                        .size(44.dp)
+                        .size(CoachDimens.Header.PixelAvatar)
                         .background(if (isSimpleMode) Color(0xFF064E3B) else Color(0xFF2E1065))
                         .border(2.dp, if (isSimpleMode) Color(0xFF10B981) else Color(0xFFFBBF24)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = if (isSimpleMode) "🌱" else "🧙", fontSize = 24.sp)
+                    Text(text = if (isSimpleMode) "🌱" else "🧙", fontSize = CoachDimens.Header.PixelAvatarEmoji)
                 }
 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(CoachDimens.Header.PixelAvatarGap))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -94,14 +94,14 @@ fun PixelAiInsightView(
                             text = if (isSimpleMode) "SYS.HABIT.AI // ONLINE" else "SYS.GEMINI.AI // ONLINE",
                             style = PixelTypography.labelSmall,
                             color = Color(0xFF10B981),
-                            fontSize = 9.sp
+                            fontSize = CoachDimens.Header.StatusText
                         )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(CoachDimens.Header.PixelBottomGap))
 
         // State-driven body
         when (uiState) {
@@ -141,7 +141,7 @@ fun PixelSuccessCard(
     PixelCard(
         variant = PixelPanelVariant.BEIGE,
         modifier = modifier.fillMaxWidth(),
-        contentPadding = 16.dp
+        contentPadding = CoachDimens.Card.PixelPadding
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Arcade scanline title row
@@ -167,12 +167,12 @@ fun PixelSuccessCard(
                         text = if (uiState.isCached) "CACHED" else "FRESH",
                         style = PixelTypography.labelSmall,
                         color = if (uiState.isCached) Color(0xFF93C5FD) else Color(0xFF6EE7B7),
-                        fontSize = 9.sp
+                        fontSize = CoachDimens.Card.Badge
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.TitleGap))
 
             // Section 1: Observation Scan
             PixelTelemetryBlock(
@@ -182,7 +182,7 @@ fun PixelSuccessCard(
                 bodyColor = colors.onSurface
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.SectionGap))
 
             // Section 2: Strategic Protocol / Suggested Adjustment
             PixelTelemetryBlock(
@@ -192,7 +192,7 @@ fun PixelSuccessCard(
                 bodyColor = colors.onSurface
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.SectionGap))
 
             // Section 3: Daily Perspective / Heroic Blessing
             PixelTelemetryBlock(
@@ -202,7 +202,7 @@ fun PixelSuccessCard(
                 bodyColor = if (isSimpleMode) colors.onSurface else Color(0xFFFDE68A)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.FooterGap))
 
             // Footer Terminal Action
             Row(
@@ -215,7 +215,7 @@ fun PixelSuccessCard(
                     text = "LOGGED: $formattedTime",
                     style = PixelTypography.labelSmall,
                     color = colors.onSurface.copy(alpha = 0.6f),
-                    fontSize = 9.sp
+                    fontSize = CoachDimens.Card.Badge
                 )
 
                 PixelButton(
@@ -223,18 +223,18 @@ fun PixelSuccessCard(
                     variant = if (uiState.canRefresh) PixelButtonVariant.YELLOW else PixelButtonVariant.BLUE,
                     onClick = onRefresh,
                     enabled = uiState.canRefresh,
-                    modifier = Modifier.height(36.dp)
+                    modifier = Modifier.height(CoachDimens.Card.PixelButtonHeight)
                 )
             }
 
             if (!uiState.canRefresh && uiState.remainingCooldownSeconds > 0L) {
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(CoachDimens.Card.CooldownGap))
                 val hours = (uiState.remainingCooldownSeconds + 3599) / 3600
                 Text(
                     text = "RECHARGE IN ~${hours}H",
                     style = PixelTypography.labelSmall,
                     color = Color(0xFF94A3B8),
-                    fontSize = 8.sp,
+                    fontSize = CoachDimens.Card.PixelCooldownText,
                     modifier = Modifier.align(Alignment.End)
                 )
             }
@@ -263,13 +263,13 @@ fun PixelTelemetryBlock(
                 .fillMaxWidth()
                 .background(Color(0xFF0F172A).copy(alpha = 0.5f))
                 .border(1.dp, tagColor.copy(alpha = 0.3f))
-                .padding(10.dp)
+                .padding(CoachDimens.Card.PixelBlockPadding)
         ) {
             Text(
                 text = body,
                 style = MaterialTheme.typography.bodyMedium,
                 color = bodyColor,
-                lineHeight = 20.sp
+                lineHeight = CoachDimens.Card.BodyLineHeight
             )
         }
     }

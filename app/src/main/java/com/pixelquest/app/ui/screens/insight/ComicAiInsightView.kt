@@ -58,7 +58,7 @@ fun ComicAiInsightView(
         ComicPanel(
             variant = ComicPanelVariant.BURNT_ORANGE,
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = 14.dp
+            contentPadding = CoachDimens.Header.ComicPadding
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -67,29 +67,29 @@ fun ComicAiInsightView(
                 // Comic Hero Oracle Avatar
                 Box(
                     modifier = Modifier
-                        .size(52.dp)
+                        .size(CoachDimens.Header.ComicAvatar)
                         .clip(CircleShape)
                         .background(ComicTokens.PanelSurface)
                         .border(2.5.dp, ComicTokens.SolidBlack, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "💥", fontSize = 28.sp)
+                    Text(text = "💥", fontSize = CoachDimens.Header.ComicAvatarEmoji)
                 }
 
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(CoachDimens.Header.AvatarGap))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "COACH ORACLE SPEAKS!",
                         fontFamily = BangersFontFamily,
-                        fontSize = 22.sp,
+                        fontSize = CoachDimens.Header.ComicTitle,
                         letterSpacing = 0.8.sp,
                         color = ComicTokens.SolidBlack
                     )
                     Text(
                         text = "TACTICAL HABIT BRIEFING",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 11.sp,
+                        fontSize = CoachDimens.Header.ComicSubtitle,
                         color = ComicTokens.SolidBlack.copy(alpha = 0.75f)
                     )
                 }
@@ -104,14 +104,14 @@ fun ComicAiInsightView(
                     Text(
                         text = "ISSUE #25",
                         fontFamily = BangersFontFamily,
-                        fontSize = 13.sp,
+                        fontSize = CoachDimens.Header.ComicChip,
                         color = ComicTokens.SolidBlack
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(CoachDimens.Header.BottomGap))
 
         // State dispatch
         when (uiState) {
@@ -153,7 +153,7 @@ fun ComicSuccessView(
             bubbleBg = ComicTokens.PanelSurface
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
 
         // Speech Bubble 2: Action Directive (Suggestion)
         ComicSpeechBubble(
@@ -163,7 +163,7 @@ fun ComicSuccessView(
             bubbleBg = Color(0xFFF0F9FF)
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
 
         // Speech Bubble 3: Power Surge (Encouragement)
         ComicSpeechBubble(
@@ -173,7 +173,7 @@ fun ComicSuccessView(
             bubbleBg = Color(0xFFFFFBEB)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(CoachDimens.Card.FooterGap))
 
         // Comic Action Footer Panel
         ComicPanel(
@@ -191,12 +191,12 @@ fun ComicSuccessView(
                     Text(
                         text = if (uiState.isCached) "ARCHIVED TRANSMISSION" else "FRESH FROM HQ!",
                         fontFamily = BangersFontFamily,
-                        fontSize = 14.sp,
+                        fontSize = CoachDimens.Card.ComicFooterTitle,
                         color = if (uiState.isCached) ComicTokens.SolidBlack else ComicTokens.CoralInk
                     )
                     Text(
                         text = formattedTime,
-                        fontSize = 11.sp,
+                        fontSize = CoachDimens.Card.ComicFooterTime,
                         fontWeight = FontWeight.Medium,
                         color = ComicTokens.TextSecondary
                     )
@@ -212,12 +212,12 @@ fun ComicSuccessView(
         }
 
         if (!uiState.canRefresh && uiState.remainingCooldownSeconds > 0L) {
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.CooldownGap))
             val hours = (uiState.remainingCooldownSeconds + 3599) / 3600
             Text(
                 text = "Next transmission ready in ~$hours hrs!",
                 fontWeight = FontWeight.Bold,
-                fontSize = 11.sp,
+                fontSize = CoachDimens.Card.ComicCooldownText,
                 color = ComicTokens.TextSecondary,
                 modifier = Modifier.align(Alignment.End).padding(end = 4.dp)
             )
@@ -246,7 +246,7 @@ fun ComicSpeechBubble(
             .comicDropShadow(offsetX = 4.dp, offsetY = 4.dp, shape = shape)
             .background(bubbleBg, shape)
             .comicBorder(width = 2.5.dp, color = ComicTokens.SolidBlack, shape = shape)
-            .padding(16.dp)
+            .padding(CoachDimens.Card.ComicBubblePadding)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Speech Bubble Pointer / Title Badge
@@ -261,7 +261,7 @@ fun ComicSpeechBubble(
                     Text(
                         text = title,
                         fontFamily = BangersFontFamily,
-                        fontSize = 13.sp,
+                        fontSize = CoachDimens.Card.ComicBubbleTitle,
                         letterSpacing = 0.5.sp,
                         color = ComicTokens.SolidBlack
                     )
@@ -273,8 +273,8 @@ fun ComicSpeechBubble(
             Text(
                 text = body,
                 fontWeight = FontWeight.Medium,
-                fontSize = 14.sp,
-                lineHeight = 21.sp,
+                fontSize = CoachDimens.Card.ComicBody,
+                lineHeight = CoachDimens.Card.ComicBodyLineHeight,
                 color = ComicTokens.TextPrimary
             )
         }

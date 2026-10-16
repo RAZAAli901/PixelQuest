@@ -142,7 +142,7 @@ fun AiInsightPixelDispatch(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(CoachDimens.ScreenPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         PixelAiInsightView(
@@ -164,7 +164,7 @@ fun AiInsightLightDispatch(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(CoachDimens.ScreenPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         LightAiInsightView(
@@ -185,7 +185,7 @@ fun AiInsightComicDispatch(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .padding(CoachDimens.ScreenPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ComicAiInsightView(

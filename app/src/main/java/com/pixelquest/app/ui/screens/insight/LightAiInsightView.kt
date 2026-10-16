@@ -58,7 +58,7 @@ fun LightAiInsightView(
                 .clip(RoundedCornerShape(12.dp))
                 .background(colors.surface)
                 .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-                .padding(16.dp)
+                .padding(CoachDimens.Header.LightPadding)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -67,16 +67,16 @@ fun LightAiInsightView(
                 // Modern clean coach avatar frame
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(CoachDimens.Header.LightAvatar)
                         .clip(CircleShape)
                         .background(Color(0xFFEEF2FF))
                         .border(1.5.dp, Color(0xFF6366F1), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "🌱", fontSize = 24.sp)
+                    Text(text = "🌱", fontSize = CoachDimens.Header.LightAvatarEmoji)
                 }
 
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(CoachDimens.Header.AvatarGap))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -95,7 +95,7 @@ fun LightAiInsightView(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(CoachDimens.Header.BottomGap))
 
         // State dispatch
         when (uiState) {
@@ -136,7 +136,7 @@ fun LightSuccessCard(
             .clip(RoundedCornerShape(14.dp))
             .background(Color.White)
             .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(14.dp))
-            .padding(20.dp)
+            .padding(CoachDimens.Card.LightPadding)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Header: Title + Status Chip
@@ -181,7 +181,7 @@ fun LightSuccessCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.LightTitleGap))
 
             // Section 1: Observation
             LightInsightSection(
@@ -191,7 +191,7 @@ fun LightSuccessCard(
                 backgroundColor = Color(0xFFF8FAFC)
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.LightSectionGap))
 
             // Section 2: Strategy / Suggestion
             LightInsightSection(
@@ -201,7 +201,7 @@ fun LightSuccessCard(
                 backgroundColor = Color(0xFFF0FDF4)
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.LightSectionGap))
 
             // Section 3: Encouragement
             LightInsightSection(
@@ -211,7 +211,7 @@ fun LightSuccessCard(
                 backgroundColor = Color(0xFFF5F3FF)
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.LightFooterGap))
 
             // Footer
             Row(
@@ -231,12 +231,12 @@ fun LightSuccessCard(
                     variant = if (uiState.canRefresh) PixelButtonVariant.YELLOW else PixelButtonVariant.BLUE,
                     onClick = onRefresh,
                     enabled = uiState.canRefresh,
-                    modifier = Modifier.height(38.dp)
+                    modifier = Modifier.height(CoachDimens.Card.LightButtonHeight)
                 )
             }
 
             if (!uiState.canRefresh && uiState.remainingCooldownSeconds > 0L) {
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(CoachDimens.Card.CooldownGap))
                 val hours = (uiState.remainingCooldownSeconds + 3599) / 3600
                 Text(
                     text = "Next insight available in ~$hours hours",
@@ -265,7 +265,7 @@ fun LightInsightSection(
             .clip(RoundedCornerShape(8.dp))
             .background(backgroundColor)
             .border(1.dp, accentColor.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
-            .padding(12.dp)
+            .padding(CoachDimens.Card.LightBlockPadding)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
@@ -287,7 +287,7 @@ fun LightInsightSection(
             text = body,
             style = typography.bodyMedium,
             color = Color(0xFF1E293B),
-            lineHeight = 21.sp
+            lineHeight = CoachDimens.Card.LightBodyLineHeight
         )
     }
 }
