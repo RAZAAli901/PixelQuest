@@ -1,7 +1,6 @@
 package com.pixelquest.app.domain.namaz
 
 import com.batoulapps.adhan2.Coordinates
-import com.batoulapps.adhan2.Madhab
 import com.batoulapps.adhan2.PrayerTimes
 import com.batoulapps.adhan2.data.DateComponents
 import kotlinx.datetime.toJavaInstant
@@ -31,22 +30,23 @@ data class PrayerDayTimes(
 
 /**
  * Works out a day's prayer times on the phone with the Adhan library (docs/namaz-design.md), so
- * they need no network. Asr is Hanafi, the tracker's default.
+ * they need no network.
  */
 class PrayerTimesCalculator @Inject constructor() {
 
     /**
      * [date]'s times at [latitude], [longitude], as clock times in [zone] (the phone's own), by
-     * [method] (Karachi unless the player chose another).
+     * [method] (Karachi unless the player chose another), with Asr by [madhab] (Hanafi by default).
      */
     fun calculate(
         date: LocalDate,
         latitude: Double,
         longitude: Double,
         zone: ZoneId,
-        method: NamazMethod = NamazMethod.DEFAULT
+        method: NamazMethod = NamazMethod.DEFAULT,
+        madhab: AsrMadhab = AsrMadhab.DEFAULT
     ): PrayerDayTimes {
-        val parameters = method.adhan.parameters.copy(madhab = Madhab.HANAFI)
+        val parameters = method.adhan.parameters.copy(madhab = madhab.adhan)
         val times = PrayerTimes(
             Coordinates(latitude, longitude),
             DateComponents(date.year, date.monthValue, date.dayOfMonth),
