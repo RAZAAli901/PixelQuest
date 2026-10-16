@@ -100,6 +100,16 @@ When you request or receive an AI insight, PixelQuest transmits strictly anonymi
 
 ---
 
+## Namaz Tracker and your location
+
+The Namaz Tracker (off unless you turn it on) works out prayer times on your phone. It needs your rough location for that, about the city you're in:
+- **When it asks:** only when you turn the tracker on or tap *Use my location*, and it says why first. You can pick a city from a list instead, or keep the default (Lahore).
+- **How precise:** coarse (city-level) location only. The app never asks for your precise position.
+- **Where it goes:** the place is saved in the app's database on your phone, so the times keep working offline. It's never sent anywhere: not to PixelQuest's server, the leaderboard or the AI Coach.
+- **Backups:** like the rest of your progress, it's in your exported backup files and in Android's own backup of the app.
+
+---
+
 ## 4. How to Delete Your Data (Full Control)
 
 PixelQuest provides transparent, immediate mechanisms to modify or erase your data at any time:
