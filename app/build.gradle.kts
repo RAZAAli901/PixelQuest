@@ -108,6 +108,9 @@ android {
         }
     }
     compileOptions {
+        // The app uses java.time throughout, which Android only ships from API 26; desugaring
+        // bundles it into the APK for API 24-25 (desugar_jdk_libs below).
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -131,6 +134,8 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

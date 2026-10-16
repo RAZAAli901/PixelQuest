@@ -24,8 +24,11 @@ robolectric = "4.12.2"
 mockito = "5.11.0"
 mockk = "1.13.10"
 androidxTestCore = "1.5.0"
+# java.time and other Java 8+ APIs on API 24-25 (minSdk 24); 2.1.x needs AGP 8.0+.
+desugarJdkLibs = "2.1.5"
 
 [libraries]
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
