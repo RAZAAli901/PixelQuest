@@ -29,6 +29,11 @@
     <string name="prayer_asr">Asr</string>
     <string name="prayer_maghrib">Maghrib</string>
     <string name="prayer_isha">Isha</string>
+    <string name="namaz_method_karachi">University of Islamic Sciences, Karachi</string>
+    <string name="namaz_method_mwl">Muslim World League</string>
+    <string name="namaz_method_isna">Islamic Society of North America (ISNA)</string>
+    <string name="namaz_method_umm_al_qura">Umm al-Qura, Makkah</string>
+    <string name="namaz_method_egyptian">Egyptian General Authority of Survey</string>
     <string name="menu_history">Quest History</string>
     <string name="menu_history_simple">Task History</string>
     <string name="menu_leaderboard">Leaderboard</string>
