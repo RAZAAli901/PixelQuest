@@ -28,9 +28,12 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         DifficultySettingsEntity::class,
         TaskCompletionLogEntity::class,
         LevelHistoryEntity::class,
-        InsightCacheEntity::class
+        InsightCacheEntity::class,
+        // The Namaz Tracker (docs/namaz-design.md), from version 8.
+        com.pixelquest.app.data.local.entity.NamazLogEntity::class,
+        com.pixelquest.app.data.local.entity.NamazSettingsEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -42,6 +45,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun taskCompletionLogDao(): TaskCompletionLogDao
     abstract fun levelHistoryDao(): LevelHistoryDao
     abstract fun insightCacheDao(): InsightCacheDao
+    abstract fun namazLogDao(): com.pixelquest.app.data.local.dao.NamazLogDao
+    abstract fun namazSettingsDao(): com.pixelquest.app.data.local.dao.NamazSettingsDao
 
     companion object {
         /**
