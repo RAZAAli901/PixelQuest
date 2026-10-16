@@ -61,8 +61,9 @@ fun ComicAiInsightView(
         // State dispatch
         when (uiState) {
             is AiInsightUiState.Success -> {
-                ComicSuccessView(
+                CoachInsightCard(
                     uiState = uiState,
+                    themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic,
                     onRefresh = {
                         soundManager?.playClickSound()
                         onRefresh()
@@ -77,151 +78,6 @@ fun ComicAiInsightView(
                     onNavigateToSettings = onNavigateToSettings
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun ComicSuccessView(
-    uiState: AiInsightUiState.Success,
-    onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val insight = uiState.insight
-
-    Column(modifier = modifier.fillMaxWidth()) {
-        // Speech Bubble 1: The Situation (Summary)
-        ComicSpeechBubble(
-            title = "THE DISPATCH!",
-            body = insight.summary,
-            tagColor = ComicTokens.BurntOrange,
-            bubbleBg = ComicTokens.PanelSurface
-        )
-
-        Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
-
-        // Speech Bubble 2: Action Directive (Suggestion)
-        ComicSpeechBubble(
-            title = "HEROIC DIRECTIVE!",
-            body = insight.suggestion,
-            tagColor = ComicTokens.SkyBlue,
-            bubbleBg = Color(0xFFF0F9FF)
-        )
-
-        Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
-
-        // Speech Bubble 3: Power Surge (Encouragement)
-        ComicSpeechBubble(
-            title = "POWER SURGE!!",
-            body = insight.encouragement,
-            tagColor = ComicTokens.GoldAccent,
-            bubbleBg = Color(0xFFFFFBEB)
-        )
-
-        Spacer(modifier = Modifier.height(CoachDimens.Card.FooterGap))
-
-        // Comic Action Footer Panel
-        ComicPanel(
-            variant = ComicPanelVariant.SURFACE,
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = 12.dp
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    val formattedTime = rememberDateFormatted(insight.generatedAt)
-                    Text(
-                        text = if (uiState.isCached) "ARCHIVED TRANSMISSION" else "FRESH FROM HQ!",
-                        fontFamily = BangersFontFamily,
-                        fontSize = CoachDimens.Card.ComicFooterTitle,
-                        color = if (uiState.isCached) ComicTokens.SolidBlack else ComicTokens.CoralInk
-                    )
-                    Text(
-                        text = formattedTime,
-                        fontSize = CoachDimens.Card.ComicFooterTime,
-                        fontWeight = FontWeight.Medium,
-                        color = ComicTokens.TextSecondary
-                    )
-                }
-
-                ComicButton(
-                    text = if (uiState.canRefresh) "REFRESH INTEL!" else "RECHARGING...",
-                    onClick = onRefresh,
-                    variant = if (uiState.canRefresh) ComicButtonVariant.PRIMARY else ComicButtonVariant.SKY_BLUE,
-                    enabled = uiState.canRefresh
-                )
-            }
-        }
-
-        if (!uiState.canRefresh && uiState.remainingCooldownSeconds > 0L) {
-            Spacer(modifier = Modifier.height(CoachDimens.Card.CooldownGap))
-            val hours = (uiState.remainingCooldownSeconds + 3599) / 3600
-            Text(
-                text = "Next transmission ready in ~$hours hrs!",
-                fontWeight = FontWeight.Bold,
-                fontSize = CoachDimens.Card.ComicCooldownText,
-                color = ComicTokens.TextSecondary,
-                modifier = Modifier.align(Alignment.End).padding(end = 4.dp)
-            )
-        }
-    }
-}
-
-/**
- * Speech-bubble container with comic black border, flat black drop shadow,
- * and a stylized bubble title badge.
- */
-@Composable
-fun ComicSpeechBubble(
-    title: String,
-    body: String,
-    tagColor: Color,
-    bubbleBg: Color,
-    modifier: Modifier = Modifier
-) {
-    val shape = RoundedCornerShape(14.dp)
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(end = 4.dp, bottom = 4.dp)
-            .comicDropShadow(offsetX = 4.dp, offsetY = 4.dp, shape = shape)
-            .background(bubbleBg, shape)
-            .comicBorder(width = 2.5.dp, color = ComicTokens.SolidBlack, shape = shape)
-            .padding(CoachDimens.Card.ComicBubblePadding)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            // Speech Bubble Pointer / Title Badge
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(tagColor)
-                        .border(1.5.dp, ComicTokens.SolidBlack, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        text = title,
-                        fontFamily = BangersFontFamily,
-                        fontSize = CoachDimens.Card.ComicBubbleTitle,
-                        letterSpacing = 0.5.sp,
-                        color = ComicTokens.SolidBlack
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = body,
-                fontWeight = FontWeight.Medium,
-                fontSize = CoachDimens.Card.ComicBody,
-                lineHeight = CoachDimens.Card.ComicBodyLineHeight,
-                color = ComicTokens.TextPrimary
-            )
         }
     }
 }
