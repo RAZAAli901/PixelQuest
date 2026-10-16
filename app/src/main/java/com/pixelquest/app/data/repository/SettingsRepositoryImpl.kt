@@ -242,6 +242,19 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putLong(KEY_LAST_BACKUP_AT, timestamp).apply()
     }
 
+    override val namazAvailable: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_NAMAZ_AVAILABLE) trySend(prefs.getBoolean(KEY_NAMAZ_AVAILABLE, true))
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(prefs.getBoolean(KEY_NAMAZ_AVAILABLE, true))
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setNamazAvailable(available: Boolean) {
+        prefs.edit().putBoolean(KEY_NAMAZ_AVAILABLE, available).apply()
+    }
+
     override val aiReminderMessagesEnabled: Flow<Boolean> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_AI_REMINDER_MESSAGES_ENABLED) {
@@ -278,6 +291,7 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_HAPTICS_ENABLED = "key_haptics_enabled"
         private const val KEY_REDUCE_MOTION_ENABLED = "key_reduce_motion_enabled"
         private const val KEY_LAST_BACKUP_AT = "key_last_backup_at"
+        private const val KEY_NAMAZ_AVAILABLE = "key_namaz_available"
         private const val KEY_ONBOARDING_COMPLETE = "key_onboarding_complete"
         private const val KEY_NOTIFICATIONS_ENABLED = "key_notifications_enabled"
         private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"

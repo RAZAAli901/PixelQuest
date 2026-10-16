@@ -83,6 +83,13 @@ class MenuViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuHeaderState())
 
+    /** What decides which entries show: Namaz's availability, and Simple Mode's wording. */
+    val context: StateFlow<MenuContext> = combine(
+        settingsRepository.namazAvailable,
+        settingsRepository.simpleModeEnabled
+    ) { namaz, simple -> MenuContext(namazAvailable = namaz, isSimpleMode = simple) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuContext())
+
     // Kept in the saved state, so the last entry opened is still highlighted after a rotation, or
     // after Android stopped the app in the background and the player came back to it.
     private val _selected = MutableStateFlow(

@@ -107,6 +107,7 @@ class MainActivity : ComponentActivity() {
                         val menuViewModel: com.pixelquest.app.ui.menu.MenuViewModel = androidx.hilt.navigation.compose.hiltViewModel()
                         val menuHeader by menuViewModel.header.collectAsState()
                         val menuSelected by menuViewModel.selected.collectAsState()
+                        val menuContext by menuViewModel.context.collectAsState()
                         // The highlight follows where the player is, however they got there.
                         androidx.compose.runtime.LaunchedEffect(currentRoute) { menuViewModel.syncWithRoute(currentRoute) }
 
@@ -125,7 +126,7 @@ class MainActivity : ComponentActivity() {
                                 )
                                 com.pixelquest.app.ui.menu.MenuDrawerItems(
                                     items = com.pixelquest.app.ui.menu.MenuItems.all,
-                                    context = com.pixelquest.app.ui.menu.MenuContext(isSimpleMode = menuHeader.isSimpleMode),
+                                    context = menuContext,
                                     selected = menuSelected,
                                     onItemClick = { item ->
                                         menuDrawer.close()

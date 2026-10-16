@@ -81,6 +81,14 @@ interface SettingsRepository {
 
     suspend fun setLastBackupAt(timestamp: Long) {}
 
+    /**
+     * Whether the Namaz Tracker is offered (its entry in the side menu). On by default; the tracker
+     * itself, and its own on/off switch, come later (upgrade plan, Phases 3-4).
+     */
+    val namazAvailable: Flow<Boolean> get() = kotlinx.coroutines.flow.flowOf(true)
+
+    suspend fun setNamazAvailable(available: Boolean) {}
+
     val aiReminderMessagesEnabled: Flow<Boolean>
         get() = kotlinx.coroutines.flow.flowOf(false)
 
