@@ -40,7 +40,9 @@ fun LightAiInsightView(
     uiState: AiInsightUiState,
     onRefresh: () -> Unit,
     onNavigateToSettings: (() -> Unit)?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    display: CoachDisplayState = CoachDisplayState(),
+    onToggleLatestExpanded: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val typography = MaterialTheme.typography
@@ -60,6 +62,8 @@ fun LightAiInsightView(
                 CoachInsightCard(
                     uiState = uiState,
                     themeMode = com.pixelquest.app.ui.theme.ThemeMode.Light,
+                    expanded = !display.compact || display.latestExpanded,
+                    onToggleExpanded = if (display.compact) onToggleLatestExpanded else null,
                     onRefresh = {
                         soundManager?.playClickSound()
                         onRefresh()

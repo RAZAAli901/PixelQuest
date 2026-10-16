@@ -47,6 +47,11 @@ class AiInsightViewModel @Inject constructor(
         _displayState.value = _displayState.value.copy(compact = compact)
     }
 
+    /** Shows the whole latest insight, or folds it back to its preview. */
+    fun toggleLatestExpanded() {
+        _displayState.value = _displayState.value.copy(latestExpanded = !_displayState.value.latestExpanded)
+    }
+
     val isSimpleMode: StateFlow<Boolean> = settingsRepository.simpleModeEnabled
         .stateIn(
             scope = viewModelScope,

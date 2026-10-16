@@ -42,7 +42,9 @@ fun PixelAiInsightView(
     onRefresh: () -> Unit,
     onNavigateToSettings: (() -> Unit)?,
     isSimpleMode: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    display: CoachDisplayState = CoachDisplayState(),
+    onToggleLatestExpanded: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val soundManager = LocalSoundManager.current
@@ -61,6 +63,8 @@ fun PixelAiInsightView(
                 CoachInsightCard(
                     uiState = uiState,
                     themeMode = com.pixelquest.app.ui.theme.ThemeMode.Pixel,
+                    expanded = !display.compact || display.latestExpanded,
+                    onToggleExpanded = if (display.compact) onToggleLatestExpanded else null,
                     isSimpleMode = isSimpleMode,
                     onRefresh = {
                         soundManager?.playClickSound()

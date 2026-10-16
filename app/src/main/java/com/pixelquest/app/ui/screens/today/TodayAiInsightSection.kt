@@ -64,6 +64,7 @@ fun TodayAiInsightSection(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isSimpleMode by viewModel.isSimpleMode.collectAsState()
+    val display by viewModel.displayState.collectAsState()
     val themeMode = PixelTheme.mode
 
     Box(modifier = modifier.fillMaxWidth()) {
@@ -75,7 +76,9 @@ fun TodayAiInsightSection(
                         isCached = state.isCached,
                         canRefresh = state.canRefresh,
                         remainingCooldownSeconds = state.remainingCooldownSeconds,
-                        onRefresh = { viewModel.refreshInsight() }
+                        onRefresh = { viewModel.refreshInsight() },
+                        expanded = !display.compact || display.latestExpanded,
+                        onToggleExpanded = if (display.compact) viewModel::toggleLatestExpanded else null
                     )
                     // The AI Coach's own screen had no way in since Day 24.
                     Spacer(modifier = Modifier.height(8.dp))

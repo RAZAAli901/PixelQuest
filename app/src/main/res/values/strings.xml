@@ -3,4 +3,6 @@
     <!-- AI Coach (docs/ai-coach-compact.md). Older text is still inline in the composables. -->
     <string name="coach_status_online">ONLINE</string>
     <string name="coach_status_light">Gemini AI</string>
+    <string name="coach_expand">Show more</string>
+    <string name="coach_collapse">Show less</string>
 </resources>

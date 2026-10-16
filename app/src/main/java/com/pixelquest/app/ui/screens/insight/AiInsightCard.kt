@@ -44,9 +44,14 @@ fun AiInsightCard(
     canRefresh: Boolean,
     remainingCooldownSeconds: Long,
     onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** False shows a short preview: the summary's first lines, without the other two sections. */
+    expanded: Boolean = true,
+    /** Shows the SHOW MORE / SHOW LESS toggle; null (always in full) hides it. */
+    onToggleExpanded: (() -> Unit)? = null
 ) {
     val themeMode = PixelTheme.mode
+    val preview = onToggleExpanded != null && !expanded
     val colors = PixelTheme.colors
     val typography = MaterialTheme.typography
 
@@ -100,34 +105,41 @@ fun AiInsightCard(
                     else -> "STATUS SCAN"
                 },
                 content = insight.summary,
-                accentColor = colors.secondary
+                accentColor = colors.secondary,
+                maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            if (!preview) {
+                Spacer(modifier = Modifier.height(12.dp))
 
-            // Section 2: Suggestion / Strategy
-            InsightSectionBlock(
-                title = when (themeMode) {
-                    ThemeMode.Comic -> "TACTICAL MOVE"
-                    ThemeMode.Light -> "Suggestion"
-                    else -> "TACTICAL ADVICE"
-                },
-                content = insight.suggestion,
-                accentColor = colors.primary
-            )
+                // Section 2: Suggestion / Strategy
+                InsightSectionBlock(
+                    title = when (themeMode) {
+                        ThemeMode.Comic -> "TACTICAL MOVE"
+                        ThemeMode.Light -> "Suggestion"
+                        else -> "TACTICAL ADVICE"
+                    },
+                    content = insight.suggestion,
+                    accentColor = colors.primary
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            // Section 3: Encouragement / Hero Cheer
-            InsightSectionBlock(
-                title = when (themeMode) {
-                    ThemeMode.Comic -> "POWER SURGE"
-                    ThemeMode.Light -> "Encouragement"
-                    else -> "QUEST BLESSING"
-                },
-                content = insight.encouragement,
-                accentColor = Color(0xFF10B981)
-            )
+                // Section 3: Encouragement / Hero Cheer
+                InsightSectionBlock(
+                    title = when (themeMode) {
+                        ThemeMode.Comic -> "POWER SURGE"
+                        ThemeMode.Light -> "Encouragement"
+                        else -> "QUEST BLESSING"
+                    },
+                    content = insight.encouragement,
+                    accentColor = Color(0xFF10B981)
+                )
+            }
+            if (onToggleExpanded != null) {
+                Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
+                CoachExpandToggle(expanded = expanded, onToggle = onToggleExpanded, themeMode = themeMode)
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -170,7 +182,8 @@ fun InsightSectionBlock(
     title: String,
     content: String,
     accentColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE
 ) {
     val colors = PixelTheme.colors
     val typography = MaterialTheme.typography
@@ -197,6 +210,8 @@ fun InsightSectionBlock(
             style = typography.bodyMedium,
             color = colors.onSurface,
             lineHeight = 20.sp,
+            maxLines = maxLines,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             modifier = Modifier.padding(start = 10.dp)
         )
     }

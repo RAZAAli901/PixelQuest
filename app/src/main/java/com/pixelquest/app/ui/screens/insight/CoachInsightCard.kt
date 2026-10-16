@@ -1,6 +1,11 @@
 package com.pixelquest.app.ui.screens.insight
 
 import androidx.compose.foundation.background
+import com.pixelquest.app.R
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,13 +60,49 @@ fun CoachInsightCard(
     themeMode: ThemeMode,
     onRefresh: () -> Unit,
     isSimpleMode: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** False shows a short preview: the summary's first lines, without the other two sections. */
+    expanded: Boolean = true,
+    /** Shows the SHOW MORE / SHOW LESS toggle; null (always in full) hides it. */
+    onToggleExpanded: (() -> Unit)? = null
 ) {
     when (themeMode) {
-        ThemeMode.Comic -> ComicSuccessView(uiState = uiState, onRefresh = onRefresh, modifier = modifier)
-        ThemeMode.Light -> LightSuccessCard(uiState = uiState, onRefresh = onRefresh, modifier = modifier)
-        else -> PixelSuccessCard(uiState = uiState, onRefresh = onRefresh, isSimpleMode = isSimpleMode, modifier = modifier)
+        ThemeMode.Comic -> ComicSuccessView(uiState = uiState, onRefresh = onRefresh, modifier = modifier, expanded = expanded, onToggleExpanded = onToggleExpanded)
+        ThemeMode.Light -> LightSuccessCard(uiState = uiState, onRefresh = onRefresh, modifier = modifier, expanded = expanded, onToggleExpanded = onToggleExpanded)
+        else -> PixelSuccessCard(
+            uiState = uiState, onRefresh = onRefresh, isSimpleMode = isSimpleMode, modifier = modifier,
+            expanded = expanded, onToggleExpanded = onToggleExpanded
+        )
     }
+}
+
+/**
+ * SHOW MORE / SHOW LESS under a previewed insight, in the theme's type and colour.
+ */
+@Composable
+fun CoachExpandToggle(
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    themeMode: ThemeMode,
+    modifier: Modifier = Modifier
+) {
+    val label = stringResource(if (expanded) R.string.coach_collapse else R.string.coach_expand)
+    val shown = (if (themeMode == ThemeMode.Light) label else label.uppercase()) + if (expanded) " ▴" else " ▾"
+    Text(
+        text = shown,
+        style = when (themeMode) {
+            ThemeMode.Light -> MaterialTheme.typography.labelLarge
+            ThemeMode.Comic -> MaterialTheme.typography.labelLarge.copy(fontFamily = BangersFontFamily, letterSpacing = 0.5.sp)
+            else -> PixelTypography.labelMedium
+        },
+        color = when (themeMode) {
+            ThemeMode.Light -> Color(0xFF4F46E5)
+            ThemeMode.Comic -> ComicTokens.SolidBlack
+            else -> PixelTheme.colors.primary
+        },
+        fontWeight = FontWeight.Bold,
+        modifier = modifier.clickable(onClickLabel = label, role = Role.Button, onClick = onToggle)
+    )
 }
 
 @Composable
@@ -69,10 +110,13 @@ fun PixelSuccessCard(
     uiState: AiInsightUiState.Success,
     onRefresh: () -> Unit,
     isSimpleMode: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    expanded: Boolean = true,
+    onToggleExpanded: (() -> Unit)? = null
 ) {
     val insight = uiState.insight
     val colors = PixelTheme.colors
+    val preview = onToggleExpanded != null && !expanded
 
     PixelCard(
         variant = PixelPanelVariant.BEIGE,
@@ -115,28 +159,35 @@ fun PixelSuccessCard(
                 tag = if (isSimpleMode) "► HABIT PATTERN SCAN" else "► OBSERVATION SCAN",
                 body = insight.summary,
                 tagColor = Color(0xFF60A5FA),
-                bodyColor = colors.onSurface
+                bodyColor = colors.onSurface,
+                maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE
             )
 
-            Spacer(modifier = Modifier.height(CoachDimens.Card.SectionGap))
+            if (!preview) {
+                Spacer(modifier = Modifier.height(CoachDimens.Card.SectionGap))
 
-            // Section 2: Strategic Protocol / Suggested Adjustment
-            PixelTelemetryBlock(
-                tag = if (isSimpleMode) "► SUGGESTED ACTION" else "► STRATEGIC PROTOCOL",
-                body = insight.suggestion,
-                tagColor = Color(0xFF34D399),
-                bodyColor = colors.onSurface
-            )
+                // Section 2: Strategic Protocol / Suggested Adjustment
+                PixelTelemetryBlock(
+                    tag = if (isSimpleMode) "► SUGGESTED ACTION" else "► STRATEGIC PROTOCOL",
+                    body = insight.suggestion,
+                    tagColor = Color(0xFF34D399),
+                    bodyColor = colors.onSurface
+                )
 
-            Spacer(modifier = Modifier.height(CoachDimens.Card.SectionGap))
+                Spacer(modifier = Modifier.height(CoachDimens.Card.SectionGap))
 
-            // Section 3: Daily Perspective / Heroic Blessing
-            PixelTelemetryBlock(
-                tag = if (isSimpleMode) "► DAILY PERSPECTIVE" else "► HEROIC BLESSING",
-                body = insight.encouragement,
-                tagColor = if (isSimpleMode) Color(0xFF34D399) else Color(0xFFFBBF24),
-                bodyColor = if (isSimpleMode) colors.onSurface else Color(0xFFFDE68A)
-            )
+                // Section 3: Daily Perspective / Heroic Blessing
+                PixelTelemetryBlock(
+                    tag = if (isSimpleMode) "► DAILY PERSPECTIVE" else "► HEROIC BLESSING",
+                    body = insight.encouragement,
+                    tagColor = if (isSimpleMode) Color(0xFF34D399) else Color(0xFFFBBF24),
+                    bodyColor = if (isSimpleMode) colors.onSurface else Color(0xFFFDE68A)
+                )
+            }
+            if (onToggleExpanded != null) {
+                Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
+                CoachExpandToggle(expanded = expanded, onToggle = onToggleExpanded, themeMode = ThemeMode.Pixel)
+            }
 
             Spacer(modifier = Modifier.height(CoachDimens.Card.FooterGap))
 
@@ -184,7 +235,8 @@ fun PixelTelemetryBlock(
     body: String,
     tagColor: Color,
     bodyColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -205,7 +257,9 @@ fun PixelTelemetryBlock(
                 text = body,
                 style = MaterialTheme.typography.bodyMedium,
                 color = bodyColor,
-                lineHeight = CoachDimens.Card.BodyLineHeight
+                lineHeight = CoachDimens.Card.BodyLineHeight,
+                maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -215,9 +269,12 @@ fun PixelTelemetryBlock(
 fun ComicSuccessView(
     uiState: AiInsightUiState.Success,
     onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    expanded: Boolean = true,
+    onToggleExpanded: (() -> Unit)? = null
 ) {
     val insight = uiState.insight
+    val preview = onToggleExpanded != null && !expanded
 
     Column(modifier = modifier.fillMaxWidth()) {
         // Speech Bubble 1: The Situation (Summary)
@@ -225,28 +282,35 @@ fun ComicSuccessView(
             title = "THE DISPATCH!",
             body = insight.summary,
             tagColor = ComicTokens.BurntOrange,
-            bubbleBg = ComicTokens.PanelSurface
+            bubbleBg = ComicTokens.PanelSurface,
+            maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE
         )
 
-        Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
+        if (!preview) {
+            Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
 
-        // Speech Bubble 2: Action Directive (Suggestion)
-        ComicSpeechBubble(
-            title = "HEROIC DIRECTIVE!",
-            body = insight.suggestion,
-            tagColor = ComicTokens.SkyBlue,
-            bubbleBg = Color(0xFFF0F9FF)
-        )
+            // Speech Bubble 2: Action Directive (Suggestion)
+            ComicSpeechBubble(
+                title = "HEROIC DIRECTIVE!",
+                body = insight.suggestion,
+                tagColor = ComicTokens.SkyBlue,
+                bubbleBg = Color(0xFFF0F9FF)
+            )
 
-        Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
+            Spacer(modifier = Modifier.height(CoachDimens.Card.ComicSectionGap))
 
-        // Speech Bubble 3: Power Surge (Encouragement)
-        ComicSpeechBubble(
-            title = "POWER SURGE!!",
-            body = insight.encouragement,
-            tagColor = ComicTokens.GoldAccent,
-            bubbleBg = Color(0xFFFFFBEB)
-        )
+            // Speech Bubble 3: Power Surge (Encouragement)
+            ComicSpeechBubble(
+                title = "POWER SURGE!!",
+                body = insight.encouragement,
+                tagColor = ComicTokens.GoldAccent,
+                bubbleBg = Color(0xFFFFFBEB)
+            )
+        }
+        if (onToggleExpanded != null) {
+            Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
+            CoachExpandToggle(expanded = expanded, onToggle = onToggleExpanded, themeMode = ThemeMode.Comic)
+        }
 
         Spacer(modifier = Modifier.height(CoachDimens.Card.FooterGap))
 
@@ -310,7 +374,8 @@ fun ComicSpeechBubble(
     body: String,
     tagColor: Color,
     bubbleBg: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE
 ) {
     val shape = RoundedCornerShape(14.dp)
 
@@ -350,7 +415,9 @@ fun ComicSpeechBubble(
                 fontWeight = FontWeight.Medium,
                 fontSize = CoachDimens.Card.ComicBody,
                 lineHeight = CoachDimens.Card.ComicBodyLineHeight,
-                color = ComicTokens.TextPrimary
+                color = ComicTokens.TextPrimary,
+                maxLines = maxLines,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -360,9 +427,12 @@ fun ComicSpeechBubble(
 fun LightSuccessCard(
     uiState: AiInsightUiState.Success,
     onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    expanded: Boolean = true,
+    onToggleExpanded: (() -> Unit)? = null
 ) {
     val insight = uiState.insight
+    val preview = onToggleExpanded != null && !expanded
     val typography = MaterialTheme.typography
 
     Box(
@@ -424,28 +494,35 @@ fun LightSuccessCard(
                 title = "Observation",
                 body = insight.summary,
                 accentColor = Color(0xFF3B82F6),
-                backgroundColor = Color(0xFFF8FAFC)
+                backgroundColor = Color(0xFFF8FAFC),
+                maxLines = if (preview) CoachDimens.Card.PreviewLines else Int.MAX_VALUE
             )
 
-            Spacer(modifier = Modifier.height(CoachDimens.Card.LightSectionGap))
+            if (!preview) {
+                Spacer(modifier = Modifier.height(CoachDimens.Card.LightSectionGap))
 
-            // Section 2: Strategy / Suggestion
-            LightInsightSection(
-                title = "Actionable Strategy",
-                body = insight.suggestion,
-                accentColor = Color(0xFF10B981),
-                backgroundColor = Color(0xFFF0FDF4)
-            )
+                // Section 2: Strategy / Suggestion
+                LightInsightSection(
+                    title = "Actionable Strategy",
+                    body = insight.suggestion,
+                    accentColor = Color(0xFF10B981),
+                    backgroundColor = Color(0xFFF0FDF4)
+                )
 
-            Spacer(modifier = Modifier.height(CoachDimens.Card.LightSectionGap))
+                Spacer(modifier = Modifier.height(CoachDimens.Card.LightSectionGap))
 
-            // Section 3: Encouragement
-            LightInsightSection(
-                title = "Encouragement",
-                body = insight.encouragement,
-                accentColor = Color(0xFF8B5CF6),
-                backgroundColor = Color(0xFFF5F3FF)
-            )
+                // Section 3: Encouragement
+                LightInsightSection(
+                    title = "Encouragement",
+                    body = insight.encouragement,
+                    accentColor = Color(0xFF8B5CF6),
+                    backgroundColor = Color(0xFFF5F3FF)
+                )
+            }
+            if (onToggleExpanded != null) {
+                Spacer(modifier = Modifier.height(CoachDimens.ItemGap))
+                CoachExpandToggle(expanded = expanded, onToggle = onToggleExpanded, themeMode = ThemeMode.Light)
+            }
 
             Spacer(modifier = Modifier.height(CoachDimens.Card.LightFooterGap))
 
@@ -491,7 +568,8 @@ fun LightInsightSection(
     body: String,
     accentColor: Color,
     backgroundColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE
 ) {
     val typography = MaterialTheme.typography
 
@@ -523,7 +601,9 @@ fun LightInsightSection(
             text = body,
             style = typography.bodyMedium,
             color = Color(0xFF1E293B),
-            lineHeight = CoachDimens.Card.LightBodyLineHeight
+            lineHeight = CoachDimens.Card.LightBodyLineHeight,
+            maxLines = maxLines,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

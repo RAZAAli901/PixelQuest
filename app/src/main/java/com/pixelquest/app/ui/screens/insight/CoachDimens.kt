@@ -43,6 +43,8 @@ object CoachDimens {
 
     /** The insight card. */
     object Card {
+        /** How much of the summary a collapsed insight shows. */
+        const val PreviewLines = 3
         val PixelPadding = 16.dp
         val LightPadding = 20.dp
         val ComicBubblePadding = 16.dp
