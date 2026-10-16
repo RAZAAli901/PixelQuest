@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -32,17 +33,20 @@ import com.pixelquest.app.audio.LocalSoundManager
 import com.pixelquest.app.ui.navigation.Screen
 
 data class NavItem(
+    /** What TalkBack says, and the tab's label unless [label] is shorter. */
     val title: String,
     val route: String,
     val iconRes: Int,
     /** Drawn as a round icon-only button in the middle of the bar; [title] becomes its spoken label. */
-    val isFeatured: Boolean = false
+    val isFeatured: Boolean = false,
+    /** The visible label, when [title] is too long for a tab (LEADERBOARD is 88dp in the pixel font). */
+    val label: String = title
 )
 
 val bottomNavItems = listOf(
     NavItem("HOME", Screen.Home.route, R.drawable.ic_home),
     NavItem("TASKS", Screen.Tasks.route, R.drawable.ic_tasks),
-    NavItem("LEADERBOARD", Screen.Leaderboard.route, R.drawable.ic_leaderboard, isFeatured = true),
+    NavItem("LEADERBOARD", Screen.Leaderboard.route, R.drawable.ic_leaderboard, isFeatured = true, label = "RANKS"),
     NavItem("STATS", Screen.Stats.route, R.drawable.ic_stats),
     NavItem("PROFILE", Screen.Profile.route, R.drawable.ic_profile)
 )
@@ -76,31 +80,26 @@ fun PixelBottomNavBar(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Every tab the same size: the Leaderboard was a larger round button in the middle.
             bottomNavItems.forEach { item ->
                 val isSelected = currentRoute == item.route
-                if (item.isFeatured) {
-                    FeaturedNavButton(
-                        item = item,
-                        isSelected = isSelected,
-                        onClick = {
-                            soundManager?.playNavSound()
-                            onNavigate(item.route)
-                        }
-                    )
-                    return@forEach
-                }
                 Column(
                     modifier = Modifier
-                        .clickable {
+                        .weight(1f)
+                        .clickable(role = Role.Tab) {
                             soundManager?.playNavSound()
                             onNavigate(item.route)
                         }
-                        .padding(vertical = 4.dp, horizontal = 8.dp),
+                        .clearAndSetSemantics {
+                            contentDescription = item.title
+                            selected = isSelected
+                        }
+                        .padding(vertical = 4.dp, horizontal = 2.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
                         painter = painterResource(id = item.iconRes),
-                        contentDescription = item.title,
+                        contentDescription = null,
                         // Pixel keeps its gold art; Light tints it so it reads on the white bar.
                         colorFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.forTheme(
                             activeMode,
@@ -110,7 +109,8 @@ fun PixelBottomNavBar(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = item.title,
+                        text = item.label,
+                        maxLines = 1,
                         style = MaterialTheme.typography.labelSmall,
                         color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
