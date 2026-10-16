@@ -51,55 +51,7 @@ fun PixelAiInsightView(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Retro Arcade Questmaster / Habit Coach Header Banner
-        PixelCard(
-            variant = PixelPanelVariant.BEIGE,
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = CoachDimens.Header.PixelPadding
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Avatar frame: Wizard/Sage in gamified mode, Nature sprout in simple mode
-                Box(
-                    modifier = Modifier
-                        .size(CoachDimens.Header.PixelAvatar)
-                        .background(if (isSimpleMode) Color(0xFF064E3B) else Color(0xFF2E1065))
-                        .border(2.dp, if (isSimpleMode) Color(0xFF10B981) else Color(0xFFFBBF24)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = if (isSimpleMode) "🌱" else "🧙", fontSize = CoachDimens.Header.PixelAvatarEmoji)
-                }
-
-                Spacer(modifier = Modifier.width(CoachDimens.Header.PixelAvatarGap))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = if (isSimpleMode) "HABIT COACH" else "QUESTMASTER COACH",
-                        style = PixelTypography.titleMedium,
-                        color = colors.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF10B981))
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = if (isSimpleMode) "SYS.HABIT.AI // ONLINE" else "SYS.GEMINI.AI // ONLINE",
-                            style = PixelTypography.labelSmall,
-                            color = Color(0xFF10B981),
-                            fontSize = CoachDimens.Header.StatusText
-                        )
-                    }
-                }
-            }
-        }
+        PixelCoachHeader(isSimpleMode = isSimpleMode)
 
         Spacer(modifier = Modifier.height(CoachDimens.Header.PixelBottomGap))
 

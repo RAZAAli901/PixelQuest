@@ -50,50 +50,7 @@ fun LightAiInsightView(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Clean Daytime Coach Header Banner
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .shadow(2.dp, RoundedCornerShape(12.dp))
-                .clip(RoundedCornerShape(12.dp))
-                .background(colors.surface)
-                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-                .padding(CoachDimens.Header.LightPadding)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Modern clean coach avatar frame
-                Box(
-                    modifier = Modifier
-                        .size(CoachDimens.Header.LightAvatar)
-                        .clip(CircleShape)
-                        .background(Color(0xFFEEF2FF))
-                        .border(1.5.dp, Color(0xFF6366F1), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "🌱", fontSize = CoachDimens.Header.LightAvatarEmoji)
-                }
-
-                Spacer(modifier = Modifier.width(CoachDimens.Header.AvatarGap))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Habit Insights & Coaching",
-                        style = typography.titleMedium,
-                        color = Color(0xFF0F172A),
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "Personalized feedback powered by Gemini AI",
-                        style = typography.bodySmall,
-                        color = Color(0xFF64748B)
-                    )
-                }
-            }
-        }
+        LightCoachHeader()
 
         Spacer(modifier = Modifier.height(CoachDimens.Header.BottomGap))
 

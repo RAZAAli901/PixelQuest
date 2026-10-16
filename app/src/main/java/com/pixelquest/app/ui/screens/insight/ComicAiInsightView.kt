@@ -54,62 +54,7 @@ fun ComicAiInsightView(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Comic Coach Header Banner
-        ComicPanel(
-            variant = ComicPanelVariant.BURNT_ORANGE,
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = CoachDimens.Header.ComicPadding
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Comic Hero Oracle Avatar
-                Box(
-                    modifier = Modifier
-                        .size(CoachDimens.Header.ComicAvatar)
-                        .clip(CircleShape)
-                        .background(ComicTokens.PanelSurface)
-                        .border(2.5.dp, ComicTokens.SolidBlack, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "💥", fontSize = CoachDimens.Header.ComicAvatarEmoji)
-                }
-
-                Spacer(modifier = Modifier.width(CoachDimens.Header.AvatarGap))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "COACH ORACLE SPEAKS!",
-                        fontFamily = BangersFontFamily,
-                        fontSize = CoachDimens.Header.ComicTitle,
-                        letterSpacing = 0.8.sp,
-                        color = ComicTokens.SolidBlack
-                    )
-                    Text(
-                        text = "TACTICAL HABIT BRIEFING",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = CoachDimens.Header.ComicSubtitle,
-                        color = ComicTokens.SolidBlack.copy(alpha = 0.75f)
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(ComicTokens.GoldAccent)
-                        .border(2.dp, ComicTokens.SolidBlack, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "ISSUE #25",
-                        fontFamily = BangersFontFamily,
-                        fontSize = CoachDimens.Header.ComicChip,
-                        color = ComicTokens.SolidBlack
-                    )
-                }
-            }
-        }
+        ComicCoachHeader()
 
         Spacer(modifier = Modifier.height(CoachDimens.Header.BottomGap))
 
