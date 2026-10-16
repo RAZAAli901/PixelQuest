@@ -18,6 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
@@ -63,7 +66,8 @@ fun MenuDrawerHeader(state: MenuHeaderState, modifier: Modifier = Modifier) {
                     style = MaterialTheme.typography.titleMedium,
                     color = colors.primaryText,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.semantics { heading() }
                 )
                 if (!state.isSimpleMode) {
                     Spacer(modifier = Modifier.height(4.dp))
@@ -87,7 +91,8 @@ fun MenuDrawerHeader(state: MenuHeaderState, modifier: Modifier = Modifier) {
             }
         }
         if (!state.isSimpleMode) {
-            PixelProgressBar(progress = state.levelProgress, height = 10.dp)
+            // The line under it says the same in words, so TalkBack reads that instead of the bar.
+            PixelProgressBar(progress = state.levelProgress, height = 10.dp, modifier = Modifier.clearAndSetSemantics {})
             Text(
                 text = stringResource(R.string.menu_level_progress, state.perfectDays, state.daysPerLevel, state.level + 1),
                 style = MaterialTheme.typography.labelSmall,

@@ -4,10 +4,17 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import com.pixelquest.app.R
+import kotlinx.coroutines.flow.drop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -32,6 +39,15 @@ fun MenuDrawerScaffold(
     isSimpleMode: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    // TalkBack hears the menu open and close (Material also names the open sheet as a pane).
+    val view = LocalView.current
+    val opened = stringResource(R.string.menu_opened)
+    val closed = stringResource(R.string.menu_closed)
+    LaunchedEffect(controller.drawerState) {
+        snapshotFlow { controller.drawerState.currentValue }
+            .drop(1)
+            .collect { value -> view.announceForAccessibility(if (value == DrawerValue.Open) opened else closed) }
+    }
     CompositionLocalProvider(LocalMenuDrawer provides controller) {
         ModalNavigationDrawer(
             drawerState = controller.drawerState,

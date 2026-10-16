@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -92,7 +93,8 @@ fun MenuDrawerItemRow(
             .semantics { selected = isSelected }
             .padding(horizontal = 16.dp)
     ) {
-        Text(text = icon, fontSize = 20.sp)
+        // The label says it all: TalkBack would otherwise read the emoji's name first.
+        Text(text = icon, fontSize = 20.sp, modifier = Modifier.clearAndSetSemantics {})
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = if (style.uppercaseLabels) label.uppercase() else label,
