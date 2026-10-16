@@ -75,7 +75,7 @@ fun MenuDrawerHeader(state: MenuHeaderState, modifier: Modifier = Modifier) {
                 }
             }
             LocalMenuDrawer.current?.let { menu ->
-                val style = menuStyle()
+                val style = menuStyle(state.isSimpleMode)
                 IconButton(onClick = menu::close) {
                     Icon(
                         painter = painterResource(style.closeIcon),

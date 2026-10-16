@@ -28,6 +28,8 @@ fun MenuDrawerScaffold(
     drawerContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
     gesturesEnabled: Boolean = controller.isOpen,
+    /** Simple Mode: the plain menu, whatever the theme. */
+    isSimpleMode: Boolean = false,
     content: @Composable () -> Unit
 ) {
     CompositionLocalProvider(LocalMenuDrawer provides controller) {
@@ -36,7 +38,7 @@ fun MenuDrawerScaffold(
             gesturesEnabled = gesturesEnabled || controller.isOpen,
             modifier = modifier,
             drawerContent = {
-                val style = menuStyle()
+                val style = menuStyle(isSimpleMode)
                 ModalDrawerSheet(
                     modifier = Modifier
                         .width(MenuDrawerWidth)

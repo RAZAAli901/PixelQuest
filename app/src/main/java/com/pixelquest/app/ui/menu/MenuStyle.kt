@@ -35,9 +35,12 @@ data class MenuStyle(
     val selectedShadow: Boolean = false
 )
 
+/** The current theme's menu; in Simple Mode, the plain one whatever the theme. */
 @Composable
-fun menuStyle(): MenuStyle = when (PixelTheme.mode) {
-    ThemeMode.Comic -> comicMenuStyle()
+fun menuStyle(isSimpleMode: Boolean = false): MenuStyle = when {
+    isSimpleMode -> plainMenuStyle()
+    PixelTheme.mode == ThemeMode.Comic -> comicMenuStyle()
+    PixelTheme.mode == ThemeMode.Light -> plainMenuStyle()
     else -> pixelMenuStyle()
 }
 
@@ -79,7 +82,10 @@ private fun pixelMenuStyle(): MenuStyle {
     )
 }
 
-/** Before a theme has its own: rounded rows with a soft tint for the current one. */
+/**
+ * Light, and Simple Mode in any theme: a plain, quiet list. Soft rounded rows, a gentle tint for
+ * the current one, no borders or capitals; with Simple Mode's wording, no game terms.
+ */
 @Composable
 internal fun plainMenuStyle(): MenuStyle {
     val colors = PixelTheme.colors
@@ -87,11 +93,11 @@ internal fun plainMenuStyle(): MenuStyle {
         sheetShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
         sheetBorder = null,
         itemShape = RoundedCornerShape(12.dp),
-        selectedFill = colors.primary.copy(alpha = 0.16f),
+        selectedFill = colors.primary.copy(alpha = 0.12f),
         selectedBorder = null,
         labelStyle = MaterialTheme.typography.titleSmall,
         uppercaseLabels = false,
-        closeIcon = R.drawable.ic_close_pixel,
+        closeIcon = if (PixelTheme.mode == ThemeMode.Comic) R.drawable.ic_close_comic else R.drawable.ic_close_pixel,
         ink = colors.primaryText
     )
 }

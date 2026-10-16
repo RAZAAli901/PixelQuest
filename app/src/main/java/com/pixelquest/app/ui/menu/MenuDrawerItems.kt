@@ -51,6 +51,7 @@ fun MenuDrawerItems(
                 icon = item.icon,
                 label = stringResource(item.labelFor(context)),
                 isSelected = item.id == selected,
+                isSimpleMode = context.isSimpleMode,
                 onClick = { onItemClick(item) }
             )
         }
@@ -63,10 +64,11 @@ fun MenuDrawerItemRow(
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isSimpleMode: Boolean = false
 ) {
     val colors = PixelTheme.colors
-    val style = menuStyle()
+    val style = menuStyle(isSimpleMode)
     val shape = style.itemShape
     val selectedBorder = style.selectedBorder
     Row(

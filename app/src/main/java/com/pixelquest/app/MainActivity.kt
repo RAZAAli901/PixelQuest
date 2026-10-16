@@ -114,6 +114,7 @@ class MainActivity : ComponentActivity() {
                             // Swiping in from the left edge opens it on the tabs. A dialog is its own
                             // window and takes the touches while it's up, so it can't open behind one.
                             gesturesEnabled = com.pixelquest.app.ui.navigation.Routes.isTab(currentRoute),
+                            isSimpleMode = menuHeader.isSimpleMode,
                             drawerContent = {
                                 com.pixelquest.app.ui.menu.MenuDrawerHeader(menuHeader)
                                 androidx.compose.material3.HorizontalDivider(
