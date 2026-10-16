@@ -39,6 +39,10 @@
     <string name="namaz_high_latitude_middle">Middle of the night</string>
     <string name="namaz_high_latitude_seventh">Seventh of the night</string>
     <string name="namaz_high_latitude_angle">Twilight angle</string>
+    <string name="namaz_location_title">Use your location?</string>
+    <string name="namaz_location_message">PixelQuest works out prayer times on your phone from your rough location, about the city you\'re in. It stays on your phone. Not now lets you pick a city instead.</string>
+    <string name="namaz_location_allow">Allow</string>
+    <string name="namaz_location_not_now">Not now</string>
     <string name="menu_history">Quest History</string>
     <string name="menu_history_simple">Task History</string>
     <string name="menu_leaderboard">Leaderboard</string>

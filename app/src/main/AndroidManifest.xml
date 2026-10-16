@@ -10,6 +10,9 @@
     <!-- Day 26: lets PROMPT-style reminders open the "did you do it?" screen over the lock screen.
          Android 14+ may deny it for non-alarm apps; the reminder then shows as a heads-up instead. -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Namaz Tracker: rough (city-level) location for prayer times, asked for only when the player
+         turns it on or taps Use my location (docs/namaz-design.md). -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".PixelQuestApplication"
