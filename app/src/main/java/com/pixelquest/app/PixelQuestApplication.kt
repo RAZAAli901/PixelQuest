@@ -74,6 +74,10 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         com.pixelquest.app.worker.AutoBackupWorker.scheduleAfterPlay(this)
         // Does nothing unless AI Coach and AI reminder messages are both on.
         com.pixelquest.app.worker.EncouragementPackWorker.schedule(this)
+        // Namaz Tracker: each day's five pending rows just after midnight, and hourly missed marks.
+        // Both do nothing while the tracker is off.
+        com.pixelquest.app.worker.NamazMidnightWorker.schedule(this)
+        com.pixelquest.app.worker.NamazMissedWorker.schedule(this)
         rearmReminders()
     }
 
