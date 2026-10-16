@@ -238,3 +238,48 @@ fun AiInsightScreenPixelErrorPreview() {
         )
     }
 }
+
+// The compact layout (docs/ai-coach-compact.md): a 6-inch phone, collapsed and expanded, in each theme.
+
+private val previewOlderInsights = listOf(
+    OlderInsight(2, previewMockInsight.copy(summary = "Mornings went well, evenings slipped.", generatedAt = System.currentTimeMillis() - 86_400_000L)),
+    OlderInsight(1, previewMockInsight.copy(summary = "A steady start to the week.", generatedAt = System.currentTimeMillis() - 172_800_000L))
+)
+
+@Composable
+private fun CompactCoachPreview(mode: ThemeMode, expanded: Boolean, simple: Boolean = false) {
+    PixelQuestTheme(themeMode = mode) {
+        AiInsightScreenContent(
+            uiState = AiInsightUiState.Success(insight = previewMockInsight, isCached = true),
+            isSimpleMode = simple,
+            displayState = CoachDisplayState(latestExpanded = expanded),
+            onRefresh = {},
+            olderInsights = previewOlderInsights,
+            onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(name = "Compact - Pixel", group = "Compact", widthDp = 360, heightDp = 640)
+@Composable
+fun AiInsightCompactPixelPreview() = CompactCoachPreview(ThemeMode.Pixel, expanded = false)
+
+@Preview(name = "Compact - Comic", group = "Compact", widthDp = 360, heightDp = 640)
+@Composable
+fun AiInsightCompactComicPreview() = CompactCoachPreview(ThemeMode.Comic, expanded = false)
+
+@Preview(name = "Compact - Light", group = "Compact", widthDp = 360, heightDp = 640)
+@Composable
+fun AiInsightCompactLightPreview() = CompactCoachPreview(ThemeMode.Light, expanded = false)
+
+@Preview(name = "Compact - Simple Mode", group = "Compact", widthDp = 360, heightDp = 640)
+@Composable
+fun AiInsightCompactSimplePreview() = CompactCoachPreview(ThemeMode.Pixel, expanded = false, simple = true)
+
+@Preview(name = "Expanded - Pixel", group = "Compact", widthDp = 360, heightDp = 640)
+@Composable
+fun AiInsightExpandedPixelPreview() = CompactCoachPreview(ThemeMode.Pixel, expanded = true)
+
+@Preview(name = "Expanded - Comic", group = "Compact", widthDp = 360, heightDp = 640)
+@Composable
+fun AiInsightExpandedComicPreview() = CompactCoachPreview(ThemeMode.Comic, expanded = true)

@@ -97,7 +97,6 @@ fun ComicBottomNavBar(
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp)
-                        .padding(horizontal = 4.dp, vertical = 2.dp)
                         .clickable(
                             interactionSource = interactionSource,
                             indication = null,
@@ -112,7 +111,9 @@ fun ComicBottomNavBar(
                         .clearAndSetSemantics {
                             contentDescription = item.title
                             selected = isSelected
-                        },
+                        }
+                        // Inside the tap area, so the whole 48dp is tappable (it was 44dp).
+                        .padding(horizontal = 4.dp, vertical = 2.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     val pillShape = RoundedCornerShape(ComicShapeTokens.ChipRadius)
