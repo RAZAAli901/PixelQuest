@@ -18,7 +18,8 @@ val MenuDrawerWidth = 300.dp
  * The app's frame with the side menu (docs/ai-coach-compact.md, Phase 2): the menu slides in over
  * [content], and the screens inside can open it through [LocalMenuDrawer].
  *
- * @param gesturesEnabled whether a swipe opens or closes it; a swipe always closes an open menu.
+ * @param gesturesEnabled whether a swipe from the left edge opens it; a swipe always closes an open
+ *   menu. The app turns it on for the five tabs only, where the menu's icon is too.
  */
 @Composable
 fun MenuDrawerScaffold(
@@ -28,8 +29,6 @@ fun MenuDrawerScaffold(
     gesturesEnabled: Boolean = controller.isOpen,
     content: @Composable () -> Unit
 ) {
-    // Back closes an open menu before it leaves the screen.
-    BackHandler(enabled = controller.isOpen) { controller.close() }
     CompositionLocalProvider(LocalMenuDrawer provides controller) {
         ModalNavigationDrawer(
             drawerState = controller.drawerState,
@@ -38,9 +37,13 @@ fun MenuDrawerScaffold(
             drawerContent = {
                 ModalDrawerSheet(
                     modifier = Modifier.width(MenuDrawerWidth),
-                    drawerContainerColor = PixelTheme.colors.background,
-                    content = drawerContent
-                )
+                    drawerContainerColor = PixelTheme.colors.background
+                ) {
+                    // Back closes an open menu instead of leaving the screen. Registered here, in the
+                    // sheet composed after the screens, so it comes before the navigation's own Back.
+                    BackHandler(enabled = controller.isOpen) { controller.close() }
+                    drawerContent()
+                }
             },
             content = content
         )

@@ -111,6 +111,9 @@ class MainActivity : ComponentActivity() {
                         // The side menu slides in over the screens and the bottom bar (docs/ai-coach-compact.md).
                         com.pixelquest.app.ui.menu.MenuDrawerScaffold(
                             controller = menuDrawer,
+                            // Swiping in from the left edge opens it on the tabs. A dialog is its own
+                            // window and takes the touches while it's up, so it can't open behind one.
+                            gesturesEnabled = com.pixelquest.app.ui.navigation.Routes.isTab(currentRoute),
                             drawerContent = {
                                 com.pixelquest.app.ui.menu.MenuDrawerHeader(menuHeader)
                                 androidx.compose.material3.HorizontalDivider(
