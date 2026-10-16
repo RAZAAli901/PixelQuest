@@ -1,6 +1,7 @@
 package com.pixelquest.app.domain.namaz
 
 import com.batoulapps.adhan2.Coordinates
+import com.batoulapps.adhan2.PrayerAdjustments
 import com.batoulapps.adhan2.PrayerTimes
 import com.batoulapps.adhan2.data.DateComponents
 import kotlinx.datetime.toJavaInstant
@@ -45,8 +46,30 @@ class PrayerTimesCalculator @Inject constructor() {
         zone: ZoneId,
         method: NamazMethod = NamazMethod.DEFAULT,
         madhab: AsrMadhab = AsrMadhab.DEFAULT
+    ): PrayerDayTimes = calculate(date, latitude, longitude, zone, PrayerCalcSettings(method = method, madhab = madhab))
+
+    /**
+     * [date]'s times by every calculation choice in [settings]: the method, the madhab, the
+     * high-latitude rule (the library's recommendation when unset) and the minutes added per prayer.
+     */
+    fun calculate(
+        date: LocalDate,
+        latitude: Double,
+        longitude: Double,
+        zone: ZoneId,
+        settings: PrayerCalcSettings
     ): PrayerDayTimes {
-        val parameters = method.adhan.parameters.copy(madhab = madhab.adhan)
+        val parameters = settings.method.adhan.parameters.copy(
+            madhab = settings.madhab.adhan,
+            highLatitudeRule = settings.highLatitudeRule?.adhan,
+            prayerAdjustments = PrayerAdjustments(
+                fajr = settings.adjustments[Prayer.FAJR] ?: 0,
+                dhuhr = settings.adjustments[Prayer.DHUHR] ?: 0,
+                asr = settings.adjustments[Prayer.ASR] ?: 0,
+                maghrib = settings.adjustments[Prayer.MAGHRIB] ?: 0,
+                isha = settings.adjustments[Prayer.ISHA] ?: 0
+            )
+        )
         val times = PrayerTimes(
             Coordinates(latitude, longitude),
             DateComponents(date.year, date.monthValue, date.dayOfMonth),

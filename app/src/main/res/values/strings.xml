@@ -36,6 +36,9 @@
     <string name="namaz_method_egyptian">Egyptian General Authority of Survey</string>
     <string name="namaz_madhab_hanafi">Hanafi (later Asr)</string>
     <string name="namaz_madhab_shafi">Shafi, Maliki, Hanbali (earlier Asr)</string>
+    <string name="namaz_high_latitude_middle">Middle of the night</string>
+    <string name="namaz_high_latitude_seventh">Seventh of the night</string>
+    <string name="namaz_high_latitude_angle">Twilight angle</string>
     <string name="menu_history">Quest History</string>
     <string name="menu_history_simple">Task History</string>
     <string name="menu_leaderboard">Leaderboard</string>
