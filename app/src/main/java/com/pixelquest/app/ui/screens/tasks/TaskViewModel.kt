@@ -23,10 +23,15 @@ class TaskViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
-    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
+    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock(),
+    settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null
 ) : ViewModel() {
 
     /** Today's results; moves on at midnight (see [com.pixelquest.app.util.AppClock.today]). */
+    /** Simple Mode, for the screen's title (tasks, not quests). */
+    val isSimpleMode: StateFlow<Boolean> = (settingsRepository?.simpleModeEnabled ?: kotlinx.coroutines.flow.flowOf(false))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val todaysLogs = appClock.today().flatMapLatest { taskCompletionRepository.getLogsForDate(it) }
 

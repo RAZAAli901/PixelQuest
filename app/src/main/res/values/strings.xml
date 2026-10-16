@@ -14,4 +14,6 @@
     <!-- Side menu (docs/ai-coach-compact.md, Phase 2). -->
     <string name="menu_open">Open menu</string>
     <string name="menu_close">Close menu</string>
+    <string name="tasks_title">📜 QUEST LOG</string>
+    <string name="tasks_title_simple">📋 ALL TASKS</string>
 </resources>

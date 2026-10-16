@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CutCornerShape
@@ -40,8 +41,10 @@ fun TasksScreen(
     onNavigateToEditTask: (Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isSimpleMode by viewModel.isSimpleMode.collectAsState()
     TasksContent(
         uiState = uiState,
+        isSimpleMode = isSimpleMode,
         onNavigateToCreateTask = onNavigateToCreateTask,
         onNavigateToEditTask = onNavigateToEditTask
     )
@@ -50,12 +53,31 @@ fun TasksScreen(
 @Composable
 fun TasksContent(
     uiState: TaskUiState,
+    isSimpleMode: Boolean = false,
     onNavigateToCreateTask: () -> Unit = {},
     onNavigateToEditTask: (Long) -> Unit = {}
 ) {
     val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
 
     Scaffold(
+        // The screen had no title: the menu icon and the screen's name now sit at the top left.
+        topBar = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
+            ) {
+                com.pixelquest.app.ui.menu.MenuTopBarAction()
+                androidx.compose.material3.Text(
+                    text = androidx.compose.ui.res.stringResource(
+                        if (isSimpleMode) com.pixelquest.app.R.string.tasks_title_simple else com.pixelquest.app.R.string.tasks_title
+                    ),
+                    style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
+                    color = colors.primaryText
+                )
+            }
+        },
         floatingActionButton = {
             com.pixelquest.app.ui.components.PixelFloatingActionButton(
                 onClick = onNavigateToCreateTask
