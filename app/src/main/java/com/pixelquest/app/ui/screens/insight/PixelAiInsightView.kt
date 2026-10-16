@@ -44,7 +44,9 @@ fun PixelAiInsightView(
     isSimpleMode: Boolean = false,
     modifier: Modifier = Modifier,
     display: CoachDisplayState = CoachDisplayState(),
-    onToggleLatestExpanded: () -> Unit = {}
+    onToggleLatestExpanded: () -> Unit = {},
+    olderInsights: List<OlderInsight> = emptyList(),
+    onToggleOlder: (Long) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val soundManager = LocalSoundManager.current
@@ -70,6 +72,12 @@ fun PixelAiInsightView(
                         soundManager?.playClickSound()
                         onRefresh()
                     }
+                )
+                CoachOlderInsights(
+                    items = olderInsights,
+                    expandedId = display.expandedOlderId,
+                    onToggle = onToggleOlder,
+                    themeMode = com.pixelquest.app.ui.theme.ThemeMode.Pixel
                 )
             }
             else -> {

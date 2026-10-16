@@ -37,6 +37,10 @@ class InsightCacheRepositoryImpl(
         return insightCacheDao.observeLatestInsight()
     }
 
+    override fun observeRecentInsights(limit: Int): Flow<List<InsightCacheEntity>> {
+        return insightCacheDao.observeRecentInsights(limit)
+    }
+
     override suspend fun isCacheValid(currentDataHash: String, maxAgeMillis: Long): Boolean {
         val latest = insightCacheDao.getLatestInsight() ?: return false
         val now = clock()

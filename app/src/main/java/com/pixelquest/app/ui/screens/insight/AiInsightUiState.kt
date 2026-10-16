@@ -94,3 +94,9 @@ data class CoachDisplayState(
     val latestExpanded: Boolean = false,
     val expandedOlderId: Long? = null
 )
+
+/** An earlier insight listed under the latest one; [id] is its row in the insight cache. */
+data class OlderInsight(
+    val id: Long,
+    val insight: com.pixelquest.app.domain.ai.HabitInsightResponse
+)

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -45,6 +46,21 @@ class AiInsightViewModel @Inject constructor(
 
     fun setCompact(compact: Boolean) {
         _displayState.value = _displayState.value.copy(compact = compact)
+    }
+
+    /**
+     * Up to [OLDER_INSIGHTS_SHOWN] earlier insights, newest first: every insight stays in the cache,
+     * and the newest is the one shown in full above them.
+     */
+    val olderInsights: StateFlow<List<OlderInsight>> = insightCacheRepository
+        .observeRecentInsights(OLDER_INSIGHTS_SHOWN + 1)
+        .map { rows -> rows.drop(1).map { OlderInsight(it.id, it.toInsightResponse()) } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Opens an earlier insight, closing any other; tapping the open one closes it. */
+    fun toggleOlder(id: Long) {
+        val current = _displayState.value
+        _displayState.value = current.copy(expandedOlderId = if (current.expandedOlderId == id) null else id)
     }
 
     /** Shows the whole latest insight, or folds it back to its preview. */
@@ -218,5 +234,10 @@ class AiInsightViewModel @Inject constructor(
             }
             loadInsight(forceRefresh = true)
         }
+    }
+
+    companion object {
+        /** How many earlier insights the AI Coach lists. */
+        const val OLDER_INSIGHTS_SHOWN = 5
     }
 }

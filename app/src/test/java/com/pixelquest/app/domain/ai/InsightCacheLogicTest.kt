@@ -50,6 +50,9 @@ class InsightCacheLogicTest {
             return _flow.asStateFlow()
         }
 
+        override fun observeRecentInsights(limit: Int): Flow<List<InsightCacheEntity>> =
+            kotlinx.coroutines.flow.flowOf(storage.sortedByDescending { it.generatedAt }.take(limit))
+
         override suspend fun deleteOld(expiryTimestamp: Long): Int {
             val countBefore = storage.size
             storage.removeAll { it.generatedAt < expiryTimestamp }

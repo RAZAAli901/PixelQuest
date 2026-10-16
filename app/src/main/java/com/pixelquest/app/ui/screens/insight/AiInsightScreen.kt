@@ -39,6 +39,7 @@ fun AiInsightScreen(
     val uiState by viewModel.uiState.collectAsState()
     val isSimpleMode by viewModel.isSimpleMode.collectAsState()
     val displayState by viewModel.displayState.collectAsState()
+    val olderInsights by viewModel.olderInsights.collectAsState()
 
     AiInsightScreenContent(
         modifier = modifier,
@@ -47,6 +48,8 @@ fun AiInsightScreen(
         displayState = displayState,
         onRefresh = { viewModel.refreshInsight() },
         onToggleLatestExpanded = viewModel::toggleLatestExpanded,
+        olderInsights = olderInsights,
+        onToggleOlder = viewModel::toggleOlder,
         onNavigateBack = onNavigateBack,
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToAccount = onNavigateToAccount
@@ -68,6 +71,8 @@ fun AiInsightScreenContent(
     displayState: CoachDisplayState = CoachDisplayState(),
     onRefresh: () -> Unit,
     onToggleLatestExpanded: () -> Unit = {},
+    olderInsights: List<OlderInsight> = emptyList(),
+    onToggleOlder: (Long) -> Unit = {},
     onNavigateBack: (() -> Unit)? = null,
     onNavigateToSettings: (() -> Unit)? = null,
     onNavigateToAccount: (() -> Unit)? = null
@@ -115,7 +120,9 @@ fun AiInsightScreenContent(
                             onRefresh = onRefresh,
                             onNavigateToSettings = onNavigateToSettings,
                             display = displayState,
-                            onToggleLatestExpanded = onToggleLatestExpanded
+                            onToggleLatestExpanded = onToggleLatestExpanded,
+                            olderInsights = olderInsights,
+                            onToggleOlder = onToggleOlder
                         )
                     }
                     ThemeMode.Light -> {
@@ -124,7 +131,9 @@ fun AiInsightScreenContent(
                             onRefresh = onRefresh,
                             onNavigateToSettings = onNavigateToSettings,
                             display = displayState,
-                            onToggleLatestExpanded = onToggleLatestExpanded
+                            onToggleLatestExpanded = onToggleLatestExpanded,
+                            olderInsights = olderInsights,
+                            onToggleOlder = onToggleOlder
                         )
                     }
                     else -> {
@@ -134,7 +143,9 @@ fun AiInsightScreenContent(
                             onNavigateToSettings = onNavigateToSettings,
                             isSimpleMode = isSimpleMode,
                             display = displayState,
-                            onToggleLatestExpanded = onToggleLatestExpanded
+                            onToggleLatestExpanded = onToggleLatestExpanded,
+                            olderInsights = olderInsights,
+                            onToggleOlder = onToggleOlder
                         )
                     }
                 }
@@ -150,7 +161,9 @@ fun AiInsightPixelDispatch(
     onNavigateToSettings: (() -> Unit)?,
     isSimpleMode: Boolean = false,
     display: CoachDisplayState = CoachDisplayState(),
-    onToggleLatestExpanded: () -> Unit = {}
+    onToggleLatestExpanded: () -> Unit = {},
+    olderInsights: List<OlderInsight> = emptyList(),
+    onToggleOlder: (Long) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -165,7 +178,9 @@ fun AiInsightPixelDispatch(
             onNavigateToSettings = onNavigateToSettings,
             isSimpleMode = isSimpleMode,
             display = display,
-            onToggleLatestExpanded = onToggleLatestExpanded
+            onToggleLatestExpanded = onToggleLatestExpanded,
+            olderInsights = olderInsights,
+            onToggleOlder = onToggleOlder
         )
     }
 }
@@ -176,7 +191,9 @@ fun AiInsightLightDispatch(
     onRefresh: () -> Unit,
     onNavigateToSettings: (() -> Unit)?,
     display: CoachDisplayState = CoachDisplayState(),
-    onToggleLatestExpanded: () -> Unit = {}
+    onToggleLatestExpanded: () -> Unit = {},
+    olderInsights: List<OlderInsight> = emptyList(),
+    onToggleOlder: (Long) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -190,7 +207,9 @@ fun AiInsightLightDispatch(
             onRefresh = onRefresh,
             onNavigateToSettings = onNavigateToSettings,
             display = display,
-            onToggleLatestExpanded = onToggleLatestExpanded
+            onToggleLatestExpanded = onToggleLatestExpanded,
+            olderInsights = olderInsights,
+            onToggleOlder = onToggleOlder
         )
     }
 }
@@ -201,7 +220,9 @@ fun AiInsightComicDispatch(
     onRefresh: () -> Unit,
     onNavigateToSettings: (() -> Unit)?,
     display: CoachDisplayState = CoachDisplayState(),
-    onToggleLatestExpanded: () -> Unit = {}
+    onToggleLatestExpanded: () -> Unit = {},
+    olderInsights: List<OlderInsight> = emptyList(),
+    onToggleOlder: (Long) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -215,7 +236,9 @@ fun AiInsightComicDispatch(
             onRefresh = onRefresh,
             onNavigateToSettings = onNavigateToSettings,
             display = display,
-            onToggleLatestExpanded = onToggleLatestExpanded
+            onToggleLatestExpanded = onToggleLatestExpanded,
+            olderInsights = olderInsights,
+            onToggleOlder = onToggleOlder
         )
     }
 }

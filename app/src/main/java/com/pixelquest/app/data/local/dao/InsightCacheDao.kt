@@ -22,6 +22,10 @@ interface InsightCacheDao {
     @Query("SELECT * FROM insight_cache ORDER BY generatedAt DESC LIMIT 1")
     fun observeLatestInsight(): Flow<InsightCacheEntity?>
 
+    /** The newest [limit] insights, newest first (the AI Coach lists earlier ones under the latest). */
+    @Query("SELECT * FROM insight_cache ORDER BY generatedAt DESC LIMIT :limit")
+    fun observeRecentInsights(limit: Int): Flow<List<InsightCacheEntity>>
+
     @Query("DELETE FROM insight_cache WHERE generatedAt < :expiryTimestamp")
     suspend fun deleteOld(expiryTimestamp: Long): Int
 

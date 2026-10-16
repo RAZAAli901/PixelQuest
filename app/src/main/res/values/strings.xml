@@ -5,4 +5,5 @@
     <string name="coach_status_light">Gemini AI</string>
     <string name="coach_expand">Show more</string>
     <string name="coach_collapse">Show less</string>
+    <string name="coach_earlier">Earlier insights</string>
 </resources>

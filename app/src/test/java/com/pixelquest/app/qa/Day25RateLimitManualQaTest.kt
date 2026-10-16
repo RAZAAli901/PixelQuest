@@ -59,6 +59,8 @@ class Day25RateLimitManualQaTest {
         }
         override suspend fun getLatestInsight(): InsightCacheEntity? = list.lastOrNull()
         override fun observeLatestInsight(): Flow<InsightCacheEntity?> = flow.asStateFlow()
+        override fun observeRecentInsights(limit: Int): Flow<List<InsightCacheEntity>> =
+            kotlinx.coroutines.flow.flowOf(list.sortedByDescending { it.generatedAt }.take(limit))
         override suspend fun deleteOld(expiryTimestamp: Long): Int = 0
         override suspend fun clearCache(): Int = 0
     }

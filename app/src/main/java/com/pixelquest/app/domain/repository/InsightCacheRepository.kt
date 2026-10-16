@@ -24,6 +24,9 @@ interface InsightCacheRepository {
      */
     fun observeLatestInsight(): Flow<InsightCacheEntity?>
 
+    /** The newest [limit] insights, newest first. None by default, for stores that keep only one. */
+    fun observeRecentInsights(limit: Int): Flow<List<InsightCacheEntity>> = kotlinx.coroutines.flow.flowOf(emptyList())
+
     /**
      * Evaluates whether the currently cached insight is valid:
      * non-null, matching the given [currentDataHash], and newer than [maxAgeMillis].
