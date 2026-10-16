@@ -103,7 +103,13 @@ class MainActivity : ComponentActivity() {
                         val navController = rememberNavController()
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentRoute = navBackStackEntry?.destination?.route
+                        val menuDrawer = com.pixelquest.app.ui.menu.rememberMenuDrawerController()
 
+                        // The side menu slides in over the screens and the bottom bar (docs/ai-coach-compact.md).
+                        com.pixelquest.app.ui.menu.MenuDrawerScaffold(
+                            controller = menuDrawer,
+                            drawerContent = {}
+                        ) {
                         Scaffold(
                             modifier = Modifier.fillMaxSize(),
                             bottomBar = {
@@ -145,6 +151,7 @@ class MainActivity : ComponentActivity() {
                                     com.pixelquest.app.ui.screens.settings.LostProgressPrompt(lostProgressViewModel)
                                 }
                             }
+                        }
                         }
                     }
                 }
