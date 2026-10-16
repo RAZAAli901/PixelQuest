@@ -18,4 +18,8 @@
     <string name="menu_level_progress">%1$d of %2$d perfect days to LVL %3$d</string>
     <string name="tasks_title">📜 QUEST LOG</string>
     <string name="tasks_title_simple">📋 ALL TASKS</string>
+    <string name="menu_namaz">Namaz Tracker</string>
+    <string name="namaz_title">Namaz Tracker</string>
+    <string name="namaz_coming_soon">Coming soon: today\'s prayer times, a button for each of the five prayers, and a reminder when each one starts.</string>
+    <string name="navigate_back">Back</string>
 </resources>

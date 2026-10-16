@@ -1,6 +1,8 @@
 package com.pixelquest.app.ui.menu
 
 import androidx.annotation.StringRes
+import com.pixelquest.app.R
+import com.pixelquest.app.ui.navigation.Screen
 
 /** The side menu's entries (docs/ai-coach-compact.md, Phase 2). */
 enum class MenuItemId { NAMAZ, HISTORY, LEADERBOARD, ACCOUNT, SETTINGS }
@@ -36,7 +38,15 @@ data class MenuItem(
 /** The entries [context] shows, in order. */
 fun List<MenuItem>.visibleIn(context: MenuContext): List<MenuItem> = filter { it.visibleWhen(context) }
 
-/** The side menu's entries, in order. Added by C33-C34. */
+/** The side menu's entries, in order. */
 object MenuItems {
-    val all: List<MenuItem> = emptyList()
+    val Namaz = MenuItem(
+        id = MenuItemId.NAMAZ,
+        label = R.string.menu_namaz,
+        icon = "🕌",
+        route = Screen.Namaz.route,
+        visibleWhen = { it.namazAvailable }
+    )
+
+    val all: List<MenuItem> = listOf(Namaz)
 }

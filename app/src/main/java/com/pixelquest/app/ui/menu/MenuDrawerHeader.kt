@@ -87,8 +87,8 @@ object MenuSpacing {
     /** From the drawer's edges to its content. */
     val Edge = 24.dp
     val HeaderVertical = 28.dp
-    /** Entries sit 12dp in from the edge; their own 16dp padding lines their icons up with the header. */
-    val ItemInset = 12.dp
+    /** Entries sit 8dp in from the edge; with their own 16dp padding, their icons line up with the header's 24dp. */
+    val ItemInset = 8.dp
     /** Each entry's height: taller than Android's 48dp minimum, for an easy tap and a calm list. */
     val ItemHeight = 56.dp
     val ItemGap = 4.dp

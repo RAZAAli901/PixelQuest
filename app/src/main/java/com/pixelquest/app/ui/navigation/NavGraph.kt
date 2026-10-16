@@ -222,6 +222,9 @@ fun PixelNavHost(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
+        composable(Screen.Namaz.route) {
+            com.pixelquest.app.ui.screens.namaz.NamazScreen(onNavigateBack = { navController.popBackStack() })
+        }
         composable(Screen.Leaderboard.route) {
             val leaderboardViewModel: com.pixelquest.app.ui.screens.leaderboard.LeaderboardViewModel = hiltViewModel()
             com.pixelquest.app.ui.screens.leaderboard.LeaderboardScreen(

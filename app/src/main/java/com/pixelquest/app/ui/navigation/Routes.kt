@@ -24,6 +24,8 @@ sealed class Screen(val route: String) {
     object Leaderboard : Screen("leaderboard")
     object ThemeSelection : Screen("theme_selection")
     object AiInsight : Screen("ai_insight")
+    /** The Namaz Tracker, from the side menu. */
+    object Namaz : Screen("namaz")
 }
 
 /** Groups of routes the app's frame cares about. */
