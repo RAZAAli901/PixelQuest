@@ -10,7 +10,7 @@
     <string name="coach_cooldown_hours">%1$dh</string>
     <string name="coach_refresh_description">Get a fresh insight</string>
 
-    <!-- Side menu (docs/ai-coach-compact.md, Phase 2). -->
+    <!-- Side menu (docs/ai-coach-compact.md, Phase 2). The Namaz Tracker's own text is in strings_namaz.xml. -->
     <string name="menu_open">Open menu</string>
     <string name="menu_close">Close menu</string>
     <string name="menu_opened">Menu open</string>
@@ -19,29 +19,7 @@
     <string name="tasks_title">📜 QUEST LOG</string>
     <string name="tasks_title_simple">📋 ALL TASKS</string>
     <string name="menu_namaz">Namaz Tracker</string>
-    <string name="namaz_title">Namaz Tracker</string>
     <string name="navigate_back">Back</string>
-
-    <!-- Namaz Tracker (docs/namaz-design.md). -->
-    <string name="prayer_fajr">Fajr</string>
-    <string name="prayer_dhuhr">Dhuhr</string>
-    <string name="prayer_asr">Asr</string>
-    <string name="prayer_maghrib">Maghrib</string>
-    <string name="prayer_isha">Isha</string>
-    <string name="namaz_method_karachi">University of Islamic Sciences, Karachi</string>
-    <string name="namaz_method_mwl">Muslim World League</string>
-    <string name="namaz_method_isna">Islamic Society of North America (ISNA)</string>
-    <string name="namaz_method_umm_al_qura">Umm al-Qura, Makkah</string>
-    <string name="namaz_method_egyptian">Egyptian General Authority of Survey</string>
-    <string name="namaz_madhab_hanafi">Hanafi (later Asr)</string>
-    <string name="namaz_madhab_shafi">Shafi, Maliki, Hanbali (earlier Asr)</string>
-    <string name="namaz_high_latitude_middle">Middle of the night</string>
-    <string name="namaz_high_latitude_seventh">Seventh of the night</string>
-    <string name="namaz_high_latitude_angle">Twilight angle</string>
-    <string name="namaz_location_title">Use your location?</string>
-    <string name="namaz_location_message">PixelQuest works out prayer times on your phone from your rough location, about the city you\'re in. It stays on your phone. Not now lets you pick a city instead.</string>
-    <string name="namaz_location_allow">Allow</string>
-    <string name="namaz_location_not_now">Not now</string>
     <string name="menu_history">Quest History</string>
     <string name="menu_history_simple">Task History</string>
     <string name="menu_leaderboard">Leaderboard</string>

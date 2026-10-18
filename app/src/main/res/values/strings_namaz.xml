@@ -1,14 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- The Namaz Tracker screen (docs/namaz-design.md). -->
+<!--
+    The Namaz Tracker's text (docs/namaz-design.md), all in this file.
+
+    For translators:
+    - Prayer names, Islamic months and calculation methods are proper names: keep the forms your
+      language uses for them.
+    - <xliff:g> marks a value filled in by the app; keep it, move it where your grammar needs it,
+      and leave what's inside unchanged. Its example shows what the app puts there.
+    - Times come from the phone's own clock format, so "5:29 PM" may be "17:29".
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="namaz_title">Namaz Tracker</string>
+
+    <!-- The five daily prayers, in the day's order. -->
+    <string name="prayer_fajr">Fajr</string>
+    <string name="prayer_dhuhr">Dhuhr</string>
+    <string name="prayer_asr">Asr</string>
+    <string name="prayer_maghrib">Maghrib</string>
+    <string name="prayer_isha">Isha</string>
+
+    <!-- How the prayer times are worked out: the institution whose angles are used. -->
+    <string name="namaz_method_karachi">University of Islamic Sciences, Karachi</string>
+    <string name="namaz_method_mwl">Muslim World League</string>
+    <string name="namaz_method_isna">Islamic Society of North America (ISNA)</string>
+    <string name="namaz_method_umm_al_qura">Umm al-Qura, Makkah</string>
+    <string name="namaz_method_egyptian">Egyptian General Authority of Survey</string>
+    <!-- When Asr starts, by school of thought. -->
+    <string name="namaz_madhab_hanafi">Hanafi (later Asr)</string>
+    <string name="namaz_madhab_shafi">Shafi, Maliki, Hanbali (earlier Asr)</string>
+    <!-- How times are found far from the equator, where twilight can last all night in summer. -->
+    <string name="namaz_high_latitude_middle">Middle of the night</string>
+    <string name="namaz_high_latitude_seventh">Seventh of the night</string>
+    <string name="namaz_high_latitude_angle">Twilight angle</string>
+
+    <!-- Asked before Android's own location prompt. -->
+    <string name="namaz_location_title">Use your location?</string>
+    <string name="namaz_location_message">PixelQuest works out prayer times on your phone from your rough location, about the city you\'re in. It stays on your phone. Not now lets you pick a city instead.</string>
+    <string name="namaz_location_allow">Allow</string>
+    <string name="namaz_location_not_now">Not now</string>
+
+    <!-- The master switch, and what the tracker does while it's off. -->
     <string name="namaz_switch_label">Track my prayers</string>
     <string name="namaz_switch_on">On</string>
     <string name="namaz_switch_off">Off</string>
     <string name="namaz_explainer_title">Five prayers, one tap each</string>
     <string name="namaz_explainer_body">Turn the tracker on to see today\'s prayer times, mark each prayer once you\'ve prayed it, and see your week at a glance. The times are worked out on your phone, so it works offline.</string>
 
-    <!-- The Hijri date under the title, by Umm al-Qura: "6 Jumada al-Ula 1448 AH". -->
-    <string name="namaz_hijri_date">%1$d %2$s %3$d AH</string>
+    <!-- The Hijri date under the title, by Umm al-Qura. AH: "after the Hijra". -->
+    <string name="namaz_hijri_date"><xliff:g id="day" example="6">%1$d</xliff:g> <xliff:g id="month" example="Jumada al-Ula">%2$s</xliff:g> <xliff:g id="year" example="1448">%3$d</xliff:g> AH</string>
+    <!-- The twelve Islamic months, Muharram first. -->
     <string-array name="namaz_hijri_months">
         <item>Muharram</item>
         <item>Safar</item>
@@ -30,7 +70,10 @@
     <string name="namaz_setup_method">Calculation method</string>
     <string name="namaz_setup_reminders">Remind me when each prayer starts</string>
     <string name="namaz_setup_done">Done</string>
-    <string name="namaz_place_times_for">Times for %1$s</string>
+
+    <!-- Where the times are for, and the two ways to change it. -->
+    <string name="namaz_place_times_for">Times for <xliff:g id="place" example="Lahore">%1$s</xliff:g></string>
+    <!-- Stands in for a place's name when the phone's position isn't near a listed city. -->
     <string name="namaz_place_here">your location</string>
     <string name="namaz_use_my_location">Use my location</string>
     <string name="namaz_pick_city">Pick a city</string>
@@ -38,40 +81,53 @@
     <string name="namaz_city_search">Search cities</string>
     <string name="namaz_city_none">No city by that name in the list. Use my location works anywhere.</string>
     <string name="namaz_location_finding">Finding your location…</string>
+    <string name="namaz_location_unavailable">Couldn\'t get your location, so the times stay for <xliff:g id="place" example="Lahore">%1$s</xliff:g>. You can pick a city instead.</string>
+
+    <!-- The next-prayer card. -->
     <string name="namaz_next_label">Next prayer</string>
-    <string name="namaz_next_at">at %1$s</string>
-    <string name="namaz_next_starts_in">Starts in %1$s</string>
-    <string name="namaz_now_label">Now: %1$s</string>
+    <string name="namaz_next_at">at <xliff:g id="time" example="5:29 PM">%1$s</xliff:g></string>
+    <string name="namaz_next_starts_in">Starts in <xliff:g id="countdown" example="1:29:00">%1$s</xliff:g></string>
+    <string name="namaz_now_label">Now: <xliff:g id="prayer" example="Asr">%1$s</xliff:g></string>
+
+    <!-- The day's prayers and progress. -->
     <string name="namaz_prayers_title">Today\'s prayers</string>
-    <string name="namaz_progress">%1$d / %2$d prayed today</string>
-    <string name="namaz_progress_past">%1$d / %2$d prayed that day</string>
+    <string name="namaz_prayers_on">Prayers on <xliff:g id="date" example="Fri 16 Oct">%1$s</xliff:g></string>
+    <string name="namaz_progress"><xliff:g id="prayed" example="3">%1$d</xliff:g> / <xliff:g id="total" example="5">%2$d</xliff:g> prayed today</string>
+    <string name="namaz_progress_past"><xliff:g id="prayed" example="3">%1$d</xliff:g> / <xliff:g id="total" example="5">%2$d</xliff:g> prayed that day</string>
+    <string name="namaz_past_read_only">Earlier days are for looking back: they can\'t be changed.</string>
+
+    <!-- The week: one tab per day, today last. -->
     <string name="namaz_days_label">Your week</string>
     <string name="namaz_day_today">Today</string>
-    <string name="namaz_day_spoken">%1$s, %2$d of %3$d prayed</string>
-    <string name="namaz_prayers_on">Prayers on %1$s</string>
-    <string name="namaz_past_read_only">Earlier days are for looking back: they can\'t be changed.</string>
+    <!-- What TalkBack says for a day's tab. -->
+    <string name="namaz_day_spoken"><xliff:g id="date" example="Saturday 17 October">%1$s</xliff:g>, <xliff:g id="prayed" example="3">%2$d</xliff:g> of <xliff:g id="total" example="5">%3$d</xliff:g> prayed</string>
+
+    <!-- A prayer button's state, at its right-hand end. -->
     <string name="namaz_status_pending">Tap when prayed</string>
     <string name="namaz_status_prayed">Prayed</string>
     <string name="namaz_status_missed">Missed</string>
     <string name="namaz_status_locked">Not yet</string>
-    <string name="namaz_starts_at">Starts at %1$s</string>
-    <string name="namaz_undo_question">Mark %1$s as not prayed?</string>
+    <!-- Tapping a prayer whose time hasn't come. -->
+    <string name="namaz_starts_at">Starts at <xliff:g id="time" example="5:29 PM">%1$s</xliff:g></string>
+    <!-- Asked before taking a prayed mark back. -->
+    <string name="namaz_undo_question">Mark <xliff:g id="prayer" example="Asr">%1$s</xliff:g> as not prayed?</string>
     <string name="namaz_undo_action">Undo</string>
-    <string name="namaz_location_unavailable">Couldn\'t get your location, so the times stay for %1$s. You can pick a city instead.</string>
 
-    <!-- What TalkBack says for a prayer's button: "Fajr, 5:12 AM, not prayed", then "double tap to mark prayed". -->
-    <string name="namaz_a11y_prayer">%1$s, %2$s, %3$s</string>
+    <!-- What TalkBack says for a prayer's button: "Fajr, 5:12 AM, not prayed", then "double tap to mark prayed".
+         The actions (mark prayed, …) follow TalkBack's own "double tap to", so they start in lower case. -->
+    <string name="namaz_a11y_prayer"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g>, <xliff:g id="time" example="5:12 AM">%2$s</xliff:g>, <xliff:g id="state" example="not prayed">%3$s</xliff:g></string>
     <string name="namaz_a11y_not_prayed">not prayed</string>
     <string name="namaz_a11y_prayed">prayed</string>
     <string name="namaz_a11y_missed">missed</string>
-    <string name="namaz_a11y_locked">starts at %1$s</string>
+    <string name="namaz_a11y_locked">starts at <xliff:g id="time" example="5:29 PM">%1$s</xliff:g></string>
     <string name="namaz_a11y_mark">mark prayed</string>
     <string name="namaz_a11y_mark_late">mark prayed late</string>
     <string name="namaz_a11y_undo">mark not prayed</string>
     <string name="namaz_a11y_when">hear when it starts</string>
 
     <!-- Home's Namaz card, while the tracker is on. -->
-    <string name="namaz_home_next">Next: %1$s at %2$s</string>
+    <string name="namaz_home_next">Next: <xliff:g id="prayer" example="Maghrib">%1$s</xliff:g> at <xliff:g id="time" example="5:29 PM">%2$s</xliff:g></string>
+    <!-- After TalkBack's "double tap to". -->
     <string name="namaz_home_open">open the Namaz Tracker</string>
 
     <!-- The settings sheet, from the top bar's gear. -->
@@ -80,19 +136,20 @@
     <string name="namaz_settings_madhab">Asr time</string>
     <string name="namaz_settings_adjust">Adjust times</string>
     <string name="namaz_settings_adjust_hint">Move a prayer\'s time to match your mosque, a minute at a time.</string>
-    <string name="namaz_adjust_minutes">%1$+d min</string>
-    <string name="namaz_adjust_earlier">%1$s a minute earlier</string>
-    <string name="namaz_adjust_later">%1$s a minute later</string>
+    <!-- Minutes added to a prayer's time, with its sign: "+2 min", "-3 min", "+0 min". -->
+    <string name="namaz_adjust_minutes"><xliff:g id="minutes" example="+2">%1$+d</xliff:g> min</string>
+    <string name="namaz_adjust_earlier"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g> a minute earlier</string>
+    <string name="namaz_adjust_later"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g> a minute later</string>
 
     <!-- Days in a row with all five prayers prayed. -->
     <plurals name="namaz_streak">
-        <item quantity="one">🔥 %d day in a row with all five prayed</item>
-        <item quantity="other">🔥 %d days in a row with all five prayed</item>
+        <item quantity="one">🔥 <xliff:g id="days" example="1">%1$d</xliff:g> day in a row with all five prayed</item>
+        <item quantity="other">🔥 <xliff:g id="days" example="3">%1$d</xliff:g> days in a row with all five prayed</item>
     </plurals>
-    <!-- The same in Simple Mode: plain words, no emoji. -->
+    <!-- The same in Simple Mode, and for TalkBack: plain words, no emoji. -->
     <plurals name="namaz_streak_plain">
-        <item quantity="one">%d day in a row with all five prayed</item>
-        <item quantity="other">%d days in a row with all five prayed</item>
+        <item quantity="one"><xliff:g id="days" example="1">%1$d</xliff:g> day in a row with all five prayed</item>
+        <item quantity="other"><xliff:g id="days" example="3">%1$d</xliff:g> days in a row with all five prayed</item>
     </plurals>
     <string name="namaz_streak_none">Pray all five today to start a streak.</string>
 </resources>
