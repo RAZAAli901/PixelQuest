@@ -65,6 +65,7 @@ object NamazTestTags {
     const val HIJRI = "namaz_hijri"
     const val HOME_CARD = "namaz_home_card"
     const val EXACT_ALARM_CARD = "namaz_exact_alarm_card"
+    const val NOTIFICATIONS_CARD = "namaz_notifications_card"
     const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */
@@ -92,6 +93,10 @@ fun NamazScreen(
         if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
     }
     var pickingCity by rememberSaveable { mutableStateOf(false) }
+    // Reminders chosen in the setup: Android's notification prompt right then, while it's clear why.
+    val askForNotifications = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { }
 
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
@@ -161,7 +166,12 @@ fun NamazScreen(
             place = state.place,
             locationLookup = locationLookup,
             onUseMyLocation = locationRequest::launch,
-            onDone = viewModel::finishSetup,
+            onDone = { method, remind ->
+                viewModel.finishSetup(method, remind)
+                if (remind && needsNotificationPermission(context)) {
+                    askForNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+            },
             onDismiss = viewModel::dismissSetup
         )
     }

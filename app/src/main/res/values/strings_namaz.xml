@@ -170,6 +170,8 @@
     <!-- When the phone may hold reminders back, with the way to fix it. -->
     <string name="namaz_exact_alarm_message">Prayer reminders may come up to 10 minutes late. Allow exact reminder times so each one comes as its prayer starts.</string>
     <string name="namaz_exact_alarm_allow">Allow exact times</string>
+    <string name="namaz_notifications_message">Prayer reminders can\'t appear: notifications are off for PixelQuest. Allow them so each prayer\'s reminder can show.</string>
+    <string name="namaz_notifications_allow">Allow notifications</string>
 
     <!-- Notification channels, as the phone's notification settings list them. -->
     <string name="namaz_channel_reminders">Prayer reminders</string>

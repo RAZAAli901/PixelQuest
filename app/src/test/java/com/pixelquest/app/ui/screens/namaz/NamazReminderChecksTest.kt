@@ -31,6 +31,11 @@ class NamazReminderChecksTest {
         ShadowAlarmManager.setCanScheduleExactAlarms(true)
     }
 
+    private fun notifications(enabled: Boolean) {
+        val manager = composeTestRule.activity.getSystemService(android.app.NotificationManager::class.java)
+        shadowOf(manager).setNotificationsEnabled(enabled)
+    }
+
     private fun show() {
         composeTestRule.setContent { PixelQuestTheme { NamazReminderChecks() } }
         composeTestRule.waitForIdle()
@@ -55,5 +60,42 @@ class NamazReminderChecksTest {
         show()
 
         composeTestRule.onNodeWithTag(NamazTestTags.EXACT_ALARM_CARD).assertDoesNotExist()
+    }
+
+    @Test
+    fun withNotificationsOff_aCardSaysRemindersCantAppear_andAsksOnce_thenOpensTheSettings() {
+        notifications(enabled = false)
+        show()
+        composeTestRule.onNodeWithTag(NamazTestTags.NOTIFICATIONS_CARD).assertIsDisplayed()
+
+        // Android 13+: its own prompt first.
+        composeTestRule.onNodeWithText("Allow notifications").performClick()
+        val asked = shadowOf(composeTestRule.activity).lastRequestedPermission
+        assertEquals(listOf(android.Manifest.permission.POST_NOTIFICATIONS), asked.requestedPermissions.toList())
+
+        // After that, the app's notification settings.
+        composeTestRule.onNodeWithText("Allow notifications").performClick()
+        val opened = shadowOf(composeTestRule.activity).nextStartedActivity
+        assertEquals(Settings.ACTION_APP_NOTIFICATION_SETTINGS, opened.action)
+        assertEquals(composeTestRule.activity.packageName, opened.getStringExtra(Settings.EXTRA_APP_PACKAGE))
+    }
+
+    @Test
+    fun withThePermissionGranted_butNotificationsOffInSettings_itOpensTheSettingsStraightAway() {
+        shadowOf(composeTestRule.activity.application).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS)
+        notifications(enabled = false)
+        show()
+
+        composeTestRule.onNodeWithText("Allow notifications").performClick()
+
+        assertEquals(Settings.ACTION_APP_NOTIFICATION_SETTINGS, shadowOf(composeTestRule.activity).nextStartedActivity.action)
+    }
+
+    @Test
+    fun withNotificationsOn_thereIsNoNotificationsCard() {
+        notifications(enabled = true)
+        show()
+
+        composeTestRule.onNodeWithTag(NamazTestTags.NOTIFICATIONS_CARD).assertDoesNotExist()
     }
 }
