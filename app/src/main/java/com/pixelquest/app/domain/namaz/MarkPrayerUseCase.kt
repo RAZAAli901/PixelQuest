@@ -3,6 +3,7 @@ package com.pixelquest.app.domain.namaz
 import com.pixelquest.app.domain.repository.NamazRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.withLock
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -38,7 +39,10 @@ class MarkPrayerUseCase @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
 ) {
-    suspend operator fun invoke(day: LocalDate, prayer: Prayer, now: ZonedDateTime): MarkPrayerResult {
+    suspend operator fun invoke(day: LocalDate, prayer: Prayer, now: ZonedDateTime): MarkPrayerResult =
+        NamazXpLock.mutex.withLock { mark(day, prayer, now) }
+
+    private suspend fun mark(day: LocalDate, prayer: Prayer, now: ZonedDateTime): MarkPrayerResult {
         val currentDay = nextPrayer(now).prayerDay
         val times = provider.timesFor(day)
         val time = times.timeOf(prayer)

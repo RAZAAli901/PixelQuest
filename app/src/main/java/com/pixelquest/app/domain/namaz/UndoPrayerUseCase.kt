@@ -2,6 +2,7 @@ package com.pixelquest.app.domain.namaz
 
 import com.pixelquest.app.domain.repository.NamazRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
+import kotlinx.coroutines.sync.withLock
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -37,7 +38,10 @@ class UndoPrayerUseCase @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
 ) {
-    suspend operator fun invoke(day: LocalDate, prayer: Prayer, now: ZonedDateTime): UndoPrayerResult {
+    suspend operator fun invoke(day: LocalDate, prayer: Prayer, now: ZonedDateTime): UndoPrayerResult =
+        NamazXpLock.mutex.withLock { undo(day, prayer, now) }
+
+    private suspend fun undo(day: LocalDate, prayer: Prayer, now: ZonedDateTime): UndoPrayerResult {
         if (day != nextPrayer(now).prayerDay) return UndoPrayerResult.PastDay
         val logs = repository.getDay(day)
         val row = logs.firstOrNull { it.prayer == prayer && it.status == PrayerStatus.PRAYED } ?: return UndoPrayerResult.NotPrayed

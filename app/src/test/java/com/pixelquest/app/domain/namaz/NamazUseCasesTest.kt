@@ -3,6 +3,8 @@ package com.pixelquest.app.domain.namaz
 import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.testing.FakeNamazRepository
 import com.pixelquest.app.testing.FixedClock
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -265,5 +267,31 @@ class NamazUseCasesTest {
         assertEquals(NamazXpAward(5, allFiveBonus = 30), again.xp)
         assertEquals(75, profile.profile.value!!.totalXp)
         assertEquals(30, repository.rows.value.values.sumOf { it.bonusXp })
+    }
+
+    @Test
+    fun aPrayerMarkedFromEverywhereAtOnce_earnsItsXpOnce() = runBlocking {
+        val now = at(day, 16)
+
+        // Ten marks at the same moment: double taps, the screen and a reminder's button.
+        val results = (1..10).map {
+            async(Dispatchers.Default) { mark(day, Prayer.ASR, now) }
+        }.map { it.await() }
+
+        assertEquals(1, results.count { it is MarkPrayerResult.Marked })
+        assertEquals(9, results.count { it == MarkPrayerResult.AlreadyPrayed })
+        assertEquals(10, profile.profile.value!!.totalXp)
+    }
+
+    @Test
+    fun markingAndUndoingAtOnce_neverLeavesXpForAnUnmarkedPrayer() = runBlocking {
+        val now = at(day, 16)
+        repeat(20) {
+            val a = async(Dispatchers.Default) { mark(day, Prayer.ASR, now) }
+            val b = async(Dispatchers.Default) { undo(day, Prayer.ASR, now) }
+            a.await(); b.await()
+            val prayed = repository.statusOf(day, Prayer.ASR) == PrayerStatus.PRAYED
+            assertEquals(if (prayed) 10 else 0, profile.profile.value!!.totalXp)
+        }
     }
 }
