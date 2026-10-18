@@ -222,13 +222,29 @@ class NamazViewModel(
     fun markPrayed(prayer: Prayer) {
         viewModelScope.launch {
             val now = now()
-            val result = markPrayer(nextPrayer(now).prayerDay, prayer, now)
+            val day = nextPrayer(now).prayerDay
+            val result = markPrayer(day, prayer, now)
             if (result == com.pixelquest.app.domain.namaz.MarkPrayerResult.ClockBehind) _messages.tryEmit(NamazMessage.CLOCK_BEHIND)
             // The prayer's own XP pops up (the all-five card shows the bonus); not in Simple Mode.
             if (result is com.pixelquest.app.domain.namaz.MarkPrayerResult.Marked && result.xp.prayer > 0 && uiState.value.showXp) {
                 _xpPopup.value = NamazXpPopup(++popups, prayer, result.xp.prayer)
             }
+            // The day's fifth: the all-five card, with or without XP to show.
+            if (result is com.pixelquest.app.domain.namaz.MarkPrayerResult.Marked &&
+                repository.getDay(day).count { it.status == PrayerStatus.PRAYED } == NamazUiState.PRAYERS_PER_DAY
+            ) {
+                _allFive.value = NamazAllFive(result.xp.allFiveBonus, result.xp.weekBonus)
+            }
         }
+    }
+
+    private val _allFive = MutableStateFlow<NamazAllFive?>(null)
+
+    /** All five were just prayed: the celebration card, until it's closed. */
+    val allFive: StateFlow<NamazAllFive?> = _allFive.asStateFlow()
+
+    fun allFiveSeen() {
+        _allFive.value = null
     }
 
     private var popups = 0L

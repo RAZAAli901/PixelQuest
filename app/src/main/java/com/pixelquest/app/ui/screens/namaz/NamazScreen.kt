@@ -69,6 +69,7 @@ object NamazTestTags {
     const val BATTERY_CARD = "namaz_battery_card"
     const val TEST_REMINDER = "namaz_test_reminder"
     const val XP_POPUP = "namaz_xp_popup"
+    const val ALL_FIVE = "namaz_all_five"
     const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */
@@ -93,6 +94,7 @@ fun NamazScreen(
     val reminderOptions by viewModel.options.collectAsState()
     val xpPopup by viewModel.xpPopup.collectAsState()
     val pendingLevelUp by viewModel.pendingLevelUp.collectAsState()
+    val allFive by viewModel.allFive.collectAsState()
     val locationLookup by viewModel.locationLookup.collectAsState()
     val locationRequest = rememberLocationPermissionRequest { granted ->
         if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
@@ -155,6 +157,8 @@ fun NamazScreen(
             }
         }
     )
+
+    allFive?.let { NamazAllFiveCard(allFive = it, showXp = state.showXp, onDismiss = viewModel::allFiveSeen) }
 
     // A level reached overnight and not yet celebrated: the game's own celebration (Pixel or Comic).
     pendingLevelUp?.let { level ->

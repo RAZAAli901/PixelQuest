@@ -323,4 +323,20 @@ class NamazViewModelTest {
         viewModel.markPrayed(Prayer.DHUHR)
         assertEquals(null, viewModel.xpPopup.value)
     }
+
+    @Test
+    fun theFifthPrayer_bringsTheAllFiveCard_withItsBonus() = runTest {
+        // Late in the evening, after Isha started.
+        clock.time = LocalDateTime.of(day, LocalTime.of(20, 0))
+        Prayer.entries.dropLast(1).forEach { repository.logPrayer(day, it, prayedAtMillis = millisAt(12), xpAwarded = 10) }
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        assertEquals(null, viewModel.allFive.value)
+
+        viewModel.markPrayed(Prayer.ISHA)
+
+        assertEquals(NamazAllFive(allFiveBonus = 30, weekBonus = 0), viewModel.allFive.value)
+        viewModel.allFiveSeen()
+        assertEquals(null, viewModel.allFive.value)
+    }
 }

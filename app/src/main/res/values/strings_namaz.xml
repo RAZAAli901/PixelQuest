@@ -122,6 +122,12 @@
     <!-- Asked before taking a prayed mark back. -->
     <string name="namaz_undo_question">Mark <xliff:g id="prayer" example="Asr">%1$s</xliff:g> as not prayed?</string>
     <string name="namaz_undo_action">Undo</string>
+    <!-- The day's fifth prayer marked: the celebration card. -->
+    <string name="namaz_all_five_title">All five prayed!</string>
+    <string name="namaz_all_five_body">Every prayer today, marked.</string>
+    <string name="namaz_all_five_bonus">+<xliff:g id="xp" example="30">%1$d</xliff:g> XP bonus</string>
+    <string name="namaz_week_bonus">+<xliff:g id="xp" example="100">%1$d</xliff:g> XP for a week of all five</string>
+    <string name="namaz_all_five_done">Done</string>
     <!-- XP just earned by marking a prayer, shown for a moment. -->
     <string name="namaz_xp_popup">+<xliff:g id="xp" example="10">%1$d</xliff:g> XP</string>
     <!-- Marking refused: the phone's clock reads earlier than a prayer already marked (set ahead, then back). -->

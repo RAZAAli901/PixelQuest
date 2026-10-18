@@ -427,4 +427,37 @@ class NamazScreenUiTest {
         composeTestRule.onNodeWithTag(NamazTestTags.XP_POPUP, useUnmergedTree = true).assertDoesNotExist()
         assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.ASR))
     }
+
+    private fun allButIshaPrayed() = kotlinx.coroutines.runBlocking {
+        clock.time = LocalDateTime.of(day, java.time.LocalTime.of(20, 0))
+        Prayer.entries.dropLast(1).forEach { repository.logPrayer(day, it, prayedAtMillis = 0, xpAwarded = 10) }
+    }
+
+    @Test
+    fun theFifthPrayer_celebratesAllFive_withTheBonus() {
+        allButIshaPrayed()
+        show()
+        scrollTo(NamazTestTags.prayer(Prayer.ISHA))
+        composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.ISHA)).performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("All five prayed!").assertIsDisplayed()
+        composeTestRule.onNodeWithText("+30 XP bonus").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Done").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("All five prayed!").assertDoesNotExist()
+    }
+
+    @Test
+    fun inSimpleMode_allFiveIsCelebrated_withoutXp() {
+        settings.simpleModeEnabled.value = true
+        allButIshaPrayed()
+        show()
+        scrollTo(NamazTestTags.prayer(Prayer.ISHA))
+        composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.ISHA)).performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("All five prayed!").assertIsDisplayed()
+        composeTestRule.onNodeWithText("+30 XP bonus").assertDoesNotExist()
+    }
 }
