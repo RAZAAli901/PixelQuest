@@ -81,8 +81,10 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         // Both do nothing while the tracker is off.
         com.pixelquest.app.worker.NamazMidnightWorker.schedule(this)
         com.pixelquest.app.worker.NamazMissedWorker.schedule(this)
-        // The next 48 hours of prayer reminders, armed again whenever the tracker's settings change.
+        // The next 48 hours of prayer reminders, armed again whenever the tracker's settings change,
+        // and once a day as a safety net.
         namazReminders.start(appScope)
+        com.pixelquest.app.worker.NamazRescheduleWorker.schedule(this)
         rearmReminders()
     }
 
