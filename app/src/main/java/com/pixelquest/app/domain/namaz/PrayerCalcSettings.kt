@@ -44,3 +44,21 @@ fun NamazSettingsEntity.toCalcSettings(): PrayerCalcSettings = PrayerCalcSetting
         Prayer.ISHA to adjustIsha
     )
 )
+
+/** [prayer]'s minutes added to its calculated time. */
+fun NamazSettingsEntity.adjustmentFor(prayer: Prayer): Int = when (prayer) {
+    Prayer.FAJR -> adjustFajr
+    Prayer.DHUHR -> adjustDhuhr
+    Prayer.ASR -> adjustAsr
+    Prayer.MAGHRIB -> adjustMaghrib
+    Prayer.ISHA -> adjustIsha
+}
+
+/** These settings with [prayer]'s adjustment set to [minutes]. */
+fun NamazSettingsEntity.withAdjustment(prayer: Prayer, minutes: Int): NamazSettingsEntity = when (prayer) {
+    Prayer.FAJR -> copy(adjustFajr = minutes)
+    Prayer.DHUHR -> copy(adjustDhuhr = minutes)
+    Prayer.ASR -> copy(adjustAsr = minutes)
+    Prayer.MAGHRIB -> copy(adjustMaghrib = minutes)
+    Prayer.ISHA -> copy(adjustIsha = minutes)
+}

@@ -266,4 +266,30 @@ class NamazViewModelTest {
         repository.logPrayer(day, Prayer.ISHA, prayedAtMillis = millisAt(19))
         assertEquals(3, viewModel.uiState.value.streak)
     }
+
+    @Test
+    fun theSettings_changeTheTimesAtOnce() = runTest {
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        val before = viewModel.uiState.value.day!!.times
+
+        viewModel.setMadhab(com.pixelquest.app.domain.namaz.AsrMadhab.SHAFI)
+        // Shafi's Asr starts earlier than Hanafi's.
+        assertTrue(viewModel.uiState.value.day!!.times.asr.isBefore(before.asr))
+
+        viewModel.adjust(Prayer.FAJR, 2)
+        assertEquals(before.fajr.plusMinutes(2), viewModel.uiState.value.day!!.times.fajr)
+
+        viewModel.setMethod(com.pixelquest.app.domain.namaz.NamazMethod.UMM_AL_QURA)
+        assertEquals("UMM_AL_QURA", repository.getSettings().method)
+    }
+
+    @Test
+    fun anAdjustment_staysWithinHalfAnHourEitherWay() = runTest {
+        val viewModel = viewModel()
+        repeat(40) { viewModel.adjust(Prayer.ISHA, 1) }
+        assertEquals(NamazViewModel.MAX_ADJUST_MINUTES, repository.getSettings().adjustIsha)
+        repeat(80) { viewModel.adjust(Prayer.ISHA, -1) }
+        assertEquals(-NamazViewModel.MAX_ADJUST_MINUTES, repository.getSettings().adjustIsha)
+    }
 }

@@ -3,6 +3,7 @@ package com.pixelquest.app.ui.screens.namaz
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.NamazSettingsEntity
+import com.pixelquest.app.domain.namaz.AsrMadhab
 import com.pixelquest.app.domain.namaz.AutoMarkMissedUseCase
 import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.GetTodayNamazUseCase
@@ -19,6 +20,8 @@ import com.pixelquest.app.domain.namaz.PrayerSlot
 import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.domain.namaz.PrayerTimeProvider
 import com.pixelquest.app.domain.namaz.UndoPrayerUseCase
+import com.pixelquest.app.domain.namaz.adjustmentFor
+import com.pixelquest.app.domain.namaz.withAdjustment
 import com.pixelquest.app.domain.repository.NamazRepository
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.util.AppClock
@@ -198,6 +201,33 @@ class NamazViewModel(
         }
     }
 
+    private val _settingsVisible = MutableStateFlow(false)
+
+    /** The settings sheet, from the top bar, is open. */
+    val settingsVisible: StateFlow<Boolean> = _settingsVisible.asStateFlow()
+
+    fun openSettings() {
+        _settingsVisible.value = true
+    }
+
+    fun closeSettings() {
+        _settingsVisible.value = false
+    }
+
+    // Each change is saved at once, so the times on the screen follow it.
+    fun setMethod(method: NamazMethod) = updateSettings { it.copy(method = method.name) }
+
+    fun setMadhab(madhab: AsrMadhab) = updateSettings { it.copy(asrMadhab = madhab.name) }
+
+    /** Moves [prayer]'s time by [minutes] (a minute at a time), up to [MAX_ADJUST_MINUTES] either way. */
+    fun adjust(prayer: Prayer, minutes: Int) = updateSettings {
+        it.withAdjustment(prayer, (it.adjustmentFor(prayer) + minutes).coerceIn(-MAX_ADJUST_MINUTES, MAX_ADJUST_MINUTES))
+    }
+
+    private fun updateSettings(change: (NamazSettingsEntity) -> NamazSettingsEntity) {
+        viewModelScope.launch { repository.saveSettings(change(repository.getSettings())) }
+    }
+
     private val selectedDay = MutableStateFlow<LocalDate?>(null)
 
     /** Shows [date] from the day strip; earlier days are read-only. The current prayer day is the default. */
@@ -246,8 +276,11 @@ class NamazViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NamazUiState())
 
-    private companion object {
+    companion object {
         /** How far back a streak is counted: far longer than anyone's, and a small query. */
-        const val STREAK_YEARS = 10L
+        private const val STREAK_YEARS = 10L
+
+        /** A prayer's time can be moved this many minutes either way, to match a local mosque. */
+        const val MAX_ADJUST_MINUTES = 30
     }
 }

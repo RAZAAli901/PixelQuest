@@ -38,6 +38,16 @@
     <string name="namaz_undo_action">Undo</string>
     <string name="namaz_location_unavailable">Couldn\'t get your location, so the times stay for %1$s. You can pick a city instead.</string>
 
+    <!-- The settings sheet, from the top bar's gear. -->
+    <string name="namaz_settings_open">Namaz settings</string>
+    <string name="namaz_settings_title">Namaz settings</string>
+    <string name="namaz_settings_madhab">Asr time</string>
+    <string name="namaz_settings_adjust">Adjust times</string>
+    <string name="namaz_settings_adjust_hint">Move a prayer\'s time to match your mosque, a minute at a time.</string>
+    <string name="namaz_adjust_minutes">%1$+d min</string>
+    <string name="namaz_adjust_earlier">%1$s a minute earlier</string>
+    <string name="namaz_adjust_later">%1$s a minute later</string>
+
     <!-- Days in a row with all five prayers prayed. -->
     <plurals name="namaz_streak">
         <item quantity="one">🔥 %d day in a row with all five prayed</item>

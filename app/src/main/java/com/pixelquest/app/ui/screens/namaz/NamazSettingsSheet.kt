@@ -1,0 +1,133 @@
+package com.pixelquest.app.ui.screens.namaz
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.pixelquest.app.R
+import com.pixelquest.app.data.local.entity.NamazSettingsEntity
+import com.pixelquest.app.domain.namaz.AsrMadhab
+import com.pixelquest.app.domain.namaz.NamazMethod
+import com.pixelquest.app.domain.namaz.Prayer
+import com.pixelquest.app.domain.namaz.adjustmentFor
+import com.pixelquest.app.ui.components.SymbolIcon
+import com.pixelquest.app.ui.theme.PixelTheme
+
+/**
+ * The tracker's settings, from the top bar: the calculation method, when Asr starts, and a
+ * minute adjustment per prayer. Each change is saved at once and the screen's times follow it.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NamazSettingsSheet(
+    settings: NamazSettingsEntity,
+    onMethod: (NamazMethod) -> Unit,
+    onMadhab: (AsrMadhab) -> Unit,
+    onAdjust: (prayer: Prayer, minutes: Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = PixelTheme.colors
+    val method = NamazMethod.fromName(settings.method)
+    val madhab = AsrMadhab.fromName(settings.asrMadhab)
+
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = colors.surface, contentColor = colors.onSurface) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp)
+                .testTag(NamazTestTags.SETTINGS),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.namaz_settings_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = colors.primaryText
+            )
+            NamazSheetSection(title = stringResource(R.string.namaz_setup_method)) {
+                Column(modifier = Modifier.selectableGroup()) {
+                    NamazMethod.entries.forEach { option ->
+                        NamazChoiceRow(label = stringResource(option.displayName), selected = option == method, onClick = { onMethod(option) })
+                    }
+                }
+            }
+            NamazSheetSection(title = stringResource(R.string.namaz_settings_madhab)) {
+                Column(modifier = Modifier.selectableGroup()) {
+                    AsrMadhab.entries.forEach { option ->
+                        NamazChoiceRow(label = stringResource(option.displayName), selected = option == madhab, onClick = { onMadhab(option) })
+                    }
+                }
+            }
+            NamazSheetSection(title = stringResource(R.string.namaz_settings_adjust)) {
+                Text(
+                    text = stringResource(R.string.namaz_settings_adjust_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+                Prayer.entries.forEach { prayer ->
+                    AdjustRow(prayer = prayer, minutes = settings.adjustmentFor(prayer), onAdjust = { onAdjust(prayer, it) })
+                }
+            }
+        }
+    }
+}
+
+/** One prayer's adjustment: its name, a minute earlier, the minutes now, a minute later. */
+@Composable
+private fun AdjustRow(prayer: Prayer, minutes: Int, onAdjust: (Int) -> Unit) {
+    val colors = PixelTheme.colors
+    val name = stringResource(prayer.displayName)
+    Row(
+        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag(NamazTestTags.adjust(prayer)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = name, style = MaterialTheme.typography.bodyLarge, color = colors.onSurface, modifier = Modifier.weight(1f))
+        IconButton(
+            onClick = { onAdjust(-1) },
+            enabled = minutes > -NamazViewModel.MAX_ADJUST_MINUTES
+        ) {
+            SymbolIcon(
+                symbol = "−",
+                contentDescription = stringResource(R.string.namaz_adjust_earlier, name),
+                style = MaterialTheme.typography.titleLarge,
+                color = colors.primaryText
+            )
+        }
+        Text(
+            text = stringResource(R.string.namaz_adjust_minutes, minutes),
+            style = MaterialTheme.typography.bodyMedium,
+            color = colors.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(min = 64.dp)
+        )
+        IconButton(
+            onClick = { onAdjust(1) },
+            enabled = minutes < NamazViewModel.MAX_ADJUST_MINUTES
+        ) {
+            SymbolIcon(
+                symbol = "+",
+                contentDescription = stringResource(R.string.namaz_adjust_later, name),
+                style = MaterialTheme.typography.titleLarge,
+                color = colors.primaryText
+            )
+        }
+    }
+}

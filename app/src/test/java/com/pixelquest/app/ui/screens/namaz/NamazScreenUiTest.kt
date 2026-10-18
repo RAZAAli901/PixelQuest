@@ -4,9 +4,11 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
@@ -192,5 +194,29 @@ class NamazScreenUiTest {
         composeTestRule.waitForIdle()
         assertEquals(null, repository.statusOf(yesterday, Prayer.ASR))
         assertEquals(null, repository.statusOf(day, Prayer.ASR))
+    }
+
+    @Test
+    fun theGear_opensTheSettings_andAMinuteLaterMovesTheTime() {
+        show()
+        composeTestRule.onNodeWithContentDescription("Namaz settings").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(NamazTestTags.SETTINGS).assertIsDisplayed()
+
+        composeTestRule.onNodeWithContentDescription("Fajr a minute later").performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+
+        assertEquals(1, repository.settings.value.adjustFajr)
+        composeTestRule.onNodeWithText("+1 min").assertExists()
+    }
+
+    @Test
+    fun whileTheTrackerIsOff_thereAreNoSettings_andTheExplainerShows() {
+        repository.settings.value = NamazSettingsEntity(enabled = false)
+        show()
+
+        composeTestRule.onNodeWithTag(NamazTestTags.EXPLAINER).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Namaz settings").assertDoesNotExist()
+        composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.FAJR)).assertDoesNotExist()
     }
 }

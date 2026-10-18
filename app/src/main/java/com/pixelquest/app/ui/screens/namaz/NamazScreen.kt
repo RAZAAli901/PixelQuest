@@ -52,6 +52,10 @@ object NamazTestTags {
     const val PROGRESS = "namaz_progress"
     const val DAY_STRIP = "namaz_day_strip"
     const val STREAK = "namaz_streak"
+    const val SETTINGS = "namaz_settings"
+
+    /** A prayer's adjustment row in the settings sheet. */
+    fun adjust(prayer: Prayer) = "namaz_adjust_${prayer.name}"
 
     /** A day in the day strip. */
     fun day(date: java.time.LocalDate) = "namaz_day_$date"
@@ -68,6 +72,7 @@ fun NamazScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val setupVisible by viewModel.setupVisible.collectAsState()
+    val settingsVisible by viewModel.settingsVisible.collectAsState()
     val locationLookup by viewModel.locationLookup.collectAsState()
     val locationRequest = rememberLocationPermissionRequest { granted ->
         if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
@@ -84,6 +89,7 @@ fun NamazScreen(
         onEnabledChange = viewModel::setEnabled,
         onRefresh = viewModel::refresh,
         onDaySelected = viewModel::selectDay,
+        onOpenSettings = viewModel::openSettings,
         snackbarHostState = snackbarHostState,
         onPrayerClick = { slot ->
             when (PrayerButtonState.of(slot)) {
@@ -106,6 +112,16 @@ fun NamazScreen(
             }
         }
     )
+
+    if (settingsVisible) {
+        NamazSettingsSheet(
+            settings = state.settings,
+            onMethod = viewModel::setMethod,
+            onMadhab = viewModel::setMadhab,
+            onAdjust = viewModel::adjust,
+            onDismiss = viewModel::closeSettings
+        )
+    }
 
     if (setupVisible) {
         NamazSetupSheet(
@@ -130,6 +146,7 @@ fun NamazContent(
     onEnabledChange: (Boolean) -> Unit = {},
     onRefresh: () -> Unit = {},
     onDaySelected: (java.time.LocalDate) -> Unit = {},
+    onOpenSettings: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onPrayerClick: (PrayerSlot) -> Unit = {}
 ) {
@@ -137,7 +154,13 @@ fun NamazContent(
     val formatter = rememberPrayerTimeFormatter()
     Scaffold(
         containerColor = colors.background,
-        topBar = { NamazTopBar(onNavigateBack = onNavigateBack) },
+        topBar = {
+            NamazTopBar(
+                onNavigateBack = onNavigateBack,
+                // Settings are for the tracker in use: hidden while it's off.
+                onOpenSettings = if (state.enabled) onOpenSettings else null
+            )
+        },
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
                 NamazSnackbar(
@@ -245,10 +268,22 @@ private fun NamazProgress(prayed: Int, pastDay: Boolean) {
 }
 
 @Composable
-private fun NamazTopBar(onNavigateBack: (() -> Unit)?) {
+private fun NamazTopBar(onNavigateBack: (() -> Unit)?, onOpenSettings: (() -> Unit)?) {
     val colors = PixelTheme.colors
     PixelTopAppBar(
         title = stringResource(R.string.namaz_title),
+        actions = onOpenSettings?.let { open ->
+            {
+                IconButton(onClick = open) {
+                    SymbolIcon(
+                        symbol = "⚙️",
+                        contentDescription = stringResource(R.string.namaz_settings_open),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colors.primaryText
+                    )
+                }
+            }
+        },
         navigationIcon = onNavigateBack?.let { back ->
             {
                 IconButton(onClick = back) {
