@@ -2,6 +2,7 @@ package com.pixelquest.app.ui.screens.namaz
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pixelquest.app.domain.namaz.AutoMarkMissedUseCase
 import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.GetTodayNamazUseCase
 import com.pixelquest.app.domain.namaz.NamazDay
@@ -21,7 +22,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 /**
@@ -50,21 +53,33 @@ data class NamazUiState(
 /**
  * The Namaz Tracker's state: the current prayer day's times and statuses, the next prayer and
  * the day's progress. It moves on every minute, so a prayer unlocks or turns missed on time and
- * the day rolls over at Fajr (before Fajr it's still the previous prayer day). Marking and undoing
- * come with the screen's buttons (Phase 4).
+ * the day rolls over at Fajr (before Fajr it's still the previous prayer day). Opening it settles
+ * prayers left pending past their window, as the hourly NamazMissedWorker does.
  */
 @HiltViewModel
 class NamazViewModel(
     private val repository: NamazRepository,
     private val provider: PrayerTimeProvider,
     private val nextPrayer: NextPrayerUseCase,
+    private val autoMarkMissed: AutoMarkMissedUseCase,
     private val clock: AppClock,
     private val zone: () -> ZoneId
 ) : ViewModel() {
 
     @Inject
-    constructor(repository: NamazRepository, provider: PrayerTimeProvider, nextPrayer: NextPrayerUseCase, clock: AppClock) :
-        this(repository, provider, nextPrayer, clock, { ZoneId.systemDefault() })
+    constructor(
+        repository: NamazRepository,
+        provider: PrayerTimeProvider,
+        nextPrayer: NextPrayerUseCase,
+        autoMarkMissed: AutoMarkMissedUseCase,
+        clock: AppClock
+    ) : this(repository, provider, nextPrayer, autoMarkMissed, clock, { ZoneId.systemDefault() })
+
+    init {
+        viewModelScope.launch { autoMarkMissed(now()) }
+    }
+
+    private fun now(): ZonedDateTime = clock.now().atZone(zone())
 
     private val refreshRequests = MutableStateFlow(0)
 
@@ -75,7 +90,7 @@ class NamazViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<NamazUiState> = combine(clock.minuteTicks(), refreshRequests, repository.observeSettings()) { _, _, settings ->
-        clock.now().atZone(zone()) to settings
+        now() to settings
     }.flatMapLatest { (now, settings) ->
         val next = nextPrayer(now)
         val times = provider.timesFor(next.prayerDay)

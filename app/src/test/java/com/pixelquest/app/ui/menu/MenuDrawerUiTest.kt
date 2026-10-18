@@ -9,13 +9,16 @@ import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pixelquest.app.ui.navigation.Screen
+import com.pixelquest.app.testing.namazViewModel
 import com.pixelquest.app.ui.screens.namaz.NamazScreen
+import com.pixelquest.app.ui.screens.namaz.NamazTestTags
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
@@ -60,7 +63,7 @@ class MenuDrawerUiTest {
                 ) {
                     NavHost(nav, startDestination = Screen.Home.route) {
                         composable(Screen.Home.route) { HomeStandIn() }
-                        composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }) }
+                        composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }, viewModel = namazViewModel()) }
                     }
                 }
             }
@@ -88,7 +91,7 @@ class MenuDrawerUiTest {
         composeTestRule.onNodeWithText(namazLabel(mode)).assertIsDisplayed().performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Coming soon", substring = true).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(NamazTestTags.SCREEN).assertIsDisplayed()
         // The menu closed (the screen's own title says Namaz Tracker too, so check the header's name).
         composeTestRule.onNodeWithText("Aria").assertIsNotDisplayed()
     }

@@ -3,12 +3,12 @@ package com.pixelquest.app.ui.screens.namaz
 import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.NamazPlace
-import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
 import com.pixelquest.app.testing.FakeNamazRepository
 import com.pixelquest.app.testing.FixedClock
+import com.pixelquest.app.testing.namazViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -39,7 +39,7 @@ class NamazViewModelTest {
     private val clock = FixedClock(LocalDateTime.of(day, LocalTime.of(16, 0)))
     private val provider = DefaultPrayerTimeProvider(repository, calculator, clock) { lahoreZone }
 
-    private fun viewModel() = NamazViewModel(repository, provider, NextPrayerUseCase(provider), clock) { lahoreZone }
+    private fun viewModel() = namazViewModel(repository, clock, lahoreZone)
 
     private fun millisAt(hour: Int) = LocalDateTime.of(day, LocalTime.of(hour, 0)).atZone(lahoreZone).toInstant().toEpochMilli()
 
