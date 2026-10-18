@@ -2,6 +2,7 @@ package com.pixelquest.app.ui.screens.namaz
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerSlot
+import com.pixelquest.app.ui.components.PixelProgressBar
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.haptics.PixelHaptics
@@ -46,6 +48,7 @@ object NamazTestTags {
     const val COUNTDOWN = "namaz_countdown"
     const val LOCKED_TOOLTIP = "namaz_locked_tooltip"
     const val SNACKBAR = "namaz_snackbar"
+    const val PROGRESS = "namaz_progress"
 
     /** A prayer's button. */
     fun prayer(prayer: Prayer) = "namaz_prayer_${prayer.name}"
@@ -164,6 +167,7 @@ fun NamazContent(
                     color = colors.primaryText
                 )
             }
+            item(key = "progress") { NamazProgress(prayed = state.progress) }
             // Five separate buttons, in the day's order.
             items(state.slots, key = { it.prayer.name }) { slot ->
                 val buttonState = PrayerButtonState.of(slot)
@@ -178,6 +182,19 @@ fun NamazContent(
                 )
             }
         }
+    }
+}
+
+/** How many of the day's five prayers are prayed: "3 / 5 prayed today", over a bar. */
+@Composable
+private fun NamazProgress(prayed: Int) {
+    Column(modifier = Modifier.testTag(NamazTestTags.PROGRESS), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            text = stringResource(R.string.namaz_progress, prayed, NamazUiState.PRAYERS_PER_DAY),
+            style = MaterialTheme.typography.bodyMedium,
+            color = PixelTheme.colors.onSurface
+        )
+        PixelProgressBar(progress = prayed / NamazUiState.PRAYERS_PER_DAY.toFloat(), height = 14.dp)
     }
 }
 

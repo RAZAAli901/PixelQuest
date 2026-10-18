@@ -22,6 +22,7 @@
     <string name="namaz_next_starts_in">Starts in %1$s</string>
     <string name="namaz_now_label">Now: %1$s</string>
     <string name="namaz_prayers_title">Today\'s prayers</string>
+    <string name="namaz_progress">%1$d / %2$d prayed today</string>
     <string name="namaz_status_pending">Tap when prayed</string>
     <string name="namaz_status_prayed">Prayed</string>
     <string name="namaz_status_missed">Missed</string>

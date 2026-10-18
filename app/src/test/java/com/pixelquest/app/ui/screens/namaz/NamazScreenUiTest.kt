@@ -154,4 +154,22 @@ class NamazScreenUiTest {
 
         composeTestRule.onNodeWithText("Mark Fajr as not prayed?").assertIsDisplayed()
     }
+
+    @Test
+    fun theProgress_countsThePrayersPrayed() {
+        kotlinx.coroutines.runBlocking {
+            repository.logPrayer(day, Prayer.FAJR, prayedAtMillis = 0)
+            repository.logPrayer(day, Prayer.DHUHR, prayedAtMillis = 0)
+        }
+        show()
+        scrollTo(NamazTestTags.PROGRESS)
+        composeTestRule.onNodeWithText("2 / 5 prayed today").assertIsDisplayed()
+
+        scrollTo(NamazTestTags.prayer(Prayer.ASR))
+        composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.ASR)).performClick()
+        composeTestRule.waitForIdle()
+
+        scrollTo(NamazTestTags.PROGRESS)
+        composeTestRule.onNodeWithText("3 / 5 prayed today").assertIsDisplayed()
+    }
 }
