@@ -7,6 +7,7 @@ import com.pixelquest.app.domain.namaz.MarkPrayerUseCase
 import com.pixelquest.app.domain.namaz.NamazPlaceResolver
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
+import com.pixelquest.app.domain.namaz.UndoPrayerUseCase
 import com.pixelquest.app.namaz.GeoPoint
 import com.pixelquest.app.namaz.LocationProvider
 import com.pixelquest.app.ui.screens.namaz.NamazViewModel
@@ -39,6 +40,7 @@ fun namazViewModel(
         repository, provider, nextPrayer,
         AutoMarkMissedUseCase(provider, repository, nextPrayer),
         MarkPrayerUseCase(provider, repository, nextPrayer),
+        UndoPrayerUseCase(provider, repository, nextPrayer),
         NamazPlaceResolver(repository, location), settings, clock
     ) { zone }
 }

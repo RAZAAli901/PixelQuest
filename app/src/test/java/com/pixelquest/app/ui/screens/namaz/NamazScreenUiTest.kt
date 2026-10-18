@@ -7,7 +7,9 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.hasTestTag
 import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.domain.namaz.Prayer
@@ -117,5 +119,39 @@ class NamazScreenUiTest {
         composeTestRule.waitForIdle()
 
         assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.DHUHR))
+    }
+
+    @Test
+    fun tappingAPrayedPrayer_asksFirst_thenUndoTakesItBack() {
+        repository.rows.value = emptyMap()
+        kotlinx.coroutines.runBlocking { repository.logPrayer(day, Prayer.ASR, prayedAtMillis = 0) }
+        show()
+        val asr = NamazTestTags.prayer(Prayer.ASR)
+        scrollTo(asr)
+
+        composeTestRule.onNodeWithTag(asr).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Mark Asr as not prayed?").assertIsDisplayed()
+        // Only asked: still prayed.
+        assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.ASR))
+
+        composeTestRule.onNodeWithText("Undo").performClick()
+        composeTestRule.waitForIdle()
+
+        assertEquals(PrayerStatus.PENDING, repository.statusOf(day, Prayer.ASR))
+        composeTestRule.onNodeWithTag(asr).assertTextContains("Tap when prayed", substring = true)
+    }
+
+    @Test
+    fun aLongPressOnAPrayedPrayer_asksToTakeItBack_too() {
+        kotlinx.coroutines.runBlocking { repository.logPrayer(day, Prayer.FAJR, prayedAtMillis = 0) }
+        show()
+        val fajr = NamazTestTags.prayer(Prayer.FAJR)
+        scrollTo(fajr)
+
+        composeTestRule.onNodeWithTag(fajr).performTouchInput { longClick() }
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Mark Fajr as not prayed?").assertIsDisplayed()
     }
 }

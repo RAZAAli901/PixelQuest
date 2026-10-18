@@ -16,6 +16,7 @@ import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerSlot
 import com.pixelquest.app.domain.namaz.PrayerTimeProvider
+import com.pixelquest.app.domain.namaz.UndoPrayerUseCase
 import com.pixelquest.app.domain.repository.NamazRepository
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.util.AppClock
@@ -76,6 +77,7 @@ class NamazViewModel(
     private val nextPrayer: NextPrayerUseCase,
     private val autoMarkMissed: AutoMarkMissedUseCase,
     private val markPrayer: MarkPrayerUseCase,
+    private val undoPrayer: UndoPrayerUseCase,
     private val placeResolver: NamazPlaceResolver,
     private val settingsRepository: SettingsRepository,
     private val clock: AppClock,
@@ -89,10 +91,14 @@ class NamazViewModel(
         nextPrayer: NextPrayerUseCase,
         autoMarkMissed: AutoMarkMissedUseCase,
         markPrayer: MarkPrayerUseCase,
+        undoPrayer: UndoPrayerUseCase,
         placeResolver: NamazPlaceResolver,
         settingsRepository: SettingsRepository,
         clock: AppClock
-    ) : this(repository, provider, nextPrayer, autoMarkMissed, markPrayer, placeResolver, settingsRepository, clock, { ZoneId.systemDefault() })
+    ) : this(
+        repository, provider, nextPrayer, autoMarkMissed, markPrayer, undoPrayer, placeResolver, settingsRepository, clock,
+        { ZoneId.systemDefault() }
+    )
 
     init {
         viewModelScope.launch { autoMarkMissed(now()) }
@@ -165,6 +171,14 @@ class NamazViewModel(
         viewModelScope.launch {
             val now = now()
             markPrayer(nextPrayer(now).prayerDay, prayer, now)
+        }
+    }
+
+    /** Takes [prayer]'s prayed mark back, on the current prayer day: pending again, or missed if its window passed. */
+    fun undo(prayer: Prayer) {
+        viewModelScope.launch {
+            val now = now()
+            undoPrayer(nextPrayer(now).prayerDay, prayer, now)
         }
     }
 
