@@ -1,10 +1,10 @@
 # Namaz Tracker: design
 
-The Namaz Tracker records the five daily prayers, works out their times on the phone, and (later) reminds the player as each one starts. It is opt-in: with it off, PixelQuest looks and behaves as before. Phases 3–6 of the upgrade plan build it; this is the design they follow.
+The Namaz Tracker records the five daily prayers, works out their times on the phone, reminds the player as each one starts, and adds XP for them to the game's own XP. It is opt-in: with it off, PixelQuest looks and behaves as before. Phases 3–6 of the upgrade plan built it, and it shipped in 1.3.0. This page describes it as built.
 
 ## Data model (Phase 3)
 
-Two new Room tables, added in one migration (database version 7 → 8).
+Two new Room tables, added in one migration (database version 7 → 8). Phase 6 adds one column (8 → 9).
 
 **`namaz_log`**: one row per prayer per day.
 
@@ -15,7 +15,8 @@ Two new Room tables, added in one migration (database version 7 → 8).
 | `prayer` | TEXT | `FAJR`, `DHUHR`, `ASR`, `MAGHRIB`, `ISHA` |
 | `status` | TEXT | `PENDING`, `PRAYED`, `MISSED` |
 | `prayedAt` | INTEGER, nullable | Epoch millis when marked prayed |
-| `xpAwarded` | INTEGER | What marking it earned, so an undo can take back exactly that (Phase 6; 0 until then) |
+| `xpAwarded` | INTEGER | The prayer's own XP from marking it (10, 5, or less at the daily cap), so an undo takes back exactly that |
+| `bonusXp` | INTEGER, default 0 | The bonuses this prayer unlocked: the all-five +30 and any week's +100 (version 9) |
 
 A unique index on (`date`, `prayer`) keeps one row per prayer per day.
 
@@ -57,8 +58,8 @@ All the settings columns arrive in this one migration, so later phases don't nee
 | --- | --- |
 | `NextPrayerUseCase` | The current prayer, the next one and the time until it, across the day boundary |
 | `GetTodayNamazUseCase` | Today's times with each prayer's status; `PENDING` shows as `MISSED` once the next prayer has started |
-| `MarkPrayerUseCase` | Marks a prayer prayed. Refuses one that hasn't started, or a day other than the current prayer day or the one before (Phase 6 tightens this). |
-| `UndoPrayerUseCase` | Back to pending (or missed, if its window has passed), on the same prayer day only |
+| `MarkPrayerUseCase` | Marks a prayer prayed and awards its XP. Refuses one that hasn't started, a day other than the current prayer day or the one before, and a phone clock behind the last mark (see XP) |
+| `UndoPrayerUseCase` | Back to pending (or missed, if its window has passed), on the same prayer day only, taking back its XP |
 | `AutoMarkMissedUseCase` + `NamazMissedWorker` | Writes `MISSED` for pending prayers whose window has passed; hourly, and when the tracker opens |
 | `NamazMidnightWorker` | Just after midnight: closes the old day and adds five `PENDING` rows for the new one |
 
@@ -66,13 +67,40 @@ Both workers do nothing while the tracker is off.
 
 ## XP (Phase 6)
 
-Through the existing XP, level and streak pipeline, not a second one. Suggested values, all in `NamazXpConfig`:
-- 10 XP per prayer in its window, 5 if marked after the next prayer started;
-- +30 for all five in a day;
-- +100 for a 7-day all-five streak;
-- at most 80 a day.
+Prayers earn XP through the game's own XP path (`UserProfileRepository.addXp`, as a quest does), not a second system.
 
-`xpAwarded` makes undo exact, and awarding is idempotent. Simple Mode logs prayers with no XP text.
+### Rewards
+All in `NamazXpConfig`, worked out by `NamazXpCalculator` (pure):
+
+| Reward | XP | When |
+| --- | --- | --- |
+| A prayer in its time | 10 | Marked before the next prayer starts (Isha: before the next Fajr) |
+| A prayer marked late | 5 | Marked after that, which the day before allows |
+| All five | +30 | With the day's fifth prayer |
+| A week | +100 | With the fifth prayer of each 7th, 14th, 21st… day in a row with all five |
+| Daily cap | 80 | The prayers and the all-five bonus together. The week's bonus comes on top, or the cap would block it |
+
+### Storing and undoing
+- **Stored apart:** a mark writes the prayer's own XP to `xpAwarded` and the bonuses it unlocked to `bonusXp`, then adds both to the profile.
+- **Undo** takes back that prayer's XP and every bonus on its day, and clears them. Undoing any prayer of a finished day means the day no longer has five. Marking it again earns them again, once.
+- **Once only:** marking and undoing share one lock (`NamazXpLock`), so the reminder's Prayed button and the screen's button pressed together award once.
+- **The XP switch** (`xpEnabled`, on by default): off, prayers are recorded with no XP.
+
+### What XP doesn't do
+- **Levels:** in PixelQuest these come from perfect quest days (`StreakEvaluationWorker`), never from XP. Prayer XP raises the total but not the level. A level-up that is waiting shows its celebration on the Namaz screen too.
+- **Streaks:** the Namaz streak (days in a row with all five) is its own. It doesn't change the quest streak.
+
+### Fair play (`NamazRules`)
+- A prayer can't be marked before it starts, for a day after the current prayer day, or more than a day back. Undo is for the current prayer day only.
+- **Clock set ahead, then back:** a mark is refused, with a message, if the phone's clock reads more than 10 minutes before the latest mark around the current day. Setting the clock ahead marks prayers early. Setting it back again would let the same prayers be undone and marked for XP over and over, so marking waits until the real time catches up.
+
+### Where it shows
+- **The prayer's XP** pops up over the screen as it's marked, in the theme's style.
+- **The fifth prayer** shows a card with a burst: "All five prayed!", the +30, and any week's +100.
+- **The shown day's XP** appears under the progress bar ("+80 XP today"), and today's appears in the side menu's header.
+- **Stats** has a Namaz card: its XP, the last 7 days' XP, and prayers prayed.
+- **Simple Mode** hides every XP number and the XP switch, but prayers are still recorded and still earn XP.
+- **The leaderboard** gets only the profile's totals, as before. Which prayers were marked, and when, never leaves the phone (`NamazLeaderboardPrivacyTest`, PRIVACY.md).
 
 ## Reminders (Phase 5)
 
@@ -141,6 +169,24 @@ A notification at the start of each prayer, even with the app closed, after a re
 
 ## Backups (Phase 3)
 
-- **Backups carry Namaz** (format version 5): the logs and the settings, with the place.
+- **Backups carry Namaz** (format version 5): the logs, with each prayer's XP and bonus, and the settings, with the place.
 - **Older files** have no Namaz data, so restoring one leaves the phone's Namaz data as it is.
 - **Android's own backup** already includes the database, so it carries the new tables too.
+
+## Screenshots
+
+Still to be captured for the 1.3.0 release page. Each is a Pixel 6 sized phone in Comic Pop unless it says otherwise. Each goes in `docs/screenshots/namaz/` under the name given:
+
+| File | What it shows |
+| --- | --- |
+| `menu.png` | The side menu open from Home, with the Namaz Tracker entry and today's prayer XP in its header |
+| `off.png` | The Namaz screen with the tracker off: the explainer and the switch |
+| `setup.png` | The first-time setup sheet: location, method and Asr |
+| `day.png` | A day under way: the Hijri date, the next-prayer countdown, two prayers prayed, the rest locked, "+20 XP today" |
+| `xp-popup.png` | The "+10 XP" pop-up just after marking a prayer |
+| `all-five.png` | The all-five card with its burst and "+30 XP bonus" |
+| `week.png` | The seven-day strip with its dots, and the streak |
+| `settings.png` | The Namaz settings sheet: method, madhab, adjustments, reminders, XP switch |
+| `reminder.png` | The "Time for Asr" notification with Prayed, Snooze 10 min and Dismiss |
+| `stats.png` | Stats with the Namaz card |
+| `pixel.png`, `light.png`, `simple.png` | The day screen in Retro Pixel, Light and Simple Mode (no XP) |

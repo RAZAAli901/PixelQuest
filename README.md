@@ -1,8 +1,8 @@
-# ⚔️ PixelQuest v1.2.0 — Level Up Your Life
+# ⚔️ PixelQuest v1.3.0 — Level Up Your Life
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
 [![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
-[![Version](https://img.shields.io/badge/Release-v1.2.0-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.2.0)
+[![Version](https://img.shields.io/badge/Release-v1.3.0-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.3.0)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 ![PixelQuest Feature Banner](docs/screenshots/banner.png)
@@ -15,11 +15,13 @@
 
 Click the button below to directly download the latest signed release APK onto your Android device:
 
-👉 **[📥 Direct Download app-release.apk (v1.2.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.2.0/app-release.apk)** 👈
+👉 **[📥 Direct Download app-release.apk (v1.3.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.3.0/app-release.apk)** 👈
 
-Or see the release notes and files on the **[📦 v1.2.0 release page](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.2.0)**.
+Or see the release notes and files on the **[📦 v1.3.0 release page](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.3.0)**.
 
-> **Upgrading from 1.1.0?** v1.2.0 is signed with a new, permanent key, so Android won't install it over 1.1.0. In the old app, open Settings → **EXPORT QUEST DATA** and save the file. Then uninstall it, install v1.2.0, and tap **I HAVE A BACKUP** on the welcome screen. Details: [docs/UPDATES_AND_BACKUPS.md](docs/UPDATES_AND_BACKUPS.md).
+> **Upgrading from 1.2.0?** Install v1.3.0 over it: everything is kept.
+>
+> **Upgrading from 1.1.0?** From 1.2.0 on, PixelQuest is signed with a new, permanent key, so Android won't install it over 1.1.0. In the old app, open Settings → **EXPORT QUEST DATA** and save the file. Then uninstall it, install v1.3.0, and tap **I HAVE A BACKUP** on the welcome screen. Details: [docs/UPDATES_AND_BACKUPS.md](docs/UPDATES_AND_BACKUPS.md).
 
 ---
 
@@ -27,13 +29,13 @@ Or see the release notes and files on the **[📦 v1.2.0 release page](https://g
 
 ### Option 1: Direct Download (Recommended)
 1. Open this repository on your Android phone or tablet.
-2. Tap **[Download app-release.apk (v1.2.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.2.0/app-release.apk)** to download the file directly.
+2. Tap **[Download app-release.apk (v1.3.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.3.0/app-release.apk)** to download the file directly.
 3. Open your device's **Downloads** folder and tap `app-release.apk`.
 4. If prompted, select **Allow from this source** to grant permission for sideloading unknown apps.
 5. Tap **Install**, open **PixelQuest**, and begin your journey!
 
 ### Option 2: Via GitHub Releases Page
-1. Visit the **[PixelQuest v1.2.0 release](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.2.0)** page.
+1. Visit the **[PixelQuest v1.3.0 release](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.3.0)** page.
 2. Under **Assets**, click on **`app-release.apk`**.
 3. Install and launch the application on your Android device.
 
@@ -44,7 +46,11 @@ Or see the release notes and files on the **[📦 v1.2.0 release page](https://g
 - **Gamified Quest Tracking**: Earn XP, level up your character class, maintain consecutive perfect day streaks, and unlock tier badges.
 - **Three Themes**: **Comic Pop** (the default: ink borders, halftone panels, pop-art colours), **Retro Pixel** (8-bit arcade, with an optional CRT filter) and **Clean Light**. The COMIC MODE button on Home switches between Comic Pop and Retro Pixel.
 - **Global Leaderboard**: Sign in with Google to join the opt-in leaderboard under a public name, and keep your progress synced to your account.
-- **AI Habit Coach**: Optional short debriefs and suggestions from Google Gemini, for signed-in players. Task names never leave the phone.
+- **Namaz Tracker** (new in 1.3.0, optional): the five daily prayers, with their times worked out on the phone (offline), a reminder as each one starts, and a streak of days with all five.
+  - Marking a prayer adds XP to the game's own: 10 a prayer, or 5 if late, and +30 for all five. At most 80 a day, plus +100 for each 7 days in a row.
+  - Off until you turn it on. Your place and prayer log stay on the phone. See [docs/namaz-design.md](docs/namaz-design.md).
+- **Side Menu**: the three-line icon at the top left opens your profile, the Namaz Tracker, History, the Leaderboard, Account and Settings.
+- **AI Habit Coach**: Optional short debriefs and suggestions from Google Gemini, for signed-in players, in a compact card. Task names never leave the phone.
 - **Simple Mode**: A calm, un-gamified checklist whenever you want one.
 - **8-Bit Sound Engine**: Built-in 8-bit sound effects (button clicks, quest completion, missed alerts, and level-up fanfares) powered by `SoundPool` with persisted volume & mute controls.
 - **Character Avatar Progression**: Choose from 6 retro class sprites (*Hero, Mage, Rogue, Warrior, Paladin, Ranger*) with dynamic level tier frames (*Bronze, Silver, Gold*).
@@ -61,6 +67,8 @@ Or see the release notes and files on the **[📦 v1.2.0 release page](https://g
 |:-----------------:|:----------:|:----------------:|:------------:|
 | ![Today Dashboard](docs/screenshots/today.png) | ![Tasks List](docs/screenshots/tasks.png) | ![Activity Heatmap](docs/screenshots/stats.png) | ![Profile](docs/screenshots/profile.png) |
 
+The Namaz Tracker's screenshots (the side menu, a day's prayers, the XP pop-up, the all-five card, reminders and Stats) are listed in [docs/namaz-design.md](docs/namaz-design.md#screenshots), to be captured.
+
 ---
 
 ## 🛠 Tech Stack & Architecture
@@ -70,6 +78,7 @@ Or see the release notes and files on the **[📦 v1.2.0 release page](https://g
 - **Architecture**: MVVM + Clean Architecture + Reactive Kotlin Flows
 - **Database & DI**: Room Database 2.6.1 + Dagger Hilt 2.51
 - **Background Tasks**: WorkManager 2.9.0 + AlarmManager Exact Alarms
+- **Prayer Times**: [Adhan](https://github.com/batoulapps/adhan-kotlin) 0.0.5, calculated on the phone
 - **Cloud**: Supabase (Auth with Google sign-in, Postgres with row-level security, an Edge Function for the AI Coach)
 - **CI/CD**: GitHub Actions building signed release APKs & publishing GitHub Releases
 
@@ -123,10 +132,11 @@ The cloud side (database rules, email sign-in, the AI server and the app's repos
 
 ---
 
-## 🛡️ Verification Status (v1.2.0)
+## 🛡️ Verification Status (v1.3.0)
 
-- **Unit tests**: 1,100+ on every push, plus the cloud side (database rules, sign-in, the AI server) tested against a local Supabase stack in CI.
-- **Updates**: tested from every earlier version of the app's database, and tried on a device from v1.1.0.
+- **Unit tests**: 1,370+ on every push, plus the cloud side (database rules, sign-in, the AI server) tested against a local Supabase stack in CI.
+- **Namaz Tracker**: an end-to-end test turns it on and marks a day's five prayers on the real database: +80 XP, the all-five bonus, the streak, and the level kept. On the emulator, a real prayer reminder was posted and marked from its Prayed button.
+- **Updates**: tested from every earlier version of the app's database (1 to 8), and tried on a device from v1.1.0.
 - **On the emulator**: backups, restoring after a reinstall, undo, and a lost database offering its automatic backup.
 
 Details, including what hasn't been verified yet, are in [`VERIFICATION.md`](VERIFICATION.md).
@@ -142,6 +152,7 @@ PixelQuest is built with a **local-first, privacy-respecting philosophy**:
   - Participation is strictly **opt-in (defaults to OFF)**, and the choice belongs to your account: your other phones follow it.
   - Only your chosen public pseudonym, player level, streak, and XP are synchronized when opted in.
   - Individual quest titles, schedules, and email addresses are **never** uploaded or exposed.
+  - The Namaz Tracker's place and prayer log never leave the phone. Prayer XP joins your XP total, and only that total is synced.
   - **Fair play.** Public names are unique. The server keeps streaks and levels within what the game allows: a streak grows by at most one day a day, a level takes at least three perfect days, and both need the XP to match. Reports are limited to one per player a day.
 - **Full Erasure Control**: Players can opt out at any time to instantly vanish from public rankings, or permanently purge their cloud account and data with one tap via **Settings > Cloud & Leaderboard > Delete My Cloud Data**.
 

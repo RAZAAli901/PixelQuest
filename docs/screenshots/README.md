@@ -8,3 +8,6 @@ This directory contains real application UI showcase screenshots embedded in `RE
 - `stats.png`: Activity heatmap & analytics screen
 - `profile.png`: Hero profile & avatar tier frame screen
 - `onboarding.png`: Hero onboarding journey welcome screen
+
+## To capture for 1.3.0
+- `namaz/`: the Namaz Tracker, from the side menu to Stats. Not taken yet. The list of shots, with what each shows, is in [docs/namaz-design.md](../namaz-design.md#screenshots).
