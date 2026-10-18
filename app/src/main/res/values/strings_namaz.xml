@@ -141,6 +141,12 @@
     <string name="namaz_adjust_earlier"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g> a minute earlier</string>
     <string name="namaz_adjust_later"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g> a minute later</string>
 
+    <!-- Notification channels, as the phone's notification settings list them. -->
+    <string name="namaz_channel_reminders">Prayer reminders</string>
+    <string name="namaz_channel_reminders_description">At the start of each prayer whose reminder is on</string>
+    <string name="namaz_channel_nudge">Prayer nudges</string>
+    <string name="namaz_channel_nudge_description">A quiet reminder before the next prayer starts, while one is still unmarked</string>
+
     <!-- Days in a row with all five prayers prayed. -->
     <plurals name="namaz_streak">
         <item quantity="one">🔥 <xliff:g id="days" example="1">%1$d</xliff:g> day in a row with all five prayed</item>
