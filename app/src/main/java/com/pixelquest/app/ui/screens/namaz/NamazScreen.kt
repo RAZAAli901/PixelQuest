@@ -144,7 +144,8 @@ fun NamazScreen(
             onMethod = viewModel::setMethod,
             onMadhab = viewModel::setMadhab,
             onAdjust = viewModel::adjust,
-            onDismiss = viewModel::closeSettings
+            onDismiss = viewModel::closeSettings,
+            onReminderOffset = viewModel::setReminderOffset
         )
     }
 

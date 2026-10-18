@@ -229,6 +229,9 @@ class NamazViewModel(
 
     fun setMadhab(madhab: AsrMadhab) = updateSettings { it.copy(asrMadhab = madhab.name) }
 
+    /** Reminders at each prayer's start, or [minutes] before it. */
+    fun setReminderOffset(minutes: Int) = updateSettings { it.copy(reminderOffsetMin = minutes) }
+
     /** Moves [prayer]'s time by [minutes] (a minute at a time), up to [MAX_ADJUST_MINUTES] either way. */
     fun adjust(prayer: Prayer, minutes: Int) = updateSettings {
         it.withAdjustment(prayer, (it.adjustmentFor(prayer) + minutes).coerceIn(-MAX_ADJUST_MINUTES, MAX_ADJUST_MINUTES))

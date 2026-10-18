@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import com.pixelquest.app.R
 import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.domain.namaz.AsrMadhab
 import com.pixelquest.app.domain.namaz.NamazMethod
+import com.pixelquest.app.domain.namaz.NamazReminderPlanner
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.adjustmentFor
 import com.pixelquest.app.ui.components.SymbolIcon
@@ -42,7 +44,8 @@ fun NamazSettingsSheet(
     onMethod: (NamazMethod) -> Unit,
     onMadhab: (AsrMadhab) -> Unit,
     onAdjust: (prayer: Prayer, minutes: Int) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onReminderOffset: (Int) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val method = NamazMethod.fromName(settings.method)
@@ -73,6 +76,21 @@ fun NamazSettingsSheet(
                 Column(modifier = Modifier.selectableGroup()) {
                     AsrMadhab.entries.forEach { option ->
                         NamazChoiceRow(label = stringResource(option.displayName), selected = option == madhab, onClick = { onMadhab(option) })
+                    }
+                }
+            }
+            NamazSheetSection(title = stringResource(R.string.namaz_settings_reminder_time)) {
+                Column(modifier = Modifier.selectableGroup()) {
+                    NamazReminderPlanner.OFFSETS.forEach { minutes ->
+                        NamazChoiceRow(
+                            label = if (minutes == 0) {
+                                stringResource(R.string.namaz_offset_at_start)
+                            } else {
+                                pluralStringResource(R.plurals.namaz_offset_before, minutes, minutes)
+                            },
+                            selected = settings.reminderOffsetMin == minutes,
+                            onClick = { onReminderOffset(minutes) }
+                        )
                     }
                 }
             }

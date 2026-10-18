@@ -93,4 +93,13 @@ class NamazNotifierTest {
 
         assertEquals(0, manager.allNotifications.size)
     }
+
+    @Test
+    fun anEarlyReminder_saysHowSoon_andHasNoPrayedButton() {
+        AndroidNamazNotifier(context).show(reminder().copy(minutesToStart = 10))
+
+        val notification = shown()
+        assertEquals("Fajr in 10 minutes", notification.extras.getString(Notification.EXTRA_TITLE))
+        assertEquals(listOf("Snooze 10 min", "Dismiss"), notification.actions.map { it.title.toString() })
+    }
 }

@@ -20,9 +20,10 @@ class NamazAlarmHandlerTest {
 
     private val day = LocalDate.of(2026, 10, 17)
     private val repository = FakeNamazRepository(NamazSettingsEntity(enabled = true, latitude = 31.5204, longitude = 74.3587, city = "Lahore"))
-    private val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), FixedClock()) { LahoreZone }
+    private val clock = FixedClock(java.time.LocalDateTime.of(day, java.time.LocalTime.of(20, 0)))
+    private val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { LahoreZone }
     private val notifier = FakeNamazNotifier()
-    private val handler = NamazAlarmHandler(repository, provider, notifier)
+    private val handler = NamazAlarmHandler(repository, provider, notifier, clock) { LahoreZone }
 
     @Test
     fun aReminder_showsThePrayer_itsTime_andThePlace() = runBlocking {
@@ -56,5 +57,18 @@ class NamazAlarmHandlerTest {
         handler.handle(NamazAlarm.Kind.TEST, day, Prayer.FAJR)
 
         assertEquals(1, notifier.shown.size)
+    }
+
+    @Test
+    fun anEarlyReminder_saysHowManyMinutesAreLeft() = runBlocking {
+        val maghrib = provider.timesFor(day).maghrib
+        clock.time = maghrib.minusMinutes(10).toLocalDateTime()
+
+        handler.handle(NamazAlarm.Kind.REMINDER, day, Prayer.MAGHRIB)
+        assertEquals(10, notifier.shown.single().minutesToStart)
+
+        clock.time = maghrib.toLocalDateTime()
+        handler.handle(NamazAlarm.Kind.REMINDER, day, Prayer.MAGHRIB)
+        assertEquals(0, notifier.shown.single().minutesToStart)
     }
 }

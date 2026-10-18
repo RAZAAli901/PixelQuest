@@ -19,13 +19,18 @@ import java.time.ZonedDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** A prayer reminder to show: which prayer, on which prayer day, its time, and where. */
+/**
+ * A prayer reminder to show: which prayer, on which prayer day, its time, and where.
+ *
+ * @param minutesToStart how long until the prayer starts, for a reminder set to come early; 0 once it has.
+ */
 data class NamazReminder(
     val kind: NamazAlarm.Kind,
     val date: LocalDate,
     val prayer: Prayer,
     val time: ZonedDateTime,
-    val placeName: String
+    val placeName: String,
+    val minutesToStart: Int = 0
 ) {
     /** One notification per prayer and day: a snooze or a second alarm replaces it, not stacks. */
     val notificationId: Int get() = NamazAlarm.requestCode(NamazAlarm.Kind.REMINDER, date, prayer)
@@ -47,19 +52,27 @@ class AndroidNamazNotifier @Inject constructor(
     /**
      * "Time for Fajr", then "5:12 AM · Lahore" in the phone's time format (no place: the time
      * alone). Tapping it opens the Namaz screen; its buttons are Prayed, Snooze 10 min and Dismiss.
+     * One that comes early says "Fajr in 10 minutes", without Prayed: it can't be marked yet.
      */
     override fun show(reminder: NamazReminder) {
         NamazChannels.create(context)
         val name = context.getString(reminder.prayer.displayName)
         val time = reminder.time.format(prayerTimeFormatter(DateFormat.is24HourFormat(context)))
         val text = if (reminder.placeName.isBlank()) time else context.getString(R.string.namaz_notification_text, time, reminder.placeName)
-        val notification = NotificationCompat.Builder(context, NamazChannels.REMINDERS)
+        val early = reminder.minutesToStart > 0
+        val title = if (early) {
+            context.resources.getQuantityString(R.plurals.namaz_notification_title_soon, reminder.minutesToStart, name, reminder.minutesToStart)
+        } else {
+            context.getString(R.string.namaz_notification_title, name)
+        }
+        val builder = NotificationCompat.Builder(context, NamazChannels.REMINDERS)
             .setSmallIcon(R.drawable.ic_tasks)
             .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
-            .setContentTitle(context.getString(R.string.namaz_notification_title, name))
+            .setContentTitle(title)
             .setContentText(text)
             .setContentIntent(openNamaz())
-            .addAction(0, context.getString(R.string.namaz_action_prayed), action(NamazAction.PRAYED, reminder))
+        if (!early) builder.addAction(0, context.getString(R.string.namaz_action_prayed), action(NamazAction.PRAYED, reminder))
+        val notification = builder
             .addAction(0, context.getString(R.string.namaz_action_snooze), action(NamazAction.SNOOZE, reminder))
             .addAction(0, context.getString(R.string.namaz_action_dismiss), action(NamazAction.DISMISS, reminder))
             .setCategory(NotificationCompat.CATEGORY_REMINDER)

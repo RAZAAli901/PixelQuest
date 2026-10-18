@@ -134,6 +134,12 @@
     <string name="namaz_settings_open">Namaz settings</string>
     <string name="namaz_settings_title">Namaz settings</string>
     <string name="namaz_settings_madhab">Asr time</string>
+    <string name="namaz_settings_reminder_time">Remind me</string>
+    <string name="namaz_offset_at_start">When it starts</string>
+    <plurals name="namaz_offset_before">
+        <item quantity="one"><xliff:g id="minutes" example="1">%d</xliff:g> minute before</item>
+        <item quantity="other"><xliff:g id="minutes" example="10">%d</xliff:g> minutes before</item>
+    </plurals>
     <string name="namaz_settings_adjust">Adjust times</string>
     <string name="namaz_settings_adjust_hint">Move a prayer\'s time to match your mosque, a minute at a time.</string>
     <!-- Minutes added to a prayer's time, with its sign: "+2 min", "-3 min", "+0 min". -->
@@ -144,6 +150,12 @@
     <!-- A prayer's reminder: "Time for Fajr", then "5:12 AM · Lahore". -->
     <string name="namaz_notification_title">Time for <xliff:g id="prayer" example="Fajr">%1$s</xliff:g></string>
     <string name="namaz_notification_text"><xliff:g id="time" example="5:12 AM">%1$s</xliff:g> · <xliff:g id="place" example="Lahore">%2$s</xliff:g></string>
+
+    <!-- A reminder that comes before the prayer starts (the reminder offset). -->
+    <plurals name="namaz_notification_title_soon">
+        <item quantity="one"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g> in <xliff:g id="minutes" example="1">%2$d</xliff:g> minute</item>
+        <item quantity="other"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g> in <xliff:g id="minutes" example="10">%2$d</xliff:g> minutes</item>
+    </plurals>
 
     <!-- The reminder's buttons. -->
     <string name="namaz_action_prayed">Prayed</string>

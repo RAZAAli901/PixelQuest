@@ -9,27 +9,40 @@ import com.pixelquest.app.domain.namaz.NamazReminderCheck
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerTimeProvider
 import com.pixelquest.app.domain.repository.NamazRepository
+import com.pixelquest.app.util.AppClock
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /** What a Namaz alarm does when it fires; the receiver only hands it over. */
 @Singleton
-class NamazAlarmHandler @Inject constructor(
+class NamazAlarmHandler(
     private val repository: NamazRepository,
     private val provider: PrayerTimeProvider,
-    private val notifier: NamazNotifier
+    private val notifier: NamazNotifier,
+    private val clock: AppClock,
+    private val zone: () -> ZoneId
 ) {
+    @Inject
+    constructor(repository: NamazRepository, provider: PrayerTimeProvider, notifier: NamazNotifier, clock: AppClock) :
+        this(repository, provider, notifier, clock, { ZoneId.systemDefault() })
+
     /** Shows the reminder for [prayer] on [date], unless it's no longer wanted (NamazReminderCheck). */
     suspend fun handle(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
         val settings = repository.getSettings()
         if (!NamazReminderCheck.shouldRemind(kind, prayer, settings, repository.getDay(date))) return
         val place = DefaultPrayerTimeProvider.placeOf(settings.latitude, settings.longitude, settings.city)
-        notifier.show(NamazReminder(kind, date, prayer, provider.timesFor(date).timeOf(prayer), place.name))
+        val time = provider.timesFor(date).timeOf(prayer)
+        // A reminder set to come early: whole minutes still to go, rounded up.
+        val secondsToStart = Duration.between(clock.now().atZone(zone()), time).seconds
+        val minutesToStart = if (secondsToStart <= 0) 0 else ((secondsToStart + 59) / 60).toInt()
+        notifier.show(NamazReminder(kind, date, prayer, time, place.name, minutesToStart))
     }
 }
 
