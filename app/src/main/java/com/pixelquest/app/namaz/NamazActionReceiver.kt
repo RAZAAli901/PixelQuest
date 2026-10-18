@@ -3,12 +3,15 @@ package com.pixelquest.app.namaz
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.pixelquest.app.domain.namaz.MarkPrayerUseCase
 import com.pixelquest.app.domain.namaz.Prayer
+import com.pixelquest.app.util.AppClock
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,12 +32,22 @@ enum class NamazAction(val action: String, val codeBase: Int) {
 
 /** What a reminder's buttons do; the receiver only hands them over. */
 @Singleton
-class NamazActionHandler @Inject constructor(
-    private val notifier: NamazNotifier
+class NamazActionHandler(
+    private val notifier: NamazNotifier,
+    private val markPrayer: MarkPrayerUseCase,
+    private val clock: AppClock,
+    private val zone: () -> ZoneId
 ) {
+    @Inject
+    constructor(notifier: NamazNotifier, markPrayer: MarkPrayerUseCase, clock: AppClock) :
+        this(notifier, markPrayer, clock, { ZoneId.systemDefault() })
+
     suspend fun handle(action: NamazAction, date: LocalDate, prayer: Prayer) {
         when (action) {
-            NamazAction.PRAYED, NamazAction.SNOOZE, NamazAction.DISMISS -> Unit
+            // Marked as the screen's button marks it, so the same rules apply, and from Phase 6
+            // the same XP. A prayer whose time hasn't come isn't marked (MarkPrayerUseCase).
+            NamazAction.PRAYED -> markPrayer(date, prayer, clock.now().atZone(zone()))
+            NamazAction.SNOOZE, NamazAction.DISMISS -> Unit
         }
         notifier.cancel(date, prayer)
     }

@@ -10,9 +10,13 @@ import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
 import com.pixelquest.app.domain.namaz.UndoPrayerUseCase
 import com.pixelquest.app.domain.repository.NamazRepository
 import com.pixelquest.app.domain.repository.SettingsRepository
+import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.namaz.GeoPoint
 import com.pixelquest.app.namaz.LocationProvider
+import com.pixelquest.app.namaz.NamazNotifier
+import com.pixelquest.app.namaz.NamazReminder
 import com.pixelquest.app.ui.screens.namaz.NamazViewModel
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -45,4 +49,18 @@ fun namazViewModel(
         UndoPrayerUseCase(provider, repository, nextPrayer),
         NamazPlaceResolver(repository, location), settings, clock
     ) { zone }
+}
+
+/** Keeps the reminders "on screen" in a list instead of posting them. */
+class FakeNamazNotifier : NamazNotifier {
+    val shown = mutableListOf<NamazReminder>()
+
+    override fun show(reminder: NamazReminder) {
+        shown.removeAll { it.date == reminder.date && it.prayer == reminder.prayer }
+        shown += reminder
+    }
+
+    override fun cancel(date: LocalDate, prayer: Prayer) {
+        shown.removeAll { it.date == date && it.prayer == prayer }
+    }
 }

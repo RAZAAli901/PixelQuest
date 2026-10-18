@@ -5,6 +5,7 @@ import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
+import com.pixelquest.app.testing.FakeNamazNotifier
 import com.pixelquest.app.testing.FakeNamazRepository
 import com.pixelquest.app.testing.FixedClock
 import com.pixelquest.app.testing.LahoreZone
@@ -17,21 +18,10 @@ import java.time.LocalDate
 /** A fired alarm shows its reminder only while it's still wanted. */
 class NamazAlarmHandlerTest {
 
-    private class RecordingNotifier : NamazNotifier {
-        val shown = mutableListOf<NamazReminder>()
-        override fun show(reminder: NamazReminder) {
-            shown += reminder
-        }
-
-        override fun cancel(date: LocalDate, prayer: Prayer) {
-            shown.removeAll { it.date == date && it.prayer == prayer }
-        }
-    }
-
     private val day = LocalDate.of(2026, 10, 17)
     private val repository = FakeNamazRepository(NamazSettingsEntity(enabled = true, latitude = 31.5204, longitude = 74.3587, city = "Lahore"))
     private val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), FixedClock()) { LahoreZone }
-    private val notifier = RecordingNotifier()
+    private val notifier = FakeNamazNotifier()
     private val handler = NamazAlarmHandler(repository, provider, notifier)
 
     @Test
