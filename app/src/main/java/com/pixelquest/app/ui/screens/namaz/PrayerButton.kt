@@ -14,12 +14,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
@@ -35,6 +42,7 @@ import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
+import kotlinx.coroutines.launch
 
 /** How a prayer's button looks: what the player can do with it now. */
 enum class PrayerButtonState(@StringRes val label: Int, val mark: String?) {
@@ -80,11 +88,41 @@ internal fun prayerStateColor(state: PrayerButtonState): Color {
 
 /**
  * One prayer's button: its picture in a ring that shows its state, its name and time, and what
- * the state means. A whole-width row, easy to read and to hit. A locked one is dimmed.
+ * the state means. A whole-width row, easy to read and to hit. A locked one is dimmed, and
+ * tapping it says when it starts ("Starts at 17:29") instead of marking it.
  */
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrayerButton(
+    prayer: Prayer,
+    time: String,
+    state: PrayerButtonState,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null
+) {
+    if (state != PrayerButtonState.LOCKED) {
+        PrayerButtonBody(prayer, time, state, onClick, modifier, onLongClick)
+        return
+    }
+    val tooltipState = rememberTooltipState()
+    val scope = rememberCoroutineScope()
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = {
+            PlainTooltip(modifier = Modifier.testTag(NamazTestTags.LOCKED_TOOLTIP)) {
+                Text(stringResource(R.string.namaz_starts_at, time))
+            }
+        },
+        state = tooltipState
+    ) {
+        PrayerButtonBody(prayer, time, state, onClick = { scope.launch { tooltipState.show() } }, modifier = modifier)
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun PrayerButtonBody(
     prayer: Prayer,
     time: String,
     state: PrayerButtonState,

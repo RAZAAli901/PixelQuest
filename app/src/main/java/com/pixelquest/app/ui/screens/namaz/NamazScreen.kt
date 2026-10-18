@@ -33,6 +33,7 @@ object NamazTestTags {
     const val SETUP = "namaz_setup"
     const val NEXT = "namaz_next"
     const val COUNTDOWN = "namaz_countdown"
+    const val LOCKED_TOOLTIP = "namaz_locked_tooltip"
 
     /** A prayer's button. */
     fun prayer(prayer: Prayer) = "namaz_prayer_${prayer.name}"

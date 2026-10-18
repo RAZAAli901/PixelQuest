@@ -5,6 +5,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.hasTestTag
 import com.pixelquest.app.data.local.entity.NamazSettingsEntity
@@ -69,4 +71,20 @@ class NamazScreenUiTest {
 
     private fun top(prayer: Prayer) =
         composeTestRule.onNodeWithTag(NamazTestTags.prayer(prayer)).fetchSemanticsNode().positionInRoot.y
+
+    @Test
+    fun aPrayerNotStartedYet_isLocked_andTappingItSaysWhenItStarts() {
+        show()
+        val maghrib = NamazTestTags.prayer(Prayer.MAGHRIB)
+        scrollTo(maghrib)
+        composeTestRule.onNodeWithTag(maghrib).assertTextContains("Not yet", substring = true)
+
+        composeTestRule.onNodeWithTag(maghrib).performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag(NamazTestTags.LOCKED_TOOLTIP).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Starts at", substring = true).assertIsDisplayed()
+        // Nothing was marked.
+        assertTrue(repository.rows.value.isEmpty())
+    }
 }

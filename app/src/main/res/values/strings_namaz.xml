@@ -26,5 +26,6 @@
     <string name="namaz_status_prayed">Prayed</string>
     <string name="namaz_status_missed">Missed</string>
     <string name="namaz_status_locked">Not yet</string>
+    <string name="namaz_starts_at">Starts at %1$s</string>
     <string name="namaz_location_unavailable">Couldn\'t get your location, so the times stay for %1$s. You can pick a city instead.</string>
 </resources>
