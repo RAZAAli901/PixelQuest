@@ -4,6 +4,8 @@ import android.app.NotificationChannel
 import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.Context
+import android.media.AudioAttributes
+import android.net.Uri
 import android.os.Build
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.NamazSound
@@ -20,6 +22,9 @@ object NamazChannels {
     /** At each prayer's start: high importance, so it pops up, with sound. */
     const val REMINDERS = "namaz_reminders"
 
+    /** The reminders with the bundled chime chosen. */
+    const val REMINDERS_CHIME = "namaz_reminders_chime"
+
     /** The reminders with Silent chosen: in the shade without sound or vibration. */
     const val REMINDERS_SILENT = "namaz_reminders_silent"
 
@@ -27,13 +32,17 @@ object NamazChannels {
     const val NUDGE = "namaz_nudge"
 
     /** Every channel this object has ever created, for deleting them all. */
-    val all: List<String> get() = listOf(REMINDERS, REMINDERS_SILENT, NUDGE)
+    val all: List<String> get() = listOf(REMINDERS, REMINDERS_CHIME, REMINDERS_SILENT, NUDGE)
 
     /** The channel a prayer's reminder goes to for [sound]: sound is fixed per channel on Android 8+. */
     fun reminderChannel(sound: NamazSound): String = when (sound) {
         NamazSound.SYSTEM -> REMINDERS
+        NamazSound.CHIME -> REMINDERS_CHIME
         NamazSound.SILENT -> REMINDERS_SILENT
     }
+
+    /** The bundled chime, as a sound a notification can play. */
+    fun chimeUri(context: Context): Uri = Uri.parse("android.resource://${context.packageName}/${R.raw.namaz_chime}")
 
     fun create(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -45,6 +54,22 @@ object NamazChannels {
                     description = context.getString(R.string.namaz_channel_reminders_description)
                     group = GROUP_ID
                     enableVibration(true)
+                },
+                NotificationChannel(
+                    REMINDERS_CHIME,
+                    context.getString(R.string.namaz_channel_reminders_chime),
+                    NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    description = context.getString(R.string.namaz_channel_reminders_chime_description)
+                    group = GROUP_ID
+                    enableVibration(true)
+                    setSound(
+                        chimeUri(context),
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build()
+                    )
                 },
                 NotificationChannel(
                     REMINDERS_SILENT,

@@ -52,4 +52,14 @@ class NamazChannelsTest {
         assertNull(silent.sound)
         assertEquals(false, silent.shouldVibrate())
     }
+
+    @Test
+    fun theChimeChannel_playsTheBundledChime() {
+        NamazChannels.create(context)
+
+        val chime = manager.getNotificationChannel(NamazChannels.REMINDERS_CHIME)
+        assertEquals(NotificationManager.IMPORTANCE_HIGH, chime.importance)
+        assertEquals(NamazChannels.chimeUri(context), chime.sound)
+        assertEquals(NamazChannels.REMINDERS_CHIME, NamazChannels.reminderChannel(com.pixelquest.app.domain.namaz.NamazSound.CHIME))
+    }
 }

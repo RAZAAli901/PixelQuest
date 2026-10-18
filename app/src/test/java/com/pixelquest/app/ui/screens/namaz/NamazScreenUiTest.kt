@@ -53,8 +53,10 @@ class NamazScreenUiTest {
     private val clock = FixedClock(LocalDateTime.of(2026, 10, 17, 16, 0))
     private val settings = FakeSettingsRepository(onboardingDone = true)
 
+    private val reminderOptions = com.pixelquest.app.testing.FakeNamazReminderOptionsStore()
+
     private fun show(mode: ThemeMode = ThemeMode.Pixel) {
-        val viewModel = namazViewModel(repository, clock, settings = settings)
+        val viewModel = namazViewModel(repository, clock, settings = settings, reminderOptions = reminderOptions)
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode) { NamazScreen(viewModel = viewModel) }
         }
@@ -328,5 +330,20 @@ class NamazScreenUiTest {
 
         assertEquals(false, repository.settings.value.remindIsha)
         assertEquals(true, repository.settings.value.remindFajr)
+    }
+
+    @Test
+    fun theSettings_pickTheReminderSound() {
+        show()
+        composeTestRule.onNodeWithContentDescription("Namaz settings").performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("PixelQuest chime").performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+        assertEquals(com.pixelquest.app.domain.namaz.NamazSound.CHIME, reminderOptions.options.value.sound)
+
+        composeTestRule.onNodeWithText("Silent (no sound or vibration)").performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+        assertEquals(com.pixelquest.app.domain.namaz.NamazSound.SILENT, reminderOptions.options.value.sound)
     }
 }

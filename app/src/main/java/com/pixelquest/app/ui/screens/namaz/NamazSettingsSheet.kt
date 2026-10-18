@@ -94,11 +94,23 @@ fun NamazSettingsSheet(
                         onCheckedChange = { onReminder(prayer, it) }
                     )
                 }
-                NamazToggleRow(
-                    label = stringResource(R.string.namaz_settings_silent),
-                    checked = sound == NamazSound.SILENT,
-                    onCheckedChange = { onSound(if (it) NamazSound.SILENT else NamazSound.SYSTEM) }
-                )
+            }
+            NamazSheetSection(title = stringResource(R.string.namaz_settings_sound)) {
+                Column(modifier = Modifier.selectableGroup()) {
+                    NamazSound.entries.forEach { option ->
+                        NamazChoiceRow(
+                            label = stringResource(
+                                when (option) {
+                                    NamazSound.SYSTEM -> R.string.namaz_sound_system
+                                    NamazSound.CHIME -> R.string.namaz_sound_chime
+                                    NamazSound.SILENT -> R.string.namaz_sound_silent
+                                }
+                            ),
+                            selected = option == sound,
+                            onClick = { onSound(option) }
+                        )
+                    }
+                }
             }
             NamazSheetSection(title = stringResource(R.string.namaz_settings_reminder_time)) {
                 Column(modifier = Modifier.selectableGroup()) {

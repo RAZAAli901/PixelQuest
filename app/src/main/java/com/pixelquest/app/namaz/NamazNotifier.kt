@@ -97,6 +97,8 @@ class AndroidNamazNotifier @Inject constructor(
             // Before Android 8 the priority sets how it's shown: quiet for Silent.
             .setPriority(if (reminder.sound == NamazSound.SILENT) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setSilent(reminder.sound == NamazSound.SILENT)
+            // Before Android 8 there are no channels: the chime is set on the notification.
+            .apply { if (reminder.sound == NamazSound.CHIME) setSound(NamazChannels.chimeUri(context)) }
             .setAutoCancel(true)
             .build()
     }

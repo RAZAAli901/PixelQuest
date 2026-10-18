@@ -21,6 +21,9 @@ enum class NamazSound {
     /** The phone's notification sound. */
     SYSTEM,
 
+    /** A short chime bundled with the app (res/raw/namaz_chime). */
+    CHIME,
+
     /** No sound or vibration: it appears quietly. */
     SILENT;
 
