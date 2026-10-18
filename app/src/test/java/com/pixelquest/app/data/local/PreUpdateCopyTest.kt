@@ -81,6 +81,57 @@ class PreUpdateCopyTest {
         assertEquals("Bram", heroIn(File(dir, "pixelquest-v7.db")))
     }
 
+    /**
+     * The game as the app leaves it: Room keeps the database open in WAL mode, so its changes, the
+     * layout version among them, sit in the -wal file until a checkpoint, and the file's own header
+     * can still say 0. Returns the open database, to change it further or close.
+     */
+    private fun saveGameInWal(version: Int, hero: String): SQLiteDatabase {
+        listOf("", "-wal", "-shm", "-journal").forEach { File(dbFile.path + it).delete() }
+        val db = SQLiteDatabase.openOrCreateDatabase(dbFile, null)
+        db.enableWriteAheadLogging()
+        db.execSQL("CREATE TABLE user_profile (username TEXT)")
+        db.execSQL("INSERT INTO user_profile VALUES (?)", arrayOf(hero))
+        db.version = version
+        return db
+    }
+
+    private fun headerVersion(file: File): Int =
+        java.io.RandomAccessFile(file, "r").use { it.seek(60); it.readInt() }
+
+    @Test
+    fun aGameStillInItsWal_isCopied_underItsRealVersion() {
+        val db = saveGameInWal(7, "Aria")
+        try {
+            assertEquals("the header hasn't caught up", 0, headerVersion(dbFile))
+
+            assertEquals(7, PreUpdateCopy.keepIfOlder(dbFile, dir, currentVersion = 9))
+
+            val copy = File(dir, "pixelquest-v7.db")
+            assertEquals(7, PreUpdateCopy.versionOf(copy))
+            assertEquals("Aria", heroIn(copy))
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun theLaunchAfterAnUpdate_keepsTheCopy_whileTheUpdateIsStillInTheWal() {
+        val db = saveGameInWal(7, "Aria")
+        try {
+            PreUpdateCopy.keepIfOlder(dbFile, dir, currentVersion = 9)
+            // The update's migration, still in the -wal; the header says 0, or the old version.
+            db.execSQL("UPDATE user_profile SET username = 'Bram'")
+            db.version = 9
+
+            assertNull(PreUpdateCopy.keepIfOlder(dbFile, dir, currentVersion = 9))
+
+            assertEquals("Aria", heroIn(File(dir, "pixelquest-v7.db")))
+        } finally {
+            db.close()
+        }
+    }
+
     @Test
     fun noFile_orNotADatabase_isLeftAlone() {
         assertNull(PreUpdateCopy.keepIfOlder(dbFile, dir, currentVersion = 7))
