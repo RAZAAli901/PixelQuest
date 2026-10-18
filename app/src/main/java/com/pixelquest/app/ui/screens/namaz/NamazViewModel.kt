@@ -62,6 +62,7 @@ import javax.inject.Inject
  * @param week each strip day's five statuses, Fajr to Isha, for its row of dots.
  * @param streak prayer days in a row with all five prayed (NamazStreak).
  * @param isSimpleMode plain wording and looks, no game touches.
+ * @param dayXp Namaz XP earned on the shown day: its prayers and bonuses.
  */
 data class NamazUiState(
     val loading: Boolean = true,
@@ -74,7 +75,8 @@ data class NamazUiState(
     val days: List<LocalDate> = emptyList(),
     val week: Map<LocalDate, List<PrayerStatus>> = emptyMap(),
     val streak: Int = 0,
-    val isSimpleMode: Boolean = false
+    val isSimpleMode: Boolean = false,
+    val dayXp: Int = 0
 ) {
     val slots: List<PrayerSlot> get() = day?.slots.orEmpty()
 
@@ -398,7 +400,8 @@ class NamazViewModel(
                 days = days,
                 week = week.mapValues { (_, namazDay) -> namazDay.slots.map { it.status } },
                 streak = NamazStreak.current(prayedPerDay.associate { it.date to it.prayed }, today),
-                isSimpleMode = simple
+                isSimpleMode = simple,
+                dayXp = byDay[shown].orEmpty().sumOf { it.xpAwarded + it.bonusXp }
             )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NamazUiState())

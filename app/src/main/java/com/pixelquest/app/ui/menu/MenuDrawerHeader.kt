@@ -38,7 +38,9 @@ data class MenuHeaderState(
     /** Perfect days toward the next level, out of [daysPerLevel] (levels come from perfect days). */
     val perfectDays: Int = 0,
     val daysPerLevel: Int = 7,
-    val isSimpleMode: Boolean = false
+    val isSimpleMode: Boolean = false,
+    /** XP from today's prayers, while the Namaz Tracker is on; null hides the line. */
+    val namazXpToday: Int? = null
 ) {
     val levelProgress: Float get() = if (daysPerLevel <= 0) 0f else perfectDays.toFloat() / daysPerLevel
 }
@@ -77,6 +79,14 @@ fun MenuDrawerHeader(state: MenuHeaderState, modifier: Modifier = Modifier) {
                         style = MaterialTheme.typography.labelMedium,
                         color = colors.onSurface
                     )
+                    state.namazXpToday?.takeIf { it > 0 }?.let { xp ->
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(R.string.menu_namaz_xp_today, xp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colors.onSurfaceVariant
+                        )
+                    }
                 }
             }
             LocalMenuDrawer.current?.let { menu ->

@@ -20,6 +20,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -62,6 +64,7 @@ fun rememberMenuDrawerController(initial: DrawerValue = DrawerValue.Closed): Men
 val LocalMenuDrawer = staticCompositionLocalOf<MenuDrawerController?> { null }
 
 /** The side menu's data: who's playing, for its header, and which entry was chosen last. */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class MenuViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
@@ -71,11 +74,19 @@ class MenuViewModel @Inject constructor(
     namazRepository: NamazRepository? = null
 ) : ViewModel() {
 
+    /** XP from today's prayers while the Namaz Tracker is on (by the calendar day), else null. */
+    private val namazXpToday = namazRepository?.let { repo ->
+        repo.observeSettings().map { it.enabled && it.xpEnabled }.distinctUntilChanged().flatMapLatest { on ->
+            if (!on) flowOf(null) else repo.observeDay(java.time.LocalDate.now()).map { day -> day.sumOf { it.xpAwarded + it.bonusXp } }
+        }
+    } ?: flowOf(null)
+
     val header: StateFlow<MenuHeaderState> = combine(
         userProfileRepository.getProfile(),
         difficultySettingsRepository.getCurrentDifficulty(),
-        settingsRepository.simpleModeEnabled
-    ) { profile, difficulty, simple ->
+        settingsRepository.simpleModeEnabled,
+        namazXpToday
+    ) { profile, difficulty, simple, namazXp ->
         MenuHeaderState(
             name = profile?.username.orEmpty(),
             avatarId = profile?.avatarId.orEmpty(),
@@ -83,7 +94,8 @@ class MenuViewModel @Inject constructor(
             totalXp = profile?.totalXp ?: 0,
             perfectDays = profile?.perfectDaysTowardNextLevel ?: 0,
             daysPerLevel = difficulty?.daysRequiredPerLevel ?: 7,
-            isSimpleMode = simple
+            isSimpleMode = simple,
+            namazXpToday = namazXp
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuHeaderState())
 

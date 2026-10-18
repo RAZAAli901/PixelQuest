@@ -172,4 +172,22 @@ class MenuStateTest {
         assertTrue(vm.context.value.namazEnabled)
         assertEquals(com.pixelquest.app.R.string.namaz_switch_on, MenuItems.Namaz.status(vm.context.value))
     }
+
+    @Test
+    fun theHeader_showsTodaysPrayerXp_whileTheTrackerIsOn() = runTest {
+        val namaz = FakeNamazRepository()
+        val vm = viewModel(namaz = namaz)
+        backgroundScope.launch { vm.header.collect {} }
+        advanceUntilIdle()
+        assertNull(vm.header.value.namazXpToday)
+
+        namaz.saveSettings(namaz.getSettings().copy(enabled = true))
+        namaz.logPrayer(java.time.LocalDate.now(), com.pixelquest.app.domain.namaz.Prayer.FAJR, prayedAtMillis = 0, xpAwarded = 10, bonusXp = 30)
+        advanceUntilIdle()
+        assertEquals(40, vm.header.value.namazXpToday)
+
+        namaz.saveSettings(namaz.getSettings().copy(xpEnabled = false))
+        advanceUntilIdle()
+        assertNull(vm.header.value.namazXpToday)
+    }
 }

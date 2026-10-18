@@ -339,4 +339,17 @@ class NamazViewModelTest {
         viewModel.allFiveSeen()
         assertEquals(null, viewModel.allFive.value)
     }
+
+    @Test
+    fun theDaysXp_countsItsPrayersAndBonuses() = runTest {
+        repository.logPrayer(day, Prayer.FAJR, prayedAtMillis = millisAt(5), xpAwarded = 10)
+        repository.logPrayer(day, Prayer.DHUHR, prayedAtMillis = millisAt(13), xpAwarded = 5, bonusXp = 30)
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+
+        assertEquals(45, viewModel.uiState.value.dayXp)
+
+        viewModel.selectDay(day.minusDays(1))
+        assertEquals(0, viewModel.uiState.value.dayXp)
+    }
 }

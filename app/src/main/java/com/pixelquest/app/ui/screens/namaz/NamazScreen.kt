@@ -70,6 +70,7 @@ object NamazTestTags {
     const val TEST_REMINDER = "namaz_test_reminder"
     const val XP_POPUP = "namaz_xp_popup"
     const val ALL_FIVE = "namaz_all_five"
+    const val DAY_XP = "namaz_day_xp"
     const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */
@@ -374,7 +375,9 @@ private fun NamazScaffold(
                     )
                 }
             }
-            item(key = "progress") { NamazProgress(prayed = state.progress, pastDay = state.isPastDay) }
+            item(key = "progress") {
+                NamazProgress(prayed = state.progress, pastDay = state.isPastDay, xp = state.dayXp.takeIf { state.showXp && it > 0 })
+            }
             // Five separate buttons, in the day's order.
             items(state.slots, key = { it.prayer.name }) { slot ->
                 val buttonState = PrayerButtonState.of(slot)
@@ -423,7 +426,7 @@ private val DayTitleFormatter = java.time.format.DateTimeFormatter.ofPattern("EE
 
 /** How many of the day's five prayers are prayed: "3 / 5 prayed today", over a bar. */
 @Composable
-private fun NamazProgress(prayed: Int, pastDay: Boolean) {
+private fun NamazProgress(prayed: Int, pastDay: Boolean, xp: Int?) {
     Column(modifier = Modifier.testTag(NamazTestTags.PROGRESS), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             text = pluralStringResource(
@@ -436,6 +439,15 @@ private fun NamazProgress(prayed: Int, pastDay: Boolean) {
             color = PixelTheme.colors.onSurface
         )
         PixelProgressBar(progress = prayed / NamazUiState.PRAYERS_PER_DAY.toFloat(), height = 14.dp)
+        // The XP those prayers earned (none shown in Simple Mode or with Namaz XP off).
+        xp?.let {
+            Text(
+                text = stringResource(if (pastDay) R.string.namaz_xp_that_day else R.string.namaz_xp_today, it),
+                style = MaterialTheme.typography.labelMedium,
+                color = PixelTheme.colors.primaryText,
+                modifier = Modifier.testTag(NamazTestTags.DAY_XP)
+            )
+        }
     }
 }
 
