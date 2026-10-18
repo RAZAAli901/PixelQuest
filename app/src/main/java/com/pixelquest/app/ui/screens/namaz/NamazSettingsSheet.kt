@@ -57,7 +57,8 @@ fun NamazSettingsSheet(
     onSound: (NamazSound) -> Unit = {},
     fajrThroughDnd: Boolean = false,
     onFajrThroughDnd: (Boolean) -> Unit = {},
-    onTestReminder: (() -> Unit)? = null
+    onTestReminder: (() -> Unit)? = null,
+    onXpEnabled: (Boolean) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val method = NamazMethod.fromName(settings.method)
@@ -90,6 +91,14 @@ fun NamazSettingsSheet(
                         NamazChoiceRow(label = stringResource(option.displayName), selected = option == madhab, onClick = { onMadhab(option) })
                     }
                 }
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                NamazToggleRow(
+                    label = stringResource(R.string.namaz_settings_xp),
+                    checked = settings.xpEnabled,
+                    onCheckedChange = onXpEnabled
+                )
+                Text(text = stringResource(R.string.namaz_settings_xp_hint), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
             }
             NamazSheetSection(title = stringResource(R.string.namaz_settings_reminders)) {
                 Prayer.entries.forEach { prayer ->

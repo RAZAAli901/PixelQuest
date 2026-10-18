@@ -59,7 +59,8 @@ class MarkPrayerUseCase @Inject constructor(
         val logs = repository.getDay(day)
         if (logs.any { it.prayer == prayer && it.status == PrayerStatus.PRAYED }) return MarkPrayerResult.AlreadyPrayed
 
-        val xp = xpFor(day, prayer, now, times, logs)
+        // The tracker's own XP switch: off, prayers are still marked, just for no XP.
+        val xp = if (repository.getSettings().xpEnabled) xpFor(day, prayer, now, times, logs) else NamazXpAward.NONE
         repository.logPrayer(day, prayer, prayedAtMillis = now.toInstant().toEpochMilli(), xpAwarded = xp.prayer, bonusXp = xp.bonus)
         if (xp.total > 0) {
             userProfileRepository.addXp(xp.total)

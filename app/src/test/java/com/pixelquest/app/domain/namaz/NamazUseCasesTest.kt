@@ -294,4 +294,23 @@ class NamazUseCasesTest {
             assertEquals(if (prayed) 10 else 0, profile.profile.value!!.totalXp)
         }
     }
+
+    @Test
+    fun withTheXpSwitchOff_prayersAreStillMarked_forNoXp() = runBlocking {
+        repository.saveSettings(repository.getSettings().copy(xpEnabled = false))
+
+        assertEquals(MarkPrayerResult.Marked(NamazXpAward.NONE), mark(day, Prayer.ASR, at(day, 16)))
+
+        assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.ASR))
+        assertEquals(0, profile.profile.value!!.totalXp)
+    }
+
+    @Test
+    fun turningXpOffLater_stillTakesBackExactlyWhatWasGiven() = runBlocking {
+        mark(day, Prayer.ASR, at(day, 16))
+        repository.saveSettings(repository.getSettings().copy(xpEnabled = false))
+
+        assertEquals(UndoPrayerResult.Undone(PrayerStatus.PENDING, xpReturned = 10), undo(day, Prayer.ASR, at(day, 16, 5)))
+        assertEquals(0, profile.profile.value!!.totalXp)
+    }
 }

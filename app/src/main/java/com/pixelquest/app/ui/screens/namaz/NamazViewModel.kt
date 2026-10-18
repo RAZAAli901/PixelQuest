@@ -290,6 +290,9 @@ class NamazViewModel(
         viewModelScope.launch { reminderOptions.update { it.copy(batteryTipDismissed = true) } }
     }
 
+    /** Prayers earn XP, or not: the tracker works the same either way. */
+    fun setXpEnabled(on: Boolean) = updateSettings { it.copy(xpEnabled = on) }
+
     /** Reminders at each prayer's start, or [minutes] before it. */
     fun setReminderOffset(minutes: Int) = updateSettings { it.copy(reminderOffsetMin = minutes) }
 

@@ -363,4 +363,16 @@ class NamazScreenUiTest {
         assertEquals(Prayer.ASR, test.prayer)
         assertEquals(clock.time.plusSeconds(10).atZone(com.pixelquest.app.testing.LahoreZone).toInstant().toEpochMilli(), test.atMillis)
     }
+
+    @Test
+    fun theSettings_turnNamazXpOff() {
+        show()
+        composeTestRule.onNodeWithContentDescription("Namaz settings").performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Earn XP for prayers").performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+
+        assertEquals(false, repository.settings.value.xpEnabled)
+    }
 }

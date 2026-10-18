@@ -172,6 +172,8 @@
     <!-- The nudge, while a prayer is still unmarked: "Still time for Asr", then "Maghrib starts at 5:29 PM". -->
     <string name="namaz_nudge_title">Still time for <xliff:g id="prayer" example="Asr">%1$s</xliff:g></string>
     <string name="namaz_nudge_text"><xliff:g id="next_prayer" example="Maghrib">%1$s</xliff:g> starts at <xliff:g id="time" example="5:29 PM">%2$s</xliff:g></string>
+    <string name="namaz_settings_xp">Earn XP for prayers</string>
+    <string name="namaz_settings_xp_hint">10 XP a prayer, a bonus for all five. Off, the tracker works the same, with no XP.</string>
     <string name="namaz_settings_reminders">Reminders</string>
     <string name="namaz_settings_sound">Reminder sound</string>
     <string name="namaz_sound_system">The phone\'s notification sound</string>
