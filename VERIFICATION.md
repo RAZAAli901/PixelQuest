@@ -819,3 +819,22 @@ Exact-time prayer reminders (docs/namaz-design.md, Reminders; NOTIFICATIONS.md, 
 - **Fajr through Do Not Disturb** on a device. It relies on DND's Alarms exception, which is on by default.
 - **The chime's sound** on a speaker. The file is generated (tools/make_namaz_chime.py) and only checked for format.
 - **Android 7 (API 24-25):** `java.time` needs desugaring there, app-wide.
+
+## Section O -- Namaz XP and the 1.3.0 regression run (upgrade plan, Phase 6)
+
+Namaz XP through the game's own XP (docs/namaz-design.md, XP), then the release checks for 1.3.0. Run on 18 Oct 2026 with the local Gradle build. No Gemini call was made, and nothing ran against the hosted Supabase project.
+
+### Regression run (C147)
+`./gradlew :app:testDebugUnitTest :app:assembleDebug :app:compileDebugAndroidTestKotlin :app:lintDebug --continue`
+
+| Suite | Result |
+| --- | --- |
+| `:app:testDebugUnitTest` | 1,376 tests in 358 classes: 0 failing, 12 skipped (the local-stack bench tests, `LocalSupabaseAppTest` and `LocalSupabaseSyncAndBoardTest`: the stack wasn't started). 1,335 at the end of Phase 5 |
+| Compose UI (Robolectric, in that run) | 179 tests in 38 classes, among them the Namaz screen, its XP pop-up, the all-five card, Simple Mode and the end-to-end test |
+| Migrations | `DatabaseUpgradeTest` 12 of 12: a played game in each earlier version's file (1 to 8) opens at version 9 with every quest, result, streak, level and Namaz prayer kept, and the pre-update copy is left. The per-step tests (2→3 to 6→7) pass too |
+| Namaz | 225 tests in 33 classes |
+| `NamazEndToEndTest` | On the real database, profile and settings: the tracker turned on, the setup closed, five prayers marked as each starts. That made +80 XP, the "+30 XP bonus" card, a one-day streak and the same level. Then a seventh full day in a row adds the +100 |
+| `:app:assembleDebug`, `:app:compileDebugAndroidTestKotlin` | Built |
+| `:app:lintDebug` | 583 errors, every one `NewApi`: `java.time` calls flagged for Android 7 (API 24-25). They're app-wide and older than this plan (Section N). Core-library desugaring would clear them, and that change is on its own branch. Lint found nothing else |
+
+Nothing failed, so nothing needed fixing.
