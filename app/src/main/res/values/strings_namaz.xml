@@ -92,15 +92,25 @@
     <!-- The day's prayers and progress. -->
     <string name="namaz_prayers_title">Today\'s prayers</string>
     <string name="namaz_prayers_on">Prayers on <xliff:g id="date" example="Fri 16 Oct">%1$s</xliff:g></string>
-    <string name="namaz_progress"><xliff:g id="prayed" example="3">%1$d</xliff:g> / <xliff:g id="total" example="5">%2$d</xliff:g> prayed today</string>
-    <string name="namaz_progress_past"><xliff:g id="prayed" example="3">%1$d</xliff:g> / <xliff:g id="total" example="5">%2$d</xliff:g> prayed that day</string>
+    <!-- Counted by the prayers prayed: some languages change "prayed" with the number. -->
+    <plurals name="namaz_progress">
+        <item quantity="one"><xliff:g id="prayed" example="1">%1$d</xliff:g> / <xliff:g id="total" example="5">%2$d</xliff:g> prayed today</item>
+        <item quantity="other"><xliff:g id="prayed" example="3">%1$d</xliff:g> / <xliff:g id="total" example="5">%2$d</xliff:g> prayed today</item>
+    </plurals>
+    <plurals name="namaz_progress_past">
+        <item quantity="one"><xliff:g id="prayed" example="1">%1$d</xliff:g> / <xliff:g id="total" example="5">%2$d</xliff:g> prayed that day</item>
+        <item quantity="other"><xliff:g id="prayed" example="3">%1$d</xliff:g> / <xliff:g id="total" example="5">%2$d</xliff:g> prayed that day</item>
+    </plurals>
     <string name="namaz_past_read_only">Earlier days are for looking back: they can\'t be changed.</string>
 
     <!-- The week: one tab per day, today last. -->
     <string name="namaz_days_label">Your week</string>
     <string name="namaz_day_today">Today</string>
     <!-- What TalkBack says for a day's tab. -->
-    <string name="namaz_day_spoken"><xliff:g id="date" example="Saturday 17 October">%1$s</xliff:g>, <xliff:g id="prayed" example="3">%2$d</xliff:g> of <xliff:g id="total" example="5">%3$d</xliff:g> prayed</string>
+    <plurals name="namaz_day_spoken">
+        <item quantity="one"><xliff:g id="date" example="Saturday 17 October">%1$s</xliff:g>, <xliff:g id="prayed" example="1">%2$d</xliff:g> of <xliff:g id="total" example="5">%3$d</xliff:g> prayed</item>
+        <item quantity="other"><xliff:g id="date" example="Saturday 17 October">%1$s</xliff:g>, <xliff:g id="prayed" example="3">%2$d</xliff:g> of <xliff:g id="total" example="5">%3$d</xliff:g> prayed</item>
+    </plurals>
 
     <!-- A prayer button's state, at its right-hand end. -->
     <string name="namaz_status_pending">Tap when prayed</string>

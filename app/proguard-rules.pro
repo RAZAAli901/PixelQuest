@@ -36,3 +36,23 @@
 -dontwarn io.github.jan.supabase.**
 -dontwarn io.ktor.**
 
+
+# Namaz Tracker reminders (docs/namaz-design.md, Reminders). The receivers are named in the
+# manifest, and AAPT keeps manifest components too; they're kept here explicitly because armed
+# alarms and posted notifications hold PendingIntents to them by name across an app update.
+-keep class com.pixelquest.app.namaz.NamazAlarmReceiver
+-keep class com.pixelquest.app.namaz.NamazActionReceiver
+-keep class com.pixelquest.app.scheduling.BootReceiver
+# Names stored outside the code: prayers and statuses in the database, alarm kinds and prayers in
+# intent extras, the sound in SharedPreferences. R8 mustn't rename or unbox these enums, or a
+# stored name would stop matching after an update.
+-keepclassmembers enum com.pixelquest.app.domain.namaz.** {
+    <fields>;
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+-keepclassmembers enum com.pixelquest.app.namaz.NamazAction {
+    <fields>;
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}

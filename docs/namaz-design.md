@@ -125,6 +125,20 @@ A notification at the start of each prayer, even with the app closed, after a re
 - **Exact alarms** (Android 12+): a card links to "Alarms & reminders". Without it, reminders arrive within 10 minutes.
 - **Battery:** a dismissible card links to the battery-optimisation list, so the phone doesn't hold reminders back.
 
+### As built
+
+- **Fired once:** a reminder or nudge is recorded as it fires (`PrefsNamazDeliveries`, `pixelquest_namaz_delivered`, the last few days). A reschedule skips it, so moving the reminder time later, or a time-zone change, can't remind a prayer twice.
+- **Off means off:** turning the tracker off cancels every Namaz alarm (snoozes too), takes its notifications away and deletes its channels. That happens once, as it goes off, and not again at every launch while it stays off.
+- **The app's NOTIFICATIONS switch:** while it's off, nothing is armed for the prayers either.
+- **The Namaz screen's reminder checks** appear while any prayer's reminder is on: exact alarms not allowed, notifications blocked, and battery optimisation (that tip can be hidden for good, in `pixelquest_namaz_reminders`).
+- **R8:** the receivers and the Namaz enums (stored by name in intents, preferences and the database) are kept in `proguard-rules.pro`.
+
+### Checking it on a phone
+
+- **Debug builds:** the Namaz settings sheet has *Test reminder in 10 seconds*. It arms a real alarm for the current prayer, so the whole path shows: the alarm, the receiver, the notification and its buttons.
+- **Instrumented test:** `NamazReminderInstrumentedTest` posts a real reminder and marks it from the Prayed button, on an in-memory database. Run it with `adb shell am instrument -w -e class com.pixelquest.app.notification.NamazReminderInstrumentedTest com.pixelquest.app.test/androidx.test.runner.AndroidJUnitRunner`. Don't use `connectedDebugAndroidTest`, which uninstalls the app and wipes its data.
+- **Reboot:** with reminders on, `adb reboot`. Then `adb shell dumpsys alarm | grep pixelquest` lists the Namaz alarms armed again by `BootReceiver`.
+
 ## Backups (Phase 3)
 
 - **Backups carry Namaz** (format version 5): the logs and the settings, with the place.

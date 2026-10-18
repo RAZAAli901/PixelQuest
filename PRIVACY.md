@@ -107,6 +107,7 @@ The Namaz Tracker (off unless you turn it on) works out prayer times on your pho
 - **How precise:** coarse (city-level) location only. The app never asks for your precise position.
 - **Where it goes:** the place is saved in the app's database on your phone, so the times keep working offline. It's never sent anywhere: not to PixelQuest's server, the leaderboard or the AI Coach.
 - **Backups:** like the rest of your progress, it's in your exported backup files and in Android's own backup of the app.
+- **Reminders:** prayer reminders are worked out and scheduled on your phone, with Android's own alarms. Nothing about your prayers or reminders is sent anywhere.
 
 ---
 

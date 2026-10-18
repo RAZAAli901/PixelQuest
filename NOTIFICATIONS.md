@@ -94,6 +94,32 @@ It says how many more quests keep the streak: "🔥 Your 5-day streak is at risk
 | Streak at risk | `900003` |
 | Action / snooze request codes | `taskId * 10 + 1` (yes), `+ 2` (not yet), `+ 4` (snooze) |
 
+## Namaz Tracker reminders (Phase 5)
+
+The prayer reminders have their own alarms, receivers and channels, so they never touch the task reminders' (docs/namaz-design.md, Reminders).
+
+- **Planned and armed:** `NamazReminderPlanner` lists the next 48 hours; `NamazReminders` arms it through `NamazAlarmScheduler` (exact, or a 10-minute window without "Alarms & reminders").
+- **When it reschedules:** whenever the tracker's settings, its reminder options or Settings' NOTIFICATIONS switch change, after each alarm, at midnight, from `BootReceiver` (boot, update, time and time-zone changes, the exact-alarm permission), and once a day (`NamazRescheduleWorker`).
+- **Receivers** (manifest, not exported): `NamazAlarmReceiver` posts the reminder; `NamazActionReceiver` handles its Prayed, Snooze 10 min and Dismiss.
+- **Fired once:** a reminder or nudge that has fired is recorded (`PrefsNamazDeliveries`) and never armed again, even if its time moves later.
+
+| Channel id | Name | Importance | Used for |
+| --- | --- | --- | --- |
+| `namaz_reminders` | Prayer reminders | High | Each prayer's reminder, with the phone's sound |
+| `namaz_reminders_chime` | Prayer reminders (chime) | High | The same, with the bundled chime (`res/raw/namaz_chime.wav`) |
+| `namaz_reminders_silent` | Silent prayer reminders | Low | The same, silent |
+| `namaz_fajr_alarm`, `namaz_fajr_alarm_chime` | Fajr alarm | High (alarm audio) | Fajr's reminder through Do Not Disturb, when opted in |
+| `namaz_nudge` | Prayer nudges | Low | "Still time for Asr", 20 minutes before the next prayer |
+
+The Namaz channels sit in their own group and exist only while the tracker is on: turning it off deletes them, and the next reminder makes them again.
+
+| Namaz notification or PendingIntent | Code |
+| --- | --- |
+| A prayer's reminder, snooze or nudge (one notification each) | `700000 + (epochDay mod 100) * 10 + prayer` |
+| Alarm request codes: reminder, nudge, snooze, test | `700000`, `710000`, `720000`, `730000` blocks, same formula |
+| Buttons: Prayed, Snooze, Dismiss | `750000`, `760000`, `770000` blocks, same formula |
+| Open the Namaz screen; Fajr's alarm-clock icon | `740000`; `741000` |
+
 ## Day 26 audit: what was broken
 
 | Problem | Fix |

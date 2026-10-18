@@ -791,3 +791,31 @@ The installed PixelQuest (`com.pixelquest.app`) and its data weren't touched.
 - **The streak-at-risk nudge on a device** (carried over from Day 33).
 - **Anything on a hosted Supabase project.**
 - `versionName` is still 1.1.0, so today's backups say "Saved by PixelQuest 1.1.0". Bumping it, and tagging a release, is the owner's call.
+
+## Section N -- Namaz reminders (upgrade plan, Phase 5)
+
+Exact-time prayer reminders (docs/namaz-design.md, Reminders; NOTIFICATIONS.md, Namaz Tracker reminders).
+
+### Tests
+- `./gradlew :app:testDebugUnitTest`: 1335 tests, 0 failures, 12 skipped.
+  - Phase 5 adds the planner, scheduler, rescheduling, no-duplicates, scheduling and channels tests.
+  - It also adds the handlers', the notifier's, the reminder checks' and the reschedule worker's tests.
+- `NamazNoDuplicateAlarmsTest` and `NamazSchedulingTest` run on Robolectric's AlarmManager:
+  - rescheduling over and over keeps one alarm each;
+  - times are exact to the millisecond, including across a daylight-saving change;
+  - the 48-hour edges hold;
+  - without the permission, alarms land in the 10-minute window.
+
+### Emulator checks (PixelQuest_API34, debug build installed over the debug install)
+- `NamazReminderInstrumentedTest` passed 6 of 6 cold runs (`am instrument`), 3 of them from a fresh install's state. A real "Time for Asr" notification appeared with its place and buttons, and Prayed marked the prayer and cleared it.
+- An earlier run found the app clearing the Namaz channels at every launch while the tracker was off, which could race a reminder. Fixed in C129: it clears once.
+
+### Release build
+- `minifyReleaseWithR8` kept `NamazAlarmReceiver`, `NamazActionReceiver` and `BootReceiver` under their names, and the Namaz enums' constants (stored by name).
+- Lint, on the Namaz code: only the app-wide `java.time` NewApi errors for Android 7, which core-library desugaring would clear (a separate change). The three PluralsCandidate warnings are fixed.
+
+### Not verified
+- **On a real phone:** the debug Test reminder button, the five reminders at their start times, and the alarms coming back after a reboot. These are Phase 5's "done when" checks. docs/namaz-design.md ("Checking it on a phone") says how.
+- **Fajr through Do Not Disturb** on a device. It relies on DND's Alarms exception, which is on by default.
+- **The chime's sound** on a speaker. The file is generated (tools/make_namaz_chime.py) and only checked for format.
+- **Android 7 (API 24-25):** `java.time` needs desugaring there, app-wide.

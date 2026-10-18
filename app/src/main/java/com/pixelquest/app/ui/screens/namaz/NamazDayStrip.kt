@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -64,10 +65,12 @@ fun NamazDayStrip(
             days.forEach { date ->
                 val isSelected = date == selected
                 val statuses = week[date].orEmpty()
-                val spoken = stringResource(
-                    R.string.namaz_day_spoken,
+                val prayed = statuses.count { it == PrayerStatus.PRAYED }
+                val spoken = pluralStringResource(
+                    R.plurals.namaz_day_spoken,
+                    prayed,
                     date.format(SpokenDayFormatter),
-                    statuses.count { it == PrayerStatus.PRAYED },
+                    prayed,
                     NamazUiState.PRAYERS_PER_DAY
                 )
                 Column(

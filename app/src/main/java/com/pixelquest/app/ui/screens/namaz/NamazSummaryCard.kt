@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -102,7 +103,7 @@ fun NamazSummaryCard(summary: NamazSummary, onClick: () -> Unit, modifier: Modif
         stringResource(summary.next.next.prayer.displayName),
         summary.next.next.time.format(formatter)
     )
-    val progressLine = stringResource(R.string.namaz_progress, summary.prayed, NamazUiState.PRAYERS_PER_DAY)
+    val progressLine = pluralStringResource(R.plurals.namaz_progress, summary.prayed, summary.prayed, NamazUiState.PRAYERS_PER_DAY)
     val title = stringResource(R.string.namaz_title)
     PixelCard(
         variant = PixelPanelVariant.BORDER,

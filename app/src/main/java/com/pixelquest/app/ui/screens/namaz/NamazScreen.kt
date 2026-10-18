@@ -388,7 +388,12 @@ private val DayTitleFormatter = java.time.format.DateTimeFormatter.ofPattern("EE
 private fun NamazProgress(prayed: Int, pastDay: Boolean) {
     Column(modifier = Modifier.testTag(NamazTestTags.PROGRESS), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
-            text = stringResource(if (pastDay) R.string.namaz_progress_past else R.string.namaz_progress, prayed, NamazUiState.PRAYERS_PER_DAY),
+            text = pluralStringResource(
+                if (pastDay) R.plurals.namaz_progress_past else R.plurals.namaz_progress,
+                prayed,
+                prayed,
+                NamazUiState.PRAYERS_PER_DAY
+            ),
             style = MaterialTheme.typography.bodyMedium,
             color = PixelTheme.colors.onSurface
         )
