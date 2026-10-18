@@ -70,6 +70,9 @@ fun PixelNavHost(
                 },
                 onNavigateToAccount = {
                     navController.navigate(Screen.Account.route)
+                },
+                onNavigateToNamaz = {
+                    navController.navigate(Screen.Namaz.route)
                 }
             )
         }

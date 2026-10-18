@@ -70,6 +70,10 @@
     <string name="namaz_a11y_undo">mark not prayed</string>
     <string name="namaz_a11y_when">hear when it starts</string>
 
+    <!-- Home's Namaz card, while the tracker is on. -->
+    <string name="namaz_home_next">Next: %1$s at %2$s</string>
+    <string name="namaz_home_open">open the Namaz Tracker</string>
+
     <!-- The settings sheet, from the top bar's gear. -->
     <string name="namaz_settings_open">Namaz settings</string>
     <string name="namaz_settings_title">Namaz settings</string>

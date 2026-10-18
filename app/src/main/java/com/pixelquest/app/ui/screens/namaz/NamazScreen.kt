@@ -62,6 +62,7 @@ object NamazTestTags {
     const val SETTINGS = "namaz_settings"
     const val LOCATION = "namaz_location"
     const val HIJRI = "namaz_hijri"
+    const val HOME_CARD = "namaz_home_card"
     const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */

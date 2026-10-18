@@ -51,7 +51,8 @@ fun TodayScreen(
     onNavigateToProfile: () -> Unit = {},
     onNavigateToAiInsight: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
-    onNavigateToAccount: () -> Unit = onNavigateToSettings
+    onNavigateToAccount: () -> Unit = onNavigateToSettings,
+    onNavigateToNamaz: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     // Coming back to the app (e.g. the next morning) re-reads the date.
@@ -116,7 +117,8 @@ fun TodayScreen(
                     onNavigateToAiInsight = onNavigateToAiInsight,
                     onNavigateToSettings = onNavigateToSettings,
                     onNavigateToAccount = onNavigateToAccount,
-                    onToggleComicMode = { themeViewModel.toggleComicMode() }
+                    onToggleComicMode = { themeViewModel.toggleComicMode() },
+                    namazSection = { com.pixelquest.app.ui.screens.namaz.HomeNamazSection(onOpen = onNavigateToNamaz) }
                 )
             }
         }
@@ -144,6 +146,8 @@ fun TodayContent(
             onNavigateToAccount = onNavigateToAccount
         )
     },
+    // The Namaz Tracker's card, while it's on. Empty by default: it gets its ViewModel from Hilt.
+    namazSection: @Composable () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var taskToSkip by remember { mutableStateOf<TaskEntity?>(null) }
@@ -256,7 +260,11 @@ fun TodayContent(
             }
         }
         item {
-            aiInsightSection()
+            // One item, so Home has no extra gap while the Namaz card isn't there.
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                namazSection()
+                aiInsightSection()
+            }
         }
         if (state.flavorText.isNotBlank()) {
             item {
