@@ -177,6 +177,14 @@ class NamazViewModel(
         }
     }
 
+    /** The player picked [place] from the city list: the times follow it. */
+    fun chooseCity(place: NamazPlace) {
+        viewModelScope.launch {
+            placeResolver.chooseCity(place)
+            _locationLookup.value = LocationLookup.IDLE
+        }
+    }
+
     /** Location was refused: the times stay where they are, and the screen says so. */
     fun locationRefused() {
         _locationLookup.value = LocationLookup.UNAVAILABLE

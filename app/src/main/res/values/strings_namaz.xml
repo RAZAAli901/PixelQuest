@@ -16,6 +16,10 @@
     <string name="namaz_place_times_for">Times for %1$s</string>
     <string name="namaz_place_here">your location</string>
     <string name="namaz_use_my_location">Use my location</string>
+    <string name="namaz_pick_city">Pick a city</string>
+    <string name="namaz_pick_city_title">Pick your city</string>
+    <string name="namaz_city_search">Search cities</string>
+    <string name="namaz_city_none">No city by that name in the list. Use my location works anywhere.</string>
     <string name="namaz_location_finding">Finding your location…</string>
     <string name="namaz_next_label">Next prayer</string>
     <string name="namaz_next_at">at %1$s</string>

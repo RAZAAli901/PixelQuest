@@ -19,6 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -53,6 +56,8 @@ object NamazTestTags {
     const val DAY_STRIP = "namaz_day_strip"
     const val STREAK = "namaz_streak"
     const val SETTINGS = "namaz_settings"
+    const val LOCATION = "namaz_location"
+    const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */
     fun adjust(prayer: Prayer) = "namaz_adjust_${prayer.name}"
@@ -77,6 +82,7 @@ fun NamazScreen(
     val locationRequest = rememberLocationPermissionRequest { granted ->
         if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
     }
+    var pickingCity by rememberSaveable { mutableStateOf(false) }
 
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
@@ -90,6 +96,9 @@ fun NamazScreen(
         onRefresh = viewModel::refresh,
         onDaySelected = viewModel::selectDay,
         onOpenSettings = viewModel::openSettings,
+        locationLookup = locationLookup,
+        onUseMyLocation = locationRequest::launch,
+        onPickCity = { pickingCity = true },
         snackbarHostState = snackbarHostState,
         onPrayerClick = { slot ->
             when (PrayerButtonState.of(slot)) {
@@ -112,6 +121,16 @@ fun NamazScreen(
             }
         }
     )
+
+    if (pickingCity) {
+        NamazCityPicker(
+            onPick = { city ->
+                viewModel.chooseCity(city)
+                pickingCity = false
+            },
+            onDismiss = { pickingCity = false }
+        )
+    }
 
     if (settingsVisible) {
         NamazSettingsSheet(
@@ -147,6 +166,9 @@ fun NamazContent(
     onRefresh: () -> Unit = {},
     onDaySelected: (java.time.LocalDate) -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    locationLookup: LocationLookup = LocationLookup.IDLE,
+    onUseMyLocation: () -> Unit = {},
+    onPickCity: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onPrayerClick: (PrayerSlot) -> Unit = {}
 ) {
@@ -190,6 +212,14 @@ fun NamazContent(
             }
             state.next?.let { next ->
                 item(key = "next") { NextPrayerCard(next = next, onCountdownEnd = onRefresh) }
+            }
+            item(key = "location") {
+                NamazLocationCard(
+                    place = state.place,
+                    locationLookup = locationLookup,
+                    onUseMyLocation = onUseMyLocation,
+                    onPickCity = onPickCity
+                )
             }
             if (state.days.isNotEmpty() && state.day != null) {
                 item(key = "day_strip") {

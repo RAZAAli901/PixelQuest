@@ -9,9 +9,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.domain.namaz.Prayer
@@ -218,5 +220,23 @@ class NamazScreenUiTest {
         composeTestRule.onNodeWithTag(NamazTestTags.EXPLAINER).assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Namaz settings").assertDoesNotExist()
         composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.FAJR)).assertDoesNotExist()
+    }
+
+    @Test
+    fun pickingACity_movesTheTimesThere() {
+        show()
+        scrollTo(NamazTestTags.LOCATION)
+        composeTestRule.onNodeWithText("Times for Lahore").assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Pick a city", substring = true).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(NamazTestTags.CITY_PICKER).assertIsDisplayed()
+        composeTestRule.onNode(hasSetTextAction()).performTextInput("kara")
+        composeTestRule.onNodeWithText("Karachi").performClick()
+        composeTestRule.waitForIdle()
+
+        assertEquals("Karachi", repository.settings.value.city)
+        scrollTo(NamazTestTags.LOCATION)
+        composeTestRule.onNodeWithText("Times for Karachi").assertIsDisplayed()
     }
 }
