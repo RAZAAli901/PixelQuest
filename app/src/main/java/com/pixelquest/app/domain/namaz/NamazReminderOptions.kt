@@ -7,9 +7,11 @@ import kotlinx.coroutines.flow.Flow
  * Reminders, Options): a few switches that didn't need a migration. A restore leaves them as they are.
  *
  * @param nudge a "still not prayed" reminder 20 minutes before the next prayer starts.
+ * @param batteryTipDismissed the Namaz screen's battery-optimisation tip was hidden for good.
  */
 data class NamazReminderOptions(
-    val nudge: Boolean = false
+    val nudge: Boolean = false,
+    val batteryTipDismissed: Boolean = false
 )
 
 /** Reads and changes [NamazReminderOptions]. */

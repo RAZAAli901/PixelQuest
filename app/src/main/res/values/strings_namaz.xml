@@ -172,6 +172,9 @@
     <string name="namaz_exact_alarm_allow">Allow exact times</string>
     <string name="namaz_notifications_message">Prayer reminders can\'t appear: notifications are off for PixelQuest. Allow them so each prayer\'s reminder can show.</string>
     <string name="namaz_notifications_allow">Allow notifications</string>
+    <string name="namaz_battery_message">Some phones hold reminders back to save battery. If prayer reminders come late, let PixelQuest run without battery limits.</string>
+    <string name="namaz_battery_open">Open battery settings</string>
+    <string name="namaz_battery_dismiss">Hide this tip</string>
 
     <!-- Notification channels, as the phone's notification settings list them. -->
     <string name="namaz_channel_reminders">Prayer reminders</string>

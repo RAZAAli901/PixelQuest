@@ -5,6 +5,7 @@ import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.PowerManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -13,6 +14,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,6 +36,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.pixelquest.app.R
 import com.pixelquest.app.namaz.NamazChannels
+import com.pixelquest.app.ui.components.DismissButton
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
@@ -45,15 +48,22 @@ import com.pixelquest.app.ui.theme.inkOnPanel
  * What the phone might be doing to the prayer reminders, each with a way to fix it
  * (docs/namaz-design.md, Reminders, Permissions). Shown while any prayer's reminder is on.
  * Each check runs again when the screen comes back, so a card goes once it's fixed in Android's settings.
+ * The battery tip is only advice, so it can be hidden for good ([onDismissBatteryTip]).
  */
 @Composable
-fun NamazReminderChecks(modifier: Modifier = Modifier) {
+fun NamazReminderChecks(
+    modifier: Modifier = Modifier,
+    batteryTipDismissed: Boolean = false,
+    onDismissBatteryTip: () -> Unit = {}
+) {
     val context = LocalContext.current
     var exactAllowed by remember { mutableStateOf(canScheduleExactAlarms(context)) }
     var notificationsShown by remember { mutableStateOf(canShowPrayerReminders(context)) }
+    var batteryUnlimited by remember { mutableStateOf(isIgnoringBatteryOptimizations(context)) }
     OnResume {
         exactAllowed = canScheduleExactAlarms(context)
         notificationsShown = canShowPrayerReminders(context)
+        batteryUnlimited = isIgnoringBatteryOptimizations(context)
     }
     // Android's own prompt once; after a refusal it won't show again, so the button opens the settings.
     var askedOnce by remember { mutableStateOf(false) }
@@ -85,6 +95,15 @@ fun NamazReminderChecks(modifier: Modifier = Modifier) {
                 modifier = Modifier.testTag(NamazTestTags.EXACT_ALARM_CARD)
             )
         }
+        if (!batteryUnlimited && !batteryTipDismissed) {
+            NamazCheckCard(
+                message = stringResource(R.string.namaz_battery_message),
+                action = stringResource(R.string.namaz_battery_open),
+                onAction = { context.startActivity(batteryOptimizationSettingsIntent()) },
+                onDismiss = onDismissBatteryTip,
+                modifier = Modifier.testTag(NamazTestTags.BATTERY_CARD)
+            )
+        }
     }
 }
 
@@ -112,6 +131,17 @@ internal fun notificationSettingsIntent(context: Context): Intent =
         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
     }.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
+/** Whether Android leaves PixelQuest out of battery optimisation, so its alarms aren't held back. */
+internal fun isIgnoringBatteryOptimizations(context: Context): Boolean =
+    context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName)
+
+/**
+ * Android's list of apps and their battery optimisation, where the player can pick PixelQuest.
+ * (Asking for the exemption directly needs a permission Play keeps for a few kinds of app.)
+ */
+internal fun batteryOptimizationSettingsIntent(): Intent =
+    Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
 /** Without "Alarms & reminders" (Android 12+), reminders come within a 10-minute window instead. */
 internal fun canScheduleExactAlarms(context: Context): Boolean =
     Build.VERSION.SDK_INT < Build.VERSION_CODES.S || context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
@@ -135,13 +165,33 @@ internal fun OnResume(block: () -> Unit) {
     }
 }
 
-/** A warning with the one thing to do about it. */
+/** A warning with the one thing to do about it, and for advice, a way to hide it ([onDismiss]). */
 @Composable
-internal fun NamazCheckCard(message: String, action: String, onAction: () -> Unit, modifier: Modifier = Modifier) {
+internal fun NamazCheckCard(
+    message: String,
+    action: String,
+    onAction: () -> Unit,
+    modifier: Modifier = Modifier,
+    onDismiss: (() -> Unit)? = null
+) {
     val colors = PixelTheme.colors
     PixelCard(variant = PixelPanelVariant.BORDER, contentPadding = namazStyle().cardPadding, modifier = modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(text = "⚠️ $message", style = MaterialTheme.typography.bodyMedium, color = inkOnPanel(colors.onSurface))
+            Row {
+                Text(
+                    text = "⚠️ $message",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = inkOnPanel(colors.onSurface),
+                    modifier = Modifier.weight(1f)
+                )
+                if (onDismiss != null) {
+                    DismissButton(
+                        contentDescription = stringResource(R.string.namaz_battery_dismiss),
+                        onClick = onDismiss,
+                        color = colors.onSurfaceVariant
+                    )
+                }
+            }
             PixelButton(text = action, onClick = onAction, variant = PixelButtonVariant.YELLOW, modifier = Modifier.fillMaxWidth())
         }
     }

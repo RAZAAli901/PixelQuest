@@ -10,6 +10,9 @@ import androidx.compose.ui.test.performClick
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import org.junit.After
 import org.junit.Assert.assertEquals
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.onNodeWithContentDescription
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,9 +39,20 @@ class NamazReminderChecksTest {
         shadowOf(manager).setNotificationsEnabled(enabled)
     }
 
+    private var batteryTipDismissed by androidx.compose.runtime.mutableStateOf(false)
+
     private fun show() {
-        composeTestRule.setContent { PixelQuestTheme { NamazReminderChecks() } }
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                NamazReminderChecks(batteryTipDismissed = batteryTipDismissed, onDismissBatteryTip = { batteryTipDismissed = true })
+            }
+        }
         composeTestRule.waitForIdle()
+    }
+
+    private fun batteryLimited(limited: Boolean) {
+        val power = composeTestRule.activity.getSystemService(android.os.PowerManager::class.java)
+        shadowOf(power).setIgnoringBatteryOptimizations(composeTestRule.activity.packageName, !limited)
     }
 
     @Test
@@ -97,5 +111,27 @@ class NamazReminderChecksTest {
         show()
 
         composeTestRule.onNodeWithTag(NamazTestTags.NOTIFICATIONS_CARD).assertDoesNotExist()
+    }
+
+    @Test
+    fun whileBatteryIsOptimised_aTipLinksToTheBatterySettings_andCanBeHidden() {
+        batteryLimited(true)
+        show()
+        composeTestRule.onNodeWithTag(NamazTestTags.BATTERY_CARD).assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Open battery settings").performClick()
+        assertEquals(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS, shadowOf(composeTestRule.activity).nextStartedActivity.action)
+
+        composeTestRule.onNodeWithContentDescription("Hide this tip").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(NamazTestTags.BATTERY_CARD).assertDoesNotExist()
+    }
+
+    @Test
+    fun withoutBatteryLimits_thereIsNoTip() {
+        batteryLimited(false)
+        show()
+
+        composeTestRule.onNodeWithTag(NamazTestTags.BATTERY_CARD).assertDoesNotExist()
     }
 }

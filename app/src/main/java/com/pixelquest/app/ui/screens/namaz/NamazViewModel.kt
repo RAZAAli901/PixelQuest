@@ -241,6 +241,11 @@ class NamazViewModel(
         viewModelScope.launch { reminderOptions.update { it.copy(nudge = on) } }
     }
 
+    /** Hides the battery-optimisation tip for good. */
+    fun dismissBatteryTip() {
+        viewModelScope.launch { reminderOptions.update { it.copy(batteryTipDismissed = true) } }
+    }
+
     /** Reminders at each prayer's start, or [minutes] before it. */
     fun setReminderOffset(minutes: Int) = updateSettings { it.copy(reminderOffsetMin = minutes) }
 

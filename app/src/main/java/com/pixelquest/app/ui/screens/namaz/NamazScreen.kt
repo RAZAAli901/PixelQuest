@@ -66,6 +66,7 @@ object NamazTestTags {
     const val HOME_CARD = "namaz_home_card"
     const val EXACT_ALARM_CARD = "namaz_exact_alarm_card"
     const val NOTIFICATIONS_CARD = "namaz_notifications_card"
+    const val BATTERY_CARD = "namaz_battery_card"
     const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */
@@ -113,7 +114,12 @@ fun NamazScreen(
         locationLookup = locationLookup,
         onUseMyLocation = locationRequest::launch,
         onPickCity = { pickingCity = true },
-        reminderChecks = { NamazReminderChecks() },
+        reminderChecks = {
+            NamazReminderChecks(
+                batteryTipDismissed = reminderOptions.batteryTipDismissed,
+                onDismissBatteryTip = viewModel::dismissBatteryTip
+            )
+        },
         snackbarHostState = snackbarHostState,
         onPrayerClick = { slot ->
             when (PrayerButtonState.of(slot)) {

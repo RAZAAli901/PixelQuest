@@ -20,7 +20,8 @@ class PrefsNamazReminderOptionsStore @Inject constructor(
     private val prefs: SharedPreferences by lazy { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE) }
 
     private fun read() = NamazReminderOptions(
-        nudge = prefs.getBoolean(KEY_NUDGE, false)
+        nudge = prefs.getBoolean(KEY_NUDGE, false),
+        batteryTipDismissed = prefs.getBoolean(KEY_BATTERY_TIP_DISMISSED, false)
     )
 
     override val options: Flow<NamazReminderOptions> = callbackFlow {
@@ -36,11 +37,13 @@ class PrefsNamazReminderOptionsStore @Inject constructor(
         val next = change(read())
         prefs.edit()
             .putBoolean(KEY_NUDGE, next.nudge)
+            .putBoolean(KEY_BATTERY_TIP_DISMISSED, next.batteryTipDismissed)
             .apply()
     }
 
     companion object {
         const val PREFS = "pixelquest_namaz_reminders"
         private const val KEY_NUDGE = "nudge"
+        private const val KEY_BATTERY_TIP_DISMISSED = "battery_tip_dismissed"
     }
 }
