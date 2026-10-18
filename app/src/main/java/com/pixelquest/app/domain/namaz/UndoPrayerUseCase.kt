@@ -42,7 +42,7 @@ class UndoPrayerUseCase @Inject constructor(
         NamazXpLock.mutex.withLock { undo(day, prayer, now) }
 
     private suspend fun undo(day: LocalDate, prayer: Prayer, now: ZonedDateTime): UndoPrayerResult {
-        if (day != nextPrayer(now).prayerDay) return UndoPrayerResult.PastDay
+        if (!NamazRules.canUndoDay(day, nextPrayer(now).prayerDay)) return UndoPrayerResult.PastDay
         val logs = repository.getDay(day)
         val row = logs.firstOrNull { it.prayer == prayer && it.status == PrayerStatus.PRAYED } ?: return UndoPrayerResult.NotPrayed
 

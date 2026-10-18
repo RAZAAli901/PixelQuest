@@ -21,12 +21,16 @@ sealed interface MarkPrayerResult {
 
     /** Before yesterday's prayer day: too far back to change. */
     data object TooOld : MarkPrayerResult
+
+    /** The phone's clock is behind a prayer already marked (NamazRules.clockIsBehind). */
+    data object ClockBehind : MarkPrayerResult
 }
 
 /**
- * Marks a prayer prayed (docs/namaz-design.md). Only once its time has started, never for a day
- * ahead, and only on the current prayer day or the one before. A prayer marked after its window
- * passed is still prayed, just late, for half the XP.
+ * Marks a prayer prayed (docs/namaz-design.md), by NamazRules: only once its time has started, never
+ * for a day ahead, only on the current prayer day or the one before, and not while the phone's
+ * clock is behind a prayer already marked. A prayer marked after its window passed is still
+ * prayed, just late, for half the XP.
  *
  * The XP goes through the game's one XP path, UserProfileRepository.addXp (the same as a completed
  * task), and the profile is synced to the leaderboard after. Levels come from perfect days, not XP,
@@ -46,8 +50,12 @@ class MarkPrayerUseCase @Inject constructor(
         val currentDay = nextPrayer(now).prayerDay
         val times = provider.timesFor(day)
         val time = times.timeOf(prayer)
-        if (day.isAfter(currentDay) || now.isBefore(time)) return MarkPrayerResult.NotStartedYet(time)
-        if (day.isBefore(currentDay.minusDays(1))) return MarkPrayerResult.TooOld
+        if (day.isAfter(currentDay) || !NamazRules.hasStarted(time, now)) return MarkPrayerResult.NotStartedYet(time)
+        if (!NamazRules.canMarkDay(day, currentDay)) return MarkPrayerResult.TooOld
+        // Marks from a clock set ahead sit on the days just after (or on) the one it now says.
+        if (NamazRules.clockIsBehind(repository.observeRange(currentDay.minusDays(1), currentDay.plusDays(2)).first(), now)) {
+            return MarkPrayerResult.ClockBehind
+        }
         val logs = repository.getDay(day)
         if (logs.any { it.prayer == prayer && it.status == PrayerStatus.PRAYED }) return MarkPrayerResult.AlreadyPrayed
 

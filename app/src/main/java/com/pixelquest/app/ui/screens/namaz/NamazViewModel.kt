@@ -33,7 +33,9 @@ import com.pixelquest.app.namaz.NamazAlarms
 import com.pixelquest.app.util.AppClock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -87,6 +89,9 @@ data class NamazUiState(
         const val STRIP_DAYS = 7
     }
 }
+
+/** One-off messages from the tracker to its screen. */
+enum class NamazMessage { CLOCK_BEHIND }
 
 /** Use my location, as it goes: looking, or no position to be had (no permission, location off, no fix). */
 enum class LocationLookup { IDLE, LOOKING, UNAVAILABLE }
@@ -209,9 +214,15 @@ class NamazViewModel(
     fun markPrayed(prayer: Prayer) {
         viewModelScope.launch {
             val now = now()
-            markPrayer(nextPrayer(now).prayerDay, prayer, now)
+            val result = markPrayer(nextPrayer(now).prayerDay, prayer, now)
+            if (result == com.pixelquest.app.domain.namaz.MarkPrayerResult.ClockBehind) _messages.tryEmit(NamazMessage.CLOCK_BEHIND)
         }
     }
+
+    private val _messages = MutableSharedFlow<NamazMessage>(extraBufferCapacity = 1)
+
+    /** Something the screen should say once, in its snackbar. */
+    val messages: SharedFlow<NamazMessage> = _messages
 
     /** Takes [prayer]'s prayed mark back, on the current prayer day: pending again, or missed if its window passed. */
     fun undo(prayer: Prayer) {

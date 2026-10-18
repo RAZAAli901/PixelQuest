@@ -122,6 +122,8 @@
     <!-- Asked before taking a prayed mark back. -->
     <string name="namaz_undo_question">Mark <xliff:g id="prayer" example="Asr">%1$s</xliff:g> as not prayed?</string>
     <string name="namaz_undo_action">Undo</string>
+    <!-- Marking refused: the phone's clock reads earlier than a prayer already marked (set ahead, then back). -->
+    <string name="namaz_clock_behind">Your phone\'s clock is behind a prayer you\'ve already marked. Check the time, then mark it again.</string>
 
     <!-- What TalkBack says for a prayer's button: "Fajr, 5:12 AM, not prayed", then "double tap to mark prayed".
          The actions (mark prayed, …) follow TalkBack's own "double tap to", so they start in lower case. -->

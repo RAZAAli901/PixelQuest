@@ -104,6 +104,13 @@ fun NamazScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    androidx.compose.runtime.LaunchedEffect(viewModel) {
+        viewModel.messages.collect { message ->
+            when (message) {
+                NamazMessage.CLOCK_BEHIND -> snackbarHostState.showSnackbar(context.getString(R.string.namaz_clock_behind))
+            }
+        }
+    }
 
     NamazContent(
         state = state,
