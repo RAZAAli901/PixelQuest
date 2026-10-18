@@ -65,6 +65,14 @@ class MainActivity : ComponentActivity() {
     var isNotificationPermissionGranted by mutableStateOf(true)
         private set
 
+    /** A screen a notification asked to open (the Namaz reminder), until the app can show it. */
+    private var pendingRoute by mutableStateOf<String?>(null)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        routeFrom(intent)?.let { pendingRoute = it }
+    }
+
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             isNotificationPermissionGranted = isGranted
@@ -72,6 +80,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) pendingRoute = routeFrom(intent)
         checkNotificationPermission()
         setContent {
             val themeMode by themeViewModel.themeMode.collectAsState()
@@ -110,6 +119,16 @@ class MainActivity : ComponentActivity() {
                         val menuContext by menuViewModel.context.collectAsState()
                         // The highlight follows where the player is, however they got there.
                         androidx.compose.runtime.LaunchedEffect(currentRoute) { menuViewModel.syncWithRoute(currentRoute) }
+                        // A screen asked for by a notification opens once the app is past the
+                        // splash and onboarding, over Home, so Back returns there.
+                        androidx.compose.runtime.LaunchedEffect(pendingRoute, currentRoute, onboardingComplete) {
+                            val route = pendingRoute ?: return@LaunchedEffect
+                            if (!onboardingComplete || currentRoute == null || currentRoute == Screen.Splash.route || currentRoute == Screen.Onboarding.route) {
+                                return@LaunchedEffect
+                            }
+                            pendingRoute = null
+                            if (currentRoute != route) navController.navigate(route) { launchSingleTop = true }
+                        }
 
                         // The side menu slides in over the screens and the bottom bar (docs/ai-coach-compact.md).
                         com.pixelquest.app.ui.menu.MenuDrawerScaffold(
@@ -183,6 +202,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /** The screen [intent] asks to open, if it's one a notification may open (MainActivity is exported). */
+    private fun routeFrom(intent: Intent?): String? =
+        intent?.getStringExtra(EXTRA_OPEN_ROUTE)?.takeIf { it in OPENABLE_ROUTES }
+
+    companion object {
+        /** A screen to open, from a notification's tap. */
+        const val EXTRA_OPEN_ROUTE = "com.pixelquest.app.extra.OPEN_ROUTE"
+
+        private val OPENABLE_ROUTES = setOf(Screen.Namaz.route)
     }
 
     private fun checkNotificationPermission() {

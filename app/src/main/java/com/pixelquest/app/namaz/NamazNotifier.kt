@@ -1,12 +1,18 @@
 package com.pixelquest.app.namaz
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.text.format.DateFormat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.pixelquest.app.MainActivity
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.notification.NotificationHelper
+import com.pixelquest.app.ui.navigation.Screen
+import com.pixelquest.app.ui.screens.namaz.prayerTimeFormatter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -35,13 +41,21 @@ class AndroidNamazNotifier @Inject constructor(
     @ApplicationContext private val context: Context
 ) : NamazNotifier {
 
+    /**
+     * "Time for Fajr", then "5:12 AM · Lahore" in the phone's time format (no place: the time
+     * alone). Tapping it opens the Namaz screen.
+     */
     override fun show(reminder: NamazReminder) {
         NamazChannels.create(context)
         val name = context.getString(reminder.prayer.displayName)
+        val time = reminder.time.format(prayerTimeFormatter(DateFormat.is24HourFormat(context)))
+        val text = if (reminder.placeName.isBlank()) time else context.getString(R.string.namaz_notification_text, time, reminder.placeName)
         val notification = NotificationCompat.Builder(context, NamazChannels.REMINDERS)
             .setSmallIcon(R.drawable.ic_tasks)
             .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
-            .setContentTitle(name)
+            .setContentTitle(context.getString(R.string.namaz_notification_title, name))
+            .setContentText(text)
+            .setContentIntent(openNamaz())
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
@@ -51,5 +65,20 @@ class AndroidNamazNotifier @Inject constructor(
         } catch (e: SecurityException) {
             // Notifications not allowed (Android 13+): nothing to show.
         }
+    }
+
+    /** Opens the app on the Namaz screen (MainActivity.EXTRA_OPEN_ROUTE). */
+    private fun openNamaz(): PendingIntent = PendingIntent.getActivity(
+        context,
+        OPEN_REQUEST_CODE,
+        Intent(context, MainActivity::class.java)
+            .putExtra(MainActivity.EXTRA_OPEN_ROUTE, Screen.Namaz.route)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    private companion object {
+        /** Every reminder opens the same screen, so they share one PendingIntent. */
+        const val OPEN_REQUEST_CODE = 740_000
     }
 }

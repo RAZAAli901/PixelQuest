@@ -141,6 +141,10 @@
     <string name="namaz_adjust_earlier"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g> a minute earlier</string>
     <string name="namaz_adjust_later"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g> a minute later</string>
 
+    <!-- A prayer's reminder: "Time for Fajr", then "5:12 AM · Lahore". -->
+    <string name="namaz_notification_title">Time for <xliff:g id="prayer" example="Fajr">%1$s</xliff:g></string>
+    <string name="namaz_notification_text"><xliff:g id="time" example="5:12 AM">%1$s</xliff:g> · <xliff:g id="place" example="Lahore">%2$s</xliff:g></string>
+
     <!-- Notification channels, as the phone's notification settings list them. -->
     <string name="namaz_channel_reminders">Prayer reminders</string>
     <string name="namaz_channel_reminders_description">At the start of each prayer whose reminder is on</string>
