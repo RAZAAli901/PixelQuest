@@ -74,12 +74,56 @@ Through the existing XP, level and streak pipeline, not a second one. Suggested 
 
 `xpAwarded` makes undo exact, and awarding is idempotent. Simple Mode logs prayers with no XP text.
 
-## Reminders (Phase 5, outline)
+## Reminders (Phase 5)
 
-- **Alarms:** exact alarms (`setExactAndAllowWhileIdle` / `setAlarmClock`) at each prayer's start, minus the offset, for the next 48 hours, through `NamazAlarmScheduler`.
-- **Rescheduled** when settings, the place or the day change, and after boot, an update, or a time or time-zone change.
-- **Notification actions:** Prayed, Snooze 10 min and Dismiss. Its own channel, `namaz_reminders`.
-- **Plumbing:** the existing `TaskAlarmReceiver` and `BootReceiver` patterns are reused.
+A notification at the start of each prayer, even with the app closed, after a reboot, and across time-zone or place changes. It reuses the task reminders' plumbing: `AlarmManager` exact alarms, a manifest receiver, and `BootReceiver` for re-arming.
+
+### Schedule
+
+- **What's armed:** for the next 48 hours, one alarm per prayer at its start minus the reminder offset (at the time, or 5, 10 or 15 minutes before), for each prayer whose reminder is on. Optionally, a "still not prayed" nudge 20 minutes before the next prayer starts.
+- **Planned, then armed:** `NamazReminderPlanner` works out the list (pure, testable), and `NamazAlarmScheduler` arms it.
+  - Exact alarms use `setExactAndAllowWhileIdle(RTC_WAKEUP)`. Fajr, when it may sound through Do Not Disturb, uses `setAlarmClock`.
+  - Without "Alarms & reminders" (Android 12+), it falls back to a 10-minute `setWindow`, and the screen says reminders may be late.
+- **One identity per alarm:** each alarm's `PendingIntent` has its own action per kind (reminder, nudge, snooze, test) and a request code from the kind, the date and the prayer. Arming the same one again replaces it (`FLAG_UPDATE_CURRENT`), so rescheduling never doubles an alarm.
+- **Rescheduling** cancels what's armed in the window and arms the new plan. It happens:
+  - when the tracker's settings, place or reminder options change (watched from `PixelQuestApplication`);
+  - at the day's change (the midnight worker);
+  - after each alarm fires (the window rolls on);
+  - from `BootReceiver`: `BOOT_COMPLETED`, `MY_PACKAGE_REPLACED`, `TIMEZONE_CHANGED`, `TIME_SET`, and the exact-alarm permission changing;
+  - daily, from `NamazRescheduleWorker`, as a safety net.
+- **Switched off:** turning the tracker (or every reminder) off cancels every Namaz alarm and removes its notifications and channels.
+
+### Fire
+
+- **`NamazAlarmReceiver`** (manifest, `exported=false`) checks that the tracker and that prayer's reminder are still on, and that it isn't already prayed. Then it posts the notification and rolls the schedule on.
+- **The notification:**
+  - its title is "Time for Fajr", and its text is the time and the place;
+  - tapping it opens the Namaz screen;
+  - it has three actions, Prayed, Snooze 10 min and Dismiss, handled by `NamazActionReceiver`.
+- **Prayed** marks the prayer through `MarkPrayerUseCase`, the same as the screen's button, so it gets the screen's rules and, from Phase 6, its XP.
+- **Snooze** arms a one-off alarm 10 minutes later.
+- **The nudge** posts only if the prayer is still unmarked.
+
+### Channels and sound
+
+- **Channels:**
+  - `namaz_reminders` is high importance, with the chosen sound;
+  - `namaz_reminders_silent` has no sound or vibration;
+  - `namaz_nudge` is low importance.
+- **Sound** is fixed per channel on Android 8+, so each sound option has its own channel. The options are the system sound, a short bundled chime, or silent.
+- **No Adhan recording is bundled.** That needs a licensed recording; the bundled sound is a short chime made for the app.
+- **Do Not Disturb is respected:** reminders are `CATEGORY_REMINDER`. An opt-in lets Fajr through, as an alarm-category notification on its own channel with `setAlarmClock`, which DND's default "Alarms" exception allows. Apps can't set a channel's own DND bypass.
+
+### Options
+
+- **In the Namaz settings:** the per-prayer toggles and the reminder offset are in `NamazSettingsEntity` (and in backups).
+- **In SharedPreferences (`pixelquest_namaz_reminders`):** the nudge, the sound and the Fajr DND opt-in. That avoids a database migration for three switches. A restore keeps the phone's.
+
+### Permissions
+
+- **Notifications** (Android 13+): asked with a short explanation when reminders are first turned on. While they're blocked, the screen says so with a way to fix it.
+- **Exact alarms** (Android 12+): a card links to "Alarms & reminders". Without it, reminders arrive within 10 minutes.
+- **Battery:** a dismissible card links to the battery-optimisation list, so the phone doesn't hold reminders back.
 
 ## Backups (Phase 3)
 
