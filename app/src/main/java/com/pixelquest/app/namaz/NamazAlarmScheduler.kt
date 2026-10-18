@@ -12,6 +12,20 @@ import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** Arms and cancels Namaz alarms: AlarmManager in the app, a fake in tests. */
+interface NamazAlarms {
+    fun canScheduleExactAlarms(): Boolean
+
+    /** Arms [alarm], replacing the same alarm if it's already armed. */
+    fun schedule(alarm: NamazAlarm)
+
+    /** Cancels one alarm, if it's armed. */
+    fun cancel(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer)
+
+    /** Cancels every Namaz alarm that could be armed around [today]. */
+    fun cancelAll(today: LocalDate)
+}
+
 /**
  * Arms and cancels the Namaz Tracker's alarms, one per prayer and kind (docs/namaz-design.md,
  * Reminders). Exact (`setExactAndAllowWhileIdle`, RTC_WAKEUP) when Android allows it; otherwise
@@ -20,14 +34,13 @@ import javax.inject.Singleton
 @Singleton
 class NamazAlarmScheduler @Inject constructor(
     @ApplicationContext private val context: Context
-) {
+) : NamazAlarms {
     private val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java)
 
-    fun canScheduleExactAlarms(): Boolean =
+    override fun canScheduleExactAlarms(): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
 
-    /** Arms [alarm], replacing the same alarm if it's already armed. */
-    fun schedule(alarm: NamazAlarm) {
+    override fun schedule(alarm: NamazAlarm) {
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             alarm.requestCode,
@@ -45,8 +58,7 @@ class NamazAlarmScheduler @Inject constructor(
         }
     }
 
-    /** Cancels one alarm, if it's armed. */
-    fun cancel(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
+    override fun cancel(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             NamazAlarm.requestCode(kind, date, prayer),
@@ -58,10 +70,10 @@ class NamazAlarmScheduler @Inject constructor(
     }
 
     /**
-     * Cancels every Namaz alarm that could be armed around [today]: two days back to three ahead
-     * covers the 48-hour window from any moment, a snooze past midnight, and a clock moved a day.
+     * Two days back to three ahead: covers the 48-hour window from any moment, a snooze past
+     * midnight, and a clock moved a day.
      */
-    fun cancelAll(today: LocalDate) {
+    override fun cancelAll(today: LocalDate) {
         for (offset in -2L..3L) {
             val date = today.plusDays(offset)
             NamazAlarm.Kind.entries.forEach { kind -> Prayer.entries.forEach { cancel(kind, date, it) } }

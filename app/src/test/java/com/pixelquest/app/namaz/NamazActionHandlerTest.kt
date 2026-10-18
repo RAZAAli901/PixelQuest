@@ -8,6 +8,7 @@ import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
+import com.pixelquest.app.testing.FakeNamazAlarms
 import com.pixelquest.app.testing.FakeNamazNotifier
 import com.pixelquest.app.testing.FakeNamazRepository
 import com.pixelquest.app.testing.FixedClock
@@ -29,9 +30,11 @@ class NamazActionHandlerTest {
     private val clock = FixedClock(LocalDateTime.of(day, LocalTime.of(16, 0)))
     private val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { LahoreZone }
     private val notifier = FakeNamazNotifier()
+    private val alarms = FakeNamazAlarms()
     private val handler = NamazActionHandler(
         notifier,
         MarkPrayerUseCase(provider, repository, NextPrayerUseCase(provider)),
+        alarms,
         clock
     ) { LahoreZone }
 
@@ -77,5 +80,29 @@ class NamazActionHandlerTest {
 
         assertTrue(notifier.shown.isEmpty())
         assertNull(repository.statusOf(day, Prayer.ASR))
+    }
+
+    @Test
+    fun snooze_bringsTheReminderBack_inTenMinutes() = runBlocking {
+        showReminder(Prayer.ASR)
+
+        handler.handle(NamazAction.SNOOZE, day, Prayer.ASR)
+
+        val snooze = alarms.armed.values.single()
+        assertEquals(NamazAlarm.Kind.SNOOZE, snooze.kind)
+        assertEquals(Prayer.ASR, snooze.prayer)
+        assertEquals(clock.time.plusMinutes(10).atZone(LahoreZone).toInstant().toEpochMilli(), snooze.atMillis)
+        assertTrue(notifier.shown.isEmpty())
+        assertNull(repository.statusOf(day, Prayer.ASR))
+    }
+
+    @Test
+    fun snoozingAgain_movesTheSnooze_ratherThanAddingOne() = runBlocking {
+        handler.handle(NamazAction.SNOOZE, day, Prayer.ASR)
+        clock.time = clock.time.plusMinutes(10)
+        handler.handle(NamazAction.SNOOZE, day, Prayer.ASR)
+
+        assertEquals(1, alarms.armed.size)
+        assertEquals(clock.time.plusMinutes(10).atZone(LahoreZone).toInstant().toEpochMilli(), alarms.armed.values.single().atMillis)
     }
 }

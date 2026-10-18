@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.pixelquest.app.domain.namaz.MarkPrayerUseCase
+import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.util.AppClock
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,21 +36,32 @@ enum class NamazAction(val action: String, val codeBase: Int) {
 class NamazActionHandler(
     private val notifier: NamazNotifier,
     private val markPrayer: MarkPrayerUseCase,
+    private val alarms: NamazAlarms,
     private val clock: AppClock,
     private val zone: () -> ZoneId
 ) {
     @Inject
-    constructor(notifier: NamazNotifier, markPrayer: MarkPrayerUseCase, clock: AppClock) :
-        this(notifier, markPrayer, clock, { ZoneId.systemDefault() })
+    constructor(notifier: NamazNotifier, markPrayer: MarkPrayerUseCase, alarms: NamazAlarms, clock: AppClock) :
+        this(notifier, markPrayer, alarms, clock, { ZoneId.systemDefault() })
 
     suspend fun handle(action: NamazAction, date: LocalDate, prayer: Prayer) {
+        val now = clock.now().atZone(zone())
         when (action) {
             // Marked as the screen's button marks it, so the same rules apply, and from Phase 6
             // the same XP. A prayer whose time hasn't come isn't marked (MarkPrayerUseCase).
-            NamazAction.PRAYED -> markPrayer(date, prayer, clock.now().atZone(zone()))
-            NamazAction.SNOOZE, NamazAction.DISMISS -> Unit
+            NamazAction.PRAYED -> markPrayer(date, prayer, now)
+            // The reminder again in 10 minutes: its own alarm, beside the prayer's regular ones.
+            // Tapping Snooze again moves it, rather than adding another.
+            NamazAction.SNOOZE -> alarms.schedule(
+                NamazAlarm(NamazAlarm.Kind.SNOOZE, date, prayer, now.plusMinutes(SNOOZE_MINUTES).toInstant().toEpochMilli())
+            )
+            NamazAction.DISMISS -> Unit
         }
         notifier.cancel(date, prayer)
+    }
+
+    companion object {
+        const val SNOOZE_MINUTES = 10L
     }
 }
 

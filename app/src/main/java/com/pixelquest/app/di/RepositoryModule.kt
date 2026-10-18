@@ -127,4 +127,10 @@ abstract class RepositoryModule {
     abstract fun bindNamazNotifier(
         impl: com.pixelquest.app.namaz.AndroidNamazNotifier
     ): com.pixelquest.app.namaz.NamazNotifier
+
+    @Binds
+    @Singleton
+    abstract fun bindNamazAlarms(
+        impl: com.pixelquest.app.namaz.NamazAlarmScheduler
+    ): com.pixelquest.app.namaz.NamazAlarms
 }

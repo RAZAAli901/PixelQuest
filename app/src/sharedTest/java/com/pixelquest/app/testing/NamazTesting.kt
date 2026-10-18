@@ -4,6 +4,7 @@ import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.domain.namaz.AutoMarkMissedUseCase
 import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.MarkPrayerUseCase
+import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.NamazPlaceResolver
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
@@ -13,6 +14,7 @@ import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.namaz.GeoPoint
 import com.pixelquest.app.namaz.LocationProvider
+import com.pixelquest.app.namaz.NamazAlarms
 import com.pixelquest.app.namaz.NamazNotifier
 import com.pixelquest.app.namaz.NamazReminder
 import com.pixelquest.app.ui.screens.namaz.NamazViewModel
@@ -62,5 +64,24 @@ class FakeNamazNotifier : NamazNotifier {
 
     override fun cancel(date: LocalDate, prayer: Prayer) {
         shown.removeAll { it.date == date && it.prayer == prayer }
+    }
+}
+
+/** The armed alarms in a map, keyed like Android's PendingIntents: one per kind, day and prayer. */
+class FakeNamazAlarms(var exact: Boolean = true) : NamazAlarms {
+    val armed = linkedMapOf<Triple<NamazAlarm.Kind, LocalDate, Prayer>, NamazAlarm>()
+
+    override fun canScheduleExactAlarms(): Boolean = exact
+
+    override fun schedule(alarm: NamazAlarm) {
+        armed[Triple(alarm.kind, alarm.date, alarm.prayer)] = alarm
+    }
+
+    override fun cancel(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
+        armed.remove(Triple(kind, date, prayer))
+    }
+
+    override fun cancelAll(today: LocalDate) {
+        armed.keys.removeAll { (_, date, _) -> date in today.minusDays(2)..today.plusDays(3) }
     }
 }
