@@ -8,6 +8,8 @@ import com.pixelquest.app.domain.namaz.NamazPlaceResolver
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
 import com.pixelquest.app.domain.namaz.UndoPrayerUseCase
+import com.pixelquest.app.domain.repository.NamazRepository
+import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.namaz.GeoPoint
 import com.pixelquest.app.namaz.LocationProvider
 import com.pixelquest.app.ui.screens.namaz.NamazViewModel
@@ -24,15 +26,15 @@ class FakeLocationProvider(var point: GeoPoint? = null) : LocationProvider {
 }
 
 /**
- * A NamazViewModel on fakes: [repository] (the tracker on, by default), a [clock] that stands
+ * A NamazViewModel on fakes (or a real [repository]): the tracker on by default, a [clock] that stands
  * still (16:00 on 17 October 2026 by default, after Asr in Lahore), and [zone].
  */
 fun namazViewModel(
-    repository: FakeNamazRepository = FakeNamazRepository(NamazSettingsEntity(enabled = true)),
+    repository: NamazRepository = FakeNamazRepository(NamazSettingsEntity(enabled = true)),
     clock: FixedClock = FixedClock(LocalDateTime.of(2026, 10, 17, 16, 0)),
     zone: ZoneId = LahoreZone,
     location: FakeLocationProvider = FakeLocationProvider(),
-    settings: FakeSettingsRepository = FakeSettingsRepository()
+    settings: SettingsRepository = FakeSettingsRepository()
 ): NamazViewModel {
     val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { zone }
     val nextPrayer = NextPrayerUseCase(provider)
