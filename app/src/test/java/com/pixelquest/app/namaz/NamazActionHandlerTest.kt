@@ -33,7 +33,7 @@ class NamazActionHandlerTest {
     private val alarms = FakeNamazAlarms()
     private val handler = NamazActionHandler(
         notifier,
-        MarkPrayerUseCase(provider, repository, NextPrayerUseCase(provider)),
+        MarkPrayerUseCase(provider, repository, NextPrayerUseCase(provider), com.pixelquest.app.testing.FakeUserProfileRepository()),
         alarms,
         clock
     ) { LahoreZone }

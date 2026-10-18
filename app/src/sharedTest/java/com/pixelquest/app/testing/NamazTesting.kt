@@ -46,14 +46,15 @@ fun namazViewModel(
     location: FakeLocationProvider = FakeLocationProvider(),
     settings: SettingsRepository = FakeSettingsRepository(),
     reminderOptions: NamazReminderOptionsStore = FakeNamazReminderOptionsStore(),
-    alarms: NamazAlarms = FakeNamazAlarms()
+    alarms: NamazAlarms = FakeNamazAlarms(),
+    profile: FakeUserProfileRepository = FakeUserProfileRepository()
 ): NamazViewModel {
     val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { zone }
     val nextPrayer = NextPrayerUseCase(provider)
     return NamazViewModel(
         repository, provider, nextPrayer,
         AutoMarkMissedUseCase(provider, repository, nextPrayer),
-        MarkPrayerUseCase(provider, repository, nextPrayer),
+        MarkPrayerUseCase(provider, repository, nextPrayer, profile),
         UndoPrayerUseCase(provider, repository, nextPrayer),
         NamazPlaceResolver(repository, location), settings, reminderOptions, alarms, clock
     ) { zone }

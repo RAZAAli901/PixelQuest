@@ -102,7 +102,10 @@ class NamazReminderInstrumentedTest {
             repository, provider, notifier, FakeNamazReminderOptionsStore(), FakeNamazDeliveries(), clock
         ) { LahoreZone }
         val actionHandler = NamazActionHandler(
-            notifier, MarkPrayerUseCase(provider, repository, NextPrayerUseCase(provider)), FakeNamazAlarms(), clock
+            notifier,
+            MarkPrayerUseCase(provider, repository, NextPrayerUseCase(provider), com.pixelquest.app.testing.FakeUserProfileRepository()),
+            FakeNamazAlarms(),
+            clock
         ) { LahoreZone }
 
         // The alarm fires: Asr's reminder appears.

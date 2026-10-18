@@ -31,7 +31,8 @@ class NamazUseCasesTest {
     private val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), FixedClock()) { lahoreZone }
     private val nextPrayer = NextPrayerUseCase(provider)
     private val getToday = GetTodayNamazUseCase(provider, repository)
-    private val mark = MarkPrayerUseCase(provider, repository, nextPrayer)
+    private val profile = com.pixelquest.app.testing.FakeUserProfileRepository()
+    private val mark = MarkPrayerUseCase(provider, repository, nextPrayer, profile)
     private val undo = UndoPrayerUseCase(provider, repository, nextPrayer)
     private val autoMarkMissed = AutoMarkMissedUseCase(provider, repository, nextPrayer)
 
@@ -96,13 +97,15 @@ class NamazUseCasesTest {
     fun aPrayerThatHasStarted_isMarkedPrayed_once() = runBlocking {
         val now = at(day, 16)
 
-        assertEquals(MarkPrayerResult.Marked, mark(day, Prayer.ASR, now))
+        assertEquals(MarkPrayerResult.Marked(NamazXpAward(10)), mark(day, Prayer.ASR, now))
         assertEquals(MarkPrayerResult.AlreadyPrayed, mark(day, Prayer.ASR, now.plusMinutes(5)))
 
         val row = repository.rows.value[day to Prayer.ASR]!!
         assertEquals(PrayerStatus.PRAYED, row.status)
         assertEquals(now.toInstant().toEpochMilli(), row.prayedAt)
-        assertEquals(0, row.xpAwarded)
+        assertEquals(10, row.xpAwarded)
+        // Through the game's XP, once.
+        assertEquals(10, profile.profile.value!!.totalXp)
     }
 
     @Test
@@ -118,7 +121,8 @@ class NamazUseCasesTest {
     fun yesterdaysPrayers_canBeMarkedLate_butNotOlderOnes() = runBlocking {
         val now = at(day, 16)
 
-        assertEquals(MarkPrayerResult.Marked, mark(yesterday, Prayer.ISHA, now))
+        // Late: its window ended at today's Fajr, so half.
+        assertEquals(MarkPrayerResult.Marked(NamazXpAward(5)), mark(yesterday, Prayer.ISHA, now))
         assertEquals(MarkPrayerResult.TooOld, mark(yesterday.minusDays(1), Prayer.ISHA, now))
         assertEquals(PrayerStatus.PRAYED, repository.statusOf(yesterday, Prayer.ISHA))
         assertNull(repository.statusOf(yesterday.minusDays(1), Prayer.ISHA))
@@ -126,7 +130,8 @@ class NamazUseCasesTest {
 
     @Test
     fun beforeFajr_ishaIsMarkedOnThePreviousPrayerDay() = runBlocking {
-        assertEquals(MarkPrayerResult.Marked, mark(day, Prayer.ISHA, at(tomorrow, 2)))
+        // Still in its window, which runs to the next Fajr.
+        assertEquals(MarkPrayerResult.Marked(NamazXpAward(10)), mark(day, Prayer.ISHA, at(tomorrow, 2)))
         assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.ISHA))
     }
 
@@ -194,5 +199,28 @@ class NamazUseCasesTest {
         repository.saveSettings(repository.getSettings().copy(enabled = false))
         assertEquals(0, autoMarkMissed(at(day, 23)))
         assertFalse(repository.rows.value.values.any { it.status == PrayerStatus.MISSED })
+    }
+
+    @Test
+    fun theFifthPrayer_earnsTheAllFiveBonus_throughTheGamesXp() = runBlocking {
+        // Fajr to Maghrib on time, then Isha.
+        Prayer.entries.forEach { prayer ->
+            val time = provider.timesFor(day).timeOf(prayer).plusMinutes(5)
+            val result = mark(day, prayer, time) as MarkPrayerResult.Marked
+            val expected = if (prayer == Prayer.ISHA) NamazXpAward(10, allFiveBonus = 30) else NamazXpAward(10)
+            assertEquals(expected, result.xp)
+        }
+        assertEquals(NamazXpConfig.DAILY_CAP, profile.profile.value!!.totalXp)
+    }
+
+    @Test
+    fun aSeventhAllFiveDayInARow_earnsTheWeeksBonus() = runBlocking {
+        // Six full days before this one.
+        (1L..6L).forEach { back -> Prayer.entries.forEach { repository.logPrayer(day.minusDays(back), it, prayedAtMillis = 0) } }
+        Prayer.entries.dropLast(1).forEach { repository.logPrayer(day, it, prayedAtMillis = 0, xpAwarded = 10) }
+
+        val isha = mark(day, Prayer.ISHA, provider.timesFor(day).isha.plusMinutes(5)) as MarkPrayerResult.Marked
+
+        assertEquals(NamazXpAward(10, allFiveBonus = 30, weekBonus = 100), isha.xp)
     }
 }
