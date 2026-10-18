@@ -83,16 +83,12 @@ val Prayer.icon: String
         Prayer.ISHA -> "🌙"
     }
 
-/** The accent a state is drawn in: its ring, its mark and its label. */
-@Composable
-internal fun prayerStateColor(state: PrayerButtonState): Color {
-    val colors = PixelTheme.colors
-    return when (state) {
-        PrayerButtonState.PENDING -> colors.primary
-        PrayerButtonState.PRAYED -> colors.tertiary
-        PrayerButtonState.MISSED -> colors.error
-        PrayerButtonState.LOCKED -> colors.onSurfaceVariant
-    }
+/** The accent a state is drawn in, in the theme's Namaz style: its ring, its mark and its label. */
+internal fun NamazStyle.colorOf(state: PrayerButtonState): Color = when (state) {
+    PrayerButtonState.PENDING -> pending
+    PrayerButtonState.PRAYED -> prayed
+    PrayerButtonState.MISSED -> missed
+    PrayerButtonState.LOCKED -> locked
 }
 
 /**
@@ -140,10 +136,11 @@ private fun PrayerButtonBody(
     onLongClick: (() -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
-    val accent = prayerStateColor(state)
+    val style = namazStyle()
+    val accent = style.colorOf(state)
     PixelCard(
         variant = PixelPanelVariant.BORDER,
-        contentPadding = 12.dp,
+        contentPadding = style.cardPadding,
         modifier = modifier
             .fillMaxWidth()
             .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = onLongClick)
@@ -155,7 +152,7 @@ private fun PrayerButtonBody(
                 .alpha(if (state == PrayerButtonState.LOCKED) 0.6f else 1f),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            PrayerStateRing(icon = prayer.icon, state = state, accent = accent, modifier = Modifier.prayedPop(state))
+            PrayerStateRing(icon = prayer.icon, state = state, accent = accent, style = style, modifier = Modifier.prayedPop(state))
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
@@ -197,11 +194,17 @@ private fun Modifier.prayedPop(state: PrayerButtonState): Modifier {
 
 /** The prayer's picture in a ring: outlined while pending, filled once prayed, with the state's mark. */
 @Composable
-private fun PrayerStateRing(icon: String, state: PrayerButtonState, accent: Color, modifier: Modifier = Modifier) {
+private fun PrayerStateRing(
+    icon: String,
+    state: PrayerButtonState,
+    accent: Color,
+    style: NamazStyle,
+    modifier: Modifier = Modifier
+) {
     Box(modifier = modifier.size(48.dp).clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val stroke = 3.dp.toPx()
-            if (state == PrayerButtonState.PRAYED) drawCircle(color = accent.copy(alpha = 0.25f))
+            val stroke = style.ringStroke.toPx()
+            if (state == PrayerButtonState.PRAYED) drawCircle(color = style.prayedFill)
             drawCircle(color = accent, radius = (size.minDimension - stroke) / 2, style = Stroke(width = stroke))
         }
         Text(text = icon, fontSize = 20.sp)
@@ -209,7 +212,7 @@ private fun PrayerStateRing(icon: String, state: PrayerButtonState, accent: Colo
             Text(
                 text = mark,
                 fontSize = 12.sp,
-                color = accent,
+                color = style.mark ?: accent,
                 modifier = Modifier.align(Alignment.BottomEnd)
             )
         }

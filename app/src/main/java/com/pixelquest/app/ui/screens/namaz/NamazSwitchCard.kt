@@ -36,7 +36,7 @@ fun NamazSwitchCard(
     modifier: Modifier = Modifier
 ) {
     val colors = PixelTheme.colors
-    PixelCard(variant = PixelPanelVariant.BORDER, modifier = modifier.fillMaxWidth()) {
+    PixelCard(variant = PixelPanelVariant.BORDER, contentPadding = namazStyle().cardPadding, modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -78,7 +78,11 @@ fun NamazSwitchCard(
 @Composable
 fun NamazExplainerCard(modifier: Modifier = Modifier) {
     val colors = PixelTheme.colors
-    PixelCard(variant = PixelPanelVariant.BLUE, modifier = modifier.fillMaxWidth().testTag(NamazTestTags.EXPLAINER)) {
+    PixelCard(
+        variant = PixelPanelVariant.BLUE,
+        contentPadding = namazStyle().cardPadding,
+        modifier = modifier.fillMaxWidth().testTag(NamazTestTags.EXPLAINER)
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 text = "🕌  " + stringResource(R.string.namaz_explainer_title),

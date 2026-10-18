@@ -46,23 +46,26 @@ fun NamazLocationCard(
     onPickCity: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    PixelCard(variant = PixelPanelVariant.BORDER, modifier = modifier.fillMaxWidth().testTag(NamazTestTags.LOCATION)) {
+    PixelCard(
+        variant = PixelPanelVariant.BORDER,
+        contentPadding = namazStyle().cardPadding,
+        modifier = modifier.fillMaxWidth().testTag(NamazTestTags.LOCATION)
+    ) {
+        // One button above the other: side by side, the labels wrapped onto two lines.
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             NamazPlaceLine(place = place, locationLookup = locationLookup)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                PixelButton(
-                    text = "📍 " + stringResource(R.string.namaz_use_my_location),
-                    onClick = onUseMyLocation,
-                    variant = PixelButtonVariant.BLUE,
-                    modifier = Modifier.weight(1f)
-                )
-                PixelButton(
-                    text = "🏙️ " + stringResource(R.string.namaz_pick_city),
-                    onClick = onPickCity,
-                    variant = PixelButtonVariant.BLUE,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            PixelButton(
+                text = "📍 " + stringResource(R.string.namaz_use_my_location),
+                onClick = onUseMyLocation,
+                variant = PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
+            PixelButton(
+                text = "🏙️ " + stringResource(R.string.namaz_pick_city),
+                onClick = onPickCity,
+                variant = PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

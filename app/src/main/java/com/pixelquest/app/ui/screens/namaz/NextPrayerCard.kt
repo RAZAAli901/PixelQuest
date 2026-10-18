@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.NextPrayer
 import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
 import kotlinx.coroutines.delay
@@ -37,6 +36,7 @@ fun NextPrayerCard(
     modifier: Modifier = Modifier
 ) {
     val colors = PixelTheme.colors
+    val style = namazStyle()
     val formatter = rememberPrayerTimeFormatter()
     val currentOnEnd by rememberUpdatedState(onCountdownEnd)
     var remaining by remember(next) { mutableStateOf(next.remaining.coerceAtLeast(Duration.ZERO)) }
@@ -48,7 +48,11 @@ fun NextPrayerCard(
         currentOnEnd()
     }
 
-    PixelCard(variant = PixelPanelVariant.BEIGE, modifier = modifier.fillMaxWidth().testTag(NamazTestTags.NEXT)) {
+    PixelCard(
+        variant = style.heroPanel,
+        contentPadding = style.cardPadding,
+        modifier = modifier.fillMaxWidth().testTag(NamazTestTags.NEXT)
+    ) {
         Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 text = stringResource(R.string.namaz_next_label).uppercase(),

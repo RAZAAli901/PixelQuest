@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -33,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.ThemeMode
+import com.pixelquest.app.ui.theme.comicDropShadow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -55,9 +53,10 @@ fun NamazDayStrip(
     week: Map<LocalDate, List<PrayerStatus>> = emptyMap()
 ) {
     val colors = PixelTheme.colors
-    val shape = if (PixelTheme.mode == ThemeMode.Pixel) RectangleShape else RoundedCornerShape(8.dp)
+    val style = namazStyle()
+    val shape = style.chipShape
     Column(modifier = modifier.testTag(NamazTestTags.DAY_STRIP), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(text = stringResource(R.string.namaz_days_label), style = MaterialTheme.typography.titleSmall, color = colors.primaryText)
+        NamazHeading(text = stringResource(R.string.namaz_days_label))
         Row(
             modifier = Modifier.fillMaxWidth().selectableGroup(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -75,11 +74,12 @@ fun NamazDayStrip(
                     modifier = Modifier
                         .weight(1f)
                         .heightIn(min = 56.dp)
+                        .then(if (isSelected && style.chipShadow) Modifier.comicDropShadow(offsetX = 3.dp, offsetY = 3.dp, shape = shape) else Modifier)
                         .clip(shape)
-                        .background(if (isSelected) colors.primary.copy(alpha = 0.2f) else colors.surface, shape)
+                        .background(if (isSelected) style.chipSelectedFill else style.chipFill, shape)
                         .border(
-                            width = if (isSelected) 2.dp else 1.dp,
-                            color = if (isSelected) colors.primaryText else colors.pixelBorder,
+                            width = if (isSelected) style.chipBorderWidth + 1.dp else style.chipBorderWidth,
+                            color = if (isSelected) style.chipSelectedBorder else style.chipBorder,
                             shape = shape
                         )
                         .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(date) })
@@ -103,7 +103,7 @@ fun NamazDayStrip(
                     )
                     if (statuses.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(4.dp))
-                        PrayerDots(statuses)
+                        PrayerDots(statuses, style)
                     }
                 }
             }
@@ -111,15 +111,14 @@ fun NamazDayStrip(
     }
 }
 
-/** A day's five prayers as dots, Fajr to Isha: filled for prayed, red for missed, hollow for still to come. */
+/** A day's five prayers as dots, Fajr to Isha: filled for prayed, quieter for missed, hollow for still to come. */
 @Composable
-private fun PrayerDots(statuses: List<PrayerStatus>) {
-    val colors = PixelTheme.colors
+private fun PrayerDots(statuses: List<PrayerStatus>, style: NamazStyle) {
     Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
         statuses.forEach { status ->
             val fill = when (status) {
-                PrayerStatus.PRAYED -> colors.tertiary
-                PrayerStatus.MISSED -> colors.error
+                PrayerStatus.PRAYED -> style.dotPrayed
+                PrayerStatus.MISSED -> style.dotMissed
                 PrayerStatus.PENDING -> Color.Transparent
             }
             Spacer(
@@ -127,7 +126,7 @@ private fun PrayerDots(statuses: List<PrayerStatus>) {
                     .size(5.dp)
                     .clip(CircleShape)
                     .background(fill, CircleShape)
-                    .border(1.dp, if (status == PrayerStatus.PENDING) colors.onSurfaceVariant else fill, CircleShape)
+                    .border(1.dp, style.dotOutline, CircleShape)
             )
         }
     }

@@ -187,8 +187,9 @@ class NamazScreenUiTest {
         composeTestRule.onNodeWithTag(NamazTestTags.day(yesterday)).performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Prayers on", substring = true).assertIsDisplayed()
+        // The heading sits just above the day's progress.
         scrollTo(NamazTestTags.PROGRESS)
+        composeTestRule.onNodeWithText("Prayers on", substring = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("1 / 5 prayed that day").assertIsDisplayed()
         // Tapping its prayers changes nothing.
         scrollTo(NamazTestTags.prayer(Prayer.ASR))

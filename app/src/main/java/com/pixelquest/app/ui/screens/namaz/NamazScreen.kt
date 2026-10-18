@@ -250,14 +250,12 @@ fun NamazContent(
                 }
             }
             item(key = "prayers_title") {
-                Text(
+                NamazHeading(
                     text = if (state.isPastDay) {
                         stringResource(R.string.namaz_prayers_on, state.day!!.date.format(DayTitleFormatter))
                     } else {
                         stringResource(R.string.namaz_prayers_title)
-                    },
-                    style = MaterialTheme.typography.titleMedium,
-                    color = colors.primaryText
+                    }
                 )
                 if (state.isPastDay) {
                     Text(
