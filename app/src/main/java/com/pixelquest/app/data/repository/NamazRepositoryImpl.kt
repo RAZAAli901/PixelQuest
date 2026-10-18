@@ -47,6 +47,8 @@ class NamazRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun clearBonuses(date: LocalDate) = logDao.clearBonuses(date)
+
     override suspend fun undoPrayer(date: LocalDate, prayer: Prayer, status: PrayerStatus) {
         logDao.upsert(NamazLogEntity(date = date, prayer = prayer, status = status))
     }

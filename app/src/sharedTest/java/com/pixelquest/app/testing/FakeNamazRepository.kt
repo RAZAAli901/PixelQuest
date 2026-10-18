@@ -66,5 +66,9 @@ open class FakeNamazRepository(
         }
     }
 
+    override suspend fun clearBonuses(date: LocalDate) {
+        rows.value = rows.value.mapValues { (key, row) -> if (key.first == date) row.copy(bonusXp = 0) else row }
+    }
+
     fun statusOf(date: LocalDate, prayer: Prayer): PrayerStatus? = rows.value[date to prayer]?.status
 }

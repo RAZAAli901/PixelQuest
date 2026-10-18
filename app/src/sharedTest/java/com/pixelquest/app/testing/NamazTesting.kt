@@ -55,7 +55,7 @@ fun namazViewModel(
         repository, provider, nextPrayer,
         AutoMarkMissedUseCase(provider, repository, nextPrayer),
         MarkPrayerUseCase(provider, repository, nextPrayer, profile),
-        UndoPrayerUseCase(provider, repository, nextPrayer),
+        UndoPrayerUseCase(provider, repository, nextPrayer, profile),
         NamazPlaceResolver(repository, location), settings, reminderOptions, alarms, clock
     ) { zone }
 }

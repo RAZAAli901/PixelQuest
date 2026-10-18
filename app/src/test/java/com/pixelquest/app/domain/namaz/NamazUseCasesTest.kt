@@ -33,7 +33,7 @@ class NamazUseCasesTest {
     private val getToday = GetTodayNamazUseCase(provider, repository)
     private val profile = com.pixelquest.app.testing.FakeUserProfileRepository()
     private val mark = MarkPrayerUseCase(provider, repository, nextPrayer, profile)
-    private val undo = UndoPrayerUseCase(provider, repository, nextPrayer)
+    private val undo = UndoPrayerUseCase(provider, repository, nextPrayer, profile)
     private val autoMarkMissed = AutoMarkMissedUseCase(provider, repository, nextPrayer)
 
     private fun at(date: LocalDate, hour: Int, minute: Int = 0): ZonedDateTime =
@@ -143,8 +143,9 @@ class NamazUseCasesTest {
         mark(day, Prayer.DHUHR, at(day, 13))
         mark(day, Prayer.ASR, now)
 
-        assertEquals(UndoPrayerResult.Undone(PrayerStatus.PENDING), undo(day, Prayer.ASR, now))
-        assertEquals(UndoPrayerResult.Undone(PrayerStatus.MISSED), undo(day, Prayer.DHUHR, now))
+        assertEquals(UndoPrayerResult.Undone(PrayerStatus.PENDING, xpReturned = 10), undo(day, Prayer.ASR, now))
+        assertEquals(UndoPrayerResult.Undone(PrayerStatus.MISSED, xpReturned = 10), undo(day, Prayer.DHUHR, now))
+        assertEquals(0, profile.profile.value!!.totalXp)
         assertEquals(PrayerStatus.PENDING, repository.statusOf(day, Prayer.ASR))
         assertEquals(PrayerStatus.MISSED, repository.statusOf(day, Prayer.DHUHR))
         assertNull(repository.rows.value[day to Prayer.ASR]!!.prayedAt)
@@ -232,5 +233,37 @@ class NamazUseCasesTest {
         assertEquals(10, isha.xpAwarded)
         assertEquals(30, isha.bonusXp)
         assertEquals(0, repository.rows.value[day to Prayer.FAJR]!!.bonusXp)
+    }
+
+    private fun markAllFive() = runBlocking {
+        Prayer.entries.forEach { mark(day, it, provider.timesFor(day).timeOf(it).plusMinutes(5)) }
+    }
+
+    @Test
+    fun undoingTheFifth_takesBackItsXp_andTheBonusItUnlocked() = runBlocking {
+        markAllFive()
+        val late = provider.timesFor(day).isha.plusMinutes(30)
+
+        assertEquals(UndoPrayerResult.Undone(PrayerStatus.PENDING, xpReturned = 40), undo(day, Prayer.ISHA, late))
+
+        assertEquals(40, profile.profile.value!!.totalXp)
+        assertEquals(0, repository.rows.value.values.sumOf { it.bonusXp })
+    }
+
+    @Test
+    fun undoingAnotherPrayerOfAFullDay_takesTheDaysBonusBackToo_andMarkingItAgainEarnsItOnce() = runBlocking {
+        markAllFive()
+        val late = provider.timesFor(day).isha.plusMinutes(30)
+
+        // Fajr's 10, and the day's 30 held by Isha.
+        assertEquals(UndoPrayerResult.Undone(PrayerStatus.MISSED, xpReturned = 40), undo(day, Prayer.FAJR, late))
+        assertEquals(40, profile.profile.value!!.totalXp)
+        assertEquals(0, repository.rows.value[day to Prayer.ISHA]!!.bonusXp)
+
+        // Marked again, late: half, and the bonus comes back with it, once.
+        val again = mark(day, Prayer.FAJR, late) as MarkPrayerResult.Marked
+        assertEquals(NamazXpAward(5, allFiveBonus = 30), again.xp)
+        assertEquals(75, profile.profile.value!!.totalXp)
+        assertEquals(30, repository.rows.value.values.sumOf { it.bonusXp })
     }
 }

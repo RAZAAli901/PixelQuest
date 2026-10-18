@@ -40,4 +40,7 @@ interface NamazRepository {
 
     /** Adds a pending row for each of [date]'s five prayers that doesn't have one yet. */
     suspend fun seedDay(date: LocalDate)
+
+    /** Takes [date]'s bonuses back from whichever prayer unlocked them: the day no longer has five. */
+    suspend fun clearBonuses(date: LocalDate)
 }

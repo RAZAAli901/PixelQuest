@@ -51,4 +51,8 @@ interface NamazLogDao {
 
     @Query("DELETE FROM namaz_log")
     suspend fun deleteAll()
+
+    /** The day's bonuses taken back (it no longer has all five). */
+    @Query("UPDATE namaz_log SET bonusXp = 0 WHERE date = :date")
+    suspend fun clearBonuses(date: LocalDate)
 }
