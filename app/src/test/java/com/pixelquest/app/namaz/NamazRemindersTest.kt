@@ -35,7 +35,8 @@ class NamazRemindersTest {
     private val planner = NamazReminderPlanner(provider)
     private val alarms = FakeNamazAlarms()
     private val appSettings = FakeSettingsRepository()
-    private val reminders = NamazReminders(repository, options, planner, alarms, appSettings, clock) { LahoreZone }
+    private val notifier = com.pixelquest.app.testing.FakeNamazNotifier()
+    private val reminders = NamazReminders(repository, options, planner, alarms, notifier, appSettings, clock) { LahoreZone }
 
     private fun planned() = runBlocking {
         planner.plan(repository.getSettings(), clock.time.atZone(LahoreZone), options.get()).toSet()
@@ -107,5 +108,17 @@ class NamazRemindersTest {
 
         appSettings.isNotificationsEnabled.value = true
         assertEquals(10, alarms.armed.size)
+    }
+
+    @Test
+    fun turningTheTrackerOff_cancelsSnoozesToo_andClearsTheNotificationsAndChannels() = runBlocking {
+        reminders.reschedule()
+        alarms.schedule(NamazAlarm(NamazAlarm.Kind.SNOOZE, day, Prayer.ASR, 123L))
+
+        repository.saveSettings(repository.getSettings().copy(enabled = false))
+        reminders.reschedule()
+
+        assertTrue(alarms.armed.isEmpty())
+        assertEquals(1, notifier.clearedAll)
     }
 }

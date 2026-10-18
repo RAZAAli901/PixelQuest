@@ -23,7 +23,8 @@ import javax.inject.Singleton
  * Keeps the Namaz alarms armed for the next 48 hours (docs/namaz-design.md, Reminders):
  * [reschedule] arms NamazReminderPlanner's list, and [start] reschedules whenever the tracker's
  * settings, place or reminder options change. The day's change and each alarm firing reschedule too.
- * Settings' NOTIFICATIONS: OFF silences the whole app, so then nothing is armed.
+ * Settings' NOTIFICATIONS: OFF silences the whole app, so then nothing is armed. With the tracker
+ * turned off, everything goes: every alarm (snoozes too), its notifications, and its channels.
  */
 @Singleton
 class NamazReminders(
@@ -31,6 +32,7 @@ class NamazReminders(
     private val options: NamazReminderOptionsStore,
     private val planner: NamazReminderPlanner,
     private val alarms: NamazAlarms,
+    private val notifier: NamazNotifier,
     private val settingsRepository: SettingsRepository,
     private val clock: AppClock,
     private val zone: () -> ZoneId
@@ -41,9 +43,10 @@ class NamazReminders(
         options: NamazReminderOptionsStore,
         planner: NamazReminderPlanner,
         alarms: NamazAlarms,
+        notifier: NamazNotifier,
         settingsRepository: SettingsRepository,
         clock: AppClock
-    ) : this(repository, options, planner, alarms, settingsRepository, clock, { ZoneId.systemDefault() })
+    ) : this(repository, options, planner, alarms, notifier, settingsRepository, clock, { ZoneId.systemDefault() })
 
     private val mutex = Mutex()
 
@@ -52,10 +55,16 @@ class NamazReminders(
      * prayer turned off, an offset changed). The same alarm armed again replaces itself, so this
      * can run as often as it likes. A snooze or test reminder is left as it is.
      */
-    suspend fun reschedule() = mutex.withLock {
+    suspend fun reschedule(): Unit = mutex.withLock {
         val now = clock.now().atZone(zone())
+        val settings = repository.getSettings()
+        if (!settings.enabled) {
+            alarms.cancelAll(now.toLocalDate())
+            notifier.clearAll()
+            return@withLock
+        }
         val plan = if (settingsRepository.isNotificationsEnabled.first()) {
-            planner.plan(repository.getSettings(), now, options.get())
+            planner.plan(settings, now, options.get())
         } else {
             emptyList()
         }

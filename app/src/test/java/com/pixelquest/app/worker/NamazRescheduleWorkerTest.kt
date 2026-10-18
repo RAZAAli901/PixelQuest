@@ -38,7 +38,8 @@ class NamazRescheduleWorkerTest {
         val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { LahoreZone }
         val alarms = FakeNamazAlarms()
         val reminders = NamazReminders(
-            repository, FakeNamazReminderOptionsStore(), NamazReminderPlanner(provider), alarms, FakeSettingsRepository(), clock
+            repository, FakeNamazReminderOptionsStore(), NamazReminderPlanner(provider), alarms,
+            com.pixelquest.app.testing.FakeNamazNotifier(), FakeSettingsRepository(), clock
         ) { LahoreZone }
         val worker = TestListenableWorkerBuilder<NamazRescheduleWorker>(ApplicationProvider.getApplicationContext())
             .setWorkerFactory(object : WorkerFactory() {

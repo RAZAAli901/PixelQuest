@@ -61,6 +61,9 @@ fun namazViewModel(
 class FakeNamazNotifier : NamazNotifier {
     val shown = mutableListOf<NamazReminder>()
 
+    /** How often everything was cleared (the tracker turned off). */
+    var clearedAll = 0
+
     override fun show(reminder: NamazReminder) {
         shown.removeAll { it.date == reminder.date && it.prayer == reminder.prayer }
         shown += reminder
@@ -68,6 +71,11 @@ class FakeNamazNotifier : NamazNotifier {
 
     override fun cancel(date: LocalDate, prayer: Prayer) {
         shown.removeAll { it.date == date && it.prayer == prayer }
+    }
+
+    override fun clearAll() {
+        shown.clear()
+        clearedAll++
     }
 }
 

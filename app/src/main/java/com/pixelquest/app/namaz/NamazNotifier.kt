@@ -51,6 +51,9 @@ interface NamazNotifier {
 
     /** Takes [prayer]'s reminder on [date] off the screen. */
     fun cancel(date: LocalDate, prayer: Prayer)
+
+    /** The tracker was turned off: every Namaz notification off the screen, and its channels gone. */
+    fun clearAll()
 }
 
 @Singleton
@@ -126,6 +129,17 @@ class AndroidNamazNotifier @Inject constructor(
 
     override fun cancel(date: LocalDate, prayer: Prayer) {
         NotificationManagerCompat.from(context).cancel(NamazAlarm.requestCode(NamazAlarm.Kind.REMINDER, date, prayer))
+    }
+
+    override fun clearAll() {
+        val manager = context.getSystemService(android.app.NotificationManager::class.java)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            manager.activeNotifications
+                .filter { it.notification.channelId in NamazChannels.all }
+                .forEach { manager.cancel(it.tag, it.id) }
+        }
+        // They come back the next time a reminder is shown (show() creates them).
+        NamazChannels.delete(context)
     }
 
     /** A button's broadcast to NamazActionReceiver, for this prayer and day. */

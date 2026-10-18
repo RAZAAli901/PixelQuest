@@ -134,4 +134,16 @@ class NamazNotifierTest {
         val channel = context.getSystemService(NotificationManager::class.java).getNotificationChannel(NamazChannels.FAJR_ALARM)
         assertEquals(android.media.AudioAttributes.USAGE_ALARM, channel.audioAttributes.usage)
     }
+
+    @Test
+    fun clearingAll_takesTheNotificationsAway_andRemovesTheChannels() {
+        val notifier = AndroidNamazNotifier(context)
+        notifier.show(reminder())
+
+        notifier.clearAll()
+
+        assertEquals(0, manager.allNotifications.size)
+        val system = context.getSystemService(NotificationManager::class.java)
+        NamazChannels.all.forEach { assertEquals(null, system.getNotificationChannel(it)) }
+    }
 }
