@@ -1,6 +1,10 @@
 package com.pixelquest.app.ui.screens.namaz
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -22,10 +26,13 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -40,7 +47,9 @@ import com.pixelquest.app.domain.namaz.PrayerSlot
 import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.theme.LocalReduceMotion
 import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.rememberReduceMotion
 import com.pixelquest.app.ui.theme.inkOnPanel
 import kotlinx.coroutines.launch
 
@@ -146,7 +155,7 @@ private fun PrayerButtonBody(
                 .alpha(if (state == PrayerButtonState.LOCKED) 0.6f else 1f),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            PrayerStateRing(icon = prayer.icon, state = state, accent = accent)
+            PrayerStateRing(icon = prayer.icon, state = state, accent = accent, modifier = Modifier.prayedPop(state))
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
@@ -166,10 +175,30 @@ private fun PrayerButtonBody(
     }
 }
 
+/**
+ * A short pop when a prayer turns prayed, so the tap is felt as done. Not when the screen opens on
+ * one already prayed, nor with reduced motion (the app's setting or Android's).
+ */
+@Composable
+private fun Modifier.prayedPop(state: PrayerButtonState): Modifier {
+    val reduceMotion = rememberReduceMotion(LocalReduceMotion.current)
+    val scale = remember { Animatable(1f) }
+    val wasPrayed = remember { booleanArrayOf(state == PrayerButtonState.PRAYED) }
+    LaunchedEffect(state) {
+        val nowPrayed = state == PrayerButtonState.PRAYED
+        if (nowPrayed && !wasPrayed[0] && !reduceMotion) {
+            scale.animateTo(1.25f, tween(durationMillis = 90))
+            scale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
+        }
+        wasPrayed[0] = nowPrayed
+    }
+    return graphicsLayer { scaleX = scale.value; scaleY = scale.value }
+}
+
 /** The prayer's picture in a ring: outlined while pending, filled once prayed, with the state's mark. */
 @Composable
-private fun PrayerStateRing(icon: String, state: PrayerButtonState, accent: Color) {
-    Box(modifier = Modifier.size(48.dp).clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
+private fun PrayerStateRing(icon: String, state: PrayerButtonState, accent: Color, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.size(48.dp).clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val stroke = 3.dp.toPx()
             if (state == PrayerButtonState.PRAYED) drawCircle(color = accent.copy(alpha = 0.25f))

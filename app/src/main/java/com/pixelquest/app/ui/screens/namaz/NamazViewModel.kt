@@ -6,12 +6,14 @@ import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.domain.namaz.AutoMarkMissedUseCase
 import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.GetTodayNamazUseCase
+import com.pixelquest.app.domain.namaz.MarkPrayerUseCase
 import com.pixelquest.app.domain.namaz.NamazDay
 import com.pixelquest.app.domain.namaz.NamazMethod
 import com.pixelquest.app.domain.namaz.NamazPlace
 import com.pixelquest.app.domain.namaz.NamazPlaceResolver
 import com.pixelquest.app.domain.namaz.NextPrayer
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
+import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerSlot
 import com.pixelquest.app.domain.namaz.PrayerTimeProvider
 import com.pixelquest.app.domain.repository.NamazRepository
@@ -73,6 +75,7 @@ class NamazViewModel(
     private val provider: PrayerTimeProvider,
     private val nextPrayer: NextPrayerUseCase,
     private val autoMarkMissed: AutoMarkMissedUseCase,
+    private val markPrayer: MarkPrayerUseCase,
     private val placeResolver: NamazPlaceResolver,
     private val settingsRepository: SettingsRepository,
     private val clock: AppClock,
@@ -85,10 +88,11 @@ class NamazViewModel(
         provider: PrayerTimeProvider,
         nextPrayer: NextPrayerUseCase,
         autoMarkMissed: AutoMarkMissedUseCase,
+        markPrayer: MarkPrayerUseCase,
         placeResolver: NamazPlaceResolver,
         settingsRepository: SettingsRepository,
         clock: AppClock
-    ) : this(repository, provider, nextPrayer, autoMarkMissed, placeResolver, settingsRepository, clock, { ZoneId.systemDefault() })
+    ) : this(repository, provider, nextPrayer, autoMarkMissed, markPrayer, placeResolver, settingsRepository, clock, { ZoneId.systemDefault() })
 
     init {
         viewModelScope.launch { autoMarkMissed(now()) }
@@ -151,6 +155,17 @@ class NamazViewModel(
     /** Location was refused: the times stay where they are, and the screen says so. */
     fun locationRefused() {
         _locationLookup.value = LocationLookup.UNAVAILABLE
+    }
+
+    /**
+     * Marks [prayer] prayed on the current prayer day: on time, or late once its window has passed.
+     * One whose time hasn't come isn't marked (MarkPrayerUseCase); the screen locks it anyway.
+     */
+    fun markPrayed(prayer: Prayer) {
+        viewModelScope.launch {
+            val now = now()
+            markPrayer(nextPrayer(now).prayerDay, prayer, now)
+        }
     }
 
     /** Draws the screen again now, e.g. when it comes back to the front. */

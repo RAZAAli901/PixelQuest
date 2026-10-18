@@ -15,14 +15,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.Prayer
+import com.pixelquest.app.domain.namaz.PrayerSlot
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
+import com.pixelquest.app.ui.haptics.PixelHaptics
 import com.pixelquest.app.ui.theme.PixelTheme
 
 /** Test tags for the Namaz screen's parts. */
@@ -52,11 +55,23 @@ fun NamazScreen(
         if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
     }
 
+    val haptic = LocalHapticFeedback.current
+
     NamazContent(
         state = state,
         onNavigateBack = onNavigateBack,
         onEnabledChange = viewModel::setEnabled,
-        onRefresh = viewModel::refresh
+        onRefresh = viewModel::refresh,
+        onPrayerClick = { slot ->
+            when (PrayerButtonState.of(slot)) {
+                // Missed can still be marked: it's prayed late.
+                PrayerButtonState.PENDING, PrayerButtonState.MISSED -> {
+                    PixelHaptics.performLightTap(haptic)
+                    viewModel.markPrayed(slot.prayer)
+                }
+                PrayerButtonState.PRAYED, PrayerButtonState.LOCKED -> Unit
+            }
+        }
     )
 
     if (setupVisible) {
@@ -81,7 +96,7 @@ fun NamazContent(
     onNavigateBack: (() -> Unit)? = null,
     onEnabledChange: (Boolean) -> Unit = {},
     onRefresh: () -> Unit = {},
-    onPrayerClick: (Prayer) -> Unit = {}
+    onPrayerClick: (PrayerSlot) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val formatter = rememberPrayerTimeFormatter()
@@ -121,7 +136,7 @@ fun NamazContent(
                     prayer = slot.prayer,
                     time = slot.time.format(formatter),
                     state = PrayerButtonState.of(slot),
-                    onClick = { onPrayerClick(slot.prayer) },
+                    onClick = { onPrayerClick(slot) },
                     modifier = Modifier.testTag(NamazTestTags.prayer(slot.prayer))
                 )
             }

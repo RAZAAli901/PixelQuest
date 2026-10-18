@@ -3,6 +3,7 @@ package com.pixelquest.app.testing
 import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.domain.namaz.AutoMarkMissedUseCase
 import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
+import com.pixelquest.app.domain.namaz.MarkPrayerUseCase
 import com.pixelquest.app.domain.namaz.NamazPlaceResolver
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
@@ -35,7 +36,9 @@ fun namazViewModel(
     val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { zone }
     val nextPrayer = NextPrayerUseCase(provider)
     return NamazViewModel(
-        repository, provider, nextPrayer, AutoMarkMissedUseCase(provider, repository, nextPrayer),
+        repository, provider, nextPrayer,
+        AutoMarkMissedUseCase(provider, repository, nextPrayer),
+        MarkPrayerUseCase(provider, repository, nextPrayer),
         NamazPlaceResolver(repository, location), settings, clock
     ) { zone }
 }
