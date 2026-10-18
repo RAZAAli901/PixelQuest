@@ -58,7 +58,8 @@ fun NamazSettingsSheet(
     fajrThroughDnd: Boolean = false,
     onFajrThroughDnd: (Boolean) -> Unit = {},
     onTestReminder: (() -> Unit)? = null,
-    onXpEnabled: (Boolean) -> Unit = {}
+    onXpEnabled: (Boolean) -> Unit = {},
+    isSimpleMode: Boolean = false
 ) {
     val colors = PixelTheme.colors
     val method = NamazMethod.fromName(settings.method)
@@ -92,13 +93,16 @@ fun NamazSettingsSheet(
                     }
                 }
             }
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                NamazToggleRow(
-                    label = stringResource(R.string.namaz_settings_xp),
-                    checked = settings.xpEnabled,
-                    onCheckedChange = onXpEnabled
-                )
-                Text(text = stringResource(R.string.namaz_settings_xp_hint), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+            // Simple Mode shows no XP, so it has no XP switch either.
+            if (!isSimpleMode) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    NamazToggleRow(
+                        label = stringResource(R.string.namaz_settings_xp),
+                        checked = settings.xpEnabled,
+                        onCheckedChange = onXpEnabled
+                    )
+                    Text(text = stringResource(R.string.namaz_settings_xp_hint), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                }
             }
             NamazSheetSection(title = stringResource(R.string.namaz_settings_reminders)) {
                 Prayer.entries.forEach { prayer ->

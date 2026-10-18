@@ -292,4 +292,18 @@ class NamazViewModelTest {
         repeat(80) { viewModel.adjust(Prayer.ISHA, -1) }
         assertEquals(-NamazViewModel.MAX_ADJUST_MINUTES, repository.getSettings().adjustIsha)
     }
+
+    @Test
+    fun xpText_showsOutsideSimpleMode_andWhileNamazXpIsOn() = runTest {
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        assertTrue(viewModel.uiState.value.showXp)
+
+        settings.simpleModeEnabled.value = true
+        assertFalse(viewModel.uiState.value.showXp)
+
+        settings.simpleModeEnabled.value = false
+        repository.saveSettings(repository.getSettings().copy(xpEnabled = false))
+        assertFalse(viewModel.uiState.value.showXp)
+    }
 }

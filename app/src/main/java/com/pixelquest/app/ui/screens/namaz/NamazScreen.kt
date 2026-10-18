@@ -177,7 +177,8 @@ fun NamazScreen(
             fajrThroughDnd = reminderOptions.fajrThroughDnd,
             onFajrThroughDnd = viewModel::setFajrThroughDnd,
             onTestReminder = if (com.pixelquest.app.BuildConfig.DEBUG) viewModel::testReminder else null,
-            onXpEnabled = viewModel::setXpEnabled
+            onXpEnabled = viewModel::setXpEnabled,
+            isSimpleMode = state.isSimpleMode
         )
     }
 

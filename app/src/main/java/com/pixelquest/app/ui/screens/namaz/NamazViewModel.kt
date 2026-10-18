@@ -84,6 +84,12 @@ data class NamazUiState(
     /** An earlier day from the strip is shown: read-only. */
     val isPastDay: Boolean get() = day != null && today != null && day.date != today
 
+    /**
+     * XP and bonus text shows: not in Simple Mode, which keeps the game's numbers out of sight (it
+     * still logs prayers, and XP is still kept, as everywhere in the app), and not with Namaz XP off.
+     */
+    val showXp: Boolean get() = !isSimpleMode && settings.xpEnabled
+
     companion object {
         const val PRAYERS_PER_DAY = 5
         const val STRIP_DAYS = 7

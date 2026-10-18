@@ -375,4 +375,26 @@ class NamazScreenUiTest {
 
         assertEquals(false, repository.settings.value.xpEnabled)
     }
+
+    @Test
+    fun simpleMode_hasNoXpInTheSettings() {
+        settings.simpleModeEnabled.value = true
+        show()
+        composeTestRule.onNodeWithContentDescription("Namaz settings").performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Earn XP for prayers").assertDoesNotExist()
+        assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasText("XP", substring = true)).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun simpleMode_stillMarksPrayers() {
+        settings.simpleModeEnabled.value = true
+        show()
+
+        scrollTo(NamazTestTags.prayer(Prayer.ASR))
+        composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.ASR)).performClick()
+        composeTestRule.waitForIdle()
+        assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.ASR))
+    }
 }
