@@ -39,6 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerSlot
+import com.pixelquest.app.domain.namaz.remindsFor
 import com.pixelquest.app.ui.components.PixelProgressBar
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
@@ -63,6 +64,7 @@ object NamazTestTags {
     const val LOCATION = "namaz_location"
     const val HIJRI = "namaz_hijri"
     const val HOME_CARD = "namaz_home_card"
+    const val EXACT_ALARM_CARD = "namaz_exact_alarm_card"
     const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */
@@ -106,6 +108,7 @@ fun NamazScreen(
         locationLookup = locationLookup,
         onUseMyLocation = locationRequest::launch,
         onPickCity = { pickingCity = true },
+        reminderChecks = { NamazReminderChecks() },
         snackbarHostState = snackbarHostState,
         onPrayerClick = { slot ->
             when (PrayerButtonState.of(slot)) {
@@ -179,6 +182,8 @@ fun NamazContent(
     locationLookup: LocationLookup = LocationLookup.IDLE,
     onUseMyLocation: () -> Unit = {},
     onPickCity: () -> Unit = {},
+    // The phone's side of the reminders (permissions, battery). A slot: it reads Android's state.
+    reminderChecks: @Composable () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onPrayerClick: (PrayerSlot) -> Unit = {}
 ) {
@@ -193,6 +198,7 @@ fun NamazContent(
             locationLookup = locationLookup,
             onUseMyLocation = onUseMyLocation,
             onPickCity = onPickCity,
+            reminderChecks = reminderChecks,
             snackbarHostState = snackbarHostState,
             onPrayerClick = onPrayerClick
         )
@@ -210,6 +216,7 @@ private fun NamazScaffold(
     locationLookup: LocationLookup,
     onUseMyLocation: () -> Unit,
     onPickCity: () -> Unit,
+    reminderChecks: @Composable () -> Unit,
     snackbarHostState: SnackbarHostState,
     onPrayerClick: (PrayerSlot) -> Unit
 ) {
@@ -254,6 +261,10 @@ private fun NamazScaffold(
             if (!state.enabled) {
                 item(key = "explainer") { NamazExplainerCard() }
                 return@LazyColumn
+            }
+            // Only while there's a reminder for the phone to get in the way of.
+            if (Prayer.entries.any { state.settings.remindsFor(it) }) {
+                item(key = "reminder_checks") { reminderChecks() }
             }
             state.next?.let { next ->
                 item(key = "next") { NextPrayerCard(next = next, onCountdownEnd = onRefresh) }
