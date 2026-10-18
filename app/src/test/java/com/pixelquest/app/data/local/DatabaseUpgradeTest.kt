@@ -82,6 +82,10 @@ class DatabaseUpgradeTest {
         ),
         "level_history" to listOf(
             mapOf("id" to 1, "level" to 2, "achievedDate" to 1_700_100_000_000L, "difficultyAtTimeOfLevelUp" to "MEDIUM")
+        ),
+        // From version 8: a prayer marked, with the XP it was given.
+        "namaz_log" to listOf(
+            mapOf("id" to 1, "date" to "2026-10-17", "prayer" to "FAJR", "status" to "PRAYED", "prayedAt" to 1_760_000_000_000L, "xpAwarded" to 10)
         )
     )
 
@@ -166,8 +170,15 @@ class DatabaseUpgradeTest {
 
             if (version >= 2) assertEquals(listOf(2), db.levelHistoryDao().getAllHistory().first().map { it.level })
 
-            // Version 8's Namaz Tracker tables are there, empty: nothing is logged until it's turned on.
-            assertTrue(db.namazLogDao().getAll().isEmpty())
+            if (version >= 8) {
+                // A prayer marked on version 8 keeps its XP, and has no bonus (version 9's column).
+                val fajr = db.namazLogDao().getAll().single()
+                assertEquals(10, fajr.xpAwarded)
+                assertEquals(0, fajr.bonusXp)
+            } else {
+                // Version 8's Namaz Tracker tables are there, empty: nothing is logged until it's turned on.
+                assertTrue(db.namazLogDao().getAll().isEmpty())
+            }
             assertEquals(null, db.namazSettingsDao().get())
         } finally {
             db.close()
@@ -181,10 +192,11 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion5() = updateFrom(5)
     @Test fun fromVersion6() = updateFrom(6)
     @Test fun fromVersion7_theV1_2_0Release() = updateFrom(7)
+    @Test fun fromVersion8_theNamazTracker() = updateFrom(8)
 
     @Test
     fun everyEarlierVersion_hasALayoutAndAMigration() {
-        val current = schema(8).getInt("version")
+        val current = schema(9).getInt("version")
         assertEquals(
             "a layout file per version, 1 to $current: bump the version, and its file is written at the next build",
             (1..current).map { "$it.json" }.toSet(),
@@ -226,7 +238,7 @@ class DatabaseUpgradeTest {
 
         val copy = File(copies, "pixelquest-v3.db")
         assertEquals("the old file, as 1.1.0 left it", 3, PreUpdateCopy.versionOf(copy))
-        assertEquals("and the updated one", 8, PreUpdateCopy.versionOf(context.getDatabasePath(name)))
+        assertEquals("and the updated one", 9, PreUpdateCopy.versionOf(context.getDatabasePath(name)))
         context.deleteDatabase(name)
         copies.deleteRecursively()
     }

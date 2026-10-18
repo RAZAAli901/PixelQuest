@@ -33,7 +33,7 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         com.pixelquest.app.data.local.entity.NamazLogEntity::class,
         com.pixelquest.app.data.local.entity.NamazSettingsEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -54,7 +54,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -153,6 +153,13 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("CREATE TABLE IF NOT EXISTS `namaz_log` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `date` TEXT NOT NULL, `prayer` TEXT NOT NULL, `status` TEXT NOT NULL, `prayedAt` INTEGER, `xpAwarded` INTEGER NOT NULL)")
                 db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_namaz_log_date_prayer` ON `namaz_log` (`date`, `prayer`)")
                 db.execSQL("CREATE TABLE IF NOT EXISTS `namaz_settings` (`id` INTEGER NOT NULL, `enabled` INTEGER NOT NULL, `method` TEXT NOT NULL, `asrMadhab` TEXT NOT NULL, `highLatitudeRule` TEXT, `latitude` REAL, `longitude` REAL, `city` TEXT, `reminderOffsetMin` INTEGER NOT NULL, `remindFajr` INTEGER NOT NULL, `remindDhuhr` INTEGER NOT NULL, `remindAsr` INTEGER NOT NULL, `remindMaghrib` INTEGER NOT NULL, `remindIsha` INTEGER NOT NULL, `adjustFajr` INTEGER NOT NULL, `adjustDhuhr` INTEGER NOT NULL, `adjustAsr` INTEGER NOT NULL, `adjustMaghrib` INTEGER NOT NULL, `adjustIsha` INTEGER NOT NULL, `xpEnabled` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+            }
+        }
+
+        /** Namaz XP: the bonuses a prayer unlocked, apart from its own XP, so an undo can take back both exactly. */
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `namaz_log` ADD COLUMN `bonusXp` INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

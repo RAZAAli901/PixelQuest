@@ -14,5 +14,6 @@ Before Day 34 the app didn't export layouts. The earlier ones were recovered by 
 | 6 | Debug builds, Day 27 | `68ad1856` |
 | 7 | Day 28 to v1.2.0 | Exported by the build |
 | 8 | Since the Namaz Tracker (adds `namaz_log` and `namaz_settings`, docs/namaz-design.md) | Exported by the build |
+| 9 | Since Namaz XP (adds `namaz_log.bonusXp`) | Exported by the build |
 
 A version's layout must not change after it ships. Bump the version and add a migration instead. Room exports the new file, and the test fails until both exist.

@@ -1,5 +1,6 @@
 package com.pixelquest.app.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -13,7 +14,10 @@ import java.time.LocalDate
  *
  * @param date the prayer day: before that day's Fajr, a moment belongs to the day before.
  * @param prayedAt epoch millis when it was marked prayed; null otherwise.
- * @param xpAwarded what marking it earned, so an undo takes back exactly that (Phase 6; 0 until then).
+ * @param xpAwarded what marking it earned for the prayer itself, so an undo takes back exactly that.
+ * @param bonusXp the bonuses marking it unlocked (all five on the day, a week's run): taken back with
+ *   it, and taken back too if another prayer of the day is undone, since the day's no longer five
+ *   (database version 9).
  */
 @Entity(
     tableName = "namaz_log",
@@ -26,5 +30,7 @@ data class NamazLogEntity(
     val prayer: Prayer,
     val status: PrayerStatus,
     val prayedAt: Long? = null,
-    val xpAwarded: Int = 0
+    val xpAwarded: Int = 0,
+    @ColumnInfo(defaultValue = "0")
+    val bonusXp: Int = 0
 )

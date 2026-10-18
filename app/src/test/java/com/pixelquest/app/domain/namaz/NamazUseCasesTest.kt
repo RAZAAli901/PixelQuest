@@ -223,4 +223,14 @@ class NamazUseCasesTest {
 
         assertEquals(NamazXpAward(10, allFiveBonus = 30, weekBonus = 100), isha.xp)
     }
+
+    @Test
+    fun theFifthPrayersRow_keepsItsOwnXp_andTheBonusApart() = runBlocking {
+        Prayer.entries.forEach { mark(day, it, provider.timesFor(day).timeOf(it).plusMinutes(5)) }
+
+        val isha = repository.rows.value[day to Prayer.ISHA]!!
+        assertEquals(10, isha.xpAwarded)
+        assertEquals(30, isha.bonusXp)
+        assertEquals(0, repository.rows.value[day to Prayer.FAJR]!!.bonusXp)
+    }
 }

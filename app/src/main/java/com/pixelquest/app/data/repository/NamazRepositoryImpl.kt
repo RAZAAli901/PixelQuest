@@ -38,9 +38,12 @@ class NamazRepositoryImpl @Inject constructor(
     override fun observePrayedPerDay(from: LocalDate, to: LocalDate): Flow<List<NamazDayCount>> =
         logDao.observePrayedPerDay(from, to)
 
-    override suspend fun logPrayer(date: LocalDate, prayer: Prayer, prayedAtMillis: Long, xpAwarded: Int) {
+    override suspend fun logPrayer(date: LocalDate, prayer: Prayer, prayedAtMillis: Long, xpAwarded: Int, bonusXp: Int) {
         logDao.upsert(
-            NamazLogEntity(date = date, prayer = prayer, status = PrayerStatus.PRAYED, prayedAt = prayedAtMillis, xpAwarded = xpAwarded)
+            NamazLogEntity(
+                date = date, prayer = prayer, status = PrayerStatus.PRAYED, prayedAt = prayedAtMillis,
+                xpAwarded = xpAwarded, bonusXp = bonusXp
+            )
         )
     }
 

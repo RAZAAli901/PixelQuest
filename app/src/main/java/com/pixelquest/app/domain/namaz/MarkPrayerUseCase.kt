@@ -48,7 +48,7 @@ class MarkPrayerUseCase @Inject constructor(
         if (logs.any { it.prayer == prayer && it.status == PrayerStatus.PRAYED }) return MarkPrayerResult.AlreadyPrayed
 
         val xp = xpFor(day, prayer, now, times, logs)
-        repository.logPrayer(day, prayer, prayedAtMillis = now.toInstant().toEpochMilli(), xpAwarded = xp.total)
+        repository.logPrayer(day, prayer, prayedAtMillis = now.toInstant().toEpochMilli(), xpAwarded = xp.prayer, bonusXp = xp.bonus)
         if (xp.total > 0) {
             userProfileRepository.addXp(xp.total)
             syncScheduler?.scheduleProfileSync()

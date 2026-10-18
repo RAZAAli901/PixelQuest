@@ -215,6 +215,7 @@ object DataExportImport {
                         put("status", log.status.name)
                         log.prayedAt?.let { put("prayedAt", it) }
                         put("xpAwarded", log.xpAwarded)
+                        put("bonusXp", log.bonusXp)
                     })
                 }
             })
@@ -391,7 +392,9 @@ object DataExportImport {
                             prayer = Prayer.valueOf(nObj.getString("prayer")),
                             status = PrayerStatus.valueOf(nObj.getString("status")),
                             prayedAt = if (nObj.has("prayedAt") && !nObj.isNull("prayedAt")) nObj.getLong("prayedAt") else null,
-                            xpAwarded = nObj.optInt("xpAwarded", 0)
+                            xpAwarded = nObj.optInt("xpAwarded", 0),
+                            // Files from before Namaz XP have none.
+                            bonusXp = nObj.optInt("bonusXp", 0)
                         )
                     } catch (e: Exception) { null } // Skip a corrupted entry
                 }
@@ -470,7 +473,14 @@ object DataExportImport {
             namazLogs = payload.namazLogs
                 ?.filter { inRange(it.date, today) }
                 ?.distinctBy { it.date to it.prayer }
-                ?.map { it.copy(id = 0, prayedAt = it.prayedAt?.takeIf { t -> t >= 0 }, xpAwarded = it.xpAwarded.coerceIn(0, MAX_POINTS_PER_LOG)) },
+                ?.map {
+                    it.copy(
+                        id = 0,
+                        prayedAt = it.prayedAt?.takeIf { t -> t >= 0 },
+                        xpAwarded = it.xpAwarded.coerceIn(0, MAX_POINTS_PER_LOG),
+                        bonusXp = it.bonusXp.coerceIn(0, MAX_POINTS_PER_LOG)
+                    )
+                },
             namazSettings = payload.namazSettings?.let { n ->
                 fun adjust(minutes: Int) = minutes.coerceIn(-MAX_PRAYER_ADJUST_MIN, MAX_PRAYER_ADJUST_MIN)
                 // A place off the map is dropped (the times fall back to Lahore), not half kept.

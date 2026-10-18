@@ -29,8 +29,8 @@ interface NamazRepository {
     /** How many prayers were prayed on each day from [from] to [to] that has rows. */
     fun observePrayedPerDay(from: LocalDate, to: LocalDate): Flow<List<NamazDayCount>>
 
-    /** Marks [prayer] on [date] prayed at [prayedAtMillis], with the XP it earned (0 until Phase 6). */
-    suspend fun logPrayer(date: LocalDate, prayer: Prayer, prayedAtMillis: Long, xpAwarded: Int = 0)
+    /** Marks [prayer] on [date] prayed at [prayedAtMillis], with its own XP and the bonuses it unlocked. */
+    suspend fun logPrayer(date: LocalDate, prayer: Prayer, prayedAtMillis: Long, xpAwarded: Int = 0, bonusXp: Int = 0)
 
     /** Takes a prayed mark back: the prayer goes back to [status] (pending, or missed if its window passed). */
     suspend fun undoPrayer(date: LocalDate, prayer: Prayer, status: PrayerStatus)

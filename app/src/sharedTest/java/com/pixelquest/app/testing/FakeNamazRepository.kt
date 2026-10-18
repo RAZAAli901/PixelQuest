@@ -47,8 +47,8 @@ open class FakeNamazRepository(
                 .map { (date, day) -> NamazDayCount(date, day.count { it.status == PrayerStatus.PRAYED }) }
         }
 
-    override suspend fun logPrayer(date: LocalDate, prayer: Prayer, prayedAtMillis: Long, xpAwarded: Int) {
-        put(NamazLogEntity(date = date, prayer = prayer, status = PrayerStatus.PRAYED, prayedAt = prayedAtMillis, xpAwarded = xpAwarded))
+    override suspend fun logPrayer(date: LocalDate, prayer: Prayer, prayedAtMillis: Long, xpAwarded: Int, bonusXp: Int) {
+        put(NamazLogEntity(date = date, prayer = prayer, status = PrayerStatus.PRAYED, prayedAt = prayedAtMillis, xpAwarded = xpAwarded, bonusXp = bonusXp))
     }
 
     override suspend fun undoPrayer(date: LocalDate, prayer: Prayer, status: PrayerStatus) {
