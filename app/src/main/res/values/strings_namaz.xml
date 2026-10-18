@@ -59,6 +59,17 @@
     <string name="namaz_undo_action">Undo</string>
     <string name="namaz_location_unavailable">Couldn\'t get your location, so the times stay for %1$s. You can pick a city instead.</string>
 
+    <!-- What TalkBack says for a prayer's button: "Fajr, 5:12 AM, not prayed", then "double tap to mark prayed". -->
+    <string name="namaz_a11y_prayer">%1$s, %2$s, %3$s</string>
+    <string name="namaz_a11y_not_prayed">not prayed</string>
+    <string name="namaz_a11y_prayed">prayed</string>
+    <string name="namaz_a11y_missed">missed</string>
+    <string name="namaz_a11y_locked">starts at %1$s</string>
+    <string name="namaz_a11y_mark">mark prayed</string>
+    <string name="namaz_a11y_mark_late">mark prayed late</string>
+    <string name="namaz_a11y_undo">mark not prayed</string>
+    <string name="namaz_a11y_when">hear when it starts</string>
+
     <!-- The settings sheet, from the top bar's gear. -->
     <string name="namaz_settings_open">Namaz settings</string>
     <string name="namaz_settings_title">Namaz settings</string>

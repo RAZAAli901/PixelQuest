@@ -1,6 +1,8 @@
 package com.pixelquest.app.ui.screens.namaz
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -269,5 +271,46 @@ class NamazScreenUiTest {
         scrollTo(NamazTestTags.STREAK)
 
         composeTestRule.onNodeWithTag(NamazTestTags.STREAK).assertTextContains("🔥 1 day in a row with all five prayed")
+    }
+
+    private fun clickLabel(tag: String): String? =
+        composeTestRule.onNodeWithTag(tag).fetchSemanticsNode().config
+            .getOrNull(androidx.compose.ui.semantics.SemanticsActions.OnClick)?.label
+
+    @Test
+    fun talkBack_readsEachPrayer_andWhatADoubleTapDoes() {
+        kotlinx.coroutines.runBlocking { repository.logPrayer(day, Prayer.FAJR, prayedAtMillis = 0) }
+        show()
+
+        val expected = mapOf(
+            Prayer.FAJR to ("prayed" to "mark not prayed"),
+            Prayer.DHUHR to ("missed" to "mark prayed late"),
+            Prayer.ASR to ("not prayed" to "mark prayed"),
+            Prayer.MAGHRIB to ("starts at" to "hear when it starts")
+        )
+        expected.forEach { (prayer, said) ->
+            val tag = NamazTestTags.prayer(prayer)
+            scrollTo(tag)
+            val name = composeTestRule.activity.getString(prayer.displayName)
+            composeTestRule.onNodeWithTag(tag).assert(
+                androidx.compose.ui.test.hasContentDescription("$name, ", substring = true)
+                    .and(androidx.compose.ui.test.hasContentDescription(", ${said.first}", substring = true))
+            )
+            assertEquals(said.second, clickLabel(tag))
+        }
+        // "Asr, 3:50 PM, not prayed" in full.
+        composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.ASR))
+            .assert(androidx.compose.ui.test.hasContentDescription("Asr, 3:50", substring = true))
+    }
+
+    @Test
+    fun talkBack_offersNothingToDo_onAnEarlierDay() {
+        show()
+        scrollTo(NamazTestTags.DAY_STRIP)
+        composeTestRule.onNodeWithTag(NamazTestTags.day(day.minusDays(2))).performClick()
+        composeTestRule.waitForIdle()
+
+        scrollTo(NamazTestTags.prayer(Prayer.ASR))
+        assertEquals(null, clickLabel(NamazTestTags.prayer(Prayer.ASR)))
     }
 }

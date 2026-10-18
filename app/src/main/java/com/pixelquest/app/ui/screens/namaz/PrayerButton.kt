@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.R
@@ -94,7 +96,10 @@ internal fun NamazStyle.colorOf(state: PrayerButtonState): Color = when (state) 
 /**
  * One prayer's button: its picture in a ring that shows its state, its name and time, and what
  * the state means. A whole-width row, easy to read and to hit. A locked one is dimmed, and
- * tapping it says when it starts ("Starts at 17:29") instead of marking it.
+ * tapping it says when it starts ("Starts at 17:29") instead of marking it. [readOnly] (an earlier
+ * day) shows the same row with nothing to tap.
+ *
+ * TalkBack reads it as one item, "Fajr, 5:12 AM, not prayed", and says what a double tap does.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,10 +109,11 @@ fun PrayerButton(
     state: PrayerButtonState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
+    readOnly: Boolean = false
 ) {
-    if (state != PrayerButtonState.LOCKED) {
-        PrayerButtonBody(prayer, time, state, onClick, modifier, onLongClick)
+    if (state != PrayerButtonState.LOCKED || readOnly) {
+        PrayerButtonBody(prayer, time, state, onClick, modifier, onLongClick, readOnly)
         return
     }
     val tooltipState = rememberTooltipState()
@@ -133,17 +139,52 @@ private fun PrayerButtonBody(
     state: PrayerButtonState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
+    readOnly: Boolean = false
 ) {
     val colors = PixelTheme.colors
     val style = namazStyle()
     val accent = style.colorOf(state)
+    val description = stringResource(
+        R.string.namaz_a11y_prayer,
+        stringResource(prayer.displayName),
+        time,
+        when (state) {
+            PrayerButtonState.PENDING -> stringResource(R.string.namaz_a11y_not_prayed)
+            PrayerButtonState.PRAYED -> stringResource(R.string.namaz_a11y_prayed)
+            PrayerButtonState.MISSED -> stringResource(R.string.namaz_a11y_missed)
+            PrayerButtonState.LOCKED -> stringResource(R.string.namaz_a11y_locked, time)
+        }
+    )
+    // TalkBack says "double tap to …" with these.
+    val clickLabel = stringResource(
+        when (state) {
+            PrayerButtonState.PENDING -> R.string.namaz_a11y_mark
+            PrayerButtonState.MISSED -> R.string.namaz_a11y_mark_late
+            PrayerButtonState.PRAYED -> R.string.namaz_a11y_undo
+            PrayerButtonState.LOCKED -> R.string.namaz_a11y_when
+        }
+    )
+    val longClickLabel = onLongClick?.let { stringResource(R.string.namaz_a11y_undo) }
     PixelCard(
         variant = PixelPanelVariant.BORDER,
         contentPadding = style.cardPadding,
         modifier = modifier
             .fillMaxWidth()
-            .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = onLongClick)
+            .then(
+                if (readOnly) {
+                    Modifier
+                } else {
+                    Modifier.combinedClickable(
+                        role = Role.Button,
+                        onClickLabel = clickLabel,
+                        onClick = onClick,
+                        onLongClickLabel = longClickLabel,
+                        onLongClick = onLongClick
+                    )
+                }
+            )
+            .semantics(mergeDescendants = true) { contentDescription = description }
     ) {
         Row(
             modifier = Modifier

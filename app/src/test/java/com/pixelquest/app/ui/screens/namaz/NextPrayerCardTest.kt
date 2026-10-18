@@ -50,10 +50,10 @@ class NextPrayerCardTest {
 
         composeTestRule.onNodeWithText("Maghrib").assertIsDisplayed()
         composeTestRule.onNodeWithText("Now: Asr").assertIsDisplayed()
-        composeTestRule.onNodeWithTag(NamazTestTags.COUNTDOWN).assertTextContains("1:02:05", substring = true)
+        composeTestRule.onNodeWithTag(NamazTestTags.COUNTDOWN, useUnmergedTree = true).assertTextContains("1:02:05", substring = true)
 
         composeTestRule.mainClock.advanceTimeBy(1_100)
-        composeTestRule.onNodeWithTag(NamazTestTags.COUNTDOWN).assertTextContains("1:02:04", substring = true)
+        composeTestRule.onNodeWithTag(NamazTestTags.COUNTDOWN, useUnmergedTree = true).assertTextContains("1:02:04", substring = true)
         assertEquals(0, ended)
     }
 
@@ -66,7 +66,7 @@ class NextPrayerCardTest {
         }
 
         composeTestRule.mainClock.advanceTimeBy(2_100)
-        composeTestRule.onNodeWithTag(NamazTestTags.COUNTDOWN).assertTextContains("0:00", substring = true)
+        composeTestRule.onNodeWithTag(NamazTestTags.COUNTDOWN, useUnmergedTree = true).assertTextContains("0:00", substring = true)
         assertEquals(1, ended)
     }
 

@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
@@ -270,19 +272,21 @@ private fun NamazScaffold(
                     )
                 }
                 item(key = "streak") {
+                    // TalkBack gets the plain words: "fire" isn't part of the sentence.
+                    val plain = if (state.streak > 0) {
+                        pluralStringResource(R.plurals.namaz_streak_plain, state.streak, state.streak)
+                    } else {
+                        stringResource(R.string.namaz_streak_none)
+                    }
                     Text(
-                        text = if (state.streak > 0) {
-                            pluralStringResource(
-                                if (playful) R.plurals.namaz_streak else R.plurals.namaz_streak_plain,
-                                state.streak,
-                                state.streak
-                            )
+                        text = if (state.streak > 0 && playful) {
+                            pluralStringResource(R.plurals.namaz_streak, state.streak, state.streak)
                         } else {
-                            stringResource(R.string.namaz_streak_none)
+                            plain
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = colors.onSurface,
-                        modifier = Modifier.testTag(NamazTestTags.STREAK)
+                        modifier = Modifier.testTag(NamazTestTags.STREAK).semantics { contentDescription = plain }
                     )
                 }
             }
@@ -310,10 +314,11 @@ private fun NamazScaffold(
                     prayer = slot.prayer,
                     time = slot.time.format(formatter),
                     state = buttonState,
-                    // An earlier day is read-only.
-                    onClick = { if (!state.isPastDay) onPrayerClick(slot) },
+                    onClick = { onPrayerClick(slot) },
                     // A long press on a prayed one asks to take it back, like a tap.
                     onLongClick = if (buttonState == PrayerButtonState.PRAYED && !state.isPastDay) ({ onPrayerClick(slot) }) else null,
+                    // An earlier day is read-only: nothing to tap, and TalkBack offers nothing.
+                    readOnly = state.isPastDay,
                     modifier = Modifier.testTag(NamazTestTags.prayer(slot.prayer))
                 )
             }
@@ -326,11 +331,13 @@ private fun NamazScaffold(
 private fun HijriDateLine(date: java.time.LocalDate) {
     val hijri = remember(date) { HijriDate.of(date) }
     val month = stringArrayResource(R.array.namaz_hijri_months)[hijri.month - 1]
+    val text = stringResource(R.string.namaz_hijri_date, hijri.day, month, hijri.year)
     Text(
-        text = "🌙 " + stringResource(R.string.namaz_hijri_date, hijri.day, month, hijri.year),
+        text = "🌙 $text",
         style = MaterialTheme.typography.bodyMedium,
         color = PixelTheme.colors.onSurfaceVariant,
-        modifier = Modifier.testTag(NamazTestTags.HIJRI)
+        // Without the moon's name read first.
+        modifier = Modifier.testTag(NamazTestTags.HIJRI).semantics { contentDescription = text }
     )
 }
 

@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.NextPrayer
@@ -53,7 +54,11 @@ fun NextPrayerCard(
         contentPadding = style.cardPadding,
         modifier = modifier.fillMaxWidth().testTag(NamazTestTags.NEXT)
     ) {
-        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // Read as one item: "Next prayer, Maghrib, at 5:29 PM, starts in …".
+        Column(
+            modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
             Text(
                 text = stringResource(R.string.namaz_next_label).uppercase(),
                 style = MaterialTheme.typography.labelMedium,
@@ -70,7 +75,7 @@ fun NextPrayerCard(
                 color = colors.onSurface
             )
             Text(
-                text = "⏳ " + stringResource(R.string.namaz_next_starts_in, formatCountdown(remaining)),
+                text = stringResource(R.string.namaz_next_starts_in, formatCountdown(remaining)),
                 style = MaterialTheme.typography.titleSmall,
                 color = colors.onSurface,
                 modifier = Modifier.testTag(NamazTestTags.COUNTDOWN)
