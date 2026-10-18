@@ -19,19 +19,22 @@ import java.util.concurrent.TimeUnit
 /**
  * Just after midnight, starts the new day's tracker: five PENDING rows (NamazRepository.seedDay),
  * so the missed worker has rows to settle and the history shows a day with nothing marked. Rows
- * already there (a prayer marked early, or a second run) are kept. Does nothing while the tracker
- * is off. Each run queues the next, like StreakEvaluationWorker.
+ * already there (a prayer marked early, or a second run) are kept. Then the prayer reminders are
+ * armed for the next 48 hours from the new day. Does nothing while the tracker is off (the
+ * reschedule then only makes sure no alarm is left). Each run queues the next, like StreakEvaluationWorker.
  */
 @HiltWorker
 class NamazMidnightWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val repository: NamazRepository,
-    private val clock: AppClock
+    private val clock: AppClock,
+    private val reminders: com.pixelquest.app.namaz.NamazReminders
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = try {
         if (repository.getSettings().enabled) repository.seedDay(clock.now().toLocalDate())
+        reminders.reschedule()
         Result.success()
     } catch (e: Exception) {
         Result.retry()

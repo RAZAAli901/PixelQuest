@@ -57,13 +57,17 @@ class NamazAlarmHandler(
 
 /**
  * Receives the Namaz alarms (manifest, not exported). Reads which alarm it is and hands it to
- * [NamazAlarmHandler] off the main thread.
+ * [NamazAlarmHandler] off the main thread. A reminder or nudge firing then rolls the 48-hour
+ * window on, so there's always the next one armed.
  */
 @AndroidEntryPoint
 class NamazAlarmReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var handler: NamazAlarmHandler
+
+    @Inject
+    lateinit var reminders: NamazReminders
 
     override fun onReceive(context: Context, intent: Intent) {
         val kind = NamazAlarm.Kind.fromAction(intent.action) ?: return
@@ -73,6 +77,7 @@ class NamazAlarmReceiver : BroadcastReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 handler.handle(kind, date, prayer)
+                if (kind == NamazAlarm.Kind.REMINDER || kind == NamazAlarm.Kind.NUDGE) reminders.reschedule()
             } catch (e: Exception) {
                 android.util.Log.e("NamazAlarmReceiver", "Could not show the $kind for $prayer on $date", e)
             } finally {

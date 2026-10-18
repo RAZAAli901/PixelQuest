@@ -48,6 +48,9 @@ class PixelQuestApplication : Application(), Configuration.Provider {
     @javax.inject.Inject
     lateinit var encouragementPackStore: com.pixelquest.app.data.local.prefs.EncouragementPackStore
 
+    @javax.inject.Inject
+    lateinit var namazReminders: com.pixelquest.app.namaz.NamazReminders
+
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     override fun onCreate() {
@@ -78,6 +81,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         // Both do nothing while the tracker is off.
         com.pixelquest.app.worker.NamazMidnightWorker.schedule(this)
         com.pixelquest.app.worker.NamazMissedWorker.schedule(this)
+        // The next 48 hours of prayer reminders, armed again whenever the tracker's settings change.
+        namazReminders.start(appScope)
         rearmReminders()
     }
 
