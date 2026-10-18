@@ -168,6 +168,8 @@
     <string name="namaz_sound_silent">Silent (no sound or vibration)</string>
     <string name="namaz_settings_fajr_dnd">Let Fajr\'s reminder through Do Not Disturb</string>
     <string name="namaz_settings_fajr_dnd_hint">Sounds as an alarm, which Do Not Disturb lets through unless you\'ve blocked alarms too. The other prayers stay quiet in Do Not Disturb.</string>
+    <!-- Debug builds only: arms a real reminder 10 seconds from now. -->
+    <string name="namaz_settings_test_reminder" translatable="false">Test reminder in 10 seconds</string>
     <string name="namaz_settings_nudge">Nudge me 20 minutes before the next prayer if one is still unmarked</string>
 
     <!-- The reminder's buttons. -->

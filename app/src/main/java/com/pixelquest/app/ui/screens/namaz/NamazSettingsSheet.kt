@@ -32,6 +32,8 @@ import com.pixelquest.app.domain.namaz.NamazSound
 import com.pixelquest.app.domain.namaz.remindsFor
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.adjustmentFor
+import com.pixelquest.app.ui.components.PixelButton
+import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
 
@@ -54,7 +56,8 @@ fun NamazSettingsSheet(
     sound: NamazSound = NamazSound.SYSTEM,
     onSound: (NamazSound) -> Unit = {},
     fajrThroughDnd: Boolean = false,
-    onFajrThroughDnd: (Boolean) -> Unit = {}
+    onFajrThroughDnd: (Boolean) -> Unit = {},
+    onTestReminder: (() -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
     val method = NamazMethod.fromName(settings.method)
@@ -126,6 +129,15 @@ fun NamazSettingsSheet(
                         color = colors.onSurfaceVariant
                     )
                 }
+            }
+            // Debug builds only: a real reminder in 10 seconds, to try the whole path on a phone.
+            onTestReminder?.let { test ->
+                PixelButton(
+                    text = "🔔 " + stringResource(R.string.namaz_settings_test_reminder),
+                    onClick = test,
+                    variant = PixelButtonVariant.BLUE,
+                    modifier = Modifier.fillMaxWidth().testTag(NamazTestTags.TEST_REMINDER)
+                )
             }
             NamazSheetSection(title = stringResource(R.string.namaz_settings_reminder_time)) {
                 Column(modifier = Modifier.selectableGroup()) {

@@ -54,9 +54,10 @@ class NamazScreenUiTest {
     private val settings = FakeSettingsRepository(onboardingDone = true)
 
     private val reminderOptions = com.pixelquest.app.testing.FakeNamazReminderOptionsStore()
+    private val alarms = com.pixelquest.app.testing.FakeNamazAlarms()
 
     private fun show(mode: ThemeMode = ThemeMode.Pixel) {
-        val viewModel = namazViewModel(repository, clock, settings = settings, reminderOptions = reminderOptions)
+        val viewModel = namazViewModel(repository, clock, settings = settings, reminderOptions = reminderOptions, alarms = alarms)
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode) { NamazScreen(viewModel = viewModel) }
         }
@@ -345,5 +346,21 @@ class NamazScreenUiTest {
         composeTestRule.onNodeWithText("Silent (no sound or vibration)").performScrollTo().performClick()
         composeTestRule.waitForIdle()
         assertEquals(com.pixelquest.app.domain.namaz.NamazSound.SILENT, reminderOptions.options.value.sound)
+    }
+
+    @Test
+    fun theDebugTestButton_armsTheCurrentPrayersReminder_in10Seconds() {
+        show()
+        composeTestRule.onNodeWithContentDescription("Namaz settings").performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag(NamazTestTags.TEST_REMINDER).performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+
+        val test = alarms.armed.values.single()
+        assertEquals(com.pixelquest.app.domain.namaz.NamazAlarm.Kind.TEST, test.kind)
+        // 16:00 is in Asr's time.
+        assertEquals(Prayer.ASR, test.prayer)
+        assertEquals(clock.time.plusSeconds(10).atZone(com.pixelquest.app.testing.LahoreZone).toInstant().toEpochMilli(), test.atMillis)
     }
 }

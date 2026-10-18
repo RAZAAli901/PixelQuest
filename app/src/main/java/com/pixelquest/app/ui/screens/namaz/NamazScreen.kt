@@ -67,6 +67,7 @@ object NamazTestTags {
     const val EXACT_ALARM_CARD = "namaz_exact_alarm_card"
     const val NOTIFICATIONS_CARD = "namaz_notifications_card"
     const val BATTERY_CARD = "namaz_battery_card"
+    const val TEST_REMINDER = "namaz_test_reminder"
     const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */
@@ -167,7 +168,8 @@ fun NamazScreen(
             sound = reminderOptions.sound,
             onSound = viewModel::setSound,
             fajrThroughDnd = reminderOptions.fajrThroughDnd,
-            onFajrThroughDnd = viewModel::setFajrThroughDnd
+            onFajrThroughDnd = viewModel::setFajrThroughDnd,
+            onTestReminder = if (com.pixelquest.app.BuildConfig.DEBUG) viewModel::testReminder else null
         )
     }
 

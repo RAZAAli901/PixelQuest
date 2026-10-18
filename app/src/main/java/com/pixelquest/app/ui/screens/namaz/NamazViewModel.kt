@@ -8,6 +8,7 @@ import com.pixelquest.app.domain.namaz.AutoMarkMissedUseCase
 import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.GetTodayNamazUseCase
 import com.pixelquest.app.domain.namaz.MarkPrayerUseCase
+import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.NamazDay
 import com.pixelquest.app.domain.namaz.NamazMethod
 import com.pixelquest.app.domain.namaz.NamazPlace
@@ -28,6 +29,7 @@ import com.pixelquest.app.domain.namaz.adjustmentFor
 import com.pixelquest.app.domain.namaz.withAdjustment
 import com.pixelquest.app.domain.repository.NamazRepository
 import com.pixelquest.app.domain.repository.SettingsRepository
+import com.pixelquest.app.namaz.NamazAlarms
 import com.pixelquest.app.util.AppClock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -106,6 +108,7 @@ class NamazViewModel(
     private val placeResolver: NamazPlaceResolver,
     private val settingsRepository: SettingsRepository,
     private val reminderOptions: NamazReminderOptionsStore,
+    private val alarms: NamazAlarms,
     private val clock: AppClock,
     private val zone: () -> ZoneId
 ) : ViewModel() {
@@ -121,10 +124,11 @@ class NamazViewModel(
         placeResolver: NamazPlaceResolver,
         settingsRepository: SettingsRepository,
         reminderOptions: NamazReminderOptionsStore,
+        alarms: NamazAlarms,
         clock: AppClock
     ) : this(
         repository, provider, nextPrayer, autoMarkMissed, markPrayer, undoPrayer, placeResolver, settingsRepository,
-        reminderOptions, clock, { ZoneId.systemDefault() }
+        reminderOptions, alarms, clock, { ZoneId.systemDefault() }
     )
 
     init {
@@ -255,6 +259,21 @@ class NamazViewModel(
         viewModelScope.launch { reminderOptions.update { it.copy(fajrThroughDnd = on) } }
     }
 
+    /**
+     * Debug builds: the current prayer's reminder in [TEST_REMINDER_SECONDS], through a real alarm,
+     * the receiver and the notification, with its buttons working. It shows even with the tracker
+     * or that prayer's reminder off.
+     */
+    fun testReminder() {
+        viewModelScope.launch {
+            val now = now()
+            val current = nextPrayer(now).current
+            alarms.schedule(
+                NamazAlarm(NamazAlarm.Kind.TEST, current.day, current.prayer, now.plusSeconds(TEST_REMINDER_SECONDS).toInstant().toEpochMilli())
+            )
+        }
+    }
+
     /** Hides the battery-optimisation tip for good. */
     fun dismissBatteryTip() {
         viewModelScope.launch { reminderOptions.update { it.copy(batteryTipDismissed = true) } }
@@ -330,5 +349,8 @@ class NamazViewModel(
 
         /** A prayer's time can be moved this many minutes either way, to match a local mosque. */
         const val MAX_ADJUST_MINUTES = 30
+
+        /** How soon the debug test reminder comes. */
+        const val TEST_REMINDER_SECONDS = 10L
     }
 }
