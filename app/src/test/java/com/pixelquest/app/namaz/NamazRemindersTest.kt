@@ -36,7 +36,8 @@ class NamazRemindersTest {
     private val alarms = FakeNamazAlarms()
     private val appSettings = FakeSettingsRepository()
     private val notifier = com.pixelquest.app.testing.FakeNamazNotifier()
-    private val reminders = NamazReminders(repository, options, planner, alarms, notifier, appSettings, clock) { LahoreZone }
+    private val deliveries = com.pixelquest.app.testing.FakeNamazDeliveries()
+    private val reminders = NamazReminders(repository, options, planner, alarms, notifier, deliveries, appSettings, clock) { LahoreZone }
 
     private fun planned() = runBlocking {
         planner.plan(repository.getSettings(), clock.time.atZone(LahoreZone), options.get()).toSet()
@@ -120,5 +121,21 @@ class NamazRemindersTest {
 
         assertTrue(alarms.armed.isEmpty())
         assertEquals(1, notifier.clearedAll)
+    }
+
+    @Test
+    fun aReminderThatAlreadyFired_isntArmedAgain_whenItsTimeMovesLater() = runBlocking {
+        // 15 minutes before Maghrib, its early reminder fires.
+        repository.saveSettings(repository.getSettings().copy(reminderOffsetMin = 15))
+        val maghrib = runBlocking { provider.timesFor(day).maghrib }
+        clock.time = maghrib.minusMinutes(15).toLocalDateTime()
+        deliveries.markDelivered(NamazAlarm.Kind.REMINDER, day, Prayer.MAGHRIB)
+
+        // Then the reminder time goes back to the start: Maghrib's would come again at 17:29.
+        repository.saveSettings(repository.getSettings().copy(reminderOffsetMin = 0))
+        reminders.reschedule()
+
+        assertTrue(alarms.armed.values.none { it.prayer == Prayer.MAGHRIB && it.date == day })
+        assertTrue(alarms.armed.values.any { it.prayer == Prayer.ISHA && it.date == day })
     }
 }

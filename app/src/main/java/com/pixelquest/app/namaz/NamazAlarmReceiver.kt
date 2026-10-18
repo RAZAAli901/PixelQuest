@@ -29,6 +29,7 @@ class NamazAlarmHandler(
     private val provider: PrayerTimeProvider,
     private val notifier: NamazNotifier,
     private val options: NamazReminderOptionsStore,
+    private val deliveries: NamazDeliveries,
     private val clock: AppClock,
     private val zone: () -> ZoneId
 ) {
@@ -38,11 +39,14 @@ class NamazAlarmHandler(
         provider: PrayerTimeProvider,
         notifier: NamazNotifier,
         options: NamazReminderOptionsStore,
+        deliveries: NamazDeliveries,
         clock: AppClock
-    ) : this(repository, provider, notifier, options, clock, { ZoneId.systemDefault() })
+    ) : this(repository, provider, notifier, options, deliveries, clock, { ZoneId.systemDefault() })
 
     /** Shows the reminder for [prayer] on [date], unless it's no longer wanted (NamazReminderCheck). */
     suspend fun handle(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
+        // Fired, whether or not it shows: it's never armed again (NamazReminders).
+        if (kind == NamazAlarm.Kind.REMINDER || kind == NamazAlarm.Kind.NUDGE) deliveries.markDelivered(kind, date, prayer)
         val settings = repository.getSettings()
         if (!NamazReminderCheck.shouldRemind(kind, prayer, settings, repository.getDay(date))) return
         val place = DefaultPrayerTimeProvider.placeOf(settings.latitude, settings.longitude, settings.city)

@@ -33,6 +33,7 @@ class NamazReminders(
     private val planner: NamazReminderPlanner,
     private val alarms: NamazAlarms,
     private val notifier: NamazNotifier,
+    private val deliveries: NamazDeliveries,
     private val settingsRepository: SettingsRepository,
     private val clock: AppClock,
     private val zone: () -> ZoneId
@@ -44,9 +45,10 @@ class NamazReminders(
         planner: NamazReminderPlanner,
         alarms: NamazAlarms,
         notifier: NamazNotifier,
+        deliveries: NamazDeliveries,
         settingsRepository: SettingsRepository,
         clock: AppClock
-    ) : this(repository, options, planner, alarms, notifier, settingsRepository, clock, { ZoneId.systemDefault() })
+    ) : this(repository, options, planner, alarms, notifier, deliveries, settingsRepository, clock, { ZoneId.systemDefault() })
 
     private val mutex = Mutex()
 
@@ -64,7 +66,9 @@ class NamazReminders(
             return@withLock
         }
         val plan = if (settingsRepository.isNotificationsEnabled.first()) {
-            planner.plan(settings, now, options.get())
+            // Never one that has already fired: a later time for it (a changed offset, a new time
+            // zone) would remind the same prayer twice.
+            planner.plan(settings, now, options.get()).filterNot { deliveries.wasDelivered(it.kind, it.date, it.prayer) }
         } else {
             emptyList()
         }

@@ -17,6 +17,7 @@ import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.namaz.GeoPoint
 import com.pixelquest.app.namaz.LocationProvider
 import com.pixelquest.app.namaz.NamazAlarms
+import com.pixelquest.app.namaz.NamazDeliveries
 import com.pixelquest.app.namaz.NamazNotifier
 import com.pixelquest.app.namaz.NamazReminder
 import com.pixelquest.app.ui.screens.namaz.NamazViewModel
@@ -106,5 +107,16 @@ class FakeNamazReminderOptionsStore(initial: NamazReminderOptions = NamazReminde
 
     override suspend fun update(change: (NamazReminderOptions) -> NamazReminderOptions) {
         options.value = change(options.value)
+    }
+}
+
+/** The reminders that have fired, in memory. */
+class FakeNamazDeliveries : NamazDeliveries {
+    val delivered = mutableSetOf<Triple<NamazAlarm.Kind, LocalDate, Prayer>>()
+
+    override fun wasDelivered(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer): Boolean = Triple(kind, date, prayer) in delivered
+
+    override fun markDelivered(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
+        delivered += Triple(kind, date, prayer)
     }
 }

@@ -24,7 +24,8 @@ class NamazAlarmHandlerTest {
     private val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { LahoreZone }
     private val notifier = FakeNamazNotifier()
     private val options = com.pixelquest.app.testing.FakeNamazReminderOptionsStore()
-    private val handler = NamazAlarmHandler(repository, provider, notifier, options, clock) { LahoreZone }
+    private val deliveries = com.pixelquest.app.testing.FakeNamazDeliveries()
+    private val handler = NamazAlarmHandler(repository, provider, notifier, options, deliveries, clock) { LahoreZone }
 
     @Test
     fun aReminder_showsThePrayer_itsTime_andThePlace() = runBlocking {
@@ -91,5 +92,17 @@ class NamazAlarmHandlerTest {
         handler.handle(NamazAlarm.Kind.REMINDER, day, Prayer.ASR)
 
         assertEquals(com.pixelquest.app.domain.namaz.NamazSound.SILENT, notifier.shown.single().sound)
+    }
+
+    @Test
+    fun aFiredReminder_isRecorded_evenWhenItDoesntShow() = runBlocking {
+        repository.logPrayer(day, Prayer.ASR, prayedAtMillis = 0)
+
+        handler.handle(NamazAlarm.Kind.REMINDER, day, Prayer.ASR)
+        handler.handle(NamazAlarm.Kind.SNOOZE, day, Prayer.ISHA)
+
+        assertTrue(deliveries.wasDelivered(NamazAlarm.Kind.REMINDER, day, Prayer.ASR))
+        // A snooze is a one-off, not part of the plan.
+        assertTrue(!deliveries.wasDelivered(NamazAlarm.Kind.SNOOZE, day, Prayer.ISHA))
     }
 }
