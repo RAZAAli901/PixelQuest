@@ -133,6 +133,44 @@ fun StatsContent(
             )
         }
 
+        // The Namaz Tracker, as its own category: its XP (not in Simple Mode) and its prayers.
+        state.namaz?.let { namaz ->
+            PixelCard(variant = PixelPanelVariant.BORDER, contentPadding = 16.dp, modifier = Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.stats_namaz_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                        if (!state.isSimpleMode) {
+                            PixelStatCard(
+                                label = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.stats_namaz_xp),
+                                value = "${namaz.xpTotal} XP",
+                                icon = "🕌",
+                                accentColor = colors.secondary,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        PixelStatCard(
+                            label = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.stats_namaz_prayers),
+                            value = "${namaz.prayed}",
+                            icon = "🤲",
+                            accentColor = colors.tertiary,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (!state.isSimpleMode) {
+                        Text(
+                            text = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.stats_namaz_week, namaz.xpLastWeek),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colors.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
         // Active Difficulty Card (Hidden in Simple Mode)
         if (!state.isSimpleMode) {
             PixelCard(

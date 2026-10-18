@@ -28,8 +28,13 @@ data class StatsUiState(
     val difficultyLevel: DifficultyLevel = DifficultyLevel.MEDIUM,
     val heatmapStatusMap: Map<LocalDate, DailyStatus> = emptyMap(),
     val weeklyTrend: List<Pair<String, Float>> = emptyList(),
-    val isSimpleMode: Boolean = false
+    val isSimpleMode: Boolean = false,
+    /** The Namaz Tracker as its own category; null when it has never been used. */
+    val namaz: NamazStats? = null
 )
+
+/** The Namaz Tracker's part of the stats: XP from prayers (with their bonuses) and prayers prayed. */
+data class NamazStats(val xpTotal: Int, val xpLastWeek: Int, val prayed: Int)
 
 object StatsDataBucketer {
     fun calculateWeeklyBuckets(
@@ -60,8 +65,28 @@ class StatsViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val settingsRepository: SettingsRepository? = null,
-    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
+    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock(),
+    private val namazRepository: com.pixelquest.app.domain.repository.NamazRepository? = null
 ) : ViewModel() {
+
+    /** The Namaz log's totals, up to today; null while it holds nothing and the tracker is off. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val namazStats = namazRepository?.let { repo ->
+        appClock.today().flatMapLatest { today ->
+            combine(repo.observeRange(today.minusYears(NAMAZ_YEARS), today), repo.observeSettings()) { logs, settings ->
+                val prayed = logs.filter { it.status == com.pixelquest.app.domain.namaz.PrayerStatus.PRAYED }
+                if (prayed.isEmpty() && !settings.enabled) {
+                    null
+                } else {
+                    NamazStats(
+                        xpTotal = logs.sumOf { it.xpAwarded + it.bonusXp },
+                        xpLastWeek = logs.filter { !it.date.isBefore(today.minusDays(6)) }.sumOf { it.xpAwarded + it.bonusXp },
+                        prayed = prayed.size
+                    )
+                }
+            }
+        }
+    } ?: flowOf(null)
 
     /** The last 3 months up to today; moves on at midnight (see [com.pixelquest.app.util.AppClock.today]). */
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -80,8 +105,9 @@ class StatsViewModel @Inject constructor(
             userProfileRepository.getProfile(),
             difficultySettingsRepository.getCurrentDifficulty()
         ) { streak, profile, difficulty -> Triple(streak, profile, difficulty) },
-        rangeData
-    ) { (streak, profile, difficulty), (today, rate, dailyStatusMap, isSimpleMode) ->
+        rangeData,
+        namazStats
+    ) { (streak, profile, difficulty), (today, rate, dailyStatusMap, isSimpleMode), namaz ->
         val weeklyTrend = StatsDataBucketer.calculateWeeklyBuckets(dailyStatusMap, today)
         StatsUiState(
             currentStreak = streak?.currentStreak ?: 0,
@@ -91,13 +117,19 @@ class StatsViewModel @Inject constructor(
             difficultyLevel = difficulty?.difficultyLevel ?: DifficultyLevel.MEDIUM,
             heatmapStatusMap = dailyStatusMap,
             weeklyTrend = weeklyTrend,
-            isSimpleMode = isSimpleMode
+            isSimpleMode = isSimpleMode,
+            namaz = namaz
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = StatsUiState()
     )
+
+    private companion object {
+        /** How far back the Namaz totals go: all of it, in practice. */
+        const val NAMAZ_YEARS = 10L
+    }
 }
 
 private data class RangeData(
