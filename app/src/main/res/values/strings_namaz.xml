@@ -21,5 +21,9 @@
     <string name="namaz_next_at">at %1$s</string>
     <string name="namaz_next_starts_in">Starts in %1$s</string>
     <string name="namaz_now_label">Now: %1$s</string>
+    <string name="namaz_status_pending">Tap when prayed</string>
+    <string name="namaz_status_prayed">Prayed</string>
+    <string name="namaz_status_missed">Missed</string>
+    <string name="namaz_status_locked">Not yet</string>
     <string name="namaz_location_unavailable">Couldn\'t get your location, so the times stay for %1$s. You can pick a city instead.</string>
 </resources>
