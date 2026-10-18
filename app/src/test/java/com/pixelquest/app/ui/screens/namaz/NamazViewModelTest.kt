@@ -250,4 +250,20 @@ class NamazViewModelTest {
         repository.logPrayer(day, Prayer.ASR, prayedAtMillis = millisAt(16))
         assertEquals(PrayerStatus.PRAYED, viewModel.uiState.value.week.getValue(day)[2])
     }
+
+    @Test
+    fun theStreak_countsDaysWithAllFive_andGrowsWhenTodaysFifthIsPrayed() = runTest {
+        // Yesterday and the day before: all five.
+        listOf(day.minusDays(1), day.minusDays(2)).forEach { d ->
+            Prayer.entries.forEach { repository.logPrayer(d, it, prayedAtMillis = millisAt(12)) }
+        }
+        // Today: all but Isha so far.
+        Prayer.entries.dropLast(1).forEach { repository.logPrayer(day, it, prayedAtMillis = millisAt(12)) }
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+        assertEquals(2, viewModel.uiState.value.streak)
+
+        repository.logPrayer(day, Prayer.ISHA, prayedAtMillis = millisAt(19))
+        assertEquals(3, viewModel.uiState.value.streak)
+    }
 }

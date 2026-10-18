@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +51,7 @@ object NamazTestTags {
     const val SNACKBAR = "namaz_snackbar"
     const val PROGRESS = "namaz_progress"
     const val DAY_STRIP = "namaz_day_strip"
+    const val STREAK = "namaz_streak"
 
     /** A day in the day strip. */
     fun day(date: java.time.LocalDate) = "namaz_day_$date"
@@ -174,6 +176,18 @@ fun NamazContent(
                         selected = state.day.date,
                         onSelect = onDaySelected,
                         week = state.week
+                    )
+                }
+                item(key = "streak") {
+                    Text(
+                        text = if (state.streak > 0) {
+                            pluralStringResource(R.plurals.namaz_streak, state.streak, state.streak)
+                        } else {
+                            stringResource(R.string.namaz_streak_none)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onSurface,
+                        modifier = Modifier.testTag(NamazTestTags.STREAK)
                     )
                 }
             }

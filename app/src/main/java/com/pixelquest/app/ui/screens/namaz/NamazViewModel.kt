@@ -11,6 +11,7 @@ import com.pixelquest.app.domain.namaz.NamazDay
 import com.pixelquest.app.domain.namaz.NamazMethod
 import com.pixelquest.app.domain.namaz.NamazPlace
 import com.pixelquest.app.domain.namaz.NamazPlaceResolver
+import com.pixelquest.app.domain.namaz.NamazStreak
 import com.pixelquest.app.domain.namaz.NextPrayer
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.Prayer
@@ -48,6 +49,7 @@ import javax.inject.Inject
  * @param today the current prayer day (before Fajr, still yesterday's date).
  * @param days the day strip: the last [STRIP_DAYS] prayer days, oldest first, [today] last.
  * @param week each strip day's five statuses, Fajr to Isha, for its row of dots.
+ * @param streak prayer days in a row with all five prayed (NamazStreak).
  */
 data class NamazUiState(
     val loading: Boolean = true,
@@ -58,7 +60,8 @@ data class NamazUiState(
     val next: NextPrayer? = null,
     val today: LocalDate? = null,
     val days: List<LocalDate> = emptyList(),
-    val week: Map<LocalDate, List<PrayerStatus>> = emptyMap()
+    val week: Map<LocalDate, List<PrayerStatus>> = emptyMap(),
+    val streak: Int = 0
 ) {
     val slots: List<PrayerSlot> get() = day?.slots.orEmpty()
 
@@ -220,7 +223,10 @@ class NamazViewModel(
         val shown = selected?.takeIf { it in days } ?: today
         // Each strip day's times, and the day after's for Isha's window.
         val times = (days + today.plusDays(1)).associateWith { provider.timesFor(it) }
-        repository.observeRange(days.first(), today).map { logs ->
+        combine(
+            repository.observeRange(days.first(), today),
+            repository.observePrayedPerDay(today.minusYears(STREAK_YEARS), today)
+        ) { logs, prayedPerDay ->
             val byDay = logs.groupBy { it.date }
             val week = days.associateWith { date ->
                 GetTodayNamazUseCase.combine(times.getValue(date), times.getValue(date.plusDays(1)).fajr, byDay[date].orEmpty(), now)
@@ -234,8 +240,14 @@ class NamazViewModel(
                 next = next,
                 today = today,
                 days = days,
-                week = week.mapValues { (_, namazDay) -> namazDay.slots.map { it.status } }
+                week = week.mapValues { (_, namazDay) -> namazDay.slots.map { it.status } },
+                streak = NamazStreak.current(prayedPerDay.associate { it.date to it.prayed }, today)
             )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NamazUiState())
+
+    private companion object {
+        /** How far back a streak is counted: far longer than anyone's, and a small query. */
+        const val STREAK_YEARS = 10L
+    }
 }
