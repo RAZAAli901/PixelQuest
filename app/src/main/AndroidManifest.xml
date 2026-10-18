@@ -66,6 +66,9 @@
         <receiver
             android:name=".namaz.NamazAlarmReceiver"
             android:exported="false" />
+        <receiver
+            android:name=".namaz.NamazActionReceiver"
+            android:exported="false" />
         <!-- WorkManager is initialised by PixelQuestApplication with HiltWorkerFactory, so the
              @HiltWorker workers (missed tasks, streaks, sync, AI) can be constructed. -->
         <provider

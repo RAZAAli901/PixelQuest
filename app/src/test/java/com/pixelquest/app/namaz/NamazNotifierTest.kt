@@ -68,4 +68,29 @@ class NamazNotifierTest {
 
         assertEquals(1, manager.allNotifications.size)
     }
+
+    @Test
+    fun theButtons_arePrayed_Snooze_andDismiss_eachForThisPrayer() {
+        AndroidNamazNotifier(context).show(reminder())
+
+        val actions = shown().actions
+        assertEquals(listOf("Prayed", "Snooze 10 min", "Dismiss"), actions.map { it.title.toString() })
+        val sent = actions.map { shadowOf(it.actionIntent).savedIntent }
+        assertEquals(NamazAction.entries.map { it.action }, sent.map { it.action })
+        sent.forEach { intent ->
+            assertEquals(NamazActionReceiver::class.java.name, intent.component?.className)
+            assertEquals(day, NamazAlarmScheduler.dateFrom(intent))
+            assertEquals(Prayer.FAJR, NamazAlarmScheduler.prayerFrom(intent))
+        }
+    }
+
+    @Test
+    fun cancelling_takesTheReminderAway() {
+        val notifier = AndroidNamazNotifier(context)
+        notifier.show(reminder())
+
+        notifier.cancel(day, Prayer.FAJR)
+
+        assertEquals(0, manager.allNotifications.size)
+    }
 }

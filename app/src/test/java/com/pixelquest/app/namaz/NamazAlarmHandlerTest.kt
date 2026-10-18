@@ -22,6 +22,10 @@ class NamazAlarmHandlerTest {
         override fun show(reminder: NamazReminder) {
             shown += reminder
         }
+
+        override fun cancel(date: LocalDate, prayer: Prayer) {
+            shown.removeAll { it.date == date && it.prayer == prayer }
+        }
     }
 
     private val day = LocalDate.of(2026, 10, 17)

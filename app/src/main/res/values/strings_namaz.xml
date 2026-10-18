@@ -145,6 +145,11 @@
     <string name="namaz_notification_title">Time for <xliff:g id="prayer" example="Fajr">%1$s</xliff:g></string>
     <string name="namaz_notification_text"><xliff:g id="time" example="5:12 AM">%1$s</xliff:g> · <xliff:g id="place" example="Lahore">%2$s</xliff:g></string>
 
+    <!-- The reminder's buttons. -->
+    <string name="namaz_action_prayed">Prayed</string>
+    <string name="namaz_action_snooze">Snooze 10 min</string>
+    <string name="namaz_action_dismiss">Dismiss</string>
+
     <!-- Notification channels, as the phone's notification settings list them. -->
     <string name="namaz_channel_reminders">Prayer reminders</string>
     <string name="namaz_channel_reminders_description">At the start of each prayer whose reminder is on</string>

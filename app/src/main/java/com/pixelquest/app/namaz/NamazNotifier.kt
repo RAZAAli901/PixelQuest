@@ -34,6 +34,9 @@ data class NamazReminder(
 /** Shows Namaz reminders: the system's notifications in the app, a fake in tests. */
 interface NamazNotifier {
     fun show(reminder: NamazReminder)
+
+    /** Takes [prayer]'s reminder on [date] off the screen. */
+    fun cancel(date: LocalDate, prayer: Prayer)
 }
 
 @Singleton
@@ -43,7 +46,7 @@ class AndroidNamazNotifier @Inject constructor(
 
     /**
      * "Time for Fajr", then "5:12 AM · Lahore" in the phone's time format (no place: the time
-     * alone). Tapping it opens the Namaz screen.
+     * alone). Tapping it opens the Namaz screen; its buttons are Prayed, Snooze 10 min and Dismiss.
      */
     override fun show(reminder: NamazReminder) {
         NamazChannels.create(context)
@@ -56,6 +59,9 @@ class AndroidNamazNotifier @Inject constructor(
             .setContentTitle(context.getString(R.string.namaz_notification_title, name))
             .setContentText(text)
             .setContentIntent(openNamaz())
+            .addAction(0, context.getString(R.string.namaz_action_prayed), action(NamazAction.PRAYED, reminder))
+            .addAction(0, context.getString(R.string.namaz_action_snooze), action(NamazAction.SNOOZE, reminder))
+            .addAction(0, context.getString(R.string.namaz_action_dismiss), action(NamazAction.DISMISS, reminder))
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
@@ -66,6 +72,21 @@ class AndroidNamazNotifier @Inject constructor(
             // Notifications not allowed (Android 13+): nothing to show.
         }
     }
+
+    override fun cancel(date: LocalDate, prayer: Prayer) {
+        NotificationManagerCompat.from(context).cancel(NamazAlarm.requestCode(NamazAlarm.Kind.REMINDER, date, prayer))
+    }
+
+    /** A button's broadcast to NamazActionReceiver, for this prayer and day. */
+    private fun action(action: NamazAction, reminder: NamazReminder): PendingIntent = PendingIntent.getBroadcast(
+        context,
+        action.requestCode(reminder.date, reminder.prayer),
+        Intent(context, NamazActionReceiver::class.java)
+            .setAction(action.action)
+            .putExtra(NamazAlarmScheduler.EXTRA_DATE, reminder.date.toEpochDay())
+            .putExtra(NamazAlarmScheduler.EXTRA_PRAYER, reminder.prayer.name),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
 
     /** Opens the app on the Namaz screen (MainActivity.EXTRA_OPEN_ROUTE). */
     private fun openNamaz(): PendingIntent = PendingIntent.getActivity(
