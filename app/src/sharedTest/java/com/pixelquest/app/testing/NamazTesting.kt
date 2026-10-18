@@ -47,7 +47,7 @@ fun namazViewModel(
     settings: SettingsRepository = FakeSettingsRepository(),
     reminderOptions: NamazReminderOptionsStore = FakeNamazReminderOptionsStore(),
     alarms: NamazAlarms = FakeNamazAlarms(),
-    profile: FakeUserProfileRepository = FakeUserProfileRepository()
+    profile: com.pixelquest.app.domain.repository.UserProfileRepository = FakeUserProfileRepository()
 ): NamazViewModel {
     val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { zone }
     val nextPrayer = NextPrayerUseCase(provider)
