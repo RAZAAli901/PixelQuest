@@ -228,4 +228,26 @@ class NamazViewModelTest {
         viewModel.selectDay(day)
         assertFalse(viewModel.uiState.value.isPastDay)
     }
+
+    @Test
+    fun theWeek_hasFiveStatusesPerDay_forItsDots() = runTest {
+        repository.logPrayer(day, Prayer.FAJR, prayedAtMillis = millisAt(5))
+        repository.logPrayer(day.minusDays(1), Prayer.ISHA, prayedAtMillis = millisAt(20))
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+
+        val week = viewModel.uiState.value.week
+        assertEquals(NamazUiState.STRIP_DAYS, week.size)
+        assertTrue(week.values.all { it.size == NamazUiState.PRAYERS_PER_DAY })
+        // Today at 16:00: Fajr prayed, Dhuhr missed, the rest still to come.
+        assertEquals(
+            listOf(PrayerStatus.PRAYED, PrayerStatus.MISSED, PrayerStatus.PENDING, PrayerStatus.PENDING, PrayerStatus.PENDING),
+            week.getValue(day)
+        )
+        assertEquals(PrayerStatus.PRAYED, week.getValue(day.minusDays(1)).last())
+
+        // A prayer marked now shows in the week too.
+        repository.logPrayer(day, Prayer.ASR, prayedAtMillis = millisAt(16))
+        assertEquals(PrayerStatus.PRAYED, viewModel.uiState.value.week.getValue(day)[2])
+    }
 }

@@ -15,6 +15,7 @@ import com.pixelquest.app.domain.namaz.NextPrayer
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerSlot
+import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.domain.namaz.PrayerTimeProvider
 import com.pixelquest.app.domain.namaz.UndoPrayerUseCase
 import com.pixelquest.app.domain.repository.NamazRepository
@@ -46,6 +47,7 @@ import javax.inject.Inject
  * @param settings the tracker's settings, for the setup and settings sheets.
  * @param today the current prayer day (before Fajr, still yesterday's date).
  * @param days the day strip: the last [STRIP_DAYS] prayer days, oldest first, [today] last.
+ * @param week each strip day's five statuses, Fajr to Isha, for its row of dots.
  */
 data class NamazUiState(
     val loading: Boolean = true,
@@ -55,7 +57,8 @@ data class NamazUiState(
     val day: NamazDay? = null,
     val next: NextPrayer? = null,
     val today: LocalDate? = null,
-    val days: List<LocalDate> = emptyList()
+    val days: List<LocalDate> = emptyList(),
+    val week: Map<LocalDate, List<PrayerStatus>> = emptyMap()
 ) {
     val slots: List<PrayerSlot> get() = day?.slots.orEmpty()
 
@@ -215,18 +218,23 @@ class NamazViewModel(
         val days = (NamazUiState.STRIP_DAYS - 1 downTo 0).map { today.minusDays(it.toLong()) }
         // A day picked before the strip moved on (at Fajr) that's no longer in it shows today again.
         val shown = selected?.takeIf { it in days } ?: today
-        val times = provider.timesFor(shown)
-        val nextFajr = provider.timesFor(shown.plusDays(1)).fajr
-        repository.observeDay(shown).map { logs ->
+        // Each strip day's times, and the day after's for Isha's window.
+        val times = (days + today.plusDays(1)).associateWith { provider.timesFor(it) }
+        repository.observeRange(days.first(), today).map { logs ->
+            val byDay = logs.groupBy { it.date }
+            val week = days.associateWith { date ->
+                GetTodayNamazUseCase.combine(times.getValue(date), times.getValue(date.plusDays(1)).fajr, byDay[date].orEmpty(), now)
+            }
             NamazUiState(
                 loading = false,
                 enabled = settings.enabled,
                 settings = settings,
                 place = DefaultPrayerTimeProvider.placeOf(settings.latitude, settings.longitude, settings.city),
-                day = GetTodayNamazUseCase.combine(times, nextFajr, logs, now),
+                day = week.getValue(shown),
                 next = next,
                 today = today,
-                days = days
+                days = days,
+                week = week.mapValues { (_, namazDay) -> namazDay.slots.map { it.status } }
             )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NamazUiState())

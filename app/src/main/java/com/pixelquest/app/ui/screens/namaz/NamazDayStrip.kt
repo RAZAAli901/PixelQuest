@@ -5,11 +5,15 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -26,6 +31,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
+import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import java.time.LocalDate
@@ -35,8 +41,9 @@ private val WeekdayFormatter = DateTimeFormatter.ofPattern("EEE")
 private val SpokenDayFormatter = DateTimeFormatter.ofPattern("EEEE d MMMM")
 
 /**
- * The last week's prayer days, one tab each, today last. Picking an earlier one shows its five
- * prayers, read-only; today goes back to marking.
+ * The last week's prayer days, one tab each, today last, each with five dots for its prayers:
+ * the week at a glance. Picking an earlier one shows its five prayers, read-only; today goes back
+ * to marking.
  */
 @Composable
 fun NamazDayStrip(
@@ -44,7 +51,8 @@ fun NamazDayStrip(
     today: LocalDate?,
     selected: LocalDate,
     onSelect: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    week: Map<LocalDate, List<PrayerStatus>> = emptyMap()
 ) {
     val colors = PixelTheme.colors
     val shape = if (PixelTheme.mode == ThemeMode.Pixel) RectangleShape else RoundedCornerShape(8.dp)
@@ -56,7 +64,13 @@ fun NamazDayStrip(
         ) {
             days.forEach { date ->
                 val isSelected = date == selected
-                val spoken = date.format(SpokenDayFormatter)
+                val statuses = week[date].orEmpty()
+                val spoken = stringResource(
+                    R.string.namaz_day_spoken,
+                    date.format(SpokenDayFormatter),
+                    statuses.count { it == PrayerStatus.PRAYED },
+                    NamazUiState.PRAYERS_PER_DAY
+                )
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -87,8 +101,34 @@ fun NamazDayStrip(
                         color = colors.onSurface,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                     )
+                    if (statuses.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        PrayerDots(statuses)
+                    }
                 }
             }
+        }
+    }
+}
+
+/** A day's five prayers as dots, Fajr to Isha: filled for prayed, red for missed, hollow for still to come. */
+@Composable
+private fun PrayerDots(statuses: List<PrayerStatus>) {
+    val colors = PixelTheme.colors
+    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        statuses.forEach { status ->
+            val fill = when (status) {
+                PrayerStatus.PRAYED -> colors.tertiary
+                PrayerStatus.MISSED -> colors.error
+                PrayerStatus.PENDING -> Color.Transparent
+            }
+            Spacer(
+                modifier = Modifier
+                    .size(5.dp)
+                    .clip(CircleShape)
+                    .background(fill, CircleShape)
+                    .border(1.dp, if (status == PrayerStatus.PENDING) colors.onSurfaceVariant else fill, CircleShape)
+            )
         }
     }
 }

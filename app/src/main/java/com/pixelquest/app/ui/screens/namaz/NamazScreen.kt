@@ -168,7 +168,13 @@ fun NamazContent(
             }
             if (state.days.isNotEmpty() && state.day != null) {
                 item(key = "day_strip") {
-                    NamazDayStrip(days = state.days, today = state.today, selected = state.day.date, onSelect = onDaySelected)
+                    NamazDayStrip(
+                        days = state.days,
+                        today = state.today,
+                        selected = state.day.date,
+                        onSelect = onDaySelected,
+                        week = state.week
+                    )
                 }
             }
             item(key = "prayers_title") {

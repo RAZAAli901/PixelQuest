@@ -26,6 +26,7 @@
     <string name="namaz_progress_past">%1$d / %2$d prayed that day</string>
     <string name="namaz_days_label">Your week</string>
     <string name="namaz_day_today">Today</string>
+    <string name="namaz_day_spoken">%1$s, %2$d of %3$d prayed</string>
     <string name="namaz_prayers_on">Prayers on %1$s</string>
     <string name="namaz_past_read_only">Earlier days are for looking back: they can\'t be changed.</string>
     <string name="namaz_status_pending">Tap when prayed</string>
