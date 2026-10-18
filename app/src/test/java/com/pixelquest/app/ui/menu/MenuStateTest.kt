@@ -5,6 +5,7 @@ import com.pixelquest.app.R
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.testing.FakeDifficultySettingsRepository
+import com.pixelquest.app.testing.FakeNamazRepository
 import com.pixelquest.app.testing.FakeSettingsRepository
 import com.pixelquest.app.testing.FakeUserProfileRepository
 import com.pixelquest.app.ui.navigation.Routes
@@ -78,12 +79,14 @@ class MenuStateTest {
 
     private fun viewModel(
         saved: SavedStateHandle = SavedStateHandle(),
-        settings: FakeSettingsRepository = FakeSettingsRepository()
+        settings: FakeSettingsRepository = FakeSettingsRepository(),
+        namaz: FakeNamazRepository? = null
     ) = MenuViewModel(
         saved,
         FakeUserProfileRepository(UserProfileEntity(username = "Aria", avatarId = "avatar_mage", level = 3, totalXp = 450, perfectDaysTowardNextLevel = 2)),
         FakeDifficultySettingsRepository(DifficultySettingsEntity(daysRequiredPerLevel = 7)),
-        settings
+        settings,
+        namaz
     )
 
     @Test
@@ -151,5 +154,22 @@ class MenuStateTest {
         namaz.value = false
         advanceUntilIdle()
         assertFalse(vm.context.value.namazAvailable)
+    }
+
+    @Test
+    fun theNamazEntry_saysOn_whileTheTrackerIs_andStaysWhileItsOff() = runTest {
+        val namaz = FakeNamazRepository()
+        val vm = viewModel(namaz = namaz)
+        backgroundScope.launch { vm.context.collect {} }
+        advanceUntilIdle()
+
+        assertFalse(vm.context.value.namazEnabled)
+        assertNull(MenuItems.Namaz.status(vm.context.value))
+        assertTrue(MenuItemId.NAMAZ in MenuItems.all.visibleIn(vm.context.value).map { it.id })
+
+        namaz.saveSettings(namaz.getSettings().copy(enabled = true))
+        advanceUntilIdle()
+        assertTrue(vm.context.value.namazEnabled)
+        assertEquals(com.pixelquest.app.R.string.namaz_switch_on, MenuItems.Namaz.status(vm.context.value))
     }
 }

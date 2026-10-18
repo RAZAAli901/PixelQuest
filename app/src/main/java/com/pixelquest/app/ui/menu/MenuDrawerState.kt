@@ -12,6 +12,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
+import com.pixelquest.app.domain.repository.NamazRepository
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -64,7 +67,8 @@ class MenuViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     userProfileRepository: UserProfileRepository,
     difficultySettingsRepository: DifficultySettingsRepository,
-    settingsRepository: SettingsRepository
+    settingsRepository: SettingsRepository,
+    namazRepository: NamazRepository? = null
 ) : ViewModel() {
 
     val header: StateFlow<MenuHeaderState> = combine(
@@ -83,11 +87,12 @@ class MenuViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuHeaderState())
 
-    /** What decides which entries show: Namaz's availability, and Simple Mode's wording. */
+    /** What decides which entries show and what they say: Namaz's availability and switch, Simple Mode. */
     val context: StateFlow<MenuContext> = combine(
         settingsRepository.namazAvailable,
-        settingsRepository.simpleModeEnabled
-    ) { namaz, simple -> MenuContext(namazAvailable = namaz, isSimpleMode = simple) }
+        settingsRepository.simpleModeEnabled,
+        namazRepository?.observeSettings()?.map { it.enabled } ?: flowOf(false)
+    ) { namaz, simple, namazOn -> MenuContext(namazAvailable = namaz, isSimpleMode = simple, namazEnabled = namazOn) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuContext())
 
     // Kept in the saved state, so the last entry opened is still highlighted after a rotation, or

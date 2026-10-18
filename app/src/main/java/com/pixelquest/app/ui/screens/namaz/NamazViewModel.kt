@@ -83,6 +83,14 @@ class NamazViewModel(
 
     private val refreshRequests = MutableStateFlow(0)
 
+    /**
+     * The master switch. Off hides the tracker and stops its workers writing; the prayers already
+     * marked are kept, and come back when it's turned on again.
+     */
+    fun setEnabled(enabled: Boolean) {
+        viewModelScope.launch { repository.saveSettings(repository.getSettings().copy(enabled = enabled)) }
+    }
+
     /** Draws the screen again now, e.g. when it comes back to the front. */
     fun refresh() {
         refreshRequests.value++

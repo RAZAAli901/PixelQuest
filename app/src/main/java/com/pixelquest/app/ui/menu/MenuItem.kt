@@ -12,7 +12,9 @@ data class MenuContext(
     /** The Namaz feature is available in this build and not hidden in Settings. */
     val namazAvailable: Boolean = true,
     /** Simple Mode: plain wording, no game terms. */
-    val isSimpleMode: Boolean = false
+    val isSimpleMode: Boolean = false,
+    /** The Namaz Tracker's own switch is on. */
+    val namazEnabled: Boolean = false
 )
 
 /**
@@ -22,6 +24,7 @@ data class MenuContext(
  * @param icon a short emoji, like the rest of the app's labels.
  * @param route where it goes ([com.pixelquest.app.ui.navigation.Screen]).
  * @param visibleWhen whether it's shown at all.
+ * @param status a short state shown at the row's end, or null for none.
  */
 data class MenuItem(
     val id: MenuItemId,
@@ -29,7 +32,8 @@ data class MenuItem(
     val icon: String,
     val route: String,
     @StringRes val simpleLabel: Int = label,
-    val visibleWhen: (MenuContext) -> Boolean = { true }
+    val visibleWhen: (MenuContext) -> Boolean = { true },
+    val status: (MenuContext) -> Int? = { null }
 ) {
     @StringRes
     fun labelFor(context: MenuContext): Int = if (context.isSimpleMode) simpleLabel else label
@@ -45,7 +49,9 @@ object MenuItems {
         label = R.string.menu_namaz,
         icon = "🕌",
         route = Screen.Namaz.route,
-        visibleWhen = { it.namazAvailable }
+        // Shown while the tracker is off too: it's the way to its switch. It says when it's on.
+        visibleWhen = { it.namazAvailable },
+        status = { if (it.namazEnabled) R.string.namaz_switch_on else null }
     )
 
     // Shortcuts to screens that are otherwise a few taps deep (Profile, then Settings, then Account).

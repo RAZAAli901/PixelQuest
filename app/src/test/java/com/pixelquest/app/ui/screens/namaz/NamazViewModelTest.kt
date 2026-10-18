@@ -133,4 +133,20 @@ class NamazViewModelTest {
         repository.saveSettings(repository.getSettings().copy(enabled = true))
         assertTrue(viewModel.uiState.value.enabled)
     }
+
+    @Test
+    fun theSwitch_savesTheSetting_andKeepsTheLog() = runTest {
+        repository.logPrayer(day, Prayer.FAJR, prayedAtMillis = millisAt(5))
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+
+        viewModel.setEnabled(false)
+        assertFalse(repository.getSettings().enabled)
+        assertFalse(viewModel.uiState.value.enabled)
+        assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.FAJR))
+
+        viewModel.setEnabled(true)
+        assertTrue(repository.getSettings().enabled)
+        assertEquals(1, viewModel.uiState.value.progress)
+    }
 }

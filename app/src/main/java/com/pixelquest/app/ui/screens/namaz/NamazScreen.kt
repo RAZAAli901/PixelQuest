@@ -36,7 +36,7 @@ fun NamazScreen(
     viewModel: NamazViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    NamazContent(state = state, onNavigateBack = onNavigateBack)
+    NamazContent(state = state, onNavigateBack = onNavigateBack, onEnabledChange = viewModel::setEnabled)
 }
 
 /**

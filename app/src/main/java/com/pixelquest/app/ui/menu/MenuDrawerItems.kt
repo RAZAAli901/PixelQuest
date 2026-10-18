@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,6 +67,7 @@ fun MenuDrawerItems(
             MenuDrawerItemRow(
                 icon = item.icon,
                 label = stringResource(item.labelFor(context)),
+                status = item.status(context)?.let { stringResource(it) },
                 isSelected = item.id == selected,
                 isSimpleMode = context.isSimpleMode,
                 onClick = { onItemClick(item) }
@@ -81,7 +83,8 @@ fun MenuDrawerItemRow(
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isSimpleMode: Boolean = false
+    isSimpleMode: Boolean = false,
+    status: String? = null
 ) {
     val colors = PixelTheme.colors
     val style = menuStyle(isSimpleMode)
@@ -115,7 +118,15 @@ fun MenuDrawerItemRow(
             text = if (style.uppercaseLabels) label.uppercase() else label,
             style = style.labelStyle,
             color = style.ink,
-            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+            modifier = Modifier.weight(1f)
         )
+        if (status != null) {
+            Text(
+                text = if (style.uppercaseLabels) status.uppercase() else status,
+                style = MaterialTheme.typography.labelSmall,
+                color = style.ink.copy(alpha = 0.7f)
+            )
+        }
     }
 }
