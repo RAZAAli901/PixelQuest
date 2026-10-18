@@ -6,6 +6,7 @@ import android.content.Intent
 import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.NamazReminderCheck
+import com.pixelquest.app.domain.namaz.NamazReminderOptionsStore
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerMoment
 import com.pixelquest.app.domain.namaz.PrayerTimeProvider
@@ -27,12 +28,18 @@ class NamazAlarmHandler(
     private val repository: NamazRepository,
     private val provider: PrayerTimeProvider,
     private val notifier: NamazNotifier,
+    private val options: NamazReminderOptionsStore,
     private val clock: AppClock,
     private val zone: () -> ZoneId
 ) {
     @Inject
-    constructor(repository: NamazRepository, provider: PrayerTimeProvider, notifier: NamazNotifier, clock: AppClock) :
-        this(repository, provider, notifier, clock, { ZoneId.systemDefault() })
+    constructor(
+        repository: NamazRepository,
+        provider: PrayerTimeProvider,
+        notifier: NamazNotifier,
+        options: NamazReminderOptionsStore,
+        clock: AppClock
+    ) : this(repository, provider, notifier, options, clock, { ZoneId.systemDefault() })
 
     /** Shows the reminder for [prayer] on [date], unless it's no longer wanted (NamazReminderCheck). */
     suspend fun handle(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
@@ -51,7 +58,7 @@ class NamazAlarmHandler(
         } else {
             null
         }
-        notifier.show(NamazReminder(kind, date, prayer, time, place.name, minutesToStart, next))
+        notifier.show(NamazReminder(kind, date, prayer, time, place.name, minutesToStart, next, options.get().sound))
     }
 }
 

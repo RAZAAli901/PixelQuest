@@ -43,4 +43,13 @@ class NamazChannelsTest {
         NamazChannels.all.forEach { assertNull(manager.getNotificationChannel(it)) }
         assertTrue(manager.notificationChannelGroups.none { it.id == NamazChannels.GROUP_ID })
     }
+
+    @Test
+    fun theSilentChannel_hasNoSoundOrVibration() {
+        NamazChannels.create(context)
+
+        val silent = manager.getNotificationChannel(NamazChannels.REMINDERS_SILENT)
+        assertNull(silent.sound)
+        assertEquals(false, silent.shouldVibrate())
+    }
 }

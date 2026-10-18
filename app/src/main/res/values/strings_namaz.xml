@@ -160,6 +160,8 @@
     <!-- The nudge, while a prayer is still unmarked: "Still time for Asr", then "Maghrib starts at 5:29 PM". -->
     <string name="namaz_nudge_title">Still time for <xliff:g id="prayer" example="Asr">%1$s</xliff:g></string>
     <string name="namaz_nudge_text"><xliff:g id="next_prayer" example="Maghrib">%1$s</xliff:g> starts at <xliff:g id="time" example="5:29 PM">%2$s</xliff:g></string>
+    <string name="namaz_settings_reminders">Reminders</string>
+    <string name="namaz_settings_silent">Silent reminders (no sound or vibration)</string>
     <string name="namaz_settings_nudge">Nudge me 20 minutes before the next prayer if one is still unmarked</string>
 
     <!-- The reminder's buttons. -->
@@ -179,6 +181,8 @@
     <!-- Notification channels, as the phone's notification settings list them. -->
     <string name="namaz_channel_reminders">Prayer reminders</string>
     <string name="namaz_channel_reminders_description">At the start of each prayer whose reminder is on</string>
+    <string name="namaz_channel_reminders_silent">Silent prayer reminders</string>
+    <string name="namaz_channel_reminders_silent_description">Prayer reminders that appear without sound or vibration</string>
     <string name="namaz_channel_nudge">Prayer nudges</string>
     <string name="namaz_channel_nudge_description">A quiet reminder before the next prayer starts, while one is still unmarked</string>
 

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.pixelquest.app.domain.namaz.NamazReminderOptions
 import com.pixelquest.app.domain.namaz.NamazReminderOptionsStore
+import com.pixelquest.app.domain.namaz.NamazSound
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +22,8 @@ class PrefsNamazReminderOptionsStore @Inject constructor(
 
     private fun read() = NamazReminderOptions(
         nudge = prefs.getBoolean(KEY_NUDGE, false),
-        batteryTipDismissed = prefs.getBoolean(KEY_BATTERY_TIP_DISMISSED, false)
+        batteryTipDismissed = prefs.getBoolean(KEY_BATTERY_TIP_DISMISSED, false),
+        sound = NamazSound.fromName(prefs.getString(KEY_SOUND, null))
     )
 
     override val options: Flow<NamazReminderOptions> = callbackFlow {
@@ -38,6 +40,7 @@ class PrefsNamazReminderOptionsStore @Inject constructor(
         prefs.edit()
             .putBoolean(KEY_NUDGE, next.nudge)
             .putBoolean(KEY_BATTERY_TIP_DISMISSED, next.batteryTipDismissed)
+            .putString(KEY_SOUND, next.sound.name)
             .apply()
     }
 
@@ -45,5 +48,6 @@ class PrefsNamazReminderOptionsStore @Inject constructor(
         const val PREFS = "pixelquest_namaz_reminders"
         private const val KEY_NUDGE = "nudge"
         private const val KEY_BATTERY_TIP_DISMISSED = "battery_tip_dismissed"
+        private const val KEY_SOUND = "sound"
     }
 }

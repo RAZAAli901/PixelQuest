@@ -28,6 +28,8 @@ import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.domain.namaz.AsrMadhab
 import com.pixelquest.app.domain.namaz.NamazMethod
 import com.pixelquest.app.domain.namaz.NamazReminderPlanner
+import com.pixelquest.app.domain.namaz.NamazSound
+import com.pixelquest.app.domain.namaz.remindsFor
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.adjustmentFor
 import com.pixelquest.app.ui.components.SymbolIcon
@@ -47,7 +49,10 @@ fun NamazSettingsSheet(
     onDismiss: () -> Unit,
     onReminderOffset: (Int) -> Unit = {},
     nudge: Boolean = false,
-    onNudge: (Boolean) -> Unit = {}
+    onNudge: (Boolean) -> Unit = {},
+    onReminder: (Prayer, Boolean) -> Unit = { _, _ -> },
+    sound: NamazSound = NamazSound.SYSTEM,
+    onSound: (NamazSound) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val method = NamazMethod.fromName(settings.method)
@@ -80,6 +85,20 @@ fun NamazSettingsSheet(
                         NamazChoiceRow(label = stringResource(option.displayName), selected = option == madhab, onClick = { onMadhab(option) })
                     }
                 }
+            }
+            NamazSheetSection(title = stringResource(R.string.namaz_settings_reminders)) {
+                Prayer.entries.forEach { prayer ->
+                    NamazToggleRow(
+                        label = stringResource(prayer.displayName),
+                        checked = settings.remindsFor(prayer),
+                        onCheckedChange = { onReminder(prayer, it) }
+                    )
+                }
+                NamazToggleRow(
+                    label = stringResource(R.string.namaz_settings_silent),
+                    checked = sound == NamazSound.SILENT,
+                    onCheckedChange = { onSound(if (it) NamazSound.SILENT else NamazSound.SYSTEM) }
+                )
             }
             NamazSheetSection(title = stringResource(R.string.namaz_settings_reminder_time)) {
                 Column(modifier = Modifier.selectableGroup()) {

@@ -116,4 +116,11 @@ class NamazNotifierTest {
         assertEquals(NamazChannels.NUDGE, notification.channelId)
         assertEquals(listOf("Prayed", "Dismiss"), notification.actions.map { it.title.toString() })
     }
+
+    @Test
+    fun aSilentReminder_goesToTheSilentChannel() {
+        AndroidNamazNotifier(context).show(reminder().copy(sound = com.pixelquest.app.domain.namaz.NamazSound.SILENT))
+
+        assertEquals(NamazChannels.REMINDERS_SILENT, shown().channelId)
+    }
 }

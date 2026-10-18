@@ -12,6 +12,7 @@ import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerMoment
+import com.pixelquest.app.domain.namaz.NamazSound
 import com.pixelquest.app.notification.NotificationHelper
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.screens.namaz.prayerTimeFormatter
@@ -26,6 +27,7 @@ import javax.inject.Singleton
  *
  * @param minutesToStart how long until the prayer starts, for a reminder set to come early; 0 once it has.
  * @param next for a nudge, the prayer that starts next.
+ * @param sound how it sounds (NamazReminderOptions).
  */
 data class NamazReminder(
     val kind: NamazAlarm.Kind,
@@ -34,7 +36,8 @@ data class NamazReminder(
     val time: ZonedDateTime,
     val placeName: String,
     val minutesToStart: Int = 0,
-    val next: PrayerMoment? = null
+    val next: PrayerMoment? = null,
+    val sound: NamazSound = NamazSound.SYSTEM
 ) {
     /** One notification per prayer and day: a snooze, a nudge or a second alarm replaces it, not stacks. */
     val notificationId: Int get() = NamazAlarm.requestCode(NamazAlarm.Kind.REMINDER, date, prayer)
@@ -80,7 +83,7 @@ class AndroidNamazNotifier @Inject constructor(
         } else {
             context.getString(R.string.namaz_notification_title, name)
         }
-        val builder = NotificationCompat.Builder(context, NamazChannels.REMINDERS)
+        val builder = NotificationCompat.Builder(context, NamazChannels.reminderChannel(reminder.sound))
             .setSmallIcon(R.drawable.ic_tasks)
             .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
             .setContentTitle(title)
@@ -91,7 +94,9 @@ class AndroidNamazNotifier @Inject constructor(
             .addAction(0, context.getString(R.string.namaz_action_snooze), action(NamazAction.SNOOZE, reminder))
             .addAction(0, context.getString(R.string.namaz_action_dismiss), action(NamazAction.DISMISS, reminder))
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            // Before Android 8 the priority sets how it's shown: quiet for Silent.
+            .setPriority(if (reminder.sound == NamazSound.SILENT) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
+            .setSilent(reminder.sound == NamazSound.SILENT)
             .setAutoCancel(true)
             .build()
     }

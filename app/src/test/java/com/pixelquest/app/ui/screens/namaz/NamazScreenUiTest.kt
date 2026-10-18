@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.longClick
@@ -312,5 +313,20 @@ class NamazScreenUiTest {
 
         scrollTo(NamazTestTags.prayer(Prayer.ASR))
         assertEquals(null, clickLabel(NamazTestTags.prayer(Prayer.ASR)))
+    }
+
+    @Test
+    fun theSettings_turnOnePrayersReminderOff() {
+        show()
+        composeTestRule.onNodeWithContentDescription("Namaz settings").performClick()
+        composeTestRule.waitForIdle()
+
+        // The Reminders section lists each prayer by name with a switch.
+        composeTestRule.onAllNodes(androidx.compose.ui.test.hasText("Isha").and(androidx.compose.ui.test.isToggleable()))
+            .onFirst().performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+
+        assertEquals(false, repository.settings.value.remindIsha)
+        assertEquals(true, repository.settings.value.remindFajr)
     }
 }

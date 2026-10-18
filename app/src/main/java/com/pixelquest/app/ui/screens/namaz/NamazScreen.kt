@@ -162,7 +162,10 @@ fun NamazScreen(
             onDismiss = viewModel::closeSettings,
             onReminderOffset = viewModel::setReminderOffset,
             nudge = reminderOptions.nudge,
-            onNudge = viewModel::setNudge
+            onNudge = viewModel::setNudge,
+            onReminder = viewModel::setReminder,
+            sound = reminderOptions.sound,
+            onSound = viewModel::setSound
         )
     }
 

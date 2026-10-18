@@ -23,7 +23,8 @@ class NamazAlarmHandlerTest {
     private val clock = FixedClock(java.time.LocalDateTime.of(day, java.time.LocalTime.of(20, 0)))
     private val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { LahoreZone }
     private val notifier = FakeNamazNotifier()
-    private val handler = NamazAlarmHandler(repository, provider, notifier, clock) { LahoreZone }
+    private val options = com.pixelquest.app.testing.FakeNamazReminderOptionsStore()
+    private val handler = NamazAlarmHandler(repository, provider, notifier, options, clock) { LahoreZone }
 
     @Test
     fun aReminder_showsThePrayer_itsTime_andThePlace() = runBlocking {
@@ -81,5 +82,14 @@ class NamazAlarmHandlerTest {
         val isha = notifier.shown.first { it.prayer == Prayer.ISHA }.next!!
         assertEquals(Prayer.FAJR, isha.prayer)
         assertEquals(day.plusDays(1), isha.day)
+    }
+
+    @Test
+    fun theChosenSound_goesWithTheReminder() = runBlocking {
+        options.update { it.copy(sound = com.pixelquest.app.domain.namaz.NamazSound.SILENT) }
+
+        handler.handle(NamazAlarm.Kind.REMINDER, day, Prayer.ASR)
+
+        assertEquals(com.pixelquest.app.domain.namaz.NamazSound.SILENT, notifier.shown.single().sound)
     }
 }

@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import com.pixelquest.app.R
+import com.pixelquest.app.domain.namaz.NamazSound
 
 /**
  * The Namaz Tracker's notification channels, in their own group (docs/namaz-design.md, Reminders).
@@ -19,11 +20,20 @@ object NamazChannels {
     /** At each prayer's start: high importance, so it pops up, with sound. */
     const val REMINDERS = "namaz_reminders"
 
+    /** The reminders with Silent chosen: in the shade without sound or vibration. */
+    const val REMINDERS_SILENT = "namaz_reminders_silent"
+
     /** "Still not prayed" before the next prayer: low importance, no sound. */
     const val NUDGE = "namaz_nudge"
 
     /** Every channel this object has ever created, for deleting them all. */
-    val all: List<String> get() = listOf(REMINDERS, NUDGE)
+    val all: List<String> get() = listOf(REMINDERS, REMINDERS_SILENT, NUDGE)
+
+    /** The channel a prayer's reminder goes to for [sound]: sound is fixed per channel on Android 8+. */
+    fun reminderChannel(sound: NamazSound): String = when (sound) {
+        NamazSound.SYSTEM -> REMINDERS
+        NamazSound.SILENT -> REMINDERS_SILENT
+    }
 
     fun create(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
@@ -35,6 +45,16 @@ object NamazChannels {
                     description = context.getString(R.string.namaz_channel_reminders_description)
                     group = GROUP_ID
                     enableVibration(true)
+                },
+                NotificationChannel(
+                    REMINDERS_SILENT,
+                    context.getString(R.string.namaz_channel_reminders_silent),
+                    NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    description = context.getString(R.string.namaz_channel_reminders_silent_description)
+                    group = GROUP_ID
+                    setSound(null, null)
+                    enableVibration(false)
                 },
                 NotificationChannel(NUDGE, context.getString(R.string.namaz_channel_nudge), NotificationManager.IMPORTANCE_LOW).apply {
                     description = context.getString(R.string.namaz_channel_nudge_description)

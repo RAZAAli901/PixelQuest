@@ -21,7 +21,9 @@ import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerSlot
 import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.domain.namaz.PrayerTimeProvider
+import com.pixelquest.app.domain.namaz.NamazSound
 import com.pixelquest.app.domain.namaz.UndoPrayerUseCase
+import com.pixelquest.app.domain.namaz.withReminder
 import com.pixelquest.app.domain.namaz.adjustmentFor
 import com.pixelquest.app.domain.namaz.withAdjustment
 import com.pixelquest.app.domain.repository.NamazRepository
@@ -239,6 +241,13 @@ class NamazViewModel(
 
     fun setNudge(on: Boolean) {
         viewModelScope.launch { reminderOptions.update { it.copy(nudge = on) } }
+    }
+
+    /** [prayer]'s reminder on or off. */
+    fun setReminder(prayer: Prayer, on: Boolean) = updateSettings { it.withReminder(prayer, on) }
+
+    fun setSound(sound: NamazSound) {
+        viewModelScope.launch { reminderOptions.update { it.copy(sound = sound) } }
     }
 
     /** Hides the battery-optimisation tip for good. */
