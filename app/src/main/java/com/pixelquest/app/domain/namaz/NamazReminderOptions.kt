@@ -9,12 +9,17 @@ import kotlinx.coroutines.flow.Flow
  * @param nudge a "still not prayed" reminder 20 minutes before the next prayer starts.
  * @param batteryTipDismissed the Namaz screen's battery-optimisation tip was hidden for good.
  * @param sound how a prayer's reminder sounds.
+ * @param fajrThroughDnd Fajr's reminder comes as an alarm, which Do Not Disturb lets through by default.
  */
 data class NamazReminderOptions(
     val nudge: Boolean = false,
     val batteryTipDismissed: Boolean = false,
-    val sound: NamazSound = NamazSound.SYSTEM
-)
+    val sound: NamazSound = NamazSound.SYSTEM,
+    val fajrThroughDnd: Boolean = false
+) {
+    /** Whether [prayer]'s reminder comes as an alarm: Fajr's, opted in, unless reminders are silent anyway. */
+    fun asAlarm(prayer: Prayer): Boolean = prayer == Prayer.FAJR && fajrThroughDnd && sound != NamazSound.SILENT
+}
 
 /** How a prayer's reminder sounds. Stored by name; an unknown one is [SYSTEM]. */
 enum class NamazSound {

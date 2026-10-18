@@ -32,7 +32,8 @@ class NamazReminderPlanner @Inject constructor(
                 // The nudge comes while there's still time: before the next prayer (Isha's: tomorrow's Fajr).
                 val nudge = (prayer.nextInDay?.let { times.timeOf(it) } ?: nextFajr).minusMinutes(NUDGE_MINUTES)
                 listOfNotNull(
-                    NamazAlarm(NamazAlarm.Kind.REMINDER, day, prayer, reminder.toInstant().toEpochMilli()).takeIf { inWindow(reminder) },
+                    NamazAlarm(NamazAlarm.Kind.REMINDER, day, prayer, reminder.toInstant().toEpochMilli(), alarmClock = options.asAlarm(prayer))
+                        .takeIf { inWindow(reminder) },
                     NamazAlarm(NamazAlarm.Kind.NUDGE, day, prayer, nudge.toInstant().toEpochMilli()).takeIf { options.nudge && inWindow(nudge) }
                 )
             }

@@ -83,4 +83,18 @@ class NamazAlarmSchedulerTest {
         }
         assertEquals(codes.size, codes.toSet().size)
     }
+
+    @Test
+    fun fajrsAlarmClock_isSetAsAnAlarmClock_andTheOthersAreNot() {
+        // Alarm clocks need exact alarms too; without them Fajr falls back to the 10-minute window.
+        org.robolectric.shadows.ShadowAlarmManager.setCanScheduleExactAlarms(true)
+        scheduler.schedule(NamazAlarm(NamazAlarm.Kind.REMINDER, day, Prayer.FAJR, 5_000L, alarmClock = true))
+        scheduler.schedule(reminder(Prayer.DHUHR, at = 6_000L))
+
+        val fajr = alarms.scheduledAlarms.first { it.triggerAtTime == 5_000L }
+        val dhuhr = alarms.scheduledAlarms.first { it.triggerAtTime == 6_000L }
+        assertTrue(fajr.alarmClockInfo != null)
+        assertEquals(null, dhuhr.alarmClockInfo)
+        org.robolectric.shadows.ShadowAlarmManager.setCanScheduleExactAlarms(false)
+    }
 }

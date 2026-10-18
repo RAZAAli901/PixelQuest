@@ -5,8 +5,16 @@ import java.time.LocalDate
 /**
  * One Namaz alarm: what it's for, which prayer on which prayer day, and when it fires
  * (docs/namaz-design.md, Reminders).
+ *
+ * @param alarmClock armed as an alarm clock (`setAlarmClock`): Fajr's, when it may come through Do Not Disturb.
  */
-data class NamazAlarm(val kind: Kind, val date: LocalDate, val prayer: Prayer, val atMillis: Long) {
+data class NamazAlarm(
+    val kind: Kind,
+    val date: LocalDate,
+    val prayer: Prayer,
+    val atMillis: Long,
+    val alarmClock: Boolean = false
+) {
 
     /**
      * What an alarm does when it fires. Each kind has its own broadcast action and block of request

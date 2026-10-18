@@ -58,7 +58,14 @@ class NamazAlarmHandler(
         } else {
             null
         }
-        notifier.show(NamazReminder(kind, date, prayer, time, place.name, minutesToStart, next, options.get().sound))
+        val opts = options.get()
+        notifier.show(
+            NamazReminder(
+                kind, date, prayer, time, place.name, minutesToStart, next, opts.sound,
+                // The nudge is a quiet follow-up, never an alarm.
+                asAlarm = kind != NamazAlarm.Kind.NUDGE && opts.asAlarm(prayer)
+            )
+        )
     }
 }
 

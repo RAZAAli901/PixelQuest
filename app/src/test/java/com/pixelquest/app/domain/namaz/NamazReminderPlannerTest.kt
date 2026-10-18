@@ -82,4 +82,15 @@ class NamazReminderPlannerTest {
         assertEquals(provider.timesFor(day.plusDays(1)).fajr.minusMinutes(20).toInstant().toEpochMilli(), isha.atMillis)
         assertTrue(plan(NamazSettingsEntity(enabled = true)).none { it.kind == NamazAlarm.Kind.NUDGE })
     }
+
+    @Test
+    fun fajrThroughDoNotDisturb_armsOnlyFajrsReminder_asAnAlarmClock() = runBlocking {
+        val alarms = planner.plan(NamazSettingsEntity(enabled = true), now, NamazReminderOptions(fajrThroughDnd = true, nudge = true))
+
+        assertTrue(alarms.filter { it.prayer == Prayer.FAJR && it.kind == NamazAlarm.Kind.REMINDER }.all { it.alarmClock })
+        assertTrue(alarms.filterNot { it.prayer == Prayer.FAJR && it.kind == NamazAlarm.Kind.REMINDER }.none { it.alarmClock })
+        // Silent reminders have nothing to let through.
+        val silent = planner.plan(NamazSettingsEntity(enabled = true), now, NamazReminderOptions(fajrThroughDnd = true, sound = NamazSound.SILENT))
+        assertTrue(silent.none { it.alarmClock })
+    }
 }

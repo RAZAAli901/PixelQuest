@@ -52,7 +52,9 @@ fun NamazSettingsSheet(
     onNudge: (Boolean) -> Unit = {},
     onReminder: (Prayer, Boolean) -> Unit = { _, _ -> },
     sound: NamazSound = NamazSound.SYSTEM,
-    onSound: (NamazSound) -> Unit = {}
+    onSound: (NamazSound) -> Unit = {},
+    fajrThroughDnd: Boolean = false,
+    onFajrThroughDnd: (Boolean) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val method = NamazMethod.fromName(settings.method)
@@ -110,6 +112,19 @@ fun NamazSettingsSheet(
                             onClick = { onSound(option) }
                         )
                     }
+                }
+                // Silent reminders make no sound to let through.
+                if (sound != NamazSound.SILENT) {
+                    NamazToggleRow(
+                        label = stringResource(R.string.namaz_settings_fajr_dnd),
+                        checked = fajrThroughDnd,
+                        onCheckedChange = onFajrThroughDnd
+                    )
+                    Text(
+                        text = stringResource(R.string.namaz_settings_fajr_dnd_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant
+                    )
                 }
             }
             NamazSheetSection(title = stringResource(R.string.namaz_settings_reminder_time)) {

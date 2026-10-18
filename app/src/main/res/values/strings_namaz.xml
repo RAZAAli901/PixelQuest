@@ -166,6 +166,8 @@
     <!-- A short chime made for PixelQuest, bundled with the app. -->
     <string name="namaz_sound_chime">PixelQuest chime</string>
     <string name="namaz_sound_silent">Silent (no sound or vibration)</string>
+    <string name="namaz_settings_fajr_dnd">Let Fajr\'s reminder through Do Not Disturb</string>
+    <string name="namaz_settings_fajr_dnd_hint">Sounds as an alarm, which Do Not Disturb lets through unless you\'ve blocked alarms too. The other prayers stay quiet in Do Not Disturb.</string>
     <string name="namaz_settings_nudge">Nudge me 20 minutes before the next prayer if one is still unmarked</string>
 
     <!-- The reminder's buttons. -->
@@ -189,6 +191,9 @@
     <string name="namaz_channel_reminders_chime_description">Prayer reminders with PixelQuest\'s chime</string>
     <string name="namaz_channel_reminders_silent">Silent prayer reminders</string>
     <string name="namaz_channel_reminders_silent_description">Prayer reminders that appear without sound or vibration</string>
+    <string name="namaz_channel_fajr_alarm">Fajr alarm</string>
+    <string name="namaz_channel_fajr_alarm_description">Fajr\'s reminder as an alarm, through Do Not Disturb, when you\'ve chosen that</string>
+    <string name="namaz_channel_fajr_alarm_chime">Fajr alarm (chime)</string>
     <string name="namaz_channel_nudge">Prayer nudges</string>
     <string name="namaz_channel_nudge_description">A quiet reminder before the next prayer starts, while one is still unmarked</string>
 

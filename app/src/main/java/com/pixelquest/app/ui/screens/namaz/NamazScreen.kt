@@ -165,7 +165,9 @@ fun NamazScreen(
             onNudge = viewModel::setNudge,
             onReminder = viewModel::setReminder,
             sound = reminderOptions.sound,
-            onSound = viewModel::setSound
+            onSound = viewModel::setSound,
+            fajrThroughDnd = reminderOptions.fajrThroughDnd,
+            onFajrThroughDnd = viewModel::setFajrThroughDnd
         )
     }
 

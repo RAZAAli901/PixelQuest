@@ -123,4 +123,15 @@ class NamazNotifierTest {
 
         assertEquals(NamazChannels.REMINDERS_SILENT, shown().channelId)
     }
+
+    @Test
+    fun fajrAsAnAlarm_goesToTheAlarmChannel_asAnAlarm() {
+        AndroidNamazNotifier(context).show(reminder().copy(asAlarm = true))
+
+        val notification = shown()
+        assertEquals(NamazChannels.FAJR_ALARM, notification.channelId)
+        assertEquals(Notification.CATEGORY_ALARM, notification.category)
+        val channel = context.getSystemService(NotificationManager::class.java).getNotificationChannel(NamazChannels.FAJR_ALARM)
+        assertEquals(android.media.AudioAttributes.USAGE_ALARM, channel.audioAttributes.usage)
+    }
 }

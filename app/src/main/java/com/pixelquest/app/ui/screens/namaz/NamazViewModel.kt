@@ -250,6 +250,11 @@ class NamazViewModel(
         viewModelScope.launch { reminderOptions.update { it.copy(sound = sound) } }
     }
 
+    /** Fajr's reminder through Do Not Disturb, as an alarm. */
+    fun setFajrThroughDnd(on: Boolean) {
+        viewModelScope.launch { reminderOptions.update { it.copy(fajrThroughDnd = on) } }
+    }
+
     /** Hides the battery-optimisation tip for good. */
     fun dismissBatteryTip() {
         viewModelScope.launch { reminderOptions.update { it.copy(batteryTipDismissed = true) } }

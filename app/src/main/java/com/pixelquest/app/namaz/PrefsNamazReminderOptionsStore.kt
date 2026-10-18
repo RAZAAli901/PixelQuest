@@ -23,7 +23,8 @@ class PrefsNamazReminderOptionsStore @Inject constructor(
     private fun read() = NamazReminderOptions(
         nudge = prefs.getBoolean(KEY_NUDGE, false),
         batteryTipDismissed = prefs.getBoolean(KEY_BATTERY_TIP_DISMISSED, false),
-        sound = NamazSound.fromName(prefs.getString(KEY_SOUND, null))
+        sound = NamazSound.fromName(prefs.getString(KEY_SOUND, null)),
+        fajrThroughDnd = prefs.getBoolean(KEY_FAJR_THROUGH_DND, false)
     )
 
     override val options: Flow<NamazReminderOptions> = callbackFlow {
@@ -41,6 +42,7 @@ class PrefsNamazReminderOptionsStore @Inject constructor(
             .putBoolean(KEY_NUDGE, next.nudge)
             .putBoolean(KEY_BATTERY_TIP_DISMISSED, next.batteryTipDismissed)
             .putString(KEY_SOUND, next.sound.name)
+            .putBoolean(KEY_FAJR_THROUGH_DND, next.fajrThroughDnd)
             .apply()
     }
 
@@ -49,5 +51,6 @@ class PrefsNamazReminderOptionsStore @Inject constructor(
         private const val KEY_NUDGE = "nudge"
         private const val KEY_BATTERY_TIP_DISMISSED = "battery_tip_dismissed"
         private const val KEY_SOUND = "sound"
+        private const val KEY_FAJR_THROUGH_DND = "fajr_through_dnd"
     }
 }

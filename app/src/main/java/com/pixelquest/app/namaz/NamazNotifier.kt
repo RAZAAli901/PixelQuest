@@ -28,6 +28,7 @@ import javax.inject.Singleton
  * @param minutesToStart how long until the prayer starts, for a reminder set to come early; 0 once it has.
  * @param next for a nudge, the prayer that starts next.
  * @param sound how it sounds (NamazReminderOptions).
+ * @param asAlarm comes as an alarm, through Do Not Disturb (Fajr's, when opted in).
  */
 data class NamazReminder(
     val kind: NamazAlarm.Kind,
@@ -37,7 +38,8 @@ data class NamazReminder(
     val placeName: String,
     val minutesToStart: Int = 0,
     val next: PrayerMoment? = null,
-    val sound: NamazSound = NamazSound.SYSTEM
+    val sound: NamazSound = NamazSound.SYSTEM,
+    val asAlarm: Boolean = false
 ) {
     /** One notification per prayer and day: a snooze, a nudge or a second alarm replaces it, not stacks. */
     val notificationId: Int get() = NamazAlarm.requestCode(NamazAlarm.Kind.REMINDER, date, prayer)
@@ -83,7 +85,7 @@ class AndroidNamazNotifier @Inject constructor(
         } else {
             context.getString(R.string.namaz_notification_title, name)
         }
-        val builder = NotificationCompat.Builder(context, NamazChannels.reminderChannel(reminder.sound))
+        val builder = NotificationCompat.Builder(context, NamazChannels.reminderChannel(reminder.sound, reminder.asAlarm))
             .setSmallIcon(R.drawable.ic_tasks)
             .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
             .setContentTitle(title)
@@ -93,7 +95,8 @@ class AndroidNamazNotifier @Inject constructor(
         return builder
             .addAction(0, context.getString(R.string.namaz_action_snooze), action(NamazAction.SNOOZE, reminder))
             .addAction(0, context.getString(R.string.namaz_action_dismiss), action(NamazAction.DISMISS, reminder))
-            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            // A reminder respects Do Not Disturb; an alarm (Fajr's, opted in) is let through by its Alarms exception.
+            .setCategory(if (reminder.asAlarm) NotificationCompat.CATEGORY_ALARM else NotificationCompat.CATEGORY_REMINDER)
             // Before Android 8 the priority sets how it's shown: quiet for Silent.
             .setPriority(if (reminder.sound == NamazSound.SILENT) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_HIGH)
             .setSilent(reminder.sound == NamazSound.SILENT)

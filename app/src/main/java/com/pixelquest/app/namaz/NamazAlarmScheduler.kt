@@ -48,7 +48,10 @@ class NamazAlarmScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         try {
-            if (canScheduleExactAlarms()) {
+            if (canScheduleExactAlarms() && alarm.alarmClock) {
+                // An alarm clock: exact, wakes the phone, and its time shows as the next alarm.
+                alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(alarm.atMillis, openNamaz()), pendingIntent)
+            } else if (canScheduleExactAlarms()) {
                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, pendingIntent)
             } else {
                 alarmManager.setWindow(AlarmManager.RTC_WAKEUP, alarm.atMillis, INEXACT_WINDOW_MS, pendingIntent)
@@ -80,6 +83,16 @@ class NamazAlarmScheduler @Inject constructor(
         }
     }
 
+    /** Where an alarm clock's icon leads when tapped: the Namaz screen. */
+    private fun openNamaz(): PendingIntent = PendingIntent.getActivity(
+        context,
+        SHOW_REQUEST_CODE,
+        Intent(context, com.pixelquest.app.MainActivity::class.java)
+            .putExtra(com.pixelquest.app.MainActivity.EXTRA_OPEN_ROUTE, com.pixelquest.app.ui.navigation.Screen.Namaz.route)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
     /** What an alarm delivers: its kind (the action), prayer day and prayer. */
     internal fun intentFor(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer): Intent =
         Intent(context, NamazAlarmReceiver::class.java)
@@ -89,6 +102,8 @@ class NamazAlarmScheduler @Inject constructor(
 
     companion object {
         private const val TAG = "NamazAlarmScheduler"
+
+        private const val SHOW_REQUEST_CODE = 741_000
 
         /** Shortest window Android 12+ honours for inexact alarms. */
         const val INEXACT_WINDOW_MS = 10 * 60_000L
