@@ -25,6 +25,8 @@ import com.pixelquest.app.ui.theme.PixelTheme
 /** Test tags for the Namaz screen's parts. */
 object NamazTestTags {
     const val SCREEN = "namaz_screen"
+    const val SWITCH = "namaz_switch"
+    const val EXPLAINER = "namaz_explainer"
 }
 
 /** The Namaz Tracker, opened from the side menu (docs/namaz-design.md). */
@@ -37,11 +39,15 @@ fun NamazScreen(
     NamazContent(state = state, onNavigateBack = onNavigateBack)
 }
 
-/** The screen for [state]: the top bar with back and the title, then the tracker's sections. */
+/**
+ * The screen for [state]: the top bar with back and the title, the master switch, then the
+ * tracker's sections. While the tracker is off, only a short explainer shows under the switch.
+ */
 @Composable
 fun NamazContent(
     state: NamazUiState,
-    onNavigateBack: (() -> Unit)? = null
+    onNavigateBack: (() -> Unit)? = null,
+    onEnabledChange: (Boolean) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -57,6 +63,12 @@ fun NamazContent(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Nothing until the settings are read, so a tracker that's on doesn't flash the explainer.
+            if (state.loading) return@LazyColumn
+            item(key = "switch") { NamazSwitchCard(enabled = state.enabled, onEnabledChange = onEnabledChange) }
+            if (!state.enabled) {
+                item(key = "explainer") { NamazExplainerCard() }
+            }
         }
     }
 }
