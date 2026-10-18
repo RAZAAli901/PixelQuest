@@ -4,6 +4,56 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
+## [1.3.0] - 2026-10-18 — The Namaz Tracker, a Side Menu and a Compact AI Coach
+
+### ⬆️ Upgrading from 1.2.0
+Install 1.3.0 over 1.2.0: it's signed with the same key, and your hero, quests, streaks, settings and backups are all kept. The app's data moves from version 7 to 9, and a copy of the old one is kept on the phone first.
+
+### 🕌 Namaz Tracker (new, optional, off until you turn it on)
+- **Turning it on:** open the side menu, choose Namaz Tracker and turn it on. A short setup asks for your place: your approximate location, or a city you pick. Without either it uses Lahore.
+- **Prayer times are worked out on the phone**, and work offline.
+  - Methods: Karachi (the default), Muslim World League, ISNA, Umm al-Qura and Egyptian.
+  - Hanafi or Shafi Asr, a high-latitude rule, and minutes to add or take off each prayer.
+  - The Hijri date shows under the title.
+- **Five prayer buttons, Fajr to Isha.**
+  - Each opens at its time. Tap it to mark it prayed, and tap again to undo, the same day.
+  - A prayer not marked before the next one starts shows as missed.
+  - The screen also has a countdown to the next prayer, the day's progress, the last seven days, and a streak of days with all five prayed.
+- **Reminders** at each prayer's start, or 5, 10 or 15 minutes before.
+  - Each has Prayed, Snooze 10 min and Dismiss buttons.
+  - Options: a nudge 20 minutes before the next prayer, a switch per prayer, and the phone's sound, a short chime or silent.
+  - Do Not Disturb is respected, with an opt-in to let Fajr through.
+  - Reminders come back after a restart, an update or a time-zone change.
+  - The screen warns when exact alarms, notifications or battery saving could hold them back.
+- **XP for prayers**, added to the game's own XP:
+  - 10 per prayer in its time, or 5 if late, and +30 for all five in a day. At most 80 a day.
+  - +100 for every 7 days in a row with all five.
+  - Undoing a prayer takes back exactly what it earned. Levels still come from perfect quest days.
+  - A Namaz XP switch turns the XP off. Simple Mode hides the numbers but still records your prayers.
+- **Celebrations:** the XP pops up as you mark a prayer, and all five prayed shows a card with a burst in your theme's style.
+- **Where your prayer XP shows:** today's on the Namaz screen and in the side menu's header. Stats has a Namaz card, and Home has a compact Namaz card while the tracker is on.
+- **Fair play:**
+  - A prayer can't be marked before its time, or more than a day back.
+  - It can't be marked from a phone clock set ahead.
+  - Marking from the reminder and the screen at once counts once.
+- **Privacy:** your place and your prayer log stay on the phone and in your backups. The leaderboard gets your XP total only, never which prayers you marked or when.
+- **Backups** include the Namaz log and settings. Older backups restore as before.
+
+### 🧭 Side menu
+- **Opening it:** the three-line icon at the top left of Home, Tasks, Stats, Profile and the Leaderboard opens it. A swipe from the left edge works too.
+- **What it holds:** your avatar, name, level and progress, then the Namaz Tracker, History, Leaderboard, Account and Settings.
+- **Looks and access:** it's drawn for Comic Pop, Retro Pixel, Light and Simple Mode, and TalkBack reads it as a menu.
+- The round Leaderboard button stays in the middle of the bottom bar.
+
+### 🤖 A compact AI Coach
+- The coach card takes less room:
+  - a one-line header with a small avatar and the refresh button;
+  - the latest insight in three lines, with a toggle to expand it;
+  - earlier insights as one-line rows.
+- Its smaller controls keep full-size touch targets.
+
+---
+
 ## [1.2.0] - 2026-10-14 — Comic Pop, Sign-in and the Live Leaderboard, AI Coach and Backups (Days 16–35)
 
 ### ⚠️ Upgrading from 1.1.0 or earlier
