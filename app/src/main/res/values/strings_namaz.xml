@@ -7,6 +7,23 @@
     <string name="namaz_explainer_title">Five prayers, one tap each</string>
     <string name="namaz_explainer_body">Turn the tracker on to see today\'s prayer times, mark each prayer once you\'ve prayed it, and see your week at a glance. The times are worked out on your phone, so it works offline.</string>
 
+    <!-- The Hijri date under the title, by Umm al-Qura: "6 Jumada al-Ula 1448 AH". -->
+    <string name="namaz_hijri_date">%1$d %2$s %3$d AH</string>
+    <string-array name="namaz_hijri_months">
+        <item>Muharram</item>
+        <item>Safar</item>
+        <item>Rabi al-Awwal</item>
+        <item>Rabi al-Thani</item>
+        <item>Jumada al-Ula</item>
+        <item>Jumada al-Akhirah</item>
+        <item>Rajab</item>
+        <item>Shaban</item>
+        <item>Ramadan</item>
+        <item>Shawwal</item>
+        <item>Dhu al-Qadah</item>
+        <item>Dhu al-Hijjah</item>
+    </string-array>
+
     <!-- First-time setup, shown once when the switch is first turned on. -->
     <string name="namaz_setup_title">Set up the Namaz Tracker</string>
     <string name="namaz_setup_location">Where you pray</string>

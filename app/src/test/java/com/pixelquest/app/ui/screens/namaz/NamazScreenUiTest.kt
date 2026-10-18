@@ -239,4 +239,11 @@ class NamazScreenUiTest {
         scrollTo(NamazTestTags.LOCATION)
         composeTestRule.onNodeWithText("Times for Karachi").assertIsDisplayed()
     }
+
+    @Test
+    fun theHijriDate_isUnderTheTitle() {
+        show()
+        composeTestRule.onNodeWithTag(NamazTestTags.HIJRI).assertIsDisplayed()
+            .assertTextContains("Jumada al-Ula 1448 AH", substring = true)
+    }
 }

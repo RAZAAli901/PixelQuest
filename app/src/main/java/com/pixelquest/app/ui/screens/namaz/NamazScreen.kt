@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -57,6 +58,7 @@ object NamazTestTags {
     const val STREAK = "namaz_streak"
     const val SETTINGS = "namaz_settings"
     const val LOCATION = "namaz_location"
+    const val HIJRI = "namaz_hijri"
     const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */
@@ -205,6 +207,9 @@ fun NamazContent(
         ) {
             // Nothing until the settings are read, so a tracker that's on doesn't flash the explainer.
             if (state.loading) return@LazyColumn
+            if (state.enabled && state.today != null) {
+                item(key = "hijri") { HijriDateLine(date = state.today) }
+            }
             item(key = "switch") { NamazSwitchCard(enabled = state.enabled, onEnabledChange = onEnabledChange) }
             if (!state.enabled) {
                 item(key = "explainer") { NamazExplainerCard() }
@@ -279,6 +284,19 @@ fun NamazContent(
             }
         }
     }
+}
+
+/** The prayer day's Hijri date, under the title: "🌙 6 Jumada al-Ula 1448 AH". */
+@Composable
+private fun HijriDateLine(date: java.time.LocalDate) {
+    val hijri = remember(date) { HijriDate.of(date) }
+    val month = stringArrayResource(R.array.namaz_hijri_months)[hijri.month - 1]
+    Text(
+        text = "🌙 " + stringResource(R.string.namaz_hijri_date, hijri.day, month, hijri.year),
+        style = MaterialTheme.typography.bodyMedium,
+        color = PixelTheme.colors.onSurfaceVariant,
+        modifier = Modifier.testTag(NamazTestTags.HIJRI)
+    )
 }
 
 /** "Mon 12 Oct", for an earlier day's heading. */
