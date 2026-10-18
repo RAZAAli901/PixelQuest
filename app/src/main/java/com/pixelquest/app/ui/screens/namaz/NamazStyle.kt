@@ -12,7 +12,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.theme.BangersFontFamily
+import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 
@@ -57,6 +60,7 @@ data class NamazStyle(
 @Composable
 fun namazStyle(): NamazStyle = when (PixelTheme.mode) {
     ThemeMode.Pixel, ThemeMode.System -> pixelNamazStyle()
+    ThemeMode.Comic -> comicNamazStyle()
     else -> themeNamazStyle()
 }
 
@@ -91,6 +95,36 @@ private fun pixelNamazStyle(): NamazStyle {
         dotOutline = colors.onSurfaceVariant
     )
 }
+
+/**
+ * Comic: black ink rings and marks, coral for prayed (a bright coral fill inside a darker coral
+ * ring, so its label stays readable on white), grey for missed, headings in the comic font, and
+ * day tabs outlined in ink with the chosen one a coral pill on a flat black shadow.
+ */
+@Composable
+private fun comicNamazStyle(): NamazStyle = NamazStyle(
+    heroPanel = PixelPanelVariant.BEIGE,
+    cardPadding = 16.dp,
+    pending = ComicTokens.SolidBlack,
+    prayed = ComicTokens.CoralInk,
+    missed = ComicTokens.TextSecondary,
+    locked = ComicTokens.TextSecondary,
+    prayedFill = ComicTokens.CoralRed,
+    mark = ComicTokens.SolidBlack,
+    ringStroke = 3.dp,
+    heading = MaterialTheme.typography.titleLarge.copy(fontFamily = BangersFontFamily, letterSpacing = 0.6.sp),
+    uppercaseHeadings = true,
+    chipShape = RoundedCornerShape(10.dp),
+    chipBorderWidth = 2.dp,
+    chipBorder = ComicTokens.SolidBlack,
+    chipFill = ComicTokens.PanelSurface,
+    chipSelectedFill = ComicTokens.CoralRed,
+    chipSelectedBorder = ComicTokens.SolidBlack,
+    chipShadow = true,
+    dotPrayed = ComicTokens.CoralRed,
+    dotMissed = ComicTokens.TextSecondary.copy(alpha = 0.35f),
+    dotOutline = ComicTokens.SolidBlack
+)
 
 /** The theme's own colours, for themes not yet given their own Namaz look. */
 @Composable
