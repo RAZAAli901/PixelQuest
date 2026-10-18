@@ -27,6 +27,7 @@ object NamazTestTags {
     const val SCREEN = "namaz_screen"
     const val SWITCH = "namaz_switch"
     const val EXPLAINER = "namaz_explainer"
+    const val SETUP = "namaz_setup"
 }
 
 /** The Namaz Tracker, opened from the side menu (docs/namaz-design.md). */
@@ -36,7 +37,24 @@ fun NamazScreen(
     viewModel: NamazViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val setupVisible by viewModel.setupVisible.collectAsState()
+    val locationLookup by viewModel.locationLookup.collectAsState()
+    val locationRequest = rememberLocationPermissionRequest { granted ->
+        if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
+    }
+
     NamazContent(state = state, onNavigateBack = onNavigateBack, onEnabledChange = viewModel::setEnabled)
+
+    if (setupVisible) {
+        NamazSetupSheet(
+            settings = state.settings,
+            place = state.place,
+            locationLookup = locationLookup,
+            onUseMyLocation = locationRequest::launch,
+            onDone = viewModel::finishSetup,
+            onDismiss = viewModel::dismissSetup
+        )
+    }
 }
 
 /**

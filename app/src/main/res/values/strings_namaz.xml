@@ -6,4 +6,16 @@
     <string name="namaz_switch_off">Off</string>
     <string name="namaz_explainer_title">Five prayers, one tap each</string>
     <string name="namaz_explainer_body">Turn the tracker on to see today\'s prayer times, mark each prayer once you\'ve prayed it, and see your week at a glance. The times are worked out on your phone, so it works offline.</string>
+
+    <!-- First-time setup, shown once when the switch is first turned on. -->
+    <string name="namaz_setup_title">Set up the Namaz Tracker</string>
+    <string name="namaz_setup_location">Where you pray</string>
+    <string name="namaz_setup_method">Calculation method</string>
+    <string name="namaz_setup_reminders">Remind me when each prayer starts</string>
+    <string name="namaz_setup_done">Done</string>
+    <string name="namaz_place_times_for">Times for %1$s</string>
+    <string name="namaz_place_here">your location</string>
+    <string name="namaz_use_my_location">Use my location</string>
+    <string name="namaz_location_finding">Finding your location…</string>
+    <string name="namaz_location_unavailable">Couldn\'t get your location, so the times stay for %1$s. You can pick a city instead.</string>
 </resources>

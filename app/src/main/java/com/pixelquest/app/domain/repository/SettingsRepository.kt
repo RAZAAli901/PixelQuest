@@ -89,6 +89,11 @@ interface SettingsRepository {
 
     suspend fun setNamazAvailable(available: Boolean) {}
 
+    /** Whether the Namaz Tracker's first-time setup was shown: once, when its switch is first turned on. */
+    val namazSetupShown: Flow<Boolean> get() = kotlinx.coroutines.flow.flowOf(false)
+
+    suspend fun setNamazSetupShown(shown: Boolean) {}
+
     val aiReminderMessagesEnabled: Flow<Boolean>
         get() = kotlinx.coroutines.flow.flowOf(false)
 

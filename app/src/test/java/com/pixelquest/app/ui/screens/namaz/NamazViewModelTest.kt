@@ -7,6 +7,8 @@ import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
 import com.pixelquest.app.testing.FakeNamazRepository
+import com.pixelquest.app.testing.FakeLocationProvider
+import com.pixelquest.app.testing.FakeSettingsRepository
 import com.pixelquest.app.testing.FixedClock
 import com.pixelquest.app.testing.namazViewModel
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +41,10 @@ class NamazViewModelTest {
     private val clock = FixedClock(LocalDateTime.of(day, LocalTime.of(16, 0)))
     private val provider = DefaultPrayerTimeProvider(repository, calculator, clock) { lahoreZone }
 
-    private fun viewModel() = namazViewModel(repository, clock, lahoreZone)
+    private val location = FakeLocationProvider()
+    private val settings = FakeSettingsRepository()
+
+    private fun viewModel() = namazViewModel(repository, clock, lahoreZone, location, settings)
 
     private fun millisAt(hour: Int) = LocalDateTime.of(day, LocalTime.of(hour, 0)).atZone(lahoreZone).toInstant().toEpochMilli()
 
@@ -148,5 +153,53 @@ class NamazViewModelTest {
         viewModel.setEnabled(true)
         assertTrue(repository.getSettings().enabled)
         assertEquals(1, viewModel.uiState.value.progress)
+    }
+
+    @Test
+    fun turningTheSwitchOnTheFirstTime_opensTheSetup_once() = runTest {
+        repository.saveSettings(NamazSettingsEntity(enabled = false))
+        val viewModel = viewModel()
+
+        viewModel.setEnabled(true)
+        assertTrue(viewModel.setupVisible.value)
+
+        viewModel.finishSetup(com.pixelquest.app.domain.namaz.NamazMethod.MUSLIM_WORLD_LEAGUE, remind = false)
+        assertFalse(viewModel.setupVisible.value)
+        val saved = repository.getSettings()
+        assertEquals("MUSLIM_WORLD_LEAGUE", saved.method)
+        assertFalse(saved.remindFajr || saved.remindDhuhr || saved.remindAsr || saved.remindMaghrib || saved.remindIsha)
+        assertTrue(settings.namazSetupShown.value)
+
+        viewModel.setEnabled(false)
+        viewModel.setEnabled(true)
+        assertFalse("shown once", viewModel.setupVisible.value)
+    }
+
+    @Test
+    fun closingTheSetup_keepsTheDefaults_andDoesntShowItAgain() = runTest {
+        val viewModel = viewModel()
+        viewModel.setEnabled(true)
+
+        viewModel.dismissSetup()
+
+        assertFalse(viewModel.setupVisible.value)
+        assertTrue(settings.namazSetupShown.value)
+        assertEquals("KARACHI", repository.getSettings().method)
+    }
+
+    @Test
+    fun useMyLocation_movesTheTimes_orSaysItCouldnt() = runTest {
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+
+        viewModel.useMyLocation()
+        assertEquals(LocationLookup.UNAVAILABLE, viewModel.locationLookup.value)
+        assertEquals(NamazPlace.LAHORE, viewModel.uiState.value.place)
+
+        // Near Karachi's centre: named after it.
+        location.point = com.pixelquest.app.namaz.GeoPoint(24.87, 67.03)
+        viewModel.useMyLocation()
+        assertEquals(LocationLookup.IDLE, viewModel.locationLookup.value)
+        assertEquals("Karachi", viewModel.uiState.value.place.name)
     }
 }

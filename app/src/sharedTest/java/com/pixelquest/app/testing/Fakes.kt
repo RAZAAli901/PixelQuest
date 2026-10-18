@@ -151,6 +151,8 @@ open class FakeSettingsRepository(
     override val lastAiInsightTimestamp = MutableStateFlow(0L)
     override val aiReminderMessagesEnabled = MutableStateFlow(false)
     override val lastBackupAt = MutableStateFlow(0L)
+    override val namazSetupShown = MutableStateFlow(false)
+    override suspend fun setNamazSetupShown(shown: Boolean) { namazSetupShown.value = shown }
     override suspend fun setLastBackupAt(timestamp: Long) { lastBackupAt.value = timestamp }
     var themeBeforeComic: ThemeMode = ThemeMode.Pixel
 
