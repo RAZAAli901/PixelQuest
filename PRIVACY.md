@@ -108,6 +108,7 @@ The Namaz Tracker (off unless you turn it on) works out prayer times on your pho
 - **Where it goes:** the place is saved in the app's database on your phone, so the times keep working offline. It's never sent anywhere: not to PixelQuest's server, the leaderboard or the AI Coach.
 - **Backups:** like the rest of your progress, it's in your exported backup files and in Android's own backup of the app.
 - **Reminders:** prayer reminders are worked out and scheduled on your phone, with Android's own alarms. Nothing about your prayers or reminders is sent anywhere.
+- **XP and the leaderboard:** a prayer's XP joins your XP total, as a quest's does. If you've joined the leaderboard, only that total is synced, with your level and streaks. Which prayers you marked, and when, never leave your phone.
 
 ---
 
