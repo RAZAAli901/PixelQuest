@@ -24,11 +24,21 @@ class BootReceiver : BroadcastReceiver() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
+    @Inject
+    lateinit var namazReminders: com.pixelquest.app.namaz.NamazReminders
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action in REARM_ACTIONS) {
             val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
+                    // The prayer reminders' next 48 hours. They follow the tracker's own switches and
+                    // the notifications switch themselves, and a failure here mustn't stop the tasks'.
+                    try {
+                        namazReminders.reschedule()
+                    } catch (e: Exception) {
+                        android.util.Log.e("BootReceiver", "Could not re-arm the prayer reminders", e)
+                    }
                     // Turning notifications off cancels every alarm; don't bring them back on reboot.
                     if (!settingsRepository.isNotificationsEnabled.first()) return@launch
                     val tasks = taskRepository.getAllTasks().first()
@@ -56,6 +66,7 @@ class BootReceiver : BroadcastReceiver() {
          */
         val REARM_ACTIONS = setOf(
             Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_MY_PACKAGE_REPLACED,
             ACTION_EXACT_ALARM_PERMISSION_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED,
             Intent.ACTION_TIME_CHANGED

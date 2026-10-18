@@ -50,6 +50,8 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <!-- An update: re-arm in case the new version's alarms differ (Namaz reminders, docs/namaz-design.md). -->
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <!-- Re-arm reminders as exact alarms once the user allows "Alarms & reminders". -->
                 <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
                 <!-- Alarms are absolute times: re-arm when the time zone or the clock changes. -->

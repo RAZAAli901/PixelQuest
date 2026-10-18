@@ -10,6 +10,7 @@ import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
 import com.pixelquest.app.testing.FakeNamazAlarms
 import com.pixelquest.app.testing.FakeNamazReminderOptionsStore
 import com.pixelquest.app.testing.FakeNamazRepository
+import com.pixelquest.app.testing.FakeSettingsRepository
 import com.pixelquest.app.testing.FixedClock
 import com.pixelquest.app.testing.LahoreZone
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,7 +34,8 @@ class NamazRemindersTest {
     private val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { LahoreZone }
     private val planner = NamazReminderPlanner(provider)
     private val alarms = FakeNamazAlarms()
-    private val reminders = NamazReminders(repository, options, planner, alarms, clock) { LahoreZone }
+    private val appSettings = FakeSettingsRepository()
+    private val reminders = NamazReminders(repository, options, planner, alarms, appSettings, clock) { LahoreZone }
 
     private fun planned() = runBlocking {
         planner.plan(repository.getSettings(), clock.time.atZone(LahoreZone), options.get()).toSet()
@@ -92,5 +94,18 @@ class NamazRemindersTest {
         repository.saveSettings(repository.getSettings().copy(remindMaghrib = false))
         assertTrue(alarms.armed.values.none { it.prayer == Prayer.MAGHRIB })
         assertEquals(runBlocking { planned() }, alarms.armed.values.toSet())
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun theAppsNotificationsSwitch_silencesThePrayerRemindersToo() = runTest(UnconfinedTestDispatcher()) {
+        reminders.start(backgroundScope)
+        assertEquals(10, alarms.armed.size)
+
+        appSettings.isNotificationsEnabled.value = false
+        assertTrue(alarms.armed.isEmpty())
+
+        appSettings.isNotificationsEnabled.value = true
+        assertEquals(10, alarms.armed.size)
     }
 }

@@ -5,11 +5,13 @@ import com.pixelquest.app.domain.namaz.NamazReminderOptionsStore
 import com.pixelquest.app.domain.namaz.NamazReminderPlanner
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.repository.NamazRepository
+import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.util.AppClock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -21,6 +23,7 @@ import javax.inject.Singleton
  * Keeps the Namaz alarms armed for the next 48 hours (docs/namaz-design.md, Reminders):
  * [reschedule] arms NamazReminderPlanner's list, and [start] reschedules whenever the tracker's
  * settings, place or reminder options change. The day's change and each alarm firing reschedule too.
+ * Settings' NOTIFICATIONS: OFF silences the whole app, so then nothing is armed.
  */
 @Singleton
 class NamazReminders(
@@ -28,6 +31,7 @@ class NamazReminders(
     private val options: NamazReminderOptionsStore,
     private val planner: NamazReminderPlanner,
     private val alarms: NamazAlarms,
+    private val settingsRepository: SettingsRepository,
     private val clock: AppClock,
     private val zone: () -> ZoneId
 ) {
@@ -37,8 +41,9 @@ class NamazReminders(
         options: NamazReminderOptionsStore,
         planner: NamazReminderPlanner,
         alarms: NamazAlarms,
+        settingsRepository: SettingsRepository,
         clock: AppClock
-    ) : this(repository, options, planner, alarms, clock, { ZoneId.systemDefault() })
+    ) : this(repository, options, planner, alarms, settingsRepository, clock, { ZoneId.systemDefault() })
 
     private val mutex = Mutex()
 
@@ -49,7 +54,11 @@ class NamazReminders(
      */
     suspend fun reschedule() = mutex.withLock {
         val now = clock.now().atZone(zone())
-        val plan = planner.plan(repository.getSettings(), now, options.get())
+        val plan = if (settingsRepository.isNotificationsEnabled.first()) {
+            planner.plan(repository.getSettings(), now, options.get())
+        } else {
+            emptyList()
+        }
         val planned = plan.map { Triple(it.kind, it.date, it.prayer) }.toSet()
         for (offset in -2L..3L) {
             val date = now.toLocalDate().plusDays(offset)
@@ -60,10 +69,12 @@ class NamazReminders(
         plan.forEach { alarms.schedule(it) }
     }
 
-    /** Reschedules now, and again each time the tracker's settings or reminder options change. */
+    /** Reschedules now, and again each time the tracker's settings, reminder options or notifications switch change. */
     fun start(scope: CoroutineScope) {
         scope.launch {
-            combine(repository.observeSettings(), options.options) { settings, opts -> settings to opts }
+            combine(repository.observeSettings(), options.options, settingsRepository.isNotificationsEnabled) { settings, opts, on ->
+                Triple(settings, opts, on)
+            }
                 .distinctUntilChanged()
                 .collectLatest {
                     try {
