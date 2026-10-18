@@ -115,6 +115,8 @@ class FakeNamazReminderOptionsStore(initial: NamazReminderOptions = NamazReminde
 class FakeNamazDeliveries : NamazDeliveries {
     val delivered = mutableSetOf<Triple<NamazAlarm.Kind, LocalDate, Prayer>>()
 
+    override var cleared: Boolean = false
+
     override fun wasDelivered(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer): Boolean = Triple(kind, date, prayer) in delivered
 
     override fun markDelivered(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {

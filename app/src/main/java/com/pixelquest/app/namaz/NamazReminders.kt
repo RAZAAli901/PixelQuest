@@ -62,9 +62,15 @@ class NamazReminders(
         val settings = repository.getSettings()
         if (!settings.enabled) {
             alarms.cancelAll(now.toLocalDate())
-            notifier.clearAll()
+            // Once, as the tracker goes off: not at every launch while it stays off, which deleted
+            // the channels over and over (and, racing, a reminder being shown).
+            if (!deliveries.cleared) {
+                notifier.clearAll()
+                deliveries.cleared = true
+            }
             return@withLock
         }
+        deliveries.cleared = false
         val plan = if (settingsRepository.isNotificationsEnabled.first()) {
             // Never one that has already fired: a later time for it (a changed offset, a new time
             // zone) would remind the same prayer twice.

@@ -17,6 +17,12 @@ interface NamazDeliveries {
     fun wasDelivered(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer): Boolean
 
     fun markDelivered(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer)
+
+    /**
+     * Everything was cleared after the tracker went off (NamazNotifier.clearAll), and it hasn't
+     * been on since: no need to clear again at every launch.
+     */
+    var cleared: Boolean
 }
 
 /** [NamazDeliveries] in SharedPreferences, kept for the last few days only. */
@@ -40,11 +46,16 @@ class PrefsNamazDeliveries @Inject constructor(
         prefs.edit().putStringSet(KEY, kept + key(kind, date, prayer)).apply()
     }
 
+    override var cleared: Boolean
+        get() = prefs.getBoolean(KEY_CLEARED, false)
+        set(value) = prefs.edit().putBoolean(KEY_CLEARED, value).apply()
+
     private fun key(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) = "${kind.name}|$date|${prayer.name}"
 
     private companion object {
         const val PREFS = "pixelquest_namaz_delivered"
         const val KEY = "delivered"
+        const val KEY_CLEARED = "cleared"
         const val KEEP_DAYS = 4L
     }
 }

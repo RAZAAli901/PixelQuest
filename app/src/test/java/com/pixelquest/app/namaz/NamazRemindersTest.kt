@@ -138,4 +138,19 @@ class NamazRemindersTest {
         assertTrue(alarms.armed.values.none { it.prayer == Prayer.MAGHRIB && it.date == day })
         assertTrue(alarms.armed.values.any { it.prayer == Prayer.ISHA && it.date == day })
     }
+
+    @Test
+    fun whileTheTrackerStaysOff_itClearsOnce_notAtEveryLaunch() = runBlocking {
+        repository.saveSettings(repository.getSettings().copy(enabled = false))
+
+        repeat(3) { reminders.reschedule() }
+        assertEquals(1, notifier.clearedAll)
+
+        // On, then off again: cleared again, once.
+        repository.saveSettings(repository.getSettings().copy(enabled = true))
+        reminders.reschedule()
+        repository.saveSettings(repository.getSettings().copy(enabled = false))
+        repeat(2) { reminders.reschedule() }
+        assertEquals(2, notifier.clearedAll)
+    }
 }
