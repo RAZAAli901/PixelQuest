@@ -202,4 +202,30 @@ class NamazViewModelTest {
         assertEquals(LocationLookup.IDLE, viewModel.locationLookup.value)
         assertEquals("Karachi", viewModel.uiState.value.place.name)
     }
+
+    @Test
+    fun theDayStrip_isTheLastWeek_andAnEarlierDayShowsItsOwnPrayers() = runTest {
+        val wednesday = day.minusDays(3)
+        repository.logPrayer(wednesday, Prayer.MAGHRIB, prayedAtMillis = millisAt(18))
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+
+        val strip = viewModel.uiState.value.days
+        assertEquals(NamazUiState.STRIP_DAYS, strip.size)
+        assertEquals(day, strip.last())
+        assertEquals(day.minusDays(6), strip.first())
+        assertFalse(viewModel.uiState.value.isPastDay)
+
+        viewModel.selectDay(wednesday)
+        val shown = viewModel.uiState.value
+        assertTrue(shown.isPastDay)
+        assertEquals(wednesday, shown.day!!.date)
+        assertEquals(1, shown.progress)
+        assertEquals(PrayerStatus.PRAYED, shown.slots.first { it.prayer == Prayer.MAGHRIB }.status)
+        // Nothing else was marked that day, and its windows have all passed.
+        assertEquals(4, shown.slots.count { it.status == PrayerStatus.MISSED })
+
+        viewModel.selectDay(day)
+        assertFalse(viewModel.uiState.value.isPastDay)
+    }
 }

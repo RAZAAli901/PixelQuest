@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -39,9 +40,12 @@ import javax.inject.Inject
 /**
  * What the Namaz screen shows.
  *
- * @param day the current prayer day's five prayers with their statuses (null while loading).
+ * @param day the shown day's five prayers with their statuses: the current prayer day, or an
+ *   earlier one picked from the day strip (null while loading).
  * @param next the current prayer, the next one and the time until it.
  * @param settings the tracker's settings, for the setup and settings sheets.
+ * @param today the current prayer day (before Fajr, still yesterday's date).
+ * @param days the day strip: the last [STRIP_DAYS] prayer days, oldest first, [today] last.
  */
 data class NamazUiState(
     val loading: Boolean = true,
@@ -49,15 +53,21 @@ data class NamazUiState(
     val settings: NamazSettingsEntity = NamazSettingsEntity(),
     val place: NamazPlace = NamazPlace.LAHORE,
     val day: NamazDay? = null,
-    val next: NextPrayer? = null
+    val next: NextPrayer? = null,
+    val today: LocalDate? = null,
+    val days: List<LocalDate> = emptyList()
 ) {
     val slots: List<PrayerSlot> get() = day?.slots.orEmpty()
 
-    /** Prayers prayed on the current prayer day, 0 to [PRAYERS_PER_DAY]. */
+    /** Prayers prayed on the shown day, 0 to [PRAYERS_PER_DAY]. */
     val progress: Int get() = day?.prayedCount ?: 0
+
+    /** An earlier day from the strip is shown: read-only. */
+    val isPastDay: Boolean get() = day != null && today != null && day.date != today
 
     companion object {
         const val PRAYERS_PER_DAY = 5
+        const val STRIP_DAYS = 7
     }
 }
 
@@ -182,26 +192,41 @@ class NamazViewModel(
         }
     }
 
+    private val selectedDay = MutableStateFlow<LocalDate?>(null)
+
+    /** Shows [date] from the day strip; earlier days are read-only. The current prayer day is the default. */
+    fun selectDay(date: LocalDate) {
+        selectedDay.value = date
+    }
+
     /** Draws the screen again now, e.g. when it comes back to the front. */
     fun refresh() {
         refreshRequests.value++
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val uiState: StateFlow<NamazUiState> = combine(clock.minuteTicks(), refreshRequests, repository.observeSettings()) { _, _, settings ->
-        now() to settings
-    }.flatMapLatest { (now, settings) ->
+    val uiState: StateFlow<NamazUiState> = combine(
+        clock.minuteTicks(), refreshRequests, repository.observeSettings(), selectedDay
+    ) { _, _, settings, selected ->
+        Triple(now(), settings, selected)
+    }.flatMapLatest { (now, settings, selected) ->
         val next = nextPrayer(now)
-        val times = provider.timesFor(next.prayerDay)
-        val nextFajr = provider.timesFor(next.prayerDay.plusDays(1)).fajr
-        repository.observeDay(next.prayerDay).map { logs ->
+        val today = next.prayerDay
+        val days = (NamazUiState.STRIP_DAYS - 1 downTo 0).map { today.minusDays(it.toLong()) }
+        // A day picked before the strip moved on (at Fajr) that's no longer in it shows today again.
+        val shown = selected?.takeIf { it in days } ?: today
+        val times = provider.timesFor(shown)
+        val nextFajr = provider.timesFor(shown.plusDays(1)).fajr
+        repository.observeDay(shown).map { logs ->
             NamazUiState(
                 loading = false,
                 enabled = settings.enabled,
                 settings = settings,
                 place = DefaultPrayerTimeProvider.placeOf(settings.latitude, settings.longitude, settings.city),
                 day = GetTodayNamazUseCase.combine(times, nextFajr, logs, now),
-                next = next
+                next = next,
+                today = today,
+                days = days
             )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NamazUiState())

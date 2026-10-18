@@ -49,6 +49,10 @@ object NamazTestTags {
     const val LOCKED_TOOLTIP = "namaz_locked_tooltip"
     const val SNACKBAR = "namaz_snackbar"
     const val PROGRESS = "namaz_progress"
+    const val DAY_STRIP = "namaz_day_strip"
+
+    /** A day in the day strip. */
+    fun day(date: java.time.LocalDate) = "namaz_day_$date"
 
     /** A prayer's button. */
     fun prayer(prayer: Prayer) = "namaz_prayer_${prayer.name}"
@@ -77,6 +81,7 @@ fun NamazScreen(
         onNavigateBack = onNavigateBack,
         onEnabledChange = viewModel::setEnabled,
         onRefresh = viewModel::refresh,
+        onDaySelected = viewModel::selectDay,
         snackbarHostState = snackbarHostState,
         onPrayerClick = { slot ->
             when (PrayerButtonState.of(slot)) {
@@ -122,6 +127,7 @@ fun NamazContent(
     onNavigateBack: (() -> Unit)? = null,
     onEnabledChange: (Boolean) -> Unit = {},
     onRefresh: () -> Unit = {},
+    onDaySelected: (java.time.LocalDate) -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onPrayerClick: (PrayerSlot) -> Unit = {}
 ) {
@@ -160,14 +166,30 @@ fun NamazContent(
             state.next?.let { next ->
                 item(key = "next") { NextPrayerCard(next = next, onCountdownEnd = onRefresh) }
             }
+            if (state.days.isNotEmpty() && state.day != null) {
+                item(key = "day_strip") {
+                    NamazDayStrip(days = state.days, today = state.today, selected = state.day.date, onSelect = onDaySelected)
+                }
+            }
             item(key = "prayers_title") {
                 Text(
-                    text = stringResource(R.string.namaz_prayers_title),
+                    text = if (state.isPastDay) {
+                        stringResource(R.string.namaz_prayers_on, state.day!!.date.format(DayTitleFormatter))
+                    } else {
+                        stringResource(R.string.namaz_prayers_title)
+                    },
                     style = MaterialTheme.typography.titleMedium,
                     color = colors.primaryText
                 )
+                if (state.isPastDay) {
+                    Text(
+                        text = stringResource(R.string.namaz_past_read_only),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant
+                    )
+                }
             }
-            item(key = "progress") { NamazProgress(prayed = state.progress) }
+            item(key = "progress") { NamazProgress(prayed = state.progress, pastDay = state.isPastDay) }
             // Five separate buttons, in the day's order.
             items(state.slots, key = { it.prayer.name }) { slot ->
                 val buttonState = PrayerButtonState.of(slot)
@@ -175,9 +197,10 @@ fun NamazContent(
                     prayer = slot.prayer,
                     time = slot.time.format(formatter),
                     state = buttonState,
-                    onClick = { onPrayerClick(slot) },
+                    // An earlier day is read-only.
+                    onClick = { if (!state.isPastDay) onPrayerClick(slot) },
                     // A long press on a prayed one asks to take it back, like a tap.
-                    onLongClick = if (buttonState == PrayerButtonState.PRAYED) ({ onPrayerClick(slot) }) else null,
+                    onLongClick = if (buttonState == PrayerButtonState.PRAYED && !state.isPastDay) ({ onPrayerClick(slot) }) else null,
                     modifier = Modifier.testTag(NamazTestTags.prayer(slot.prayer))
                 )
             }
@@ -185,12 +208,15 @@ fun NamazContent(
     }
 }
 
+/** "Mon 12 Oct", for an earlier day's heading. */
+private val DayTitleFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE d MMM")
+
 /** How many of the day's five prayers are prayed: "3 / 5 prayed today", over a bar. */
 @Composable
-private fun NamazProgress(prayed: Int) {
+private fun NamazProgress(prayed: Int, pastDay: Boolean) {
     Column(modifier = Modifier.testTag(NamazTestTags.PROGRESS), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
-            text = stringResource(R.string.namaz_progress, prayed, NamazUiState.PRAYERS_PER_DAY),
+            text = stringResource(if (pastDay) R.string.namaz_progress_past else R.string.namaz_progress, prayed, NamazUiState.PRAYERS_PER_DAY),
             style = MaterialTheme.typography.bodyMedium,
             color = PixelTheme.colors.onSurface
         )

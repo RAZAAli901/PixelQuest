@@ -172,4 +172,25 @@ class NamazScreenUiTest {
         scrollTo(NamazTestTags.PROGRESS)
         composeTestRule.onNodeWithText("3 / 5 prayed today").assertIsDisplayed()
     }
+
+    @Test
+    fun anEarlierDay_fromTheStrip_isShownReadOnly() {
+        val yesterday = day.minusDays(1)
+        kotlinx.coroutines.runBlocking { repository.logPrayer(yesterday, Prayer.FAJR, prayedAtMillis = 0) }
+        show()
+        scrollTo(NamazTestTags.DAY_STRIP)
+
+        composeTestRule.onNodeWithTag(NamazTestTags.day(yesterday)).performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Prayers on", substring = true).assertIsDisplayed()
+        scrollTo(NamazTestTags.PROGRESS)
+        composeTestRule.onNodeWithText("1 / 5 prayed that day").assertIsDisplayed()
+        // Tapping its prayers changes nothing.
+        scrollTo(NamazTestTags.prayer(Prayer.ASR))
+        composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.ASR)).performClick()
+        composeTestRule.waitForIdle()
+        assertEquals(null, repository.statusOf(yesterday, Prayer.ASR))
+        assertEquals(null, repository.statusOf(day, Prayer.ASR))
+    }
 }

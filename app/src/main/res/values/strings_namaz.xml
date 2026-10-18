@@ -23,6 +23,11 @@
     <string name="namaz_now_label">Now: %1$s</string>
     <string name="namaz_prayers_title">Today\'s prayers</string>
     <string name="namaz_progress">%1$d / %2$d prayed today</string>
+    <string name="namaz_progress_past">%1$d / %2$d prayed that day</string>
+    <string name="namaz_days_label">Your week</string>
+    <string name="namaz_day_today">Today</string>
+    <string name="namaz_prayers_on">Prayers on %1$s</string>
+    <string name="namaz_past_read_only">Earlier days are for looking back: they can\'t be changed.</string>
     <string name="namaz_status_pending">Tap when prayed</string>
     <string name="namaz_status_prayed">Prayed</string>
     <string name="namaz_status_missed">Missed</string>
