@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
+import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -30,6 +33,9 @@ object NamazTestTags {
     const val SETUP = "namaz_setup"
     const val NEXT = "namaz_next"
     const val COUNTDOWN = "namaz_countdown"
+
+    /** A prayer's button. */
+    fun prayer(prayer: Prayer) = "namaz_prayer_${prayer.name}"
 }
 
 /** The Namaz Tracker, opened from the side menu (docs/namaz-design.md). */
@@ -73,9 +79,11 @@ fun NamazContent(
     state: NamazUiState,
     onNavigateBack: (() -> Unit)? = null,
     onEnabledChange: (Boolean) -> Unit = {},
-    onRefresh: () -> Unit = {}
+    onRefresh: () -> Unit = {},
+    onPrayerClick: (Prayer) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
+    val formatter = rememberPrayerTimeFormatter()
     Scaffold(
         containerColor = colors.background,
         topBar = { NamazTopBar(onNavigateBack = onNavigateBack) }
@@ -98,6 +106,23 @@ fun NamazContent(
             }
             state.next?.let { next ->
                 item(key = "next") { NextPrayerCard(next = next, onCountdownEnd = onRefresh) }
+            }
+            item(key = "prayers_title") {
+                Text(
+                    text = stringResource(R.string.namaz_prayers_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.primaryText
+                )
+            }
+            // Five separate buttons, in the day's order.
+            items(state.slots, key = { it.prayer.name }) { slot ->
+                PrayerButton(
+                    prayer = slot.prayer,
+                    time = slot.time.format(formatter),
+                    state = PrayerButtonState.of(slot),
+                    onClick = { onPrayerClick(slot.prayer) },
+                    modifier = Modifier.testTag(NamazTestTags.prayer(slot.prayer))
+                )
             }
         }
     }
