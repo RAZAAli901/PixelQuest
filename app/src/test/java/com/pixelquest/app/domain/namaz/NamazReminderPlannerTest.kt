@@ -69,4 +69,17 @@ class NamazReminderPlannerTest {
         assertEquals(PrayerMoment(Prayer.FAJR, day.plusDays(1), provider.timesFor(day.plusDays(1)).fajr).let { it.prayer to it.day },
             alarms.first().let { it.prayer to it.date })
     }
+
+    @Test
+    fun withTheNudgeOn_eachPrayerAlsoGetsOne_20MinutesBeforeTheNext() = runBlocking {
+        val alarms = planner.plan(NamazSettingsEntity(enabled = true), now, NamazReminderOptions(nudge = true))
+        val nudges = alarms.filter { it.kind == NamazAlarm.Kind.NUDGE }
+
+        // Asr's nudge comes before Maghrib; Isha's before the next day's Fajr.
+        val asr = nudges.first { it.prayer == Prayer.ASR && it.date == day }
+        assertEquals(provider.timesFor(day).maghrib.minusMinutes(20).toInstant().toEpochMilli(), asr.atMillis)
+        val isha = nudges.first { it.prayer == Prayer.ISHA && it.date == day }
+        assertEquals(provider.timesFor(day.plusDays(1)).fajr.minusMinutes(20).toInstant().toEpochMilli(), isha.atMillis)
+        assertTrue(plan(NamazSettingsEntity(enabled = true)).none { it.kind == NamazAlarm.Kind.NUDGE })
+    }
 }

@@ -102,4 +102,18 @@ class NamazNotifierTest {
         assertEquals("Fajr in 10 minutes", notification.extras.getString(Notification.EXTRA_TITLE))
         assertEquals(listOf("Snooze 10 min", "Dismiss"), notification.actions.map { it.title.toString() })
     }
+
+    @Test
+    fun aNudge_isQuiet_andSaysWhenTheNextPrayerStarts() {
+        val maghrib = com.pixelquest.app.domain.namaz.PrayerMoment(
+            Prayer.MAGHRIB, day, LocalDateTime.of(day, java.time.LocalTime.of(17, 29)).atZone(LahoreZone)
+        )
+        AndroidNamazNotifier(context).show(reminder().copy(kind = NamazAlarm.Kind.NUDGE, prayer = Prayer.ASR, next = maghrib))
+
+        val notification = shown()
+        assertEquals("Still time for Asr", notification.extras.getString(Notification.EXTRA_TITLE))
+        assertEquals("Maghrib starts at 5:29 PM", notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString().replace('\u202F', ' '))
+        assertEquals(NamazChannels.NUDGE, notification.channelId)
+        assertEquals(listOf("Prayed", "Dismiss"), notification.actions.map { it.title.toString() })
+    }
 }

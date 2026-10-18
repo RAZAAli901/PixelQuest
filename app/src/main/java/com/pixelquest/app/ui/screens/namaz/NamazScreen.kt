@@ -84,6 +84,7 @@ fun NamazScreen(
     val state by viewModel.uiState.collectAsState()
     val setupVisible by viewModel.setupVisible.collectAsState()
     val settingsVisible by viewModel.settingsVisible.collectAsState()
+    val reminderOptions by viewModel.options.collectAsState()
     val locationLookup by viewModel.locationLookup.collectAsState()
     val locationRequest = rememberLocationPermissionRequest { granted ->
         if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
@@ -145,7 +146,9 @@ fun NamazScreen(
             onMadhab = viewModel::setMadhab,
             onAdjust = viewModel::adjust,
             onDismiss = viewModel::closeSettings,
-            onReminderOffset = viewModel::setReminderOffset
+            onReminderOffset = viewModel::setReminderOffset,
+            nudge = reminderOptions.nudge,
+            onNudge = viewModel::setNudge
         )
     }
 

@@ -71,4 +71,15 @@ class NamazAlarmHandlerTest {
         handler.handle(NamazAlarm.Kind.REMINDER, day, Prayer.MAGHRIB)
         assertEquals(0, notifier.shown.single().minutesToStart)
     }
+
+    @Test
+    fun aNudge_carriesTheNextPrayer_andIshasIsTomorrowsFajr() = runBlocking {
+        handler.handle(NamazAlarm.Kind.NUDGE, day, Prayer.ASR)
+        assertEquals(Prayer.MAGHRIB, notifier.shown.single().next!!.prayer)
+
+        handler.handle(NamazAlarm.Kind.NUDGE, day, Prayer.ISHA)
+        val isha = notifier.shown.first { it.prayer == Prayer.ISHA }.next!!
+        assertEquals(Prayer.FAJR, isha.prayer)
+        assertEquals(day.plusDays(1), isha.day)
+    }
 }

@@ -157,6 +157,11 @@
         <item quantity="other"><xliff:g id="prayer" example="Fajr">%1$s</xliff:g> in <xliff:g id="minutes" example="10">%2$d</xliff:g> minutes</item>
     </plurals>
 
+    <!-- The nudge, while a prayer is still unmarked: "Still time for Asr", then "Maghrib starts at 5:29 PM". -->
+    <string name="namaz_nudge_title">Still time for <xliff:g id="prayer" example="Asr">%1$s</xliff:g></string>
+    <string name="namaz_nudge_text"><xliff:g id="next_prayer" example="Maghrib">%1$s</xliff:g> starts at <xliff:g id="time" example="5:29 PM">%2$s</xliff:g></string>
+    <string name="namaz_settings_nudge">Nudge me 20 minutes before the next prayer if one is still unmarked</string>
+
     <!-- The reminder's buttons. -->
     <string name="namaz_action_prayed">Prayed</string>
     <string name="namaz_action_snooze">Snooze 10 min</string>

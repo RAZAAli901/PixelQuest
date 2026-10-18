@@ -1,5 +1,6 @@
 package com.pixelquest.app.namaz
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,7 @@ import com.pixelquest.app.MainActivity
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.Prayer
+import com.pixelquest.app.domain.namaz.PrayerMoment
 import com.pixelquest.app.notification.NotificationHelper
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.screens.namaz.prayerTimeFormatter
@@ -23,6 +25,7 @@ import javax.inject.Singleton
  * A prayer reminder to show: which prayer, on which prayer day, its time, and where.
  *
  * @param minutesToStart how long until the prayer starts, for a reminder set to come early; 0 once it has.
+ * @param next for a nudge, the prayer that starts next.
  */
 data class NamazReminder(
     val kind: NamazAlarm.Kind,
@@ -30,9 +33,10 @@ data class NamazReminder(
     val prayer: Prayer,
     val time: ZonedDateTime,
     val placeName: String,
-    val minutesToStart: Int = 0
+    val minutesToStart: Int = 0,
+    val next: PrayerMoment? = null
 ) {
-    /** One notification per prayer and day: a snooze or a second alarm replaces it, not stacks. */
+    /** One notification per prayer and day: a snooze, a nudge or a second alarm replaces it, not stacks. */
     val notificationId: Int get() = NamazAlarm.requestCode(NamazAlarm.Kind.REMINDER, date, prayer)
 }
 
@@ -56,8 +60,19 @@ class AndroidNamazNotifier @Inject constructor(
      */
     override fun show(reminder: NamazReminder) {
         NamazChannels.create(context)
+        val notification = if (reminder.kind == NamazAlarm.Kind.NUDGE) nudge(reminder) else prayerReminder(reminder)
+        try {
+            NotificationManagerCompat.from(context).notify(reminder.notificationId, notification)
+        } catch (e: SecurityException) {
+            // Notifications not allowed (Android 13+): nothing to show.
+        }
+    }
+
+    private val timeFormat get() = prayerTimeFormatter(DateFormat.is24HourFormat(context))
+
+    private fun prayerReminder(reminder: NamazReminder): Notification {
         val name = context.getString(reminder.prayer.displayName)
-        val time = reminder.time.format(prayerTimeFormatter(DateFormat.is24HourFormat(context)))
+        val time = reminder.time.format(timeFormat)
         val text = if (reminder.placeName.isBlank()) time else context.getString(R.string.namaz_notification_text, time, reminder.placeName)
         val early = reminder.minutesToStart > 0
         val title = if (early) {
@@ -72,18 +87,31 @@ class AndroidNamazNotifier @Inject constructor(
             .setContentText(text)
             .setContentIntent(openNamaz())
         if (!early) builder.addAction(0, context.getString(R.string.namaz_action_prayed), action(NamazAction.PRAYED, reminder))
-        val notification = builder
+        return builder
             .addAction(0, context.getString(R.string.namaz_action_snooze), action(NamazAction.SNOOZE, reminder))
             .addAction(0, context.getString(R.string.namaz_action_dismiss), action(NamazAction.DISMISS, reminder))
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
-        try {
-            NotificationManagerCompat.from(context).notify(reminder.notificationId, notification)
-        } catch (e: SecurityException) {
-            // Notifications not allowed (Android 13+): nothing to show.
-        }
+    }
+
+    /** "Still time for Asr", then "Maghrib starts at 5:29 PM": quiet, with Prayed and Dismiss. */
+    private fun nudge(reminder: NamazReminder): Notification {
+        val name = context.getString(reminder.prayer.displayName)
+        val text = reminder.next?.let { context.getString(R.string.namaz_nudge_text, context.getString(it.prayer.displayName), it.time.format(timeFormat)) }
+        return NotificationCompat.Builder(context, NamazChannels.NUDGE)
+            .setSmallIcon(R.drawable.ic_tasks)
+            .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
+            .setContentTitle(context.getString(R.string.namaz_nudge_title, name))
+            .setContentText(text)
+            .setContentIntent(openNamaz())
+            .addAction(0, context.getString(R.string.namaz_action_prayed), action(NamazAction.PRAYED, reminder))
+            .addAction(0, context.getString(R.string.namaz_action_dismiss), action(NamazAction.DISMISS, reminder))
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setAutoCancel(true)
+            .build()
     }
 
     override fun cancel(date: LocalDate, prayer: Prayer) {

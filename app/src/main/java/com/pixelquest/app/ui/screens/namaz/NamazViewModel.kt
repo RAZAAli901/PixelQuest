@@ -12,6 +12,8 @@ import com.pixelquest.app.domain.namaz.NamazDay
 import com.pixelquest.app.domain.namaz.NamazMethod
 import com.pixelquest.app.domain.namaz.NamazPlace
 import com.pixelquest.app.domain.namaz.NamazPlaceResolver
+import com.pixelquest.app.domain.namaz.NamazReminderOptions
+import com.pixelquest.app.domain.namaz.NamazReminderOptionsStore
 import com.pixelquest.app.domain.namaz.NamazStreak
 import com.pixelquest.app.domain.namaz.NextPrayer
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
@@ -101,6 +103,7 @@ class NamazViewModel(
     private val undoPrayer: UndoPrayerUseCase,
     private val placeResolver: NamazPlaceResolver,
     private val settingsRepository: SettingsRepository,
+    private val reminderOptions: NamazReminderOptionsStore,
     private val clock: AppClock,
     private val zone: () -> ZoneId
 ) : ViewModel() {
@@ -115,10 +118,11 @@ class NamazViewModel(
         undoPrayer: UndoPrayerUseCase,
         placeResolver: NamazPlaceResolver,
         settingsRepository: SettingsRepository,
+        reminderOptions: NamazReminderOptionsStore,
         clock: AppClock
     ) : this(
-        repository, provider, nextPrayer, autoMarkMissed, markPrayer, undoPrayer, placeResolver, settingsRepository, clock,
-        { ZoneId.systemDefault() }
+        repository, provider, nextPrayer, autoMarkMissed, markPrayer, undoPrayer, placeResolver, settingsRepository,
+        reminderOptions, clock, { ZoneId.systemDefault() }
     )
 
     init {
@@ -228,6 +232,14 @@ class NamazViewModel(
     fun setMethod(method: NamazMethod) = updateSettings { it.copy(method = method.name) }
 
     fun setMadhab(madhab: AsrMadhab) = updateSettings { it.copy(asrMadhab = madhab.name) }
+
+    /** The reminder options outside the tracker's settings (the nudge, and from C122 the sound). */
+    val options: StateFlow<NamazReminderOptions> =
+        reminderOptions.options.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NamazReminderOptions())
+
+    fun setNudge(on: Boolean) {
+        viewModelScope.launch { reminderOptions.update { it.copy(nudge = on) } }
+    }
 
     /** Reminders at each prayer's start, or [minutes] before it. */
     fun setReminderOffset(minutes: Int) = updateSettings { it.copy(reminderOffsetMin = minutes) }

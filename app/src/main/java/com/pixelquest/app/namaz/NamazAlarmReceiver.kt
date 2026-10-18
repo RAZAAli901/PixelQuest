@@ -7,6 +7,7 @@ import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.NamazReminderCheck
 import com.pixelquest.app.domain.namaz.Prayer
+import com.pixelquest.app.domain.namaz.PrayerMoment
 import com.pixelquest.app.domain.namaz.PrayerTimeProvider
 import com.pixelquest.app.domain.repository.NamazRepository
 import com.pixelquest.app.util.AppClock
@@ -38,11 +39,19 @@ class NamazAlarmHandler(
         val settings = repository.getSettings()
         if (!NamazReminderCheck.shouldRemind(kind, prayer, settings, repository.getDay(date))) return
         val place = DefaultPrayerTimeProvider.placeOf(settings.latitude, settings.longitude, settings.city)
-        val time = provider.timesFor(date).timeOf(prayer)
+        val times = provider.timesFor(date)
+        val time = times.timeOf(prayer)
         // A reminder set to come early: whole minutes still to go, rounded up.
         val secondsToStart = Duration.between(clock.now().atZone(zone()), time).seconds
         val minutesToStart = if (secondsToStart <= 0) 0 else ((secondsToStart + 59) / 60).toInt()
-        notifier.show(NamazReminder(kind, date, prayer, time, place.name, minutesToStart))
+        // The nudge says when the next prayer starts (after Isha, tomorrow's Fajr).
+        val next = if (kind == NamazAlarm.Kind.NUDGE) {
+            prayer.nextInDay?.let { PrayerMoment(it, date, times.timeOf(it)) }
+                ?: PrayerMoment(Prayer.FAJR, date.plusDays(1), provider.timesFor(date.plusDays(1)).fajr)
+        } else {
+            null
+        }
+        notifier.show(NamazReminder(kind, date, prayer, time, place.name, minutesToStart, next))
     }
 }
 

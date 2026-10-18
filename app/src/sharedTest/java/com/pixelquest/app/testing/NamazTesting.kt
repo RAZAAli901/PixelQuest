@@ -6,6 +6,8 @@ import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
 import com.pixelquest.app.domain.namaz.MarkPrayerUseCase
 import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.NamazPlaceResolver
+import com.pixelquest.app.domain.namaz.NamazReminderOptions
+import com.pixelquest.app.domain.namaz.NamazReminderOptionsStore
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.PrayerTimesCalculator
 import com.pixelquest.app.domain.namaz.UndoPrayerUseCase
@@ -18,6 +20,7 @@ import com.pixelquest.app.namaz.NamazAlarms
 import com.pixelquest.app.namaz.NamazNotifier
 import com.pixelquest.app.namaz.NamazReminder
 import com.pixelquest.app.ui.screens.namaz.NamazViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -40,7 +43,8 @@ fun namazViewModel(
     clock: FixedClock = FixedClock(LocalDateTime.of(2026, 10, 17, 16, 0)),
     zone: ZoneId = LahoreZone,
     location: FakeLocationProvider = FakeLocationProvider(),
-    settings: SettingsRepository = FakeSettingsRepository()
+    settings: SettingsRepository = FakeSettingsRepository(),
+    reminderOptions: NamazReminderOptionsStore = FakeNamazReminderOptionsStore()
 ): NamazViewModel {
     val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { zone }
     val nextPrayer = NextPrayerUseCase(provider)
@@ -49,7 +53,7 @@ fun namazViewModel(
         AutoMarkMissedUseCase(provider, repository, nextPrayer),
         MarkPrayerUseCase(provider, repository, nextPrayer),
         UndoPrayerUseCase(provider, repository, nextPrayer),
-        NamazPlaceResolver(repository, location), settings, clock
+        NamazPlaceResolver(repository, location), settings, reminderOptions, clock
     ) { zone }
 }
 
@@ -83,5 +87,16 @@ class FakeNamazAlarms(var exact: Boolean = true) : NamazAlarms {
 
     override fun cancelAll(today: LocalDate) {
         armed.keys.removeAll { (_, date, _) -> date in today.minusDays(2)..today.plusDays(3) }
+    }
+}
+
+/** The reminder options in memory. */
+class FakeNamazReminderOptionsStore(initial: NamazReminderOptions = NamazReminderOptions()) : NamazReminderOptionsStore {
+    override val options = MutableStateFlow(initial)
+
+    override suspend fun get(): NamazReminderOptions = options.value
+
+    override suspend fun update(change: (NamazReminderOptions) -> NamazReminderOptions) {
+        options.value = change(options.value)
     }
 }

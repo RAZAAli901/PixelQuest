@@ -133,4 +133,10 @@ abstract class RepositoryModule {
     abstract fun bindNamazAlarms(
         impl: com.pixelquest.app.namaz.NamazAlarmScheduler
     ): com.pixelquest.app.namaz.NamazAlarms
+
+    @Binds
+    @Singleton
+    abstract fun bindNamazReminderOptionsStore(
+        impl: com.pixelquest.app.namaz.PrefsNamazReminderOptionsStore
+    ): com.pixelquest.app.domain.namaz.NamazReminderOptionsStore
 }

@@ -45,7 +45,9 @@ fun NamazSettingsSheet(
     onMadhab: (AsrMadhab) -> Unit,
     onAdjust: (prayer: Prayer, minutes: Int) -> Unit,
     onDismiss: () -> Unit,
-    onReminderOffset: (Int) -> Unit = {}
+    onReminderOffset: (Int) -> Unit = {},
+    nudge: Boolean = false,
+    onNudge: (Boolean) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val method = NamazMethod.fromName(settings.method)
@@ -93,6 +95,7 @@ fun NamazSettingsSheet(
                         )
                     }
                 }
+                NamazToggleRow(label = stringResource(R.string.namaz_settings_nudge), checked = nudge, onCheckedChange = onNudge)
             }
             NamazSheetSection(title = stringResource(R.string.namaz_settings_adjust)) {
                 Text(
