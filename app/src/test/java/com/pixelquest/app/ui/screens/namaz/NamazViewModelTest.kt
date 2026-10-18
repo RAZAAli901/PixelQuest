@@ -306,4 +306,21 @@ class NamazViewModelTest {
         repository.saveSettings(repository.getSettings().copy(xpEnabled = false))
         assertFalse(viewModel.uiState.value.showXp)
     }
+
+    @Test
+    fun markingAPrayer_offersItsXpForThePopup_exceptInSimpleMode() = runTest {
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
+
+        viewModel.markPrayed(Prayer.ASR)
+        val popup = viewModel.xpPopup.value!!
+        assertEquals(Prayer.ASR, popup.prayer)
+        assertEquals(10, popup.xp)
+        viewModel.xpPopupShown()
+        assertEquals(null, viewModel.xpPopup.value)
+
+        settings.simpleModeEnabled.value = true
+        viewModel.markPrayed(Prayer.DHUHR)
+        assertEquals(null, viewModel.xpPopup.value)
+    }
 }

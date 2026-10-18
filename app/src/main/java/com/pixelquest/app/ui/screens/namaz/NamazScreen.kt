@@ -68,6 +68,7 @@ object NamazTestTags {
     const val NOTIFICATIONS_CARD = "namaz_notifications_card"
     const val BATTERY_CARD = "namaz_battery_card"
     const val TEST_REMINDER = "namaz_test_reminder"
+    const val XP_POPUP = "namaz_xp_popup"
     const val CITY_PICKER = "namaz_city_picker"
 
     /** A prayer's adjustment row in the settings sheet. */
@@ -90,6 +91,8 @@ fun NamazScreen(
     val setupVisible by viewModel.setupVisible.collectAsState()
     val settingsVisible by viewModel.settingsVisible.collectAsState()
     val reminderOptions by viewModel.options.collectAsState()
+    val xpPopup by viewModel.xpPopup.collectAsState()
+    val pendingLevelUp by viewModel.pendingLevelUp.collectAsState()
     val locationLookup by viewModel.locationLookup.collectAsState()
     val locationRequest = rememberLocationPermissionRequest { granted ->
         if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
@@ -122,6 +125,8 @@ fun NamazScreen(
         locationLookup = locationLookup,
         onUseMyLocation = locationRequest::launch,
         onPickCity = { pickingCity = true },
+        xpPopup = xpPopup,
+        onXpPopupShown = viewModel::xpPopupShown,
         reminderChecks = {
             NamazReminderChecks(
                 batteryTipDismissed = reminderOptions.batteryTipDismissed,
@@ -150,6 +155,11 @@ fun NamazScreen(
             }
         }
     )
+
+    // A level reached overnight and not yet celebrated: the game's own celebration (Pixel or Comic).
+    pendingLevelUp?.let { level ->
+        com.pixelquest.app.ui.screens.leveling.LevelUpCelebrationScreen(level = level, onDismiss = viewModel::levelUpCelebrated)
+    }
 
     if (pickingCity) {
         NamazCityPicker(
@@ -214,6 +224,8 @@ fun NamazContent(
     locationLookup: LocationLookup = LocationLookup.IDLE,
     onUseMyLocation: () -> Unit = {},
     onPickCity: () -> Unit = {},
+    xpPopup: NamazXpPopup? = null,
+    onXpPopupShown: () -> Unit = {},
     // The phone's side of the reminders (permissions, battery). A slot: it reads Android's state.
     reminderChecks: @Composable () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -230,6 +242,8 @@ fun NamazContent(
             locationLookup = locationLookup,
             onUseMyLocation = onUseMyLocation,
             onPickCity = onPickCity,
+            xpPopup = xpPopup,
+            onXpPopupShown = onXpPopupShown,
             reminderChecks = reminderChecks,
             snackbarHostState = snackbarHostState,
             onPrayerClick = onPrayerClick
@@ -248,6 +262,8 @@ private fun NamazScaffold(
     locationLookup: LocationLookup,
     onUseMyLocation: () -> Unit,
     onPickCity: () -> Unit,
+    xpPopup: NamazXpPopup?,
+    onXpPopupShown: () -> Unit,
     reminderChecks: @Composable () -> Unit,
     snackbarHostState: SnackbarHostState,
     onPrayerClick: (PrayerSlot) -> Unit
@@ -275,11 +291,11 @@ private fun NamazScaffold(
             }
         }
     ) { innerPadding ->
+      androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(colors.background)
-                .padding(innerPadding)
                 .testTag(NamazTestTags.SCREEN),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -371,6 +387,15 @@ private fun NamazScaffold(
                 )
             }
         }
+        // XP just earned, over the list near the top.
+        xpPopup?.let { popup ->
+            NamazXpPopupView(
+                popup = popup,
+                onFinished = onXpPopupShown,
+                modifier = Modifier.align(androidx.compose.ui.Alignment.TopCenter).padding(top = 96.dp)
+            )
+        }
+      }
     }
 }
 

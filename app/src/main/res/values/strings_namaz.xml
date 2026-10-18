@@ -122,6 +122,8 @@
     <!-- Asked before taking a prayed mark back. -->
     <string name="namaz_undo_question">Mark <xliff:g id="prayer" example="Asr">%1$s</xliff:g> as not prayed?</string>
     <string name="namaz_undo_action">Undo</string>
+    <!-- XP just earned by marking a prayer, shown for a moment. -->
+    <string name="namaz_xp_popup">+<xliff:g id="xp" example="10">%1$d</xliff:g> XP</string>
     <!-- Marking refused: the phone's clock reads earlier than a prayer already marked (set ahead, then back). -->
     <string name="namaz_clock_behind">Your phone\'s clock is behind a prayer you\'ve already marked. Check the time, then mark it again.</string>
 

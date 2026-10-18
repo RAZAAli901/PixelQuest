@@ -56,8 +56,8 @@ fun namazViewModel(
         AutoMarkMissedUseCase(provider, repository, nextPrayer),
         MarkPrayerUseCase(provider, repository, nextPrayer, profile),
         UndoPrayerUseCase(provider, repository, nextPrayer, profile),
-        NamazPlaceResolver(repository, location), settings, reminderOptions, alarms, clock
-    ) { zone }
+        NamazPlaceResolver(repository, location), settings, reminderOptions, alarms, clock, { zone }
+    )
 }
 
 /** Keeps the reminders "on screen" in a list instead of posting them. */

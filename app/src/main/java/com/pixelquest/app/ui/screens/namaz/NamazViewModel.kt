@@ -121,7 +121,8 @@ class NamazViewModel(
     private val reminderOptions: NamazReminderOptionsStore,
     private val alarms: NamazAlarms,
     private val clock: AppClock,
-    private val zone: () -> ZoneId
+    private val zone: () -> ZoneId,
+    private val levelUps: com.pixelquest.app.domain.LevelUpSignalManager? = null
 ) : ViewModel() {
 
     @Inject
@@ -136,10 +137,11 @@ class NamazViewModel(
         settingsRepository: SettingsRepository,
         reminderOptions: NamazReminderOptionsStore,
         alarms: NamazAlarms,
-        clock: AppClock
+        clock: AppClock,
+        levelUps: com.pixelquest.app.domain.LevelUpSignalManager
     ) : this(
         repository, provider, nextPrayer, autoMarkMissed, markPrayer, undoPrayer, placeResolver, settingsRepository,
-        reminderOptions, alarms, clock, { ZoneId.systemDefault() }
+        reminderOptions, alarms, clock, { ZoneId.systemDefault() }, levelUps
     )
 
     init {
@@ -222,7 +224,32 @@ class NamazViewModel(
             val now = now()
             val result = markPrayer(nextPrayer(now).prayerDay, prayer, now)
             if (result == com.pixelquest.app.domain.namaz.MarkPrayerResult.ClockBehind) _messages.tryEmit(NamazMessage.CLOCK_BEHIND)
+            // The prayer's own XP pops up (the all-five card shows the bonus); not in Simple Mode.
+            if (result is com.pixelquest.app.domain.namaz.MarkPrayerResult.Marked && result.xp.prayer > 0 && uiState.value.showXp) {
+                _xpPopup.value = NamazXpPopup(++popups, prayer, result.xp.prayer)
+            }
         }
+    }
+
+    private var popups = 0L
+    private val _xpPopup = MutableStateFlow<NamazXpPopup?>(null)
+
+    /** XP just earned, for the screen's popup; null once it has shown. */
+    val xpPopup: StateFlow<NamazXpPopup?> = _xpPopup.asStateFlow()
+
+    fun xpPopupShown() {
+        _xpPopup.value = null
+    }
+
+    /**
+     * A level reached overnight (perfect days, StreakEvaluationWorker) and not yet celebrated: the
+     * Namaz screen shows the game's own celebration too, when the player comes here first, e.g.
+     * from a reminder. Simple Mode never sets one.
+     */
+    val pendingLevelUp: StateFlow<Int?> = levelUps?.pendingLevelUp ?: MutableStateFlow(null)
+
+    fun levelUpCelebrated() {
+        levelUps?.clearPendingLevelUp()
     }
 
     private val _messages = MutableSharedFlow<NamazMessage>(extraBufferCapacity = 1)

@@ -397,4 +397,34 @@ class NamazScreenUiTest {
         composeTestRule.waitForIdle()
         assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.ASR))
     }
+
+    @Test
+    fun markingAPrayer_popsUpItsXp_thenItGoes() {
+        show()
+        scrollTo(NamazTestTags.prayer(Prayer.ASR))
+        composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.ASR)).performClick()
+        // Then paused, to catch the popup before it fades (it's gone within a second): the mark
+        // runs on the main looper, then a few frames of the popup.
+        composeTestRule.mainClock.autoAdvance = false
+        org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+        composeTestRule.mainClock.advanceTimeBy(200)
+
+        composeTestRule.onNodeWithTag(NamazTestTags.XP_POPUP, useUnmergedTree = true).assertExists()
+            .assertTextContains("+10 XP")
+
+        composeTestRule.mainClock.advanceTimeBy(2_000)
+        composeTestRule.onNodeWithTag(NamazTestTags.XP_POPUP, useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun inSimpleMode_markingShowsNoXpPopup() {
+        settings.simpleModeEnabled.value = true
+        show()
+        scrollTo(NamazTestTags.prayer(Prayer.ASR))
+        composeTestRule.onNodeWithTag(NamazTestTags.prayer(Prayer.ASR)).performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag(NamazTestTags.XP_POPUP, useUnmergedTree = true).assertDoesNotExist()
+        assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.ASR))
+    }
 }
