@@ -121,4 +121,10 @@ abstract class RepositoryModule {
     abstract fun bindLocationProvider(
         impl: com.pixelquest.app.namaz.AndroidLocationProvider
     ): com.pixelquest.app.namaz.LocationProvider
+
+    @Binds
+    @Singleton
+    abstract fun bindNamazNotifier(
+        impl: com.pixelquest.app.namaz.AndroidNamazNotifier
+    ): com.pixelquest.app.namaz.NamazNotifier
 }

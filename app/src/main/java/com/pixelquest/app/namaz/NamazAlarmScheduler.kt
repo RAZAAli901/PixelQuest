@@ -70,16 +70,13 @@ class NamazAlarmScheduler @Inject constructor(
 
     /** What an alarm delivers: its kind (the action), prayer day and prayer. */
     internal fun intentFor(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer): Intent =
-        Intent(kind.action)
-            .setClassName(context.packageName, RECEIVER_CLASS)
+        Intent(context, NamazAlarmReceiver::class.java)
+            .setAction(kind.action)
             .putExtra(EXTRA_DATE, date.toEpochDay())
             .putExtra(EXTRA_PRAYER, prayer.name)
 
     companion object {
         private const val TAG = "NamazAlarmScheduler"
-
-        /** The receiver the alarms are delivered to (C109). */
-        const val RECEIVER_CLASS = "com.pixelquest.app.namaz.NamazAlarmReceiver"
 
         /** Shortest window Android 12+ honours for inexact alarms. */
         const val INEXACT_WINDOW_MS = 10 * 60_000L

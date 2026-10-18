@@ -61,6 +61,11 @@
         <receiver
             android:name=".notification.TaskActionReceiver"
             android:exported="false" />
+
+        <!-- Namaz Tracker: the prayer alarms (docs/namaz-design.md, Reminders). -->
+        <receiver
+            android:name=".namaz.NamazAlarmReceiver"
+            android:exported="false" />
         <!-- WorkManager is initialised by PixelQuestApplication with HiltWorkerFactory, so the
              @HiltWorker workers (missed tasks, streaks, sync, AI) can be constructed. -->
         <provider

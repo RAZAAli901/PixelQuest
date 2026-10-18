@@ -1,0 +1,61 @@
+package com.pixelquest.app.namaz
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import com.pixelquest.app.domain.namaz.DefaultPrayerTimeProvider
+import com.pixelquest.app.domain.namaz.NamazAlarm
+import com.pixelquest.app.domain.namaz.NamazReminderCheck
+import com.pixelquest.app.domain.namaz.Prayer
+import com.pixelquest.app.domain.namaz.PrayerTimeProvider
+import com.pixelquest.app.domain.repository.NamazRepository
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/** What a Namaz alarm does when it fires; the receiver only hands it over. */
+@Singleton
+class NamazAlarmHandler @Inject constructor(
+    private val repository: NamazRepository,
+    private val provider: PrayerTimeProvider,
+    private val notifier: NamazNotifier
+) {
+    /** Shows the reminder for [prayer] on [date], unless it's no longer wanted (NamazReminderCheck). */
+    suspend fun handle(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
+        val settings = repository.getSettings()
+        if (!NamazReminderCheck.shouldRemind(kind, prayer, settings, repository.getDay(date))) return
+        val place = DefaultPrayerTimeProvider.placeOf(settings.latitude, settings.longitude, settings.city)
+        notifier.show(NamazReminder(kind, date, prayer, provider.timesFor(date).timeOf(prayer), place.name))
+    }
+}
+
+/**
+ * Receives the Namaz alarms (manifest, not exported). Reads which alarm it is and hands it to
+ * [NamazAlarmHandler] off the main thread.
+ */
+@AndroidEntryPoint
+class NamazAlarmReceiver : BroadcastReceiver() {
+
+    @Inject
+    lateinit var handler: NamazAlarmHandler
+
+    override fun onReceive(context: Context, intent: Intent) {
+        val kind = NamazAlarm.Kind.fromAction(intent.action) ?: return
+        val date = NamazAlarmScheduler.dateFrom(intent) ?: return
+        val prayer = NamazAlarmScheduler.prayerFrom(intent) ?: return
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                handler.handle(kind, date, prayer)
+            } catch (e: Exception) {
+                android.util.Log.e("NamazAlarmReceiver", "Could not show the $kind for $prayer on $date", e)
+            } finally {
+                pendingResult.finish()
+            }
+        }
+    }
+}
