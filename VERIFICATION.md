@@ -838,3 +838,31 @@ Namaz XP through the game's own XP (docs/namaz-design.md, XP), then the release 
 | `:app:lintDebug` | 583 errors, every one `NewApi`: `java.time` calls flagged for Android 7 (API 24-25). They're app-wide and older than this plan (Section N). Core-library desugaring would clear them, and that change is on its own branch. Lint found nothing else |
 
 Nothing failed, so nothing needed fixing.
+
+### Release build (C150)
+- **Built:** `:app:assembleRelease`, signed with the release key from `local.properties`. `app-release.apk` is 6.4 MB, versionName 1.3.0, versionCode 103.
+- **Same key as 1.2.0:** `apksigner` shows the same certificate as the published v1.2.0 APK (SHA-256 `9a84b2cf…99acbb8`), so Android installs 1.3.0 as an update.
+- **R8 (from `mapping.txt`):**
+  - All 7 of the app's manifest components keep their class names.
+  - So do all 10 workers. WorkManager stores worker class names, so work queued by 1.2.0 still finds its worker.
+  - The Namaz enums keep their constants (stored by name), and the Room entities keep their fields.
+  - Phase 6 needed no new keep rule.
+
+### Updating from 1.2.0 on the emulator
+Run with `scripts/update-check.sh v1.2.0 HEAD` on PixelQuest_API34, as the separate test app `com.pixelquest.app.updatecheck` (debug builds). The installed PixelQuest and its data weren't touched.
+
+- **First try:** a 1.2.0 game (Aria, 50 XP, one quest done) updated to version 9 with everything kept, and no welcome screen. But no pre-update copy was made.
+  - In WAL mode, a 1.2.0 game's version can sit in its `-wal`, so the file's header said 0, and the copy was skipped.
+  - Fixed in "fix: read the game's version through the WAL before copying it" (C147).
+- **After the fix:** the game was 100 XP, 3 quests and 3 results, with its header saying 0 and version 7 in a 156 KB `-wal`.
+  - Updated, it opened at version 9 with all of it.
+  - `files/pre-update/pixelquest-v7.db` held the version 7 game.
+  - A relaunch left that copy as it was. Before the fix, it would have been replaced by the updated game.
+- **The Namaz screen** on the updated app: the Hijri date, the switch, the exact-alarm and battery cards, the next prayer (Fajr at 4:47 AM, "Now: Isha"), and the times for Lahore without a location.
+- Reinstalled, the test app came back with an earlier test session's game, through Android's own backup. That was the 100 XP game above.
+
+### Not verified
+- **The signed release APK on a device.** The emulator has the debug PixelQuest installed, and a release-signed build can't go over it. The signature, the version and the R8 mapping were checked instead.
+- **A whole day of real reminders**, the five prayers marked from them, and the all-five bonus, on a phone. Marking, XP and the bonus are covered by `NamazEndToEndTest`, and one real reminder by Phase 5's instrumented test.
+- **Android 7 (API 24-25):** `java.time` needs core-library desugaring (its own branch).
+- **The Namaz screenshots** listed in docs/namaz-design.md haven't been taken.
