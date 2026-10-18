@@ -17,5 +17,9 @@
     <string name="namaz_place_here">your location</string>
     <string name="namaz_use_my_location">Use my location</string>
     <string name="namaz_location_finding">Finding your location…</string>
+    <string name="namaz_next_label">Next prayer</string>
+    <string name="namaz_next_at">at %1$s</string>
+    <string name="namaz_next_starts_in">Starts in %1$s</string>
+    <string name="namaz_now_label">Now: %1$s</string>
     <string name="namaz_location_unavailable">Couldn\'t get your location, so the times stay for %1$s. You can pick a city instead.</string>
 </resources>

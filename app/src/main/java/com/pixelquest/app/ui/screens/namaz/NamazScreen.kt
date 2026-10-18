@@ -28,6 +28,8 @@ object NamazTestTags {
     const val SWITCH = "namaz_switch"
     const val EXPLAINER = "namaz_explainer"
     const val SETUP = "namaz_setup"
+    const val NEXT = "namaz_next"
+    const val COUNTDOWN = "namaz_countdown"
 }
 
 /** The Namaz Tracker, opened from the side menu (docs/namaz-design.md). */
@@ -43,7 +45,12 @@ fun NamazScreen(
         if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
     }
 
-    NamazContent(state = state, onNavigateBack = onNavigateBack, onEnabledChange = viewModel::setEnabled)
+    NamazContent(
+        state = state,
+        onNavigateBack = onNavigateBack,
+        onEnabledChange = viewModel::setEnabled,
+        onRefresh = viewModel::refresh
+    )
 
     if (setupVisible) {
         NamazSetupSheet(
@@ -65,7 +72,8 @@ fun NamazScreen(
 fun NamazContent(
     state: NamazUiState,
     onNavigateBack: (() -> Unit)? = null,
-    onEnabledChange: (Boolean) -> Unit = {}
+    onEnabledChange: (Boolean) -> Unit = {},
+    onRefresh: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -86,6 +94,10 @@ fun NamazContent(
             item(key = "switch") { NamazSwitchCard(enabled = state.enabled, onEnabledChange = onEnabledChange) }
             if (!state.enabled) {
                 item(key = "explainer") { NamazExplainerCard() }
+                return@LazyColumn
+            }
+            state.next?.let { next ->
+                item(key = "next") { NextPrayerCard(next = next, onCountdownEnd = onRefresh) }
             }
         }
     }
