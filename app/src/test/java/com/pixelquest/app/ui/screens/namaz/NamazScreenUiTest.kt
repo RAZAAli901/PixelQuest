@@ -247,4 +247,27 @@ class NamazScreenUiTest {
         composeTestRule.onNodeWithTag(NamazTestTags.HIJRI).assertIsDisplayed()
             .assertTextContains("Jumada al-Ula 1448 AH", substring = true)
     }
+
+    @Test
+    fun theStreak_hasItsFlame_butNotInSimpleMode() {
+        kotlinx.coroutines.runBlocking {
+            Prayer.entries.forEach { repository.logPrayer(day.minusDays(1), it, prayedAtMillis = 0) }
+        }
+        settings.simpleModeEnabled.value = true
+        show()
+        scrollTo(NamazTestTags.STREAK)
+
+        composeTestRule.onNodeWithTag(NamazTestTags.STREAK).assertTextContains("1 day in a row with all five prayed")
+    }
+
+    @Test
+    fun theStreak_hasItsFlame_inTheGameThemes() {
+        kotlinx.coroutines.runBlocking {
+            Prayer.entries.forEach { repository.logPrayer(day.minusDays(1), it, prayedAtMillis = 0) }
+        }
+        show(ThemeMode.Comic)
+        scrollTo(NamazTestTags.STREAK)
+
+        composeTestRule.onNodeWithTag(NamazTestTags.STREAK).assertTextContains("🔥 1 day in a row with all five prayed")
+    }
 }

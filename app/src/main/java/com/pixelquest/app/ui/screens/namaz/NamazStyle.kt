@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -52,16 +53,23 @@ data class NamazStyle(
     val dotPrayed: Color,
     val dotMissed: Color,
     val dotOutline: Color,
-    /** Game touches (🔥, and XP from Phase 6); off in Simple Mode. */
+    /** Game touches: the streak's 🔥, and from Phase 6 the XP a prayer earns. Off in Simple Mode. */
     val playful: Boolean = true
 )
 
-/** The current theme's Namaz screen. */
+/** Simple Mode on the Namaz screen, provided once at its root (NamazContent). */
+val LocalNamazSimpleMode = staticCompositionLocalOf { false }
+
+/**
+ * The Namaz screen's look: the theme's own, or in Simple Mode the plain one in any theme. Dark
+ * mode is the Pixel theme (System follows it on a dark phone); Light and Simple Mode are plain.
+ */
 @Composable
-fun namazStyle(): NamazStyle = when (PixelTheme.mode) {
-    ThemeMode.Pixel, ThemeMode.System -> pixelNamazStyle()
-    ThemeMode.Comic -> comicNamazStyle()
-    else -> themeNamazStyle()
+fun namazStyle(): NamazStyle = when {
+    LocalNamazSimpleMode.current -> plainNamazStyle(playful = false)
+    PixelTheme.mode == ThemeMode.Comic -> comicNamazStyle()
+    PixelTheme.mode == ThemeMode.Light -> plainNamazStyle()
+    else -> pixelNamazStyle()
 }
 
 /**
@@ -126,32 +134,43 @@ private fun comicNamazStyle(): NamazStyle = NamazStyle(
     dotOutline = ComicTokens.SolidBlack
 )
 
-/** The theme's own colours, for themes not yet given their own Namaz look. */
+/** The Light theme's green: 5:1 on white. */
+private val PlainPrayedGreen = Color(0xFF15803D)
+
+/**
+ * Light, and Simple Mode in any theme: quiet and clear. The theme's own colours (green for
+ * prayed, red for missed), soft rounded day tabs with a gentle tint for the chosen one, no capitals
+ * or shadows. On a dark theme the next prayer keeps the dark panel, and pixel frames keep their room.
+ */
 @Composable
-private fun themeNamazStyle(): NamazStyle {
+private fun plainNamazStyle(playful: Boolean = true): NamazStyle {
     val colors = PixelTheme.colors
+    val pixelFrames = PixelTheme.mode == ThemeMode.Pixel || PixelTheme.mode == ThemeMode.System
+    // Green for prayed on any theme: Comic's tertiary is a pale lavender, faint on white.
+    val prayed = if (colors.isDark) colors.tertiary else PlainPrayedGreen
     return NamazStyle(
-        heroPanel = PixelPanelVariant.BEIGE,
-        cardPadding = 16.dp,
-        pending = colors.primary,
-        prayed = colors.tertiary,
+        heroPanel = if (colors.isDark) PixelPanelVariant.BLUE else PixelPanelVariant.BEIGE,
+        cardPadding = if (pixelFrames) 20.dp else 16.dp,
+        pending = colors.primaryText,
+        prayed = prayed,
         missed = colors.error,
         locked = colors.onSurfaceVariant,
-        prayedFill = colors.tertiary.copy(alpha = 0.25f),
+        prayedFill = prayed.copy(alpha = 0.15f),
         mark = null,
         ringStroke = 3.dp,
         heading = MaterialTheme.typography.titleMedium,
         uppercaseHeadings = false,
-        chipShape = RoundedCornerShape(8.dp),
+        chipShape = RoundedCornerShape(10.dp),
         chipBorderWidth = 1.dp,
-        chipBorder = colors.pixelBorder,
+        chipBorder = colors.onSurface.copy(alpha = 0.2f),
         chipFill = colors.surface,
-        chipSelectedFill = colors.primary.copy(alpha = 0.2f),
+        chipSelectedFill = colors.primary.copy(alpha = 0.12f),
         chipSelectedBorder = colors.primaryText,
         chipShadow = false,
-        dotPrayed = colors.tertiary,
-        dotMissed = colors.error,
-        dotOutline = colors.onSurfaceVariant
+        dotPrayed = prayed,
+        dotMissed = colors.error.copy(alpha = 0.35f),
+        dotOutline = colors.onSurfaceVariant,
+        playful = playful
     )
 }
 

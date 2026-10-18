@@ -17,6 +17,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -174,8 +175,40 @@ fun NamazContent(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onPrayerClick: (PrayerSlot) -> Unit = {}
 ) {
+    CompositionLocalProvider(LocalNamazSimpleMode provides state.isSimpleMode) {
+        NamazScaffold(
+            state = state,
+            onNavigateBack = onNavigateBack,
+            onEnabledChange = onEnabledChange,
+            onRefresh = onRefresh,
+            onDaySelected = onDaySelected,
+            onOpenSettings = onOpenSettings,
+            locationLookup = locationLookup,
+            onUseMyLocation = onUseMyLocation,
+            onPickCity = onPickCity,
+            snackbarHostState = snackbarHostState,
+            onPrayerClick = onPrayerClick
+        )
+    }
+}
+
+@Composable
+private fun NamazScaffold(
+    state: NamazUiState,
+    onNavigateBack: (() -> Unit)?,
+    onEnabledChange: (Boolean) -> Unit,
+    onRefresh: () -> Unit,
+    onDaySelected: (java.time.LocalDate) -> Unit,
+    onOpenSettings: () -> Unit,
+    locationLookup: LocationLookup,
+    onUseMyLocation: () -> Unit,
+    onPickCity: () -> Unit,
+    snackbarHostState: SnackbarHostState,
+    onPrayerClick: (PrayerSlot) -> Unit
+) {
     val colors = PixelTheme.colors
     val formatter = rememberPrayerTimeFormatter()
+    val playful = namazStyle().playful
     Scaffold(
         containerColor = colors.background,
         topBar = {
@@ -239,7 +272,11 @@ fun NamazContent(
                 item(key = "streak") {
                     Text(
                         text = if (state.streak > 0) {
-                            pluralStringResource(R.plurals.namaz_streak, state.streak, state.streak)
+                            pluralStringResource(
+                                if (playful) R.plurals.namaz_streak else R.plurals.namaz_streak_plain,
+                                state.streak,
+                                state.streak
+                            )
                         } else {
                             stringResource(R.string.namaz_streak_none)
                         },

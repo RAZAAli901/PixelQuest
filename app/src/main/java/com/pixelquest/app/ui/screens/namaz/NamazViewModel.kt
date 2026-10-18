@@ -53,6 +53,7 @@ import javax.inject.Inject
  * @param days the day strip: the last [STRIP_DAYS] prayer days, oldest first, [today] last.
  * @param week each strip day's five statuses, Fajr to Isha, for its row of dots.
  * @param streak prayer days in a row with all five prayed (NamazStreak).
+ * @param isSimpleMode plain wording and looks, no game touches.
  */
 data class NamazUiState(
     val loading: Boolean = true,
@@ -64,7 +65,8 @@ data class NamazUiState(
     val today: LocalDate? = null,
     val days: List<LocalDate> = emptyList(),
     val week: Map<LocalDate, List<PrayerStatus>> = emptyMap(),
-    val streak: Int = 0
+    val streak: Int = 0,
+    val isSimpleMode: Boolean = false
 ) {
     val slots: List<PrayerSlot> get() = day?.slots.orEmpty()
 
@@ -250,10 +252,10 @@ class NamazViewModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<NamazUiState> = combine(
-        clock.minuteTicks(), refreshRequests, repository.observeSettings(), selectedDay
-    ) { _, _, settings, selected ->
-        Triple(now(), settings, selected)
-    }.flatMapLatest { (now, settings, selected) ->
+        clock.minuteTicks(), refreshRequests, repository.observeSettings(), selectedDay, settingsRepository.simpleModeEnabled
+    ) { _, _, settings, selected, simple ->
+        Inputs(now(), settings, selected, simple)
+    }.flatMapLatest { (now, settings, selected, simple) ->
         val next = nextPrayer(now)
         val today = next.prayerDay
         val days = (NamazUiState.STRIP_DAYS - 1 downTo 0).map { today.minusDays(it.toLong()) }
@@ -279,10 +281,14 @@ class NamazViewModel(
                 today = today,
                 days = days,
                 week = week.mapValues { (_, namazDay) -> namazDay.slots.map { it.status } },
-                streak = NamazStreak.current(prayedPerDay.associate { it.date to it.prayed }, today)
+                streak = NamazStreak.current(prayedPerDay.associate { it.date to it.prayed }, today),
+                isSimpleMode = simple
             )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NamazUiState())
+
+    /** What the screen's state is worked out from, each time one of them changes. */
+    private data class Inputs(val now: ZonedDateTime, val settings: NamazSettingsEntity, val selected: LocalDate?, val simple: Boolean)
 
     companion object {
         /** How far back a streak is counted: far longer than anyone's, and a small query. */

@@ -74,5 +74,10 @@
         <item quantity="one">🔥 %d day in a row with all five prayed</item>
         <item quantity="other">🔥 %d days in a row with all five prayed</item>
     </plurals>
+    <!-- The same in Simple Mode: plain words, no emoji. -->
+    <plurals name="namaz_streak_plain">
+        <item quantity="one">%d day in a row with all five prayed</item>
+        <item quantity="other">%d days in a row with all five prayed</item>
+    </plurals>
     <string name="namaz_streak_none">Pray all five today to start a streak.</string>
 </resources>
