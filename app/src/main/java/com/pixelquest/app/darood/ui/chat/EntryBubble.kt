@@ -41,7 +41,7 @@ fun ChatEntryRow(
     sender: String?,
     mine: Boolean,
     modifier: Modifier = Modifier,
-    memberColor: Color = Color.Unspecified,
+    memberColor: Color = memberColor(entry.userId),
     showName: Boolean = true
 ) {
     Box(
@@ -71,7 +71,8 @@ fun bubbleColors(mine: Boolean): BubbleColors {
  *
  * @param sender the poster's username, or null where it isn't known ("Someone").
  * @param mine the player's own: the accent's colours, and no name (it's theirs).
- * @param memberColor the poster's own colour for their name, so members tell apart at a glance.
+ * @param memberColor the poster's own colour for their name ([memberColor]), so members tell apart
+ *   at a glance.
  * @param showName the name heads the bubble; a run of one sender's bubbles names them once.
  */
 @Composable
