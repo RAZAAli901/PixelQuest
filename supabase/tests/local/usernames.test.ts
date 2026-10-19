@@ -73,3 +73,17 @@ localTest("a name has one owner, and deleting the account frees it", async () =>
   assert.equal((await call("/rest/v1/rpc/delete_user_account", { token: owner.accessToken, body: {} })).status, 204);
   assert.equal((await storeAsServer(other.userId, name)).status, 201);
 });
+
+localTest("names are stored in lowercase and unique whatever their case (20261019000001)", async () => {
+  const [first, second] = await Promise.all([newPlayer("uname_case1"), newPlayer("uname_case2")]);
+  const name = fresh();
+  assert.equal((await storeAsServer(first.userId, name.toUpperCase())).status, 201);
+  const stored = await call("/rest/v1/usernames?select=username", { token: first.accessToken });
+  assert.deepEqual(stored.body, [{ username: name }]);
+
+  for (const attempt of [name, name.toUpperCase(), name[0].toUpperCase() + name.slice(1)]) {
+    const taken = await storeAsServer(second.userId, attempt);
+    assert.equal(taken.status, 409, `${attempt}: ${JSON.stringify(taken.body)}`);
+    assert.equal(taken.body.code, "23505");
+  }
+});

@@ -117,7 +117,7 @@ Darood Party usernames, one per account (docs/darood-design.md, Usernames). A ta
 | Column Name | Data Type | Constraints | Default | Description |
 |---|---|---|---|---|
 | `user_id` | `UUID` | `PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE` | N/A | The account. Deleting it frees the name. |
-| `username` | `TEXT` | `NOT NULL`, `^[A-Za-z0-9_]{3,20}$`, not reserved (`username_is_reserved`), unique | N/A | The name others invite by. |
+| `username` | `TEXT` | `NOT NULL`, `^[a-z0-9_]{3,20}$`, not reserved (`username_is_reserved`), unique ignoring case (`lower(username)`, `20261019000001_usernames_ignore_case.sql`) | N/A | The name others invite by. Lowercased on every write. |
 | `changed_at` | `TIMESTAMPTZ` | `NOT NULL` | `now()` | When it was last set. |
 
 - **Read:** the owner's own row only. Signed out, nothing.
