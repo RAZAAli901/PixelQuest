@@ -50,6 +50,8 @@ import javax.inject.Inject
  * @param items the chat's lines, oldest first ([chatItemsOf]).
  * @param usernames posters' usernames by user id, for the bubbles.
  * @param loadingOlder an older page is on its way; [onReachOldest] asks for one.
+ * @param canPost the player may post here (an active member of a party that isn't finished): the
+ *   number field shows, holding [draft].
  */
 @Composable
 fun PartyChatScreen(
@@ -63,7 +65,10 @@ fun PartyChatScreen(
     usernames: Map<String, String> = emptyMap(),
     today: java.time.LocalDate = java.time.LocalDate.now(),
     loadingOlder: Boolean = false,
-    onReachOldest: () -> Unit = {}
+    onReachOldest: () -> Unit = {},
+    canPost: Boolean = false,
+    draft: String = "",
+    onDraftChange: (String) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -98,6 +103,9 @@ fun PartyChatScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            if (canPost) NumberInputBar(value = draft, onValueChange = onDraftChange)
         }
     ) { innerPadding ->
         ChatBackground(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag(DaroodTestTags.CHAT_BACKGROUND)) {
@@ -190,6 +198,15 @@ class PartyChatViewModel @Inject constructor(
         .map { list -> list.mapNotNull { member -> member.username?.let { member.userId to it } }.toMap() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
 
+    private val _draft = kotlinx.coroutines.flow.MutableStateFlow("")
+
+    /** The number being typed: digits only, at most six ([amountDigits]). */
+    val draft: StateFlow<String> = _draft
+
+    fun onDraftChange(raw: String) {
+        _draft.value = amountDigits(raw)
+    }
+
     /** Keeps the party current while its screen is visible. */
     val follower = com.pixelquest.app.darood.ui.PartyFollower(repository, viewModelScope, partyId)
 
@@ -235,6 +252,7 @@ fun PartyChatRoute(
     val party = viewModel.party.collectAsState().value
     val items = viewModel.items.collectAsState().value
     val loadingOlder = viewModel.loadingOlder.collectAsState().value
+    val draft = viewModel.draft.collectAsState().value
     val usernames = viewModel.usernames.collectAsState().value
     com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
@@ -247,6 +265,10 @@ fun PartyChatRoute(
         items = items,
         usernames = usernames,
         loadingOlder = loadingOlder,
-        onReachOldest = viewModel::loadOlder
+        onReachOldest = viewModel::loadOlder,
+        // Only an active member posts, and only while the party isn't finished (the server insists too).
+        canPost = party != null && party.myStatus == com.pixelquest.app.darood.domain.MemberStatus.ACTIVE && !party.isFinished,
+        draft = draft,
+        onDraftChange = viewModel::onDraftChange
     )
 }

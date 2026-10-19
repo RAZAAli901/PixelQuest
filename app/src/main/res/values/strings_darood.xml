@@ -138,6 +138,9 @@
     <string name="darood_event_milestone_set">Milestone set: <xliff:g id="target" example="10,000">%1$s</xliff:g></string>
     <string name="darood_event_milestone_reached">Milestone reached: <xliff:g id="target" example="10,000">%1$s</xliff:g>!</string>
     <string name="darood_event_finished">The party is finished</string>
+    <!-- The chat's input: a number, nothing else. -->
+    <string name="darood_input_label">How many to add</string>
+    <string name="darood_input_placeholder">How many?</string>
     <string name="darood_chat_jump">Jump to the newest</string>
     <plurals name="darood_chat_unseen">
         <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> new</item>
