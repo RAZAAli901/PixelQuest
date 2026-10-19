@@ -380,21 +380,18 @@ class PartyInfoTest {
         composeTestRule.onNodeWithText("stay in the party as a member", substring = true).assertIsDisplayed()
     }
 
-    // Robolectric never settles a dialog holding a text field on this class's 411x914dp screen (a
-    // bare Dialog with a bare BasicTextField does the same); its default screen is fine.
+    // The dialogs' fields are checked on their own: Robolectric can't settle a dialog window holding a
+    // text field (a bare Dialog with a bare BasicTextField never gets idle), and a test stuck like
+    // that can run the test JVM out of memory. The dialogs themselves are plain PixelDialogs.
     @Test
-    @Config(qualifiers = "w320dp-h470dp")
-    fun theRenameDialog_saysWhyANameWontDo() {
-        var saved = false
+    fun theRenameField_saysWhyANameWontDo() {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) {
-                PartyInfoContent(state = state(myId = "aria-id").copy(newName = "x"), onNavigateBack = {}, onConfirmRename = { saved = true })
+                RenameField(name = "x", problem = com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_SHORT, onNameChange = {})
             }
         }
-        composeTestRule.onNodeWithText("Rename the party").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Party name").assertIsDisplayed()
         composeTestRule.onNodeWithText("At least 2 characters.").assertIsDisplayed()
-        composeTestRule.onNode(hasText("Save", ignoreCase = true) and hasAnyAncestor(isDialog())).performClick()
-        assertTrue(saved)
     }
 
     @Test
@@ -454,22 +451,18 @@ class PartyInfoTest {
         composeTestRule.onNodeWithTag(DaroodTestTags.INFO_DELETE).assertDoesNotExist()
     }
 
-    // The default screen, as for the rename dialog: Robolectric never settles a dialog holding a text
-    // field on the 411x914dp one.
     @Test
-    @Config(qualifiers = "w320dp-h470dp")
-    fun theDeleteDialog_asksForTheName_andSaysWhenItDoesntMatch() {
-        var confirmed = false
+    fun theDeleteConfirmation_asksForTheName_andSaysWhenItDoesntMatch() {
+        val typed = androidx.compose.runtime.mutableStateOf("Friday")
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
-                PartyInfoContent(state = state(myId = "aria-id").copy(deleteConfirmation = "Friday"), onNavigateBack = {}, onConfirmDelete = { confirmed = true })
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                DeleteConfirmation(typed = typed.value, partyName = "Friday circle", confirmed = typed.value.trim() == "Friday circle", onTypedChange = {})
             }
         }
-        composeTestRule.onNodeWithText("Delete Friday circle?").assertIsDisplayed()
         composeTestRule.onNodeWithText("can't be undone", substring = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("That's not the party's name.").assertIsDisplayed()
-        composeTestRule.onNode(hasText("Delete", ignoreCase = true) and hasAnyAncestor(isDialog())).performClick()
-        assertTrue(confirmed)
+        typed.value = "Friday circle"
+        composeTestRule.onNodeWithText("That's not the party's name.").assertDoesNotExist()
     }
 
     private fun state(myId: String) = PartyInfoUiState(

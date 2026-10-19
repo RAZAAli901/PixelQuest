@@ -437,23 +437,7 @@ fun PartyInfoContent(
             dismissButtonText = stringResource(R.string.darood_cancel),
             onDismiss = onDismissDialog
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(
-                    text = stringResource(R.string.darood_info_delete_message),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = PixelTheme.colors.onSurface
-                )
-                // Deleting waits for the name, typed exactly: a slip of the finger can't delete a party.
-                PixelTextField(
-                    value = typed,
-                    onValueChange = onDeleteConfirmationChange,
-                    label = stringResource(R.string.darood_info_delete_field),
-                    placeholder = partyName,
-                    errorText = if (typed.isNotBlank() && !state.deleteConfirmed) stringResource(R.string.darood_info_delete_mismatch) else null,
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrect = false, imeAction = ImeAction.Done),
-                    modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_DELETE_FIELD)
-                )
-            }
+            DeleteConfirmation(typed = typed, partyName = partyName, confirmed = state.deleteConfirmed, onTypedChange = onDeleteConfirmationChange)
         }
     }
     state.newName?.let { name ->
@@ -465,19 +449,47 @@ fun PartyInfoContent(
             dismissButtonText = stringResource(R.string.darood_cancel),
             onDismiss = onDismissDialog
         ) {
-            PixelTextField(
-                value = name,
-                onValueChange = onNewNameChange,
-                label = stringResource(R.string.darood_create_name),
-                errorText = when (state.newNameProblem) {
-                    com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_SHORT -> stringResource(R.string.darood_create_name_too_short)
-                    com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_LONG -> stringResource(R.string.darood_create_name_too_long)
-                    null -> null
-                },
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
-                modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_RENAME_FIELD)
-            )
+            RenameField(name = name, problem = state.newNameProblem, onNameChange = onNewNameChange)
         }
+    }
+}
+
+/** The rename dialog's field: the name, and why it won't do, if it won't. */
+@Composable
+internal fun RenameField(name: String, problem: com.pixelquest.app.darood.ui.create.PartyNameProblem?, onNameChange: (String) -> Unit) {
+    PixelTextField(
+        value = name,
+        onValueChange = onNameChange,
+        label = stringResource(R.string.darood_create_name),
+        errorText = when (problem) {
+            com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_SHORT -> stringResource(R.string.darood_create_name_too_short)
+            com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_LONG -> stringResource(R.string.darood_create_name_too_long)
+            null -> null
+        },
+        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
+        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_RENAME_FIELD)
+    )
+}
+
+/** The delete dialog's body: what deleting does, and the party's name to type. */
+@Composable
+internal fun DeleteConfirmation(typed: String, partyName: String, confirmed: Boolean, onTypedChange: (String) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            text = stringResource(R.string.darood_info_delete_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = PixelTheme.colors.onSurface
+        )
+        // Deleting waits for the name, typed exactly: a slip of the finger can't delete a party.
+        PixelTextField(
+            value = typed,
+            onValueChange = onTypedChange,
+            label = stringResource(R.string.darood_info_delete_field),
+            placeholder = partyName,
+            errorText = if (typed.isNotBlank() && !confirmed) stringResource(R.string.darood_info_delete_mismatch) else null,
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrect = false, imeAction = ImeAction.Done),
+            modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_DELETE_FIELD)
+        )
     }
 }
 
