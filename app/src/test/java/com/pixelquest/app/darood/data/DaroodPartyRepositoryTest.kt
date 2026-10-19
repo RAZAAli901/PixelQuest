@@ -30,7 +30,7 @@ class DaroodPartyRepositoryTest {
     private val server = FakeDaroodServer(me = "me").apply {
         usernames += mapOf("me" to "aria_k", "u2" to "bram", "u3" to "cleo")
     }
-    private val repository = DaroodPartyRepositoryImpl(server, db.daroodDao()) { 1_000L }
+    private val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, { 1_000L }, { java.time.ZoneId.of("Asia/Karachi") })
 
     @After
     fun tearDown() {
@@ -111,5 +111,62 @@ class DaroodPartyRepositoryTest {
 
         assertEquals(com.pixelquest.app.darood.domain.DaroodRefusal.NOT_LEADER, com.pixelquest.app.darood.domain.DaroodRefusal.of(result))
         assertNull(repository.observeParty(theirs).first()!!.milestone)
+    }
+
+    @Test
+    fun anEntry_isSentAtOnce_whenItCanBe() = runBlocking {
+        val friday = server.seedParty("Friday circle", "me")
+        repository.refreshParties()
+
+        val entry = repository.addEntry(friday, 313)
+
+        assertEquals(com.pixelquest.app.darood.domain.EntryState.SYNCED, entry.state)
+        assertTrue(entry.id != null)
+        assertEquals("Asia/Karachi", server.entries.single().tz)
+        assertEquals(listOf(313), repository.observeEntries(friday, 50).first().map { it.amount })
+        assertEquals(0, repository.observePendingCount().first())
+        assertEquals("the party's total followed", 313L, repository.observeParty(friday).first()!!.total)
+    }
+
+    @Test
+    fun offline_anEntryWaits_onTopAndMine_thenGoesWhenItCan() = runBlocking {
+        val friday = server.seedParty("Friday circle", "me")
+        server.seedEntry(friday, "me", 100)
+        repository.refreshParty(friday)
+        server.offline = true
+
+        val first = repository.addEntry(friday, 33)
+        val second = repository.addEntry(friday, 11)
+
+        assertEquals(com.pixelquest.app.darood.domain.EntryState.PENDING, first.state)
+        val shown = repository.observeEntries(friday, 50).first()
+        assertEquals("waiting ones first, newest on top", listOf(11, 33, 100), shown.map { it.amount })
+        assertEquals(listOf("me", "me"), shown.take(2).map { it.userId })
+        assertEquals(2, repository.observePendingCount().first())
+        assertEquals(SendReport(0, 0, 2), repository.sendPending())
+
+        server.offline = false
+        assertEquals(SendReport(2, 0, 0), repository.sendPending())
+        assertEquals("sent in the order posted", listOf(100, 33, 11), server.entries.map { it.amount })
+        assertEquals(0, repository.observePendingCount().first())
+    }
+
+    @Test
+    fun aRefusedEntry_isMarked_andTheRestStillGo() = runBlocking {
+        val friday = server.seedParty("Friday circle", "me")
+        repository.refreshParties()
+        server.offline = true
+        repeat(5) { repository.addEntry(friday, 100_000) }
+        repository.addEntry(friday, 7)
+        server.offline = false
+
+        val report = repository.sendPending()
+
+        // The day's 500,000 is reached by the fifth; the sixth, 7 more, is refused.
+        assertEquals(SendReport(5, 1, 0), report)
+        val refused = repository.observeEntries(friday, 50).first().first()
+        assertEquals(com.pixelquest.app.darood.domain.EntryState.FAILED, refused.state)
+        assertEquals(7, refused.amount)
+        assertEquals("a refused one isn't sent again as it is", SendReport(0, 0, 0), repository.sendPending())
     }
 }

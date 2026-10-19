@@ -74,8 +74,9 @@ class DaroodDaoTest {
     @Test
     fun pendingEntries_goInTheOrderPosted_andAreSwappedForTheServersCopy() = runBlocking {
         dao.replaceParties(listOf(party("p1", "Friday")))
-        dao.insertPending(pending("c2", at = 2))
-        dao.insertPending(pending("c1", at = 1))
+        // Posted c1, c2, c3, though the clock went back for c2 (the order posted is what counts).
+        dao.insertPending(pending("c1", at = 5))
+        dao.insertPending(pending("c2", at = 1))
         dao.insertPending(pending("c3", at = 3))
         dao.setPendingState("c3", EntryState.FAILED, "daily_limit")
 

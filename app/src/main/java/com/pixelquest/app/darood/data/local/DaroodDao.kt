@@ -77,13 +77,21 @@ interface DaroodDao {
     @Query("SELECT COUNT(*) FROM darood_entry WHERE partyId = :partyId")
     suspend fun entryCount(partyId: String): Int
 
+    /** The server's copy of an entry posted on this phone. */
+    @Query("SELECT * FROM darood_entry WHERE clientId = :clientId")
+    suspend fun entryByClientId(clientId: String): DaroodEntryEntity?
+
     // Entries waiting to be sent
 
-    @Query("SELECT * FROM darood_pending_entry WHERE partyId = :partyId ORDER BY createdAt")
+    // rowid rises with every insert, so it's the order the entries were posted in, even two within
+    // the same millisecond, or across a change to the phone's clock.
+
+    /** A party's waiting and refused entries, in the order posted. */
+    @Query("SELECT * FROM darood_pending_entry WHERE partyId = :partyId ORDER BY rowid")
     fun observePending(partyId: String): Flow<List<PendingEntryEntity>>
 
     /** Every entry still to send, oldest first: they go in the order they were posted. */
-    @Query("SELECT * FROM darood_pending_entry WHERE state = 'PENDING' ORDER BY createdAt, clientId")
+    @Query("SELECT * FROM darood_pending_entry WHERE state = 'PENDING' ORDER BY rowid")
     suspend fun pendingToSend(): List<PendingEntryEntity>
 
     @Query("SELECT COUNT(*) FROM darood_pending_entry WHERE state = 'PENDING'")

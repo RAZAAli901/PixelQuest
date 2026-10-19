@@ -5,6 +5,8 @@ import com.pixelquest.app.darood.data.local.DaroodDao
 import com.pixelquest.app.darood.data.local.DaroodEntryEntity
 import com.pixelquest.app.darood.data.local.PartyEntity
 import com.pixelquest.app.darood.data.local.PartyMemberEntity
+import com.pixelquest.app.darood.data.local.PendingEntryEntity
+import com.pixelquest.app.darood.data.remote.DaroodAccount
 import com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource
 import com.pixelquest.app.darood.data.remote.InviteOutcome
 import com.pixelquest.app.darood.data.remote.RemoteParty
@@ -12,6 +14,8 @@ import com.pixelquest.app.darood.data.remote.parseInstant
 import com.pixelquest.app.darood.data.remote.roleOf
 import com.pixelquest.app.darood.data.remote.statusOf
 import com.pixelquest.app.darood.domain.DaroodEntry
+import com.pixelquest.app.darood.domain.DaroodRefusal
+import com.pixelquest.app.darood.domain.DaroodRules
 import com.pixelquest.app.darood.domain.EntryState
 import com.pixelquest.app.darood.domain.MemberStats
 import com.pixelquest.app.darood.domain.MemberStatus
@@ -19,8 +23,11 @@ import com.pixelquest.app.darood.domain.Party
 import com.pixelquest.app.darood.domain.PartyMember
 import com.pixelquest.app.darood.domain.PartyStats
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.Instant
+import java.time.ZoneId
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,8 +48,23 @@ interface DaroodPartyRepository {
     /** Each poster's part of the party's total, largest first. */
     fun observeMemberStats(partyId: String): Flow<List<MemberStats>>
 
-    /** The newest [limit] entries the phone has for a party, newest first. */
+    /**
+     * The newest [limit] entries the phone has for a party, newest first: those still waiting to be
+     * sent (PENDING) or refused (FAILED) first, then the server's.
+     */
     fun observeEntries(partyId: String, limit: Int): Flow<List<DaroodEntry>>
+
+    /** How many entries wait to be sent, in every party. */
+    fun observePendingCount(): Flow<Int>
+
+    /**
+     * Posts [amount] for today, in the phone's time zone. It's saved on the phone first, as PENDING,
+     * then sent; without a connection it stays until it can be. Returns the entry as saved.
+     */
+    suspend fun addEntry(partyId: String, amount: Int): DaroodEntry
+
+    /** Sends every waiting entry, oldest first, until one can't be sent for now. */
+    suspend fun sendPending(): SendReport
 
     /** The account's parties, with their numbers, from the server. */
     suspend fun refreshParties(): SupabaseResult<Unit>
@@ -67,15 +89,27 @@ interface DaroodPartyRepository {
     suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long>
 }
 
+/**
+ * What a [DaroodPartyRepository.sendPending] did: [sent] reached the server, [refused] were turned
+ * down for good (a rule, with its reason kept), and [waiting] are still to send because the
+ * connection or the sign-in failed.
+ */
+data class SendReport(val sent: Int, val refused: Int, val waiting: Int) {
+    val needsRetry: Boolean get() = waiting > 0
+}
+
 @Singleton
 class DaroodPartyRepositoryImpl(
     private val remote: DaroodPartyRemoteDataSource,
     private val dao: DaroodDao,
-    private val now: () -> Long
+    private val account: DaroodAccount,
+    private val now: () -> Long,
+    private val zone: () -> ZoneId
 ) : DaroodPartyRepository {
 
     @Inject
-    constructor(remote: DaroodPartyRemoteDataSource, dao: DaroodDao) : this(remote, dao, System::currentTimeMillis)
+    constructor(remote: DaroodPartyRemoteDataSource, dao: DaroodDao, account: DaroodAccount) :
+        this(remote, dao, account, System::currentTimeMillis, ZoneId::systemDefault)
 
     override fun observeMyParties(): Flow<List<Party>> = dao.observeParties().map { parties -> parties.map { it.toDomain() } }
 
@@ -92,7 +126,58 @@ class DaroodPartyRepositoryImpl(
         }
 
     override fun observeEntries(partyId: String, limit: Int): Flow<List<DaroodEntry>> =
-        dao.observeEntries(partyId, limit).map { entries -> entries.map { it.toDomain() } }
+        combine(dao.observePending(partyId), dao.observeEntries(partyId, limit)) { waiting, stored ->
+            val me = account.id()
+            waiting.asReversed().map { it.toDomain(me) } + stored.map { it.toDomain() }
+        }
+
+    override fun observePendingCount(): Flow<Int> = dao.observePendingCount()
+
+    override suspend fun addEntry(partyId: String, amount: Int): DaroodEntry {
+        require(amount in DaroodRules.AMOUNT_MIN..DaroodRules.AMOUNT_MAX) { "An entry is 1 to 100,000" }
+        val at = now()
+        val here = zone()
+        val pending = PendingEntryEntity(
+            clientId = UUID.randomUUID().toString(),
+            partyId = partyId,
+            amount = amount,
+            localDate = Instant.ofEpochMilli(at).atZone(here).toLocalDate(),
+            tz = here.id,
+            createdAt = at
+        )
+        dao.insertPending(pending)
+        sendPending()
+        return dao.getPending(pending.clientId)?.toDomain(account.id())
+            ?: dao.entryByClientId(pending.clientId)?.toDomain()
+            ?: pending.toDomain(account.id())
+    }
+
+    override suspend fun sendPending(): SendReport {
+        var sent = 0
+        var refused = 0
+        val waiting = dao.pendingToSend()
+        for ((index, entry) in waiting.withIndex()) {
+            dao.countAttempt(entry.clientId)
+            when (val result = remote.addEntry(entry.partyId, entry.amount, entry.localDate, entry.tz)) {
+                is SupabaseResult.Success -> {
+                    dao.confirmSent(entry.clientId, result.data.toEntity().copy(clientId = entry.clientId))
+                    sent++
+                }
+                else -> {
+                    val refusal = DaroodRefusal.of(result)
+                    if (refusal == null) {
+                        // No connection, or signed out: this one and the rest wait, in order.
+                        if (sent > 0) refreshParties()
+                        return SendReport(sent, refused, waiting.size - index)
+                    }
+                    dao.setPendingState(entry.clientId, EntryState.FAILED, refusal.token.ifEmpty { (result as SupabaseResult.ServerError).message })
+                    refused++
+                }
+            }
+        }
+        if (sent > 0) refreshParties()
+        return SendReport(sent, refused, 0)
+    }
 
     override suspend fun refreshParties(): SupabaseResult<Unit> {
         val mine = when (val result = remote.fetchMyParties()) {
@@ -249,3 +334,16 @@ internal fun DaroodEntryEntity.toDomain() = DaroodEntry(
     createdAt = Instant.ofEpochMilli(createdAt),
     state = EntryState.SYNCED
 )
+
+internal fun PendingEntryEntity.toDomain(me: String?) = DaroodEntry(
+    id = null,
+    clientId = clientId,
+    partyId = partyId,
+    userId = me,
+    amount = amount,
+    localDate = localDate,
+    tz = tz,
+    createdAt = Instant.ofEpochMilli(createdAt),
+    state = state
+)
+
