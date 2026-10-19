@@ -3,8 +3,10 @@ package com.pixelquest.app.darood.data.remote
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.safeSupabaseCall
 import com.pixelquest.app.darood.domain.DaroodEntry
+import com.pixelquest.app.darood.domain.MemberStats
 import com.pixelquest.app.darood.domain.MemberStatus
 import com.pixelquest.app.darood.domain.PartyMember
+import com.pixelquest.app.darood.domain.PartyStats
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
@@ -70,6 +72,12 @@ interface DaroodPartyRemoteDataSource {
      * before that entry. Ids only grow, in the order entries reached the server.
      */
     suspend fun fetchEntries(partyId: String, beforeId: Long? = null, limit: Int = PAGE_SIZE): SupabaseResult<List<DaroodEntry>>
+
+    /** The numbers of the given parties (those the account is active in; others have no row). */
+    suspend fun fetchStats(partyIds: List<String>): SupabaseResult<List<PartyStats>>
+
+    /** Each poster's part of a party's total, largest first. */
+    suspend fun fetchMemberStats(partyId: String): SupabaseResult<List<MemberStats>>
 
     companion object {
         /** Entries per page in the chat. */
@@ -182,11 +190,35 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         }
     }
 
+    override suspend fun fetchStats(partyIds: List<String>): SupabaseResult<List<PartyStats>> {
+        if (account.id() == null) return signedOut()
+        if (partyIds.isEmpty()) return SupabaseResult.Success(emptyList())
+        return safeSupabaseCall {
+            postgrest[PARTY_STATS].select(Columns.list(STATS_COLUMNS)) {
+                filter { isIn("party_id", partyIds) }
+            }.decodeList<PartyStatsDto>().map { it.toDomain() }
+        }
+    }
+
+    override suspend fun fetchMemberStats(partyId: String): SupabaseResult<List<MemberStats>> {
+        if (account.id() == null) return signedOut()
+        return safeSupabaseCall {
+            postgrest[MEMBER_STATS].select(Columns.list(MEMBER_STATS_COLUMNS)) {
+                filter { eq("party_id", partyId) }
+                order("total", Order.DESCENDING)
+            }.decodeList<MemberStatsDto>().map { it.toDomain() }
+        }
+    }
+
     internal companion object {
         const val PARTIES = "parties"
         const val MEMBERS = "party_members"
         const val USERNAMES = "usernames"
         const val ENTRIES = "darood_entries"
+        const val PARTY_STATS = "party_stats"
+        const val MEMBER_STATS = "party_member_stats"
+        val STATS_COLUMNS = listOf("party_id", "total", "entry_count", "member_count", "last_entry_date")
+        val MEMBER_STATS_COLUMNS = listOf("party_id", "user_id", "username", "total", "active_days", "last_entry_date")
         val ENTRY_COLUMNS = listOf("id", "party_id", "user_id", "amount", "local_date", "tz", "created_at")
         val PARTY_COLUMNS = listOf("id", "name", "leader_id", "max_members", "milestone", "milestone_set_at", "completed_at", "created_at")
         val MEMBER_COLUMNS = listOf("party_id", "user_id", "role", "status", "invited_at", "joined_at")

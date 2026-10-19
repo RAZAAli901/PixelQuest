@@ -188,4 +188,33 @@ class DaroodPartyRemoteDataSourceTest {
         assertEquals(null, query(first, "id"))
         assertEquals("lt.8", query(older, "id"))
     }
+
+    @Test
+    fun stats_forSeveralParties_inOneRequest() = runBlocking {
+        answers["/rest/v1/party_stats"] = ok(
+            """[{"party_id":"p1","total":663,"entry_count":4,"member_count":2,"last_entry_date":"2026-10-19"}]"""
+        )
+
+        val stats = (source.fetchStats(listOf("p1", "p2")) as SupabaseResult.Success).data
+
+        assertEquals(663L, stats.single().total)
+        assertEquals("in.(p1,p2)", query(requestTo("/rest/v1/party_stats"), "party_id"))
+        assertEquals(SupabaseResult.Success(emptyList<com.pixelquest.app.darood.domain.PartyStats>()), source.fetchStats(emptyList()))
+        assertEquals("no ids, no request", 1, requests.size)
+    }
+
+    @Test
+    fun memberStats_largestFirst() = runBlocking {
+        answers["/rest/v1/party_member_stats"] = ok(
+            """[{"party_id":"p1","user_id":"u1","username":"aria_k","total":350,"active_days":2,"last_entry_date":"2026-10-19"},
+                {"party_id":"p1","user_id":null,"username":null,"total":50,"active_days":1,"last_entry_date":"2026-10-17"}]"""
+        )
+
+        val members = (source.fetchMemberStats("p1") as SupabaseResult.Success).data
+
+        assertEquals(listOf(350L, 50L), members.map { it.total })
+        val request = requestTo("/rest/v1/party_member_stats")
+        assertEquals("eq.p1", query(request, "party_id"))
+        assertEquals("total.desc.nullslast", query(request, "order"))
+    }
 }
