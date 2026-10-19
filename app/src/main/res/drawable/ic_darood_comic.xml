@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Darood Party's menu icon, comic style: round inked beads on a string, a larger bead at the
+     bottom, and a thick tassel with round ends. Tinted where it's used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1"
+        android:pathData="M5.00,9.00 a7.00,7.00 0 1,0 14.00,0 a7.00,7.00 0 1,0 -14.00,0" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M10.30,2.00 a1.70,1.70 0 1,0 3.40,0 a1.70,1.70 0 1,0 -3.40,0 M14.41,3.34 a1.70,1.70 0 1,0 3.40,0 a1.70,1.70 0 1,0 -3.40,0 M16.96,6.84 a1.70,1.70 0 1,0 3.40,0 a1.70,1.70 0 1,0 -3.40,0 M16.96,11.16 a1.70,1.70 0 1,0 3.40,0 a1.70,1.70 0 1,0 -3.40,0 M14.41,14.66 a1.70,1.70 0 1,0 3.40,0 a1.70,1.70 0 1,0 -3.40,0 M6.19,14.66 a1.70,1.70 0 1,0 3.40,0 a1.70,1.70 0 1,0 -3.40,0 M3.64,11.16 a1.70,1.70 0 1,0 3.40,0 a1.70,1.70 0 1,0 -3.40,0 M3.64,6.84 a1.70,1.70 0 1,0 3.40,0 a1.70,1.70 0 1,0 -3.40,0 M6.19,3.34 a1.70,1.70 0 1,0 3.40,0 a1.70,1.70 0 1,0 -3.40,0 M9.80,16.00 a2.20,2.20 0 1,0 4.40,0 a2.20,2.20 0 1,0 -4.40,0" />
+    <path
+        android:strokeColor="#FF000000"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M12,18.5 L12,21.5 M9.5,22 L14.5,22" />
+</vector>

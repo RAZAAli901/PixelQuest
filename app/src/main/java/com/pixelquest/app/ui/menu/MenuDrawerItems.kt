@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -66,6 +67,7 @@ fun MenuDrawerItems(
         items.visibleIn(context).forEach { item ->
             MenuDrawerItemRow(
                 icon = item.icon,
+                iconRes = item.drawableFor(PixelTheme.mode, context.isSimpleMode),
                 label = stringResource(item.labelFor(context)),
                 status = item.status(context)?.let { stringResource(it) },
                 isSelected = item.id == selected,
@@ -84,7 +86,8 @@ fun MenuDrawerItemRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isSimpleMode: Boolean = false,
-    status: String? = null
+    status: String? = null,
+    @androidx.annotation.DrawableRes iconRes: Int? = null
 ) {
     val colors = PixelTheme.colors
     val style = menuStyle(isSimpleMode)
@@ -112,7 +115,16 @@ fun MenuDrawerItemRow(
             .padding(horizontal = 16.dp)
     ) {
         // The label says it all: TalkBack would otherwise read the emoji's name first.
-        Text(text = icon, fontSize = 20.sp, modifier = Modifier.clearAndSetSemantics {})
+        if (iconRes != null) {
+            androidx.compose.material3.Icon(
+                painter = androidx.compose.ui.res.painterResource(iconRes),
+                contentDescription = null,
+                tint = style.ink,
+                modifier = Modifier.size(24.dp).clearAndSetSemantics {}
+            )
+        } else {
+            Text(text = icon, fontSize = 20.sp, modifier = Modifier.clearAndSetSemantics {})
+        }
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = if (style.uppercaseLabels) label.uppercase() else label,

@@ -227,4 +227,15 @@ class MenuStateTest {
         advanceUntilIdle()
         assertFalse(vm.context.value.daroodAvailable)
     }
+
+    @Test
+    fun darood_hasDrawnIcons_inPixelAndComic_andTheEmojiElsewhere() {
+        val darood = MenuItems.Darood
+        assertEquals(R.drawable.ic_darood_pixel, darood.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Pixel, isSimpleMode = false))
+        assertEquals(R.drawable.ic_darood_comic, darood.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Comic, isSimpleMode = false))
+        assertNull(darood.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Light, isSimpleMode = false))
+        assertNull(darood.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Comic, isSimpleMode = true))
+        assertEquals("📿", darood.icon)
+        assertNull("the others keep their emoji", MenuItems.Namaz.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Pixel, isSimpleMode = false))
+    }
 }

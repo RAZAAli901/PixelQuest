@@ -1,8 +1,10 @@
 package com.pixelquest.app.ui.menu
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.pixelquest.app.R
 import com.pixelquest.app.ui.navigation.Screen
+import com.pixelquest.app.ui.theme.ThemeMode
 
 /** The side menu's entries (docs/ai-coach-compact.md, Phase 2). */
 enum class MenuItemId { NAMAZ, DAROOD, HISTORY, LEADERBOARD, ACCOUNT, SETTINGS }
@@ -27,6 +29,7 @@ data class MenuContext(
  * @param route where it goes ([com.pixelquest.app.ui.navigation.Screen]).
  * @param visibleWhen whether it's shown at all.
  * @param status a short state shown at the row's end, or null for none.
+ * @param pixelIcon, comicIcon drawn icons for the Pixel and Comic themes, in place of [icon] there.
  */
 data class MenuItem(
     val id: MenuItemId,
@@ -35,10 +38,24 @@ data class MenuItem(
     val route: String,
     @StringRes val simpleLabel: Int = label,
     val visibleWhen: (MenuContext) -> Boolean = { true },
-    val status: (MenuContext) -> Int? = { null }
+    val status: (MenuContext) -> Int? = { null },
+    @DrawableRes val pixelIcon: Int? = null,
+    @DrawableRes val comicIcon: Int? = null
 ) {
     @StringRes
     fun labelFor(context: MenuContext): Int = if (context.isSimpleMode) simpleLabel else label
+
+    /**
+     * The drawn icon for [mode], or null to show the emoji [icon]. Light and Simple Mode keep the
+     * emoji, like every other entry there.
+     */
+    @DrawableRes
+    fun drawableFor(mode: ThemeMode, isSimpleMode: Boolean): Int? = when {
+        isSimpleMode -> null
+        mode == ThemeMode.Comic -> comicIcon
+        mode == ThemeMode.Pixel || mode == ThemeMode.System -> pixelIcon
+        else -> null
+    }
 }
 
 /** The entries [context] shows, in order. */
@@ -62,7 +79,9 @@ object MenuItems {
         label = R.string.menu_darood,
         icon = "📿",
         route = Screen.DaroodParty.route,
-        visibleWhen = { it.daroodAvailable }
+        visibleWhen = { it.daroodAvailable },
+        pixelIcon = R.drawable.ic_darood_pixel,
+        comicIcon = R.drawable.ic_darood_comic
     )
 
     // Shortcuts to screens that are otherwise a few taps deep (Profile, then Settings, then Account).
