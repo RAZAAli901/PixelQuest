@@ -89,6 +89,15 @@
     <string name="darood_info_members">Members</string>
     <string name="darood_info_you"><xliff:g id="name" example="aria_k">%1$s</xliff:g> (you)</string>
     <string name="darood_info_joined">Joined <xliff:g id="date" example="Oct 19, 2026">%1$s</xliff:g></string>
+    <string name="darood_cancel">Cancel</string>
+    <string name="darood_info_remove">Remove</string>
+    <string name="darood_info_remove_label">Remove <xliff:g id="name" example="\@bram">%1$s</xliff:g></string>
+    <string name="darood_info_remove_title">Remove <xliff:g id="name" example="\@bram">%1$s</xliff:g>?</string>
+    <string name="darood_info_remove_message">They\'ll leave the party, and won\'t see it or post in it any more. What they\'ve already posted stays in the party\'s total.</string>
+    <string name="darood_info_offline">Couldn\'t reach the server, so nothing changed. Check your connection and try again.</string>
+    <string name="darood_info_not_leader">Only the party\'s leader can do that.</string>
+    <string name="darood_info_not_member">They\'re not in the party any more.</string>
+    <string name="darood_info_failed">That didn\'t go through. Try again.</string>
     <!-- Invitations, at the top of the list. -->
     <string name="darood_invites_title">Invitations</string>
     <string name="darood_invite_to">You\'re invited to join</string>

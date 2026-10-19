@@ -37,8 +37,10 @@ object DaroodTestTags {
     const val CHAT_TITLE = "darood_chat_title"
     const val INFO_SCREEN = "darood_info_screen"
     const val INFO_ADD_PEOPLE = "darood_info_add_people"
+    const val INFO_PROBLEM = "darood_info_problem"
 
     fun member(userId: String) = "darood_member_$userId"
+    fun memberRemove(userId: String) = "darood_member_remove_$userId"
 
     fun partyRow(partyId: String) = "darood_party_$partyId"
     fun inviteRow(partyId: String) = "darood_invite_$partyId"

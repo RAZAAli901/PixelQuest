@@ -2,6 +2,9 @@ package com.pixelquest.app.darood.ui.info
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -63,6 +66,7 @@ class PartyInfoTest {
     }
 
     private val viewModels = androidx.lifecycle.ViewModelStore()
+    private var made = 0
 
     private val db = androidx.room.Room.inMemoryDatabaseBuilder(
         androidx.test.core.app.ApplicationProvider.getApplicationContext<Application>(),
@@ -85,7 +89,8 @@ class PartyInfoTest {
             override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
                 PartyInfoViewModel(SavedStateHandle(mapOf("partyId" to partyId)), parties) { me } as T
         }
-        return androidx.lifecycle.ViewModelProvider(viewModels, factory)[PartyInfoViewModel::class.java]
+        // Each its own key: a second view model isn't the first one again.
+        return androidx.lifecycle.ViewModelProvider(viewModels, factory)["info-${made++}", PartyInfoViewModel::class.java]
     }
 
     @Test
@@ -147,6 +152,92 @@ class PartyInfoTest {
         }
         composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_TITLE).performClick()
         assertTrue(opened)
+    }
+
+    @Test
+    fun theLeaderRemovesAMember_afterSayingSo_andWhatTheyPostedStaysInTheTotal() = runTest(dispatcher) {
+        server.seedEntry(partyId, "bram-id", 300)
+        val vm = viewModel()
+        waitUntil { vm.uiState.value.members.size == 3 && vm.uiState.value.party?.total == 300L }
+        val bram = vm.uiState.value.members.first { it.userId == "bram-id" }
+
+        vm.askToRemove(bram)
+        assertEquals(bram, vm.uiState.value.confirmingRemoval)
+        vm.dismissDialog()
+        assertEquals(null, vm.uiState.value.confirmingRemoval)
+        assertFalse("nothing sent until it's confirmed", "removeMember" in server.calls)
+
+        vm.askToRemove(bram)
+        vm.confirmRemoval()
+        waitUntil { vm.uiState.value.members.none { it.userId == "bram-id" } && !vm.uiState.value.busy }
+        assertEquals("removed", server.members.first { it.partyId == partyId && it.userId == "bram-id" }.status)
+        assertEquals(listOf("aria-id", "cleo-id"), vm.uiState.value.members.map { it.userId })
+        assertEquals(300L, vm.uiState.value.party?.total)
+        assertEquals(null, vm.uiState.value.problem)
+    }
+
+    @Test
+    fun nobodyRemovesTheLeader_andAMemberRemovesNobody() = runTest(dispatcher) {
+        val vm = viewModel()
+        waitUntil { vm.uiState.value.members.size == 3 && vm.uiState.value.party != null }
+        vm.askToRemove(vm.uiState.value.members.first { it.role == PartyRole.LEADER })
+        assertEquals(null, vm.uiState.value.confirmingRemoval)
+
+        server.me = "bram-id"
+        val asMember = viewModel(me = "bram-id")
+        waitUntil { asMember.uiState.value.party != null && asMember.uiState.value.members.size == 3 }
+        asMember.askToRemove(asMember.uiState.value.members.first { it.userId == "cleo-id" })
+        assertEquals(null, asMember.uiState.value.confirmingRemoval)
+    }
+
+    @Test
+    fun offline_theMemberStays_andTheScreenSaysWhy() = runTest(dispatcher) {
+        val vm = viewModel()
+        waitUntil { vm.uiState.value.members.size == 3 && vm.uiState.value.party != null }
+        server.offline = true
+        vm.askToRemove(vm.uiState.value.members.first { it.userId == "bram-id" })
+        vm.confirmRemoval()
+        waitUntil { vm.uiState.value.problem != null }
+        assertEquals(InfoProblem.Offline, vm.uiState.value.problem)
+        assertEquals(3, vm.uiState.value.members.size)
+    }
+
+    @Test
+    fun theLeaderSeesRemove_onMembersOnly_andTheDialogAsksFirst() {
+        var asked: PartyMember? = null
+        var confirmed = false
+        val shown = androidx.compose.runtime.mutableStateOf(state(myId = "aria-id"))
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                PartyInfoContent(
+                    state = shown.value,
+                    onNavigateBack = {},
+                    onRemove = { asked = it },
+                    onConfirmRemoval = { confirmed = true }
+                )
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.memberRemove("aria-id")).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DaroodTestTags.memberRemove("bram-id")).performClick()
+        assertEquals("bram-id", asked?.userId)
+
+        shown.value = shown.value.copy(confirmingRemoval = asked)
+        composeTestRule.onNodeWithText("Remove @bram?").assertIsDisplayed()
+        composeTestRule.onNodeWithText("stays in the party's total", substring = true).assertIsDisplayed()
+        composeTestRule.onNode(hasText("Remove") and hasAnyAncestor(isDialog())).performClick()
+        assertTrue(confirmed)
+    }
+
+    @Test
+    fun aMember_seesNoRemove_andAProblemIsSaid() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                PartyInfoContent(state = state(myId = "bram-id").copy(problem = InfoProblem.Offline), onNavigateBack = {})
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.memberRemove("aria-id")).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_PROBLEM).assertIsDisplayed()
+        composeTestRule.onNodeWithText("nothing changed", substring = true).assertIsDisplayed()
     }
 
     private fun state(myId: String) = PartyInfoUiState(
