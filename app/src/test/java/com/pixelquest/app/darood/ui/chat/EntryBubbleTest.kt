@@ -1,6 +1,7 @@
 package com.pixelquest.app.darood.ui.chat
 
 import android.app.Application
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -75,5 +76,35 @@ class EntryBubbleTest {
         composeTestRule.onNodeWithTag(DaroodTestTags.bubble("7")).assertIsDisplayed()
         composeTestRule.onNodeWithText("+11", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("@bram", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun mine_areOnTheRight_inTheAccent_andUnnamed_othersOnTheLeft_named() {
+        var mine: BubbleColors? = null
+        var theirs: BubbleColors? = null
+        var accent = androidx.compose.ui.graphics.Color.Unspecified
+        var surface = androidx.compose.ui.graphics.Color.Unspecified
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                mine = bubbleColors(mine = true)
+                theirs = bubbleColors(mine = false)
+                accent = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
+                surface = com.pixelquest.app.ui.theme.PixelTheme.colors.surface
+                androidx.compose.foundation.layout.Column(modifier = androidx.compose.ui.Modifier.testTag("chat")) {
+                    ChatEntryRow(entry(300, clientId = "mine"), sender = "aria_k", mine = true)
+                    ChatEntryRow(entry(11, clientId = "theirs"), sender = "bram", mine = false, memberColor = androidx.compose.ui.graphics.Color(0xFF1E88E5))
+                }
+            }
+        }
+        val chat = composeTestRule.onNodeWithTag("chat").fetchSemanticsNode().boundsInRoot
+        val myBubble = composeTestRule.onNodeWithTag(DaroodTestTags.bubble("mine")).fetchSemanticsNode().boundsInRoot
+        val theirBubble = composeTestRule.onNodeWithTag(DaroodTestTags.bubble("theirs")).fetchSemanticsNode().boundsInRoot
+        assertEquals("mine against the right edge", chat.right, myBubble.right, 1f)
+        assertEquals("theirs against the left edge", chat.left, theirBubble.left, 1f)
+
+        assertEquals(accent, mine!!.container)
+        assertEquals(surface, theirs!!.container)
+        composeTestRule.onNodeWithText("@aria_k", useUnmergedTree = true).assertDoesNotExist()
+        composeTestRule.onNodeWithText("@bram", useUnmergedTree = true).assertIsDisplayed()
     }
 }
