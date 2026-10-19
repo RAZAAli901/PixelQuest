@@ -2,6 +2,8 @@ package com.pixelquest.app.darood.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -198,7 +200,13 @@ val QUICK_AMOUNTS = listOf(11, 33, 100, 313)
 fun QuickAddChips(onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
     val colors = PixelTheme.colors
     val look = chatLook()
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier.padding(start = 8.dp, bottom = 6.dp)) {
+    // With large text they may not all fit across: the row scrolls sideways, never cut off.
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(start = 8.dp, end = 8.dp, bottom = 6.dp)
+    ) {
         QUICK_AMOUNTS.forEach { amount ->
             val shape = look.pillShape
             Text(

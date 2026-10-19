@@ -16,11 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
@@ -141,11 +141,13 @@ fun EntryBubble(
     val bubble = bubbleColors(mine)
     val look = chatLook()
     val shape = look.bubbleShape(mine = mine, tail = tail)
+    val said = bubbleSaid(entry, sender, mine)
     Column(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         modifier = modifier
             .testTag(DaroodTestTags.bubble(entry.clientId ?: entry.id.toString()))
-            .semantics(mergeDescendants = true) { }
+            // TalkBack reads the bubble as one sentence: "bram added 300 at 2:01 PM".
+            .clearAndSetSemantics { contentDescription = said }
             .widthIn(min = 96.dp, max = 280.dp)
             .then(look.shadowed(shape))
             .clip(shape)
@@ -161,20 +163,57 @@ fun EntryBubble(
                 maxLines = 1
             )
         }
-        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        // With large text, the time goes under the number rather than squeezing it.
+        val amount = @Composable {
             Text(
                 text = stringResource(R.string.darood_bubble_amount, formatCount(entry.amount)),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = bubble.content
+                color = bubble.content,
+                maxLines = 1
             )
-            Text(
-                text = bubbleTime(entry.createdAt),
-                style = MaterialTheme.typography.labelSmall,
-                color = bubble.secondary
-            )
-            if (mine) SendMark(entry.state, bubble.secondary)
+        }
+        val stamp = @Composable {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(
+                    text = bubbleTime(entry.createdAt),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = bubble.secondary
+                )
+                if (mine) SendMark(entry.state, bubble.secondary)
+            }
+        }
+        if (LocalDensity.current.fontScale >= LARGE_TEXT) {
+            amount()
+            stamp()
+        } else {
+            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                amount()
+                stamp()
+            }
         }
     }
+}
+
+/** From this font scale up (the phone's larger text sizes), a bubble's time goes under its number. */
+private const val LARGE_TEXT = 1.5f
+
+/**
+ * What TalkBack says for a bubble: who added how many, and when; for the player's own, whether
+ * it's sent. The name is said without its @, which TalkBack would read as "at".
+ */
+@Composable
+private fun bubbleSaid(entry: DaroodEntry, sender: String?, mine: Boolean): String {
+    val amount = formatCount(entry.amount)
+    val time = bubbleTime(entry.createdAt)
+    if (!mine) return stringResource(R.string.darood_bubble_said_theirs, sender ?: stringResource(R.string.darood_someone), amount, time)
+    val state = stringResource(
+        when (entry.state) {
+            EntryState.PENDING -> R.string.darood_bubble_said_sending
+            EntryState.SYNCED -> R.string.darood_bubble_said_sent
+            EntryState.FAILED -> R.string.darood_bubble_said_not_sent
+        }
+    )
+    return stringResource(R.string.darood_bubble_said_mine, amount, time) + " " + state
 }
 
 /**

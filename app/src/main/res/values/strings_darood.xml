@@ -128,6 +128,11 @@
     <!-- A party's own screen; the chat comes to it later. -->
     <string name="darood_party_info">Party info</string>
     <!-- The chat: each entry is a bubble. -->
+    <string name="darood_bubble_said_theirs"><xliff:g id="name" example="bram">%1$s</xliff:g> added <xliff:g id="amount" example="300">%2$s</xliff:g> at <xliff:g id="time" example="2:01 PM">%3$s</xliff:g></string>
+    <string name="darood_bubble_said_mine">You added <xliff:g id="amount" example="313">%1$s</xliff:g> at <xliff:g id="time" example="2:07 PM">%2$s</xliff:g>.</string>
+    <string name="darood_bubble_said_sending">Sending.</string>
+    <string name="darood_bubble_said_sent">Sent.</string>
+    <string name="darood_bubble_said_not_sent">Not sent.</string>
     <string name="darood_bubble_amount">+<xliff:g id="amount" example="300">%1$s</xliff:g></string>
     <string name="darood_day_today">Today</string>
     <string name="darood_day_yesterday">Yesterday</string>
