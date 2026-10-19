@@ -162,6 +162,16 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         SupabaseResult.Success(Unit)
     }
 
+    /** Parties their leader deleted: hidden from everyone, as on the server. */
+    val deleted = linkedMapOf<String, PartyDto>()
+
+    override suspend fun deleteParty(partyId: String): SupabaseResult<Unit> = answer("deleteParty") { account ->
+        val party = parties[partyId] ?: deleted[partyId]
+        if (party?.leaderId != account) return@answer refuse("not_leader", 403)
+        parties.remove(partyId)?.let { deleted[partyId] = it }
+        SupabaseResult.Success(Unit)
+    }
+
     override suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long> = answer("setMilestone") { account ->
         val party = parties[partyId]
         when {

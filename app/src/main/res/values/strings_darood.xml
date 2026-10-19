@@ -109,6 +109,12 @@
     <string name="darood_info_make_leader">Make leader</string>
     <string name="darood_info_make_leader_label">Make <xliff:g id="name" example="\@bram">%1$s</xliff:g> the leader</string>
     <string name="darood_info_transfer_title">Make <xliff:g id="name" example="\@bram">%1$s</xliff:g> the leader?</string>
+    <string name="darood_info_delete">Delete party</string>
+    <string name="darood_info_delete_title">Delete <xliff:g id="party" example="Friday circle">%1$s</xliff:g>?</string>
+    <string name="darood_info_delete_message">The party goes for everyone: its chat, its members and its total. This can\'t be undone. To be sure, type the party\'s name.</string>
+    <string name="darood_info_delete_field">The party\'s name</string>
+    <string name="darood_info_delete_confirm">Delete</string>
+    <string name="darood_info_delete_mismatch">That\'s not the party\'s name.</string>
     <string name="darood_info_transfer_message">From now on, they\'ll invite, remove, rename and set the milestone. You\'ll stay in the party as a member, and can leave it then if you like.</string>
     <!-- Invitations, at the top of the list. -->
     <string name="darood_invites_title">Invitations</string>

@@ -168,6 +168,13 @@ class DaroodPartyRemoteDataSourceTest {
     }
 
     @Test
+    fun deleting_callsDeleteParty() = runBlocking {
+        answers["/rest/v1/rpc/delete_party"] = ok("""{"status":"deleted"}""")
+        assertEquals(SupabaseResult.Success(Unit), source.deleteParty("p1"))
+        assertEquals("""{"party_id":"p1"}""", rpcBody("delete_party"))
+    }
+
+    @Test
     fun theServersRefusals_areReadByName() = runBlocking {
         answers["/rest/v1/rpc/invite_member"] = HttpStatusCode.BadRequest to
             """{"code":"23514","details":"This party holds 2 people, invitations included.","hint":null,"message":"party_full"}"""

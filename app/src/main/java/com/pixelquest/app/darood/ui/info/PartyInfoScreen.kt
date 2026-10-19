@@ -81,8 +81,9 @@ sealed interface InfoProblem {
  * @param confirmingLeave the player asked to leave, and the dialog asks if they're sure.
  * @param newName the name typed in the rename dialog, while it's open.
  * @param confirmingTransfer the member the leader asked to hand the leadership to, while the dialog asks.
+ * @param deleteConfirmation what the leader has typed to confirm deleting the party, while the dialog asks.
  * @param busy a change is on its way to the server.
- * @param left the player has left the party: the screen closes.
+ * @param left the player is out of the party (they left it, or deleted it): the screen closes.
  */
 data class PartyInfoUiState(
     val party: Party? = null,
@@ -92,11 +93,15 @@ data class PartyInfoUiState(
     val confirmingLeave: Boolean = false,
     val newName: String? = null,
     val confirmingTransfer: PartyMember? = null,
+    val deleteConfirmation: String? = null,
     val busy: Boolean = false,
     val problem: InfoProblem? = null,
     val left: Boolean = false
 ) {
     val isLeader: Boolean get() = party?.leaderId != null && party.leaderId == myId
+
+    /** The leader has typed the party's name, exactly, to confirm deleting it. */
+    val deleteConfirmed: Boolean get() = party != null && deleteConfirmation?.trim() == party.name
 
     /** The new name's length as it will be stored (without spaces at either end). */
     private val newNameLength: Int get() = newName?.trim()?.length ?: 0
@@ -147,7 +152,7 @@ class PartyInfoViewModel @Inject constructor(
         _uiState.update { it.copy(confirmingRemoval = member, problem = null) }
     }
 
-    fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null, confirmingLeave = false, newName = null, confirmingTransfer = null) }
+    fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null, confirmingLeave = false, newName = null, confirmingTransfer = null, deleteConfirmation = null) }
 
     /** The leader opens the rename dialog, with the party's name to edit. */
     fun startRename() {
@@ -168,6 +173,26 @@ class PartyInfoViewModel @Inject constructor(
         viewModelScope.launch {
             val result = repository.renameParty(partyId, name)
             _uiState.update { it.copy(busy = false, problem = problemOf(result)) }
+        }
+    }
+
+    /** The leader asks to delete the party: the dialog asks for its name, to be sure. */
+    fun startDelete() {
+        if (!_uiState.value.isLeader) return
+        _uiState.update { it.copy(deleteConfirmation = "", problem = null) }
+    }
+
+    fun onDeleteConfirmationChange(text: String) =
+        _uiState.update { if (it.deleteConfirmation == null) it else it.copy(deleteConfirmation = text.take(DaroodRules.NAME_MAX + 10)) }
+
+    /** Deletes the party, once its name is typed: it's gone for everyone, and the screen closes. */
+    fun confirmDelete() {
+        val state = _uiState.value
+        if (state.busy || !state.deleteConfirmed) return
+        _uiState.update { it.copy(deleteConfirmation = null, busy = true) }
+        viewModelScope.launch {
+            val result = repository.deleteParty(partyId)
+            _uiState.update { it.copy(busy = false, problem = problemOf(result), left = result is SupabaseResult.Success) }
         }
     }
 
@@ -244,6 +269,9 @@ fun PartyInfoScreen(
         onConfirmRename = viewModel::confirmRename,
         onTransfer = viewModel::askToTransfer,
         onConfirmTransfer = viewModel::confirmTransfer,
+        onDelete = viewModel::startDelete,
+        onDeleteConfirmationChange = viewModel::onDeleteConfirmationChange,
+        onConfirmDelete = viewModel::confirmDelete,
         onDismissDialog = viewModel::dismissDialog
     )
 }
@@ -262,6 +290,9 @@ fun PartyInfoContent(
     onConfirmRename: () -> Unit = {},
     onTransfer: (PartyMember) -> Unit = {},
     onConfirmTransfer: () -> Unit = {},
+    onDelete: () -> Unit = {},
+    onDeleteConfirmationChange: (String) -> Unit = {},
+    onConfirmDelete: () -> Unit = {},
     onDismissDialog: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
@@ -346,6 +377,13 @@ fun PartyInfoContent(
                     color = colors.onSurfaceVariant,
                     modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE_HINT)
                 )
+                PixelButton(
+                    text = stringResource(R.string.darood_info_delete),
+                    onClick = onDelete,
+                    variant = PixelButtonVariant.BLUE,
+                    enabled = !state.busy,
+                    modifier = Modifier.testTag(DaroodTestTags.INFO_DELETE)
+                )
             } else {
                 PixelButton(
                     text = stringResource(R.string.darood_info_leave),
@@ -388,6 +426,35 @@ fun PartyInfoContent(
             onConfirm = onConfirmTransfer,
             onDismiss = onDismissDialog
         )
+    }
+    state.deleteConfirmation?.let { typed ->
+        val partyName = state.party?.name.orEmpty()
+        PixelDialog(
+            onDismissRequest = onDismissDialog,
+            title = stringResource(R.string.darood_info_delete_title, partyName),
+            confirmButtonText = stringResource(R.string.darood_info_delete_confirm),
+            onConfirm = onConfirmDelete,
+            dismissButtonText = stringResource(R.string.darood_cancel),
+            onDismiss = onDismissDialog
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    text = stringResource(R.string.darood_info_delete_message),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = PixelTheme.colors.onSurface
+                )
+                // Deleting waits for the name, typed exactly: a slip of the finger can't delete a party.
+                PixelTextField(
+                    value = typed,
+                    onValueChange = onDeleteConfirmationChange,
+                    label = stringResource(R.string.darood_info_delete_field),
+                    placeholder = partyName,
+                    errorText = if (typed.isNotBlank() && !state.deleteConfirmed) stringResource(R.string.darood_info_delete_mismatch) else null,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrect = false, imeAction = ImeAction.Done),
+                    modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_DELETE_FIELD)
+                )
+            }
+        }
     }
     state.newName?.let { name ->
         PixelDialog(

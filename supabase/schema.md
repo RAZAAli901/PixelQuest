@@ -170,7 +170,7 @@ Invited and active rows together never exceed the party's limit, nor 30 (`party_
 | Post an entry (as themselves) | no | no | no | yes | yes |
 | Edit or delete an entry | no | no | no | no | no |
 | Rename, set the milestone | no | no | no | no | yes |
-| Invite, remove, hand over the leadership | no | no | no | no | yes |
+| Invite, remove, hand over the leadership, delete | no | no | no | no | yes |
 
 ### Functions (signed-in players)
 | Function | What it does |
@@ -181,6 +181,7 @@ Invited and active rows together never exceed the party's limit, nor 30 (`party_
 | `leave_party(party_id)` | Members leave; the leader hands over first |
 | `remove_member(party_id, user_id)` | Leader only |
 | `transfer_leadership(party_id, user_id)` | Leader only, to an active member; the leader stays as a member |
+| `delete_party(party_id)` | Leader only; sets `deleted_at`, which hides the party and everything in it from everyone |
 | `set_milestone(party_id, target)` | Leader only; above the current total |
 
 Refusals carry a token in `message` (`party_full`, `not_leader`, `daily_limit`, `milestone_too_low` and so on), with HTTP 400 for broken rules and 403 for permissions.

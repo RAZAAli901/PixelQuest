@@ -156,4 +156,25 @@ class LocalSupabaseDaroodTest {
         bram.parties.refreshParty(party)
         assertEquals(listOf(bram.userId), bram.parties.observeMembers(party).first().filter { it.status == MemberStatus.ACTIVE }.map { it.userId })
     }
+
+    @Test
+    fun theLeaderDeletesTheParty_andItsGoneForEveryone() = runBlocking {
+        val (aria, _) = phone("ariaD")
+        val (bram, bramName) = phone("bramD")
+        val party = (aria.parties.createParty("Friday circle", 5, null) as SupabaseResult.Success).data
+        aria.parties.invite(party, bramName)
+        bram.parties.refreshParties()
+        bram.parties.respondToInvite(party, accept = true)
+        assertEquals(EntryState.SYNCED, bram.parties.addEntry(party, 300).state)
+
+        assertEquals(DaroodRefusal.NOT_LEADER, DaroodRefusal.of(bram.parties.deleteParty(party)))
+        assertEquals(SupabaseResult.Success(Unit), aria.parties.deleteParty(party))
+        assertEquals(null, aria.parties.observeParty(party).first())
+        bram.parties.refreshParties()
+        assertEquals(null, bram.parties.observeParty(party).first())
+        assertEquals(DaroodRefusal.PARTY_CLOSED, DaroodRefusal.of(
+            SupabaseDaroodPartyRemoteDataSource(bram.supabase.postgrest) { bram.userId }
+                .addEntry(party, 1, java.time.LocalDate.now(java.time.ZoneId.of("Asia/Karachi")), "Asia/Karachi", java.util.UUID.randomUUID().toString())
+        ))
+    }
 }

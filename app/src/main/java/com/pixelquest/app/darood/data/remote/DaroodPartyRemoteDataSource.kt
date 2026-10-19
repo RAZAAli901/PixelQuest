@@ -72,6 +72,9 @@ interface DaroodPartyRemoteDataSource {
     /** The leader hands the leadership to [userId], an active member; the leader stays as a member. */
     suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit>
 
+    /** The leader deletes the party: it's gone for everyone. */
+    suspend fun deleteParty(partyId: String): SupabaseResult<Unit>
+
     /**
      * Posts an entry as the account; the entry as the server stored it. [clientId] is its own key:
      * posting it again (an answer lost on the way back) returns the same entry, never a second.
@@ -171,6 +174,9 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
             put("party_id", partyId)
             put("user_id", userId)
         }.map { }
+
+    override suspend fun deleteParty(partyId: String): SupabaseResult<Unit> =
+        call<PartyStatusReply>("delete_party") { put("party_id", partyId) }.map { }
 
     override suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long> =
         call<MilestoneReply>("set_milestone") {

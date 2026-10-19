@@ -260,6 +260,33 @@ localTest("the leader hands over to an active member, then can leave; nobody els
   assert.equal((await rpc(member, "leave_party", { party_id: party })).body.message, "leader_must_hand_over");
 });
 
+localTest("only the leader deletes a party, and then it's gone for everyone (20261019000028)", async () => {
+  const { leader, member, invitee, outsider } = await cast();
+  const party = await partyOf(leader, [member]);
+  await rpc(leader, "invite_member", { party_id: party, username: invitee.username });
+  assert.equal((await post(member, party, 300)).status, 201);
+
+  assert.equal((await rpc(member, "delete_party", { party_id: party })).body.message, "not_leader");
+  assert.equal((await rpc(outsider, "delete_party", { party_id: party })).status, 403);
+  assert.equal((await call("/rest/v1/rpc/delete_party", { body: { party_id: party } })).status, 401);
+
+  assert.deepEqual((await rpc(leader, "delete_party", { party_id: party })).body, { status: "deleted" });
+  assert.deepEqual((await rpc(leader, "delete_party", { party_id: party })).body, { status: "deleted" }, "again: the same answer");
+
+  for (const who of [leader, member, invitee]) {
+    for (const path of [`/rest/v1/parties?id=eq.${party}`, `/rest/v1/darood_entries?party_id=eq.${party}`, `/rest/v1/party_stats?party_id=eq.${party}`, `/rest/v1/party_member_stats?party_id=eq.${party}`]) {
+      assert.deepEqual((await call(path, { token: who.accessToken })).body, [], `${path} for ${who.username}`);
+    }
+  }
+  assert.equal((await post(member, party, 1)).body.message, "party_closed");
+  assert.equal((await rpc(leader, "invite_member", { party_id: party, username: outsider.username })).body.message, "not_leader");
+  assert.equal((await rpc(invitee, "respond_invite", { party_id: party, accept: true })).body.message, "no_invitation");
+  assert.equal((await rpc(leader, "set_milestone", { party_id: party, target: 5000 })).body.message, "not_leader");
+
+  // Hidden, not erased: the entries are still there.
+  assert.equal((await asService(`/rest/v1/darood_entries?party_id=eq.${party}&select=amount`)).body.length, 1);
+});
+
 localTest("invitations: the same answer for unknown names, then accepted, declined or renewed", async () => {
   const { leader, member, invitee } = await cast();
   const party = await partyOf(leader, []);

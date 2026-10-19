@@ -42,6 +42,8 @@ object DaroodTestTags {
     const val INFO_LEAVE_HINT = "darood_info_leave_hint"
     const val INFO_RENAME = "darood_info_rename"
     const val INFO_RENAME_FIELD = "darood_info_rename_field"
+    const val INFO_DELETE = "darood_info_delete"
+    const val INFO_DELETE_FIELD = "darood_info_delete_field"
 
     fun member(userId: String) = "darood_member_$userId"
     fun memberRemove(userId: String) = "darood_member_remove_$userId"

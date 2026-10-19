@@ -108,6 +108,8 @@ interface DaroodPartyRepository {
     suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit>
 
     suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit>
+
+    suspend fun deleteParty(partyId: String): SupabaseResult<Unit>
 }
 
 /**
@@ -323,6 +325,10 @@ class DaroodPartyRepositoryImpl(
 
     override suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit> =
         remote.transferLeadership(partyId, userId).alsoOnSuccess { refreshParty(partyId) }
+
+    // The server no longer lists it, so the refresh takes it off the phone too.
+    override suspend fun deleteParty(partyId: String): SupabaseResult<Unit> =
+        remote.deleteParty(partyId).alsoOnSuccess { refreshParties() }
 
     private suspend inline fun <T> SupabaseResult<T>.alsoOnSuccess(then: () -> Unit): SupabaseResult<T> {
         if (this is SupabaseResult.Success) then()
