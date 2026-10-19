@@ -1,6 +1,7 @@
 package com.pixelquest.app.darood.ui.chat
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,18 +9,24 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -29,7 +36,10 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.DaroodRules
 import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.ui.theme.ComicShapeTokens
+import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.comicBorder
 
 /** At most this many digits: the largest entry, 100,000, has six. */
 const val AMOUNT_DIGITS = 6
@@ -72,6 +82,8 @@ fun checkDraft(draft: String): DraftCheck {
  *
  * @param error why the number can't be sent, said just above the field; null while it can be (or
  *   while there's nothing to say, as for an empty field).
+ * @param onSend sends the number: from the keyboard's send key too, but only when [checkDraft]
+ *   says it can go.
  * @param trailing what follows the field (its send button).
  */
 @Composable
@@ -80,6 +92,7 @@ fun NumberInputBar(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     error: String? = null,
+    onSend: () -> Unit = {},
     trailing: @Composable RowScope.() -> Unit = {}
 ) {
     val colors = PixelTheme.colors
@@ -119,7 +132,8 @@ fun NumberInputBar(
                     singleLine = true,
                     textStyle = MaterialTheme.typography.titleMedium.copy(color = colors.onSurface),
                     cursorBrush = SolidColor(colors.primary),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(onSend = { if (checkDraft(value).canSend) onSend() }),
                     modifier = Modifier
                         .fillMaxWidth()
                         .semantics { contentDescription = label }
@@ -128,5 +142,38 @@ fun NumberInputBar(
             }
             trailing()
         }
+    }
+}
+
+/**
+ * The round send button beside the field, as a messaging app has: lit in the theme's accent when
+ * the number can go, greyed and inert when it can't (empty, 0, or too many).
+ */
+@Composable
+fun SendButton(enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = PixelTheme.colors
+    val ink = if (PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
+        Modifier.comicBorder(width = ComicShapeTokens.BorderWidthThin, color = ComicTokens.SolidBlack, shape = CircleShape)
+    } else {
+        Modifier
+    }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .padding(start = 8.dp)
+            .testTag(DaroodTestTags.CHAT_SEND)
+            .size(48.dp)
+            .then(ink)
+            .clip(CircleShape)
+            .background(if (enabled) colors.primary else colors.surfaceVariant)
+            .clickable(enabled = enabled, role = Role.Button, onClickLabel = stringResource(R.string.darood_send), onClick = onClick)
+            .semantics { contentDescription = "" }
+    ) {
+        Text(
+            text = "➤",
+            style = MaterialTheme.typography.titleLarge,
+            color = if (enabled) colors.onPrimary else colors.onSurfaceVariant,
+            modifier = Modifier.clearAndSetSemantics { }
+        )
     }
 }

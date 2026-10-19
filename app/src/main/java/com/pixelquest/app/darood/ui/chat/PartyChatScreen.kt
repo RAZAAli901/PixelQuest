@@ -68,7 +68,8 @@ fun PartyChatScreen(
     onReachOldest: () -> Unit = {},
     canPost: Boolean = false,
     draft: String = "",
-    onDraftChange: (String) -> Unit = {}
+    onDraftChange: (String) -> Unit = {},
+    onSend: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -115,8 +116,11 @@ fun PartyChatScreen(
                         stringResource(R.string.darood_input_too_many, com.pixelquest.app.darood.ui.formatCount(com.pixelquest.app.darood.domain.DaroodRules.AMOUNT_MAX))
                     } else {
                         null
-                    }
-                )
+                    },
+                    onSend = onSend
+                ) {
+                    SendButton(enabled = check.canSend, onClick = onSend)
+                }
             }
         }
     ) { innerPadding ->
@@ -219,6 +223,24 @@ class PartyChatViewModel @Inject constructor(
         _draft.value = amountDigits(raw)
     }
 
+    /**
+     * Sends the number typed, if it can go ([checkDraft]). The field empties at once, so a second tap
+     * can't send it twice. The entry is saved on the phone first, and sent when it can be.
+     */
+    fun send() {
+        val typed = _draft.value
+        if (!checkDraft(typed).canSend) return
+        _draft.value = ""
+        viewModelScope.launch {
+            try {
+                repository.addEntry(partyId, typed.toInt())
+            } catch (gone: android.database.sqlite.SQLiteConstraintException) {
+                // The party left the phone (deleted, or the player left it elsewhere) while the number
+                // was being typed: there's nowhere to post it, and the screen is about to close.
+            }
+        }
+    }
+
     /** Keeps the party current while its screen is visible. */
     val follower = com.pixelquest.app.darood.ui.PartyFollower(repository, viewModelScope, partyId)
 
@@ -281,6 +303,7 @@ fun PartyChatRoute(
         // Only an active member posts, and only while the party isn't finished (the server insists too).
         canPost = party != null && party.myStatus == com.pixelquest.app.darood.domain.MemberStatus.ACTIVE && !party.isFinished,
         draft = draft,
-        onDraftChange = viewModel::onDraftChange
+        onDraftChange = viewModel::onDraftChange,
+        onSend = viewModel::send
     )
 }

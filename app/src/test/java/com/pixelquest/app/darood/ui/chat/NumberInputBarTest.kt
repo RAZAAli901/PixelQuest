@@ -7,6 +7,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -15,6 +18,8 @@ import androidx.compose.ui.test.performTextReplacement
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -126,6 +131,80 @@ class NumberInputBarTest {
         for (fits in listOf("100000", "", "0")) {
             draft.value = fits
             composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_INPUT_ERROR).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun theSendButton_isLitOnlyForANumberThatCanGo() {
+        val draft = mutableStateOf("")
+        var sent = 0
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                PartyChatScreen(partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {}, canPost = true, draft = draft.value, onSend = { sent++ })
+            }
+        }
+        val send = composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_SEND)
+        for (cant in listOf("", "0", "100001")) {
+            draft.value = cant
+            send.assertIsNotEnabled()
+            send.performClick()
+        }
+        assertEquals("nothing sent", 0, sent)
+
+        draft.value = "313"
+        send.assertIsEnabled()
+        send.performClick()
+        assertEquals(1, sent)
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun sending_postsTheNumber_andEmptiesTheField() {
+        kotlinx.coroutines.Dispatchers.setMain(kotlinx.coroutines.test.UnconfinedTestDispatcher())
+        val db = androidx.room.Room.inMemoryDatabaseBuilder(
+            androidx.test.core.app.ApplicationProvider.getApplicationContext<Application>(),
+            com.pixelquest.app.data.local.AppDatabase::class.java
+        ).allowMainThreadQueries().build()
+        val store = androidx.lifecycle.ViewModelStore()
+        try {
+            val server = com.pixelquest.app.testing.FakeDaroodServer(me = "aria-id").apply { usernames["aria-id"] = "aria_k" }
+            val partyId = server.seedParty("Friday circle", "aria-id")
+            val repository = com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl(
+                server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }
+            )
+            val factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
+                    PartyChatViewModel(androidx.lifecycle.SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+            }
+            val vm = androidx.lifecycle.ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
+
+            // A party gone from the phone takes nothing, and nothing breaks.
+            vm.onDraftChange("11")
+            vm.send()
+            Thread.sleep(200)
+            assertEquals(emptyList<Int>(), server.entries.map { it.amount })
+
+            // The chat opens on a party the phone has.
+            kotlinx.coroutines.runBlocking { repository.refreshParty(partyId) }
+            vm.onDraftChange("0")
+            vm.send()
+            assertEquals("0 isn't sent", "0", vm.draft.value)
+
+            vm.onDraftChange("313")
+            vm.send()
+            assertEquals("", vm.draft.value)
+            run {
+                repeat(150) {
+                    if (server.entries.any { it.partyId == partyId }) return@run
+                    Thread.sleep(20)
+                }
+            }
+            assertEquals(listOf(313), server.entries.filter { it.partyId == partyId }.map { it.amount })
+        } finally {
+            store.clear()
+            kotlinx.coroutines.Dispatchers.resetMain()
+            db.close()
         }
     }
 }
