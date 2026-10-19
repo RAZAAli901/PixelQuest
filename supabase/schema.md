@@ -109,3 +109,16 @@ Daily Gemini call counts for the `gemini-proxy` Edge Function, which holds the G
 
 - `claim_ai_proxy_call(device, device_limit, global_limit)` claims one call. It returns `'ok'`, `'device_limit'` (the account's limit) or `'global_limit'`. Both counters move in one transaction, and a refused global claim gives the device's call back. The first call of a day deletes rows older than 30 days.
 - Only the service role can use either one. RLS is on with no policies, and the function is not executable by `anon` or `authenticated`.
+
+## Table: `public.usernames` (`20261019000000_usernames.sql`)
+
+Darood Party usernames, one per account (docs/darood-design.md, Usernames). A table of its own, not a `profiles` column: opted-in profile rows are readable by every signed-in player, and usernames must not be listable.
+
+| Column Name | Data Type | Constraints | Default | Description |
+|---|---|---|---|---|
+| `user_id` | `UUID` | `PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE` | N/A | The account. Deleting it frees the name. |
+| `username` | `TEXT` | `NOT NULL`, `^[A-Za-z0-9_]{3,20}$`, not reserved (`username_is_reserved`), unique | N/A | The name others invite by. |
+| `changed_at` | `TIMESTAMPTZ` | `NOT NULL` | `now()` | When it was last set. |
+
+- **Read:** the owner's own row only. Signed out, nothing.
+- **Write:** no client writes at all (no policy, no grant). Server functions set it.
