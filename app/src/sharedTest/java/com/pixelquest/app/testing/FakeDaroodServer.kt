@@ -145,6 +145,13 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         }
     }
 
+    override suspend fun setRaceBoard(partyId: String, on: Boolean): SupabaseResult<Unit> = answer("setRaceBoard") { account ->
+        val party = parties[partyId]
+        if (party?.leaderId != account) return@answer refuse("not_leader", 403)
+        parties[partyId] = party.copy(isPublicRace = on)
+        SupabaseResult.Success(Unit)
+    }
+
     override suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit> = answer("transferLeadership") { account ->
         val party = parties[partyId]
         if (party?.leaderId != account) return@answer refuse("not_leader", 403)

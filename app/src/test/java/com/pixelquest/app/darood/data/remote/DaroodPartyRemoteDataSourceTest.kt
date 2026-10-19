@@ -201,6 +201,20 @@ class DaroodPartyRemoteDataSourceTest {
     }
 
     @Test
+    fun theRaceBoardSwitch_patchesItsColumnAlone_andNoRowChangedIsNotLeader() = runBlocking {
+        val refused = source.setRaceBoard("p1", true)
+        assertEquals(com.pixelquest.app.darood.domain.DaroodRefusal.NOT_LEADER, com.pixelquest.app.darood.domain.DaroodRefusal.of(refused))
+        val patch = requestTo("/rest/v1/parties")
+        assertEquals("PATCH", patch.method.value)
+        assertEquals("eq.p1", query(patch, "id"))
+        assertEquals("""{"is_public_race":true}""", bodyOf(patch).toString())
+
+        requests.clear()
+        answers["/rest/v1/parties"] = ok("""[{"id":"p1"}]""")
+        assertEquals(SupabaseResult.Success(Unit), source.setRaceBoard("p1", false))
+    }
+
+    @Test
     fun theServersRefusals_areReadByName() = runBlocking {
         answers["/rest/v1/rpc/invite_member"] = HttpStatusCode.BadRequest to
             """{"code":"23514","details":"This party holds 2 people, invitations included.","hint":null,"message":"party_full"}"""

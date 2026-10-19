@@ -70,6 +70,9 @@ interface DaroodPartyRemoteDataSource {
     /** The leader renames the party. */
     suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit>
 
+    /** The leader puts the party on the race board, or takes it off. */
+    suspend fun setRaceBoard(partyId: String, on: Boolean): SupabaseResult<Unit>
+
     /** The leader hands the leadership to [userId], an active member; the leader stays as a member. */
     suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit>
 
@@ -232,6 +235,22 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         }
     }
 
+    override suspend fun setRaceBoard(partyId: String, on: Boolean): SupabaseResult<Unit> {
+        if (account.id() == null) return signedOut()
+        val changed = safeSupabaseCall {
+            postgrest[PARTIES].update({ set("is_public_race", on) }) {
+                select(Columns.list("id"))
+                filter { eq("id", partyId) }
+            }.decodeList<JsonObject>()
+        }
+        // As with renaming: anyone but the leader changes no row, without an error.
+        return if (changed is SupabaseResult.Success && changed.data.isEmpty()) {
+            SupabaseResult.ServerError(403, DaroodRefusal.NOT_LEADER.token)
+        } else {
+            changed.map { }
+        }
+    }
+
     override suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit> =
         call<JsonObject>("transfer_leadership") {
             put("party_id", partyId)
@@ -292,7 +311,7 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         val STATS_COLUMNS = listOf("party_id", "total", "entry_count", "member_count", "last_entry_date")
         val MEMBER_STATS_COLUMNS = listOf("party_id", "user_id", "username", "total", "active_days", "last_entry_date")
         val ENTRY_COLUMNS = listOf("id", "party_id", "user_id", "amount", "local_date", "tz", "created_at", "client_id")
-        val PARTY_COLUMNS = listOf("id", "name", "leader_id", "max_members", "milestone", "milestone_set_at", "completed_at", "created_at")
+        val PARTY_COLUMNS = listOf("id", "name", "leader_id", "max_members", "milestone", "milestone_set_at", "completed_at", "created_at", "is_public_race")
         val MEMBER_COLUMNS = listOf("party_id", "user_id", "role", "status", "invited_at", "joined_at", "updated_at")
     }
 }

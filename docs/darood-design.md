@@ -118,7 +118,7 @@ None of this is on the hosted project yet: pushing the migrations there is a dep
 ## On the phone (Phase C, as built)
 
 ### The cache
-- **What it is:** four Room tables (database version 10; version 11 adds when each member's row last changed, for the chat's "left" and "removed" lines): `darood_party`, `darood_party_member`, `darood_entry` and `darood_pending_entry`. They're the phone's copy of what the server last said.
+- **What it is:** four Room tables (database version 10; version 11 adds when each member's row last changed, for the chat's "left" and "removed" lines; version 12, whether a party is on the race board): `darood_party`, `darood_party_member`, `darood_entry` and `darood_pending_entry`. They're the phone's copy of what the server last said.
 - **What it's for:** a party opens at once and offline from it. A refresh replaces it, and the server stays the truth.
 - **The repository:** `DaroodPartyRepository` is the one way in. Screens watch its Flows, and its refresh calls bring the server's copy in.
 - **Whose it is:** it belongs to the signed-in account. Signing out clears it, and so does another account signing in, since the cache remembers whose it is. It's never in the game's backups.

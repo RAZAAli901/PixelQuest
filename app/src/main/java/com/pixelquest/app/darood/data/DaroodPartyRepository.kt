@@ -131,6 +131,8 @@ interface DaroodPartyRepository {
 
     suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit>
 
+    suspend fun setRaceBoard(partyId: String, on: Boolean): SupabaseResult<Unit>
+
     suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit>
 
     suspend fun deleteParty(partyId: String): SupabaseResult<Unit>
@@ -367,6 +369,9 @@ class DaroodPartyRepositoryImpl(
     override suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit> =
         remote.renameParty(partyId, name).alsoOnSuccess { refreshParties() }
 
+    override suspend fun setRaceBoard(partyId: String, on: Boolean): SupabaseResult<Unit> =
+        remote.setRaceBoard(partyId, on).alsoOnSuccess { refreshParties() }
+
     override suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit> =
         remote.transferLeadership(partyId, userId).alsoOnSuccess { refreshParty(partyId) }
 
@@ -407,7 +412,8 @@ internal fun RemoteParty.toEntity(stats: PartyStats?, syncedAt: Long) = PartyEnt
     lastEntryDate = stats?.lastEntryDate,
     myRole = roleOf(membership.role),
     myStatus = statusOf(membership.status),
-    syncedAt = syncedAt
+    syncedAt = syncedAt,
+    isPublicRace = party.isPublicRace
 )
 
 internal fun PartyEntity.toDomain() = Party(
@@ -421,7 +427,8 @@ internal fun PartyEntity.toDomain() = Party(
     createdAt = Instant.ofEpochMilli(createdAt),
     total = total,
     memberCount = memberCount,
-    myStatus = myStatus
+    myStatus = myStatus,
+    isPublicRace = isPublicRace
 )
 
 internal fun PartyMember.toEntity(stats: MemberStats?) = PartyMemberEntity(

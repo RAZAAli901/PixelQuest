@@ -54,7 +54,9 @@ data class Party(
     val createdAt: Instant,
     val total: Long = 0,
     val memberCount: Int = 0,
-    val myStatus: MemberStatus? = null
+    val myStatus: MemberStatus? = null,
+    /** Its leader has put it on the race board: its name and progress, nothing else. */
+    val isPublicRace: Boolean = false
 ) {
     val isFinished: Boolean get() = completedAt != null
 

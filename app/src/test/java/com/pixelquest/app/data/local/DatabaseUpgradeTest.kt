@@ -214,6 +214,7 @@ class DatabaseUpgradeTest {
                 val member = db.daroodDao().observeMembers("p1").first().single()
                 assertEquals("aria_k", member.username)
                 assertEquals(null, member.statusChangedAt)
+                assertEquals("off the race board until the server says", false, db.daroodDao().observeParties().first().single().isPublicRace)
             } else {
                 // Version 10's Darood Party cache is there, empty: it fills from the server.
                 assertTrue(db.daroodDao().observeParties().first().isEmpty())
@@ -234,10 +235,11 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion8_theNamazTracker() = updateFrom(8)
     @Test fun fromVersion9_theV1_3_0Release() = updateFrom(9)
     @Test fun fromVersion10_theDaroodPartyCache() = updateFrom(10)
+    @Test fun fromVersion11() = updateFrom(11)
 
     @Test
     fun everyEarlierVersion_hasALayoutAndAMigration() {
-        val current = schema(11).getInt("version")
+        val current = schema(AppDatabase.ALL_MIGRATIONS.last().endVersion).getInt("version")
         assertEquals(
             "a layout file per version, 1 to $current: bump the version, and its file is written at the next build",
             (1..current).map { "$it.json" }.toSet(),

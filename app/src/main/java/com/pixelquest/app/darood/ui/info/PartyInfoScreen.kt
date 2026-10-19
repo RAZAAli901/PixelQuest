@@ -3,15 +3,21 @@ package com.pixelquest.app.darood.ui.info
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +29,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -165,6 +172,16 @@ class PartyInfoViewModel @Inject constructor(
 
     fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null, confirmingLeave = false, newName = null, confirmingTransfer = null, deleteConfirmation = null, newMilestone = null) }
 
+    /** The leader puts the party on the race board, or takes it off. */
+    fun setRaceBoard(on: Boolean) {
+        if (!_uiState.value.isLeader || _uiState.value.busy) return
+        _uiState.update { it.copy(busy = true, problem = null) }
+        viewModelScope.launch {
+            val result = repository.setRaceBoard(partyId, on)
+            _uiState.update { it.copy(busy = false, problem = problemOf(result)) }
+        }
+    }
+
     /** The leader opens the milestone dialog, with the milestone as it stands (if any) to change. */
     fun startMilestone() {
         val party = _uiState.value.party ?: return
@@ -304,6 +321,7 @@ fun PartyInfoScreen(
         onConfirmTransfer = viewModel::confirmTransfer,
         onDelete = viewModel::startDelete,
         onMilestone = viewModel::startMilestone,
+        onRaceBoard = viewModel::setRaceBoard,
         onMilestoneChange = viewModel::onMilestoneChange,
         onConfirmMilestone = viewModel::confirmMilestone,
         onDeleteConfirmationChange = viewModel::onDeleteConfirmationChange,
@@ -328,6 +346,7 @@ fun PartyInfoContent(
     onConfirmTransfer: () -> Unit = {},
     onDelete: () -> Unit = {},
     onMilestone: () -> Unit = {},
+    onRaceBoard: (Boolean) -> Unit = {},
     onMilestoneChange: (String) -> Unit = {},
     onConfirmMilestone: () -> Unit = {},
     onDeleteConfirmationChange: (String) -> Unit = {},
@@ -410,6 +429,16 @@ fun PartyInfoContent(
                         modifier = Modifier.testTag(DaroodTestTags.INFO_RENAME)
                     )
                 }
+            }
+            if (state.isLeader) {
+                RaceBoardSwitch(on = party.isPublicRace, hasMilestone = party.milestone != null, enabled = !state.busy, onChange = onRaceBoard)
+            } else if (party.isPublicRace) {
+                Text(
+                    text = stringResource(R.string.darood_race_on_board),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                    modifier = Modifier.testTag(DaroodTestTags.INFO_RACE_NOTE)
+                )
             }
             Text(
                 text = stringResource(R.string.darood_info_members),
@@ -520,6 +549,60 @@ fun PartyInfoContent(
             onDismiss = onDismissDialog
         ) {
             RenameField(name = name, problem = state.newNameProblem, onNameChange = onNewNameChange)
+        }
+    }
+}
+
+/**
+ * The leader's switch for the race board, with what joining shares said plainly: the party's name,
+ * how many are in it, its total, how far it is to its milestone and when it finished. Never anyone's
+ * name or their numbers. The whole row is the switch, read by TalkBack as one.
+ */
+@Composable
+internal fun RaceBoardSwitch(on: Boolean, hasMilestone: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
+    val colors = PixelTheme.colors
+    PixelCard(variant = PixelPanelVariant.BORDER, contentPadding = 12.dp, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .toggleable(value = on, enabled = enabled, role = Role.Switch, onValueChange = onChange)
+                .testTag(DaroodTestTags.INFO_RACE_SWITCH)
+        ) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = stringResource(R.string.darood_race_join),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = inkOnPanel(colors.primaryText)
+                )
+                Text(
+                    text = stringResource(R.string.darood_race_explained),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurface
+                )
+                if (!hasMilestone) {
+                    Text(
+                        text = stringResource(R.string.darood_race_needs_milestone),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            // The row handles the toggle; the switch only shows it.
+            Switch(
+                checked = on,
+                onCheckedChange = null,
+                enabled = enabled,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = colors.onPrimary,
+                    checkedTrackColor = colors.primary,
+                    uncheckedThumbColor = colors.onSurfaceVariant,
+                    uncheckedTrackColor = colors.surfaceVariant,
+                    uncheckedBorderColor = colors.pixelBorder
+                )
+            )
         }
     }
 }

@@ -86,6 +86,8 @@ object DaroodTestTags {
     const val INFO_MILESTONE = "darood_info_milestone"
     const val INFO_SET_MILESTONE = "darood_info_set_milestone"
     const val INFO_MILESTONE_FIELD = "darood_info_milestone_field"
+    const val INFO_RACE_SWITCH = "darood_info_race_switch"
+    const val INFO_RACE_NOTE = "darood_info_race_note"
 
     fun member(userId: String) = "darood_member_$userId"
     fun memberRemove(userId: String) = "darood_member_remove_$userId"

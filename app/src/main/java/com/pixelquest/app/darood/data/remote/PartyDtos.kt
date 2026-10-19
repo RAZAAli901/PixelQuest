@@ -27,7 +27,8 @@ data class PartyDto(
     @SerialName("milestone") val milestone: Long? = null,
     @SerialName("milestone_set_at") val milestoneSetAt: String? = null,
     @SerialName("completed_at") val completedAt: String? = null,
-    @SerialName("created_at") val createdAt: String
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("is_public_race") val isPublicRace: Boolean = false
 )
 
 /** A row of public.party_day_stats, as read: one poster's total for a day. */

@@ -118,6 +118,10 @@
     <string name="darood_info_milestone_too_low">It has to be above the party\'s total, <xliff:g id="total" example="2,450">%1$s</xliff:g>.</string>
     <string name="darood_info_refused_too_low">That\'s not above the party\'s total any more. Try a bigger number.</string>
     <string name="darood_info_refused_finished">The party is finished, so its milestone stays as it was.</string>
+    <string name="darood_race_join">Join the race board</string>
+    <string name="darood_race_explained">Other players would see this party\'s name, how many are in it, its total, how far it is to its milestone, and when it finished. Never anyone\'s name or their numbers.</string>
+    <string name="darood_race_needs_milestone">It shows on the board once the party has a milestone.</string>
+    <string name="darood_race_on_board">This party is on the race board: its name and progress, nothing more.</string>
     <string name="darood_info_delete">Delete party</string>
     <string name="darood_info_delete_title">Delete <xliff:g id="party" example="Friday circle">%1$s</xliff:g>?</string>
     <string name="darood_info_delete_message">The party goes for everyone: its chat, its members and its total. This can\'t be undone. To be sure, type the party\'s name.</string>

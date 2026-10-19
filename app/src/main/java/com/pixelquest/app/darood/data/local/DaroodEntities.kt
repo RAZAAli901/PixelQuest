@@ -36,7 +36,9 @@ data class PartyEntity(
     val lastEntryDate: LocalDate?,
     val myRole: PartyRole,
     val myStatus: MemberStatus,
-    val syncedAt: Long
+    val syncedAt: Long,
+    /** On the race board (from version 12). */
+    @ColumnInfo(defaultValue = "0") val isPublicRace: Boolean = false
 )
 
 /** Someone in a party, with their part of its total (zero until they post). */

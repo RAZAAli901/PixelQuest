@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.SavedStateHandle
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
 import com.pixelquest.app.darood.data.remote.PartyMemberDto
@@ -539,6 +540,47 @@ class PartyInfoTest {
         assertEquals("10000", milestoneDigits("10,000 Darood"))
         assertEquals("313", milestoneDigits("\u06F3\u06F1\u06F3"))
         assertEquals("1234567890", milestoneDigits("123456789012345"))
+    }
+
+    @Test
+    fun theLeaderPutsThePartyOnTheRaceBoard_andTakesItOff() = runTest(dispatcher) {
+        val vm = viewModel()
+        waitUntil { vm.uiState.value.party != null }
+        assertFalse("off by default", vm.uiState.value.party!!.isPublicRace)
+        vm.setRaceBoard(true)
+        waitUntil { vm.uiState.value.party?.isPublicRace == true && !vm.uiState.value.busy }
+        assertTrue(server.parties.getValue(partyId).isPublicRace)
+        vm.setRaceBoard(false)
+        waitUntil { vm.uiState.value.party?.isPublicRace == false && !vm.uiState.value.busy }
+
+        server.me = "bram-id"
+        val asMember = viewModel(me = "bram-id")
+        waitUntil { asMember.uiState.value.party != null }
+        val asked = server.calls.count { it == "setRaceBoard" }
+        asMember.setRaceBoard(true)
+        advanceUntilIdle()
+        assertEquals("a member's switch isn't sent", asked, server.calls.count { it == "setRaceBoard" })
+        assertFalse(server.parties.getValue(partyId).isPublicRace)
+    }
+
+    @Test
+    fun theSwitch_saysPlainlyWhatsShared_andAMemberIsTold() {
+        var turned: Boolean? = null
+        val shown = androidx.compose.runtime.mutableStateOf(state(myId = "aria-id"))
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                PartyInfoContent(state = shown.value, onNavigateBack = {}, onRaceBoard = { turned = it })
+            }
+        }
+        composeTestRule.onNodeWithText("Join the race board").assertExists()
+        composeTestRule.onNodeWithText("Never anyone's name or their numbers.", substring = true).assertExists()
+        composeTestRule.onNodeWithText("once the party has a milestone", substring = true).assertExists()
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_RACE_SWITCH).performScrollTo().performClick()
+        assertEquals(true, turned)
+
+        shown.value = state(myId = "bram-id").let { it.copy(party = it.party!!.copy(isPublicRace = true)) }
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_RACE_SWITCH).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_RACE_NOTE).assertExists()
     }
 
     private fun state(myId: String) = PartyInfoUiState(
