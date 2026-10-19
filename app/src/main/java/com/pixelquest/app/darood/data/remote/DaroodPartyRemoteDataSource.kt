@@ -82,6 +82,9 @@ interface DaroodPartyRemoteDataSource {
     /** Each poster's total for [day] in a party (party_day_stats), as its members may see it. */
     suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<List<DayTotal>>
 
+    /** The race board: the parties whose leaders put them on it, name and progress only. */
+    suspend fun fetchRaceBoard(): SupabaseResult<List<com.pixelquest.app.darood.domain.RaceLine>>
+
     /** The account's own total for each day it posted on in a party (party_day_stats). */
     suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>>
 
@@ -187,6 +190,15 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
 
     override suspend fun deleteParty(partyId: String): SupabaseResult<Unit> =
         call<PartyStatusReply>("delete_party") { put("party_id", partyId) }.map { }
+
+    override suspend fun fetchRaceBoard(): SupabaseResult<List<com.pixelquest.app.darood.domain.RaceLine>> {
+        if (account.id() == null) return signedOut()
+        return safeSupabaseCall {
+            postgrest[RACE_BOARD].select(Columns.list("name", "member_count", "total", "milestone", "progress", "completed_at", "mine"))
+                .decodeList<RaceLineDto>()
+                .map { com.pixelquest.app.darood.domain.RaceLine(it.name, it.memberCount, it.total, it.milestone, it.progress, it.completedAt?.let(::parseInstant), it.mine) }
+        }
+    }
 
     override suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>> {
         val me = account.id() ?: return signedOut()
@@ -303,6 +315,7 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
     internal companion object {
         const val PARTIES = "parties"
         const val DAY_STATS = "party_day_stats"
+        const val RACE_BOARD = "race_board"
         const val MEMBERS = "party_members"
         const val USERNAMES = "usernames"
         const val ENTRIES = "darood_entries"

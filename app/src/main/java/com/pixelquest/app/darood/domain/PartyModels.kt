@@ -98,6 +98,32 @@ data class DaroodEntry(
     val refusal: String? = null
 )
 
+/**
+ * A party on the race board, as the server's race_board shows it: never its members, usernames,
+ * entries or id. [mine] is whether the player is in it.
+ */
+data class RaceLine(
+    val name: String,
+    val memberCount: Int,
+    val total: Long,
+    val milestone: Long,
+    val progress: Float,
+    val completedAt: Instant?,
+    val mine: Boolean
+)
+
+/**
+ * The race's order: finished parties first, the earliest finish first; then the rest by how far they
+ * are, the furthest first; level ones by total, then by name.
+ */
+fun rankRace(lines: List<RaceLine>): List<RaceLine> = lines.sortedWith(
+    compareBy<RaceLine> { it.completedAt == null }
+        .thenBy { it.completedAt }
+        .thenByDescending { it.progress }
+        .thenByDescending { it.total }
+        .thenBy { it.name }
+)
+
 /** One poster's total for a day in a party, from the server's party_day_stats. */
 data class DayTotal(val userId: String?, val total: Long)
 

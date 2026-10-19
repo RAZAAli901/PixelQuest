@@ -88,6 +88,13 @@ object DaroodTestTags {
     const val INFO_MILESTONE_FIELD = "darood_info_milestone_field"
     const val INFO_RACE_SWITCH = "darood_info_race_switch"
     const val INFO_RACE_NOTE = "darood_info_race_note"
+    const val RACE_ACTION = "darood_race_action"
+    const val RACE_SCREEN = "darood_race_screen"
+    const val RACE_EMPTY = "darood_race_empty"
+    const val RACE_PROBLEM = "darood_race_problem"
+
+    /** A party's line on the race board: its place, and whether it's the player's. */
+    fun raceRow(place: Int, mine: Boolean) = "darood_race_${place}_" + if (mine) "mine" else "theirs"
 
     fun member(userId: String) = "darood_member_$userId"
     fun memberRemove(userId: String) = "darood_member_remove_$userId"

@@ -76,6 +76,9 @@ interface DaroodPartyRepository {
      */
     suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<DayTotals>
 
+    /** The race board, from the server: never kept on the phone, since it's other parties' standings. */
+    suspend fun fetchRaceBoard(): SupabaseResult<List<com.pixelquest.app.darood.domain.RaceLine>>
+
     /** The player's total on each day they posted in a party, from the server (party_day_stats). */
     suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>>
 
@@ -203,6 +206,8 @@ class DaroodPartyRepositoryImpl(
     override fun observePendingTotalOn(partyId: String, day: LocalDate): Flow<Long> = dao.observePendingTotalOn(partyId, day)
 
     override suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>> = remote.fetchMyDays(partyId)
+
+    override suspend fun fetchRaceBoard(): SupabaseResult<List<com.pixelquest.app.darood.domain.RaceLine>> = remote.fetchRaceBoard()
 
     override suspend fun addEntry(partyId: String, amount: Int): DaroodEntry {
         require(amount in DaroodRules.AMOUNT_MIN..DaroodRules.AMOUNT_MAX) { "An entry is 1 to 100,000" }

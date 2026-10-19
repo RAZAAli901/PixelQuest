@@ -188,6 +188,23 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         )
     }
 
+    override suspend fun fetchRaceBoard(): SupabaseResult<List<com.pixelquest.app.darood.domain.RaceLine>> = answer("fetchRaceBoard") { account ->
+        SupabaseResult.Success(
+            parties.values.filter { it.isPublicRace && it.milestone != null }.map { party ->
+                val total = total(party.id)
+                com.pixelquest.app.darood.domain.RaceLine(
+                    name = party.name,
+                    memberCount = members.count { it.partyId == party.id && it.status == "active" },
+                    total = total,
+                    milestone = party.milestone!!,
+                    progress = minOf(1f, total.toFloat() / party.milestone),
+                    completedAt = party.completedAt?.let(Instant::parse),
+                    mine = isActive(party.id, account)
+                )
+            }
+        )
+    }
+
     override suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>> = answer("fetchMyDays") { account ->
         if (!isActive(partyId, account)) return@answer SupabaseResult.Success(emptyMap())
         SupabaseResult.Success(

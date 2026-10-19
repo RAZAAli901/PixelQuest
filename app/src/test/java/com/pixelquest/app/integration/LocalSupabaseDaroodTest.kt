@@ -177,4 +177,22 @@ class LocalSupabaseDaroodTest {
                 .addEntry(party, 1, java.time.LocalDate.now(java.time.ZoneId.of("Asia/Karachi")), "Asia/Karachi", java.util.UUID.randomUUID().toString())
         ))
     }
+
+    @Test
+    fun theRaceBoard_showsAnOptedInParty_toAnOutsider_nameAndProgressOnly() = runBlocking {
+        val (aria, _) = phone("ariaR")
+        val (outsider, _) = phone("outsR")
+        val name = "Racers ${aria.userId.take(6)}"
+        val party = (aria.parties.createParty(name, 5, 1_000) as SupabaseResult.Success).data
+        aria.parties.addEntry(party, 250)
+
+        assertEquals("off by default", null, (outsider.parties.fetchRaceBoard() as SupabaseResult.Success).data.firstOrNull { it.name == name })
+        assertEquals(DaroodRefusal.NOT_LEADER, DaroodRefusal.of(outsider.parties.setRaceBoard(party, true)))
+        assertEquals(SupabaseResult.Success(Unit), aria.parties.setRaceBoard(party, true))
+        assertTrue(aria.parties.observeParty(party).first()!!.isPublicRace)
+
+        val seen = (outsider.parties.fetchRaceBoard() as SupabaseResult.Success).data.single { it.name == name }
+        assertEquals(com.pixelquest.app.darood.domain.RaceLine(name, 1, 250, 1_000, 0.25f, null, mine = false), seen)
+        assertTrue("the leader's own", (aria.parties.fetchRaceBoard() as SupabaseResult.Success).data.single { it.name == name }.mine)
+    }
 }

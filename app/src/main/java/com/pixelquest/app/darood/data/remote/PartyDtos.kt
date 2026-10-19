@@ -45,6 +45,18 @@ data class MyDayDto(
     @SerialName("total") val total: Long
 )
 
+/** A line of public.race_board, as read. */
+@Serializable
+data class RaceLineDto(
+    @SerialName("name") val name: String,
+    @SerialName("member_count") val memberCount: Int,
+    @SerialName("total") val total: Long,
+    @SerialName("milestone") val milestone: Long,
+    @SerialName("progress") val progress: Float,
+    @SerialName("completed_at") val completedAt: String? = null,
+    @SerialName("mine") val mine: Boolean = false
+)
+
 /** A row of public.party_members. */
 @Serializable
 data class PartyMemberDto(

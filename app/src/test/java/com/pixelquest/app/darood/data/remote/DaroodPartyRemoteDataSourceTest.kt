@@ -215,6 +215,19 @@ class DaroodPartyRemoteDataSourceTest {
     }
 
     @Test
+    fun theRaceBoard_isReadFromItsView_nameAndProgressOnly() = runBlocking {
+        answers["/rest/v1/race_board"] = ok(
+            """[{"name":"Friday circle","member_count":5,"total":2450,"milestone":10000,"progress":0.245,"completed_at":null,"mine":true}]"""
+        )
+        val result = source.fetchRaceBoard()
+        assertEquals(
+            SupabaseResult.Success(listOf(com.pixelquest.app.darood.domain.RaceLine("Friday circle", 5, 2450, 10000, 0.245f, null, true))),
+            result
+        )
+        assertEquals("name,member_count,total,milestone,progress,completed_at,mine", query(requestTo("/rest/v1/race_board"), "select"))
+    }
+
+    @Test
     fun theServersRefusals_areReadByName() = runBlocking {
         answers["/rest/v1/rpc/invite_member"] = HttpStatusCode.BadRequest to
             """{"code":"23514","details":"This party holds 2 people, invitations included.","hint":null,"message":"party_full"}"""

@@ -45,6 +45,7 @@ fun DaroodPartyScreen(
     onSignIn: () -> Unit,
     onOpenParty: (String) -> Unit,
     onCreateParty: () -> Unit = {},
+    onOpenRaceBoard: () -> Unit = {},
     viewModel: com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -55,6 +56,7 @@ fun DaroodPartyScreen(
         onRefresh = viewModel::refresh,
         onOpenParty = onOpenParty,
         onCreateParty = onCreateParty,
+        onOpenRaceBoard = onOpenRaceBoard,
         onAccept = viewModel::accept,
         onDecline = viewModel::decline
     )
@@ -69,6 +71,7 @@ fun DaroodPartyContent(
     onRefresh: () -> Unit = {},
     onOpenParty: (String) -> Unit = {},
     onCreateParty: () -> Unit = {},
+    onOpenRaceBoard: () -> Unit = {},
     onAccept: (String) -> Unit = {},
     onDecline: (String) -> Unit = {}
 ) {
@@ -81,6 +84,14 @@ fun DaroodPartyContent(
                 title = stringResource(R.string.darood_title),
                 actions = if (signedIn == true) {
                     {
+                        IconButton(onClick = onOpenRaceBoard, modifier = Modifier.testTag(DaroodTestTags.RACE_ACTION)) {
+                            SymbolIcon(
+                                symbol = "🏁",
+                                contentDescription = stringResource(R.string.darood_race_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
                         IconButton(onClick = onCreateParty, modifier = Modifier.testTag(DaroodTestTags.CREATE_ACTION)) {
                             SymbolIcon(
                                 symbol = "＋",
