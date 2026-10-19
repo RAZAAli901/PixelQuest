@@ -42,15 +42,22 @@ fun ChatEntryRow(
     mine: Boolean,
     modifier: Modifier = Modifier,
     memberColor: Color = memberColor(entry.userId),
-    showName: Boolean = true
+    showName: Boolean = true,
+    firstOfRun: Boolean = true
 ) {
     Box(
         contentAlignment = if (mine) Alignment.CenterEnd else Alignment.CenterStart,
-        modifier = modifier.fillMaxWidth()
+        // A run of one sender's bubbles sits close together; a new sender starts a little apart.
+        modifier = modifier.fillMaxWidth().padding(top = if (firstOfRun) 8.dp else 2.dp)
     ) {
-        EntryBubble(entry = entry, sender = sender, mine = mine, memberColor = memberColor, showName = showName)
+        EntryBubble(entry = entry, sender = sender, mine = mine, memberColor = memberColor, showName = showName, tail = firstOfRun)
     }
 }
+
+/** A placed bubble ([bubblesOf]) on its side, named once per run. */
+@Composable
+fun ChatEntryRow(item: BubbleItem, sender: String?, modifier: Modifier = Modifier) =
+    ChatEntryRow(entry = item.entry, sender = sender, mine = item.mine, modifier = modifier, showName = item.showName, firstOfRun = item.firstOfRun)
 
 /** A bubble's colours: its fill, and the text on it. */
 data class BubbleColors(val container: Color, val content: Color, val secondary: Color)
@@ -74,6 +81,7 @@ fun bubbleColors(mine: Boolean): BubbleColors {
  * @param memberColor the poster's own colour for their name ([memberColor]), so members tell apart
  *   at a glance.
  * @param showName the name heads the bubble; a run of one sender's bubbles names them once.
+ * @param tail the corner on its side is drawn in, as a tail: the first of a run has it, the rest don't.
  */
 @Composable
 fun EntryBubble(
@@ -82,7 +90,8 @@ fun EntryBubble(
     modifier: Modifier = Modifier,
     mine: Boolean = false,
     memberColor: Color = Color.Unspecified,
-    showName: Boolean = true
+    showName: Boolean = true,
+    tail: Boolean = true
 ) {
     val colors = PixelTheme.colors
     val bubble = bubbleColors(mine)
@@ -92,7 +101,7 @@ fun EntryBubble(
             .testTag(DaroodTestTags.bubble(entry.clientId ?: entry.id.toString()))
             .semantics(mergeDescendants = true) { }
             .widthIn(min = 96.dp, max = 280.dp)
-            .clip(if (mine) MyBubbleShape else TheirBubbleShape)
+            .clip(if (!tail) PlainBubbleShape else if (mine) MyBubbleShape else TheirBubbleShape)
             .background(bubble.container)
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
@@ -122,6 +131,7 @@ fun EntryBubble(
 /** Rounded like a chat's message, with the corner nearest its side drawn in, as a tail. */
 private val MyBubbleShape = RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomEnd = 16.dp, bottomStart = 16.dp)
 private val TheirBubbleShape = RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 16.dp)
+private val PlainBubbleShape = RoundedCornerShape(16.dp)
 
 /** The time a bubble shows, in the phone's own clock and language: 10:05 AM, or 10:05. */
 fun bubbleTime(instant: Instant, zone: ZoneId = ZoneId.systemDefault()): String =
