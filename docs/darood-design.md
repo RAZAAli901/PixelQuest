@@ -114,3 +114,28 @@ Tables, rules and functions are in `supabase/migrations` (`20261019000004` to `2
 
 None of this is on the hosted project yet: pushing the migrations there is a deployment, done when the feature ships.
 
+
+## On the phone (Phase C, as built)
+
+### The cache
+- **What it is:** four Room tables (database version 10): `darood_party`, `darood_party_member`, `darood_entry` and `darood_pending_entry`. They're the phone's copy of what the server last said.
+- **What it's for:** a party opens at once and offline from it. A refresh replaces it, and the server stays the truth.
+- **The repository:** `DaroodPartyRepository` is the one way in. Screens watch its Flows, and its refresh calls bring the server's copy in.
+- **Whose it is:** it belongs to the signed-in account. Signing out clears it, and so does another account signing in, since the cache remembers whose it is. It's never in the game's backups.
+
+### Posting an entry
+- **Saved first:** every entry is saved on the phone as pending, with its own key (`clientId`), then sent. Without a connection it waits, in order, and `DaroodSyncWorker` sends it once there's one.
+- **The key:** it goes to the server with the entry. `add_darood_entry` returns the stored entry if that key was already sent, so a send whose answer was lost is never counted twice. Two sends at once count once.
+- **Refused entries:** an entry the server refuses for a rule (the daily cap, a finished party) is marked FAILED with the reason, and isn't sent again as it is.
+- **Signing out** tries to send what's waiting first.
+
+### Live updates
+- **The connection:** Supabase Realtime (the client now runs on OkHttp, which has WebSockets). It follows a party's new entries and membership changes, one channel per table, only while its screen is up (`PartyFollower`, `FollowWhileStarted`).
+- **Applying them:** a new entry appears at once. The party's numbers follow once entries pause. This phone's own entry, heard live, replaces its waiting copy.
+- **Catching up:** when listening starts, the party catches up at once and 3 seconds later, because Realtime reports a channel joined a moment before its database listener is ready. Pull-to-refresh is the fallback.
+
+### Kept apart from the game
+`DaroodNeverTouchesTheGameTest` checks that no Darood source or migration names the game's progress. It also checks that a whole party session leaves XP, level, streak and leaderboard data exactly as they were.
+
+### Checked against a real server
+`LocalSupabaseDaroodTest` runs this layer against the local Supabase stack, live updates included.
