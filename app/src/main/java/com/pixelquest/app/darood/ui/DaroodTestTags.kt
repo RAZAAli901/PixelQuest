@@ -45,6 +45,8 @@ object DaroodTestTags {
     const val CHAT_INPUT_ERROR = "darood_chat_input_error"
     const val CHAT_SEND = "darood_chat_send"
 
+    fun quickAdd(amount: Int) = "darood_quick_add_$amount"
+
     /** An entry's bubble, by its phone key (or the server's id for entries made elsewhere). */
     fun bubble(key: String) = "darood_bubble_$key"
 

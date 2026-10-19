@@ -2,6 +2,7 @@ package com.pixelquest.app.darood.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -84,6 +85,7 @@ fun checkDraft(draft: String): DraftCheck {
  *   while there's nothing to say, as for an empty field).
  * @param onSend sends the number: from the keyboard's send key too, but only when [checkDraft]
  *   says it can go.
+ * @param quickAdd shows the usual numbers as chips above the field ([QuickAddChips]).
  * @param trailing what follows the field (its send button).
  */
 @Composable
@@ -93,6 +95,7 @@ fun NumberInputBar(
     modifier: Modifier = Modifier,
     error: String? = null,
     onSend: () -> Unit = {},
+    quickAdd: Boolean = false,
     trailing: @Composable RowScope.() -> Unit = {}
 ) {
     val colors = PixelTheme.colors
@@ -104,6 +107,7 @@ fun NumberInputBar(
             .imePadding()
             .padding(horizontal = 8.dp, vertical = 6.dp)
     ) {
+        if (quickAdd) QuickAddChips(onPick = { onValueChange(it.toString()) })
         if (error != null) {
             Text(
                 text = error,
@@ -175,5 +179,35 @@ fun SendButton(enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modif
             color = if (enabled) colors.onPrimary else colors.onSurfaceVariant,
             modifier = Modifier.clearAndSetSemantics { }
         )
+    }
+}
+
+/** The numbers most often recited, offered as chips above the field. */
+val QUICK_AMOUNTS = listOf(11, 33, 100, 313)
+
+/**
+ * Chips for the usual numbers (+11, +33, +100, +313). A tap puts its number in the field, in place
+ * of what was there, and never sends it: the player still checks it and taps send.
+ */
+@Composable
+fun QuickAddChips(onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
+    val colors = PixelTheme.colors
+    val comic = PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Comic
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier.padding(start = 8.dp, bottom = 6.dp)) {
+        QUICK_AMOUNTS.forEach { amount ->
+            val shape = RoundedCornerShape(50)
+            Text(
+                text = stringResource(R.string.darood_bubble_amount, com.pixelquest.app.darood.ui.formatCount(amount)),
+                style = MaterialTheme.typography.labelLarge,
+                color = colors.primaryText,
+                modifier = Modifier
+                    .testTag(DaroodTestTags.quickAdd(amount))
+                    .then(if (comic) Modifier.comicBorder(width = ComicShapeTokens.BorderWidthThin, color = ComicTokens.SolidBlack, shape = shape) else Modifier)
+                    .clip(shape)
+                    .background(colors.background)
+                    .clickable(role = Role.Button, onClickLabel = stringResource(R.string.darood_quick_fill, amount)) { onPick(amount) }
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+            )
+        }
     }
 }

@@ -142,6 +142,7 @@
     <string name="darood_input_label">How many to add</string>
     <string name="darood_input_placeholder">How many?</string>
     <string name="darood_send">Send</string>
+    <string name="darood_quick_fill">put <xliff:g id="amount" example="313">%1$d</xliff:g> in the field</string>
     <string name="darood_input_too_many">At most <xliff:g id="max" example="100,000">%1$s</xliff:g> in one go.</string>
     <string name="darood_chat_jump">Jump to the newest</string>
     <plurals name="darood_chat_unseen">

@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import com.pixelquest.app.darood.ui.DaroodTestTags
@@ -206,5 +207,32 @@ class NumberInputBarTest {
             kotlinx.coroutines.Dispatchers.resetMain()
             db.close()
         }
+    }
+
+    @Test
+    fun aQuickChip_putsItsNumberInTheField_andNeverSends() {
+        var sent = 0
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                var draft by remember { mutableStateOf("") }
+                PartyChatScreen(
+                    partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {}, canPost = true,
+                    draft = draft, onDraftChange = { draft = amountDigits(it) }, onSend = { sent++ }
+                )
+            }
+        }
+        for (amount in QUICK_AMOUNTS) composeTestRule.onNodeWithTag(DaroodTestTags.quickAdd(amount)).assertIsDisplayed()
+        composeTestRule.onNodeWithText("+313").assertIsDisplayed()
+
+        composeTestRule.onNodeWithTag(DaroodTestTags.quickAdd(313)).performClick()
+        field().assertTextEquals("313", includeEditableText = true)
+
+        // In place of what was there, not added to it.
+        field().performTextReplacement("5")
+        composeTestRule.onNodeWithTag(DaroodTestTags.quickAdd(11)).performClick()
+        field().assertTextEquals("11", includeEditableText = true)
+
+        assertEquals("a chip never sends", 0, sent)
+        composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_SEND).assertIsEnabled()
     }
 }

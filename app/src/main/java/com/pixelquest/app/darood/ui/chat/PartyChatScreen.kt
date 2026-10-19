@@ -117,7 +117,8 @@ fun PartyChatScreen(
                     } else {
                         null
                     },
-                    onSend = onSend
+                    onSend = onSend,
+                    quickAdd = true
                 ) {
                     SendButton(enabled = check.canSend, onClick = onSend)
                 }
