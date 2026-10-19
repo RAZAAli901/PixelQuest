@@ -157,17 +157,19 @@ class DaroodPartyRemoteDataSourceTest {
 
     @Test
     fun anEntry_isSentWithItsDay_andComesBackAsStored() = runBlocking {
-        answers["/rest/v1/darood_entries"] = HttpStatusCode.Created to
-            """[{"id":42,"party_id":"p1","user_id":"me","amount":300,"local_date":"2026-10-19","tz":"Asia/Karachi","created_at":"2026-10-19T15:00:00+00:00"}]"""
+        answers["/rest/v1/rpc/add_darood_entry"] = ok(
+            """{"id":42,"party_id":"p1","user_id":"me","amount":300,"local_date":"2026-10-19","tz":"Asia/Karachi","created_at":"2026-10-19T15:00:00+00:00","client_id":"c-1"}"""
+        )
 
-        val entry = (source.addEntry("p1", 300, java.time.LocalDate.of(2026, 10, 19), "Asia/Karachi") as SupabaseResult.Success).data
+        val entry = (source.addEntry("p1", 300, java.time.LocalDate.of(2026, 10, 19), "Asia/Karachi", "c-1") as SupabaseResult.Success).data
 
         assertEquals(42L, entry.id)
         assertEquals("me", entry.userId)
-        val request = requestTo("/rest/v1/darood_entries")
-        assertEquals("POST", request.method.value)
-        // supabase-kt sends an insert as a list of rows.
-        assertEquals("""[{"party_id":"p1","amount":300,"local_date":"2026-10-19","tz":"Asia/Karachi"}]""", bodyOf(request).toString())
+        assertEquals("c-1", entry.clientId)
+        assertEquals(
+            """{"party_id":"p1","amount":300,"local_date":"2026-10-19","tz":"Asia/Karachi","client_id":"c-1"}""",
+            bodyOf(requestTo("/rest/v1/rpc/add_darood_entry")).toString()
+        )
     }
 
     @Test

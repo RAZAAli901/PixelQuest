@@ -172,4 +172,23 @@ class DaroodPartyRepositoryTest {
         assertEquals(7, refused.amount)
         assertEquals("a refused one isn't sent again as it is", SendReport(0, 0, 0), repository.sendPending())
     }
+
+    @Test
+    fun anAnswerLostOnTheWayBack_isntCountedTwiceOnTheRetry() = runBlocking {
+        val friday = server.seedParty("Friday circle", "me")
+        repository.refreshParties()
+        server.loseNextAnswer = true
+
+        val entry = repository.addEntry(friday, 313)
+
+        // The server has it, but the phone didn't hear: it's still waiting here.
+        assertEquals(com.pixelquest.app.darood.domain.EntryState.PENDING, entry.state)
+        assertEquals(1, server.entries.size)
+
+        assertEquals(SendReport(1, 0, 0), repository.sendPending())
+        assertEquals("one entry on the server", 1, server.entries.size)
+        assertEquals(313L, server.total(friday))
+        val shown = repository.observeEntries(friday, 50).first()
+        assertEquals("one bubble, the server's", listOf(server.entries.single().id), shown.map { it.id })
+    }
 }

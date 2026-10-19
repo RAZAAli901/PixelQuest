@@ -50,16 +50,21 @@ data class DaroodEntryDto(
     @SerialName("amount") val amount: Int,
     @SerialName("local_date") val localDate: String,
     @SerialName("tz") val tz: String,
-    @SerialName("created_at") val createdAt: String
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("client_id") val clientId: String? = null
 )
 
-/** What a member sends to post an entry: the server fills in who and when. */
+/**
+ * What a member sends to post an entry (add_darood_entry's arguments): the server fills in who and
+ * when. [clientId] is the entry's own key: sent again, the same entry comes back, never a second.
+ */
 @Serializable
 data class NewDaroodEntryDto(
     @SerialName("party_id") val partyId: String,
     @SerialName("amount") val amount: Int,
     @SerialName("local_date") val localDate: String,
-    @SerialName("tz") val tz: String
+    @SerialName("tz") val tz: String,
+    @SerialName("client_id") val clientId: String
 )
 
 /** A row of public.party_stats. */
@@ -139,7 +144,7 @@ fun PartyMemberDto.toDomain(username: String?): PartyMember = PartyMember(
 
 fun DaroodEntryDto.toDomain(): DaroodEntry = DaroodEntry(
     id = id,
-    clientId = null,
+    clientId = clientId,
     partyId = partyId,
     userId = userId,
     amount = amount,

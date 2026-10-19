@@ -25,6 +25,9 @@ import java.time.LocalDate
  */
 class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
     var offline = false
+
+    /** The next entry reaches the server, but its answer is lost on the way back. */
+    var loseNextAnswer = false
     var now: Instant = Instant.parse("2026-10-19T10:00:00Z")
 
     val parties = linkedMapOf<String, PartyDto>()
@@ -140,7 +143,9 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         }
     }
 
-    override suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String): SupabaseResult<DaroodEntry> = answer("addEntry") { account ->
+    override suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String, clientId: String): SupabaseResult<DaroodEntry> = answer("addEntry") { account ->
+        // The same key again: the entry already stored (add_darood_entry).
+        entries.firstOrNull { it.userId == account && it.clientId == clientId }?.let { return@answer SupabaseResult.Success(it.toDomain()) }
         val party = parties[partyId]
         when {
             party == null || party.completedAt != null -> refuse("party_closed")
@@ -149,10 +154,14 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
             entries.filter { it.partyId == partyId && it.userId == account && it.localDate == localDate.toString() }.sumOf { it.amount } + amount > DaroodRules.DAILY_MAX ->
                 refuse("daily_limit")
             else -> {
-                val stored = DaroodEntryDto(nextEntry++, partyId, account, amount, localDate.toString(), tz, now.toString())
+                val stored = DaroodEntryDto(nextEntry++, partyId, account, amount, localDate.toString(), tz, now.toString(), clientId)
                 entries += stored
                 val milestone = party.milestone
                 if (milestone != null && total(partyId) >= milestone) parties[partyId] = party.copy(completedAt = now.toString())
+                if (loseNextAnswer) {
+                    loseNextAnswer = false
+                    return@answer SupabaseResult.NetworkError(IOException("the answer was lost"))
+                }
                 SupabaseResult.Success(stored.toDomain())
             }
         }

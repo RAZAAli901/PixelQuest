@@ -64,8 +64,11 @@ interface DaroodPartyRemoteDataSource {
     /** The leader sets or raises the milestone: the milestone now. */
     suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long>
 
-    /** Posts an entry as the account; the entry as the server stored it. */
-    suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String): SupabaseResult<DaroodEntry>
+    /**
+     * Posts an entry as the account; the entry as the server stored it. [clientId] is its own key:
+     * posting it again (an answer lost on the way back) returns the same entry, never a second.
+     */
+    suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String, clientId: String): SupabaseResult<DaroodEntry>
 
     /**
      * A page of a party's entries, newest first: the [limit] newest, or with [beforeId] the [limit]
@@ -167,12 +170,12 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
             put("target", target)
         }.map { it.milestone }
 
-    override suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String): SupabaseResult<DaroodEntry> {
+    override suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String, clientId: String): SupabaseResult<DaroodEntry> {
         if (account.id() == null) return signedOut()
         return safeSupabaseCall {
-            postgrest[ENTRIES].insert(NewDaroodEntryDto(partyId, amount, localDate.toString(), tz)) {
-                select(Columns.list(ENTRY_COLUMNS))
-            }.decodeSingle<DaroodEntryDto>().toDomain()
+            val arguments = NewDaroodEntryDto(partyId, amount, localDate.toString(), tz, clientId)
+            postgrest.rpc("add_darood_entry", kotlinx.serialization.json.Json.encodeToJsonElement(NewDaroodEntryDto.serializer(), arguments) as kotlinx.serialization.json.JsonObject)
+                .decodeAs<DaroodEntryDto>().toDomain()
         }
     }
 
@@ -219,7 +222,7 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         const val MEMBER_STATS = "party_member_stats"
         val STATS_COLUMNS = listOf("party_id", "total", "entry_count", "member_count", "last_entry_date")
         val MEMBER_STATS_COLUMNS = listOf("party_id", "user_id", "username", "total", "active_days", "last_entry_date")
-        val ENTRY_COLUMNS = listOf("id", "party_id", "user_id", "amount", "local_date", "tz", "created_at")
+        val ENTRY_COLUMNS = listOf("id", "party_id", "user_id", "amount", "local_date", "tz", "created_at", "client_id")
         val PARTY_COLUMNS = listOf("id", "name", "leader_id", "max_members", "milestone", "milestone_set_at", "completed_at", "created_at")
         val MEMBER_COLUMNS = listOf("party_id", "user_id", "role", "status", "invited_at", "joined_at")
     }

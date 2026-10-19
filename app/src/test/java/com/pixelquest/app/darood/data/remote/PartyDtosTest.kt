@@ -74,7 +74,7 @@ class PartyDtosTest {
 
     @Test
     fun aNewEntry_sendsOnlyWhatAMemberMay() {
-        val sent = Json.encodeToString(NewDaroodEntryDto.serializer(), NewDaroodEntryDto("p1", 300, "2026-10-19", "Asia/Karachi"))
-        assertEquals("""{"party_id":"p1","amount":300,"local_date":"2026-10-19","tz":"Asia/Karachi"}""", sent)
+        val sent = Json.encodeToString(NewDaroodEntryDto.serializer(), NewDaroodEntryDto("p1", 300, "2026-10-19", "Asia/Karachi", "c-1"))
+        assertEquals("""{"party_id":"p1","amount":300,"local_date":"2026-10-19","tz":"Asia/Karachi","client_id":"c-1"}""", sent)
     }
 }

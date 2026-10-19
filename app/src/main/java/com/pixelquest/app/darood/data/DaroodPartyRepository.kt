@@ -161,7 +161,8 @@ class DaroodPartyRepositoryImpl(
         val waiting = dao.pendingToSend()
         for ((index, entry) in waiting.withIndex()) {
             dao.countAttempt(entry.clientId)
-            when (val result = remote.addEntry(entry.partyId, entry.amount, entry.localDate, entry.tz)) {
+            // Sent with its own key: if a send arrived but its answer didn't, this one gets it back.
+            when (val result = remote.addEntry(entry.partyId, entry.amount, entry.localDate, entry.tz, entry.clientId)) {
                 is SupabaseResult.Success -> {
                     dao.confirmSent(entry.clientId, result.data.toEntity().copy(clientId = entry.clientId))
                     sent++

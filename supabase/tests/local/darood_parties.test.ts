@@ -289,3 +289,40 @@ localTest("a party finishes once, when its total first reaches the milestone, an
   assert.equal(await finished(), stamp);
   assert.equal((await call(`/rest/v1/party_stats?party_id=eq.${party}&select=total`, { token: leader.accessToken })).body[0].total, 1200);
 });
+
+localTest("an entry sent twice counts once, even if the first answer was lost (20261019000024)", async () => {
+  const { leader, member } = await cast();
+  const party = await partyOf(leader, [member], { milestone: 1000 });
+  const send = (amount: number, client_id: string) =>
+    rpc(member, "add_darood_entry", { party_id: party, amount, local_date: day(), tz: "UTC", client_id });
+  const key = crypto.randomUUID();
+
+  const first = await send(300, key);
+  assert.equal(first.status, 200, JSON.stringify(first.body));
+  const again = await send(300, key);
+  assert.equal(again.body.id, first.body.id, "the same entry comes back");
+
+  // Two copies at once: one row.
+  const twin = crypto.randomUUID();
+  const both = await Promise.all([send(200, twin), send(200, twin)]);
+  assert.equal(both[0].body.id, both[1].body.id, JSON.stringify(both.map((b) => b.body)));
+  const total = async () => (await call(`/rest/v1/party_stats?party_id=eq.${party}&select=total`, { token: leader.accessToken })).body[0].total;
+  assert.equal(await total(), 500);
+
+  // The entry that finishes the party, sent again after its answer was lost, is found, not refused.
+  const finisher = crypto.randomUUID();
+  assert.equal((await send(500, finisher)).status, 200);
+  const retried = await send(500, finisher);
+  assert.equal(retried.status, 200, JSON.stringify(retried.body));
+  assert.equal(await total(), 1000);
+  // A new entry after finishing is refused as before.
+  assert.equal((await send(1, crypto.randomUUID())).body.message, "party_closed");
+
+  // Keys are per account: another member's same key is their own entry.
+  const shared = crypto.randomUUID();
+  const other = await partyOf(leader, [member]);
+  assert.equal((await rpc(leader, "add_darood_entry", { party_id: other, amount: 1, local_date: day(), tz: "UTC", client_id: shared })).status, 200);
+  assert.equal((await rpc(member, "add_darood_entry", { party_id: other, amount: 1, local_date: day(), tz: "UTC", client_id: shared })).status, 200);
+  assert.equal((await call(`/rest/v1/party_stats?party_id=eq.${other}&select=total`, { token: leader.accessToken })).body[0].total, 2);
+});
+
