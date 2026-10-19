@@ -267,7 +267,13 @@ fun PixelNavHost(
             val partyId = entry.arguments?.getString("partyId").orEmpty()
             com.pixelquest.app.darood.ui.info.PartyInfoScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onAddPeople = { navController.navigate(Screen.DaroodAddPeople.createRoute(partyId)) { launchSingleTop = true } }
+                onAddPeople = { navController.navigate(Screen.DaroodAddPeople.createRoute(partyId)) { launchSingleTop = true } },
+                // Out of the party: back to the list, past its chat.
+                onLeft = {
+                    if (!navController.popBackStack(Screen.DaroodParty.route, inclusive = false)) {
+                        navController.navigate(Screen.DaroodParty.route)
+                    }
+                }
             )
         }
         composable(

@@ -240,6 +240,73 @@ class PartyInfoTest {
         composeTestRule.onNodeWithText("nothing changed", substring = true).assertIsDisplayed()
     }
 
+    @Test
+    fun aMemberLeaves_afterSayingSo_andThePartyIsGoneFromTheirList() = runTest(dispatcher) {
+        server.seedEntry(partyId, "bram-id", 300)
+        server.me = "bram-id"
+        val vm = viewModel(me = "bram-id")
+        waitUntil { vm.uiState.value.party != null && vm.uiState.value.members.size == 3 }
+
+        vm.askToLeave()
+        assertTrue(vm.uiState.value.confirmingLeave)
+        vm.dismissDialog()
+        assertFalse(vm.uiState.value.confirmingLeave)
+        assertFalse("nothing sent until it's confirmed", "leaveParty" in server.calls)
+
+        vm.askToLeave()
+        vm.confirmLeave()
+        waitUntil { vm.uiState.value.left && vm.uiState.value.party == null }
+        assertEquals("left", server.members.first { it.partyId == partyId && it.userId == "bram-id" }.status)
+        assertEquals("what they posted still counts", 300L, server.total(partyId))
+    }
+
+    @Test
+    fun theLeader_isntAskedToLeave_theyHandOverFirst() = runTest(dispatcher) {
+        val vm = viewModel()
+        waitUntil { vm.uiState.value.party != null }
+        vm.askToLeave()
+        assertFalse(vm.uiState.value.confirmingLeave)
+        vm.confirmLeave()
+        advanceUntilIdle()
+        assertFalse("leaveParty" in server.calls)
+    }
+
+    @Test
+    fun aMemberSeesLeave_andTheDialogAsksFirst() {
+        var asked = false
+        var confirmed = false
+        val shown = androidx.compose.runtime.mutableStateOf(state(myId = "bram-id"))
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                PartyInfoContent(state = shown.value, onNavigateBack = {}, onLeave = { asked = true }, onConfirmLeave = { confirmed = true })
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_LEAVE_HINT).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_LEAVE).performClick()
+        assertTrue(asked)
+
+        shown.value = shown.value.copy(confirmingLeave = true)
+        composeTestRule.onNodeWithText("Leave Friday circle?", ignoreCase = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("stays in its total", substring = true).assertIsDisplayed()
+        composeTestRule.onNode(hasText("Leave party", ignoreCase = true) and hasAnyAncestor(isDialog())).performClick()
+        assertTrue(confirmed)
+    }
+
+    @Test
+    fun theLeader_isToldToHandOverFirst_insteadOfLeave() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                PartyInfoContent(
+                    state = state(myId = "aria-id").copy(problem = InfoProblem.Refused(com.pixelquest.app.darood.domain.DaroodRefusal.LEADER_MUST_HAND_OVER)),
+                    onNavigateBack = {}
+                )
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_LEAVE).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_LEAVE_HINT).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Hand the leadership to another member first, or delete the party.").assertIsDisplayed()
+    }
+
     private fun state(myId: String) = PartyInfoUiState(
         party = Party(partyId, "Friday circle", "aria-id", 5, null, null, null, Instant.parse("2026-10-01T12:00:00Z")),
         members = listOf(

@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -71,15 +72,19 @@ sealed interface InfoProblem {
  * @param members the party's active members: the leader first, then in the order they joined.
  * @param myId the signed-in account, to mark it and to know whether it leads.
  * @param confirmingRemoval the member the leader asked to remove, while the dialog asks if they're sure.
+ * @param confirmingLeave the player asked to leave, and the dialog asks if they're sure.
  * @param busy a change is on its way to the server.
+ * @param left the player has left the party: the screen closes.
  */
 data class PartyInfoUiState(
     val party: Party? = null,
     val members: List<PartyMember> = emptyList(),
     val myId: String? = null,
     val confirmingRemoval: PartyMember? = null,
+    val confirmingLeave: Boolean = false,
     val busy: Boolean = false,
-    val problem: InfoProblem? = null
+    val problem: InfoProblem? = null,
+    val left: Boolean = false
 ) {
     val isLeader: Boolean get() = party?.leaderId != null && party.leaderId == myId
 }
@@ -120,7 +125,23 @@ class PartyInfoViewModel @Inject constructor(
         _uiState.update { it.copy(confirmingRemoval = member, problem = null) }
     }
 
-    fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null) }
+    fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null, confirmingLeave = false) }
+
+    /** A member asks to leave: the dialog asks if they're sure. The leader hands over first, as the server insists. */
+    fun askToLeave() {
+        if (_uiState.value.isLeader) return
+        _uiState.update { it.copy(confirmingLeave = true, problem = null) }
+    }
+
+    /** Leaves the party. What the player posted stays in its total. */
+    fun confirmLeave() {
+        if (!_uiState.value.confirmingLeave || _uiState.value.busy) return
+        _uiState.update { it.copy(confirmingLeave = false, busy = true) }
+        viewModelScope.launch {
+            val result = repository.leaveParty(partyId)
+            _uiState.update { it.copy(busy = false, problem = problemOf(result), left = result is SupabaseResult.Success) }
+        }
+    }
 
     /** Removes the member the dialog asked about. What they posted stays in the party's total. */
     fun confirmRemoval() {
@@ -144,15 +165,19 @@ class PartyInfoViewModel @Inject constructor(
 fun PartyInfoScreen(
     onNavigateBack: () -> Unit,
     onAddPeople: () -> Unit,
+    onLeft: () -> Unit = onNavigateBack,
     viewModel: PartyInfoViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    LaunchedEffect(state.left) { if (state.left) onLeft() }
     PartyInfoContent(
         state = state,
         onNavigateBack = onNavigateBack,
         onAddPeople = onAddPeople,
         onRemove = viewModel::askToRemove,
         onConfirmRemoval = viewModel::confirmRemoval,
+        onLeave = viewModel::askToLeave,
+        onConfirmLeave = viewModel::confirmLeave,
         onDismissDialog = viewModel::dismissDialog
     )
 }
@@ -164,6 +189,8 @@ fun PartyInfoContent(
     onAddPeople: () -> Unit = {},
     onRemove: (PartyMember) -> Unit = {},
     onConfirmRemoval: () -> Unit = {},
+    onLeave: () -> Unit = {},
+    onConfirmLeave: () -> Unit = {},
     onDismissDialog: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
@@ -229,6 +256,22 @@ fun PartyInfoContent(
                     enabled = !state.busy
                 )
             }
+            if (state.isLeader) {
+                Text(
+                    text = stringResource(R.string.darood_info_leader_leave_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                    modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE_HINT)
+                )
+            } else {
+                PixelButton(
+                    text = stringResource(R.string.darood_info_leave),
+                    onClick = onLeave,
+                    variant = PixelButtonVariant.BLUE,
+                    enabled = !state.busy,
+                    modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE)
+                )
+            }
         }
     }
 
@@ -240,6 +283,16 @@ fun PartyInfoContent(
             confirmText = stringResource(R.string.darood_info_remove),
             dismissText = stringResource(R.string.darood_cancel),
             onConfirm = onConfirmRemoval,
+            onDismiss = onDismissDialog
+        )
+    }
+    if (state.confirmingLeave) {
+        PixelConfirmDialog(
+            title = stringResource(R.string.darood_info_leave_title, state.party?.name.orEmpty()),
+            message = stringResource(R.string.darood_info_leave_message),
+            confirmText = stringResource(R.string.darood_info_leave),
+            dismissText = stringResource(R.string.darood_cancel),
+            onConfirm = onConfirmLeave,
             onDismiss = onDismissDialog
         )
     }
@@ -255,6 +308,7 @@ private fun ProblemLine(problem: InfoProblem) {
                 is InfoProblem.Refused -> when (problem.refusal) {
                     DaroodRefusal.NOT_LEADER -> R.string.darood_info_not_leader
                     DaroodRefusal.NOT_A_MEMBER -> R.string.darood_info_not_member
+                    DaroodRefusal.LEADER_MUST_HAND_OVER -> R.string.darood_info_must_hand_over
                     else -> R.string.darood_info_failed
                 }
             }

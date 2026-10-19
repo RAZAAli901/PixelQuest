@@ -38,6 +38,8 @@ object DaroodTestTags {
     const val INFO_SCREEN = "darood_info_screen"
     const val INFO_ADD_PEOPLE = "darood_info_add_people"
     const val INFO_PROBLEM = "darood_info_problem"
+    const val INFO_LEAVE = "darood_info_leave"
+    const val INFO_LEAVE_HINT = "darood_info_leave_hint"
 
     fun member(userId: String) = "darood_member_$userId"
     fun memberRemove(userId: String) = "darood_member_remove_$userId"
