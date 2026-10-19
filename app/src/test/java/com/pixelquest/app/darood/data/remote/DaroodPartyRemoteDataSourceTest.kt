@@ -188,6 +188,19 @@ class DaroodPartyRemoteDataSourceTest {
     }
 
     @Test
+    fun myDays_areMyOwnRowsOfPartyDayStats() = runBlocking {
+        answers["/rest/v1/party_day_stats"] = ok("""[{"local_date":"2026-10-19","total":300},{"local_date":"2026-10-18","total":13}]""")
+        val result = source.fetchMyDays("p1")
+        assertEquals(
+            SupabaseResult.Success(mapOf(java.time.LocalDate.of(2026, 10, 19) to 300L, java.time.LocalDate.of(2026, 10, 18) to 13L)),
+            result
+        )
+        val request = requestTo("/rest/v1/party_day_stats")
+        assertEquals("eq.p1", query(request, "party_id"))
+        assertEquals("only mine", "eq.me", query(request, "user_id"))
+    }
+
+    @Test
     fun theServersRefusals_areReadByName() = runBlocking {
         answers["/rest/v1/rpc/invite_member"] = HttpStatusCode.BadRequest to
             """{"code":"23514","details":"This party holds 2 people, invitations included.","hint":null,"message":"party_full"}"""

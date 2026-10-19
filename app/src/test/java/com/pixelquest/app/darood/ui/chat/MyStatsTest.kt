@@ -1,7 +1,9 @@
 package com.pixelquest.app.darood.ui.chat
 
 import android.app.Application
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -71,5 +73,28 @@ class MyStatsTest {
         }
         composeTestRule.onNodeWithText("under 1%").assertExists()
         composeTestRule.onNodeWithText("0%").assertExists()
+    }
+
+    @Test
+    fun theSheet_saysHowSteady_onceTheDaysAreKnown() {
+        val today = java.time.LocalDate.of(2026, 10, 20)
+        val steady = com.pixelquest.app.darood.domain.Consistency.of(
+            mapOf(today to 300L, today.minusDays(1) to 100L, today.minusDays(2) to 50L, today.minusDays(10) to 10L), today
+        )
+        var opened = 0
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Light, darkTheme = false) {
+                PartyChatScreen(
+                    partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {},
+                    myStats = myStatsOf(stats, 10_000, "aria-id"), consistency = steady, onOpenStats = { opened++ }
+                )
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_STATS).performClick()
+        assertEquals("opening asks for the days", 1, opened)
+        composeTestRule.onNodeWithText("4 of the last 30", useUnmergedTree = true).assertExists()
+        // Three days in a row now, and that's the best run too.
+        composeTestRule.onAllNodesWithText("3 days", useUnmergedTree = true).assertCountEquals(2)
+        composeTestRule.onNodeWithText("115", useUnmergedTree = true).assertExists()
     }
 }

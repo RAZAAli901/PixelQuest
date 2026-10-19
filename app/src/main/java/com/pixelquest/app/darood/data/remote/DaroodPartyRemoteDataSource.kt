@@ -79,6 +79,9 @@ interface DaroodPartyRemoteDataSource {
     /** Each poster's total for [day] in a party (party_day_stats), as its members may see it. */
     suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<List<DayTotal>>
 
+    /** The account's own total for each day it posted on in a party (party_day_stats). */
+    suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>>
+
     /**
      * Posts an entry as the account; the entry as the server stored it. [clientId] is its own key:
      * posting it again (an answer lost on the way back) returns the same entry, never a second.
@@ -181,6 +184,18 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
 
     override suspend fun deleteParty(partyId: String): SupabaseResult<Unit> =
         call<PartyStatusReply>("delete_party") { put("party_id", partyId) }.map { }
+
+    override suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>> {
+        val me = account.id() ?: return signedOut()
+        return safeSupabaseCall {
+            postgrest[DAY_STATS].select(Columns.list("local_date", "total")) {
+                filter {
+                    eq("party_id", partyId)
+                    eq("user_id", me)
+                }
+            }.decodeList<MyDayDto>().associate { LocalDate.parse(it.localDate) to it.total }
+        }
+    }
 
     override suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<List<DayTotal>> {
         if (account.id() == null) return signedOut()

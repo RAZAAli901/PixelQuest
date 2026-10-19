@@ -91,13 +91,15 @@ fun PartyChatScreen(
     total: Long = 0,
     finished: Boolean = false,
     simpleMode: Boolean = false,
-    myStats: MyStats? = null
+    myStats: MyStats? = null,
+    consistency: com.pixelquest.app.darood.domain.Consistency? = null,
+    onOpenStats: () -> Unit = {}
 ) {
     androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides simpleMode) {
         PartyChatContent(
             partyName, onNavigateBack, onOpenInfo, isLeader, onAddPeople, memberCount, items, usernames, today, loadingOlder,
             onReachOldest, canPost, draft, onDraftChange, onSend, confirming, onConfirmSend, onCancelSend, onRetry, todayTotals,
-            milestone, total, finished, myStats
+            milestone, total, finished, myStats, consistency, onOpenStats
         )
     }
 }
@@ -127,7 +129,9 @@ private fun PartyChatContent(
     milestone: Long?,
     total: Long,
     finished: Boolean,
-    myStats: MyStats?
+    myStats: MyStats?,
+    consistency: com.pixelquest.app.darood.domain.Consistency?,
+    onOpenStats: () -> Unit
 ) {
     val colors = PixelTheme.colors
     var showingStats by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
@@ -154,7 +158,13 @@ private fun PartyChatContent(
                 },
                 actions = {
                     if (myStats != null) {
-                        IconButton(onClick = { showingStats = true }, modifier = Modifier.testTag(DaroodTestTags.CHAT_STATS)) {
+                        IconButton(
+                            onClick = {
+                                showingStats = true
+                                onOpenStats()
+                            },
+                            modifier = Modifier.testTag(DaroodTestTags.CHAT_STATS)
+                        ) {
                             SymbolIcon(
                                 symbol = "📊",
                                 contentDescription = stringResource(R.string.darood_stats_title),
@@ -238,7 +248,7 @@ private fun PartyChatContent(
         }
     }
 
-    if (showingStats && myStats != null) MyStatsSheet(stats = myStats, onDismiss = { showingStats = false })
+    if (showingStats && myStats != null) MyStatsSheet(stats = myStats, consistency = consistency, onDismiss = { showingStats = false })
     if (confirming != null) {
         com.pixelquest.app.ui.components.PixelConfirmDialog(
             title = stringResource(R.string.darood_confirm_title, com.pixelquest.app.darood.ui.formatCount(confirming)),
@@ -308,6 +318,32 @@ class PartyChatViewModel @Inject constructor(
     val myStats: StateFlow<MyStats?> = kotlinx.coroutines.flow.combine(repository.observeMemberStats(partyId), repository.observeParty(partyId)) { stats, party ->
         party?.let { myStatsOf(stats, it.total, accountId) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    private val myDays = kotlinx.coroutines.flow.MutableStateFlow<Map<java.time.LocalDate, Long>?>(null)
+
+    /**
+     * How steady the player is in the party: active days, streaks and their average, from the days
+     * they posted on (the server's), with today counted too if they have a number still on its way.
+     * None until [refreshConsistency] has an answer.
+     */
+    val consistency: StateFlow<com.pixelquest.app.darood.domain.Consistency?> = kotlinx.coroutines.flow.combine(
+        myDays,
+        repository.observePendingTotalOn(partyId, repository.today())
+    ) { days, waiting ->
+        days?.let {
+            val today = repository.today()
+            val withWaiting = if (waiting > 0) it + (today to (it[today] ?: 0) + waiting) else it
+            com.pixelquest.app.darood.domain.Consistency.of(withWaiting, today)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** Asks the server for the player's days in the party (when their stats are opened). */
+    fun refreshConsistency() {
+        viewModelScope.launch {
+            val result = repository.fetchMyDays(partyId)
+            if (result is SupabaseResult.Success) myDays.value = result.data
+        }
+    }
 
     /** Posters' usernames by user id. */
     val usernames: StateFlow<Map<String, String>> = members
@@ -467,6 +503,7 @@ fun PartyChatRoute(
     val todayTotals = viewModel.today.collectAsState().value
     val simpleMode = viewModel.simpleMode.collectAsState().value
     val myStats = viewModel.myStats.collectAsState().value
+    val consistency = viewModel.consistency.collectAsState().value
     val usernames = viewModel.usernames.collectAsState().value
     com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
@@ -494,6 +531,8 @@ fun PartyChatRoute(
         total = party?.total ?: 0,
         finished = party?.isFinished == true,
         simpleMode = simpleMode,
-        myStats = myStats
+        myStats = myStats,
+        consistency = consistency,
+        onOpenStats = viewModel::refreshConsistency
     )
 }

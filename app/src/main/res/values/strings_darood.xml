@@ -176,6 +176,16 @@
     <string name="darood_stats_place_value"><xliff:g id="place" example="2">%1$d</xliff:g> of <xliff:g id="posters" example="5">%2$d</xliff:g></string>
     <string name="darood_stats_percent"><xliff:g id="percent" example="34">%1$d</xliff:g>%%</string>
     <string name="darood_stats_share_tiny" formatted="false">under 1%</string>
+    <string name="darood_stats_steady">How steady</string>
+    <string name="darood_stats_active_days">Active days</string>
+    <string name="darood_stats_of_30"><xliff:g id="days" example="12">%1$d</xliff:g> of the last 30</string>
+    <string name="darood_stats_current_streak">Days in a row now</string>
+    <string name="darood_stats_best_streak">Best run of days</string>
+    <string name="darood_stats_average">On a day you add</string>
+    <plurals name="darood_stats_days">
+        <item quantity="one"><xliff:g id="days" example="1">%1$d</xliff:g> day</item>
+        <item quantity="other"><xliff:g id="days" example="7">%1$d</xliff:g> days</item>
+    </plurals>
     <string name="darood_stats_none">Nothing from you yet. Your first number puts you in the party\'s count.</string>
     <string name="darood_today_mine">You today: <xliff:g id="total" example="300">%1$s</xliff:g></string>
     <string name="darood_today_party">Party today: <xliff:g id="total" example="2,450">%1$s</xliff:g></string>

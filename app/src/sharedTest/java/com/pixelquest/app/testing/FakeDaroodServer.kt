@@ -181,6 +181,15 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         )
     }
 
+    override suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>> = answer("fetchMyDays") { account ->
+        if (!isActive(partyId, account)) return@answer SupabaseResult.Success(emptyMap())
+        SupabaseResult.Success(
+            entries.filter { it.partyId == partyId && it.userId == account }
+                .groupBy { LocalDate.parse(it.localDate) }
+                .mapValues { (_, theirs) -> theirs.sumOf { it.amount.toLong() } }
+        )
+    }
+
     override suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long> = answer("setMilestone") { account ->
         val party = parties[partyId]
         when {

@@ -37,6 +37,13 @@ data class DayTotalDto(
     @SerialName("total") val total: Long
 )
 
+/** A row of public.party_day_stats for the account itself: its total on one day. */
+@Serializable
+data class MyDayDto(
+    @SerialName("local_date") val localDate: String,
+    @SerialName("total") val total: Long
+)
+
 /** A row of public.party_members. */
 @Serializable
 data class PartyMemberDto(

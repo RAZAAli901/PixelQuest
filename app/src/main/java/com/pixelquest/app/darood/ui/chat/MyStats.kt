@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -53,10 +54,13 @@ fun shareText(share: Double): String = when {
     else -> stringResource(R.string.darood_stats_percent, Math.round(share * 100).toInt())
 }
 
-/** The player's numbers in a sheet over the chat, opened from its top bar. */
+/**
+ * The player's numbers in a sheet over the chat, opened from its top bar: their part of the party,
+ * and how steady they are in it ([consistency], once the server has said which days they posted).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyStatsSheet(stats: MyStats, onDismiss: () -> Unit) {
+fun MyStatsSheet(stats: MyStats, consistency: com.pixelquest.app.darood.domain.Consistency? = null, onDismiss: () -> Unit) {
     val colors = PixelTheme.colors
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -86,6 +90,27 @@ fun MyStatsSheet(stats: MyStats, onDismiss: () -> Unit) {
                 StatLine(stringResource(R.string.darood_stats_total), formatCount(stats.total))
                 stats.share?.let { StatLine(stringResource(R.string.darood_stats_share), shareText(it)) }
                 stats.place?.let { StatLine(stringResource(R.string.darood_stats_place), stringResource(R.string.darood_stats_place_value, it, stats.posters)) }
+            }
+            consistency?.let { steady ->
+                Text(
+                    text = stringResource(R.string.darood_stats_steady),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colors.primaryText,
+                    modifier = Modifier.semantics { heading() }
+                )
+                StatLine(
+                    stringResource(R.string.darood_stats_active_days),
+                    stringResource(R.string.darood_stats_of_30, steady.activeLast30)
+                )
+                StatLine(
+                    stringResource(R.string.darood_stats_current_streak),
+                    pluralStringResource(R.plurals.darood_stats_days, steady.currentStreak, steady.currentStreak)
+                )
+                StatLine(
+                    stringResource(R.string.darood_stats_best_streak),
+                    pluralStringResource(R.plurals.darood_stats_days, steady.bestStreak, steady.bestStreak)
+                )
+                StatLine(stringResource(R.string.darood_stats_average), formatCount(steady.averagePerActiveDay))
             }
         }
     }
