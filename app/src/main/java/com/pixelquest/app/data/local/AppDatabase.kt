@@ -31,9 +31,13 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         InsightCacheEntity::class,
         // The Namaz Tracker (docs/namaz-design.md), from version 8.
         com.pixelquest.app.data.local.entity.NamazLogEntity::class,
-        com.pixelquest.app.data.local.entity.NamazSettingsEntity::class
+        com.pixelquest.app.data.local.entity.NamazSettingsEntity::class,
+        com.pixelquest.app.darood.data.local.PartyEntity::class,
+        com.pixelquest.app.darood.data.local.PartyMemberEntity::class,
+        com.pixelquest.app.darood.data.local.DaroodEntryEntity::class,
+        com.pixelquest.app.darood.data.local.PendingEntryEntity::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -47,6 +51,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun insightCacheDao(): InsightCacheDao
     abstract fun namazLogDao(): com.pixelquest.app.data.local.dao.NamazLogDao
     abstract fun namazSettingsDao(): com.pixelquest.app.data.local.dao.NamazSettingsDao
+    abstract fun daroodDao(): com.pixelquest.app.darood.data.local.DaroodDao
 
     companion object {
         /**
@@ -54,7 +59,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -160,6 +165,25 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `namaz_log` ADD COLUMN `bonusXp` INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        /**
+         * Darood Party's cache (docs/darood-design.md): parties, their members and entries, and the
+         * entries waiting to be sent. Four new tables, which start empty and fill from the server;
+         * nothing existing changes. The SQL is exactly what Room exported for version 10
+         * (app/schemas/.../10.json).
+         */
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `darood_party` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `leaderId` TEXT, `maxMembers` INTEGER NOT NULL, `milestone` INTEGER, `milestoneSetAt` INTEGER, `completedAt` INTEGER, `createdAt` INTEGER NOT NULL, `total` INTEGER NOT NULL, `entryCount` INTEGER NOT NULL, `memberCount` INTEGER NOT NULL, `lastEntryDate` TEXT, `myRole` TEXT NOT NULL, `myStatus` TEXT NOT NULL, `syncedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                db.execSQL("CREATE TABLE IF NOT EXISTS `darood_party_member` (`partyId` TEXT NOT NULL, `userId` TEXT NOT NULL, `username` TEXT, `role` TEXT NOT NULL, `status` TEXT NOT NULL, `invitedAt` INTEGER, `joinedAt` INTEGER, `total` INTEGER NOT NULL DEFAULT 0, `activeDays` INTEGER NOT NULL DEFAULT 0, `lastEntryDate` TEXT, PRIMARY KEY(`partyId`, `userId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_darood_party_member_partyId` ON `darood_party_member` (`partyId`)")
+                db.execSQL("CREATE TABLE IF NOT EXISTS `darood_entry` (`id` INTEGER NOT NULL, `partyId` TEXT NOT NULL, `userId` TEXT, `amount` INTEGER NOT NULL, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `clientId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_darood_entry_partyId_id` ON `darood_entry` (`partyId`, `id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_darood_entry_clientId` ON `darood_entry` (`clientId`)")
+                db.execSQL("CREATE TABLE IF NOT EXISTS `darood_pending_entry` (`clientId` TEXT NOT NULL, `partyId` TEXT NOT NULL, `amount` INTEGER NOT NULL, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `state` TEXT NOT NULL, `attempts` INTEGER NOT NULL DEFAULT 0, `refusal` TEXT, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_darood_pending_entry_partyId` ON `darood_pending_entry` (`partyId`)")
             }
         }
     }

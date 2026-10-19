@@ -196,7 +196,7 @@ class DatabaseUpgradeTest {
 
     @Test
     fun everyEarlierVersion_hasALayoutAndAMigration() {
-        val current = schema(9).getInt("version")
+        val current = schema(10).getInt("version")
         assertEquals(
             "a layout file per version, 1 to $current: bump the version, and its file is written at the next build",
             (1..current).map { "$it.json" }.toSet(),
@@ -238,7 +238,7 @@ class DatabaseUpgradeTest {
 
         val copy = File(copies, "pixelquest-v3.db")
         assertEquals("the old file, as 1.1.0 left it", 3, PreUpdateCopy.versionOf(copy))
-        assertEquals("and the updated one", 9, PreUpdateCopy.versionOf(context.getDatabasePath(name)))
+        assertEquals("and the updated one", 10, PreUpdateCopy.versionOf(context.getDatabasePath(name)))
         context.deleteDatabase(name)
         copies.deleteRecursively()
     }

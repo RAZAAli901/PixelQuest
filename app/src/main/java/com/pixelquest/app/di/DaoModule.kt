@@ -61,4 +61,10 @@ object DaoModule {
     @Provides
     @Singleton
     fun provideNamazSettingsDao(database: AppDatabase): com.pixelquest.app.data.local.dao.NamazSettingsDao = database.namazSettingsDao()
+
+    // Darood Party's cache (docs/darood-design.md).
+
+    @Provides
+    @Singleton
+    fun provideDaroodDao(database: AppDatabase): com.pixelquest.app.darood.data.local.DaroodDao = database.daroodDao()
 }
