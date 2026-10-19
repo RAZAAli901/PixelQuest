@@ -195,4 +195,10 @@ abstract class RepositoryModule {
     abstract fun bindDaroodLiveSource(
         impl: com.pixelquest.app.darood.sync.SupabaseDaroodLiveSource
     ): com.pixelquest.app.darood.sync.DaroodLiveSource
+
+    @Binds
+    @Singleton
+    abstract fun bindDaroodCacheOwner(
+        impl: com.pixelquest.app.darood.sync.PrefsDaroodCacheOwner
+    ): com.pixelquest.app.darood.sync.DaroodCacheOwner
 }

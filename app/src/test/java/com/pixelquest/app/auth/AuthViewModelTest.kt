@@ -193,4 +193,22 @@ class AuthViewModelTest {
         assertTrue("GoogleAuthManager signOut should be called", fakeGoogleAuthManager.signOutCalled)
         assertEquals(null, fakeUserProfileRepo.storedSupabaseUserId)
     }
+
+    @Test
+    fun signingOut_firstSendsDaroodEntriesStillWaiting() = runTest {
+        fakeAuthRepo.userFlow.value = AuthUser(id = "user_123", email = null, displayName = null)
+        var signedInWhenSent: Boolean? = null
+        val darood = io.mockk.mockk<com.pixelquest.app.darood.data.DaroodPartyRepository>(relaxed = true)
+        io.mockk.coEvery { darood.sendPending() } answers {
+            signedInWhenSent = fakeAuthRepo.userFlow.value != null
+            com.pixelquest.app.darood.data.SendReport(1, 0, 0)
+        }
+        val viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo, fakeUserProfileRepo, daroodParties = darood)
+
+        viewModel.signOut()
+        advanceUntilIdle()
+
+        assertEquals(true, signedInWhenSent)
+        assertEquals(null, fakeAuthRepo.userFlow.value)
+    }
 }

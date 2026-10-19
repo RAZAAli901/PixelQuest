@@ -54,6 +54,9 @@ class PixelQuestApplication : Application(), Configuration.Provider {
     @javax.inject.Inject
     lateinit var daroodSync: com.pixelquest.app.darood.sync.DaroodSyncScheduler
 
+    @javax.inject.Inject
+    lateinit var daroodCleanup: dagger.Lazy<com.pixelquest.app.darood.sync.DaroodAccountCleanup>
+
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     override fun onCreate() {
@@ -66,6 +69,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         com.pixelquest.app.audio.FeedbackSettingsSync.start(appScope, settingsRepository, soundManager)
         // Signed out, saved AI-written reminder lines are dropped (the AI Coach is for signed-in players).
         com.pixelquest.app.auth.AiSignOutCleanup.start(appScope, { aiAccess.get() }, encouragementPackStore)
+        // Darood Party's data is the signed-in account's: cleared on sign-out or a switch of account.
+        appScope.launch { daroodCleanup.get().start(this) }
         // Start connectivity observer for prompt sync retry on reconnection
         connectivitySyncObserver.startObserving()
         // Background async enqueue of periodic background workers

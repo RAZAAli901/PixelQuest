@@ -52,7 +52,8 @@ class AuthViewModel @Inject constructor(
     private val userProfileRepository: com.pixelquest.app.domain.repository.UserProfileRepository,
     private val accountLink: CloudAccountLink? = null,
     private val cloudProfiles: com.pixelquest.app.data.repository.CloudProfileRepository? = null,
-    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null
+    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null,
+    private val daroodParties: com.pixelquest.app.darood.data.DaroodPartyRepository? = null
 ) : ViewModel() {
 
     /** Links [accountId] to this device's profile; a different account than last time starts fresh (see CloudAccountLink). */
@@ -186,6 +187,13 @@ class AuthViewModel @Inject constructor(
         authJob?.cancel()
         authJob = viewModelScope.launch {
             sendPendingLeave()
+            // Darood entries still waiting go now, while there's a sign-in to send them with: signing
+            // out clears them from the phone (DaroodAccountCleanup).
+            try {
+                daroodParties?.sendPending()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (_: Exception) {}
             try {
                 authRepository.signOut()
             } catch (_: Exception) {}
