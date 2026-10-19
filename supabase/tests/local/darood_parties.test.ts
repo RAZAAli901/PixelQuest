@@ -333,3 +333,22 @@ localTest("entries and memberships are published for live updates (2026101900002
   for (const table of ["profiles", "usernames", "parties"]) assert.ok(!published.split(",").includes(table), published);
 });
 
+localTest("at most 20 invitations an hour per account, unknown names included (20261019000026)", async () => {
+  const [leader, friend] = await Promise.all(["rl", "rf"].map((t) => player(`darood_${t}`)));
+  const first = await partyOf(leader, [], { max_members: 30 });
+  const second = await partyOf(leader, [], { max_members: 30 });
+  // 20 across two parties, made-up names among them.
+  for (let i = 0; i < 20; i++) {
+    const answer = await rpc(leader, "invite_member", { party_id: i % 2 ? first : second, username: `nobody_${i}_${Date.now() % 1e5}` });
+    assert.deepEqual(answer.body, { status: "sent" }, String(i));
+  }
+  const twentyFirst = await rpc(leader, "invite_member", { party_id: first, username: friend.username });
+  assert.deepEqual([twentyFirst.status, twentyFirst.body.message], [400, "too_many_invites"]);
+  // Another leader isn't held back by this one.
+  const own = await partyOf(friend, []);
+  assert.deepEqual((await rpc(friend, "invite_member", { party_id: own, username: leader.username })).body, { status: "sent" });
+  // An hour on, it's allowed again.
+  sql(`UPDATE private.invite_log SET at = now() - interval '61 minutes' WHERE inviter = '${leader.userId}'`);
+  assert.deepEqual((await rpc(leader, "invite_member", { party_id: first, username: friend.username })).body, { status: "sent" });
+});
+

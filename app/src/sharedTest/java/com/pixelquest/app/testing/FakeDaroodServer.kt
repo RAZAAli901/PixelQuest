@@ -35,6 +35,9 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
     val entries = mutableListOf<DaroodEntryDto>()
     val usernames = mutableMapOf<String, String>()
     val calls = mutableListOf<String>()
+
+    /** Invitations sent, as (inviter, when): 20 an hour each at most, as the server allows. */
+    val inviteLog = mutableListOf<Pair<String, Instant>>()
     private var nextParty = 1
     private var nextEntry = 1L
 
@@ -97,6 +100,8 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         val party = parties[partyId]
         if (party?.leaderId != account) return@answer refuse("not_leader", 403)
         if (party.completedAt != null) return@answer refuse("party_closed")
+        if (inviteLog.count { (who, at) -> who == account && at.isAfter(now.minusSeconds(3600)) } >= 20) return@answer refuse("too_many_invites")
+        inviteLog += account to now
         val invitee = usernames.entries.firstOrNull { it.value.equals(username.trim(), ignoreCase = true) }?.key
         val existing = invitee?.let { membership(partyId, it) }
         if (existing?.status == "active") return@answer SupabaseResult.Success(InviteOutcome.ALREADY_MEMBER)

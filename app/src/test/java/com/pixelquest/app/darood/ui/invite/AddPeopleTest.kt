@@ -241,6 +241,15 @@ class AddPeopleTest {
         composeTestRule.onNodeWithTag(DaroodTestTags.ADD_INVITE).assertIsNotEnabled()
     }
 
+    @Test
+    fun the21stInvitationInAnHour_isRefused_andSaysWhy() = runTest(dispatcher) {
+        repeat(20) { server.inviteLog += "aria-id" to server.now }
+        val vm = viewModel()
+        vm.invite("bram")
+        waitUntil { vm.uiState.value.result != null }
+        assertEquals(InviteResult.Refused(com.pixelquest.app.darood.domain.DaroodRefusal.TOO_MANY_INVITES), vm.uiState.value.result)
+    }
+
     /** Room answers on its own threads: real time, a little at a time. */
     private suspend fun kotlinx.coroutines.test.TestScope.waitUntil(condition: () -> Boolean) {
         repeat(200) {

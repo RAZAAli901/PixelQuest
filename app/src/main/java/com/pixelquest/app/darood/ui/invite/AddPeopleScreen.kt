@@ -187,6 +187,7 @@ private fun InviteResultLine(result: InviteResult) {
                 com.pixelquest.app.darood.domain.DaroodRefusal.PARTY_FULL -> R.string.darood_add_full
                 com.pixelquest.app.darood.domain.DaroodRefusal.NOT_LEADER -> R.string.darood_add_not_leader
                 com.pixelquest.app.darood.domain.DaroodRefusal.PARTY_CLOSED -> R.string.darood_add_closed
+                com.pixelquest.app.darood.domain.DaroodRefusal.TOO_MANY_INVITES -> R.string.darood_add_too_many
                 else -> R.string.darood_add_failed
             }
         )

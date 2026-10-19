@@ -18,6 +18,7 @@ enum class DaroodRefusal(val token: String) {
     DAILY_LIMIT("daily_limit"),
     BAD_DAY("bad_day"),
     BAD_TIME_ZONE("bad_time_zone"),
+    TOO_MANY_INVITES("too_many_invites"),
 
     /** Another of the server's rules (a name's length, an amount's range): the app checks these first. */
     INVALID("");

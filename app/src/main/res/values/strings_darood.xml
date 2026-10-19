@@ -70,6 +70,7 @@
     <string name="darood_add_is_full">This party is full: <xliff:g id="taken" example="10">%1$d</xliff:g> of <xliff:g id="limit" example="10">%2$d</xliff:g> places are taken, invitations included. Remove someone, or wait for an invitation to be declined, to make room.</string>
     <string name="darood_add_not_leader">Only the party\'s leader can invite.</string>
     <string name="darood_add_closed">This party is finished, so it takes nobody new.</string>
+    <string name="darood_add_too_many">That\'s 20 invitations in the last hour, the most there can be. Try again a little later.</string>
     <string name="darood_add_failed">Couldn\'t send the invitation. Try again.</string>
     <string name="darood_add_people_title">People</string>
     <string name="darood_someone">Someone</string>
