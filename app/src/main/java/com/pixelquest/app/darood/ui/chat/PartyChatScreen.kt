@@ -60,6 +60,7 @@ import javax.inject.Inject
  *   number field shows, holding [draft].
  * @param confirming a big number waiting to be confirmed: a dialog asks if it's what the player meant.
  * @param todayTotals the day's numbers for the strip under the top bar; none until they're known.
+ * @param myStats the player's numbers in the party: the top bar's 📊 opens them in a sheet.
  * @param simpleMode the app's Simple Mode: the chat's plain look in any theme ([chatLook]).
  * @param milestone the party's milestone, if it has one: a bar pinned under the top bar shows how far
  *   its [total] is toward it, and can be folded away to a slim line.
@@ -89,13 +90,14 @@ fun PartyChatScreen(
     milestone: Long? = null,
     total: Long = 0,
     finished: Boolean = false,
-    simpleMode: Boolean = false
+    simpleMode: Boolean = false,
+    myStats: MyStats? = null
 ) {
     androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides simpleMode) {
         PartyChatContent(
             partyName, onNavigateBack, onOpenInfo, isLeader, onAddPeople, memberCount, items, usernames, today, loadingOlder,
             onReachOldest, canPost, draft, onDraftChange, onSend, confirming, onConfirmSend, onCancelSend, onRetry, todayTotals,
-            milestone, total, finished
+            milestone, total, finished, myStats
         )
     }
 }
@@ -124,9 +126,11 @@ private fun PartyChatContent(
     todayTotals: com.pixelquest.app.darood.domain.DayTotals?,
     milestone: Long?,
     total: Long,
-    finished: Boolean
+    finished: Boolean,
+    myStats: MyStats?
 ) {
     val colors = PixelTheme.colors
+    var showingStats by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     Scaffold(
         containerColor = colors.background,
         topBar = {
@@ -149,6 +153,16 @@ private fun PartyChatContent(
                     }
                 },
                 actions = {
+                    if (myStats != null) {
+                        IconButton(onClick = { showingStats = true }, modifier = Modifier.testTag(DaroodTestTags.CHAT_STATS)) {
+                            SymbolIcon(
+                                symbol = "📊",
+                                contentDescription = stringResource(R.string.darood_stats_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
+                    }
                     IconButton(onClick = onOpenInfo) {
                         SymbolIcon(
                             symbol = "ℹ️",
@@ -224,6 +238,7 @@ private fun PartyChatContent(
         }
     }
 
+    if (showingStats && myStats != null) MyStatsSheet(stats = myStats, onDismiss = { showingStats = false })
     if (confirming != null) {
         com.pixelquest.app.ui.components.PixelConfirmDialog(
             title = stringResource(R.string.darood_confirm_title, com.pixelquest.app.darood.ui.formatCount(confirming)),
@@ -288,6 +303,11 @@ class PartyChatViewModel @Inject constructor(
         // The cache gives the newest first; the chat reads oldest first.
         chatItemsOf(entries.asReversed(), accountId, java.time.ZoneId.systemDefault(), partyEventsOf(party, members))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** The player's numbers in the party: total, share and place, from the members' totals. */
+    val myStats: StateFlow<MyStats?> = kotlinx.coroutines.flow.combine(repository.observeMemberStats(partyId), repository.observeParty(partyId)) { stats, party ->
+        party?.let { myStatsOf(stats, it.total, accountId) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** Posters' usernames by user id. */
     val usernames: StateFlow<Map<String, String>> = members
@@ -446,6 +466,7 @@ fun PartyChatRoute(
     val confirming = viewModel.confirming.collectAsState().value
     val todayTotals = viewModel.today.collectAsState().value
     val simpleMode = viewModel.simpleMode.collectAsState().value
+    val myStats = viewModel.myStats.collectAsState().value
     val usernames = viewModel.usernames.collectAsState().value
     com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
@@ -472,6 +493,7 @@ fun PartyChatRoute(
         milestone = party?.milestone,
         total = party?.total ?: 0,
         finished = party?.isFinished == true,
-        simpleMode = simpleMode
+        simpleMode = simpleMode,
+        myStats = myStats
     )
 }

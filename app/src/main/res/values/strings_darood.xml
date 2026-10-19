@@ -168,6 +168,15 @@
     <string name="darood_milestone_folded">Folded</string>
     <string name="darood_milestone_show">show the milestone</string>
     <string name="darood_milestone_hide">fold the milestone away</string>
+    <!-- My stats, in a sheet over the chat. -->
+    <string name="darood_stats_title">My stats</string>
+    <string name="darood_stats_total">My total</string>
+    <string name="darood_stats_share">My share of the party</string>
+    <string name="darood_stats_place">My place</string>
+    <string name="darood_stats_place_value"><xliff:g id="place" example="2">%1$d</xliff:g> of <xliff:g id="posters" example="5">%2$d</xliff:g></string>
+    <string name="darood_stats_percent"><xliff:g id="percent" example="34">%1$d</xliff:g>%%</string>
+    <string name="darood_stats_share_tiny" formatted="false">under 1%</string>
+    <string name="darood_stats_none">Nothing from you yet. Your first number puts you in the party\'s count.</string>
     <string name="darood_today_mine">You today: <xliff:g id="total" example="300">%1$s</xliff:g></string>
     <string name="darood_today_party">Party today: <xliff:g id="total" example="2,450">%1$s</xliff:g></string>
     <string name="darood_chat_jump">Jump to the newest</string>
