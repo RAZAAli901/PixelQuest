@@ -27,6 +27,7 @@ import com.pixelquest.app.darood.sync.DaroodSyncScheduler
 import com.pixelquest.app.darood.sync.PartyChange
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.channelFlow
@@ -123,7 +124,8 @@ class DaroodPartyRepositoryImpl(
     private val zone: () -> ZoneId,
     private val syncScheduler: DaroodSyncScheduler? = null,
     private val live: DaroodLiveSource? = null,
-    private val numbersDelayMs: Long = NUMBERS_DELAY_MS
+    private val numbersDelayMs: Long = NUMBERS_DELAY_MS,
+    private val catchUpDelayMs: Long = CATCH_UP_DELAY_MS
 ) : DaroodPartyRepository {
 
     @Inject
@@ -268,6 +270,16 @@ class DaroodPartyRepositoryImpl(
                     numbersChanged.tryEmit(Unit)
                 }
                 PartyChange.MembersChanged -> refreshParty(partyId)
+                // Listening has started: catch up with anything posted while it was starting. Realtime
+                // says a channel has joined a moment before its database listener is ready, so once
+                // more a little later, for anything posted in between.
+                PartyChange.Subscribed -> {
+                    refreshParty(partyId)
+                    launch {
+                        delay(catchUpDelayMs)
+                        refreshParty(partyId)
+                    }
+                }
             }
             send(change)
         }
@@ -310,6 +322,9 @@ class DaroodPartyRepositoryImpl(
     companion object {
         /** How long a party's entries must pause before its numbers are refreshed. */
         const val NUMBERS_DELAY_MS = 1_500L
+
+        /** How long after listening starts the second catch-up comes, once the server listens too. */
+        const val CATCH_UP_DELAY_MS = 3_000L
     }
 }
 

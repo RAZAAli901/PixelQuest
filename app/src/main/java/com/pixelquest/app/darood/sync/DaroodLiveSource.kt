@@ -26,6 +26,12 @@ sealed interface PartyChange {
 
     /** Someone joined, left, was removed or was invited. */
     data object MembersChanged : PartyChange
+
+    /**
+     * Listening has started. Anything posted while it was starting wasn't heard, so this is the
+     * moment to catch up.
+     */
+    data object Subscribed : PartyChange
 }
 
 /**
@@ -46,22 +52,32 @@ class SupabaseDaroodLiveSource @Inject constructor(
 ) : DaroodLiveSource {
 
     override fun changes(partyId: String): Flow<PartyChange> = channelFlow {
-        val channel = supabase.channel("darood-party-$partyId")
-        val entries = channel.postgresChangeFlow<PostgresAction.Insert>(schema = "public") {
+        // A channel per table: supabase-kt 3.0.2 can throw (IndexOutOfBoundsException) when two change
+        // flows on one channel are torn down at once, as they are when the screen closes.
+        val entriesChannel = supabase.channel("darood-entries-$partyId")
+        val membersChannel = supabase.channel("darood-members-$partyId")
+        val entries = entriesChannel.postgresChangeFlow<PostgresAction.Insert>(schema = "public") {
             table = "darood_entries"
             filter("party_id", FilterOperator.EQ, partyId)
         }
-        val members = channel.postgresChangeFlow<PostgresAction>(schema = "public") {
+        val members = membersChannel.postgresChangeFlow<PostgresAction>(schema = "public") {
             table = "party_members"
             filter("party_id", FilterOperator.EQ, partyId)
         }
         launch { entries.collect { send(PartyChange.EntryAdded(it.decodeRecord<DaroodEntryDto>().toDomain())) } }
         launch { members.collect { send(PartyChange.MembersChanged) } }
         try {
-            channel.subscribe()
+            entriesChannel.subscribe(blockUntilSubscribed = true)
+            membersChannel.subscribe(blockUntilSubscribed = true)
+            send(PartyChange.Subscribed)
             awaitCancellation()
         } finally {
-            withContext(NonCancellable) { supabase.realtime.removeChannel(channel) }
+            withContext(NonCancellable) {
+                for (channel in listOf(entriesChannel, membersChannel)) {
+                    // Closing must never fail the screen: a channel already gone is fine.
+                    runCatching { supabase.realtime.removeChannel(channel) }
+                }
+            }
         }
     }
 }

@@ -196,7 +196,8 @@ class DaroodPartyRepositoryTest {
 
     private val live = com.pixelquest.app.testing.FakeDaroodLive()
     private val following = DaroodPartyRepositoryImpl(
-        server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }, live = live, numbersDelayMs = 0
+        server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }, live = live,
+        numbersDelayMs = 0, catchUpDelayMs = 300
     )
 
     @Test
@@ -249,6 +250,23 @@ class DaroodPartyRepositoryTest {
         waitUntil { following.observeMembers(friday).first().size == 2 }
 
         assertEquals(listOf("aria_k", "bram"), following.observeMembers(friday).first().map { it.username })
+        job.cancel()
+    }
+
+    @Test
+    fun onceListening_itCatchesUp_nowAndAgainALittleLater() = runBlocking {
+        val friday = server.seedParty("Friday circle", "me", "u2")
+        following.refreshParty(friday)
+        val job = launch(kotlinx.coroutines.Dispatchers.Unconfined) { following.followParty(friday).collect { } }
+
+        // Posted while listening was starting: never heard live.
+        server.seedEntry(friday, "u2", 11)
+        live.send(friday, com.pixelquest.app.darood.sync.PartyChange.Subscribed)
+        waitUntil { following.observeEntries(friday, 50).first().size == 1 }
+
+        // Posted just after, before the server listened: the second catch-up brings it.
+        server.seedEntry(friday, "u2", 22)
+        waitUntil { following.observeEntries(friday, 50).first().size == 2 }
         job.cancel()
     }
 
