@@ -212,4 +212,19 @@ class MenuStateTest {
         advanceUntilIdle()
         assertNull(vm.header.value.username)
     }
+
+    @Test
+    fun darood_showsOnlyWhileItsFlagIsOn() = runTest {
+        assertTrue(MenuItemId.DAROOD in MenuItems.all.visibleIn(MenuContext()).map { it.id })
+        assertFalse(MenuItemId.DAROOD in MenuItems.all.visibleIn(MenuContext(daroodAvailable = false)).map { it.id })
+
+        val settings = FakeSettingsRepository()
+        val vm = viewModel(settings = settings)
+        backgroundScope.launch { vm.context.collect {} }
+        advanceUntilIdle()
+        assertTrue(vm.context.value.daroodAvailable)
+        settings.setDaroodAvailable(false)
+        advanceUntilIdle()
+        assertFalse(vm.context.value.daroodAvailable)
+    }
 }

@@ -102,12 +102,15 @@ class MenuViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuHeaderState())
 
-    /** What decides which entries show and what they say: Namaz's availability and switch, Simple Mode. */
+    /** What decides which entries show and what they say: Namaz's availability and switch, Darood's flag, Simple Mode. */
     val context: StateFlow<MenuContext> = combine(
         settingsRepository.namazAvailable,
         settingsRepository.simpleModeEnabled,
-        namazRepository?.observeSettings()?.map { it.enabled } ?: flowOf(false)
-    ) { namaz, simple, namazOn -> MenuContext(namazAvailable = namaz, isSimpleMode = simple, namazEnabled = namazOn) }
+        namazRepository?.observeSettings()?.map { it.enabled } ?: flowOf(false),
+        settingsRepository.daroodAvailable
+    ) { namaz, simple, namazOn, darood ->
+        MenuContext(namazAvailable = namaz, isSimpleMode = simple, namazEnabled = namazOn, daroodAvailable = darood)
+    }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuContext())
 
     // Kept in the saved state, so the last entry opened is still highlighted after a rotation, or

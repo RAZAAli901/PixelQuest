@@ -5,12 +5,16 @@ import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.auth.AuthRepository
 import com.pixelquest.app.darood.data.UsernamePromptStore
 import com.pixelquest.app.darood.data.UsernameRepository
+import com.pixelquest.app.darood.domain.DaroodFeatureFlag
+import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.data.remote.SupabaseResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -29,7 +33,8 @@ import javax.inject.Inject
 class UsernamePromptViewModel @Inject constructor(
     authRepository: AuthRepository,
     private val usernames: UsernameRepository,
-    private val store: UsernamePromptStore
+    private val store: UsernamePromptStore,
+    settingsRepository: SettingsRepository? = null
 ) : ViewModel() {
 
     private val _prompt = MutableStateFlow(false)
@@ -39,9 +44,13 @@ class UsernamePromptViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            authRepository.currentUser.map { it?.id }.distinctUntilChanged().collectLatest { accountId ->
+            combine(
+                authRepository.currentUser.map { it?.id },
+                settingsRepository?.daroodAvailable ?: flowOf(DaroodFeatureFlag.DEFAULT_ON)
+            ) { accountId, available -> accountId.takeIf { available } }.distinctUntilChanged().collectLatest { accountId ->
                 pendingAccount = null
                 _prompt.value = false
+                // Signed out, or Darood Party turned off: nothing to ask.
                 if (accountId == null) return@collectLatest
                 val mine = usernames.fetchMyUsername() as? SupabaseResult.Success ?: return@collectLatest
                 if (store.wasPrompted(accountId)) return@collectLatest

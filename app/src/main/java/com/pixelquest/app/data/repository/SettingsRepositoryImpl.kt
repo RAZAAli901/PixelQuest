@@ -1,5 +1,6 @@
 package com.pixelquest.app.data.repository
 
+import com.pixelquest.app.darood.domain.DaroodFeatureFlag
 import android.content.Context
 import android.content.SharedPreferences
 import com.pixelquest.app.domain.repository.SettingsRepository
@@ -255,6 +256,19 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_NAMAZ_AVAILABLE, available).apply()
     }
 
+    override val daroodAvailable: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_DAROOD_AVAILABLE) trySend(prefs.getBoolean(KEY_DAROOD_AVAILABLE, DaroodFeatureFlag.DEFAULT_ON))
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(prefs.getBoolean(KEY_DAROOD_AVAILABLE, DaroodFeatureFlag.DEFAULT_ON))
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setDaroodAvailable(available: Boolean) {
+        prefs.edit().putBoolean(KEY_DAROOD_AVAILABLE, available).apply()
+    }
+
     override val namazSetupShown: Flow<Boolean> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_NAMAZ_SETUP_SHOWN) trySend(prefs.getBoolean(KEY_NAMAZ_SETUP_SHOWN, false))
@@ -306,6 +320,7 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_LAST_BACKUP_AT = "key_last_backup_at"
         private const val KEY_NAMAZ_AVAILABLE = "key_namaz_available"
         private const val KEY_NAMAZ_SETUP_SHOWN = "key_namaz_setup_shown"
+        private const val KEY_DAROOD_AVAILABLE = "key_darood_available"
         private const val KEY_ONBOARDING_COMPLETE = "key_onboarding_complete"
         private const val KEY_NOTIFICATIONS_ENABLED = "key_notifications_enabled"
         private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"

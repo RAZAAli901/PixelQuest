@@ -14,7 +14,9 @@ data class MenuContext(
     /** Simple Mode: plain wording, no game terms. */
     val isSimpleMode: Boolean = false,
     /** The Namaz Tracker's own switch is on. */
-    val namazEnabled: Boolean = false
+    val namazEnabled: Boolean = false,
+    /** Darood Party's feature flag is on (SettingsRepository.daroodAvailable). */
+    val daroodAvailable: Boolean = true
 )
 
 /**
@@ -59,7 +61,8 @@ object MenuItems {
         id = MenuItemId.DAROOD,
         label = R.string.menu_darood,
         icon = "📿",
-        route = Screen.DaroodParty.route
+        route = Screen.DaroodParty.route,
+        visibleWhen = { it.daroodAvailable }
     )
 
     // Shortcuts to screens that are otherwise a few taps deep (Profile, then Settings, then Account).

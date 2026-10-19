@@ -104,4 +104,17 @@ class UsernamePromptViewModelTest {
         assertFalse(viewModel.prompt.value)
         assertTrue(store.prompted.isEmpty())
     }
+
+    @Test
+    fun withDaroodTurnedOff_nobodyIsAsked_untilItsBackOn() = runTest {
+        val settings = com.pixelquest.app.testing.FakeSettingsRepository()
+        settings.setDaroodAvailable(false)
+        val viewModel = UsernamePromptViewModel(auth, usernames, store, settings)
+        auth.userFlow.value = aria
+        assertFalse(viewModel.prompt.value)
+        assertTrue(store.prompted.isEmpty())
+
+        settings.setDaroodAvailable(true)
+        assertTrue(viewModel.prompt.value)
+    }
 }

@@ -89,6 +89,14 @@ interface SettingsRepository {
 
     suspend fun setNamazAvailable(available: Boolean) {}
 
+    /**
+     * Darood Party's feature flag ([com.pixelquest.app.darood.domain.DaroodFeatureFlag]): whether it's
+     * offered, with its entry in the side menu. On by default.
+     */
+    val daroodAvailable: Flow<Boolean> get() = kotlinx.coroutines.flow.flowOf(com.pixelquest.app.darood.domain.DaroodFeatureFlag.DEFAULT_ON)
+
+    suspend fun setDaroodAvailable(available: Boolean) {}
+
     /** Whether the Namaz Tracker's first-time setup was shown: once, when its switch is first turned on. */
     val namazSetupShown: Flow<Boolean> get() = kotlinx.coroutines.flow.flowOf(false)
 
