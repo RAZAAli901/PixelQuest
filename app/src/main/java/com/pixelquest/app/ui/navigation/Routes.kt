@@ -26,6 +26,8 @@ sealed class Screen(val route: String) {
     object AiInsight : Screen("ai_insight")
     /** The Namaz Tracker, from the side menu. */
     object Namaz : Screen("namaz")
+    /** Claiming or changing the Darood Party username. */
+    object UsernameSetup : Screen("username_setup")
 }
 
 /** Groups of routes the app's frame cares about. */

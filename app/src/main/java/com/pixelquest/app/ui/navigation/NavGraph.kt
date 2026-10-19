@@ -225,6 +225,12 @@ fun PixelNavHost(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
+        composable(Screen.UsernameSetup.route) {
+            com.pixelquest.app.darood.ui.username.UsernameSetupScreen(
+                onDone = { navController.popBackStack() },
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
         composable(Screen.Namaz.route) {
             com.pixelquest.app.ui.screens.namaz.NamazScreen(onNavigateBack = { navController.popBackStack() })
         }

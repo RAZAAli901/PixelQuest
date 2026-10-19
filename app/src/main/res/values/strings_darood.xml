@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Darood Party's text (docs/darood-design.md), all in this file.
+
+    For translators:
+    - "Darood" is a proper name: keep the form your language uses for it.
+    - Usernames are shown as typed by players, after an @: never translate them.
+    - <xliff:g> marks a value filled in by the app; keep it, move it where your grammar needs it,
+      and leave what's inside unchanged. Its example shows what the app puts there.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The username screen: claiming or changing the name others invite you by. -->
+    <string name="darood_username_title">Your username</string>
+    <string name="darood_username_intro">Friends invite you to a Darood Party by your username. It isn\'t listed anywhere: share it with the people you want to read with.</string>
+    <string name="darood_username_label">Username</string>
+    <string name="darood_username_placeholder">e.g. aria_k</string>
+    <string name="darood_username_rules">3 to 20 letters, numbers or _. You can change it once every 30 days.</string>
+    <string name="darood_username_save">Save username</string>
+    <string name="darood_username_saving">Saving…</string>
+    <string name="darood_username_checking">Checking…</string>
+    <string name="darood_username_available">@<xliff:g id="name" example="aria_k">%1$s</xliff:g> is free</string>
+    <string name="darood_username_taken">@<xliff:g id="name" example="aria_k">%1$s</xliff:g> is taken. Try another one.</string>
+    <string name="darood_username_unknown">Couldn\'t check right now. Check your connection.</string>
+    <string name="darood_username_yours">That\'s your username.</string>
+    <string name="darood_username_current">Your username is @<xliff:g id="name" example="aria_k">%1$s</xliff:g>.</string>
+    <string name="darood_username_changeable_at">You can change it from <xliff:g id="date" example="18 Nov 2026">%1$s</xliff:g>.</string>
+    <string name="darood_username_too_short">At least 3 characters.</string>
+    <string name="darood_username_too_long">At most 20 characters.</string>
+    <string name="darood_username_invalid_characters">Only letters a to z, numbers and _.</string>
+    <string name="darood_username_reserved">That name is reserved. Try another one.</string>
+    <string name="darood_username_error_taken">Someone took that name just now. Try another one.</string>
+    <string name="darood_username_error_invalid">That name isn\'t allowed. Try another one.</string>
+    <string name="darood_username_error_too_soon">You changed your username recently. You can change it again from <xliff:g id="date" example="18 Nov 2026">%1$s</xliff:g>.</string>
+    <string name="darood_username_error_offline">Couldn\'t save. Check your connection and try again.</string>
+</resources>
