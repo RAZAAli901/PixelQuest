@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -45,6 +46,7 @@ import com.pixelquest.app.darood.domain.Party
 import com.pixelquest.app.darood.domain.PartyMember
 import com.pixelquest.app.darood.domain.PartyRole
 import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.darood.ui.formatCount
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
@@ -94,11 +96,20 @@ data class PartyInfoUiState(
     val newName: String? = null,
     val confirmingTransfer: PartyMember? = null,
     val deleteConfirmation: String? = null,
+    val newMilestone: String? = null,
     val busy: Boolean = false,
     val problem: InfoProblem? = null,
     val left: Boolean = false
 ) {
     val isLeader: Boolean get() = party?.leaderId != null && party.leaderId == myId
+
+    /** The milestone typed, if it's above the party's total, as the server insists; null otherwise. */
+    val newMilestoneValue: Long?
+        get() {
+            val typed = newMilestone?.toLongOrNull() ?: return null
+            val total = party?.total ?: return null
+            return typed.takeIf { it > total }
+        }
 
     /** The leader has typed the party's name, exactly, to confirm deleting it. */
     val deleteConfirmed: Boolean get() = party != null && deleteConfirmation?.trim() == party.name
@@ -152,7 +163,29 @@ class PartyInfoViewModel @Inject constructor(
         _uiState.update { it.copy(confirmingRemoval = member, problem = null) }
     }
 
-    fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null, confirmingLeave = false, newName = null, confirmingTransfer = null, deleteConfirmation = null) }
+    fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null, confirmingLeave = false, newName = null, confirmingTransfer = null, deleteConfirmation = null, newMilestone = null) }
+
+    /** The leader opens the milestone dialog, with the milestone as it stands (if any) to change. */
+    fun startMilestone() {
+        val party = _uiState.value.party ?: return
+        if (!_uiState.value.isLeader || party.isFinished) return
+        _uiState.update { it.copy(newMilestone = party.milestone?.toString() ?: "", problem = null) }
+    }
+
+    fun onMilestoneChange(raw: String) =
+        _uiState.update { if (it.newMilestone == null) it else it.copy(newMilestone = milestoneDigits(raw)) }
+
+    /** Saves the milestone typed, once it's above the party's total. */
+    fun confirmMilestone() {
+        val state = _uiState.value
+        val target = state.newMilestoneValue ?: return
+        if (state.busy) return
+        _uiState.update { it.copy(newMilestone = null, busy = true) }
+        viewModelScope.launch {
+            val result = repository.setMilestone(partyId, target)
+            _uiState.update { it.copy(busy = false, problem = problemOf(result)) }
+        }
+    }
 
     /** The leader opens the rename dialog, with the party's name to edit. */
     fun startRename() {
@@ -270,6 +303,9 @@ fun PartyInfoScreen(
         onTransfer = viewModel::askToTransfer,
         onConfirmTransfer = viewModel::confirmTransfer,
         onDelete = viewModel::startDelete,
+        onMilestone = viewModel::startMilestone,
+        onMilestoneChange = viewModel::onMilestoneChange,
+        onConfirmMilestone = viewModel::confirmMilestone,
         onDeleteConfirmationChange = viewModel::onDeleteConfirmationChange,
         onConfirmDelete = viewModel::confirmDelete,
         onDismissDialog = viewModel::dismissDialog
@@ -291,6 +327,9 @@ fun PartyInfoContent(
     onTransfer: (PartyMember) -> Unit = {},
     onConfirmTransfer: () -> Unit = {},
     onDelete: () -> Unit = {},
+    onMilestone: () -> Unit = {},
+    onMilestoneChange: (String) -> Unit = {},
+    onConfirmMilestone: () -> Unit = {},
     onDeleteConfirmationChange: (String) -> Unit = {},
     onConfirmDelete: () -> Unit = {},
     onDismissDialog: () -> Unit = {}
@@ -335,6 +374,25 @@ fun PartyInfoContent(
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurface
             )
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = party.milestone?.let { stringResource(R.string.darood_info_milestone, formatCount(it)) }
+                        ?: stringResource(R.string.darood_info_no_milestone),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurface,
+                    modifier = Modifier.weight(1f).testTag(DaroodTestTags.INFO_MILESTONE)
+                )
+                // A finish is final: the milestone stays as it was reached.
+                if (state.isLeader && !party.isFinished) {
+                    PixelButton(
+                        text = stringResource(if (party.milestone == null) R.string.darood_info_set_milestone else R.string.darood_info_change_milestone),
+                        onClick = onMilestone,
+                        variant = PixelButtonVariant.BLUE,
+                        enabled = !state.busy,
+                        modifier = Modifier.testTag(DaroodTestTags.INFO_SET_MILESTONE)
+                    )
+                }
+            }
             if (state.isLeader) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (!party.isFinished) {
@@ -440,6 +498,18 @@ fun PartyInfoContent(
             DeleteConfirmation(typed = typed, partyName = partyName, confirmed = state.deleteConfirmed, onTypedChange = onDeleteConfirmationChange)
         }
     }
+    state.newMilestone?.let { typed ->
+        PixelDialog(
+            onDismissRequest = onDismissDialog,
+            title = stringResource(R.string.darood_info_milestone_title),
+            confirmButtonText = stringResource(R.string.darood_info_rename_save),
+            onConfirm = onConfirmMilestone,
+            dismissButtonText = stringResource(R.string.darood_cancel),
+            onDismiss = onDismissDialog
+        ) {
+            MilestoneField(typed = typed, total = state.party?.total ?: 0, onTypedChange = onMilestoneChange)
+        }
+    }
     state.newName?.let { name ->
         PixelDialog(
             onDismissRequest = onDismissDialog,
@@ -452,6 +522,34 @@ fun PartyInfoContent(
             RenameField(name = name, problem = state.newNameProblem, onNameChange = onNewNameChange)
         }
     }
+}
+
+/**
+ * The milestone dialog's field: digits only, and why the number won't do while it's not above the
+ * party's [total] (the server insists on that too).
+ */
+@Composable
+internal fun MilestoneField(typed: String, total: Long, onTypedChange: (String) -> Unit) {
+    val tooLow = typed.isNotEmpty() && (typed.toLongOrNull() ?: 0) <= total
+    PixelTextField(
+        value = typed,
+        onValueChange = onTypedChange,
+        label = stringResource(R.string.darood_info_milestone_field),
+        placeholder = stringResource(R.string.darood_create_milestone_placeholder),
+        errorText = if (tooLow) stringResource(R.string.darood_info_milestone_too_low, formatCount(total)) else null,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_MILESTONE_FIELD)
+    )
+}
+
+/**
+ * What the milestone field keeps of what was typed or pasted: digits only (any script's, as 0-9),
+ * no leading zeros, at most as many as the create form allows.
+ */
+fun milestoneDigits(raw: String): String {
+    val digits = buildString { raw.forEach { if (it.isDigit()) append(it.digitToInt()) } }
+    if (digits.isEmpty()) return ""
+    return digits.trimStart('0').ifEmpty { "0" }.take(com.pixelquest.app.darood.ui.create.CreatePartyViewModel.MILESTONE_DIGITS)
 }
 
 /** The rename dialog's field: the name, and why it won't do, if it won't. */
@@ -504,6 +602,8 @@ private fun ProblemLine(problem: InfoProblem) {
                     DaroodRefusal.NOT_LEADER -> R.string.darood_info_not_leader
                     DaroodRefusal.NOT_A_MEMBER -> R.string.darood_info_not_member
                     DaroodRefusal.LEADER_MUST_HAND_OVER -> R.string.darood_info_must_hand_over
+                    DaroodRefusal.MILESTONE_TOO_LOW -> R.string.darood_info_refused_too_low
+                    DaroodRefusal.PARTY_CLOSED -> R.string.darood_info_refused_finished
                     else -> R.string.darood_info_failed
                 }
             }

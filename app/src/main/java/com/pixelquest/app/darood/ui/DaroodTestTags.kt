@@ -81,6 +81,9 @@ object DaroodTestTags {
     const val INFO_RENAME_FIELD = "darood_info_rename_field"
     const val INFO_DELETE = "darood_info_delete"
     const val INFO_DELETE_FIELD = "darood_info_delete_field"
+    const val INFO_MILESTONE = "darood_info_milestone"
+    const val INFO_SET_MILESTONE = "darood_info_set_milestone"
+    const val INFO_MILESTONE_FIELD = "darood_info_milestone_field"
 
     fun member(userId: String) = "darood_member_$userId"
     fun memberRemove(userId: String) = "darood_member_remove_$userId"

@@ -2,6 +2,7 @@ package com.pixelquest.app.darood.ui.info
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
@@ -59,8 +60,12 @@ class PartyInfoTest {
 
     @After
     fun tearDown() {
-        // The view models stop reading the database before it closes.
+        // The view models stop reading the database before it closes, and a write already under way
+        // finishes: Room's transactions run one at a time, so a task queued after them waits for them.
         viewModels.clear()
+        val drained = java.util.concurrent.CountDownLatch(1)
+        db.transactionExecutor.execute { drained.countDown() }
+        drained.await(2, java.util.concurrent.TimeUnit.SECONDS)
         Dispatchers.resetMain()
         db.close()
     }
@@ -463,6 +468,77 @@ class PartyInfoTest {
         composeTestRule.onNodeWithText("That's not the party's name.").assertIsDisplayed()
         typed.value = "Friday circle"
         composeTestRule.onNodeWithText("That's not the party's name.").assertDoesNotExist()
+    }
+
+    @Test
+    fun theLeaderSetsTheMilestone_aboveTheTotal_asTheServerInsists() = runTest(dispatcher) {
+        server.seedEntry(partyId, "bram-id", 300)
+        val vm = viewModel()
+        waitUntil { vm.uiState.value.party?.total == 300L }
+        vm.startMilestone()
+        assertEquals("no milestone yet: an empty field", "", vm.uiState.value.newMilestone)
+
+        vm.onMilestoneChange("3,00")
+        assertEquals("300", vm.uiState.value.newMilestone)
+        assertEquals("not above 300", null, vm.uiState.value.newMilestoneValue)
+        vm.confirmMilestone()
+        assertFalse("not sent", "setMilestone" in server.calls)
+
+        vm.onMilestoneChange("10,000 Darood")
+        assertEquals(10_000L, vm.uiState.value.newMilestoneValue)
+        vm.confirmMilestone()
+        waitUntil { vm.uiState.value.party?.milestone == 10_000L && !vm.uiState.value.busy }
+        assertEquals(10_000L, server.parties[partyId]?.milestone)
+    }
+
+    @Test
+    fun aMember_cantSetIt_andAFinishedParty_keepsIt() = runTest(dispatcher) {
+        server.me = "bram-id"
+        val asMember = viewModel(me = "bram-id")
+        waitUntil { asMember.uiState.value.party != null }
+        asMember.startMilestone()
+        assertEquals(null, asMember.uiState.value.newMilestone)
+
+        server.me = "aria-id"
+        server.parties[partyId] = server.parties.getValue(partyId).copy(milestone = 100, completedAt = server.now.toString())
+        val leader = viewModel()
+        waitUntil { leader.uiState.value.party?.isFinished == true }
+        leader.startMilestone()
+        assertEquals(null, leader.uiState.value.newMilestone)
+    }
+
+    @Test
+    fun theLeaderSeesTheMilestone_andAWayToSetIt_aMemberJustSeesIt() {
+        val shown = androidx.compose.runtime.mutableStateOf(state(myId = "aria-id"))
+        var asked = false
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                PartyInfoContent(state = shown.value, onNavigateBack = {}, onMilestone = { asked = true })
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_MILESTONE).assertTextEquals("No milestone yet")
+        composeTestRule.onNodeWithText("Set milestone").performClick()
+        assertTrue(asked)
+
+        shown.value = state(myId = "bram-id").let { it.copy(party = it.party!!.copy(milestone = 10_000)) }
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_MILESTONE).assertTextEquals("Milestone: 10,000")
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_SET_MILESTONE).assertDoesNotExist()
+    }
+
+    @Test
+    fun theMilestoneField_saysWhenItsNotAboveTheTotal() {
+        val typed = androidx.compose.runtime.mutableStateOf("2000")
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                MilestoneField(typed = typed.value, total = 2_450, onTypedChange = {})
+            }
+        }
+        composeTestRule.onNodeWithText("It has to be above the party's total, 2,450.").assertExists()
+        typed.value = "2451"
+        composeTestRule.onNodeWithText("It has to be above the party's total, 2,450.").assertDoesNotExist()
+        assertEquals("10000", milestoneDigits("10,000 Darood"))
+        assertEquals("313", milestoneDigits("\u06F3\u06F1\u06F3"))
+        assertEquals("1234567890", milestoneDigits("123456789012345"))
     }
 
     private fun state(myId: String) = PartyInfoUiState(
