@@ -8,4 +8,7 @@ object DaroodTestTags {
     const val USERNAME_SAVE = "darood_username_save"
     const val PROFILE_USERNAME = "darood_profile_username"
     const val PARTY_SCREEN = "darood_party_screen"
+    const val SIGNED_OUT = "darood_signed_out"
+    const val SIGN_IN = "darood_sign_in"
+    const val EMPTY = "darood_empty"
 }

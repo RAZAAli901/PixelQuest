@@ -229,7 +229,10 @@ fun PixelNavHost(
             )
         }
         composable(Screen.DaroodParty.route) {
-            com.pixelquest.app.darood.ui.DaroodPartyScreen(onNavigateBack = { navController.popBackStack() })
+            com.pixelquest.app.darood.ui.DaroodPartyScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onSignIn = { navController.navigate(Screen.Account.route) }
+            )
         }
         composable(Screen.UsernameSetup.route) {
             com.pixelquest.app.darood.ui.username.UsernameSetupScreen(
