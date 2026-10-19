@@ -124,4 +124,15 @@ class SupabaseUsernameRepositoryTest {
 
         assertEquals(SupabaseResult.Success(null), repository.fetchMyUsername())
     }
+
+    @Test
+    fun theServersAnswer_isKeptOnThePhone_forItsAccount() = runBlocking {
+        val cache = com.pixelquest.app.testing.FakeUsernameCache()
+        val cached = SupabaseUsernameRepository(supabase.postgrest, cache)
+        answer = """[{"user_id":"3f2b8c1e","username":"aria_k","changed_at":"2026-10-19T08:00:00+00:00"}]"""
+
+        cached.fetchMyUsername()
+
+        assertEquals(com.pixelquest.app.darood.data.CachedUsername("3f2b8c1e", Username.parse("aria_k")!!), cache.value)
+    }
 }

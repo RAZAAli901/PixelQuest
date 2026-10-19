@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.domain.DifficultyMode
@@ -42,7 +43,8 @@ fun ProfileScreen(
     onNavigateToAvatarSelection: () -> Unit = {},
     onNavigateToDifficulty: () -> Unit = {},
     onNavigateToLevelHistory: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToUsername: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     ProfileContent(
@@ -50,7 +52,8 @@ fun ProfileScreen(
         onNavigateToAvatarSelection = onNavigateToAvatarSelection,
         onNavigateToDifficulty = onNavigateToDifficulty,
         onNavigateToLevelHistory = onNavigateToLevelHistory,
-        onNavigateToSettings = onNavigateToSettings
+        onNavigateToSettings = onNavigateToSettings,
+        onNavigateToUsername = onNavigateToUsername
     )
 }
 
@@ -60,7 +63,8 @@ fun ProfileContent(
     onNavigateToAvatarSelection: () -> Unit = {},
     onNavigateToDifficulty: () -> Unit = {},
     onNavigateToLevelHistory: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToUsername: () -> Unit = {}
 ) {
     val profile = state.profile
     val streak = state.streak
@@ -139,6 +143,21 @@ fun ProfileContent(
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                     color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
                 )
+                // The Darood Party username, once the account has one: tap to change it.
+                state.daroodUsername?.let { handle ->
+                    val changeLabel = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.darood_username_profile_change)
+                    Text(
+                        text = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.darood_username_handle, handle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .clickable(onClickLabel = changeLabel, onClick = onNavigateToUsername)
+                            .testTag(com.pixelquest.app.darood.ui.DaroodTestTags.PROFILE_USERNAME)
+                    )
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 if (!state.isSimpleMode) {
                     Row(

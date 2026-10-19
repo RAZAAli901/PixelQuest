@@ -156,6 +156,9 @@ fun PixelNavHost(
                 },
                 onNavigateToSettings = {
                     navController.navigate(Screen.Settings.route)
+                },
+                onNavigateToUsername = {
+                    navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true }
                 }
             )
         }

@@ -40,7 +40,9 @@ data class MenuHeaderState(
     val daysPerLevel: Int = 7,
     val isSimpleMode: Boolean = false,
     /** XP from today's prayers, while the Namaz Tracker is on; null hides the line. */
-    val namazXpToday: Int? = null
+    val namazXpToday: Int? = null,
+    /** The signed-in account's Darood Party username, without the @; null hides it. */
+    val username: String? = null
 ) {
     val levelProgress: Float get() = if (daysPerLevel <= 0) 0f else perfectDays.toFloat() / daysPerLevel
 }
@@ -72,6 +74,15 @@ fun MenuDrawerHeader(state: MenuHeaderState, modifier: Modifier = Modifier) {
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.semantics { heading() }
                 )
+                state.username?.let { username ->
+                    Text(
+                        text = stringResource(R.string.darood_username_handle, username),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = colors.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 if (!state.isSimpleMode) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(

@@ -71,7 +71,8 @@ class MenuViewModel @Inject constructor(
     userProfileRepository: UserProfileRepository,
     difficultySettingsRepository: DifficultySettingsRepository,
     settingsRepository: SettingsRepository,
-    namazRepository: NamazRepository? = null
+    namazRepository: NamazRepository? = null,
+    myUsername: com.pixelquest.app.darood.data.MyUsername? = null
 ) : ViewModel() {
 
     /** XP from today's prayers while the Namaz Tracker is on (by the calendar day), else null. */
@@ -85,8 +86,9 @@ class MenuViewModel @Inject constructor(
         userProfileRepository.getProfile(),
         difficultySettingsRepository.getCurrentDifficulty(),
         settingsRepository.simpleModeEnabled,
-        namazXpToday
-    ) { profile, difficulty, simple, namazXp ->
+        namazXpToday,
+        myUsername?.username ?: flowOf(null)
+    ) { profile, difficulty, simple, namazXp, username ->
         MenuHeaderState(
             name = profile?.username.orEmpty(),
             avatarId = profile?.avatarId.orEmpty(),
@@ -95,7 +97,8 @@ class MenuViewModel @Inject constructor(
             perfectDays = profile?.perfectDaysTowardNextLevel ?: 0,
             daysPerLevel = difficulty?.daysRequiredPerLevel ?: 7,
             isSimpleMode = simple,
-            namazXpToday = namazXp
+            namazXpToday = namazXp,
+            username = username?.value
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuHeaderState())
 

@@ -157,4 +157,10 @@ abstract class RepositoryModule {
     abstract fun bindUsernamePromptStore(
         impl: com.pixelquest.app.darood.data.PrefsUsernamePromptStore
     ): com.pixelquest.app.darood.data.UsernamePromptStore
+
+    @Binds
+    @Singleton
+    abstract fun bindUsernameCache(
+        impl: com.pixelquest.app.darood.data.PrefsUsernameCache
+    ): com.pixelquest.app.darood.data.UsernameCache
 }

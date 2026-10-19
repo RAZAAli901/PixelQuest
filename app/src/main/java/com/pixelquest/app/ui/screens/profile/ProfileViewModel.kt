@@ -30,7 +30,9 @@ data class ProfileUiState(
     val isCrtEnabled: Boolean = false,
     val isSimpleMode: Boolean = false,
     val totalTasksCompleted: Int = 0,
-    val activeTasksCount: Int = 0
+    val activeTasksCount: Int = 0,
+    /** The signed-in account's Darood Party username, without the @; null hides it. */
+    val daroodUsername: String? = null
 )
 
 @HiltViewModel
@@ -40,7 +42,8 @@ class ProfileViewModel @Inject constructor(
     private val difficultySettingsRepository: DifficultySettingsRepository,
     private val settingsRepository: SettingsRepository,
     private val taskRepository: TaskRepository? = null,
-    private val taskCompletionRepository: TaskCompletionRepository? = null
+    private val taskCompletionRepository: TaskCompletionRepository? = null,
+    private val myUsername: com.pixelquest.app.darood.data.MyUsername? = null
 ) : ViewModel() {
 
     val uiState: StateFlow<ProfileUiState> = combine(
@@ -57,8 +60,9 @@ class ProfileViewModel @Inject constructor(
         combine(
             taskRepository?.getAllTasks() ?: flowOf(emptyList()),
             taskCompletionRepository?.getAllLogs() ?: flowOf(emptyList())
-        ) { tasks, logs -> Pair(tasks.size, logs.count { it.wasCompleted }) }
-    ) { (profile, streak, difficulty), (soundEnabled, crtEnabled, simpleMode), (activeTasksCount, completedLogsCount) ->
+        ) { tasks, logs -> Pair(tasks.size, logs.count { it.wasCompleted }) },
+        myUsername?.username ?: flowOf(null)
+    ) { (profile, streak, difficulty), (soundEnabled, crtEnabled, simpleMode), (activeTasksCount, completedLogsCount), username ->
         ProfileUiState(
             profile = profile,
             streak = streak,
@@ -67,7 +71,8 @@ class ProfileViewModel @Inject constructor(
             isCrtEnabled = crtEnabled,
             isSimpleMode = simpleMode,
             totalTasksCompleted = completedLogsCount,
-            activeTasksCount = activeTasksCount
+            activeTasksCount = activeTasksCount,
+            daroodUsername = username?.value
         )
     }.stateIn(
         scope = viewModelScope,

@@ -80,13 +80,15 @@ class MenuStateTest {
     private fun viewModel(
         saved: SavedStateHandle = SavedStateHandle(),
         settings: FakeSettingsRepository = FakeSettingsRepository(),
-        namaz: FakeNamazRepository? = null
+        namaz: FakeNamazRepository? = null,
+        myUsername: com.pixelquest.app.darood.data.MyUsername? = null
     ) = MenuViewModel(
         saved,
         FakeUserProfileRepository(UserProfileEntity(username = "Aria", avatarId = "avatar_mage", level = 3, totalXp = 450, perfectDaysTowardNextLevel = 2)),
         FakeDifficultySettingsRepository(DifficultySettingsEntity(daysRequiredPerLevel = 7)),
         settings,
-        namaz
+        namaz,
+        myUsername
     )
 
     @Test
@@ -189,5 +191,24 @@ class MenuStateTest {
         namaz.saveSettings(namaz.getSettings().copy(xpEnabled = false))
         advanceUntilIdle()
         assertNull(vm.header.value.namazXpToday)
+    }
+
+    @Test
+    fun theHeader_showsTheSignedInAccountsUsername() = runTest {
+        val auth = com.pixelquest.app.auth.FakeAuthRepository()
+        val cache = com.pixelquest.app.testing.FakeUsernameCache()
+        val vm = viewModel(myUsername = com.pixelquest.app.darood.data.MyUsername(auth, cache))
+        backgroundScope.launch { vm.header.collect {} }
+        advanceUntilIdle()
+        assertNull(vm.header.value.username)
+
+        auth.userFlow.value = com.pixelquest.app.auth.AuthUser(id = "aria-id", email = null, displayName = null)
+        cache.save("aria-id", com.pixelquest.app.darood.domain.Username.parse("aria_k")!!)
+        advanceUntilIdle()
+        assertEquals("aria_k", vm.header.value.username)
+
+        auth.userFlow.value = null
+        advanceUntilIdle()
+        assertNull(vm.header.value.username)
     }
 }

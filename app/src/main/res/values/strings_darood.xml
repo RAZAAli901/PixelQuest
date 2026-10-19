@@ -9,6 +9,10 @@
       and leave what's inside unchanged. Its example shows what the app puts there.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- A username as shown on the profile and in the side menu. -->
+    <string name="darood_username_handle">@<xliff:g id="name" example="aria_k">%1$s</xliff:g></string>
+    <string name="darood_username_profile_label">Darood Party username</string>
+    <string name="darood_username_profile_change">Change your username</string>
     <!-- The username screen: claiming or changing the name others invite you by. -->
     <string name="darood_username_title">Your username</string>
     <string name="darood_username_intro">Friends invite you to a Darood Party by your username. It isn\'t listed anywhere: share it with the people you want to read with.</string>

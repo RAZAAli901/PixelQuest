@@ -5,6 +5,7 @@ import com.pixelquest.app.darood.data.remote.UsernameDto
 import com.pixelquest.app.darood.domain.Username
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.safeSupabaseCall
+import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -53,14 +54,18 @@ interface UsernameRepository {
     }
 }
 
+/** Talks to Supabase, and keeps the account's name in [cache] whenever the server gives it. */
 @Singleton
 class SupabaseUsernameRepository @Inject constructor(
-    private val postgrest: Postgrest
+    private val postgrest: Postgrest,
+    private val cache: UsernameCache? = null,
+    private val auth: Auth? = null
 ) : UsernameRepository {
 
     // Row-level security returns the caller's row only, so there's no filter to get wrong.
     override suspend fun fetchMyUsername(): SupabaseResult<OwnUsername?> = safeSupabaseCall {
-        postgrest["usernames"].select().decodeList<UsernameDto>().firstOrNull()?.toOwnUsername()
+        val row = postgrest["usernames"].select().decodeList<UsernameDto>().firstOrNull()
+        row?.toOwnUsername()?.also { cache?.save(row.userId, it.username) }
     }
 
     override suspend fun isUsernameAvailable(name: Username): SupabaseResult<Boolean> = safeSupabaseCall {
@@ -68,7 +73,10 @@ class SupabaseUsernameRepository @Inject constructor(
     }
 
     override suspend fun setUsername(name: Username): SupabaseResult<SetUsernameResult> = safeSupabaseCall {
-        postgrest.rpc("set_username", buildJsonObject { put("name", name.value) }).decodeAs<SetUsernameReply>().toResult()
+        postgrest.rpc("set_username", buildJsonObject { put("name", name.value) }).decodeAs<SetUsernameReply>().toResult().also { result ->
+            val account = auth?.currentUserOrNull()?.id
+            if (result is SetUsernameResult.Saved && account != null) cache?.save(account, result.username)
+        }
     }
 }
 

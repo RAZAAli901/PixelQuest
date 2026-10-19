@@ -53,3 +53,13 @@ class FakeUsernamePromptStore(val prompted: MutableSet<String> = mutableSetOf())
         prompted += accountId
     }
 }
+
+/** The username the phone keeps, in memory. */
+class FakeUsernameCache(initial: com.pixelquest.app.darood.data.CachedUsername? = null) : com.pixelquest.app.darood.data.UsernameCache {
+    private val state = kotlinx.coroutines.flow.MutableStateFlow(initial)
+    override val cached: kotlinx.coroutines.flow.Flow<com.pixelquest.app.darood.data.CachedUsername?> = state
+    val value: com.pixelquest.app.darood.data.CachedUsername? get() = state.value
+    override fun save(accountId: String, username: Username) {
+        state.value = com.pixelquest.app.darood.data.CachedUsername(accountId, username)
+    }
+}
