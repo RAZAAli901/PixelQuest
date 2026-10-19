@@ -144,8 +144,14 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
     }
 
     override suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String, clientId: String): SupabaseResult<DaroodEntry> = answer("addEntry") { account ->
-        // The same key again: the entry already stored (add_darood_entry).
-        entries.firstOrNull { it.userId == account && it.clientId == clientId }?.let { return@answer SupabaseResult.Success(it.toDomain()) }
+        // The same key again: the entry already stored (add_darood_entry). Its answer can be lost too.
+        entries.firstOrNull { it.userId == account && it.clientId == clientId }?.let { already ->
+            if (loseNextAnswer) {
+                loseNextAnswer = false
+                return@answer SupabaseResult.NetworkError(IOException("the answer was lost"))
+            }
+            return@answer SupabaseResult.Success(already.toDomain())
+        }
         val party = parties[partyId]
         when {
             party == null || party.completedAt != null -> refuse("party_closed")
