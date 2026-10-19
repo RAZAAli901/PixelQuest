@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -80,6 +79,7 @@ fun partyEventsOf(party: Party?, members: List<PartyMember>): List<PartyEvent> {
 @Composable
 fun EventPill(event: PartyEvent, modifier: Modifier = Modifier) {
     val colors = PixelTheme.colors
+    val look = chatLook()
     Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth().padding(vertical = 6.dp)) {
         Text(
             text = eventText(event),
@@ -88,7 +88,8 @@ fun EventPill(event: PartyEvent, modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .testTag(DaroodTestTags.event(event.key))
-                .background(colors.surface, RoundedCornerShape(50))
+                .background(colors.surface, look.pillShape)
+                .then(look.outlined(look.pillShape, look.pillOutline))
                 .padding(horizontal = 12.dp, vertical = 4.dp)
         )
     }

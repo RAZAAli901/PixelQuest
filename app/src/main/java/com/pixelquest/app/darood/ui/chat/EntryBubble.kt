@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -140,14 +139,17 @@ fun EntryBubble(
 ) {
     val colors = PixelTheme.colors
     val bubble = bubbleColors(mine)
+    val look = chatLook()
+    val shape = look.bubbleShape(mine = mine, tail = tail)
     Column(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         modifier = modifier
             .testTag(DaroodTestTags.bubble(entry.clientId ?: entry.id.toString()))
             .semantics(mergeDescendants = true) { }
             .widthIn(min = 96.dp, max = 280.dp)
-            .clip(if (!tail) PlainBubbleShape else if (mine) MyBubbleShape else TheirBubbleShape)
+            .clip(shape)
             .background(bubble.container)
+            .then(look.outlined(shape, if (mine) look.myOutline else look.theirOutline))
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         if (showName && !mine) {
@@ -202,10 +204,6 @@ private fun SendMark(state: EntryState, color: Color) {
     )
 }
 
-/** Rounded like a chat's message, with the corner nearest its side drawn in, as a tail. */
-private val MyBubbleShape = RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomEnd = 16.dp, bottomStart = 16.dp)
-private val TheirBubbleShape = RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 16.dp)
-private val PlainBubbleShape = RoundedCornerShape(16.dp)
 
 /** The time a bubble shows, in the phone's own clock and language: 10:05 AM, or 10:05. */
 fun bubbleTime(instant: Instant, zone: ZoneId = ZoneId.systemDefault()): String =

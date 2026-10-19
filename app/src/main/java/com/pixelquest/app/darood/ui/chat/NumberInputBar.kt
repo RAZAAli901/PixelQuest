@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -102,6 +101,7 @@ fun NumberInputBar(
     trailing: @Composable RowScope.() -> Unit = {}
 ) {
     val colors = PixelTheme.colors
+    val look = chatLook()
     val label = stringResource(R.string.darood_input_label)
     Column(
         modifier = modifier
@@ -127,7 +127,8 @@ fun NumberInputBar(
                 contentAlignment = Alignment.CenterStart,
                 modifier = Modifier
                     .weight(1f)
-                    .background(colors.background, RoundedCornerShape(24.dp))
+                    .background(colors.background, look.fieldShape)
+                    .then(look.outlined(look.fieldShape, look.pillOutline))
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
                 if (value.isEmpty()) {
@@ -196,9 +197,10 @@ val QUICK_AMOUNTS = listOf(11, 33, 100, 313)
 fun QuickAddChips(onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
     val colors = PixelTheme.colors
     val comic = PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Comic
+    val look = chatLook()
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier.padding(start = 8.dp, bottom = 6.dp)) {
         QUICK_AMOUNTS.forEach { amount ->
-            val shape = RoundedCornerShape(50)
+            val shape = look.pillShape
             Text(
                 text = stringResource(R.string.darood_bubble_amount, com.pixelquest.app.darood.ui.formatCount(amount)),
                 style = MaterialTheme.typography.labelLarge,
@@ -208,6 +210,7 @@ fun QuickAddChips(onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
                     .then(if (comic) Modifier.comicBorder(width = ComicShapeTokens.BorderWidthThin, color = ComicTokens.SolidBlack, shape = shape) else Modifier)
                     .clip(shape)
                     .background(colors.background)
+                    .then(look.outlined(shape, look.pillOutline))
                     .clickable(role = Role.Button, onClickLabel = stringResource(R.string.darood_quick_fill, amount)) { onPick(amount) }
                     .padding(horizontal = 14.dp, vertical = 8.dp)
             )

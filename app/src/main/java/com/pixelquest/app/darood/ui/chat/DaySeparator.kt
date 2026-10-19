@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +25,7 @@ import java.time.format.FormatStyle
 @Composable
 fun DaySeparator(day: LocalDate, today: LocalDate, modifier: Modifier = Modifier) {
     val colors = PixelTheme.colors
+    val look = chatLook()
     val label = when (day) {
         today -> stringResource(R.string.darood_day_today)
         today.minusDays(1) -> stringResource(R.string.darood_day_yesterday)
@@ -39,7 +39,8 @@ fun DaySeparator(day: LocalDate, today: LocalDate, modifier: Modifier = Modifier
             modifier = Modifier
                 .testTag(DaroodTestTags.day(day.toString()))
                 .semantics { heading() }
-                .background(colors.surface, RoundedCornerShape(50))
+                .background(colors.surface, look.pillShape)
+                .then(look.outlined(look.pillShape, look.pillOutline))
                 .padding(horizontal = 12.dp, vertical = 4.dp)
         )
     }
