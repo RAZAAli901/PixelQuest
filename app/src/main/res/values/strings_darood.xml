@@ -80,6 +80,15 @@
     <string name="darood_badge_declined">Declined</string>
     <string name="darood_badge_left">Left</string>
     <string name="darood_badge_removed">Removed</string>
+    <string name="darood_badge_member">Member</string>
+    <!-- A party's info: who's in it. -->
+    <plurals name="darood_info_size">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> member, up to <xliff:g id="limit" example="10">%2$d</xliff:g></item>
+        <item quantity="other"><xliff:g id="count" example="4">%1$d</xliff:g> members, up to <xliff:g id="limit" example="10">%2$d</xliff:g></item>
+    </plurals>
+    <string name="darood_info_members">Members</string>
+    <string name="darood_info_you"><xliff:g id="name" example="aria_k">%1$s</xliff:g> (you)</string>
+    <string name="darood_info_joined">Joined <xliff:g id="date" example="Oct 19, 2026">%1$s</xliff:g></string>
     <!-- Invitations, at the top of the list. -->
     <string name="darood_invites_title">Invitations</string>
     <string name="darood_invite_to">You\'re invited to join</string>

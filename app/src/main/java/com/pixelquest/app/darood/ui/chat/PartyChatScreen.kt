@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.chat
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -33,7 +35,7 @@ import javax.inject.Inject
 
 /**
  * A party's own screen, opened from the list. For now it holds the party's name and its way to
- * the party's info; the chat (Phase E) fills it.
+ * the party's info (its title, or the info button); the chat (Phase E) fills it.
  */
 @Composable
 fun PartyChatScreen(
@@ -49,6 +51,10 @@ fun PartyChatScreen(
         topBar = {
             PixelTopAppBar(
                 title = partyName,
+                // The title opens the party's info, as in a messaging app; the buttons keep their own taps.
+                modifier = Modifier
+                    .clickable(role = Role.Button, onClickLabel = stringResource(R.string.darood_party_info), onClick = onOpenInfo)
+                    .testTag(DaroodTestTags.CHAT_TITLE),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         SymbolIcon(
