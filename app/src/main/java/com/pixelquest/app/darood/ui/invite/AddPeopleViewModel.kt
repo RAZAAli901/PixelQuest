@@ -4,8 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.remote.SupabaseResult
+import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.data.MyUsername
 import com.pixelquest.app.darood.data.UsernameRepository
+import com.pixelquest.app.darood.data.remote.InviteOutcome
+import com.pixelquest.app.darood.domain.DaroodRefusal
+import com.pixelquest.app.darood.domain.MemberStatus
+import com.pixelquest.app.darood.domain.PartyMember
+import com.pixelquest.app.darood.domain.PartyRole
 import com.pixelquest.app.darood.domain.Username
 import com.pixelquest.app.darood.domain.UsernameProblem
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,9 +50,24 @@ sealed interface Lookup {
     data object Unknown : Lookup
 }
 
+/** What happened to the last invitation sent. */
+sealed interface InviteResult {
+    data class Sent(val username: String) : InviteResult
+    data class AlreadyIn(val username: String) : InviteResult
+    data object Offline : InviteResult
+    data class Refused(val refusal: DaroodRefusal) : InviteResult
+}
+
+/**
+ * @param people everyone the party has asked or had: members, invitations and answers, for badges.
+ * @param sending an invitation is on its way.
+ */
 data class AddPeopleUiState(
     val query: String = "",
-    val lookup: Lookup = Lookup.Idle
+    val lookup: Lookup = Lookup.Idle,
+    val people: List<PartyMember> = emptyList(),
+    val sending: Boolean = false,
+    val result: InviteResult? = null
 )
 
 /**
@@ -59,6 +80,7 @@ data class AddPeopleUiState(
 class AddPeopleViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val usernames: UsernameRepository,
+    private val parties: DaroodPartyRepository,
     private val myUsername: MyUsername? = null
 ) : ViewModel() {
 
@@ -71,6 +93,33 @@ class AddPeopleViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { typed.debounce(LOOKUP_DELAY_MS).collectLatest(::lookUp) }
+        // The party's people, the leader first, then by answer: who's in, who's asked, who said no.
+        viewModelScope.launch {
+            parties.observeMembers(partyId).collect { members ->
+                _uiState.update { it.copy(people = members.sortedWith(compareBy({ it.role != PartyRole.LEADER }, { STATUS_ORDER.indexOf(it.status) }))) }
+            }
+        }
+        viewModelScope.launch { parties.refreshParty(partyId) }
+    }
+
+    /** Invites [username] to the party; the people list follows from the server. */
+    fun invite(username: String) {
+        if (_uiState.value.sending) return
+        _uiState.update { it.copy(sending = true, result = null) }
+        viewModelScope.launch {
+            val result = parties.invite(partyId, username)
+            _uiState.update {
+                it.copy(
+                    sending = false,
+                    result = when {
+                        result is SupabaseResult.Success && result.data == InviteOutcome.ALREADY_MEMBER -> InviteResult.AlreadyIn(username)
+                        result is SupabaseResult.Success -> InviteResult.Sent(username)
+                        result is SupabaseResult.NetworkError -> InviteResult.Offline
+                        else -> InviteResult.Refused(DaroodRefusal.of(result) ?: DaroodRefusal.INVALID)
+                    }
+                )
+            }
+        }
     }
 
     fun onQueryChange(raw: String) {
@@ -103,5 +152,7 @@ class AddPeopleViewModel @Inject constructor(
     companion object {
         /** How long typing must pause before the name is looked up. */
         const val LOOKUP_DELAY_MS = 400L
+
+        private val STATUS_ORDER = listOf(MemberStatus.ACTIVE, MemberStatus.INVITED, MemberStatus.DECLINED, MemberStatus.LEFT, MemberStatus.REMOVED)
     }
 }

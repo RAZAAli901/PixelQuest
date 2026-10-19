@@ -29,6 +29,9 @@ object DaroodTestTags {
     const val ADD_STATUS = "darood_add_status"
     const val ADD_RESULT = "darood_add_result"
     const val ADD_INVITE = "darood_add_invite"
+    const val ADD_RESULT_LINE = "darood_add_result_line"
+
+    fun person(userId: String) = "darood_person_$userId"
     const val CHAT_ADD_PEOPLE = "darood_chat_add_people"
 
     fun partyRow(partyId: String) = "darood_party_$partyId"

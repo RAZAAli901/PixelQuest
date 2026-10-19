@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
@@ -47,7 +48,7 @@ fun AddPeopleScreen(
     viewModel: AddPeopleViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    AddPeopleContent(state = state, onQueryChange = viewModel::onQueryChange, onNavigateBack = onNavigateBack)
+    AddPeopleContent(state = state, onQueryChange = viewModel::onQueryChange, onNavigateBack = onNavigateBack, onInvite = viewModel::invite)
 }
 
 @Composable
@@ -99,14 +100,24 @@ fun AddPeopleContent(
                 ),
                 modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.ADD_SEARCH)
             )
-            LookupResult(state.lookup, onInvite)
+            LookupResult(state.lookup, enabled = !state.sending, onInvite = onInvite)
+            state.result?.let { InviteResultLine(it) }
+            if (state.people.isNotEmpty()) {
+                Text(
+                    text = stringResource(R.string.darood_add_people_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = colors.primaryText,
+                    modifier = Modifier.semantics { heading() }
+                )
+                state.people.forEach { PersonRow(it) }
+            }
         }
     }
 }
 
 /** What the search found: a row to invite from, or a line saying why not. */
 @Composable
-private fun LookupResult(lookup: Lookup, onInvite: (String) -> Unit) {
+private fun LookupResult(lookup: Lookup, enabled: Boolean, onInvite: (String) -> Unit) {
     val colors = PixelTheme.colors
     val line = when (lookup) {
         Lookup.Idle -> null
@@ -148,9 +159,68 @@ private fun LookupResult(lookup: Lookup, onInvite: (String) -> Unit) {
                 PixelButton(
                     text = stringResource(R.string.darood_add_invite),
                     onClick = { onInvite(lookup.username.value) },
+                    enabled = enabled,
                     modifier = Modifier.testTag(DaroodTestTags.ADD_INVITE)
                 )
             }
         }
     }
 }
+
+/** What became of the invitation just sent. */
+@Composable
+private fun InviteResultLine(result: InviteResult) {
+    val text = when (result) {
+        is InviteResult.Sent -> stringResource(R.string.darood_add_sent, result.username)
+        is InviteResult.AlreadyIn -> stringResource(R.string.darood_add_already_in, result.username)
+        InviteResult.Offline -> stringResource(R.string.darood_add_offline)
+        is InviteResult.Refused -> stringResource(
+            when (result.refusal) {
+                com.pixelquest.app.darood.domain.DaroodRefusal.PARTY_FULL -> R.string.darood_add_full
+                com.pixelquest.app.darood.domain.DaroodRefusal.NOT_LEADER -> R.string.darood_add_not_leader
+                com.pixelquest.app.darood.domain.DaroodRefusal.PARTY_CLOSED -> R.string.darood_add_closed
+                else -> R.string.darood_add_failed
+            }
+        )
+    }
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = PixelTheme.colors.primaryText,
+        modifier = Modifier.testTag(DaroodTestTags.ADD_RESULT_LINE).semantics { liveRegion = LiveRegionMode.Polite }
+    )
+}
+
+/** Someone the party has asked or had, with where they stand: Joined, Invited, Declined, Left or Removed. */
+@Composable
+private fun PersonRow(person: com.pixelquest.app.darood.domain.PartyMember) {
+    val colors = PixelTheme.colors
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.person(person.userId))
+    ) {
+        Text(
+            text = person.username?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone),
+            style = MaterialTheme.typography.bodyLarge,
+            color = colors.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = stringResource(
+                when {
+                    person.role == com.pixelquest.app.darood.domain.PartyRole.LEADER -> R.string.darood_badge_leader
+                    else -> when (person.status) {
+                        com.pixelquest.app.darood.domain.MemberStatus.ACTIVE -> R.string.darood_badge_joined
+                        com.pixelquest.app.darood.domain.MemberStatus.INVITED -> R.string.darood_badge_invited
+                        com.pixelquest.app.darood.domain.MemberStatus.DECLINED -> R.string.darood_badge_declined
+                        com.pixelquest.app.darood.domain.MemberStatus.LEFT -> R.string.darood_badge_left
+                        com.pixelquest.app.darood.domain.MemberStatus.REMOVED -> R.string.darood_badge_removed
+                    }
+                }
+            ),
+            style = MaterialTheme.typography.labelMedium,
+            color = colors.primaryText
+        )
+    }
+}
+

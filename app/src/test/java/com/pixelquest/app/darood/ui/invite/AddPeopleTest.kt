@@ -60,7 +60,24 @@ class AddPeopleTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel() = AddPeopleViewModel(SavedStateHandle(mapOf("partyId" to "p1")), usernames, MyUsername(auth, cache))
+    private val db = androidx.room.Room.inMemoryDatabaseBuilder(
+        androidx.test.core.app.ApplicationProvider.getApplicationContext<Application>(),
+        com.pixelquest.app.data.local.AppDatabase::class.java
+    ).allowMainThreadQueries().build()
+    private val server = com.pixelquest.app.testing.FakeDaroodServer(me = "aria-id").apply {
+        usernames += mapOf("aria-id" to "aria_k", "bram-id" to "bram", "cleo-id" to "cleo_r")
+    }
+    private val parties = com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl(
+        server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }
+    )
+    private val partyId = server.seedParty("Friday circle", "aria-id", maxMembers = 3)
+
+    @After
+    fun closeDb() {
+        db.close()
+    }
+
+    private fun viewModel() = AddPeopleViewModel(SavedStateHandle(mapOf("partyId" to partyId)), usernames, parties, MyUsername(auth, cache))
 
     @Test
     fun aTakenName_isSomeoneToInvite_andTheServerIsAskedOnceTheTypingPauses() = runTest(dispatcher) {
@@ -124,5 +141,73 @@ class AddPeopleTest {
             }
         }
         composeTestRule.onNodeWithText("Nobody uses @cleo. Check the spelling with your friend.").assertIsDisplayed()
+    }
+
+    @Test
+    fun inviting_sendsIt_andThePeopleShowWhereTheyStand() = runTest(dispatcher) {
+        val vm = viewModel()
+        advanceUntilIdle()
+        waitUntil { vm.uiState.value.people.size == 1 }
+
+        vm.invite("bram")
+        waitUntil { vm.uiState.value.result != null && vm.uiState.value.people.size == 2 }
+        assertEquals(InviteResult.Sent("bram"), vm.uiState.value.result)
+        assertEquals(
+            listOf("aria_k" to com.pixelquest.app.darood.domain.MemberStatus.ACTIVE, "bram" to com.pixelquest.app.darood.domain.MemberStatus.INVITED),
+            vm.uiState.value.people.map { it.username to it.status }
+        )
+
+        // Bram declines on his phone; the next invitation brings the change.
+        server.members.replaceAll { if (it.userId == "bram-id") it.copy(status = "declined") else it }
+        vm.invite("cleo_r")
+        waitUntil {
+            vm.uiState.value.result != null &&
+                vm.uiState.value.people.any { it.username == "bram" && it.status == com.pixelquest.app.darood.domain.MemberStatus.DECLINED }
+        }
+        assertEquals(InviteResult.Sent("cleo_r"), vm.uiState.value.result)
+    }
+
+    @Test
+    fun aFullParty_orNoConnection_isSaid() = runTest(dispatcher) {
+        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(partyId, "x1", "member", "active", null, null)
+        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(partyId, "x2", "member", "invited", null, null)
+        val vm = viewModel()
+        vm.invite("bram")
+        waitUntil { vm.uiState.value.result != null }
+        assertEquals(InviteResult.Refused(com.pixelquest.app.darood.domain.DaroodRefusal.PARTY_FULL), vm.uiState.value.result)
+
+        server.offline = true
+        vm.invite("cleo_r")
+        waitUntil { vm.uiState.value.result == InviteResult.Offline }
+    }
+
+    @Test
+    fun theScreen_showsBadges_andTheResult() {
+        val people = listOf(
+            com.pixelquest.app.darood.domain.PartyMember(partyId, "aria-id", "aria_k", com.pixelquest.app.darood.domain.PartyRole.LEADER, com.pixelquest.app.darood.domain.MemberStatus.ACTIVE, null, null),
+            com.pixelquest.app.darood.domain.PartyMember(partyId, "bram-id", "bram", com.pixelquest.app.darood.domain.PartyRole.MEMBER, com.pixelquest.app.darood.domain.MemberStatus.INVITED, null, null),
+            com.pixelquest.app.darood.domain.PartyMember(partyId, "cleo-id", "cleo_r", com.pixelquest.app.darood.domain.PartyRole.MEMBER, com.pixelquest.app.darood.domain.MemberStatus.DECLINED, null, null),
+            com.pixelquest.app.darood.domain.PartyMember(partyId, "dan-id", "dan", com.pixelquest.app.darood.domain.PartyRole.MEMBER, com.pixelquest.app.darood.domain.MemberStatus.ACTIVE, null, null)
+        )
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Light, darkTheme = false) {
+                AddPeopleContent(state = AddPeopleUiState(people = people, result = InviteResult.Sent("bram")), onQueryChange = {}, onNavigateBack = {})
+            }
+        }
+        composeTestRule.onNodeWithText("Invitation sent to @bram.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Leader").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Invited").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Declined").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Joined").assertIsDisplayed()
+    }
+
+    /** Room answers on its own threads: real time, a little at a time. */
+    private suspend fun kotlinx.coroutines.test.TestScope.waitUntil(condition: () -> Boolean) {
+        repeat(200) {
+            advanceUntilIdle()
+            if (condition()) return
+            Thread.sleep(10)
+        }
+        throw AssertionError("still waiting")
     }
 }
