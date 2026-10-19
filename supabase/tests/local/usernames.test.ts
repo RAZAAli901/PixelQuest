@@ -87,3 +87,26 @@ localTest("names are stored in lowercase and unique whatever their case (2026101
     assert.equal(taken.body.code, "23505");
   }
 });
+
+function isAvailable(token: string | undefined, name: string) {
+  return call("/rest/v1/rpc/is_username_available", { token, body: { name } });
+}
+
+localTest("is_username_available: free, taken, yours, malformed or reserved (20261019000002)", async () => {
+  const [owner, other] = await Promise.all([newPlayer("uname_avail1"), newPlayer("uname_avail2")]);
+  const name = fresh();
+  assert.deepEqual((await isAvailable(other.accessToken, name)).body, true);
+
+  assert.equal((await storeAsServer(owner.userId, name)).status, 201);
+  // Taken, whatever its case; but the owner's own name is theirs to keep.
+  assert.deepEqual((await isAvailable(other.accessToken, name)).body, false);
+  assert.deepEqual((await isAvailable(other.accessToken, name.toUpperCase())).body, false);
+  assert.deepEqual((await isAvailable(owner.accessToken, name)).body, true);
+
+  for (const bad of ["ab", "aria k", "admin", "Pixel_Quest1", ""]) {
+    assert.deepEqual((await isAvailable(other.accessToken, bad)).body, false, bad);
+  }
+  // Signed out: no answer at all.
+  const signedOut = await isAvailable(undefined, name);
+  assert.equal(signedOut.status, 401, JSON.stringify(signedOut.body));
+});

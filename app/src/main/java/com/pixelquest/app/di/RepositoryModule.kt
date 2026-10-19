@@ -145,4 +145,10 @@ abstract class RepositoryModule {
     abstract fun bindNamazDeliveries(
         impl: com.pixelquest.app.namaz.PrefsNamazDeliveries
     ): com.pixelquest.app.namaz.NamazDeliveries
+
+    @Binds
+    @Singleton
+    abstract fun bindUsernameRepository(
+        impl: com.pixelquest.app.darood.data.SupabaseUsernameRepository
+    ): com.pixelquest.app.darood.data.UsernameRepository
 }
