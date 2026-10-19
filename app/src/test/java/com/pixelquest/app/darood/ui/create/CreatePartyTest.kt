@@ -2,6 +2,8 @@ package com.pixelquest.app.darood.ui.create
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
@@ -63,5 +65,31 @@ class CreatePartyTest {
         nameField().performTextReplacement("x".repeat(45))
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_NAME_COUNTER).assertTextEquals("45/40")
         composeTestRule.onNodeWithText("At most 40 characters.").assertIsDisplayed()
+    }
+
+    @Test
+    fun theLimit_startsAt10_andStaysBetween2And30() {
+        val viewModel = CreatePartyViewModel()
+        assertEquals(10, viewModel.uiState.value.maxMembers)
+        viewModel.setMaxMembers(1)
+        assertEquals(2, viewModel.uiState.value.maxMembers)
+        assertFalse(viewModel.uiState.value.canHaveFewer)
+        viewModel.setMaxMembers(31)
+        assertEquals(30, viewModel.uiState.value.maxMembers)
+        assertFalse(viewModel.uiState.value.canHaveMore)
+    }
+
+    @Test
+    fun theStepper_movesOneAtATime_andStopsAtItsEnds() {
+        val viewModel = CreatePartyViewModel()
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) { CreatePartyScreen(onNavigateBack = {}, viewModel = viewModel) }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_LIMIT).assertTextEquals("10")
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_MORE).performClick()
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_LIMIT).assertTextEquals("11")
+        repeat(20) { composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_FEWER).performClick() }
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_LIMIT).assertTextEquals("2")
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_FEWER).assertIsNotEnabled()
     }
 }

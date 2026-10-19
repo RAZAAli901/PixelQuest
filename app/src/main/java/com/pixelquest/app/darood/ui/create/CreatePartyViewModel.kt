@@ -16,8 +16,13 @@ enum class PartyNameProblem { TOO_SHORT, TOO_LONG }
  * Starting a party. [name] is kept as typed; the server trims it, and so does the length rule here.
  */
 data class CreatePartyUiState(
-    val name: String = ""
+    val name: String = "",
+    /** How many the party holds, the leader included: 2 to 30. */
+    val maxMembers: Int = DaroodRules.MEMBERS_DEFAULT
 ) {
+    val canHaveFewer: Boolean get() = maxMembers > DaroodRules.MEMBERS_MIN
+    val canHaveMore: Boolean get() = maxMembers < DaroodRules.MEMBERS_MAX
+
     /** The name's length as it will be stored (without spaces at either end). */
     val nameLength: Int get() = name.trim().length
 
@@ -41,4 +46,10 @@ class CreatePartyViewModel @Inject constructor() : ViewModel() {
 
     /** A little past the limit can still be typed, so the counter can say it's too long. */
     fun onNameChange(name: String) = _uiState.update { it.copy(name = name.take(DaroodRules.NAME_MAX + 10)) }
+
+    fun setMaxMembers(count: Int) = _uiState.update { it.copy(maxMembers = count.coerceIn(DaroodRules.MEMBERS_MIN, DaroodRules.MEMBERS_MAX)) }
+
+    fun fewerMembers() = setMaxMembers(_uiState.value.maxMembers - 1)
+
+    fun moreMembers() = setMaxMembers(_uiState.value.maxMembers + 1)
 }

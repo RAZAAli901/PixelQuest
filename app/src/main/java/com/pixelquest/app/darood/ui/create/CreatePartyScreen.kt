@@ -2,6 +2,7 @@ package com.pixelquest.app.darood.ui.create
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,7 +19,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -29,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.DaroodRules
 import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
@@ -41,14 +46,22 @@ fun CreatePartyScreen(
     viewModel: CreatePartyViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
-    CreatePartyContent(state = state, onNameChange = viewModel::onNameChange, onNavigateBack = onNavigateBack)
+    CreatePartyContent(
+        state = state,
+        onNameChange = viewModel::onNameChange,
+        onFewer = viewModel::fewerMembers,
+        onMore = viewModel::moreMembers,
+        onNavigateBack = onNavigateBack
+    )
 }
 
 @Composable
 fun CreatePartyContent(
     state: CreatePartyUiState,
     onNameChange: (String) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onFewer: () -> Unit = {},
+    onMore: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -103,6 +116,43 @@ fun CreatePartyContent(
                         .semantics { liveRegion = LiveRegionMode.Polite }
                 )
             }
+            MemberLimitStepper(count = state.maxMembers, canFewer = state.canHaveFewer, canMore = state.canHaveMore, onFewer = onFewer, onMore = onMore)
         }
+    }
+}
+
+/** How many the party holds, 2 to 30, the leader included: − and + around the number. */
+@Composable
+private fun MemberLimitStepper(count: Int, canFewer: Boolean, canMore: Boolean, onFewer: () -> Unit, onMore: () -> Unit) {
+    val colors = PixelTheme.colors
+    val description = pluralStringResource(R.plurals.darood_create_limit_value, count, count)
+    // TalkBack says what the buttons do, not their signs.
+    val fewer = stringResource(R.string.darood_create_fewer)
+    val more = stringResource(R.string.darood_create_more)
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(text = stringResource(R.string.darood_create_limit), style = MaterialTheme.typography.labelLarge, color = colors.primaryText)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            PixelButton(
+                text = "−",
+                onClick = onFewer,
+                enabled = canFewer,
+                modifier = Modifier.testTag(DaroodTestTags.CREATE_FEWER).semantics { contentDescription = fewer }
+            )
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.headlineSmall,
+                color = colors.onSurface,
+                modifier = Modifier
+                    .testTag(DaroodTestTags.CREATE_LIMIT)
+                    .semantics { stateDescription = description }
+            )
+            PixelButton(
+                text = "+",
+                onClick = onMore,
+                enabled = canMore,
+                modifier = Modifier.testTag(DaroodTestTags.CREATE_MORE).semantics { contentDescription = more }
+            )
+        }
+        Text(text = stringResource(R.string.darood_create_limit_hint), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
     }
 }

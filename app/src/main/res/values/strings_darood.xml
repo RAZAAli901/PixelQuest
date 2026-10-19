@@ -36,6 +36,14 @@
     <string name="darood_create_name_counter"><xliff:g id="used" example="12">%1$d</xliff:g>/<xliff:g id="max" example="40">%2$d</xliff:g></string>
     <string name="darood_create_name_too_short">At least 2 characters.</string>
     <string name="darood_create_name_too_long">At most 40 characters.</string>
+    <string name="darood_create_limit">How many can join</string>
+    <string name="darood_create_fewer">Fewer people</string>
+    <string name="darood_create_more">More people</string>
+    <string name="darood_create_limit_hint">2 to 30 people, you included. Invitations count until they\'re answered.</string>
+    <plurals name="darood_create_limit_value">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> person</item>
+        <item quantity="other"><xliff:g id="count" example="10">%1$d</xliff:g> people</item>
+    </plurals>
     <!-- Invitations, at the top of the list. -->
     <string name="darood_invites_title">Invitations</string>
     <string name="darood_invite_to">You\'re invited to join</string>
