@@ -88,7 +88,7 @@ class TodayStripTest {
             val factory = object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository, { "aria-id" }) as T
             }
             val vm = ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
             collectors.launch { vm.today.collect { } }

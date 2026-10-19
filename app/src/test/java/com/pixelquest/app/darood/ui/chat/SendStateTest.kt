@@ -88,7 +88,7 @@ class SendStateTest {
             val factory = object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository, { "aria-id" }) as T
             }
             val vm = ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
             collectors.launch { vm.items.collect { } }
@@ -136,7 +136,7 @@ class SendStateTest {
             val factory = object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository, { "aria-id" }) as T
             }
             val vm = ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
             fun posted(): List<Int> {
@@ -228,7 +228,7 @@ class SendStateTest {
             val factory = object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository, { "aria-id" }) as T
             }
             val vm = ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
             collectors.launch { vm.items.collect { } }

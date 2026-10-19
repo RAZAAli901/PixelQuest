@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.drawOutline
@@ -27,6 +28,7 @@ import com.pixelquest.app.ui.theme.ThemeMode
  * @param outline the width of every piece's outline; 0 for none.
  * @param shadow how far a flat, hard-edged shadow sits down and right of each piece, as a comic
  *   panel's; 0 for none.
+ * @param pattern the faint pattern behind the chat ([ChatBackground]); off in Simple Mode.
  */
 @Immutable
 data class ChatLook(
@@ -37,7 +39,8 @@ data class ChatLook(
     val myOutline: Color,
     val theirOutline: Color,
     val pillOutline: Color,
-    val shadow: Dp = 0.dp
+    val shadow: Dp = 0.dp,
+    val pattern: Boolean = true
 ) {
     fun bubbleShape(mine: Boolean, tail: Boolean): Shape {
         val near = if (tail) tailCorner else corner
@@ -76,10 +79,18 @@ data class ChatLook(
         }
 }
 
-/** The chat's look for the current theme. */
+/** Simple Mode in a party's chat, provided once at its root (PartyChatScreen). */
+val LocalDaroodSimpleMode = staticCompositionLocalOf { false }
+
+/**
+ * The chat's look for the current theme, as the Namaz screen's: its own in Pixel (dark mode too:
+ * System follows Pixel on a dark phone) and Comic; plain in Light; and plain in any theme in
+ * Simple Mode, without the background's pattern or Comic's shadows.
+ */
 @Composable
 fun chatLook(): ChatLook {
     val colors = PixelTheme.colors
+    if (LocalDaroodSimpleMode.current) return plainLook(colors.surfaceVariant, pattern = false)
     return when (PixelTheme.mode) {
         // Pixel: chamfered corners and 2dp outlines, as its panels have; square tails.
         ThemeMode.Pixel -> ChatLook(
@@ -103,14 +114,19 @@ fun chatLook(): ChatLook {
             pillOutline = ComicTokens.SolidBlack,
             shadow = ComicShapeTokens.ShadowOffsetSmall
         )
-        else -> ChatLook(
-            cut = false,
-            corner = 16.dp,
-            tailCorner = 4.dp,
-            outline = 0.dp,
-            myOutline = Color.Transparent,
-            theirOutline = Color.Transparent,
-            pillOutline = Color.Transparent
-        )
+        // Light: rounded, with a thin warm outline so white bubbles stand off the ivory page.
+        else -> plainLook(colors.surfaceVariant, pattern = true)
     }
 }
+
+/** Rounded bubbles with a thin outline in [line], and nothing more. */
+private fun plainLook(line: Color, pattern: Boolean) = ChatLook(
+    cut = false,
+    corner = 16.dp,
+    tailCorner = 4.dp,
+    outline = 1.dp,
+    myOutline = Color.Transparent,
+    theirOutline = line,
+    pillOutline = line,
+    pattern = pattern
+)

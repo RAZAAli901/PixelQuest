@@ -176,7 +176,7 @@ class NumberInputBarTest {
             val factory = object : androidx.lifecycle.ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
-                    PartyChatViewModel(androidx.lifecycle.SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+                    PartyChatViewModel(androidx.lifecycle.SavedStateHandle(mapOf("partyId" to partyId)), repository, { "aria-id" }) as T
             }
             val vm = androidx.lifecycle.ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
 

@@ -32,17 +32,19 @@ internal const val CHAT_PATTERN_ALPHA = 0.06f
 /**
  * The backdrop of a party's chat: the screen's own background with a faint pattern, as chat apps
  * have, so the bubbles stand off it. Drawn, not an image, so it fits any size and costs no memory.
+ * Simple Mode keeps it plain.
  */
 @Composable
 fun ChatBackground(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
     val colors = PixelTheme.colors
     val mode = PixelTheme.mode
     val pattern = chatPatternFor(mode)
+    val patterned = chatLook().pattern
     val ink = (if (mode == ThemeMode.Comic) ComicTokens.SolidBlack else colors.onBackground).copy(alpha = CHAT_PATTERN_ALPHA)
     Box(
         modifier = modifier
             .background(colors.background)
-            .drawBehind { drawChatPattern(pattern, ink) },
+            .then(if (patterned) Modifier.drawBehind { drawChatPattern(pattern, ink) } else Modifier),
         content = content
     )
 }

@@ -127,7 +127,7 @@ class ChatListTest {
             val factory = object : androidx.lifecycle.ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
-                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository, { "aria-id" }) as T
             }
             val vm = androidx.lifecycle.ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
             // The screen collects them; so does the test.
@@ -190,7 +190,7 @@ class ChatListTest {
             val factory = object : androidx.lifecycle.ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
-                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository, { "aria-id" }) as T
             }
             val vm = androidx.lifecycle.ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
             collectors.launch { vm.items.collect { } }

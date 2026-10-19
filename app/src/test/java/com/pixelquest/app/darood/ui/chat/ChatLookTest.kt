@@ -55,12 +55,49 @@ class ChatLookTest {
     }
 
     @Test
-    fun light_keepsTheRoundedChat() {
-        val (look, _) = lookIn(ThemeMode.Light)
+    fun light_isRounded_withAThinWarmOutline() {
+        val (look, colors) = lookIn(ThemeMode.Light)
         assertEquals(false, look.cut)
-        assertEquals(0.dp, look.outline)
+        assertEquals(1.dp, look.outline)
+        assertEquals(colors.surfaceVariant, look.theirOutline)
+        assertEquals(colors.surfaceVariant, look.pillOutline)
+        assertEquals(0.dp, look.shadow)
+        assertTrue(look.pattern)
         assertEquals(RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomEnd = 16.dp, bottomStart = 16.dp), look.bubbleShape(mine = true, tail = true))
         assertEquals(RoundedCornerShape(16.dp), look.bubbleShape(mine = true, tail = false))
+    }
+
+    @Test
+    fun darkMode_isPixels_andALightPhone_isLights() {
+        var dark: ChatLook? = null
+        var light: ChatLook? = null
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.System, darkTheme = true) { dark = chatLook() }
+            PixelQuestTheme(themeMode = ThemeMode.System, darkTheme = false) { light = chatLook() }
+        }
+        composeTestRule.waitForIdle()
+        assertTrue("dark mode: Pixel's chamfers", dark!!.cut)
+        assertEquals(false, light!!.cut)
+        assertEquals(1.dp, light!!.outline)
+    }
+
+    @Test
+    fun simpleMode_isPlainInAnyTheme_withoutThePatternOrShadows() {
+        val looks = mutableMapOf<ThemeMode, ChatLook>()
+        composeTestRule.setContent {
+            androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides true) {
+                for (mode in listOf(ThemeMode.Pixel, ThemeMode.Comic, ThemeMode.Light)) {
+                    PixelQuestTheme(themeMode = mode, darkTheme = mode == ThemeMode.Pixel) { looks[mode] = chatLook() }
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+        for ((mode, look) in looks) {
+            assertEquals("$mode", false, look.cut)
+            assertEquals("$mode", 0.dp, look.shadow)
+            assertEquals("$mode", false, look.pattern)
+            assertEquals("$mode", 1.dp, look.outline)
+        }
     }
 
     @Test

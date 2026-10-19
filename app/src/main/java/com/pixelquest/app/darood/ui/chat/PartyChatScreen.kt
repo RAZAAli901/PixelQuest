@@ -60,6 +60,7 @@ import javax.inject.Inject
  *   number field shows, holding [draft].
  * @param confirming a big number waiting to be confirmed: a dialog asks if it's what the player meant.
  * @param todayTotals the day's numbers for the strip under the top bar; none until they're known.
+ * @param simpleMode the app's Simple Mode: the chat's plain look in any theme ([chatLook]).
  * @param milestone the party's milestone, if it has one: a bar pinned under the top bar shows how far
  *   its [total] is toward it, and can be folded away to a slim line.
  */
@@ -87,7 +88,43 @@ fun PartyChatScreen(
     todayTotals: com.pixelquest.app.darood.domain.DayTotals? = null,
     milestone: Long? = null,
     total: Long = 0,
-    finished: Boolean = false
+    finished: Boolean = false,
+    simpleMode: Boolean = false
+) {
+    androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides simpleMode) {
+        PartyChatContent(
+            partyName, onNavigateBack, onOpenInfo, isLeader, onAddPeople, memberCount, items, usernames, today, loadingOlder,
+            onReachOldest, canPost, draft, onDraftChange, onSend, confirming, onConfirmSend, onCancelSend, onRetry, todayTotals,
+            milestone, total, finished
+        )
+    }
+}
+
+@Composable
+private fun PartyChatContent(
+    partyName: String,
+    onNavigateBack: () -> Unit,
+    onOpenInfo: () -> Unit,
+    isLeader: Boolean,
+    onAddPeople: () -> Unit,
+    memberCount: Int,
+    items: List<ChatItem>,
+    usernames: Map<String, String>,
+    today: java.time.LocalDate,
+    loadingOlder: Boolean,
+    onReachOldest: () -> Unit,
+    canPost: Boolean,
+    draft: String,
+    onDraftChange: (String) -> Unit,
+    onSend: () -> Unit,
+    confirming: Int?,
+    onConfirmSend: () -> Unit,
+    onCancelSend: () -> Unit,
+    onRetry: (String) -> Unit,
+    todayTotals: com.pixelquest.app.darood.domain.DayTotals?,
+    milestone: Long?,
+    total: Long,
+    finished: Boolean
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -208,7 +245,8 @@ fun PartyChatScreen(
 class PartyChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: DaroodPartyRepository,
-    account: com.pixelquest.app.darood.data.remote.DaroodAccount? = null
+    account: com.pixelquest.app.darood.data.remote.DaroodAccount? = null,
+    settings: com.pixelquest.app.domain.repository.SettingsRepository? = null
 ) : ViewModel() {
     val partyId: String = savedStateHandle["partyId"] ?: ""
 
@@ -217,6 +255,10 @@ class PartyChatViewModel @Inject constructor(
 
     val party: StateFlow<Party?> = repository.observeParty(partyId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** The app's Simple Mode: the chat's plain look. */
+    val simpleMode: StateFlow<Boolean> = (settings?.simpleModeEnabled ?: kotlinx.coroutines.flow.flowOf(false))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     /** How many entries the chat holds: a page to start with, and a page more each time the reader scrolls up to the oldest. */
     private val limit = kotlinx.coroutines.flow.MutableStateFlow(PAGE)
@@ -403,6 +445,7 @@ fun PartyChatRoute(
     val draft = viewModel.draft.collectAsState().value
     val confirming = viewModel.confirming.collectAsState().value
     val todayTotals = viewModel.today.collectAsState().value
+    val simpleMode = viewModel.simpleMode.collectAsState().value
     val usernames = viewModel.usernames.collectAsState().value
     com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
@@ -428,6 +471,7 @@ fun PartyChatRoute(
         todayTotals = todayTotals,
         milestone = party?.milestone,
         total = party?.total ?: 0,
-        finished = party?.isFinished == true
+        finished = party?.isFinished == true,
+        simpleMode = simpleMode
     )
 }
