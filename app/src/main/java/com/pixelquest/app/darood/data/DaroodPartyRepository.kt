@@ -390,7 +390,8 @@ internal fun PartyMember.toEntity(stats: MemberStats?) = PartyMemberEntity(
     joinedAt = joinedAt?.toEpochMilli(),
     total = stats?.total ?: 0,
     activeDays = stats?.activeDays ?: 0,
-    lastEntryDate = stats?.lastEntryDate
+    lastEntryDate = stats?.lastEntryDate,
+    statusChangedAt = statusChangedAt?.toEpochMilli()
 )
 
 internal fun PartyMemberEntity.toDomain() = PartyMember(
@@ -400,7 +401,8 @@ internal fun PartyMemberEntity.toDomain() = PartyMember(
     role = role,
     status = status,
     invitedAt = invitedAt?.let(Instant::ofEpochMilli),
-    joinedAt = joinedAt?.let(Instant::ofEpochMilli)
+    joinedAt = joinedAt?.let(Instant::ofEpochMilli),
+    statusChangedAt = statusChangedAt?.let(Instant::ofEpochMilli)
 )
 
 internal fun DaroodEntry.toEntity() = DaroodEntryEntity(

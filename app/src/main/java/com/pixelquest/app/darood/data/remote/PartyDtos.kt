@@ -38,7 +38,8 @@ data class PartyMemberDto(
     @SerialName("role") val role: String,
     @SerialName("status") val status: String,
     @SerialName("invited_at") val invitedAt: String? = null,
-    @SerialName("joined_at") val joinedAt: String? = null
+    @SerialName("joined_at") val joinedAt: String? = null,
+    @SerialName("updated_at") val updatedAt: String? = null
 )
 
 /** A row of public.darood_entries, as read. */
@@ -151,7 +152,8 @@ fun PartyMemberDto.toDomain(username: String?): PartyMember = PartyMember(
     role = roleOf(role),
     status = statusOf(status),
     invitedAt = invitedAt?.let(::parseInstant),
-    joinedAt = joinedAt?.let(::parseInstant)
+    joinedAt = joinedAt?.let(::parseInstant),
+    statusChangedAt = updatedAt?.let(::parseInstant)
 )
 
 fun DaroodEntryDto.toDomain(): DaroodEntry = DaroodEntry(

@@ -131,6 +131,13 @@
     <string name="darood_bubble_amount">+<xliff:g id="amount" example="300">%1$s</xliff:g></string>
     <string name="darood_day_today">Today</string>
     <string name="darood_day_yesterday">Yesterday</string>
+    <!-- Events in the chat, as centred pills. -->
+    <string name="darood_event_joined"><xliff:g id="name" example="\@bram">%1$s</xliff:g> joined</string>
+    <string name="darood_event_left"><xliff:g id="name" example="\@bram">%1$s</xliff:g> left</string>
+    <string name="darood_event_removed"><xliff:g id="name" example="\@bram">%1$s</xliff:g> was removed</string>
+    <string name="darood_event_milestone_set">Milestone set: <xliff:g id="target" example="10,000">%1$s</xliff:g></string>
+    <string name="darood_event_milestone_reached">Milestone reached: <xliff:g id="target" example="10,000">%1$s</xliff:g>!</string>
+    <string name="darood_event_finished">The party is finished</string>
     <string name="darood_chat_soon">The party\'s chat is on its way.</string>
     <!-- A username as shown on the profile and in the side menu. -->
     <string name="darood_username_handle">@<xliff:g id="name" example="aria_k">%1$s</xliff:g></string>

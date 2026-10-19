@@ -56,7 +56,7 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
 
     private fun setStatus(party: String, user: String, status: String, joined: Boolean = false) {
         val i = members.indexOfFirst { it.partyId == party && it.userId == user }
-        members[i] = members[i].copy(status = status, joinedAt = if (joined) now.toString() else members[i].joinedAt)
+        members[i] = members[i].copy(status = status, joinedAt = if (joined) now.toString() else members[i].joinedAt, updatedAt = now.toString())
     }
 
     fun total(party: String): Long = entries.filter { it.partyId == party }.sumOf { it.amount.toLong() }

@@ -42,6 +42,7 @@ class DaySeparatorTest {
         when (it) {
             is DayItem -> "day ${it.day}"
             is EntryItem -> if (it.bubble.showName) "named" else "bubble"
+            is EventItem -> "event"
         }
     }
 

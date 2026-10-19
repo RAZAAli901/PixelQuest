@@ -261,7 +261,7 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         val MEMBER_STATS_COLUMNS = listOf("party_id", "user_id", "username", "total", "active_days", "last_entry_date")
         val ENTRY_COLUMNS = listOf("id", "party_id", "user_id", "amount", "local_date", "tz", "created_at", "client_id")
         val PARTY_COLUMNS = listOf("id", "name", "leader_id", "max_members", "milestone", "milestone_set_at", "completed_at", "created_at")
-        val MEMBER_COLUMNS = listOf("party_id", "user_id", "role", "status", "invited_at", "joined_at")
+        val MEMBER_COLUMNS = listOf("party_id", "user_id", "role", "status", "invited_at", "joined_at", "updated_at")
     }
 }
 

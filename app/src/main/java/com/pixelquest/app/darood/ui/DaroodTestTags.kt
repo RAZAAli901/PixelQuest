@@ -43,6 +43,9 @@ object DaroodTestTags {
 
     /** A day's heading in the chat, by its date (2026-10-19). */
     fun day(date: String) = "darood_day_$date"
+
+    /** An event's pill in the chat, by its key. */
+    fun event(key: String) = "darood_event_$key"
     const val INFO_SCREEN = "darood_info_screen"
     const val INFO_ADD_PEOPLE = "darood_info_add_people"
     const val INFO_PROBLEM = "darood_info_problem"

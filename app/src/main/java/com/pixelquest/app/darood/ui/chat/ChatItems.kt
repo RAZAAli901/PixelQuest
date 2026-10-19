@@ -47,21 +47,36 @@ data class EntryItem(val bubble: BubbleItem) : ChatItem {
     override val key: String get() = "entry-" + (bubble.entry.clientId ?: bubble.entry.id.toString())
 }
 
+/** Something that happened to the party (someone joined, the milestone was reached), as a pill. */
+data class EventItem(val event: PartyEvent) : ChatItem {
+    override val key: String get() = "event-" + event.key
+}
+
 /**
- * [entries], oldest first, as the chat's lines: each day headed once, as its first entry's time
- * falls in [zone] (the same clock the bubbles show), and runs as [bubblesOf] makes them. A new day
- * also starts a new run, so the sender is named again.
+ * [entries] and [events] as the chat's lines, oldest first: each day headed once, as its first
+ * line's time falls in [zone] (the same clock the bubbles show), and runs as [bubblesOf] makes
+ * them. An event at the same moment as an entry comes after it (the entry that reached the
+ * milestone, then the milestone). A new day, or an event, starts a new run, so the sender is
+ * named again.
  */
-fun chatItemsOf(entries: List<DaroodEntry>, me: String?, zone: ZoneId): List<ChatItem> {
-    val days = entries.map { it.createdAt.atZone(zone).toLocalDate() }
+fun chatItemsOf(entries: List<DaroodEntry>, me: String?, zone: ZoneId, events: List<PartyEvent> = emptyList()): List<ChatItem> {
+    // Each line with its moment: entries before events at the same moment, each kind in its own order.
+    val timeline: List<Any> = (entries.map { it to it.createdAt } + events.map { it to it.at })
+        .sortedWith(compareBy({ it.second }, { if (it.first is DaroodEntry) 0 else 1 }))
+        .map { it.first }
+    val days = timeline.map { (if (it is DaroodEntry) it.createdAt else (it as PartyEvent).at).atZone(zone).toLocalDate() }
     val items = mutableListOf<ChatItem>()
-    entries.forEachIndexed { i, entry ->
+    timeline.forEachIndexed { i, line ->
         val day = days[i]
         if (i == 0 || days[i - 1] != day) items += DayItem(day)
-        val sender = entry.userId
-        val sameBefore = sender != null && i > 0 && entries[i - 1].userId == sender && days[i - 1] == day
-        val sameAfter = sender != null && i < entries.lastIndex && entries[i + 1].userId == sender && days[i + 1] == day
-        items += EntryItem(BubbleItem(entry, mine = sender != null && sender == me, firstOfRun = !sameBefore, lastOfRun = !sameAfter))
+        when (line) {
+            is DaroodEntry -> {
+                val sender = line.userId
+                fun sameSender(j: Int) = sender != null && (timeline.getOrNull(j) as? DaroodEntry)?.userId == sender && days[j] == day
+                items += EntryItem(BubbleItem(line, mine = sender != null && sender == me, firstOfRun = !sameSender(i - 1), lastOfRun = !sameSender(i + 1)))
+            }
+            is PartyEvent -> items += EventItem(line)
+        }
     }
     return items
 }

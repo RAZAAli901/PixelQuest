@@ -89,6 +89,17 @@ class DatabaseUpgradeTest {
             mapOf("id" to 1, "date" to "2026-10-17", "prayer" to "FAJR", "status" to "PRAYED", "prayedAt" to 1_760_000_000_000L,
                 "xpAwarded" to 10, "bonusXp" to 30)
         ),
+        // From version 10: a Darood Party in the cache, with a member (version 11 adds when their row changed).
+        "darood_party" to listOf(
+            mapOf("id" to "p1", "name" to "Friday circle", "leaderId" to "u1", "maxMembers" to 10, "milestone" to null,
+                "milestoneSetAt" to null, "completedAt" to null, "createdAt" to 1_760_000_000_000L, "total" to 313,
+                "entryCount" to 1, "memberCount" to 1, "lastEntryDate" to "2026-10-19", "myRole" to "LEADER",
+                "myStatus" to "ACTIVE", "syncedAt" to 1_760_000_000_000L)
+        ),
+        "darood_party_member" to listOf(
+            mapOf("partyId" to "p1", "userId" to "u1", "username" to "aria_k", "role" to "LEADER", "status" to "ACTIVE",
+                "invitedAt" to null, "joinedAt" to 1_760_000_000_000L, "total" to 313, "activeDays" to 1, "lastEntryDate" to "2026-10-19")
+        ),
         // From version 8: the tracker turned on, in Lahore, with Fajr's reminder off.
         "namaz_settings" to listOf(
             mapOf("id" to 1, "enabled" to 1, "method" to "KARACHI", "asrMadhab" to "HANAFI", "highLatitudeRule" to null,
@@ -197,8 +208,16 @@ class DatabaseUpgradeTest {
                 assertEquals(null, db.namazSettingsDao().get())
             }
 
-            // Version 10's Darood Party cache is there, empty: it fills from the server.
-            assertTrue(db.daroodDao().observeParties().first().isEmpty())
+            if (version >= 10) {
+                // The Darood Party cache comes through; when its member's row changed isn't known until the next refresh.
+                assertEquals(listOf("Friday circle"), db.daroodDao().observeParties().first().map { it.name })
+                val member = db.daroodDao().observeMembers("p1").first().single()
+                assertEquals("aria_k", member.username)
+                assertEquals(null, member.statusChangedAt)
+            } else {
+                // Version 10's Darood Party cache is there, empty: it fills from the server.
+                assertTrue(db.daroodDao().observeParties().first().isEmpty())
+            }
             assertTrue(db.daroodDao().pendingToSend().isEmpty())
         } finally {
             db.close()
@@ -214,10 +233,11 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion7_theV1_2_0Release() = updateFrom(7)
     @Test fun fromVersion8_theNamazTracker() = updateFrom(8)
     @Test fun fromVersion9_theV1_3_0Release() = updateFrom(9)
+    @Test fun fromVersion10_theDaroodPartyCache() = updateFrom(10)
 
     @Test
     fun everyEarlierVersion_hasALayoutAndAMigration() {
-        val current = schema(10).getInt("version")
+        val current = schema(11).getInt("version")
         assertEquals(
             "a layout file per version, 1 to $current: bump the version, and its file is written at the next build",
             (1..current).map { "$it.json" }.toSet(),
@@ -259,7 +279,7 @@ class DatabaseUpgradeTest {
 
         val copy = File(copies, "pixelquest-v3.db")
         assertEquals("the old file, as 1.1.0 left it", 3, PreUpdateCopy.versionOf(copy))
-        assertEquals("and the updated one", 10, PreUpdateCopy.versionOf(context.getDatabasePath(name)))
+        assertEquals("and the updated one", AppDatabase.ALL_MIGRATIONS.last().endVersion, PreUpdateCopy.versionOf(context.getDatabasePath(name)))
         context.deleteDatabase(name)
         copies.deleteRecursively()
     }

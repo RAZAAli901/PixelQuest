@@ -62,7 +62,11 @@ data class Party(
     val progress: Float? get() = milestone?.let { (total.toDouble() / it).coerceIn(0.0, 1.0).toFloat() }
 }
 
-/** Someone in a party, as its members see them. [username] is null where it isn't theirs to see. */
+/**
+ * Someone in a party, as its members see them. [username] is null where it isn't theirs to see.
+ * [statusChangedAt] is when their row last changed: for someone who left or was removed, when that
+ * happened.
+ */
 data class PartyMember(
     val partyId: String,
     val userId: String,
@@ -70,7 +74,8 @@ data class PartyMember(
     val role: PartyRole,
     val status: MemberStatus,
     val invitedAt: Instant?,
-    val joinedAt: Instant?
+    val joinedAt: Instant?,
+    val statusChangedAt: Instant? = null
 )
 
 /**

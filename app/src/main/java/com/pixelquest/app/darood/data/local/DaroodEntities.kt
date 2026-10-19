@@ -56,7 +56,9 @@ data class PartyMemberEntity(
     val joinedAt: Long?,
     @ColumnInfo(defaultValue = "0") val total: Long = 0,
     @ColumnInfo(defaultValue = "0") val activeDays: Int = 0,
-    val lastEntryDate: LocalDate? = null
+    val lastEntryDate: LocalDate? = null,
+    /** When their row last changed on the server (from version 11). */
+    val statusChangedAt: Long? = null
 )
 
 /** An entry the server has, by its id. [clientId] is set for the account's own, matching its pending row. */
