@@ -72,6 +72,14 @@ object NotificationChannels {
             sound = false,
             vibration = false
         ),
+        DAROOD(
+            id = "pq_darood",
+            displayName = "Darood Party",
+            description = "A weekly note of the days you added Darood (only if you turn it on)",
+            importance = Importance.LOW,
+            sound = false,
+            vibration = false
+        ),
         SYNC(
             id = "pq_sync",
             displayName = "Leaderboard sync",
@@ -87,7 +95,7 @@ object NotificationChannels {
         if (soundEnabled) Spec.REMINDERS else Spec.REMINDERS_SILENT
 
     /** Channels the user can tune from Settings (the sync channel is too minor to list). */
-    val userFacing: List<Spec> = listOf(Spec.REMINDERS, Spec.REMINDERS_SILENT, Spec.MISSED, Spec.PROGRESS, Spec.COACH)
+    val userFacing: List<Spec> = listOf(Spec.REMINDERS, Spec.REMINDERS_SILENT, Spec.MISSED, Spec.PROGRESS, Spec.COACH, Spec.DAROOD)
 
     /** Opens the system page for one channel; before Android 8 there are no channels, so open the app page. */
     fun systemSettingsIntent(context: Context, spec: Spec): Intent {

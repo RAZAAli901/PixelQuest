@@ -118,6 +118,15 @@
     <string name="darood_info_milestone_too_low">It has to be above the party\'s total, <xliff:g id="total" example="2,450">%1$s</xliff:g>.</string>
     <string name="darood_info_refused_too_low">That\'s not above the party\'s total any more. Try a bigger number.</string>
     <string name="darood_info_refused_finished">The party is finished, so its milestone stays as it was.</string>
+    <!-- The weekly note (opt-in). -->
+    <string name="darood_weekly_title">Your Darood this week</string>
+    <plurals name="darood_weekly_days">
+        <item quantity="one">You added Darood on <xliff:g id="days" example="1">%1$d</xliff:g> of the last 7 days. Every one counts.</item>
+        <item quantity="other">You added Darood on <xliff:g id="days" example="4">%1$d</xliff:g> of the last 7 days. Every one counts.</item>
+    </plurals>
+    <string name="darood_weekly_none">Your parties would love your Darood this week, whenever you\'re ready.</string>
+    <string name="darood_weekly_switch">Weekly note</string>
+    <string name="darood_weekly_explained">Each Friday evening, a quiet note of the days you added Darood, across your parties. Off unless you turn it on.</string>
     <string name="darood_race_title">Race board</string>
     <string name="darood_race_intro">Parties whose leaders put them on the board, by when they finished, then by how far they are. Only names and progress: never anyone\'s name or numbers.</string>
     <string name="darood_race_empty">No parties are racing yet. A leader can put theirs on the board from Party info.</string>

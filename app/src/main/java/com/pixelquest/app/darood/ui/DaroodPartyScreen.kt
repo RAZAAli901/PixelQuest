@@ -2,18 +2,23 @@ package com.pixelquest.app.darood.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,7 +54,10 @@ fun DaroodPartyScreen(
     viewModel: com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val weekly by viewModel.weeklyReminder.collectAsState()
     DaroodPartyContent(
+        weeklyReminder = weekly,
+        onWeeklyReminder = viewModel::setWeeklyReminder,
         state = state,
         onSignIn = onSignIn,
         onNavigateBack = onNavigateBack,
@@ -72,6 +80,8 @@ fun DaroodPartyContent(
     onOpenParty: (String) -> Unit = {},
     onCreateParty: () -> Unit = {},
     onOpenRaceBoard: () -> Unit = {},
+    weeklyReminder: Boolean? = null,
+    onWeeklyReminder: (Boolean) -> Unit = {},
     onAccept: (String) -> Unit = {},
     onDecline: (String) -> Unit = {}
 ) {
@@ -161,6 +171,10 @@ fun DaroodPartyContent(
                     }
                     items(state.parties, key = { it.id }) { party ->
                         com.pixelquest.app.darood.ui.list.PartyRow(party = party, onClick = { onOpenParty(party.id) })
+                    }
+                    // Once there's a party to add to: the weekly note, off unless turned on.
+                    if (state.parties.isNotEmpty() && weeklyReminder != null) {
+                        item(key = "weekly") { WeeklyReminderSwitch(on = weeklyReminder, onChange = onWeeklyReminder) }
                     }
                     if (state.isEmpty) {
                         item(key = "empty") {
@@ -252,3 +266,50 @@ private fun SectionTitle(text: String) {
     )
 }
 
+/**
+ * The weekly note's switch, at the foot of the parties: what it is, said plainly, and off unless the
+ * player turns it on. The whole row is the switch, read by TalkBack as one.
+ */
+@Composable
+internal fun WeeklyReminderSwitch(on: Boolean, onChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+    val colors = PixelTheme.colors
+    com.pixelquest.app.ui.components.PixelCard(
+        variant = com.pixelquest.app.ui.components.PixelPanelVariant.BORDER,
+        contentPadding = 12.dp,
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .toggleable(value = on, role = androidx.compose.ui.semantics.Role.Switch, onValueChange = onChange)
+                .testTag(DaroodTestTags.WEEKLY_SWITCH)
+        ) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = "🌙  " + stringResource(R.string.darood_weekly_switch),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primaryText)
+                )
+                Text(
+                    text = stringResource(R.string.darood_weekly_explained),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurface
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            androidx.compose.material3.Switch(
+                checked = on,
+                onCheckedChange = null,
+                colors = androidx.compose.material3.SwitchDefaults.colors(
+                    checkedThumbColor = colors.onPrimary,
+                    checkedTrackColor = colors.primary,
+                    uncheckedThumbColor = colors.onSurfaceVariant,
+                    uncheckedTrackColor = colors.surfaceVariant,
+                    uncheckedBorderColor = colors.pixelBorder
+                )
+            )
+        }
+    }
+}

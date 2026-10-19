@@ -55,8 +55,17 @@ data class DaroodPartiesUiState(
 @HiltViewModel
 class DaroodPartiesViewModel @Inject constructor(
     authRepository: AuthRepository,
-    private val repository: DaroodPartyRepository
+    private val repository: DaroodPartyRepository,
+    private val reminder: com.pixelquest.app.darood.data.DaroodReminderSettings? = null
 ) : ViewModel() {
+
+    /** The weekly note, off unless the player turns it on. */
+    val weeklyReminder: StateFlow<Boolean> = reminder?.weeklyReminder ?: kotlinx.coroutines.flow.MutableStateFlow(false)
+
+    fun setWeeklyReminder(on: Boolean) {
+        reminder?.setWeeklyReminder(on)
+    }
+
 
     private val status = MutableStateFlow(DaroodPartiesUiState())
 

@@ -89,6 +89,7 @@ object DaroodTestTags {
     const val INFO_RACE_SWITCH = "darood_info_race_switch"
     const val INFO_RACE_NOTE = "darood_info_race_note"
     const val RACE_ACTION = "darood_race_action"
+    const val WEEKLY_SWITCH = "darood_weekly_switch"
     const val RACE_SCREEN = "darood_race_screen"
     const val RACE_EMPTY = "darood_race_empty"
     const val RACE_PROBLEM = "darood_race_problem"

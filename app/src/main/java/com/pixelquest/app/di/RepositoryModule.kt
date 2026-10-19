@@ -166,6 +166,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindDaroodReminderSettings(
+        impl: com.pixelquest.app.darood.data.PrefsDaroodReminderSettings
+    ): com.pixelquest.app.darood.data.DaroodReminderSettings
+
+    @Binds
+    @Singleton
     abstract fun bindUsernameCache(
         impl: com.pixelquest.app.darood.data.PrefsUsernameCache
     ): com.pixelquest.app.darood.data.UsernameCache

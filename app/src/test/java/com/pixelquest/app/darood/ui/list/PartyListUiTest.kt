@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -136,5 +138,24 @@ class PartyListUiTest {
         }
         composeTestRule.onNodeWithTag(DaroodTestTags.inviteAccept("p9")).assertIsNotEnabled()
         composeTestRule.onNodeWithText("That invitation isn't there any more: it may have been withdrawn, or the party is full or finished.").assertIsDisplayed()
+    }
+
+    @Test
+    fun theWeeklyNote_isOffUnlessTurnedOn_andSaysPlainlyWhatItIs() {
+        var turned: Boolean? = null
+        val party = com.pixelquest.app.darood.domain.Party("p1", "Friday circle", "me", 10, null, null, null, java.time.Instant.EPOCH, myStatus = com.pixelquest.app.darood.domain.MemberStatus.ACTIVE)
+        composeTestRule.setContent {
+            com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Pixel) {
+                DaroodPartyContent(
+                    state = com.pixelquest.app.darood.ui.list.DaroodPartiesUiState(signedIn = true, parties = listOf(party)),
+                    onSignIn = {}, onNavigateBack = null,
+                    weeklyReminder = false, onWeeklyReminder = { turned = it }
+                )
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.WEEKLY_SWITCH).performScrollTo().assertIsOff()
+        composeTestRule.onNodeWithText("Off unless you turn it on.", substring = true).assertExists()
+        composeTestRule.onNodeWithTag(DaroodTestTags.WEEKLY_SWITCH).performClick()
+        org.junit.Assert.assertEquals(true, turned)
     }
 }
