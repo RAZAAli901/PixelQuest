@@ -86,17 +86,19 @@ fun PartyChatScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp).testTag(DaroodTestTags.CHAT_SCREEN),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(text = stringResource(R.string.darood_chat_soon), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
-            if (isLeader) {
-                com.pixelquest.app.ui.components.PixelButton(
-                    text = stringResource(R.string.darood_add_title),
-                    onClick = onAddPeople,
-                    modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)
-                )
+        ChatBackground(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag(DaroodTestTags.CHAT_BACKGROUND)) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp).testTag(DaroodTestTags.CHAT_SCREEN),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(text = stringResource(R.string.darood_chat_soon), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
+                if (isLeader) {
+                    com.pixelquest.app.ui.components.PixelButton(
+                        text = stringResource(R.string.darood_add_title),
+                        onClick = onAddPeople,
+                        modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)
+                    )
+                }
             }
         }
     }
