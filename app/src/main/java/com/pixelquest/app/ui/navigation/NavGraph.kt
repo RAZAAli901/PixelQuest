@@ -231,7 +231,19 @@ fun PixelNavHost(
         composable(Screen.DaroodParty.route) {
             com.pixelquest.app.darood.ui.DaroodPartyScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onSignIn = { navController.navigate(Screen.Account.route) }
+                onSignIn = { navController.navigate(Screen.Account.route) },
+                onOpenParty = { partyId -> navController.navigate(Screen.DaroodPartyChat.createRoute(partyId)) }
+            )
+        }
+        composable(
+            route = Screen.DaroodPartyChat.route,
+            arguments = listOf(navArgument("partyId") { type = NavType.StringType })
+        ) { entry ->
+            val partyId = entry.arguments?.getString("partyId").orEmpty()
+            com.pixelquest.app.darood.ui.chat.PartyChatRoute(
+                partyId = partyId,
+                onNavigateBack = { navController.popBackStack() },
+                onOpenInfo = { }
             )
         }
         composable(Screen.UsernameSetup.route) {

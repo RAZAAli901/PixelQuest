@@ -28,6 +28,10 @@ sealed class Screen(val route: String) {
     object Namaz : Screen("namaz")
     /** Darood Party, from the side menu. */
     object DaroodParty : Screen("darood")
+    /** One Darood Party's own screen (its chat). */
+    object DaroodPartyChat : Screen("darood/party/{partyId}") {
+        fun createRoute(partyId: String) = "darood/party/$partyId"
+    }
     /** Claiming or changing the Darood Party username. */
     object UsernameSetup : Screen("username_setup")
 }

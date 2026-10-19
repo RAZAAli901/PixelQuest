@@ -45,6 +45,19 @@ class DaroodMenuUiTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private val auth = FakeAuthRepository()
+    private val db = androidx.room.Room.inMemoryDatabaseBuilder(
+        androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>(),
+        com.pixelquest.app.data.local.AppDatabase::class.java
+    ).allowMainThreadQueries().build()
+    private val server = com.pixelquest.app.testing.FakeDaroodServer(me = "aria-id")
+    private val repository = com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl(
+        server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }
+    )
+
+    @org.junit.After
+    fun closeDb() {
+        db.close()
+    }
 
     private fun showApp(mode: ThemeMode = ThemeMode.Pixel, context: MenuContext = MenuContext()) {
         composeTestRule.setContent {
@@ -73,7 +86,8 @@ class DaroodMenuUiTest {
                             DaroodPartyScreen(
                                 onNavigateBack = { nav.popBackStack() },
                                 onSignIn = { nav.navigate(Screen.Account.route) },
-                                viewModel = DaroodPartyViewModel(auth)
+                                onOpenParty = {},
+                                viewModel = com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel(auth, repository)
                             )
                         }
                         composable(Screen.Account.route) { Text("ACCOUNT SCREEN") }
@@ -91,6 +105,11 @@ class DaroodMenuUiTest {
         }
     }
 
+    /** The list comes from the database, which answers on its own thread. */
+    private fun waitForTag(tag: String) = composeTestRule.waitUntil(timeoutMillis = 5_000) {
+        composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
+    }
+
     private fun openDaroodFromTheMenu(label: String) {
         composeTestRule.onNodeWithContentDescription("Open menu").performClick()
         composeTestRule.waitForIdle()
@@ -104,6 +123,7 @@ class DaroodMenuUiTest {
         showApp(ThemeMode.Pixel)
         openDaroodFromTheMenu("DAROOD PARTY")
 
+        waitForTag(DaroodTestTags.SIGNED_OUT)
         composeTestRule.onNodeWithTag(DaroodTestTags.SIGNED_OUT).assertIsDisplayed()
         composeTestRule.onNodeWithTag(DaroodTestTags.SIGN_IN).performClick()
         composeTestRule.waitForIdle()
@@ -117,6 +137,7 @@ class DaroodMenuUiTest {
         showApp(ThemeMode.Comic)
         openDaroodFromTheMenu("DAROOD PARTY")
 
+        waitForTag(DaroodTestTags.EMPTY)
         composeTestRule.onNodeWithTag(DaroodTestTags.EMPTY).assertIsDisplayed()
         assertEquals(0, composeTestRule.onAllNodesWithText("Sign in to join a party").fetchSemanticsNodes().size)
     }

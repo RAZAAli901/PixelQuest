@@ -18,6 +18,20 @@
     <string name="darood_signed_out_title">Sign in to join a party</string>
     <string name="darood_signed_out_body">Darood Parties are shared with friends, so they need an account. Sign in with Google or an emailed code.</string>
     <string name="darood_sign_in">Sign in</string>
+    <!-- The party list: one row per party. -->
+    <plurals name="darood_members">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> member</item>
+        <item quantity="other"><xliff:g id="count" example="12">%1$d</xliff:g> members</item>
+    </plurals>
+    <string name="darood_total">Total <xliff:g id="total" example="2,450">%1$s</xliff:g></string>
+    <string name="darood_progress"><xliff:g id="total" example="2,450">%1$s</xliff:g> of <xliff:g id="milestone" example="10,000">%2$s</xliff:g></string>
+    <string name="darood_no_milestone">No milestone yet</string>
+    <string name="darood_finished">Finished</string>
+    <string name="darood_open_party">Open the party</string>
+    <string name="darood_list_offline">Couldn\'t reach the server. Showing what this phone has.</string>
+    <!-- A party's own screen; the chat comes to it later. -->
+    <string name="darood_party_info">Party info</string>
+    <string name="darood_chat_soon">The party\'s chat is on its way.</string>
     <!-- A username as shown on the profile and in the side menu. -->
     <string name="darood_username_handle">@<xliff:g id="name" example="aria_k">%1$s</xliff:g></string>
     <string name="darood_username_profile_label">Darood Party username</string>

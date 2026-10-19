@@ -1,6 +1,9 @@
 package com.pixelquest.app.darood.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,23 +34,36 @@ import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
 
 /**
- * Darood Party's home, from the side menu. Parties need an account: signed out, it offers the
- * app's usual sign-in ([onSignIn] opens the Account screen). Signed in, for now it says what
- * parties will be; the party list (Phase D) replaces that.
+ * Darood Party's home, from the side menu: the account's parties. Parties need an account: signed
+ * out, it offers the app's usual sign-in ([onSignIn] opens the Account screen).
  */
 @Composable
 fun DaroodPartyScreen(
     onNavigateBack: (() -> Unit)?,
     onSignIn: () -> Unit,
-    viewModel: DaroodPartyViewModel = hiltViewModel()
+    onOpenParty: (String) -> Unit,
+    viewModel: com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel = hiltViewModel()
 ) {
-    val signedIn by viewModel.signedIn.collectAsState()
-    DaroodPartyContent(signedIn = signedIn, onSignIn = onSignIn, onNavigateBack = onNavigateBack)
+    val state by viewModel.uiState.collectAsState()
+    DaroodPartyContent(
+        state = state,
+        onSignIn = onSignIn,
+        onNavigateBack = onNavigateBack,
+        onRefresh = viewModel::refresh,
+        onOpenParty = onOpenParty
+    )
 }
 
-/** @param signedIn null while the saved session loads: nothing is shown yet. */
+/** The screen for [state]: nothing while the session loads, the sign-in card, or the parties. */
 @Composable
-fun DaroodPartyContent(signedIn: Boolean?, onSignIn: () -> Unit, onNavigateBack: (() -> Unit)?) {
+fun DaroodPartyContent(
+    state: com.pixelquest.app.darood.ui.list.DaroodPartiesUiState,
+    onSignIn: () -> Unit,
+    onNavigateBack: (() -> Unit)?,
+    onRefresh: () -> Unit = {},
+    onOpenParty: (String) -> Unit = {}
+) {
+    val signedIn = state.signedIn
     val colors = PixelTheme.colors
     Scaffold(
         containerColor = colors.background,
@@ -69,6 +85,42 @@ fun DaroodPartyContent(signedIn: Boolean?, onSignIn: () -> Unit, onNavigateBack:
             )
         }
     ) { innerPadding ->
+        if (signedIn == true) {
+            PartyRefreshBox(
+                refreshing = state.loading,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize().padding(innerPadding).testTag(DaroodTestTags.PARTY_SCREEN)
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.PARTY_LIST),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (state.problem == com.pixelquest.app.darood.ui.list.PartiesProblem.OFFLINE) {
+                        item(key = "offline") {
+                            Text(
+                                text = stringResource(R.string.darood_list_offline),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.onSurfaceVariant
+                            )
+                        }
+                    }
+                    items(state.parties, key = { it.id }) { party ->
+                        com.pixelquest.app.darood.ui.list.PartyRow(party = party, onClick = { onOpenParty(party.id) })
+                    }
+                    if (state.parties.isEmpty()) {
+                        item(key = "empty") {
+                            DaroodCard(
+                                title = stringResource(R.string.darood_empty_title),
+                                body = stringResource(R.string.darood_empty_body),
+                                modifier = Modifier.testTag(DaroodTestTags.EMPTY)
+                            )
+                        }
+                    }
+                }
+            }
+            return@Scaffold
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,7 +131,7 @@ fun DaroodPartyContent(signedIn: Boolean?, onSignIn: () -> Unit, onNavigateBack:
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             when (signedIn) {
-                null -> Unit
+                null, true -> Unit
                 false -> DaroodCard(
                     title = stringResource(R.string.darood_signed_out_title),
                     body = stringResource(R.string.darood_signed_out_body),
@@ -91,11 +143,6 @@ fun DaroodPartyContent(signedIn: Boolean?, onSignIn: () -> Unit, onNavigateBack:
                         modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.SIGN_IN)
                     )
                 }
-                true -> DaroodCard(
-                    title = stringResource(R.string.darood_empty_title),
-                    body = stringResource(R.string.darood_empty_body),
-                    modifier = Modifier.testTag(DaroodTestTags.EMPTY)
-                )
             }
         }
     }
