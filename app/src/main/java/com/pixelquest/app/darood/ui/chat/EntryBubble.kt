@@ -18,11 +18,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.DaroodEntry
+import com.pixelquest.app.darood.domain.EntryState
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.formatCount
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -124,8 +127,28 @@ fun EntryBubble(
                 style = MaterialTheme.typography.labelSmall,
                 color = bubble.secondary
             )
+            if (mine) SendMark(entry.state, bubble.secondary)
         }
     }
+}
+
+/**
+ * On the player's own bubbles, where the entry is, as a messaging app marks a message: a clock while
+ * it waits on the phone to be sent, a tick once the server has it. A refused one is D098's.
+ */
+@Composable
+private fun SendMark(state: EntryState, color: Color) {
+    if (state == EntryState.FAILED) return
+    val pending = state == EntryState.PENDING
+    val said = stringResource(if (pending) R.string.darood_entry_sending else R.string.darood_entry_sent)
+    Text(
+        text = if (pending) "🕓" else "✓",
+        style = MaterialTheme.typography.labelSmall,
+        color = color,
+        modifier = Modifier
+            .testTag(if (pending) DaroodTestTags.ENTRY_PENDING else DaroodTestTags.ENTRY_SENT)
+            .clearAndSetSemantics { contentDescription = said }
+    )
 }
 
 /** Rounded like a chat's message, with the corner nearest its side drawn in, as a tail. */
