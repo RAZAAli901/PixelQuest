@@ -163,4 +163,24 @@ abstract class RepositoryModule {
     abstract fun bindUsernameCache(
         impl: com.pixelquest.app.darood.data.PrefsUsernameCache
     ): com.pixelquest.app.darood.data.UsernameCache
+
+    // Darood Party (docs/darood-design.md): its server, its account and its repository.
+
+    @Binds
+    @Singleton
+    abstract fun bindDaroodAccount(
+        impl: com.pixelquest.app.darood.data.remote.SupabaseDaroodAccount
+    ): com.pixelquest.app.darood.data.remote.DaroodAccount
+
+    @Binds
+    @Singleton
+    abstract fun bindDaroodPartyRemoteDataSource(
+        impl: com.pixelquest.app.darood.data.remote.SupabaseDaroodPartyRemoteDataSource
+    ): com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindDaroodPartyRepository(
+        impl: com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
+    ): com.pixelquest.app.darood.data.DaroodPartyRepository
 }
