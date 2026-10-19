@@ -103,4 +103,25 @@ class SupabaseUsernameRepositoryTest {
         answer = """{"status":"suspended"}"""
         assertEquals(SupabaseResult.Success(SetUsernameResult.Invalid), repository.setUsername(Username.parse("bram")!!))
     }
+
+    @Test
+    fun myUsername_isTheOwnRow_withItsNextChangeThirtyDaysOn() = runBlocking {
+        answer = """[{"user_id":"3f2b8c1e-9a4d-4e6f-8b2a-1c3d5e7f9a0b","username":"aria_k","changed_at":"2026-10-19T08:00:00.5+00:00"}]"""
+
+        val result = repository.fetchMyUsername()
+
+        assertEquals(
+            SupabaseResult.Success(OwnUsername(Username.parse("aria_k")!!, java.time.Instant.parse("2026-11-18T08:00:00.5Z"))),
+            result
+        )
+        val request = requests.single()
+        assertTrue(request.url.encodedPath.endsWith("/rest/v1/usernames"))
+    }
+
+    @Test
+    fun noRow_meansNoUsernameYet() = runBlocking {
+        answer = "[]"
+
+        assertEquals(SupabaseResult.Success(null), repository.fetchMyUsername())
+    }
 }
