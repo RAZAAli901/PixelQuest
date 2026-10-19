@@ -353,6 +353,57 @@ localTest("the race board: opted-in parties with a milestone, name and progress 
   assert.ok(!(await board(outsider)).some((r) => r.name === racingName));
 });
 
+localTest("privacy: an outsider sees an opted-in party's race line, and no name, id or entry anywhere", async () => {
+  const { leader, member, outsider } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Private"), milestone: 5000 });
+  for (const [who, amount] of [[leader, 313], [member, 1234]] as const) assert.equal((await post(who, party, amount)).status, 201);
+  await call(`/rest/v1/parties?id=eq.${party}`, { method: "PATCH", token: leader.accessToken, body: { is_public_race: true } });
+  const secrets = [leader.userId, member.userId, leader.username, member.username, party];
+  // The entries' amounts too, except on the board, whose totals belong to many parties (theirs included).
+  const amounts = ["1234", "313"];
+
+  // Everything an outsider might read, every way they might ask.
+  const reads: [string, unknown][] = [];
+  for (const path of [
+    `/rest/v1/parties?select=*`,
+    `/rest/v1/party_members?select=*`,
+    `/rest/v1/darood_entries?select=*`,
+    `/rest/v1/party_stats?select=*`,
+    `/rest/v1/party_member_stats?select=*`,
+    `/rest/v1/party_day_stats?select=*`,
+    `/rest/v1/usernames?select=*`,
+    `/rest/v1/race_board?select=*`,
+  ]) {
+    const answer = await call(path, { token: outsider.accessToken });
+    reads.push([path, answer.body]);
+  }
+  for (const [path, body] of reads) {
+    const text = JSON.stringify(body);
+    const hidden = path.startsWith("/rest/v1/race_board") ? secrets : [...secrets, ...amounts];
+    for (const secret of hidden) assert.ok(!text.includes(secret), `${path} shows ${secret}: ${text.slice(0, 300)}`);
+  }
+
+  // The board shows the line, with its six columns and mine, and only those.
+  const line = ((reads.find(([path]) => path.startsWith("/rest/v1/race_board"))![1]) as Record<string, unknown>[])
+    .find((row) => row.total === 1547);
+  assert.ok(line, "the party's line is there");
+  assert.deepEqual(Object.keys(line!).sort(), ["completed_at", "member_count", "milestone", "mine", "name", "progress", "total"]);
+  assert.equal(line!.mine, false);
+
+  // Asking the board for more gets nothing more: no hidden columns, nothing to embed.
+  for (const path of [
+    "/rest/v1/race_board?select=id",
+    "/rest/v1/race_board?select=leader_id",
+    "/rest/v1/race_board?select=*,party_members(*)",
+    "/rest/v1/race_board?select=*,parties(*)",
+  ]) {
+    const answer = await call(path, { token: outsider.accessToken });
+    assert.ok(answer.status >= 400, `${path} answered ${answer.status}: ${JSON.stringify(answer.body).slice(0, 200)}`);
+  }
+  // Nor can it be filtered by what it doesn't show.
+  assert.ok((await call(`/rest/v1/race_board?id=eq.${party}`, { token: outsider.accessToken })).status >= 400);
+});
+
 localTest("invitations: the same answer for unknown names, then accepted, declined or renewed", async () => {
   const { leader, member, invitee } = await cast();
   const party = await partyOf(leader, []);
