@@ -65,9 +65,11 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 supabase-bom = { group = "io.github.jan-tennert.supabase", name = "bom", version.ref = "supabase" }
 supabase-postgrest = { group = "io.github.jan-tennert.supabase", name = "postgrest-kt", version.ref = "supabase" }
 supabase-auth = { group = "io.github.jan-tennert.supabase", name = "auth-kt", version.ref = "supabase" }
+supabase-realtime = { group = "io.github.jan-tennert.supabase", name = "realtime-kt", version.ref = "supabase" }
 adhan2 = { group = "com.batoulapps.adhan", name = "adhan2", version.ref = "adhan" }
 
 ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version = "3.0.1" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version = "3.0.1" }
 ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version = "3.0.1" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version = "3.0.1" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.3" }

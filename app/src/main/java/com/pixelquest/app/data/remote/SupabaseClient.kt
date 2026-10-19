@@ -7,6 +7,8 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.realtime.Realtime
+import io.ktor.client.engine.okhttp.OkHttp
 
 /**
  * Singleton providing configured SupabaseClient instances with Postgrest and Auth plugins.
@@ -22,8 +24,13 @@ object SupabaseClientProvider {
             supabaseUrl = url,
             supabaseKey = anonKey
         ) {
+            // OkHttp, chosen rather than left to whichever engine is found first: Realtime needs
+            // WebSockets, which Ktor's Android engine doesn't have.
+            httpEngine = OkHttp.create()
             install(Postgrest)
             install(Auth)
+            // Darood Party's live updates (docs/darood-design.md). Nothing connects until a party is followed.
+            install(Realtime)
         }
     }
 

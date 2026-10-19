@@ -189,4 +189,10 @@ abstract class RepositoryModule {
     abstract fun bindDaroodSyncScheduler(
         impl: com.pixelquest.app.darood.sync.WorkManagerDaroodSyncScheduler
     ): com.pixelquest.app.darood.sync.DaroodSyncScheduler
+
+    @Binds
+    @Singleton
+    abstract fun bindDaroodLiveSource(
+        impl: com.pixelquest.app.darood.sync.SupabaseDaroodLiveSource
+    ): com.pixelquest.app.darood.sync.DaroodLiveSource
 }

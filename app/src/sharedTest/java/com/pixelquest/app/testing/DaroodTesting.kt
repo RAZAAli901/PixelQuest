@@ -5,6 +5,12 @@ import com.pixelquest.app.darood.data.SetUsernameResult
 import com.pixelquest.app.darood.data.UsernameRepository
 import com.pixelquest.app.darood.domain.Username
 import com.pixelquest.app.data.remote.SupabaseResult
+import com.pixelquest.app.darood.sync.DaroodLiveSource
+import com.pixelquest.app.darood.sync.PartyChange
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import java.io.IOException
 import java.time.Instant
 
@@ -44,6 +50,25 @@ class FakeUsernameRepository(
             }
         }
     }
+}
+
+/** Live party changes, sent by hand; [following] counts who is subscribed to each party right now. */
+class FakeDaroodLive : DaroodLiveSource {
+    private val flows = mutableMapOf<String, MutableSharedFlow<PartyChange>>()
+    val following = mutableMapOf<String, Int>()
+
+    private fun flow(partyId: String) = flows.getOrPut(partyId) { MutableSharedFlow(extraBufferCapacity = 64) }
+
+    override fun changes(partyId: String): Flow<PartyChange> = flow {
+        following[partyId] = (following[partyId] ?: 0) + 1
+        try {
+            emitAll(flow(partyId))
+        } finally {
+            following[partyId] = following.getValue(partyId) - 1
+        }
+    }
+
+    suspend fun send(partyId: String, change: PartyChange) = flow(partyId).emit(change)
 }
 
 /** The accounts asked for a username, in memory. */

@@ -22,10 +22,18 @@ import com.pixelquest.app.darood.domain.MemberStatus
 import com.pixelquest.app.darood.domain.Party
 import com.pixelquest.app.darood.domain.PartyMember
 import com.pixelquest.app.darood.domain.PartyStats
+import com.pixelquest.app.darood.sync.DaroodLiveSource
 import com.pixelquest.app.darood.sync.DaroodSyncScheduler
+import com.pixelquest.app.darood.sync.PartyChange
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
@@ -67,6 +75,13 @@ interface DaroodPartyRepository {
     /** Sends every waiting entry, oldest first, until one can't be sent for now. */
     suspend fun sendPending(): SendReport
 
+    /**
+     * Brings a party's live changes into the cache while it's collected, and passes each on: a new
+     * entry appears at once, the party's numbers follow once the changes pause, and a change of
+     * members refreshes the party. Collect it while the party's screen is up.
+     */
+    fun followParty(partyId: String): Flow<PartyChange>
+
     /** The account's parties, with their numbers, from the server. */
     suspend fun refreshParties(): SupabaseResult<Unit>
 
@@ -106,12 +121,19 @@ class DaroodPartyRepositoryImpl(
     private val account: DaroodAccount,
     private val now: () -> Long,
     private val zone: () -> ZoneId,
-    private val syncScheduler: DaroodSyncScheduler? = null
+    private val syncScheduler: DaroodSyncScheduler? = null,
+    private val live: DaroodLiveSource? = null,
+    private val numbersDelayMs: Long = NUMBERS_DELAY_MS
 ) : DaroodPartyRepository {
 
     @Inject
-    constructor(remote: DaroodPartyRemoteDataSource, dao: DaroodDao, account: DaroodAccount, syncScheduler: DaroodSyncScheduler) :
-        this(remote, dao, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler)
+    constructor(
+        remote: DaroodPartyRemoteDataSource,
+        dao: DaroodDao,
+        account: DaroodAccount,
+        syncScheduler: DaroodSyncScheduler,
+        live: DaroodLiveSource
+    ) : this(remote, dao, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler, live)
 
     override fun observeMyParties(): Flow<List<Party>> = dao.observeParties().map { parties -> parties.map { it.toDomain() } }
 
@@ -233,6 +255,35 @@ class DaroodPartyRepositoryImpl(
         }
     }
 
+    @OptIn(FlowPreview::class)
+    override fun followParty(partyId: String): Flow<PartyChange> = channelFlow {
+        val source = live ?: return@channelFlow
+        // A busy party posts often: its numbers refresh once the entries pause, not after each.
+        val numbersChanged = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+        launch { numbersChanged.debounce(numbersDelayMs).collect { refreshParties() } }
+        source.changes(partyId).collect { change ->
+            when (change) {
+                is PartyChange.EntryAdded -> {
+                    applyLiveEntry(change.entry)
+                    numbersChanged.tryEmit(Unit)
+                }
+                PartyChange.MembersChanged -> refreshParty(partyId)
+            }
+            send(change)
+        }
+    }
+
+    /** An entry heard live: this phone's own, sent from the queue, replaces its waiting copy. */
+    private suspend fun applyLiveEntry(entry: DaroodEntry) {
+        if (dao.getParty(entry.partyId) == null || entry.id == null) return
+        val clientId = entry.clientId
+        if (clientId != null && dao.getPending(clientId) != null) {
+            dao.confirmSent(clientId, entry.toEntity())
+        } else {
+            dao.upsertEntries(listOf(entry.toEntity()))
+        }
+    }
+
     override suspend fun createParty(name: String, maxMembers: Int, milestone: Long?): SupabaseResult<String> =
         remote.createParty(name, maxMembers, milestone).alsoOnSuccess { refreshParties() }
 
@@ -254,6 +305,11 @@ class DaroodPartyRepositoryImpl(
     private suspend inline fun <T> SupabaseResult<T>.alsoOnSuccess(then: () -> Unit): SupabaseResult<T> {
         if (this is SupabaseResult.Success) then()
         return this
+    }
+
+    companion object {
+        /** How long a party's entries must pause before its numbers are refreshed. */
+        const val NUMBERS_DELAY_MS = 1_500L
     }
 }
 

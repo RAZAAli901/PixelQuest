@@ -166,6 +166,9 @@ dependencies {
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.auth)
+    // Darood Party's live updates; Realtime needs a WebSocket, which the Android engine lacks.
+    implementation(libs.supabase.realtime)
+    implementation(libs.ktor.client.okhttp)
 
     // Prayer times, calculated on the phone (Namaz Tracker)
     implementation(libs.adhan2)

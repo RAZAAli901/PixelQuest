@@ -27,7 +27,7 @@ class DaroodSyncWorkerTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
     private val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).allowMainThreadQueries().build()
     private val server = FakeDaroodServer(me = "me").apply { usernames["me"] = "aria_k" }
-    private val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, { 1_000L }, { java.time.ZoneId.of("UTC") })
+    private val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") })
 
     @After
     fun tearDown() {

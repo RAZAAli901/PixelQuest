@@ -106,7 +106,19 @@ data class MilestoneReply(
     @SerialName("milestone_set_at") val milestoneSetAt: String
 )
 
-internal fun parseInstant(value: String): Instant = OffsetDateTime.parse(value).toInstant()
+/**
+ * A timestamp as Supabase sends it: ISO from the REST API ("2026-10-19T10:00:00.5+00:00"), or
+ * Postgres's own text form from Realtime ("2026-10-19 10:00:00.5+00"), which ISO doesn't read.
+ */
+internal fun parseInstant(value: String): Instant {
+    var iso = value.trim().replace(' ', 'T')
+    val shortOffset = Regex("([+-])(\\d{2})(\\d{2})?$").find(iso)
+    if (shortOffset != null && iso[shortOffset.range.first - 1].isDigit()) {
+        val (sign, hours, minutes) = shortOffset.destructured
+        iso = iso.substring(0, shortOffset.range.first) + "$sign$hours:${minutes.ifEmpty { "00" }}"
+    }
+    return OffsetDateTime.parse(iso).toInstant()
+}
 
 internal fun roleOf(value: String): PartyRole = if (value == "leader") PartyRole.LEADER else PartyRole.MEMBER
 

@@ -77,4 +77,13 @@ class PartyDtosTest {
         val sent = Json.encodeToString(NewDaroodEntryDto.serializer(), NewDaroodEntryDto("p1", 300, "2026-10-19", "Asia/Karachi", "c-1"))
         assertEquals("""{"party_id":"p1","amount":300,"local_date":"2026-10-19","tz":"Asia/Karachi","client_id":"c-1"}""", sent)
     }
+
+    @Test
+    fun timestamps_readInEitherForm() {
+        val instant = java.time.Instant.parse("2026-10-19T10:00:00.5Z")
+        assertEquals(instant, parseInstant("2026-10-19T10:00:00.5+00:00"))
+        assertEquals("Realtime's Postgres text form", instant, parseInstant("2026-10-19 10:00:00.5+00"))
+        assertEquals(instant, parseInstant("2026-10-19 15:30:00.5+0530"))
+        assertEquals(instant, parseInstant("2026-10-19T10:00:00.5Z"))
+    }
 }

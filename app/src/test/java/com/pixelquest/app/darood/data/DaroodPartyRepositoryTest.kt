@@ -8,7 +8,9 @@ import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.domain.MemberStatus
 import com.pixelquest.app.darood.domain.PartyRole
 import com.pixelquest.app.testing.FakeDaroodServer
+import com.pixelquest.app.darood.data.remote.toDomain
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -31,7 +33,7 @@ class DaroodPartyRepositoryTest {
         usernames += mapOf("me" to "aria_k", "u2" to "bram", "u3" to "cleo")
     }
     private var scheduled = 0
-    private val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, { 1_000L }, { java.time.ZoneId.of("Asia/Karachi") }) { scheduled++ }
+    private val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("Asia/Karachi") }, syncScheduler = { scheduled++ })
 
     @After
     fun tearDown() {
@@ -190,5 +192,71 @@ class DaroodPartyRepositoryTest {
         assertEquals(313L, server.total(friday))
         val shown = repository.observeEntries(friday, 50).first()
         assertEquals("one bubble, the server's", listOf(server.entries.single().id), shown.map { it.id })
+    }
+
+    private val live = com.pixelquest.app.testing.FakeDaroodLive()
+    private val following = DaroodPartyRepositoryImpl(
+        server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }, live = live, numbersDelayMs = 0
+    )
+
+    @Test
+    fun followingAParty_bringsOthersEntriesAtOnce_andItsNumbersAfter() = runBlocking {
+        val friday = server.seedParty("Friday circle", "me", "u2")
+        following.refreshParty(friday)
+        val heard = mutableListOf<com.pixelquest.app.darood.sync.PartyChange>()
+        val job = launch(kotlinx.coroutines.Dispatchers.Unconfined) { following.followParty(friday).collect { heard += it } }
+        assertEquals(1, live.following[friday])
+
+        // Bram posts on his phone: the server has it, and the change arrives.
+        val bram = server.seedEntry(friday, "u2", 313)
+        live.send(friday, com.pixelquest.app.darood.sync.PartyChange.EntryAdded(bram.toDomain()))
+        waitUntil { following.observeParty(friday).first()!!.total == 313L }
+
+        assertEquals(listOf(313), following.observeEntries(friday, 50).first().map { it.amount })
+        assertEquals(1, heard.size)
+
+        job.cancel()
+        job.join()
+        assertEquals("stopping unsubscribes", 0, live.following[friday])
+    }
+
+    @Test
+    fun ownEntryHeardLive_replacesItsWaitingCopy() = runBlocking {
+        val friday = server.seedParty("Friday circle", "me")
+        following.refreshParties()
+        server.loseNextAnswer = true
+        val waiting = following.addEntry(friday, 33)
+        val job = launch(kotlinx.coroutines.Dispatchers.Unconfined) { following.followParty(friday).collect { } }
+
+        val stored = server.entries.single()
+        live.send(friday, com.pixelquest.app.darood.sync.PartyChange.EntryAdded(stored.toDomain()))
+        waitUntil { following.observePendingCount().first() == 0 }
+
+        val shown = following.observeEntries(friday, 50).first()
+        assertEquals("one bubble", listOf(stored.id), shown.map { it.id })
+        assertEquals(waiting.clientId, shown.single().clientId)
+        job.cancel()
+    }
+
+    @Test
+    fun aChangeOfMembers_refreshesTheParty() = runBlocking {
+        val friday = server.seedParty("Friday circle", "me")
+        following.refreshParty(friday)
+        val job = launch(kotlinx.coroutines.Dispatchers.Unconfined) { following.followParty(friday).collect { } }
+
+        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(friday, "u2", "member", "active", null, null)
+        live.send(friday, com.pixelquest.app.darood.sync.PartyChange.MembersChanged)
+        waitUntil { following.observeMembers(friday).first().size == 2 }
+
+        assertEquals(listOf("aria_k", "bram"), following.observeMembers(friday).first().map { it.username })
+        job.cancel()
+    }
+
+    private suspend fun waitUntil(condition: suspend () -> Boolean) {
+        repeat(100) {
+            if (condition()) return
+            kotlinx.coroutines.delay(20)
+        }
+        throw AssertionError("still waiting after 2 seconds")
     }
 }

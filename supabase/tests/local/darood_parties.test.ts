@@ -2,7 +2,7 @@
 // limits, the leader's rights, invitations, leaving, and finishing. Every rule the app relies on is
 // checked here against the real database, row-level security and functions.
 import assert from "node:assert/strict";
-import { asService, call, localTest, newEmail, newPlayer, type Session } from "./stack.ts";
+import { asService, call, localTest, newEmail, newPlayer, sql, type Session } from "./stack.ts";
 
 type Player = Session & { username: string };
 
@@ -324,5 +324,12 @@ localTest("an entry sent twice counts once, even if the first answer was lost (2
   assert.equal((await rpc(leader, "add_darood_entry", { party_id: other, amount: 1, local_date: day(), tz: "UTC", client_id: shared })).status, 200);
   assert.equal((await rpc(member, "add_darood_entry", { party_id: other, amount: 1, local_date: day(), tz: "UTC", client_id: shared })).status, 200);
   assert.equal((await call(`/rest/v1/party_stats?party_id=eq.${other}&select=total`, { token: leader.accessToken })).body[0].total, 2);
+});
+
+localTest("entries and memberships are published for live updates (20261019000025)", () => {
+  const published = sql("SELECT string_agg(tablename, ',' ORDER BY tablename) FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public'");
+  for (const table of ["darood_entries", "party_members"]) assert.ok(published.split(",").includes(table), published);
+  // Nothing else of the game is published: profiles, usernames and parties stay out.
+  for (const table of ["profiles", "usernames", "parties"]) assert.ok(!published.split(",").includes(table), published);
 });
 
