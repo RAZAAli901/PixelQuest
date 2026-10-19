@@ -37,6 +37,9 @@ object DaroodTestTags {
     const val CHAT_TITLE = "darood_chat_title"
     const val PARTY_AVATAR = "darood_party_avatar"
     const val CHAT_BACKGROUND = "darood_chat_background"
+
+    /** An entry's bubble, by its phone key (or the server's id for entries made elsewhere). */
+    fun bubble(key: String) = "darood_bubble_$key"
     const val INFO_SCREEN = "darood_info_screen"
     const val INFO_ADD_PEOPLE = "darood_info_add_people"
     const val INFO_PROBLEM = "darood_info_problem"

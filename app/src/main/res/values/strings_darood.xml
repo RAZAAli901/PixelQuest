@@ -127,6 +127,8 @@
     <string name="darood_list_offline">Couldn\'t reach the server. Showing what this phone has.</string>
     <!-- A party's own screen; the chat comes to it later. -->
     <string name="darood_party_info">Party info</string>
+    <!-- The chat: each entry is a bubble. -->
+    <string name="darood_bubble_amount">+<xliff:g id="amount" example="300">%1$s</xliff:g></string>
     <string name="darood_chat_soon">The party\'s chat is on its way.</string>
     <!-- A username as shown on the profile and in the side menu. -->
     <string name="darood_username_handle">@<xliff:g id="name" example="aria_k">%1$s</xliff:g></string>
