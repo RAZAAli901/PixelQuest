@@ -49,4 +49,19 @@ class UsernameTest {
         }
         listOf("___", "123", "_a_1").forEach { assertNull(it, Username.problemWith(it)) }
     }
+
+    @Test
+    fun reservedWords_areRefused_alsoDressedUp() {
+        listOf("admin", "Support", "pixelquest", "pixel_quest", "admin_1", "admin99", "_mod_", "staff2026").forEach {
+            assertEquals(it, UsernameProblem.RESERVED, Username.problemWith(it))
+            assertNull(it, Username.parse(it))
+        }
+    }
+
+    @Test
+    fun namesThatOnlyContainAReservedWord_areFine() {
+        listOf("adminah", "supportive", "my_admin", "help_me", "modest", "1admin").forEach {
+            assertNull(it, Username.problemWith(it))
+        }
+    }
 }
