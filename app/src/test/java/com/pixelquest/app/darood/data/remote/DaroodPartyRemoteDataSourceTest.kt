@@ -107,4 +107,51 @@ class DaroodPartyRemoteDataSourceTest {
         assertTrue(source.fetchMembers("p1") is SupabaseResult.AuthError)
         assertTrue(requests.isEmpty())
     }
+
+    private fun rpcBody(function: String) = bodyOf(requestTo("/rest/v1/rpc/$function")).toString()
+
+    @Test
+    fun creatingAParty_sendsItsRules_andReadsItsId() = runBlocking {
+        answers["/rest/v1/rpc/create_party"] = ok("\"e33a08c7-d2b7-4848-a83d-ba292e7d1a21\"")
+
+        val id = source.createParty("  Friday circle ", 12, 100_000)
+
+        assertEquals(SupabaseResult.Success("e33a08c7-d2b7-4848-a83d-ba292e7d1a21"), id)
+        assertEquals("""{"name":"Friday circle","max_members":12,"milestone":100000}""", rpcBody("create_party"))
+    }
+
+    @Test
+    fun theOtherCalls_sendWhatTheirFunctionsTake() = runBlocking {
+        answers["/rest/v1/rpc/invite_member"] = ok("""{"status":"already_member"}""")
+        answers["/rest/v1/rpc/respond_invite"] = ok("""{"status":"active"}""")
+        answers["/rest/v1/rpc/leave_party"] = ok("""{"status":"left"}""")
+        answers["/rest/v1/rpc/remove_member"] = ok("""{"status":"removed"}""")
+        answers["/rest/v1/rpc/set_milestone"] = ok("""{"milestone":5000,"milestone_set_at":"2026-10-19T10:00:00+00:00"}""")
+
+        assertEquals(SupabaseResult.Success(InviteOutcome.ALREADY_MEMBER), source.invite("p1", "aria_k"))
+        assertEquals(SupabaseResult.Success(MemberStatus.ACTIVE), source.respondToInvite("p1", accept = true))
+        assertEquals(SupabaseResult.Success(Unit), source.leaveParty("p1"))
+        assertEquals(SupabaseResult.Success(Unit), source.removeMember("p1", "u2"))
+        assertEquals(SupabaseResult.Success(5000L), source.setMilestone("p1", 5000))
+
+        assertEquals("""{"party_id":"p1","username":"aria_k"}""", rpcBody("invite_member"))
+        assertEquals("""{"party_id":"p1","accept":true}""", rpcBody("respond_invite"))
+        assertEquals("""{"party_id":"p1"}""", rpcBody("leave_party"))
+        assertEquals("""{"party_id":"p1","user_id":"u2"}""", rpcBody("remove_member"))
+        assertEquals("""{"party_id":"p1","target":5000}""", rpcBody("set_milestone"))
+    }
+
+    @Test
+    fun theServersRefusals_areReadByName() = runBlocking {
+        answers["/rest/v1/rpc/invite_member"] = HttpStatusCode.BadRequest to
+            """{"code":"23514","details":"This party holds 2 people, invitations included.","hint":null,"message":"party_full"}"""
+        answers["/rest/v1/rpc/set_milestone"] = HttpStatusCode.Forbidden to """{"code":"42501","details":null,"hint":null,"message":"not_leader"}"""
+        answers["/rest/v1/rpc/create_party"] = HttpStatusCode.BadRequest to
+            """{"code":"23514","details":null,"hint":null,"message":"new row for relation \"parties\" violates check constraint \"party_name_length\""}"""
+
+        assertEquals(com.pixelquest.app.darood.domain.DaroodRefusal.PARTY_FULL, com.pixelquest.app.darood.domain.DaroodRefusal.of(source.invite("p1", "aria_k")))
+        assertEquals(com.pixelquest.app.darood.domain.DaroodRefusal.NOT_LEADER, com.pixelquest.app.darood.domain.DaroodRefusal.of(source.setMilestone("p1", 10)))
+        assertEquals(com.pixelquest.app.darood.domain.DaroodRefusal.INVALID, com.pixelquest.app.darood.domain.DaroodRefusal.of(source.createParty("x", 10, null)))
+        assertEquals(null, com.pixelquest.app.darood.domain.DaroodRefusal.of(SupabaseResult.NetworkError(java.io.IOException("offline"))))
+    }
 }
