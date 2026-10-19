@@ -139,3 +139,74 @@ None of this is on the hosted project yet: pushing the migrations there is a dep
 
 ### Checked against a real server
 `LocalSupabaseDaroodTest` runs this layer against the local Supabase stack, live updates included.
+
+
+## Running a party (Phase D, as built)
+
+### The screens
+- **The list** (`DaroodPartiesViewModel`): the account's parties, with invitations to answer at the top.
+- **Create** (`CreatePartyScreen`): a name of 2 to 40 characters, a limit of 2 to 30 set with a stepper, and an optional milestone, digits only.
+- **Add people** (`AddPeopleScreen`): one exact username is looked up as it's typed, since usernames can't be listed. Everyone the party has asked or had wears a badge: Leader, Joined, Invited, Declined, Left or Removed.
+- **Party info** (`PartyInfoScreen`): opened from the chat's top bar. It shows the active members, the leader first, each with the day they joined.
+
+### What the leader and members can do
+- **Remove** (leader): a confirm dialog first. A removed member's entries stay in the total.
+- **Leave** (member): a confirm dialog first. The leader must hand over first.
+- **Rename and hand over** (leader). Renaming is the leader's `PATCH` on `parties.name`, under row-level security. Anyone else's rename changes no row, and the app reads that as `not_leader`. Handing over is `transfer_leadership`: the old leader steps down before the new one steps up, so a party never has two leaders.
+- **Delete** (leader): typing the party's name confirms it. `delete_party` sets `deleted_at`, which hides the party and everything in it from everyone. The rows stay, since entries are never erased.
+
+### Server additions
+- `20261019000026`: at most 20 invitations an hour per account. Names nobody has count too, so made-up names can't dodge it.
+- `20261019000027`: `transfer_leadership`.
+- `20261019000028`: `delete_party`.
+
+The rules are mirrored in the app, which disables or skips what the server would refuse. The server's refusal stays the last word, and each screen says what it means.
+
+## The chat (Phase E, as built)
+
+A party's own screen is a group chat in which the only thing anyone can send is a number.
+
+### The screen
+- **The top bar:** the party's picture (its initials), its name and "12 members". A tap anywhere on it opens Party info.
+- **Under the top bar:**
+  - the milestone, as a bar that folds away to a slim line;
+  - "You today: 300 | Party today: 2,450".
+- **The list** (`ChatList`):
+  - It opens at the newest line.
+  - A new entry scrolls into view while the reader is at the bottom. Scrolled up, they stay put, and a button takes them down, counting what arrived. The player's own entry always comes into view.
+  - Older pages load on reaching the top (`loadOlder`).
+- **The lines** (`chatItemsOf`):
+  - Bubbles: the player's own on the right in the theme's accent, everyone else's on the left. Each member's name has a colour of its own, worked out from their user id, so it's the same on every phone.
+  - Runs: one sender's bubbles in a row stack together and name them once.
+  - Days are headed Today, Yesterday or the date, on the reader's own clock.
+  - Pills tell who joined, left or was removed, and when the milestone was set or reached. Left and removed need each member's `updated_at`, kept as `statusChangedAt` from database version 11.
+
+### Sending
+- **The field** takes digits only: typed or pasted, any script's digits, at most six (`amountDigits`).
+- **What can go:**
+  - Empty and 0 can't be sent.
+  - Over 100,000 is said above the field.
+  - 10,000 or more asks for confirmation first.
+  - The quick chips (+11, +33, +100, +313) fill the field, never send.
+- **A sent number** shows at once with a clock, and turns to a tick once the server has it. It stays the same bubble throughout, keyed by its `clientId`.
+- **A refused number** says why, under its bubble, with Retry (`retryEntry`).
+
+### The day's numbers
+They come from the server's `party_day_stats` (`20261019000029`), since the phone holds only the newest page of entries. The player's own entries still waiting on the phone are added on top, so a number shows the moment it's sent.
+
+### Looks and access
+- **`ChatLook`** draws the chat per theme:
+  - Pixel's chamfered, outlined pieces, which dark mode also uses;
+  - Comic's black ink and flat shadows;
+  - Light's thin warm outlines;
+  - in Simple Mode, a plain look in any theme, without the background's pattern.
+- **TalkBack** reads each bubble as one sentence ("bram added 300 at 2:01 PM", "You added 313 at 2:07 PM. Sent.").
+- **Large text:** a bubble's time goes under its number, and the chips scroll sideways.
+
+### Checked
+- `ChatStoryUiTest` walks the chat through its screen and view model.
+- `ChatScreenshotTest` draws it in every look, saved to `app/build/outputs/darood-screenshots`.
+- Each piece has its own tests.
+
+None of the server work after Phase B (`20261019000024` to `20261019000029`) is on the hosted project yet either.
+
