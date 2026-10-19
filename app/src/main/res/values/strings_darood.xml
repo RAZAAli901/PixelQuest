@@ -138,7 +138,12 @@
     <string name="darood_event_milestone_set">Milestone set: <xliff:g id="target" example="10,000">%1$s</xliff:g></string>
     <string name="darood_event_milestone_reached">Milestone reached: <xliff:g id="target" example="10,000">%1$s</xliff:g>!</string>
     <string name="darood_event_finished">The party is finished</string>
-    <string name="darood_chat_soon">The party\'s chat is on its way.</string>
+    <string name="darood_chat_jump">Jump to the newest</string>
+    <plurals name="darood_chat_unseen">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> new</item>
+        <item quantity="other"><xliff:g id="count" example="3">%1$d</xliff:g> new</item>
+    </plurals>
+    <string name="darood_chat_empty">Nothing posted yet. The first number sent here starts the party\'s chat.</string>
     <!-- A username as shown on the profile and in the side menu. -->
     <string name="darood_username_handle">@<xliff:g id="name" example="aria_k">%1$s</xliff:g></string>
     <string name="darood_username_profile_label">Darood Party username</string>

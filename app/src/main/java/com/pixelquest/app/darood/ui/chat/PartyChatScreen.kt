@@ -11,11 +11,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -31,6 +33,8 @@ import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -41,6 +45,8 @@ import javax.inject.Inject
  * itself fills the rest.
  *
  * @param memberCount the party's active members; 0 while not known yet, which shows no count.
+ * @param items the chat's lines, oldest first ([chatItemsOf]).
+ * @param usernames posters' usernames by user id, for the bubbles.
  */
 @Composable
 fun PartyChatScreen(
@@ -49,7 +55,10 @@ fun PartyChatScreen(
     onOpenInfo: () -> Unit,
     isLeader: Boolean = false,
     onAddPeople: () -> Unit = {},
-    memberCount: Int = 0
+    memberCount: Int = 0,
+    items: List<ChatItem> = emptyList(),
+    usernames: Map<String, String> = emptyMap(),
+    today: java.time.LocalDate = java.time.LocalDate.now()
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -87,24 +96,40 @@ fun PartyChatScreen(
         }
     ) { innerPadding ->
         ChatBackground(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag(DaroodTestTags.CHAT_BACKGROUND)) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp).testTag(DaroodTestTags.CHAT_SCREEN),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(text = stringResource(R.string.darood_chat_soon), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
-                if (isLeader) {
-                    com.pixelquest.app.ui.components.PixelButton(
-                        text = stringResource(R.string.darood_add_title),
-                        onClick = onAddPeople,
-                        modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)
+            if (items.isEmpty()) {
+                // Nothing posted yet: say how the chat starts; the leader can bring people in from here.
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(16.dp).testTag(DaroodTestTags.CHAT_SCREEN),
+                    verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.darood_chat_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onSurface,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.testTag(DaroodTestTags.CHAT_EMPTY)
                     )
+                    if (isLeader) {
+                        com.pixelquest.app.ui.components.PixelButton(
+                            text = stringResource(R.string.darood_add_title),
+                            onClick = onAddPeople,
+                            modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)
+                        )
+                    }
                 }
+            } else {
+                ChatList(items = items, usernames = usernames, today = today, modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.CHAT_SCREEN))
             }
         }
     }
 }
 
-/** The party's screen, as navigation opens it: its party from the cache. */
+/**
+ * The party's screen, as navigation opens it: its party, and its chat's lines, from the cache, kept
+ * current from the server while the screen is visible ([follower]).
+ */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PartyChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -113,11 +138,39 @@ class PartyChatViewModel @Inject constructor(
 ) : ViewModel() {
     val partyId: String = savedStateHandle["partyId"] ?: ""
 
-    /** The signed-in account, to know whether it leads this party. */
+    /** The signed-in account, to know whether it leads this party, and which bubbles are its own. */
     val accountId: String? = account?.id()
 
     val party: StateFlow<Party?> = repository.observeParty(partyId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** How many entries the chat holds: a page to start with. */
+    private val limit = kotlinx.coroutines.flow.MutableStateFlow(PAGE)
+
+    private val members = repository.observeMembers(partyId)
+
+    /** The chat's lines, oldest first: entries, days and what happened, as [chatItemsOf] makes them. */
+    val items: StateFlow<List<ChatItem>> = kotlinx.coroutines.flow.combine(
+        limit.flatMapLatest { repository.observeEntries(partyId, it) },
+        members,
+        repository.observeParty(partyId)
+    ) { entries, members, party ->
+        // The cache gives the newest first; the chat reads oldest first.
+        chatItemsOf(entries.asReversed(), accountId, java.time.ZoneId.systemDefault(), partyEventsOf(party, members))
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Posters' usernames by user id. */
+    val usernames: StateFlow<Map<String, String>> = members
+        .map { list -> list.mapNotNull { member -> member.username?.let { member.userId to it } }.toMap() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
+    /** Keeps the party current while its screen is visible. */
+    val follower = com.pixelquest.app.darood.ui.PartyFollower(repository, viewModelScope, partyId)
+
+    companion object {
+        /** Entries in the chat to start with: the server's page. */
+        const val PAGE = com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource.PAGE_SIZE
+    }
 }
 
 @Composable
@@ -129,12 +182,17 @@ fun PartyChatRoute(
     viewModel: PartyChatViewModel = hiltViewModel()
 ) {
     val party = viewModel.party.collectAsState().value
+    val items = viewModel.items.collectAsState().value
+    val usernames = viewModel.usernames.collectAsState().value
+    com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
         partyName = party?.name.orEmpty(),
         onNavigateBack = onNavigateBack,
         onOpenInfo = onOpenInfo,
         isLeader = party != null && party.leaderId != null && party.leaderId == viewModel.accountId,
         onAddPeople = onAddPeople,
-        memberCount = party?.memberCount ?: 0
+        memberCount = party?.memberCount ?: 0,
+        items = items,
+        usernames = usernames
     )
 }
