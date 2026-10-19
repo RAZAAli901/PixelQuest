@@ -101,4 +101,31 @@ class NumberInputBarTest {
         canPost.value = false
         field().assertDoesNotExist()
     }
+
+    @Test
+    fun emptyAndZero_cantBeSent_andMoreThan100000_isTooMany() {
+        assertEquals(DraftCheck.EMPTY, checkDraft(""))
+        assertEquals(DraftCheck.ZERO, checkDraft("0"))
+        assertEquals(DraftCheck.OK, checkDraft("1"))
+        assertEquals(DraftCheck.OK, checkDraft("313"))
+        assertEquals(DraftCheck.OK, checkDraft("100000"))
+        assertEquals(DraftCheck.TOO_MANY, checkDraft("100001"))
+        assertEquals(DraftCheck.TOO_MANY, checkDraft("999999"))
+        assertEquals(listOf(false, false, true, false), listOf("", "0", "1", "100001").map { checkDraft(it).canSend })
+    }
+
+    @Test
+    fun tooMany_isSaidAboveTheField_andGoesWhenItFits() {
+        val draft = mutableStateOf("100001")
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                PartyChatScreen(partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {}, canPost = true, draft = draft.value)
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_INPUT_ERROR).assertTextEquals("At most 100,000 in one go.")
+        for (fits in listOf("100000", "", "0")) {
+            draft.value = fits
+            composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_INPUT_ERROR).assertDoesNotExist()
+        }
+    }
 }

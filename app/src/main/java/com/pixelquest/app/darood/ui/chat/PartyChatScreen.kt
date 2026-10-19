@@ -105,7 +105,19 @@ fun PartyChatScreen(
             )
         },
         bottomBar = {
-            if (canPost) NumberInputBar(value = draft, onValueChange = onDraftChange)
+            if (canPost) {
+                // Empty and 0 simply can't be sent; too many is said, as the server would refuse it.
+                val check = checkDraft(draft)
+                NumberInputBar(
+                    value = draft,
+                    onValueChange = onDraftChange,
+                    error = if (check == DraftCheck.TOO_MANY) {
+                        stringResource(R.string.darood_input_too_many, com.pixelquest.app.darood.ui.formatCount(com.pixelquest.app.darood.domain.DaroodRules.AMOUNT_MAX))
+                    } else {
+                        null
+                    }
+                )
+            }
         }
     ) { innerPadding ->
         ChatBackground(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag(DaroodTestTags.CHAT_BACKGROUND)) {

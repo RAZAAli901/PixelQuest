@@ -2,6 +2,7 @@ package com.pixelquest.app.darood.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,12 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
+import com.pixelquest.app.darood.domain.DaroodRules
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.ui.theme.PixelTheme
 
@@ -41,11 +45,33 @@ fun amountDigits(raw: String): String {
     return digits.trimStart('0').ifEmpty { "0" }.take(AMOUNT_DIGITS)
 }
 
+/** Whether the number typed can be sent, judged as the server will (1 to 100,000 an entry). */
+enum class DraftCheck {
+    EMPTY,
+    ZERO,
+    TOO_MANY,
+    OK;
+
+    val canSend: Boolean get() = this == OK
+}
+
+fun checkDraft(draft: String): DraftCheck {
+    if (draft.isEmpty()) return DraftCheck.EMPTY
+    val amount = draft.toLongOrNull() ?: return DraftCheck.EMPTY
+    return when {
+        amount < DaroodRules.AMOUNT_MIN -> DraftCheck.ZERO
+        amount > DaroodRules.AMOUNT_MAX -> DraftCheck.TOO_MANY
+        else -> DraftCheck.OK
+    }
+}
+
 /**
  * The chat's input: a number, and nothing else. There's no free text anywhere in a party's chat,
  * only how many were recited. The keyboard is the number pad, and whatever arrives (typed or
  * pasted) passes through [amountDigits].
  *
+ * @param error why the number can't be sent, said just above the field; null while it can be (or
+ *   while there's nothing to say, as for an empty field).
  * @param trailing what follows the field (its send button).
  */
 @Composable
@@ -53,41 +79,54 @@ fun NumberInputBar(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    error: String? = null,
     trailing: @Composable RowScope.() -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     val label = stringResource(R.string.darood_input_label)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .background(colors.surface)
             .imePadding()
             .padding(horizontal = 8.dp, vertical = 6.dp)
     ) {
-        Box(
-            contentAlignment = Alignment.CenterStart,
-            modifier = Modifier
-                .weight(1f)
-                .background(colors.background, RoundedCornerShape(24.dp))
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            if (value.isEmpty()) {
-                Text(text = stringResource(R.string.darood_input_placeholder), style = MaterialTheme.typography.titleMedium, color = colors.onSurfaceVariant)
-            }
-            BasicTextField(
-                value = value,
-                onValueChange = { onValueChange(amountDigits(it)) },
-                singleLine = true,
-                textStyle = MaterialTheme.typography.titleMedium.copy(color = colors.onSurface),
-                cursorBrush = SolidColor(colors.primary),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
+        if (error != null) {
+            Text(
+                text = error,
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.error,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics { contentDescription = label }
-                    .testTag(DaroodTestTags.CHAT_INPUT)
+                    .padding(start = 16.dp, bottom = 4.dp)
+                    .semantics { liveRegion = LiveRegionMode.Polite }
+                    .testTag(DaroodTestTags.CHAT_INPUT_ERROR)
             )
         }
-        trailing()
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Box(
+                contentAlignment = Alignment.CenterStart,
+                modifier = Modifier
+                    .weight(1f)
+                    .background(colors.background, RoundedCornerShape(24.dp))
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                if (value.isEmpty()) {
+                    Text(text = stringResource(R.string.darood_input_placeholder), style = MaterialTheme.typography.titleMedium, color = colors.onSurfaceVariant)
+                }
+                BasicTextField(
+                    value = value,
+                    onValueChange = { onValueChange(amountDigits(it)) },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.titleMedium.copy(color = colors.onSurface),
+                    cursorBrush = SolidColor(colors.primary),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Done),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics { contentDescription = label }
+                        .testTag(DaroodTestTags.CHAT_INPUT)
+                )
+            }
+            trailing()
+        }
     }
 }

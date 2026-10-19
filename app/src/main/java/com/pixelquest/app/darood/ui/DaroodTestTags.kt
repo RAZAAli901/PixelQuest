@@ -42,6 +42,7 @@ object DaroodTestTags {
     const val CHAT_EMPTY = "darood_chat_empty"
     const val CHAT_LOADING_OLDER = "darood_chat_loading_older"
     const val CHAT_INPUT = "darood_chat_input"
+    const val CHAT_INPUT_ERROR = "darood_chat_input_error"
 
     /** An entry's bubble, by its phone key (or the server's id for entries made elsewhere). */
     fun bubble(key: String) = "darood_bubble_$key"

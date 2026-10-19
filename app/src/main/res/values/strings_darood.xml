@@ -141,6 +141,7 @@
     <!-- The chat's input: a number, nothing else. -->
     <string name="darood_input_label">How many to add</string>
     <string name="darood_input_placeholder">How many?</string>
+    <string name="darood_input_too_many">At most <xliff:g id="max" example="100,000">%1$s</xliff:g> in one go.</string>
     <string name="darood_chat_jump">Jump to the newest</string>
     <plurals name="darood_chat_unseen">
         <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> new</item>
