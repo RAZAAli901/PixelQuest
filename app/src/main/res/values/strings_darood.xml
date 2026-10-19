@@ -29,6 +29,14 @@
     <string name="darood_no_milestone">No milestone yet</string>
     <string name="darood_finished">Finished</string>
     <string name="darood_open_party">Open the party</string>
+    <!-- Invitations, at the top of the list. -->
+    <string name="darood_invites_title">Invitations</string>
+    <string name="darood_invite_to">You\'re invited to join</string>
+    <string name="darood_invite_accept">Accept</string>
+    <string name="darood_invite_decline">Decline</string>
+    <string name="darood_invite_gone">That invitation isn\'t there any more: it may have been withdrawn, or the party is full or finished.</string>
+    <string name="darood_list_failed">Something went wrong. Pull down to try again.</string>
+    <string name="darood_parties_title">Your parties</string>
     <string name="darood_list_offline">Couldn\'t reach the server. Showing what this phone has.</string>
     <!-- A party's own screen; the chat comes to it later. -->
     <string name="darood_party_info">Party info</string>

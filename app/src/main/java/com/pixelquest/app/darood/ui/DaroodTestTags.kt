@@ -17,4 +17,7 @@ object DaroodTestTags {
     const val CHAT_SCREEN = "darood_chat_screen"
 
     fun partyRow(partyId: String) = "darood_party_$partyId"
+    fun inviteRow(partyId: String) = "darood_invite_$partyId"
+    fun inviteAccept(partyId: String) = "darood_invite_accept_$partyId"
+    fun inviteDecline(partyId: String) = "darood_invite_decline_$partyId"
 }

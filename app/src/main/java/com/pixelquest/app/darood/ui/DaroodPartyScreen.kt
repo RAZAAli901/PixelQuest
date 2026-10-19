@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,7 +54,9 @@ fun DaroodPartyScreen(
         onNavigateBack = onNavigateBack,
         onRefresh = viewModel::refresh,
         onOpenParty = onOpenParty,
-        onCreateParty = onCreateParty
+        onCreateParty = onCreateParty,
+        onAccept = viewModel::accept,
+        onDecline = viewModel::decline
     )
 }
 
@@ -64,7 +68,9 @@ fun DaroodPartyContent(
     onNavigateBack: (() -> Unit)?,
     onRefresh: () -> Unit = {},
     onOpenParty: (String) -> Unit = {},
-    onCreateParty: () -> Unit = {}
+    onCreateParty: () -> Unit = {},
+    onAccept: (String) -> Unit = {},
+    onDecline: (String) -> Unit = {}
 ) {
     val signedIn = state.signedIn
     val colors = PixelTheme.colors
@@ -113,13 +119,33 @@ fun DaroodPartyContent(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    if (state.problem == com.pixelquest.app.darood.ui.list.PartiesProblem.OFFLINE) {
-                        item(key = "offline") {
+                    state.problem?.let { problem ->
+                        item(key = "problem") {
                             Text(
-                                text = stringResource(R.string.darood_list_offline),
+                                text = stringResource(
+                                    when (problem) {
+                                        com.pixelquest.app.darood.ui.list.PartiesProblem.OFFLINE -> R.string.darood_list_offline
+                                        com.pixelquest.app.darood.ui.list.PartiesProblem.INVITE_GONE -> R.string.darood_invite_gone
+                                        com.pixelquest.app.darood.ui.list.PartiesProblem.FAILED -> R.string.darood_list_failed
+                                    }
+                                ),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = colors.onSurfaceVariant
                             )
+                        }
+                    }
+                    if (state.invites.isNotEmpty()) {
+                        item(key = "invites_title") { SectionTitle(stringResource(R.string.darood_invites_title)) }
+                        items(state.invites, key = { "invite_" + it.id }) { party ->
+                            com.pixelquest.app.darood.ui.list.InviteRow(
+                                party = party,
+                                enabled = state.answering == null,
+                                onAccept = { onAccept(party.id) },
+                                onDecline = { onDecline(party.id) }
+                            )
+                        }
+                        if (state.parties.isNotEmpty()) {
+                            item(key = "parties_title") { SectionTitle(stringResource(R.string.darood_parties_title)) }
                         }
                     }
                     items(state.parties, key = { it.id }) { party ->
@@ -203,3 +229,15 @@ private fun DaroodCard(
         }
     }
 }
+
+/** A heading over a part of the list. */
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleSmall,
+        color = PixelTheme.colors.primaryText,
+        modifier = Modifier.semantics { heading() }
+    )
+}
+

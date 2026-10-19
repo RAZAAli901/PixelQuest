@@ -2,6 +2,7 @@ package com.pixelquest.app.darood.ui.list
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -94,5 +95,46 @@ class PartyListUiTest {
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE).performClick()
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_ACTION).performClick()
         assertEquals(2, created)
+    }
+
+    @Test
+    fun invitations_comeFirst_withAcceptAndDecline() {
+        val accepted = mutableListOf<String>()
+        val declined = mutableListOf<String>()
+        val invite = party("p9", "Family", members = 0, total = 0, milestone = null).copy(myStatus = MemberStatus.INVITED)
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                DaroodPartyContent(
+                    state = DaroodPartiesUiState(signedIn = true, invites = listOf(invite), parties = listOf(party("p1", "Friday circle", 2, 10, null))),
+                    onSignIn = {},
+                    onNavigateBack = {},
+                    onAccept = { accepted += it },
+                    onDecline = { declined += it }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Invitations").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Your parties").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(DaroodTestTags.inviteAccept("p9")).performClick()
+        composeTestRule.onNodeWithTag(DaroodTestTags.inviteDecline("p9")).performClick()
+        assertEquals(listOf("p9"), accepted)
+        assertEquals(listOf("p9"), declined)
+    }
+
+    @Test
+    fun whileAnswering_theButtonsWait_andAGoneInvitationIsExplained() {
+        val invite = party("p9", "Family", members = 0, total = 0, milestone = null).copy(myStatus = MemberStatus.INVITED)
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                DaroodPartyContent(
+                    state = DaroodPartiesUiState(signedIn = true, invites = listOf(invite), answering = "p9", problem = PartiesProblem.INVITE_GONE),
+                    onSignIn = {},
+                    onNavigateBack = {}
+                )
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.inviteAccept("p9")).assertIsNotEnabled()
+        composeTestRule.onNodeWithText("That invitation isn't there any more: it may have been withdrawn, or the party is full or finished.").assertIsDisplayed()
     }
 }
