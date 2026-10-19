@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -94,13 +95,15 @@ fun PartyChatScreen(
     myStats: MyStats? = null,
     consistency: com.pixelquest.app.darood.domain.Consistency? = null,
     onOpenStats: () -> Unit = {},
-    board: PartyBoard? = null
+    board: PartyBoard? = null,
+    milestoneBanner: Long? = null,
+    onDismissBanner: () -> Unit = {}
 ) {
     androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides simpleMode) {
         PartyChatContent(
             partyName, onNavigateBack, onOpenInfo, isLeader, onAddPeople, memberCount, items, usernames, today, loadingOlder,
             onReachOldest, canPost, draft, onDraftChange, onSend, confirming, onConfirmSend, onCancelSend, onRetry, todayTotals,
-            milestone, total, finished, myStats, consistency, onOpenStats, board
+            milestone, total, finished, myStats, consistency, onOpenStats, board, milestoneBanner, onDismissBanner
         )
     }
 }
@@ -133,7 +136,9 @@ private fun PartyChatContent(
     myStats: MyStats?,
     consistency: com.pixelquest.app.darood.domain.Consistency?,
     onOpenStats: () -> Unit,
-    board: PartyBoard?
+    board: PartyBoard?,
+    milestoneBanner: Long?,
+    onDismissBanner: () -> Unit
 ) {
     val colors = PixelTheme.colors
     var showingStats by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
@@ -213,6 +218,8 @@ private fun PartyChatContent(
             }
             if (todayTotals != null) TodayStrip(todayTotals)
             ChatBackground(modifier = Modifier.fillMaxWidth().weight(1f).testTag(DaroodTestTags.CHAT_BACKGROUND)) {
+                // A new milestone, announced over the top of the chat, like a notification.
+                MilestoneBanner(target = milestoneBanner, onDismiss = onDismissBanner, modifier = Modifier.align(Alignment.TopCenter).zIndex(1f))
                 if (items.isEmpty()) {
                     // Nothing posted yet: say how the chat starts; the leader can bring people in from here.
                     Column(
@@ -273,7 +280,8 @@ class PartyChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: DaroodPartyRepository,
     account: com.pixelquest.app.darood.data.remote.DaroodAccount? = null,
-    settings: com.pixelquest.app.domain.repository.SettingsRepository? = null
+    settings: com.pixelquest.app.domain.repository.SettingsRepository? = null,
+    private val milestoneSeen: com.pixelquest.app.darood.data.MilestoneSeenStore? = null
 ) : ViewModel() {
     val partyId: String = savedStateHandle["partyId"] ?: ""
 
@@ -345,6 +353,26 @@ class PartyChatViewModel @Inject constructor(
             val result = repository.fetchMyDays(partyId)
             if (result is SupabaseResult.Success) myDays.value = result.data
         }
+    }
+
+    private val _milestoneBanner = kotlinx.coroutines.flow.MutableStateFlow<Long?>(null)
+
+    /** When the milestone being announced was set: what's marked seen once it's dismissed. */
+    @Volatile
+    private var announcedSetAt: Long? = null
+
+    /**
+     * A milestone to announce at the top of the chat: set (or raised) since the last one the player
+     * was told about on this phone, even if that was while they were away. None for a finished
+     * party, whose milestone is reached rather than new.
+     */
+    val milestoneBanner: StateFlow<Long?> = _milestoneBanner
+
+    /** The banner has been seen (tapped away, or gone on its own): it isn't announced again. */
+    fun dismissMilestoneBanner() {
+        announcedSetAt?.let { milestoneSeen?.markSeen(partyId, it) }
+        announcedSetAt = null
+        _milestoneBanner.value = null
     }
 
     /** Everyone's part in the party, kindly ranked ([partyBoardOf]). */
@@ -472,6 +500,18 @@ class PartyChatViewModel @Inject constructor(
     }
 
     init {
+        viewModelScope.launch {
+            repository.observeParty(partyId).collect { party ->
+                val target = party?.milestone
+                val setAt = party?.milestoneSetAt?.toEpochMilli()
+                if (party == null || target == null || setAt == null || party.isFinished) return@collect
+                val seen = milestoneSeen?.seenAt(partyId)
+                if (seen == null || setAt > seen) {
+                    announcedSetAt = setAt
+                    _milestoneBanner.value = target
+                }
+            }
+        }
         refreshToday()
         // As entries come and go (posted here, sent, refused, or arriving live), today's numbers
         // follow, once things have settled for a moment.
@@ -512,6 +552,7 @@ fun PartyChatRoute(
     val myStats = viewModel.myStats.collectAsState().value
     val consistency = viewModel.consistency.collectAsState().value
     val board = viewModel.board.collectAsState().value
+    val milestoneBanner = viewModel.milestoneBanner.collectAsState().value
     val usernames = viewModel.usernames.collectAsState().value
     com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
@@ -542,6 +583,8 @@ fun PartyChatRoute(
         myStats = myStats,
         consistency = consistency,
         onOpenStats = viewModel::refreshConsistency,
-        board = board
+        board = board,
+        milestoneBanner = milestoneBanner,
+        onDismissBanner = viewModel::dismissMilestoneBanner
     )
 }

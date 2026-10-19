@@ -173,6 +173,8 @@
     <string name="darood_input_too_many">At most <xliff:g id="max" example="100,000">%1$s</xliff:g> in one go.</string>
     <string name="darood_milestone_progress">Milestone: <xliff:g id="total" example="2,450">%1$s</xliff:g> of <xliff:g id="milestone" example="10,000">%2$s</xliff:g> (<xliff:g id="percent" example="24">%3$d</xliff:g>%%)</string>
     <string name="darood_milestone_reached">Milestone reached: <xliff:g id="milestone" example="10,000">%1$s</xliff:g></string>
+    <string name="darood_banner_milestone">🎯 New milestone: <xliff:g id="milestone" example="10,000">%1$s</xliff:g>. Let\'s reach it together!</string>
+    <string name="darood_banner_dismiss">dismiss</string>
     <string name="darood_milestone_open">Open</string>
     <string name="darood_milestone_folded">Folded</string>
     <string name="darood_milestone_show">show the milestone</string>

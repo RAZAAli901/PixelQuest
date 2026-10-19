@@ -160,6 +160,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindMilestoneSeenStore(
+        impl: com.pixelquest.app.darood.data.PrefsMilestoneSeenStore
+    ): com.pixelquest.app.darood.data.MilestoneSeenStore
+
+    @Binds
+    @Singleton
     abstract fun bindUsernameCache(
         impl: com.pixelquest.app.darood.data.PrefsUsernameCache
     ): com.pixelquest.app.darood.data.UsernameCache
