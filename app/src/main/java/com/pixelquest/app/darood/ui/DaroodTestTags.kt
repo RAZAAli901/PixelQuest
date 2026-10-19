@@ -40,6 +40,9 @@ object DaroodTestTags {
 
     /** An entry's bubble, by its phone key (or the server's id for entries made elsewhere). */
     fun bubble(key: String) = "darood_bubble_$key"
+
+    /** A day's heading in the chat, by its date (2026-10-19). */
+    fun day(date: String) = "darood_day_$date"
     const val INFO_SCREEN = "darood_info_screen"
     const val INFO_ADD_PEOPLE = "darood_info_add_people"
     const val INFO_PROBLEM = "darood_info_problem"
