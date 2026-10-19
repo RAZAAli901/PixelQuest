@@ -16,6 +16,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
+import com.pixelquest.app.testing.closeAfterWrites
+import kotlinx.coroutines.cancel
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -45,13 +47,19 @@ class DaroodPartiesViewModelTest {
 
     @After
     fun tearDown() {
+        // Their refreshes and collecting stop, and a write under way finishes, before the database closes.
+        collectors.cancel()
+        viewModels.clear()
         Dispatchers.resetMain()
-        db.close()
+        db.closeAfterWrites()
     }
 
-    private fun viewModel() = DaroodPartiesViewModel(auth, repository).also { vm ->
+    private val viewModels = com.pixelquest.app.testing.TestViewModels()
+    private val collectors = kotlinx.coroutines.CoroutineScope(Dispatchers.Unconfined)
+
+    private fun viewModel() = viewModels.keep(DaroodPartiesViewModel::class.java) { DaroodPartiesViewModel(auth, repository) }.also { vm ->
         // The screen collects it; so does the test.
-        kotlinx.coroutines.CoroutineScope(Dispatchers.Unconfined).launch { vm.uiState.collect { } }
+        collectors.launch { vm.uiState.collect { } }
     }
 
     private fun waitFor(condition: () -> Boolean) = runBlocking {

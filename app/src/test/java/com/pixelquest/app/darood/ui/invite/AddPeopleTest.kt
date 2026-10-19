@@ -15,6 +15,7 @@ import com.pixelquest.app.darood.domain.Username
 import com.pixelquest.app.darood.domain.UsernameProblem
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.testing.FakeUsernameCache
+import com.pixelquest.app.testing.closeAfterWrites
 import com.pixelquest.app.testing.FakeUsernameRepository
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
@@ -56,10 +57,6 @@ class AddPeopleTest {
         Dispatchers.setMain(dispatcher)
     }
 
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
 
     private val db = androidx.room.Room.inMemoryDatabaseBuilder(
         androidx.test.core.app.ApplicationProvider.getApplicationContext<Application>(),
@@ -74,11 +71,20 @@ class AddPeopleTest {
     private val partyId = server.seedParty("Friday circle", "aria-id", maxMembers = 3)
 
     @After
-    fun closeDb() {
-        db.close()
+    fun tearDown() {
+        // In order: the view models stop, their flows finish ending on the test's dispatcher, and the
+        // database closes once Room is done with it.
+        viewModels.clear()
+        dispatcher.scheduler.advanceUntilIdle()
+        Dispatchers.resetMain()
+        db.closeAfterWrites()
     }
 
-    private fun viewModel() = AddPeopleViewModel(SavedStateHandle(mapOf("partyId" to partyId)), usernames, parties, MyUsername(auth, cache))
+    private val viewModels = com.pixelquest.app.testing.TestViewModels()
+
+    private fun viewModel() = viewModels.keep(AddPeopleViewModel::class.java) {
+        AddPeopleViewModel(SavedStateHandle(mapOf("partyId" to partyId)), usernames, parties, MyUsername(auth, cache))
+    }
 
     @Test
     fun aTakenName_isSomeoneToInvite_andTheServerIsAskedOnceTheTypingPauses() = runTest(dispatcher) {
