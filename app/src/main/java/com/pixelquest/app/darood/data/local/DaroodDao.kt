@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import com.pixelquest.app.darood.domain.EntryState
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 /**
  * Darood Party's cache. Screens watch the Flows; a refresh from the server replaces whole sets in
@@ -93,6 +94,10 @@ interface DaroodDao {
     /** Every entry still to send, oldest first: they go in the order they were posted. */
     @Query("SELECT * FROM darood_pending_entry WHERE state = 'PENDING' ORDER BY rowid")
     suspend fun pendingToSend(): List<PendingEntryEntity>
+
+    /** The account's entries for [day] still waiting to be sent (refused ones don't count). */
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM darood_pending_entry WHERE partyId = :partyId AND localDate = :day AND state = 'PENDING'")
+    fun observePendingTotalOn(partyId: String, day: LocalDate): Flow<Long>
 
     @Query("SELECT COUNT(*) FROM darood_pending_entry WHERE state = 'PENDING'")
     fun observePendingCount(): Flow<Int>

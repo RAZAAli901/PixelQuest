@@ -40,6 +40,7 @@ object DaroodTestTags {
     const val CHAT_LIST = "darood_chat_list"
     const val CHAT_JUMP = "darood_chat_jump"
     const val CHAT_EMPTY = "darood_chat_empty"
+    const val CHAT_TODAY = "darood_chat_today"
     const val CHAT_LOADING_OLDER = "darood_chat_loading_older"
     const val CHAT_INPUT = "darood_chat_input"
     const val CHAT_INPUT_ERROR = "darood_chat_input_error"

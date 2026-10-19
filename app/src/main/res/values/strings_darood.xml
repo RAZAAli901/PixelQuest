@@ -157,6 +157,8 @@
     <string name="darood_entry_refused_time_zone">Not sent: the phone\'s time zone wasn\'t recognised.</string>
     <string name="darood_quick_fill">put <xliff:g id="amount" example="313">%1$d</xliff:g> in the field</string>
     <string name="darood_input_too_many">At most <xliff:g id="max" example="100,000">%1$s</xliff:g> in one go.</string>
+    <string name="darood_today_mine">You today: <xliff:g id="total" example="300">%1$s</xliff:g></string>
+    <string name="darood_today_party">Party today: <xliff:g id="total" example="2,450">%1$s</xliff:g></string>
     <string name="darood_chat_jump">Jump to the newest</string>
     <plurals name="darood_chat_unseen">
         <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> new</item>

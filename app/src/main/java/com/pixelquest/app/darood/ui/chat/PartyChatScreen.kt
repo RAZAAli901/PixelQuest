@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +36,9 @@ import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.StateFlow
@@ -53,6 +57,7 @@ import javax.inject.Inject
  * @param canPost the player may post here (an active member of a party that isn't finished): the
  *   number field shows, holding [draft].
  * @param confirming a big number waiting to be confirmed: a dialog asks if it's what the player meant.
+ * @param todayTotals the day's numbers for the strip under the top bar; none until they're known.
  */
 @Composable
 fun PartyChatScreen(
@@ -74,7 +79,8 @@ fun PartyChatScreen(
     confirming: Int? = null,
     onConfirmSend: () -> Unit = {},
     onCancelSend: () -> Unit = {},
-    onRetry: (String) -> Unit = {}
+    onRetry: (String) -> Unit = {},
+    todayTotals: com.pixelquest.app.darood.domain.DayTotals? = null
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -130,39 +136,42 @@ fun PartyChatScreen(
             }
         }
     ) { innerPadding ->
-        ChatBackground(modifier = Modifier.fillMaxSize().padding(innerPadding).testTag(DaroodTestTags.CHAT_BACKGROUND)) {
-            if (items.isEmpty()) {
-                // Nothing posted yet: say how the chat starts; the leader can bring people in from here.
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(16.dp).testTag(DaroodTestTags.CHAT_SCREEN),
-                    verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = stringResource(R.string.darood_chat_empty),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colors.onSurface,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.testTag(DaroodTestTags.CHAT_EMPTY)
-                    )
-                    if (isLeader) {
-                        com.pixelquest.app.ui.components.PixelButton(
-                            text = stringResource(R.string.darood_add_title),
-                            onClick = onAddPeople,
-                            modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)
+        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            if (todayTotals != null) TodayStrip(todayTotals)
+            ChatBackground(modifier = Modifier.fillMaxWidth().weight(1f).testTag(DaroodTestTags.CHAT_BACKGROUND)) {
+                if (items.isEmpty()) {
+                    // Nothing posted yet: say how the chat starts; the leader can bring people in from here.
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(16.dp).testTag(DaroodTestTags.CHAT_SCREEN),
+                        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.darood_chat_empty),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colors.onSurface,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.testTag(DaroodTestTags.CHAT_EMPTY)
                         )
+                        if (isLeader) {
+                            com.pixelquest.app.ui.components.PixelButton(
+                                text = stringResource(R.string.darood_add_title),
+                                onClick = onAddPeople,
+                                modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)
+                            )
+                        }
                     }
+                } else {
+                    ChatList(
+                        items = items,
+                        usernames = usernames,
+                        today = today,
+                        loadingOlder = loadingOlder,
+                        onReachOldest = onReachOldest,
+                        onRetry = onRetry,
+                        modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.CHAT_SCREEN)
+                    )
                 }
-            } else {
-                ChatList(
-                    items = items,
-                    usernames = usernames,
-                    today = today,
-                    loadingOlder = loadingOlder,
-                    onReachOldest = onReachOldest,
-                    onRetry = onRetry,
-                    modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.CHAT_SCREEN)
-                )
             }
         }
     }
@@ -183,7 +192,7 @@ fun PartyChatScreen(
  * The party's screen, as navigation opens it: its party, and its chat's lines, from the cache, kept
  * current from the server while the screen is visible ([follower]).
  */
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class, kotlinx.coroutines.FlowPreview::class)
 @HiltViewModel
 class PartyChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -291,6 +300,33 @@ class PartyChatViewModel @Inject constructor(
         }
     }
 
+    /** The day's numbers from the server, without the player's entries still on the phone. */
+    private val serverToday = kotlinx.coroutines.flow.MutableStateFlow<com.pixelquest.app.darood.domain.DayTotals?>(null)
+
+    /** The day of [serverToday]: the phone's today when they were asked for. */
+    @Volatile
+    private var todayIs: java.time.LocalDate = repository.today()
+
+    /**
+     * The strip's numbers: the server's for today, with the player's entries still waiting on the
+     * phone added on top, so a number shows the moment it's sent, connection or not. None until the
+     * server has answered once.
+     */
+    val today: StateFlow<com.pixelquest.app.darood.domain.DayTotals?> = kotlinx.coroutines.flow.combine(
+        serverToday,
+        repository.observePendingTotalOn(partyId, todayIs)
+    ) { server, waiting -> server?.let { com.pixelquest.app.darood.domain.DayTotals(it.mine + waiting, it.party + waiting) } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** Asks the server for today's numbers; offline, the last ones stay. */
+    fun refreshToday() {
+        viewModelScope.launch {
+            todayIs = repository.today()
+            val result = repository.fetchDayTotals(partyId, todayIs)
+            if (result is SupabaseResult.Success) serverToday.value = result.data
+        }
+    }
+
     /** Keeps the party current while its screen is visible. */
     val follower = com.pixelquest.app.darood.ui.PartyFollower(repository, viewModelScope, partyId)
 
@@ -319,7 +355,24 @@ class PartyChatViewModel @Inject constructor(
         }
     }
 
+    init {
+        refreshToday()
+        // As entries come and go (posted here, sent, refused, or arriving live), today's numbers
+        // follow, once things have settled for a moment.
+        viewModelScope.launch {
+            limit.flatMapLatest { repository.observeEntries(partyId, it) }
+                .map { entries -> entries.map { (it.clientId ?: it.id.toString()) to it.state } }
+                .distinctUntilChanged()
+                .drop(1)
+                .debounce(TODAY_DELAY_MS)
+                .collect { refreshToday() }
+        }
+    }
+
     companion object {
+        /** How long entries must settle before today's numbers are asked for again. */
+        const val TODAY_DELAY_MS = 1_500L
+
         /** Entries in the chat to start with: the server's page. */
         const val PAGE = com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource.PAGE_SIZE
     }
@@ -338,6 +391,7 @@ fun PartyChatRoute(
     val loadingOlder = viewModel.loadingOlder.collectAsState().value
     val draft = viewModel.draft.collectAsState().value
     val confirming = viewModel.confirming.collectAsState().value
+    val todayTotals = viewModel.today.collectAsState().value
     val usernames = viewModel.usernames.collectAsState().value
     com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
@@ -359,6 +413,7 @@ fun PartyChatRoute(
         confirming = confirming,
         onConfirmSend = viewModel::confirmSend,
         onCancelSend = viewModel::cancelSend,
-        onRetry = viewModel::retry
+        onRetry = viewModel::retry,
+        todayTotals = todayTotals
     )
 }

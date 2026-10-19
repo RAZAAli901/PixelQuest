@@ -96,6 +96,12 @@ data class DaroodEntry(
     val refusal: String? = null
 )
 
+/** One poster's total for a day in a party, from the server's party_day_stats. */
+data class DayTotal(val userId: String?, val total: Long)
+
+/** A day's numbers in a party: the player's own, and everyone's together. */
+data class DayTotals(val mine: Long, val party: Long)
+
 /** A party's numbers, from the server's party_stats. */
 data class PartyStats(
     val partyId: String,

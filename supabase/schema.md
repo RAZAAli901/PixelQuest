@@ -161,6 +161,7 @@ Invited and active rows together never exceed the party's limit, nor 30 (`party_
 ### Views
 - `party_stats`: per party, its total, entries, active members, milestone and finish. Active members only.
 - `party_member_stats`: per person who posted, their total, active days and last day, with their username where the reader may see it.
+- `party_day_stats`: per party, day and poster, that poster's total and entry count for the day (the chat's "You today | Party today").
 
 ### Who may do what
 | | Signed out | Outsider | Invited | Active member | Leader |

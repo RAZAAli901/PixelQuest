@@ -30,6 +30,13 @@ data class PartyDto(
     @SerialName("created_at") val createdAt: String
 )
 
+/** A row of public.party_day_stats, as read: one poster's total for a day. */
+@Serializable
+data class DayTotalDto(
+    @SerialName("user_id") val userId: String? = null,
+    @SerialName("total") val total: Long
+)
+
 /** A row of public.party_members. */
 @Serializable
 data class PartyMemberDto(

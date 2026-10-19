@@ -175,6 +175,19 @@ class DaroodPartyRemoteDataSourceTest {
     }
 
     @Test
+    fun aDaysTotals_areReadFromPartyDayStats() = runBlocking {
+        answers["/rest/v1/party_day_stats"] = ok("""[{"user_id":"me","total":300},{"user_id":"u2","total":2000}]""")
+        val result = source.fetchDayTotals("p1", java.time.LocalDate.of(2026, 10, 19))
+        assertEquals(
+            SupabaseResult.Success(listOf(com.pixelquest.app.darood.domain.DayTotal("me", 300), com.pixelquest.app.darood.domain.DayTotal("u2", 2000))),
+            result
+        )
+        val request = requestTo("/rest/v1/party_day_stats")
+        assertEquals("eq.p1", query(request, "party_id"))
+        assertEquals("eq.2026-10-19", query(request, "local_date"))
+    }
+
+    @Test
     fun theServersRefusals_areReadByName() = runBlocking {
         answers["/rest/v1/rpc/invite_member"] = HttpStatusCode.BadRequest to
             """{"code":"23514","details":"This party holds 2 people, invitations included.","hint":null,"message":"party_full"}"""

@@ -34,6 +34,9 @@ async function account(tag: string): Promise<string> {
 async function partyOf(leader: Player, members: Player[], options: { name?: string; max_members?: number; milestone?: number } = {}): Promise<string> {
   const made = await rpc(leader, "create_party", { name: options.name ?? "Friday circle", ...options });
   assert.equal(made.status, 200, JSON.stringify(made.body));
+  // The suite shares one leader, who invites more than 20 times an hour across it: its count starts
+  // over for each party here (the limit has its own test).
+  if (members.length > 0) sql(`DELETE FROM private.invite_log WHERE inviter = '${leader.userId}'`);
   for (const member of members) {
     assert.deepEqual((await rpc(leader, "invite_member", { party_id: made.body, username: member.username })).body, { status: "sent" });
     assert.deepEqual((await rpc(member, "respond_invite", { party_id: made.body, accept: true })).body, { status: "active" });
@@ -285,6 +288,30 @@ localTest("only the leader deletes a party, and then it's gone for everyone (202
 
   // Hidden, not erased: the entries are still there.
   assert.equal((await asService(`/rest/v1/darood_entries?party_id=eq.${party}&select=amount`)).body.length, 1);
+});
+
+localTest("a party's day: each poster's total for a day, for its members alone (20261019000029)", async () => {
+  const { leader, member, invitee, outsider } = await cast();
+  const party = await partyOf(leader, [member]);
+  await rpc(leader, "invite_member", { party_id: party, username: invitee.username });
+  for (const [who, amount, back] of [[leader, 300, 0], [leader, 13, 0], [member, 2000, 0], [member, 50, 1]] as const) {
+    assert.equal((await post(who, party, amount, { local_date: day(back) })).status, 201);
+  }
+  const today = `/rest/v1/party_day_stats?party_id=eq.${party}&local_date=eq.${day()}&select=user_id,total,entry_count&order=total`;
+
+  assert.deepEqual((await call(today, { token: member.accessToken })).body, [
+    { user_id: leader.userId, total: 313, entry_count: 2 },
+    { user_id: member.userId, total: 2000, entry_count: 1 },
+  ]);
+  assert.deepEqual((await call(`/rest/v1/party_day_stats?party_id=eq.${party}&local_date=eq.${day(1)}&select=user_id,total`, { token: leader.accessToken })).body, [
+    { user_id: member.userId, total: 50 },
+  ]);
+  for (const who of [invitee, outsider]) assert.deepEqual((await call(today, { token: who.accessToken })).body, [], "not theirs to see");
+  assert.equal((await call(today)).status, 401);
+  assert.equal((await call("/rest/v1/party_day_stats", { method: "POST", token: leader.accessToken, body: { party_id: party } })).status >= 400, true);
+
+  await rpc(leader, "delete_party", { party_id: party });
+  assert.deepEqual((await call(today, { token: leader.accessToken })).body, [], "gone with the party");
 });
 
 localTest("invitations: the same answer for unknown names, then accepted, declined or renewed", async () => {

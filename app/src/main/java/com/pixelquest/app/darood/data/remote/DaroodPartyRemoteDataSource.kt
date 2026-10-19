@@ -2,6 +2,7 @@ package com.pixelquest.app.darood.data.remote
 
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.safeSupabaseCall
+import com.pixelquest.app.darood.domain.DayTotal
 import com.pixelquest.app.darood.domain.DaroodEntry
 import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.MemberStats
@@ -74,6 +75,9 @@ interface DaroodPartyRemoteDataSource {
 
     /** The leader deletes the party: it's gone for everyone. */
     suspend fun deleteParty(partyId: String): SupabaseResult<Unit>
+
+    /** Each poster's total for [day] in a party (party_day_stats), as its members may see it. */
+    suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<List<DayTotal>>
 
     /**
      * Posts an entry as the account; the entry as the server stored it. [clientId] is its own key:
@@ -178,6 +182,18 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
     override suspend fun deleteParty(partyId: String): SupabaseResult<Unit> =
         call<PartyStatusReply>("delete_party") { put("party_id", partyId) }.map { }
 
+    override suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<List<DayTotal>> {
+        if (account.id() == null) return signedOut()
+        return safeSupabaseCall {
+            postgrest[DAY_STATS].select(Columns.list("user_id", "total")) {
+                filter {
+                    eq("party_id", partyId)
+                    eq("local_date", day.toString())
+                }
+            }.decodeList<DayTotalDto>().map { DayTotal(it.userId, it.total) }
+        }
+    }
+
     override suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long> =
         call<MilestoneReply>("set_milestone") {
             put("party_id", partyId)
@@ -252,6 +268,7 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
 
     internal companion object {
         const val PARTIES = "parties"
+        const val DAY_STATS = "party_day_stats"
         const val MEMBERS = "party_members"
         const val USERNAMES = "usernames"
         const val ENTRIES = "darood_entries"

@@ -36,6 +36,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.Instant
+import com.pixelquest.app.darood.data.remote.map
+import java.time.LocalDate
+import com.pixelquest.app.darood.domain.DayTotals
 import java.time.ZoneId
 import java.util.UUID
 import javax.inject.Inject
@@ -63,6 +66,18 @@ interface DaroodPartyRepository {
      * sent (PENDING) or refused (FAILED) first, then the server's.
      */
     fun observeEntries(partyId: String, limit: Int): Flow<List<DaroodEntry>>
+
+    /** Today, as the phone's clock and time zone have it: the day its entries are posted for. */
+    fun today(): LocalDate
+
+    /**
+     * The player's and the party's totals for [day], from the server (party_day_stats). The
+     * player's entries still waiting on the phone aren't in them: [observePendingTotalOn] has those.
+     */
+    suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<DayTotals>
+
+    /** The player's entries for [day] still waiting to be sent, summed. */
+    fun observePendingTotalOn(partyId: String, day: LocalDate): Flow<Long>
 
     /** How many entries wait to be sent, in every party. */
     fun observePendingCount(): Flow<Int>
@@ -170,6 +185,17 @@ class DaroodPartyRepositoryImpl(
         }
 
     override fun observePendingCount(): Flow<Int> = dao.observePendingCount()
+
+    override fun today(): LocalDate = Instant.ofEpochMilli(now()).atZone(zone()).toLocalDate()
+
+    override suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<DayTotals> {
+        val me = account.id()
+        return remote.fetchDayTotals(partyId, day).map { rows ->
+            DayTotals(mine = rows.filter { me != null && it.userId == me }.sumOf { it.total }, party = rows.sumOf { it.total })
+        }
+    }
+
+    override fun observePendingTotalOn(partyId: String, day: LocalDate): Flow<Long> = dao.observePendingTotalOn(partyId, day)
 
     override suspend fun addEntry(partyId: String, amount: Int): DaroodEntry {
         require(amount in DaroodRules.AMOUNT_MIN..DaroodRules.AMOUNT_MAX) { "An entry is 1 to 100,000" }
