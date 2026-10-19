@@ -35,3 +35,39 @@ A Darood Party is a small group (2 to 30 people) that pools the Darood its membe
 - **Parties need an account.** Every rule on the server is checked against `auth.uid()`, so signed-out players see a sign-in prompt that opens the Account screen.
 - **Usernames get their own table, not a `profiles` column.** Every signed-in player can read an opted-in profile row in full, and the leaderboard reads them with `select *`. A username there would list every board player's username, tied to their board name and numbers, to anyone signed in. Inviting by username (Phase B) is meant to reveal nothing about who exists. So `public.usernames` is readable only by its owner, and the availability check and invites go through server functions.
 - **Darood has its own tables.** Nothing in it reads or writes `profiles`, XP, levels, streaks or the leaderboard.
+
+## The rules
+
+The server enforces every one of these (constraints, triggers, row-level security and server functions, Phase B). The app mirrors them so a player hears "no" before sending anything, but never relies on that.
+
+### Usernames
+- **Who:** every signed-in player can claim one. Parties invite by username.
+- **Form:** 3 to 20 characters: `a`–`z`, `0`–`9` and `_`. Stored in lowercase, so `Aria_K` is `aria_k`.
+- **Unique,** ignoring case. Some words are reserved (`admin`, `support`, `pixelquest` and the like).
+- **Changing it:** once every 30 days. Deleting the account frees it.
+- **Private by default:** only its owner can read their own username. Others can check whether a name is free, and a leader can invite by it.
+
+### Parties
+- **Size:** a name of 2 to 40 characters, and 2 to 30 members. Whoever creates it is its leader, and it starts with them alone.
+- **Joining:** the leader invites people by username, and each one accepts or declines. Invited and active members together never exceed the party's limit, and never 30.
+- **Leaving:** a member can leave. The leader can remove a member, rename the party, hand the leadership to an active member, or delete the party. Entries from people who left or were removed stay in the total.
+
+### Entries
+- **Numbers only.** A member posts how many Darood they read, a whole number from 1 to 100,000. There is no free text anywhere, so nothing needs moderating.
+- **At most 500,000 a day** per member in a party, to catch typos. The day is the member's own: each entry stores its local date and time zone.
+- **Honour system.** Nobody checks the count itself.
+- **Final:** an entry can't be edited or deleted. Only active members of a party that isn't finished or deleted can post.
+
+### The total, contribution and consistency
+- **One total:** every entry in a party adds to its one total.
+- **What each member sees:** their own contribution (their total, their share, their place in the party), and how steady they are: days with at least one entry, the current streak and the best streak.
+
+### The milestone and the race
+- **The milestone:** the leader sets a target total, and can raise it later, but only above the current total.
+- **Finishing:** the first time the total reaches the milestone, the party is finished, and that time is kept for good.
+- **The race board:** parties that choose to join it are ranked by finish time, then by progress. It shows only a party's name, size, total, milestone, progress and finish time. It never shows members' names or entries.
+
+### Kept apart from the game
+- **Darood never gives XP,** and never touches levels, streaks, perfect days or the leaderboard. A test proves no Darood code reaches them.
+- **Not in backups:** the party data is cached on the phone for speed and offline use. It isn't in the game's backups, and it's cleared on sign-out.
+- **Never logged:** no entry, username or party detail is written to the log.
