@@ -30,7 +30,8 @@ class DaroodPartyRepositoryTest {
     private val server = FakeDaroodServer(me = "me").apply {
         usernames += mapOf("me" to "aria_k", "u2" to "bram", "u3" to "cleo")
     }
-    private val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, { 1_000L }, { java.time.ZoneId.of("Asia/Karachi") })
+    private var scheduled = 0
+    private val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, { 1_000L }, { java.time.ZoneId.of("Asia/Karachi") }) { scheduled++ }
 
     @After
     fun tearDown() {
@@ -121,6 +122,7 @@ class DaroodPartyRepositoryTest {
         val entry = repository.addEntry(friday, 313)
 
         assertEquals(com.pixelquest.app.darood.domain.EntryState.SYNCED, entry.state)
+        assertEquals("nothing left for the worker", 0, scheduled)
         assertTrue(entry.id != null)
         assertEquals("Asia/Karachi", server.entries.single().tz)
         assertEquals(listOf(313), repository.observeEntries(friday, 50).first().map { it.amount })
@@ -139,6 +141,7 @@ class DaroodPartyRepositoryTest {
         val second = repository.addEntry(friday, 11)
 
         assertEquals(com.pixelquest.app.darood.domain.EntryState.PENDING, first.state)
+        assertEquals("the sync worker is asked to send them", 2, scheduled)
         val shown = repository.observeEntries(friday, 50).first()
         assertEquals("waiting ones first, newest on top", listOf(11, 33, 100), shown.map { it.amount })
         assertEquals(listOf("me", "me"), shown.take(2).map { it.userId })

@@ -22,6 +22,7 @@ import com.pixelquest.app.darood.domain.MemberStatus
 import com.pixelquest.app.darood.domain.Party
 import com.pixelquest.app.darood.domain.PartyMember
 import com.pixelquest.app.darood.domain.PartyStats
+import com.pixelquest.app.darood.sync.DaroodSyncScheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -104,12 +105,13 @@ class DaroodPartyRepositoryImpl(
     private val dao: DaroodDao,
     private val account: DaroodAccount,
     private val now: () -> Long,
-    private val zone: () -> ZoneId
+    private val zone: () -> ZoneId,
+    private val syncScheduler: DaroodSyncScheduler? = null
 ) : DaroodPartyRepository {
 
     @Inject
-    constructor(remote: DaroodPartyRemoteDataSource, dao: DaroodDao, account: DaroodAccount) :
-        this(remote, dao, account, System::currentTimeMillis, ZoneId::systemDefault)
+    constructor(remote: DaroodPartyRemoteDataSource, dao: DaroodDao, account: DaroodAccount, syncScheduler: DaroodSyncScheduler) :
+        this(remote, dao, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler)
 
     override fun observeMyParties(): Flow<List<Party>> = dao.observeParties().map { parties -> parties.map { it.toDomain() } }
 
@@ -146,7 +148,8 @@ class DaroodPartyRepositoryImpl(
             createdAt = at
         )
         dao.insertPending(pending)
-        sendPending()
+        // Couldn't go now: the sync worker sends it once there's a connection.
+        if (sendPending().needsRetry) syncScheduler?.scheduleSend()
         return dao.getPending(pending.clientId)?.toDomain(account.id())
             ?: dao.entryByClientId(pending.clientId)?.toDomain()
             ?: pending.toDomain(account.id())

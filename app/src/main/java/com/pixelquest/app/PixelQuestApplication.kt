@@ -51,6 +51,9 @@ class PixelQuestApplication : Application(), Configuration.Provider {
     @javax.inject.Inject
     lateinit var namazReminders: com.pixelquest.app.namaz.NamazReminders
 
+    @javax.inject.Inject
+    lateinit var daroodSync: com.pixelquest.app.darood.sync.DaroodSyncScheduler
+
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     override fun onCreate() {
@@ -85,6 +88,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         // and once a day as a safety net.
         namazReminders.start(appScope)
         com.pixelquest.app.worker.NamazRescheduleWorker.schedule(this)
+        // Darood entries left waiting when the app last closed go once there's a connection.
+        daroodSync.scheduleSend()
         rearmReminders()
     }
 
