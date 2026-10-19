@@ -157,6 +157,12 @@
     <string name="darood_entry_refused_time_zone">Not sent: the phone\'s time zone wasn\'t recognised.</string>
     <string name="darood_quick_fill">put <xliff:g id="amount" example="313">%1$d</xliff:g> in the field</string>
     <string name="darood_input_too_many">At most <xliff:g id="max" example="100,000">%1$s</xliff:g> in one go.</string>
+    <string name="darood_milestone_progress">Milestone: <xliff:g id="total" example="2,450">%1$s</xliff:g> of <xliff:g id="milestone" example="10,000">%2$s</xliff:g> (<xliff:g id="percent" example="24">%3$d</xliff:g>%%)</string>
+    <string name="darood_milestone_reached">Milestone reached: <xliff:g id="milestone" example="10,000">%1$s</xliff:g></string>
+    <string name="darood_milestone_open">Open</string>
+    <string name="darood_milestone_folded">Folded</string>
+    <string name="darood_milestone_show">show the milestone</string>
+    <string name="darood_milestone_hide">fold the milestone away</string>
     <string name="darood_today_mine">You today: <xliff:g id="total" example="300">%1$s</xliff:g></string>
     <string name="darood_today_party">Party today: <xliff:g id="total" example="2,450">%1$s</xliff:g></string>
     <string name="darood_chat_jump">Jump to the newest</string>

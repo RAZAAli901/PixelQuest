@@ -12,6 +12,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -58,6 +60,8 @@ import javax.inject.Inject
  *   number field shows, holding [draft].
  * @param confirming a big number waiting to be confirmed: a dialog asks if it's what the player meant.
  * @param todayTotals the day's numbers for the strip under the top bar; none until they're known.
+ * @param milestone the party's milestone, if it has one: a bar pinned under the top bar shows how far
+ *   its [total] is toward it, and can be folded away to a slim line.
  */
 @Composable
 fun PartyChatScreen(
@@ -80,7 +84,10 @@ fun PartyChatScreen(
     onConfirmSend: () -> Unit = {},
     onCancelSend: () -> Unit = {},
     onRetry: (String) -> Unit = {},
-    todayTotals: com.pixelquest.app.darood.domain.DayTotals? = null
+    todayTotals: com.pixelquest.app.darood.domain.DayTotals? = null,
+    milestone: Long? = null,
+    total: Long = 0,
+    finished: Boolean = false
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -137,6 +144,10 @@ fun PartyChatScreen(
         }
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            if (milestone != null && milestone > 0) {
+                var folded by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+                MilestoneBar(total = total, milestone = milestone, finished = finished, collapsed = folded, onToggle = { folded = !folded })
+            }
             if (todayTotals != null) TodayStrip(todayTotals)
             ChatBackground(modifier = Modifier.fillMaxWidth().weight(1f).testTag(DaroodTestTags.CHAT_BACKGROUND)) {
                 if (items.isEmpty()) {
@@ -414,6 +425,9 @@ fun PartyChatRoute(
         onConfirmSend = viewModel::confirmSend,
         onCancelSend = viewModel::cancelSend,
         onRetry = viewModel::retry,
-        todayTotals = todayTotals
+        todayTotals = todayTotals,
+        milestone = party?.milestone,
+        total = party?.total ?: 0,
+        finished = party?.isFinished == true
     )
 }
