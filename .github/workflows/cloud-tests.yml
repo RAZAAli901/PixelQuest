@@ -30,7 +30,8 @@ jobs:
           node-version: '24'
 
       - name: Start the local Supabase stack
-        run: npx --yes supabase@2.120.0 start -x studio,postgres-meta,storage-api,imgproxy,realtime,logflare,vector,supavisor
+        # Realtime runs too: Darood Party's live updates are tested against it (LocalSupabaseDaroodTest).
+        run: npx --yes supabase@2.120.0 start -x studio,postgres-meta,storage-api,imgproxy,logflare,vector,supavisor
 
       # Every migration applied above; the linter fails the run on a schema error in any of them.
       - name: Lint the database

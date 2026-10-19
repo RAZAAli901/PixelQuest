@@ -48,12 +48,11 @@ object LocalSupabase {
     }
 
     /**
-     * A client like the app's (SupabaseClient.kt), with the session kept in memory. It uses Ktor's
-     * CIO engine: the app's Android engine runs on HttpURLConnection, which on a phone can send
-     * PATCH (leaving the leaderboard) but on the JVM can't.
+     * A client like the app's (SupabaseClient.kt): the OkHttp engine, with Realtime for Darood
+     * Party's live updates, and the session kept in memory.
      */
     fun client(): SupabaseClient = createSupabaseClient(status.apiUrl, status.publishableKey) {
-        httpEngine = io.ktor.client.engine.cio.CIO.create()
+        httpEngine = io.ktor.client.engine.okhttp.OkHttp.create()
         install(Auth) {
             sessionManager = MemorySessionManager()
             codeVerifierCache = MemoryCodeVerifierCache()
@@ -62,6 +61,7 @@ object LocalSupabase {
             enableLifecycleCallbacks = false
         }
         install(Postgrest)
+        install(io.github.jan.supabase.realtime.Realtime)
     }
 
     fun newEmail(tag: String) = "$tag.${System.currentTimeMillis()}.${(100000..999999).random()}@pixelquest.test"

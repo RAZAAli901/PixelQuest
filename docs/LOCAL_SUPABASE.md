@@ -15,7 +15,7 @@ Use it to test cloud changes before they reach the real project, and to try the 
 From the project folder:
 
 ```bash
-npx supabase@2.120.0 start -x studio,postgres-meta,storage-api,imgproxy,realtime,logflare,vector,supavisor
+npx supabase@2.120.0 start -x studio,postgres-meta,storage-api,imgproxy,logflare,vector,supavisor
 ```
 
 The first start downloads the images (several minutes). After that it takes about 30 seconds. It applies every file in `supabase/migrations` and prints the local URL and keys. Those keys are the same well-known defaults on every machine, not secrets. `-x` skips services PixelQuest doesn't use.
@@ -66,6 +66,7 @@ The bench tests are skipped unless you opt in, so ordinary test runs don't need 
 | --- | --- | --- |
 | `supabase/tests/local/*.test.ts` (Node) | Email sign-in and its error codes; leaderboard row-level security and rank counting; the leaderboard's plausibility rules; unique names and no unnamed players on the board; reports, their limits and account deletion; the AI counter's lock-down; `gemini-proxy`'s sign-in check and per-account limit; the display-name rules; Darood Party usernames (owner-only reads, no direct writes, form, reserved words, unique ignoring case, the availability check, `set_username`'s 30 days and races); Darood Parties (`darood_parties.test.ts`: nothing readable by outsiders or signed out, what an invitee sees, 2 to 30 people and no 31st, final entries posted only by active members as themselves, amounts, days and the daily cap, the leader's rights, invitations, leaving and handing over, finishing once and for good) | `SUPABASE_LOCAL=1 node --test "supabase/tests/**/*.test.ts"` |
 | `LocalSupabaseAppTest` (Kotlin) | The app's own repositories against the stack: email sign-in, joining, leaderboard and rank, sync decisions, leaving, account deletion, the AI proxy with a real session | `PIXELQUEST_LOCAL_SUPABASE=1 ./gradlew :app:testDebugUnitTest --tests "*LocalSupabaseAppTest"` |
+| `LocalSupabaseDaroodTest` (Kotlin) | Darood Party through the app's own client (OkHttp, with Realtime): usernames, a party, an invitation in other capitals, an entry heard live on another member's phone, the same key returning the same entry, member stats, a member refused the milestone, and finishing | `PIXELQUEST_LOCAL_SUPABASE=1 ./gradlew :app:testDebugUnitTest --tests "*LocalSupabaseDaroodTest"` (Realtime must be running: the start command above keeps it) |
 | `LocalSupabaseSyncAndBoardTest` (Kotlin) | The real `ProfileSyncWorker`, reporting a player, paging the leaderboard past 20, refreshing an expiring session before an AI call, an account new to a phone keeping its place on the board, one account on two phones following its latest leaderboard choice (through the worker and SYNC NOW), a taken name refused, a broken streak reaching the board, and RESET ALL PROGRESS reaching it | `PIXELQUEST_LOCAL_SUPABASE=1 ./gradlew :app:testDebugUnitTest --tests "*LocalSupabase*"` runs both |
 
 Run the proxy tests with the function served as above. In PowerShell, set the variable first, for example `$env:SUPABASE_LOCAL = "1"`.
