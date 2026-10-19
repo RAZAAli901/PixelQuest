@@ -129,6 +129,20 @@ class MainActivity : ComponentActivity() {
                             pendingRoute = null
                             if (currentRoute != route) navController.navigate(route) { launchSingleTop = true }
                         }
+                        // A signed-in account without a Darood Party username is asked for one,
+                        // once, the same way: past the splash and onboarding.
+                        val usernamePrompt: com.pixelquest.app.darood.ui.username.UsernamePromptViewModel =
+                            androidx.hilt.navigation.compose.hiltViewModel()
+                        val askForUsername by usernamePrompt.prompt.collectAsState()
+                        androidx.compose.runtime.LaunchedEffect(askForUsername, currentRoute, onboardingComplete) {
+                            if (!askForUsername || !onboardingComplete || currentRoute == null ||
+                                currentRoute == Screen.Splash.route || currentRoute == Screen.Onboarding.route
+                            ) {
+                                return@LaunchedEffect
+                            }
+                            usernamePrompt.promptShown()
+                            navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true }
+                        }
 
                         // The side menu slides in over the screens and the bottom bar (docs/ai-coach-compact.md).
                         com.pixelquest.app.ui.menu.MenuDrawerScaffold(

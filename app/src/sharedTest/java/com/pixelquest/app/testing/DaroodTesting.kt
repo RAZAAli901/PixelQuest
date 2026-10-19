@@ -45,3 +45,11 @@ class FakeUsernameRepository(
         }
     }
 }
+
+/** The accounts asked for a username, in memory. */
+class FakeUsernamePromptStore(val prompted: MutableSet<String> = mutableSetOf()) : com.pixelquest.app.darood.data.UsernamePromptStore {
+    override fun wasPrompted(accountId: String): Boolean = accountId in prompted
+    override fun markPrompted(accountId: String) {
+        prompted += accountId
+    }
+}
