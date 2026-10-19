@@ -122,3 +122,65 @@ Darood Party usernames, one per account (docs/darood-design.md, Usernames). A ta
 
 - **Read:** the owner's own row only. Signed out, nothing.
 - **Write:** no client writes at all (no policy, no grant). Server functions set it.
+
+## Darood Parties (`20261019000004` to `20261019000023`)
+
+Darood Party's server side (docs/darood-design.md). Every rule below is enforced here; the app only mirrors it. Tested in `supabase/tests/local/darood_parties.test.ts`.
+
+### `public.parties`
+| Column | Type | Rules |
+|---|---|---|
+| `id` | `UUID` | Primary key |
+| `name` | `TEXT` | 2 to 40 characters, trimmed |
+| `leader_id` | `UUID` | The current leader; emptied if that account is deleted, then passed on |
+| `max_members` | `INTEGER` | 2 to 30, default 10 |
+| `milestone` | `BIGINT` | Null, or above 0; when changed, above the current total, and never after finishing |
+| `milestone_set_at` | `TIMESTAMPTZ` | Set by the server when the milestone changes |
+| `completed_at` | `TIMESTAMPTZ` | Set once, when the total first reaches the milestone; never changes after |
+| `created_at`, `deleted_at` | `TIMESTAMPTZ` | A deleted party is hidden from everyone |
+
+### `public.party_members`
+| Column | Type | Rules |
+|---|---|---|
+| `party_id`, `user_id` | `UUID` | One row per person per party; deleted with the party or the account |
+| `role` | `TEXT` | `leader` (one per party, always active) or `member` |
+| `status` | `TEXT` | `invited`, `active`, `declined`, `left` or `removed` |
+| `invited_by`, `invited_at`, `joined_at`, `updated_at` | | |
+
+Invited and active rows together never exceed the party's limit, nor 30 (`party_full`).
+
+### `public.darood_entries`
+| Column | Type | Rules |
+|---|---|---|
+| `party_id` | `UUID` | An open party (not finished or deleted) the poster is an active member of |
+| `user_id` | `UUID` | Always the caller; emptied (entry kept) if the account is deleted |
+| `amount` | `INTEGER` | 1 to 100,000; at most 500,000 a member a day in a party |
+| `local_date`, `tz` | `DATE`, `TEXT` | A real time zone; today there, or up to 7 days back |
+| `created_at` | `TIMESTAMPTZ` | The server's time |
+
+### Views
+- `party_stats`: per party, its total, entries, active members, milestone and finish. Active members only.
+- `party_member_stats`: per person who posted, their total, active days and last day, with their username where the reader may see it.
+
+### Who may do what
+| | Signed out | Outsider | Invited | Active member | Leader |
+|---|---|---|---|---|---|
+| Read the party | no | no | yes | yes | yes |
+| Read members, entries, stats | no | no | own row only | yes | yes |
+| Post an entry (as themselves) | no | no | no | yes | yes |
+| Edit or delete an entry | no | no | no | no | no |
+| Rename, set the milestone | no | no | no | no | yes |
+| Invite, remove | no | no | no | no | yes |
+
+### Functions (signed-in players)
+| Function | What it does |
+|---|---|
+| `create_party(name, max_members, milestone)` | A party and its leader, together; needs a username |
+| `invite_member(party_id, username)` | Leader only; answers `sent` whether or not the name exists |
+| `respond_invite(party_id, accept)` | Accept or decline an unanswered invitation |
+| `leave_party(party_id)` | Members leave; the leader hands over first |
+| `remove_member(party_id, user_id)` | Leader only |
+| `set_milestone(party_id, target)` | Leader only; above the current total |
+
+Refusals carry a token in `message` (`party_full`, `not_leader`, `daily_limit`, `milestone_too_low` and so on), with HTTP 400 for broken rules and 403 for permissions.
+

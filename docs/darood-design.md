@@ -99,3 +99,18 @@ Each migration can be run again, and each has a rollback note. None has been pus
 - **Android 7:** `java.time`, here as across the app, needs core-library desugaring on API 24-25. That change is on its own branch.
 - **No Settings switch for the flag yet,** as with `namazAvailable`.
 
+## The server (Phase B, as built)
+
+Tables, rules and functions are in `supabase/migrations` (`20261019000004` to `20261019000023`), described in `supabase/schema.md` and tested in `supabase/tests/local/darood_parties.test.ts`. Choices the plan left open:
+- **Row-level security from the first migration.** Each table was created with it on and no policy, and a later migration removed the broad grants Supabase gives every new table. A partial deploy can't leave anything open.
+- **One way in for memberships.** `party_members` has no client write grant. Inviting, answering, leaving and removing go through functions, which check the leader and the limits.
+- **Usernames first.** Creating a party needs a username, so every member has a name to show.
+- **The day an entry is for:** today in the member's time zone, or up to 7 days back, which leaves room for entries queued offline.
+- **The daily cap is per party:** 500,000 a member a day in each party.
+- **A finish is final.** A finished party takes no entries, and its milestone and finish time never change. The plan's race ranks by that time.
+- **A leader's deleted account** passes the party to the active member who joined first.
+- **Neutral invitations:** unknown names answer `sent`, and a full party answers `party_full` to every name not already in it.
+- **What a co-member's username reveals:** active members see each other's usernames, and an invitee sees the leader's and their inviter's. Nobody else's is readable.
+
+None of this is on the hosted project yet: pushing the migrations there is a deployment, done when the feature ships.
+
