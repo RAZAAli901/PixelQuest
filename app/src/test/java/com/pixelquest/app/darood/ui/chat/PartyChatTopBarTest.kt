@@ -1,7 +1,13 @@
 package com.pixelquest.app.darood.ui.chat
 
 import android.app.Application
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -63,5 +69,32 @@ class PartyChatTopBarTest {
         show(ThemeMode.Light, members = 0)
         composeTestRule.onNodeWithText("Friday circle").assertIsDisplayed()
         composeTestRule.onNodeWithText("0 members").assertDoesNotExist()
+    }
+
+    @Test
+    fun anywhereOnTheBar_opensTheInfo_andTalkBackSaysSo() {
+        var opened = 0
+        var back = 0
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                PartyChatScreen(partyName = "Friday circle", onNavigateBack = { back++ }, onOpenInfo = { opened++ }, memberCount = 12)
+            }
+        }
+        // The picture, the name and the count each open it, as in a messaging app.
+        composeTestRule.onNodeWithTag(DaroodTestTags.PARTY_AVATAR, useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithText("FRIDAY CIRCLE", useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithText("12 members", useUnmergedTree = true).performClick()
+        assertEquals(3, opened)
+
+        // TalkBack reads the bar as one button, "Friday circle, 12 members", that opens the party's info.
+        composeTestRule.onNode(
+            hasTestTag(DaroodTestTags.CHAT_TITLE) and
+                SemanticsMatcher("opens the party's info") { it.config.getOrNull(SemanticsActions.OnClick)?.label == "Party info" }
+        ).assertIsDisplayed()
+
+        // Back keeps its own tap.
+        composeTestRule.onNodeWithContentDescription("Back").performClick()
+        assertEquals(1, back)
+        assertEquals(3, opened)
     }
 }
