@@ -86,6 +86,8 @@ jobs:
       # The whole unit suite compiles and passes since Day 29 (no quarantine). Live Gemini calls stay
       # off: they only run with PIXELQUEST_LIVE_GEMINI=1, which CI never sets.
       - name: Run Unit Tests
+        # The suite takes about 10 minutes; a stuck test fails the build instead of holding it for hours.
+        timeout-minutes: 45
         run: ./gradlew testDebugUnitTest
 
       - name: Upload Unit Test Report
@@ -93,4 +95,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pixelquest-unit-test-report
-          path: app/build/reports/tests/testDebugUnitTest/
+          # The XML results are written class by class, so a stuck run still shows which finished.
+          path: |
+            app/build/reports/tests/testDebugUnitTest/
+            app/build/test-results/testDebugUnitTest/
