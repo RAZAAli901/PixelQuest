@@ -1,0 +1,108 @@
+package com.pixelquest.app.darood.ui.create
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.pixelquest.app.R
+import com.pixelquest.app.darood.domain.DaroodRules
+import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.ui.components.PixelTextField
+import com.pixelquest.app.ui.components.PixelTopAppBar
+import com.pixelquest.app.ui.components.SymbolIcon
+import com.pixelquest.app.ui.theme.PixelTheme
+
+/** Starting a party: its name, its size and, if wanted, its milestone. */
+@Composable
+fun CreatePartyScreen(
+    onNavigateBack: () -> Unit,
+    viewModel: CreatePartyViewModel = hiltViewModel()
+) {
+    val state by viewModel.uiState.collectAsState()
+    CreatePartyContent(state = state, onNameChange = viewModel::onNameChange, onNavigateBack = onNavigateBack)
+}
+
+@Composable
+fun CreatePartyContent(
+    state: CreatePartyUiState,
+    onNameChange: (String) -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    val colors = PixelTheme.colors
+    Scaffold(
+        containerColor = colors.background,
+        topBar = {
+            PixelTopAppBar(
+                title = stringResource(R.string.darood_create_title),
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        SymbolIcon(
+                            symbol = "◀",
+                            contentDescription = stringResource(R.string.navigate_back),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = colors.primaryText
+                        )
+                    }
+                }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+                .testTag(DaroodTestTags.CREATE_SCREEN),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                PixelTextField(
+                    value = state.name,
+                    onValueChange = onNameChange,
+                    label = stringResource(R.string.darood_create_name),
+                    placeholder = stringResource(R.string.darood_create_name_placeholder),
+                    errorText = when (state.nameProblem) {
+                        PartyNameProblem.TOO_SHORT -> stringResource(R.string.darood_create_name_too_short)
+                        PartyNameProblem.TOO_LONG -> stringResource(R.string.darood_create_name_too_long)
+                        null -> null
+                    },
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Next),
+                    modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.CREATE_NAME)
+                )
+                // The live counter: how much of the 40 the name uses.
+                Text(
+                    text = stringResource(R.string.darood_create_name_counter, state.nameLength, DaroodRules.NAME_MAX),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (state.nameLength > DaroodRules.NAME_MAX) colors.error else colors.onSurfaceVariant,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .testTag(DaroodTestTags.CREATE_NAME_COUNTER)
+                        .semantics { liveRegion = LiveRegionMode.Polite }
+                )
+            }
+        }
+    }
+}

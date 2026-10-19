@@ -15,6 +15,9 @@ object DaroodTestTags {
     const val CREATE = "darood_create"
     const val CREATE_ACTION = "darood_create_action"
     const val CHAT_SCREEN = "darood_chat_screen"
+    const val CREATE_SCREEN = "darood_create_screen"
+    const val CREATE_NAME = "darood_create_name"
+    const val CREATE_NAME_COUNTER = "darood_create_name_counter"
 
     fun partyRow(partyId: String) = "darood_party_$partyId"
     fun inviteRow(partyId: String) = "darood_invite_$partyId"

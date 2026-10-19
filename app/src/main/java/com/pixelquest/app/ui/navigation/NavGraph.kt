@@ -232,8 +232,12 @@ fun PixelNavHost(
             com.pixelquest.app.darood.ui.DaroodPartyScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onSignIn = { navController.navigate(Screen.Account.route) },
-                onOpenParty = { partyId -> navController.navigate(Screen.DaroodPartyChat.createRoute(partyId)) }
+                onOpenParty = { partyId -> navController.navigate(Screen.DaroodPartyChat.createRoute(partyId)) },
+                onCreateParty = { navController.navigate(Screen.DaroodCreate.route) { launchSingleTop = true } }
             )
+        }
+        composable(Screen.DaroodCreate.route) {
+            com.pixelquest.app.darood.ui.create.CreatePartyScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(
             route = Screen.DaroodPartyChat.route,
