@@ -152,4 +152,76 @@ class ChatListTest {
             db.close()
         }
     }
+
+    @Test
+    fun scrollingUpToTheOldest_asksForOlder_once_andShowsItsComing() {
+        var asked = 0
+        val loading = mutableStateOf(false)
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                ChatList(items = chat.value, usernames = usernames, today = today, loadingOlder = loading.value, onReachOldest = { asked++ })
+            }
+        }
+        assertEquals("not at the bottom", 0, asked)
+        composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_LIST).performScrollToIndex(chat.value.lastIndex)
+        composeTestRule.waitForIdle()
+        assertEquals(1, asked)
+
+        loading.value = true
+        composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_LIST).performScrollToIndex(chat.value.size)
+        composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_LOADING_OLDER).assertIsDisplayed()
+    }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @Test
+    fun theViewModel_bringsOlderPages_untilThereAreNone() {
+        kotlinx.coroutines.Dispatchers.setMain(kotlinx.coroutines.test.UnconfinedTestDispatcher())
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Application>(), AppDatabase::class.java)
+            .allowMainThreadQueries().build()
+        val store = androidx.lifecycle.ViewModelStore()
+        val collectors = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined)
+        try {
+            val server = FakeDaroodServer(me = "aria-id").apply { this.usernames += this@ChatListTest.usernames }
+            val partyId = server.seedParty("Friday circle", "aria-id", "bram-id")
+            repeat(120) { server.seedEntry(partyId, "bram-id", it + 1) }
+            val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { ZoneId.of("UTC") })
+            runBlocking { repository.refreshParty(partyId) }
+
+            val factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
+                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+            }
+            val vm = androidx.lifecycle.ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
+            collectors.launch { vm.items.collect { } }
+            fun shown() = vm.items.value.filterIsInstance<EntryItem>().size
+            fun waitFor(count: Int) = run {
+                repeat(150) {
+                    if (shown() == count && !vm.loadingOlder.value) return@run
+                    Thread.sleep(20)
+                }
+                throw AssertionError("still ${shown()} of $count")
+            }
+
+            waitFor(50)
+            vm.loadOlder()
+            waitFor(100)
+            vm.loadOlder()
+            waitFor(120)
+            assertEquals("the oldest is there", 1, vm.items.value.filterIsInstance<EntryItem>().first().bubble.entry.amount)
+
+            // Nothing older: the server isn't asked again.
+            val asked = server.calls.count { it == "fetchEntries" }
+            vm.loadOlder()
+            waitFor(120)
+            vm.loadOlder()
+            waitFor(120)
+            assertEquals(asked, server.calls.count { it == "fetchEntries" })
+        } finally {
+            collectors.cancel()
+            store.clear()
+            kotlinx.coroutines.Dispatchers.resetMain()
+            db.close()
+        }
+    }
 }

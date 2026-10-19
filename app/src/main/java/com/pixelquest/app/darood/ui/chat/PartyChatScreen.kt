@@ -23,7 +23,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import com.pixelquest.app.R
+import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.domain.Party
 import com.pixelquest.app.darood.ui.DaroodTestTags
@@ -47,6 +49,7 @@ import javax.inject.Inject
  * @param memberCount the party's active members; 0 while not known yet, which shows no count.
  * @param items the chat's lines, oldest first ([chatItemsOf]).
  * @param usernames posters' usernames by user id, for the bubbles.
+ * @param loadingOlder an older page is on its way; [onReachOldest] asks for one.
  */
 @Composable
 fun PartyChatScreen(
@@ -58,7 +61,9 @@ fun PartyChatScreen(
     memberCount: Int = 0,
     items: List<ChatItem> = emptyList(),
     usernames: Map<String, String> = emptyMap(),
-    today: java.time.LocalDate = java.time.LocalDate.now()
+    today: java.time.LocalDate = java.time.LocalDate.now(),
+    loadingOlder: Boolean = false,
+    onReachOldest: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -119,7 +124,14 @@ fun PartyChatScreen(
                     }
                 }
             } else {
-                ChatList(items = items, usernames = usernames, today = today, modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.CHAT_SCREEN))
+                ChatList(
+                    items = items,
+                    usernames = usernames,
+                    today = today,
+                    loadingOlder = loadingOlder,
+                    onReachOldest = onReachOldest,
+                    modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.CHAT_SCREEN)
+                )
             }
         }
     }
@@ -133,7 +145,7 @@ fun PartyChatScreen(
 @HiltViewModel
 class PartyChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    repository: DaroodPartyRepository,
+    private val repository: DaroodPartyRepository,
     account: com.pixelquest.app.darood.data.remote.DaroodAccount? = null
 ) : ViewModel() {
     val partyId: String = savedStateHandle["partyId"] ?: ""
@@ -144,8 +156,21 @@ class PartyChatViewModel @Inject constructor(
     val party: StateFlow<Party?> = repository.observeParty(partyId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    /** How many entries the chat holds: a page to start with. */
+    /** How many entries the chat holds: a page to start with, and a page more each time the reader scrolls up to the oldest. */
     private val limit = kotlinx.coroutines.flow.MutableStateFlow(PAGE)
+
+    /** The server's entries the chat now shows, to know whether the phone has more than that. */
+    @Volatile
+    private var shownFromServer = 0
+
+    /** False once the server has said there's nothing older than what the phone has. */
+    @Volatile
+    private var serverHasOlder = true
+
+    private val _loadingOlder = kotlinx.coroutines.flow.MutableStateFlow(false)
+
+    /** An older page is on its way. */
+    val loadingOlder: StateFlow<Boolean> = _loadingOlder
 
     private val members = repository.observeMembers(partyId)
 
@@ -155,6 +180,7 @@ class PartyChatViewModel @Inject constructor(
         members,
         repository.observeParty(partyId)
     ) { entries, members, party ->
+        shownFromServer = entries.count { it.id != null }
         // The cache gives the newest first; the chat reads oldest first.
         chatItemsOf(entries.asReversed(), accountId, java.time.ZoneId.systemDefault(), partyEventsOf(party, members))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -166,6 +192,31 @@ class PartyChatViewModel @Inject constructor(
 
     /** Keeps the party current while its screen is visible. */
     val follower = com.pixelquest.app.darood.ui.PartyFollower(repository, viewModelScope, partyId)
+
+    /**
+     * The reader has scrolled up to the oldest line shown: shows a page more. The phone may have it
+     * already; if not, the page before its oldest comes from the server. Once the server has nothing
+     * older and everything the phone has is shown, it stops. Offline, the next scroll up tries again.
+     */
+    fun loadOlder() {
+        if (_loadingOlder.value) return
+        val allShown = shownFromServer < limit.value
+        if (allShown && !serverHasOlder) return
+        _loadingOlder.value = true
+        viewModelScope.launch {
+            if (serverHasOlder) {
+                when (val result = repository.loadOlderEntries(partyId)) {
+                    is SupabaseResult.Success -> serverHasOlder = result.data
+                    else -> {
+                        _loadingOlder.value = false
+                        return@launch
+                    }
+                }
+            }
+            limit.value += PAGE
+            _loadingOlder.value = false
+        }
+    }
 
     companion object {
         /** Entries in the chat to start with: the server's page. */
@@ -183,6 +234,7 @@ fun PartyChatRoute(
 ) {
     val party = viewModel.party.collectAsState().value
     val items = viewModel.items.collectAsState().value
+    val loadingOlder = viewModel.loadingOlder.collectAsState().value
     val usernames = viewModel.usernames.collectAsState().value
     com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
@@ -193,6 +245,8 @@ fun PartyChatRoute(
         onAddPeople = onAddPeople,
         memberCount = party?.memberCount ?: 0,
         items = items,
-        usernames = usernames
+        usernames = usernames,
+        loadingOlder = loadingOlder,
+        onReachOldest = viewModel::loadOlder
     )
 }

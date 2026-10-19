@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,14 +15,17 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -49,6 +53,9 @@ import java.time.LocalDate
  * older ones, it doesn't pull them away, and a button takes them back down, with how many arrived
  * meanwhile. The player's own new entry always comes into view.
  *
+ * Scrolling up to the oldest line shown asks for older ones ([onReachOldest]); while they come
+ * ([loadingOlder]), a small spinner shows at the top.
+ *
  * @param items the chat's lines, oldest first ([chatItemsOf]).
  * @param usernames posters' usernames by user id.
  */
@@ -58,7 +65,9 @@ fun ChatList(
     usernames: Map<String, String>,
     today: LocalDate,
     modifier: Modifier = Modifier,
-    listState: LazyListState = rememberLazyListState()
+    listState: LazyListState = rememberLazyListState(),
+    loadingOlder: Boolean = false,
+    onReachOldest: () -> Unit = {}
 ) {
     // Newest first: with the list laid out from the bottom up, index 0 is the bottom line.
     val newestFirst = remember(items) { items.asReversed() }
@@ -84,6 +93,17 @@ fun ChatList(
     LaunchedEffect(following, entryKeys.firstOrNull()) { if (following) seenNewest = entryKeys.firstOrNull() }
     val unseen = if (following) 0 else entryKeys.indexOf(seenNewest).coerceAtLeast(0)
 
+    // Near the oldest line shown (the top: the list's last few): ask for older ones.
+    val reachedOldest by remember {
+        derivedStateOf {
+            val layout = listState.layoutInfo
+            val lastShown = layout.visibleItemsInfo.lastOrNull()?.index ?: return@derivedStateOf false
+            lastShown >= layout.totalItemsCount - OLDEST_MARGIN
+        }
+    }
+    val askForOlder by rememberUpdatedState(onReachOldest)
+    LaunchedEffect(reachedOldest) { if (reachedOldest) askForOlder() }
+
     val scope = rememberCoroutineScope()
     Box(modifier = modifier) {
         LazyColumn(
@@ -99,6 +119,18 @@ fun ChatList(
                     is EventItem -> EventPill(item.event)
                 }
             }
+            if (loadingOlder) {
+                // Last in the list, so at the top: where the older lines will appear.
+                item(key = "loading-older") {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            color = PixelTheme.colors.primary,
+                            modifier = Modifier.size(24.dp).testTag(DaroodTestTags.CHAT_LOADING_OLDER)
+                        )
+                    }
+                }
+            }
         }
         if (!following) {
             JumpToNewest(
@@ -111,6 +143,9 @@ fun ChatList(
         }
     }
 }
+
+/** How near the oldest line shown the reader gets before older ones are asked for. */
+private const val OLDEST_MARGIN = 3
 
 /** The way back down to the newest line, with how many entries arrived while the reader was away. */
 @Composable
