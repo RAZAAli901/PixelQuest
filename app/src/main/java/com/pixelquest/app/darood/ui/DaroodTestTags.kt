@@ -24,6 +24,12 @@ object DaroodTestTags {
     const val CREATE_MILESTONE = "darood_create_milestone"
     const val CREATE_BUTTON = "darood_create_button"
     const val CREATE_ERROR = "darood_create_error"
+    const val ADD_SCREEN = "darood_add_screen"
+    const val ADD_SEARCH = "darood_add_search"
+    const val ADD_STATUS = "darood_add_status"
+    const val ADD_RESULT = "darood_add_result"
+    const val ADD_INVITE = "darood_add_invite"
+    const val CHAT_ADD_PEOPLE = "darood_chat_add_people"
 
     fun partyRow(partyId: String) = "darood_party_$partyId"
     fun inviteRow(partyId: String) = "darood_invite_$partyId"

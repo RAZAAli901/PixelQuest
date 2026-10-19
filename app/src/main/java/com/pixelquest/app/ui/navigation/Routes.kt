@@ -34,6 +34,10 @@ sealed class Screen(val route: String) {
     object DaroodPartyChat : Screen("darood/party/{partyId}") {
         fun createRoute(partyId: String) = "darood/party/$partyId"
     }
+    /** Adding people to a Darood Party by username. */
+    object DaroodAddPeople : Screen("darood/party/{partyId}/add") {
+        fun createRoute(partyId: String) = "darood/party/$partyId/add"
+    }
     /** Claiming or changing the Darood Party username. */
     object UsernameSetup : Screen("username_setup")
 }

@@ -39,7 +39,9 @@ import javax.inject.Inject
 fun PartyChatScreen(
     partyName: String,
     onNavigateBack: () -> Unit,
-    onOpenInfo: () -> Unit
+    onOpenInfo: () -> Unit,
+    isLeader: Boolean = false,
+    onAddPeople: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -75,6 +77,13 @@ fun PartyChatScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(text = stringResource(R.string.darood_chat_soon), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
+            if (isLeader) {
+                com.pixelquest.app.ui.components.PixelButton(
+                    text = stringResource(R.string.darood_add_title),
+                    onClick = onAddPeople,
+                    modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)
+                )
+            }
         }
     }
 }
@@ -83,9 +92,13 @@ fun PartyChatScreen(
 @HiltViewModel
 class PartyChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    repository: DaroodPartyRepository
+    repository: DaroodPartyRepository,
+    account: com.pixelquest.app.darood.data.remote.DaroodAccount? = null
 ) : ViewModel() {
     val partyId: String = savedStateHandle["partyId"] ?: ""
+
+    /** The signed-in account, to know whether it leads this party. */
+    val accountId: String? = account?.id()
 
     val party: StateFlow<Party?> = repository.observeParty(partyId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -96,8 +109,15 @@ fun PartyChatRoute(
     partyId: String,
     onNavigateBack: () -> Unit,
     onOpenInfo: () -> Unit,
+    onAddPeople: () -> Unit = {},
     viewModel: PartyChatViewModel = hiltViewModel()
 ) {
     val party = viewModel.party.collectAsState().value
-    PartyChatScreen(partyName = party?.name.orEmpty(), onNavigateBack = onNavigateBack, onOpenInfo = onOpenInfo)
+    PartyChatScreen(
+        partyName = party?.name.orEmpty(),
+        onNavigateBack = onNavigateBack,
+        onOpenInfo = onOpenInfo,
+        isLeader = party != null && party.leaderId != null && party.leaderId == viewModel.accountId,
+        onAddPeople = onAddPeople
+    )
 }

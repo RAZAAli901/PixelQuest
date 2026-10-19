@@ -55,6 +55,14 @@
         <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> person</item>
         <item quantity="other"><xliff:g id="count" example="10">%1$d</xliff:g> people</item>
     </plurals>
+    <!-- Adding people by username. -->
+    <string name="darood_add_title">Add people</string>
+    <string name="darood_add_intro">Type a friend\'s exact username. Usernames aren\'t listed anywhere, so ask them for theirs.</string>
+    <string name="darood_add_search">Username</string>
+    <string name="darood_add_invite">Invite</string>
+    <string name="darood_add_not_found">Nobody uses @<xliff:g id="name" example="aria_k">%1$s</xliff:g>. Check the spelling with your friend.</string>
+    <string name="darood_add_not_found_reserved">Nobody can use that name.</string>
+    <string name="darood_add_yours">That\'s you.</string>
     <!-- Invitations, at the top of the list. -->
     <string name="darood_invites_title">Invitations</string>
     <string name="darood_invite_to">You\'re invited to join</string>
