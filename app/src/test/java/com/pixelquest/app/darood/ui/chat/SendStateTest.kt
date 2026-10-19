@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -189,5 +190,79 @@ class SendStateTest {
         assertEquals(1, changed)
         composeTestRule.onNode(androidx.compose.ui.test.hasText("Send") and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).performClick()
         assertEquals(1, sent)
+    }
+
+    @Test
+    fun aRefusedEntry_saysWhy_andOffersRetry() {
+        var retried: String? = null
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                Column {
+                    ChatEntryRow(entry("refused", EntryState.FAILED).copy(refusal = "daily_limit"), sender = "aria_k", mine = true, onRetry = { retried = it })
+                    ChatEntryRow(entry("fine", EntryState.SYNCED), sender = "aria_k", mine = true)
+                }
+            }
+        }
+        composeTestRule.onNode(hasTestTag(DaroodTestTags.ENTRY_FAILED) and hasAnyAncestor(hasTestTag(DaroodTestTags.bubble("refused"))), useUnmergedTree = true)
+            .assertContentDescriptionEquals("Not sent")
+        composeTestRule.onNodeWithTag(DaroodTestTags.ENTRY_REFUSAL).assertTextEquals("Not sent: 500,000 is the most for one day.")
+        composeTestRule.onNodeWithTag(DaroodTestTags.ENTRY_RETRY).performClick()
+        assertEquals("refused", retried)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun retry_triesTheSameEntryAgain_andItGoesOnceTheRuleAllows() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Application>(), AppDatabase::class.java)
+            .allowMainThreadQueries().build()
+        val store = ViewModelStore()
+        val collectors = CoroutineScope(Dispatchers.Unconfined)
+        try {
+            val server = FakeDaroodServer(me = "aria-id").apply { usernames["aria-id"] = "aria_k" }
+            val partyId = server.seedParty("Friday circle", "aria-id")
+            // The phone's day (its clock reads 1970-01-01 here) already has the day's 500,000.
+            repeat(5) { server.seedEntry(partyId, "aria-id", 100_000, day = LocalDate.of(1970, 1, 1)) }
+            val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { ZoneId.of("UTC") })
+            runBlocking { repository.refreshParty(partyId) }
+            val factory = object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+            }
+            val vm = ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
+            collectors.launch { vm.items.collect { } }
+            fun waiting() = vm.items.value.filterIsInstance<EntryItem>().map { it.bubble.entry }.filter { it.id == null }
+            fun waitFor(what: String, condition: () -> Boolean) = run {
+                repeat(150) {
+                    if (condition()) return@run
+                    Thread.sleep(20)
+                }
+                throw AssertionError("still waiting: $what")
+            }
+
+            vm.onDraftChange("313")
+            vm.send()
+            waitFor("refused") { waiting().singleOrNull()?.state == EntryState.FAILED }
+            assertEquals("daily_limit", waiting().single().refusal)
+            val key = waiting().single().clientId!!
+
+            // Still over the day's limit: refused again, still there with its reason.
+            vm.retry(key)
+            Thread.sleep(200)
+            assertEquals(EntryState.FAILED, waiting().single().state)
+
+            // The rule allows it now: the same entry goes.
+            server.entries.clear()
+            vm.retry(key)
+            waitFor("sent") { waiting().isEmpty() }
+            assertEquals(listOf(313), server.entries.map { it.amount })
+            assertEquals(key, server.entries.single().clientId)
+        } finally {
+            collectors.cancel()
+            store.clear()
+            Dispatchers.resetMain()
+            db.close()
+        }
     }
 }

@@ -91,7 +91,9 @@ data class DaroodEntry(
     val localDate: LocalDate,
     val tz: String,
     val createdAt: Instant,
-    val state: EntryState = EntryState.SYNCED
+    val state: EntryState = EntryState.SYNCED,
+    /** Why the server refused it (a [DaroodRefusal] token), for a FAILED entry. */
+    val refusal: String? = null
 )
 
 /** A party's numbers, from the server's party_stats. */

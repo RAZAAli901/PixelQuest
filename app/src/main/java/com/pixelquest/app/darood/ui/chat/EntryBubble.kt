@@ -1,6 +1,7 @@
 package com.pixelquest.app.darood.ui.chat
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.DaroodEntry
+import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.EntryState
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.formatCount
@@ -46,21 +48,61 @@ fun ChatEntryRow(
     modifier: Modifier = Modifier,
     memberColor: Color = memberColor(entry.userId),
     showName: Boolean = true,
-    firstOfRun: Boolean = true
+    firstOfRun: Boolean = true,
+    onRetry: (String) -> Unit = {}
 ) {
-    Box(
-        contentAlignment = if (mine) Alignment.CenterEnd else Alignment.CenterStart,
+    Column(
+        horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
         // A run of one sender's bubbles sits close together; a new sender starts a little apart.
         modifier = modifier.fillMaxWidth().padding(top = if (firstOfRun) 8.dp else 2.dp)
     ) {
         EntryBubble(entry = entry, sender = sender, mine = mine, memberColor = memberColor, showName = showName, tail = firstOfRun)
+        val key = entry.clientId
+        if (mine && entry.state == EntryState.FAILED && key != null) RefusedLine(entry.refusal, onRetry = { onRetry(key) })
     }
 }
 
 /** A placed bubble ([bubblesOf]) on its side, named once per run. */
 @Composable
-fun ChatEntryRow(item: BubbleItem, sender: String?, modifier: Modifier = Modifier) =
-    ChatEntryRow(entry = item.entry, sender = sender, mine = item.mine, modifier = modifier, showName = item.showName, firstOfRun = item.firstOfRun)
+fun ChatEntryRow(item: BubbleItem, sender: String?, modifier: Modifier = Modifier, onRetry: (String) -> Unit = {}) =
+    ChatEntryRow(entry = item.entry, sender = sender, mine = item.mine, modifier = modifier, showName = item.showName, firstOfRun = item.firstOfRun, onRetry = onRetry)
+
+/** Under a refused entry: why the server said no, and a way to try it again. */
+@Composable
+private fun RefusedLine(refusal: String?, onRetry: () -> Unit) {
+    val colors = PixelTheme.colors
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(top = 2.dp).widthIn(max = 300.dp)
+    ) {
+        Text(
+            text = stringResource(refusalText(refusal)),
+            style = MaterialTheme.typography.bodySmall,
+            color = colors.error,
+            modifier = Modifier.weight(1f, fill = false).testTag(DaroodTestTags.ENTRY_REFUSAL)
+        )
+        Text(
+            text = stringResource(R.string.darood_entry_retry),
+            style = MaterialTheme.typography.labelLarge,
+            color = colors.primaryText,
+            modifier = Modifier
+                .testTag(DaroodTestTags.ENTRY_RETRY)
+                .clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onRetry)
+                .padding(horizontal = 8.dp, vertical = 6.dp)
+        )
+    }
+}
+
+/** What a refusal means for the player, in a few words. */
+private fun refusalText(token: String?): Int = when (token) {
+    DaroodRefusal.DAILY_LIMIT.token -> R.string.darood_entry_refused_daily
+    DaroodRefusal.PARTY_CLOSED.token -> R.string.darood_entry_refused_closed
+    DaroodRefusal.NOT_A_MEMBER.token -> R.string.darood_entry_refused_not_member
+    DaroodRefusal.BAD_DAY.token -> R.string.darood_entry_refused_bad_day
+    DaroodRefusal.BAD_TIME_ZONE.token -> R.string.darood_entry_refused_time_zone
+    else -> R.string.darood_entry_refused
+}
 
 /** A bubble's colours: its fill, and the text on it. */
 data class BubbleColors(val container: Color, val content: Color, val secondary: Color)
@@ -134,11 +176,20 @@ fun EntryBubble(
 
 /**
  * On the player's own bubbles, where the entry is, as a messaging app marks a message: a clock while
- * it waits on the phone to be sent, a tick once the server has it. A refused one is D098's.
+ * it waits on the phone to be sent, a tick once the server has it, a warning if it refused it.
  */
 @Composable
 private fun SendMark(state: EntryState, color: Color) {
-    if (state == EntryState.FAILED) return
+    if (state == EntryState.FAILED) {
+        val said = stringResource(R.string.darood_entry_not_sent)
+        Text(
+            text = "⚠",
+            style = MaterialTheme.typography.labelSmall,
+            color = color,
+            modifier = Modifier.testTag(DaroodTestTags.ENTRY_FAILED).clearAndSetSemantics { contentDescription = said }
+        )
+        return
+    }
     val pending = state == EntryState.PENDING
     val said = stringResource(if (pending) R.string.darood_entry_sending else R.string.darood_entry_sent)
     Text(

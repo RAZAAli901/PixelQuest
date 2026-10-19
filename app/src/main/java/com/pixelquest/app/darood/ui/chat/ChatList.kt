@@ -67,7 +67,8 @@ fun ChatList(
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     loadingOlder: Boolean = false,
-    onReachOldest: () -> Unit = {}
+    onReachOldest: () -> Unit = {},
+    onRetry: (String) -> Unit = {}
 ) {
     // Newest first: with the list laid out from the bottom up, index 0 is the bottom line.
     val newestFirst = remember(items) { items.asReversed() }
@@ -115,7 +116,7 @@ fun ChatList(
             items(newestFirst, key = { it.key }) { item ->
                 when (item) {
                     is DayItem -> DaySeparator(day = item.day, today = today)
-                    is EntryItem -> ChatEntryRow(item = item.bubble, sender = item.bubble.entry.userId?.let(usernames::get))
+                    is EntryItem -> ChatEntryRow(item = item.bubble, sender = item.bubble.entry.userId?.let(usernames::get), onRetry = onRetry)
                     is EventItem -> EventPill(item.event)
                 }
             }

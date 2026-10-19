@@ -46,6 +46,9 @@ object DaroodTestTags {
     const val CHAT_SEND = "darood_chat_send"
     const val ENTRY_PENDING = "darood_entry_pending"
     const val ENTRY_SENT = "darood_entry_sent"
+    const val ENTRY_FAILED = "darood_entry_failed"
+    const val ENTRY_REFUSAL = "darood_entry_refusal"
+    const val ENTRY_RETRY = "darood_entry_retry"
 
     fun quickAdd(amount: Int) = "darood_quick_add_$amount"
 

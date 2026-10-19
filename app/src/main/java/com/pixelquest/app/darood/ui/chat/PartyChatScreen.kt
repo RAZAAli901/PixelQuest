@@ -73,7 +73,8 @@ fun PartyChatScreen(
     onSend: () -> Unit = {},
     confirming: Int? = null,
     onConfirmSend: () -> Unit = {},
-    onCancelSend: () -> Unit = {}
+    onCancelSend: () -> Unit = {},
+    onRetry: (String) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -159,6 +160,7 @@ fun PartyChatScreen(
                     today = today,
                     loadingOlder = loadingOlder,
                     onReachOldest = onReachOldest,
+                    onRetry = onRetry,
                     modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.CHAT_SCREEN)
                 )
             }
@@ -267,6 +269,11 @@ class PartyChatViewModel @Inject constructor(
         post(amount)
     }
 
+    /** Tries a refused entry of the player's again ([DaroodPartyRepository.retryEntry]). */
+    fun retry(clientId: String) {
+        viewModelScope.launch { repository.retryEntry(clientId) }
+    }
+
     /** Not what they meant: nothing is sent, and the number stays in the field to put right. */
     fun cancelSend() {
         _confirming.value = null
@@ -351,6 +358,7 @@ fun PartyChatRoute(
         onSend = viewModel::send,
         confirming = confirming,
         onConfirmSend = viewModel::confirmSend,
-        onCancelSend = viewModel::cancelSend
+        onCancelSend = viewModel::cancelSend,
+        onRetry = viewModel::retry
     )
 }

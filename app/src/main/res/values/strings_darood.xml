@@ -147,6 +147,14 @@
     <string name="darood_confirm_change">Change it</string>
     <string name="darood_entry_sending">Sending</string>
     <string name="darood_entry_sent">Sent</string>
+    <string name="darood_entry_not_sent">Not sent</string>
+    <string name="darood_entry_retry">Retry</string>
+    <string name="darood_entry_refused">Not sent: the server refused it.</string>
+    <string name="darood_entry_refused_daily">Not sent: 500,000 is the most for one day.</string>
+    <string name="darood_entry_refused_closed">Not sent: the party is finished.</string>
+    <string name="darood_entry_refused_not_member">Not sent: you\'re no longer in this party.</string>
+    <string name="darood_entry_refused_bad_day">Not sent: it\'s too long ago to count (a week at most).</string>
+    <string name="darood_entry_refused_time_zone">Not sent: the phone\'s time zone wasn\'t recognised.</string>
     <string name="darood_quick_fill">put <xliff:g id="amount" example="313">%1$d</xliff:g> in the field</string>
     <string name="darood_input_too_many">At most <xliff:g id="max" example="100,000">%1$s</xliff:g> in one go.</string>
     <string name="darood_chat_jump">Jump to the newest</string>

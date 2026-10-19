@@ -89,6 +89,12 @@ interface DaroodPartyRepository {
     /** One party from the server: itself, its members, their numbers and its newest entries. */
     suspend fun refreshParty(partyId: String): SupabaseResult<Unit>
 
+    /**
+     * Tries a refused entry again, as it was (same key, same day): it waits as PENDING once more, and
+     * goes with the others. A rule that still holds refuses it again, with its reason.
+     */
+    suspend fun retryEntry(clientId: String): SendReport
+
     /** The page of entries before the oldest the phone has: true if there may be more. */
     suspend fun loadOlderEntries(partyId: String): SupabaseResult<Boolean>
 
@@ -250,6 +256,13 @@ class DaroodPartyRepositoryImpl(
         dao.replaceMembers(partyId, members.map { it.toEntity(memberStats[it.userId]) })
         dao.upsertEntries(entries.map { it.toEntity() })
         return SupabaseResult.Success(Unit)
+    }
+
+    override suspend fun retryEntry(clientId: String): SendReport {
+        val entry = dao.getPending(clientId) ?: return SendReport(0, 0, 0)
+        if (entry.state != EntryState.FAILED) return SendReport(0, 0, 0)
+        dao.setPendingState(clientId, EntryState.PENDING, null)
+        return sendPending().also { if (it.needsRetry) syncScheduler?.scheduleSend() }
     }
 
     override suspend fun loadOlderEntries(partyId: String): SupabaseResult<Boolean> {
@@ -437,6 +450,7 @@ internal fun PendingEntryEntity.toDomain(me: String?) = DaroodEntry(
     localDate = localDate,
     tz = tz,
     createdAt = Instant.ofEpochMilli(createdAt),
-    state = state
+    state = state,
+    refusal = refusal
 )
 
