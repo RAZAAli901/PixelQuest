@@ -44,6 +44,10 @@ object DaroodTestTags {
     const val CHAT_MILESTONE = "darood_chat_milestone"
     const val CHAT_STATS = "darood_chat_stats"
     const val CHAT_MY_STATS = "darood_chat_my_stats"
+    const val CHAT_CALENDAR = "darood_chat_calendar"
+
+    /** A day's dot in the consistency calendar: its date, and whether it has an entry. */
+    fun calendarDay(date: String, posted: Boolean) = "darood_calendar_${date}_" + if (posted) "posted" else "empty"
     const val CHAT_LOADING_OLDER = "darood_chat_loading_older"
     const val CHAT_INPUT = "darood_chat_input"
     const val CHAT_INPUT_ERROR = "darood_chat_input_error"

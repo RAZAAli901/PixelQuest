@@ -11,14 +11,19 @@ import java.time.LocalDate
  * @param bestStreak the longest run of days in a row, ever.
  * @param averagePerActiveDay what they add on a day they post, on average (rounded).
  * @param last30 the days of the last 30 that have an entry, for the calendar.
+ * @param asOf the today these were counted for.
  */
 data class Consistency(
     val activeLast30: Int,
     val currentStreak: Int,
     val bestStreak: Int,
     val averagePerActiveDay: Long,
-    val last30: Set<LocalDate>
+    val last30: Set<LocalDate>,
+    val asOf: LocalDate
 ) {
+    /** The 30 days the calendar shows, the oldest first and today last. */
+    val window: List<LocalDate> get() = (WINDOW_DAYS - 1 downTo 0).map { asOf.minusDays(it) }
+
     companion object {
         /** The window the calendar and active days look back over. */
         const val WINDOW_DAYS = 30L
@@ -48,7 +53,7 @@ data class Consistency(
 
             val total = days.values.filter { it > 0 }.sum()
             val average = if (active.isEmpty()) 0 else Math.round(total.toDouble() / active.size)
-            return Consistency(last30.size, current, best, average, last30)
+            return Consistency(last30.size, current, best, average, last30, today)
         }
     }
 }

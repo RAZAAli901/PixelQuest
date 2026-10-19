@@ -1,6 +1,7 @@
 package com.pixelquest.app.darood.ui.chat
 
 import android.app.Application
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
@@ -96,5 +97,25 @@ class MyStatsTest {
         // Three days in a row now, and that's the best run too.
         composeTestRule.onAllNodesWithText("3 days", useUnmergedTree = true).assertCountEquals(2)
         composeTestRule.onNodeWithText("115", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun theCalendar_fillsTheDaysWithAnEntry_andSaysHowMany() {
+        val today = java.time.LocalDate.of(2026, 10, 20)
+        val steady = com.pixelquest.app.darood.domain.Consistency.of(
+            mapOf(today to 300L, today.minusDays(3) to 100L, today.minusDays(29) to 50L, today.minusDays(30) to 10L), today
+        )
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) { ConsistencyCalendar(steady) }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_CALENDAR)
+            .assertIsDisplayed()
+            .assert(androidx.compose.ui.test.hasContentDescription("Added on 3 of the last 30 days"))
+        val posted = listOf(today, today.minusDays(3), today.minusDays(29)).map { it.toString() }
+        for (day in steady.window) {
+            val tag = DaroodTestTags.calendarDay(day.toString(), day.toString() in posted)
+            composeTestRule.onNodeWithTag(tag, useUnmergedTree = true).assertExists()
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.calendarDay(today.minusDays(30).toString(), true), useUnmergedTree = true).assertDoesNotExist()
     }
 }

@@ -1,6 +1,11 @@
 package com.pixelquest.app.darood.ui.chat
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +18,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -111,6 +119,7 @@ fun MyStatsSheet(stats: MyStats, consistency: com.pixelquest.app.darood.domain.C
                     pluralStringResource(R.plurals.darood_stats_days, steady.bestStreak, steady.bestStreak)
                 )
                 StatLine(stringResource(R.string.darood_stats_average), formatCount(steady.averagePerActiveDay))
+                ConsistencyCalendar(steady)
             }
         }
     }
@@ -131,3 +140,39 @@ private fun StatLine(label: String, value: String) {
         )
     }
 }
+
+/**
+ * The last 30 days at a glance: a dot a day, three rows of ten, the oldest first and today last
+ * (ringed). A filled dot is a day with an entry. TalkBack hears it as one sentence.
+ */
+@Composable
+fun ConsistencyCalendar(consistency: com.pixelquest.app.darood.domain.Consistency, modifier: Modifier = Modifier) {
+    val colors = PixelTheme.colors
+    val said = pluralStringResource(R.plurals.darood_calendar_said, consistency.activeLast30, consistency.activeLast30)
+    val days = consistency.window
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = modifier
+            .testTag(DaroodTestTags.CHAT_CALENDAR)
+            .clearAndSetSemantics { contentDescription = said }
+    ) {
+        days.chunked(CALENDAR_ROW).forEach { week ->
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                week.forEach { day ->
+                    val posted = day in consistency.last30
+                    Box(
+                        modifier = Modifier
+                            .testTag(DaroodTestTags.calendarDay(day.toString(), posted))
+                            .size(16.dp)
+                            .clip(CircleShape)
+                            .background(if (posted) colors.primary else colors.surfaceVariant)
+                            .then(if (day == consistency.asOf) Modifier.border(2.dp, colors.onSurface, CircleShape) else Modifier)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Days to a row of the calendar. */
+private const val CALENDAR_ROW = 10

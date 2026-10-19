@@ -42,4 +42,13 @@ class ConsistencyTest {
         assertEquals(0, Consistency.of(emptyMap(), today).averagePerActiveDay)
         assertEquals("a day of nothing isn't a day posted", 100, Consistency.of(mapOf(today to 100L, today.minusDays(1) to 0L), today).averagePerActiveDay)
     }
+
+    @Test
+    fun theCalendarsWindow_is30Days_oldestFirst_todayLast() {
+        val window = Consistency.of(emptyMap(), today).window
+        assertEquals(30, window.size)
+        assertEquals(today.minusDays(29), window.first())
+        assertEquals(today, window.last())
+        assertEquals("one day apart, no gaps", (0L..29L).map { today.minusDays(29 - it) }, window)
+    }
 }
