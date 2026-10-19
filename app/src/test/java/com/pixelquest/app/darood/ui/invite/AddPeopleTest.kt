@@ -2,6 +2,7 @@ package com.pixelquest.app.darood.ui.invite
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -199,6 +200,45 @@ class AddPeopleTest {
         composeTestRule.onNodeWithText("Invited").assertIsDisplayed()
         composeTestRule.onNodeWithText("Declined").assertIsDisplayed()
         composeTestRule.onNodeWithText("Joined").assertIsDisplayed()
+    }
+
+    @Test
+    fun aFullParty_stopsInviting_beforeTheServerIsAsked() = runTest(dispatcher) {
+        // 3 places: the leader, a member and an invitation.
+        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(partyId, "x1", "member", "active", null, null)
+        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(partyId, "x2", "member", "invited", null, null)
+        val vm = viewModel()
+        waitUntil { vm.uiState.value.isFull }
+        assertEquals(3, vm.uiState.value.placesTaken)
+
+        val callsBefore = server.calls.count { it == "invite" }
+        vm.invite("bram")
+        advanceUntilIdle()
+        assertEquals("not sent", callsBefore, server.calls.count { it == "invite" })
+
+        // Someone declines: there's room again.
+        server.members.replaceAll { if (it.userId == "x2") it.copy(status = "declined") else it }
+        parties.refreshParty(partyId)
+        waitUntil { !vm.uiState.value.isFull }
+    }
+
+    @Test
+    fun theScreen_saysItsFull_andInviteWaits() {
+        val people = (1..10).map {
+            com.pixelquest.app.darood.domain.PartyMember(partyId, "u$it", "user$it", com.pixelquest.app.darood.domain.PartyRole.MEMBER, com.pixelquest.app.darood.domain.MemberStatus.ACTIVE, null, null)
+        }
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                AddPeopleContent(
+                    state = AddPeopleUiState(query = "bram", lookup = Lookup.Found(Username.parse("bram")!!), people = people, limit = 10),
+                    onQueryChange = {},
+                    onNavigateBack = {}
+                )
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.ADD_FULL).assertIsDisplayed()
+        composeTestRule.onNodeWithText("10 of 10 places are taken", substring = true).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(DaroodTestTags.ADD_INVITE).assertIsNotEnabled()
     }
 
     /** Room answers on its own threads: real time, a little at a time. */

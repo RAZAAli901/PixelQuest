@@ -67,6 +67,7 @@
     <string name="darood_add_already_in">@<xliff:g id="name" example="bram">%1$s</xliff:g> is already in this party.</string>
     <string name="darood_add_offline">Couldn\'t send the invitation. Check your connection and try again.</string>
     <string name="darood_add_full">This party is full, invitations included.</string>
+    <string name="darood_add_is_full">This party is full: <xliff:g id="taken" example="10">%1$d</xliff:g> of <xliff:g id="limit" example="10">%2$d</xliff:g> places are taken, invitations included. Remove someone, or wait for an invitation to be declined, to make room.</string>
     <string name="darood_add_not_leader">Only the party\'s leader can invite.</string>
     <string name="darood_add_closed">This party is finished, so it takes nobody new.</string>
     <string name="darood_add_failed">Couldn\'t send the invitation. Try again.</string>

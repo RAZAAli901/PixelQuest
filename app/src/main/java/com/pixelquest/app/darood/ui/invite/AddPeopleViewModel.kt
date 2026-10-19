@@ -67,8 +67,16 @@ data class AddPeopleUiState(
     val lookup: Lookup = Lookup.Idle,
     val people: List<PartyMember> = emptyList(),
     val sending: Boolean = false,
-    val result: InviteResult? = null
-)
+    val result: InviteResult? = null,
+    /** How many the party holds (its max_members), once known. */
+    val limit: Int? = null
+) {
+    /** Places taken: members, and invitations until they're answered, as the server counts them. */
+    val placesTaken: Int get() = people.count { it.status == MemberStatus.ACTIVE || it.status == MemberStatus.INVITED }
+
+    /** No room for another invitation. */
+    val isFull: Boolean get() = limit != null && placesTaken >= limit
+}
 
 /**
  * Adding people to a party by their username (docs/darood-design.md, Parties). Usernames can't be
@@ -99,12 +107,16 @@ class AddPeopleViewModel @Inject constructor(
                 _uiState.update { it.copy(people = members.sortedWith(compareBy({ it.role != PartyRole.LEADER }, { STATUS_ORDER.indexOf(it.status) }))) }
             }
         }
+        viewModelScope.launch {
+            parties.observeParty(partyId).collect { party -> _uiState.update { it.copy(limit = party?.maxMembers) } }
+        }
         viewModelScope.launch { parties.refreshParty(partyId) }
     }
 
     /** Invites [username] to the party; the people list follows from the server. */
     fun invite(username: String) {
-        if (_uiState.value.sending) return
+        // Full: the server would refuse it, so it isn't sent (the screen says why).
+        if (_uiState.value.sending || _uiState.value.isFull) return
         _uiState.update { it.copy(sending = true, result = null) }
         viewModelScope.launch {
             val result = parties.invite(partyId, username)

@@ -100,7 +100,15 @@ fun AddPeopleContent(
                 ),
                 modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.ADD_SEARCH)
             )
-            LookupResult(state.lookup, enabled = !state.sending, onInvite = onInvite)
+            if (state.isFull) {
+                Text(
+                    text = stringResource(R.string.darood_add_is_full, state.placesTaken, state.limit ?: 0),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.error,
+                    modifier = Modifier.testTag(DaroodTestTags.ADD_FULL)
+                )
+            }
+            LookupResult(state.lookup, enabled = !state.sending && !state.isFull, onInvite = onInvite)
             state.result?.let { InviteResultLine(it) }
             if (state.people.isNotEmpty()) {
                 Text(
