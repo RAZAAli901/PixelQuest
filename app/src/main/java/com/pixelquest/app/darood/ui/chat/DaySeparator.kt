@@ -39,6 +39,7 @@ fun DaySeparator(day: LocalDate, today: LocalDate, modifier: Modifier = Modifier
             modifier = Modifier
                 .testTag(DaroodTestTags.day(day.toString()))
                 .semantics { heading() }
+                .then(look.shadowed(look.pillShape))
                 .background(colors.surface, look.pillShape)
                 .then(look.outlined(look.pillShape, look.pillOutline))
                 .padding(horizontal = 12.dp, vertical = 4.dp)

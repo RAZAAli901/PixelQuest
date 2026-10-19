@@ -62,4 +62,17 @@ class ChatLookTest {
         assertEquals(RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomEnd = 16.dp, bottomStart = 16.dp), look.bubbleShape(mine = true, tail = true))
         assertEquals(RoundedCornerShape(16.dp), look.bubbleShape(mine = true, tail = false))
     }
+
+    @Test
+    fun comic_inksEveryPiece_withAFlatShadow_roundedAsItsPanels() {
+        val (look, colors) = lookIn(ThemeMode.Comic)
+        assertEquals(false, look.cut)
+        assertEquals(com.pixelquest.app.ui.theme.ComicShapeTokens.BorderWidthThin, look.outline)
+        val ink = com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
+        assertEquals(listOf(ink, ink, ink), listOf(look.myOutline, look.theirOutline, look.pillOutline))
+        assertEquals(com.pixelquest.app.ui.theme.ComicShapeTokens.ShadowOffsetSmall, look.shadow)
+        assertTrue(look.bubbleShape(mine = true, tail = true) is RoundedCornerShape)
+        // The player's own bubbles in Comic's coral.
+        assertEquals(com.pixelquest.app.ui.theme.ComicTokens.CoralRed, colors.primary)
+    }
 }

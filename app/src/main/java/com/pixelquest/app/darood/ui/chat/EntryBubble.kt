@@ -147,6 +147,7 @@ fun EntryBubble(
             .testTag(DaroodTestTags.bubble(entry.clientId ?: entry.id.toString()))
             .semantics(mergeDescendants = true) { }
             .widthIn(min = 96.dp, max = 280.dp)
+            .then(look.shadowed(shape))
             .clip(shape)
             .background(bubble.container)
             .then(look.outlined(shape, if (mine) look.myOutline else look.theirOutline))

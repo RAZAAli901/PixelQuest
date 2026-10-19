@@ -6,10 +6,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.ui.theme.ComicShapeTokens
+import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 
@@ -20,6 +25,8 @@ import com.pixelquest.app.ui.theme.ThemeMode
  * @param cut chamfered corners, as pixel art draws them, instead of rounded ones.
  * @param tailCorner the corner nearest a run's first bubble's side, drawn in as its tail.
  * @param outline the width of every piece's outline; 0 for none.
+ * @param shadow how far a flat, hard-edged shadow sits down and right of each piece, as a comic
+ *   panel's; 0 for none.
  */
 @Immutable
 data class ChatLook(
@@ -29,7 +36,8 @@ data class ChatLook(
     val outline: Dp,
     val myOutline: Color,
     val theirOutline: Color,
-    val pillOutline: Color
+    val pillOutline: Color,
+    val shadow: Dp = 0.dp
 ) {
     fun bubbleShape(mine: Boolean, tail: Boolean): Shape {
         val near = if (tail) tailCorner else corner
@@ -49,6 +57,23 @@ data class ChatLook(
     /** The outline for a piece of [shape], in [color]; nothing in a look without outlines. */
     fun outlined(shape: Shape, color: Color): Modifier =
         if (outline > 0.dp) Modifier.border(outline, color, shape) else Modifier
+
+    /**
+     * The flat shadow behind a piece of [shape]; before any clip, so it shows. Nothing without one.
+     * It's drawn from the piece's own outline, corner by corner, so a bubble's small tail corner shows
+     * in its shadow too (comicDropShadow rounds every corner like the top-left one).
+     */
+    fun shadowed(shape: Shape): Modifier =
+        if (shadow > 0.dp) {
+            Modifier.drawBehind {
+                val offset = shadow.toPx()
+                translate(left = offset, top = offset) {
+                    drawOutline(shape.createOutline(size, layoutDirection, this), ComicTokens.SolidBlack)
+                }
+            }
+        } else {
+            Modifier
+        }
 }
 
 /** The chat's look for the current theme. */
@@ -65,6 +90,18 @@ fun chatLook(): ChatLook {
             myOutline = colors.primaryContainer,
             theirOutline = colors.pixelBorder,
             pillOutline = colors.pixelBorder
+        )
+        // Comic: black ink round every piece and a flat shadow under it, as its panels have; the
+        // player's own bubbles in its coral.
+        ThemeMode.Comic -> ChatLook(
+            cut = false,
+            corner = 16.dp,
+            tailCorner = 4.dp,
+            outline = ComicShapeTokens.BorderWidthThin,
+            myOutline = ComicTokens.SolidBlack,
+            theirOutline = ComicTokens.SolidBlack,
+            pillOutline = ComicTokens.SolidBlack,
+            shadow = ComicShapeTokens.ShadowOffsetSmall
         )
         else -> ChatLook(
             cut = false,

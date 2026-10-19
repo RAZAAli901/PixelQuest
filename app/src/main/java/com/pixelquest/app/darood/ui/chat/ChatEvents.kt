@@ -88,6 +88,7 @@ fun EventPill(event: PartyEvent, modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .testTag(DaroodTestTags.event(event.key))
+                .then(look.shadowed(look.pillShape))
                 .background(colors.surface, look.pillShape)
                 .then(look.outlined(look.pillShape, look.pillOutline))
                 .padding(horizontal = 12.dp, vertical = 4.dp)

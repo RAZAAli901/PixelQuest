@@ -127,6 +127,7 @@ fun NumberInputBar(
                 contentAlignment = Alignment.CenterStart,
                 modifier = Modifier
                     .weight(1f)
+                    .then(look.shadowed(look.fieldShape))
                     .background(colors.background, look.fieldShape)
                     .then(look.outlined(look.fieldShape, look.pillOutline))
                     .padding(horizontal = 16.dp, vertical = 12.dp)
@@ -196,7 +197,6 @@ val QUICK_AMOUNTS = listOf(11, 33, 100, 313)
 @Composable
 fun QuickAddChips(onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
     val colors = PixelTheme.colors
-    val comic = PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Comic
     val look = chatLook()
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier.padding(start = 8.dp, bottom = 6.dp)) {
         QUICK_AMOUNTS.forEach { amount ->
@@ -207,7 +207,7 @@ fun QuickAddChips(onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
                 color = colors.primaryText,
                 modifier = Modifier
                     .testTag(DaroodTestTags.quickAdd(amount))
-                    .then(if (comic) Modifier.comicBorder(width = ComicShapeTokens.BorderWidthThin, color = ComicTokens.SolidBlack, shape = shape) else Modifier)
+                    .then(look.shadowed(shape))
                     .clip(shape)
                     .background(colors.background)
                     .then(look.outlined(shape, look.pillOutline))
