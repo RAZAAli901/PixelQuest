@@ -314,6 +314,45 @@ localTest("a party's day: each poster's total for a day, for its members alone (
   assert.deepEqual((await call(today, { token: leader.accessToken })).body, [], "gone with the party");
 });
 
+localTest("the race board: opted-in parties with a milestone, name and progress only (20261019000030)", async () => {
+  const { leader, member, outsider } = await cast();
+  const racing = await partyOf(leader, [member], { name: fresh("Racers"), milestone: 1000 });
+  const quiet = await partyOf(leader, [], { name: fresh("Quiet"), milestone: 1000 });
+  const aimless = await partyOf(leader, [], { name: fresh("Aimless") });
+  assert.equal((await post(member, racing, 250)).status, 201);
+  const race = (who: Session, party: string, on: boolean) =>
+    call(`/rest/v1/parties?id=eq.${party}`, { method: "PATCH", token: who.accessToken, body: { is_public_race: on }, headers: { Prefer: "return=representation" } });
+  const nameOf = async (party: string) => (await asService(`/rest/v1/parties?id=eq.${party}&select=name`)).body[0].name;
+  const board = async (who: Session) => (await call("/rest/v1/race_board?select=*", { token: who.accessToken })).body as Record<string, unknown>[];
+
+  // Off by default: nothing shows.
+  assert.equal((await asService(`/rest/v1/parties?id=eq.${racing}&select=is_public_race`)).body[0].is_public_race, false);
+  const racingName = await nameOf(racing);
+  assert.ok(!(await board(outsider)).some((row) => row.name === racingName));
+
+  // Only the leader turns it on; a member's update changes nothing.
+  assert.deepEqual((await race(member, racing, true)).body, []);
+  assert.equal((await race(leader, racing, true)).body[0].is_public_race, true);
+  assert.equal((await race(leader, aimless, true)).status, 200);
+  const row = (await board(outsider)).find((r) => r.name === racingName);
+  assert.deepEqual(row, { name: racingName, member_count: 2, total: 250, milestone: 1000, progress: 0.25, completed_at: null, mine: false });
+  assert.equal((await board(member)).find((r) => r.name === racingName)?.mine, true, "a member's own is marked");
+
+  // Never the quiet one, nor one without a milestone; never anything signed out.
+  const names = (await board(outsider)).map((r) => r.name);
+  assert.ok(!names.includes(await nameOf(quiet)));
+  assert.ok(!names.includes(await nameOf(aimless)));
+  assert.equal((await call("/rest/v1/race_board?select=*")).status, 401);
+  assert.equal((await call("/rest/v1/race_board", { method: "POST", token: leader.accessToken, body: { name: "x" } })).status >= 400, true);
+
+  // Off again, or deleted: gone.
+  await race(leader, racing, false);
+  assert.ok(!(await board(outsider)).some((r) => r.name === racingName));
+  await race(leader, racing, true);
+  await rpc(leader, "delete_party", { party_id: racing });
+  assert.ok(!(await board(outsider)).some((r) => r.name === racingName));
+});
+
 localTest("invitations: the same answer for unknown names, then accepted, declined or renewed", async () => {
   const { leader, member, invitee } = await cast();
   const party = await partyOf(leader, []);

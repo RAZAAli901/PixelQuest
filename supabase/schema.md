@@ -162,6 +162,7 @@ Invited and active rows together never exceed the party's limit, nor 30 (`party_
 - `party_stats`: per party, its total, entries, active members, milestone and finish. Active members only.
 - `party_member_stats`: per person who posted, their total, active days and last day, with their username where the reader may see it.
 - `party_day_stats`: per party, day and poster, that poster's total and entry count for the day (the chat's "You today | Party today").
+- `race_board`: the parties whose leader opted in (`parties.is_public_race`, off by default) and that have a milestone: name, member_count, total, milestone, progress and completed_at only, plus `mine` (the reader is an active member). Never members, usernames, entries or ids. Any signed-in player reads it; signed out, nothing.
 
 ### Who may do what
 | | Signed out | Outsider | Invited | Active member | Leader |
@@ -170,7 +171,7 @@ Invited and active rows together never exceed the party's limit, nor 30 (`party_
 | Read members, entries, stats | no | no | own row only | yes | yes |
 | Post an entry (as themselves) | no | no | no | yes | yes |
 | Edit or delete an entry | no | no | no | no | no |
-| Rename, set the milestone | no | no | no | no | yes |
+| Rename, set the milestone, join the race board | no | no | no | no | yes |
 | Invite, remove, hand over the leadership, delete | no | no | no | no | yes |
 
 ### Functions (signed-in players)
