@@ -18,7 +18,9 @@ data class MenuContext(
     /** The Namaz Tracker's own switch is on. */
     val namazEnabled: Boolean = false,
     /** Darood Party's feature flag is on (SettingsRepository.daroodAvailable). */
-    val daroodAvailable: Boolean = true
+    val daroodAvailable: Boolean = true,
+    /** A Darood Party invitation is waiting for an answer. */
+    val daroodInviteWaiting: Boolean = false
 )
 
 /**
@@ -30,6 +32,7 @@ data class MenuContext(
  * @param visibleWhen whether it's shown at all.
  * @param status a short state shown at the row's end, or null for none.
  * @param pixelIcon, comicIcon drawn icons for the Pixel and Comic themes, in place of [icon] there.
+ * @param dot whether a dot at the row's end says something is waiting there.
  */
 data class MenuItem(
     val id: MenuItemId,
@@ -40,7 +43,8 @@ data class MenuItem(
     val visibleWhen: (MenuContext) -> Boolean = { true },
     val status: (MenuContext) -> Int? = { null },
     @DrawableRes val pixelIcon: Int? = null,
-    @DrawableRes val comicIcon: Int? = null
+    @DrawableRes val comicIcon: Int? = null,
+    val dot: (MenuContext) -> Boolean = { false }
 ) {
     @StringRes
     fun labelFor(context: MenuContext): Int = if (context.isSimpleMode) simpleLabel else label
@@ -81,7 +85,8 @@ object MenuItems {
         route = Screen.DaroodParty.route,
         visibleWhen = { it.daroodAvailable },
         pixelIcon = R.drawable.ic_darood_pixel,
-        comicIcon = R.drawable.ic_darood_comic
+        comicIcon = R.drawable.ic_darood_comic,
+        dot = { it.daroodInviteWaiting }
     )
 
     // Shortcuts to screens that are otherwise a few taps deep (Profile, then Settings, then Account).

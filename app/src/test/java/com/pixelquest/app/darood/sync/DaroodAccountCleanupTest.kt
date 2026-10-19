@@ -115,4 +115,15 @@ class DaroodAccountCleanupTest {
         assertTrue(keys.toString(), keys.none { "darood" in it.lowercase() || "party" in it.lowercase() || "username" in it.lowercase() })
         assertTrue(BackupPayload::class.java.declaredFields.none { "darood" in it.name.lowercase() || "part" in it.name.lowercase() })
     }
+
+    @Test
+    fun aSignedInAccount_bringsItsInvitations_soTheMenuCanShowThem() = runBlocking {
+        val family = server.seedParty("Family", "bram")
+        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(family, "aria", "member", "invited", null, null)
+        val withRefresh = DaroodAccountCleanup(auth, db.daroodDao(), owner, repository)
+
+        withRefresh.onAccount("aria")
+
+        assertEquals(com.pixelquest.app.darood.domain.MemberStatus.INVITED, repository.observeMyParties().first().single().myStatus)
+    }
 }

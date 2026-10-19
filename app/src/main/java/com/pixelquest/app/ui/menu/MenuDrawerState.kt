@@ -72,7 +72,8 @@ class MenuViewModel @Inject constructor(
     difficultySettingsRepository: DifficultySettingsRepository,
     settingsRepository: SettingsRepository,
     namazRepository: NamazRepository? = null,
-    myUsername: com.pixelquest.app.darood.data.MyUsername? = null
+    myUsername: com.pixelquest.app.darood.data.MyUsername? = null,
+    daroodParties: com.pixelquest.app.darood.data.DaroodPartyRepository? = null
 ) : ViewModel() {
 
     /** XP from today's prayers while the Namaz Tracker is on (by the calendar day), else null. */
@@ -107,9 +108,17 @@ class MenuViewModel @Inject constructor(
         settingsRepository.namazAvailable,
         settingsRepository.simpleModeEnabled,
         namazRepository?.observeSettings()?.map { it.enabled } ?: flowOf(false),
-        settingsRepository.daroodAvailable
-    ) { namaz, simple, namazOn, darood ->
-        MenuContext(namazAvailable = namaz, isSimpleMode = simple, namazEnabled = namazOn, daroodAvailable = darood)
+        settingsRepository.daroodAvailable,
+        daroodParties?.observeMyParties()?.map { parties -> parties.any { it.myStatus == com.pixelquest.app.darood.domain.MemberStatus.INVITED } }
+            ?: flowOf(false)
+    ) { namaz, simple, namazOn, darood, inviteWaiting ->
+        MenuContext(
+            namazAvailable = namaz,
+            isSimpleMode = simple,
+            namazEnabled = namazOn,
+            daroodAvailable = darood,
+            daroodInviteWaiting = inviteWaiting
+        )
     }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuContext())
 

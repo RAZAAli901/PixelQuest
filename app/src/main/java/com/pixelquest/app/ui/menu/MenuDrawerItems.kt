@@ -22,7 +22,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -70,6 +72,7 @@ fun MenuDrawerItems(
                 iconRes = item.drawableFor(PixelTheme.mode, context.isSimpleMode),
                 label = stringResource(item.labelFor(context)),
                 status = item.status(context)?.let { stringResource(it) },
+                showDot = item.dot(context),
                 isSelected = item.id == selected,
                 isSimpleMode = context.isSimpleMode,
                 onClick = { onItemClick(item) }
@@ -87,7 +90,8 @@ fun MenuDrawerItemRow(
     modifier: Modifier = Modifier,
     isSimpleMode: Boolean = false,
     status: String? = null,
-    @androidx.annotation.DrawableRes iconRes: Int? = null
+    @androidx.annotation.DrawableRes iconRes: Int? = null,
+    showDot: Boolean = false
 ) {
     val colors = PixelTheme.colors
     val style = menuStyle(isSimpleMode)
@@ -133,6 +137,19 @@ fun MenuDrawerItemRow(
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
             modifier = Modifier.weight(1f)
         )
+        if (showDot) {
+            // Something waits there (an invitation): a dot, and TalkBack says so.
+            val waiting = stringResource(com.pixelquest.app.R.string.menu_something_waiting)
+            androidx.compose.foundation.layout.Box(
+                modifier = Modifier
+                    .size(10.dp)
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(colors.secondary)
+                    .semantics { contentDescription = waiting }
+                    .testTag(MenuDot)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
         if (status != null) {
             Text(
                 text = if (style.uppercaseLabels) status.uppercase() else status,
@@ -142,3 +159,7 @@ fun MenuDrawerItemRow(
         }
     }
 }
+
+/** The test tag of a menu row's waiting dot. */
+const val MenuDot = "menu_dot"
+

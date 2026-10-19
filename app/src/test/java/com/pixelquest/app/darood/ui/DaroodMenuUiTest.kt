@@ -157,4 +157,25 @@ class DaroodMenuUiTest {
         assertEquals(0, composeTestRule.onAllNodesWithText("DAROOD PARTY").fetchSemanticsNodes().size)
         composeTestRule.onNodeWithText("SETTINGS").assertIsDisplayed()
     }
+
+    @Test
+    fun aWaitingInvitation_putsADotOnTheEntry() {
+        showApp(context = MenuContext(daroodInviteWaiting = true))
+        composeTestRule.onNodeWithContentDescription("Open menu").performClick()
+        composeTestRule.waitForIdle()
+
+        // The row is one button to TalkBack, so the dot is found in the unmerged tree, and its words
+        // in the row's own description.
+        composeTestRule.onNodeWithTag(com.pixelquest.app.ui.menu.MenuDot, useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("Something waits for you here", substring = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun noInvitation_noDot() {
+        showApp()
+        composeTestRule.onNodeWithContentDescription("Open menu").performClick()
+        composeTestRule.waitForIdle()
+
+        assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(com.pixelquest.app.ui.menu.MenuDot), useUnmergedTree = true).fetchSemanticsNodes().size)
+    }
 }

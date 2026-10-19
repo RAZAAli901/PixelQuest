@@ -238,4 +238,11 @@ class MenuStateTest {
         assertEquals("📿", darood.icon)
         assertNull("the others keep their emoji", MenuItems.Namaz.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Pixel, isSimpleMode = false))
     }
+
+    @Test
+    fun darood_hasADot_whileAnInvitationWaits() = runTest {
+        assertFalse(MenuItems.Darood.dot(MenuContext()))
+        assertTrue(MenuItems.Darood.dot(MenuContext(daroodInviteWaiting = true)))
+        assertFalse("only Darood has one", MenuItems.Namaz.dot(MenuContext(daroodInviteWaiting = true)))
+    }
 }

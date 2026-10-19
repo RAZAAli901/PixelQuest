@@ -36,20 +36,28 @@ class PrefsDaroodCacheOwner @Inject constructor(@ApplicationContext context: Con
  * Signing out clears it: parties, members, entries, and anything still waiting to be sent (the
  * sign-out tries to send that first). So does a different account signing in, even between
  * launches, since the cache remembers whose it is. It's never part of the game's backups.
+ *
+ * At each launch and sign-in it then brings the account's parties from the server, so a waiting
+ * invitation shows (the side menu's dot) before the party list is ever opened.
  */
 @Singleton
 class DaroodAccountCleanup @Inject constructor(
     private val authRepository: AuthRepository,
     private val dao: DaroodDao,
-    private val owner: DaroodCacheOwner
+    private val owner: DaroodCacheOwner,
+    private val parties: com.pixelquest.app.darood.data.DaroodPartyRepository? = null
 ) {
+
     fun start(scope: CoroutineScope): Job = scope.launch {
         authRepository.currentUser.map { it?.id }.distinctUntilChanged().collect { onAccount(it) }
     }
 
     internal suspend fun onAccount(accountId: String?) {
-        if (accountId != null && owner.owner() == accountId) return
-        dao.clearAll()
-        owner.setOwner(accountId)
+        if (accountId == null || owner.owner() != accountId) {
+            dao.clearAll()
+            owner.setOwner(accountId)
+        }
+        // After any clearing, so the two can't race: the account's parties and invitations.
+        if (accountId != null) parties?.refreshParties()
     }
 }
