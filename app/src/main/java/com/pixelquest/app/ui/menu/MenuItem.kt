@@ -5,7 +5,7 @@ import com.pixelquest.app.R
 import com.pixelquest.app.ui.navigation.Screen
 
 /** The side menu's entries (docs/ai-coach-compact.md, Phase 2). */
-enum class MenuItemId { NAMAZ, HISTORY, LEADERBOARD, ACCOUNT, SETTINGS }
+enum class MenuItemId { NAMAZ, DAROOD, HISTORY, LEADERBOARD, ACCOUNT, SETTINGS }
 
 /** What an entry's visibility can depend on. */
 data class MenuContext(
@@ -54,6 +54,14 @@ object MenuItems {
         status = { if (it.namazEnabled) R.string.namaz_switch_on else null }
     )
 
+    /** Darood Party (docs/darood-design.md): pooling Darood with friends. No game terms, so no Simple Mode label. */
+    val Darood = MenuItem(
+        id = MenuItemId.DAROOD,
+        label = R.string.menu_darood,
+        icon = "📿",
+        route = Screen.DaroodParty.route
+    )
+
     // Shortcuts to screens that are otherwise a few taps deep (Profile, then Settings, then Account).
     val History = MenuItem(
         id = MenuItemId.HISTORY,
@@ -84,5 +92,5 @@ object MenuItems {
         route = Screen.Settings.route
     )
 
-    val all: List<MenuItem> = listOf(Namaz, History, Leaderboard, Account, Settings)
+    val all: List<MenuItem> = listOf(Namaz, Darood, History, Leaderboard, Account, Settings)
 }

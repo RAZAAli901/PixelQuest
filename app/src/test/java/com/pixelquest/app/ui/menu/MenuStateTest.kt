@@ -45,7 +45,7 @@ class MenuStateTest {
     @Test
     fun theEntries_inOrder() {
         assertEquals(
-            listOf(MenuItemId.NAMAZ, MenuItemId.HISTORY, MenuItemId.LEADERBOARD, MenuItemId.ACCOUNT, MenuItemId.SETTINGS),
+            listOf(MenuItemId.NAMAZ, MenuItemId.DAROOD, MenuItemId.HISTORY, MenuItemId.LEADERBOARD, MenuItemId.ACCOUNT, MenuItemId.SETTINGS),
             MenuItems.all.map { it.id }
         )
     }
@@ -57,7 +57,7 @@ class MenuStateTest {
         val without = MenuItems.all.visibleIn(MenuContext(namazAvailable = false)).map { it.id }
 
         assertFalse(MenuItemId.NAMAZ in without)
-        assertEquals("the rest stay", 4, without.size)
+        assertEquals("the rest stay", 5, without.size)
     }
 
     @Test
@@ -70,11 +70,12 @@ class MenuStateTest {
     @Test
     fun everyEntry_leadsSomewhereReal() {
         val routes = listOf(
-            Screen.Namaz, Screen.TaskHistory, Screen.Leaderboard, Screen.Account, Screen.Settings
+            Screen.Namaz, Screen.DaroodParty, Screen.TaskHistory, Screen.Leaderboard, Screen.Account, Screen.Settings
         ).map { it.route }
         assertEquals(routes, MenuItems.all.map { it.route })
         assertTrue("the Leaderboard opens like its tab", Routes.isTab(MenuItems.Leaderboard.route))
         assertFalse(Routes.isTab(MenuItems.Namaz.route))
+        assertFalse(Routes.isTab(MenuItems.Darood.route))
     }
 
     private fun viewModel(

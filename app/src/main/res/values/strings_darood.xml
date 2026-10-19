@@ -9,6 +9,11 @@
       and leave what's inside unchanged. Its example shows what the app puts there.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The side menu's entry, and the feature's home screen. -->
+    <string name="menu_darood">Darood Party</string>
+    <string name="darood_title">Darood Party</string>
+    <string name="darood_empty_title">Read Darood together</string>
+    <string name="darood_empty_body">Start a party with 2 to 30 friends, post how many Darood you read each day, and reach a goal together. Parties are on their way.</string>
     <!-- A username as shown on the profile and in the side menu. -->
     <string name="darood_username_handle">@<xliff:g id="name" example="aria_k">%1$s</xliff:g></string>
     <string name="darood_username_profile_label">Darood Party username</string>

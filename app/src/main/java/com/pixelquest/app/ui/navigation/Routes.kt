@@ -26,6 +26,8 @@ sealed class Screen(val route: String) {
     object AiInsight : Screen("ai_insight")
     /** The Namaz Tracker, from the side menu. */
     object Namaz : Screen("namaz")
+    /** Darood Party, from the side menu. */
+    object DaroodParty : Screen("darood")
     /** Claiming or changing the Darood Party username. */
     object UsernameSetup : Screen("username_setup")
 }
