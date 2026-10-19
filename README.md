@@ -49,7 +49,11 @@ Or see the release notes and files on the **[📦 v1.3.0 release page](https://g
 - **Namaz Tracker** (new in 1.3.0, optional): the five daily prayers, with their times worked out on the phone (offline), a reminder as each one starts, and a streak of days with all five.
   - Marking a prayer adds XP to the game's own: 10 a prayer, or 5 if late, and +30 for all five. At most 80 a day, plus +100 for each 7 days in a row.
   - Off until you turn it on. Your place and prayer log stay on the phone. See [docs/namaz-design.md](docs/namaz-design.md).
-- **Side Menu**: the three-line icon at the top left opens your profile, the Namaz Tracker, History, the Leaderboard, Account and Settings.
+- **Darood Party** (new in 1.4.0, for signed-in players): small groups count Darood together, in a chat that takes only numbers.
+  - Invite friends by username. Each number shows at once and arrives live for everyone. A leader can set a milestone to reach together.
+  - My stats shows your total, share, place and how steady you are. An opt-in race board ranks parties by progress, showing names and progress only.
+  - It never adds XP or touches the leaderboard. See [docs/darood-design.md](docs/darood-design.md).
+- **Side Menu**: the three-line icon at the top left opens your profile, the Namaz Tracker, Darood Party, History, the Leaderboard, Account and Settings.
 - **AI Habit Coach**: Optional short debriefs and suggestions from Google Gemini, for signed-in players, in a compact card. Task names never leave the phone.
 - **Simple Mode**: A calm, un-gamified checklist whenever you want one.
 - **8-Bit Sound Engine**: Built-in 8-bit sound effects (button clicks, quest completion, missed alerts, and level-up fanfares) powered by `SoundPool` with persisted volume & mute controls.

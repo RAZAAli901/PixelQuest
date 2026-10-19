@@ -210,3 +210,38 @@ They come from the server's `party_day_stats` (`20261019000029`), since the phon
 
 None of the server work after Phase B (`20261019000024` to `20261019000029`) is on the hosted project yet either.
 
+
+## Contribution, the milestone and the race (Phase F, as built)
+
+### My stats (📊 in the chat)
+- **Mine:** my total, my share of the party, and my place among everyone who has posted. Level totals share a place, and people who left still count, since their entries do.
+- **How steady:** active days in the last 30, days in a row now (a run to yesterday is still current), the best run, and the average per day posted. A 30-day calendar shows them at a glance.
+- **Where the numbers come from:**
+  - The days are each entry's own `local_date`, the poster's day where they were, from `party_day_stats` (`20261019000029`).
+  - "Today" is the phone's day. A number still on its way counts for today.
+- **Everyone's part:** the party's board, by contribution, kindly:
+  - medals for the top three places only, and no place numbers below them;
+  - members yet to add are named apart, not ranked at nothing.
+
+### The milestone
+- **Setting it:** the leader sets or raises it from Party info: digits only, above the party's total, as `party_milestone_rules` insists.
+- **When it's set:** a pill in the chat, and a banner over it. The banner is announced once per party on this phone (`MilestoneSeenStore`), even if it was set while the player was away.
+- **When it's reached:** the party is finished, for good. A celebration card takes the number field's place: the pooled total, and when it was reached.
+
+### The race
+- **The server** (`20261019000030`):
+  - `parties.is_public_race`, off by default. Only the leader can switch it, with an update of that column alone.
+  - `race_board` shows the opted-in parties that have a milestone: name, member count, total, milestone, progress and finish time, plus `mine`. Never members, usernames, entries or ids.
+- **The Race Board screen (🏁 on the party list):** finished first, by finish time, then by progress. The player's own parties are picked out. It's read fresh each time, never kept on the phone.
+- **Privacy is tested** on the server: an outsider's every read and trick shows no name, id or entry.
+
+### The weekly note
+Off unless the player turns it on, at the foot of the party list. On Friday evenings at 18:00, a quiet notification on the "Darood Party" channel says how many of the last 7 days they added Darood, across their parties. It's kind whatever the number.
+
+## Releasing 1.4.0
+
+The feature is on by default (`DaroodFeatureFlag.DEFAULT_ON`), so the hosted Supabase project must have its tables and functions before 1.4.0 reaches anyone:
+1. Push `supabase/migrations` `20261019000000` to `20261019000030` to the hosted project. This is a deployment, done with the owner's go-ahead.
+2. Check the result on the hosted project. The local tests in `supabase/tests/local` describe what should hold.
+3. Then tag `v1.4.0`. The release workflow builds, signs and publishes it.
+

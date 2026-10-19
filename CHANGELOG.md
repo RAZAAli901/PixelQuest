@@ -4,6 +4,47 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
+## [1.4.0] - 2026-10-20 — Darood Party
+
+### ⬆️ Upgrading from 1.3.0
+Install 1.4.0 over 1.3.0: everything is kept. The app's data moves from version 9 to 12, to hold Darood Party's copy of your parties, and a copy of the old data is kept on the phone first.
+
+### 📿 Darood Party (new, for signed-in players)
+Small groups count Darood together, in a chat where the only thing anyone can send is a number. Open it from the side menu.
+- **A party:**
+  - Choose a username, then create a party of 2 to 30, with a milestone to aim for if you like.
+  - Invite friends by their exact username. Usernames aren't listed anywhere, so ask them for theirs.
+  - They accept or decline from their own list.
+- **The chat:**
+  - Type how many you recited (digits only, at most 100,000 at once) and send.
+  - Your number shows at once with a clock, then a tick when it's sent. Offline, it waits and goes later.
+  - 10,000 or more asks you to check it first.
+  - Quick chips fill in +11, +33, +100 or +313.
+  - A day's entries are at most 500,000. A refused entry says why, with Retry.
+  - Everyone's numbers arrive live, with days headed Today and Yesterday, and joins, leavings and milestones in between.
+- **At the top:** the milestone's progress, and "You today | Party today".
+- **My stats (📊):**
+  - your total, your share and your place;
+  - how steady you are: active days, days in a row, your best run and your average, with a 30-day calendar;
+  - everyone's part, kindly ranked: medals for the top three, and no "last place".
+- **The leader:**
+  - invites (20 an hour), removes, renames, hands over the leadership, and sets or raises the milestone;
+  - can delete the party, after typing its name.
+  - Reaching the milestone finishes the party, with a celebration card and the time it was reached, for good.
+- **The race board (🏁, opt-in per party):** parties ranked by when they finished, then by progress. It shows a party's name and progress only, never anyone's name or numbers.
+- **A weekly note (opt-in):** on Friday evenings, how many of the last 7 days you added Darood.
+- **Looks:**
+  - Pixel, Comic, Light and dark mode each have their own look, and Simple Mode is plain in any theme.
+  - TalkBack reads each number as one sentence, and the layout holds at large text sizes.
+
+### 🎮 Kept apart from the game
+Darood never adds XP, levels, streaks or anything on the leaderboard, and a test checks that it can't.
+
+### 🔒 Privacy
+Your username is seen only by your party's members (and, while you're invited, by the person who invited you). Entries are seen only by the party's members. The race board shows only what its leader chose to share. See [PRIVACY.md](PRIVACY.md).
+
+---
+
 ## [1.3.0] - 2026-10-18 — The Namaz Tracker, a Side Menu and a Compact AI Coach
 
 ### ⬆️ Upgrading from 1.2.0

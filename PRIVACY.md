@@ -112,11 +112,20 @@ The Namaz Tracker (off unless you turn it on) works out prayer times on your pho
 
 ---
 
-## Darood Party usernames
+## Darood Parties
 
-- **What:** to be invited to a Darood Party, a signed-in player can choose a username (3 to 20 letters, numbers or `_`). It's stored on PixelQuest's server with your account, and on your phone so the app can show it offline.
-- **Who sees it:** only you can read your username from the server. It isn't listed anywhere and isn't on the leaderboard. Others can only check whether a name they type is taken, which doesn't say whose it is. Inviting by username comes with Darood Parties.
-- **Changing or deleting it:** you can change it once every 30 days. Deleting your cloud account deletes it.
+- **Your username:** to join Darood Parties, a signed-in player chooses a username (3 to 20 letters, numbers or `_`). It's stored on PixelQuest's server with your account, and on your phone so the app can show it offline.
+  - It isn't listed anywhere and isn't on the leaderboard. Others can only check whether a name they type is taken, which doesn't say whose it is.
+  - The members of a party you're in see it, and while you're invited, so do the party's leader and whoever invited you. Nobody else can read it.
+  - You can change it once every 30 days. Deleting your cloud account deletes it.
+- **What you post:** each number you add, the day it's for and your time zone. These are stored on the server with the party, and seen only by the party's active members.
+  - Entries can't be edited or deleted, by you or anyone. A party's total is its members' work together.
+  - If you leave or are removed, what you posted stays in the party's total.
+  - If you delete your cloud account, your entries stay in the total without your name.
+  - A deleted party is hidden from everyone, its members and entries with it.
+- **Your numbers:** your total, share, place and how steady you are come from your party's entries. They're shown to you, and in "Everyone's part" to the party's members.
+- **The race board (off unless a party's leader turns it on):** other signed-in players see the party's name, how many are in it, its total, how far it is to its milestone and when it finished. Never a member's name, username or numbers.
+- **The weekly note (off unless you turn it on):** a notification on your phone on Friday evenings, worked out from your own days. Nothing about it is sent anywhere.
 
 ## 4. How to Delete Your Data (Full Control)
 
