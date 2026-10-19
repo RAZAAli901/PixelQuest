@@ -71,3 +71,31 @@ The server enforces every one of these (constraints, triggers, row-level securit
 - **Darood never gives XP,** and never touches levels, streaks, perfect days or the leaderboard. A test proves no Darood code reaches them.
 - **Not in backups:** the party data is cached on the phone for speed and offline use. It isn't in the game's backups, and it's cleared on sign-out.
 - **Never logged:** no entry, username or party detail is written to the log.
+
+## Usernames and the feature's home (Phase A, as built)
+
+### On the server (`supabase/migrations`, tested in `supabase/tests/local/usernames.test.ts`)
+| Migration | What it adds |
+| --- | --- |
+| `20261019000000_usernames.sql` | `public.usernames` (`user_id`, `username`, `changed_at`), deleted with the account. The form check, the reserved words (`username_is_reserved`) and row-level security: the owner reads their own row, and clients can't write at all |
+| `20261019000001_usernames_ignore_case.sql` | Every write lowercased by a trigger, and unique on `lower(username)` |
+| `20261019000002_is_username_available.sql` | `is_username_available(name)`: yes or no, never whose. The caller's own name counts as free |
+| `20261019000003_set_username.sql` | `set_username(name)`, the only way in: answers `ok`, `invalid`, `taken` or `too_soon`, with the name held and when it can change next (30 days after the last change). The row is locked, so two changes at once can't both get through |
+
+Each migration can be run again, and each has a rollback note. None has been pushed to the hosted project yet: that's a deployment, done when the feature ships.
+
+**What the availability check gives away:** a signed-in player can ask whether a name is taken, one name at a time. That much is needed for the live check. It never says whose a name is, and usernames can't be listed.
+
+### In the app (`com.pixelquest.app.darood`)
+- **`Username`:** the value class: parsing, normalising (`@Aria_K ` becomes `aria_k`) and the reserved words, mirroring the server.
+- **`UsernameRepository`:** reads the account's own name (`fetchMyUsername`), checks a name (`isUsernameAvailable`) and saves one (`setUsername`), through Postgrest. Its DTOs are in `darood/data/remote`, which R8 keeps.
+- **`UsernameSetupScreen`:** typing is shown in lowercase, the rules are explained as it's typed, and availability is checked once typing pauses for 400 ms. The server has the last word on Save. The route is `username_setup`.
+- **Asking once:** `UsernamePromptViewModel` opens that screen for a signed-in account with no username, once per account on each phone (`pixelquest_darood` preferences), past the splash and onboarding. Its check runs at every launch and sign-in, and also refreshes the name the phone keeps.
+- **Showing it:** `UsernameCache` keeps the last name the server gave, with its account. `MyUsername` gives the signed-in account's own, never another's. The side menu's header and Profile show `@name`, and tapping it on Profile opens the username screen.
+- **The menu entry:** Darood Party (📿, with drawn bead icons in Pixel and Comic) opens `darood`. Signed out, it asks the player to sign in, and its button opens the Account screen. Signed in, it's a placeholder until the party list (Phase D).
+- **The feature flag:** `SettingsRepository.daroodAvailable` (`DaroodFeatureFlag.DEFAULT_ON`). Off, there's no menu entry and nobody is asked for a username.
+
+### Known gaps
+- **Android 7:** `java.time`, here as across the app, needs core-library desugaring on API 24-25. That change is on its own branch.
+- **No Settings switch for the flag yet,** as with `namazAvailable`.
+

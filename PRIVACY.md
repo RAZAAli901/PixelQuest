@@ -112,6 +112,12 @@ The Namaz Tracker (off unless you turn it on) works out prayer times on your pho
 
 ---
 
+## Darood Party usernames
+
+- **What:** to be invited to a Darood Party, a signed-in player can choose a username (3 to 20 letters, numbers or `_`). It's stored on PixelQuest's server with your account, and on your phone so the app can show it offline.
+- **Who sees it:** only you can read your username from the server. It isn't listed anywhere and isn't on the leaderboard. Others can only check whether a name they type is taken, which doesn't say whose it is. Inviting by username comes with Darood Parties.
+- **Changing or deleting it:** you can change it once every 30 days. Deleting your cloud account deletes it.
+
 ## 4. How to Delete Your Data (Full Control)
 
 PixelQuest provides transparent, immediate mechanisms to modify or erase your data at any time:

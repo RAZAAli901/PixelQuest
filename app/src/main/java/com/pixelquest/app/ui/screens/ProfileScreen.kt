@@ -15,6 +15,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.domain.DifficultyMode
@@ -146,6 +148,9 @@ fun ProfileContent(
                 // The Darood Party username, once the account has one: tap to change it.
                 state.daroodUsername?.let { handle ->
                     val changeLabel = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.darood_username_profile_change)
+                    // TalkBack hears what the name is for, not just "at aria k".
+                    val spoken = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.darood_username_profile_label) + ", " +
+                        androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.darood_username_handle, handle)
                     Text(
                         text = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.darood_username_handle, handle),
                         style = MaterialTheme.typography.bodyMedium,
@@ -155,6 +160,7 @@ fun ProfileContent(
                         modifier = Modifier
                             .padding(top = 4.dp)
                             .clickable(onClickLabel = changeLabel, onClick = onNavigateToUsername)
+                            .semantics { contentDescription = spoken }
                             .testTag(com.pixelquest.app.darood.ui.DaroodTestTags.PROFILE_USERNAME)
                     )
                 }

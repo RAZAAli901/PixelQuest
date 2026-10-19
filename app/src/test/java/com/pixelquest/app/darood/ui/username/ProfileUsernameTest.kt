@@ -41,6 +41,8 @@ class ProfileUsernameTest {
         composeTestRule.onNodeWithTag(DaroodTestTags.PROFILE_USERNAME).assertIsDisplayed()
         assertEquals("@aria_k", composeTestRule.onNodeWithTag(DaroodTestTags.PROFILE_USERNAME).fetchSemanticsNode()
             .config[androidx.compose.ui.semantics.SemanticsProperties.Text].joinToString())
+        assertEquals("Darood Party username, @aria_k", composeTestRule.onNodeWithTag(DaroodTestTags.PROFILE_USERNAME).fetchSemanticsNode()
+            .config[androidx.compose.ui.semantics.SemanticsProperties.ContentDescription].joinToString())
         composeTestRule.onNodeWithTag(DaroodTestTags.PROFILE_USERNAME).performClick()
         assertEquals(1, opened)
     }
