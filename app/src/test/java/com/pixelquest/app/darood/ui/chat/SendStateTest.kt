@@ -8,6 +8,7 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -117,5 +118,76 @@ class SendStateTest {
             Dispatchers.resetMain()
             db.close()
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun aBigNumber_waitsForThePlayerToConfirmIt() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Application>(), AppDatabase::class.java)
+            .allowMainThreadQueries().build()
+        val store = ViewModelStore()
+        try {
+            val server = FakeDaroodServer(me = "aria-id").apply { usernames["aria-id"] = "aria_k" }
+            val partyId = server.seedParty("Friday circle", "aria-id")
+            val repository = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { ZoneId.of("UTC") })
+            runBlocking { repository.refreshParty(partyId) }
+            val factory = object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                    PartyChatViewModel(SavedStateHandle(mapOf("partyId" to partyId)), repository) { "aria-id" } as T
+            }
+            val vm = ViewModelProvider(store, factory)[PartyChatViewModel::class.java]
+            fun posted(): List<Int> {
+                Thread.sleep(100)
+                return server.entries.map { it.amount }
+            }
+
+            // Under 10,000: straight out.
+            vm.onDraftChange("9999")
+            vm.send()
+            assertEquals(null, vm.confirming.value)
+            assertEquals(listOf(9999), posted())
+
+            // 10,000: asked first; "Change it" keeps it in the field, unsent.
+            vm.onDraftChange("10000")
+            vm.send()
+            assertEquals(10_000, vm.confirming.value)
+            assertEquals(listOf(9999), posted())
+            vm.cancelSend()
+            assertEquals(null, vm.confirming.value)
+            assertEquals("10000", vm.draft.value)
+
+            // Asked again, and confirmed: it goes, once.
+            vm.send()
+            vm.send()
+            vm.confirmSend()
+            vm.confirmSend()
+            assertEquals("", vm.draft.value)
+            assertEquals(listOf(9999, 10_000), posted())
+        } finally {
+            store.clear()
+            Dispatchers.resetMain()
+            db.close()
+        }
+    }
+
+    @Test
+    fun theDialog_saysTheNumber_andSendsOnlyWhenTold() {
+        var sent = 0
+        var changed = 0
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                PartyChatScreen(
+                    partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {}, canPost = true, draft = "12000",
+                    confirming = 12_000, onConfirmSend = { sent++ }, onCancelSend = { changed++ }
+                )
+            }
+        }
+        composeTestRule.onNode(androidx.compose.ui.test.hasText("Send 12,000?") and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).assertIsDisplayed()
+        composeTestRule.onNode(androidx.compose.ui.test.hasText("Change it") and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).performClick()
+        assertEquals(1, changed)
+        composeTestRule.onNode(androidx.compose.ui.test.hasText("Send") and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).performClick()
+        assertEquals(1, sent)
     }
 }

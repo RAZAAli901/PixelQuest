@@ -52,6 +52,7 @@ import javax.inject.Inject
  * @param loadingOlder an older page is on its way; [onReachOldest] asks for one.
  * @param canPost the player may post here (an active member of a party that isn't finished): the
  *   number field shows, holding [draft].
+ * @param confirming a big number waiting to be confirmed: a dialog asks if it's what the player meant.
  */
 @Composable
 fun PartyChatScreen(
@@ -69,7 +70,10 @@ fun PartyChatScreen(
     canPost: Boolean = false,
     draft: String = "",
     onDraftChange: (String) -> Unit = {},
-    onSend: () -> Unit = {}
+    onSend: () -> Unit = {},
+    confirming: Int? = null,
+    onConfirmSend: () -> Unit = {},
+    onCancelSend: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -160,6 +164,17 @@ fun PartyChatScreen(
             }
         }
     }
+
+    if (confirming != null) {
+        com.pixelquest.app.ui.components.PixelConfirmDialog(
+            title = stringResource(R.string.darood_confirm_title, com.pixelquest.app.darood.ui.formatCount(confirming)),
+            message = stringResource(R.string.darood_confirm_message),
+            confirmText = stringResource(R.string.darood_send),
+            dismissText = stringResource(R.string.darood_confirm_change),
+            onConfirm = onConfirmSend,
+            onDismiss = onCancelSend
+        )
+    }
 }
 
 /**
@@ -224,17 +239,44 @@ class PartyChatViewModel @Inject constructor(
         _draft.value = amountDigits(raw)
     }
 
+    private val _confirming = kotlinx.coroutines.flow.MutableStateFlow<Int?>(null)
+
+    /** A number of [CONFIRM_FROM] or more, waiting for the player to say it's what they meant. */
+    val confirming: StateFlow<Int?> = _confirming
+
     /**
-     * Sends the number typed, if it can go ([checkDraft]). The field empties at once, so a second tap
-     * can't send it twice. The entry is saved on the phone first, and sent when it can be.
+     * Sends the number typed, if it can go ([checkDraft]). From [CONFIRM_FROM] up, it waits for the
+     * player to confirm it first ([confirmSend]). The field empties as it goes, so a second tap can't
+     * send it twice. The entry is saved on the phone first, and sent when it can be.
      */
     fun send() {
         val typed = _draft.value
-        if (!checkDraft(typed).canSend) return
+        if (!checkDraft(typed).canSend || _confirming.value != null) return
+        val amount = typed.toInt()
+        if (amount >= CONFIRM_FROM) {
+            _confirming.value = amount
+            return
+        }
+        post(amount)
+    }
+
+    /** The player says the big number is right: it goes. */
+    fun confirmSend() {
+        val amount = _confirming.value ?: return
+        _confirming.value = null
+        post(amount)
+    }
+
+    /** Not what they meant: nothing is sent, and the number stays in the field to put right. */
+    fun cancelSend() {
+        _confirming.value = null
+    }
+
+    private fun post(amount: Int) {
         _draft.value = ""
         viewModelScope.launch {
             try {
-                repository.addEntry(partyId, typed.toInt())
+                repository.addEntry(partyId, amount)
             } catch (gone: android.database.sqlite.SQLiteConstraintException) {
                 // The party left the phone (deleted, or the player left it elsewhere) while the number
                 // was being typed: there's nowhere to post it, and the screen is about to close.
@@ -288,6 +330,7 @@ fun PartyChatRoute(
     val items = viewModel.items.collectAsState().value
     val loadingOlder = viewModel.loadingOlder.collectAsState().value
     val draft = viewModel.draft.collectAsState().value
+    val confirming = viewModel.confirming.collectAsState().value
     val usernames = viewModel.usernames.collectAsState().value
     com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
@@ -305,6 +348,9 @@ fun PartyChatRoute(
         canPost = party != null && party.myStatus == com.pixelquest.app.darood.domain.MemberStatus.ACTIVE && !party.isFinished,
         draft = draft,
         onDraftChange = viewModel::onDraftChange,
-        onSend = viewModel::send
+        onSend = viewModel::send,
+        confirming = confirming,
+        onConfirmSend = viewModel::confirmSend,
+        onCancelSend = viewModel::cancelSend
     )
 }

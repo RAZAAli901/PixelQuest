@@ -142,6 +142,9 @@
     <string name="darood_input_label">How many to add</string>
     <string name="darood_input_placeholder">How many?</string>
     <string name="darood_send">Send</string>
+    <string name="darood_confirm_title">Send <xliff:g id="amount" example="12,000">%1$s</xliff:g>?</string>
+    <string name="darood_confirm_message">That\'s a big number for one go. Check it\'s what you meant before it counts.</string>
+    <string name="darood_confirm_change">Change it</string>
     <string name="darood_entry_sending">Sending</string>
     <string name="darood_entry_sent">Sent</string>
     <string name="darood_quick_fill">put <xliff:g id="amount" example="313">%1$d</xliff:g> in the field</string>

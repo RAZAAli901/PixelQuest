@@ -56,6 +56,9 @@ fun amountDigits(raw: String): String {
     return digits.trimStart('0').ifEmpty { "0" }.take(AMOUNT_DIGITS)
 }
 
+/** From this many in one entry, the player is asked to check it before it's sent: a slip adding a zero is easy. */
+const val CONFIRM_FROM = 10_000
+
 /** Whether the number typed can be sent, judged as the server will (1 to 100,000 an entry). */
 enum class DraftCheck {
     EMPTY,
