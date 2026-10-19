@@ -22,6 +22,8 @@ object DaroodTestTags {
     const val CREATE_FEWER = "darood_create_fewer"
     const val CREATE_MORE = "darood_create_more"
     const val CREATE_MILESTONE = "darood_create_milestone"
+    const val CREATE_BUTTON = "darood_create_button"
+    const val CREATE_ERROR = "darood_create_error"
 
     fun partyRow(partyId: String) = "darood_party_$partyId"
     fun inviteRow(partyId: String) = "darood_invite_$partyId"

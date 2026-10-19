@@ -34,6 +34,31 @@ class CreatePartyTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    private val db = androidx.room.Room.inMemoryDatabaseBuilder(
+        androidx.test.core.app.ApplicationProvider.getApplicationContext<Application>(),
+        com.pixelquest.app.data.local.AppDatabase::class.java
+    ).allowMainThreadQueries().build()
+    private val server = com.pixelquest.app.testing.FakeDaroodServer(me = "me").apply { usernames["me"] = "aria_k" }
+    private val repository = com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl(
+        server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }
+    )
+
+    private fun viewModel() = CreatePartyViewModel(repository)
+
+    @org.junit.After
+    fun closeDb() {
+        db.close()
+    }
+
+    private fun waitFor(condition: () -> Boolean) {
+        repeat(100) {
+            composeTestRule.waitForIdle()
+            if (condition()) return
+            Thread.sleep(20)
+        }
+        throw AssertionError("still waiting")
+    }
+
     @Test
     fun theName_isCountedTrimmed_between2And40() {
         assertNull(CreatePartyUiState("").nameProblem)
@@ -50,7 +75,7 @@ class CreatePartyTest {
 
     @Test
     fun theCounter_followsTheTyping_andSaysWhenItsTooLong() {
-        val viewModel = CreatePartyViewModel()
+        val viewModel = viewModel()
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Comic) { CreatePartyScreen(onNavigateBack = {}, viewModel = viewModel) }
         }
@@ -69,7 +94,7 @@ class CreatePartyTest {
 
     @Test
     fun theLimit_startsAt10_andStaysBetween2And30() {
-        val viewModel = CreatePartyViewModel()
+        val viewModel = viewModel()
         assertEquals(10, viewModel.uiState.value.maxMembers)
         viewModel.setMaxMembers(1)
         assertEquals(2, viewModel.uiState.value.maxMembers)
@@ -81,7 +106,7 @@ class CreatePartyTest {
 
     @Test
     fun theStepper_movesOneAtATime_andStopsAtItsEnds() {
-        val viewModel = CreatePartyViewModel()
+        val viewModel = viewModel()
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) { CreatePartyScreen(onNavigateBack = {}, viewModel = viewModel) }
         }
@@ -95,7 +120,7 @@ class CreatePartyTest {
 
     @Test
     fun theMilestone_isOptional_andDigitsOnly() {
-        val viewModel = CreatePartyViewModel()
+        val viewModel = viewModel()
         assertNull(viewModel.uiState.value.milestone)
 
         viewModel.onMilestoneChange("100000")
@@ -118,7 +143,7 @@ class CreatePartyTest {
 
     @Test
     fun theMilestoneField_readsTheNumberBack() {
-        val viewModel = CreatePartyViewModel()
+        val viewModel = viewModel()
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Light, darkTheme = false) { CreatePartyScreen(onNavigateBack = {}, viewModel = viewModel) }
         }
@@ -127,5 +152,56 @@ class CreatePartyTest {
         composeTestRule.onNodeWithText("The party aims for 100,000 together.").assertIsDisplayed()
         composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_MILESTONE))).performTextReplacement("0")
         composeTestRule.onNodeWithText("The milestone must be above 0, or left empty.").assertIsDisplayed()
+    }
+
+    @Test
+    fun creating_makesTheParty_andOpensIt() {
+        val viewModel = viewModel()
+        var opened: String? = null
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) { CreatePartyScreen(onNavigateBack = {}, onCreated = { opened = it }, viewModel = viewModel) }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_BUTTON).assertIsNotEnabled()
+
+        nameField().performTextInput("  Friday circle ")
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_MORE).performClick()
+        composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_MILESTONE))).performTextInput("1000")
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_BUTTON).performClick()
+
+        waitFor { opened != null }
+        val party = server.parties.getValue(opened!!)
+        assertEquals("Friday circle", party.name)
+        assertEquals(11, party.maxMembers)
+        assertEquals(1000L, party.milestone)
+    }
+
+    @Test
+    fun withoutAUsername_itSaysWhy_andOffersTheUsernameScreen() {
+        server.usernames.clear()
+        val viewModel = viewModel()
+        var choose = 0
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) { CreatePartyScreen(onNavigateBack = {}, onChooseUsername = { choose++ }, viewModel = viewModel) }
+        }
+        nameField().performTextInput("Friday circle")
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_BUTTON).performClick()
+        waitFor { viewModel.uiState.value.error != null }
+
+        composeTestRule.onNodeWithText("Choose a username first: party members see each other, and invite each other, by username.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Choose a username").performClick()
+        assertEquals(1, choose)
+        assertNull(viewModel.uiState.value.created)
+    }
+
+    @Test
+    fun offline_nothingIsCreated_andItSaysSo() {
+        server.offline = true
+        val viewModel = viewModel()
+        viewModel.onNameChange("Friday circle")
+        viewModel.create()
+        waitFor { viewModel.uiState.value.error != null }
+        assertEquals(CreatePartyError.OFFLINE, viewModel.uiState.value.error)
+        assertTrue(server.parties.isEmpty())
+        assertTrue("it can be tried again", viewModel.uiState.value.canCreate)
     }
 }

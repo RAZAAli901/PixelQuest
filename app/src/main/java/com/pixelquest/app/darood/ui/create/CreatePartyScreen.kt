@@ -40,14 +40,22 @@ import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
 
-/** Starting a party: its name, its size and, if wanted, its milestone. */
+/**
+ * Starting a party: its name, its size and, if wanted, its milestone. Once it's made, [onCreated]
+ * opens it; [onChooseUsername] goes to the username screen when one is needed first.
+ */
 @Composable
 fun CreatePartyScreen(
     onNavigateBack: () -> Unit,
+    onCreated: (String) -> Unit = {},
+    onChooseUsername: () -> Unit = {},
     viewModel: CreatePartyViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    androidx.compose.runtime.LaunchedEffect(state.created) { state.created?.let(onCreated) }
     CreatePartyContent(
+        onCreate = viewModel::create,
+        onChooseUsername = onChooseUsername,
         state = state,
         onNameChange = viewModel::onNameChange,
         onFewer = viewModel::fewerMembers,
@@ -64,7 +72,9 @@ fun CreatePartyContent(
     onNavigateBack: () -> Unit,
     onFewer: () -> Unit = {},
     onMore: () -> Unit = {},
-    onMilestoneChange: (String) -> Unit = {}
+    onMilestoneChange: (String) -> Unit = {},
+    onCreate: () -> Unit = {},
+    onChooseUsername: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -138,6 +148,34 @@ fun CreatePartyContent(
                     color = colors.onSurfaceVariant
                 )
             }
+            state.error?.let { error ->
+                Text(
+                    text = stringResource(
+                        when (error) {
+                            CreatePartyError.USERNAME_REQUIRED -> R.string.darood_create_needs_username
+                            CreatePartyError.OFFLINE -> R.string.darood_create_offline
+                            CreatePartyError.FAILED -> R.string.darood_create_failed
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.error,
+                    modifier = Modifier.testTag(DaroodTestTags.CREATE_ERROR).semantics { liveRegion = LiveRegionMode.Polite }
+                )
+                if (error == CreatePartyError.USERNAME_REQUIRED) {
+                    PixelButton(
+                        text = stringResource(R.string.darood_create_choose_username),
+                        onClick = onChooseUsername,
+                        variant = com.pixelquest.app.ui.components.PixelButtonVariant.BLUE,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+            PixelButton(
+                text = stringResource(if (state.creating) R.string.darood_create_creating else R.string.darood_create_button),
+                onClick = onCreate,
+                enabled = state.canCreate,
+                modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.CREATE_BUTTON)
+            )
         }
     }
 }

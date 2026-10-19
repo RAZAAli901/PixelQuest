@@ -237,7 +237,16 @@ fun PixelNavHost(
             )
         }
         composable(Screen.DaroodCreate.route) {
-            com.pixelquest.app.darood.ui.create.CreatePartyScreen(onNavigateBack = { navController.popBackStack() })
+            com.pixelquest.app.darood.ui.create.CreatePartyScreen(
+                onNavigateBack = { navController.popBackStack() },
+                // The new party opens in place of the form, so Back returns to the list.
+                onCreated = { partyId ->
+                    navController.navigate(Screen.DaroodPartyChat.createRoute(partyId)) {
+                        popUpTo(Screen.DaroodCreate.route) { inclusive = true }
+                    }
+                },
+                onChooseUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } }
+            )
         }
         composable(
             route = Screen.DaroodPartyChat.route,

@@ -1,16 +1,33 @@
 package com.pixelquest.app.darood.ui.create
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.pixelquest.app.data.remote.SupabaseResult
+import com.pixelquest.app.darood.data.DaroodPartyRepository
+import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.DaroodRules
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /** What's wrong with a party's name, as typed. */
 enum class PartyNameProblem { TOO_SHORT, TOO_LONG }
+
+/** Why creating didn't work. */
+enum class CreatePartyError {
+    /** The account has no username yet: members are shown, and invited, by username. */
+    USERNAME_REQUIRED,
+
+    /** The server couldn't be reached: nothing was created. */
+    OFFLINE,
+
+    /** The server refused it or something else went wrong. */
+    FAILED
+}
 
 /**
  * Starting a party. [name] is kept as typed; the server trims it, and so does the length rule here.
@@ -20,8 +37,15 @@ data class CreatePartyUiState(
     /** How many the party holds, the leader included: 2 to 30. */
     val maxMembers: Int = DaroodRules.MEMBERS_DEFAULT,
     /** The milestone as typed: digits only, empty for none yet. */
-    val milestoneText: String = ""
+    val milestoneText: String = "",
+    val creating: Boolean = false,
+    val error: CreatePartyError? = null,
+    /** The new party's id, once it's made: the screen moves on to it. */
+    val created: String? = null
 ) {
+    /** Everything is as the server will accept it, and nothing is on its way. */
+    val canCreate: Boolean get() = nameIsValid && !milestoneIsZero && !creating && created == null
+
     /** The milestone to start with, or null for none yet (it can be set later). */
     val milestone: Long? get() = milestoneText.toLongOrNull()
 
@@ -47,7 +71,9 @@ data class CreatePartyUiState(
 }
 
 @HiltViewModel
-class CreatePartyViewModel @Inject constructor() : ViewModel() {
+class CreatePartyViewModel @Inject constructor(
+    private val repository: DaroodPartyRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreatePartyUiState())
     val uiState: StateFlow<CreatePartyUiState> = _uiState.asStateFlow()
@@ -60,6 +86,24 @@ class CreatePartyViewModel @Inject constructor() : ViewModel() {
     fun fewerMembers() = setMaxMembers(_uiState.value.maxMembers - 1)
 
     fun moreMembers() = setMaxMembers(_uiState.value.maxMembers + 1)
+
+    /** Creates the party with the account as its leader; on success [CreatePartyUiState.created] is its id. */
+    fun create() {
+        val state = _uiState.value
+        if (!state.canCreate) return
+        _uiState.update { it.copy(creating = true, error = null) }
+        viewModelScope.launch {
+            val result = repository.createParty(state.name.trim(), state.maxMembers, state.milestone)
+            _uiState.update {
+                when {
+                    result is SupabaseResult.Success -> it.copy(creating = false, created = result.data)
+                    result is SupabaseResult.NetworkError -> it.copy(creating = false, error = CreatePartyError.OFFLINE)
+                    DaroodRefusal.of(result) == DaroodRefusal.USERNAME_REQUIRED -> it.copy(creating = false, error = CreatePartyError.USERNAME_REQUIRED)
+                    else -> it.copy(creating = false, error = CreatePartyError.FAILED)
+                }
+            }
+        }
+    }
 
     /** Only digits are kept (a paste of "10,000 Darood" keeps 10000), at most [MILESTONE_DIGITS]. */
     fun onMilestoneChange(text: String) =

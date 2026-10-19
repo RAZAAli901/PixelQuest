@@ -42,6 +42,12 @@
     <string name="darood_create_milestone_hint">The total the party aims for. You can set it later.</string>
     <string name="darood_create_milestone_read">The party aims for <xliff:g id="milestone" example="100,000">%1$s</xliff:g> together.</string>
     <string name="darood_create_milestone_zero">The milestone must be above 0, or left empty.</string>
+    <string name="darood_create_button">Create party</string>
+    <string name="darood_create_creating">Creating…</string>
+    <string name="darood_create_needs_username">Choose a username first: party members see each other, and invite each other, by username.</string>
+    <string name="darood_create_choose_username">Choose a username</string>
+    <string name="darood_create_offline">Couldn\'t reach the server, so nothing was created. Check your connection and try again.</string>
+    <string name="darood_create_failed">Couldn\'t create the party. Try again.</string>
     <string name="darood_create_fewer">Fewer people</string>
     <string name="darood_create_more">More people</string>
     <string name="darood_create_limit_hint">2 to 30 people, you included. Invitations count until they\'re answered.</string>
