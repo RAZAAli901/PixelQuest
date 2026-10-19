@@ -2,11 +2,14 @@ package com.pixelquest.app.darood.data.remote
 
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.safeSupabaseCall
+import com.pixelquest.app.darood.domain.DaroodEntry
 import com.pixelquest.app.darood.domain.MemberStatus
 import com.pixelquest.app.darood.domain.PartyMember
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Order
+import java.time.LocalDate
 import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -58,6 +61,20 @@ interface DaroodPartyRemoteDataSource {
 
     /** The leader sets or raises the milestone: the milestone now. */
     suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long>
+
+    /** Posts an entry as the account; the entry as the server stored it. */
+    suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String): SupabaseResult<DaroodEntry>
+
+    /**
+     * A page of a party's entries, newest first: the [limit] newest, or with [beforeId] the [limit]
+     * before that entry. Ids only grow, in the order entries reached the server.
+     */
+    suspend fun fetchEntries(partyId: String, beforeId: Long? = null, limit: Int = PAGE_SIZE): SupabaseResult<List<DaroodEntry>>
+
+    companion object {
+        /** Entries per page in the chat. */
+        const val PAGE_SIZE = 50
+    }
 }
 
 @Singleton
@@ -142,10 +159,35 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
             put("target", target)
         }.map { it.milestone }
 
+    override suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String): SupabaseResult<DaroodEntry> {
+        if (account.id() == null) return signedOut()
+        return safeSupabaseCall {
+            postgrest[ENTRIES].insert(NewDaroodEntryDto(partyId, amount, localDate.toString(), tz)) {
+                select(Columns.list(ENTRY_COLUMNS))
+            }.decodeSingle<DaroodEntryDto>().toDomain()
+        }
+    }
+
+    override suspend fun fetchEntries(partyId: String, beforeId: Long?, limit: Int): SupabaseResult<List<DaroodEntry>> {
+        if (account.id() == null) return signedOut()
+        return safeSupabaseCall {
+            postgrest[ENTRIES].select(Columns.list(ENTRY_COLUMNS)) {
+                filter {
+                    eq("party_id", partyId)
+                    if (beforeId != null) lt("id", beforeId)
+                }
+                order("id", Order.DESCENDING)
+                limit(limit.toLong())
+            }.decodeList<DaroodEntryDto>().map { it.toDomain() }
+        }
+    }
+
     internal companion object {
         const val PARTIES = "parties"
         const val MEMBERS = "party_members"
         const val USERNAMES = "usernames"
+        const val ENTRIES = "darood_entries"
+        val ENTRY_COLUMNS = listOf("id", "party_id", "user_id", "amount", "local_date", "tz", "created_at")
         val PARTY_COLUMNS = listOf("id", "name", "leader_id", "max_members", "milestone", "milestone_set_at", "completed_at", "created_at")
         val MEMBER_COLUMNS = listOf("party_id", "user_id", "role", "status", "invited_at", "joined_at")
     }

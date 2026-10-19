@@ -154,4 +154,38 @@ class DaroodPartyRemoteDataSourceTest {
         assertEquals(com.pixelquest.app.darood.domain.DaroodRefusal.INVALID, com.pixelquest.app.darood.domain.DaroodRefusal.of(source.createParty("x", 10, null)))
         assertEquals(null, com.pixelquest.app.darood.domain.DaroodRefusal.of(SupabaseResult.NetworkError(java.io.IOException("offline"))))
     }
+
+    @Test
+    fun anEntry_isSentWithItsDay_andComesBackAsStored() = runBlocking {
+        answers["/rest/v1/darood_entries"] = HttpStatusCode.Created to
+            """[{"id":42,"party_id":"p1","user_id":"me","amount":300,"local_date":"2026-10-19","tz":"Asia/Karachi","created_at":"2026-10-19T15:00:00+00:00"}]"""
+
+        val entry = (source.addEntry("p1", 300, java.time.LocalDate.of(2026, 10, 19), "Asia/Karachi") as SupabaseResult.Success).data
+
+        assertEquals(42L, entry.id)
+        assertEquals("me", entry.userId)
+        val request = requestTo("/rest/v1/darood_entries")
+        assertEquals("POST", request.method.value)
+        // supabase-kt sends an insert as a list of rows.
+        assertEquals("""[{"party_id":"p1","amount":300,"local_date":"2026-10-19","tz":"Asia/Karachi"}]""", bodyOf(request).toString())
+    }
+
+    @Test
+    fun entries_comeNewestFirst_fiftyAPage_andOlderPagesGoBackFromAnId() = runBlocking {
+        answers["/rest/v1/darood_entries"] = ok(
+            """[{"id":9,"party_id":"p1","user_id":"u2","amount":33,"local_date":"2026-10-19","tz":"UTC","created_at":"2026-10-19T10:00:00+00:00"},
+                {"id":8,"party_id":"p1","user_id":null,"amount":11,"local_date":"2026-10-18","tz":"UTC","created_at":"2026-10-18T10:00:00+00:00"}]"""
+        )
+
+        val newest = (source.fetchEntries("p1") as SupabaseResult.Success).data
+        source.fetchEntries("p1", beforeId = 8)
+
+        assertEquals(listOf(9L, 8L), newest.map { it.id })
+        val (first, older) = requests
+        assertEquals("eq.p1", query(first, "party_id"))
+        assertEquals("id.desc.nullslast", query(first, "order"))
+        assertEquals("50", query(first, "limit"))
+        assertEquals(null, query(first, "id"))
+        assertEquals("lt.8", query(older, "id"))
+    }
 }
