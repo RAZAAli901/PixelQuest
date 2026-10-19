@@ -1,7 +1,7 @@
 // Darood Party usernames (migrations 20261019000000_usernames.sql onwards): only the owner reads
 // theirs, nobody writes the table directly, and its form, reserved words and uniqueness hold.
 import assert from "node:assert/strict";
-import { asService, call, localTest, newPlayer } from "./stack.ts";
+import { asService, call, localTest, newPlayer, sql } from "./stack.ts";
 
 const fresh = () => `u_${Math.random().toString(36).slice(2, 12)}`;
 
@@ -109,4 +109,57 @@ localTest("is_username_available: free, taken, yours, malformed or reserved (202
   // Signed out: no answer at all.
   const signedOut = await isAvailable(undefined, name);
   assert.equal(signedOut.status, 401, JSON.stringify(signedOut.body));
+});
+
+function setUsername(token: string | undefined, name: string) {
+  return call("/rest/v1/rpc/set_username", { token, body: { name } });
+}
+
+localTest("set_username claims a name, then allows a change once every 30 days (20261019000003)", async () => {
+  const player = await newPlayer("uname_set");
+  const first = fresh();
+  const claimed = await setUsername(player.accessToken, first.toUpperCase());
+  assert.equal(claimed.status, 200, JSON.stringify(claimed.body));
+  assert.equal(claimed.body.status, "ok");
+  assert.equal(claimed.body.username, first);
+  const changeableAt = new Date(claimed.body.changeable_at).getTime();
+  assert.ok(Math.abs(changeableAt - (Date.now() + 30 * 86_400_000)) < 120_000, claimed.body.changeable_at);
+
+  // The same name again is fine; a new one waits 30 days.
+  assert.equal((await setUsername(player.accessToken, first)).body.status, "ok");
+  const tooSoon = await setUsername(player.accessToken, fresh());
+  assert.equal(tooSoon.body.status, "too_soon");
+  assert.equal(tooSoon.body.username, first);
+
+  // 30 days on, it changes.
+  sql(`UPDATE public.usernames SET changed_at = now() - interval '30 days 1 minute' WHERE user_id = '${player.userId}'`);
+  const second = fresh();
+  const changed = await setUsername(player.accessToken, second);
+  assert.equal(changed.body.status, "ok", JSON.stringify(changed.body));
+  const own = await call("/rest/v1/usernames?select=username", { token: player.accessToken });
+  assert.deepEqual(own.body, [{ username: second }]);
+});
+
+localTest("set_username says taken or invalid, and needs a sign-in", async () => {
+  const [owner, other] = await Promise.all([newPlayer("uname_set1"), newPlayer("uname_set2")]);
+  const name = fresh();
+  assert.equal((await setUsername(owner.accessToken, name)).body.status, "ok");
+
+  assert.deepEqual((await setUsername(other.accessToken, name.toUpperCase())).body, { status: "taken" });
+  for (const bad of ["ab", "aria k", "admin_1", ""]) {
+    assert.deepEqual((await setUsername(other.accessToken, bad)).body, { status: "invalid" }, bad);
+  }
+  // A refused name doesn't start the 30 days: the player can still claim another one.
+  assert.equal((await setUsername(other.accessToken, fresh())).body.status, "ok");
+
+  assert.equal((await setUsername(undefined, fresh())).status, 401);
+});
+
+localTest("two changes sent at once can't both get through", async () => {
+  const player = await newPlayer("uname_race");
+  assert.equal((await setUsername(player.accessToken, fresh())).body.status, "ok");
+  sql(`UPDATE public.usernames SET changed_at = now() - interval '31 days' WHERE user_id = '${player.userId}'`);
+
+  const results = await Promise.all([fresh(), fresh(), fresh()].map((n) => setUsername(player.accessToken, n)));
+  assert.equal(results.filter((r) => r.body.status === "ok").length, 1, JSON.stringify(results.map((r) => r.body)));
 });

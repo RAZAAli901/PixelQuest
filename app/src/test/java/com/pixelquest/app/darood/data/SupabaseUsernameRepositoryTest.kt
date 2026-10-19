@@ -69,4 +69,38 @@ class SupabaseUsernameRepositoryTest {
 
         assertTrue(repository.isUsernameAvailable(Username.parse("aria_k")!!) !is SupabaseResult.Success)
     }
+
+    @Test
+    fun setting_sendsTheName_andReadsTheNewNameAndItsWait() = runBlocking {
+        answer = """{"status":"ok","username":"aria_k","changeable_at":"2026-11-18T09:30:00.123456+00:00"}"""
+
+        val result = repository.setUsername(Username.parse("Aria_K")!!)
+
+        assertEquals(
+            SupabaseResult.Success(SetUsernameResult.Saved(Username.parse("aria_k")!!, java.time.Instant.parse("2026-11-18T09:30:00.123456Z"))),
+            result
+        )
+        val request = requests.single()
+        assertTrue(request.url.encodedPath.endsWith("/rest/v1/rpc/set_username"))
+        assertEquals("aria_k", bodyOf(request)["name"]?.jsonPrimitive?.content)
+    }
+
+    @Test
+    fun theServersOtherAnswers_eachHaveTheirResult() = runBlocking {
+        answer = """{"status":"too_soon","username":"aria_k","changeable_at":"2026-11-18T09:30:00+05:00"}"""
+        assertEquals(
+            SupabaseResult.Success(SetUsernameResult.TooSoon(Username.parse("aria_k")!!, java.time.Instant.parse("2026-11-18T04:30:00Z"))),
+            repository.setUsername(Username.parse("bram")!!)
+        )
+
+        answer = """{"status":"taken"}"""
+        assertEquals(SupabaseResult.Success(SetUsernameResult.Taken), repository.setUsername(Username.parse("bram")!!))
+
+        answer = """{"status":"invalid"}"""
+        assertEquals(SupabaseResult.Success(SetUsernameResult.Invalid), repository.setUsername(Username.parse("bram")!!))
+
+        // Something this app doesn't know yet is treated as a refusal, never as saved.
+        answer = """{"status":"suspended"}"""
+        assertEquals(SupabaseResult.Success(SetUsernameResult.Invalid), repository.setUsername(Username.parse("bram")!!))
+    }
 }
