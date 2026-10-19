@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,7 @@ import com.pixelquest.app.R
 import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.domain.Party
 import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.darood.ui.PartyAvatar
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -34,8 +36,11 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 /**
- * A party's own screen, opened from the list. For now it holds the party's name and its way to
- * the party's info (its title, or the info button); the chat (Phase E) fills it.
+ * A party's own screen, opened from the list, as a group chat: its top bar has the party's picture,
+ * its name and how many are in it, and opens the party's info (so does the info button). The chat
+ * itself fills the rest.
+ *
+ * @param memberCount the party's active members; 0 while not known yet, which shows no count.
  */
 @Composable
 fun PartyChatScreen(
@@ -43,7 +48,8 @@ fun PartyChatScreen(
     onNavigateBack: () -> Unit,
     onOpenInfo: () -> Unit,
     isLeader: Boolean = false,
-    onAddPeople: () -> Unit = {}
+    onAddPeople: () -> Unit = {},
+    memberCount: Int = 0
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -51,6 +57,8 @@ fun PartyChatScreen(
         topBar = {
             PixelTopAppBar(
                 title = partyName,
+                subtitle = if (memberCount > 0) pluralStringResource(R.plurals.darood_members, memberCount, memberCount) else null,
+                leading = { PartyAvatar(partyName) },
                 // The title opens the party's info, as in a messaging app; the buttons keep their own taps.
                 modifier = Modifier
                     .clickable(role = Role.Button, onClickLabel = stringResource(R.string.darood_party_info), onClick = onOpenInfo)
@@ -124,6 +132,7 @@ fun PartyChatRoute(
         onNavigateBack = onNavigateBack,
         onOpenInfo = onOpenInfo,
         isLeader = party != null && party.leaderId != null && party.leaderId == viewModel.accountId,
-        onAddPeople = onAddPeople
+        onAddPeople = onAddPeople,
+        memberCount = party?.memberCount ?: 0
     )
 }

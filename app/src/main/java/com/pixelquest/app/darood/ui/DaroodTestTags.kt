@@ -35,6 +35,7 @@ object DaroodTestTags {
     fun person(userId: String) = "darood_person_$userId"
     const val CHAT_ADD_PEOPLE = "darood_chat_add_people"
     const val CHAT_TITLE = "darood_chat_title"
+    const val PARTY_AVATAR = "darood_party_avatar"
     const val INFO_SCREEN = "darood_info_screen"
     const val INFO_ADD_PEOPLE = "darood_info_add_people"
     const val INFO_PROBLEM = "darood_info_problem"

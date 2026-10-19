@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -43,7 +44,9 @@ fun ComicTopAppBar(
     modifier: Modifier = Modifier,
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: (@Composable RowScope.() -> Unit)? = null,
-    containerColor: Color = ComicTokens.PanelSurface
+    containerColor: Color = ComicTokens.PanelSurface,
+    subtitle: String? = null,
+    leading: (@Composable () -> Unit)? = null
 ) {
     ComicPanel(
         modifier = modifier
@@ -65,16 +68,29 @@ fun ComicTopAppBar(
                 navigationIcon()
                 Spacer(modifier = Modifier.width(8.dp))
             }
+            if (leading != null) {
+                leading()
+                Spacer(modifier = Modifier.width(10.dp))
+            }
 
-            Text(
-                text = title.uppercase(),
-                style = ComicTypography.titleLarge,
-                color = ComicTokens.SolidBlack,
-                letterSpacing = 0.8.sp,
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title.uppercase(),
+                    style = ComicTypography.titleLarge,
+                    color = ComicTokens.SolidBlack,
+                    letterSpacing = 0.8.sp,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = ComicTypography.bodySmall,
+                        color = ComicTokens.SolidBlack,
+                        maxLines = 1
+                    )
+                }
+            }
 
             if (actions != null) {
                 Row(

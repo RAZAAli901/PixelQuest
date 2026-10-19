@@ -1,6 +1,7 @@
 package com.pixelquest.app.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -21,13 +22,18 @@ import com.pixelquest.app.ui.theme.ThemeMode
  *
  * Automatically dispatches to [ComicTopAppBar] when [PixelTheme.mode] is [ThemeMode.Comic],
  * while rendering the classic 8-bit [PixelCard] header for Pixel and Light modes.
+ *
+ * [leading] (a picture before the title) and [subtitle] (a line under it) are for a header that
+ * names something, as a chat's does: its picture, its name, and how many are in it.
  */
 @Composable
 fun PixelTopAppBar(
     title: String,
     modifier: Modifier = Modifier,
     navigationIcon: (@Composable () -> Unit)? = null,
-    actions: (@Composable RowScope.() -> Unit)? = null
+    actions: (@Composable RowScope.() -> Unit)? = null,
+    subtitle: String? = null,
+    leading: (@Composable () -> Unit)? = null
 ) {
     val activeMode = PixelTheme.mode
     if (activeMode == ThemeMode.Comic) {
@@ -35,7 +41,9 @@ fun PixelTopAppBar(
             title = title,
             modifier = modifier,
             navigationIcon = navigationIcon,
-            actions = actions
+            actions = actions,
+            subtitle = subtitle,
+            leading = leading
         )
         return
     }
@@ -55,13 +63,35 @@ fun PixelTopAppBar(
                 navigationIcon()
                 Spacer(modifier = Modifier.width(8.dp))
             }
+            if (leading != null) {
+                leading()
+                Spacer(modifier = Modifier.width(10.dp))
+            }
 
-            Text(
-                text = title,
-                style = PixelTypography.titleLarge,
-                color = colors.primary,
-                modifier = Modifier.weight(1f)
-            )
+            if (subtitle == null) {
+                Text(
+                    text = title,
+                    style = PixelTypography.titleLarge,
+                    color = colors.primary,
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = title,
+                        style = PixelTypography.titleLarge,
+                        color = colors.primary,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = subtitle,
+                        style = PixelTypography.bodySmall,
+                        color = colors.primary,
+                        maxLines = 1
+                    )
+                }
+            }
 
             if (actions != null) {
                 Row(
