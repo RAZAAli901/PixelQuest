@@ -97,13 +97,16 @@ fun PartyChatScreen(
     onOpenStats: () -> Unit = {},
     board: PartyBoard? = null,
     milestoneBanner: Long? = null,
-    onDismissBanner: () -> Unit = {}
+    onDismissBanner: () -> Unit = {},
+    completedAt: java.time.Instant? = null,
+    startedAt: java.time.Instant? = null
 ) {
     androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides simpleMode) {
         PartyChatContent(
             partyName, onNavigateBack, onOpenInfo, isLeader, onAddPeople, memberCount, items, usernames, today, loadingOlder,
             onReachOldest, canPost, draft, onDraftChange, onSend, confirming, onConfirmSend, onCancelSend, onRetry, todayTotals,
-            milestone, total, finished, myStats, consistency, onOpenStats, board, milestoneBanner, onDismissBanner
+            milestone, total, finished, myStats, consistency, onOpenStats, board, milestoneBanner, onDismissBanner,
+            completedAt, startedAt
         )
     }
 }
@@ -138,7 +141,9 @@ private fun PartyChatContent(
     onOpenStats: () -> Unit,
     board: PartyBoard?,
     milestoneBanner: Long?,
-    onDismissBanner: () -> Unit
+    onDismissBanner: () -> Unit,
+    completedAt: java.time.Instant?,
+    startedAt: java.time.Instant?
 ) {
     val colors = PixelTheme.colors
     var showingStats by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
@@ -192,7 +197,16 @@ private fun PartyChatContent(
             )
         },
         bottomBar = {
-            if (canPost) {
+            // A finished party takes no more numbers: its card takes the field's place, for good.
+            if (completedAt != null) {
+                CelebrationCard(
+                    total = total,
+                    milestone = milestone,
+                    completedAt = completedAt,
+                    startedAt = startedAt,
+                    posters = myStats?.posters ?: board?.rows?.size ?: 0
+                )
+            } else if (canPost) {
                 // Empty and 0 simply can't be sent; too many is said, as the server would refuse it.
                 val check = checkDraft(draft)
                 NumberInputBar(
@@ -585,6 +599,8 @@ fun PartyChatRoute(
         onOpenStats = viewModel::refreshConsistency,
         board = board,
         milestoneBanner = milestoneBanner,
-        onDismissBanner = viewModel::dismissMilestoneBanner
+        onDismissBanner = viewModel::dismissMilestoneBanner,
+        completedAt = party?.completedAt,
+        startedAt = party?.createdAt
     )
 }

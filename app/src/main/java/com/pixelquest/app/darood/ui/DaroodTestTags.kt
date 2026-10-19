@@ -43,6 +43,7 @@ object DaroodTestTags {
     const val CHAT_TODAY = "darood_chat_today"
     const val CHAT_MILESTONE = "darood_chat_milestone"
     const val CHAT_BANNER = "darood_chat_banner"
+    const val CHAT_CELEBRATION = "darood_chat_celebration"
     const val CHAT_STATS = "darood_chat_stats"
     const val CHAT_MY_STATS = "darood_chat_my_stats"
     const val CHAT_CALENDAR = "darood_chat_calendar"

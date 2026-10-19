@@ -173,6 +173,22 @@
     <string name="darood_input_too_many">At most <xliff:g id="max" example="100,000">%1$s</xliff:g> in one go.</string>
     <string name="darood_milestone_progress">Milestone: <xliff:g id="total" example="2,450">%1$s</xliff:g> of <xliff:g id="milestone" example="10,000">%2$s</xliff:g> (<xliff:g id="percent" example="24">%3$d</xliff:g>%%)</string>
     <string name="darood_milestone_reached">Milestone reached: <xliff:g id="milestone" example="10,000">%1$s</xliff:g></string>
+    <!-- A finished party's card. -->
+    <string name="darood_done_title">🎉 Milestone reached!</string>
+    <plurals name="darood_done_pooled">
+        <item quantity="one">Together, <xliff:g id="posters" example="1">%1$d</xliff:g> of you added <xliff:g id="total" example="10,240">%2$s</xliff:g>. The aim was <xliff:g id="milestone" example="10,000">%3$s</xliff:g>.</item>
+        <item quantity="other">Together, <xliff:g id="posters" example="5">%1$d</xliff:g> of you added <xliff:g id="total" example="10,240">%2$s</xliff:g>. The aim was <xliff:g id="milestone" example="10,000">%3$s</xliff:g>.</item>
+    </plurals>
+    <plurals name="darood_done_pooled_no_aim">
+        <item quantity="one">Together, <xliff:g id="posters" example="1">%1$d</xliff:g> of you added <xliff:g id="total" example="10,240">%2$s</xliff:g>.</item>
+        <item quantity="other">Together, <xliff:g id="posters" example="5">%1$d</xliff:g> of you added <xliff:g id="total" example="10,240">%2$s</xliff:g>.</item>
+    </plurals>
+    <string name="darood_done_when">Reached <xliff:g id="date" example="Oct 19, 2026">%1$s</xliff:g> at <xliff:g id="time" example="3:05 PM">%2$s</xliff:g>,</string>
+    <string name="darood_done_same_day">the same day the party began.</string>
+    <plurals name="darood_done_days">
+        <item quantity="one"><xliff:g id="days" example="1">%1$d</xliff:g> day after the party began.</item>
+        <item quantity="other"><xliff:g id="days" example="12">%1$d</xliff:g> days after the party began.</item>
+    </plurals>
     <string name="darood_banner_milestone">🎯 New milestone: <xliff:g id="milestone" example="10,000">%1$s</xliff:g>. Let\'s reach it together!</string>
     <string name="darood_banner_dismiss">dismiss</string>
     <string name="darood_milestone_open">Open</string>
