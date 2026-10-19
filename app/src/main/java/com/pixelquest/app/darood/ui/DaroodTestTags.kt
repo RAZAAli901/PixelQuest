@@ -12,6 +12,8 @@ object DaroodTestTags {
     const val SIGN_IN = "darood_sign_in"
     const val EMPTY = "darood_empty"
     const val PARTY_LIST = "darood_party_list"
+    const val CREATE = "darood_create"
+    const val CREATE_ACTION = "darood_create_action"
     const val CHAT_SCREEN = "darood_chat_screen"
 
     fun partyRow(partyId: String) = "darood_party_$partyId"

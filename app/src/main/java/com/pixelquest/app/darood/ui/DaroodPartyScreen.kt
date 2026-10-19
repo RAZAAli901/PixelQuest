@@ -42,6 +42,7 @@ fun DaroodPartyScreen(
     onNavigateBack: (() -> Unit)?,
     onSignIn: () -> Unit,
     onOpenParty: (String) -> Unit,
+    onCreateParty: () -> Unit = {},
     viewModel: com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -50,7 +51,8 @@ fun DaroodPartyScreen(
         onSignIn = onSignIn,
         onNavigateBack = onNavigateBack,
         onRefresh = viewModel::refresh,
-        onOpenParty = onOpenParty
+        onOpenParty = onOpenParty,
+        onCreateParty = onCreateParty
     )
 }
 
@@ -61,7 +63,8 @@ fun DaroodPartyContent(
     onSignIn: () -> Unit,
     onNavigateBack: (() -> Unit)?,
     onRefresh: () -> Unit = {},
-    onOpenParty: (String) -> Unit = {}
+    onOpenParty: (String) -> Unit = {},
+    onCreateParty: () -> Unit = {}
 ) {
     val signedIn = state.signedIn
     val colors = PixelTheme.colors
@@ -70,6 +73,20 @@ fun DaroodPartyContent(
         topBar = {
             PixelTopAppBar(
                 title = stringResource(R.string.darood_title),
+                actions = if (signedIn == true) {
+                    {
+                        IconButton(onClick = onCreateParty, modifier = Modifier.testTag(DaroodTestTags.CREATE_ACTION)) {
+                            SymbolIcon(
+                                symbol = "＋",
+                                contentDescription = stringResource(R.string.darood_create),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
+                    }
+                } else {
+                    null
+                },
                 navigationIcon = onNavigateBack?.let { back ->
                     {
                         IconButton(onClick = back) {
@@ -108,13 +125,19 @@ fun DaroodPartyContent(
                     items(state.parties, key = { it.id }) { party ->
                         com.pixelquest.app.darood.ui.list.PartyRow(party = party, onClick = { onOpenParty(party.id) })
                     }
-                    if (state.parties.isEmpty()) {
+                    if (state.isEmpty) {
                         item(key = "empty") {
                             DaroodCard(
                                 title = stringResource(R.string.darood_empty_title),
                                 body = stringResource(R.string.darood_empty_body),
                                 modifier = Modifier.testTag(DaroodTestTags.EMPTY)
-                            )
+                            ) {
+                                PixelButton(
+                                    text = stringResource(R.string.darood_create),
+                                    onClick = onCreateParty,
+                                    modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.CREATE)
+                                )
+                            }
                         }
                     }
                 }

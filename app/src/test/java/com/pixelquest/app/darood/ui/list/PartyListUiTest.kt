@@ -75,4 +75,24 @@ class PartyListUiTest {
         }
         composeTestRule.onNodeWithText("Couldn't reach the server. Showing what this phone has.").assertIsDisplayed()
     }
+
+    @Test
+    fun noParties_invitesToCreateOne_andThePlusDoesToo() {
+        var created = 0
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Light, darkTheme = false) {
+                DaroodPartyContent(
+                    state = DaroodPartiesUiState(signedIn = true),
+                    onSignIn = {},
+                    onNavigateBack = {},
+                    onCreateParty = { created++ }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("No parties yet").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE).performClick()
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_ACTION).performClick()
+        assertEquals(2, created)
+    }
 }
