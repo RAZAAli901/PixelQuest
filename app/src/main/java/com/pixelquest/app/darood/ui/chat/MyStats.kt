@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -64,11 +66,17 @@ fun shareText(share: Double): String = when {
 
 /**
  * The player's numbers in a sheet over the chat, opened from its top bar: their part of the party,
- * and how steady they are in it ([consistency], once the server has said which days they posted).
+ * how steady they are in it ([consistency], once the server has said which days they posted), and
+ * everyone's part ([board]). It scrolls when it's taller than the screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyStatsSheet(stats: MyStats, consistency: com.pixelquest.app.darood.domain.Consistency? = null, onDismiss: () -> Unit) {
+fun MyStatsSheet(
+    stats: MyStats,
+    consistency: com.pixelquest.app.darood.domain.Consistency? = null,
+    board: PartyBoard? = null,
+    onDismiss: () -> Unit
+) {
     val colors = PixelTheme.colors
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -79,6 +87,7 @@ fun MyStatsSheet(stats: MyStats, consistency: com.pixelquest.app.darood.domain.C
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(start = 24.dp, end = 24.dp, bottom = 32.dp)
                 .testTag(DaroodTestTags.CHAT_MY_STATS)
         ) {
@@ -121,6 +130,7 @@ fun MyStatsSheet(stats: MyStats, consistency: com.pixelquest.app.darood.domain.C
                 StatLine(stringResource(R.string.darood_stats_average), formatCount(steady.averagePerActiveDay))
                 ConsistencyCalendar(steady)
             }
+            if (board != null && board.rows.isNotEmpty()) PartyBoardSection(board)
         }
     }
 }

@@ -93,13 +93,14 @@ fun PartyChatScreen(
     simpleMode: Boolean = false,
     myStats: MyStats? = null,
     consistency: com.pixelquest.app.darood.domain.Consistency? = null,
-    onOpenStats: () -> Unit = {}
+    onOpenStats: () -> Unit = {},
+    board: PartyBoard? = null
 ) {
     androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides simpleMode) {
         PartyChatContent(
             partyName, onNavigateBack, onOpenInfo, isLeader, onAddPeople, memberCount, items, usernames, today, loadingOlder,
             onReachOldest, canPost, draft, onDraftChange, onSend, confirming, onConfirmSend, onCancelSend, onRetry, todayTotals,
-            milestone, total, finished, myStats, consistency, onOpenStats
+            milestone, total, finished, myStats, consistency, onOpenStats, board
         )
     }
 }
@@ -131,7 +132,8 @@ private fun PartyChatContent(
     finished: Boolean,
     myStats: MyStats?,
     consistency: com.pixelquest.app.darood.domain.Consistency?,
-    onOpenStats: () -> Unit
+    onOpenStats: () -> Unit,
+    board: PartyBoard?
 ) {
     val colors = PixelTheme.colors
     var showingStats by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
@@ -248,7 +250,7 @@ private fun PartyChatContent(
         }
     }
 
-    if (showingStats && myStats != null) MyStatsSheet(stats = myStats, consistency = consistency, onDismiss = { showingStats = false })
+    if (showingStats && myStats != null) MyStatsSheet(stats = myStats, consistency = consistency, board = board, onDismiss = { showingStats = false })
     if (confirming != null) {
         com.pixelquest.app.ui.components.PixelConfirmDialog(
             title = stringResource(R.string.darood_confirm_title, com.pixelquest.app.darood.ui.formatCount(confirming)),
@@ -344,6 +346,11 @@ class PartyChatViewModel @Inject constructor(
             if (result is SupabaseResult.Success) myDays.value = result.data
         }
     }
+
+    /** Everyone's part in the party, kindly ranked ([partyBoardOf]). */
+    val board: StateFlow<PartyBoard?> = kotlinx.coroutines.flow.combine(repository.observeMemberStats(partyId), members) { stats, list ->
+        partyBoardOf(stats, list, accountId)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** Posters' usernames by user id. */
     val usernames: StateFlow<Map<String, String>> = members
@@ -504,6 +511,7 @@ fun PartyChatRoute(
     val simpleMode = viewModel.simpleMode.collectAsState().value
     val myStats = viewModel.myStats.collectAsState().value
     val consistency = viewModel.consistency.collectAsState().value
+    val board = viewModel.board.collectAsState().value
     val usernames = viewModel.usernames.collectAsState().value
     com.pixelquest.app.darood.ui.FollowWhileStarted(viewModel.follower)
     PartyChatScreen(
@@ -533,6 +541,7 @@ fun PartyChatRoute(
         simpleMode = simpleMode,
         myStats = myStats,
         consistency = consistency,
-        onOpenStats = viewModel::refreshConsistency
+        onOpenStats = viewModel::refreshConsistency,
+        board = board
     )
 }
