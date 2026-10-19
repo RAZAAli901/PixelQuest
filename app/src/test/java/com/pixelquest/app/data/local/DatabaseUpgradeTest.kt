@@ -83,9 +83,18 @@ class DatabaseUpgradeTest {
         "level_history" to listOf(
             mapOf("id" to 1, "level" to 2, "achievedDate" to 1_700_100_000_000L, "difficultyAtTimeOfLevelUp" to "MEDIUM")
         ),
-        // From version 8: a prayer marked, with the XP it was given.
+        // From version 8: a prayer marked, with the XP it was given (and from version 9, the all-five
+        // bonus it unlocked).
         "namaz_log" to listOf(
-            mapOf("id" to 1, "date" to "2026-10-17", "prayer" to "FAJR", "status" to "PRAYED", "prayedAt" to 1_760_000_000_000L, "xpAwarded" to 10)
+            mapOf("id" to 1, "date" to "2026-10-17", "prayer" to "FAJR", "status" to "PRAYED", "prayedAt" to 1_760_000_000_000L,
+                "xpAwarded" to 10, "bonusXp" to 30)
+        ),
+        // From version 8: the tracker turned on, in Lahore, with Fajr's reminder off.
+        "namaz_settings" to listOf(
+            mapOf("id" to 1, "enabled" to 1, "method" to "KARACHI", "asrMadhab" to "HANAFI", "highLatitudeRule" to null,
+                "latitude" to 31.5204, "longitude" to 74.3587, "city" to "Lahore", "reminderOffsetMin" to 5,
+                "remindFajr" to 0, "remindDhuhr" to 1, "remindAsr" to 1, "remindMaghrib" to 1, "remindIsha" to 1,
+                "adjustFajr" to 2, "adjustDhuhr" to 0, "adjustAsr" to 0, "adjustMaghrib" to 0, "adjustIsha" to 0, "xpEnabled" to 1)
         )
     )
 
@@ -171,15 +180,26 @@ class DatabaseUpgradeTest {
             if (version >= 2) assertEquals(listOf(2), db.levelHistoryDao().getAllHistory().first().map { it.level })
 
             if (version >= 8) {
-                // A prayer marked on version 8 keeps its XP, and has no bonus (version 9's column).
+                // A prayer marked keeps its XP, and its bonus from version 9 (before, the column's 0).
                 val fajr = db.namazLogDao().getAll().single()
                 assertEquals(10, fajr.xpAwarded)
-                assertEquals(0, fajr.bonusXp)
+                assertEquals(if (version >= 9) 30 else 0, fajr.bonusXp)
+                // The tracker's settings come through whole.
+                val settings = db.namazSettingsDao().get()!!
+                assertTrue(settings.enabled)
+                assertEquals("Lahore", settings.city)
+                assertEquals(5, settings.reminderOffsetMin)
+                assertEquals(false, settings.remindFajr)
+                assertEquals(2, settings.adjustFajr)
             } else {
                 // Version 8's Namaz Tracker tables are there, empty: nothing is logged until it's turned on.
                 assertTrue(db.namazLogDao().getAll().isEmpty())
+                assertEquals(null, db.namazSettingsDao().get())
             }
-            assertEquals(null, db.namazSettingsDao().get())
+
+            // Version 10's Darood Party cache is there, empty: it fills from the server.
+            assertTrue(db.daroodDao().observeParties().first().isEmpty())
+            assertTrue(db.daroodDao().pendingToSend().isEmpty())
         } finally {
             db.close()
         }
@@ -193,6 +213,7 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion6() = updateFrom(6)
     @Test fun fromVersion7_theV1_2_0Release() = updateFrom(7)
     @Test fun fromVersion8_theNamazTracker() = updateFrom(8)
+    @Test fun fromVersion9_theV1_3_0Release() = updateFrom(9)
 
     @Test
     fun everyEarlierVersion_hasALayoutAndAMigration() {
