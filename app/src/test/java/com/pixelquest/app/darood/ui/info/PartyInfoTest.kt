@@ -307,6 +307,108 @@ class PartyInfoTest {
         composeTestRule.onNodeWithText("Hand the leadership to another member first, or delete the party.").assertIsDisplayed()
     }
 
+    @Test
+    fun theLeaderRenamesTheParty_twoTo40Characters_asTheServerInsists() = runTest(dispatcher) {
+        val vm = viewModel()
+        waitUntil { vm.uiState.value.party != null }
+        vm.startRename()
+        assertEquals("Friday circle", vm.uiState.value.newName)
+
+        vm.onNewNameChange(" x ")
+        assertEquals(com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_SHORT, vm.uiState.value.newNameProblem)
+        vm.confirmRename()
+        vm.onNewNameChange("y".repeat(41))
+        assertEquals(com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_LONG, vm.uiState.value.newNameProblem)
+        vm.confirmRename()
+        assertFalse("not sent while it can't be a name", "renameParty" in server.calls)
+
+        vm.onNewNameChange("  Saturday circle ")
+        vm.confirmRename()
+        waitUntil { vm.uiState.value.party?.name == "Saturday circle" && !vm.uiState.value.busy }
+        assertEquals("Saturday circle", server.parties[partyId]?.name)
+        assertEquals(null, vm.uiState.value.newName)
+    }
+
+    @Test
+    fun aMember_cantRename_orHandOver() = runTest(dispatcher) {
+        server.me = "bram-id"
+        val vm = viewModel(me = "bram-id")
+        waitUntil { vm.uiState.value.party != null && vm.uiState.value.members.size == 3 }
+        vm.startRename()
+        assertEquals(null, vm.uiState.value.newName)
+        vm.askToTransfer(vm.uiState.value.members.first { it.userId == "cleo-id" })
+        assertEquals(null, vm.uiState.value.confirmingTransfer)
+    }
+
+    @Test
+    fun theLeaderHandsOver_afterSayingSo_andStaysAsAMemberWhoCanLeave() = runTest(dispatcher) {
+        val vm = viewModel()
+        waitUntil { vm.uiState.value.members.size == 3 && vm.uiState.value.party != null }
+        vm.askToTransfer(vm.uiState.value.members.first { it.role == PartyRole.LEADER })
+        assertEquals("not to themselves", null, vm.uiState.value.confirmingTransfer)
+
+        val cleo = vm.uiState.value.members.first { it.userId == "cleo-id" }
+        vm.askToTransfer(cleo)
+        assertEquals(cleo, vm.uiState.value.confirmingTransfer)
+        vm.confirmTransfer()
+        waitUntil { !vm.uiState.value.isLeader && vm.uiState.value.members.firstOrNull()?.userId == "cleo-id" }
+        assertEquals("cleo-id", server.parties[partyId]?.leaderId)
+        assertEquals(PartyRole.MEMBER, vm.uiState.value.members.first { it.userId == "aria-id" }.role)
+
+        vm.askToLeave()
+        assertTrue("a member now, so they may leave", vm.uiState.value.confirmingLeave)
+    }
+
+    @Test
+    fun theLeaderSeesRename_andMakeLeader_withTheirDialogs() {
+        var renaming = false
+        var handingTo: PartyMember? = null
+        val shown = androidx.compose.runtime.mutableStateOf(state(myId = "aria-id"))
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                PartyInfoContent(state = shown.value, onNavigateBack = {}, onRename = { renaming = true }, onTransfer = { handingTo = it })
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.memberTransfer("aria-id")).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DaroodTestTags.memberTransfer("bram-id")).performClick()
+        assertEquals("bram-id", handingTo?.userId)
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_RENAME).performClick()
+        assertTrue(renaming)
+
+        shown.value = shown.value.copy(confirmingTransfer = handingTo)
+        composeTestRule.onNodeWithText("Make @bram the leader?").assertIsDisplayed()
+        composeTestRule.onNodeWithText("stay in the party as a member", substring = true).assertIsDisplayed()
+    }
+
+    // Robolectric never settles a dialog holding a text field on this class's 411x914dp screen (a
+    // bare Dialog with a bare BasicTextField does the same); its default screen is fine.
+    @Test
+    @Config(qualifiers = "w320dp-h470dp")
+    fun theRenameDialog_saysWhyANameWontDo() {
+        var saved = false
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                PartyInfoContent(state = state(myId = "aria-id").copy(newName = "x"), onNavigateBack = {}, onConfirmRename = { saved = true })
+            }
+        }
+        composeTestRule.onNodeWithText("Rename the party").assertIsDisplayed()
+        composeTestRule.onNodeWithText("At least 2 characters.").assertIsDisplayed()
+        composeTestRule.onNode(hasText("Save", ignoreCase = true) and hasAnyAncestor(isDialog())).performClick()
+        assertTrue(saved)
+    }
+
+    @Test
+    fun aMember_seesNoLeaderTools() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                PartyInfoContent(state = state(myId = "bram-id"), onNavigateBack = {})
+            }
+        }
+        composeTestRule.onNodeWithTag(DaroodTestTags.INFO_RENAME).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DaroodTestTags.memberTransfer("aria-id")).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(DaroodTestTags.memberTransfer("bram-id")).assertDoesNotExist()
+    }
+
     private fun state(myId: String) = PartyInfoUiState(
         party = Party(partyId, "Friday circle", "aria-id", 5, null, null, null, Instant.parse("2026-10-01T12:00:00Z")),
         members = listOf(

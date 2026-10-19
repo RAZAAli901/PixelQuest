@@ -3,6 +3,7 @@ package com.pixelquest.app.darood.data.remote
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.data.remote.safeSupabaseCall
 import com.pixelquest.app.darood.domain.DaroodEntry
+import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.MemberStats
 import com.pixelquest.app.darood.domain.MemberStatus
 import com.pixelquest.app.darood.domain.PartyMember
@@ -12,6 +13,7 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import java.time.LocalDate
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -63,6 +65,12 @@ interface DaroodPartyRemoteDataSource {
 
     /** The leader sets or raises the milestone: the milestone now. */
     suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long>
+
+    /** The leader renames the party. */
+    suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit>
+
+    /** The leader hands the leadership to [userId], an active member; the leader stays as a member. */
+    suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit>
 
     /**
      * Posts an entry as the account; the entry as the server stored it. [clientId] is its own key:
@@ -169,6 +177,29 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
             put("party_id", partyId)
             put("target", target)
         }.map { it.milestone }
+
+    override suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit> {
+        if (account.id() == null) return signedOut()
+        val renamed = safeSupabaseCall {
+            postgrest[PARTIES].update({ set("name", name.trim()) }) {
+                select(Columns.list("id"))
+                filter { eq("id", partyId) }
+            }.decodeList<JsonObject>()
+        }
+        // Row-level security lets only the leader's change through; anyone else's changes no row,
+        // without an error, so that's read as the refusal it is.
+        return if (renamed is SupabaseResult.Success && renamed.data.isEmpty()) {
+            SupabaseResult.ServerError(403, DaroodRefusal.NOT_LEADER.token)
+        } else {
+            renamed.map { }
+        }
+    }
+
+    override suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit> =
+        call<JsonObject>("transfer_leadership") {
+            put("party_id", partyId)
+            put("user_id", userId)
+        }.map { }
 
     override suspend fun addEntry(partyId: String, amount: Int, localDate: LocalDate, tz: String, clientId: String): SupabaseResult<DaroodEntry> {
         if (account.id() == null) return signedOut()

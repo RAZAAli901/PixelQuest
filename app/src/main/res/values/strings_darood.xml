@@ -103,6 +103,13 @@
     <string name="darood_info_leave_message">You won\'t see the party or post in it any more. What you\'ve posted stays in its total. To come back, you\'d need a new invitation.</string>
     <string name="darood_info_leader_leave_hint">You lead this party. To leave it, hand the leadership to another member first.</string>
     <string name="darood_info_must_hand_over">Hand the leadership to another member first, or delete the party.</string>
+    <string name="darood_info_rename">Rename</string>
+    <string name="darood_info_rename_title">Rename the party</string>
+    <string name="darood_info_rename_save">Save</string>
+    <string name="darood_info_make_leader">Make leader</string>
+    <string name="darood_info_make_leader_label">Make <xliff:g id="name" example="\@bram">%1$s</xliff:g> the leader</string>
+    <string name="darood_info_transfer_title">Make <xliff:g id="name" example="\@bram">%1$s</xliff:g> the leader?</string>
+    <string name="darood_info_transfer_message">From now on, they\'ll invite, remove, rename and set the milestone. You\'ll stay in the party as a member, and can leave it then if you like.</string>
     <!-- Invitations, at the top of the list. -->
     <string name="darood_invites_title">Invitations</string>
     <string name="darood_invite_to">You\'re invited to join</string>

@@ -142,6 +142,32 @@ class DaroodPartyRemoteDataSourceTest {
     }
 
     @Test
+    fun rename_patchesTheName_andNoRowChangedIsNotLeader() = runBlocking {
+        // Row-level security: anyone but the leader changes no row, and gets no error.
+        val refused = source.renameParty("p1", "  Saturday circle ")
+        assertEquals(com.pixelquest.app.darood.domain.DaroodRefusal.NOT_LEADER, com.pixelquest.app.darood.domain.DaroodRefusal.of(refused))
+        val patch = requestTo("/rest/v1/parties")
+        assertEquals("PATCH", patch.method.value)
+        assertEquals("eq.p1", query(patch, "id"))
+        assertEquals("""{"name":"Saturday circle"}""", bodyOf(patch).toString())
+        assertTrue(patch.headers["Prefer"].orEmpty().contains("return=representation"))
+
+        requests.clear()
+        answers["/rest/v1/parties"] = ok("""[{"id":"p1"}]""")
+        assertEquals(SupabaseResult.Success(Unit), source.renameParty("p1", "Saturday circle"))
+    }
+
+    @Test
+    fun handingOver_callsTransferLeadership() = runBlocking {
+        answers["/rest/v1/rpc/transfer_leadership"] = ok("""{"leader_id":"u2"}""")
+        assertEquals(SupabaseResult.Success(Unit), source.transferLeadership("p1", "u2"))
+        assertEquals("""{"party_id":"p1","user_id":"u2"}""", rpcBody("transfer_leadership"))
+
+        answers["/rest/v1/rpc/transfer_leadership"] = HttpStatusCode.BadRequest to """{"code":"23514","details":null,"hint":null,"message":"not_a_member"}"""
+        assertEquals(com.pixelquest.app.darood.domain.DaroodRefusal.NOT_A_MEMBER, com.pixelquest.app.darood.domain.DaroodRefusal.of(source.transferLeadership("p1", "u3")))
+    }
+
+    @Test
     fun theServersRefusals_areReadByName() = runBlocking {
         answers["/rest/v1/rpc/invite_member"] = HttpStatusCode.BadRequest to
             """{"code":"23514","details":"This party holds 2 people, invitations included.","hint":null,"message":"party_full"}"""

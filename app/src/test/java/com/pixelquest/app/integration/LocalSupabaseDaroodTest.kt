@@ -133,4 +133,27 @@ class LocalSupabaseDaroodTest {
         val late = bram.parties.addEntry(party, 1)
         assertEquals(EntryState.FAILED, late.state)
     }
+
+    @Test
+    fun theLeaderRenames_andHandsOver_thenLeaves() = runBlocking {
+        val (aria, _) = phone("ariaL")
+        val (bram, bramName) = phone("bramL")
+        val party = (aria.parties.createParty("Friday circle", 5, null) as SupabaseResult.Success).data
+        aria.parties.invite(party, bramName)
+        bram.parties.refreshParties()
+        bram.parties.respondToInvite(party, accept = true)
+
+        // Row-level security keeps Bram's rename from changing anything; the app reads that as a refusal.
+        assertEquals(DaroodRefusal.NOT_LEADER, DaroodRefusal.of(bram.parties.renameParty(party, "Taken over")))
+        assertEquals(SupabaseResult.Success(Unit), aria.parties.renameParty(party, "  Saturday circle "))
+        assertEquals("Saturday circle", aria.parties.observeParty(party).first()!!.name)
+
+        assertEquals(DaroodRefusal.LEADER_MUST_HAND_OVER, DaroodRefusal.of(aria.parties.leaveParty(party)))
+        assertEquals(DaroodRefusal.NOT_LEADER, DaroodRefusal.of(bram.parties.transferLeadership(party, bram.userId)))
+        assertEquals(SupabaseResult.Success(Unit), aria.parties.transferLeadership(party, bram.userId))
+        assertEquals(bram.userId, aria.parties.observeParty(party).first()!!.leaderId)
+        assertEquals(SupabaseResult.Success(Unit), aria.parties.leaveParty(party))
+        bram.parties.refreshParty(party)
+        assertEquals(listOf(bram.userId), bram.parties.observeMembers(party).first().filter { it.status == MemberStatus.ACTIVE }.map { it.userId })
+    }
 }

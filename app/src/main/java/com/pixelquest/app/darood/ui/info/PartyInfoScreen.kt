@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
@@ -36,6 +39,7 @@ import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.data.remote.DaroodAccount
 import com.pixelquest.app.darood.domain.DaroodRefusal
+import com.pixelquest.app.darood.domain.DaroodRules
 import com.pixelquest.app.darood.domain.MemberStatus
 import com.pixelquest.app.darood.domain.Party
 import com.pixelquest.app.darood.domain.PartyMember
@@ -45,7 +49,9 @@ import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PixelDialog
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -73,6 +79,8 @@ sealed interface InfoProblem {
  * @param myId the signed-in account, to mark it and to know whether it leads.
  * @param confirmingRemoval the member the leader asked to remove, while the dialog asks if they're sure.
  * @param confirmingLeave the player asked to leave, and the dialog asks if they're sure.
+ * @param newName the name typed in the rename dialog, while it's open.
+ * @param confirmingTransfer the member the leader asked to hand the leadership to, while the dialog asks.
  * @param busy a change is on its way to the server.
  * @param left the player has left the party: the screen closes.
  */
@@ -82,11 +90,25 @@ data class PartyInfoUiState(
     val myId: String? = null,
     val confirmingRemoval: PartyMember? = null,
     val confirmingLeave: Boolean = false,
+    val newName: String? = null,
+    val confirmingTransfer: PartyMember? = null,
     val busy: Boolean = false,
     val problem: InfoProblem? = null,
     val left: Boolean = false
 ) {
     val isLeader: Boolean get() = party?.leaderId != null && party.leaderId == myId
+
+    /** The new name's length as it will be stored (without spaces at either end). */
+    private val newNameLength: Int get() = newName?.trim()?.length ?: 0
+
+    /** Why the typed name can't be the party's; null while it's fine. */
+    val newNameProblem: com.pixelquest.app.darood.ui.create.PartyNameProblem?
+        get() = when {
+            newName == null -> null
+            newNameLength < DaroodRules.NAME_MIN -> com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_SHORT
+            newNameLength > DaroodRules.NAME_MAX -> com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_LONG
+            else -> null
+        }
 }
 
 /** A party's info: who's in it, and since when (docs/darood-design.md, Parties). */
@@ -125,7 +147,46 @@ class PartyInfoViewModel @Inject constructor(
         _uiState.update { it.copy(confirmingRemoval = member, problem = null) }
     }
 
-    fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null, confirmingLeave = false) }
+    fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null, confirmingLeave = false, newName = null, confirmingTransfer = null) }
+
+    /** The leader opens the rename dialog, with the party's name to edit. */
+    fun startRename() {
+        val party = _uiState.value.party ?: return
+        if (!_uiState.value.isLeader) return
+        _uiState.update { it.copy(newName = party.name, problem = null) }
+    }
+
+    fun onNewNameChange(name: String) = _uiState.update { if (it.newName == null) it else it.copy(newName = name.take(DaroodRules.NAME_MAX + 10)) }
+
+    /** Saves the typed name, if it can be a party's (2 to 40 characters, as the server insists) and is new. */
+    fun confirmRename() {
+        val state = _uiState.value
+        val name = state.newName?.trim() ?: return
+        if (state.busy || state.newNameProblem != null) return
+        if (name == state.party?.name) return dismissDialog()
+        _uiState.update { it.copy(newName = null, busy = true) }
+        viewModelScope.launch {
+            val result = repository.renameParty(partyId, name)
+            _uiState.update { it.copy(busy = false, problem = problemOf(result)) }
+        }
+    }
+
+    /** The leader asks to hand the leadership to [member]: the dialog asks if they're sure. */
+    fun askToTransfer(member: PartyMember) {
+        if (!_uiState.value.isLeader || member.role == PartyRole.LEADER) return
+        _uiState.update { it.copy(confirmingTransfer = member, problem = null) }
+    }
+
+    /** Hands the leadership over. The player stays in the party as a member, and can then leave it. */
+    fun confirmTransfer() {
+        val member = _uiState.value.confirmingTransfer ?: return
+        if (_uiState.value.busy) return
+        _uiState.update { it.copy(confirmingTransfer = null, busy = true) }
+        viewModelScope.launch {
+            val result = repository.transferLeadership(partyId, member.userId)
+            _uiState.update { it.copy(busy = false, problem = problemOf(result)) }
+        }
+    }
 
     /** A member asks to leave: the dialog asks if they're sure. The leader hands over first, as the server insists. */
     fun askToLeave() {
@@ -178,6 +239,11 @@ fun PartyInfoScreen(
         onConfirmRemoval = viewModel::confirmRemoval,
         onLeave = viewModel::askToLeave,
         onConfirmLeave = viewModel::confirmLeave,
+        onRename = viewModel::startRename,
+        onNewNameChange = viewModel::onNewNameChange,
+        onConfirmRename = viewModel::confirmRename,
+        onTransfer = viewModel::askToTransfer,
+        onConfirmTransfer = viewModel::confirmTransfer,
         onDismissDialog = viewModel::dismissDialog
     )
 }
@@ -191,6 +257,11 @@ fun PartyInfoContent(
     onConfirmRemoval: () -> Unit = {},
     onLeave: () -> Unit = {},
     onConfirmLeave: () -> Unit = {},
+    onRename: () -> Unit = {},
+    onNewNameChange: (String) -> Unit = {},
+    onConfirmRename: () -> Unit = {},
+    onTransfer: (PartyMember) -> Unit = {},
+    onConfirmTransfer: () -> Unit = {},
     onDismissDialog: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
@@ -233,12 +304,23 @@ fun PartyInfoContent(
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurface
             )
-            if (state.isLeader && !party.isFinished) {
-                PixelButton(
-                    text = stringResource(R.string.darood_add_title),
-                    onClick = onAddPeople,
-                    modifier = Modifier.testTag(DaroodTestTags.INFO_ADD_PEOPLE)
-                )
+            if (state.isLeader) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (!party.isFinished) {
+                        PixelButton(
+                            text = stringResource(R.string.darood_add_title),
+                            onClick = onAddPeople,
+                            modifier = Modifier.testTag(DaroodTestTags.INFO_ADD_PEOPLE)
+                        )
+                    }
+                    PixelButton(
+                        text = stringResource(R.string.darood_info_rename),
+                        onClick = onRename,
+                        variant = PixelButtonVariant.BLUE,
+                        enabled = !state.busy,
+                        modifier = Modifier.testTag(DaroodTestTags.INFO_RENAME)
+                    )
+                }
             }
             Text(
                 text = stringResource(R.string.darood_info_members),
@@ -251,8 +333,9 @@ fun PartyInfoContent(
                 MemberRow(
                     member = member,
                     isMe = member.userId == state.myId,
-                    // The leader removes members, never themselves (they hand over or delete instead).
+                    // The leader removes members or hands them the lead, never themselves.
                     onRemove = if (state.isLeader && member.role != PartyRole.LEADER) ({ onRemove(member) }) else null,
+                    onTransfer = if (state.isLeader && member.role != PartyRole.LEADER) ({ onTransfer(member) }) else null,
                     enabled = !state.busy
                 )
             }
@@ -296,6 +379,39 @@ fun PartyInfoContent(
             onDismiss = onDismissDialog
         )
     }
+    state.confirmingTransfer?.let { member ->
+        PixelConfirmDialog(
+            title = stringResource(R.string.darood_info_transfer_title, displayName(member)),
+            message = stringResource(R.string.darood_info_transfer_message),
+            confirmText = stringResource(R.string.darood_info_make_leader),
+            dismissText = stringResource(R.string.darood_cancel),
+            onConfirm = onConfirmTransfer,
+            onDismiss = onDismissDialog
+        )
+    }
+    state.newName?.let { name ->
+        PixelDialog(
+            onDismissRequest = onDismissDialog,
+            title = stringResource(R.string.darood_info_rename_title),
+            confirmButtonText = stringResource(R.string.darood_info_rename_save),
+            onConfirm = onConfirmRename,
+            dismissButtonText = stringResource(R.string.darood_cancel),
+            onDismiss = onDismissDialog
+        ) {
+            PixelTextField(
+                value = name,
+                onValueChange = onNewNameChange,
+                label = stringResource(R.string.darood_create_name),
+                errorText = when (state.newNameProblem) {
+                    com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_SHORT -> stringResource(R.string.darood_create_name_too_short)
+                    com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_LONG -> stringResource(R.string.darood_create_name_too_long)
+                    null -> null
+                },
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
+                modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_RENAME_FIELD)
+            )
+        }
+    }
 }
 
 /** Why the last change didn't happen. */
@@ -323,9 +439,9 @@ private fun ProblemLine(problem: InfoProblem) {
 private fun displayName(member: PartyMember): String =
     member.username?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone)
 
-/** One member: their username, their role, the day they joined, and for the leader, a way to remove them. */
+/** One member: their username, their role, the day they joined, and for the leader, a way to hand over or remove. */
 @Composable
-private fun MemberRow(member: PartyMember, isMe: Boolean, onRemove: (() -> Unit)?, enabled: Boolean) {
+private fun MemberRow(member: PartyMember, isMe: Boolean, onRemove: (() -> Unit)?, onTransfer: (() -> Unit)?, enabled: Boolean) {
     val colors = PixelTheme.colors
     val name = displayName(member)
     PixelCard(
@@ -333,38 +449,56 @@ private fun MemberRow(member: PartyMember, isMe: Boolean, onRemove: (() -> Unit)
         contentPadding = 12.dp,
         modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.member(member.userId))
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = if (isMe) stringResource(R.string.darood_info_you, name) else name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = inkOnPanel(colors.primaryText)
+                    )
+                    member.joinedAt?.let { joined ->
+                        Text(
+                            text = stringResource(R.string.darood_info_joined, joinedDate(joined)),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = inkOnPanel(colors.onSurfaceVariant)
+                        )
+                    }
+                }
                 Text(
-                    text = if (isMe) stringResource(R.string.darood_info_you, name) else name,
-                    style = MaterialTheme.typography.bodyLarge,
+                    text = stringResource(if (member.role == PartyRole.LEADER) R.string.darood_badge_leader else R.string.darood_badge_member),
+                    style = MaterialTheme.typography.labelMedium,
                     color = inkOnPanel(colors.primaryText)
                 )
-                member.joinedAt?.let { joined ->
-                    Text(
-                        text = stringResource(R.string.darood_info_joined, joinedDate(joined)),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = inkOnPanel(colors.onSurfaceVariant)
-                    )
-                }
             }
-            Text(
-                text = stringResource(if (member.role == PartyRole.LEADER) R.string.darood_badge_leader else R.string.darood_badge_member),
-                style = MaterialTheme.typography.labelMedium,
-                color = inkOnPanel(colors.primaryText)
-            )
-            if (onRemove != null) {
-                val label = stringResource(R.string.darood_info_remove_label, name)
-                PixelButton(
-                    text = stringResource(R.string.darood_info_remove),
-                    onClick = onRemove,
-                    variant = PixelButtonVariant.BLUE,
-                    enabled = enabled,
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .semantics { contentDescription = label }
-                        .testTag(DaroodTestTags.memberRemove(member.userId))
-                )
+            // The leader's tools for this member, on their own line so the name keeps its room.
+            if (onTransfer != null || onRemove != null) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
+                    if (onTransfer != null) {
+                        val label = stringResource(R.string.darood_info_make_leader_label, name)
+                        PixelButton(
+                            text = stringResource(R.string.darood_info_make_leader),
+                            onClick = onTransfer,
+                            variant = PixelButtonVariant.BLUE,
+                            enabled = enabled,
+                            modifier = Modifier
+                                .semantics { contentDescription = label }
+                                .testTag(DaroodTestTags.memberTransfer(member.userId))
+                        )
+                    }
+                    if (onRemove != null) {
+                        val label = stringResource(R.string.darood_info_remove_label, name)
+                        PixelButton(
+                            text = stringResource(R.string.darood_info_remove),
+                            onClick = onRemove,
+                            variant = PixelButtonVariant.BLUE,
+                            enabled = enabled,
+                            modifier = Modifier
+                                .semantics { contentDescription = label }
+                                .testTag(DaroodTestTags.memberRemove(member.userId))
+                        )
+                    }
+                }
             }
         }
     }

@@ -40,9 +40,12 @@ object DaroodTestTags {
     const val INFO_PROBLEM = "darood_info_problem"
     const val INFO_LEAVE = "darood_info_leave"
     const val INFO_LEAVE_HINT = "darood_info_leave_hint"
+    const val INFO_RENAME = "darood_info_rename"
+    const val INFO_RENAME_FIELD = "darood_info_rename_field"
 
     fun member(userId: String) = "darood_member_$userId"
     fun memberRemove(userId: String) = "darood_member_remove_$userId"
+    fun memberTransfer(userId: String) = "darood_member_transfer_$userId"
 
     fun partyRow(partyId: String) = "darood_party_$partyId"
     fun inviteRow(partyId: String) = "darood_invite_$partyId"

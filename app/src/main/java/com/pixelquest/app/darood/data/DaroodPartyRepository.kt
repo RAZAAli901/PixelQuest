@@ -104,6 +104,10 @@ interface DaroodPartyRepository {
     suspend fun removeMember(partyId: String, userId: String): SupabaseResult<Unit>
 
     suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long>
+
+    suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit>
+
+    suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit>
 }
 
 /**
@@ -313,6 +317,12 @@ class DaroodPartyRepositoryImpl(
 
     override suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long> =
         remote.setMilestone(partyId, target).alsoOnSuccess { refreshParties() }
+
+    override suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit> =
+        remote.renameParty(partyId, name).alsoOnSuccess { refreshParties() }
+
+    override suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit> =
+        remote.transferLeadership(partyId, userId).alsoOnSuccess { refreshParty(partyId) }
 
     private suspend inline fun <T> SupabaseResult<T>.alsoOnSuccess(then: () -> Unit): SupabaseResult<T> {
         if (this is SupabaseResult.Success) then()

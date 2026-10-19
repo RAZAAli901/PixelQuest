@@ -233,6 +233,33 @@ localTest("only the leader invites, removes, renames and sets the milestone; nob
   assert.equal((await rpc(leader, "remove_member", { party_id: party, user_id: leader.userId })).body.message, "not_a_member");
 });
 
+localTest("the leader hands over to an active member, then can leave; nobody else can (20261019000027)", async () => {
+  const { leader, member, invitee, outsider } = await cast();
+  const party = await partyOf(leader, [member]);
+  await rpc(leader, "invite_member", { party_id: party, username: invitee.username });
+  const hand = (who: Session, to: string) => rpc(who, "transfer_leadership", { party_id: party, user_id: to });
+
+  assert.equal((await hand(member, member.userId)).body.message, "not_leader");
+  assert.equal((await hand(outsider, outsider.userId)).status, 403);
+  for (const to of [invitee.userId, outsider.userId, leader.userId]) {
+    const refused = await hand(leader, to);
+    assert.deepEqual([refused.status, refused.body.message], [400, "not_a_member"], to);
+  }
+  assert.equal((await call("/rest/v1/rpc/transfer_leadership", { body: { party_id: party, user_id: member.userId } })).status, 401);
+
+  assert.deepEqual((await hand(leader, member.userId)).body, { leader_id: member.userId });
+  const roles = (await asService(`/rest/v1/party_members?party_id=eq.${party}&status=eq.active&select=user_id,role&order=role`)).body;
+  assert.deepEqual(roles, [{ user_id: member.userId, role: "leader" }, { user_id: leader.userId, role: "member" }]);
+  assert.equal((await asService(`/rest/v1/parties?id=eq.${party}&select=leader_id`)).body[0].leader_id, member.userId);
+
+  // The new leader leads; the old one is a member, who can now leave.
+  assert.equal((await rpc(leader, "set_milestone", { party_id: party, target: 5000 })).body.message, "not_leader");
+  assert.equal((await rpc(member, "set_milestone", { party_id: party, target: 5000 })).body.milestone, 5000);
+  assert.equal((await hand(leader, leader.userId)).body.message, "not_leader");
+  assert.deepEqual((await rpc(leader, "leave_party", { party_id: party })).body, { status: "left" });
+  assert.equal((await rpc(member, "leave_party", { party_id: party })).body.message, "leader_must_hand_over");
+});
+
 localTest("invitations: the same answer for unknown names, then accepted, declined or renewed", async () => {
   const { leader, member, invitee } = await cast();
   const party = await partyOf(leader, []);

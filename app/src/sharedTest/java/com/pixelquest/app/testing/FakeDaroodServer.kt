@@ -135,6 +135,33 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         SupabaseResult.Success(setStatus(partyId, userId, "removed"))
     }
 
+    override suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit> = answer("renameParty") { account ->
+        val party = parties[partyId]
+        val trimmed = name.trim()
+        when {
+            party?.leaderId != account -> refuse("not_leader", 403)
+            trimmed.length !in DaroodRules.NAME_MIN..DaroodRules.NAME_MAX -> refuse("new row violates check constraint \"party_name_length\"")
+            else -> SupabaseResult.Success(Unit).also { parties[partyId] = party.copy(name = trimmed) }
+        }
+    }
+
+    override suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit> = answer("transferLeadership") { account ->
+        val party = parties[partyId]
+        if (party?.leaderId != account) return@answer refuse("not_leader", 403)
+        val target = membership(partyId, userId)
+        if (target?.status != "active" || target.role != "member") return@answer refuse("not_a_member")
+        members.replaceAll {
+            when {
+                it.partyId != partyId -> it
+                it.userId == account -> it.copy(role = "member")
+                it.userId == userId -> it.copy(role = "leader")
+                else -> it
+            }
+        }
+        parties[partyId] = party.copy(leaderId = userId)
+        SupabaseResult.Success(Unit)
+    }
+
     override suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long> = answer("setMilestone") { account ->
         val party = parties[partyId]
         when {
