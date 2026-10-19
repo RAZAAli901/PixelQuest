@@ -21,6 +21,7 @@ object DaroodTestTags {
     const val CREATE_LIMIT = "darood_create_limit"
     const val CREATE_FEWER = "darood_create_fewer"
     const val CREATE_MORE = "darood_create_more"
+    const val CREATE_MILESTONE = "darood_create_milestone"
 
     fun partyRow(partyId: String) = "darood_party_$partyId"
     fun inviteRow(partyId: String) = "darood_invite_$partyId"

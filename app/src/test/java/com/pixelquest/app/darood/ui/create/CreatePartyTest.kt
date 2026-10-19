@@ -92,4 +92,40 @@ class CreatePartyTest {
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_LIMIT).assertTextEquals("2")
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_FEWER).assertIsNotEnabled()
     }
+
+    @Test
+    fun theMilestone_isOptional_andDigitsOnly() {
+        val viewModel = CreatePartyViewModel()
+        assertNull(viewModel.uiState.value.milestone)
+
+        viewModel.onMilestoneChange("100000")
+        assertEquals(100_000L, viewModel.uiState.value.milestone)
+        viewModel.onMilestoneChange("10,000 Darood")
+        assertEquals("10000", viewModel.uiState.value.milestoneText)
+        viewModel.onMilestoneChange("-5")
+        assertEquals(5L, viewModel.uiState.value.milestone)
+        viewModel.onMilestoneChange("1.5e3")
+        assertEquals("153", viewModel.uiState.value.milestoneText)
+        viewModel.onMilestoneChange("0007")
+        assertEquals("7", viewModel.uiState.value.milestoneText)
+        viewModel.onMilestoneChange("123456789012345")
+        assertEquals("1234567890", viewModel.uiState.value.milestoneText)
+        viewModel.onMilestoneChange("abc")
+        assertNull(viewModel.uiState.value.milestone)
+        viewModel.onMilestoneChange("000")
+        assertTrue(viewModel.uiState.value.milestoneIsZero)
+    }
+
+    @Test
+    fun theMilestoneField_readsTheNumberBack() {
+        val viewModel = CreatePartyViewModel()
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Light, darkTheme = false) { CreatePartyScreen(onNavigateBack = {}, viewModel = viewModel) }
+        }
+        composeTestRule.onNodeWithText("The total the party aims for. You can set it later.").assertIsDisplayed()
+        composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_MILESTONE))).performTextInput("100000")
+        composeTestRule.onNodeWithText("The party aims for 100,000 together.").assertIsDisplayed()
+        composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_MILESTONE))).performTextReplacement("0")
+        composeTestRule.onNodeWithText("The milestone must be above 0, or left empty.").assertIsDisplayed()
+    }
 }

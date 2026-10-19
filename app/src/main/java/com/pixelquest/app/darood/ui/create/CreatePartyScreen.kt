@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
@@ -51,6 +52,7 @@ fun CreatePartyScreen(
         onNameChange = viewModel::onNameChange,
         onFewer = viewModel::fewerMembers,
         onMore = viewModel::moreMembers,
+        onMilestoneChange = viewModel::onMilestoneChange,
         onNavigateBack = onNavigateBack
     )
 }
@@ -61,7 +63,8 @@ fun CreatePartyContent(
     onNameChange: (String) -> Unit,
     onNavigateBack: () -> Unit,
     onFewer: () -> Unit = {},
-    onMore: () -> Unit = {}
+    onMore: () -> Unit = {},
+    onMilestoneChange: (String) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -117,6 +120,24 @@ fun CreatePartyContent(
                 )
             }
             MemberLimitStepper(count = state.maxMembers, canFewer = state.canHaveFewer, canMore = state.canHaveMore, onFewer = onFewer, onMore = onMore)
+            // The milestone: optional now, and the leader can set it later.
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                PixelTextField(
+                    value = state.milestoneText,
+                    onValueChange = onMilestoneChange,
+                    label = stringResource(R.string.darood_create_milestone),
+                    placeholder = stringResource(R.string.darood_create_milestone_placeholder),
+                    errorText = if (state.milestoneIsZero) stringResource(R.string.darood_create_milestone_zero) else null,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                    modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.CREATE_MILESTONE)
+                )
+                Text(
+                    text = state.milestone?.takeIf { it > 0 }?.let { stringResource(R.string.darood_create_milestone_read, com.pixelquest.app.darood.ui.formatCount(it)) }
+                        ?: stringResource(R.string.darood_create_milestone_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+            }
         }
     }
 }

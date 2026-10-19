@@ -37,6 +37,11 @@
     <string name="darood_create_name_too_short">At least 2 characters.</string>
     <string name="darood_create_name_too_long">At most 40 characters.</string>
     <string name="darood_create_limit">How many can join</string>
+    <string name="darood_create_milestone">Milestone (optional)</string>
+    <string name="darood_create_milestone_placeholder">e.g. 100000</string>
+    <string name="darood_create_milestone_hint">The total the party aims for. You can set it later.</string>
+    <string name="darood_create_milestone_read">The party aims for <xliff:g id="milestone" example="100,000">%1$s</xliff:g> together.</string>
+    <string name="darood_create_milestone_zero">The milestone must be above 0, or left empty.</string>
     <string name="darood_create_fewer">Fewer people</string>
     <string name="darood_create_more">More people</string>
     <string name="darood_create_limit_hint">2 to 30 people, you included. Invitations count until they\'re answered.</string>
