@@ -36,7 +36,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 /** One surah in the reader, with its state from [SurahReaderViewModel]. */
 @Composable
-fun SurahReaderRoute(onNavigateBack: () -> Unit, viewModel: SurahReaderViewModel = hiltViewModel()) {
+fun SurahReaderRoute(
+    onNavigateBack: () -> Unit,
+    onOpenSurah: (Int) -> Unit = {},
+    viewModel: SurahReaderViewModel = hiltViewModel()
+) {
     val state by viewModel.state.collectAsState()
     SurahReaderScreen(
         state = state,
@@ -45,7 +49,8 @@ fun SurahReaderRoute(onNavigateBack: () -> Unit, viewModel: SurahReaderViewModel
         onScrolled = viewModel::onScrolled,
         onTargetShown = viewModel::onTargetShown,
         onDisplayMode = viewModel::setDisplayMode,
-        onSettings = viewModel::updateSettings
+        onSettings = viewModel::updateSettings,
+        onOpenSurah = onOpenSurah
     )
 }
 
@@ -65,6 +70,7 @@ fun SurahReaderScreen(
     onTargetShown: () -> Unit = {},
     onDisplayMode: (DisplayMode) -> Unit = {},
     onSettings: (ReadingSettings) -> Unit = {},
+    onOpenSurah: (Int) -> Unit = {},
     listState: LazyListState = rememberLazyListState()
 ) {
     val colors = PixelTheme.colors
@@ -131,6 +137,10 @@ fun SurahReaderScreen(
                     AyahItem(ayah = ayah, mode = state.displayMode, typography = typography)
                     HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
                 }
+                // The surah's end: on to the next, or back to the one before.
+                if (!state.hasMore && state.ayahs.isNotEmpty()) {
+                    item(key = "neighbours") { SurahNeighbours(previous = state.previous, next = state.next, onOpenSurah = onOpenSurah) }
+                }
             }
         }
     }
@@ -183,6 +193,8 @@ private const val LOAD_AHEAD = 10
 object ReaderTags {
     const val SCREEN = "quran_reader"
     const val BISMILLAH = "quran_bismillah"
+    const val PREVIOUS = "quran_previous_surah"
+    const val NEXT = "quran_next_surah"
     const val LIST = "quran_reader_list"
     const val SETTINGS = "quran_reader_settings"
     const val SETTINGS_SHEET = "quran_reader_settings_sheet"

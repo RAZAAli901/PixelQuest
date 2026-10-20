@@ -28,6 +28,14 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
             navArgument(SurahReaderViewModel.ARG_AYAH) { type = NavType.IntType; defaultValue = 0 }
         )
     ) {
-        SurahReaderRoute(onNavigateBack = { navController.popBackStack() })
+        SurahReaderRoute(
+            onNavigateBack = { navController.popBackStack() },
+            // The next (or previous) surah opens in this one's place: Back still returns to the list.
+            onOpenSurah = { surah ->
+                navController.navigate(Screen.QuranSurah.createRoute(surah)) {
+                    popUpTo(Screen.QuranSurah.route) { inclusive = true }
+                }
+            }
+        )
     }
 }

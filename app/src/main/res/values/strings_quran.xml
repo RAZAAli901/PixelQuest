@@ -40,6 +40,9 @@
     <string name="quran_mode_arabic">Arabic</string>
     <string name="quran_mode_both">Both</string>
     <string name="quran_mode_translation">Translation</string>
+    <!-- At a surah's end: the one before it and the one after, by their English names. -->
+    <string name="quran_previous_surah">◀ <xliff:g id="surah" example="Al-Faatiha">%s</xliff:g></string>
+    <string name="quran_next_surah"><xliff:g id="surah" example="Aal-i-Imraan">%s</xliff:g> ▶</string>
     <!-- The reader's top-bar action: its sizes, spacing and what each ayah shows. -->
     <string name="quran_reader_settings">Reading settings</string>
     <!-- The Quran screen's two lists. -->

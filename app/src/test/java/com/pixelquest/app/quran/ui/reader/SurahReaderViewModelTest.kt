@@ -87,6 +87,17 @@ class SurahReaderViewModelTest {
     }
 
     @Test
+    fun itKnowsItsNeighbours_andTheEndsHaveOne() {
+        val middle = reader(2)
+        assertEquals(1, middle.state.value.previous!!.number)
+        assertNull("this made-up Quran ends at 2", middle.state.value.next)
+
+        val first = reader(1)
+        assertNull(first.state.value.previous)
+        assertEquals(2, first.state.value.next!!.number)
+    }
+
+    @Test
     fun aShortSurah_isAllThere_inOnePage() {
         val vm = reader(1)
 

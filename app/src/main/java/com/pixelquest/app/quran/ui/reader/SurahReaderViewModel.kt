@@ -35,9 +35,12 @@ enum class DisplayMode {
  * @param target the ayah to bring into view (and flash) once it's loaded: the one the reader was
  *   opened at, or where the player had scrolled to before a rotation; null for the surah's start.
  * @param settings the sizes, spacing and display mode the player reads with.
+ * @param previous the surah before this one, and [next] the one after: null at either end.
  */
 data class ReaderUiState(
     val surah: Surah? = null,
+    val previous: Surah? = null,
+    val next: Surah? = null,
     val ayahs: List<Ayah> = emptyList(),
     val hasMore: Boolean = true,
     val loading: Boolean = false,
@@ -78,7 +81,13 @@ class SurahReaderViewModel @Inject constructor(
             settingsStore.settings.collect { settings -> _state.update { it.copy(settings = settings) } }
         }
         viewModelScope.launch {
-            _state.update { it.copy(surah = repository.surah(surahNumber)) }
+            _state.update {
+                it.copy(
+                    surah = repository.surah(surahNumber),
+                    previous = repository.surah(surahNumber - 1),
+                    next = repository.surah(surahNumber + 1)
+                )
+            }
             val target = _state.value.target
             // Up to the target at once, so it can be scrolled to; else the first page.
             do {
