@@ -3,6 +3,10 @@ package com.pixelquest.app.quran.ui.reader
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -12,11 +16,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -31,14 +39,16 @@ import kotlin.math.roundToInt
 
 /**
  * How the player reads: the Arabic's size, the translation's, the space between lines, what each
- * ayah shows, and the page it's on. Kept on the phone (ReadingSettingsStore).
+ * ayah shows, the page it's on, and whether the screen stays on while reading (off unless chosen).
+ * Kept on the phone (ReadingSettingsStore).
  */
 data class ReadingSettings(
     val arabicSize: Float = QuranTypography.ARABIC_DEFAULT,
     val translationSize: Float = QuranTypography.TRANSLATION_DEFAULT,
     val lineSpacing: Float = QuranTypography.SPACING_DEFAULT,
     val displayMode: DisplayMode = DisplayMode.BOTH,
-    val paper: ReaderPaper = ReaderPaper.THEME
+    val paper: ReaderPaper = ReaderPaper.THEME,
+    val keepScreenOn: Boolean = false
 ) {
     /** The reader's text styles for these settings. */
     fun typography(color: androidx.compose.ui.graphics.Color) =
@@ -129,6 +139,7 @@ fun ReadingSettingsContent(
             tag = ReaderTags.LINE_SPACING,
             onChange = { onChange(settings.copy(lineSpacing = it)) }
         )
+        KeepScreenOnSwitch(on = settings.keepScreenOn, onChange = { onChange(settings.copy(keepScreenOn = it)) })
         if (onOpenTranslations != null) {
             PixelButton(
                 text = stringResource(R.string.quran_translation_open, translation),
@@ -144,6 +155,37 @@ fun ReadingSettingsContent(
                 if (settings.displayMode != DisplayMode.ARABIC) Text(text = preview.second, style = typography.translation, modifier = Modifier.fillMaxWidth())
             }
         }
+    }
+}
+
+/** Whether the screen stays on while reading: the whole row is the switch, read by TalkBack as one. */
+@Composable
+private fun KeepScreenOnSwitch(on: Boolean, onChange: (Boolean) -> Unit) {
+    val colors = PixelTheme.colors
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
+            .testTag(ReaderTags.KEEP_SCREEN_ON)
+    ) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(text = stringResource(R.string.quran_keep_screen_on), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
+            Text(text = stringResource(R.string.quran_keep_screen_on_explained), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Switch(
+            checked = on,
+            onCheckedChange = null,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = colors.onPrimary,
+                checkedTrackColor = colors.primary,
+                uncheckedThumbColor = colors.onSurfaceVariant,
+                uncheckedTrackColor = colors.surfaceVariant,
+                uncheckedBorderColor = colors.pixelBorder
+            )
+        )
     }
 }
 

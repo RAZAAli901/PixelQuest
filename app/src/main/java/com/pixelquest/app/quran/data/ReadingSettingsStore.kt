@@ -2,6 +2,7 @@ package com.pixelquest.app.quran.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -41,7 +42,8 @@ class DataStoreReadingSettingsStore @Inject constructor(
                 .coerceIn(QuranTypography.SPACING_MIN, QuranTypography.SPACING_MAX),
             displayMode = prefs[DISPLAY_MODE]?.let { name -> DisplayMode.entries.firstOrNull { it.name == name } }
                 ?: DisplayMode.BOTH,
-            paper = prefs[PAPER]?.let { name -> ReaderPaper.entries.firstOrNull { it.name == name } } ?: ReaderPaper.THEME
+            paper = prefs[PAPER]?.let { name -> ReaderPaper.entries.firstOrNull { it.name == name } } ?: ReaderPaper.THEME,
+            keepScreenOn = prefs[KEEP_SCREEN_ON] ?: false
         )
     }
 
@@ -52,6 +54,7 @@ class DataStoreReadingSettingsStore @Inject constructor(
             prefs[LINE_SPACING] = settings.lineSpacing
             prefs[DISPLAY_MODE] = settings.displayMode.name
             prefs[PAPER] = settings.paper.name
+            prefs[KEEP_SCREEN_ON] = settings.keepScreenOn
         }
     }
 
@@ -64,5 +67,6 @@ class DataStoreReadingSettingsStore @Inject constructor(
         private val LINE_SPACING = floatPreferencesKey("line_spacing")
         private val DISPLAY_MODE = stringPreferencesKey("display_mode")
         private val PAPER = stringPreferencesKey("paper")
+        private val KEEP_SCREEN_ON = booleanPreferencesKey("keep_screen_on")
     }
 }

@@ -112,6 +112,16 @@ class ReadingSettingsTest {
     }
 
     @Test
+    fun keepingTheScreenOn_isOffUntilChosen() {
+        show()
+        assertEquals(false, latest.keepScreenOn)
+
+        composeTestRule.onNodeWithTag(ReaderTags.KEEP_SCREEN_ON).performClick()
+
+        assertEquals(true, latest.keepScreenOn)
+    }
+
+    @Test
     fun aValue_snapsToItsStep() {
         assertEquals(28f, snap(27.3f, 20f, 2f))
         assertEquals(0.9f, snap(0.86f, 0.8f, 0.1f), 0.0001f)

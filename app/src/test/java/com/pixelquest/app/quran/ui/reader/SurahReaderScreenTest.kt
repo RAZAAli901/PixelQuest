@@ -118,6 +118,29 @@ class SurahReaderScreenTest {
     }
 
     @Test
+    fun theScreen_staysOn_onlyWhenChosen_andOnlyWhileReading() {
+        var settings by mutableStateOf(ReadingSettings())
+        var reading by mutableStateOf(true)
+        lateinit var view: android.view.View
+        composeTestRule.setContent {
+            view = androidx.compose.ui.platform.LocalView.current
+            PixelQuestTheme {
+                if (reading) SurahReaderScreen(state = ReaderUiState(surah = surah, ayahs = ayahs(5), settings = settings), onNavigateBack = {})
+            }
+        }
+        composeTestRule.waitForIdle()
+        assertEquals(false, view.keepScreenOn)
+
+        settings = ReadingSettings(keepScreenOn = true)
+        composeTestRule.waitForIdle()
+        assertEquals(true, view.keepScreenOn)
+
+        reading = false
+        composeTestRule.waitForIdle()
+        assertEquals("leaving the reader lets it sleep", false, view.keepScreenOn)
+    }
+
+    @Test
     fun changingThePage_keepsTheSettingsOpen() {
         var state by mutableStateOf(ReaderUiState(surah = surah, ayahs = ayahs(5)))
         composeTestRule.setContent {

@@ -44,6 +44,8 @@
     <string name="quran_paper">Page</string>
     <string name="quran_paper_theme">Theme</string>
     <string name="quran_paper_sepia">Sepia</string>
+    <string name="quran_keep_screen_on">Keep the screen on</string>
+    <string name="quran_keep_screen_on_explained">While the reader is open, so it doesn\'t dim as you read. Uses more battery.</string>
     <!-- At a surah's end: the one before it and the one after, by their English names. -->
     <string name="quran_previous_surah">◀ <xliff:g id="surah" example="Al-Faatiha">%s</xliff:g></string>
     <string name="quran_next_surah"><xliff:g id="surah" example="Aal-i-Imraan">%s</xliff:g> ▶</string>

@@ -42,7 +42,7 @@ class ReadingSettingsStoreTest {
 
     @Test
     fun whatsSaved_comesBack() = runBlocking {
-        val chosen = ReadingSettings(arabicSize = 36f, translationSize = 20f, lineSpacing = 1.2f, displayMode = DisplayMode.ARABIC, paper = com.pixelquest.app.quran.ui.reader.ReaderPaper.SEPIA)
+        val chosen = ReadingSettings(arabicSize = 36f, translationSize = 20f, lineSpacing = 1.2f, displayMode = DisplayMode.ARABIC, paper = com.pixelquest.app.quran.ui.reader.ReaderPaper.SEPIA, keepScreenOn = true)
         store.save(chosen)
 
         assertEquals(chosen, store.settings.first())

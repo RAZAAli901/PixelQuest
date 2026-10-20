@@ -16,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import android.content.Intent
@@ -116,6 +118,7 @@ fun SurahReaderScreen(
     onAyahAction: (Ayah, AyahAction) -> Unit = { _, _ -> },
     listState: LazyListState = rememberLazyListState()
 ) {
+    KeepScreenOn(state.settings.keepScreenOn)
     ReaderPage(state.settings.paper) {
         val colors = PixelTheme.colors
         val surah = state.surah
@@ -275,6 +278,17 @@ private fun ReaderEffects(
 /** How long the ayah the reader was opened at stays marked before it fades. */
 internal const val FLASH_MILLIS = 1_500L
 
+/** While [enabled], the screen doesn't dim and sleep: only while the reader is open. */
+@Composable
+internal fun KeepScreenOn(enabled: Boolean) {
+    if (!enabled) return
+    val view = LocalView.current
+    DisposableEffect(view) {
+        view.keepScreenOn = true
+        onDispose { view.keepScreenOn = false }
+    }
+}
+
 /** How many ayahs before the end of those loaded the next page is asked for. */
 private const val LOAD_AHEAD = 10
 
@@ -292,6 +306,7 @@ object ReaderTags {
     const val ARABIC_SIZE = "quran_setting_arabic_size"
     const val TRANSLATION_SIZE = "quran_setting_translation_size"
     const val LINE_SPACING = "quran_setting_line_spacing"
+    const val KEEP_SCREEN_ON = "quran_setting_keep_screen_on"
 
     fun ayah(number: Int) = "quran_ayah_$number"
 
