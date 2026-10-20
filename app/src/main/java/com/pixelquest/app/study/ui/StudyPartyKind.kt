@@ -17,9 +17,13 @@ import com.pixelquest.app.party.domain.Phrase
 object StudyPartyKind : PartyKind {
     override val type = PartyType.STUDY
     override val titleRes = R.string.party_study_title
+    override val listTitleRes = R.string.party_study_list_title
+    override val emptyBodyRes = R.string.party_study_empty_body
+    override val signedOutBodyRes = R.string.party_signed_out_body
+    override val handOverRes = R.string.party_hand_over
     override val icon = "📚"
     override val tabs = listOf(PartyTab.THIS_WEEK, PartyTab.ALL_ITEMS, PartyTab.SCOREBOARD, PartyTab.PEOPLE)
-    override val rules = PartyKindRules(milestone = false, raceBoard = false)
+    override val rules = PartyKindRules(milestone = false, raceBoard = false, weeklyNote = false)
 
     /** Its members. */
     override fun summary(party: Party) = PartySummary(main = listOf(Phrase.Plural(R.plurals.party_members, party.memberCount)))

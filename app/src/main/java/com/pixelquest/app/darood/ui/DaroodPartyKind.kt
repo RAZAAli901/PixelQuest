@@ -16,9 +16,13 @@ import com.pixelquest.app.party.domain.Phrase
 object DaroodPartyKind : PartyKind {
     override val type = PartyType.DAROOD
     override val titleRes = R.string.darood_title
+    override val listTitleRes = R.string.darood_title
+    override val emptyBodyRes = R.string.darood_empty_body
+    override val signedOutBodyRes = R.string.darood_signed_out_body
+    override val handOverRes = R.string.darood_info_transfer_message
     override val icon = "📿"
     override val tabs = listOf(PartyTab.CHAT, PartyTab.PEOPLE)
-    override val rules = PartyKindRules(milestone = true, raceBoard = true)
+    override val rules = PartyKindRules(milestone = true, raceBoard = true, weeklyNote = true)
 
     /** Its members and total; then how far it is to its milestone, or that it has none yet. */
     override fun summary(party: Party): PartySummary {

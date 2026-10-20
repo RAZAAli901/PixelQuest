@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -19,14 +18,15 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.darood.ui.formatCount
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelProgressBar
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.party.PartyKinds
+import com.pixelquest.app.party.ui.phraseText
 
-/** One party in the list: its name, how many are in it, its total, and how far it is to its milestone. */
+/** One party in the list: its name, then what its kind says about it (a Darood Party's members, total and milestone). */
 @Composable
 fun PartyRow(party: Party, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = PixelTheme.colors
@@ -56,23 +56,17 @@ fun PartyRow(party: Party, onClick: () -> Unit, modifier: Modifier = Modifier) {
                     )
                 }
             }
+            // What the party's kind says about it: a Darood Party its members, total and milestone.
+            val summary = PartyKinds.of(party.type).summary(party)
             Text(
-                text = pluralStringResource(R.plurals.darood_members, party.memberCount, party.memberCount) + "  ·  " +
-                    stringResource(R.string.darood_total, formatCount(party.total)),
+                text = summary.main.map { phraseText(it) }.joinToString("  ·  "),
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurface
             )
-            val milestone = party.milestone
-            if (milestone != null) {
-                PixelProgressBar(progress = party.progress ?: 0f, height = 12.dp)
+            summary.progress?.let { PixelProgressBar(progress = it, height = 12.dp) }
+            summary.detail?.let { detail ->
                 Text(
-                    text = stringResource(R.string.darood_progress, formatCount(party.total), formatCount(milestone)),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant
-                )
-            } else {
-                Text(
-                    text = stringResource(R.string.darood_no_milestone),
+                    text = phraseText(detail),
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.onSurfaceVariant
                 )

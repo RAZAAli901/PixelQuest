@@ -130,23 +130,26 @@ fun CreatePartyContent(
                 )
             }
             MemberLimitStepper(count = state.maxMembers, canFewer = state.canHaveFewer, canMore = state.canHaveMore, onFewer = onFewer, onMore = onMore)
-            // The milestone: optional now, and the leader can set it later.
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                PixelTextField(
-                    value = state.milestoneText,
-                    onValueChange = onMilestoneChange,
-                    label = stringResource(R.string.darood_create_milestone),
-                    placeholder = stringResource(R.string.darood_create_milestone_placeholder),
-                    errorText = if (state.milestoneIsZero) stringResource(R.string.darood_create_milestone_zero) else null,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-                    modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.CREATE_MILESTONE)
-                )
-                Text(
-                    text = state.milestone?.takeIf { it > 0 }?.let { stringResource(R.string.darood_create_milestone_read, com.pixelquest.app.darood.ui.formatCount(it)) }
-                        ?: stringResource(R.string.darood_create_milestone_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant
-                )
+            // The milestone, for a kind that has one: optional now, and the leader can set it later.
+            if (state.asksMilestone) {
+                // The milestone: optional now, and the leader can set it later.
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    PixelTextField(
+                        value = state.milestoneText,
+                        onValueChange = onMilestoneChange,
+                        label = stringResource(R.string.darood_create_milestone),
+                        placeholder = stringResource(R.string.darood_create_milestone_placeholder),
+                        errorText = if (state.milestoneIsZero) stringResource(R.string.darood_create_milestone_zero) else null,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.CREATE_MILESTONE)
+                    )
+                    Text(
+                        text = state.milestone?.takeIf { it > 0 }?.let { stringResource(R.string.darood_create_milestone_read, com.pixelquest.app.darood.ui.formatCount(it)) }
+                            ?: stringResource(R.string.darood_create_milestone_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant
+                    )
+                }
             }
             state.error?.let { error ->
                 Text(

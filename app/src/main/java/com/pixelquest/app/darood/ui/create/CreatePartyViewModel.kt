@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.lifecycle.SavedStateHandle
+import com.pixelquest.app.party.PartyKinds
+import com.pixelquest.app.party.domain.PartyType
 
 /** What's wrong with a party's name, as typed. */
 enum class PartyNameProblem { TOO_SHORT, TOO_LONG }
@@ -41,10 +44,15 @@ data class CreatePartyUiState(
     val creating: Boolean = false,
     val error: CreatePartyError? = null,
     /** The new party's id, once it's made: the screen moves on to it. */
-    val created: String? = null
+    val created: String? = null,
+    /** The kind of party it starts: a Darood Party, unless the route says otherwise. */
+    val type: PartyType = PartyType.DAROOD
 ) {
+    /** Its kind has a milestone, asked for here (optional). */
+    val asksMilestone: Boolean get() = PartyKinds.of(type).rules.milestone
+
     /** Everything is as the server will accept it, and nothing is on its way. */
-    val canCreate: Boolean get() = nameIsValid && !milestoneIsZero && !creating && created == null
+    val canCreate: Boolean get() = nameIsValid && !(asksMilestone && milestoneIsZero) && !creating && created == null
 
     /** The milestone to start with, or null for none yet (it can be set later). */
     val milestone: Long? get() = milestoneText.toLongOrNull()
@@ -72,10 +80,11 @@ data class CreatePartyUiState(
 
 @HiltViewModel
 class CreatePartyViewModel @Inject constructor(
-    private val repository: DaroodPartyRepository
+    private val repository: DaroodPartyRepository,
+    savedStateHandle: SavedStateHandle = SavedStateHandle()
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CreatePartyUiState())
+    private val _uiState = MutableStateFlow(CreatePartyUiState(type = PartyType.fromWire(savedStateHandle[ARG_TYPE])))
     val uiState: StateFlow<CreatePartyUiState> = _uiState.asStateFlow()
 
     /** A little past the limit can still be typed, so the counter can say it's too long. */
@@ -93,7 +102,12 @@ class CreatePartyViewModel @Inject constructor(
         if (!state.canCreate) return
         _uiState.update { it.copy(creating = true, error = null) }
         viewModelScope.launch {
-            val result = repository.createParty(state.name.trim(), state.maxMembers, state.milestone)
+            // A Darood Party starts as it always has, with its milestone; another kind with its name and size.
+            val result = if (state.asksMilestone) {
+                repository.createParty(state.name.trim(), state.maxMembers, state.milestone)
+            } else {
+                repository.createParty(state.name.trim(), state.maxMembers, state.type)
+            }
             _uiState.update {
                 when {
                     result is SupabaseResult.Success -> it.copy(creating = false, created = result.data)
@@ -110,6 +124,9 @@ class CreatePartyViewModel @Inject constructor(
         _uiState.update { it.copy(milestoneText = text.filter(Char::isDigit).trimStart('0').ifEmpty { if (text.any(Char::isDigit)) "0" else "" }.take(MILESTONE_DIGITS)) }
 
     companion object {
+        /** The route's argument: the kind of party to start (PartyType's wire name); a Darood Party without it. */
+        const val ARG_TYPE = "type"
+
         /** Up to 9,999,999,999: far beyond any party's reach, and well inside the server's limit. */
         const val MILESTONE_DIGITS = 10
     }

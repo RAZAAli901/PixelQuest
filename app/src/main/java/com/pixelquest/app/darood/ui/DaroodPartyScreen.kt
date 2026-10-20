@@ -39,6 +39,7 @@ import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.party.domain.PartyKind
 
 /**
  * Darood Party's home, from the side menu: the account's parties. Parties need an account: signed
@@ -83,7 +84,8 @@ fun DaroodPartyContent(
     weeklyReminder: Boolean? = null,
     onWeeklyReminder: (Boolean) -> Unit = {},
     onAccept: (String) -> Unit = {},
-    onDecline: (String) -> Unit = {}
+    onDecline: (String) -> Unit = {},
+    kind: PartyKind = DaroodPartyKind
 ) {
     val signedIn = state.signedIn
     val colors = PixelTheme.colors
@@ -91,16 +93,18 @@ fun DaroodPartyContent(
         containerColor = colors.background,
         topBar = {
             PixelTopAppBar(
-                title = stringResource(R.string.darood_title),
+                title = stringResource(kind.listTitleRes),
                 actions = if (signedIn == true) {
                     {
-                        IconButton(onClick = onOpenRaceBoard, modifier = Modifier.testTag(DaroodTestTags.RACE_ACTION)) {
-                            SymbolIcon(
-                                symbol = "🏁",
-                                contentDescription = stringResource(R.string.darood_race_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = colors.primaryText
-                            )
+                        if (kind.rules.raceBoard) {
+                            IconButton(onClick = onOpenRaceBoard, modifier = Modifier.testTag(DaroodTestTags.RACE_ACTION)) {
+                                SymbolIcon(
+                                    symbol = "🏁",
+                                    contentDescription = stringResource(R.string.darood_race_title),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = colors.primaryText
+                                )
+                            }
                         }
                         IconButton(onClick = onCreateParty, modifier = Modifier.testTag(DaroodTestTags.CREATE_ACTION)) {
                             SymbolIcon(
@@ -173,14 +177,14 @@ fun DaroodPartyContent(
                         com.pixelquest.app.darood.ui.list.PartyRow(party = party, onClick = { onOpenParty(party.id) })
                     }
                     // Once there's a party to add to: the weekly note, off unless turned on.
-                    if (state.parties.isNotEmpty() && weeklyReminder != null) {
+                    if (state.parties.isNotEmpty() && weeklyReminder != null && kind.rules.weeklyNote) {
                         item(key = "weekly") { WeeklyReminderSwitch(on = weeklyReminder, onChange = onWeeklyReminder) }
                     }
                     if (state.isEmpty) {
                         item(key = "empty") {
                             DaroodCard(
                                 title = stringResource(R.string.darood_empty_title),
-                                body = stringResource(R.string.darood_empty_body),
+                                body = stringResource(kind.emptyBodyRes),
                                 modifier = Modifier.testTag(DaroodTestTags.EMPTY)
                             ) {
                                 PixelButton(
@@ -208,7 +212,7 @@ fun DaroodPartyContent(
                 null, true -> Unit
                 false -> DaroodCard(
                     title = stringResource(R.string.darood_signed_out_title),
-                    body = stringResource(R.string.darood_signed_out_body),
+                    body = stringResource(kind.signedOutBodyRes),
                     modifier = Modifier.testTag(DaroodTestTags.SIGNED_OUT)
                 ) {
                     PixelButton(

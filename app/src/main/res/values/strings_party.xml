@@ -9,6 +9,12 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- One study party, its kind's name. -->
     <string name="party_study_title">Study party</string>
+    <!-- The Study parties' screen, listing them. -->
+    <string name="party_study_list_title">Study parties</string>
+    <string name="party_study_empty_body">Start a party with 2 to 30 classmates or friends, pin what\'s due this week, and keep each other going. Or wait for a friend to invite you by your username.</string>
+    <string name="party_signed_out_body">Parties are shared with friends, so they need an account. Sign in with Google or an emailed code.</string>
+    <!-- Handing a party's leadership over: what the new leader does. -->
+    <string name="party_hand_over">From now on, they\'ll invite, remove and rename. You\'ll stay in the party as a member, and can leave it then if you like.</string>
     <plurals name="party_members">
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> member</item>
         <item quantity="other"><xliff:g id="count" example="4">%d</xliff:g> members</item>

@@ -25,8 +25,9 @@ enum class PartyTab { CHAT, PEOPLE, THIS_WEEK, ALL_ITEMS, SCOREBOARD }
  *
  * @param milestone it has a milestone its members race to, and finishes on reaching it.
  * @param raceBoard its leader can put it on the public race board.
+ * @param weeklyNote a weekly note of the days the player took part, which they can turn on.
  */
-data class PartyKindRules(val milestone: Boolean, val raceBoard: Boolean)
+data class PartyKindRules(val milestone: Boolean, val raceBoard: Boolean, val weeklyNote: Boolean)
 
 /** A piece of text in a [PartySummary], from a string or plural resource. */
 sealed interface Phrase {
@@ -51,6 +52,22 @@ interface PartyKind {
     /** One of its parties: "Darood Party". */
     @get:StringRes
     val titleRes: Int
+
+    /** Its parties' screen, listing them: "Darood Party", "Study parties". */
+    @get:StringRes
+    val listTitleRes: Int
+
+    /** What its list says before the player has any: what its parties are, and how to start one. */
+    @get:StringRes
+    val emptyBodyRes: Int
+
+    /** What its list says signed out: why its parties need an account. */
+    @get:StringRes
+    val signedOutBodyRes: Int
+
+    /** What handing the leadership over means, in its parties: what the new leader will do. */
+    @get:StringRes
+    val handOverRes: Int
 
     /** An emoji for it, beside its name where both kinds appear together. */
     val icon: String

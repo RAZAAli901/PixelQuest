@@ -76,6 +76,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import javax.inject.Inject
+import com.pixelquest.app.party.PartyKinds
 
 /** Why the last change didn't happen. */
 sealed interface InfoProblem {
@@ -382,6 +383,8 @@ fun PartyInfoContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             val party = state.party ?: return@Column
+            // What the party's kind has of its own: a Darood Party's milestone and race board.
+            val kind = PartyKinds.of(party.type)
             Text(
                 text = party.name,
                 style = MaterialTheme.typography.titleLarge,
@@ -393,7 +396,7 @@ fun PartyInfoContent(
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurface
             )
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            if (kind.rules.milestone) Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = party.milestone?.let { stringResource(R.string.darood_info_milestone, formatCount(it)) }
                         ?: stringResource(R.string.darood_info_no_milestone),
@@ -430,9 +433,9 @@ fun PartyInfoContent(
                     )
                 }
             }
-            if (state.isLeader) {
+            if (state.isLeader && kind.rules.raceBoard) {
                 RaceBoardSwitch(on = party.isPublicRace, hasMilestone = party.milestone != null, enabled = !state.busy, onChange = onRaceBoard)
-            } else if (party.isPublicRace) {
+            } else if (party.isPublicRace && kind.rules.raceBoard) {
                 Text(
                     text = stringResource(R.string.darood_race_on_board),
                     style = MaterialTheme.typography.bodySmall,
@@ -507,7 +510,7 @@ fun PartyInfoContent(
     state.confirmingTransfer?.let { member ->
         PixelConfirmDialog(
             title = stringResource(R.string.darood_info_transfer_title, displayName(member)),
-            message = stringResource(R.string.darood_info_transfer_message),
+            message = stringResource(state.party?.let { PartyKinds.of(it.type).handOverRes } ?: R.string.darood_info_transfer_message),
             confirmText = stringResource(R.string.darood_info_make_leader),
             dismissText = stringResource(R.string.darood_cancel),
             onConfirm = onConfirmTransfer,

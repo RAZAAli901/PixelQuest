@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.remote.SupabaseResult
-import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.data.MyUsername
 import com.pixelquest.app.darood.data.UsernameRepository
 import com.pixelquest.app.party.data.remote.InviteOutcome
@@ -26,6 +25,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
+import com.pixelquest.app.party.data.PartyRepository
 
 /** What a username search found, once the typing paused. */
 sealed interface Lookup {
@@ -88,7 +88,7 @@ data class AddPeopleUiState(
 class AddPeopleViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val usernames: UsernameRepository,
-    private val parties: DaroodPartyRepository,
+    private val parties: PartyRepository,
     private val myUsername: MyUsername? = null
 ) : ViewModel() {
 
