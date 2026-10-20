@@ -137,7 +137,7 @@ fun ItemCard(
  * within 24 hours); or, refused, try again or drop it. A tick older than a day is final: no button.
  */
 @Composable
-private fun DoneActions(row: ItemRow, onDone: (() -> Unit)?, onUndo: (() -> Unit)?, onRetry: (() -> Unit)?, onDiscard: (() -> Unit)?) {
+internal fun DoneActions(row: ItemRow, onDone: (() -> Unit)?, onUndo: (() -> Unit)?, onRetry: (() -> Unit)?, onDiscard: (() -> Unit)?) {
     val id = row.item.id
     val mine = row.mine
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {

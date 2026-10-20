@@ -11,6 +11,10 @@ import com.pixelquest.app.darood.ui.info.PartyInfoScreen
 import com.pixelquest.app.darood.ui.invite.AddPeopleScreen
 import com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel
 import com.pixelquest.app.party.domain.PartyType
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.pixelquest.app.study.ui.StudyItemScreen
+import com.pixelquest.app.study.ui.StudyItemScreenArgs
 import com.pixelquest.app.study.ui.StudyPartyScreen
 import com.pixelquest.app.study.ui.StudyPartyViewModel
 import com.pixelquest.app.ui.navigation.Screen
@@ -52,7 +56,23 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
         StudyPartyScreen(
             onNavigateBack = { navController.popBackStack() },
             onOpenInfo = { navController.navigate(Screen.PartiesInfo.createRoute(partyId)) { launchSingleTop = true } },
-            onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } }
+            onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } },
+            onOpenItem = { itemId -> navController.navigate(Screen.PartiesItem.createRoute(partyId, itemId)) { launchSingleTop = true } }
+        )
+    }
+    composable(
+        route = Screen.PartiesItem.route,
+        arguments = listOf(
+            navArgument(StudyPartyViewModel.ARG_PARTY) { type = NavType.StringType },
+            navArgument(StudyItemScreenArgs.ARG_ITEM) { type = NavType.StringType }
+        )
+    ) { entry ->
+        // The party's own screen's view model, when the item was opened from it: one source for both.
+        val party = remember(entry) { runCatching { navController.getBackStackEntry(Screen.PartiesParty.route) }.getOrNull() }
+        StudyItemScreen(
+            itemId = entry.arguments?.getString(StudyItemScreenArgs.ARG_ITEM).orEmpty(),
+            onNavigateBack = { navController.popBackStack() },
+            viewModel = if (party != null) hiltViewModel(party) else hiltViewModel()
         )
     }
     composable(

@@ -79,6 +79,15 @@
     <!-- Asking to be sure before an item goes ("Delete Waves quiz?"). -->
     <string name="study_delete_title">Delete this item?</string>
     <string name="study_delete_message"><xliff:g id="title" example="Waves quiz">%1$s</xliff:g> will go for everyone in the party, with everyone\'s ticks on it.</string>
+    <!-- One item's own screen. -->
+    <string name="study_item_notes">Notes</string>
+    <!-- Who added it ("Added by @aria_k"). -->
+    <string name="study_item_added_by">Added by <xliff:g id="member" example="\@aria_k">%1$s</xliff:g></string>
+    <string name="study_item_who_done">Who has finished it</string>
+    <string name="study_item_nobody_done">Nobody yet. Be the first!</string>
+    <!-- A member who finished it, and when ("@bram, Wed 21 Oct"). -->
+    <string name="study_item_done_by"><xliff:g id="member" example="\@bram">%1$s</xliff:g>, <xliff:g id="day" example="Wed 21 Oct">%2$s</xliff:g></string>
+    <string name="study_item_gone">This item was deleted.</string>
     <!-- While the party is loading for the first time. -->
     <string name="study_loading">Loading the party…</string>
     <!-- What happened to something the player just tried. -->

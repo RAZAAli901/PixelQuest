@@ -104,6 +104,38 @@ class StudyPartyScreenTest {
     }
 
     @Test
+    fun anItemsScreen_showsItAll_andWhoFinished_thenClosesWhenItGoes() {
+        val zone = java.time.ZoneId.of("UTC")
+        val item = com.pixelquest.app.study.domain.StudyItem(
+            "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", "Physics", "Pages 4 to 9",
+            Instant.parse("2026-10-23T17:00:00Z"), false, "aria", Instant.EPOCH
+        )
+        val bramsTick = com.pixelquest.app.study.domain.StudyCompletion(
+            7, null, "a", "p1", "bram", Instant.parse("2026-10-21T08:00:00Z"), java.time.LocalDate.of(2026, 10, 21), "UTC"
+        )
+        val row = ItemRow(item, null, 1, 2, DueState.LATER, canUndo = false, canEdit = true)
+        var state by mutableStateOf(StudyPartyUiState(party = party, myId = "aria", isLeader = true, members = members, items = listOf(row), ticks = mapOf("a" to listOf(bramsTick)), loaded = true))
+        var done: String? = null
+        var closed = false
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                StudyItemContent(state, "a", onNavigateBack = { closed = true }, actions = ItemActions(onDone = { done = it }), zone = zone)
+            }
+        }
+        composeTestRule.onNodeWithText("Lab report").assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.ITEM_NOTES).assertTextEquals("Pages 4 to 9")
+        composeTestRule.onNodeWithText("Added by @aria_k").assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.doneBy("bram")).assertTextEquals("@bram, Wed 21 Oct")
+        composeTestRule.onNodeWithTag(StudyTags.itemMenu("a")).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.itemDone("a")).performClick()
+        assertEquals("a", done)
+
+        state = state.copy(items = emptyList())
+        composeTestRule.waitForIdle()
+        assertEquals(true, closed)
+    }
+
+    @Test
     fun aCardsMenu_isThereForItsCreatorOrTheLeader() {
         val item = com.pixelquest.app.study.domain.StudyItem(
             "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH

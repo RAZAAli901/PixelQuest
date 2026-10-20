@@ -66,6 +66,7 @@ fun StudyPartyScreen(
     onNavigateBack: () -> Unit,
     onOpenInfo: () -> Unit,
     onAddPeople: () -> Unit,
+    onOpenItem: (String) -> Unit = {},
     viewModel: StudyPartyViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -81,6 +82,7 @@ fun StudyPartyScreen(
         onFormChange = viewModel::updateForm,
         onSaveForm = viewModel::saveForm,
         onCloseForm = viewModel::closeForm,
+        onOpenItem = onOpenItem,
         actions = ItemActions(
             onEdit = viewModel::editItem,
             onTogglePin = viewModel::togglePin,
@@ -419,6 +421,9 @@ object StudyTags {
     fun itemDue(id: String) = "study_item_due_$id"
     fun itemMine(id: String) = "study_item_mine_$id"
     fun itemMenu(id: String) = "study_item_menu_$id"
+    const val ITEM_SCREEN = "study_item_screen"
+    const val ITEM_NOTES = "study_item_notes"
+    fun doneBy(userId: String) = "study_done_by_$userId"
     fun itemDone(id: String) = "study_item_done_$id"
     fun itemUndo(id: String) = "study_item_undo_$id"
     fun itemRetry(id: String) = "study_item_retry_$id"

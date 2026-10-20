@@ -34,6 +34,10 @@ sealed class Screen(val route: String) {
     object PartiesParty : Screen("${Routes.PARTIES}/party/{partyId}") {
         fun createRoute(partyId: String) = "${Routes.PARTIES}/party/$partyId"
     }
+    /** One item in a study party: its details and who has finished it. */
+    object PartiesItem : Screen("${Routes.PARTIES}/party/{partyId}/item/{itemId}") {
+        fun createRoute(partyId: String, itemId: String) = "${Routes.PARTIES}/party/$partyId/item/$itemId"
+    }
     /** A study party's info: its members. */
     object PartiesInfo : Screen("${Routes.PARTIES}/party/{partyId}/info") {
         fun createRoute(partyId: String) = "${Routes.PARTIES}/party/$partyId/info"

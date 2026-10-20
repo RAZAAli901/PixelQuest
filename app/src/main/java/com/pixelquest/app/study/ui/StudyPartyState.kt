@@ -90,6 +90,8 @@ data class StudyPartyUiState(
     val tabs: List<PartyTab> = StudyPartyKind.tabs,
     val members: List<PartyMember> = emptyList(),
     val items: List<ItemRow> = emptyList(),
+    /** Every tick in the party by item, newest first, this phone's own still waiting among them. */
+    val ticks: Map<String, List<StudyCompletion>> = emptyMap(),
     val thisWeek: List<ItemRow> = emptyList(),
     val weekSections: List<Pair<WeekSection, List<ItemRow>>> = emptyList(),
     val weekProgress: WeekProgress = WeekProgress(0, 0),

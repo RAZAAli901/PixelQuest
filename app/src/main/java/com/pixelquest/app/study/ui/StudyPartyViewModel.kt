@@ -49,8 +49,15 @@ class StudyPartyViewModel @Inject constructor(
     private val cards = combine(partyAndMembers, study.observeItems(partyId), study.observeCompletions(partyId)) { (party, members), items, completions ->
         val me = study.myId()
         val isLeader = party?.leaderId != null && party.leaderId == me
-        Triple(party, members, itemRowsOf(items, completions, members, me, isLeader, study.now(), study.zone()))
+        Cards(party, members, itemRowsOf(items, completions, members, me, isLeader, study.now(), study.zone()), completions.groupBy { it.itemId })
     }
+
+    private data class Cards(
+        val party: com.pixelquest.app.party.domain.Party?,
+        val members: List<com.pixelquest.app.party.domain.PartyMember>,
+        val rows: List<ItemRow>,
+        val ticks: Map<String, List<com.pixelquest.app.study.domain.StudyCompletion>>
+    )
 
     private val scores = combine(
         study.observeScores(partyId, weekStart),
@@ -64,7 +71,7 @@ class StudyPartyViewModel @Inject constructor(
 
     private data class Flags(val tab: PartyTab, val refreshing: Boolean, val loaded: Boolean, val notice: StudyNotice?, val simple: Boolean, val form: ItemForm?, val deleting: String?)
 
-    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows), (weekScores, past, winners), waiting, flags ->
+    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows, ticks), (weekScores, past, winners), waiting, flags ->
         val me = study.myId()
         val week = thisWeekOf(rows, weekStart, study.zone())
         StudyPartyUiState(
@@ -74,6 +81,7 @@ class StudyPartyViewModel @Inject constructor(
             tab = flags.tab,
             members = members,
             items = rows,
+            ticks = ticks,
             thisWeek = week,
             weekSections = weekSectionsOf(week, study.zone()),
             weekProgress = weekProgressOf(week),
