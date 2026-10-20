@@ -21,6 +21,7 @@ import com.pixelquest.app.ui.screens.tasks.CreateTaskScreen
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 
 import com.pixelquest.app.ui.screens.leveling.LevelHistoryScreen
+import com.pixelquest.app.party.ui.partiesScreens
 
 @Composable
 fun PixelNavHost(
@@ -302,6 +303,8 @@ fun PixelNavHost(
                 com.pixelquest.app.darood.ui.invite.AddPeopleScreen(onNavigateBack = { navController.popBackStack() })
             }
         }
+        // The main app's parties, outside the Islamic section (docs/party-core.md).
+        partiesScreens(navController)
         // Namaz's and Darood Party's routes before the hub, for notifications set by 1.4.
         redirect(Routes.LEGACY_NAMAZ, Screen.Namaz.route, navController)
         redirect(Routes.LEGACY_DAROOD, Screen.DaroodParty.route, navController)

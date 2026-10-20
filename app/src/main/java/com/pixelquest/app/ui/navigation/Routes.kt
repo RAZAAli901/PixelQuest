@@ -26,6 +26,18 @@ sealed class Screen(val route: String) {
     object AiInsight : Screen("ai_insight")
     /** The Namaz Tracker, from the Islamic hub. */
     object Namaz : Screen("${Routes.ISLAMIC}/namaz")
+    /** The main app's parties (docs/party-core.md): the study parties, outside the Islamic section. */
+    object Parties : Screen(Routes.PARTIES)
+    /** Starting a study party. */
+    object PartiesCreate : Screen("${Routes.PARTIES}/create")
+    /** A study party's info: its members. */
+    object PartiesInfo : Screen("${Routes.PARTIES}/party/{partyId}/info") {
+        fun createRoute(partyId: String) = "${Routes.PARTIES}/party/$partyId/info"
+    }
+    /** Adding people to a study party by username. */
+    object PartiesAddPeople : Screen("${Routes.PARTIES}/party/{partyId}/add") {
+        fun createRoute(partyId: String) = "${Routes.PARTIES}/party/$partyId/add"
+    }
     /** Darood Party, from the Islamic hub. */
     object DaroodParty : Screen("${Routes.ISLAMIC}/darood")
     /** Starting a Darood Party. */
@@ -74,6 +86,12 @@ object Routes {
 
     /** The hub, where the Islamic section starts. */
     const val ISLAMIC_HUB = "$ISLAMIC/hub"
+
+    /** The main app's parties: the Parties screen, and every study party screen under `parties/`. */
+    const val PARTIES = "parties"
+
+    /** Whether [route] is one of the main app's party screens. */
+    fun isParties(route: String?): Boolean = route != null && (route == PARTIES || route.startsWith("$PARTIES/"))
 
     /** Whether [route] is one of the Islamic section's screens. */
     fun isIslamic(route: String?): Boolean = route != null && route.startsWith("$ISLAMIC/")

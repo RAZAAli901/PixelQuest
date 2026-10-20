@@ -11,7 +11,7 @@ import com.pixelquest.app.ui.theme.ThemeMode
  * The side menu's entries (docs/ai-coach-compact.md, Phase 2). Namaz Tracker and Darood Party moved
  * into the Islamic hub (docs/islamic-hub.md), so a highlight saved under their old ids is dropped.
  */
-enum class MenuItemId { ISLAMIC, HISTORY, LEADERBOARD, ACCOUNT, SETTINGS }
+enum class MenuItemId { ISLAMIC, PARTIES, HISTORY, LEADERBOARD, ACCOUNT, SETTINGS }
 
 /** What an entry's visibility, status and dot can depend on. */
 data class MenuContext(
@@ -84,6 +84,18 @@ object MenuItems {
         owns = Routes::isIslamic
     )
 
+    /**
+     * The main app's parties (docs/party-core.md): study parties with friends, outside the Islamic
+     * section. Highlighted on every party screen under it. No game terms: their points are their own.
+     */
+    val Parties = MenuItem(
+        id = MenuItemId.PARTIES,
+        label = R.string.menu_parties,
+        icon = "👥",
+        route = Screen.Parties.route,
+        owns = Routes::isParties
+    )
+
     // Shortcuts to screens that are otherwise a few taps deep (Profile, then Settings, then Account).
     val History = MenuItem(
         id = MenuItemId.HISTORY,
@@ -114,5 +126,5 @@ object MenuItems {
         route = Screen.Settings.route
     )
 
-    val all: List<MenuItem> = listOf(Islamic, History, Leaderboard, Account, Settings)
+    val all: List<MenuItem> = listOf(Islamic, Parties, History, Leaderboard, Account, Settings)
 }

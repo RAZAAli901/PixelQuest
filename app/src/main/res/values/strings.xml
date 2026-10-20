@@ -20,6 +20,8 @@
     <string name="tasks_title_simple">📋 ALL TASKS</string>
     <string name="menu_something_waiting">Something waits for you here</string>
     <string name="navigate_back">Back</string>
+    <!-- The side menu's entry for study parties with friends. -->
+    <string name="menu_parties">Parties</string>
     <string name="menu_history">Quest History</string>
     <string name="menu_history_simple">Task History</string>
     <string name="menu_leaderboard">Leaderboard</string>

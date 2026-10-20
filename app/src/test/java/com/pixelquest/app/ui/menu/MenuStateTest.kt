@@ -48,7 +48,7 @@ class MenuStateTest {
     @Test
     fun theEntries_inOrder() {
         assertEquals(
-            listOf(MenuItemId.ISLAMIC, MenuItemId.HISTORY, MenuItemId.LEADERBOARD, MenuItemId.ACCOUNT, MenuItemId.SETTINGS),
+            listOf(MenuItemId.ISLAMIC, MenuItemId.PARTIES, MenuItemId.HISTORY, MenuItemId.LEADERBOARD, MenuItemId.ACCOUNT, MenuItemId.SETTINGS),
             MenuItems.all.map { it.id }
         )
     }
@@ -61,6 +61,16 @@ class MenuStateTest {
     }
 
     @Test
+    fun parties_isItsOwnEntry_outsideTheIslamicSection_owningEveryPartyScreen() {
+        assertEquals(MenuItemId.PARTIES, MenuItems.all[1].id)
+        assertTrue(MenuItems.Parties.owns("parties"))
+        assertTrue(MenuItems.Parties.owns(Screen.PartiesInfo.createRoute("p1")))
+        assertFalse("Darood Parties are the Islamic section's", MenuItems.Parties.owns(Screen.DaroodParty.route))
+        assertFalse(Routes.isIslamic(Screen.Parties.route))
+        assertEquals(R.string.menu_parties, MenuItems.Parties.labelFor(MenuContext(isSimpleMode = true)))
+    }
+
+    @Test
     fun simpleMode_usesPlainWords() {
         assertEquals(R.string.menu_history, MenuItems.History.labelFor(MenuContext()))
         assertEquals(R.string.menu_history_simple, MenuItems.History.labelFor(MenuContext(isSimpleMode = true)))
@@ -70,7 +80,7 @@ class MenuStateTest {
     @Test
     fun everyEntry_leadsSomewhereReal() {
         val routes = listOf(
-            Screen.IslamicHub, Screen.TaskHistory, Screen.Leaderboard, Screen.Account, Screen.Settings
+            Screen.IslamicHub, Screen.Parties, Screen.TaskHistory, Screen.Leaderboard, Screen.Account, Screen.Settings
         ).map { it.route }
         assertEquals(routes, MenuItems.all.map { it.route })
         assertTrue("the Leaderboard opens like its tab", Routes.isTab(MenuItems.Leaderboard.route))
