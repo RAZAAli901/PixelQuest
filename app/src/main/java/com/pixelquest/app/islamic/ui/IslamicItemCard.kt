@@ -1,6 +1,7 @@
 package com.pixelquest.app.islamic.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,7 +30,10 @@ import androidx.compose.ui.unit.sp
 import com.pixelquest.app.islamic.IslamicIcon
 import com.pixelquest.app.islamic.IslamicItem
 import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.theme.ComicShapeTokens
+import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.ThemeMode
 import com.pixelquest.app.ui.theme.inkOnPanel
 
 /**
@@ -84,15 +90,28 @@ private fun IslamicItemIcon(icon: IslamicIcon, isSimpleMode: Boolean) {
     }
 }
 
-/** How many things wait in the item: up to 99, then 99+. */
+/**
+ * How many things wait in the item: up to 99, then 99+. Its shape follows the look: a chamfered
+ * chip in Pixel, an inked pill in Comic, a plain pill elsewhere.
+ */
 @Composable
 private fun IslamicBadge(count: Int) {
     val colors = PixelTheme.colors
+    val shape: Shape = when (PixelTheme.mode) {
+        ThemeMode.Pixel, ThemeMode.System -> CutCornerShape(4.dp)
+        else -> RoundedCornerShape(50)
+    }
+    val ink = if (PixelTheme.mode == ThemeMode.Comic) {
+        Modifier.border(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack, shape)
+    } else {
+        Modifier
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .defaultMinSize(minWidth = 24.dp, minHeight = 24.dp)
-            .background(colors.secondary, RoundedCornerShape(12.dp))
+            .background(colors.secondary, shape)
+            .then(ink)
             .padding(horizontal = 6.dp)
             .testTag(IslamicTestTags.BADGE)
     ) {

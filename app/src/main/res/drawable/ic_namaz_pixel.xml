@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Namaz Tracker's hub icon, pixel style: a mosque's dome with its finial, a door, and a minaret, as square blocks. Tinted where it's used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M14,0h2v2h-2z M0,2h2v2h-2z M12,2h6v2h-6z M0,4h2v2h-2z M10,4h10v2h-10z M0,6h4v2h-4z M8,6h14v2h-14z M0,8h4v2h-4z M8,8h14v2h-14z M0,10h4v2h-4z M6,10h18v2h-18z M0,12h4v2h-4z M6,12h18v2h-18z M0,14h4v2h-4z M6,14h8v2h-8z M16,14h8v2h-8z M0,16h4v2h-4z M6,16h6v2h-6z M18,16h6v2h-6z M0,18h4v2h-4z M6,18h6v2h-6z M18,18h6v2h-6z M0,20h24v2h-24z" />
+</vector>

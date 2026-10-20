@@ -78,6 +78,8 @@ object MenuItems {
         label = R.string.menu_islamic,
         icon = "🌙",
         route = Screen.IslamicHub.route,
+        pixelIcon = R.drawable.ic_islamic_pixel,
+        comicIcon = R.drawable.ic_islamic_comic,
         dot = { it.daroodInviteWaiting },
         owns = Routes::isIslamic
     )

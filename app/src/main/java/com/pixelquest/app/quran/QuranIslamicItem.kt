@@ -27,7 +27,7 @@ class QuranIslamicItem @Inject constructor() : IslamicItemProvider {
             id = ID,
             titleRes = R.string.quran_title,
             descriptionRes = R.string.quran_description,
-            icon = IslamicIcon("📖"),
+            icon = IslamicIcon("📖", pixel = R.drawable.ic_quran_pixel, comic = R.drawable.ic_quran_comic),
             route = Screen.Quran.route
         )
     )

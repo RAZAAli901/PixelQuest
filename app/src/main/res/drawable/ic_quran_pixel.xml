@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Quran's hub icon, pixel style: an open book with lines of text and its spine, as square blocks. Tinted where it's used. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M2,2h8v2h-8z M14,2h8v2h-8z M0,4h2v2h-2z M10,4h4v2h-4z M22,4h2v2h-2z M0,6h2v2h-2z M4,6h4v2h-4z M10,6h4v2h-4z M16,6h4v2h-4z M22,6h2v2h-2z M0,8h2v2h-2z M10,8h4v2h-4z M22,8h2v2h-2z M0,10h2v2h-2z M4,10h4v2h-4z M10,10h4v2h-4z M16,10h4v2h-4z M22,10h2v2h-2z M0,12h2v2h-2z M10,12h4v2h-4z M22,12h2v2h-2z M0,14h2v2h-2z M4,14h4v2h-4z M10,14h4v2h-4z M16,14h4v2h-4z M22,14h2v2h-2z M0,16h2v2h-2z M10,16h4v2h-4z M22,16h2v2h-2z M2,18h20v2h-20z" />
+</vector>

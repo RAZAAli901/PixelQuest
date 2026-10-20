@@ -45,7 +45,7 @@ class NamazIslamicItem(
             id = ID,
             titleRes = R.string.namaz_title,
             descriptionRes = R.string.islamic_namaz_description,
-            icon = IslamicIcon("🕌"),
+            icon = IslamicIcon("🕌", pixel = R.drawable.ic_namaz_pixel, comic = R.drawable.ic_namaz_comic),
             route = Screen.Namaz.route,
             enabled = available,
             badgeCount = toMark,
