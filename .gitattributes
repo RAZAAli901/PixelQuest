@@ -6,3 +6,7 @@ gradlew text eol=lf
 # The Quran's source files (docs/quran-data.md) stay byte for byte as Tanzil published them, line
 # endings included, on every platform: their checksums are checked, and changing them isn't allowed.
 data/quran-source/** -text
+
+# The app's Quran data, written by tools/quran-build: kept byte for byte, as a test compares it with a
+# fresh build.
+app/src/main/assets/quran/** -text

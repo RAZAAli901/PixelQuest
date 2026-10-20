@@ -37,7 +37,7 @@ class SourceFiles(val folder: File) {
     }
 }
 
-/** The build: read the sources, then write the app's data to [output]. */
+/** The build: read and check the sources, then write the app's data to [output] ([Output]). */
 class QuranBuild(source: File, private val output: File) {
     private val files = SourceFiles(source)
 
@@ -52,8 +52,13 @@ class QuranBuild(source: File, private val output: File) {
         val metadata = MetadataSource.read(files.metadata)
         Validation.check(arabic, translation, metadata)
         Bismillah.check(arabic)
-        Join.of(arabic, translation)
-        output.mkdirs()
-        return emptyList()
+        val joined = Join.of(arabic, translation)
+        val version = Output.version(files)
+        return Output.write(
+            output,
+            Output.quran(version, arabic, metadata, joined),
+            Output.translation(version, translation, joined),
+            joined
+        )
     }
 }
