@@ -71,6 +71,18 @@ jobs:
       - name: Database layouts match the code
         run: git diff --exit-code -- app/schemas
 
+      # minSdk is 24. Lint's NewApi check fails the run on a call Android 7 doesn't have (java.time
+      # comes from desugaring, which every release up to 1.4.0 shipped without).
+      - name: Lint
+        run: ./gradlew lintDebug
+
+      - name: Upload Lint Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixelquest-lint-report
+          path: app/build/reports/lint-results-debug.*
+
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
         with:
