@@ -57,6 +57,7 @@ fun DaroodPartyScreen(
     val state by viewModel.uiState.collectAsState()
     val weekly by viewModel.weeklyReminder.collectAsState()
     DaroodPartyContent(
+        kind = viewModel.kind,
         weeklyReminder = weekly,
         onWeeklyReminder = viewModel::setWeeklyReminder,
         state = state,

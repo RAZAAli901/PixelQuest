@@ -19,6 +19,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.lifecycle.SavedStateHandle
+import com.pixelquest.app.party.PartyKinds
+import com.pixelquest.app.party.domain.PartyKind
+import com.pixelquest.app.party.domain.PartyType
 
 /** Why the list couldn't be brought up to date, for the screen to say. */
 enum class PartiesProblem {
@@ -56,8 +60,13 @@ data class DaroodPartiesUiState(
 class DaroodPartiesViewModel @Inject constructor(
     authRepository: AuthRepository,
     private val repository: DaroodPartyRepository,
-    private val reminder: com.pixelquest.app.darood.data.DaroodReminderSettings? = null
+    private val reminder: com.pixelquest.app.darood.data.DaroodReminderSettings? = null,
+    savedStateHandle: SavedStateHandle = SavedStateHandle()
 ) : ViewModel() {
+
+    /** The kind of party this list shows: Darood Parties, unless its route says otherwise. */
+    val type: PartyType = PartyType.fromWire(savedStateHandle[ARG_TYPE])
+    val kind: PartyKind = PartyKinds.of(type)
 
     /** The weekly note, off unless the player turns it on. */
     val weeklyReminder: StateFlow<Boolean> = reminder?.weeklyReminder ?: kotlinx.coroutines.flow.MutableStateFlow(false)
@@ -71,7 +80,7 @@ class DaroodPartiesViewModel @Inject constructor(
 
     private val signedIn = authRepository.currentUser.map { it != null }.distinctUntilChanged()
 
-    val uiState: StateFlow<DaroodPartiesUiState> = combine(signedIn, repository.observeMyParties(), status) { signedIn, all, status ->
+    val uiState: StateFlow<DaroodPartiesUiState> = combine(signedIn, repository.observeMyParties(type), status) { signedIn, all, status ->
         status.copy(
             signedIn = signedIn,
             parties = if (signedIn) all.filter { it.myStatus == MemberStatus.ACTIVE } else emptyList(),
@@ -114,5 +123,10 @@ class DaroodPartiesViewModel @Inject constructor(
         result is SupabaseResult.NetworkError -> PartiesProblem.OFFLINE
         DaroodRefusal.of(result) != null -> PartiesProblem.INVITE_GONE
         else -> PartiesProblem.FAILED
+    }
+
+    companion object {
+        /** The route's argument: the kind of party listed (PartyType's wire name); Darood Parties without it. */
+        const val ARG_TYPE = "type"
     }
 }

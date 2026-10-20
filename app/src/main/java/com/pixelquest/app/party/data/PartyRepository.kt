@@ -33,6 +33,9 @@ interface PartyRepository {
     /** The parties the account is in or invited to, invitations first. */
     fun observeMyParties(): Flow<List<Party>>
 
+    /** The account's parties of one kind, invitations first: a kind's own list shows only its own. */
+    fun observeMyParties(type: PartyType): Flow<List<Party>> = observeMyParties().map { parties -> parties.filter { it.type == type } }
+
     fun observeParty(partyId: String): Flow<Party?>
 
     fun observeMembers(partyId: String): Flow<List<PartyMember>>

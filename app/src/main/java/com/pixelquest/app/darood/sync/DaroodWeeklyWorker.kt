@@ -48,7 +48,7 @@ class DaroodWeeklyWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         if (!reminder.weeklyReminder.value) return Result.success()
         if (repository.refreshParties() !is SupabaseResult.Success) return Result.success()
-        val parties = repository.observeMyParties().first().filter { it.myStatus == MemberStatus.ACTIVE }
+        val parties = repository.observeMyParties(com.pixelquest.app.party.domain.PartyType.DAROOD).first().filter { it.myStatus == MemberStatus.ACTIVE }
         if (parties.isEmpty()) return Result.success()
 
         // The player's days, across their parties: one with an entry in any of them counts.

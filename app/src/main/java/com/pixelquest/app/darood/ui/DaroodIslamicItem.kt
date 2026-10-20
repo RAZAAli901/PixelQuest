@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import com.pixelquest.app.party.domain.PartyType
 
 /**
  * Darood Party on the Islamic hub (docs/islamic-hub.md): shown while its feature flag is on, with
@@ -38,9 +39,9 @@ class DaroodIslamicItem @Inject constructor(
         )
     }
 
-    /** Parties the player is invited to and hasn't answered, from the phone's copy (empty when signed out). */
+    /** Darood Parties the player is invited to and hasn't answered, from the phone's copy (empty when signed out). */
     private fun invitations(): Flow<Int> =
-        parties.observeMyParties().map { list -> list.count { it.myStatus == MemberStatus.INVITED } }.distinctUntilChanged()
+        parties.observeMyParties(PartyType.DAROOD).map { list -> list.count { it.myStatus == MemberStatus.INVITED } }.distinctUntilChanged()
 
     companion object {
         const val ID = "darood"
