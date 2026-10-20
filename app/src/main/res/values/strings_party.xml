@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The parties' shared text (docs/party-core.md): what Darood Parties and Study parties say alike,
+    and the Study party's name. Darood Party's own text is in strings_darood.xml.
+
+    For translators: <xliff:g> marks a value filled in by the app; keep it, move it where your
+    grammar needs it, and leave what's inside unchanged. Its example shows what the app puts there.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- One study party, its kind's name. -->
+    <string name="party_study_title">Study party</string>
+    <plurals name="party_members">
+        <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> member</item>
+        <item quantity="other"><xliff:g id="count" example="4">%d</xliff:g> members</item>
+    </plurals>
+</resources>
