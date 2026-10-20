@@ -72,5 +72,6 @@ class AyahActionsTest {
         composeTestRule.waitForIdle()
 
         assertEquals(listOf(2 to AyahAction.COPY_ARABIC), done)
+        composeTestRule.onNodeWithText("Copied").assertIsDisplayed()
     }
 }

@@ -13,11 +13,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -38,6 +42,7 @@ import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 /** One surah in the reader, with its state from [SurahReaderViewModel]. */
 @Composable
@@ -49,6 +54,10 @@ fun SurahReaderRoute(
     val state by viewModel.state.collectAsState()
     val clipboard = LocalClipboardManager.current
     val context = LocalContext.current
+    val surahName = state.surah?.englishName.orEmpty()
+    val referenceFormat = stringResource(R.string.quran_share_reference)
+    val translationCredit = stringResource(R.string.quran_share_translation_credit, state.translator)
+    val textCredit = stringResource(R.string.quran_share_text_credit)
     SurahReaderScreen(
         state = state,
         onNavigateBack = onNavigateBack,
@@ -59,11 +68,19 @@ fun SurahReaderRoute(
         onSettings = viewModel::updateSettings,
         onOpenSurah = onOpenSurah,
         onAyahAction = { ayah, action ->
+            val credits = ShareCredits(
+                reference = String.format(referenceFormat, surahName, ayah.surah, ayah.number),
+                translation = translationCredit,
+                text = textCredit
+            )
             when (action) {
-                AyahAction.COPY_ARABIC -> clipboard.setText(AnnotatedString(ayah.arabic))
-                AyahAction.COPY_TRANSLATION -> clipboard.setText(AnnotatedString(ayah.translation))
+                AyahAction.COPY_ARABIC -> clipboard.setText(AnnotatedString(AyahShareText.arabic(ayah, credits)))
+                AyahAction.COPY_TRANSLATION -> clipboard.setText(AnnotatedString(AyahShareText.translation(ayah, credits)))
                 AyahAction.SHARE -> context.startActivity(
-                    Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, ayah.arabic + "\n\n" + ayah.translation), null)
+                    Intent.createChooser(
+                        Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, AyahShareText.both(ayah, credits)),
+                        null
+                    )
                 )
                 AyahAction.BOOKMARK -> Unit
             }
@@ -96,12 +113,21 @@ fun SurahReaderScreen(
     var showingSettings by rememberSaveable { mutableStateOf(false) }
     // The ayah whose sheet is open, by its number in the surah.
     var acting by rememberSaveable { mutableStateOf<Int?>(null) }
+    val snackbars = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val copied = stringResource(R.string.quran_copied)
     state.ayahs.firstOrNull { it.number == acting }?.let { ayah ->
         AyahActionsSheet(
             ayah = ayah,
             surahName = surah?.englishName.orEmpty(),
             bookmarked = false,
-            onAction = { action -> acting = null; onAyahAction(ayah, action) },
+            onAction = { action ->
+                acting = null
+                onAyahAction(ayah, action)
+                if (action == AyahAction.COPY_ARABIC || action == AyahAction.COPY_TRANSLATION) {
+                    scope.launch { snackbars.showSnackbar(copied) }
+                }
+            },
             onDismiss = { acting = null }
         )
     }
@@ -115,6 +141,7 @@ fun SurahReaderScreen(
     }
     Scaffold(
         containerColor = colors.background,
+        snackbarHost = { SnackbarHost(snackbars) },
         topBar = {
             PixelTopAppBar(
                 title = surah?.englishName.orEmpty(),

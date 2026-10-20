@@ -36,6 +36,7 @@ enum class DisplayMode {
  *   opened at, or where the player had scrolled to before a rotation; null for the surah's start.
  * @param settings the sizes, spacing and display mode the player reads with.
  * @param previous the surah before this one, and [next] the one after: null at either end.
+ * @param translator who made the translation being read, for its credit when an ayah is shared.
  */
 data class ReaderUiState(
     val surah: Surah? = null,
@@ -45,7 +46,8 @@ data class ReaderUiState(
     val hasMore: Boolean = true,
     val loading: Boolean = false,
     val target: Int? = null,
-    val settings: ReadingSettings = ReadingSettings()
+    val settings: ReadingSettings = ReadingSettings(),
+    val translator: String = ""
 ) {
     val displayMode: DisplayMode get() = settings.displayMode
 }
@@ -79,6 +81,10 @@ class SurahReaderViewModel @Inject constructor(
         // How the player reads, as last kept on this phone.
         viewModelScope.launch {
             settingsStore.settings.collect { settings -> _state.update { it.copy(settings = settings) } }
+        }
+        // The translation on the phone, for its credit (there's one at a time: TranslationSwitcher).
+        viewModelScope.launch {
+            repository.translations().collect { list -> _state.update { it.copy(translator = list.firstOrNull()?.translator.orEmpty()) } }
         }
         viewModelScope.launch {
             _state.update {

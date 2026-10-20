@@ -51,6 +51,13 @@
     <string name="quran_copy_arabic">Copy the Arabic</string>
     <string name="quran_copy_translation">Copy the translation</string>
     <string name="quran_share">Share</string>
+    <!-- After a copy, briefly. -->
+    <string name="quran_copied">Copied</string>
+    <!-- What follows an ayah copied or shared: its reference, whose translation it is, and where the
+         Arabic is from (Tanzil's terms ask for its name and site). The ayah itself is never changed. -->
+    <string name="quran_share_reference">— <xliff:g id="surah_name" example="Al-Baqara">%1$s</xliff:g> <xliff:g id="surah" example="2">%2$d</xliff:g>:<xliff:g id="ayah" example="255">%3$d</xliff:g></string>
+    <string name="quran_share_translation_credit">Translation: <xliff:g id="translator" example="Saheeh International">%s</xliff:g></string>
+    <string name="quran_share_text_credit">Quran text: Tanzil.net</string>
     <!-- The reader's top-bar action: its sizes, spacing and what each ayah shows. -->
     <string name="quran_reader_settings">Reading settings</string>
     <!-- The Quran screen's two lists. -->
