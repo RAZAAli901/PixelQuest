@@ -34,6 +34,21 @@
     <string name="study_section_today">Today</string>
     <string name="study_section_tomorrow">Tomorrow</string>
     <string name="study_section_no_date">No due date</string>
+    <!-- An item's card. -->
+    <string name="study_kind_assignment">📝 Assignment</string>
+    <string name="study_kind_quiz">❓ Quiz</string>
+    <string name="study_pinned">Pinned by the leader</string>
+    <string name="study_open_item">Open item</string>
+    <!-- When it's due: day, then time ("Due Fri 23 Oct, 17:00"). -->
+    <string name="study_due_at">Due <xliff:g id="day" example="Fri 23 Oct">%1$s</xliff:g>, <xliff:g id="time" example="17:00">%2$s</xliff:g></string>
+    <string name="study_due_today">Due today, <xliff:g id="time" example="17:00">%1$s</xliff:g></string>
+    <string name="study_due_overdue">Overdue: due <xliff:g id="day" example="Mon 19 Oct">%1$s</xliff:g>, <xliff:g id="time" example="09:00">%2$s</xliff:g></string>
+    <!-- How many in the party have finished it, of its members ("3 of 5 finished"). -->
+    <string name="study_item_done_count"><xliff:g id="done" example="3">%1$d</xliff:g> of <xliff:g id="members" example="5">%2$d</xliff:g> finished</string>
+    <!-- The player's own tick on it. -->
+    <string name="study_item_done">✓ Done</string>
+    <string name="study_item_waiting">✓ Waiting to send</string>
+    <string name="study_item_refused">Not saved</string>
     <!-- While the party is loading for the first time. -->
     <string name="study_loading">Loading the party…</string>
     <!-- What happened to something the player just tried. -->

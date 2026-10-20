@@ -6,7 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.Party
@@ -39,6 +43,32 @@ class StudyPartyScreenTest {
         PartyMember("p1", "aria", "aria_k", PartyRole.LEADER, MemberStatus.ACTIVE, null, null),
         PartyMember("p1", "bram", "bram", PartyRole.MEMBER, MemberStatus.ACTIVE, null, null)
     )
+
+    @Test
+    fun aCard_saysItsKind_whenItsDue_whosDone_andThePlayersTick() {
+        val zone = java.time.ZoneId.of("UTC")
+        val quiz = com.pixelquest.app.study.domain.StudyItem(
+            "q", "p1", com.pixelquest.app.study.domain.StudyItemKind.QUIZ, "Waves quiz", "Physics", null,
+            Instant.parse("2026-10-19T09:00:00Z"), true, "aria", Instant.EPOCH
+        )
+        val waiting = com.pixelquest.app.study.domain.StudyCompletion(
+            null, "c1", "q", "p1", "aria", Instant.EPOCH, java.time.LocalDate.of(2026, 10, 21), "UTC", com.pixelquest.app.study.domain.SyncState.PENDING
+        )
+        var opened = false
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                ItemCard(ItemRow(quiz, waiting, 2, 5, DueState.OVERDUE, canUndo = true, canEdit = true), onOpen = { opened = true }, zone = zone)
+            }
+        }
+        composeTestRule.onNodeWithText("❓ Quiz", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithText("Physics", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithContentDescription("Pinned by the leader", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.itemDue("q"), useUnmergedTree = true).assertTextContains("Overdue: due Mon 19 Oct", substring = true)
+        composeTestRule.onNodeWithText("2 of 5 finished", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.itemMine("q"), useUnmergedTree = true).assertTextEquals("✓ Waiting to send")
+        composeTestRule.onNodeWithTag(StudyTags.item("q")).performClick()
+        assertEquals(true, opened)
+    }
 
     @Test
     fun theTabs_switch_andEachShowsItsOwn() {

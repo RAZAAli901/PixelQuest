@@ -85,7 +85,8 @@ fun StudyPartyContent(
     onAddPeople: () -> Unit = {},
     onSelectTab: (PartyTab) -> Unit = {},
     onRefresh: () -> Unit = {},
-    onDismissNotice: () -> Unit = {}
+    onDismissNotice: () -> Unit = {},
+    onOpenItem: (String) -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -118,8 +119,8 @@ fun StudyPartyContent(
                     modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab))
                 ) {
                     when (state.tab) {
-                        PartyTab.THIS_WEEK -> thisWeek(state)
-                        PartyTab.ALL_ITEMS -> itemLines(state.items, R.string.study_items_empty, state.loaded)
+                        PartyTab.THIS_WEEK -> thisWeek(state, onOpenItem)
+                        PartyTab.ALL_ITEMS -> itemCards(state.items, R.string.study_items_empty, state.loaded, onOpenItem)
                         PartyTab.SCOREBOARD -> boardLines(state)
                         PartyTab.PEOPLE -> people(state, onAddPeople, onOpenInfo)
                         PartyTab.CHAT -> Unit
@@ -207,12 +208,12 @@ private fun LazyListScope.emptyLine(text: Int, loaded: Boolean) {
 }
 
 /** This week: how far the player is, then the week's items under overdue, each day, and no date. */
-private fun LazyListScope.thisWeek(state: StudyPartyUiState) {
+private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String) -> Unit) {
     if (state.thisWeek.isEmpty()) return emptyLine(R.string.study_week_empty, state.loaded)
     item(key = "week_summary") { WeekSummary(state) }
     state.weekSections.forEach { (section, rows) ->
         item(key = "section_" + sectionKey(section)) { SectionHeading(sectionLabel(section, state.today)) }
-        items(rows, key = { it.item.id }) { row -> ItemLine(row) }
+        items(rows, key = { it.item.id }) { row -> ItemCard(row, onOpen = { onOpenItem(row.item.id) }) }
     }
 }
 
@@ -265,14 +266,9 @@ fun sectionLabel(section: WeekSection, today: LocalDate): String = when (section
     }
 }
 
-private fun LazyListScope.itemLines(rows: List<ItemRow>, empty: Int, loaded: Boolean) {
+private fun LazyListScope.itemCards(rows: List<ItemRow>, empty: Int, loaded: Boolean, onOpenItem: (String) -> Unit) {
     if (rows.isEmpty()) return emptyLine(empty, loaded)
-    items(rows, key = { it.item.id }) { row -> ItemLine(row) }
-}
-
-@Composable
-private fun ItemLine(row: ItemRow) {
-    Text(text = row.item.title, style = MaterialTheme.typography.bodyLarge, color = PixelTheme.colors.onSurface, modifier = Modifier.testTag(StudyTags.item(row.item.id)))
+    items(rows, key = { it.item.id }) { row -> ItemCard(row, onOpen = { onOpenItem(row.item.id) }) }
 }
 
 private fun LazyListScope.boardLines(state: StudyPartyUiState) {
@@ -321,4 +317,6 @@ object StudyTags {
     fun tab(tab: PartyTab) = "study_tab_${tab.name}"
     fun tabButton(tab: PartyTab) = "study_tab_button_${tab.name}"
     fun item(id: String) = "study_item_$id"
+    fun itemDue(id: String) = "study_item_due_$id"
+    fun itemMine(id: String) = "study_item_mine_$id"
 }
