@@ -2,6 +2,8 @@ package com.pixelquest.app.di
 
 import com.pixelquest.app.quran.data.AndroidQuranAssetSource
 import com.pixelquest.app.quran.data.QuranAssetSource
+import com.pixelquest.app.quran.data.QuranRepository
+import com.pixelquest.app.quran.data.QuranRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,4 +19,9 @@ abstract class QuranModule {
     @Binds
     @Singleton
     abstract fun bindQuranAssetSource(source: AndroidQuranAssetSource): QuranAssetSource
+
+    /** The Quran on the phone, for the reader. Its loader, QuranImporter, is injected as itself. */
+    @Binds
+    @Singleton
+    abstract fun bindQuranRepository(repository: QuranRepositoryImpl): QuranRepository
 }
