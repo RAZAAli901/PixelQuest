@@ -3,7 +3,9 @@ package com.pixelquest.app.islamic.ui
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.pixelquest.app.R
 import com.pixelquest.app.islamic.IslamicIcon
@@ -93,5 +95,15 @@ class IslamicHubScreenshotTest(private val look: Look) {
             composeTestRule.onAllNodes(hasText(e), useUnmergedTree = true).fetchSemanticsNodes().size
         }
         assertEquals("$look: emoji shown", if (look.drawn) 0 else 3, emoji)
+
+        // Simple Mode is a plain list, one card a row; the others two to a row.
+        val namaz = composeTestRule.onNodeWithTag(IslamicTestTags.card("namaz")).getBoundsInRoot()
+        val darood = composeTestRule.onNodeWithTag(IslamicTestTags.card("darood")).getBoundsInRoot()
+        if (look.simpleMode) {
+            assertEquals("$look: one a row", namaz.left, darood.left)
+            assertTrue("$look: Darood below Namaz", darood.top >= namaz.bottom)
+        } else {
+            assertEquals("$look: two a row", namaz.top, darood.top)
+        }
     }
 }

@@ -28,7 +28,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.BuildConfig
 import com.pixelquest.app.R
 import com.pixelquest.app.islamic.IslamicItem
-import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.menu.LocalMenuDrawer
 import com.pixelquest.app.ui.menu.MenuTopBarAction
@@ -88,7 +87,8 @@ fun IslamicHubContent(
         val cells = state.items.map { HubCell.Item(it) } + if (showComingSoon && state.loaded) listOf(HubCell.ComingSoon) else emptyList()
         IslamicGrid(
             cells = cells,
-            columns = 2,
+            // Simple Mode is a plain list, one item a row.
+            columns = if (state.isSimpleMode) 1 else 2,
             modifier = Modifier.padding(padding)
         ) { cell, cellModifier ->
             when (cell) {
@@ -98,7 +98,7 @@ fun IslamicHubContent(
                     isSimpleMode = state.isSimpleMode,
                     modifier = cellModifier
                 )
-                HubCell.ComingSoon -> ComingSoonCard(modifier = cellModifier)
+                HubCell.ComingSoon -> ComingSoonCard(isSimpleMode = state.isSimpleMode, modifier = cellModifier)
             }
         }
     }
@@ -106,9 +106,9 @@ fun IslamicHubContent(
 
 /** A card that only says more is coming, where the next item will sit. It opens nothing. */
 @Composable
-private fun ComingSoonCard(modifier: Modifier = Modifier) {
+private fun ComingSoonCard(isSimpleMode: Boolean, modifier: Modifier = Modifier) {
     val colors = PixelTheme.colors
-    PixelCard(contentPadding = 14.dp, modifier = modifier.testTag(IslamicTestTags.COMING_SOON)) {
+    IslamicCardFrame(isSimpleMode = isSimpleMode, onClick = null, modifier = modifier.testTag(IslamicTestTags.COMING_SOON)) {
         Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(text = "✨", fontSize = 28.sp, modifier = Modifier.clearAndSetSemantics {})
             Text(
