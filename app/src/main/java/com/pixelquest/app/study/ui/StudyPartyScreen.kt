@@ -47,6 +47,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelFloatingActionButton
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.inkOnPanel
@@ -79,7 +80,10 @@ fun StudyPartyScreen(
         onAddItem = viewModel::openAddItem,
         onFormChange = viewModel::updateForm,
         onSaveForm = viewModel::saveForm,
-        onCloseForm = viewModel::closeForm
+        onCloseForm = viewModel::closeForm,
+        actions = ItemActions(onEdit = viewModel::editItem, onTogglePin = viewModel::togglePin, onDelete = viewModel::askDelete),
+        onConfirmDelete = viewModel::confirmDelete,
+        onCancelDelete = viewModel::cancelDelete
     )
 }
 
@@ -96,7 +100,10 @@ fun StudyPartyContent(
     onAddItem: () -> Unit = {},
     onFormChange: (ItemForm) -> Unit = {},
     onSaveForm: () -> Unit = {},
-    onCloseForm: () -> Unit = {}
+    onCloseForm: () -> Unit = {},
+    actions: ItemActions = ItemActions(),
+    onConfirmDelete: () -> Unit = {},
+    onCancelDelete: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -125,6 +132,16 @@ fun StudyPartyContent(
         },
         modifier = Modifier.testTag(StudyTags.SCREEN)
     ) { innerPadding ->
+        state.confirmingDelete?.let { row ->
+            PixelConfirmDialog(
+                title = stringResource(R.string.study_delete_title),
+                message = stringResource(R.string.study_delete_message, row.item.title),
+                confirmText = stringResource(R.string.study_delete),
+                dismissText = stringResource(R.string.study_keep),
+                onConfirm = onConfirmDelete,
+                onDismiss = onCancelDelete
+            )
+        }
         state.form?.let { form ->
             ItemSheet(form = form, today = state.today, isLeader = state.isLeader, onChange = onFormChange, onSave = onSaveForm, onDismiss = onCloseForm)
         }
@@ -141,11 +158,11 @@ fun StudyPartyContent(
                     when (state.tab) {
                         PartyTab.THIS_WEEK -> {
                             pinnedStrip(state, onOpenItem)
-                            thisWeek(state, onOpenItem)
+                            thisWeek(state, onOpenItem, actions)
                         }
                         PartyTab.ALL_ITEMS -> {
                             pinnedStrip(state, onOpenItem)
-                            itemCards(state.items, R.string.study_items_empty, state.loaded, onOpenItem)
+                            itemCards(state, state.items, R.string.study_items_empty, onOpenItem, actions)
                         }
                         PartyTab.SCOREBOARD -> boardLines(state)
                         PartyTab.PEOPLE -> people(state, onAddPeople, onOpenInfo)
@@ -239,13 +256,33 @@ private fun LazyListScope.pinnedStrip(state: StudyPartyUiState, onOpenItem: (Str
 }
 
 /** This week: how far the player is, then the week's items under overdue, each day, and no date. */
-private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String) -> Unit) {
+private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String) -> Unit, actions: ItemActions) {
     if (state.thisWeek.isEmpty()) return emptyLine(R.string.study_week_empty, state.loaded)
     item(key = "week_summary") { WeekSummary(state) }
     state.weekSections.forEach { (section, rows) ->
         item(key = "section_" + sectionKey(section)) { SectionHeading(sectionLabel(section, state.today)) }
-        items(rows, key = { it.item.id }) { row -> ItemCard(row, onOpen = { onOpenItem(row.item.id) }) }
+        items(rows, key = { it.item.id }) { row -> CardFor(state, row, onOpenItem, actions) }
     }
+}
+
+/** What the player may do to an item from its card's ⋯ menu; each takes the item's id. */
+data class ItemActions(
+    val onEdit: (String) -> Unit = {},
+    val onTogglePin: (String) -> Unit = {},
+    val onDelete: (String) -> Unit = {}
+)
+
+/** An item's card, with the menu its creator or the leader may use. */
+@Composable
+private fun CardFor(state: StudyPartyUiState, row: ItemRow, onOpenItem: (String) -> Unit, actions: ItemActions) {
+    val id = row.item.id
+    ItemCard(
+        row = row,
+        onOpen = { onOpenItem(id) },
+        onEdit = if (row.canEdit) ({ actions.onEdit(id) }) else null,
+        onTogglePin = if (state.isLeader) ({ actions.onTogglePin(id) }) else null,
+        onDelete = if (row.canEdit) ({ actions.onDelete(id) }) else null
+    )
 }
 
 /** The week's line: items done of those this week, and the player's points so far. */
@@ -297,9 +334,9 @@ fun sectionLabel(section: WeekSection, today: LocalDate): String = when (section
     }
 }
 
-private fun LazyListScope.itemCards(rows: List<ItemRow>, empty: Int, loaded: Boolean, onOpenItem: (String) -> Unit) {
-    if (rows.isEmpty()) return emptyLine(empty, loaded)
-    items(rows, key = { it.item.id }) { row -> ItemCard(row, onOpen = { onOpenItem(row.item.id) }) }
+private fun LazyListScope.itemCards(state: StudyPartyUiState, rows: List<ItemRow>, empty: Int, onOpenItem: (String) -> Unit, actions: ItemActions) {
+    if (rows.isEmpty()) return emptyLine(empty, state.loaded)
+    items(rows, key = { it.item.id }) { row -> CardFor(state, row, onOpenItem, actions) }
 }
 
 private fun LazyListScope.boardLines(state: StudyPartyUiState) {
@@ -364,4 +401,5 @@ object StudyTags {
     fun item(id: String) = "study_item_$id"
     fun itemDue(id: String) = "study_item_due_$id"
     fun itemMine(id: String) = "study_item_mine_$id"
+    fun itemMenu(id: String) = "study_item_menu_$id"
 }

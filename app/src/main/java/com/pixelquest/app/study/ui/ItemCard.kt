@@ -3,11 +3,20 @@ package com.pixelquest.app.study.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -23,6 +32,7 @@ import com.pixelquest.app.study.domain.StudyItemKind
 import com.pixelquest.app.study.domain.SyncState
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
 import java.time.Instant
@@ -34,14 +44,18 @@ import java.util.Locale
 /**
  * One item, as a card: its kind and title, its subject, when it's due, whether the leader pinned
  * it, how many in the party have finished it, and the player's own tick (done, still to send, or
- * refused). Tapping it opens the item.
+ * refused). Tapping it opens the item. For its creator or the leader, a ⋯ menu edits, pins (the
+ * leader) or deletes it.
  */
 @Composable
 fun ItemCard(
     row: ItemRow,
     onOpen: () -> Unit,
     modifier: Modifier = Modifier,
-    zone: ZoneId = ZoneId.systemDefault()
+    zone: ZoneId = ZoneId.systemDefault(),
+    onEdit: (() -> Unit)? = null,
+    onTogglePin: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
     val item = row.item
@@ -60,6 +74,10 @@ fun ItemCard(
                 if (item.pinned) {
                     val pinned = stringResource(R.string.study_pinned)
                     Text(text = "📌", style = MaterialTheme.typography.labelMedium, modifier = Modifier.clearAndSetSemantics { contentDescription = pinned })
+                }
+                if (onEdit != null || onTogglePin != null || onDelete != null) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    ItemMenu(item.id, item.pinned, onEdit, onTogglePin, onDelete)
                 }
             }
             Text(
@@ -97,6 +115,24 @@ fun ItemCard(
                     )
                 }
             }
+        }
+    }
+}
+
+/** The ⋯ button and its menu: Edit, Pin or Unpin, Delete, as the player may. */
+@Composable
+private fun ItemMenu(itemId: String, pinned: Boolean, onEdit: (() -> Unit)?, onTogglePin: (() -> Unit)?, onDelete: (() -> Unit)?) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }, modifier = Modifier.testTag(StudyTags.itemMenu(itemId))) {
+            SymbolIcon(symbol = "⋯", contentDescription = stringResource(R.string.study_item_actions), style = MaterialTheme.typography.titleMedium, color = PixelTheme.colors.onSurface)
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            onEdit?.let { DropdownMenuItem(text = { Text(stringResource(R.string.study_edit)) }, onClick = { open = false; it() }) }
+            onTogglePin?.let {
+                DropdownMenuItem(text = { Text(stringResource(if (pinned) R.string.study_unpin else R.string.study_pin)) }, onClick = { open = false; it() })
+            }
+            onDelete?.let { DropdownMenuItem(text = { Text(stringResource(R.string.study_delete)) }, onClick = { open = false; it() }) }
         }
     }
 }

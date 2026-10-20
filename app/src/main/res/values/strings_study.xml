@@ -64,6 +64,16 @@
     <string name="study_quiz_needs_date">A quiz needs a due date.</string>
     <string name="study_add_item_save">Add it</string>
     <string name="study_edit_item_save">Save changes</string>
+    <!-- An item's ⋯ menu, for its creator or the leader. -->
+    <string name="study_item_actions">Item actions</string>
+    <string name="study_edit">Edit</string>
+    <string name="study_pin">Pin for the party</string>
+    <string name="study_unpin">Unpin</string>
+    <string name="study_delete">Delete</string>
+    <string name="study_keep">Keep it</string>
+    <!-- Asking to be sure before an item goes ("Delete Waves quiz?"). -->
+    <string name="study_delete_title">Delete this item?</string>
+    <string name="study_delete_message"><xliff:g id="title" example="Waves quiz">%1$s</xliff:g> will go for everyone in the party, with everyone\'s ticks on it.</string>
     <!-- While the party is loading for the first time. -->
     <string name="study_loading">Loading the party…</string>
     <!-- What happened to something the player just tried. -->

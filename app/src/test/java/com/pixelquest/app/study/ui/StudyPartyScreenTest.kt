@@ -68,6 +68,21 @@ class StudyPartyScreenTest {
         composeTestRule.onNodeWithTag(StudyTags.itemMine("q"), useUnmergedTree = true).assertTextEquals("✓ Waiting to send")
         composeTestRule.onNodeWithTag(StudyTags.item("q")).performClick()
         assertEquals(true, opened)
+        // No ⋯ menu without anything the player may do.
+        composeTestRule.onNodeWithTag(StudyTags.itemMenu("q"), useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun aCardsMenu_isThereForItsCreatorOrTheLeader() {
+        val item = com.pixelquest.app.study.domain.StudyItem(
+            "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH
+        )
+        val row = ItemRow(item, null, 0, 2, DueState.NONE, canUndo = false, canEdit = true)
+        val state = StudyPartyUiState(party = party, myId = "bram", members = members, items = listOf(row), tab = PartyTab.ALL_ITEMS, loaded = true)
+        composeTestRule.setContent {
+            PixelQuestTheme { StudyPartyContent(state = state, onNavigateBack = {}, onOpenInfo = {}) }
+        }
+        composeTestRule.onNodeWithTag(StudyTags.itemMenu("a"), useUnmergedTree = true).assertExists()
     }
 
     @Test

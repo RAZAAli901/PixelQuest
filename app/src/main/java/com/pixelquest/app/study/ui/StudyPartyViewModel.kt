@@ -40,6 +40,7 @@ class StudyPartyViewModel @Inject constructor(
     private val loaded = MutableStateFlow(false)
     private val notice = MutableStateFlow<StudyNotice?>(null)
     private val form = MutableStateFlow<ItemForm?>(null)
+    private val confirmingDelete = MutableStateFlow<String?>(null)
 
     private val weekStart = study.thisWeek()
 
@@ -57,11 +58,11 @@ class StudyPartyViewModel @Inject constructor(
         study.observeWinners(partyId)
     ) { week, all, winners -> Triple(week, all.filter { it.weekStart.isBefore(weekStart) }, winners) }
 
-    private val flags = combine(tab, refreshing, loaded, combine(notice, form, ::Pair), settings?.simpleModeEnabled ?: flowOf(false)) { tab, refreshing, loaded, (notice, form), simple ->
-        Flags(tab, refreshing, loaded, notice, simple, form)
+    private val flags = combine(tab, refreshing, loaded, combine(notice, form, confirmingDelete, ::Triple), settings?.simpleModeEnabled ?: flowOf(false)) { tab, refreshing, loaded, (notice, form, deleting), simple ->
+        Flags(tab, refreshing, loaded, notice, simple, form, deleting)
     }
 
-    private data class Flags(val tab: PartyTab, val refreshing: Boolean, val loaded: Boolean, val notice: StudyNotice?, val simple: Boolean, val form: ItemForm?)
+    private data class Flags(val tab: PartyTab, val refreshing: Boolean, val loaded: Boolean, val notice: StudyNotice?, val simple: Boolean, val form: ItemForm?, val deleting: String?)
 
     val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows), (weekScores, past, winners), waiting, flags ->
         val me = study.myId()
@@ -89,7 +90,8 @@ class StudyPartyViewModel @Inject constructor(
             loaded = flags.loaded,
             simpleMode = flags.simple,
             notice = flags.notice,
-            form = flags.form
+            form = flags.form,
+            confirmingDelete = flags.deleting?.let { id -> rows.firstOrNull { it.item.id == id } }
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StudyPartyUiState(weekStart = weekStart))
 
@@ -187,10 +189,42 @@ class StudyPartyViewModel @Inject constructor(
         form.value = current.copy(saving = true, triedToSave = true)
         viewModelScope.launch {
             val draft = current.draft(study.zone())
-            val result = study.addItem(partyId, draft, pinned = current.pinned && uiState.value.isLeader)
+            val isLeader = uiState.value.isLeader
+            val result = when (val id = current.editingId) {
+                null -> study.addItem(partyId, draft, pinned = current.pinned && isLeader)
+                else -> {
+                    val wasPinned = uiState.value.items.firstOrNull { it.item.id == id }?.item?.pinned ?: false
+                    val edited = study.editItem(id, draft)
+                    // The pin is the leader's alone, and a call of its own.
+                    if (edited is SupabaseResult.Success && isLeader && current.pinned != wasPinned) study.setPinned(id, current.pinned) else edited
+                }
+            }
             report(result)
             form.value = if (result is SupabaseResult.Success) null else form.value?.copy(saving = false)
         }
+    }
+
+    /** Opens the Edit item sheet with [itemId]'s fields, for its creator or the leader. */
+    fun editItem(itemId: String) {
+        val row = uiState.value.items.firstOrNull { it.item.id == itemId } ?: return
+        if (!row.canEdit) return
+        form.value = ItemForm.of(row.item, study.zone())
+    }
+
+    /** Asks the player to be sure before [itemId] goes, with every tick on it. */
+    fun askDelete(itemId: String) {
+        if (uiState.value.items.any { it.item.id == itemId && it.canEdit }) confirmingDelete.value = itemId
+    }
+
+    fun cancelDelete() {
+        confirmingDelete.value = null
+    }
+
+    /** They're sure: the item goes, for everyone. */
+    fun confirmDelete() {
+        val id = confirmingDelete.value ?: return
+        confirmingDelete.value = null
+        delete(id)
     }
 
     fun dismissNotice() {
