@@ -179,6 +179,8 @@ dependencies {
     implementation(libs.adhan2)
     implementation(libs.ktor.client.android)
     implementation(libs.kotlinx.serialization.json)
+    // The Quran reader's settings, in a Preferences DataStore.
+    implementation(libs.androidx.datastore.preferences)
 
     // Day 13 Section C Step 11: Credential Manager & Google Identity Services
     implementation(libs.androidx.credentials)

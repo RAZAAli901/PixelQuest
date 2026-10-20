@@ -5,7 +5,9 @@ import com.pixelquest.app.quran.data.QuranAssetSource
 import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.data.QuranRepositoryImpl
 import dagger.Binds
+import androidx.datastore.preferences.preferencesDataStoreFile
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -14,6 +16,23 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class QuranModule {
+
+    /** How the player reads, kept between visits. */
+    @Binds
+    @Singleton
+    abstract fun bindReadingSettingsStore(store: com.pixelquest.app.quran.data.DataStoreReadingSettingsStore): com.pixelquest.app.quran.data.ReadingSettingsStore
+
+    companion object {
+        /** The reading settings' DataStore: one per process, as DataStore requires. */
+        @Provides
+        @Singleton
+        fun provideReadingDataStore(
+            @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
+        ): androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> =
+            androidx.datastore.preferences.core.PreferenceDataStoreFactory.create {
+                context.preferencesDataStoreFile(com.pixelquest.app.quran.data.DataStoreReadingSettingsStore.NAME)
+            }
+    }
 
     /** The bundled files in the APK's assets/quran. */
     @Binds

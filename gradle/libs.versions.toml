@@ -24,6 +24,8 @@ robolectric = "4.12.2"
 mockito = "5.11.0"
 mockk = "1.13.10"
 androidxTestCore = "1.5.0"
+# The Quran reader's settings (docs/quran-data.md).
+datastore = "1.1.1"
 # java.time and other Java 8+ APIs on API 24-25 (minSdk 24); 2.1.x needs AGP 8.0+.
 desugarJdkLibs = "2.1.5"
 
@@ -76,6 +78,7 @@ ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version =
 ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version = "3.0.1" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version = "3.0.1" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.3" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

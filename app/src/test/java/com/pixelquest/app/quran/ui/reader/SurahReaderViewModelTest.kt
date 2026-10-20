@@ -58,8 +58,10 @@ class SurahReaderViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private val settings = com.pixelquest.app.quran.data.MemoryReadingSettingsStore()
+
     private fun reader(surah: Int, ayah: Int? = null, saved: SavedStateHandle? = null) =
-        SurahReaderViewModel(saved ?: SavedStateHandle(mapOf("surah" to surah, "ayah" to ayah).filterValues { it != null }), repository)
+        SurahReaderViewModel(saved ?: SavedStateHandle(mapOf("surah" to surah, "ayah" to ayah).filterValues { it != null }), repository, settings)
 
     @Test
     fun aSurah_opensAtItsStart_withItsFirstPage() {
@@ -105,15 +107,20 @@ class SurahReaderViewModelTest {
     @Test
     fun afterARotation_itComesBackWhereThePlayerWas() {
         val saved = SavedStateHandle(mapOf("surah" to 2))
-        reader(2, saved = saved).apply {
-            onScrolled(120)
-            setDisplayMode(DisplayMode.ARABIC)
-        }
+        reader(2, saved = saved).onScrolled(120)
 
         val again = reader(2, saved = saved)
 
         assertEquals(120, again.state.value.target)
-        assertEquals(DisplayMode.ARABIC, again.state.value.displayMode)
         assertTrue(again.state.value.ayahs.size >= 120)
+    }
+
+    @Test
+    fun theSettings_areKept_forTheNextVisit() {
+        reader(2).setDisplayMode(DisplayMode.ARABIC)
+
+        val nextVisit = reader(1)
+
+        assertEquals(DisplayMode.ARABIC, nextVisit.state.value.displayMode)
     }
 }

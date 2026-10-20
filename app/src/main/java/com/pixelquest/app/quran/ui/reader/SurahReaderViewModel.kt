@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.quran.data.QuranRepository
+import com.pixelquest.app.quran.data.ReadingSettingsStore
 import com.pixelquest.app.quran.domain.Ayah
 import com.pixelquest.app.quran.domain.Surah
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,7 +55,8 @@ data class ReaderUiState(
 @HiltViewModel
 class SurahReaderViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repository: QuranRepository
+    private val repository: QuranRepository,
+    private val settingsStore: ReadingSettingsStore
 ) : ViewModel() {
 
     /** The surah this reader shows ([ARG_SURAH] in its route). */
@@ -62,10 +64,6 @@ class SurahReaderViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(
         ReaderUiState(
-            settings = ReadingSettings(
-                displayMode = savedStateHandle.get<String>(KEY_MODE)?.let { name -> DisplayMode.entries.firstOrNull { it.name == name } }
-                    ?: DisplayMode.BOTH
-            ),
             // Back after a rotation: where they'd scrolled to. Else the ayah the reader was opened at.
             target = savedStateHandle.get<Int>(KEY_SCROLLED) ?: savedStateHandle.get<Int>(ARG_AYAH)?.takeIf { it > 1 }
         )
@@ -75,6 +73,10 @@ class SurahReaderViewModel @Inject constructor(
     private var nextPage = 0
 
     init {
+        // How the player reads, as last kept on this phone.
+        viewModelScope.launch {
+            settingsStore.settings.collect { settings -> _state.update { it.copy(settings = settings) } }
+        }
         viewModelScope.launch {
             _state.update { it.copy(surah = repository.surah(surahNumber)) }
             val target = _state.value.target
@@ -119,10 +121,10 @@ class SurahReaderViewModel @Inject constructor(
         updateSettings(_state.value.settings.copy(displayMode = mode))
     }
 
-    /** The player changed how they read (the reading settings sheet). */
+    /** The player changed how they read (the reading settings sheet): shown at once, and kept. */
     fun updateSettings(settings: ReadingSettings) {
-        savedStateHandle[KEY_MODE] = settings.displayMode.name
         _state.update { it.copy(settings = settings) }
+        viewModelScope.launch { settingsStore.save(settings) }
     }
 
     companion object {
@@ -131,6 +133,5 @@ class SurahReaderViewModel @Inject constructor(
         const val ARG_AYAH = "ayah"
 
         private const val KEY_SCROLLED = "reader_scrolled"
-        private const val KEY_MODE = "reader_mode"
     }
 }

@@ -88,12 +88,14 @@ class ReadingSettingsTest {
     @Test
     fun theReader_usesWhatsChosen() {
         val repository = NoQuran
-        val vm = SurahReaderViewModel(SavedStateHandle(mapOf("surah" to 1)), repository)
+        val store = com.pixelquest.app.quran.data.MemoryReadingSettingsStore()
+        val vm = SurahReaderViewModel(SavedStateHandle(mapOf("surah" to 1)), repository, store)
 
         vm.updateSettings(ReadingSettings(arabicSize = 40f, displayMode = DisplayMode.TRANSLATION))
 
         assertEquals(40f, vm.state.value.settings.arabicSize)
         assertEquals(DisplayMode.TRANSLATION, vm.state.value.displayMode)
+        assertEquals("and kept", 40f, store.settings.value.arabicSize)
     }
 
     /** A repository with nothing in it, for the settings alone. */
