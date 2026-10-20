@@ -18,6 +18,7 @@ import java.io.IOException
 import java.time.Instant
 import java.time.LocalDate
 import com.pixelquest.app.party.data.remote.toDomain
+import com.pixelquest.app.party.domain.PartyType
 
 /**
  * Darood Party's server in memory, keeping its main rules (supabase/schema.md, Darood Parties):
@@ -63,9 +64,9 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
     fun total(party: String): Long = entries.filter { it.partyId == party }.sumOf { it.amount.toLong() }
 
     /** A party as if made on the server, led by [leader], with [active] members already in it. */
-    fun seedParty(name: String, leader: String, vararg active: String, milestone: Long? = null, maxMembers: Int = 10): String {
+    fun seedParty(name: String, leader: String, vararg active: String, milestone: Long? = null, maxMembers: Int = 10, type: PartyType = PartyType.DAROOD): String {
         val id = "party-${nextParty++}"
-        parties[id] = PartyDto(id, name, leader, maxMembers, milestone, milestone?.let { now.toString() }, null, now.toString())
+        parties[id] = PartyDto(id, name, leader, maxMembers, milestone, milestone?.let { now.toString() }, null, now.toString(), partyType = type.wire)
         members += PartyMemberDto(id, leader, "leader", "active", now.toString(), now.toString())
         active.forEach { members += PartyMemberDto(id, it, "member", "active", now.toString(), now.toString()) }
         return id
@@ -85,6 +86,16 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
     override suspend fun fetchMembers(partyId: String): SupabaseResult<List<PartyMember>> = answer("fetchMembers") { account ->
         if (!isActive(partyId, account)) return@answer SupabaseResult.Success(emptyList())
         SupabaseResult.Success(members.filter { it.partyId == partyId }.map { it.toDomain(usernames[it.userId]) })
+    }
+
+    override suspend fun createParty(name: String, maxMembers: Int, type: PartyType): SupabaseResult<String> = answer("createParty") { account ->
+        val trimmed = name.trim()
+        when {
+            account !in usernames -> refuse("username_required")
+            trimmed.length !in DaroodRules.NAME_MIN..DaroodRules.NAME_MAX -> refuse("new row violates check constraint \"party_name_length\"")
+            maxMembers !in DaroodRules.MEMBERS_MIN..DaroodRules.MEMBERS_MAX -> refuse("new row violates check constraint \"party_member_limit\"")
+            else -> SupabaseResult.Success(seedParty(trimmed, account, maxMembers = maxMembers, type = type))
+        }
     }
 
     override suspend fun createParty(name: String, maxMembers: Int, milestone: Long?): SupabaseResult<String> = answer("createParty") { account ->

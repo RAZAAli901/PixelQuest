@@ -186,6 +186,18 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindPartyRemoteDataSource(
+        impl: com.pixelquest.app.darood.data.remote.SupabaseDaroodPartyRemoteDataSource
+    ): com.pixelquest.app.party.data.remote.PartyRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindPartyRepository(
+        impl: com.pixelquest.app.party.data.PartyRepositoryImpl
+    ): com.pixelquest.app.party.data.PartyRepository
+
+    @Binds
+    @Singleton
     abstract fun bindDaroodPartyRemoteDataSource(
         impl: com.pixelquest.app.darood.data.remote.SupabaseDaroodPartyRemoteDataSource
     ): com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource

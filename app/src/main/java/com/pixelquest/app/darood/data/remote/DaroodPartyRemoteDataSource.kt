@@ -24,6 +24,8 @@ import com.pixelquest.app.party.data.remote.InviteOutcome
 import com.pixelquest.app.party.data.remote.MemberNameDto
 import com.pixelquest.app.party.data.remote.PartyDto
 import com.pixelquest.app.party.data.remote.PartyMemberDto
+import com.pixelquest.app.party.data.remote.PartyRemoteDataSource
+import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.party.data.remote.toDomain
 import com.pixelquest.app.party.data.remote.PartyStatusReply
 import com.pixelquest.app.party.data.remote.RemoteParty
@@ -42,45 +44,20 @@ class SupabaseDaroodAccount @Inject constructor(private val auth: Auth) : Darood
 }
 
 /**
- * Darood Party on Supabase, through the app's one Postgrest client. Row-level security decides
+ * Darood Party on Supabase, through the app's one Postgrest client: every party's calls
+ * ([PartyRemoteDataSource]), and Darood's own. Row-level security decides
  * what each call may see (supabase/schema.md, Darood Parties); every call is wrapped in
  * [safeSupabaseCall], like the rest of the app's Supabase calls.
  */
-interface DaroodPartyRemoteDataSource {
-    /** The parties the account is active in or invited to. */
-    suspend fun fetchMyParties(): SupabaseResult<List<RemoteParty>>
-
-    /** A party's members (all statuses), with the usernames the account may see. */
-    suspend fun fetchMembers(partyId: String): SupabaseResult<List<PartyMember>>
-
+interface DaroodPartyRemoteDataSource : PartyRemoteDataSource {
     /** A new party led by the account; its id. Refusals: [com.pixelquest.app.darood.domain.DaroodRefusal]. */
     suspend fun createParty(name: String, maxMembers: Int, milestone: Long?): SupabaseResult<String>
-
-    /** The leader invites [username]. */
-    suspend fun invite(partyId: String, username: String): SupabaseResult<InviteOutcome>
-
-    /** Accepts or declines an invitation: the account's new status. */
-    suspend fun respondToInvite(partyId: String, accept: Boolean): SupabaseResult<MemberStatus>
-
-    suspend fun leaveParty(partyId: String): SupabaseResult<Unit>
-
-    /** The leader removes a member or withdraws an invitation. */
-    suspend fun removeMember(partyId: String, userId: String): SupabaseResult<Unit>
 
     /** The leader sets or raises the milestone: the milestone now. */
     suspend fun setMilestone(partyId: String, target: Long): SupabaseResult<Long>
 
-    /** The leader renames the party. */
-    suspend fun renameParty(partyId: String, name: String): SupabaseResult<Unit>
-
     /** The leader puts the party on the race board, or takes it off. */
     suspend fun setRaceBoard(partyId: String, on: Boolean): SupabaseResult<Unit>
-
-    /** The leader hands the leadership to [userId], an active member; the leader stays as a member. */
-    suspend fun transferLeadership(partyId: String, userId: String): SupabaseResult<Unit>
-
-    /** The leader deletes the party: it's gone for everyone. */
-    suspend fun deleteParty(partyId: String): SupabaseResult<Unit>
 
     /** Each poster's total for [day] in a party (party_day_stats), as its members may see it. */
     suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<List<DayTotal>>
@@ -102,12 +79,6 @@ interface DaroodPartyRemoteDataSource {
      * before that entry. Ids only grow, in the order entries reached the server.
      */
     suspend fun fetchEntries(partyId: String, beforeId: Long? = null, limit: Int = PAGE_SIZE): SupabaseResult<List<DaroodEntry>>
-
-    /** The numbers of the given parties (those the account is active in; others have no row). */
-    suspend fun fetchStats(partyIds: List<String>): SupabaseResult<List<PartyStats>>
-
-    /** Each poster's part of a party's total, largest first. */
-    suspend fun fetchMemberStats(partyId: String): SupabaseResult<List<MemberStats>>
 
     companion object {
         /** Entries per page in the chat. */
@@ -164,6 +135,13 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         if (account.id() == null) return signedOut()
         return safeSupabaseCall { postgrest.rpc(function, buildJsonObject(arguments)).decodeAs<T>() }
     }
+
+    override suspend fun createParty(name: String, maxMembers: Int, type: PartyType): SupabaseResult<String> =
+        call("create_party") {
+            put("name", name.trim())
+            put("max_members", maxMembers)
+            put("party_type", type.wire)
+        }
 
     override suspend fun createParty(name: String, maxMembers: Int, milestone: Long?): SupabaseResult<String> =
         call("create_party") {

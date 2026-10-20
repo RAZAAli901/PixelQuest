@@ -60,4 +60,17 @@ interface PartyDao {
         deleteMembers(partyId)
         insertMembers(members)
     }
+
+    /**
+     * A party's members from the server, unless the party left the phone while they were on their
+     * way (deleted, left or removed meanwhile): its rows would point at a party that's gone.
+     *
+     * @return whether the party was still there.
+     */
+    @Transaction
+    suspend fun replaceMembersIfKept(partyId: String, members: List<PartyMemberEntity>): Boolean {
+        if (getParty(partyId) == null) return false
+        replaceMembers(partyId, members)
+        return true
+    }
 }
