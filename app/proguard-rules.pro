@@ -30,6 +30,8 @@
 -keep class com.pixelquest.app.data.remote.** { *; }
 # Darood Party's Supabase DTOs, like the game's above (darood/data/remote).
 -keep class com.pixelquest.app.darood.data.remote.** { *; }
+# Every party's Supabase DTOs (party/data/remote: parties and members of any kind), like Darood's.
+-keep class com.pixelquest.app.party.data.remote.** { *; }
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 -keepclassmembers class * {
     @kotlinx.serialization.Serializable <fields>;
