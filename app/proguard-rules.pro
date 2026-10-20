@@ -32,6 +32,8 @@
 -keep class com.pixelquest.app.darood.data.remote.** { *; }
 # Every party's Supabase DTOs (party/data/remote: parties and members of any kind), like Darood's.
 -keep class com.pixelquest.app.party.data.remote.** { *; }
+# Study parties' Supabase DTOs (study/data/remote), like the other parties'.
+-keep class com.pixelquest.app.study.data.remote.** { *; }
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 -keepclassmembers class * {
     @kotlinx.serialization.Serializable <fields>;

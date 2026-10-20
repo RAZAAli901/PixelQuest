@@ -231,4 +231,12 @@ abstract class RepositoryModule {
     abstract fun bindDaroodCacheOwner(
         impl: com.pixelquest.app.darood.sync.PrefsDaroodCacheOwner
     ): com.pixelquest.app.darood.sync.DaroodCacheOwner
+
+    // Study parties (docs/study-party.md): their own server calls; members go through the party core.
+
+    @Binds
+    @Singleton
+    abstract fun bindStudyRemoteDataSource(
+        impl: com.pixelquest.app.study.data.remote.SupabaseStudyRemoteDataSource
+    ): com.pixelquest.app.study.data.remote.StudyRemoteDataSource
 }
