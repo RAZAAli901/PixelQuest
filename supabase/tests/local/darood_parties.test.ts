@@ -377,10 +377,13 @@ localTest("privacy: an outsider sees an opted-in party's race line, and no name,
     const answer = await call(path, { token: outsider.accessToken });
     reads.push([path, answer.body]);
   }
+  // An amount is shown only as a number of its own: inside a random id or a timestamp ("...6313254..."), it's chance.
+  const shows = (text: string, secret: string) =>
+    amounts.includes(secret) ? new RegExp(`(?<![\\w.-])${secret}(?![\\w.])`).test(text) : text.includes(secret);
   for (const [path, body] of reads) {
     const text = JSON.stringify(body);
     const hidden = path.startsWith("/rest/v1/race_board") ? secrets : [...secrets, ...amounts];
-    for (const secret of hidden) assert.ok(!text.includes(secret), `${path} shows ${secret}: ${text.slice(0, 300)}`);
+    for (const secret of hidden) assert.ok(!shows(text, secret), `${path} shows ${secret}: ${text.slice(0, 300)}`);
   }
 
   // The board shows the line, with its six columns and mine, and only those.
