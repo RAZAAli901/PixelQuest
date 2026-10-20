@@ -16,6 +16,7 @@ import com.pixelquest.app.study.domain.weekStartOf
 import com.pixelquest.app.testing.LocalSupabase
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,7 +43,7 @@ class LocalSupabaseStudyTest {
     @Before
     fun onlyWithTheLocalStack() = assumeTrue("Set PIXELQUEST_LOCAL_SUPABASE=1 with the local stack running", LocalSupabase.enabled)
 
-    private class Player(val id: String, val name: String, val parties: SupabaseDaroodPartyRemoteDataSource, val study: SupabaseStudyRemoteDataSource)
+    private class Player(val client: io.github.jan.supabase.SupabaseClient, val id: String, val name: String, val parties: SupabaseDaroodPartyRemoteDataSource, val study: SupabaseStudyRemoteDataSource)
 
     private suspend fun player(tag: String): Player {
         val (supabase, id) = LocalSupabase.signedInPlayer(tag)
@@ -50,7 +51,7 @@ class LocalSupabaseStudyTest {
         val saved = SupabaseUsernameRepository(supabase.postgrest).setUsername(Username.parse(name)!!)
         assertTrue(saved is SupabaseResult.Success && saved.data is SetUsernameResult.Saved)
         val account = { supabase.auth.currentUserOrNull()?.id }
-        return Player(id, name, SupabaseDaroodPartyRemoteDataSource(supabase.postgrest, account), SupabaseStudyRemoteDataSource(supabase.postgrest, account))
+        return Player(supabase, id, name, SupabaseDaroodPartyRemoteDataSource(supabase.postgrest, account), SupabaseStudyRemoteDataSource(supabase.postgrest, account))
     }
 
     private fun <T> SupabaseResult<T>.ok(): T = (this as? SupabaseResult.Success)?.data ?: throw AssertionError("not a success: $this")
@@ -112,5 +113,42 @@ class LocalSupabaseStudyTest {
         assertEquals(emptyList<Any>(), aria.study.fetchWinners(party).ok())
         aria.study.deleteItem(essay.id).ok()
         assertEquals(listOf(quiz.id), bram.study.fetchItems(party).ok().map { it.id })
+    }
+
+    @Test
+    fun aMembersTick_isHeardLive_byTheOthers_andNotByOutsiders() = runBlocking {
+        val aria = player("aria")
+        val bram = player("bram")
+        val eve = player("eve")
+
+        val party = aria.parties.createParty("Physics group", 5, PartyType.STUDY).ok()
+        aria.parties.invite(party, bram.name).ok()
+        bram.parties.respondToInvite(party, accept = true).ok()
+
+        fun follow(client: io.github.jan.supabase.SupabaseClient) =
+            com.pixelquest.app.study.sync.SupabaseStudyLiveSource(client, com.pixelquest.app.party.sync.SupabasePartyLiveSource(client)).changes(party)
+        val bramHeard = java.util.concurrent.CopyOnWriteArrayList<com.pixelquest.app.study.sync.StudyChange>()
+        val eveHeard = java.util.concurrent.CopyOnWriteArrayList<com.pixelquest.app.study.sync.StudyChange>()
+        val bramJob = launch(kotlinx.coroutines.Dispatchers.IO) { follow(bram.client).collect { bramHeard += it } }
+        val eveJob = launch(kotlinx.coroutines.Dispatchers.IO) { follow(eve.client).collect { eveHeard += it } }
+        suspend fun waitUntil(what: String, condition: () -> Boolean) {
+            repeat(150) {
+                if (condition()) return
+                kotlinx.coroutines.delay(100)
+            }
+            throw AssertionError("still waiting after 15 s: $what")
+        }
+        waitUntil("both listening") { com.pixelquest.app.study.sync.StudyChange.Subscribed in bramHeard && com.pixelquest.app.study.sync.StudyChange.Subscribed in eveHeard }
+        // Realtime says a channel joined a moment before its listener is ready.
+        kotlinx.coroutines.delay(3_000)
+
+        aria.study.addItem(party, StudyItemDraft(StudyItemKind.ASSIGNMENT, "Lab report", null, null, null)).ok()
+        waitUntil("Bram hears the new item") { com.pixelquest.app.study.sync.StudyChange.Activity in bramHeard }
+        kotlinx.coroutines.delay(2_000)
+        assertTrue("an outsider hears nothing", com.pixelquest.app.study.sync.StudyChange.Activity !in eveHeard)
+        bramJob.cancel()
+        eveJob.cancel()
+        bramJob.join()
+        eveJob.join()
     }
 }

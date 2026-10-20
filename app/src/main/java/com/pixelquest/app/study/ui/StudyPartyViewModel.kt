@@ -14,6 +14,7 @@ import com.pixelquest.app.study.data.StudyTimerStore
 import com.pixelquest.app.study.data.MemoryWinnerSeenStore
 import com.pixelquest.app.study.data.WinnerSeenStore
 import com.pixelquest.app.study.domain.StudyRules
+import com.pixelquest.app.study.sync.StudyChange
 import com.pixelquest.app.study.domain.StudyRefusal
 import com.pixelquest.app.study.domain.SyncState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -72,14 +73,14 @@ class StudyPartyViewModel @Inject constructor(
         study.observeScores(partyId, weekStart),
         study.observeAllScores(partyId),
         study.observeWinners(partyId),
-        study.observeSessions(partyId, study.today()),
+        study.observeSessions(partyId, study.today().minusDays(ACTIVITY_DAYS - 1)),
         combine(timer.running, seenWinners, ::Pair)
     ) { week, all, winners, today, (running, seen) ->
         val me = study.myId()
         val past = all.filter { it.weekStart.isBefore(weekStart) }
         Scores(
-            week, past, winners, today.filter { it.userId == me && it.state != SyncState.FAILED }.sumOf { it.minutes }, running,
-            pastWeeksOf(past, winners, me), winnerBannerOf(winners, weekStart, seen)
+            week, past, winners, today.filter { it.userId == me && it.state != SyncState.FAILED && it.localDate == study.today() }.sumOf { it.minutes }, running,
+            pastWeeksOf(past, winners, me), winnerBannerOf(winners, weekStart, seen), today
         )
     }
 
@@ -90,7 +91,8 @@ class StudyPartyViewModel @Inject constructor(
         val studiedToday: Int,
         val timer: RunningTimer?,
         val pastWeeks: List<PastWeek>,
-        val banner: List<com.pixelquest.app.study.domain.WeekWinner>
+        val banner: List<com.pixelquest.app.study.domain.WeekWinner>,
+        val sessions: List<com.pixelquest.app.study.domain.StudySession>
     )
 
     private val flags = combine(tab, refreshing, loaded, combine(notice, form, confirmingDelete, ::Triple), settings?.simpleModeEnabled ?: flowOf(false)) { tab, refreshing, loaded, (notice, form, deleting), simple ->
@@ -99,7 +101,7 @@ class StudyPartyViewModel @Inject constructor(
 
     private data class Flags(val tab: PartyTab, val refreshing: Boolean, val loaded: Boolean, val notice: StudyNotice?, val simple: Boolean, val form: ItemForm?, val deleting: String?)
 
-    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows, ticks), (weekScores, past, winners, studiedToday, running, pastWeeks, banner), waiting, flags ->
+    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows, ticks), (weekScores, past, winners, studiedToday, running, pastWeeks, banner, sessions), waiting, flags ->
         val me = study.myId()
         val week = thisWeekOf(rows, weekStart, study.zone())
         StudyPartyUiState(
@@ -123,6 +125,7 @@ class StudyPartyViewModel @Inject constructor(
             timer = running,
             pastWeeks = pastWeeks,
             winnerBanner = banner,
+            activity = activityOf(rows.map { it.item }, ticks.values.flatten(), sessions, study.now().minus(java.time.Duration.ofDays(ACTIVITY_DAYS))),
             winners = winners,
             refused = rows.mapNotNull { row -> row.mine?.takeIf { it.state == SyncState.FAILED } },
             waiting = waiting,
@@ -141,6 +144,16 @@ class StudyPartyViewModel @Inject constructor(
 
     fun selectTab(selected: PartyTab) {
         tab.value = selected
+    }
+
+    /**
+     * Catches up, then follows the party live until cancelled: call it while the screen is visible.
+     * A change of members refreshes them; the rest the repository brings in.
+     */
+    suspend fun followWhileVisible() {
+        study.followParty(partyId).collect { change ->
+            if (change == StudyChange.MembersChanged) parties.refreshParty(partyId)
+        }
     }
 
     /** Brings the party and its study data from the server. */
@@ -307,5 +320,8 @@ class StudyPartyViewModel @Inject constructor(
 
     companion object {
         const val ARG_PARTY = "partyId"
+
+        /** How many days back the activity feed goes. */
+        const val ACTIVITY_DAYS = 7L
     }
 }

@@ -24,7 +24,16 @@ import com.pixelquest.app.study.domain.SyncState
 import com.pixelquest.app.study.domain.WeekScore
 import com.pixelquest.app.study.domain.WeekWinner
 import com.pixelquest.app.study.domain.weekStartOf
+import com.pixelquest.app.study.sync.StudyChange
+import com.pixelquest.app.study.sync.StudyLiveSource
 import com.pixelquest.app.study.sync.StudySyncScheduler
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -113,6 +122,12 @@ interface StudyRepository {
 
     /** Drops a refused tick or study time from the phone. */
     suspend fun discard(clientId: String)
+
+    /**
+     * Follows a party live while collected: what changes is brought into the cache, once the changes
+     * pause, and each is passed on. Nothing without a live source.
+     */
+    fun followParty(partyId: String): Flow<StudyChange> = emptyFlow()
 }
 
 @Singleton
@@ -123,7 +138,9 @@ class StudyRepositoryImpl(
     private val account: DaroodAccount,
     private val clock: () -> Long,
     private val timeZone: () -> ZoneId,
-    private val syncScheduler: StudySyncScheduler? = null
+    private val syncScheduler: StudySyncScheduler? = null,
+    private val live: StudyLiveSource? = null,
+    private val quietMs: Long = QUIET_MS
 ) : StudyRepository {
 
     @Inject
@@ -132,8 +149,9 @@ class StudyRepositoryImpl(
         dao: StudyDao,
         parties: PartyDao,
         account: DaroodAccount,
-        syncScheduler: StudySyncScheduler
-    ) : this(remote, dao, parties, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler)
+        syncScheduler: StudySyncScheduler,
+        live: StudyLiveSource
+    ) : this(remote, dao, parties, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler, live)
 
     override fun myId(): String? = account.id()
 
@@ -336,9 +354,28 @@ class StudyRepositoryImpl(
 
     override suspend fun discard(clientId: String) = dao.deletePending(clientId)
 
+    @OptIn(FlowPreview::class)
+    override fun followParty(partyId: String): Flow<StudyChange> = channelFlow {
+        val source = live ?: return@channelFlow
+        // A busy party changes often: it refreshes once the changes pause, not after each.
+        val changed = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+        launch { changed.debounce(quietMs).collect { refresh(partyId) } }
+        source.changes(partyId).collect { change ->
+            when (change) {
+                StudyChange.Activity -> changed.tryEmit(Unit)
+                StudyChange.Subscribed -> refresh(partyId)
+                StudyChange.MembersChanged -> Unit
+            }
+            send(change)
+        }
+    }
+
     internal companion object {
         /** How many weeks back the phone keeps study time and scores, for the past weeks. */
         const val HISTORY_WEEKS = 7L
+
+        /** How long a party's changes must pause before it refreshes. */
+        const val QUIET_MS = 1_000L
     }
 }
 

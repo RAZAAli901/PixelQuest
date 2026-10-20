@@ -113,6 +113,8 @@ data class StudyPartyUiState(
     val pastWeeks: List<PastWeek> = emptyList(),
     /** Last week's winners, until the player dismisses them; empty when there's nothing new to tell. */
     val winnerBanner: List<WeekWinner> = emptyList(),
+    /** What happened in the party lately, newest first. */
+    val activity: List<ActivityLine> = emptyList(),
     val refused: List<StudyCompletion> = emptyList(),
     val waiting: Int = 0,
     val refreshing: Boolean = false,
@@ -211,6 +213,34 @@ fun winnerBannerOf(winners: List<WeekWinner>, thisWeek: LocalDate, seenWeek: Loc
     val lastWeek = thisWeek.minusWeeks(1)
     if (seenWeek != null && !seenWeek.isBefore(lastWeek)) return emptyList()
     return winners.filter { it.weekStart == lastWeek }
+}
+
+/** Something that happened in the party, for its activity feed. */
+sealed interface ActivityLine {
+    val userId: String?
+    val at: Instant
+
+    data class Added(override val userId: String?, override val at: Instant, val title: String) : ActivityLine
+    data class Finished(override val userId: String?, override val at: Instant, val title: String) : ActivityLine
+    data class Studied(override val userId: String?, override val at: Instant, val minutes: Int) : ActivityLine
+}
+
+/**
+ * The party's activity since [since], newest first, at most [limit]: items added, items finished
+ * (refused ticks left out) and study time logged.
+ */
+fun activityOf(
+    items: List<StudyItem>,
+    ticks: List<StudyCompletion>,
+    sessions: List<com.pixelquest.app.study.domain.StudySession>,
+    since: Instant,
+    limit: Int = 20
+): List<ActivityLine> {
+    val titles = items.associate { it.id to it.title }
+    val lines = items.map { ActivityLine.Added(it.createdBy, it.createdAt, it.title) } +
+        ticks.filter { it.state != SyncState.FAILED }.mapNotNull { tick -> titles[tick.itemId]?.let { ActivityLine.Finished(tick.userId, tick.completedAt, it) } } +
+        sessions.filter { it.state != SyncState.FAILED }.map { ActivityLine.Studied(it.userId, it.createdAt, it.minutes) }
+    return lines.filter { !it.at.isBefore(since) }.sortedByDescending { it.at }.take(limit)
 }
 
 /** This week's board: every active member, the most points first, equal points sharing a place. */

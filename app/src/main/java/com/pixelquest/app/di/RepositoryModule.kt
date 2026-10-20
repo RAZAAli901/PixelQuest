@@ -263,4 +263,10 @@ abstract class RepositoryModule {
     abstract fun bindWinnerSeenStore(
         impl: com.pixelquest.app.study.data.PrefsWinnerSeenStore
     ): com.pixelquest.app.study.data.WinnerSeenStore
+
+    @Binds
+    @Singleton
+    abstract fun bindStudyLiveSource(
+        impl: com.pixelquest.app.study.sync.SupabaseStudyLiveSource
+    ): com.pixelquest.app.study.sync.StudyLiveSource
 }

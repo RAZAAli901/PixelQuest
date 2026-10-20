@@ -132,6 +132,26 @@ class StudyPartyStateTest {
     }
 
     @Test
+    fun theFeed_isNewestFirst_withinItsDays_withoutRefusedTicks() {
+        val added = item("a", null).copy(createdAt = now.minus(Duration.ofHours(5)))
+        val old = item("old", null).copy(createdAt = now.minus(Duration.ofDays(9)))
+        val ticks = listOf(
+            tick("a", "bram", at = now.minus(Duration.ofHours(1))),
+            tick("a", "aria", at = now.minus(Duration.ofMinutes(30)), state = SyncState.FAILED)
+        )
+        val sessions = listOf(com.pixelquest.app.study.domain.StudySession(1, null, "p", "cleo", 25, week, "UTC", now.minus(Duration.ofHours(2))))
+        val feed = activityOf(listOf(added, old), ticks, sessions, since = now.minus(Duration.ofDays(7)))
+        assertEquals(
+            listOf(
+                ActivityLine.Finished("bram", now.minus(Duration.ofHours(1)), "Item a"),
+                ActivityLine.Studied("cleo", now.minus(Duration.ofHours(2)), 25),
+                ActivityLine.Added("bram", now.minus(Duration.ofHours(5)), "Item a")
+            ),
+            feed
+        )
+    }
+
+    @Test
     fun theBoard_hasEveryone_andEqualPointsShareAPlace() {
         fun score(user: String, points: Int) = WeekScore("p", user, null, week, points, points, 0, 0, 1, 0)
         val members = listOf(member("aria", "aria_k"), member("bram"), member("cleo"), member("dan"), member("eve", status = MemberStatus.INVITED))

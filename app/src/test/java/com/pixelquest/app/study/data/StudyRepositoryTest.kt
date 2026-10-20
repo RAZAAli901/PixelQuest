@@ -16,6 +16,7 @@ import com.pixelquest.app.testing.FakeDaroodServer
 import com.pixelquest.app.testing.FakeStudyServer
 import com.pixelquest.app.testing.closeAfterWrites
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -45,7 +46,7 @@ class StudyRepositoryTest {
     private var scheduled = 0
     private val parties = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, now = { server.now.toEpochMilli() }, zone = { ZoneId.of("UTC") })
     private val repo = StudyRepositoryImpl(
-        study, db.studyDao(), db.partyDao(), { server.me }, { server.now.toEpochMilli() }, { ZoneId.of("UTC") }, StudySyncScheduler { scheduled++ }
+        study, db.studyDao(), db.partyDao(), { server.me }, clock = { server.now.toEpochMilli() }, timeZone = { ZoneId.of("UTC") }, syncScheduler = StudySyncScheduler { scheduled++ }
     )
     private val party = server.seedParty("Physics group", "aria", "bram", type = PartyType.STUDY)
 
@@ -164,6 +165,31 @@ class StudyRepositoryTest {
         assertEquals(false, repo.observeItem(added.id).first()!!.pinned)
         repo.deleteItem(added.id)
         assertEquals(null, repo.observeItem(added.id).first())
+    }
+
+    @Test
+    fun followingLive_catchesUpOnSubscribing_thenRefreshesOnceTheChangesPause() = runBlocking {
+        onThePhone()
+        val changes = kotlinx.coroutines.channels.Channel<com.pixelquest.app.study.sync.StudyChange>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+        val live = com.pixelquest.app.study.sync.StudyLiveSource { kotlinx.coroutines.flow.flow { for (c in changes) emit(c) } }
+        val following = StudyRepositoryImpl(
+            study, db.studyDao(), db.partyDao(), { server.me }, clock = { server.now.toEpochMilli() }, timeZone = { ZoneId.of("UTC") }, live = live, quietMs = 200
+        )
+        val heard = java.util.concurrent.CopyOnWriteArrayList<com.pixelquest.app.study.sync.StudyChange>()
+        val job = launch(kotlinx.coroutines.Dispatchers.IO) { following.followParty(party).collect { heard += it } }
+
+        study.seedItem(party, "bram", "Lab report")
+        changes.send(com.pixelquest.app.study.sync.StudyChange.Subscribed)
+        kotlinx.coroutines.withTimeout(5_000) { while (following.observeItems(party).first().isEmpty()) kotlinx.coroutines.delay(20) }
+
+        val fetches = study.calls.count { it == "fetchItems" }
+        study.seedItem(party, "aria", "Essay")
+        repeat(3) { changes.send(com.pixelquest.app.study.sync.StudyChange.Activity) }
+        kotlinx.coroutines.withTimeout(5_000) { while (following.observeItems(party).first().size < 2) kotlinx.coroutines.delay(20) }
+        kotlinx.coroutines.delay(400)
+        assertEquals("one refresh for the burst", fetches + 1, study.calls.count { it == "fetchItems" })
+        assertEquals(4, heard.size)
+        job.cancel()
     }
 
     @Test

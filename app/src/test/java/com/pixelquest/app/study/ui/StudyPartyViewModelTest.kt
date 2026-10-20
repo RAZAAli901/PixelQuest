@@ -45,7 +45,7 @@ class StudyPartyViewModelTest {
     private val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Application>(), AppDatabase::class.java)
         .allowMainThreadQueries().build()
     private val parties = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, now = { server.now.toEpochMilli() }, zone = { zone })
-    private val repo = StudyRepositoryImpl(study, db.studyDao(), db.partyDao(), { server.me }, { server.now.toEpochMilli() }, { zone })
+    private val repo = StudyRepositoryImpl(study, db.studyDao(), db.partyDao(), { server.me }, clock = { server.now.toEpochMilli() }, timeZone = { zone })
     private val party = server.seedParty("Physics group", "aria", "bram", type = PartyType.STUDY)
     private val viewModels = TestViewModels()
     private var watching: Job? = null

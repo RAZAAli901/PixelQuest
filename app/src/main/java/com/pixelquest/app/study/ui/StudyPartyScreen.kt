@@ -23,6 +23,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -70,6 +74,11 @@ fun StudyPartyScreen(
     viewModel: StudyPartyViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    // Followed live only while the screen is visible.
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle, viewModel) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { viewModel.followWhileVisible() }
+    }
     StudyPartyContent(
         state = state,
         onNavigateBack = onNavigateBack,
@@ -278,11 +287,15 @@ private fun LazyListScope.pinnedStrip(state: StudyPartyUiState, onOpenItem: (Str
 private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String) -> Unit, actions: ItemActions, timerActions: TimerActions) {
     if (state.thisWeek.isNotEmpty()) item(key = "week_summary") { WeekSummary(state) }
     item(key = "timer") { StudyTimerCard(state, timerActions) }
-    if (state.thisWeek.isEmpty()) return emptyLine(R.string.study_week_empty, state.loaded)
+    if (state.thisWeek.isEmpty()) {
+        emptyLine(R.string.study_week_empty, state.loaded)
+        return activityFeed(state)
+    }
     state.weekSections.forEach { (section, rows) ->
         item(key = "section_" + sectionKey(section)) { SectionHeading(sectionLabel(section, state.today)) }
         items(rows, key = { it.item.id }) { row -> CardFor(state, row, onOpenItem, actions) }
     }
+    activityFeed(state)
 }
 
 /** What the player may do to an item from its card's ⋯ menu; each takes the item's id. */
@@ -431,6 +444,7 @@ object StudyTags {
     const val LOG_MINUTES = "study_log_minutes"
     fun minutes(m: Int) = "study_minutes_$m"
     const val POINTS_RULES = "study_points_rules"
+    const val ACTIVITY = "study_activity"
     const val WINNER_BANNER = "study_winner_banner"
     const val WINNER_DISMISS = "study_winner_dismiss"
     fun pastWeek(weekStart: String) = "study_past_$weekStart"

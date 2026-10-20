@@ -190,7 +190,7 @@ Invited and active rows together never exceed the party's limit, nor 30 (`party_
 
 Refusals carry a token in `message` (`party_full`, `not_leader`, `daily_limit`, `milestone_too_low` and so on), with HTTP 400 for broken rules and 403 for permissions.
 
-## Study parties (`20261019000035` to `20261019000043`)
+## Study parties (`20261019000035` to `20261019000044`)
 
 A study party's own data (docs/study-party.md). Only its active members read any of it (`private.is_active_study_member`); outsiders, the invited and Darood Parties' members read nothing. Tested at the end of `supabase/tests/local/darood_parties.test.ts`.
 
@@ -205,4 +205,5 @@ A study party's own data (docs/study-party.md). Only its active members read any
 - `study_week_scores`: points per party, member and week (Monday to Sunday by each row's own day), with the breakdown. With the reader's rights.
 - `close_study_week(party_id, week_start)`: any member; a Monday's week once it has ended everywhere (from its second Tuesday); records the winners once (`bad_week`, `week_not_over`, `already_closed`).
 - Days are today or up to 7 days back in a real time zone (`bad_day`, `bad_time_zone`).
+- Realtime (`20261019000044`): new and changed items, new ticks and new study time reach a party's open screens, checked against each listener's own row-level security. What's taken away shows at the next refresh.
 

@@ -101,6 +101,18 @@
         <item quantity="one">Log <xliff:g id="minutes" example="1">%d</xliff:g> minute</item>
         <item quantity="other">Log <xliff:g id="minutes" example="25">%d</xliff:g> minutes</item>
     </plurals>
+    <!-- The activity feed, at the end of This week. -->
+    <string name="study_activity_title">Recent activity</string>
+    <!-- The player, in a feed line ("You finished Waves quiz"). -->
+    <string name="study_activity_you">You</string>
+    <string name="study_activity_added"><xliff:g id="member" example="\@aria_k">%1$s</xliff:g> added <xliff:g id="title" example="Waves quiz">%2$s</xliff:g></string>
+    <string name="study_activity_finished"><xliff:g id="member" example="\@bram">%1$s</xliff:g> finished <xliff:g id="title" example="Waves quiz">%2$s</xliff:g></string>
+    <plurals name="study_activity_studied">
+        <item quantity="one"><xliff:g id="member" example="\@bram">%1$s</xliff:g> studied for <xliff:g id="minutes" example="1">%2$d</xliff:g> minute</item>
+        <item quantity="other"><xliff:g id="member" example="\@bram">%1$s</xliff:g> studied for <xliff:g id="minutes" example="25">%2$d</xliff:g> minutes</item>
+    </plurals>
+    <!-- When it happened ("Wed 21 Oct, 15:00"). -->
+    <string name="study_activity_when"><xliff:g id="day" example="Wed 21 Oct">%1$s</xliff:g>, <xliff:g id="time" example="15:00">%2$s</xliff:g></string>
     <!-- One item's own screen. -->
     <string name="study_item_notes">Notes</string>
     <!-- Who added it ("Added by @aria_k"). -->
