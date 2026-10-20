@@ -28,7 +28,7 @@ class QuranImporterTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
     private val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).allowMainThreadQueries().build()
     private val assets = AndroidQuranAssetSource(context)
-    private val importer = QuranImporter(assets, db.quranDao(), RoomTransactionRunner(db))
+    private val importer = QuranImporter(assets, db.quranDao(), RoomTransactionRunner(db)) { QuranImporter.TRANSLATION_FILE }
     private val json = Json { ignoreUnknownKeys = true }
     private val quran = json.decodeFromString<QuranFile>(assets.read(QuranImporter.QURAN_FILE))
     private val translation = json.decodeFromString<TranslationFile>(assets.read(QuranImporter.TRANSLATION_FILE))
@@ -93,7 +93,7 @@ class QuranImporterTest {
         }
 
         try {
-            QuranImporter(damaged, db.quranDao(), RoomTransactionRunner(db)).import()
+            QuranImporter(damaged, db.quranDao(), RoomTransactionRunner(db)) { QuranImporter.TRANSLATION_FILE }.import()
             fail("loaded a damaged bundle")
         } catch (e: QuranImportException) {
             assertTrue(e.message!!, "don't match" in e.message!!)
@@ -120,7 +120,7 @@ class QuranImporterTest {
             }
         }
 
-        val result = QuranImporter(newer, db.quranDao(), RoomTransactionRunner(db)).importIfNeeded()
+        val result = QuranImporter(newer, db.quranDao(), RoomTransactionRunner(db)) { QuranImporter.TRANSLATION_FILE }.importIfNeeded()
 
         assertEquals("0123456789abcdef", result!!.version)
         assertEquals("0123456789abcdef", db.quranDao().getTranslation("en.sahih")!!.dataVersion)

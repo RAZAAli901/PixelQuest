@@ -20,6 +20,11 @@ abstract class QuranModule {
     @Singleton
     abstract fun bindQuranAssetSource(source: AndroidQuranAssetSource): QuranAssetSource
 
+    /** Which translation the player reads. */
+    @Binds
+    @Singleton
+    abstract fun bindTranslationChoiceStore(store: com.pixelquest.app.quran.data.PrefsTranslationChoiceStore): com.pixelquest.app.quran.data.TranslationChoiceStore
+
     /** The Quran on the phone, for the reader. Its loader, QuranImporter, is injected as itself. */
     @Binds
     @Singleton

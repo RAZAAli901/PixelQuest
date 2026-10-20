@@ -39,6 +39,10 @@ interface QuranDao {
     @Query("SELECT COUNT(*) FROM quran_ayah")
     suspend fun ayahCount(): Int
 
+    /** How many ayahs hold [translationId]'s translation: all of them once it's the one loaded. */
+    @Query("SELECT COUNT(*) FROM quran_ayah WHERE translationId = :translationId")
+    suspend fun ayahCountIn(translationId: String): Int
+
     /**
      * Ayahs whose translation matches [match], an FTS query (QuranRepository builds it from what
      * the player typed), in the Quran's order: at most [limit].

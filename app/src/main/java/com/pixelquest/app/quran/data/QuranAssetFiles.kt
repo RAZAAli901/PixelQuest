@@ -60,6 +60,9 @@ fun interface QuranAssetSource {
 
     /** The start of a file, at most [chars] long: enough for its version, without reading it all. */
     fun head(name: String, chars: Int): String = read(name).take(chars)
+
+    /** The bundled files' names: the Arabic and one file per translation. */
+    fun list(): List<String> = listOf(QuranImporter.QURAN_FILE, QuranImporter.TRANSLATION_FILE)
 }
 
 /** The files in the APK's assets/quran. */
@@ -82,6 +85,8 @@ class AndroidQuranAssetSource @Inject constructor(
             }
             String(buffer, 0, filled)
         }
+
+    override fun list(): List<String> = context.assets.list(FOLDER)?.toList().orEmpty()
 
     private companion object {
         const val FOLDER = "quran"

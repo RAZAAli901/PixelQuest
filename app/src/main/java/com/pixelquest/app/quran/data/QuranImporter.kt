@@ -41,11 +41,17 @@ sealed interface QuranLoadState {
  * translation matching the Arabic ayah for ayah).
  */
 @Singleton
-class QuranImporter @Inject constructor(
+class QuranImporter(
     private val assets: QuranAssetSource,
     private val dao: QuranDao,
-    private val transactions: TransactionRunner
+    private val transactions: TransactionRunner,
+    /** The translation file to load: the player's choice ([TranslationSwitcher]). */
+    private val translationFile: () -> String
 ) {
+    @Inject
+    constructor(assets: QuranAssetSource, dao: QuranDao, transactions: TransactionRunner, switcher: TranslationSwitcher) :
+        this(assets, dao, transactions, { switcher.selected().file })
+
     private val json = Json { ignoreUnknownKeys = true }
 
     private val _state = MutableStateFlow<QuranLoadState>(QuranLoadState.Idle)
@@ -61,13 +67,16 @@ class QuranImporter @Inject constructor(
      * @return what was loaded, or null when nothing needed to be.
      */
     suspend fun importIfNeeded(): QuranImport? {
-        val head = assets.head(TRANSLATION_FILE, HEAD_CHARS)
+        val file = translationFile()
+        val head = assets.head(file, HEAD_CHARS)
         val version = Regex("\"version\":\"([0-9a-f]+)\"").find(head)?.groupValues?.get(1)
-            ?: throw QuranImportException("$TRANSLATION_FILE has no version at its start")
+            ?: throw QuranImportException("$file has no version at its start")
         val id = Regex("\"id\":\"([^\"]+)\"").find(head)?.groupValues?.get(1)
-            ?: throw QuranImportException("$TRANSLATION_FILE has no id at its start")
+            ?: throw QuranImportException("$file has no id at its start")
+        // Complete means this bundle, with this translation in every ayah: a newly chosen one isn't yet.
         val held = dao.getTranslation(id)
-        val complete = held?.dataVersion == version && dao.surahCount() == SURAHS && dao.ayahCount() == AYAHS
+        val complete = held?.dataVersion == version && dao.surahCount() == SURAHS &&
+            dao.ayahCount() == AYAHS && dao.ayahCountIn(id) == AYAHS
         return if (complete) null else import()
     }
 
@@ -82,7 +91,7 @@ class QuranImporter @Inject constructor(
     private suspend fun load(): QuranImport {
         _state.value = QuranLoadState.Loading(0f)
         val quran = json.decodeFromString<QuranFile>(assets.read(QURAN_FILE))
-        val translation = json.decodeFromString<TranslationFile>(assets.read(TRANSLATION_FILE))
+        val translation = json.decodeFromString<TranslationFile>(assets.read(translationFile()))
         check(quran, translation)
         _state.value = QuranLoadState.Loading(READ_SHARE)
 
@@ -143,6 +152,8 @@ class QuranImporter @Inject constructor(
 
     companion object {
         const val QURAN_FILE = "quran_ar.json"
+
+        /** Saheeh International's file, the default translation ([TranslationSwitcher]). */
         const val TRANSLATION_FILE = "quran_en.json"
         const val SURAHS = 114
         const val AYAHS = 6236
