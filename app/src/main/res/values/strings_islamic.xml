@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The Islamic hub's text (docs/islamic-hub.md), all in this file.
+
+    For translators:
+    - "Namaz", "Darood" and "Quran" are proper names: keep the forms your language uses for them.
+    - <xliff:g> marks a value filled in by the app; keep it, move it where your grammar needs it,
+      and leave what's inside unchanged. Its example shows what the app puts there.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The hub: the Islamic section's landing screen, a grid of cards. -->
+    <string name="islamic_title">Islamic</string>
+</resources>

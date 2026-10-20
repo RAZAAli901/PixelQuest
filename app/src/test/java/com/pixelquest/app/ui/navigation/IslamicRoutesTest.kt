@@ -34,7 +34,7 @@ class IslamicRoutesTest {
             nav = rememberNavController()
             NavHost(nav, startDestination = Screen.Home.route) {
                 composable(Screen.Home.route) { Text("home") }
-                islamicGraph(nav)
+                islamicGraph(nav, hub = { Text("hub") })
             }
         }
     }
