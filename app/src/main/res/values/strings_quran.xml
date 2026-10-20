@@ -60,6 +60,14 @@
     <string name="quran_share_reference">— <xliff:g id="surah_name" example="Al-Baqara">%1$s</xliff:g> <xliff:g id="surah" example="2">%2$d</xliff:g>:<xliff:g id="ayah" example="255">%3$d</xliff:g></string>
     <string name="quran_share_translation_credit">Translation: <xliff:g id="translator" example="Saheeh International">%s</xliff:g></string>
     <string name="quran_share_text_credit">Quran text: Tanzil.net</string>
+    <!-- The bookmarks screen. -->
+    <string name="quran_bookmarks">Bookmarks</string>
+    <string name="quran_bookmarks_none_title">No bookmarks yet</string>
+    <string name="quran_bookmarks_none_body">Tap an ayah as you read, then Bookmark. It will be here, ready to go back to.</string>
+    <!-- A surah's heading there: its number and English name. -->
+    <string name="quran_bookmarks_surah"><xliff:g id="number" example="2">%1$d</xliff:g>. <xliff:g id="name" example="Al-Baqara">%2$s</xliff:g></string>
+    <string name="quran_bookmark_ayah">Ayah <xliff:g id="surah" example="2">%1$d</xliff:g>:<xliff:g id="ayah" example="255">%2$d</xliff:g></string>
+    <string name="quran_bookmark_remove">Remove the bookmark on <xliff:g id="surah" example="2">%1$d</xliff:g>:<xliff:g id="ayah" example="255">%2$d</xliff:g></string>
     <!-- The reader's top-bar action: its sizes, spacing and what each ayah shows. -->
     <string name="quran_reader_settings">Reading settings</string>
     <!-- The Quran screen's two lists. -->

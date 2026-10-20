@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.pixelquest.app.quran.ui.bookmarks.BookmarksRoute
 import com.pixelquest.app.quran.ui.reader.SurahReaderRoute
 import com.pixelquest.app.quran.ui.reader.SurahReaderViewModel
 import com.pixelquest.app.ui.navigation.Screen
@@ -18,6 +19,13 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
         QuranRoute(
             onNavigateBack = { navController.popBackStack() },
             onOpenSurah = { surah -> navController.navigate(Screen.QuranSurah.createRoute(surah)) },
+            onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) },
+            onOpenBookmarks = { navController.navigate(Screen.QuranBookmarks.route) { launchSingleTop = true } }
+        )
+    }
+    composable(Screen.QuranBookmarks.route) {
+        BookmarksRoute(
+            onNavigateBack = { navController.popBackStack() },
             onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) }
         )
     }

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.bookmarks.BookmarkTags
 import com.pixelquest.app.quran.ui.list.GoToAyahDialog
 import com.pixelquest.app.quran.ui.list.GoToTags
 import com.pixelquest.app.quran.ui.list.JuzList
@@ -48,6 +49,7 @@ fun QuranRoute(
     onNavigateBack: () -> Unit,
     onOpenSurah: (surah: Int) -> Unit = {},
     onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) },
+    onOpenBookmarks: () -> Unit = {},
     viewModel: QuranViewModel = hiltViewModel(),
     listViewModel: SurahListViewModel = hiltViewModel()
 ) {
@@ -59,7 +61,8 @@ fun QuranRoute(
         list = list,
         onSearch = listViewModel::search,
         onOpenSurah = onOpenSurah,
-        onOpenAyah = onOpenAyah
+        onOpenAyah = onOpenAyah,
+        onOpenBookmarks = onOpenBookmarks
     )
 }
 
@@ -74,7 +77,8 @@ fun QuranHomeScreen(
     list: SurahListUiState = SurahListUiState(),
     onSearch: (String) -> Unit = {},
     onOpenSurah: (surah: Int) -> Unit = {},
-    onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) }
+    onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) },
+    onOpenBookmarks: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     var goingTo by rememberSaveable { mutableStateOf(false) }
@@ -92,6 +96,14 @@ fun QuranHomeScreen(
                 title = stringResource(R.string.quran_title),
                 actions = if (preparing == null && list.loaded) {
                     {
+                        IconButton(onClick = onOpenBookmarks, modifier = Modifier.testTag(BookmarkTags.ACTION)) {
+                            SymbolIcon(
+                                symbol = "🔖",
+                                contentDescription = stringResource(R.string.quran_bookmarks),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
                         IconButton(onClick = { goingTo = true }, modifier = Modifier.testTag(GoToTags.ACTION)) {
                             SymbolIcon(
                                 symbol = "#",
