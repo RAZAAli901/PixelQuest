@@ -4,6 +4,26 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
+## [1.4.1] - 2026-10-20 — Android 7
+
+### ⬆️ Upgrading
+Install 1.4.1 over 1.4.0 (or 1.3.0): everything is kept. Nothing changes on Android 8 and later.
+
+### 🐛 Fixed
+- **PixelQuest now opens on Android 7.0 and 7.1.**
+  - Every earlier version closed as it started there, before its first screen.
+  - The cause: the app works with dates through Java's `java.time`, which Android only has from version 8. 1.4.1 brings its own copy (core library desugaring).
+- **Checked on an Android 7.0 emulator** with the release build:
+  - 1.4.0 closed at once;
+  - 1.4.1, installed over it, went through onboarding to the dashboard;
+  - the Namaz Tracker showed the times, the Hijri date and the countdown, and marked a prayer;
+  - Darood Party's sign-in screen, Quest History and Stats opened.
+
+### 🔧 For developers
+- Every push now runs Android lint. Its NewApi check fails the build on a call Android 7 doesn't have.
+
+---
+
 ## [1.4.0] - 2026-10-20 — Darood Party
 
 ### ⬆️ Upgrading from 1.3.0

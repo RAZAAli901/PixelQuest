@@ -1,8 +1,12 @@
-# PixelQuest v1.4.0 — Darood Party
+# PixelQuest v1.4.1 — Android 7
 
-Installs over 1.3.0 and keeps everything. The full list is in [CHANGELOG.md](CHANGELOG.md).
+Installs over 1.4.0 (or 1.3.0) and keeps everything. The full list is in [CHANGELOG.md](CHANGELOG.md).
 
-### 📿 Darood Party (new, for signed-in players)
+### 🐛 Fixed
+- **PixelQuest now opens on Android 7.0 and 7.1.** Every earlier version closed as it started there, because Android 7 lacks the date classes the app uses. 1.4.1 brings its own copy.
+- Nothing changes on Android 8 and later.
+
+### 📿 New in 1.4.0: Darood Party (for signed-in players)
 - Small groups (2 to 30) count Darood together, in a chat that takes only numbers. Open it from the side menu.
 - **Inviting:** choose a username, create a party, and invite friends by their exact username. Usernames aren't listed anywhere.
 - **Sending:** your number shows at once, then a tick when it's sent. It works offline too.
