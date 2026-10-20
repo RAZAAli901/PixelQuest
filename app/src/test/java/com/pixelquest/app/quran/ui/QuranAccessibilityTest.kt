@@ -9,7 +9,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.hasAnyAncestor
@@ -109,6 +111,29 @@ class QuranAccessibilityTest {
             assertEquals("$mode on one line", 1, layouts.first().lineCount)
             val layout = layouts.first()
             assertTrue("$mode's whole label fits its width", layout.multiParagraph.intrinsics.maxIntrinsicWidth <= layout.layoutInput.constraints.maxWidth)
+        }
+    }
+
+    // Native graphics: Robolectric's default doesn't measure text.
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @Test
+    fun inPixel_theDisplayModes_fitSideBySide_withNoWordBroken() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Pixel) {
+                androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.padding(horizontal = 16.dp)) {
+                    DisplayModeSwitch(selected = DisplayMode.BOTH, onSelect = {})
+                }
+            }
+        }
+
+        val tops = DisplayMode.entries.map { composeTestRule.onNodeWithTag(ReaderTags.mode(it)).getBoundsInRoot().top }
+        assertEquals("side by side", 1, tops.distinct().size)
+        for (mode in DisplayMode.entries) {
+            val label = composeTestRule.onNode(hasAnyAncestor(hasTestTag(ReaderTags.mode(mode))), useUnmergedTree = true).fetchSemanticsNode()
+            val layouts = mutableListOf<TextLayoutResult>()
+            label.config[SemanticsActions.GetTextLayoutResult].action!!.invoke(layouts)
+            assertEquals("$mode on one line", 1, layouts.first().lineCount)
+            assertTrue("$mode's whole label fits", layouts.first().multiParagraph.intrinsics.maxIntrinsicWidth <= layouts.first().layoutInput.constraints.maxWidth)
         }
     }
 

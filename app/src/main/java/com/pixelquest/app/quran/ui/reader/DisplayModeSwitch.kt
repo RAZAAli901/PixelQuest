@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -21,7 +22,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.quran.ui.quranChipShape
@@ -76,7 +79,10 @@ fun PaperSwitch(selected: ReaderPaper, onSelect: (ReaderPaper) -> Unit, modifier
 
 /**
  * One choice of a few, in segments shaped by the look: a group of radio buttons to TalkBack, each
- * a 48dp target. With large text, they stack, one to a line, so no word is broken to fit.
+ * a 48dp target. No word is ever broken to fit: side by side, each label must fit its segment on
+ * one line, in the look's label style or, if not, a smaller one (Pixel's wide pixel font needs
+ * that); if none fits, or the text is large, they stack, one to a line, in the full style. Large
+ * text is never shrunk.
  */
 @Composable
 private fun <T> Segments(
@@ -87,23 +93,38 @@ private fun <T> Segments(
     tag: (T) -> String,
     modifier: Modifier = Modifier
 ) {
-    if (LocalDensity.current.fontScale >= STACK_AT_FONT_SCALE) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier.fillMaxWidth().selectableGroup()) {
-            options.forEach { option ->
-                Segment(label(option), option == selected, { onSelect(option) }, Modifier.fillMaxWidth().testTag(tag(option)))
-            }
+    val labels = options.map { label(it) }
+    val typography = MaterialTheme.typography
+    val largeText = LocalDensity.current.fontScale >= STACK_AT_FONT_SCALE
+    val measurer = rememberTextMeasurer()
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val room = with(LocalDensity.current) { ((maxWidth - SEGMENT_GAP * (options.size - 1)) / options.size - SEGMENT_PADDING * 2).toPx() }
+        val styles = if (largeText) listOf(typography.labelLarge) else listOf(typography.labelLarge, typography.labelMedium, typography.labelSmall)
+        // Measured bold, as the chosen one is drawn.
+        val sideBySide = styles.firstOrNull { style ->
+            labels.all { measurer.measure(it, style.copy(fontWeight = FontWeight.Bold), softWrap = false, maxLines = 1).size.width <= room }
         }
-    } else {
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier.fillMaxWidth().selectableGroup()) {
-            options.forEach { option ->
-                Segment(label(option), option == selected, { onSelect(option) }, Modifier.weight(1f).testTag(tag(option)))
+        if (sideBySide != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(SEGMENT_GAP), modifier = Modifier.fillMaxWidth().selectableGroup()) {
+                options.forEachIndexed { i, option ->
+                    Segment(labels[i], sideBySide, option == selected, { onSelect(option) }, Modifier.weight(1f).testTag(tag(option)))
+                }
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(SEGMENT_GAP), modifier = Modifier.fillMaxWidth().selectableGroup()) {
+                options.forEachIndexed { i, option ->
+                    Segment(labels[i], typography.labelLarge, option == selected, { onSelect(option) }, Modifier.fillMaxWidth().testTag(tag(option)))
+                }
             }
         }
     }
 }
 
+private val SEGMENT_GAP = 6.dp
+private val SEGMENT_PADDING = 8.dp
+
 @Composable
-private fun Segment(label: String, chosen: Boolean, onSelect: () -> Unit, modifier: Modifier) {
+private fun Segment(label: String, style: TextStyle, chosen: Boolean, onSelect: () -> Unit, modifier: Modifier) {
     val colors = PixelTheme.colors
     val shape: Shape = quranChipShape()
     val ink = if (PixelTheme.mode == ThemeMode.Comic) {
@@ -118,11 +139,11 @@ private fun Segment(label: String, chosen: Boolean, onSelect: () -> Unit, modifi
             .background(if (chosen) colors.primary.copy(alpha = 0.18f) else colors.surface, shape)
             .then(ink)
             .selectable(selected = chosen, role = Role.RadioButton, onClick = onSelect)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = SEGMENT_PADDING, vertical = 4.dp)
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelLarge,
+            style = style,
             fontWeight = if (chosen) FontWeight.Bold else FontWeight.Normal,
             color = inkOnPanel(colors.primaryText)
         )
@@ -132,5 +153,5 @@ private fun Segment(label: String, chosen: Boolean, onSelect: () -> Unit, modifi
 /** The smallest a control is, to touch: Android's guideline. */
 internal val MIN_TARGET = 48.dp
 
-/** From this text size on (the phone's font scale), choices side by side stack instead. */
+/** From this text size on (the phone's font scale), choices that don't fit side by side stack rather than shrink. */
 internal const val STACK_AT_FONT_SCALE = 1.5f
