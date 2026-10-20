@@ -1,6 +1,5 @@
 package com.pixelquest.app.quran.ui.search
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,6 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.framed
+import com.pixelquest.app.quran.ui.quranFrame
 import com.pixelquest.app.quran.ui.QuranTypography
 import com.pixelquest.app.quran.ui.list.SurahRow
 import com.pixelquest.app.quran.ui.reader.RightToLeft
@@ -195,7 +196,7 @@ private fun AyahResultRow(result: AyahResult, query: String, showArabic: Boolean
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 48.dp)
-            .background(colors.surface, MaterialTheme.shapes.small)
+            .framed(quranFrame())
             .clickable(role = Role.Button, onClick = onClick)
             .testTag(SearchTags.ayah(result.ayah.surah, result.ayah.number))
             .padding(horizontal = 16.dp, vertical = 10.dp)
@@ -216,8 +217,8 @@ private fun AyahResultRow(result: AyahResult, query: String, showArabic: Boolean
         }
         Text(
             text = SearchHighlight.annotate(result.ayah.translation, query, marked),
-            style = MaterialTheme.typography.bodyMedium,
-            color = colors.onSurface
+            style = QuranTypography.snippet(colors.onSurface),
+            modifier = Modifier.testTag(SearchTags.translation(result.ayah.surah, result.ayah.number))
         )
     }
 }
@@ -235,4 +236,6 @@ object SearchTags {
     fun ayah(surah: Int, ayah: Int) = "quran_search_ayah_${surah}_$ayah"
 
     fun arabic(surah: Int, ayah: Int) = "quran_search_arabic_${surah}_$ayah"
+
+    fun translation(surah: Int, ayah: Int) = "quran_search_translation_${surah}_$ayah"
 }

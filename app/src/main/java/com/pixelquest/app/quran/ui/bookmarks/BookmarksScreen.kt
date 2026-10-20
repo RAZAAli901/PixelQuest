@@ -1,6 +1,5 @@
 package com.pixelquest.app.quran.ui.bookmarks
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,9 +33,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.framed
+import com.pixelquest.app.quran.ui.quranFrame
 import com.pixelquest.app.quran.data.BookmarkRepository
 import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.domain.Ayah
+import com.pixelquest.app.quran.ui.QuranTypography
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -166,7 +168,7 @@ private fun BookmarkRow(ayah: Ayah, onOpen: () -> Unit, onRemove: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp)
-            .background(colors.surface, MaterialTheme.shapes.small)
+            .framed(quranFrame())
             .testTag(BookmarkTags.row(ayah.surah, ayah.number))
     ) {
         Column(
@@ -183,10 +185,10 @@ private fun BookmarkRow(ayah: Ayah, onOpen: () -> Unit, onRemove: () -> Unit) {
             )
             Text(
                 text = ayah.translation,
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurface,
+                style = QuranTypography.snippet(colors.onSurface),
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.testTag(BookmarkTags.translation(ayah.surah, ayah.number))
             )
         }
         IconButton(onClick = onRemove, modifier = Modifier.testTag(BookmarkTags.remove(ayah.surah, ayah.number)).semantics { contentDescription = remove }) {
@@ -205,4 +207,6 @@ object BookmarkTags {
     fun row(surah: Int, ayah: Int) = "quran_bookmark_${surah}_$ayah"
 
     fun remove(surah: Int, ayah: Int) = "quran_bookmark_remove_${surah}_$ayah"
+
+    fun translation(surah: Int, ayah: Int) = "quran_bookmark_translation_${surah}_$ayah"
 }

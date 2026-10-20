@@ -37,6 +37,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.framed
+import com.pixelquest.app.quran.ui.quranFrame
 import com.pixelquest.app.quran.domain.Revelation
 import com.pixelquest.app.quran.domain.Surah
 import com.pixelquest.app.quran.ui.QuranTypography
@@ -119,7 +121,7 @@ fun SurahRow(surah: Surah, onClick: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 64.dp)
-            .background(colors.surface, MaterialTheme.shapes.small)
+            .framed(quranFrame())
             .clickable(role = Role.Button, onClick = onClick)
             // The tag before the clearing: anything after it is cleared too.
             .testTag(QuranListTags.row(surah.number))

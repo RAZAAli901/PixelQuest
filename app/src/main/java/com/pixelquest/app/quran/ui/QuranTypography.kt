@@ -46,6 +46,12 @@ data class QuranTypography(val arabic: TextStyle, val translation: TextStyle) {
         private const val TRANSLATION_LINE = 1.5f
 
         /** The styles for the player's [arabicSize], [translationSize] and [lineSpacing], each kept within its range. */
+        /** How big a translation is in a list (a bookmark, a search result): smaller than in the reader. */
+        const val SNIPPET_SIZE = 14f
+
+        /** A translation's style in a list: its own typeface, never the look's (Pixel's pixel font, Comic's). */
+        fun snippet(color: Color): TextStyle = of(translationSize = SNIPPET_SIZE, color = color).translation
+
         fun of(
             arabicSize: Float = ARABIC_DEFAULT,
             translationSize: Float = TRANSLATION_DEFAULT,

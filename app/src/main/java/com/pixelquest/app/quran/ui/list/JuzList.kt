@@ -34,6 +34,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.framed
+import com.pixelquest.app.quran.ui.quranFrame
 import com.pixelquest.app.quran.domain.Juz
 import com.pixelquest.app.ui.theme.ComicShapeTokens
 import com.pixelquest.app.ui.theme.ComicTokens
@@ -108,7 +110,7 @@ fun JuzList(juzs: List<Juz>, onOpenAyah: (surah: Int, ayah: Int) -> Unit, modifi
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 56.dp)
-                    .background(colors.surface, MaterialTheme.shapes.small)
+                    .framed(quranFrame())
                     .clickable(role = Role.Button) { onOpenAyah(juz.surah, juz.ayah) }
                     .testTag(QuranListTags.juz(juz.number))
                     .clearAndSetSemantics { contentDescription = spoken }
