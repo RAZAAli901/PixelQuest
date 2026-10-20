@@ -72,11 +72,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import javax.inject.Inject
 import com.pixelquest.app.party.PartyKinds
+import com.pixelquest.app.party.ui.components.MemberList
+import com.pixelquest.app.party.ui.components.displayName
 
 /** Why the last change didn't happen. */
 sealed interface InfoProblem {
@@ -450,16 +449,14 @@ fun PartyInfoContent(
                 modifier = Modifier.semantics { heading() }
             )
             state.problem?.let { ProblemLine(it) }
-            state.members.forEach { member ->
-                MemberRow(
-                    member = member,
-                    isMe = member.userId == state.myId,
-                    // The leader removes members or hands them the lead, never themselves.
-                    onRemove = if (state.isLeader && member.role != PartyRole.LEADER) ({ onRemove(member) }) else null,
-                    onTransfer = if (state.isLeader && member.role != PartyRole.LEADER) ({ onTransfer(member) }) else null,
-                    enabled = !state.busy
-                )
-            }
+            MemberList(
+                members = state.members,
+                myId = state.myId,
+                isLeader = state.isLeader,
+                enabled = !state.busy,
+                onRemove = onRemove,
+                onTransfer = onTransfer
+            )
             if (state.isLeader) {
                 Text(
                     text = stringResource(R.string.darood_info_leader_leave_hint),
@@ -700,75 +697,4 @@ private fun ProblemLine(problem: InfoProblem) {
     )
 }
 
-@Composable
-private fun displayName(member: PartyMember): String =
-    member.username?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone)
-
-/** One member: their username, their role, the day they joined, and for the leader, a way to hand over or remove. */
-@Composable
-private fun MemberRow(member: PartyMember, isMe: Boolean, onRemove: (() -> Unit)?, onTransfer: (() -> Unit)?, enabled: Boolean) {
-    val colors = PixelTheme.colors
-    val name = displayName(member)
-    PixelCard(
-        variant = PixelPanelVariant.BORDER,
-        contentPadding = 12.dp,
-        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.member(member.userId))
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        text = if (isMe) stringResource(R.string.darood_info_you, name) else name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = inkOnPanel(colors.primaryText)
-                    )
-                    member.joinedAt?.let { joined ->
-                        Text(
-                            text = stringResource(R.string.darood_info_joined, joinedDate(joined)),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = inkOnPanel(colors.onSurfaceVariant)
-                        )
-                    }
-                }
-                Text(
-                    text = stringResource(if (member.role == PartyRole.LEADER) R.string.darood_badge_leader else R.string.darood_badge_member),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = inkOnPanel(colors.primaryText)
-                )
-            }
-            // The leader's tools for this member, on their own line so the name keeps its room.
-            if (onTransfer != null || onRemove != null) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
-                    if (onTransfer != null) {
-                        val label = stringResource(R.string.darood_info_make_leader_label, name)
-                        PixelButton(
-                            text = stringResource(R.string.darood_info_make_leader),
-                            onClick = onTransfer,
-                            variant = PixelButtonVariant.BLUE,
-                            enabled = enabled,
-                            modifier = Modifier
-                                .semantics { contentDescription = label }
-                                .testTag(DaroodTestTags.memberTransfer(member.userId))
-                        )
-                    }
-                    if (onRemove != null) {
-                        val label = stringResource(R.string.darood_info_remove_label, name)
-                        PixelButton(
-                            text = stringResource(R.string.darood_info_remove),
-                            onClick = onRemove,
-                            variant = PixelButtonVariant.BLUE,
-                            enabled = enabled,
-                            modifier = Modifier
-                                .semantics { contentDescription = label }
-                                .testTag(DaroodTestTags.memberRemove(member.userId))
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
 /** The day, in the phone's own time zone and language: Oct 19, 2026. */
-private fun joinedDate(instant: Instant): String =
-    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withZone(ZoneId.systemDefault()).format(instant)
