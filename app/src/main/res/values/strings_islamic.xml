@@ -18,4 +18,12 @@
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> prayer to mark</item>
         <item quantity="other"><xliff:g id="count" example="2">%d</xliff:g> prayers to mark</item>
     </plurals>
+
+    <!-- Darood Party's card. Its title is darood_title. -->
+    <string name="islamic_darood_description">Count Darood together with friends</string>
+    <!-- Its badge, as TalkBack reads it: invitations to a party waiting for an answer. -->
+    <plurals name="islamic_darood_badge">
+        <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> invitation waiting</item>
+        <item quantity="other"><xliff:g id="count" example="2">%d</xliff:g> invitations waiting</item>
+    </plurals>
 </resources>
