@@ -25,7 +25,6 @@ import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -91,7 +90,8 @@ class TranslationPickerTest {
             TranslationPickerViewModel(TranslationSwitcher(withASecond, choice), QuranRepositoryImpl(db.quranDao())) { loads++ }
         }
         composeTestRule.setContent { PixelQuestTheme(themeMode = mode) { TranslationPickerRoute(onNavigateBack = {}, viewModel = vm) } }
-        runBlocking { vm.state.first { it.loaded && it.onPhone != null } }
+        // Waiting lets the main looper run: blocking it (runBlocking on a flow) can hang the test.
+        composeTestRule.waitUntil(5_000) { vm.state.value.let { it.loaded && it.onPhone != null } }
         composeTestRule.waitForIdle()
         return vm
     }
@@ -114,7 +114,8 @@ class TranslationPickerTest {
 
         composeTestRule.onNodeWithTag(TranslationTags.option("xx.test")).performClick()
         // The choice is written off the main thread: wait for it.
-        val chosen = runBlocking { vm.state.first { it.selected == "xx.test" } }
+        composeTestRule.waitUntil(5_000) { vm.state.value.selected == "xx.test" }
+        val chosen = vm.state.value
         composeTestRule.waitForIdle()
 
         assertEquals("xx.test", choice.id)

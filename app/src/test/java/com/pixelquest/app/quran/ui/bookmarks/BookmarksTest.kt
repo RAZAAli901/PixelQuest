@@ -79,13 +79,20 @@ class BookmarksTest {
         composeTestRule.waitUntil(5_000) { composeTestRule.onAllNodes(androidx.compose.ui.test.hasText("No bookmarks yet")).fetchSemanticsNodes().isNotEmpty() }
     }
 
+    /**
+     * Waits for the bookmarks to reach [done], the main looper running meanwhile: blocking it
+     * instead (runBlocking on a flow) can leave Room's update unseen, and the test hung.
+     */
+    private fun waitFor(vm: BookmarksViewModel, done: (BookmarksUiState) -> Boolean) =
+        composeTestRule.waitUntil(5_000) { done(vm.state.value) }
+
     @Test
     fun bookmarks_groupedBySurah_openTheReader() = runBlocking {
         bookmarks.toggle(36, 1)
         bookmarks.toggle(2, 255)
         bookmarks.toggle(2, 1)
         val vm = show()
-        vm.state.first { it.loaded && it.groups.size == 2 }
+        waitFor(vm) { it.loaded && it.groups.size == 2 }
 
         assertEquals(listOf(2, 36), vm.state.value.groups.map { it.surah })
         assertEquals(listOf(1, 255), vm.state.value.groups.first().ayahs.map { it.number })
@@ -101,12 +108,12 @@ class BookmarksTest {
     fun theCross_removesABookmark() = runBlocking {
         bookmarks.toggle(2, 255)
         val vm = show()
-        vm.state.first { it.groups.isNotEmpty() }
+        waitFor(vm) { it.groups.isNotEmpty() }
         composeTestRule.waitForIdle()
 
         composeTestRule.onNodeWithContentDescription("Remove the bookmark on 2:255").performClick()
 
-        vm.state.first { it.groups.isEmpty() }
+        waitFor(vm) { it.loaded && it.groups.isEmpty() }
         assertTrue(bookmarks.all().first().isEmpty())
     }
 }
