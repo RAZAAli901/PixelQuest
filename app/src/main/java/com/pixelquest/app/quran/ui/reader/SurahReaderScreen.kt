@@ -204,9 +204,10 @@ fun SurahReaderScreen(
                     modifier = Modifier.fillMaxSize().testTag(ReaderTags.LIST)
                 ) {
                     surah?.bismillah?.let { bismillah ->
-                        item(key = "bismillah") { BismillahHeader(bismillah = bismillah, typography = typography) }
+                        item(key = "bismillah", contentType = "bismillah") { BismillahHeader(bismillah = bismillah, typography = typography) }
                     }
-                    items(state.ayahs, key = { it.id }) { ayah ->
+                    // One content type for every ayah, so a row scrolled away is reused for the next.
+                    items(state.ayahs, key = { it.id }, contentType = { "ayah" }) { ayah ->
                         AyahItem(
                             ayah = ayah,
                             mode = state.displayMode,
@@ -219,7 +220,7 @@ fun SurahReaderScreen(
                     }
                     // The surah's end: on to the next, or back to the one before.
                     if (!state.hasMore && state.ayahs.isNotEmpty()) {
-                        item(key = "neighbours") { SurahNeighbours(previous = state.previous, next = state.next, onOpenSurah = onOpenSurah) }
+                        item(key = "neighbours", contentType = "neighbours") { SurahNeighbours(previous = state.previous, next = state.next, onOpenSurah = onOpenSurah) }
                     }
                 }
             }
