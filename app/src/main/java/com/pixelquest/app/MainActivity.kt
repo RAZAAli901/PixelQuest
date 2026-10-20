@@ -27,6 +27,7 @@ import com.pixelquest.app.ui.components.PixelBottomNavBar
 import com.pixelquest.app.ui.components.PixelNotificationPermissionBanner
 import com.pixelquest.app.ui.navigation.PixelNavHost
 import com.pixelquest.app.ui.navigation.Screen
+import com.pixelquest.app.ui.navigation.navigateInIslamic
 import com.pixelquest.app.ui.navigation.navigateToTab
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -130,7 +131,13 @@ class MainActivity : ComponentActivity() {
                                 return@LaunchedEffect
                             }
                             pendingRoute = null
-                            if (currentRoute != route) navController.navigate(route) { launchSingleTop = true }
+                            when {
+                                currentRoute == route -> Unit
+                                // The Namaz Tracker: over the Islamic hub, so Back goes there, then Home.
+                                com.pixelquest.app.ui.navigation.Routes.isIslamic(route) ->
+                                    navController.navigateInIslamic(route)
+                                else -> navController.navigate(route) { launchSingleTop = true }
+                            }
                         }
                         // A signed-in account without a Darood Party username is asked for one,
                         // once, the same way: past the splash and onboarding.
@@ -162,11 +169,14 @@ class MainActivity : ComponentActivity() {
                                     onItemClick = { item ->
                                         menuDrawer.close()
                                         menuViewModel.select(item.id)
-                                        // The Leaderboard is also a tab: open it the way its tab does.
-                                        if (com.pixelquest.app.ui.navigation.Routes.isTab(item.route)) {
-                                            navController.navigateToTab(item.route)
-                                        } else {
-                                            navController.navigate(item.route) { launchSingleTop = true }
+                                        when {
+                                            // The Leaderboard is also a tab: open it the way its tab does.
+                                            com.pixelquest.app.ui.navigation.Routes.isTab(item.route) ->
+                                                navController.navigateToTab(item.route)
+                                            // Islamic: back to the hub if it's open beneath, else open it.
+                                            com.pixelquest.app.ui.navigation.Routes.isIslamic(item.route) ->
+                                                navController.navigateInIslamic(item.route)
+                                            else -> navController.navigate(item.route) { launchSingleTop = true }
                                         }
                                     }
                                 )

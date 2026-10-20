@@ -139,6 +139,39 @@ class IslamicRoutesTest {
     }
 
     @Test
+    fun aNotificationsOldRoute_opensTheTrackerOverTheHub() {
+        open(Routes.LEGACY_NAMAZ)
+        composeTestRule.waitForIdle()
+
+        back()
+        assertEquals(Screen.IslamicHub.route, current())
+        back()
+        assertEquals(Screen.Home.route, current())
+    }
+
+    @Test
+    fun theHub_whenOpenBeneath_isGoneBackTo_notOpenedAgain() {
+        open(Screen.IslamicHub.route)
+        open(Screen.DaroodParty.route)
+        open(Screen.DaroodPartyChat.createRoute("p1"))
+
+        composeTestRule.runOnIdle { nav.navigateInIslamic(Screen.IslamicHub.route) }
+
+        assertEquals(Screen.IslamicHub.route, current())
+        back()
+        assertEquals(Screen.Home.route, current())
+    }
+
+    @Test
+    fun theHub_fromOutside_opensOnce() {
+        composeTestRule.runOnIdle { nav.navigateInIslamic(Screen.IslamicHub.route) }
+
+        assertEquals(Screen.IslamicHub.route, current())
+        back()
+        assertEquals(Screen.Home.route, current())
+    }
+
+    @Test
     fun islamicRoutes_areTheOnesUnderIslamic() {
         assertTrue(Routes.isIslamic(Screen.IslamicHub.route))
         assertTrue(Routes.isIslamic("islamic/quran"))

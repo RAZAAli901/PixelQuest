@@ -38,10 +38,15 @@ fun NavGraphBuilder.islamicGraph(
 
 /**
  * Opens an Islamic screen with the hub beneath it, so Back returns to the hub and then to wherever
- * the player was. From inside the section, where the hub is already on the back stack, it's an
- * ordinary step.
+ * the player was, whichever way they came in: the side menu, Home's Namaz card, a notification.
+ * From inside the section, where the hub is already on the back stack, it's an ordinary step; and
+ * the hub itself is gone back to, not opened again.
  */
 fun NavController.navigateInIslamic(route: String) {
+    if (route == Routes.ISLAMIC_HUB) {
+        if (!popBackStack(Routes.ISLAMIC_HUB, inclusive = false)) navigate(Routes.ISLAMIC_HUB)
+        return
+    }
     if (!isOnBackStack(Routes.ISLAMIC_HUB)) navigate(Routes.ISLAMIC_HUB)
     navigate(route) { launchSingleTop = true }
 }
@@ -50,7 +55,8 @@ private fun NavController.isOnBackStack(route: String): Boolean = runCatching { 
 
 /**
  * An old route that only opens [to] in its place, so whatever still carries it (a notification set
- * before an update) lands on the right screen. It shows nothing and leaves nothing on the back stack.
+ * before an update) lands on the right screen. It shows nothing and leaves nothing on the back
+ * stack; an Islamic screen opens with the hub beneath it ([navigateInIslamic]).
  */
 fun NavGraphBuilder.redirect(from: String, to: String, navController: NavController) {
     composable(
@@ -61,7 +67,8 @@ fun NavGraphBuilder.redirect(from: String, to: String, navController: NavControl
         popExitTransition = { ExitTransition.None }
     ) {
         LaunchedEffect(Unit) {
-            navController.navigate(to) { popUpTo(from) { inclusive = true } }
+            navController.popBackStack(from, inclusive = true)
+            if (Routes.isIslamic(to)) navController.navigateInIslamic(to) else navController.navigate(to)
         }
     }
 }

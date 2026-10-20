@@ -290,7 +290,7 @@ fun PixelNavHost(
                     // Out of the party: back to the list, past its chat.
                     onLeft = {
                         if (!navController.popBackStack(Screen.DaroodParty.route, inclusive = false)) {
-                            navController.navigate(Screen.DaroodParty.route)
+                            navController.navigateInIslamic(Screen.DaroodParty.route)
                         }
                     }
                 )
