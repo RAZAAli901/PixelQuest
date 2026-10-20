@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.quran.domain.Ayah
 import com.pixelquest.app.quran.ui.QuranTypography
@@ -17,6 +20,10 @@ import com.pixelquest.app.ui.theme.PixelTheme
  * One ayah: its Arabic, ending in its number inside the end-of-ayah sign, then its translation below.
  * [mode] shows the Arabic, the translation, or both; with the Arabic hidden, the number goes before
  * the translation instead.
+ *
+ * The Arabic is always laid out right to left, from the right edge, its sign at its end on the left;
+ * the translation always left to right. Whatever the phone's own language direction, each keeps its
+ * own ([RightToLeft], [LeftToRight]).
  *
  * The ayah's own text is shown exactly as its source gives it: the sign is drawn after it, never
  * part of it (copying an ayah copies its text alone).
@@ -34,39 +41,57 @@ fun AyahItem(
         modifier = modifier.fillMaxWidth().testTag(ReaderTags.ayah(ayah.number))
     ) {
         if (mode != DisplayMode.TRANSLATION) {
-            Text(
-                text = AyahMarker.withMarker(ayah.arabic, ayah.number),
-                style = typography.arabic,
-                modifier = Modifier.fillMaxWidth().testTag(ReaderTags.arabic(ayah.number))
-            )
-        }
-        if (mode != DisplayMode.ARABIC) {
-            if (mode == DisplayMode.TRANSLATION) {
+            RightToLeft {
                 Text(
-                    text = ayah.number.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = colors.primaryText
+                    text = AyahMarker.withMarker(ayah.arabic, ayah.number),
+                    style = typography.arabic,
+                    modifier = Modifier.fillMaxWidth().testTag(ReaderTags.arabic(ayah.number))
                 )
             }
-            Text(
-                text = ayah.translation,
-                style = typography.translation,
-                modifier = Modifier.fillMaxWidth().testTag(ReaderTags.translation(ayah.number))
-            )
+        }
+        if (mode != DisplayMode.ARABIC) {
+            LeftToRight {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (mode == DisplayMode.TRANSLATION) {
+                        Text(
+                            text = ayah.number.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = colors.primaryText
+                        )
+                    }
+                    Text(
+                        text = ayah.translation,
+                        style = typography.translation,
+                        modifier = Modifier.fillMaxWidth().testTag(ReaderTags.translation(ayah.number))
+                    )
+                }
+            }
         }
     }
+}
+
+/** [content] laid out right to left, as Arabic is, whatever the phone's direction. */
+@Composable
+fun RightToLeft(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl, content = content)
+}
+
+/** [content] laid out left to right, as the translation is, even on a phone set to a right-to-left language. */
+@Composable
+fun LeftToRight(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr, content = content)
 }
 
 /** The end-of-ayah sign with an ayah's number, as Amiri Quran draws it. */
 object AyahMarker {
     /** ARABIC END OF AYAH: followed by digits, Amiri Quran draws them inside its ornament. */
-    private const val END_OF_AYAH = '۝'
+    private const val END_OF_AYAH = '\u06DD'
 
     /** A space that never breaks: the sign stays on the same line as the ayah's last word. */
-    private const val KEEP_TOGETHER = ' '
+    private const val KEEP_TOGETHER = '\u00A0'
 
     /** [number] in Arabic-Indic digits (٠ to ٩), as the sign holds them. */
-    fun arabicDigits(number: Int): String = number.toString().map { '٠' + (it - '0') }.joinToString("")
+    fun arabicDigits(number: Int): String = number.toString().map { '\u0660' + (it - '0') }.joinToString("")
 
     /** The sign for [number]: the end-of-ayah mark, then the number's digits. */
     fun of(number: Int): String = END_OF_AYAH + arabicDigits(number)

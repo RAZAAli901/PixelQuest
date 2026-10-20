@@ -82,5 +82,5 @@ object SurahSearch {
 
     /** Arabic letters only: the marks (harakat, the small signs, tatweel) left out. */
     internal fun arabic(text: String): String =
-        text.filter { Character.UnicodeBlock.of(it) == Character.UnicodeBlock.ARABIC && Character.getType(it) == Character.OTHER_LETTER.toInt() && it != 'ـ' }
+        text.filter { Character.UnicodeBlock.of(it) == Character.UnicodeBlock.ARABIC && Character.getType(it) == Character.OTHER_LETTER.toInt() && it != '\u0640' }
 }

@@ -25,15 +25,17 @@ import com.pixelquest.app.quran.ui.QuranTypography
 @Composable
 fun BismillahHeader(bismillah: String, typography: QuranTypography, modifier: Modifier = Modifier) {
     val name = stringResource(R.string.quran_bismillah)
-    Text(
-        text = bismillah,
-        style = typography.arabic.copy(textAlign = TextAlign.Center),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .semantics { heading(); contentDescription = name }
-            .testTag(ReaderTags.BISMILLAH)
-    )
+    RightToLeft {
+        Text(
+            text = bismillah,
+            style = typography.arabic.copy(textAlign = TextAlign.Center),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .semantics { heading(); contentDescription = name }
+                .testTag(ReaderTags.BISMILLAH)
+        )
+    }
 }
 
 /** How many items come before the first ayah in the reader's list: the Bismillah, where [surah] has one. */
