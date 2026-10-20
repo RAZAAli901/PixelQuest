@@ -10,4 +10,12 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- The hub: the Islamic section's landing screen, a grid of cards. -->
     <string name="islamic_title">Islamic</string>
+
+    <!-- The Namaz Tracker's card. Its title is namaz_title. -->
+    <string name="islamic_namaz_description">Prayer times, reminders and your week</string>
+    <!-- Its badge, as TalkBack reads it: today's prayers whose time has come and that aren't marked prayed. -->
+    <plurals name="islamic_namaz_badge">
+        <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> prayer to mark</item>
+        <item quantity="other"><xliff:g id="count" example="2">%d</xliff:g> prayers to mark</item>
+    </plurals>
 </resources>
