@@ -220,6 +220,11 @@ class DatabaseUpgradeTest {
                 assertTrue(db.daroodDao().observeParties().first().isEmpty())
             }
             assertTrue(db.daroodDao().pendingToSend().isEmpty())
+
+            // Version 13's Quran tables are there, empty: its loader fills them from the app's files.
+            assertEquals(0, db.quranDao().surahCount())
+            assertEquals(0, db.quranDao().ayahCount())
+            assertEquals(null, db.quranDao().getTranslation("en.sahih"))
         } finally {
             db.close()
         }
@@ -236,6 +241,25 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion9_theV1_3_0Release() = updateFrom(9)
     @Test fun fromVersion10_theDaroodPartyCache() = updateFrom(10)
     @Test fun fromVersion11() = updateFrom(11)
+    @Test fun fromVersion12_theV1_4_xReleases() = updateFrom(12)
+
+    @Test
+    fun theQuransSearchIndex_followsItsTable_afterTheUpdate(): Unit = runBlocking {
+        createAt(12, "quran-search.db")
+        val db = openLikeTheApp("quran-search.db")
+        try {
+            val dao = db.quranDao()
+            // Made-up words, not an ayah: this checks the index, not the text.
+            val ayah = com.pixelquest.app.quran.data.local.QuranAyahEntity(1, 1, 1, "test", "en.test", "alpha bravo charlie")
+            dao.insertAyahs(listOf(ayah))
+
+            assertEquals(listOf(ayah), dao.searchTranslation("bravo", 10))
+            dao.deleteAyahs()
+            assertTrue("its index entry goes with it", dao.searchTranslation("bravo", 10).isEmpty())
+        } finally {
+            db.close()
+        }
+    }
 
     @Test
     fun everyEarlierVersion_hasALayoutAndAMigration() {
