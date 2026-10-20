@@ -78,7 +78,8 @@ object TranslationSearch {
     fun match(text: String): String? {
         val words = Regex("[\\p{L}\\p{N}]+").findAll(text).map { it.value }.toList()
         if (words.isEmpty()) return null
-        return words.mapIndexed { i, word -> if (i == words.lastIndex) "\"$word\"*" else "\"$word\"" }.joinToString(" ")
+        // A prefix's star goes inside its quotes ("merc*"): after them, FTS quietly matches the whole word only.
+        return words.mapIndexed { i, word -> if (i == words.lastIndex) "\"$word*\"" else "\"$word\"" }.joinToString(" ")
     }
 }
 
