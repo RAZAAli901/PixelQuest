@@ -10,6 +10,12 @@
     <!-- Its card on the Islamic hub, and its screen's title. -->
     <string name="quran_title">Quran</string>
     <string name="quran_description">Read the Quran in Arabic and English</string>
+    <!-- Shown once, the first time: the Quran is being put on the phone from the app's own files. -->
+    <string name="quran_preparing_title">Preparing the Quran</string>
+    <string name="quran_preparing_body">This happens once, on your phone, and takes a few seconds. After that the Quran opens without the internet.</string>
+    <!-- If that ever fails (the app's files are damaged). Opening the app again tries again. -->
+    <string name="quran_preparing_failed_title">The Quran couldn\'t be prepared</string>
+    <string name="quran_preparing_failed_body">Close PixelQuest and open it again to try again.</string>
     <!-- Until the reader is built: what's coming. -->
     <string name="quran_coming_title">The Quran reader is on its way</string>
     <string name="quran_coming_body">All 114 surahs, in Arabic with an English translation, kept on your phone so they open without the internet.</string>

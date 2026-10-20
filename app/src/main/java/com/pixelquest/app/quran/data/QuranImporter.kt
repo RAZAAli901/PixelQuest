@@ -5,6 +5,9 @@ import com.pixelquest.app.quran.data.local.QuranAyahEntity
 import com.pixelquest.app.quran.data.local.QuranDao
 import com.pixelquest.app.quran.data.local.QuranSurahEntity
 import com.pixelquest.app.quran.data.local.TranslationInfoEntity
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,6 +17,20 @@ class QuranImportException(message: String) : Exception(message)
 
 /** What a load wrote: the bundle's [version], and its counts. */
 data class QuranImport(val version: String, val surahs: Int, val ayahs: Int)
+
+/** Where loading the Quran is, for the one-time "Preparing the Quran" message. */
+sealed interface QuranLoadState {
+    /** No load has run since the app started. */
+    data object Idle : QuranLoadState
+
+    /** Loading: [progress] from 0 to 1, as the surahs are written. */
+    data class Loading(val progress: Float) : QuranLoadState
+
+    data class Done(val import: QuranImport) : QuranLoadState
+
+    /** The bundle was wrong, and nothing was written. */
+    data object Failed : QuranLoadState
+}
 
 /**
  * Loads the Quran from the app's bundled files into the database (docs/quran-data.md), all in one
@@ -31,10 +48,25 @@ class QuranImporter @Inject constructor(
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 
-    suspend fun import(): QuranImport {
+    private val _state = MutableStateFlow<QuranLoadState>(QuranLoadState.Idle)
+
+    /** The load's progress, for the reader's "Preparing the Quran" message. */
+    val state: StateFlow<QuranLoadState> = _state.asStateFlow()
+
+    suspend fun import(): QuranImport =
+        try {
+            load().also { _state.value = QuranLoadState.Done(it) }
+        } catch (e: QuranImportException) {
+            _state.value = QuranLoadState.Failed
+            throw e
+        }
+
+    private suspend fun load(): QuranImport {
+        _state.value = QuranLoadState.Loading(0f)
         val quran = json.decodeFromString<QuranFile>(assets.read(QURAN_FILE))
         val translation = json.decodeFromString<TranslationFile>(assets.read(TRANSLATION_FILE))
         check(quran, translation)
+        _state.value = QuranLoadState.Loading(READ_SHARE)
 
         val surahs = quran.surahs.map {
             QuranSurahEntity(
@@ -70,7 +102,11 @@ class QuranImporter @Inject constructor(
             dao.deleteAyahs()
             dao.deleteSurahs()
             dao.insertSurahs(surahs)
-            dao.insertAyahs(ayahs)
+            // A surah at a time, so the message can show how far it's got.
+            ayahs.groupBy { it.surah }.values.forEachIndexed { i, surah ->
+                dao.insertAyahs(surah)
+                _state.value = QuranLoadState.Loading(READ_SHARE + (1 - READ_SHARE) * (i + 1) / surahs.size)
+            }
             // Last: its version says the Quran on the phone is complete.
             dao.upsertTranslation(info)
         }
@@ -92,5 +128,8 @@ class QuranImporter @Inject constructor(
         const val TRANSLATION_FILE = "quran_en.json"
         const val SURAHS = 114
         const val AYAHS = 6236
+
+        /** How much of the progress reading and checking the files counts for; writing is the rest. */
+        private const val READ_SHARE = 0.2f
     }
 }
