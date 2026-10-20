@@ -89,7 +89,7 @@ class IslamicHubStoryTest {
                         composable(Screen.Home.route) { HomeStandIn() }
                         islamicGraph(
                             nav,
-                            items = listOf(QuranIslamicItem { back -> com.pixelquest.app.quran.ui.QuranHomeScreen(onNavigateBack = back) }),
+                            items = listOf(com.pixelquest.app.quran.QuranIslamicItem { nav -> composable(Screen.Quran.route) { com.pixelquest.app.quran.ui.QuranHomeScreen(onNavigateBack = { nav.popBackStack() }) } }),
                             hub = { onOpen -> IslamicHubContent(IslamicHubUiState(cards, loaded = true), onOpen) }
                         ) {
                             composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }, viewModel = namazViewModel()) }

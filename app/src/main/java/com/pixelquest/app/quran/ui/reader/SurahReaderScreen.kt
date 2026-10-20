@@ -1,0 +1,159 @@
+package com.pixelquest.app.quran.ui.reader
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.QuranTypography
+import com.pixelquest.app.ui.components.PixelTopAppBar
+import com.pixelquest.app.ui.components.SymbolIcon
+import com.pixelquest.app.ui.theme.PixelTheme
+import kotlinx.coroutines.flow.distinctUntilChanged
+
+/** One surah in the reader, with its state from [SurahReaderViewModel]. */
+@Composable
+fun SurahReaderRoute(onNavigateBack: () -> Unit, viewModel: SurahReaderViewModel = hiltViewModel()) {
+    val state by viewModel.state.collectAsState()
+    SurahReaderScreen(
+        state = state,
+        onNavigateBack = onNavigateBack,
+        onLoadMore = viewModel::loadMore,
+        onScrolled = viewModel::onScrolled,
+        onTargetShown = viewModel::onTargetShown
+    )
+}
+
+/**
+ * The reader: a top bar with the surah's name, what it means and its ayah count, the way back, and
+ * the reading settings; then its ayahs, loading more as the player nears the end.
+ *
+ * @param onScrolled the ayah first in view, as the player scrolls.
+ * @param onTargetShown [ReaderUiState.target] has been brought into view.
+ */
+@Composable
+fun SurahReaderScreen(
+    state: ReaderUiState,
+    onNavigateBack: () -> Unit,
+    onLoadMore: () -> Unit = {},
+    onScrolled: (ayah: Int) -> Unit = {},
+    onTargetShown: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
+    listState: LazyListState = rememberLazyListState()
+) {
+    val colors = PixelTheme.colors
+    val surah = state.surah
+    Scaffold(
+        containerColor = colors.background,
+        topBar = {
+            PixelTopAppBar(
+                title = surah?.englishName.orEmpty(),
+                subtitle = surah?.let {
+                    "${it.englishMeaning} · ${pluralStringResource(R.plurals.quran_ayah_count, it.ayahCount, it.ayahCount)}"
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        SymbolIcon(
+                            symbol = "◀",
+                            contentDescription = stringResource(R.string.navigate_back),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = colors.primaryText
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onOpenSettings, modifier = Modifier.testTag(ReaderTags.SETTINGS)) {
+                        SymbolIcon(
+                            symbol = "⚙️",
+                            contentDescription = stringResource(R.string.quran_reader_settings),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = colors.primaryText
+                        )
+                    }
+                }
+            )
+        },
+        modifier = Modifier.testTag(ReaderTags.SCREEN)
+    ) { padding ->
+        ReaderEffects(state, listState, onLoadMore, onScrolled, onTargetShown)
+        val typography = QuranTypography.of(color = colors.onBackground)
+        LazyColumn(
+            state = listState,
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).testTag(ReaderTags.LIST)
+        ) {
+            items(state.ayahs, key = { it.id }) { ayah ->
+                Text(text = ayah.arabic, style = typography.arabic, modifier = Modifier.fillMaxWidth().testTag(ReaderTags.ayah(ayah.number)))
+            }
+        }
+    }
+}
+
+/**
+ * What the reader does as it's scrolled: loads more near the end, says which ayah is first in view,
+ * and brings the target ayah into view once it's loaded.
+ */
+@Composable
+private fun ReaderEffects(
+    state: ReaderUiState,
+    listState: LazyListState,
+    onLoadMore: () -> Unit,
+    onScrolled: (Int) -> Unit,
+    onTargetShown: () -> Unit
+) {
+    val current by rememberUpdatedState(state)
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .distinctUntilChanged()
+            .collect { last ->
+                if (last != null && current.hasMore && last >= current.ayahs.size - LOAD_AHEAD) onLoadMore()
+            }
+    }
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .distinctUntilChanged()
+            .collect { index -> current.ayahs.getOrNull(index)?.let { onScrolled(it.number) } }
+    }
+    LaunchedEffect(state.target, state.ayahs.size) {
+        val target = state.target ?: return@LaunchedEffect
+        val index = state.ayahs.indexOfFirst { it.number == target }
+        if (index >= 0) {
+            listState.scrollToItem(index)
+            onTargetShown()
+        }
+    }
+}
+
+/** How many ayahs before the end of those loaded the next page is asked for. */
+private const val LOAD_AHEAD = 10
+
+/** The reader's test tags. */
+object ReaderTags {
+    const val SCREEN = "quran_reader"
+    const val LIST = "quran_reader_list"
+    const val SETTINGS = "quran_reader_settings"
+
+    fun ayah(number: Int) = "quran_ayah_$number"
+}

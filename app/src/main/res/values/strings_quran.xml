@@ -30,6 +30,8 @@
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> ayah</item>
         <item quantity="other"><xliff:g id="count" example="286">%d</xliff:g> ayahs</item>
     </plurals>
+    <!-- The reader's top-bar action: its sizes, spacing and what each ayah shows. -->
+    <string name="quran_reader_settings">Reading settings</string>
     <!-- The Quran screen's two lists. -->
     <string name="quran_tab_surahs">Surahs</string>
     <string name="quran_tab_juz">Juz</string>

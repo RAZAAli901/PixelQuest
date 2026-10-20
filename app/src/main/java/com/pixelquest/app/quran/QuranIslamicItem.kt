@@ -1,14 +1,12 @@
 package com.pixelquest.app.quran
 
-import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
 import com.pixelquest.app.R
 import com.pixelquest.app.islamic.IslamicIcon
 import com.pixelquest.app.islamic.IslamicItem
 import com.pixelquest.app.islamic.IslamicItemProvider
-import com.pixelquest.app.quran.ui.QuranRoute
+import com.pixelquest.app.quran.ui.quranScreens
 import com.pixelquest.app.ui.navigation.Screen
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -20,12 +18,12 @@ import javax.inject.Inject
  * the reader is built.
  */
 class QuranIslamicItem internal constructor(
-    /** Its screen, given the way back: tests pass one without Hilt. */
-    private val screen: @Composable (onNavigateBack: () -> Unit) -> Unit
+    /** Its screens ([quranScreens]): tests pass their own, without Hilt. */
+    private val graph: NavGraphBuilder.(NavHostController) -> Unit
 ) : IslamicItemProvider {
 
     @Inject
-    constructor() : this({ onNavigateBack -> QuranRoute(onNavigateBack) })
+    constructor() : this({ navController -> quranScreens(navController) })
 
     override val order: Int = 30
 
@@ -40,9 +38,7 @@ class QuranIslamicItem internal constructor(
     )
 
     override fun NavGraphBuilder.screens(navController: NavHostController) {
-        composable(Screen.Quran.route) {
-            screen { navController.popBackStack() }
-        }
+        graph(navController)
     }
 
     companion object {

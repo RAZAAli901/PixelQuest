@@ -50,6 +50,10 @@ sealed class Screen(val route: String) {
     object IslamicHub : Screen(Routes.ISLAMIC_HUB)
     /** The Quran, from the Islamic hub. */
     object Quran : Screen("${Routes.ISLAMIC}/quran")
+    /** One surah in the Quran reader, opened at an ayah (0: its start). */
+    object QuranSurah : Screen("${Routes.ISLAMIC}/quran/surah/{surah}?ayah={ayah}") {
+        fun createRoute(surah: Int, ayah: Int = 0) = "${Routes.ISLAMIC}/quran/surah/$surah?ayah=$ayah"
+    }
 }
 
 /** Groups of routes the app's frame cares about. */

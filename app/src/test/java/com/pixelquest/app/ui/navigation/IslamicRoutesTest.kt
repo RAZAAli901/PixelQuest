@@ -38,7 +38,7 @@ class IslamicRoutesTest {
             nav = rememberNavController()
             NavHost(nav, startDestination = Screen.Home.route) {
                 composable(Screen.Home.route) { Text("home") }
-                islamicGraph(nav, items = listOf(com.pixelquest.app.quran.QuranIslamicItem { back -> com.pixelquest.app.quran.ui.QuranHomeScreen(onNavigateBack = back) }), hub = { Text("hub") }) {
+                islamicGraph(nav, items = listOf(com.pixelquest.app.quran.QuranIslamicItem { nav -> composable(Screen.Quran.route) { com.pixelquest.app.quran.ui.QuranHomeScreen(onNavigateBack = { nav.popBackStack() }) } }), hub = { Text("hub") }) {
                     composable(Screen.Namaz.route) { Text("namaz screen") }
                     composable(Screen.DaroodParty.route) { Text("darood screen") }
                     composable(Screen.DaroodPartyChat.route) { Text("chat") }
