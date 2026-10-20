@@ -123,9 +123,9 @@ Darood Party usernames, one per account (docs/darood-design.md, Usernames). A ta
 - **Read:** the owner's own row only. Signed out, nothing.
 - **Write:** no client writes at all (no policy, no grant). Server functions set it.
 
-## Darood Parties (`20261019000004` to `20261019000023`)
+## Parties: Darood and Study (`20261019000004` to `20261019000033`)
 
-Darood Party's server side (docs/darood-design.md). Every rule below is enforced here; the app only mirrors it. Tested in `supabase/tests/local/darood_parties.test.ts`.
+The party system's server side (docs/party-core.md, docs/darood-design.md). A party is a Darood Party or a Study party (`party_type`); members, invitations, the leader and the 2-30 limit work the same for both. Milestones, finishing, entries, their stats and the race board are Darood Parties' only (`darood_only_columns`, `not_a_darood_party`, `20261019000033`). Every rule below is enforced here; the app only mirrors it. Tested in `supabase/tests/local/darood_parties.test.ts`.
 
 ### `public.parties`
 | Column | Type | Rules |
