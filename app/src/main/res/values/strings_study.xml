@@ -64,6 +64,11 @@
     <string name="study_quiz_needs_date">A quiz needs a due date.</string>
     <string name="study_add_item_save">Add it</string>
     <string name="study_edit_item_save">Save changes</string>
+    <!-- Ticking an item off, and taking it back (for 24 hours); a refused tick, tried again or dropped. -->
+    <string name="study_mark_done">Mark done</string>
+    <string name="study_undo">Undo</string>
+    <string name="study_try_again">Try again</string>
+    <string name="study_drop">Drop it</string>
     <!-- An item's ⋯ menu, for its creator or the leader. -->
     <string name="study_item_actions">Item actions</string>
     <string name="study_edit">Edit</string>

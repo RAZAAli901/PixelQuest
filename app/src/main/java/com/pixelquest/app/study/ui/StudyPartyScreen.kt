@@ -81,7 +81,15 @@ fun StudyPartyScreen(
         onFormChange = viewModel::updateForm,
         onSaveForm = viewModel::saveForm,
         onCloseForm = viewModel::closeForm,
-        actions = ItemActions(onEdit = viewModel::editItem, onTogglePin = viewModel::togglePin, onDelete = viewModel::askDelete),
+        actions = ItemActions(
+            onEdit = viewModel::editItem,
+            onTogglePin = viewModel::togglePin,
+            onDelete = viewModel::askDelete,
+            onDone = viewModel::complete,
+            onUndo = viewModel::undo,
+            onRetry = viewModel::retry,
+            onDiscard = viewModel::discard
+        ),
         onConfirmDelete = viewModel::confirmDelete,
         onCancelDelete = viewModel::cancelDelete
     )
@@ -269,7 +277,12 @@ private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String
 data class ItemActions(
     val onEdit: (String) -> Unit = {},
     val onTogglePin: (String) -> Unit = {},
-    val onDelete: (String) -> Unit = {}
+    val onDelete: (String) -> Unit = {},
+    val onDone: (String) -> Unit = {},
+    val onUndo: (String) -> Unit = {},
+    /** A refused tick's own key: tried again, or dropped. */
+    val onRetry: (String) -> Unit = {},
+    val onDiscard: (String) -> Unit = {}
 )
 
 /** An item's card, with the menu its creator or the leader may use. */
@@ -281,7 +294,11 @@ private fun CardFor(state: StudyPartyUiState, row: ItemRow, onOpenItem: (String)
         onOpen = { onOpenItem(id) },
         onEdit = if (row.canEdit) ({ actions.onEdit(id) }) else null,
         onTogglePin = if (state.isLeader) ({ actions.onTogglePin(id) }) else null,
-        onDelete = if (row.canEdit) ({ actions.onDelete(id) }) else null
+        onDelete = if (row.canEdit) ({ actions.onDelete(id) }) else null,
+        onDone = { actions.onDone(id) },
+        onUndo = { actions.onUndo(id) },
+        onRetry = row.mine?.clientId?.let { key -> { actions.onRetry(key) } },
+        onDiscard = row.mine?.clientId?.let { key -> { actions.onDiscard(key) } }
     )
 }
 
@@ -402,4 +419,8 @@ object StudyTags {
     fun itemDue(id: String) = "study_item_due_$id"
     fun itemMine(id: String) = "study_item_mine_$id"
     fun itemMenu(id: String) = "study_item_menu_$id"
+    fun itemDone(id: String) = "study_item_done_$id"
+    fun itemUndo(id: String) = "study_item_undo_$id"
+    fun itemRetry(id: String) = "study_item_retry_$id"
+    fun itemDiscard(id: String) = "study_item_discard_$id"
 }

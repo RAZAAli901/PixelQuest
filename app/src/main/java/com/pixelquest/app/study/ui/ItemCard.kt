@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,7 +32,9 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.study.domain.StudyItemKind
 import com.pixelquest.app.study.domain.SyncState
+import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.components.PixelProgressBar
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -44,7 +48,8 @@ import java.util.Locale
 /**
  * One item, as a card: its kind and title, its subject, when it's due, whether the leader pinned
  * it, how many in the party have finished it, and the player's own tick (done, still to send, or
- * refused). Tapping it opens the item. For its creator or the leader, a ⋯ menu edits, pins (the
+ * refused), with a bar for the party's progress on it and a button to tick it off, take a tick
+ * back within 24 hours, or try a refused one again. Tapping it opens the item. For its creator or the leader, a ⋯ menu edits, pins (the
  * leader) or deletes it.
  */
 @Composable
@@ -55,7 +60,11 @@ fun ItemCard(
     zone: ZoneId = ZoneId.systemDefault(),
     onEdit: (() -> Unit)? = null,
     onTogglePin: (() -> Unit)? = null,
-    onDelete: (() -> Unit)? = null
+    onDelete: (() -> Unit)? = null,
+    onDone: (() -> Unit)? = null,
+    onUndo: (() -> Unit)? = null,
+    onRetry: (() -> Unit)? = null,
+    onDiscard: (() -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
     val item = row.item
@@ -115,7 +124,40 @@ fun ItemCard(
                     )
                 }
             }
+            if (row.memberCount > 0) {
+                PixelProgressBar(progress = row.doneCount.toFloat() / row.memberCount, height = 8.dp, modifier = Modifier.fillMaxWidth())
+            }
+            DoneActions(row, onDone, onUndo, onRetry, onDiscard)
         }
+    }
+}
+
+/**
+ * What the player can do about their own tick: tick it off; take it back (one still waiting, or sent
+ * within 24 hours); or, refused, try again or drop it. A tick older than a day is final: no button.
+ */
+@Composable
+private fun DoneActions(row: ItemRow, onDone: (() -> Unit)?, onUndo: (() -> Unit)?, onRetry: (() -> Unit)?, onDiscard: (() -> Unit)?) {
+    val id = row.item.id
+    val mine = row.mine
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        when {
+            mine == null -> onDone?.let {
+                PixelButton(text = stringResource(R.string.study_mark_done), onClick = it, modifier = Modifier.weight(1f).testTag(StudyTags.itemDone(id)))
+            }
+            mine.state == SyncState.FAILED -> {
+                onRetry?.let { CardTextButton(stringResource(R.string.study_try_again), StudyTags.itemRetry(id), it) }
+                onDiscard?.let { CardTextButton(stringResource(R.string.study_drop), StudyTags.itemDiscard(id), it) }
+            }
+            row.canUndo -> onUndo?.let { CardTextButton(stringResource(R.string.study_undo), StudyTags.itemUndo(id), it) }
+        }
+    }
+}
+
+@Composable
+private fun CardTextButton(text: String, tag: String, onClick: () -> Unit) {
+    TextButton(onClick = onClick, modifier = Modifier.heightIn(min = 48.dp).testTag(tag)) {
+        Text(text = text, style = MaterialTheme.typography.labelLarge, color = PixelTheme.colors.primaryText)
     }
 }
 

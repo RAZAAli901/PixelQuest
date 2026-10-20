@@ -73,6 +73,37 @@ class StudyPartyScreenTest {
     }
 
     @Test
+    fun aCardsButton_ticks_undoes_orRetries() {
+        val item = com.pixelquest.app.study.domain.StudyItem(
+            "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH
+        )
+        fun tick(state: com.pixelquest.app.study.domain.SyncState) = com.pixelquest.app.study.domain.StudyCompletion(
+            null, "c1", "a", "p1", "bram", Instant.EPOCH, java.time.LocalDate.of(2026, 10, 21), "UTC", state
+        )
+        var row by mutableStateOf(ItemRow(item, null, 0, 2, DueState.NONE, canUndo = false, canEdit = false))
+        val did = mutableListOf<String>()
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                ItemCard(row, onOpen = {}, onDone = { did += "done" }, onUndo = { did += "undo" }, onRetry = { did += "retry" }, onDiscard = { did += "drop" })
+            }
+        }
+        composeTestRule.onNodeWithTag(StudyTags.itemDone("a"), useUnmergedTree = true).performClick()
+
+        row = row.copy(mine = tick(com.pixelquest.app.study.domain.SyncState.PENDING), doneCount = 1, canUndo = true)
+        composeTestRule.onNodeWithTag(StudyTags.itemDone("a"), useUnmergedTree = true).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(StudyTags.itemUndo("a"), useUnmergedTree = true).performClick()
+
+        row = row.copy(mine = tick(com.pixelquest.app.study.domain.SyncState.FAILED), doneCount = 0, canUndo = true)
+        composeTestRule.onNodeWithTag(StudyTags.itemRetry("a"), useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithTag(StudyTags.itemDiscard("a"), useUnmergedTree = true).performClick()
+
+        // Sent more than a day ago: final, no button.
+        row = row.copy(mine = tick(com.pixelquest.app.study.domain.SyncState.SYNCED), doneCount = 1, canUndo = false)
+        composeTestRule.onNodeWithTag(StudyTags.itemUndo("a"), useUnmergedTree = true).assertDoesNotExist()
+        assertEquals(listOf("done", "undo", "retry", "drop"), did)
+    }
+
+    @Test
     fun aCardsMenu_isThereForItsCreatorOrTheLeader() {
         val item = com.pixelquest.app.study.domain.StudyItem(
             "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH

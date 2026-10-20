@@ -127,6 +127,29 @@ class StudyPartyViewModelTest {
     }
 
     @Test
+    fun done_countsAtOnce_waitsOffline_andCanBeUndone() {
+        val item = study.seedItem(party, "bram", "Lab report")
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.items.isNotEmpty() }
+
+        server.offline = true
+        vm.complete(item.id)
+        waitFor("ticked on the phone") { vm.uiState.value.items.single().done }
+        assertEquals(StudyNotice.Offline, vm.uiState.value.notice)
+        assertEquals(1, vm.uiState.value.items.single().doneCount)
+        assertEquals(com.pixelquest.app.study.domain.SyncState.PENDING, vm.uiState.value.items.single().mine?.state)
+
+        server.offline = false
+        kotlinx.coroutines.runBlocking { repo.sendPending() }
+        waitFor("sent") { vm.uiState.value.items.single().mine?.state == com.pixelquest.app.study.domain.SyncState.SYNCED }
+        assertEquals(1, study.completions.size)
+
+        vm.undo(item.id)
+        waitFor("taken back") { !vm.uiState.value.items.single().done }
+        assertTrue(study.completions.isEmpty())
+    }
+
+    @Test
     fun theLeader_pinsFromTheEditSheet() {
         val item = study.seedItem(party, "bram", "Lab report")
         val vm = viewModel()
