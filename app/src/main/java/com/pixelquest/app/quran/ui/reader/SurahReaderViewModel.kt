@@ -38,8 +38,10 @@ enum class DisplayMode {
  *
  * @param ayahs the ayahs loaded so far, from the surah's first, in order.
  * @param hasMore whether the surah has ayahs not loaded yet.
- * @param target the ayah to bring into view (and flash) once it's loaded: the one the reader was
- *   opened at, or where the player had scrolled to before a rotation; null for the surah's start.
+ * @param target the ayah to bring into view once it's loaded: the one the reader was opened at, or
+ *   where the player had scrolled to before a rotation; null for the surah's start.
+ * @param flash the ayah to mark for a moment once it's in view: the one the reader was opened at
+ *   (from a search, a bookmark, Continue reading), so the eye finds it. Not after a rotation.
  * @param settings the sizes, spacing and display mode the player reads with.
  * @param previous the surah before this one, and [next] the one after: null at either end.
  * @param translator who made the translation being read, for its credit when an ayah is shared.
@@ -55,7 +57,8 @@ data class ReaderUiState(
     val target: Int? = null,
     val settings: ReadingSettings = ReadingSettings(),
     val translator: String = "",
-    val bookmarked: Set<Int> = emptySet()
+    val bookmarked: Set<Int> = emptySet(),
+    val flash: Int? = null
 ) {
     val displayMode: DisplayMode get() = settings.displayMode
 }
@@ -78,10 +81,12 @@ class SurahReaderViewModel @Inject constructor(
     val surahNumber: Int = savedStateHandle.get<Int>(ARG_SURAH) ?: 1
 
     private val _state = MutableStateFlow(
-        ReaderUiState(
-            // Back after a rotation: where they'd scrolled to. Else the ayah the reader was opened at.
-            target = savedStateHandle.get<Int>(KEY_SCROLLED) ?: savedStateHandle.get<Int>(ARG_AYAH)?.takeIf { it > 1 }
-        )
+        run {
+            val scrolled = savedStateHandle.get<Int>(KEY_SCROLLED)
+            val opened = savedStateHandle.get<Int>(ARG_AYAH)?.takeIf { it >= 1 }
+            // Back after a rotation: where they'd scrolled to. Else the ayah the reader was opened at, marked.
+            ReaderUiState(target = scrolled ?: opened, flash = opened.takeIf { scrolled == null })
+        }
     )
     val state: StateFlow<ReaderUiState> = _state.asStateFlow()
 
@@ -160,6 +165,11 @@ class SurahReaderViewModel @Inject constructor(
     /** The reader has brought [target][ReaderUiState.target] into view: it's done with it. */
     fun onTargetShown() {
         _state.update { it.copy(target = null) }
+    }
+
+    /** The [flash][ReaderUiState.flash] has been shown: it fades. */
+    fun onFlashShown() {
+        _state.update { it.copy(flash = null) }
     }
 
     fun setDisplayMode(mode: DisplayMode) {

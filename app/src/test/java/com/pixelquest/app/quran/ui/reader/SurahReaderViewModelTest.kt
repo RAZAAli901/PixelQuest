@@ -119,6 +119,18 @@ class SurahReaderViewModelTest {
     }
 
     @Test
+    fun openedAtAnAyah_itFlashesIt_untilShown() {
+        val vm = reader(2, ayah = 255)
+        assertEquals(255, vm.state.value.flash)
+
+        vm.onFlashShown()
+
+        assertNull(vm.state.value.flash)
+        assertEquals("the first ayah too", 1, reader(2, ayah = 1).state.value.flash)
+        assertNull("opened at its start, nothing flashes", reader(2, ayah = 0).state.value.flash)
+    }
+
+    @Test
     fun afterARotation_itComesBackWhereThePlayerWas() {
         val saved = SavedStateHandle(mapOf("surah" to 2))
         reader(2, saved = saved).onScrolled(120)
@@ -127,6 +139,7 @@ class SurahReaderViewModelTest {
 
         assertEquals(120, again.state.value.target)
         assertTrue(again.state.value.ayahs.size >= 120)
+        assertNull("nothing flashes after a rotation", again.state.value.flash)
     }
 
     @Test

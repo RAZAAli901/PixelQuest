@@ -41,6 +41,7 @@ import com.pixelquest.app.quran.domain.Ayah
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -64,6 +65,7 @@ fun SurahReaderRoute(
         onLoadMore = viewModel::loadMore,
         onScrolled = viewModel::onScrolled,
         onTargetShown = viewModel::onTargetShown,
+        onFlashShown = viewModel::onFlashShown,
         onDisplayMode = viewModel::setDisplayMode,
         onSettings = viewModel::updateSettings,
         onOpenSurah = onOpenSurah,
@@ -94,6 +96,7 @@ fun SurahReaderRoute(
  *
  * @param onScrolled the ayah first in view, as the player scrolls.
  * @param onTargetShown [ReaderUiState.target] has been brought into view.
+ * @param onFlashShown [ReaderUiState.flash] has been marked for long enough: it fades.
  */
 @Composable
 fun SurahReaderScreen(
@@ -102,6 +105,7 @@ fun SurahReaderScreen(
     onLoadMore: () -> Unit = {},
     onScrolled: (ayah: Int) -> Unit = {},
     onTargetShown: () -> Unit = {},
+    onFlashShown: () -> Unit = {},
     onDisplayMode: (DisplayMode) -> Unit = {},
     onSettings: (ReadingSettings) -> Unit = {},
     onOpenSurah: (Int) -> Unit = {},
@@ -172,7 +176,7 @@ fun SurahReaderScreen(
         },
         modifier = Modifier.testTag(ReaderTags.SCREEN)
     ) { padding ->
-        ReaderEffects(state, listState, onLoadMore, onScrolled, onTargetShown)
+        ReaderEffects(state, listState, onLoadMore, onScrolled, onTargetShown, onFlashShown)
         val typography = state.settings.typography(colors.onBackground)
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             DisplayModeSwitch(
@@ -195,6 +199,7 @@ fun SurahReaderScreen(
                         mode = state.displayMode,
                         typography = typography,
                         bookmarked = ayah.number in state.bookmarked,
+                        flash = ayah.number == state.flash && state.target == null,
                         onClick = { acting = ayah.number }
                     )
                     HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
@@ -210,7 +215,7 @@ fun SurahReaderScreen(
 
 /**
  * What the reader does as it's scrolled: loads more near the end, says which ayah is first in view,
- * and brings the target ayah into view once it's loaded.
+ * brings the target ayah into view once it's loaded, and lets its flash fade after a moment.
  */
 @Composable
 private fun ReaderEffects(
@@ -218,7 +223,8 @@ private fun ReaderEffects(
     listState: LazyListState,
     onLoadMore: () -> Unit,
     onScrolled: (Int) -> Unit,
-    onTargetShown: () -> Unit
+    onTargetShown: () -> Unit,
+    onFlashShown: () -> Unit
 ) {
     val current by rememberUpdatedState(state)
     // The list's items are the Bismillah (where the surah has one), then the ayahs.
@@ -242,11 +248,21 @@ private fun ReaderEffects(
         val target = state.target ?: return@LaunchedEffect
         val index = state.ayahs.indexOfFirst { it.number == target }
         if (index >= 0) {
-            listState.scrollToItem(index + headerCount(state.surah))
+            // The first ayah with the Bismillah above it, as the surah opens; any other at the top.
+            listState.scrollToItem(if (index == 0) 0 else index + headerCount(state.surah))
             onTargetShown()
         }
     }
+    LaunchedEffect(state.flash, state.target) {
+        if (state.flash != null && state.target == null) {
+            delay(FLASH_MILLIS)
+            onFlashShown()
+        }
+    }
 }
+
+/** How long the ayah the reader was opened at stays marked before it fades. */
+internal const val FLASH_MILLIS = 1_500L
 
 /** How many ayahs before the end of those loaded the next page is asked for. */
 private const val LOAD_AHEAD = 10

@@ -1,5 +1,7 @@
 package com.pixelquest.app.quran.ui.reader
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -13,12 +15,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -40,6 +45,9 @@ import com.pixelquest.app.ui.theme.PixelTheme
  *
  * The ayah's own text is shown exactly as its source gives it: the sign is drawn after it, never
  * part of it (copying an ayah copies its text alone).
+ *
+ * @param flash marks the ayah with a soft wash of the look's accent, which fades once it's false:
+ *   the one the reader was opened at.
  */
 @Composable
 fun AyahItem(
@@ -48,22 +56,31 @@ fun AyahItem(
     typography: QuranTypography,
     modifier: Modifier = Modifier,
     bookmarked: Boolean = false,
+    flash: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
+    val wash by animateFloatAsState(
+        targetValue = if (flash) FLASH_ALPHA else 0f,
+        animationSpec = tween(if (flash) 200 else 1_200),
+        label = "flash"
+    )
     val tap = if (onClick != null) {
         Modifier.clickable(role = Role.Button, onClickLabel = stringResource(R.string.quran_ayah_open_actions), onClick = onClick)
     } else {
         Modifier
     }
     val marked = stringResource(R.string.quran_bookmarked)
-    Box(modifier = modifier.fillMaxWidth()) {
+    Box(modifier = modifier.fillMaxWidth().drawBehind { if (wash > 0f) drawRect(colors.primary.copy(alpha = wash)) }) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
             .fillMaxWidth()
             .then(tap)
-            .semantics { if (bookmarked) stateDescription = marked }
+            .semantics {
+                if (bookmarked) stateDescription = marked
+                if (flash) this[AyahFlash] = true
+            }
             .testTag(ReaderTags.ayah(ayah.number))
     ) {
         if (mode != DisplayMode.TRANSLATION) {
@@ -121,6 +138,12 @@ private fun BookmarkRibbon(modifier: Modifier = Modifier) {
             .clearAndSetSemantics {}
     )
 }
+
+/** How strong the flash's wash is at its height. */
+private const val FLASH_ALPHA = 0.22f
+
+/** That an ayah is flashing, for tests: not something TalkBack says. */
+val AyahFlash = SemanticsPropertyKey<Boolean>("AyahFlash")
 
 /** [content] laid out right to left, as Arabic is, whatever the phone's direction. */
 @Composable

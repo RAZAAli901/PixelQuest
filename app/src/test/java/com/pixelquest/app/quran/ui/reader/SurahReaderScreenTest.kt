@@ -3,6 +3,8 @@ package com.pixelquest.app.quran.ui.reader
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -39,6 +41,7 @@ class SurahReaderScreenTest {
     private var back = 0
     private val scrolled = mutableListOf<Int>()
     private var targetShown = 0
+    private var flashShown = 0
 
     private fun show(state: ReaderUiState) {
         composeTestRule.setContent {
@@ -50,6 +53,7 @@ class SurahReaderScreenTest {
                     onLoadMore = { loadMore++ },
                     onScrolled = { scrolled += it },
                     onTargetShown = { targetShown++ },
+                    onFlashShown = { flashShown++ },
                     listState = listState
                 )
             }
@@ -108,5 +112,37 @@ class SurahReaderScreenTest {
         assertEquals("the Bismillah, then ayahs 1 to 254 before it", 255, listState.firstVisibleItemIndex)
         assertEquals(1, targetShown)
         composeTestRule.onNodeWithTag(ReaderTags.ayah(255)).assertIsDisplayed()
+    }
+
+    @Test
+    fun theFirstAyahAsTarget_keepsTheBismillahInView() {
+        show(ReaderUiState(surah = surah, ayahs = ayahs(50), target = 1))
+        composeTestRule.waitForIdle()
+
+        assertEquals(0, listState.firstVisibleItemIndex)
+        composeTestRule.onNodeWithTag(ReaderTags.BISMILLAH).assertIsDisplayed()
+    }
+
+    @Test
+    fun theAyahOpenedAt_flashes_thenFades() {
+        composeTestRule.mainClock.autoAdvance = false
+        show(ReaderUiState(surah = surah, ayahs = ayahs(50), flash = 3))
+        composeTestRule.mainClock.advanceTimeByFrame()
+
+        composeTestRule.onNodeWithTag(ReaderTags.ayah(3)).assert(SemanticsMatcher.expectValue(AyahFlash, true))
+        composeTestRule.onNodeWithTag(ReaderTags.ayah(4)).assert(SemanticsMatcher.keyNotDefined(AyahFlash))
+        assertEquals(0, flashShown)
+
+        composeTestRule.mainClock.advanceTimeBy(FLASH_MILLIS + 100)
+        assertEquals(1, flashShown)
+    }
+
+    @Test
+    fun theFlash_waitsForItsTargetToBeInView() {
+        composeTestRule.mainClock.autoAdvance = false
+        show(ReaderUiState(surah = surah, ayahs = ayahs(10), target = 40, flash = 40))
+        composeTestRule.mainClock.advanceTimeBy(FLASH_MILLIS + 100)
+
+        assertEquals("ayah 40 isn't loaded yet", 0, flashShown)
     }
 }
