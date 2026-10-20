@@ -35,9 +35,14 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         com.pixelquest.app.darood.data.local.PartyEntity::class,
         com.pixelquest.app.darood.data.local.PartyMemberEntity::class,
         com.pixelquest.app.darood.data.local.DaroodEntryEntity::class,
-        com.pixelquest.app.darood.data.local.PendingEntryEntity::class
+        com.pixelquest.app.darood.data.local.PendingEntryEntity::class,
+        // The Quran (docs/quran-data.md), from version 13: loaded from the app's own files.
+        com.pixelquest.app.quran.data.local.QuranSurahEntity::class,
+        com.pixelquest.app.quran.data.local.QuranAyahEntity::class,
+        com.pixelquest.app.quran.data.local.QuranAyahFtsEntity::class,
+        com.pixelquest.app.quran.data.local.TranslationInfoEntity::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -52,6 +57,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun namazLogDao(): com.pixelquest.app.data.local.dao.NamazLogDao
     abstract fun namazSettingsDao(): com.pixelquest.app.data.local.dao.NamazSettingsDao
     abstract fun daroodDao(): com.pixelquest.app.darood.data.local.DaroodDao
+    abstract fun quranDao(): com.pixelquest.app.quran.data.local.QuranDao
 
     companion object {
         /**
@@ -59,7 +65,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -203,5 +209,25 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE `darood_party` ADD COLUMN `isPublicRace` INTEGER NOT NULL DEFAULT 0")
             }
         }
+
+        /** The Quran's tables (docs/quran-data.md), empty until its loader fills them from the app's files. */
+        val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                QURAN_TABLES_13.forEach { db.execSQL(it) }
+            }
+        }
+
+        /** Version 13's Quran tables, as Room exports them (app/schemas, 13.json): its search index's triggers too. */
+        private val QURAN_TABLES_13 = listOf(
+            "CREATE TABLE IF NOT EXISTS `quran_surah` (`number` INTEGER NOT NULL, `arabicName` TEXT NOT NULL, `englishName` TEXT NOT NULL, `englishMeaning` TEXT NOT NULL, `revelation` TEXT NOT NULL, `revelationOrder` INTEGER NOT NULL, `ayahCount` INTEGER NOT NULL, `juz` INTEGER NOT NULL, `bismillah` TEXT, PRIMARY KEY(`number`))",
+            "CREATE TABLE IF NOT EXISTS `quran_ayah` (`id` INTEGER NOT NULL, `surah` INTEGER NOT NULL, `ayah` INTEGER NOT NULL, `arabic` TEXT NOT NULL, `translationId` TEXT NOT NULL, `translation` TEXT NOT NULL, PRIMARY KEY(`id`))",
+            "CREATE UNIQUE INDEX IF NOT EXISTS `index_quran_ayah_surah_ayah` ON `quran_ayah` (`surah`, `ayah`)",
+            "CREATE VIRTUAL TABLE IF NOT EXISTS `quran_ayah_fts` USING FTS4(`translation` TEXT NOT NULL, tokenize=unicode61, content=`quran_ayah`)",
+            "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_quran_ayah_fts_BEFORE_UPDATE BEFORE UPDATE ON `quran_ayah` BEGIN DELETE FROM `quran_ayah_fts` WHERE `docid`=OLD.`rowid`; END",
+            "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_quran_ayah_fts_BEFORE_DELETE BEFORE DELETE ON `quran_ayah` BEGIN DELETE FROM `quran_ayah_fts` WHERE `docid`=OLD.`rowid`; END",
+            "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_quran_ayah_fts_AFTER_UPDATE AFTER UPDATE ON `quran_ayah` BEGIN INSERT INTO `quran_ayah_fts`(`docid`, `translation`) VALUES (NEW.`rowid`, NEW.`translation`); END",
+            "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_quran_ayah_fts_AFTER_INSERT AFTER INSERT ON `quran_ayah` BEGIN INSERT INTO `quran_ayah_fts`(`docid`, `translation`) VALUES (NEW.`rowid`, NEW.`translation`); END",
+            "CREATE TABLE IF NOT EXISTS `quran_translation` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `translator` TEXT NOT NULL, `language` TEXT NOT NULL, `lastUpdate` TEXT NOT NULL, `licenceNote` TEXT NOT NULL, `notice` TEXT NOT NULL, `dataVersion` TEXT NOT NULL, PRIMARY KEY(`id`))"
+        )
     }
 }
