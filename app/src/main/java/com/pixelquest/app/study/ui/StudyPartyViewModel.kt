@@ -62,8 +62,9 @@ class StudyPartyViewModel @Inject constructor(
 
     private data class Flags(val tab: PartyTab, val refreshing: Boolean, val loaded: Boolean, val notice: StudyNotice?, val simple: Boolean)
 
-    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows), (week, past, winners), waiting, flags ->
+    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows), (weekScores, past, winners), waiting, flags ->
         val me = study.myId()
+        val week = thisWeekOf(rows, weekStart, study.zone())
         StudyPartyUiState(
             party = party,
             myId = me,
@@ -71,11 +72,14 @@ class StudyPartyViewModel @Inject constructor(
             tab = flags.tab,
             members = members,
             items = rows,
-            thisWeek = thisWeekOf(rows, weekStart, study.zone()),
+            thisWeek = week,
+            weekSections = weekSectionsOf(week, study.zone()),
+            weekProgress = weekProgressOf(week),
             pinned = rows.filter { it.item.pinned },
             weekStart = weekStart,
-            board = boardOf(week, members, me),
-            myScore = week.firstOrNull { it.userId == me },
+            today = study.today(),
+            board = boardOf(weekScores, members, me),
+            myScore = weekScores.firstOrNull { it.userId == me },
             pastScores = past,
             winners = winners,
             refused = rows.mapNotNull { row -> row.mine?.takeIf { it.state == SyncState.FAILED } },

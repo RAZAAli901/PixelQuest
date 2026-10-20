@@ -91,8 +91,11 @@ data class StudyPartyUiState(
     val members: List<PartyMember> = emptyList(),
     val items: List<ItemRow> = emptyList(),
     val thisWeek: List<ItemRow> = emptyList(),
+    val weekSections: List<Pair<WeekSection, List<ItemRow>>> = emptyList(),
+    val weekProgress: WeekProgress = WeekProgress(0, 0),
     val pinned: List<ItemRow> = emptyList(),
     val weekStart: LocalDate = LocalDate.MIN,
+    val today: LocalDate = LocalDate.MIN,
     val board: List<BoardLine> = emptyList(),
     val myScore: WeekScore? = null,
     val pastScores: List<WeekScore> = emptyList(),
@@ -147,6 +150,35 @@ fun thisWeekOf(rows: List<ItemRow>, weekStart: LocalDate, zone: ZoneId): List<It
         else -> false
     }
 }
+
+/** A heading on This week: overdue, one day of the week, or no date. */
+sealed interface WeekSection {
+    data object Overdue : WeekSection
+    data class Day(val date: LocalDate) : WeekSection
+    data object NoDate : WeekSection
+}
+
+/**
+ * This week's cards under their headings: overdue first, then each day in order, then those with no
+ * date. Within a day, soonest due first.
+ */
+fun weekSectionsOf(rows: List<ItemRow>, zone: ZoneId): List<Pair<WeekSection, List<ItemRow>>> {
+    val overdue = rows.filter { it.due == DueState.OVERDUE }
+    val dated = rows.filter { it.item.dueAt != null && it.due != DueState.OVERDUE }
+        .sortedBy { it.item.dueAt }
+        .groupBy { it.item.dueAt!!.atZone(zone).toLocalDate() }
+    val undated = rows.filter { it.item.dueAt == null }
+    return buildList {
+        if (overdue.isNotEmpty()) add(WeekSection.Overdue to overdue.sortedBy { it.item.dueAt })
+        dated.toSortedMap().forEach { (day, items) -> add(WeekSection.Day(day) to items) }
+        if (undated.isNotEmpty()) add(WeekSection.NoDate to undated)
+    }
+}
+
+/** This week's cards, done and to do, for its summary line: how many the player has done of them. */
+data class WeekProgress(val done: Int, val total: Int)
+
+fun weekProgressOf(rows: List<ItemRow>): WeekProgress = WeekProgress(rows.count { it.done }, rows.size)
 
 /** This week's board: every active member, the most points first, equal points sharing a place. */
 fun boardOf(scores: List<WeekScore>, members: List<PartyMember>, myId: String?): List<BoardLine> {

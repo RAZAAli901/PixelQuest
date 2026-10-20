@@ -25,6 +25,15 @@
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> point</item>
         <item quantity="other"><xliff:g id="count" example="25">%d</xliff:g> points</item>
     </plurals>
+    <!-- This week's summary: items the player has finished of this week's ("2 of 5 done this week"). -->
+    <string name="study_week_progress"><xliff:g id="done" example="2">%1$d</xliff:g> of <xliff:g id="total" example="5">%2$d</xliff:g> done this week</string>
+    <!-- The player's points so far this week ("25 points so far"). -->
+    <string name="study_week_points"><xliff:g id="points" example="25 points">%1$s</xliff:g> so far</string>
+    <!-- This week's headings. -->
+    <string name="study_section_overdue">Overdue</string>
+    <string name="study_section_today">Today</string>
+    <string name="study_section_tomorrow">Tomorrow</string>
+    <string name="study_section_no_date">No due date</string>
     <!-- While the party is loading for the first time. -->
     <string name="study_loading">Loading the party…</string>
     <!-- What happened to something the player just tried. -->

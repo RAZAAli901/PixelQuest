@@ -91,6 +91,26 @@ class StudyPartyStateTest {
     }
 
     @Test
+    fun thisWeek_isOverdueFirst_thenEachDay_thenNoDate() {
+        val members = listOf(member("aria"))
+        val items = listOf(
+            item("fri", Instant.parse("2026-10-23T12:00:00Z")),
+            item("undated", null),
+            item("thuLate", Instant.parse("2026-10-22T15:00:00Z")),
+            item("overdue", Instant.parse("2026-10-20T12:00:00Z")),
+            item("thuEarly", Instant.parse("2026-10-22T05:00:00Z"))
+        )
+        val rows = itemRowsOf(items, listOf(tick("fri", "aria")), members, "aria", false, now, zone)
+        val sections = weekSectionsOf(rows, zone)
+        assertEquals(
+            listOf(WeekSection.Overdue, WeekSection.Day(LocalDate.of(2026, 10, 22)), WeekSection.Day(LocalDate.of(2026, 10, 23)), WeekSection.NoDate),
+            sections.map { it.first }
+        )
+        assertEquals(listOf("thuEarly", "thuLate"), sections[1].second.map { it.item.id })
+        assertEquals(WeekProgress(1, 5), weekProgressOf(rows))
+    }
+
+    @Test
     fun theBoard_hasEveryone_andEqualPointsShareAPlace() {
         fun score(user: String, points: Int) = WeekScore("p", user, null, week, points, points, 0, 0, 1, 0)
         val members = listOf(member("aria", "aria_k"), member("bram"), member("cleo"), member("dan"), member("eve", status = MemberStatus.INVITED))

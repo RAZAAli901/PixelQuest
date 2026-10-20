@@ -41,7 +41,15 @@ import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyTab
 import com.pixelquest.app.party.ui.components.MemberList
 import com.pixelquest.app.study.domain.StudyRefusal
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.pixelquest.app.ui.components.PixelButton
+import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.theme.inkOnPanel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -110,7 +118,7 @@ fun StudyPartyContent(
                     modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab))
                 ) {
                     when (state.tab) {
-                        PartyTab.THIS_WEEK -> itemLines(state.thisWeek, R.string.study_week_empty, state.loaded)
+                        PartyTab.THIS_WEEK -> thisWeek(state)
                         PartyTab.ALL_ITEMS -> itemLines(state.items, R.string.study_items_empty, state.loaded)
                         PartyTab.SCOREBOARD -> boardLines(state)
                         PartyTab.PEOPLE -> people(state, onAddPeople, onOpenInfo)
@@ -198,11 +206,73 @@ private fun LazyListScope.emptyLine(text: Int, loaded: Boolean) {
     }
 }
 
+/** This week: how far the player is, then the week's items under overdue, each day, and no date. */
+private fun LazyListScope.thisWeek(state: StudyPartyUiState) {
+    if (state.thisWeek.isEmpty()) return emptyLine(R.string.study_week_empty, state.loaded)
+    item(key = "week_summary") { WeekSummary(state) }
+    state.weekSections.forEach { (section, rows) ->
+        item(key = "section_" + sectionKey(section)) { SectionHeading(sectionLabel(section, state.today)) }
+        items(rows, key = { it.item.id }) { row -> ItemLine(row) }
+    }
+}
+
+/** The week's line: items done of those this week, and the player's points so far. */
+@Composable
+private fun WeekSummary(state: StudyPartyUiState) {
+    val colors = PixelTheme.colors
+    PixelCard(variant = PixelPanelVariant.BEIGE, contentPadding = 16.dp, modifier = Modifier.fillMaxWidth().testTag(StudyTags.WEEK_SUMMARY)) {
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(
+                text = stringResource(R.string.study_week_progress, state.weekProgress.done, state.weekProgress.total),
+                style = MaterialTheme.typography.titleSmall,
+                color = inkOnPanel(colors.primaryText)
+            )
+            val points = state.myScore?.points ?: 0
+            Text(
+                text = stringResource(R.string.study_week_points, pluralStringResource(R.plurals.study_points, points, points)),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+private fun SectionHeading(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleSmall,
+        color = PixelTheme.colors.primaryText,
+        modifier = Modifier.padding(top = 4.dp).semantics { heading() }
+    )
+}
+
+private fun sectionKey(section: WeekSection): String = when (section) {
+    WeekSection.Overdue -> "overdue"
+    WeekSection.NoDate -> "none"
+    is WeekSection.Day -> section.date.toString()
+}
+
+/** "Overdue", "Today", "Tomorrow", "Friday 23 Oct" or "No due date". */
+@Composable
+fun sectionLabel(section: WeekSection, today: LocalDate): String = when (section) {
+    WeekSection.Overdue -> stringResource(R.string.study_section_overdue)
+    WeekSection.NoDate -> stringResource(R.string.study_section_no_date)
+    is WeekSection.Day -> when (section.date) {
+        today -> stringResource(R.string.study_section_today)
+        today.plusDays(1) -> stringResource(R.string.study_section_tomorrow)
+        else -> section.date.format(DateTimeFormatter.ofPattern("EEEE d MMM", LocalConfiguration.current.locales[0]))
+    }
+}
+
 private fun LazyListScope.itemLines(rows: List<ItemRow>, empty: Int, loaded: Boolean) {
     if (rows.isEmpty()) return emptyLine(empty, loaded)
-    items(rows, key = { it.item.id }) { row ->
-        Text(text = row.item.title, style = MaterialTheme.typography.bodyLarge, color = PixelTheme.colors.onSurface, modifier = Modifier.testTag(StudyTags.item(row.item.id)))
-    }
+    items(rows, key = { it.item.id }) { row -> ItemLine(row) }
+}
+
+@Composable
+private fun ItemLine(row: ItemRow) {
+    Text(text = row.item.title, style = MaterialTheme.typography.bodyLarge, color = PixelTheme.colors.onSurface, modifier = Modifier.testTag(StudyTags.item(row.item.id)))
 }
 
 private fun LazyListScope.boardLines(state: StudyPartyUiState) {
@@ -247,6 +317,7 @@ object StudyTags {
     const val NOTICE = "study_notice"
     const val EMPTY = "study_empty"
     const val ADD_PEOPLE = "study_add_people"
+    const val WEEK_SUMMARY = "study_week_summary"
     fun tab(tab: PartyTab) = "study_tab_${tab.name}"
     fun tabButton(tab: PartyTab) = "study_tab_button_${tab.name}"
     fun item(id: String) = "study_item_$id"
