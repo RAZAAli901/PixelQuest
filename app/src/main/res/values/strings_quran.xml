@@ -51,6 +51,8 @@
     <string name="quran_next_surah"><xliff:g id="surah" example="Aal-i-Imraan">%s</xliff:g> ▶</string>
     <!-- An ayah's sheet: its reference (surah's English name, surah number, ayah number), then its actions. -->
     <string name="quran_ayah_reference"><xliff:g id="surah_name" example="Al-Baqara">%1$s</xliff:g> <xliff:g id="surah" example="2">%2$d</xliff:g>:<xliff:g id="ayah" example="255">%3$d</xliff:g></string>
+    <!-- What TalkBack reads for an ayah: its number, then its translation, in any display mode. -->
+    <string name="quran_ayah_spoken">Ayah <xliff:g id="number" example="255">%1$d</xliff:g>. <xliff:g id="translation" example="Allah - there is no deity except Him">%2$s</xliff:g></string>
     <string name="quran_ayah_open_actions">show what you can do with it</string>
     <string name="quran_bookmark">Bookmark</string>
     <string name="quran_unbookmark">Remove bookmark</string>

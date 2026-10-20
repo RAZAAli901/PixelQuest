@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.LayoutDirection
@@ -48,6 +49,10 @@ import com.pixelquest.app.ui.theme.PixelTheme
  *
  * @param flash marks the ayah with a soft wash of the look's accent, which fades once it's false:
  *   the one the reader was opened at.
+ *
+ * TalkBack reads it as its number and its translation ("Ayah 255. Allah - there is no deity…"),
+ * whatever the display mode: the meaning, in the phone's language, where its voice can't read the
+ * Arabic. The Arabic stays on screen, untouched.
  */
 @Composable
 fun AyahItem(
@@ -71,6 +76,7 @@ fun AyahItem(
         Modifier
     }
     val marked = stringResource(R.string.quran_bookmarked)
+    val spoken = stringResource(R.string.quran_ayah_spoken, ayah.number, ayah.translation)
     Box(modifier = modifier.fillMaxWidth().drawBehind { if (wash > 0f) drawRect(colors.primary.copy(alpha = wash)) }) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -78,6 +84,7 @@ fun AyahItem(
             .fillMaxWidth()
             .then(tap)
             .semantics {
+                contentDescription = spoken
                 if (bookmarked) stateDescription = marked
                 if (flash) this[AyahFlash] = true
             }

@@ -52,7 +52,7 @@ fun FastScrollIndex(listState: LazyListState, surahs: List<Int>, modifier: Modif
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxHeight()
-            .width(36.dp)
+            .width(com.pixelquest.app.quran.ui.reader.MIN_TARGET)
             .testTag(FastScrollTags.STRIP)
             .pointerInput(surahs) {
                 detectVerticalDragGestures { change, _ ->
@@ -67,6 +67,8 @@ fun FastScrollIndex(listState: LazyListState, surahs: List<Int>, modifier: Modif
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxWidth()
+                    // Each mark fills its share of the strip, so it's as big a target as the strip allows.
+                    .weight(1f)
                     .heightIn(min = 24.dp)
                     .clickable { jumpTo(mark) }
                     .testTag(FastScrollTags.mark(mark))

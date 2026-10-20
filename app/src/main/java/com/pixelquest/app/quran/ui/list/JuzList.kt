@@ -72,7 +72,7 @@ fun QuranTabs(selected: QuranTab, onSelect: (QuranTab) -> Unit, modifier: Modifi
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .weight(1f)
-                    .heightIn(min = 44.dp)
+                    .heightIn(min = com.pixelquest.app.quran.ui.reader.MIN_TARGET)
                     .background(if (chosen) colors.primary.copy(alpha = 0.18f) else colors.surface, shape)
                     .then(ink)
                     .selectable(selected = chosen, role = Role.Tab, onClick = { onSelect(tab) })

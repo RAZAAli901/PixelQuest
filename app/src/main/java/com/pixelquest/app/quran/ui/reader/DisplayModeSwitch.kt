@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.selection.selectable
@@ -15,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -71,7 +74,10 @@ fun PaperSwitch(selected: ReaderPaper, onSelect: (ReaderPaper) -> Unit, modifier
     )
 }
 
-/** One choice of a few, in segments shaped by the look: a group of radio buttons to TalkBack. */
+/**
+ * One choice of a few, in segments shaped by the look: a group of radio buttons to TalkBack, each
+ * a 48dp target. With large text, they stack, one to a line, so no word is broken to fit.
+ */
 @Composable
 private fun <T> Segments(
     options: List<T>,
@@ -81,33 +87,50 @@ private fun <T> Segments(
     tag: (T) -> String,
     modifier: Modifier = Modifier
 ) {
-    val colors = PixelTheme.colors
-    val shape: Shape = quranChipShape()
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier.fillMaxWidth().selectableGroup()) {
-        options.forEach { option ->
-            val chosen = option == selected
-            val ink = if (PixelTheme.mode == ThemeMode.Comic) {
-                Modifier.border(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack, shape)
-            } else {
-                Modifier.border(1.dp, colors.primary.copy(alpha = if (chosen) 1f else 0.4f), shape)
+    if (LocalDensity.current.fontScale >= STACK_AT_FONT_SCALE) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier.fillMaxWidth().selectableGroup()) {
+            options.forEach { option ->
+                Segment(label(option), option == selected, { onSelect(option) }, Modifier.fillMaxWidth().testTag(tag(option)))
             }
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .heightIn(min = 40.dp)
-                    .background(if (chosen) colors.primary.copy(alpha = 0.18f) else colors.surface, shape)
-                    .then(ink)
-                    .selectable(selected = chosen, role = Role.RadioButton, onClick = { onSelect(option) })
-                    .testTag(tag(option))
-            ) {
-                Text(
-                    text = label(option),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = if (chosen) FontWeight.Bold else FontWeight.Normal,
-                    color = inkOnPanel(colors.primaryText)
-                )
+        }
+    } else {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier.fillMaxWidth().selectableGroup()) {
+            options.forEach { option ->
+                Segment(label(option), option == selected, { onSelect(option) }, Modifier.weight(1f).testTag(tag(option)))
             }
         }
     }
 }
+
+@Composable
+private fun Segment(label: String, chosen: Boolean, onSelect: () -> Unit, modifier: Modifier) {
+    val colors = PixelTheme.colors
+    val shape: Shape = quranChipShape()
+    val ink = if (PixelTheme.mode == ThemeMode.Comic) {
+        Modifier.border(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack, shape)
+    } else {
+        Modifier.border(1.dp, colors.primary.copy(alpha = if (chosen) 1f else 0.4f), shape)
+    }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .heightIn(min = MIN_TARGET)
+            .background(if (chosen) colors.primary.copy(alpha = 0.18f) else colors.surface, shape)
+            .then(ink)
+            .selectable(selected = chosen, role = Role.RadioButton, onClick = onSelect)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = if (chosen) FontWeight.Bold else FontWeight.Normal,
+            color = inkOnPanel(colors.primaryText)
+        )
+    }
+}
+
+/** The smallest a control is, to touch: Android's guideline. */
+internal val MIN_TARGET = 48.dp
+
+/** From this text size on (the phone's font scale), choices side by side stack instead. */
+internal const val STACK_AT_FONT_SCALE = 1.5f
