@@ -216,6 +216,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindPartyLiveSource(
+        impl: com.pixelquest.app.party.sync.SupabasePartyLiveSource
+    ): com.pixelquest.app.party.sync.PartyLiveSource
+
+    @Binds
+    @Singleton
     abstract fun bindDaroodLiveSource(
         impl: com.pixelquest.app.darood.sync.SupabaseDaroodLiveSource
     ): com.pixelquest.app.darood.sync.DaroodLiveSource

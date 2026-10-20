@@ -41,6 +41,10 @@ import com.pixelquest.app.ui.menu.MenuTopBarAction
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
 import com.pixelquest.app.party.domain.Party
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.Lifecycle
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 
 /** The Parties screen, from the side menu, with its state from the list's view model (its route says: study parties). */
 @Composable
@@ -52,6 +56,11 @@ fun PartiesScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val invites by viewModel.allInvites.collectAsState()
+    // An invitation sent meanwhile arrives at once, while the screen is up.
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(lifecycle, viewModel) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { viewModel.followInvitations() }
+    }
     PartiesContent(
         state = state,
         invites = invites,

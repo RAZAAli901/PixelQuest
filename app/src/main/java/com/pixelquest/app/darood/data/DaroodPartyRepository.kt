@@ -46,6 +46,7 @@ import javax.inject.Singleton
 import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.party.data.PartyRepository
 import com.pixelquest.app.party.data.PartyRepositoryImpl
+import com.pixelquest.app.party.sync.PartyLiveSource
 
 /**
  * Darood Parties for the screens (docs/darood-design.md): every party's calls ([PartyRepository]),
@@ -72,8 +73,9 @@ class DaroodPartyRepositoryImpl(
     private val syncScheduler: DaroodSyncScheduler? = null,
     private val live: DaroodLiveSource? = null,
     private val numbersDelayMs: Long = NUMBERS_DELAY_MS,
-    private val catchUpDelayMs: Long = CATCH_UP_DELAY_MS
-) : PartyRepositoryImpl(remote, dao, now), DaroodPartyRepository {
+    private val catchUpDelayMs: Long = CATCH_UP_DELAY_MS,
+    partyLive: PartyLiveSource? = null
+) : PartyRepositoryImpl(remote, dao, now, partyLive, account::id), DaroodPartyRepository {
 
     @Inject
     constructor(
@@ -81,8 +83,9 @@ class DaroodPartyRepositoryImpl(
         dao: DaroodDao,
         account: DaroodAccount,
         syncScheduler: DaroodSyncScheduler,
-        live: DaroodLiveSource
-    ) : this(remote, dao, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler, live)
+        live: DaroodLiveSource,
+        partyLive: PartyLiveSource
+    ) : this(remote, dao, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler, live, partyLive = partyLive)
 
     override fun observeMemberStats(partyId: String): Flow<List<MemberStats>> =
         dao.observeMembers(partyId).map { members ->

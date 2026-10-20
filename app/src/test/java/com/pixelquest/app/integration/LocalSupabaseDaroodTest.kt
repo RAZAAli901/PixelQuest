@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -63,7 +64,8 @@ class LocalSupabaseDaroodTest {
             { supabase.auth.currentUserOrNull()?.id },
             now = System::currentTimeMillis,
             zone = { java.time.ZoneId.of("Asia/Karachi") },
-            live = SupabaseDaroodLiveSource(supabase),
+            live = SupabaseDaroodLiveSource(supabase, com.pixelquest.app.party.sync.SupabasePartyLiveSource(supabase)),
+            partyLive = com.pixelquest.app.party.sync.SupabasePartyLiveSource(supabase),
             numbersDelayMs = 0
         )
     }
@@ -194,5 +196,30 @@ class LocalSupabaseDaroodTest {
         val seen = (outsider.parties.fetchRaceBoard() as SupabaseResult.Success).data.single { it.name == name }
         assertEquals(com.pixelquest.app.darood.domain.RaceLine(name, 1, 250, 1_000, 0.25f, null, mine = false), seen)
         assertTrue("the leader's own", (aria.parties.fetchRaceBoard() as SupabaseResult.Success).data.single { it.name == name }.mine)
+    }
+
+    @Test
+    fun aStudyPartysInvitation_arrivesLive_andIsAnswered() = runBlocking {
+        val (aria, _) = phone("ariast")
+        val (bram, bramName) = phone("bramst")
+
+        // Bram's phone follows its invitations; once it's listening, Aria starts a study party and invites him.
+        val listening = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val following = launch(Dispatchers.IO) { bram.parties.followInvitations().collect { listening.complete(Unit) } }
+        try {
+            withTimeout(15_000) { listening.await() }
+            val party = (aria.parties.createParty("Exam group", 6, com.pixelquest.app.party.domain.PartyType.STUDY) as SupabaseResult.Success).data
+            assertEquals(SupabaseResult.Success(com.pixelquest.app.party.data.remote.InviteOutcome.SENT), aria.parties.invite(party, bramName))
+
+            waitUntil("Bram's phone hears the invitation") { bram.parties.observeParty(party).first()?.myStatus == MemberStatus.INVITED }
+            val invited = bram.parties.observeParty(party).first()!!
+            assertEquals(com.pixelquest.app.party.domain.PartyType.STUDY, invited.type)
+            assertEquals(null, invited.milestone)
+
+            assertEquals(SupabaseResult.Success(MemberStatus.ACTIVE), bram.parties.respondToInvite(party, accept = true))
+            assertEquals(listOf(MemberStatus.ACTIVE, MemberStatus.ACTIVE), bram.parties.observeMembers(party).first().map { it.status })
+        } finally {
+            following.cancel()
+        }
     }
 }

@@ -21,6 +21,9 @@ import kotlinx.coroutines.flow.map
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.pixelquest.app.darood.data.remote.DaroodAccount
+import com.pixelquest.app.party.sync.PartyLiveSource
+import kotlinx.coroutines.flow.channelFlow
 
 /**
  * Every party, of any kind, for the screens (docs/party-core.md): the parties the account is in or
@@ -62,6 +65,13 @@ interface PartyRepository {
 
     /** A new party of [type] led by the account, with its name and size only: its id. */
     suspend fun createParty(name: String, maxMembers: Int, type: PartyType): SupabaseResult<String>
+
+    /**
+     * The account's invitations, live, while collected: whenever one arrives or is taken back (to a
+     * party of any kind), the parties refresh, and it passes the news on. Collect it while a screen
+     * shows the invitations. Nothing when signed out, or with no live source.
+     */
+    fun followInvitations(): Flow<Unit>
 }
 
 /**
@@ -72,11 +82,24 @@ interface PartyRepository {
 open class PartyRepositoryImpl(
     private val remote: PartyRemoteDataSource,
     private val dao: PartyDao,
-    private val now: () -> Long
+    private val now: () -> Long,
+    private val live: PartyLiveSource? = null,
+    private val accountId: () -> String? = { null }
 ) : PartyRepository {
 
     @Inject
-    constructor(remote: PartyRemoteDataSource, dao: PartyDao) : this(remote, dao, System::currentTimeMillis)
+    constructor(remote: PartyRemoteDataSource, dao: PartyDao, live: PartyLiveSource, account: DaroodAccount) :
+        this(remote, dao, System::currentTimeMillis, live, account::id)
+
+    override fun followInvitations(): Flow<Unit> = channelFlow {
+        val source = live ?: return@channelFlow
+        val me = accountId() ?: return@channelFlow
+        // Listening has started, or something changed: either way, the parties as the server has them now.
+        source.invitations(me).collect {
+            refreshParties()
+            send(Unit)
+        }
+    }
 
     override fun observeMyParties(): Flow<List<Party>> = dao.observeParties().map { parties -> parties.map { it.toDomain() } }
 

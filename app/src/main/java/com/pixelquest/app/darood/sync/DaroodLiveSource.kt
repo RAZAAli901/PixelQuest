@@ -18,6 +18,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.pixelquest.app.party.sync.MembershipChange
+import com.pixelquest.app.party.sync.PartyLiveSource
+import kotlinx.coroutines.CompletableDeferred
 
 /** Something that changed in a party while it was open. */
 sealed interface PartyChange {
@@ -43,41 +46,44 @@ fun interface DaroodLiveSource {
 }
 
 /**
- * Supabase Realtime's postgres changes for one party's entries and members. The server sends only
- * what the account's row-level security lets it read (20261019000025_darood_realtime.sql).
+ * Supabase Realtime's postgres changes for one party's entries, with its members from every party's
+ * live source ([PartyLiveSource]). The server sends only what the account's row-level security lets
+ * it read (20261019000025_darood_realtime.sql).
  */
 @Singleton
 class SupabaseDaroodLiveSource @Inject constructor(
-    private val supabase: SupabaseClient
+    private val supabase: SupabaseClient,
+    private val partyLive: PartyLiveSource
 ) : DaroodLiveSource {
 
     override fun changes(partyId: String): Flow<PartyChange> = channelFlow {
         // A channel per table: supabase-kt 3.0.2 can throw (IndexOutOfBoundsException) when two change
-        // flows on one channel are torn down at once, as they are when the screen closes.
+        // flows on one channel are torn down at once, as they are when the screen closes. The members'
+        // channel is the shared helper's.
         val entriesChannel = supabase.channel("darood-entries-$partyId")
-        val membersChannel = supabase.channel("darood-members-$partyId")
         val entries = entriesChannel.postgresChangeFlow<PostgresAction.Insert>(schema = "public") {
             table = "darood_entries"
             filter("party_id", FilterOperator.EQ, partyId)
         }
-        val members = membersChannel.postgresChangeFlow<PostgresAction>(schema = "public") {
-            table = "party_members"
-            filter("party_id", FilterOperator.EQ, partyId)
-        }
+        val membersListening = CompletableDeferred<Unit>()
         launch { entries.collect { send(PartyChange.EntryAdded(it.decodeRecord<DaroodEntryDto>().toDomain())) } }
-        launch { members.collect { send(PartyChange.MembersChanged) } }
+        launch {
+            partyLive.members(partyId).collect { change ->
+                when (change) {
+                    MembershipChange.Subscribed -> membersListening.complete(Unit)
+                    MembershipChange.Changed -> send(PartyChange.MembersChanged)
+                }
+            }
+        }
         try {
             entriesChannel.subscribe(blockUntilSubscribed = true)
-            membersChannel.subscribe(blockUntilSubscribed = true)
+            membersListening.await()
             send(PartyChange.Subscribed)
             awaitCancellation()
         } finally {
-            withContext(NonCancellable) {
-                for (channel in listOf(entriesChannel, membersChannel)) {
-                    // Closing must never fail the screen: a channel already gone is fine.
-                    runCatching { supabase.realtime.removeChannel(channel) }
-                }
-            }
+            // Closing must never fail the screen: a channel already gone is fine. The members' channel
+            // closes itself as its flow stops.
+            withContext(NonCancellable) { runCatching { supabase.realtime.removeChannel(entriesChannel) } }
         }
     }
 }

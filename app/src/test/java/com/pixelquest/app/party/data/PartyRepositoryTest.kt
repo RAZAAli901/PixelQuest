@@ -11,6 +11,8 @@ import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.testing.FakeDaroodServer
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -37,7 +39,12 @@ class PartyRepositoryTest {
         usernames["me"] = "aria_k"
         usernames["sam"] = "sam_w"
     }
-    private val parties = PartyRepositoryImpl(server, db.partyDao()) { 1_000L }
+    private val live = object : com.pixelquest.app.party.sync.PartyLiveSource {
+        val invitations = kotlinx.coroutines.flow.MutableSharedFlow<com.pixelquest.app.party.sync.MembershipChange>(extraBufferCapacity = 8)
+        override fun members(partyId: String) = kotlinx.coroutines.flow.emptyFlow<com.pixelquest.app.party.sync.MembershipChange>()
+        override fun invitations(userId: String) = invitations
+    }
+    private val parties = PartyRepositoryImpl(server, db.partyDao(), now = { 1_000L }, live = live, accountId = { server.me })
 
     @After
     fun tearDown() {
@@ -87,5 +94,27 @@ class PartyRepositoryTest {
         both.refreshParty(darood)
         assertTrue("fetchEntries" in server.calls)
         assertEquals(listOf(313), both.observeEntries(darood, 10).first().map { it.amount })
+    }
+
+    @Test
+    fun anInvitationHeardLive_isOnThePhoneAtOnce() = runBlocking {
+        val party = server.seedParty("Exam group", "sam", type = PartyType.STUDY)
+        val heard = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val following = launch(kotlinx.coroutines.Dispatchers.Unconfined) { parties.followInvitations().collect { if (!heard.isCompleted) heard.complete(Unit) } }
+        try {
+            server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(party, "me", "member", "invited", null, null)
+            live.invitations.emit(com.pixelquest.app.party.sync.MembershipChange.Changed)
+            kotlinx.coroutines.withTimeout(5_000) { heard.await() }
+
+            assertEquals(MemberStatus.INVITED, parties.observeParty(party).first()!!.myStatus)
+        } finally {
+            following.cancel()
+        }
+    }
+
+    @Test
+    fun signedOut_followsNothing() = runBlocking {
+        server.me = null
+        assertEquals(emptyList<Unit>(), parties.followInvitations().toList())
     }
 }

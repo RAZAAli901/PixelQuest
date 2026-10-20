@@ -124,6 +124,11 @@ class DaroodPartiesViewModel @Inject constructor(
         }
     }
 
+    /** Follows the account's invitations live until cancelled: collect it while a screen shows them. */
+    suspend fun followInvitations() {
+        repository.followInvitations().collect { }
+    }
+
     fun dismissProblem() = status.update { it.copy(problem = null) }
 
     private fun problemOf(result: SupabaseResult<*>): PartiesProblem? = when {
