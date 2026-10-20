@@ -2,3 +2,7 @@
 # (core.autocrlf=true would turn them into CRLF, and bash fails on the carriage returns).
 *.sh text eol=lf
 gradlew text eol=lf
+
+# The Quran's source files (docs/quran-data.md) stay byte for byte as Tanzil published them, line
+# endings included, on every platform: their checksums are checked, and changing them isn't allowed.
+data/quran-source/** -text
