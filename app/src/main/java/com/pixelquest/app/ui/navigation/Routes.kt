@@ -46,10 +46,24 @@ sealed class Screen(val route: String) {
     }
     /** Claiming or changing the Darood Party username. */
     object UsernameSetup : Screen("username_setup")
+    /** The Islamic section's landing screen, its cards (docs/islamic-hub.md). */
+    object IslamicHub : Screen(Routes.ISLAMIC_HUB)
 }
 
 /** Groups of routes the app's frame cares about. */
 object Routes {
+    /**
+     * The Islamic section's nested graph (docs/islamic-hub.md): the hub, and every Islamic screen
+     * under `islamic/`.
+     */
+    const val ISLAMIC = "islamic"
+
+    /** The hub, where the Islamic section starts. */
+    const val ISLAMIC_HUB = "$ISLAMIC/hub"
+
+    /** Whether [route] is one of the Islamic section's screens. */
+    fun isIslamic(route: String?): Boolean = route != null && route.startsWith("$ISLAMIC/")
+
     /** The bottom bar's five tabs: where the side menu opens from, by its icon or a swipe from the left edge. */
     val Tabs: Set<String> = setOf(
         Screen.Home.route,
