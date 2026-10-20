@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 /** What the reader shows of each ayah. */
@@ -54,7 +56,7 @@ data class ReaderUiState(
     val next: Surah? = null,
     val ayahs: List<Ayah> = emptyList(),
     val hasMore: Boolean = true,
-    val loading: Boolean = false,
+    val loading: Boolean = true,
     val target: Int? = null,
     val settings: ReadingSettings = ReadingSettings(),
     val translator: String = "",
@@ -87,12 +89,16 @@ class SurahReaderViewModel @Inject constructor(
             val scrolled = savedStateHandle.get<Int>(KEY_SCROLLED)
             val opened = savedStateHandle.get<Int>(ARG_AYAH)?.takeIf { it >= 1 }
             // Back after a rotation: where they'd scrolled to. Else the ayah the reader was opened at, marked.
+            // Loading from the start: an early ask for more (the screen sees the Bismillah before any ayah) waits.
             ReaderUiState(target = scrolled ?: opened, flash = opened.takeIf { scrolled == null })
         }
     )
     val state: StateFlow<ReaderUiState> = _state.asStateFlow()
 
     private var nextPage = 0
+
+    /** One page at a time, so pages arrive in order, each once. */
+    private val pages = Mutex()
 
     /** The ayah first in view, as the player scrolls. */
     private val reading = MutableStateFlow<Int?>(null)
@@ -138,7 +144,9 @@ class SurahReaderViewModel @Inject constructor(
         viewModelScope.launch { loadPage() }
     }
 
-    private suspend fun loadPage() {
+    private suspend fun loadPage() = pages.withLock {
+        // A page asked for while another loaded may no longer be needed.
+        if (nextPage > 0 && !_state.value.hasMore) return@withLock
         _state.update { it.copy(loading = true) }
         val page = repository.ayahs(surahNumber, nextPage++, QuranRepository.PAGE_SIZE)
         _state.update { current ->

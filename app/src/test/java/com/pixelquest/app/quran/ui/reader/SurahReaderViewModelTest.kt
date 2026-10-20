@@ -7,6 +7,7 @@ import com.pixelquest.app.quran.domain.Juz
 import com.pixelquest.app.quran.domain.Revelation
 import com.pixelquest.app.quran.domain.Surah
 import com.pixelquest.app.quran.domain.Translation
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -48,6 +49,15 @@ class SurahReaderViewModelTest {
     }
 
     private val repository = TwoSurahs()
+
+    /** [inner], its surahs held back until let go: a slow database, the first page not yet asked for. */
+    private class SlowSurahs(private val inner: QuranRepository) : QuranRepository by inner {
+        val surahs = CompletableDeferred<Unit>()
+        override suspend fun surah(number: Int): Surah? {
+            surahs.await()
+            return inner.surah(number)
+        }
+    }
     private val main = UnconfinedTestDispatcher()
 
     @Before
@@ -88,6 +98,19 @@ class SurahReaderViewModelTest {
         assertEquals((1..286).toList(), vm.state.value.ayahs.map { it.number })
         assertFalse(vm.state.value.hasMore)
         assertEquals("no page asked for past the end", (0..5).toList(), repository.pagesAsked)
+    }
+
+    @Test
+    fun askingForMore_beforeTheFirstPage_loadsNoExtraPage_andThePagesStayInOrder() {
+        val slow = SlowSurahs(repository)
+        val vm = SurahReaderViewModel(SavedStateHandle(mapOf("surah" to 2)), slow, settings, bookmarks, lastRead)
+
+        // The screen, seeing the Bismillah before any ayah, asks for more.
+        vm.loadMore()
+        slow.surahs.complete(Unit)
+
+        assertEquals((1..50).toList(), vm.state.value.ayahs.map { it.number })
+        assertEquals("the first page, once", listOf(0), repository.pagesAsked)
     }
 
     @Test

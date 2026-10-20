@@ -248,7 +248,8 @@ private fun ReaderEffects(
             .distinctUntilChanged()
             .collect { last ->
                 val ayahIndex = last?.minus(headerCount(current.surah))
-                if (ayahIndex != null && current.hasMore && ayahIndex >= current.ayahs.size - LOAD_AHEAD) onLoadMore()
+                // Only once there are ayahs: the Bismillah alone isn't the list's end.
+                if (ayahIndex != null && current.ayahs.isNotEmpty() && current.hasMore && ayahIndex >= current.ayahs.size - LOAD_AHEAD) onLoadMore()
             }
     }
     LaunchedEffect(listState) {
