@@ -1,6 +1,8 @@
 package com.pixelquest.app.quran.data.local
 
 import androidx.room.Entity
+import androidx.room.Fts4
+import androidx.room.FtsOptions
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
@@ -73,3 +75,11 @@ data class TranslationInfoEntity(
     val notice: String,
     val dataVersion: String
 )
+
+/**
+ * A full-text index over [QuranAyahEntity.translation], for searching the translation by its words.
+ * It follows its table by the row id (the ayah's place in the Quran), and Room keeps it in step.
+ */
+@Fts4(contentEntity = QuranAyahEntity::class, tokenizer = FtsOptions.TOKENIZER_UNICODE61)
+@Entity(tableName = "quran_ayah_fts")
+data class QuranAyahFtsEntity(val translation: String)
