@@ -39,6 +39,7 @@ import com.pixelquest.app.quran.ui.list.QuranTabs
 import com.pixelquest.app.quran.ui.list.SurahList
 import com.pixelquest.app.quran.ui.list.SurahListUiState
 import com.pixelquest.app.quran.ui.list.SurahListViewModel
+import com.pixelquest.app.quran.ui.search.SearchTags
 import com.pixelquest.app.ui.components.PixelProgressBar
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
@@ -51,6 +52,7 @@ fun QuranRoute(
     onOpenSurah: (surah: Int) -> Unit = {},
     onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) },
     onOpenBookmarks: () -> Unit = {},
+    onOpenSearch: () -> Unit = {},
     viewModel: QuranViewModel = hiltViewModel(),
     listViewModel: SurahListViewModel = hiltViewModel()
 ) {
@@ -63,7 +65,8 @@ fun QuranRoute(
         onSearch = listViewModel::search,
         onOpenSurah = onOpenSurah,
         onOpenAyah = onOpenAyah,
-        onOpenBookmarks = onOpenBookmarks
+        onOpenBookmarks = onOpenBookmarks,
+        onOpenSearch = onOpenSearch
     )
 }
 
@@ -80,7 +83,8 @@ fun QuranHomeScreen(
     onSearch: (String) -> Unit = {},
     onOpenSurah: (surah: Int) -> Unit = {},
     onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) },
-    onOpenBookmarks: () -> Unit = {}
+    onOpenBookmarks: () -> Unit = {},
+    onOpenSearch: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     var goingTo by rememberSaveable { mutableStateOf(false) }
@@ -98,6 +102,14 @@ fun QuranHomeScreen(
                 title = stringResource(R.string.quran_title),
                 actions = if (preparing == null && list.loaded) {
                     {
+                        IconButton(onClick = onOpenSearch, modifier = Modifier.testTag(SearchTags.ACTION)) {
+                            SymbolIcon(
+                                symbol = "🔍",
+                                contentDescription = stringResource(R.string.quran_search_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
                         IconButton(onClick = onOpenBookmarks, modifier = Modifier.testTag(BookmarkTags.ACTION)) {
                             SymbolIcon(
                                 symbol = "🔖",

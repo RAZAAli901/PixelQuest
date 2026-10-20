@@ -8,11 +8,12 @@ import androidx.navigation.navArgument
 import com.pixelquest.app.quran.ui.bookmarks.BookmarksRoute
 import com.pixelquest.app.quran.ui.reader.SurahReaderRoute
 import com.pixelquest.app.quran.ui.reader.SurahReaderViewModel
+import com.pixelquest.app.quran.ui.search.QuranSearchRoute
 import com.pixelquest.app.ui.navigation.Screen
 
 /**
  * The Quran reader's screens, added to the Islamic section's graph by its item (QuranIslamicItem):
- * the surah list and the reader.
+ * the surah list, search, bookmarks and the reader.
  */
 fun NavGraphBuilder.quranScreens(navController: NavHostController) {
     composable(Screen.Quran.route) {
@@ -20,7 +21,15 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
             onNavigateBack = { navController.popBackStack() },
             onOpenSurah = { surah -> navController.navigate(Screen.QuranSurah.createRoute(surah)) },
             onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) },
-            onOpenBookmarks = { navController.navigate(Screen.QuranBookmarks.route) { launchSingleTop = true } }
+            onOpenBookmarks = { navController.navigate(Screen.QuranBookmarks.route) { launchSingleTop = true } },
+            onOpenSearch = { navController.navigate(Screen.QuranSearch.route) { launchSingleTop = true } }
+        )
+    }
+    composable(Screen.QuranSearch.route) {
+        QuranSearchRoute(
+            onNavigateBack = { navController.popBackStack() },
+            onOpenSurah = { surah -> navController.navigate(Screen.QuranSurah.createRoute(surah)) },
+            onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) }
         )
     }
     composable(Screen.QuranBookmarks.route) {

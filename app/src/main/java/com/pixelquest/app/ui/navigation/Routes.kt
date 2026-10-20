@@ -50,6 +50,8 @@ sealed class Screen(val route: String) {
     object IslamicHub : Screen(Routes.ISLAMIC_HUB)
     /** The Quran, from the Islamic hub. */
     object Quran : Screen("${Routes.ISLAMIC}/quran")
+    /** Searching the whole Quran. */
+    object QuranSearch : Screen("${Routes.ISLAMIC}/quran/search")
     /** The player's Quran bookmarks. */
     object QuranBookmarks : Screen("${Routes.ISLAMIC}/quran/bookmarks")
     /** One surah in the Quran reader, opened at an ayah (0: its start). */
