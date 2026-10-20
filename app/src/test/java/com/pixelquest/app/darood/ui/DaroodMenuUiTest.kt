@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pixelquest.app.auth.AuthUser
 import com.pixelquest.app.auth.FakeAuthRepository
+import com.pixelquest.app.testing.closeAfterWrites
 import com.pixelquest.app.ui.menu.MenuContext
 import com.pixelquest.app.ui.menu.MenuDrawerContent
 import com.pixelquest.app.ui.menu.MenuDrawerScaffold
@@ -23,6 +24,7 @@ import com.pixelquest.app.ui.menu.MenuHeaderState
 import com.pixelquest.app.ui.menu.MenuTopBarAction
 import com.pixelquest.app.ui.menu.rememberMenuDrawerController
 import com.pixelquest.app.ui.navigation.Screen
+import com.pixelquest.app.ui.navigation.islamicGraph
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
@@ -33,9 +35,10 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Darood Party from the side menu, built from the same pieces as MainActivity: its entry opens
- * its screen, which asks a signed-out player to sign in (opening the Account screen) and shows a
- * signed-in one the placeholder. With its flag off, the entry is gone.
+ * Darood Party from the side menu, built from the same pieces as MainActivity: the Islamic entry
+ * opens the hub, whose Darood card opens its screen. That asks a signed-out player to sign in
+ * (opening the Account screen) and shows a signed-in one their parties. With its flag off, the card
+ * is gone; a waiting invitation puts a dot on the Islamic entry.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w411dp-h914dp")
@@ -53,10 +56,22 @@ class DaroodMenuUiTest {
     private val repository = com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl(
         server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }
     )
+    private val settings = com.pixelquest.app.testing.FakeSettingsRepository()
+    private val viewModels = com.pixelquest.app.testing.TestViewModels()
+    private val hub by lazy {
+        viewModels.keep(com.pixelquest.app.islamic.ui.IslamicHubViewModel::class.java) {
+            com.pixelquest.app.islamic.ui.IslamicHubViewModel(
+                com.pixelquest.app.islamic.IslamicRegistry(setOf(DaroodIslamicItem(settings, repository))),
+                settings
+            )
+        }
+    }
 
     @org.junit.After
     fun closeDb() {
-        db.close()
+        // The hub reads the parties from the database: stop it before the database closes.
+        viewModels.clear()
+        db.closeAfterWrites()
     }
 
     private fun showApp(mode: ThemeMode = ThemeMode.Pixel, context: MenuContext = MenuContext()) {
@@ -82,6 +97,7 @@ class DaroodMenuUiTest {
                 ) {
                     NavHost(nav, startDestination = Screen.Home.route) {
                         composable(Screen.Home.route) { HomeStandIn() }
+                        islamicGraph(nav, hub = { onOpen -> com.pixelquest.app.islamic.ui.IslamicHubScreen(onOpen, viewModel = hub) })
                         composable(Screen.DaroodParty.route) {
                             DaroodPartyScreen(
                                 onNavigateBack = { nav.popBackStack() },
@@ -110,10 +126,18 @@ class DaroodMenuUiTest {
         composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
     }
 
-    private fun openDaroodFromTheMenu(label: String) {
+    private fun openTheHub(islamicLabel: String) {
         composeTestRule.onNodeWithContentDescription("Open menu").performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(label).assertIsDisplayed().performClick()
+        composeTestRule.onNodeWithText(islamicLabel).assertIsDisplayed().performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.islamic.ui.IslamicTestTags.HUB).assertIsDisplayed()
+    }
+
+    private fun openDaroodFromTheMenu(islamicLabel: String) {
+        openTheHub(islamicLabel)
+        waitForTag(com.pixelquest.app.islamic.ui.IslamicTestTags.card("darood"))
+        composeTestRule.onNodeWithTag(com.pixelquest.app.islamic.ui.IslamicTestTags.card("darood")).performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithTag(DaroodTestTags.PARTY_SCREEN).assertIsDisplayed()
     }
@@ -121,7 +145,7 @@ class DaroodMenuUiTest {
     @Test
     fun signedOut_theEntryOpensTheSignInPrompt_whichOpensTheAccountScreen() {
         showApp(ThemeMode.Pixel)
-        openDaroodFromTheMenu("DAROOD PARTY")
+        openDaroodFromTheMenu("ISLAMIC")
 
         waitForTag(DaroodTestTags.SIGNED_OUT)
         composeTestRule.onNodeWithTag(DaroodTestTags.SIGNED_OUT).assertIsDisplayed()
@@ -135,7 +159,7 @@ class DaroodMenuUiTest {
     fun signedIn_theEntryOpensThePlaceholder_inComic() {
         auth.userFlow.value = AuthUser(id = "aria-id", email = null, displayName = null)
         showApp(ThemeMode.Comic)
-        openDaroodFromTheMenu("DAROOD PARTY")
+        openDaroodFromTheMenu("ISLAMIC")
 
         waitForTag(DaroodTestTags.EMPTY)
         composeTestRule.onNodeWithTag(DaroodTestTags.EMPTY).assertIsDisplayed()
@@ -145,17 +169,17 @@ class DaroodMenuUiTest {
     @Test
     fun inLight_theEntryReadsAsWritten() {
         showApp(ThemeMode.Light)
-        openDaroodFromTheMenu("Darood Party")
+        openDaroodFromTheMenu("Islamic")
     }
 
     @Test
-    fun withItsFlagOff_theEntryIsGone() {
-        showApp(context = MenuContext(daroodAvailable = false))
-        composeTestRule.onNodeWithContentDescription("Open menu").performClick()
+    fun withItsFlagOff_theCardIsGone() {
+        settings.daroodAvailable.value = false
+        showApp()
+        openTheHub("ISLAMIC")
         composeTestRule.waitForIdle()
 
-        assertEquals(0, composeTestRule.onAllNodesWithText("DAROOD PARTY").fetchSemanticsNodes().size)
-        composeTestRule.onNodeWithText("SETTINGS").assertIsDisplayed()
+        assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(com.pixelquest.app.islamic.ui.IslamicTestTags.card("darood"))).fetchSemanticsNodes().size)
     }
 
     @Test

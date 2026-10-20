@@ -15,7 +15,14 @@ import androidx.compose.ui.test.performClick
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.pixelquest.app.R
+import com.pixelquest.app.islamic.IslamicIcon
+import com.pixelquest.app.islamic.IslamicItem
+import com.pixelquest.app.islamic.ui.IslamicHubContent
+import com.pixelquest.app.islamic.ui.IslamicHubUiState
+import com.pixelquest.app.islamic.ui.IslamicTestTags
 import com.pixelquest.app.ui.navigation.Screen
+import com.pixelquest.app.ui.navigation.islamicGraph
 import com.pixelquest.app.testing.namazViewModel
 import com.pixelquest.app.ui.screens.namaz.NamazScreen
 import com.pixelquest.app.ui.screens.namaz.NamazTestTags
@@ -30,8 +37,8 @@ import org.robolectric.annotation.Config
 
 /**
  * The side menu end to end, built from the same pieces as MainActivity: the three-line icon on a
- * screen opens it, choosing Namaz Tracker opens that screen and closes the menu, and Back closes
- * an open menu instead of leaving the screen.
+ * screen opens it, choosing Islamic opens the hub and closes the menu, the hub's Namaz card opens
+ * the tracker, and Back closes an open menu instead of leaving the screen.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w411dp-h914dp")
@@ -63,6 +70,7 @@ class MenuDrawerUiTest {
                 ) {
                     NavHost(nav, startDestination = Screen.Home.route) {
                         composable(Screen.Home.route) { HomeStandIn() }
+                        islamicGraph(nav, hub = { onOpen -> IslamicHubContent(IslamicHubUiState(listOf(namazCard), loaded = true), onOpen) })
                         composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }, viewModel = namazViewModel()) }
                     }
                 }
@@ -78,41 +86,47 @@ class MenuDrawerUiTest {
         }
     }
 
-    private fun namazLabel(mode: ThemeMode) = if (mode == ThemeMode.Light) "Namaz Tracker" else "NAMAZ TRACKER"
+    private val namazCard = IslamicItem("namaz", R.string.namaz_title, R.string.islamic_namaz_description, IslamicIcon("🕌"), Screen.Namaz.route)
 
-    private fun iconOpensTheMenu_andNamazOpensItsScreen(mode: ThemeMode) {
+    private fun islamicLabel(mode: ThemeMode) = if (mode == ThemeMode.Light) "Islamic" else "ISLAMIC"
+
+    private fun iconOpensTheMenu_islamicOpensTheHub_andNamazItsScreen(mode: ThemeMode) {
         showApp(mode)
-        composeTestRule.onNodeWithText(namazLabel(mode)).assertIsNotDisplayed()
+        composeTestRule.onNodeWithText(islamicLabel(mode)).assertIsNotDisplayed()
 
         composeTestRule.onNodeWithContentDescription("Open menu").performClick()
         composeTestRule.waitForIdle()
 
         composeTestRule.onNodeWithText("Aria").assertIsDisplayed()
-        composeTestRule.onNodeWithText(namazLabel(mode)).assertIsDisplayed().performClick()
+        composeTestRule.onNodeWithText(islamicLabel(mode)).assertIsDisplayed().performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithTag(NamazTestTags.SCREEN).assertIsDisplayed()
-        // The menu closed (the screen's own title says Namaz Tracker too, so check the header's name).
+        composeTestRule.onNodeWithTag(IslamicTestTags.HUB).assertIsDisplayed()
+        // The menu closed (the hub's own title says Islamic too, so check the header's name).
         composeTestRule.onNodeWithText("Aria").assertIsNotDisplayed()
+
+        composeTestRule.onNodeWithTag(IslamicTestTags.card("namaz")).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(NamazTestTags.SCREEN).assertIsDisplayed()
     }
 
-    @Test fun pixel_iconOpensTheMenu_andNamazOpensItsScreen() = iconOpensTheMenu_andNamazOpensItsScreen(ThemeMode.Pixel)
+    @Test fun pixel_iconOpensTheMenu_islamicOpensTheHub_andNamazItsScreen() = iconOpensTheMenu_islamicOpensTheHub_andNamazItsScreen(ThemeMode.Pixel)
 
-    @Test fun comic_iconOpensTheMenu_andNamazOpensItsScreen() = iconOpensTheMenu_andNamazOpensItsScreen(ThemeMode.Comic)
+    @Test fun comic_iconOpensTheMenu_islamicOpensTheHub_andNamazItsScreen() = iconOpensTheMenu_islamicOpensTheHub_andNamazItsScreen(ThemeMode.Comic)
 
-    @Test fun light_iconOpensTheMenu_andNamazOpensItsScreen() = iconOpensTheMenu_andNamazOpensItsScreen(ThemeMode.Light)
+    @Test fun light_iconOpensTheMenu_islamicOpensTheHub_andNamazItsScreen() = iconOpensTheMenu_islamicOpensTheHub_andNamazItsScreen(ThemeMode.Light)
 
     @Test
     fun back_closesTheMenu_andStaysOnTheScreen() {
         showApp()
         composeTestRule.onNodeWithContentDescription("Open menu").performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("NAMAZ TRACKER").assertIsDisplayed()
+        composeTestRule.onNodeWithText("ISLAMIC").assertIsDisplayed()
 
         composeTestRule.runOnUiThread { composeTestRule.activity.onBackPressedDispatcher.onBackPressed() }
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("NAMAZ TRACKER").assertIsNotDisplayed()
+        composeTestRule.onNodeWithText("ISLAMIC").assertIsNotDisplayed()
         composeTestRule.onNodeWithText("TODAY'S DASHBOARD").assertIsDisplayed()
     }
 
@@ -125,7 +139,7 @@ class MenuDrawerUiTest {
         composeTestRule.onNodeWithContentDescription("Close menu").performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("NAMAZ TRACKER").assertIsNotDisplayed()
+        composeTestRule.onNodeWithText("ISLAMIC").assertIsNotDisplayed()
     }
 
     @Test
@@ -139,12 +153,13 @@ class MenuDrawerUiTest {
     }
 
     @Test
-    fun withNamazUnavailable_theEntryIsGone() {
-        showApp(context = MenuContext(namazAvailable = false))
+    fun namazAndDarood_haveNoEntriesOfTheirOwn() {
+        showApp()
         composeTestRule.onNodeWithContentDescription("Open menu").performClick()
         composeTestRule.waitForIdle()
 
         assertEquals(0, composeTestRule.onAllNodesWithText("NAMAZ TRACKER").fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodesWithText("DAROOD PARTY").fetchSemanticsNodes().size)
         composeTestRule.onNodeWithText("SETTINGS").assertIsDisplayed()
     }
 }

@@ -103,22 +103,14 @@ class MenuViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuHeaderState())
 
-    /** What decides which entries show and what they say: Namaz's availability and switch, Darood's flag, Simple Mode. */
+    /** What decides what the entries say: Simple Mode, and a Darood invitation waiting (while Darood is available). */
     val context: StateFlow<MenuContext> = combine(
-        settingsRepository.namazAvailable,
         settingsRepository.simpleModeEnabled,
-        namazRepository?.observeSettings()?.map { it.enabled } ?: flowOf(false),
         settingsRepository.daroodAvailable,
         daroodParties?.observeMyParties()?.map { parties -> parties.any { it.myStatus == com.pixelquest.app.darood.domain.MemberStatus.INVITED } }
             ?: flowOf(false)
-    ) { namaz, simple, namazOn, darood, inviteWaiting ->
-        MenuContext(
-            namazAvailable = namaz,
-            isSimpleMode = simple,
-            namazEnabled = namazOn,
-            daroodAvailable = darood,
-            daroodInviteWaiting = inviteWaiting
-        )
+    ) { simple, darood, inviteWaiting ->
+        MenuContext(isSimpleMode = simple, daroodInviteWaiting = darood && inviteWaiting)
     }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuContext())
 
@@ -140,10 +132,11 @@ class MenuViewModel @Inject constructor(
         savedStateHandle[SELECTED_KEY] = null
     }
 
-    /** Follows where the player is: the entry for [route], or none (a tab, a form). */
+    /** Follows where the player is: the entry that owns [route] (any Islamic screen is Islamic's), or none (a tab, a form). */
     fun syncWithRoute(route: String?) {
-        val here = MenuItems.all.firstOrNull { it.route == route }
-        if (here != null) select(here.id) else if (route != null) clearSelection()
+        if (route == null) return
+        val here = MenuItems.all.firstOrNull { it.owns(route) }
+        if (here != null) select(here.id) else clearSelection()
     }
 
     private companion object {

@@ -3,23 +3,21 @@ package com.pixelquest.app.ui.menu
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.pixelquest.app.R
+import com.pixelquest.app.ui.navigation.Routes
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.theme.ThemeMode
 
-/** The side menu's entries (docs/ai-coach-compact.md, Phase 2). */
-enum class MenuItemId { NAMAZ, DAROOD, HISTORY, LEADERBOARD, ACCOUNT, SETTINGS }
+/**
+ * The side menu's entries (docs/ai-coach-compact.md, Phase 2). Namaz Tracker and Darood Party moved
+ * into the Islamic hub (docs/islamic-hub.md), so a highlight saved under their old ids is dropped.
+ */
+enum class MenuItemId { ISLAMIC, HISTORY, LEADERBOARD, ACCOUNT, SETTINGS }
 
-/** What an entry's visibility can depend on. */
+/** What an entry's visibility, status and dot can depend on. */
 data class MenuContext(
-    /** The Namaz feature is available in this build and not hidden in Settings. */
-    val namazAvailable: Boolean = true,
     /** Simple Mode: plain wording, no game terms. */
     val isSimpleMode: Boolean = false,
-    /** The Namaz Tracker's own switch is on. */
-    val namazEnabled: Boolean = false,
-    /** Darood Party's feature flag is on (SettingsRepository.daroodAvailable). */
-    val daroodAvailable: Boolean = true,
-    /** A Darood Party invitation is waiting for an answer. */
+    /** A Darood Party invitation is waiting for an answer, while Darood is available. */
     val daroodInviteWaiting: Boolean = false
 )
 
@@ -33,6 +31,7 @@ data class MenuContext(
  * @param status a short state shown at the row's end, or null for none.
  * @param pixelIcon, comicIcon drawn icons for the Pixel and Comic themes, in place of [icon] there.
  * @param dot whether a dot at the row's end says something is waiting there.
+ * @param owns whether a route is this entry's place, for the highlight: by default only [route].
  */
 data class MenuItem(
     val id: MenuItemId,
@@ -44,7 +43,8 @@ data class MenuItem(
     val status: (MenuContext) -> Int? = { null },
     @DrawableRes val pixelIcon: Int? = null,
     @DrawableRes val comicIcon: Int? = null,
-    val dot: (MenuContext) -> Boolean = { false }
+    val dot: (MenuContext) -> Boolean = { false },
+    val owns: (route: String) -> Boolean = { it == route }
 ) {
     @StringRes
     fun labelFor(context: MenuContext): Int = if (context.isSimpleMode) simpleLabel else label
@@ -67,26 +67,19 @@ fun List<MenuItem>.visibleIn(context: MenuContext): List<MenuItem> = filter { it
 
 /** The side menu's entries, in order. */
 object MenuItems {
-    val Namaz = MenuItem(
-        id = MenuItemId.NAMAZ,
-        label = R.string.menu_namaz,
-        icon = "🕌",
-        route = Screen.Namaz.route,
-        // Shown while the tracker is off too: it's the way to its switch. It says when it's on.
-        visibleWhen = { it.namazAvailable },
-        status = { if (it.namazEnabled) R.string.namaz_switch_on else null }
-    )
-
-    /** Darood Party (docs/darood-design.md): pooling Darood with friends. No game terms, so no Simple Mode label. */
-    val Darood = MenuItem(
-        id = MenuItemId.DAROOD,
-        label = R.string.menu_darood,
-        icon = "📿",
-        route = Screen.DaroodParty.route,
-        visibleWhen = { it.daroodAvailable },
-        pixelIcon = R.drawable.ic_darood_pixel,
-        comicIcon = R.drawable.ic_darood_comic,
-        dot = { it.daroodInviteWaiting }
+    /**
+     * The Islamic section (docs/islamic-hub.md): the hub of Namaz, Darood Party and the Quran, in
+     * place of their own entries. Always there, since the Quran always is. It stays highlighted on
+     * every screen inside, and keeps Darood's dot for a waiting invitation. No game terms, so no
+     * Simple Mode label.
+     */
+    val Islamic = MenuItem(
+        id = MenuItemId.ISLAMIC,
+        label = R.string.menu_islamic,
+        icon = "🌙",
+        route = Screen.IslamicHub.route,
+        dot = { it.daroodInviteWaiting },
+        owns = Routes::isIslamic
     )
 
     // Shortcuts to screens that are otherwise a few taps deep (Profile, then Settings, then Account).
@@ -119,5 +112,5 @@ object MenuItems {
         route = Screen.Settings.route
     )
 
-    val all: List<MenuItem> = listOf(Namaz, Darood, History, Leaderboard, Account, Settings)
+    val all: List<MenuItem> = listOf(Islamic, History, Leaderboard, Account, Settings)
 }

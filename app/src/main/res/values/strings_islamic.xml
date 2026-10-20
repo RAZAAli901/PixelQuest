@@ -8,6 +8,8 @@
       and leave what's inside unchanged. Its example shows what the app puts there.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The side menu's entry, which opens the hub. -->
+    <string name="menu_islamic">Islamic</string>
     <!-- The hub: the Islamic section's landing screen, a grid of cards. -->
     <string name="islamic_title">Islamic</string>
 

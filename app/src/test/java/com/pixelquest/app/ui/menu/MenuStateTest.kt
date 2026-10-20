@@ -8,13 +8,14 @@ import com.pixelquest.app.testing.FakeDifficultySettingsRepository
 import com.pixelquest.app.testing.FakeNamazRepository
 import com.pixelquest.app.testing.FakeSettingsRepository
 import com.pixelquest.app.testing.FakeUserProfileRepository
+import com.pixelquest.app.testing.closeAfterWrites
 import com.pixelquest.app.ui.navigation.Routes
 import com.pixelquest.app.ui.navigation.Screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -28,8 +29,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-/** The side menu's entries and its ViewModel (docs/ai-coach-compact.md, Phase 2). */
+/** The side menu's entries and its ViewModel (docs/ai-coach-compact.md, Phase 2; docs/islamic-hub.md). */
 @OptIn(ExperimentalCoroutinesApi::class)
+@org.junit.runner.RunWith(org.robolectric.RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [34], application = android.app.Application::class)
 class MenuStateTest {
 
     @Before
@@ -45,19 +48,16 @@ class MenuStateTest {
     @Test
     fun theEntries_inOrder() {
         assertEquals(
-            listOf(MenuItemId.NAMAZ, MenuItemId.DAROOD, MenuItemId.HISTORY, MenuItemId.LEADERBOARD, MenuItemId.ACCOUNT, MenuItemId.SETTINGS),
+            listOf(MenuItemId.ISLAMIC, MenuItemId.HISTORY, MenuItemId.LEADERBOARD, MenuItemId.ACCOUNT, MenuItemId.SETTINGS),
             MenuItems.all.map { it.id }
         )
     }
 
     @Test
-    fun namaz_showsOnlyWhileAvailable() {
-        assertTrue(MenuItemId.NAMAZ in MenuItems.all.visibleIn(MenuContext(namazAvailable = true)).map { it.id })
-
-        val without = MenuItems.all.visibleIn(MenuContext(namazAvailable = false)).map { it.id }
-
-        assertFalse(MenuItemId.NAMAZ in without)
-        assertEquals("the rest stay", 5, without.size)
+    fun islamic_isOneEntry_alwaysThere() {
+        assertEquals(MenuItems.all, MenuItems.all.visibleIn(MenuContext()))
+        assertEquals(MenuItems.all, MenuItems.all.visibleIn(MenuContext(isSimpleMode = true)))
+        assertEquals("🌙", MenuItems.Islamic.icon)
     }
 
     @Test
@@ -70,26 +70,27 @@ class MenuStateTest {
     @Test
     fun everyEntry_leadsSomewhereReal() {
         val routes = listOf(
-            Screen.Namaz, Screen.DaroodParty, Screen.TaskHistory, Screen.Leaderboard, Screen.Account, Screen.Settings
+            Screen.IslamicHub, Screen.TaskHistory, Screen.Leaderboard, Screen.Account, Screen.Settings
         ).map { it.route }
         assertEquals(routes, MenuItems.all.map { it.route })
         assertTrue("the Leaderboard opens like its tab", Routes.isTab(MenuItems.Leaderboard.route))
-        assertFalse(Routes.isTab(MenuItems.Namaz.route))
-        assertFalse(Routes.isTab(MenuItems.Darood.route))
+        assertFalse(Routes.isTab(MenuItems.Islamic.route))
     }
 
     private fun viewModel(
         saved: SavedStateHandle = SavedStateHandle(),
         settings: FakeSettingsRepository = FakeSettingsRepository(),
         namaz: FakeNamazRepository? = null,
-        myUsername: com.pixelquest.app.darood.data.MyUsername? = null
+        myUsername: com.pixelquest.app.darood.data.MyUsername? = null,
+        parties: com.pixelquest.app.darood.data.DaroodPartyRepository? = null
     ) = MenuViewModel(
         saved,
         FakeUserProfileRepository(UserProfileEntity(username = "Aria", avatarId = "avatar_mage", level = 3, totalXp = 450, perfectDaysTowardNextLevel = 2)),
         FakeDifficultySettingsRepository(DifficultySettingsEntity(daysRequiredPerLevel = 7)),
         settings,
         namaz,
-        myUsername
+        myUsername,
+        parties
     )
 
     @Test
@@ -121,8 +122,11 @@ class MenuStateTest {
     fun theHighlight_followsTheScreen() {
         val vm = viewModel()
 
-        vm.syncWithRoute(Screen.Namaz.route)
-        assertEquals(MenuItemId.NAMAZ, vm.selected.value)
+        vm.syncWithRoute(Screen.IslamicHub.route)
+        assertEquals(MenuItemId.ISLAMIC, vm.selected.value)
+
+        vm.syncWithRoute(Screen.Quran.route)
+        assertEquals("any screen inside the section is Islamic's", MenuItemId.ISLAMIC, vm.selected.value)
 
         vm.syncWithRoute(Screen.Leaderboard.route)
         assertEquals("from its tab too", MenuItemId.LEADERBOARD, vm.selected.value)
@@ -134,46 +138,29 @@ class MenuStateTest {
     @Test
     fun theLastEntry_isRestored_fromSavedState() {
         val saved = SavedStateHandle()
-        viewModel(saved).select(MenuItemId.NAMAZ)
+        viewModel(saved).select(MenuItemId.ISLAMIC)
 
         // Android stopped the app in the background; a new ViewModel gets the same saved state.
         val restored = viewModel(saved)
 
-        assertEquals(MenuItemId.NAMAZ, restored.selected.value)
+        assertEquals(MenuItemId.ISLAMIC, restored.selected.value)
     }
 
     @Test
-    fun theContext_followsNamazAndSimpleMode() = runTest {
-        val namaz = MutableStateFlow(true)
-        val settings = object : FakeSettingsRepository(simpleMode = true) {
-            override val namazAvailable: Flow<Boolean> = namaz
-        }
-        val vm = viewModel(settings = settings)
-        backgroundScope.launch { vm.context.collect {} }
-        advanceUntilIdle()
+    fun aHighlightSavedUnderAnEntryThatsGone_isDropped() {
+        // 1.4 saved "NAMAZ" or "DAROOD", entries now inside the Islamic hub.
+        val saved = SavedStateHandle(mapOf("menu_selected" to "NAMAZ"))
 
-        assertEquals(MenuContext(namazAvailable = true, isSimpleMode = true), vm.context.value)
-
-        namaz.value = false
-        advanceUntilIdle()
-        assertFalse(vm.context.value.namazAvailable)
+        assertNull(viewModel(saved).selected.value)
     }
 
     @Test
-    fun theNamazEntry_saysOn_whileTheTrackerIs_andStaysWhileItsOff() = runTest {
-        val namaz = FakeNamazRepository()
-        val vm = viewModel(namaz = namaz)
+    fun theContext_followsSimpleMode() = runTest {
+        val vm = viewModel(settings = FakeSettingsRepository(simpleMode = true))
         backgroundScope.launch { vm.context.collect {} }
         advanceUntilIdle()
 
-        assertFalse(vm.context.value.namazEnabled)
-        assertNull(MenuItems.Namaz.status(vm.context.value))
-        assertTrue(MenuItemId.NAMAZ in MenuItems.all.visibleIn(vm.context.value).map { it.id })
-
-        namaz.saveSettings(namaz.getSettings().copy(enabled = true))
-        advanceUntilIdle()
-        assertTrue(vm.context.value.namazEnabled)
-        assertEquals(com.pixelquest.app.R.string.namaz_switch_on, MenuItems.Namaz.status(vm.context.value))
+        assertEquals(MenuContext(isSimpleMode = true), vm.context.value)
     }
 
     @Test
@@ -214,35 +201,36 @@ class MenuStateTest {
     }
 
     @Test
-    fun darood_showsOnlyWhileItsFlagIsOn() = runTest {
-        assertTrue(MenuItemId.DAROOD in MenuItems.all.visibleIn(MenuContext()).map { it.id })
-        assertFalse(MenuItemId.DAROOD in MenuItems.all.visibleIn(MenuContext(daroodAvailable = false)).map { it.id })
-
-        val settings = FakeSettingsRepository()
-        val vm = viewModel(settings = settings)
-        backgroundScope.launch { vm.context.collect {} }
-        advanceUntilIdle()
-        assertTrue(vm.context.value.daroodAvailable)
-        settings.setDaroodAvailable(false)
-        advanceUntilIdle()
-        assertFalse(vm.context.value.daroodAvailable)
+    fun islamic_hasDaroodsDot_whileAnInvitationWaits() {
+        assertFalse(MenuItems.Islamic.dot(MenuContext()))
+        assertTrue(MenuItems.Islamic.dot(MenuContext(daroodInviteWaiting = true)))
+        assertFalse("only Islamic has one", MenuItems.History.dot(MenuContext(daroodInviteWaiting = true)))
     }
 
     @Test
-    fun darood_hasDrawnIcons_inPixelAndComic_andTheEmojiElsewhere() {
-        val darood = MenuItems.Darood
-        assertEquals(R.drawable.ic_darood_pixel, darood.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Pixel, isSimpleMode = false))
-        assertEquals(R.drawable.ic_darood_comic, darood.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Comic, isSimpleMode = false))
-        assertNull(darood.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Light, isSimpleMode = false))
-        assertNull(darood.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Comic, isSimpleMode = true))
-        assertEquals("📿", darood.icon)
-        assertNull("the others keep their emoji", MenuItems.Namaz.drawableFor(com.pixelquest.app.ui.theme.ThemeMode.Pixel, isSimpleMode = false))
-    }
+    fun theDot_waitsForDaroodToBeAvailable() = runBlocking {
+        val db = androidx.room.Room.inMemoryDatabaseBuilder(
+            androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>(),
+            com.pixelquest.app.data.local.AppDatabase::class.java
+        ).allowMainThreadQueries().build()
+        val viewModels = com.pixelquest.app.testing.TestViewModels()
+        try {
+            val server = com.pixelquest.app.testing.FakeDaroodServer(me = "me")
+            val parties = com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl(
+                server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }
+            )
+            server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(server.seedParty("Family", "u2"), "me", "member", "invited", null, null)
+            parties.refreshParties()
+            val settings = FakeSettingsRepository()
+            val vm = viewModels.keep(MenuViewModel::class.java) { viewModel(settings = settings, parties = parties) }
 
-    @Test
-    fun darood_hasADot_whileAnInvitationWaits() = runTest {
-        assertFalse(MenuItems.Darood.dot(MenuContext()))
-        assertTrue(MenuItems.Darood.dot(MenuContext(daroodInviteWaiting = true)))
-        assertFalse("only Darood has one", MenuItems.Namaz.dot(MenuContext(daroodInviteWaiting = true)))
+            assertTrue(vm.context.first { it.daroodInviteWaiting }.daroodInviteWaiting)
+
+            settings.setDaroodAvailable(false)
+            assertFalse(vm.context.first { !it.daroodInviteWaiting }.daroodInviteWaiting)
+        } finally {
+            viewModels.clear()
+            db.closeAfterWrites()
+        }
     }
 }
