@@ -39,14 +39,57 @@ private val SWITCH_ORDER = listOf(DisplayMode.ARABIC, DisplayMode.BOTH, DisplayM
  */
 @Composable
 fun DisplayModeSwitch(selected: DisplayMode, onSelect: (DisplayMode) -> Unit, modifier: Modifier = Modifier) {
+    Segments(
+        options = SWITCH_ORDER,
+        selected = selected,
+        onSelect = onSelect,
+        label = { mode ->
+            stringResource(
+                when (mode) {
+                    DisplayMode.ARABIC -> R.string.quran_mode_arabic
+                    DisplayMode.BOTH -> R.string.quran_mode_both
+                    DisplayMode.TRANSLATION -> R.string.quran_mode_translation
+                }
+            )
+        },
+        tag = ReaderTags::mode,
+        modifier = modifier
+    )
+}
+
+/** The page the reader's text is on, in two segments: the look's own, or sepia. */
+@Composable
+fun PaperSwitch(selected: ReaderPaper, onSelect: (ReaderPaper) -> Unit, modifier: Modifier = Modifier) {
+    Segments(
+        options = ReaderPaper.entries,
+        selected = selected,
+        onSelect = onSelect,
+        label = { paper ->
+            stringResource(if (paper == ReaderPaper.SEPIA) R.string.quran_paper_sepia else R.string.quran_paper_theme)
+        },
+        tag = ReaderTags::paper,
+        modifier = modifier
+    )
+}
+
+/** One choice of a few, in segments shaped by the look: a group of radio buttons to TalkBack. */
+@Composable
+private fun <T> Segments(
+    options: List<T>,
+    selected: T,
+    onSelect: (T) -> Unit,
+    label: @Composable (T) -> String,
+    tag: (T) -> String,
+    modifier: Modifier = Modifier
+) {
     val colors = PixelTheme.colors
     val shape: Shape = when (PixelTheme.mode) {
         ThemeMode.Pixel, ThemeMode.System -> CutCornerShape(4.dp)
         else -> RoundedCornerShape(50)
     }
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier.fillMaxWidth().selectableGroup()) {
-        SWITCH_ORDER.forEach { mode ->
-            val chosen = mode == selected
+        options.forEach { option ->
+            val chosen = option == selected
             val ink = if (PixelTheme.mode == ThemeMode.Comic) {
                 Modifier.border(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack, shape)
             } else {
@@ -59,17 +102,11 @@ fun DisplayModeSwitch(selected: DisplayMode, onSelect: (DisplayMode) -> Unit, mo
                     .heightIn(min = 40.dp)
                     .background(if (chosen) colors.primary.copy(alpha = 0.18f) else colors.surface, shape)
                     .then(ink)
-                    .selectable(selected = chosen, role = Role.RadioButton, onClick = { onSelect(mode) })
-                    .testTag(ReaderTags.mode(mode))
+                    .selectable(selected = chosen, role = Role.RadioButton, onClick = { onSelect(option) })
+                    .testTag(tag(option))
             ) {
                 Text(
-                    text = stringResource(
-                        when (mode) {
-                            DisplayMode.ARABIC -> R.string.quran_mode_arabic
-                            DisplayMode.BOTH -> R.string.quran_mode_both
-                            DisplayMode.TRANSLATION -> R.string.quran_mode_translation
-                        }
-                    ),
+                    text = label(option),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = if (chosen) FontWeight.Bold else FontWeight.Normal,
                     color = inkOnPanel(colors.primaryText)

@@ -103,6 +103,15 @@ class ReadingSettingsTest {
     }
 
     @Test
+    fun thePage_isOneOfTheSettings() {
+        show()
+
+        composeTestRule.onNodeWithTag(ReaderTags.paper(ReaderPaper.SEPIA)).performClick()
+
+        assertEquals(ReaderPaper.SEPIA, latest.paper)
+    }
+
+    @Test
     fun aValue_snapsToItsStep() {
         assertEquals(28f, snap(27.3f, 20f, 2f))
         assertEquals(0.9f, snap(0.86f, 0.8f, 0.1f), 0.0001f)

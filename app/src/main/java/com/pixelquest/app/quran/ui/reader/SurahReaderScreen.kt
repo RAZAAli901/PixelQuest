@@ -94,7 +94,8 @@ fun SurahReaderRoute(
 
 /**
  * The reader: a top bar with the surah's name, what it means and its ayah count, the way back, and
- * the reading settings; then its ayahs, loading more as the player nears the end.
+ * the reading settings; then its ayahs, loading more as the player nears the end. All on the page
+ * the player chose ([ReaderPaper]): the look's own, or sepia.
  *
  * @param onScrolled the ayah first in view, as the player scrolls.
  * @param onTargetShown [ReaderUiState.target] has been brought into view.
@@ -115,106 +116,108 @@ fun SurahReaderScreen(
     onAyahAction: (Ayah, AyahAction) -> Unit = { _, _ -> },
     listState: LazyListState = rememberLazyListState()
 ) {
-    val colors = PixelTheme.colors
-    val surah = state.surah
-    var showingSettings by rememberSaveable { mutableStateOf(false) }
-    // The ayah whose sheet is open, by its number in the surah.
-    var acting by rememberSaveable { mutableStateOf<Int?>(null) }
-    val snackbars = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val copied = stringResource(R.string.quran_copied)
-    state.ayahs.firstOrNull { it.number == acting }?.let { ayah ->
-        AyahActionsSheet(
-            ayah = ayah,
-            surahName = surah?.englishName.orEmpty(),
-            bookmarked = ayah.number in state.bookmarked,
-            onAction = { action ->
-                acting = null
-                onAyahAction(ayah, action)
-                if (action == AyahAction.COPY_ARABIC || action == AyahAction.COPY_TRANSLATION) {
-                    scope.launch { snackbars.showSnackbar(copied) }
+    ReaderPage(state.settings.paper) {
+        val colors = PixelTheme.colors
+        val surah = state.surah
+        var showingSettings by rememberSaveable { mutableStateOf(false) }
+        // The ayah whose sheet is open, by its number in the surah.
+        var acting by rememberSaveable { mutableStateOf<Int?>(null) }
+        val snackbars = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        val copied = stringResource(R.string.quran_copied)
+        state.ayahs.firstOrNull { it.number == acting }?.let { ayah ->
+            AyahActionsSheet(
+                ayah = ayah,
+                surahName = surah?.englishName.orEmpty(),
+                bookmarked = ayah.number in state.bookmarked,
+                onAction = { action ->
+                    acting = null
+                    onAyahAction(ayah, action)
+                    if (action == AyahAction.COPY_ARABIC || action == AyahAction.COPY_TRANSLATION) {
+                        scope.launch { snackbars.showSnackbar(copied) }
+                    }
+                },
+                onDismiss = { acting = null }
+            )
+        }
+        if (showingSettings) {
+            ReadingSettingsSheet(
+                settings = state.settings,
+                preview = state.ayahs.firstOrNull()?.let { it.arabic to it.translation },
+                onChange = onSettings,
+                onDismiss = { showingSettings = false },
+                translation = state.translationName,
+                onOpenTranslations = {
+                    showingSettings = false
+                    onOpenTranslations()
                 }
+            )
+        }
+        Scaffold(
+            containerColor = colors.background,
+            snackbarHost = { SnackbarHost(snackbars) },
+            topBar = {
+                PixelTopAppBar(
+                    title = surah?.englishName.orEmpty(),
+                    subtitle = surah?.let {
+                        "${it.englishMeaning} · ${pluralStringResource(R.plurals.quran_ayah_count, it.ayahCount, it.ayahCount)}"
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateBack) {
+                            SymbolIcon(
+                                symbol = "◀",
+                                contentDescription = stringResource(R.string.navigate_back),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { showingSettings = true }, modifier = Modifier.testTag(ReaderTags.SETTINGS)) {
+                            SymbolIcon(
+                                symbol = "⚙️",
+                                contentDescription = stringResource(R.string.quran_reader_settings),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
+                    }
+                )
             },
-            onDismiss = { acting = null }
-        )
-    }
-    if (showingSettings) {
-        ReadingSettingsSheet(
-            settings = state.settings,
-            preview = state.ayahs.firstOrNull()?.let { it.arabic to it.translation },
-            onChange = onSettings,
-            onDismiss = { showingSettings = false },
-            translation = state.translationName,
-            onOpenTranslations = {
-                showingSettings = false
-                onOpenTranslations()
-            }
-        )
-    }
-    Scaffold(
-        containerColor = colors.background,
-        snackbarHost = { SnackbarHost(snackbars) },
-        topBar = {
-            PixelTopAppBar(
-                title = surah?.englishName.orEmpty(),
-                subtitle = surah?.let {
-                    "${it.englishMeaning} · ${pluralStringResource(R.plurals.quran_ayah_count, it.ayahCount, it.ayahCount)}"
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        SymbolIcon(
-                            symbol = "◀",
-                            contentDescription = stringResource(R.string.navigate_back),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.primaryText
-                        )
+            modifier = Modifier.testTag(ReaderTags.SCREEN)
+        ) { padding ->
+            ReaderEffects(state, listState, onLoadMore, onScrolled, onTargetShown, onFlashShown)
+            val typography = state.settings.typography(colors.onBackground)
+            Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+                DisplayModeSwitch(
+                    selected = state.displayMode,
+                    onSelect = onDisplayMode,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+                LazyColumn(
+                    state = listState,
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxSize().testTag(ReaderTags.LIST)
+                ) {
+                    surah?.bismillah?.let { bismillah ->
+                        item(key = "bismillah") { BismillahHeader(bismillah = bismillah, typography = typography) }
                     }
-                },
-                actions = {
-                    IconButton(onClick = { showingSettings = true }, modifier = Modifier.testTag(ReaderTags.SETTINGS)) {
-                        SymbolIcon(
-                            symbol = "⚙️",
-                            contentDescription = stringResource(R.string.quran_reader_settings),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.primaryText
+                    items(state.ayahs, key = { it.id }) { ayah ->
+                        AyahItem(
+                            ayah = ayah,
+                            mode = state.displayMode,
+                            typography = typography,
+                            bookmarked = ayah.number in state.bookmarked,
+                            flash = ayah.number == state.flash && state.target == null,
+                            onClick = { acting = ayah.number }
                         )
+                        HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
                     }
-                }
-            )
-        },
-        modifier = Modifier.testTag(ReaderTags.SCREEN)
-    ) { padding ->
-        ReaderEffects(state, listState, onLoadMore, onScrolled, onTargetShown, onFlashShown)
-        val typography = state.settings.typography(colors.onBackground)
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            DisplayModeSwitch(
-                selected = state.displayMode,
-                onSelect = onDisplayMode,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-            LazyColumn(
-                state = listState,
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize().testTag(ReaderTags.LIST)
-            ) {
-                surah?.bismillah?.let { bismillah ->
-                    item(key = "bismillah") { BismillahHeader(bismillah = bismillah, typography = typography) }
-                }
-                items(state.ayahs, key = { it.id }) { ayah ->
-                    AyahItem(
-                        ayah = ayah,
-                        mode = state.displayMode,
-                        typography = typography,
-                        bookmarked = ayah.number in state.bookmarked,
-                        flash = ayah.number == state.flash && state.target == null,
-                        onClick = { acting = ayah.number }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
-                }
-                // The surah's end: on to the next, or back to the one before.
-                if (!state.hasMore && state.ayahs.isNotEmpty()) {
-                    item(key = "neighbours") { SurahNeighbours(previous = state.previous, next = state.next, onOpenSurah = onOpenSurah) }
+                    // The surah's end: on to the next, or back to the one before.
+                    if (!state.hasMore && state.ayahs.isNotEmpty()) {
+                        item(key = "neighbours") { SurahNeighbours(previous = state.previous, next = state.next, onOpenSurah = onOpenSurah) }
+                    }
                 }
             }
         }
@@ -297,6 +300,8 @@ object ReaderTags {
     fun translation(number: Int) = "quran_ayah_translation_$number"
 
     fun mode(mode: DisplayMode) = "quran_mode_${mode.name.lowercase()}"
+
+    fun paper(paper: ReaderPaper) = "quran_paper_${paper.name.lowercase()}"
 
     fun action(action: AyahAction) = "quran_action_${action.name.lowercase()}"
 }

@@ -42,7 +42,7 @@ class ReadingSettingsStoreTest {
 
     @Test
     fun whatsSaved_comesBack() = runBlocking {
-        val chosen = ReadingSettings(arabicSize = 36f, translationSize = 20f, lineSpacing = 1.2f, displayMode = DisplayMode.ARABIC)
+        val chosen = ReadingSettings(arabicSize = 36f, translationSize = 20f, lineSpacing = 1.2f, displayMode = DisplayMode.ARABIC, paper = com.pixelquest.app.quran.ui.reader.ReaderPaper.SEPIA)
         store.save(chosen)
 
         assertEquals(chosen, store.settings.first())
@@ -54,9 +54,11 @@ class ReadingSettingsStoreTest {
             it[floatPreferencesKey("arabic_size")] = 400f
             it[floatPreferencesKey("line_spacing")] = 0f
             it[stringPreferencesKey("display_mode")] = "UPSIDE_DOWN"
+            it[stringPreferencesKey("paper")] = "PLAID"
         }
 
         val read = store.settings.first()
+        assertEquals(com.pixelquest.app.quran.ui.reader.ReaderPaper.THEME, read.paper)
         assertEquals(QuranTypography.ARABIC_MAX, read.arabicSize)
         assertEquals(QuranTypography.SPACING_MIN, read.lineSpacing)
         assertEquals(DisplayMode.BOTH, read.displayMode)

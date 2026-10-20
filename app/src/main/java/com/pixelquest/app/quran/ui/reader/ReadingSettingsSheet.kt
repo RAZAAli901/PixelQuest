@@ -30,14 +30,15 @@ import com.pixelquest.app.ui.theme.PixelTheme
 import kotlin.math.roundToInt
 
 /**
- * How the player reads: the Arabic's size, the translation's, the space between lines, and what
- * each ayah shows. Kept on the phone (ReadingSettingsStore).
+ * How the player reads: the Arabic's size, the translation's, the space between lines, what each
+ * ayah shows, and the page it's on. Kept on the phone (ReadingSettingsStore).
  */
 data class ReadingSettings(
     val arabicSize: Float = QuranTypography.ARABIC_DEFAULT,
     val translationSize: Float = QuranTypography.TRANSLATION_DEFAULT,
     val lineSpacing: Float = QuranTypography.SPACING_DEFAULT,
-    val displayMode: DisplayMode = DisplayMode.BOTH
+    val displayMode: DisplayMode = DisplayMode.BOTH,
+    val paper: ReaderPaper = ReaderPaper.THEME
 ) {
     /** The reader's text styles for these settings. */
     fun typography(color: androidx.compose.ui.graphics.Color) =
@@ -67,8 +68,9 @@ fun ReadingSettingsSheet(
 }
 
 /**
- * The sheet's content: what each ayah shows, three sliders, the translation (a button to choose
- * another), and the first ayah of the open surah as a preview, in the chosen sizes. Tested on its own.
+ * The sheet's content: what each ayah shows, the page, three sliders, the translation (a button to
+ * choose another), and the first ayah of the open surah as a preview, in the chosen sizes. Tested on
+ * its own.
  *
  * @param preview the open surah's first ayah (its Arabic and translation, as given), or null.
  * @param translation the translation's name; with [onOpenTranslations], a button to choose another.
@@ -98,6 +100,8 @@ fun ReadingSettingsContent(
             modifier = Modifier.semantics { heading() }
         )
         DisplayModeSwitch(selected = settings.displayMode, onSelect = { onChange(settings.copy(displayMode = it)) })
+        Text(text = stringResource(R.string.quran_paper), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
+        PaperSwitch(selected = settings.paper, onSelect = { onChange(settings.copy(paper = it)) })
         SettingSlider(
             label = stringResource(R.string.quran_setting_arabic_size),
             value = settings.arabicSize,

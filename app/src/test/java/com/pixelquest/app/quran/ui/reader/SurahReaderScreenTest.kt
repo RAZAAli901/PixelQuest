@@ -3,6 +3,9 @@ package com.pixelquest.app.quran.ui.reader
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -112,6 +115,24 @@ class SurahReaderScreenTest {
         assertEquals("the Bismillah, then ayahs 1 to 254 before it", 255, listState.firstVisibleItemIndex)
         assertEquals(1, targetShown)
         composeTestRule.onNodeWithTag(ReaderTags.ayah(255)).assertIsDisplayed()
+    }
+
+    @Test
+    fun changingThePage_keepsTheSettingsOpen() {
+        var state by mutableStateOf(ReaderUiState(surah = surah, ayahs = ayahs(5)))
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                SurahReaderScreen(state = state, onNavigateBack = {}, onSettings = { state = state.copy(settings = it) })
+            }
+        }
+        composeTestRule.onNodeWithTag(ReaderTags.SETTINGS).performClick()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag(ReaderTags.paper(ReaderPaper.SEPIA)).performClick()
+        composeTestRule.waitForIdle()
+
+        assertEquals(ReaderPaper.SEPIA, state.settings.paper)
+        composeTestRule.onNodeWithTag(ReaderTags.SETTINGS_SHEET).assertExists()
     }
 
     @Test

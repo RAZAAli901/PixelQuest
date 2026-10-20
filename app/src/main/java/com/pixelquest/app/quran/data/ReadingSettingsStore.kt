@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.pixelquest.app.quran.ui.QuranTypography
 import com.pixelquest.app.quran.ui.reader.DisplayMode
+import com.pixelquest.app.quran.ui.reader.ReaderPaper
 import com.pixelquest.app.quran.ui.reader.ReadingSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -39,7 +40,8 @@ class DataStoreReadingSettingsStore @Inject constructor(
             lineSpacing = (prefs[LINE_SPACING] ?: QuranTypography.SPACING_DEFAULT)
                 .coerceIn(QuranTypography.SPACING_MIN, QuranTypography.SPACING_MAX),
             displayMode = prefs[DISPLAY_MODE]?.let { name -> DisplayMode.entries.firstOrNull { it.name == name } }
-                ?: DisplayMode.BOTH
+                ?: DisplayMode.BOTH,
+            paper = prefs[PAPER]?.let { name -> ReaderPaper.entries.firstOrNull { it.name == name } } ?: ReaderPaper.THEME
         )
     }
 
@@ -49,6 +51,7 @@ class DataStoreReadingSettingsStore @Inject constructor(
             prefs[TRANSLATION_SIZE] = settings.translationSize
             prefs[LINE_SPACING] = settings.lineSpacing
             prefs[DISPLAY_MODE] = settings.displayMode.name
+            prefs[PAPER] = settings.paper.name
         }
     }
 
@@ -60,5 +63,6 @@ class DataStoreReadingSettingsStore @Inject constructor(
         private val TRANSLATION_SIZE = floatPreferencesKey("translation_size")
         private val LINE_SPACING = floatPreferencesKey("line_spacing")
         private val DISPLAY_MODE = stringPreferencesKey("display_mode")
+        private val PAPER = stringPreferencesKey("paper")
     }
 }
