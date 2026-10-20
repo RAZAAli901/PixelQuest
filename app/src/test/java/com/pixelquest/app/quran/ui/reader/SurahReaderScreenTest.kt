@@ -83,11 +83,29 @@ class SurahReaderScreenTest {
     }
 
     @Test
-    fun aTarget_isBroughtIntoView_onceLoaded() {
+    fun theBismillah_comesFirst_asTheSurahGivesIt() {
+        show(ReaderUiState(surah = surah.copy(bismillah = "ـبسم"), ayahs = ayahs(5)))
+
+        val shown = composeTestRule.onNodeWithTag(ReaderTags.BISMILLAH).fetchSemanticsNode()
+            .config[androidx.compose.ui.semantics.SemanticsProperties.Text].joinToString("") { it.text }
+        assertEquals("ـبسم", shown)
+        assertEquals("one header", 1, composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(ReaderTags.BISMILLAH)).fetchSemanticsNodes().size)
+    }
+
+    @Test
+    fun alFatihahAndAtTawbah_haveNoHeader() {
+        for (number in listOf(1, 9)) {
+            assertEquals(0, headerCount(surah.copy(number = number, bismillah = null)))
+        }
+        assertEquals(1, headerCount(surah))
+    }
+
+    @Test
+    fun aTarget_isBroughtIntoView_onceLoaded_pastTheBismillah() {
         show(ReaderUiState(surah = surah, ayahs = ayahs(286), hasMore = false, target = 255))
         composeTestRule.waitForIdle()
 
-        assertEquals(254, listState.firstVisibleItemIndex)
+        assertEquals("the Bismillah, then ayahs 1 to 254 before it", 255, listState.firstVisibleItemIndex)
         assertEquals(1, targetShown)
         composeTestRule.onNodeWithTag(ReaderTags.ayah(255)).assertIsDisplayed()
     }

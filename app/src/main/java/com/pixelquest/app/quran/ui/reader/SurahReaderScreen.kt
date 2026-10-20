@@ -103,6 +103,9 @@ fun SurahReaderScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxSize().padding(padding).testTag(ReaderTags.LIST)
         ) {
+            surah?.bismillah?.let { bismillah ->
+                item(key = "bismillah") { BismillahHeader(bismillah = bismillah, typography = typography) }
+            }
             items(state.ayahs, key = { it.id }) { ayah ->
                 AyahItem(ayah = ayah, mode = state.displayMode, typography = typography)
                 HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
@@ -124,23 +127,28 @@ private fun ReaderEffects(
     onTargetShown: () -> Unit
 ) {
     val current by rememberUpdatedState(state)
+    // The list's items are the Bismillah (where the surah has one), then the ayahs.
     LaunchedEffect(listState) {
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .distinctUntilChanged()
             .collect { last ->
-                if (last != null && current.hasMore && last >= current.ayahs.size - LOAD_AHEAD) onLoadMore()
+                val ayahIndex = last?.minus(headerCount(current.surah))
+                if (ayahIndex != null && current.hasMore && ayahIndex >= current.ayahs.size - LOAD_AHEAD) onLoadMore()
             }
     }
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }
             .distinctUntilChanged()
-            .collect { index -> current.ayahs.getOrNull(index)?.let { onScrolled(it.number) } }
+            .collect { index ->
+                val ayahIndex = (index - headerCount(current.surah)).coerceAtLeast(0)
+                current.ayahs.getOrNull(ayahIndex)?.let { onScrolled(it.number) }
+            }
     }
     LaunchedEffect(state.target, state.ayahs.size) {
         val target = state.target ?: return@LaunchedEffect
         val index = state.ayahs.indexOfFirst { it.number == target }
         if (index >= 0) {
-            listState.scrollToItem(index)
+            listState.scrollToItem(index + headerCount(state.surah))
             onTargetShown()
         }
     }
@@ -152,6 +160,7 @@ private const val LOAD_AHEAD = 10
 /** The reader's test tags. */
 object ReaderTags {
     const val SCREEN = "quran_reader"
+    const val BISMILLAH = "quran_bismillah"
     const val LIST = "quran_reader_list"
     const val SETTINGS = "quran_reader_settings"
 
