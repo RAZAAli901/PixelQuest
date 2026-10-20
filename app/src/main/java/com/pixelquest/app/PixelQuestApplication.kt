@@ -95,6 +95,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         com.pixelquest.app.worker.NamazRescheduleWorker.schedule(this)
         // Darood entries left waiting when the app last closed go once there's a connection.
         daroodSync.scheduleSend()
+        // The Quran reader's text, loaded from the app's own files on the first start (docs/quran-data.md).
+        com.pixelquest.app.quran.data.QuranImportWorker.schedule(this)
         rearmReminders()
     }
 
