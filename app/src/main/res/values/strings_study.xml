@@ -52,6 +52,18 @@
     <!-- The strip of the leader's pinned items, and one of them ("📌 Waves quiz"). -->
     <string name="study_pinned_title">Pinned</string>
     <string name="study_pinned_line">📌 <xliff:g id="title" example="Waves quiz">%1$s</xliff:g></string>
+    <!-- The Add item and Edit item sheet. -->
+    <string name="study_add_item">Add item</string>
+    <string name="study_edit_item">Edit item</string>
+    <string name="study_field_title">Title</string>
+    <string name="study_field_subject">Subject (optional)</string>
+    <string name="study_field_notes">Notes (optional)</string>
+    <string name="study_field_due">Due</string>
+    <string name="study_field_pin">Pin it for the party</string>
+    <string name="study_title_short">A title needs at least 2 characters.</string>
+    <string name="study_quiz_needs_date">A quiz needs a due date.</string>
+    <string name="study_add_item_save">Add it</string>
+    <string name="study_edit_item_save">Save changes</string>
     <!-- While the party is loading for the first time. -->
     <string name="study_loading">Loading the party…</string>
     <!-- What happened to something the player just tried. -->

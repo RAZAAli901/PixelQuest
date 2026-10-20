@@ -39,6 +39,7 @@ class StudyPartyViewModel @Inject constructor(
     private val refreshing = MutableStateFlow(false)
     private val loaded = MutableStateFlow(false)
     private val notice = MutableStateFlow<StudyNotice?>(null)
+    private val form = MutableStateFlow<ItemForm?>(null)
 
     private val weekStart = study.thisWeek()
 
@@ -56,11 +57,11 @@ class StudyPartyViewModel @Inject constructor(
         study.observeWinners(partyId)
     ) { week, all, winners -> Triple(week, all.filter { it.weekStart.isBefore(weekStart) }, winners) }
 
-    private val flags = combine(tab, refreshing, loaded, notice, settings?.simpleModeEnabled ?: flowOf(false)) { tab, refreshing, loaded, notice, simple ->
-        Flags(tab, refreshing, loaded, notice, simple)
+    private val flags = combine(tab, refreshing, loaded, combine(notice, form, ::Pair), settings?.simpleModeEnabled ?: flowOf(false)) { tab, refreshing, loaded, (notice, form), simple ->
+        Flags(tab, refreshing, loaded, notice, simple, form)
     }
 
-    private data class Flags(val tab: PartyTab, val refreshing: Boolean, val loaded: Boolean, val notice: StudyNotice?, val simple: Boolean)
+    private data class Flags(val tab: PartyTab, val refreshing: Boolean, val loaded: Boolean, val notice: StudyNotice?, val simple: Boolean, val form: ItemForm?)
 
     val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows), (weekScores, past, winners), waiting, flags ->
         val me = study.myId()
@@ -87,7 +88,8 @@ class StudyPartyViewModel @Inject constructor(
             refreshing = flags.refreshing,
             loaded = flags.loaded,
             simpleMode = flags.simple,
-            notice = flags.notice
+            notice = flags.notice,
+            form = flags.form
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StudyPartyUiState(weekStart = weekStart))
 
@@ -155,6 +157,40 @@ class StudyPartyViewModel @Inject constructor(
 
     fun discard(clientId: String) {
         viewModelScope.launch { study.discard(clientId) }
+    }
+
+    /** Opens the Add item sheet, empty. */
+    fun openAddItem() {
+        form.value = ItemForm()
+    }
+
+    /** The sheet's fields, as the player changes them. */
+    fun updateForm(changed: ItemForm) {
+        if (form.value != null) form.value = changed
+    }
+
+    fun closeForm() {
+        form.value = null
+    }
+
+    /**
+     * Saves the sheet: a new item, or the changes to one. With a [ItemForm.problem] it stays open
+     * and shows it; the server's refusal keeps it open too, saying why.
+     */
+    fun saveForm() {
+        val current = form.value ?: return
+        if (current.saving) return
+        if (current.problem != null) {
+            form.value = current.copy(triedToSave = true)
+            return
+        }
+        form.value = current.copy(saving = true, triedToSave = true)
+        viewModelScope.launch {
+            val draft = current.draft(study.zone())
+            val result = study.addItem(partyId, draft, pinned = current.pinned && uiState.value.isLeader)
+            report(result)
+            form.value = if (result is SupabaseResult.Success) null else form.value?.copy(saving = false)
+        }
     }
 
     fun dismissNotice() {

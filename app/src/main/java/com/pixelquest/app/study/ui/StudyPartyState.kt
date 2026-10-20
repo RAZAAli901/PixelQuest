@@ -105,7 +105,9 @@ data class StudyPartyUiState(
     val refreshing: Boolean = false,
     val loaded: Boolean = false,
     val simpleMode: Boolean = false,
-    val notice: StudyNotice? = null
+    val notice: StudyNotice? = null,
+    /** The Add item or Edit item sheet, open with these fields; null when closed. */
+    val form: ItemForm? = null
 ) {
     /** The party's active members. */
     val memberCount: Int get() = members.count { it.status == MemberStatus.ACTIVE }

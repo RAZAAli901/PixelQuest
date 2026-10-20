@@ -87,6 +87,31 @@ class StudyPartyScreenTest {
     }
 
     @Test
+    fun theItemForm_picksKindAndDay_showsItsProblem_andThePinOnlyForTheLeader() {
+        val today = java.time.LocalDate.of(2026, 10, 21)
+        var form by mutableStateOf(ItemForm(kind = com.pixelquest.app.study.domain.StudyItemKind.QUIZ, title = "Waves quiz", triedToSave = true))
+        var leader by mutableStateOf(false)
+        composeTestRule.setContent {
+            PixelQuestTheme { ItemFormContent(form, today, leader, onChange = { form = it }, onSave = {}) }
+        }
+        composeTestRule.onNodeWithTag(StudyTags.FORM_PROBLEM).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.FORM_PIN).assertDoesNotExist()
+
+        composeTestRule.onNodeWithTag(StudyTags.formDay(today.plusDays(1))).performClick()
+        assertEquals(today.plusDays(1), form.dueDay)
+        composeTestRule.onNodeWithTag(StudyTags.FORM_PROBLEM).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(StudyTags.formTime(java.time.LocalTime.of(9, 0))).performClick()
+        assertEquals(java.time.LocalTime.of(9, 0), form.dueTime)
+
+        composeTestRule.onNodeWithTag(StudyTags.formKind(com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT)).performClick()
+        assertEquals(com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, form.kind)
+
+        leader = true
+        composeTestRule.onNodeWithTag(StudyTags.FORM_PIN).performClick()
+        assertEquals(true, form.pinned)
+    }
+
+    @Test
     fun theTabs_switch_andEachShowsItsOwn() {
         var state by mutableStateOf(StudyPartyUiState(party = party, myId = "aria", isLeader = true, members = members, loaded = true))
         composeTestRule.setContent {

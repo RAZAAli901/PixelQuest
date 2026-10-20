@@ -42,10 +42,12 @@ import com.pixelquest.app.party.domain.PartyTab
 import com.pixelquest.app.party.ui.components.MemberList
 import com.pixelquest.app.study.domain.StudyRefusal
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.ui.components.PixelFloatingActionButton
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.inkOnPanel
 import java.time.LocalDate
@@ -73,7 +75,11 @@ fun StudyPartyScreen(
         onAddPeople = onAddPeople,
         onSelectTab = viewModel::selectTab,
         onRefresh = viewModel::refresh,
-        onDismissNotice = viewModel::dismissNotice
+        onDismissNotice = viewModel::dismissNotice,
+        onAddItem = viewModel::openAddItem,
+        onFormChange = viewModel::updateForm,
+        onSaveForm = viewModel::saveForm,
+        onCloseForm = viewModel::closeForm
     )
 }
 
@@ -86,7 +92,11 @@ fun StudyPartyContent(
     onSelectTab: (PartyTab) -> Unit = {},
     onRefresh: () -> Unit = {},
     onDismissNotice: () -> Unit = {},
-    onOpenItem: (String) -> Unit = {}
+    onOpenItem: (String) -> Unit = {},
+    onAddItem: () -> Unit = {},
+    onFormChange: (ItemForm) -> Unit = {},
+    onSaveForm: () -> Unit = {},
+    onCloseForm: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -107,14 +117,24 @@ fun StudyPartyContent(
                 }
             )
         },
+        floatingActionButton = {
+            if (state.tab == PartyTab.THIS_WEEK || state.tab == PartyTab.ALL_ITEMS) {
+                val label = stringResource(R.string.study_add_item)
+                PixelFloatingActionButton(onClick = onAddItem, modifier = Modifier.semantics { contentDescription = label }.testTag(StudyTags.ADD_ITEM))
+            }
+        },
         modifier = Modifier.testTag(StudyTags.SCREEN)
     ) { innerPadding ->
+        state.form?.let { form ->
+            ItemSheet(form = form, today = state.today, isLeader = state.isLeader, onChange = onFormChange, onSave = onSaveForm, onDismiss = onCloseForm)
+        }
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             StudyTabRow(tabs = state.tabs, selected = state.tab, onSelect = onSelectTab)
             state.notice?.let { NoticeLine(it, onDismissNotice) }
             PartyRefreshBox(refreshing = state.refreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
+                    // Room at the end for the Add item button over the last card.
+                    contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab))
                 ) {
@@ -326,6 +346,18 @@ object StudyTags {
     const val ADD_PEOPLE = "study_add_people"
     const val WEEK_SUMMARY = "study_week_summary"
     const val PINNED = "study_pinned"
+    const val ADD_ITEM = "study_add_item"
+    const val FORM = "study_form"
+    const val FORM_TITLE = "study_form_title"
+    const val FORM_SUBJECT = "study_form_subject"
+    const val FORM_NOTES = "study_form_notes"
+    const val FORM_NO_DATE = "study_form_no_date"
+    const val FORM_PROBLEM = "study_form_problem"
+    const val FORM_PIN = "study_form_pin"
+    const val FORM_SAVE = "study_form_save"
+    fun formKind(kind: com.pixelquest.app.study.domain.StudyItemKind) = "study_form_kind_${kind.name}"
+    fun formDay(day: LocalDate) = "study_form_day_$day"
+    fun formTime(time: java.time.LocalTime) = "study_form_time_$time"
     fun pinned(id: String) = "study_pinned_$id"
     fun tab(tab: PartyTab) = "study_tab_${tab.name}"
     fun tabButton(tab: PartyTab) = "study_tab_button_${tab.name}"
