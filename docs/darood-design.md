@@ -96,7 +96,7 @@ Each migration can be run again, and each has a rollback note. None has been pus
 - **The feature flag:** `SettingsRepository.daroodAvailable` (`DaroodFeatureFlag.DEFAULT_ON`). Off, there's no menu entry and nobody is asked for a username.
 
 ### Known gaps
-- **Android 7:** `java.time`, here as across the app, needs core-library desugaring on API 24-25. That change is on its own branch.
+- **Android 7:** fixed in 1.4.1. `java.time`, here as across the app, comes from core library desugaring on API 24-25, and lint checks it on every push. Darood's signed-in screens haven't been opened on Android 7, since that needs an account; lint finds no call there that Android 7 lacks.
 - **No Settings switch for the flag yet,** as with `namazAvailable`.
 
 ## The server (Phase B, as built)

@@ -866,3 +866,27 @@ Run with `scripts/update-check.sh v1.2.0 HEAD` on PixelQuest_API34, as the separ
 - **A whole day of real reminders**, the five prayers marked from them, and the all-five bonus, on a phone. Marking, XP and the bonus are covered by `NamazEndToEndTest`, and one real reminder by Phase 5's instrumented test.
 - **Android 7 (API 24-25):** `java.time` needs core-library desugaring (its own branch).
 - **The Namaz screenshots** listed in docs/namaz-design.md haven't been taken.
+
+---
+
+## Section P -- Android 7 and 1.4.1
+
+Every release from v1.0.0 to 1.4.0 used `java.time` without core library desugaring. Android only has `java.time` from 8.0, and minSdk is 24 (7.0). The fix was made on 2026-10-17 on its own branch and was never merged. On 2026-10-20 it was brought onto main for 1.4.1.
+
+### Builds and tests
+- **Lint:** `lintDebug` has 0 errors (108 warnings, none NewApi). When the fix was made, at 1.2.0, it had 425 NewApi errors without desugaring. CI now runs it on every push.
+- **Unit tests:** 1,665, 0 failing. The 16 skipped need the local Supabase stack, and nothing they cover changed.
+- **Release build:** `assembleRelease` with R8 and the release key. The APK is 6.9 MB; the bundled `java.time` adds about 120 KB.
+
+### On the Android 7.0 emulator (`PixelQuest_API24`, port 5556)
+- **1.4.0's release build** (built from tag v1.4.0) closed as it started: `NoClassDefFoundError` for `java.time.format.DateTimeFormatter`, from Room's converters in `PixelQuestApplication.onCreate`.
+- **The 1.4.1 release build, installed over it,** opened the welcome screen in about a second.
+  - Onboarding (name, avatar, difficulty) finished on the dashboard.
+  - **Namaz Tracker:** set up for Lahore. It showed the Hijri date (9 Jumada al-Ula 1448 AH), the next prayer (Dhuhr at 11:48 AM) with its countdown, and the week. Marking Fajr gave "1 / 5 prayed today" and +10 XP.
+  - **Darood Party** showed its sign-in screen. **Quest History** and **Stats** opened; Stats showed the Namaz XP.
+  - The log had no crash. The emulator was shut down afterwards.
+
+### Not verified
+- **Darood Party signed in, on Android 7.** It needs an account on the live project, so it wasn't tried. Lint finds no call there that Android 7 lacks.
+- **Quest reminders and workers** firing on Android 7.
+
