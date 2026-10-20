@@ -110,6 +110,29 @@
     <!-- A member who finished it, and when ("@bram, Wed 21 Oct"). -->
     <string name="study_item_done_by"><xliff:g id="member" example="\@bram">%1$s</xliff:g>, <xliff:g id="day" example="Wed 21 Oct">%2$s</xliff:g></string>
     <string name="study_item_gone">This item was deleted.</string>
+    <!-- The Scoreboard tab: the week it shows ("Mon 19 Oct to Sun 25 Oct"). -->
+    <string name="study_board_week"><xliff:g id="from" example="Mon 19 Oct">%1$s</xliff:g> to <xliff:g id="to" example="Sun 25 Oct">%2$s</xliff:g></string>
+    <!-- A place on the board ("1"); equal points share a place. -->
+    <string name="study_board_place"><xliff:g id="place" example="1">%d</xliff:g></string>
+    <!-- The player's own line ("@aria_k (you)"). -->
+    <string name="study_board_you"><xliff:g id="member" example="\@aria_k">%1$s</xliff:g> (you)</string>
+    <!-- Where a member's points came from ("3 items, 5 bonus, 65 minutes"). -->
+    <string name="study_board_breakdown"><xliff:g id="items" example="3 items">%1$s</xliff:g>, <xliff:g id="bonus" example="5">%2$d</xliff:g> bonus, <xliff:g id="minutes" example="65 minutes">%3$s</xliff:g></string>
+    <plurals name="study_items_done">
+        <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> item</item>
+        <item quantity="other"><xliff:g id="count" example="3">%d</xliff:g> items</item>
+    </plurals>
+    <plurals name="study_minutes">
+        <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> minute</item>
+        <item quantity="other"><xliff:g id="count" example="65">%d</xliff:g> minutes</item>
+    </plurals>
+    <!-- How points are earned. -->
+    <string name="study_points_title">How points work</string>
+    <string name="study_points_assignment">An assignment done: <xliff:g id="points" example="10">%d</xliff:g></string>
+    <string name="study_points_quiz">A quiz done: <xliff:g id="points" example="15">%d</xliff:g></string>
+    <string name="study_points_early">Done a day or more early: <xliff:g id="points" example="5">%d</xliff:g> more</string>
+    <string name="study_points_study">Study time: 1 for every <xliff:g id="minutes" example="10">%1$d</xliff:g> minutes, up to <xliff:g id="max" example="12">%2$d</xliff:g> a day</string>
+    <string name="study_points_not_xp">These points are this party\'s own. They never change your XP, level or streak.</string>
     <!-- While the party is loading for the first time. -->
     <string name="study_loading">Loading the party…</string>
     <!-- What happened to something the player just tried. -->

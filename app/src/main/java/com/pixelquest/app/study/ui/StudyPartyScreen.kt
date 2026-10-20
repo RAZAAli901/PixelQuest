@@ -176,7 +176,7 @@ fun StudyPartyContent(
                             pinnedStrip(state, onOpenItem)
                             itemCards(state, state.items, R.string.study_items_empty, onOpenItem, actions)
                         }
-                        PartyTab.SCOREBOARD -> boardLines(state)
+                        PartyTab.SCOREBOARD -> scoreboard(state)
                         PartyTab.PEOPLE -> people(state, onAddPeople, onOpenInfo)
                         PartyTab.CHAT -> Unit
                     }
@@ -362,18 +362,6 @@ private fun LazyListScope.itemCards(state: StudyPartyUiState, rows: List<ItemRow
     items(rows, key = { it.item.id }) { row -> CardFor(state, row, onOpenItem, actions) }
 }
 
-private fun LazyListScope.boardLines(state: StudyPartyUiState) {
-    if (state.board.none { it.points > 0 }) return emptyLine(R.string.study_board_empty, state.loaded)
-    items(state.board, key = { "board_" + it.userId }) { line ->
-        val name = line.username?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone)
-        Text(
-            text = stringResource(R.string.study_board_line, line.place, name, pluralStringResource(R.plurals.study_points, line.points, line.points)),
-            style = MaterialTheme.typography.bodyLarge,
-            color = PixelTheme.colors.onSurface
-        )
-    }
-}
-
 private fun LazyListScope.people(state: StudyPartyUiState, onAddPeople: () -> Unit, onOpenInfo: () -> Unit) {
     item(key = "members") {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp), horizontalAlignment = Alignment.Start) {
@@ -436,6 +424,10 @@ object StudyTags {
     const val TIMER_CANCEL = "study_timer_cancel"
     const val LOG_MINUTES = "study_log_minutes"
     fun minutes(m: Int) = "study_minutes_$m"
+    const val POINTS_RULES = "study_points_rules"
+    fun boardRow(userId: String) = "study_board_$userId"
+    fun boardPlace(userId: String) = "study_board_place_$userId"
+    fun boardPoints(userId: String) = "study_board_points_$userId"
     fun itemDone(id: String) = "study_item_done_$id"
     fun itemUndo(id: String) = "study_item_undo_$id"
     fun itemRetry(id: String) = "study_item_retry_$id"

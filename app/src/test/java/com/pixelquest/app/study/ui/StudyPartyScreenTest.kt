@@ -158,6 +158,26 @@ class StudyPartyScreenTest {
     }
 
     @Test
+    fun theScoreboard_ranksEveryone_withTheirBreakdown_andHowPointsWork() {
+        val week = java.time.LocalDate.of(2026, 10, 19)
+        val brams = com.pixelquest.app.study.domain.WeekScore("p1", "bram", "bram", week, 26, 15, 5, 6, 1, 65)
+        val board = listOf(
+            BoardLine("bram", "bram", 26, 1, isMe = false, score = brams),
+            BoardLine("aria", "aria_k", 0, 2, isMe = true, score = null)
+        )
+        val state = StudyPartyUiState(party = party, myId = "aria", members = members, tab = PartyTab.SCOREBOARD, weekStart = week, board = board, loaded = true)
+        composeTestRule.setContent {
+            PixelQuestTheme { StudyPartyContent(state = state, onNavigateBack = {}, onOpenInfo = {}) }
+        }
+        composeTestRule.onNodeWithText("Mon 19 Oct to Sun 25 Oct").assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.boardRow("bram"))
+            .assertExists()
+        composeTestRule.onNodeWithContentDescription("1. @bram, 26 points 1 item, 5 bonus, 65 minutes", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithContentDescription("2. @aria_k (you), 0 points", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.POINTS_RULES).assertExists()
+    }
+
+    @Test
     fun aCardsMenu_isThereForItsCreatorOrTheLeader() {
         val item = com.pixelquest.app.study.domain.StudyItem(
             "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH
