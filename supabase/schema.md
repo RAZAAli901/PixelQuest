@@ -132,6 +132,7 @@ Darood Party's server side (docs/darood-design.md). Every rule below is enforced
 |---|---|---|
 | `id` | `UUID` | Primary key |
 | `name` | `TEXT` | 2 to 40 characters, trimmed |
+| `party_type` | `TEXT` | `darood` (default) or `study`; set when the party starts, never changed (`20261019000031`) |
 | `leader_id` | `UUID` | The current leader; emptied if that account is deleted, then passed on |
 | `max_members` | `INTEGER` | 2 to 30, default 10 |
 | `milestone` | `BIGINT` | Null, or above 0; when changed, above the current total, and never after finishing |
