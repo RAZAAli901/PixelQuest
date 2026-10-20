@@ -100,6 +100,19 @@ class DatabaseUpgradeTest {
             mapOf("partyId" to "p1", "userId" to "u1", "username" to "aria_k", "role" to "LEADER", "status" to "ACTIVE",
                 "invitedAt" to null, "joinedAt" to 1_760_000_000_000L, "total" to 313, "activeDays" to 1, "lastEntryDate" to "2026-10-19")
         ),
+        // From version 10: an entry the server has, and one still waiting to be sent from the phone.
+        "darood_entry" to listOf(
+            mapOf("id" to 41, "partyId" to "p1", "userId" to "u1", "amount" to 313, "localDate" to "2026-10-19",
+                "tz" to "Asia/Karachi", "createdAt" to 1_760_000_000_000L, "clientId" to "c-41")
+        ),
+        "darood_pending_entry" to listOf(
+            mapOf("clientId" to "c-42", "partyId" to "p1", "amount" to 33, "localDate" to "2026-10-20", "tz" to "Asia/Karachi",
+                "createdAt" to 1_760_100_000_000L, "state" to "PENDING", "attempts" to 0, "refusal" to null)
+        ),
+        // From version 15: an ayah the player bookmarked.
+        "quran_bookmark" to listOf(
+            mapOf("surah" to 2, "ayah" to 255, "createdAt" to 1_760_200_000_000L)
+        ),
         // From version 8: the tracker turned on, in Lahore, with Fajr's reminder off.
         "namaz_settings" to listOf(
             mapOf("id" to 1, "enabled" to 1, "method" to "KARACHI", "asrMadhab" to "HANAFI", "highLatitudeRule" to null,
@@ -215,19 +228,24 @@ class DatabaseUpgradeTest {
                 assertEquals("aria_k", member.username)
                 assertEquals(null, member.statusChangedAt)
                 assertEquals("off the race board until the server says", false, db.daroodDao().observeParties().first().single().isPublicRace)
+                // Version 17: every party cached before is a Darood Party, in the shared party cache too.
+                assertEquals(com.pixelquest.app.party.domain.PartyType.DAROOD, db.partyDao().getParty("p1")!!.partyType)
+                // Its entries come through: the server's, and the one still to send, which goes on the next sync.
+                assertEquals(listOf(313), db.daroodDao().observeEntries("p1", 10).first().map { it.amount })
+                assertEquals(listOf("c-42" to 33), db.daroodDao().pendingToSend().map { it.clientId to it.amount })
             } else {
                 // Version 10's Darood Party cache is there, empty: it fills from the server.
                 assertTrue(db.daroodDao().observeParties().first().isEmpty())
+                assertTrue(db.daroodDao().pendingToSend().isEmpty())
             }
-            assertTrue(db.daroodDao().pendingToSend().isEmpty())
 
             // Version 13's Quran tables are there, empty: its loader fills them from the app's files.
             assertEquals(0, db.quranDao().surahCount())
             assertEquals(0, db.quranDao().ayahCount())
             assertEquals(null, db.quranDao().getTranslation("en.sahih"))
-            // Version 14's juz table too, and 15's bookmarks.
+            // Version 14's juz table too; the player's bookmarks come through from 15 on.
             assertEquals(0, db.quranDao().juzCount())
-            assertEquals(0, db.quranBookmarkDao().count())
+            assertEquals(if (version >= 15) 1 else 0, db.quranBookmarkDao().count())
         } finally {
             db.close()
         }
