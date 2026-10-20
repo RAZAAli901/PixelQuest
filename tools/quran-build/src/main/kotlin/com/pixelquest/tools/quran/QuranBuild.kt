@@ -46,7 +46,7 @@ class QuranBuild(source: File, private val output: File) {
         files.requireAll()
         // Each file is read whole before anything is written: the Arabic and the metadata as XML,
         // the translation as text, one ayah a line.
-        Xml.read(files.arabic)
+        ArabicSource.read(files.arabic)
         Xml.read(files.metadata)
         Text.lines(files.translation)
         output.mkdirs()
