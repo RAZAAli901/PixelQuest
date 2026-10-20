@@ -239,4 +239,16 @@ abstract class RepositoryModule {
     abstract fun bindStudyRemoteDataSource(
         impl: com.pixelquest.app.study.data.remote.SupabaseStudyRemoteDataSource
     ): com.pixelquest.app.study.data.remote.StudyRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindStudyRepository(
+        impl: com.pixelquest.app.study.data.StudyRepositoryImpl
+    ): com.pixelquest.app.study.data.StudyRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindStudySyncScheduler(
+        impl: com.pixelquest.app.study.sync.WorkManagerStudySyncScheduler
+    ): com.pixelquest.app.study.sync.StudySyncScheduler
 }

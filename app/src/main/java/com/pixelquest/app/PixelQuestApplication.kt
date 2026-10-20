@@ -55,6 +55,9 @@ class PixelQuestApplication : Application(), Configuration.Provider {
     lateinit var daroodSync: com.pixelquest.app.darood.sync.DaroodSyncScheduler
 
     @javax.inject.Inject
+    lateinit var studySync: com.pixelquest.app.study.sync.StudySyncScheduler
+
+    @javax.inject.Inject
     lateinit var daroodCleanup: dagger.Lazy<com.pixelquest.app.darood.sync.DaroodAccountCleanup>
 
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
@@ -95,6 +98,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         com.pixelquest.app.worker.NamazRescheduleWorker.schedule(this)
         // Darood entries left waiting when the app last closed go once there's a connection.
         daroodSync.scheduleSend()
+        // So do study party ticks and study time (docs/study-party.md).
+        studySync.scheduleSend()
         // The Quran reader's text, loaded from the app's own files on the first start (docs/quran-data.md).
         com.pixelquest.app.quran.data.QuranImportWorker.schedule(this)
         rearmReminders()

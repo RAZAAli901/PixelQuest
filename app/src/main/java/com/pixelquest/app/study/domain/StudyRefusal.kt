@@ -25,7 +25,8 @@ enum class StudyRefusal(val token: String) {
         /** The refusal a result carries, or null when it isn't one (success, no connection, signed out). */
         fun of(result: SupabaseResult<*>): StudyRefusal? {
             val error = result as? SupabaseResult.ServerError ?: return null
-            if (error.code == null || error.code !in 400..499) return null
+            // 401 is the sign-in lapsing, not a rule: what's waiting waits for it to be refreshed.
+            if (error.code == null || error.code !in 400..499 || error.code == 401) return null
             return entries.firstOrNull { it.token.isNotEmpty() && error.message.trim() == it.token } ?: INVALID
         }
 

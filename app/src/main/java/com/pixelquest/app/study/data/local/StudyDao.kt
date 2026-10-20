@@ -175,6 +175,13 @@ interface StudyDao {
     @Query("SELECT COUNT(*) FROM study_pending WHERE state = 'PENDING'")
     fun observePendingCount(): Flow<Int>
 
+    @Query("SELECT * FROM study_pending WHERE clientId = :clientId")
+    suspend fun getPending(clientId: String): PendingStudyEntity?
+
+    /** The server's copy of study time logged on this phone. */
+    @Query("SELECT * FROM study_session WHERE clientId = :clientId")
+    suspend fun sessionByClientId(clientId: String): StudySessionEntity?
+
     @Query("SELECT * FROM study_pending WHERE kind = 'COMPLETION' AND itemId = :itemId")
     suspend fun pendingCompletionOf(itemId: String): PendingStudyEntity?
 
