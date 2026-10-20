@@ -4,6 +4,9 @@ package com.pixelquest.app.islamic.ui
 object IslamicTestTags {
     const val HUB = "islamic_hub"
 
+    /** A card's badge: how many things wait in the item. */
+    const val BADGE = "islamic_badge"
+
     /** An item's card, by the item's id. */
     fun card(id: String) = "islamic_card_$id"
 }

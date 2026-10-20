@@ -1,6 +1,5 @@
 package com.pixelquest.app.islamic.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -13,21 +12,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.islamic.IslamicItem
-import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.menu.LocalMenuDrawer
 import com.pixelquest.app.ui.menu.MenuTopBarAction
@@ -70,13 +65,12 @@ fun IslamicHubContent(
             columns = 2,
             modifier = Modifier.padding(padding)
         ) { item, cellModifier ->
-            PixelCard(
+            IslamicItemCard(
+                item = item,
+                onClick = { onOpen(item.route) },
+                isSimpleMode = state.isSimpleMode,
                 modifier = cellModifier
-                    .clickable(role = Role.Button) { onOpen(item.route) }
-                    .testTag(IslamicTestTags.card(item.id))
-            ) {
-                Text(text = stringResource(item.titleRes), style = MaterialTheme.typography.titleSmall, color = colors.primaryText)
-            }
+            )
         }
     }
 }
