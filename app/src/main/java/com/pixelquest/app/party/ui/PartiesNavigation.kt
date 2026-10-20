@@ -11,20 +11,21 @@ import com.pixelquest.app.darood.ui.info.PartyInfoScreen
 import com.pixelquest.app.darood.ui.invite.AddPeopleScreen
 import com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel
 import com.pixelquest.app.party.domain.PartyType
+import com.pixelquest.app.study.ui.StudyPartyScreen
+import com.pixelquest.app.study.ui.StudyPartyViewModel
 import com.pixelquest.app.ui.navigation.Screen
 
 /**
  * The main app's parties (docs/party-core.md): the study parties, from the side menu's Parties,
  * outside the Islamic section. The screens are the shared ones Darood Parties use, told they're
- * showing study parties. Until a study party has a screen of its own (Phase E), opening one opens
- * its info: its members.
+ * showing study parties. A study party opens on its own screen (its tabs); its info opens from there.
  */
 fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
     val study = navArgument(DaroodPartiesViewModel.ARG_TYPE) { type = NavType.StringType; defaultValue = PartyType.STUDY.wire }
     composable(Screen.Parties.route, arguments = listOf(study)) {
         PartiesScreen(
             onSignIn = { navController.navigate(Screen.Account.route) },
-            onOpenParty = { partyId -> navController.navigate(Screen.PartiesInfo.createRoute(partyId)) { launchSingleTop = true } },
+            onOpenParty = { partyId -> navController.navigate(Screen.PartiesParty.createRoute(partyId)) { launchSingleTop = true } },
             onCreateParty = { navController.navigate(Screen.PartiesCreate.route) { launchSingleTop = true } }
         )
     }
@@ -36,11 +37,22 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
             onNavigateBack = { navController.popBackStack() },
             // The new party opens in place of the form, so Back returns to the list.
             onCreated = { partyId ->
-                navController.navigate(Screen.PartiesInfo.createRoute(partyId)) {
+                navController.navigate(Screen.PartiesParty.createRoute(partyId)) {
                     popUpTo(Screen.PartiesCreate.route) { inclusive = true }
                 }
             },
             onChooseUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } }
+        )
+    }
+    composable(
+        route = Screen.PartiesParty.route,
+        arguments = listOf(navArgument(StudyPartyViewModel.ARG_PARTY) { type = NavType.StringType })
+    ) { entry ->
+        val partyId = entry.arguments?.getString(StudyPartyViewModel.ARG_PARTY).orEmpty()
+        StudyPartyScreen(
+            onNavigateBack = { navController.popBackStack() },
+            onOpenInfo = { navController.navigate(Screen.PartiesInfo.createRoute(partyId)) { launchSingleTop = true } },
+            onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } }
         )
     }
     composable(

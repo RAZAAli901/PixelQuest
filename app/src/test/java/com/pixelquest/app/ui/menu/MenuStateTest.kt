@@ -65,6 +65,7 @@ class MenuStateTest {
         assertEquals(MenuItemId.PARTIES, MenuItems.all[1].id)
         assertTrue(MenuItems.Parties.owns("parties"))
         assertTrue(MenuItems.Parties.owns(Screen.PartiesInfo.createRoute("p1")))
+        assertTrue(MenuItems.Parties.owns(Screen.PartiesParty.createRoute("p1")))
         assertFalse("Darood Parties are the Islamic section's", MenuItems.Parties.owns(Screen.DaroodParty.route))
         assertFalse(Routes.isIslamic(Screen.Parties.route))
         assertEquals(R.string.menu_parties, MenuItems.Parties.labelFor(MenuContext(isSimpleMode = true)))

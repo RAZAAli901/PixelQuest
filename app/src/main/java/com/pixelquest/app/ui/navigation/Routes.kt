@@ -30,6 +30,10 @@ sealed class Screen(val route: String) {
     object Parties : Screen(Routes.PARTIES)
     /** Starting a study party. */
     object PartiesCreate : Screen("${Routes.PARTIES}/create")
+    /** A study party's own screen: its tabs (docs/study-party.md). */
+    object PartiesParty : Screen("${Routes.PARTIES}/party/{partyId}") {
+        fun createRoute(partyId: String) = "${Routes.PARTIES}/party/$partyId"
+    }
     /** A study party's info: its members. */
     object PartiesInfo : Screen("${Routes.PARTIES}/party/{partyId}/info") {
         fun createRoute(partyId: String) = "${Routes.PARTIES}/party/$partyId/info"

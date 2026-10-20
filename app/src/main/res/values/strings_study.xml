@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    A study party's own text (docs/study-party.md): its tabs, items, ticks, study time and board.
+    What every party says alike is in strings_party.xml.
+
+    For translators: <xliff:g> marks a value filled in by the app; keep it, move it where your
+    grammar needs it, and leave what's inside unchanged. Its example shows what the app puts there.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The party screen's tabs. -->
+    <string name="study_tab_this_week">This week</string>
+    <string name="study_tab_all_items">All items</string>
+    <string name="study_tab_scoreboard">Scoreboard</string>
+    <string name="study_tab_people">People</string>
+    <!-- The top bar's button that opens the party's info (members, leader actions). -->
+    <string name="study_open_info">Party info</string>
+    <string name="study_add_people">Add people</string>
+    <!-- Nothing to show on a tab. -->
+    <string name="study_week_empty">Nothing due this week. Add an assignment or quiz so the party can see it.</string>
+    <string name="study_items_empty">No items yet. Add what\'s due, and everyone in the party will see it.</string>
+    <string name="study_board_empty">No points yet this week. Finish an item or log study time to get on the board.</string>
+    <!-- A line on the scoreboard: place, member, their points ("1. @aria_k, 25 points"). -->
+    <string name="study_board_line"><xliff:g id="place" example="1">%1$d</xliff:g>. <xliff:g id="member" example="\@aria_k">%2$s</xliff:g>, <xliff:g id="points" example="25 points">%3$s</xliff:g></string>
+    <plurals name="study_points">
+        <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> point</item>
+        <item quantity="other"><xliff:g id="count" example="25">%d</xliff:g> points</item>
+    </plurals>
+    <!-- While the party is loading for the first time. -->
+    <string name="study_loading">Loading the party…</string>
+    <!-- What happened to something the player just tried. -->
+    <string name="study_offline">No connection. Ticks and study time are saved on this phone and sent when it\'s back.</string>
+    <string name="study_refused_not_allowed">Only the person who added it, or the party leader, can do that. A tick can be undone for 24 hours only.</string>
+    <string name="study_refused_not_leader">Only the party leader can pin items.</string>
+    <string name="study_refused_bad_day">That day is too far back to count.</string>
+    <string name="study_refused_no_item">That item was deleted.</string>
+    <string name="study_refused_other">The party couldn\'t save that. Check it and try again.</string>
+</resources>
