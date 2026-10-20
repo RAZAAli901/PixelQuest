@@ -73,4 +73,8 @@ object DaoModule {
     @Provides
     @Singleton
     fun provideQuranDao(database: AppDatabase): com.pixelquest.app.quran.data.local.QuranDao = database.quranDao()
+
+    @Provides
+    @Singleton
+    fun provideQuranBookmarkDao(database: AppDatabase): com.pixelquest.app.quran.data.local.QuranBookmarkDao = database.quranBookmarkDao()
 }

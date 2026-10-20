@@ -42,9 +42,11 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         com.pixelquest.app.quran.data.local.QuranAyahFtsEntity::class,
         com.pixelquest.app.quran.data.local.TranslationInfoEntity::class,
         // Where each juz starts, from version 14.
-        com.pixelquest.app.quran.data.local.QuranJuzEntity::class
+        com.pixelquest.app.quran.data.local.QuranJuzEntity::class,
+        // The player's Quran bookmarks, from version 15.
+        com.pixelquest.app.quran.data.local.QuranBookmarkEntity::class
     ],
-    version = 14,
+    version = 15,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -60,6 +62,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun namazSettingsDao(): com.pixelquest.app.data.local.dao.NamazSettingsDao
     abstract fun daroodDao(): com.pixelquest.app.darood.data.local.DaroodDao
     abstract fun quranDao(): com.pixelquest.app.quran.data.local.QuranDao
+    abstract fun quranBookmarkDao(): com.pixelquest.app.quran.data.local.QuranBookmarkDao
 
     companion object {
         /**
@@ -67,7 +70,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -223,6 +226,13 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_13_14 = object : Migration(13, 14) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS `quran_juz` (`number` INTEGER NOT NULL, `surah` INTEGER NOT NULL, `ayah` INTEGER NOT NULL, PRIMARY KEY(`number`))")
+            }
+        }
+
+        /** The player's Quran bookmarks: empty until they bookmark an ayah. */
+        val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `quran_bookmark` (`surah` INTEGER NOT NULL, `ayah` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`surah`, `ayah`))")
             }
         }
 
