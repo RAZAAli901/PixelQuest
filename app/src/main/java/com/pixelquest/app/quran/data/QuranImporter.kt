@@ -53,6 +53,24 @@ class QuranImporter @Inject constructor(
     /** The load's progress, for the reader's "Preparing the Quran" message. */
     val state: StateFlow<QuranLoadState> = _state.asStateFlow()
 
+    /**
+     * Loads the bundle unless the phone already holds it: the same version, complete (all 114
+     * surahs and 6,236 ayahs). So it's safe to run at every start, and a newer bundle (a new Tanzil
+     * release, or another translation) replaces the old one, in one transaction.
+     *
+     * @return what was loaded, or null when nothing needed to be.
+     */
+    suspend fun importIfNeeded(): QuranImport? {
+        val head = assets.head(TRANSLATION_FILE, HEAD_CHARS)
+        val version = Regex("\"version\":\"([0-9a-f]+)\"").find(head)?.groupValues?.get(1)
+            ?: throw QuranImportException("$TRANSLATION_FILE has no version at its start")
+        val id = Regex("\"id\":\"([^\"]+)\"").find(head)?.groupValues?.get(1)
+            ?: throw QuranImportException("$TRANSLATION_FILE has no id at its start")
+        val held = dao.getTranslation(id)
+        val complete = held?.dataVersion == version && dao.surahCount() == SURAHS && dao.ayahCount() == AYAHS
+        return if (complete) null else import()
+    }
+
     suspend fun import(): QuranImport =
         try {
             load().also { _state.value = QuranLoadState.Done(it) }
@@ -128,6 +146,9 @@ class QuranImporter @Inject constructor(
         const val TRANSLATION_FILE = "quran_en.json"
         const val SURAHS = 114
         const val AYAHS = 6236
+
+        /** How much of a file's start holds its version and id (tools/quran-build writes them first). */
+        private const val HEAD_CHARS = 200
 
         /** How much of the progress reading and checking the files counts for; writing is the rest. */
         private const val READ_SHARE = 0.2f

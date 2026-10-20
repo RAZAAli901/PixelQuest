@@ -23,7 +23,8 @@ class QuranImportWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result =
         try {
-            importer.import()
+            // Nothing to do once the phone holds this bundle; a newer one replaces it.
+            importer.importIfNeeded()
             Result.success()
         } catch (e: QuranImportException) {
             // The bundle itself is wrong: trying again won't help, and the tests stop such a bundle shipping.

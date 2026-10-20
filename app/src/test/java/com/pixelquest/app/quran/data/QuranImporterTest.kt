@@ -103,6 +103,46 @@ class QuranImporterTest {
     }
 
     @Test
+    fun ifNeeded_loadsOnce_thenNotAgain() = runBlocking {
+        assertEquals(QuranImport(quran.version, 114, 6236), importer.importIfNeeded())
+
+        assertNull("the phone holds this bundle", importer.importIfNeeded())
+        assertEquals(6236, db.quranDao().ayahCount())
+    }
+
+    @Test
+    fun aNewerBundle_replacesTheOld() = runBlocking {
+        importer.import()
+        val newer = QuranAssetSource { name ->
+            when (name) {
+                QuranImporter.QURAN_FILE -> Json.encodeToString(QuranFile.serializer(), quran.copy(version = "0123456789abcdef"))
+                else -> Json.encodeToString(TranslationFile.serializer(), translation.copy(version = "0123456789abcdef"))
+            }
+        }
+
+        val result = QuranImporter(newer, db.quranDao(), RoomTransactionRunner(db)).importIfNeeded()
+
+        assertEquals("0123456789abcdef", result!!.version)
+        assertEquals("0123456789abcdef", db.quranDao().getTranslation("en.sahih")!!.dataVersion)
+        assertEquals(6236, db.quranDao().ayahCount())
+    }
+
+    @Test
+    fun anIncompleteCopy_isLoadedAgain() = runBlocking {
+        importer.import()
+        // As if the phone's copy lost its ayahs: the version alone doesn't make it complete.
+        db.quranDao().deleteAyahs()
+
+        assertEquals(6236, importer.importIfNeeded()!!.ayahs)
+        assertEquals(6236, db.quranDao().ayahCount())
+    }
+
+    @Test
+    fun theBundlesVersion_isReadFromItsStart() {
+        assertTrue(assets.head(QuranImporter.TRANSLATION_FILE, 200).contains("\"version\":\"${quran.version}\""))
+    }
+
+    @Test
     fun loadingAgain_replacesRatherThanDoubles() = runBlocking {
         importer.import()
         importer.import()
