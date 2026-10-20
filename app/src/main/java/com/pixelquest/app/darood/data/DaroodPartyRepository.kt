@@ -291,8 +291,8 @@ class DaroodPartyRepositoryImpl(
             is SupabaseResult.Success -> result.data
             else -> return result.failure()
         }
-        dao.replaceMembers(partyId, members.map { it.toEntity(memberStats[it.userId]) })
-        dao.upsertEntries(entries.map { it.toEntity() })
+        // The party may have gone while these were on their way (its leader deleted it): then they're dropped.
+        dao.replaceMembersAndEntriesIfKept(partyId, members.map { it.toEntity(memberStats[it.userId]) }, entries.map { it.toEntity() })
         return SupabaseResult.Success(Unit)
     }
 
@@ -307,8 +307,8 @@ class DaroodPartyRepositoryImpl(
         val oldest = dao.oldestEntryId(partyId) ?: return SupabaseResult.Success(false)
         return when (val result = remote.fetchEntries(partyId, beforeId = oldest)) {
             is SupabaseResult.Success -> {
-                dao.upsertEntries(result.data.map { it.toEntity() })
-                SupabaseResult.Success(result.data.size == DaroodPartyRemoteDataSource.PAGE_SIZE)
+                val kept = dao.upsertEntriesIfKept(partyId, result.data.map { it.toEntity() })
+                SupabaseResult.Success(kept && result.data.size == DaroodPartyRemoteDataSource.PAGE_SIZE)
             }
             else -> result.failure()
         }
@@ -349,7 +349,7 @@ class DaroodPartyRepositoryImpl(
         if (clientId != null && dao.getPending(clientId) != null) {
             dao.confirmSent(clientId, entry.toEntity())
         } else {
-            dao.upsertEntries(listOf(entry.toEntity()))
+            dao.upsertEntriesIfKept(entry.partyId, listOf(entry.toEntity()))
         }
     }
 

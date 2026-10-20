@@ -63,6 +63,21 @@ interface DaroodDao {
         insertMembers(members)
     }
 
+    /**
+     * A party's members and newest entries from the server, unless the party left the phone while
+     * they were on their way (deleted, left or removed meanwhile): then nothing is written, since
+     * its rows would point at a party that's gone. The check and the writes are one transaction.
+     *
+     * @return whether the party was still there.
+     */
+    @Transaction
+    suspend fun replaceMembersAndEntriesIfKept(partyId: String, members: List<PartyMemberEntity>, entries: List<DaroodEntryEntity>): Boolean {
+        if (getParty(partyId) == null) return false
+        replaceMembers(partyId, members)
+        upsertEntries(entries)
+        return true
+    }
+
     // Entries
 
     /** The newest [limit] entries the server has for a party. */
@@ -71,6 +86,14 @@ interface DaroodDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertEntries(entries: List<DaroodEntryEntity>)
+
+    /** [entries] of one party ([partyId]), unless it has left the phone meanwhile; as [replaceMembersAndEntriesIfKept]. */
+    @Transaction
+    suspend fun upsertEntriesIfKept(partyId: String, entries: List<DaroodEntryEntity>): Boolean {
+        if (getParty(partyId) == null) return false
+        upsertEntries(entries)
+        return true
+    }
 
     @Query("SELECT MIN(id) FROM darood_entry WHERE partyId = :partyId")
     suspend fun oldestEntryId(partyId: String): Long?

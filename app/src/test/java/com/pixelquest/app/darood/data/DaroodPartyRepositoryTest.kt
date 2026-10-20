@@ -41,6 +41,25 @@ class DaroodPartyRepositoryTest {
     }
 
     @Test
+    fun aPartyDeletedWhileItsMembersAreOnTheirWay_dropsThem_withoutAnError() = runBlocking {
+        val party = server.seedParty("Friday circle", "me", "u2")
+        server.seedEntry(party, "u2", 33)
+        repository.refreshParties()
+        // The leader deletes the party from Party info while that screen's own refresh is still
+        // waiting for the members: the deletion lands between the refresh's check and its writes.
+        val racing = object : com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource by server {
+            override suspend fun fetchEntries(partyId: String, beforeId: Long?, limit: Int) =
+                server.fetchEntries(partyId, beforeId, limit).also { db.daroodDao().replaceParties(emptyList()) }
+        }
+        val refreshing = DaroodPartyRepositoryImpl(racing, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("Asia/Karachi") })
+
+        assertEquals(SupabaseResult.Success(Unit), refreshing.refreshParty(party))
+
+        assertEquals(emptyList<Any>(), db.daroodDao().observeMembers(party).first())
+        assertNull(db.daroodDao().getParty(party))
+    }
+
+    @Test
     fun myParties_comeFromTheServer_withTheirNumbers_andStayOffline() = runBlocking {
         val friday = server.seedParty("Friday circle", "me", "u2", milestone = 1000)
         server.seedEntry(friday, "u2", 300)
