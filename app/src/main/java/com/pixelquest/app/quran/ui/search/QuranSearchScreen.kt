@@ -155,7 +155,7 @@ private fun Results(
             item(key = "ayahs") {
                 Heading(
                     if (state.capped) {
-                        stringResource(R.string.quran_search_ayahs_capped, state.ayahs.size)
+                        pluralStringResource(R.plurals.quran_search_ayahs_capped, state.ayahs.size, state.ayahs.size)
                     } else {
                         pluralStringResource(R.plurals.quran_search_ayahs, state.ayahs.size, state.ayahs.size)
                     }

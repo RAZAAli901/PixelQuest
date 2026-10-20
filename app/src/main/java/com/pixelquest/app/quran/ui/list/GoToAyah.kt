@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
@@ -98,8 +99,8 @@ fun GoToAyahContent(
 ) {
     val colors = PixelTheme.colors
     val problem = when (check) {
-        is GoToCheck.NoSuchSurah -> stringResource(R.string.quran_go_no_surah, check.count)
-        is GoToCheck.NoSuchAyah -> stringResource(R.string.quran_go_no_ayah, check.surah, check.ayahs)
+        is GoToCheck.NoSuchSurah -> pluralStringResource(R.plurals.quran_go_no_surah, check.count, check.count)
+        is GoToCheck.NoSuchAyah -> pluralStringResource(R.plurals.quran_go_no_ayah, check.ayahs, check.surah, check.ayahs)
         else -> null
     }
     QuranPanel(modifier = modifier.fillMaxWidth().testTag(GoToTags.DIALOG)) {

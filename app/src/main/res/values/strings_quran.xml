@@ -116,7 +116,10 @@
         <item quantity="other"><xliff:g id="count" example="42">%d</xliff:g> ayahs</item>
     </plurals>
     <!-- When a search finds more ayahs than it shows. -->
-    <string name="quran_search_ayahs_capped">The first <xliff:g id="count" example="200">%1$d</xliff:g> ayahs: add a word to narrow it</string>
+    <plurals name="quran_search_ayahs_capped">
+        <item quantity="one">The first <xliff:g id="count" example="1">%d</xliff:g> ayah: add a word to narrow it</item>
+        <item quantity="other">The first <xliff:g id="count" example="200">%d</xliff:g> ayahs: add a word to narrow it</item>
+    </plurals>
     <!-- A found ayah's reference: its surah's name, then surah:ayah. -->
     <string name="quran_search_reference"><xliff:g id="name" example="Al-Baqara">%1$s</xliff:g> <xliff:g id="surah" example="2">%2$d</xliff:g>:<xliff:g id="ayah" example="255">%3$d</xliff:g></string>
     <!-- The bookmarks screen. -->
@@ -144,8 +147,14 @@
     <string name="quran_go_ayah">Ayah (blank for the first)</string>
     <string name="quran_go_button">Go</string>
     <string name="quran_go_cancel">Cancel</string>
-    <string name="quran_go_no_surah">There are <xliff:g id="count" example="114">%d</xliff:g> surahs</string>
-    <string name="quran_go_no_ayah">Surah <xliff:g id="surah" example="1">%1$d</xliff:g> has <xliff:g id="count" example="7">%2$d</xliff:g> ayahs</string>
+    <plurals name="quran_go_no_surah">
+        <item quantity="one">There is <xliff:g id="count" example="1">%d</xliff:g> surah</item>
+        <item quantity="other">There are <xliff:g id="count" example="114">%d</xliff:g> surahs</item>
+    </plurals>
+    <plurals name="quran_go_no_ayah">
+        <item quantity="one">Surah <xliff:g id="surah" example="1">%1$d</xliff:g> has <xliff:g id="count" example="1">%2$d</xliff:g> ayah</item>
+        <item quantity="other">Surah <xliff:g id="surah" example="1">%1$d</xliff:g> has <xliff:g id="count" example="7">%2$d</xliff:g> ayahs</item>
+    </plurals>
     <!-- What TalkBack says for a surah's row, one button: number, English name, meaning, place, ayahs. -->
     <string name="quran_surah_spoken"><xliff:g id="number" example="2">%1$d</xliff:g>. <xliff:g id="name" example="Al-Baqara">%2$s</xliff:g>, <xliff:g id="meaning" example="The Cow">%3$s</xliff:g>. <xliff:g id="place" example="Medinan">%4$s</xliff:g>, <xliff:g id="count" example="286 ayahs">%5$s</xliff:g></string>
 </resources>
