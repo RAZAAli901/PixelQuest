@@ -50,6 +50,7 @@
 - `bangers_regular.ttf`: Bold heavyweight comic display font designed by Vernon Adams (SIL Open Font License 1.1) via Google Fonts / GitHub (`google/fonts`)
 - `kalam_regular.ttf`: Handwritten/marker-style accent font designed by Indian Type Foundry (Lipi Raval, Jonny Pinhorn) (SIL Open Font License 1.1) via Google Fonts
 - `kalam_bold.ttf`: Bold handwritten/marker-style accent font designed by Indian Type Foundry (SIL Open Font License 1.1) via Google Fonts
+- `amiri_quran.ttf`: Amiri Quran 1.003, the Quran reader's Arabic typeface, by The Amiri Project Authors (Khaled Hosny, Sebastian Kosch) (SIL Open Font License 1.1) via Google Fonts (`google/fonts`, `ofl/amiriquran`); its licence is in `licenses/amiri-quran-OFL.txt`
 
 ### Sound Effects (`res/raw/`)
 - **Pack Name**: Kenney Interface Sounds / Retro Audio (Kenney.nl)
