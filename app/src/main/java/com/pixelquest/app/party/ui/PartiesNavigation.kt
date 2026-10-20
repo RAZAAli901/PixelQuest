@@ -5,7 +5,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.pixelquest.app.darood.ui.DaroodPartyScreen
 import com.pixelquest.app.darood.ui.create.CreatePartyScreen
 import com.pixelquest.app.darood.ui.create.CreatePartyViewModel
 import com.pixelquest.app.darood.ui.info.PartyInfoScreen
@@ -23,8 +22,7 @@ import com.pixelquest.app.ui.navigation.Screen
 fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
     val study = navArgument(DaroodPartiesViewModel.ARG_TYPE) { type = NavType.StringType; defaultValue = PartyType.STUDY.wire }
     composable(Screen.Parties.route, arguments = listOf(study)) {
-        DaroodPartyScreen(
-            onNavigateBack = { navController.popBackStack() },
+        PartiesScreen(
             onSignIn = { navController.navigate(Screen.Account.route) },
             onOpenParty = { partyId -> navController.navigate(Screen.PartiesInfo.createRoute(partyId)) { launchSingleTop = true } },
             onCreateParty = { navController.navigate(Screen.PartiesCreate.route) { launchSingleTop = true } }

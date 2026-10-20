@@ -9,6 +9,11 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- One study party, its kind's name. -->
     <string name="party_study_title">Study party</string>
+    <!-- The Parties screen, from the side menu: the main app's study parties. -->
+    <string name="parties_title">Parties</string>
+    <string name="parties_create">Start a study party</string>
+    <string name="parties_empty_title">No study parties yet</string>
+    <string name="parties_signed_out_title">Sign in to join a party</string>
     <!-- The Study parties' screen, listing them. -->
     <string name="party_study_list_title">Study parties</string>
     <string name="party_study_empty_body">Start a party with 2 to 30 classmates or friends, pin what\'s due this week, and keep each other going. Or wait for a friend to invite you by your username.</string>

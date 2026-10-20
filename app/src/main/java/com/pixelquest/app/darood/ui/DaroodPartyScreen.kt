@@ -184,6 +184,7 @@ fun DaroodPartyContent(
                     if (state.isEmpty) {
                         item(key = "empty") {
                             DaroodCard(
+                                icon = kind.icon,
                                 title = stringResource(R.string.darood_empty_title),
                                 body = stringResource(kind.emptyBodyRes),
                                 modifier = Modifier.testTag(DaroodTestTags.EMPTY)
@@ -212,6 +213,7 @@ fun DaroodPartyContent(
             when (signedIn) {
                 null, true -> Unit
                 false -> DaroodCard(
+                    icon = kind.icon,
                     title = stringResource(R.string.darood_signed_out_title),
                     body = stringResource(kind.signedOutBodyRes),
                     modifier = Modifier.testTag(DaroodTestTags.SIGNED_OUT)
@@ -227,9 +229,10 @@ fun DaroodPartyContent(
     }
 }
 
-/** The 📿 card: a title, a line or two, and an optional action under them. */
+/** A card with the kind's icon (Darood's 📿): a title, a line or two, and an optional action under them. */
 @Composable
 private fun DaroodCard(
+    icon: String,
     title: String,
     body: String,
     modifier: Modifier = Modifier,
@@ -242,7 +245,7 @@ private fun DaroodCard(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "📿", style = MaterialTheme.typography.displaySmall)
+            Text(text = icon, style = MaterialTheme.typography.displaySmall)
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
