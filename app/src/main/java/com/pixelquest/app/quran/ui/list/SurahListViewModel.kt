@@ -18,11 +18,13 @@ import javax.inject.Inject
  * The surah list: all 114, or those matching what the player types.
  *
  * @param loaded false until the surahs first arrive, so the list doesn't flash "no matches".
+ * @param ayahCounts every surah's ayah count, whatever the search: for "Go to surah and ayah".
  */
 data class SurahListUiState(
     val query: String = "",
     val surahs: List<Surah> = emptyList(),
-    val loaded: Boolean = false
+    val loaded: Boolean = false,
+    val ayahCounts: Map<Int, Int> = emptyMap()
 )
 
 /** The surah list, with search as you type over the surahs' numbers and names. */
@@ -32,7 +34,12 @@ class SurahListViewModel @Inject constructor(repository: QuranRepository) : View
     private val query = MutableStateFlow("")
 
     val state: StateFlow<SurahListUiState> = combine(repository.surahs(), query.asStateFlow()) { surahs, q ->
-        SurahListUiState(query = q, surahs = SurahSearch.filter(surahs, q), loaded = surahs.isNotEmpty())
+        SurahListUiState(
+            query = q,
+            surahs = SurahSearch.filter(surahs, q),
+            loaded = surahs.isNotEmpty(),
+            ayahCounts = surahs.associate { it.number to it.ayahCount }
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SurahListUiState())
 
     fun search(text: String) {

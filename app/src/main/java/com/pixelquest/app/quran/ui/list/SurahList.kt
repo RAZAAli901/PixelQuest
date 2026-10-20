@@ -79,14 +79,25 @@ fun SurahList(
                 modifier = Modifier.fillMaxWidth().padding(24.dp)
             )
         }
-        LazyColumn(
-            state = listState,
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxSize().testTag(QuranListTags.LIST)
-        ) {
-            items(state.surahs, key = { it.number }) { surah ->
-                SurahRow(surah = surah, onClick = { onOpenSurah(surah.number) })
+        // The fast-scroll index beside the whole list; not while a search narrows it.
+        val indexed = state.query.isBlank() && state.surahs.size > FAST_SCROLL_MARKS.size
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                state = listState,
+                contentPadding = PaddingValues(start = 16.dp, end = if (indexed) 44.dp else 16.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxSize().testTag(QuranListTags.LIST)
+            ) {
+                items(state.surahs, key = { it.number }) { surah ->
+                    SurahRow(surah = surah, onClick = { onOpenSurah(surah.number) })
+                }
+            }
+            if (indexed) {
+                FastScrollIndex(
+                    listState = listState,
+                    surahs = state.surahs.map { it.number },
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 4.dp, bottom = 16.dp)
+                )
             }
         }
     }

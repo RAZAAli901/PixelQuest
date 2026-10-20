@@ -12,6 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -26,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.list.GoToAyahDialog
+import com.pixelquest.app.quran.ui.list.GoToTags
 import com.pixelquest.app.quran.ui.list.SurahList
 import com.pixelquest.app.quran.ui.list.SurahListUiState
 import com.pixelquest.app.quran.ui.list.SurahListViewModel
@@ -39,6 +44,7 @@ import com.pixelquest.app.ui.theme.PixelTheme
 fun QuranRoute(
     onNavigateBack: () -> Unit,
     onOpenSurah: (surah: Int) -> Unit = {},
+    onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) },
     viewModel: QuranViewModel = hiltViewModel(),
     listViewModel: SurahListViewModel = hiltViewModel()
 ) {
@@ -49,7 +55,8 @@ fun QuranRoute(
         preparing = preparing,
         list = list,
         onSearch = listViewModel::search,
-        onOpenSurah = onOpenSurah
+        onOpenSurah = onOpenSurah,
+        onOpenAyah = onOpenAyah
     )
 }
 
@@ -63,14 +70,37 @@ fun QuranHomeScreen(
     preparing: QuranPreparing? = null,
     list: SurahListUiState = SurahListUiState(),
     onSearch: (String) -> Unit = {},
-    onOpenSurah: (surah: Int) -> Unit = {}
+    onOpenSurah: (surah: Int) -> Unit = {},
+    onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) }
 ) {
     val colors = PixelTheme.colors
+    var goingTo by rememberSaveable { mutableStateOf(false) }
+    if (goingTo) {
+        GoToAyahDialog(
+            ayahCounts = list.ayahCounts,
+            onGo = { surah, ayah -> goingTo = false; onOpenAyah(surah, ayah) },
+            onDismiss = { goingTo = false }
+        )
+    }
     Scaffold(
         containerColor = colors.background,
         topBar = {
             PixelTopAppBar(
                 title = stringResource(R.string.quran_title),
+                actions = if (preparing == null && list.loaded) {
+                    {
+                        IconButton(onClick = { goingTo = true }, modifier = Modifier.testTag(GoToTags.ACTION)) {
+                            SymbolIcon(
+                                symbol = "#",
+                                contentDescription = stringResource(R.string.quran_go_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
+                    }
+                } else {
+                    null
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         SymbolIcon(
