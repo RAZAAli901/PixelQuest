@@ -35,7 +35,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.QuranTypography
 import com.pixelquest.app.quran.ui.list.SurahRow
+import com.pixelquest.app.quran.ui.reader.RightToLeft
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
@@ -159,7 +161,12 @@ private fun Results(
                 )
             }
             items(state.ayahs, key = { "ayah-${it.ayah.id}" }) { result ->
-                AyahResultRow(result = result, query = state.query, onClick = { onOpenAyah(result.ayah.surah, result.ayah.number) })
+                AyahResultRow(
+                    result = result,
+                    query = state.query,
+                    showArabic = state.arabic,
+                    onClick = { onOpenAyah(result.ayah.surah, result.ayah.number) }
+                )
             }
         }
     }
@@ -175,9 +182,12 @@ private fun Heading(text: String) {
     )
 }
 
-/** An ayah found: its reference, and its translation with the matched words marked. One button. */
+/**
+ * An ayah found: its reference, and its translation with the matched words marked. Found by its
+ * Arabic, the Arabic comes first, as the Quran's text is. One button.
+ */
 @Composable
-private fun AyahResultRow(result: AyahResult, query: String, onClick: () -> Unit) {
+private fun AyahResultRow(result: AyahResult, query: String, showArabic: Boolean, onClick: () -> Unit) {
     val colors = PixelTheme.colors
     val marked = SpanStyle(fontWeight = FontWeight.Bold, background = colors.primary.copy(alpha = 0.25f))
     Column(
@@ -195,6 +205,15 @@ private fun AyahResultRow(result: AyahResult, query: String, onClick: () -> Unit
             style = MaterialTheme.typography.labelLarge,
             color = colors.primaryText
         )
+        if (showArabic) {
+            RightToLeft {
+                Text(
+                    text = result.ayah.arabic,
+                    style = QuranTypography.of(arabicSize = QuranTypography.ARABIC_MIN, color = colors.onSurface).arabic,
+                    modifier = Modifier.fillMaxWidth().testTag(SearchTags.arabic(result.ayah.surah, result.ayah.number))
+                )
+            }
+        }
         Text(
             text = SearchHighlight.annotate(result.ayah.translation, query, marked),
             style = MaterialTheme.typography.bodyMedium,
@@ -214,4 +233,6 @@ object SearchTags {
     const val ACTION = "quran_search_action"
 
     fun ayah(surah: Int, ayah: Int) = "quran_search_ayah_${surah}_$ayah"
+
+    fun arabic(surah: Int, ayah: Int) = "quran_search_arabic_${surah}_$ayah"
 }

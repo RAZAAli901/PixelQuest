@@ -1,5 +1,6 @@
 package com.pixelquest.app.quran.data.local
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Fts4
 import androidx.room.FtsOptions
@@ -39,6 +40,8 @@ data class QuranSurahEntity(
  *   search index follows, so it never changes.
  * @param surah, [ayah] where it is: unique together.
  * @param translationId the translation [translation] is from, such as `en.sahih`.
+ * @param arabicPlain the Arabic as search matches it (ArabicSearch.key), from version 16: never
+ *   shown. Empty until the loader fills it, which it does when it finds it empty.
  */
 @Entity(
     tableName = "quran_ayah",
@@ -50,7 +53,8 @@ data class QuranAyahEntity(
     val ayah: Int,
     val arabic: String,
     val translationId: String,
-    val translation: String
+    val translation: String,
+    @ColumnInfo(defaultValue = "''") val arabicPlain: String = ""
 )
 
 /**

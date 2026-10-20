@@ -43,6 +43,7 @@ class SurahReaderViewModelTest {
         override suspend fun ayahRange(surah: Int, from: Int, to: Int) = emptyList<Ayah>()
         override suspend fun ayah(surah: Int, number: Int): Ayah? = null
         override suspend fun searchTranslation(text: String, limit: Int) = emptyList<Ayah>()
+        override suspend fun searchArabic(text: String, limit: Int) = emptyList<Ayah>()
         override fun translations(): Flow<List<Translation>> = flowOf(emptyList())
     }
 

@@ -98,6 +98,15 @@ class QuranSearchViewModelTest {
     }
 
     @Test
+    fun arabicTyped_searchesTheArabic() {
+        val found = search("قل هو الله احد")
+
+        assertTrue(found.arabic)
+        assertEquals(listOf(112 to 1), found.ayahs.map { it.ayah.surah to it.ayah.number })
+        assertFalse(search("throne").arabic)
+    }
+
+    @Test
     fun nothingTyped_findsNothing() {
         assertTrue(search("  ").isEmpty)
     }

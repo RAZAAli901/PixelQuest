@@ -247,6 +247,7 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion12_theV1_4_xReleases() = updateFrom(12)
     @Test fun fromVersion13() = updateFrom(13)
     @Test fun fromVersion14() = updateFrom(14)
+    @Test fun fromVersion15() = updateFrom(15)
 
     @Test
     fun theQuransSearchIndex_followsItsTable_afterTheUpdate(): Unit = runBlocking {

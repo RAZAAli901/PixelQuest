@@ -108,6 +108,7 @@ class ReadingSettingsTest {
         override suspend fun ayahRange(surah: Int, from: Int, to: Int) = emptyList<com.pixelquest.app.quran.domain.Ayah>()
         override suspend fun ayah(surah: Int, number: Int): com.pixelquest.app.quran.domain.Ayah? = null
         override suspend fun searchTranslation(text: String, limit: Int) = emptyList<com.pixelquest.app.quran.domain.Ayah>()
+        override suspend fun searchArabic(text: String, limit: Int) = emptyList<com.pixelquest.app.quran.domain.Ayah>()
         override fun translations() = kotlinx.coroutines.flow.flowOf(emptyList<com.pixelquest.app.quran.domain.Translation>())
     }
 }

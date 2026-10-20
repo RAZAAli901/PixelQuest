@@ -81,6 +81,12 @@ Measured on 2026-10-20, Tanzil's files as above:
 
 The tool's tests keep the gzipped files within budget (at most 600 KB together), and Phase F checks the APK against it before the release.
 
+## Search
+
+- **English:** the translation's full-text index (FTS4, unicode61). Each word must match whole, except the last, which may be the start of a word.
+- **Arabic:** each ayah has a search key beside its text (`arabicPlain`, from database version 16), made by `ArabicSearch`. It drops the marks, and alef and hamza in every form, so everyday spelling, with or without marks, finds the Uthmani text. The key is never shown: the text shown is always the source's own.
+- **After the update to version 16,** the keys are empty, so the loader loads the Quran again once to fill them.
+
 ## Updating
 
 1. Download the new files from the pages above, with the same options. Record the date and URL in `licenses/README.md`.

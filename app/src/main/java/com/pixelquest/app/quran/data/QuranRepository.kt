@@ -39,6 +39,9 @@ interface QuranRepository {
     /** Ayahs whose translation has the words in [text], in the Quran's order: at most [limit]. */
     suspend fun searchTranslation(text: String, limit: Int = SEARCH_LIMIT): List<Ayah>
 
+    /** Ayahs whose Arabic has [text] in it, typed plain or with marks (ArabicSearch), in the Quran's order: at most [limit]. */
+    suspend fun searchArabic(text: String, limit: Int = SEARCH_LIMIT): List<Ayah>
+
     /** The translations on the phone, with their credits and terms. */
     fun translations(): Flow<List<Translation>>
 
@@ -73,6 +76,12 @@ class QuranRepositoryImpl @Inject constructor(private val dao: QuranDao) : Quran
     override suspend fun searchTranslation(text: String, limit: Int): List<Ayah> {
         val match = TranslationSearch.match(text) ?: return emptyList()
         return dao.searchTranslation(match, limit).map { it.toDomain() }
+    }
+
+    override suspend fun searchArabic(text: String, limit: Int): List<Ayah> {
+        val key = ArabicSearch.key(text).trim()
+        if (key.isEmpty()) return emptyList()
+        return dao.searchArabic(key, limit).map { it.toDomain() }
     }
 
     override fun translations(): Flow<List<Translation>> = dao.observeTranslations().map { list -> list.map { it.toDomain() } }

@@ -78,6 +78,20 @@ class QuranSearchScreenTest {
     }
 
     @Test
+    fun foundByItsArabic_theArabicIsShown() {
+        show("x", QuranSearchUiState("x", ayahs = listOf(AyahResult(ayah, "Al-Baqara")), arabic = true))
+
+        composeTestRule.onNodeWithTag(SearchTags.arabic(2, 255), useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun foundByItsTranslation_theArabicIsLeftOut() {
+        show("x", QuranSearchUiState("x", ayahs = listOf(AyahResult(ayah, "Al-Baqara"))))
+
+        composeTestRule.onNodeWithTag(SearchTags.arabic(2, 255), useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
     fun nothingFound_saysSo_onceTheResultsAreForWhatsTyped() {
         show("zzqx", QuranSearchUiState("zzqx"))
 

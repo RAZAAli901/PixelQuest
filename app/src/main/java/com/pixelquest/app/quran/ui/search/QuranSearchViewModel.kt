@@ -2,6 +2,7 @@ package com.pixelquest.app.quran.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pixelquest.app.quran.data.ArabicSearch
 import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.domain.Ayah
 import com.pixelquest.app.quran.domain.Surah
@@ -25,14 +26,17 @@ data class AyahResult(val ayah: Ayah, val surahName: String)
  *
  * @param query the search these results are for: the field's text may already be ahead of it.
  * @param surahs the surahs whose number or name matches.
- * @param ayahs the ayah a reference names ("2:255"), then those whose translation has the words.
+ * @param ayahs the ayah a reference names ("2:255"), then those whose translation has the words,
+ *   or, for Arabic typed, whose Arabic has them.
  * @param capped there were more ayahs than [QuranRepository.SEARCH_LIMIT]: only the first are here.
+ * @param arabic the search was in the Arabic: the results show it.
  */
 data class QuranSearchUiState(
     val query: String = "",
     val surahs: List<Surah> = emptyList(),
     val ayahs: List<AyahResult> = emptyList(),
-    val capped: Boolean = false
+    val capped: Boolean = false,
+    val arabic: Boolean = false
 ) {
     val isEmpty: Boolean get() = surahs.isEmpty() && ayahs.isEmpty()
 }
@@ -40,7 +44,8 @@ data class QuranSearchUiState(
 /**
  * Searching the whole Quran as the player types: surahs by number or name (as the surah list
  * does), an ayah by its reference, and ayahs by the words of their translation (full-text, on the
- * phone). A newer search replaces one still running.
+ * phone) or, typed in Arabic, by their Arabic, marks or none (ArabicSearch). A newer search
+ * replaces one still running.
  */
 @HiltViewModel
 class QuranSearchViewModel @Inject constructor(private val repository: QuranRepository) : ViewModel() {
@@ -62,13 +67,19 @@ class QuranSearchViewModel @Inject constructor(private val repository: QuranRepo
     private suspend fun search(q: String, surahs: List<Surah>): QuranSearchUiState {
         val names = surahs.associate { it.number to it.englishName }
         val named = reference(q)?.let { (surah, ayah) -> repository.ayah(surah, ayah) }
-        val found = repository.searchTranslation(q, QuranRepository.SEARCH_LIMIT)
+        val arabic = ArabicSearch.hasArabic(q)
+        val found = if (arabic) {
+            repository.searchArabic(q, QuranRepository.SEARCH_LIMIT)
+        } else {
+            repository.searchTranslation(q, QuranRepository.SEARCH_LIMIT)
+        }
         val ayahs = (listOfNotNull(named) + found).distinctBy { it.id }
         return QuranSearchUiState(
             query = q,
             surahs = SurahSearch.filter(surahs, q),
             ayahs = ayahs.map { AyahResult(it, names[it.surah].orEmpty()) },
-            capped = found.size >= QuranRepository.SEARCH_LIMIT
+            capped = found.size >= QuranRepository.SEARCH_LIMIT,
+            arabic = arabic
         )
     }
 

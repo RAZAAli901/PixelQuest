@@ -66,7 +66,7 @@
     <!-- Searching the whole Quran. -->
     <string name="quran_search_title">Search the Quran</string>
     <string name="quran_search_placeholder">Surah, 2:255, or words</string>
-    <string name="quran_search_hint">Find a surah by its name or number, an ayah by its reference (2:255), or ayahs by words in their English translation.</string>
+    <string name="quran_search_hint">Find a surah by its name or number, an ayah by its reference (2:255), or ayahs by words in their English translation or in Arabic, with or without its marks.</string>
     <string name="quran_search_none">Nothing found for “<xliff:g id="query" example="zzqx">%1$s</xliff:g>”</string>
     <plurals name="quran_search_surahs">
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> surah</item>

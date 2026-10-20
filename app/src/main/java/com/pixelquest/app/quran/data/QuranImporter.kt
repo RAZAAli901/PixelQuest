@@ -39,7 +39,8 @@ sealed interface QuranLoadState {
  * whose version marks the load done. A failure leaves the database as it was.
  *
  * The text goes in exactly as the files hold it; they're checked first (the standard count, and the
- * translation matching the Arabic ayah for ayah).
+ * translation matching the Arabic ayah for ayah). Beside each ayah goes its key for Arabic search
+ * (ArabicSearch), made from it, never shown.
  */
 @Singleton
 class QuranImporter(
@@ -75,9 +76,11 @@ class QuranImporter(
         val id = Regex("\"id\":\"([^\"]+)\"").find(head)?.groupValues?.get(1)
             ?: throw QuranImportException("$file has no id at its start")
         // Complete means this bundle, with this translation in every ayah: a newly chosen one isn't yet.
+        // And every ayah with its search key: a database updated to version 16 has none yet.
         val held = dao.getTranslation(id)
         val complete = held?.dataVersion == version && dao.surahCount() == SURAHS &&
-            dao.ayahCount() == AYAHS && dao.ayahCountIn(id) == AYAHS && dao.juzCount() == JUZS
+            dao.ayahCount() == AYAHS && dao.ayahCountIn(id) == AYAHS && dao.juzCount() == JUZS &&
+            dao.ayahCountWithoutPlain() == 0
         return if (complete) null else import()
     }
 
@@ -112,7 +115,7 @@ class QuranImporter(
         var id = 0
         val ayahs = quran.surahs.zip(translation.surahs).flatMap { (surah, translated) ->
             surah.ayahs.mapIndexed { i, arabic ->
-                QuranAyahEntity(++id, surah.number, i + 1, arabic, translation.id, translated.ayahs[i])
+                QuranAyahEntity(++id, surah.number, i + 1, arabic, translation.id, translated.ayahs[i], ArabicSearch.key(arabic))
             }
         }
         val info = TranslationInfoEntity(

@@ -67,6 +67,17 @@ interface QuranDao {
     )
     suspend fun searchTranslation(match: String, limit: Int): List<QuranAyahEntity>
 
+    /**
+     * Ayahs whose Arabic, as search matches it, has [key] in it (ArabicSearch.key, made from what
+     * the player typed), in the Quran's order: at most [limit].
+     */
+    @Query("SELECT * FROM quran_ayah WHERE arabicPlain LIKE '%' || :key || '%' ORDER BY id LIMIT :limit")
+    suspend fun searchArabic(key: String, limit: Int): List<QuranAyahEntity>
+
+    /** How many ayahs still lack their search key: all of them just after version 16's update. */
+    @Query("SELECT COUNT(*) FROM quran_ayah WHERE arabicPlain = ''")
+    suspend fun ayahCountWithoutPlain(): Int
+
     // Translations
 
     @Query("SELECT * FROM quran_translation WHERE id = :id")
