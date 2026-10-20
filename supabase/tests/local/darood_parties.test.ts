@@ -1,6 +1,8 @@
-// Darood Parties on the server (migrations 20261019000004 to 20261019000022): who reads what, the
-// limits, the leader's rights, invitations, leaving, and finishing. Every rule the app relies on is
-// checked here against the real database, row-level security and functions.
+// Parties on the server (migrations 20261019000004 to 20261019000034): who reads what, the limits,
+// the leader's rights, invitations, leaving, and finishing. Every rule the app relies on is checked
+// here against the real database, row-level security and functions. Darood Parties first; then Study
+// parties, which share the same core (docs/party-core.md) and none of Darood's own rules. They share
+// one file, and one cast of players, to keep under the stack's sign-in limit.
 import assert from "node:assert/strict";
 import { asService, call, localTest, newEmail, newPlayer, sql, type Session } from "./stack.ts";
 
@@ -31,7 +33,7 @@ async function account(tag: string): Promise<string> {
   return made.body.id;
 }
 
-async function partyOf(leader: Player, members: Player[], options: { name?: string; max_members?: number; milestone?: number } = {}): Promise<string> {
+async function partyOf(leader: Player, members: Player[], options: { name?: string; max_members?: number; milestone?: number; party_type?: string } = {}): Promise<string> {
   const made = await rpc(leader, "create_party", { name: options.name ?? "Friday circle", ...options });
   assert.equal(made.status, 200, JSON.stringify(made.body));
   // The suite shares one leader, who invites more than 20 times an hour across it: its count starts
@@ -526,3 +528,93 @@ localTest("at most 20 invitations an hour per account, unknown names included (2
   assert.deepEqual((await rpc(leader, "invite_member", { party_id: first, username: friend.username })).body, { status: "sent" });
 });
 
+// Study parties: the same core, none of Darood's own (20261019000031 to 20261019000034).
+
+// The new form takes a member limit as well as the kind: the app always sends one.
+const study = { party_type: "study", max_members: 10 };
+
+localTest("a study party starts with its leader, within the same limits, and with no milestone (20261019000034)", async () => {
+  const { leader, outsider } = await cast();
+  const party = await partyOf(leader, [], { name: "Physics group", ...study, max_members: 6 });
+  const row = (await call(`/rest/v1/parties?id=eq.${party}&select=party_type,max_members,milestone,completed_at,is_public_race`, { token: leader.accessToken })).body;
+  assert.deepEqual(row, [{ party_type: "study", max_members: 6, milestone: null, completed_at: null, is_public_race: false }]);
+  const members = (await call(`/rest/v1/party_members?party_id=eq.${party}&select=user_id,role,status`, { token: leader.accessToken })).body;
+  assert.deepEqual(members, [{ user_id: leader.userId, role: "leader", status: "active" }]);
+
+  for (const body of [{ max_members: 1 }, { max_members: 31 }, { name: "x" }]) {
+    const refused = await rpc(leader, "create_party", { name: "Study circle", ...study, max_members: 6, ...body });
+    assert.equal(refused.status, 400, JSON.stringify(body));
+  }
+  const unknown = await rpc(leader, "create_party", { name: "Chess club", max_members: 6, party_type: "chess" });
+  assert.deepEqual([unknown.status, unknown.body.message], [400, "unknown_party_type"]);
+  // The 1.4 form, without a kind, still starts a Darood Party.
+  const old = await rpc(leader, "create_party", { name: "Old form", max_members: 6, milestone: 1000 });
+  assert.deepEqual((await call(`/rest/v1/parties?id=eq.${old.body}&select=party_type,milestone`, { token: leader.accessToken })).body, [{ party_type: "darood", milestone: 1000 }]);
+  // Signed out, nothing starts.
+  assert.equal((await call("/rest/v1/rpc/create_party", { body: { name: "Anyone", max_members: 6, ...study } })).status, 401);
+
+  // 30 places, as in a Darood Party: the leader and 29 others, then the 31st is refused.
+  const full = await partyOf(leader, [], { ...study, max_members: 30 });
+  const others = await Promise.all(Array.from({ length: 29 }, (_, i) => account(`studyseat${i}`)));
+  for (const userId of others) {
+    const seated = await asService("/rest/v1/party_members", { body: { party_id: full, user_id: userId, status: "active", joined_at: new Date().toISOString() } });
+    assert.equal(seated.status, 201, JSON.stringify(seated.body));
+  }
+  const thirtyFirst = await rpc(leader, "invite_member", { party_id: full, username: outsider.username });
+  assert.deepEqual([thirtyFirst.status, thirtyFirst.body.message], [400, "party_full"]);
+});
+
+localTest("a study party's reading, invitations and leader work as a Darood Party's", async () => {
+  const { leader, member, invitee, outsider } = await cast();
+  const party = await partyOf(leader, [member], study);
+  await rpc(leader, "invite_member", { party_id: party, username: invitee.username });
+
+  // An outsider reads nothing; signed out, nothing at all.
+  for (const path of [`/rest/v1/parties?id=eq.${party}`, `/rest/v1/party_members?party_id=eq.${party}`]) {
+    assert.deepEqual((await call(path, { token: outsider.accessToken })).body, [], path);
+    assert.equal((await call(path)).status, 401, `${path} signed out`);
+  }
+  // The invitee sees the party and their own row; the members see everyone.
+  assert.equal((await call(`/rest/v1/parties?id=eq.${party}`, { token: invitee.accessToken })).body.length, 1);
+  assert.deepEqual((await call(`/rest/v1/party_members?party_id=eq.${party}&select=user_id`, { token: invitee.accessToken })).body, [{ user_id: invitee.userId }]);
+  assert.equal((await call(`/rest/v1/party_members?party_id=eq.${party}`, { token: member.accessToken })).body.length, 3);
+
+  // Only the leader invites, removes and renames; its kind never changes.
+  assert.equal((await rpc(member, "invite_member", { party_id: party, username: outsider.username })).body.message, "not_leader");
+  assert.equal((await rpc(member, "remove_member", { party_id: party, user_id: leader.userId })).body.message, "not_leader");
+  const rename = (who: Session, name: string) =>
+    call(`/rest/v1/parties?id=eq.${party}`, { method: "PATCH", token: who.accessToken, body: { name }, headers: { Prefer: "return=representation" } });
+  assert.deepEqual((await rename(member, "Taken over")).body, []);
+  assert.equal((await rename(leader, "Exam group")).body[0].name, "Exam group");
+  assert.equal((await call(`/rest/v1/parties?id=eq.${party}`, { method: "PATCH", token: leader.accessToken, body: { party_type: "darood" } })).status, 403, "its kind never changes");
+
+  // Answering, handing over, leaving, deleting: the same.
+  assert.deepEqual((await rpc(invitee, "respond_invite", { party_id: party, accept: false })).body, { status: "declined" });
+  assert.equal((await rpc(leader, "leave_party", { party_id: party })).body.message, "leader_must_hand_over");
+  assert.deepEqual((await rpc(leader, "transfer_leadership", { party_id: party, user_id: member.userId })).body, { leader_id: member.userId });
+  assert.deepEqual((await rpc(leader, "leave_party", { party_id: party })).body, { status: "left" });
+  assert.equal((await rpc(leader, "delete_party", { party_id: party })).body.message, "not_leader");
+  assert.deepEqual((await rpc(member, "delete_party", { party_id: party })).body, { status: "deleted" });
+  assert.deepEqual((await call(`/rest/v1/parties?id=eq.${party}`, { token: member.accessToken })).body, []);
+});
+
+localTest("a study party has none of Darood's own: no entries, milestone or race board (20261019000033)", async () => {
+  const { leader, member, outsider } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Quiet"), ...study });
+
+  const entry = await post(member, party, 33);
+  assert.deepEqual([entry.status, entry.body.message], [400, "not_a_darood_party"]);
+  const viaFunction = await rpc(member, "add_darood_entry", { party_id: party, amount: 33, local_date: day(), tz: "UTC", client_id: crypto.randomUUID() });
+  assert.equal(viaFunction.body.message, "not_a_darood_party");
+
+  const milestone = await rpc(leader, "set_milestone", { party_id: party, target: 5000 });
+  assert.equal(milestone.status, 400);
+  assert.match(milestone.body.message, /darood_only_columns/);
+  const race = await call(`/rest/v1/parties?id=eq.${party}`, { method: "PATCH", token: leader.accessToken, body: { is_public_race: true } });
+  assert.equal(race.status, 400);
+  assert.match(race.body.message, /darood_only_columns/);
+
+  const name = (await call(`/rest/v1/parties?id=eq.${party}&select=name`, { token: leader.accessToken })).body[0].name;
+  const board = (await call("/rest/v1/race_board?select=name", { token: outsider.accessToken })).body;
+  assert.ok(!board.some((line: { name: string }) => line.name === name));
+});
