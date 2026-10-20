@@ -109,6 +109,10 @@ data class StudyPartyUiState(
     val studiedToday: Int = 0,
     /** The study timer, if one is running: maybe for another party. */
     val timer: com.pixelquest.app.study.data.RunningTimer? = null,
+    /** The weeks before this one, newest first, with their winners. */
+    val pastWeeks: List<PastWeek> = emptyList(),
+    /** Last week's winners, until the player dismisses them; empty when there's nothing new to tell. */
+    val winnerBanner: List<WeekWinner> = emptyList(),
     val refused: List<StudyCompletion> = emptyList(),
     val waiting: Int = 0,
     val refreshing: Boolean = false,
@@ -192,6 +196,22 @@ fun weekSectionsOf(rows: List<ItemRow>, zone: ZoneId): List<Pair<WeekSection, Li
 data class WeekProgress(val done: Int, val total: Int)
 
 fun weekProgressOf(rows: List<ItemRow>): WeekProgress = WeekProgress(rows.count { it.done }, rows.size)
+
+/** A week gone by: its winners (ties all win; none if nobody scored) and the player's own points. */
+data class PastWeek(val weekStart: LocalDate, val winners: List<WeekWinner>, val myPoints: Int)
+
+/** The weeks before this one the phone knows, newest first. */
+fun pastWeeksOf(scores: List<WeekScore>, winners: List<WeekWinner>, myId: String?): List<PastWeek> =
+    (scores.map { it.weekStart } + winners.map { it.weekStart }).distinct().sortedDescending().map { week ->
+        PastWeek(week, winners.filter { it.weekStart == week }, scores.firstOrNull { it.weekStart == week && it.userId == myId }?.points ?: 0)
+    }
+
+/** Last week's winners, if its board is recorded and the player hasn't dismissed it ([seenWeek]). */
+fun winnerBannerOf(winners: List<WeekWinner>, thisWeek: LocalDate, seenWeek: LocalDate?): List<WeekWinner> {
+    val lastWeek = thisWeek.minusWeeks(1)
+    if (seenWeek != null && !seenWeek.isBefore(lastWeek)) return emptyList()
+    return winners.filter { it.weekStart == lastWeek }
+}
 
 /** This week's board: every active member, the most points first, equal points sharing a place. */
 fun boardOf(scores: List<WeekScore>, members: List<PartyMember>, myId: String?): List<BoardLine> {

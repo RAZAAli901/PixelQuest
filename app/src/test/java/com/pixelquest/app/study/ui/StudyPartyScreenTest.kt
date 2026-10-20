@@ -178,6 +178,25 @@ class StudyPartyScreenTest {
     }
 
     @Test
+    fun theWinnerBanner_namesTies_andDismisses() {
+        val last = java.time.LocalDate.of(2026, 10, 12)
+        val winners = listOf(
+            com.pixelquest.app.study.domain.WeekWinner("p1", last, "bram", null, 40),
+            com.pixelquest.app.study.domain.WeekWinner("p1", last, "aria", null, 40)
+        )
+        var dismissed = false
+        val state = StudyPartyUiState(party = party, myId = "aria", members = members, tab = PartyTab.SCOREBOARD, winnerBanner = winners, pastWeeks = listOf(PastWeek(last, winners, 40)), loaded = true)
+        composeTestRule.setContent {
+            PixelQuestTheme { StudyPartyContent(state = state, onNavigateBack = {}, onOpenInfo = {}, onDismissWinners = { dismissed = true }) }
+        }
+        composeTestRule.onNodeWithText("🏆 You won last week!").assertExists()
+        composeTestRule.onNodeWithText("@bram, @aria_k, with 40 points each").assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.pastWeek(last.toString())).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.WINNER_DISMISS).performClick()
+        assertEquals(true, dismissed)
+    }
+
+    @Test
     fun aCardsMenu_isThereForItsCreatorOrTheLeader() {
         val item = com.pixelquest.app.study.domain.StudyItem(
             "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH

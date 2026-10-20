@@ -58,7 +58,71 @@ fun LazyListScope.scoreboard(state: StudyPartyUiState) {
     } else {
         items(state.board, key = { "board_" + it.userId }) { line -> BoardRow(line) }
     }
+    if (state.pastWeeks.isNotEmpty()) {
+        item(key = "past_title") {
+            Text(text = stringResource(R.string.study_past_weeks), style = MaterialTheme.typography.titleSmall, color = PixelTheme.colors.primaryText, modifier = Modifier.semantics { heading() })
+        }
+        items(state.pastWeeks, key = { "past_" + it.weekStart }) { week -> PastWeekRow(week, state.members) }
+    }
     item(key = "board_rules") { PointsRules() }
+}
+
+/** Last week's winners, over This week and the Scoreboard, until dismissed. */
+fun LazyListScope.winnerBanner(state: StudyPartyUiState, onDismiss: () -> Unit) {
+    if (state.winnerBanner.isEmpty()) return
+    item(key = "winner_banner") { WinnerBanner(state, onDismiss) }
+}
+
+@Composable
+private fun WinnerBanner(state: StudyPartyUiState, onDismiss: () -> Unit) {
+    val colors = PixelTheme.colors
+    val winners = state.winnerBanner
+    val names = winners.map { winnerName(it, state) }.joinToString(", ")
+    val iWon = winners.any { it.userId == state.myId }
+    PixelCard(variant = PixelPanelVariant.LAVENDER, contentPadding = 16.dp, modifier = Modifier.fillMaxWidth().testTag(StudyTags.WINNER_BANNER)) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                text = stringResource(if (iWon) R.string.study_winner_you else R.string.study_winner_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = inkOnPanel(colors.primaryText),
+                modifier = Modifier.semantics { heading() }
+            )
+            Text(
+                text = pluralStringResource(R.plurals.study_winner_line, winners.size, names, pluralStringResource(R.plurals.study_points, winners.first().points, winners.first().points)),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.onSurface
+            )
+            androidx.compose.material3.TextButton(onClick = onDismiss, modifier = Modifier.testTag(StudyTags.WINNER_DISMISS)) {
+                Text(text = stringResource(R.string.study_winner_dismiss), color = colors.primaryText)
+            }
+        }
+    }
+}
+
+@Composable
+private fun winnerName(winner: com.pixelquest.app.study.domain.WeekWinner, state: StudyPartyUiState): String {
+    val name = winner.username ?: state.members.firstOrNull { it.userId == winner.userId }?.username
+    return name?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone)
+}
+
+/** A week gone by: its dates, who won, and the player's points. */
+@Composable
+private fun PastWeekRow(week: PastWeek, members: List<com.pixelquest.app.party.domain.PartyMember>) {
+    val colors = PixelTheme.colors
+    val format = DateTimeFormatter.ofPattern("EEE d MMM", LocalConfiguration.current.locales[0])
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.fillMaxWidth().testTag(StudyTags.pastWeek(week.weekStart.toString()))) {
+        Text(text = stringResource(R.string.study_board_week, week.weekStart.format(format), week.weekStart.plusDays(6).format(format)), style = MaterialTheme.typography.labelLarge, color = colors.onSurface)
+        val names = week.winners.map { w ->
+            (w.username ?: members.firstOrNull { it.userId == w.userId }?.username)?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone)
+        }
+        Text(
+            text = if (names.isEmpty()) stringResource(R.string.study_past_no_winner)
+            else pluralStringResource(R.plurals.study_past_winner, names.size, names.joinToString(", "), pluralStringResource(R.plurals.study_points, week.winners.first().points, week.winners.first().points)),
+            style = MaterialTheme.typography.bodySmall,
+            color = colors.onSurface
+        )
+        Text(text = stringResource(R.string.study_past_mine, pluralStringResource(R.plurals.study_points, week.myPoints, week.myPoints)), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+    }
 }
 
 /** One member on the board: place, name, points, and their breakdown. */

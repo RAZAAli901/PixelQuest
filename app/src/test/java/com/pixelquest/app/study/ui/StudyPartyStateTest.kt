@@ -111,6 +111,27 @@ class StudyPartyStateTest {
     }
 
     @Test
+    fun pastWeeks_newestFirst_withWinners_andTheBannerUntilSeen() {
+        fun score(user: String, week: LocalDate, points: Int) = WeekScore("p", user, null, week, points, points, 0, 0, 1, 0)
+        val last = week.minusWeeks(1)
+        val before = week.minusWeeks(2)
+        val winners = listOf(
+            com.pixelquest.app.study.domain.WeekWinner("p", last, "bram", null, 40),
+            com.pixelquest.app.study.domain.WeekWinner("p", last, "cleo", null, 40)
+        )
+        val past = pastWeeksOf(listOf(score("aria", before, 10), score("aria", last, 25), score("bram", last, 40)), winners, "aria")
+        assertEquals(listOf(last, before), past.map { it.weekStart })
+        assertEquals(25, past[0].myPoints)
+        assertEquals(listOf("bram", "cleo"), past[0].winners.map { it.userId })
+        assertTrue(past[1].winners.isEmpty())
+
+        assertEquals(winners, winnerBannerOf(winners, week, seenWeek = null))
+        assertEquals(winners, winnerBannerOf(winners, week, seenWeek = before))
+        assertTrue(winnerBannerOf(winners, week, seenWeek = last).isEmpty())
+        assertTrue("an older week's winners aren't news", winnerBannerOf(winners, week.plusWeeks(1), seenWeek = null).isEmpty())
+    }
+
+    @Test
     fun theBoard_hasEveryone_andEqualPointsShareAPlace() {
         fun score(user: String, points: Int) = WeekScore("p", user, null, week, points, points, 0, 0, 1, 0)
         val members = listOf(member("aria", "aria_k"), member("bram"), member("cleo"), member("dan"), member("eve", status = MemberStatus.INVITED))

@@ -257,4 +257,10 @@ abstract class RepositoryModule {
     abstract fun bindStudyTimerStore(
         impl: com.pixelquest.app.study.data.PrefsStudyTimerStore
     ): com.pixelquest.app.study.data.StudyTimerStore
+
+    @Binds
+    @Singleton
+    abstract fun bindWinnerSeenStore(
+        impl: com.pixelquest.app.study.data.PrefsWinnerSeenStore
+    ): com.pixelquest.app.study.data.WinnerSeenStore
 }

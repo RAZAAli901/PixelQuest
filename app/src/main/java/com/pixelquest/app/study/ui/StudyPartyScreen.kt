@@ -94,7 +94,8 @@ fun StudyPartyScreen(
         ),
         onConfirmDelete = viewModel::confirmDelete,
         onCancelDelete = viewModel::cancelDelete,
-        timerActions = TimerActions(viewModel::startTimer, viewModel::stopTimer, viewModel::cancelTimer, viewModel::logStudy)
+        timerActions = TimerActions(viewModel::startTimer, viewModel::stopTimer, viewModel::cancelTimer, viewModel::logStudy),
+        onDismissWinners = viewModel::dismissWinnerBanner
     )
 }
 
@@ -115,7 +116,8 @@ fun StudyPartyContent(
     actions: ItemActions = ItemActions(),
     onConfirmDelete: () -> Unit = {},
     onCancelDelete: () -> Unit = {},
-    timerActions: TimerActions = TimerActions()
+    timerActions: TimerActions = TimerActions(),
+    onDismissWinners: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -169,6 +171,7 @@ fun StudyPartyContent(
                 ) {
                     when (state.tab) {
                         PartyTab.THIS_WEEK -> {
+                            winnerBanner(state, onDismissWinners)
                             pinnedStrip(state, onOpenItem)
                             thisWeek(state, onOpenItem, actions, timerActions)
                         }
@@ -176,7 +179,10 @@ fun StudyPartyContent(
                             pinnedStrip(state, onOpenItem)
                             itemCards(state, state.items, R.string.study_items_empty, onOpenItem, actions)
                         }
-                        PartyTab.SCOREBOARD -> scoreboard(state)
+                        PartyTab.SCOREBOARD -> {
+                            winnerBanner(state, onDismissWinners)
+                            scoreboard(state)
+                        }
                         PartyTab.PEOPLE -> people(state, onAddPeople, onOpenInfo)
                         PartyTab.CHAT -> Unit
                     }
@@ -425,6 +431,9 @@ object StudyTags {
     const val LOG_MINUTES = "study_log_minutes"
     fun minutes(m: Int) = "study_minutes_$m"
     const val POINTS_RULES = "study_points_rules"
+    const val WINNER_BANNER = "study_winner_banner"
+    const val WINNER_DISMISS = "study_winner_dismiss"
+    fun pastWeek(weekStart: String) = "study_past_$weekStart"
     fun boardRow(userId: String) = "study_board_$userId"
     fun boardPlace(userId: String) = "study_board_place_$userId"
     fun boardPoints(userId: String) = "study_board_points_$userId"

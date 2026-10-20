@@ -126,6 +126,24 @@
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> minute</item>
         <item quantity="other"><xliff:g id="count" example="65">%d</xliff:g> minutes</item>
     </plurals>
+    <!-- Last week's winners, over the party until dismissed. -->
+    <string name="study_winner_title">🏆 Last week\'s winner</string>
+    <string name="study_winner_you">🏆 You won last week!</string>
+    <!-- Who won and with how many points ("@bram, with 40 points"; ties: "@bram, @cleo, with 40 points each"). -->
+    <plurals name="study_winner_line">
+        <item quantity="one"><xliff:g id="members" example="\@bram">%1$s</xliff:g>, with <xliff:g id="points" example="40 points">%2$s</xliff:g></item>
+        <item quantity="other"><xliff:g id="members" example="\@bram, \@cleo">%1$s</xliff:g>, with <xliff:g id="points" example="40 points">%2$s</xliff:g> each</item>
+    </plurals>
+    <string name="study_winner_dismiss">Nice! Dismiss</string>
+    <!-- The weeks gone by, under the board. -->
+    <string name="study_past_weeks">Past weeks</string>
+    <plurals name="study_past_winner">
+        <item quantity="one">🏆 <xliff:g id="members" example="\@bram">%1$s</xliff:g>, <xliff:g id="points" example="40 points">%2$s</xliff:g></item>
+        <item quantity="other">🏆 <xliff:g id="members" example="\@bram, \@cleo">%1$s</xliff:g>, <xliff:g id="points" example="40 points">%2$s</xliff:g> each</item>
+    </plurals>
+    <string name="study_past_no_winner">No winner: nobody scored, or the week isn\'t closed yet.</string>
+    <!-- The player's own points that week ("You: 25 points"). -->
+    <string name="study_past_mine">You: <xliff:g id="points" example="25 points">%1$s</xliff:g></string>
     <!-- How points are earned. -->
     <string name="study_points_title">How points work</string>
     <string name="study_points_assignment">An assignment done: <xliff:g id="points" example="10">%d</xliff:g></string>

@@ -11,6 +11,8 @@ import com.pixelquest.app.study.data.MemoryStudyTimerStore
 import com.pixelquest.app.study.data.RunningTimer
 import com.pixelquest.app.study.data.StudyRepository
 import com.pixelquest.app.study.data.StudyTimerStore
+import com.pixelquest.app.study.data.MemoryWinnerSeenStore
+import com.pixelquest.app.study.data.WinnerSeenStore
 import com.pixelquest.app.study.domain.StudyRules
 import com.pixelquest.app.study.domain.StudyRefusal
 import com.pixelquest.app.study.domain.SyncState
@@ -35,7 +37,8 @@ class StudyPartyViewModel @Inject constructor(
     private val parties: PartyRepository,
     private val study: StudyRepository,
     settings: SettingsRepository? = null,
-    private val timer: StudyTimerStore = MemoryStudyTimerStore()
+    private val timer: StudyTimerStore = MemoryStudyTimerStore(),
+    private val winnerSeen: WinnerSeenStore = MemoryWinnerSeenStore()
 ) : ViewModel() {
 
     val partyId: String = savedStateHandle[ARG_PARTY] ?: ""
@@ -46,6 +49,7 @@ class StudyPartyViewModel @Inject constructor(
     private val notice = MutableStateFlow<StudyNotice?>(null)
     private val form = MutableStateFlow<ItemForm?>(null)
     private val confirmingDelete = MutableStateFlow<String?>(null)
+    private val seenWinners = MutableStateFlow(winnerSeen.seenWeek(partyId))
 
     private val weekStart = study.thisWeek()
 
@@ -69,10 +73,14 @@ class StudyPartyViewModel @Inject constructor(
         study.observeAllScores(partyId),
         study.observeWinners(partyId),
         study.observeSessions(partyId, study.today()),
-        timer.running
-    ) { week, all, winners, today, running ->
+        combine(timer.running, seenWinners, ::Pair)
+    ) { week, all, winners, today, (running, seen) ->
         val me = study.myId()
-        Scores(week, all.filter { it.weekStart.isBefore(weekStart) }, winners, today.filter { it.userId == me && it.state != SyncState.FAILED }.sumOf { it.minutes }, running)
+        val past = all.filter { it.weekStart.isBefore(weekStart) }
+        Scores(
+            week, past, winners, today.filter { it.userId == me && it.state != SyncState.FAILED }.sumOf { it.minutes }, running,
+            pastWeeksOf(past, winners, me), winnerBannerOf(winners, weekStart, seen)
+        )
     }
 
     private data class Scores(
@@ -80,7 +88,9 @@ class StudyPartyViewModel @Inject constructor(
         val past: List<com.pixelquest.app.study.domain.WeekScore>,
         val winners: List<com.pixelquest.app.study.domain.WeekWinner>,
         val studiedToday: Int,
-        val timer: RunningTimer?
+        val timer: RunningTimer?,
+        val pastWeeks: List<PastWeek>,
+        val banner: List<com.pixelquest.app.study.domain.WeekWinner>
     )
 
     private val flags = combine(tab, refreshing, loaded, combine(notice, form, confirmingDelete, ::Triple), settings?.simpleModeEnabled ?: flowOf(false)) { tab, refreshing, loaded, (notice, form, deleting), simple ->
@@ -89,7 +99,7 @@ class StudyPartyViewModel @Inject constructor(
 
     private data class Flags(val tab: PartyTab, val refreshing: Boolean, val loaded: Boolean, val notice: StudyNotice?, val simple: Boolean, val form: ItemForm?, val deleting: String?)
 
-    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows, ticks), (weekScores, past, winners, studiedToday, running), waiting, flags ->
+    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows, ticks), (weekScores, past, winners, studiedToday, running, pastWeeks, banner), waiting, flags ->
         val me = study.myId()
         val week = thisWeekOf(rows, weekStart, study.zone())
         StudyPartyUiState(
@@ -111,6 +121,8 @@ class StudyPartyViewModel @Inject constructor(
             pastScores = past,
             studiedToday = studiedToday,
             timer = running,
+            pastWeeks = pastWeeks,
+            winnerBanner = banner,
             winners = winners,
             refused = rows.mapNotNull { row -> row.mine?.takeIf { it.state == SyncState.FAILED } },
             waiting = waiting,
@@ -272,6 +284,13 @@ class StudyPartyViewModel @Inject constructor(
         val id = confirmingDelete.value ?: return
         confirmingDelete.value = null
         delete(id)
+    }
+
+    /** Last week's winners have been seen: their banner doesn't show again on this phone. */
+    fun dismissWinnerBanner() {
+        val week = uiState.value.winnerBanner.firstOrNull()?.weekStart ?: return
+        winnerSeen.markSeen(partyId, week)
+        seenWinners.value = week
     }
 
     fun dismissNotice() {

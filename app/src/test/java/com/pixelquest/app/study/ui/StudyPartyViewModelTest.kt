@@ -192,6 +192,23 @@ class StudyPartyViewModelTest {
     }
 
     @Test
+    fun lastWeeksWinner_isAnnounced_untilDismissed() {
+        val item = study.seedItem(party, "aria", "Lab report")
+        study.seedCompletion(item.id, "bram", LocalDate.of(2026, 10, 21))
+        server.now = Instant.parse("2026-10-27T10:00:00Z")
+        val seen = com.pixelquest.app.study.data.MemoryWinnerSeenStore()
+        val vm = viewModels.keep(StudyPartyViewModel::class.java) {
+            StudyPartyViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), parties, repo, null, timer, seen)
+        }.also { watching = it.uiState.launchIn(MainScope()) }
+
+        waitFor("the banner") { vm.uiState.value.winnerBanner.map { it.userId } == listOf("bram") }
+        assertEquals(LocalDate.of(2026, 10, 19), vm.uiState.value.pastWeeks.single().weekStart)
+        vm.dismissWinnerBanner()
+        waitFor("dismissed") { vm.uiState.value.winnerBanner.isEmpty() }
+        assertEquals(LocalDate.of(2026, 10, 19), seen.seenWeek(party))
+    }
+
+    @Test
     fun theLeader_pinsFromTheEditSheet() {
         val item = study.seedItem(party, "bram", "Lab report")
         val vm = viewModel()
