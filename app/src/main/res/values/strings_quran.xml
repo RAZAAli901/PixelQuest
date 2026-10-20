@@ -63,6 +63,27 @@
     <!-- The card at the top of the Quran screen, back to the last place read. -->
     <string name="quran_continue_title">Continue reading</string>
     <string name="quran_continue_place"><xliff:g id="number" example="2">%1$d</xliff:g>. <xliff:g id="name" example="Al-Baqara">%2$s</xliff:g>, ayah <xliff:g id="ayah" example="255">%3$d</xliff:g></string>
+    <!-- About and Sources: where the Quran in the app comes from. -->
+    <string name="quran_sources_title">About and sources</string>
+    <string name="quran_sources_intro">The Quran here is copied exactly from its sources, never changed, retyped or generated. These are its sources, with their credits and terms.</string>
+    <string name="quran_sources_text_title">The Quran\'s text</string>
+    <string name="quran_sources_text_body">Tanzil Quran Text (Uthmani), from the Tanzil Project, which produces and verifies it with a group of specialists. Licensed under Creative Commons Attribution 3.0: it may be copied only as it is, never changed. Its notice, in full:</string>
+    <string name="quran_sources_metadata_title">Surahs and juz</string>
+    <string name="quran_sources_translation_title">Translation</string>
+    <string name="quran_sources_translation_body"><xliff:g id="name" example="Saheeh International">%1$s</xliff:g>, by <xliff:g id="translator" example="Saheeh International">%2$s</xliff:g>, in <xliff:g id="language" example="English">%3$s</xliff:g>, from the Tanzil Project.</string>
+    <string name="quran_sources_font_title">Arabic typeface</string>
+    <string name="quran_sources_font_body">Amiri Quran 1.003, by the Amiri Project Authors (Khaled Hosny, Sebastian Kosch), made for the Quran\'s text. Licensed under the SIL Open Font License 1.1.</string>
+    <string name="quran_sources_app_title">In this app</string>
+    <string name="quran_sources_downloaded">Downloaded from Tanzil on <xliff:g id="date" example="20 October 2026">%1$s</xliff:g>. The app updates them when Tanzil does.</string>
+    <string name="quran_sources_version">Data version <xliff:g id="version" example="73c20fa2f325b9d2">%1$s</xliff:g></string>
+    <string name="quran_sources_link_tanzil">tanzil.net</string>
+    <string name="quran_sources_link_updates">Changes to the text: tanzil.net/updates</string>
+    <string name="quran_sources_link_metadata">Tanzil\'s Quran metadata</string>
+    <string name="quran_sources_link_translations">Tanzil\'s translations</string>
+    <string name="quran_sources_link_amiri">The Amiri project</string>
+    <string name="quran_sources_link_ofl">SIL Open Font License</string>
+    <!-- What a link does, for TalkBack. -->
+    <string name="quran_sources_open_link">Open in the browser</string>
     <!-- Choosing the translation. -->
     <string name="quran_translation_title">Translation</string>
     <!-- The reading settings' button: the translation read now. -->

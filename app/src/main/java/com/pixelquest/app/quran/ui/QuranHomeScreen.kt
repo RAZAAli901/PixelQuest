@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.about.SourcesTags
 import com.pixelquest.app.quran.ui.bookmarks.BookmarkTags
 import com.pixelquest.app.quran.ui.list.ContinueReadingCard
 import com.pixelquest.app.quran.ui.list.GoToAyahDialog
@@ -53,6 +54,7 @@ fun QuranRoute(
     onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) },
     onOpenBookmarks: () -> Unit = {},
     onOpenSearch: () -> Unit = {},
+    onOpenSources: () -> Unit = {},
     viewModel: QuranViewModel = hiltViewModel(),
     listViewModel: SurahListViewModel = hiltViewModel()
 ) {
@@ -66,7 +68,8 @@ fun QuranRoute(
         onOpenSurah = onOpenSurah,
         onOpenAyah = onOpenAyah,
         onOpenBookmarks = onOpenBookmarks,
-        onOpenSearch = onOpenSearch
+        onOpenSearch = onOpenSearch,
+        onOpenSources = onOpenSources
     )
 }
 
@@ -84,7 +87,8 @@ fun QuranHomeScreen(
     onOpenSurah: (surah: Int) -> Unit = {},
     onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) },
     onOpenBookmarks: () -> Unit = {},
-    onOpenSearch: () -> Unit = {}
+    onOpenSearch: () -> Unit = {},
+    onOpenSources: () -> Unit = {}
 ) {
     val colors = PixelTheme.colors
     var goingTo by rememberSaveable { mutableStateOf(false) }
@@ -122,6 +126,14 @@ fun QuranHomeScreen(
                             SymbolIcon(
                                 symbol = "#",
                                 contentDescription = stringResource(R.string.quran_go_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
+                        IconButton(onClick = onOpenSources, modifier = Modifier.testTag(SourcesTags.ACTION)) {
+                            SymbolIcon(
+                                symbol = "ⓘ",
+                                contentDescription = stringResource(R.string.quran_sources_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = colors.primaryText
                             )

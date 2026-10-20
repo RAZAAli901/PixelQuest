@@ -50,6 +50,8 @@ sealed class Screen(val route: String) {
     object IslamicHub : Screen(Routes.ISLAMIC_HUB)
     /** The Quran, from the Islamic hub. */
     object Quran : Screen("${Routes.ISLAMIC}/quran")
+    /** Where the Quran in the app comes from, with its terms. */
+    object QuranSources : Screen("${Routes.ISLAMIC}/quran/sources")
     /** Choosing the Quran's translation. */
     object QuranTranslations : Screen("${Routes.ISLAMIC}/quran/translations")
     /** Searching the whole Quran. */
