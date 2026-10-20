@@ -246,6 +246,11 @@ class DatabaseUpgradeTest {
             // Version 14's juz table too; the player's bookmarks come through from 15 on.
             assertEquals(0, db.quranDao().juzCount())
             assertEquals(if (version >= 15) 1 else 0, db.quranBookmarkDao().count())
+
+            // Version 18's study party tables are there, empty: they fill from the server.
+            assertTrue(db.studyDao().observeItems("p1").first().isEmpty())
+            assertTrue(db.studyDao().pendingToSend().isEmpty())
+            assertTrue(db.studyDao().observeAllScores("p1").first().isEmpty())
         } finally {
             db.close()
         }
@@ -267,6 +272,7 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion14() = updateFrom(14)
     @Test fun fromVersion15() = updateFrom(15)
     @Test fun fromVersion16() = updateFrom(16)
+    @Test fun fromVersion17() = updateFrom(17)
 
     @Test
     fun theQuransSearchIndex_followsItsTable_afterTheUpdate(): Unit = runBlocking {

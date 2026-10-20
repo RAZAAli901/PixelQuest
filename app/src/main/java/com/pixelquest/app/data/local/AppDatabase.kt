@@ -44,9 +44,16 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         // Where each juz starts, from version 14.
         com.pixelquest.app.quran.data.local.QuranJuzEntity::class,
         // The player's Quran bookmarks, from version 15; the ayahs' Arabic search key, from 16.
-        com.pixelquest.app.quran.data.local.QuranBookmarkEntity::class
+        com.pixelquest.app.quran.data.local.QuranBookmarkEntity::class,
+        // Study parties' cache (docs/study-party.md), from version 18.
+        com.pixelquest.app.study.data.local.StudyItemEntity::class,
+        com.pixelquest.app.study.data.local.StudyCompletionEntity::class,
+        com.pixelquest.app.study.data.local.StudySessionEntity::class,
+        com.pixelquest.app.study.data.local.StudyWeekScoreEntity::class,
+        com.pixelquest.app.study.data.local.StudyWeekWinnerEntity::class,
+        com.pixelquest.app.study.data.local.PendingStudyEntity::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -64,6 +71,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun partyDao(): com.pixelquest.app.party.data.local.PartyDao
     abstract fun quranDao(): com.pixelquest.app.quran.data.local.QuranDao
     abstract fun quranBookmarkDao(): com.pixelquest.app.quran.data.local.QuranBookmarkDao
+    abstract fun studyDao(): com.pixelquest.app.study.data.local.StudyDao
 
     companion object {
         /**
@@ -71,7 +79,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -256,6 +264,35 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE `darood_party` ADD COLUMN `partyType` TEXT NOT NULL DEFAULT 'DAROOD'")
             }
         }
+
+        /**
+         * Study parties' cache (docs/study-party.md): items, completions, study time, scores, winners,
+         * and what's waiting to be sent. Six new tables, which start empty and fill from the server;
+         * nothing existing changes. The SQL is exactly what Room exported for version 18
+         * (app/schemas/.../18.json).
+         */
+        val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                STUDY_TABLES_18.forEach { db.execSQL(it) }
+            }
+        }
+
+        /** Version 18's study tables, as Room exports them (app/schemas, 18.json). */
+        private val STUDY_TABLES_18 = listOf(
+            "CREATE TABLE IF NOT EXISTS `study_item` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `kind` TEXT NOT NULL, `title` TEXT NOT NULL, `subject` TEXT, `notes` TEXT, `dueAt` INTEGER, `pinned` INTEGER NOT NULL, `createdBy` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_study_item_partyId` ON `study_item` (`partyId`)",
+            "CREATE TABLE IF NOT EXISTS `study_completion` (`id` INTEGER NOT NULL, `partyId` TEXT NOT NULL, `itemId` TEXT NOT NULL, `userId` TEXT, `completedAt` INTEGER NOT NULL, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `clientId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_study_completion_partyId` ON `study_completion` (`partyId`)",
+            "CREATE INDEX IF NOT EXISTS `index_study_completion_itemId` ON `study_completion` (`itemId`)",
+            "CREATE INDEX IF NOT EXISTS `index_study_completion_clientId` ON `study_completion` (`clientId`)",
+            "CREATE TABLE IF NOT EXISTS `study_session` (`id` INTEGER NOT NULL, `partyId` TEXT NOT NULL, `userId` TEXT, `minutes` INTEGER NOT NULL, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `clientId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_study_session_partyId` ON `study_session` (`partyId`)",
+            "CREATE INDEX IF NOT EXISTS `index_study_session_clientId` ON `study_session` (`clientId`)",
+            "CREATE TABLE IF NOT EXISTS `study_week_score` (`partyId` TEXT NOT NULL, `userId` TEXT NOT NULL, `weekStart` TEXT NOT NULL, `points` INTEGER NOT NULL, `itemPoints` INTEGER NOT NULL, `bonusPoints` INTEGER NOT NULL, `studyPoints` INTEGER NOT NULL, `itemsCompleted` INTEGER NOT NULL, `studyMinutes` INTEGER NOT NULL, PRIMARY KEY(`partyId`, `userId`, `weekStart`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE TABLE IF NOT EXISTS `study_week_winner` (`partyId` TEXT NOT NULL, `weekStart` TEXT NOT NULL, `userId` TEXT NOT NULL, `points` INTEGER NOT NULL, PRIMARY KEY(`partyId`, `weekStart`, `userId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE TABLE IF NOT EXISTS `study_pending` (`clientId` TEXT NOT NULL, `kind` TEXT NOT NULL, `partyId` TEXT NOT NULL, `itemId` TEXT, `minutes` INTEGER, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `state` TEXT NOT NULL, `attempts` INTEGER NOT NULL DEFAULT 0, `refusal` TEXT, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_study_pending_partyId` ON `study_pending` (`partyId`)"
+        )
 
         /** Version 13's Quran tables, as Room exports them (app/schemas, 13.json): its search index's triggers too. */
         private val QURAN_TABLES_13 = listOf(

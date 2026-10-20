@@ -74,6 +74,12 @@ object DaoModule {
     @Singleton
     fun providePartyDao(database: AppDatabase): com.pixelquest.app.party.data.local.PartyDao = database.partyDao()
 
+    // A study party's own cache (docs/study-party.md).
+
+    @Provides
+    @Singleton
+    fun provideStudyDao(database: AppDatabase): com.pixelquest.app.study.data.local.StudyDao = database.studyDao()
+
     // The Quran on the phone (docs/quran-data.md).
 
     @Provides
