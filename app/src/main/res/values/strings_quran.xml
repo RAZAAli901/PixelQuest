@@ -32,6 +32,10 @@
     </plurals>
     <!-- What TalkBack calls the Bismillah above a surah (it reads the Arabic as written). -->
     <string name="quran_bismillah">Bismillah</string>
+    <!-- The reading settings' sliders. -->
+    <string name="quran_setting_arabic_size">Arabic size</string>
+    <string name="quran_setting_translation_size">Translation size</string>
+    <string name="quran_setting_line_spacing">Line spacing</string>
     <!-- What the reader shows of each ayah: the Arabic, both, or the translation. -->
     <string name="quran_mode_arabic">Arabic</string>
     <string name="quran_mode_both">Both</string>

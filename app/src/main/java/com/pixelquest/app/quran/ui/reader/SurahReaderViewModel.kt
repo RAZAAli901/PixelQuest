@@ -33,15 +33,18 @@ enum class DisplayMode {
  * @param hasMore whether the surah has ayahs not loaded yet.
  * @param target the ayah to bring into view (and flash) once it's loaded: the one the reader was
  *   opened at, or where the player had scrolled to before a rotation; null for the surah's start.
+ * @param settings the sizes, spacing and display mode the player reads with.
  */
 data class ReaderUiState(
     val surah: Surah? = null,
     val ayahs: List<Ayah> = emptyList(),
     val hasMore: Boolean = true,
     val loading: Boolean = false,
-    val displayMode: DisplayMode = DisplayMode.BOTH,
-    val target: Int? = null
-)
+    val target: Int? = null,
+    val settings: ReadingSettings = ReadingSettings()
+) {
+    val displayMode: DisplayMode get() = settings.displayMode
+}
 
 /**
  * One surah in the reader: its ayahs a page at a time as the player scrolls (QuranRepository.PAGE_SIZE),
@@ -59,8 +62,10 @@ class SurahReaderViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(
         ReaderUiState(
-            displayMode = savedStateHandle.get<String>(KEY_MODE)?.let { name -> DisplayMode.entries.firstOrNull { it.name == name } }
-                ?: DisplayMode.BOTH,
+            settings = ReadingSettings(
+                displayMode = savedStateHandle.get<String>(KEY_MODE)?.let { name -> DisplayMode.entries.firstOrNull { it.name == name } }
+                    ?: DisplayMode.BOTH
+            ),
             // Back after a rotation: where they'd scrolled to. Else the ayah the reader was opened at.
             target = savedStateHandle.get<Int>(KEY_SCROLLED) ?: savedStateHandle.get<Int>(ARG_AYAH)?.takeIf { it > 1 }
         )
@@ -111,8 +116,13 @@ class SurahReaderViewModel @Inject constructor(
     }
 
     fun setDisplayMode(mode: DisplayMode) {
-        savedStateHandle[KEY_MODE] = mode.name
-        _state.update { it.copy(displayMode = mode) }
+        updateSettings(_state.value.settings.copy(displayMode = mode))
+    }
+
+    /** The player changed how they read (the reading settings sheet). */
+    fun updateSettings(settings: ReadingSettings) {
+        savedStateHandle[KEY_MODE] = settings.displayMode.name
+        _state.update { it.copy(settings = settings) }
     }
 
     companion object {

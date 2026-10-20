@@ -39,7 +39,7 @@ class DisplayModeSwitchTest {
         composeTestRule.setContent {
             var state by mutableStateOf(ReaderUiState(surah = surah, ayahs = ayahs, hasMore = false))
             PixelQuestTheme(themeMode = mode) {
-                SurahReaderScreen(state = state, onNavigateBack = {}, onDisplayMode = { state = state.copy(displayMode = it) })
+                SurahReaderScreen(state = state, onNavigateBack = {}, onDisplayMode = { state = state.copy(settings = state.settings.copy(displayMode = it)) })
             }
         }
     }

@@ -17,6 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -26,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
-import com.pixelquest.app.quran.ui.QuranTypography
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -42,7 +44,8 @@ fun SurahReaderRoute(onNavigateBack: () -> Unit, viewModel: SurahReaderViewModel
         onLoadMore = viewModel::loadMore,
         onScrolled = viewModel::onScrolled,
         onTargetShown = viewModel::onTargetShown,
-        onDisplayMode = viewModel::setDisplayMode
+        onDisplayMode = viewModel::setDisplayMode,
+        onSettings = viewModel::updateSettings
     )
 }
 
@@ -60,12 +63,21 @@ fun SurahReaderScreen(
     onLoadMore: () -> Unit = {},
     onScrolled: (ayah: Int) -> Unit = {},
     onTargetShown: () -> Unit = {},
-    onOpenSettings: () -> Unit = {},
     onDisplayMode: (DisplayMode) -> Unit = {},
+    onSettings: (ReadingSettings) -> Unit = {},
     listState: LazyListState = rememberLazyListState()
 ) {
     val colors = PixelTheme.colors
     val surah = state.surah
+    var showingSettings by rememberSaveable { mutableStateOf(false) }
+    if (showingSettings) {
+        ReadingSettingsSheet(
+            settings = state.settings,
+            preview = state.ayahs.firstOrNull()?.let { it.arabic to it.translation },
+            onChange = onSettings,
+            onDismiss = { showingSettings = false }
+        )
+    }
     Scaffold(
         containerColor = colors.background,
         topBar = {
@@ -85,7 +97,7 @@ fun SurahReaderScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onOpenSettings, modifier = Modifier.testTag(ReaderTags.SETTINGS)) {
+                    IconButton(onClick = { showingSettings = true }, modifier = Modifier.testTag(ReaderTags.SETTINGS)) {
                         SymbolIcon(
                             symbol = "⚙️",
                             contentDescription = stringResource(R.string.quran_reader_settings),
@@ -99,7 +111,7 @@ fun SurahReaderScreen(
         modifier = Modifier.testTag(ReaderTags.SCREEN)
     ) { padding ->
         ReaderEffects(state, listState, onLoadMore, onScrolled, onTargetShown)
-        val typography = QuranTypography.of(color = colors.onBackground)
+        val typography = state.settings.typography(colors.onBackground)
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             DisplayModeSwitch(
                 selected = state.displayMode,
@@ -173,6 +185,10 @@ object ReaderTags {
     const val BISMILLAH = "quran_bismillah"
     const val LIST = "quran_reader_list"
     const val SETTINGS = "quran_reader_settings"
+    const val SETTINGS_SHEET = "quran_reader_settings_sheet"
+    const val ARABIC_SIZE = "quran_setting_arabic_size"
+    const val TRANSLATION_SIZE = "quran_setting_translation_size"
+    const val LINE_SPACING = "quran_setting_line_spacing"
 
     fun ayah(number: Int) = "quran_ayah_$number"
 

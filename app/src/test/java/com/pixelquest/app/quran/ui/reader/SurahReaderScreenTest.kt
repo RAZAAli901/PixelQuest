@@ -37,7 +37,6 @@ class SurahReaderScreenTest {
     private lateinit var listState: LazyListState
     private var loadMore = 0
     private var back = 0
-    private var settings = 0
     private val scrolled = mutableListOf<Int>()
     private var targetShown = 0
 
@@ -51,7 +50,6 @@ class SurahReaderScreenTest {
                     onLoadMore = { loadMore++ },
                     onScrolled = { scrolled += it },
                     onTargetShown = { targetShown++ },
-                    onOpenSettings = { settings++ },
                     listState = listState
                 )
             }
@@ -65,9 +63,11 @@ class SurahReaderScreenTest {
         composeTestRule.onNodeWithText("Al-Baqara", substring = true, ignoreCase = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("The Cow · 286 ayahs").assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription("Back").performClick()
-        composeTestRule.onNodeWithTag(ReaderTags.SETTINGS).performClick()
         assertEquals(1, back)
-        assertEquals(1, settings)
+
+        composeTestRule.onNodeWithTag(ReaderTags.SETTINGS).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(ReaderTags.SETTINGS_SHEET).assertExists()
     }
 
     @Test
