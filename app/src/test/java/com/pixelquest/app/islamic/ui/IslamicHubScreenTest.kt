@@ -39,12 +39,12 @@ class IslamicHubScreenTest {
 
     private val opened = mutableListOf<String>()
 
-    private fun show(mode: ThemeMode = ThemeMode.Pixel, withMenu: Boolean = true) {
+    private fun show(mode: ThemeMode = ThemeMode.Pixel, withMenu: Boolean = true, comingSoon: Boolean = false) {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode) {
                 val menu = if (withMenu) rememberMenuDrawerController() else null
                 CompositionLocalProvider(LocalMenuDrawer provides menu) {
-                    IslamicHubContent(state = IslamicHubUiState(items = items, loaded = true), onOpen = { opened += it })
+                    IslamicHubContent(state = IslamicHubUiState(items = items, loaded = true), onOpen = { opened += it }, showComingSoon = comingSoon)
                 }
             }
         }
@@ -80,6 +80,24 @@ class IslamicHubScreenTest {
         assertEquals("Namaz and Darood share the first row", namaz.top, darood.top)
         assertEquals(namaz.bottom, darood.bottom)
         assertEquals("the Quran starts the next row, on the left", namaz.left, quran.left)
+    }
+
+    @Test
+    fun theComingSoonCard_followsTheItems_onlyWhenAskedFor_andOpensNothing() {
+        show(comingSoon = true)
+
+        val quran = composeTestRule.onNodeWithTag(IslamicTestTags.card("quran")).getBoundsInRoot()
+        val soon = composeTestRule.onNodeWithTag(IslamicTestTags.COMING_SOON).assertIsDisplayed().getBoundsInRoot()
+        assertEquals("it takes the place beside the last item", quran.top, soon.top)
+        composeTestRule.onNodeWithTag(IslamicTestTags.COMING_SOON).performClick()
+        assertEquals(emptyList<String>(), opened)
+    }
+
+    @Test
+    fun withoutTheFlag_noComingSoonCard() {
+        show()
+
+        assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(IslamicTestTags.COMING_SOON)).fetchSemanticsNodes().size)
     }
 
     @Test
