@@ -15,3 +15,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "PixelQuest"
 include(":app")
+// Turns the Quran's source files into the app's data files (docs/quran-data.md). Not part of the app.
+include(":tools:quran-build")
