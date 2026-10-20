@@ -50,3 +50,26 @@ data class QuranAyahEntity(
     val translationId: String,
     val translation: String
 )
+
+/**
+ * A translation on the phone: who made it, its terms, and Tanzil's notice for it, shown on the
+ * About screen.
+ *
+ * @param id Tanzil's id for it, such as `en.sahih`.
+ * @param lastUpdate the translation's own last update, as its source states it.
+ * @param licenceNote its terms in a sentence (for Tanzil's translations: non-commercial use only).
+ * @param notice its source's notice, whole.
+ * @param dataVersion the version of the bundled files it was loaded from: once it's the bundle's,
+ *   the Quran on the phone is complete and current.
+ */
+@Entity(tableName = "quran_translation")
+data class TranslationInfoEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val translator: String,
+    val language: String,
+    val lastUpdate: String,
+    val licenceNote: String,
+    val notice: String,
+    val dataVersion: String
+)
