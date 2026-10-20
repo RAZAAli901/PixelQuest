@@ -1,8 +1,8 @@
-# ⚔️ PixelQuest v1.4.0 — Level Up Your Life
+# ⚔️ PixelQuest v1.4.1 — Level Up Your Life
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
 [![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
-[![Version](https://img.shields.io/badge/Release-v1.4.0-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.4.0)
+[![Version](https://img.shields.io/badge/Release-v1.4.1-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.4.1)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 ![PixelQuest Feature Banner](docs/screenshots/banner.png)
@@ -15,13 +15,15 @@
 
 Click the button below to directly download the latest signed release APK onto your Android device:
 
-👉 **[📥 Direct Download app-release.apk (v1.4.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.4.0/app-release.apk)** 👈
+👉 **[📥 Direct Download app-release.apk (v1.4.1)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.4.1/app-release.apk)** 👈
 
-Or see the release notes and files on the **[📦 v1.4.0 release page](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.4.0)**.
+Or see the release notes and files on the **[📦 v1.4.1 release page](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.4.1)**.
 
-> **Upgrading from 1.3.0 or 1.2.0?** Install v1.4.0 over it: everything is kept.
+> **Upgrading from 1.4.0, 1.3.0 or 1.2.0?** Install v1.4.1 over it: everything is kept.
 >
-> **Upgrading from 1.1.0?** From 1.2.0 on, PixelQuest is signed with a new, permanent key, so Android won't install it over 1.1.0. In the old app, open Settings → **EXPORT QUEST DATA** and save the file. Then uninstall it, install v1.4.0, and tap **I HAVE A BACKUP** on the welcome screen. Details: [docs/UPDATES_AND_BACKUPS.md](docs/UPDATES_AND_BACKUPS.md).
+> **On Android 7.0 or 7.1?** Earlier versions closed as soon as they opened there. v1.4.1 is the first that runs.
+>
+> **Upgrading from 1.1.0?** From 1.2.0 on, PixelQuest is signed with a new, permanent key, so Android won't install it over 1.1.0. In the old app, open Settings → **EXPORT QUEST DATA** and save the file. Then uninstall it, install v1.4.1, and tap **I HAVE A BACKUP** on the welcome screen. Details: [docs/UPDATES_AND_BACKUPS.md](docs/UPDATES_AND_BACKUPS.md).
 
 ---
 
@@ -29,13 +31,13 @@ Or see the release notes and files on the **[📦 v1.4.0 release page](https://g
 
 ### Option 1: Direct Download (Recommended)
 1. Open this repository on your Android phone or tablet.
-2. Tap **[Download app-release.apk (v1.4.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.4.0/app-release.apk)** to download the file directly.
+2. Tap **[Download app-release.apk (v1.4.1)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.4.1/app-release.apk)** to download the file directly.
 3. Open your device's **Downloads** folder and tap `app-release.apk`.
 4. If prompted, select **Allow from this source** to grant permission for sideloading unknown apps.
 5. Tap **Install**, open **PixelQuest**, and begin your journey!
 
 ### Option 2: Via GitHub Releases Page
-1. Visit the **[PixelQuest v1.4.0 release](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.4.0)** page.
+1. Visit the **[PixelQuest v1.4.1 release](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.4.1)** page.
 2. Under **Assets**, click on **`app-release.apk`**.
 3. Install and launch the application on your Android device.
 
@@ -136,7 +138,7 @@ The cloud side (database rules, email sign-in, the AI server and the app's repos
 
 ---
 
-## 🛡️ Verification Status (v1.4.0)
+## 🛡️ Verification Status (v1.4.1)
 
 - **Unit tests**: 1,660+ on every push, plus the cloud side (database rules, sign-in, the AI server, Darood Parties) tested against a local Supabase stack in CI.
 - **Darood Party**:
@@ -147,6 +149,7 @@ The cloud side (database rules, email sign-in, the AI server and the app's repos
 - **Namaz Tracker**: an end-to-end test turns it on and marks a day's five prayers on the real database: +80 XP, the all-five bonus, the streak, and the level kept. On the emulator, a real prayer reminder was posted and marked from its Prayed button.
 - **Updates**: tested from every earlier version of the app's database (1 to 11), and tried on a device from v1.1.0.
 - **On the emulator**: backups, restoring after a reinstall, undo, and a lost database offering its automatic backup.
+- **Android 7**: lint fails the build on any call Android 7.0 doesn't have. On an Android 7.0 emulator, the release build went through onboarding, the dashboard, the Namaz Tracker, History and Stats.
 
 Details, including what hasn't been verified yet, are in [`VERIFICATION.md`](VERIFICATION.md).
 
