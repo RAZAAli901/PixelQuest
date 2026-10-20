@@ -165,7 +165,7 @@ PixelQuest is built with a **local-first, privacy-respecting philosophy**:
   - Only your chosen public pseudonym, player level, streak, and XP are synchronized when opted in.
   - Individual quest titles, schedules, and email addresses are **never** uploaded or exposed.
   - The Namaz Tracker's place and prayer log never leave the phone. Prayer XP joins your XP total, and only that total is synced.
-  - **Darood Parties** (signed in): your username is seen only by your party's members, and your entries only by them. A party's leader can put its name and progress on the opt-in race board, and never anyone's name or numbers. See [PRIVACY.md](PRIVACY.md).
+  - **Parties** (signed in): Darood Parties in the Islamic section, and study parties from the side menu's Parties, share one system ([docs/party-core.md](docs/party-core.md)). In a Darood Party, your username is seen only by your party's members, and your entries only by them. A party's leader can put its name and progress on the opt-in race board, and never anyone's name or numbers. See [PRIVACY.md](PRIVACY.md).
   - **Fair play.** Public names are unique. The server keeps streaks and levels within what the game allows: a streak grows by at most one day a day, a level takes at least three perfect days, and both need the XP to match. Reports are limited to one per player a day.
 - **Full Erasure Control**: Players can opt out at any time to instantly vanish from public rankings, or permanently purge their cloud account and data with one tap via **Settings > Cloud & Leaderboard > Delete My Cloud Data**.
 

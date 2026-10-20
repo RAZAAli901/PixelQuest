@@ -61,3 +61,29 @@ A kind says what's its own through `PartyKind`: its name and icon, what its list
 - Darood Parties work as they do in 1.4: the same rules, screens and routes (`islamic/darood/...`).
 - Neither kind touches XP, levels, streaks or the leaderboard. Study party points (Phase E) are their own.
 - Every rule stays enforced on the server; the app mirrors it.
+
+## Where it is now (after Phase D)
+
+**On the server** (`20261019000031` to `20261019000034`):
+- `parties.party_type`: `darood` (the default) or `study`, fixed when the party starts.
+- `darood_only_columns`: only a Darood Party has a milestone, finishes or joins the race board.
+- `not_a_darood_party`: entries go into Darood Parties alone, and the race board lists them alone.
+- `create_party(name, max_members, party_type)` starts either kind; the 1.4 form, with a milestone, still starts a Darood Party.
+- Tested at the end of `supabase/tests/local/darood_parties.test.ts`.
+
+**On the phone**, in `com.pixelquest.app.party` (Room version 17 adds `darood_party.partyType`):
+
+| Piece | What |
+|---|---|
+| `domain` | `Party`, `PartyMember`, `PartyRole`, `MemberStatus`, `PartyRules`; `PartyType`, `PartyKind` and its rules, tabs and summary |
+| `data` | `PartyRepository` and `PartyRepositoryImpl`; `remote.PartyRemoteDataSource` and the shared DTOs; `local.PartyEntity`, `PartyMemberEntity`, `PartyDao` |
+| `sync` | `PartyLiveSource`: a party's members, and the account's invitations, live |
+| `ui` | `PartiesScreen` and `partiesScreens` (the `parties/` routes); `components`: `MemberLimitStepper`, `InviteSearch`, `MemberList` |
+| `PartyKinds` | Each type's `PartyKind`: `DaroodPartyKind` (in `darood.ui`) and `StudyPartyKind` (in `study.ui`) |
+
+**Where each kind is reached:**
+- Darood Parties live in the Islamic hub (`islamic/darood/...`), as in 1.4.
+- Study parties live in the side menu's Parties (`parties/...`), where invitations of every kind also arrive.
+- The list, Create, Add people and Party info screens are shared. Each asks the party's kind what to show.
+- Until Phase E gives a study party its own screen, opening one opens its info.
+

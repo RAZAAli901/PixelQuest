@@ -5,12 +5,10 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Upsert
 import com.pixelquest.app.darood.domain.EntryState
 import com.pixelquest.app.party.data.local.PartyDao
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
-import com.pixelquest.app.party.data.local.PartyMemberEntity
 
 /**
  * Darood Party's cache: every party's queries (PartyDao), and its entries and their queue. Screens
@@ -19,21 +17,6 @@ import com.pixelquest.app.party.data.local.PartyMemberEntity
  */
 @Dao
 interface DaroodDao : PartyDao {
-
-    /**
-     * A party's members and newest entries from the server, unless the party left the phone while
-     * they were on their way (deleted, left or removed meanwhile): then nothing is written, since
-     * its rows would point at a party that's gone. The check and the writes are one transaction.
-     *
-     * @return whether the party was still there.
-     */
-    @Transaction
-    suspend fun replaceMembersAndEntriesIfKept(partyId: String, members: List<PartyMemberEntity>, entries: List<DaroodEntryEntity>): Boolean {
-        if (getParty(partyId) == null) return false
-        replaceMembers(partyId, members)
-        upsertEntries(entries)
-        return true
-    }
 
     // Entries
 
@@ -44,7 +27,7 @@ interface DaroodDao : PartyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertEntries(entries: List<DaroodEntryEntity>)
 
-    /** [entries] of one party ([partyId]), unless it has left the phone meanwhile; as [replaceMembersAndEntriesIfKept]. */
+    /** [entries] of one party ([partyId]), unless it has left the phone meanwhile (deleted, left or removed): its rows would point at a party that's gone. */
     @Transaction
     suspend fun upsertEntriesIfKept(partyId: String, entries: List<DaroodEntryEntity>): Boolean {
         if (getParty(partyId) == null) return false

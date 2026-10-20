@@ -6,8 +6,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.pixelquest.app.darood.domain.EntryState
-import com.pixelquest.app.party.domain.MemberStatus
-import com.pixelquest.app.party.domain.PartyRole
 import java.time.LocalDate
 import com.pixelquest.app.party.data.local.PartyEntity
 
