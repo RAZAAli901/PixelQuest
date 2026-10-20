@@ -1,6 +1,7 @@
 package com.pixelquest.app.quran.ui.reader
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -40,7 +41,8 @@ fun SurahReaderRoute(onNavigateBack: () -> Unit, viewModel: SurahReaderViewModel
         onNavigateBack = onNavigateBack,
         onLoadMore = viewModel::loadMore,
         onScrolled = viewModel::onScrolled,
-        onTargetShown = viewModel::onTargetShown
+        onTargetShown = viewModel::onTargetShown,
+        onDisplayMode = viewModel::setDisplayMode
     )
 }
 
@@ -59,6 +61,7 @@ fun SurahReaderScreen(
     onScrolled: (ayah: Int) -> Unit = {},
     onTargetShown: () -> Unit = {},
     onOpenSettings: () -> Unit = {},
+    onDisplayMode: (DisplayMode) -> Unit = {},
     listState: LazyListState = rememberLazyListState()
 ) {
     val colors = PixelTheme.colors
@@ -97,18 +100,25 @@ fun SurahReaderScreen(
     ) { padding ->
         ReaderEffects(state, listState, onLoadMore, onScrolled, onTargetShown)
         val typography = QuranTypography.of(color = colors.onBackground)
-        LazyColumn(
-            state = listState,
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxSize().padding(padding).testTag(ReaderTags.LIST)
-        ) {
-            surah?.bismillah?.let { bismillah ->
-                item(key = "bismillah") { BismillahHeader(bismillah = bismillah, typography = typography) }
-            }
-            items(state.ayahs, key = { it.id }) { ayah ->
-                AyahItem(ayah = ayah, mode = state.displayMode, typography = typography)
-                HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            DisplayModeSwitch(
+                selected = state.displayMode,
+                onSelect = onDisplayMode,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+            LazyColumn(
+                state = listState,
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize().testTag(ReaderTags.LIST)
+            ) {
+                surah?.bismillah?.let { bismillah ->
+                    item(key = "bismillah") { BismillahHeader(bismillah = bismillah, typography = typography) }
+                }
+                items(state.ayahs, key = { it.id }) { ayah ->
+                    AyahItem(ayah = ayah, mode = state.displayMode, typography = typography)
+                    HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
+                }
             }
         }
     }
@@ -169,4 +179,6 @@ object ReaderTags {
     fun arabic(number: Int) = "quran_ayah_arabic_$number"
 
     fun translation(number: Int) = "quran_ayah_translation_$number"
+
+    fun mode(mode: DisplayMode) = "quran_mode_${mode.name.lowercase()}"
 }
