@@ -79,6 +79,28 @@
     <!-- Asking to be sure before an item goes ("Delete Waves quiz?"). -->
     <string name="study_delete_title">Delete this item?</string>
     <string name="study_delete_message"><xliff:g id="title" example="Waves quiz">%1$s</xliff:g> will go for everyone in the party, with everyone\'s ticks on it.</string>
+    <!-- The study timer, and minutes added by hand. -->
+    <string name="study_timer_title">Study time</string>
+    <!-- The player's minutes today in this party ("65 minutes today"). -->
+    <plurals name="study_minutes_today">
+        <item quantity="one"><xliff:g id="minutes" example="1">%d</xliff:g> minute today</item>
+        <item quantity="other"><xliff:g id="minutes" example="65">%d</xliff:g> minutes today</item>
+    </plurals>
+    <string name="study_timer_start">Start timer</string>
+    <string name="study_timer_stop">Stop and log</string>
+    <string name="study_timer_cancel">Cancel</string>
+    <!-- The timer running: how long so far ("Studying: 25:03"). -->
+    <string name="study_timer_running">Studying: <xliff:g id="elapsed" example="25:03">%1$s</xliff:g></string>
+    <string name="study_timer_elsewhere">A timer is running in another party. Stop it there first.</string>
+    <string name="study_timer_too_short">Under 5 minutes, so nothing was logged.</string>
+    <string name="study_add_minutes">Or add minutes you studied:</string>
+    <!-- A choice of minutes to add ("25 min"). -->
+    <string name="study_minutes_chip"><xliff:g id="minutes" example="25">%d</xliff:g> min</string>
+    <!-- Logging the chosen minutes ("Log 25 minutes"). -->
+    <plurals name="study_log_minutes">
+        <item quantity="one">Log <xliff:g id="minutes" example="1">%d</xliff:g> minute</item>
+        <item quantity="other">Log <xliff:g id="minutes" example="25">%d</xliff:g> minutes</item>
+    </plurals>
     <!-- One item's own screen. -->
     <string name="study_item_notes">Notes</string>
     <!-- Who added it ("Added by @aria_k"). -->

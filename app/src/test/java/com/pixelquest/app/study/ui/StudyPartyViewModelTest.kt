@@ -57,8 +57,10 @@ class StudyPartyViewModelTest {
         db.closeAfterWrites()
     }
 
+    private val timer = com.pixelquest.app.study.data.MemoryStudyTimerStore()
+
     private fun viewModel(): StudyPartyViewModel =
-        viewModels.keep(StudyPartyViewModel::class.java) { StudyPartyViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), parties, repo) }
+        viewModels.keep(StudyPartyViewModel::class.java) { StudyPartyViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), parties, repo, null, timer) }
             .also { vm -> watching = vm.uiState.launchIn(MainScope()) }
 
     private fun waitFor(what: String, condition: () -> Boolean) {
@@ -147,6 +149,46 @@ class StudyPartyViewModelTest {
         vm.undo(item.id)
         waitFor("taken back") { !vm.uiState.value.items.single().done }
         assertTrue(study.completions.isEmpty())
+    }
+
+    @Test
+    fun theTimer_logsItsMinutes_upTo240_andNothingUnder5() {
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.loaded }
+
+        vm.startTimer()
+        waitFor("running") { vm.uiState.value.timer?.partyId == party }
+        server.now = server.now.plusSeconds(4 * 60 + 59)
+        vm.stopTimer()
+        waitFor("too short") { vm.uiState.value.notice == StudyNotice.TooShort }
+        assertNull(vm.uiState.value.timer)
+        assertTrue(study.sessions.isEmpty())
+
+        vm.startTimer()
+        server.now = server.now.plusSeconds(50 * 60 + 30)
+        vm.stopTimer()
+        waitFor("50 minutes logged") { vm.uiState.value.studiedToday == 50 }
+        vm.logStudy(25)
+        waitFor("and 25 by hand") { vm.uiState.value.studiedToday == 75 }
+
+        vm.startTimer()
+        server.now = server.now.plusSeconds(5 * 3600)
+        vm.stopTimer()
+        waitFor("240 at most") { vm.uiState.value.studiedToday == 315 }
+        waitFor("all sent") { study.sessions.size == 3 }
+        assertEquals(listOf(50, 25, 240), study.sessions.map { it.minutes })
+    }
+
+    @Test
+    fun aTimerRunningElsewhere_isntThisPartysToStop() {
+        timer.start("another-party", server.now.toEpochMilli())
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.loaded }
+        vm.startTimer()
+        vm.stopTimer()
+        vm.cancelTimer()
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals("another-party", timer.running.value?.partyId)
     }
 
     @Test

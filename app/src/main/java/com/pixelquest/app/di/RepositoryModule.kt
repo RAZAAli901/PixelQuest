@@ -251,4 +251,10 @@ abstract class RepositoryModule {
     abstract fun bindStudySyncScheduler(
         impl: com.pixelquest.app.study.sync.WorkManagerStudySyncScheduler
     ): com.pixelquest.app.study.sync.StudySyncScheduler
+
+    @Binds
+    @Singleton
+    abstract fun bindStudyTimerStore(
+        impl: com.pixelquest.app.study.data.PrefsStudyTimerStore
+    ): com.pixelquest.app.study.data.StudyTimerStore
 }

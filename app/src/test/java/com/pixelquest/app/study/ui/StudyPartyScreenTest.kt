@@ -136,6 +136,28 @@ class StudyPartyScreenTest {
     }
 
     @Test
+    fun theTimerCard_startsStops_andLogsMinutesPicked() {
+        var state by mutableStateOf(StudyPartyUiState(party = party, studiedToday = 65, loaded = true))
+        val did = mutableListOf<String>()
+        val actions = TimerActions(onStart = { did += "start" }, onStop = { did += "stop" }, onCancel = { did += "cancel" }, onLogMinutes = { did += "log $it" })
+        composeTestRule.setContent {
+            PixelQuestTheme { StudyTimerCard(state, actions, clock = { 1_000_000L + 25 * 60_000L + 3_000L }) }
+        }
+        composeTestRule.onNodeWithTag(StudyTags.TIMER_TODAY).assertTextEquals("65 minutes today")
+        composeTestRule.onNodeWithTag(StudyTags.TIMER_START).performClick()
+
+        state = state.copy(timer = com.pixelquest.app.study.data.RunningTimer("p1", 1_000_000L))
+        composeTestRule.onNodeWithTag(StudyTags.TIMER_RUNNING).assertTextEquals("Studying: 25:03")
+        composeTestRule.onNodeWithTag(StudyTags.TIMER_STOP).performClick()
+        composeTestRule.onNodeWithTag(StudyTags.TIMER_CANCEL).performClick()
+
+        composeTestRule.onNodeWithTag(StudyTags.LOG_MINUTES).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(StudyTags.minutes(25)).performClick()
+        composeTestRule.onNodeWithTag(StudyTags.LOG_MINUTES).performClick()
+        assertEquals(listOf("start", "stop", "cancel", "log 25"), did)
+    }
+
+    @Test
     fun aCardsMenu_isThereForItsCreatorOrTheLeader() {
         val item = com.pixelquest.app.study.domain.StudyItem(
             "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH

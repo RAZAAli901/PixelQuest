@@ -71,6 +71,9 @@ sealed interface StudyNotice {
     /** No connection: it waits, or (for what needs one) didn't happen. */
     data object Offline : StudyNotice
 
+    /** The timer ran under 5 minutes: nothing logged. */
+    data object TooShort : StudyNotice
+
     data class Refused(val refusal: StudyRefusal) : StudyNotice
 }
 
@@ -102,6 +105,10 @@ data class StudyPartyUiState(
     val myScore: WeekScore? = null,
     val pastScores: List<WeekScore> = emptyList(),
     val winners: List<WeekWinner> = emptyList(),
+    /** The player's study minutes today in this party, those still to send among them. */
+    val studiedToday: Int = 0,
+    /** The study timer, if one is running: maybe for another party. */
+    val timer: com.pixelquest.app.study.data.RunningTimer? = null,
     val refused: List<StudyCompletion> = emptyList(),
     val waiting: Int = 0,
     val refreshing: Boolean = false,

@@ -7,7 +7,11 @@ import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.party.data.PartyRepository
 import com.pixelquest.app.party.domain.PartyTab
+import com.pixelquest.app.study.data.MemoryStudyTimerStore
+import com.pixelquest.app.study.data.RunningTimer
 import com.pixelquest.app.study.data.StudyRepository
+import com.pixelquest.app.study.data.StudyTimerStore
+import com.pixelquest.app.study.domain.StudyRules
 import com.pixelquest.app.study.domain.StudyRefusal
 import com.pixelquest.app.study.domain.SyncState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +34,8 @@ class StudyPartyViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val parties: PartyRepository,
     private val study: StudyRepository,
-    settings: SettingsRepository? = null
+    settings: SettingsRepository? = null,
+    private val timer: StudyTimerStore = MemoryStudyTimerStore()
 ) : ViewModel() {
 
     val partyId: String = savedStateHandle[ARG_PARTY] ?: ""
@@ -62,8 +67,21 @@ class StudyPartyViewModel @Inject constructor(
     private val scores = combine(
         study.observeScores(partyId, weekStart),
         study.observeAllScores(partyId),
-        study.observeWinners(partyId)
-    ) { week, all, winners -> Triple(week, all.filter { it.weekStart.isBefore(weekStart) }, winners) }
+        study.observeWinners(partyId),
+        study.observeSessions(partyId, study.today()),
+        timer.running
+    ) { week, all, winners, today, running ->
+        val me = study.myId()
+        Scores(week, all.filter { it.weekStart.isBefore(weekStart) }, winners, today.filter { it.userId == me && it.state != SyncState.FAILED }.sumOf { it.minutes }, running)
+    }
+
+    private data class Scores(
+        val week: List<com.pixelquest.app.study.domain.WeekScore>,
+        val past: List<com.pixelquest.app.study.domain.WeekScore>,
+        val winners: List<com.pixelquest.app.study.domain.WeekWinner>,
+        val studiedToday: Int,
+        val timer: RunningTimer?
+    )
 
     private val flags = combine(tab, refreshing, loaded, combine(notice, form, confirmingDelete, ::Triple), settings?.simpleModeEnabled ?: flowOf(false)) { tab, refreshing, loaded, (notice, form, deleting), simple ->
         Flags(tab, refreshing, loaded, notice, simple, form, deleting)
@@ -71,7 +89,7 @@ class StudyPartyViewModel @Inject constructor(
 
     private data class Flags(val tab: PartyTab, val refreshing: Boolean, val loaded: Boolean, val notice: StudyNotice?, val simple: Boolean, val form: ItemForm?, val deleting: String?)
 
-    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows, ticks), (weekScores, past, winners), waiting, flags ->
+    val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows, ticks), (weekScores, past, winners, studiedToday, running), waiting, flags ->
         val me = study.myId()
         val week = thisWeekOf(rows, weekStart, study.zone())
         StudyPartyUiState(
@@ -91,6 +109,8 @@ class StudyPartyViewModel @Inject constructor(
             board = boardOf(weekScores, members, me),
             myScore = weekScores.firstOrNull { it.userId == me },
             pastScores = past,
+            studiedToday = studiedToday,
+            timer = running,
             winners = winners,
             refused = rows.mapNotNull { row -> row.mine?.takeIf { it.state == SyncState.FAILED } },
             waiting = waiting,
@@ -152,8 +172,27 @@ class StudyPartyViewModel @Inject constructor(
         viewModelScope.launch { report(study.deleteItem(itemId)) }
     }
 
+    /** Starts the study timer for this party, unless one is running already. */
+    fun startTimer() {
+        if (timer.running.value == null) timer.start(partyId, study.now().toEpochMilli())
+    }
+
+    /** Stops this party's timer and logs its minutes (up to 240); under 5 it's too short to count. */
+    fun stopTimer() {
+        val running = timer.running.value?.takeIf { it.partyId == partyId } ?: return
+        timer.clear()
+        val minutes = running.loggedAt(study.now().toEpochMilli())
+        if (minutes == null) notice.value = StudyNotice.TooShort else logStudy(minutes)
+    }
+
+    /** Stops this party's timer without logging anything. */
+    fun cancelTimer() {
+        if (timer.running.value?.partyId == partyId) timer.clear()
+    }
+
     /** Logs study time for today. */
     fun logStudy(minutes: Int) {
+        if (minutes !in StudyRules.MINUTES_MIN..StudyRules.MINUTES_MAX) return
         viewModelScope.launch {
             val session = study.logStudy(partyId, minutes)
             if (session.state == SyncState.PENDING) notice.value = StudyNotice.Offline

@@ -93,7 +93,8 @@ fun StudyPartyScreen(
             onDiscard = viewModel::discard
         ),
         onConfirmDelete = viewModel::confirmDelete,
-        onCancelDelete = viewModel::cancelDelete
+        onCancelDelete = viewModel::cancelDelete,
+        timerActions = TimerActions(viewModel::startTimer, viewModel::stopTimer, viewModel::cancelTimer, viewModel::logStudy)
     )
 }
 
@@ -113,7 +114,8 @@ fun StudyPartyContent(
     onCloseForm: () -> Unit = {},
     actions: ItemActions = ItemActions(),
     onConfirmDelete: () -> Unit = {},
-    onCancelDelete: () -> Unit = {}
+    onCancelDelete: () -> Unit = {},
+    timerActions: TimerActions = TimerActions()
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -168,7 +170,7 @@ fun StudyPartyContent(
                     when (state.tab) {
                         PartyTab.THIS_WEEK -> {
                             pinnedStrip(state, onOpenItem)
-                            thisWeek(state, onOpenItem, actions)
+                            thisWeek(state, onOpenItem, actions, timerActions)
                         }
                         PartyTab.ALL_ITEMS -> {
                             pinnedStrip(state, onOpenItem)
@@ -240,6 +242,7 @@ private fun NoticeLine(notice: StudyNotice, onDismiss: () -> Unit) {
 
 fun noticeText(notice: StudyNotice): Int = when (notice) {
     StudyNotice.Offline -> R.string.study_offline
+    StudyNotice.TooShort -> R.string.study_timer_too_short
     is StudyNotice.Refused -> when (notice.refusal) {
         StudyRefusal.NOT_ALLOWED -> R.string.study_refused_not_allowed
         StudyRefusal.NOT_LEADER -> R.string.study_refused_not_leader
@@ -266,9 +269,10 @@ private fun LazyListScope.pinnedStrip(state: StudyPartyUiState, onOpenItem: (Str
 }
 
 /** This week: how far the player is, then the week's items under overdue, each day, and no date. */
-private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String) -> Unit, actions: ItemActions) {
+private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String) -> Unit, actions: ItemActions, timerActions: TimerActions) {
+    if (state.thisWeek.isNotEmpty()) item(key = "week_summary") { WeekSummary(state) }
+    item(key = "timer") { StudyTimerCard(state, timerActions) }
     if (state.thisWeek.isEmpty()) return emptyLine(R.string.study_week_empty, state.loaded)
-    item(key = "week_summary") { WeekSummary(state) }
     state.weekSections.forEach { (section, rows) ->
         item(key = "section_" + sectionKey(section)) { SectionHeading(sectionLabel(section, state.today)) }
         items(rows, key = { it.item.id }) { row -> CardFor(state, row, onOpenItem, actions) }
@@ -424,6 +428,14 @@ object StudyTags {
     const val ITEM_SCREEN = "study_item_screen"
     const val ITEM_NOTES = "study_item_notes"
     fun doneBy(userId: String) = "study_done_by_$userId"
+    const val TIMER = "study_timer"
+    const val TIMER_TODAY = "study_timer_today"
+    const val TIMER_START = "study_timer_start"
+    const val TIMER_RUNNING = "study_timer_running"
+    const val TIMER_STOP = "study_timer_stop"
+    const val TIMER_CANCEL = "study_timer_cancel"
+    const val LOG_MINUTES = "study_log_minutes"
+    fun minutes(m: Int) = "study_minutes_$m"
     fun itemDone(id: String) = "study_item_done_$id"
     fun itemUndo(id: String) = "study_item_undo_$id"
     fun itemRetry(id: String) = "study_item_retry_$id"
