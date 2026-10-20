@@ -74,7 +74,8 @@ fun PixelNavHost(
                     navController.navigate(Screen.Account.route)
                 },
                 onNavigateToNamaz = {
-                    navController.navigate(Screen.Namaz.route)
+                    // Inside the Islamic section: Back goes to the hub, then Home.
+                    navController.navigateInIslamic(Screen.Namaz.route)
                 }
             )
         }

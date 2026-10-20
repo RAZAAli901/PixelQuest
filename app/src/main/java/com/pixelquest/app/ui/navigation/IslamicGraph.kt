@@ -37,6 +37,18 @@ fun NavGraphBuilder.islamicGraph(
 }
 
 /**
+ * Opens an Islamic screen with the hub beneath it, so Back returns to the hub and then to wherever
+ * the player was. From inside the section, where the hub is already on the back stack, it's an
+ * ordinary step.
+ */
+fun NavController.navigateInIslamic(route: String) {
+    if (!isOnBackStack(Routes.ISLAMIC_HUB)) navigate(Routes.ISLAMIC_HUB)
+    navigate(route) { launchSingleTop = true }
+}
+
+private fun NavController.isOnBackStack(route: String): Boolean = runCatching { getBackStackEntry(route) }.isSuccess
+
+/**
  * An old route that only opens [to] in its place, so whatever still carries it (a notification set
  * before an update) lands on the right screen. It shows nothing and leaves nothing on the back stack.
  */

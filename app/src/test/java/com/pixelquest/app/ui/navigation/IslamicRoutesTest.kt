@@ -91,6 +91,32 @@ class IslamicRoutesTest {
         assertTrue(composeTestRule.runOnIdle { nav.currentDestination!!.hierarchy.any { it.route == Routes.ISLAMIC } })
     }
 
+    private fun back() = composeTestRule.runOnIdle { nav.popBackStack() }
+
+    @Test
+    fun fromHome_anIslamicScreenOpensWithTheHubBeneath() {
+        composeTestRule.runOnIdle { nav.navigateInIslamic(Screen.Namaz.route) }
+
+        assertEquals(Screen.Namaz.route, current())
+        back()
+        assertEquals("Back goes to the hub", Screen.IslamicHub.route, current())
+        back()
+        assertEquals("then to Home", Screen.Home.route, current())
+    }
+
+    @Test
+    fun fromInsideTheSection_itIsAnOrdinaryStep() {
+        open(Screen.IslamicHub.route)
+        open(Screen.DaroodParty.route)
+
+        composeTestRule.runOnIdle { nav.navigateInIslamic(Screen.Namaz.route) }
+
+        back()
+        assertEquals("no second hub was added", Screen.DaroodParty.route, current())
+        back()
+        assertEquals(Screen.IslamicHub.route, current())
+    }
+
     @Test
     fun theOldNamazRoute_opensTheTracker_andLeavesNothingBehind() {
         open(Routes.LEGACY_NAMAZ)
