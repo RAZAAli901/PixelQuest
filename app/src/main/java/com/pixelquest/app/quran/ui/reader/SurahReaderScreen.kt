@@ -3,16 +3,15 @@ package com.pixelquest.app.quran.ui.reader
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -105,7 +104,8 @@ fun SurahReaderScreen(
             modifier = Modifier.fillMaxSize().padding(padding).testTag(ReaderTags.LIST)
         ) {
             items(state.ayahs, key = { it.id }) { ayah ->
-                Text(text = ayah.arabic, style = typography.arabic, modifier = Modifier.fillMaxWidth().testTag(ReaderTags.ayah(ayah.number)))
+                AyahItem(ayah = ayah, mode = state.displayMode, typography = typography)
+                HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
             }
         }
     }
@@ -156,4 +156,8 @@ object ReaderTags {
     const val SETTINGS = "quran_reader_settings"
 
     fun ayah(number: Int) = "quran_ayah_$number"
+
+    fun arabic(number: Int) = "quran_ayah_arabic_$number"
+
+    fun translation(number: Int) = "quran_ayah_translation_$number"
 }
