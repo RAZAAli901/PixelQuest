@@ -58,6 +58,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var userProfileRepository: com.pixelquest.app.domain.repository.UserProfileRepository
 
+    @Inject
+    lateinit var islamicRegistry: com.pixelquest.app.islamic.IslamicRegistry
+
     private val themeViewModel: ThemeViewModel by viewModels()
 
     private val lostProgressViewModel: com.pixelquest.app.ui.screens.settings.LostProgressViewModel by viewModels()
@@ -203,7 +206,8 @@ class MainActivity : ComponentActivity() {
                                 PixelNavHost(
                                     navController = navController,
                                     modifier = Modifier.weight(1f),
-                                    onboardingComplete = onboardingComplete
+                                    onboardingComplete = onboardingComplete,
+                                    islamicItems = islamicRegistry.providers
                                 )
                                 // An empty game while the phone kept an automatic backup: a lost database.
                                 if (onboardingComplete && currentRoute != null && currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {

@@ -1,5 +1,7 @@
 package com.pixelquest.app.islamic
 
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -17,6 +19,12 @@ interface IslamicItemProvider {
 
     /** Its card, kept current: whether it's shown, and its badge. */
     fun item(): Flow<IslamicItem>
+
+    /**
+     * Its own screens, added to the Islamic section's graph (`islamicGraph`), so a new item needs no
+     * change to the app's navigation. Empty for items whose screens were there before the hub.
+     */
+    fun NavGraphBuilder.screens(navController: NavHostController) {}
 }
 
 /** Every item bound into the hub's set, in order. */

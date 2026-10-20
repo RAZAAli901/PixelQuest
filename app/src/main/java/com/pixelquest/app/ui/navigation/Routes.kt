@@ -48,6 +48,8 @@ sealed class Screen(val route: String) {
     object UsernameSetup : Screen("username_setup")
     /** The Islamic section's landing screen, its cards (docs/islamic-hub.md). */
     object IslamicHub : Screen(Routes.ISLAMIC_HUB)
+    /** The Quran, from the Islamic hub. */
+    object Quran : Screen("${Routes.ISLAMIC}/quran")
 }
 
 /** Groups of routes the app's frame cares about. */

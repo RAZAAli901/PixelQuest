@@ -3,6 +3,9 @@ package com.pixelquest.app.ui.navigation
 import android.app.Application
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -34,7 +37,7 @@ class IslamicRoutesTest {
             nav = rememberNavController()
             NavHost(nav, startDestination = Screen.Home.route) {
                 composable(Screen.Home.route) { Text("home") }
-                islamicGraph(nav, hub = { Text("hub") })
+                islamicGraph(nav, items = listOf(com.pixelquest.app.quran.QuranIslamicItem()), hub = { Text("hub") })
             }
         }
     }
@@ -58,6 +61,18 @@ class IslamicRoutesTest {
         open(Screen.IslamicHub.route)
 
         assertEquals("islamic/hub", current())
+    }
+
+    @Test
+    fun anItemsOwnScreen_joinsTheSection() {
+        open(Screen.IslamicHub.route)
+        open(Screen.Quran.route)
+
+        assertEquals("islamic/quran", current())
+        composeTestRule.onNodeWithTag(com.pixelquest.app.quran.ui.QURAN_PLACEHOLDER).assertExists()
+
+        composeTestRule.onNodeWithContentDescription("Back").performClick()
+        assertEquals("its Back returns to the hub", Screen.IslamicHub.route, current())
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.pixelquest.app.di
 
 import com.pixelquest.app.darood.ui.DaroodIslamicItem
 import com.pixelquest.app.islamic.IslamicItemProvider
+import com.pixelquest.app.quran.QuranIslamicItem
 import com.pixelquest.app.ui.screens.namaz.NamazIslamicItem
 import dagger.Binds
 import dagger.Module
@@ -29,4 +30,8 @@ abstract class IslamicModule {
     @Binds
     @IntoSet
     abstract fun darood(item: DaroodIslamicItem): IslamicItemProvider
+
+    @Binds
+    @IntoSet
+    abstract fun quran(item: QuranIslamicItem): IslamicItemProvider
 }

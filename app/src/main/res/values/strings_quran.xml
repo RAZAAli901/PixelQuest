@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    The Quran reader's text (docs/islamic-hub.md), all in this file. The Quran's own text and its
+    translation are never here: they're bundled data, shown exactly as their source gives them.
+
+    For translators:
+    - "Quran" is a proper name: keep the form your language uses for it.
+-->
+<resources>
+    <!-- Its card on the Islamic hub, and its screen's title. -->
+    <string name="quran_title">Quran</string>
+    <string name="quran_description">Read the Quran in Arabic and English</string>
+    <!-- Until the reader is built: what's coming. -->
+    <string name="quran_coming_title">The Quran reader is on its way</string>
+    <string name="quran_coming_body">All 114 surahs, in Arabic with an English translation, kept on your phone so they open without the internet.</string>
+</resources>

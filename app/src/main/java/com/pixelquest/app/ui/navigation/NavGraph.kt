@@ -27,7 +27,9 @@ fun PixelNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     startDestination: String = Screen.Splash.route,
-    onboardingComplete: Boolean = true
+    onboardingComplete: Boolean = true,
+    /** The Islamic hub's items (IslamicRegistry.providers), whose own screens join the Islamic section. */
+    islamicItems: List<com.pixelquest.app.islamic.IslamicItemProvider> = emptyList()
 ) {
     // The NavHost keeps the first composable lambdas it is given, so read the flag through
     // State; otherwise the splash timeout sees the initial value and skips onboarding.
@@ -295,7 +297,7 @@ fun PixelNavHost(
         composable(Screen.Namaz.route) {
             com.pixelquest.app.ui.screens.namaz.NamazScreen(onNavigateBack = { navController.popBackStack() })
         }
-        islamicGraph(navController)
+        islamicGraph(navController, islamicItems)
         composable(Screen.Leaderboard.route) {
             val leaderboardViewModel: com.pixelquest.app.ui.screens.leaderboard.LeaderboardViewModel = hiltViewModel()
             com.pixelquest.app.ui.screens.leaderboard.LeaderboardScreen(

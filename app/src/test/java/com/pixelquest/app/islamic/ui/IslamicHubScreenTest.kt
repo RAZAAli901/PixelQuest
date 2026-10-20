@@ -34,7 +34,7 @@ class IslamicHubScreenTest {
     private val items = listOf(
         IslamicItem("namaz", R.string.namaz_title, R.string.namaz_title, IslamicIcon("🕌"), "islamic/namaz"),
         IslamicItem("darood", R.string.darood_title, R.string.darood_title, IslamicIcon("📿"), "islamic/darood"),
-        IslamicItem("quran", R.string.menu_history, R.string.menu_history, IslamicIcon("📖"), "islamic/quran")
+        IslamicItem("quran", R.string.quran_title, R.string.quran_description, IslamicIcon("📖"), "islamic/quran")
     )
 
     private val opened = mutableListOf<String>()
