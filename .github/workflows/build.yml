@@ -61,6 +61,11 @@ jobs:
           # gemini-proxy Edge Function. The Gemini key is never given to a build.
           echo "GEMINI_VIA_PROXY=true" >> local.properties
 
+      # The Quran's data (docs/quran-data.md): its sources must still be Tanzil's files, whole and
+      # unchanged (114 surahs, 6,236 ayahs, the Bismillah rule), or this fails.
+      - name: Check the Quran data
+        run: ./gradlew :tools:quran-build:test
+
       - name: Build Debug & Release APKs
         # assembleDebugAndroidTest compiles the instrumented tests (no device here to run them); they had
         # stopped compiling without anyone noticing.
