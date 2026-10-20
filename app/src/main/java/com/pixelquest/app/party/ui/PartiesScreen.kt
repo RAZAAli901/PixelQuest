@@ -40,6 +40,7 @@ import com.pixelquest.app.ui.menu.LocalMenuDrawer
 import com.pixelquest.app.ui.menu.MenuTopBarAction
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.party.domain.Party
 
 /** The Parties screen, from the side menu, with its state from the list's view model (its route says: study parties). */
 @Composable
@@ -50,8 +51,10 @@ fun PartiesScreen(
     viewModel: DaroodPartiesViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val invites by viewModel.allInvites.collectAsState()
     PartiesContent(
         state = state,
+        invites = invites,
         kind = viewModel.kind,
         onSignIn = onSignIn,
         onRefresh = viewModel::refresh,
@@ -66,6 +69,8 @@ fun PartiesScreen(
  * Parties, the main app's (docs/party-core.md): a button to start a study party, the invitations
  * waiting for an answer, and the study parties the player is in. Signed out, why they need an
  * account. A top-level screen: the side menu's three lines at its top, not a way back.
+ *
+ * @param invites every invitation waiting, of any kind: one inbox, each saying its kind.
  */
 @Composable
 fun PartiesContent(
@@ -74,6 +79,7 @@ fun PartiesContent(
     onOpenParty: (String) -> Unit,
     onCreateParty: () -> Unit,
     kind: PartyKind = StudyPartyKind,
+    invites: List<Party> = state.invites,
     onRefresh: () -> Unit = {},
     onAccept: (String) -> Unit = {},
     onDecline: (String) -> Unit = {}
@@ -130,9 +136,9 @@ fun PartiesContent(
                             )
                         }
                     }
-                    if (state.invites.isNotEmpty()) {
+                    if (invites.isNotEmpty()) {
                         item(key = "invites_title") { SectionTitle(stringResource(R.string.darood_invites_title)) }
-                        items(state.invites, key = { "invite_" + it.id }) { party ->
+                        items(invites, key = { "invite_" + it.id }) { party ->
                             InviteRow(
                                 party = party,
                                 enabled = state.answering == null,
@@ -145,7 +151,7 @@ fun PartiesContent(
                         item(key = "parties_title") { SectionTitle(stringResource(kind.listTitleRes)) }
                         items(state.parties, key = { it.id }) { party -> PartyRow(party = party, onClick = { onOpenParty(party.id) }) }
                     }
-                    if (state.isEmpty) {
+                    if (state.parties.isEmpty() && invites.isEmpty()) {
                         item(key = "empty") {
                             LandingCard(
                                 icon = kind.icon,

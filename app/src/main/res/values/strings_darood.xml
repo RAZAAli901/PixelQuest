@@ -149,7 +149,6 @@
     <string name="darood_info_transfer_message">From now on, they\'ll invite, remove, rename and set the milestone. You\'ll stay in the party as a member, and can leave it then if you like.</string>
     <!-- Invitations, at the top of the list. -->
     <string name="darood_invites_title">Invitations</string>
-    <string name="darood_invite_to">You\'re invited to join</string>
     <string name="darood_invite_accept">Accept</string>
     <string name="darood_invite_decline">Decline</string>
     <string name="darood_invite_gone">That invitation isn\'t there any more: it may have been withdrawn, or the party is full or finished.</string>

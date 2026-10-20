@@ -218,6 +218,38 @@ class MenuStateTest {
     }
 
     @Test
+    fun parties_hasADot_whileAnInvitationOfAnyKindWaits() {
+        assertFalse(MenuItems.Parties.dot(MenuContext()))
+        assertTrue(MenuItems.Parties.dot(MenuContext(partyInviteWaiting = true)))
+        assertFalse("Islamic's is Darood's alone", MenuItems.Islamic.dot(MenuContext(partyInviteWaiting = true)))
+    }
+
+    @Test
+    fun aStudyInvitation_dotsParties_notIslamic() = runBlocking {
+        val db = androidx.room.Room.inMemoryDatabaseBuilder(
+            androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>(),
+            com.pixelquest.app.data.local.AppDatabase::class.java
+        ).allowMainThreadQueries().build()
+        val viewModels = com.pixelquest.app.testing.TestViewModels()
+        try {
+            val server = com.pixelquest.app.testing.FakeDaroodServer(me = "me")
+            val parties = com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl(
+                server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }
+            )
+            val study = server.seedParty("Exam group", "u2", type = com.pixelquest.app.party.domain.PartyType.STUDY)
+            server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(study, "me", "member", "invited", null, null)
+            parties.refreshParties()
+            val vm = viewModels.keep(MenuViewModel::class.java) { viewModel(settings = FakeSettingsRepository(), parties = parties) }
+
+            val context = vm.context.first { it.partyInviteWaiting }
+            assertFalse(context.daroodInviteWaiting)
+        } finally {
+            viewModels.clear()
+            db.closeAfterWrites()
+        }
+    }
+
+    @Test
     fun theDot_waitsForDaroodToBeAvailable() = runBlocking {
         val db = androidx.room.Room.inMemoryDatabaseBuilder(
             androidx.test.core.app.ApplicationProvider.getApplicationContext<android.app.Application>(),

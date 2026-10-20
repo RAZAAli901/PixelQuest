@@ -80,6 +80,14 @@ class DaroodPartiesViewModel @Inject constructor(
 
     private val signedIn = authRepository.currentUser.map { it != null }.distinctUntilChanged()
 
+    /**
+     * Invitations to a party of any kind, waiting for an answer: the Parties screen's inbox, where
+     * every invitation arrives, whatever its kind. Empty signed out.
+     */
+    val allInvites: StateFlow<List<Party>> = combine(signedIn, repository.observeMyParties()) { signedIn, all ->
+        if (signedIn) all.filter { it.myStatus == MemberStatus.INVITED } else emptyList()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     val uiState: StateFlow<DaroodPartiesUiState> = combine(signedIn, repository.observeMyParties(type), status) { signedIn, all, status ->
         status.copy(
             signedIn = signedIn,

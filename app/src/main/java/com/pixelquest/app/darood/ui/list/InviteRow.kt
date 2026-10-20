@@ -21,10 +21,12 @@ import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.party.PartyKinds
 
 /**
- * An invitation to a party, waiting for an answer. Only its name shows: the party's numbers are
- * for its members. [enabled] is off while any invitation is being answered.
+ * An invitation to a party, waiting for an answer: what kind of party (its icon and name, so
+ * invitations of every kind can wait side by side), and its name. Nothing else shows: the party's
+ * numbers are for its members. [enabled] is off while any invitation is being answered.
  */
 @Composable
 fun InviteRow(party: Party, enabled: Boolean, onAccept: () -> Unit, onDecline: () -> Unit, modifier: Modifier = Modifier) {
@@ -35,8 +37,9 @@ fun InviteRow(party: Party, enabled: Boolean, onAccept: () -> Unit, onDecline: (
         modifier = modifier.fillMaxWidth().testTag(DaroodTestTags.inviteRow(party.id))
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+            val kind = PartyKinds.of(party.type)
             Text(
-                text = stringResource(R.string.darood_invite_to),
+                text = kind.icon + "  " + stringResource(R.string.party_invite_to, stringResource(kind.titleRes)),
                 style = MaterialTheme.typography.labelMedium,
                 color = colors.onSurface
             )

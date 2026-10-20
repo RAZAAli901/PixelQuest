@@ -72,6 +72,21 @@ class PartiesScreenTest {
     }
 
     @Test
+    fun everyKindsInvitation_arrivesHere_sayingItsKind() {
+        val darood = party("d1", "Friday circle", MemberStatus.INVITED).copy(type = PartyType.DAROOD)
+        val study = party("s2", "Exam group", MemberStatus.INVITED)
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                PartiesContent(state = DaroodPartiesUiState(signedIn = true), invites = listOf(darood, study), onSignIn = {}, onOpenParty = {}, onCreateParty = {})
+            }
+        }
+
+        composeTestRule.onNodeWithText("📿  You're invited to a Darood Party", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("📚  You're invited to a Study party", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(PartiesTags.EMPTY).assertDoesNotExist()
+    }
+
+    @Test
     fun signedOut_itAsksToSignIn() {
         show(DaroodPartiesUiState(signedIn = false))
 

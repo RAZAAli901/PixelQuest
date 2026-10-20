@@ -14,6 +14,8 @@
     <string name="parties_create">Start a study party</string>
     <string name="parties_empty_title">No study parties yet</string>
     <string name="parties_signed_out_title">Sign in to join a party</string>
+    <!-- Over an invitation: the kind of party it's to ("Darood Party", "Study party"). -->
+    <string name="party_invite_to">You\'re invited to a <xliff:g id="kind" example="Study party">%1$s</xliff:g></string>
     <!-- The Study parties' screen, listing them. -->
     <string name="party_study_list_title">Study parties</string>
     <string name="party_study_empty_body">Start a party with 2 to 30 classmates or friends, pin what\'s due this week, and keep each other going. Or wait for a friend to invite you by your username.</string>

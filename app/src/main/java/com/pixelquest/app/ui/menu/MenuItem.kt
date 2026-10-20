@@ -18,7 +18,9 @@ data class MenuContext(
     /** Simple Mode: plain wording, no game terms. */
     val isSimpleMode: Boolean = false,
     /** A Darood Party invitation is waiting for an answer, while Darood is available. */
-    val daroodInviteWaiting: Boolean = false
+    val daroodInviteWaiting: Boolean = false,
+    /** An invitation to a party of any kind is waiting: the Parties screen's inbox has it. */
+    val partyInviteWaiting: Boolean = false
 )
 
 /**
@@ -93,6 +95,7 @@ object MenuItems {
         label = R.string.menu_parties,
         icon = "👥",
         route = Screen.Parties.route,
+        dot = { it.partyInviteWaiting },
         owns = Routes::isParties
     )
 
