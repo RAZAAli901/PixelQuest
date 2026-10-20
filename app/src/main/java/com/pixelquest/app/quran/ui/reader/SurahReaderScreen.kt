@@ -23,12 +23,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.AnnotatedString
+import android.content.Intent
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.domain.Ayah
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -42,6 +47,8 @@ fun SurahReaderRoute(
     viewModel: SurahReaderViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val clipboard = LocalClipboardManager.current
+    val context = LocalContext.current
     SurahReaderScreen(
         state = state,
         onNavigateBack = onNavigateBack,
@@ -50,7 +57,17 @@ fun SurahReaderRoute(
         onTargetShown = viewModel::onTargetShown,
         onDisplayMode = viewModel::setDisplayMode,
         onSettings = viewModel::updateSettings,
-        onOpenSurah = onOpenSurah
+        onOpenSurah = onOpenSurah,
+        onAyahAction = { ayah, action ->
+            when (action) {
+                AyahAction.COPY_ARABIC -> clipboard.setText(AnnotatedString(ayah.arabic))
+                AyahAction.COPY_TRANSLATION -> clipboard.setText(AnnotatedString(ayah.translation))
+                AyahAction.SHARE -> context.startActivity(
+                    Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, ayah.arabic + "\n\n" + ayah.translation), null)
+                )
+                AyahAction.BOOKMARK -> Unit
+            }
+        }
     )
 }
 
@@ -71,11 +88,23 @@ fun SurahReaderScreen(
     onDisplayMode: (DisplayMode) -> Unit = {},
     onSettings: (ReadingSettings) -> Unit = {},
     onOpenSurah: (Int) -> Unit = {},
+    onAyahAction: (Ayah, AyahAction) -> Unit = { _, _ -> },
     listState: LazyListState = rememberLazyListState()
 ) {
     val colors = PixelTheme.colors
     val surah = state.surah
     var showingSettings by rememberSaveable { mutableStateOf(false) }
+    // The ayah whose sheet is open, by its number in the surah.
+    var acting by rememberSaveable { mutableStateOf<Int?>(null) }
+    state.ayahs.firstOrNull { it.number == acting }?.let { ayah ->
+        AyahActionsSheet(
+            ayah = ayah,
+            surahName = surah?.englishName.orEmpty(),
+            bookmarked = false,
+            onAction = { action -> acting = null; onAyahAction(ayah, action) },
+            onDismiss = { acting = null }
+        )
+    }
     if (showingSettings) {
         ReadingSettingsSheet(
             settings = state.settings,
@@ -134,7 +163,7 @@ fun SurahReaderScreen(
                     item(key = "bismillah") { BismillahHeader(bismillah = bismillah, typography = typography) }
                 }
                 items(state.ayahs, key = { it.id }) { ayah ->
-                    AyahItem(ayah = ayah, mode = state.displayMode, typography = typography)
+                    AyahItem(ayah = ayah, mode = state.displayMode, typography = typography, onClick = { acting = ayah.number })
                     HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
                 }
                 // The surah's end: on to the next, or back to the one before.
@@ -194,6 +223,7 @@ object ReaderTags {
     const val SCREEN = "quran_reader"
     const val BISMILLAH = "quran_bismillah"
     const val PREVIOUS = "quran_previous_surah"
+    const val ACTIONS = "quran_ayah_actions"
     const val NEXT = "quran_next_surah"
     const val LIST = "quran_reader_list"
     const val SETTINGS = "quran_reader_settings"
@@ -209,4 +239,6 @@ object ReaderTags {
     fun translation(number: Int) = "quran_ayah_translation_$number"
 
     fun mode(mode: DisplayMode) = "quran_mode_${mode.name.lowercase()}"
+
+    fun action(action: AyahAction) = "quran_action_${action.name.lowercase()}"
 }

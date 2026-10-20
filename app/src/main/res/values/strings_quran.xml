@@ -43,6 +43,14 @@
     <!-- At a surah's end: the one before it and the one after, by their English names. -->
     <string name="quran_previous_surah">◀ <xliff:g id="surah" example="Al-Faatiha">%s</xliff:g></string>
     <string name="quran_next_surah"><xliff:g id="surah" example="Aal-i-Imraan">%s</xliff:g> ▶</string>
+    <!-- An ayah's sheet: its reference (surah's English name, surah number, ayah number), then its actions. -->
+    <string name="quran_ayah_reference"><xliff:g id="surah_name" example="Al-Baqara">%1$s</xliff:g> <xliff:g id="surah" example="2">%2$d</xliff:g>:<xliff:g id="ayah" example="255">%3$d</xliff:g></string>
+    <string name="quran_ayah_open_actions">show what you can do with it</string>
+    <string name="quran_bookmark">Bookmark</string>
+    <string name="quran_unbookmark">Remove bookmark</string>
+    <string name="quran_copy_arabic">Copy the Arabic</string>
+    <string name="quran_copy_translation">Copy the translation</string>
+    <string name="quran_share">Share</string>
     <!-- The reader's top-bar action: its sizes, spacing and what each ayah shows. -->
     <string name="quran_reader_settings">Reading settings</string>
     <!-- The Quran screen's two lists. -->

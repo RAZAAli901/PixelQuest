@@ -1,5 +1,6 @@
 package com.pixelquest.app.quran.ui.reader
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,8 +11,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.R
 import com.pixelquest.app.quran.domain.Ayah
 import com.pixelquest.app.quran.ui.QuranTypography
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -33,12 +37,18 @@ fun AyahItem(
     ayah: Ayah,
     mode: DisplayMode,
     typography: QuranTypography,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
+    val tap = if (onClick != null) {
+        Modifier.clickable(role = Role.Button, onClickLabel = stringResource(R.string.quran_ayah_open_actions), onClick = onClick)
+    } else {
+        Modifier
+    }
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier.fillMaxWidth().testTag(ReaderTags.ayah(ayah.number))
+        modifier = modifier.fillMaxWidth().then(tap).testTag(ReaderTags.ayah(ayah.number))
     ) {
         if (mode != DisplayMode.TRANSLATION) {
             RightToLeft {
