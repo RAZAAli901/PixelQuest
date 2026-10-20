@@ -10,6 +10,11 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
+/** Asks for the Quran to be loaded again (QuranImportWorker): after another translation is chosen. */
+fun interface QuranLoadRequest {
+    fun request()
+}
+
 /**
  * Loads the Quran from the app's bundled files into the database (QuranImporter), in the background
  * on the app's first start, so the reader opens offline from then on.

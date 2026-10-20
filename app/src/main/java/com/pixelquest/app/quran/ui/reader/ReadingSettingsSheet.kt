@@ -23,6 +23,9 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.quran.ui.QuranTypography
+import com.pixelquest.app.quran.ui.translations.TranslationTags
+import com.pixelquest.app.ui.components.PixelButton
+import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.theme.PixelTheme
 import kotlin.math.roundToInt
 
@@ -48,25 +51,36 @@ fun ReadingSettingsSheet(
     settings: ReadingSettings,
     preview: Pair<String, String>?,
     onChange: (ReadingSettings) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    translation: String = "",
+    onOpenTranslations: (() -> Unit)? = null
 ) {
     ModalBottomSheet(onDismissRequest = onDismiss, containerColor = PixelTheme.colors.background) {
-        ReadingSettingsContent(settings = settings, preview = preview, onChange = onChange)
+        ReadingSettingsContent(
+            settings = settings,
+            preview = preview,
+            onChange = onChange,
+            translation = translation,
+            onOpenTranslations = onOpenTranslations
+        )
     }
 }
 
 /**
- * The sheet's content: what each ayah shows, three sliders, and the first ayah of the open surah as
- * a preview, in the chosen sizes. Tested on its own.
+ * The sheet's content: what each ayah shows, three sliders, the translation (a button to choose
+ * another), and the first ayah of the open surah as a preview, in the chosen sizes. Tested on its own.
  *
  * @param preview the open surah's first ayah (its Arabic and translation, as given), or null.
+ * @param translation the translation's name; with [onOpenTranslations], a button to choose another.
  */
 @Composable
 fun ReadingSettingsContent(
     settings: ReadingSettings,
     preview: Pair<String, String>?,
     onChange: (ReadingSettings) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    translation: String = "",
+    onOpenTranslations: (() -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
     Column(
@@ -111,6 +125,14 @@ fun ReadingSettingsContent(
             tag = ReaderTags.LINE_SPACING,
             onChange = { onChange(settings.copy(lineSpacing = it)) }
         )
+        if (onOpenTranslations != null) {
+            PixelButton(
+                text = stringResource(R.string.quran_translation_open, translation),
+                onClick = onOpenTranslations,
+                variant = PixelButtonVariant.BLUE,
+                modifier = Modifier.fillMaxWidth().testTag(TranslationTags.OPEN)
+            )
+        }
         if (preview != null) {
             val typography = settings.typography(colors.onBackground)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)) {

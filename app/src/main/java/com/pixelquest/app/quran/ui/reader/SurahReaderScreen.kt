@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 fun SurahReaderRoute(
     onNavigateBack: () -> Unit,
     onOpenSurah: (Int) -> Unit = {},
+    onOpenTranslations: () -> Unit = {},
     viewModel: SurahReaderViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -69,6 +70,7 @@ fun SurahReaderRoute(
         onDisplayMode = viewModel::setDisplayMode,
         onSettings = viewModel::updateSettings,
         onOpenSurah = onOpenSurah,
+        onOpenTranslations = onOpenTranslations,
         onAyahAction = { ayah, action ->
             val credits = ShareCredits(
                 reference = String.format(referenceFormat, surahName, ayah.surah, ayah.number),
@@ -109,6 +111,7 @@ fun SurahReaderScreen(
     onDisplayMode: (DisplayMode) -> Unit = {},
     onSettings: (ReadingSettings) -> Unit = {},
     onOpenSurah: (Int) -> Unit = {},
+    onOpenTranslations: () -> Unit = {},
     onAyahAction: (Ayah, AyahAction) -> Unit = { _, _ -> },
     listState: LazyListState = rememberLazyListState()
 ) {
@@ -140,7 +143,12 @@ fun SurahReaderScreen(
             settings = state.settings,
             preview = state.ayahs.firstOrNull()?.let { it.arabic to it.translation },
             onChange = onSettings,
-            onDismiss = { showingSettings = false }
+            onDismiss = { showingSettings = false },
+            translation = state.translationName,
+            onOpenTranslations = {
+                showingSettings = false
+                onOpenTranslations()
+            }
         )
     }
     Scaffold(

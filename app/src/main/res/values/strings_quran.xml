@@ -63,6 +63,16 @@
     <!-- The card at the top of the Quran screen, back to the last place read. -->
     <string name="quran_continue_title">Continue reading</string>
     <string name="quran_continue_place"><xliff:g id="number" example="2">%1$d</xliff:g>. <xliff:g id="name" example="Al-Baqara">%2$s</xliff:g>, ayah <xliff:g id="ayah" example="255">%3$d</xliff:g></string>
+    <!-- Choosing the translation. -->
+    <string name="quran_translation_title">Translation</string>
+    <!-- The reading settings' button: the translation read now. -->
+    <string name="quran_translation_open">Translation: <xliff:g id="name" example="Saheeh International">%1$s</xliff:g></string>
+    <!-- Who made a translation, and its language. -->
+    <string name="quran_translation_by"><xliff:g id="translator" example="Saheeh International">%1$s</xliff:g> · <xliff:g id="language" example="English">%2$s</xliff:g></string>
+    <string name="quran_translation_switching">Putting the new translation in place. The Quran screen shows how far it\'s got.</string>
+    <string name="quran_translation_terms">Terms of <xliff:g id="name" example="Saheeh International">%1$s</xliff:g></string>
+    <string name="quran_translation_updated">Last updated by its source: <xliff:g id="date" example="April 24, 2011">%1$s</xliff:g></string>
+    <string name="quran_translation_bundled">Translations come with the app, so the Quran reads without a connection.</string>
     <!-- Searching the whole Quran. -->
     <string name="quran_search_title">Search the Quran</string>
     <string name="quran_search_placeholder">Surah, 2:255, or words</string>

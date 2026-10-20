@@ -33,6 +33,13 @@ abstract class QuranModule {
     abstract fun bindLastReadStore(store: com.pixelquest.app.quran.data.DataStoreLastReadStore): com.pixelquest.app.quran.data.LastReadStore
 
     companion object {
+        /** Loading the Quran again, in the background, after another translation is chosen. */
+        @Provides
+        fun provideQuranLoadRequest(
+            @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
+        ): com.pixelquest.app.quran.data.QuranLoadRequest =
+            com.pixelquest.app.quran.data.QuranLoadRequest { com.pixelquest.app.quran.data.QuranImportWorker.schedule(context) }
+
         /** The reading settings' DataStore, with the last place read: one per process, as DataStore requires. */
         @Provides
         @Singleton

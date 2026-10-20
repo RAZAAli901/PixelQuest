@@ -9,11 +9,12 @@ import com.pixelquest.app.quran.ui.bookmarks.BookmarksRoute
 import com.pixelquest.app.quran.ui.reader.SurahReaderRoute
 import com.pixelquest.app.quran.ui.reader.SurahReaderViewModel
 import com.pixelquest.app.quran.ui.search.QuranSearchRoute
+import com.pixelquest.app.quran.ui.translations.TranslationPickerRoute
 import com.pixelquest.app.ui.navigation.Screen
 
 /**
  * The Quran reader's screens, added to the Islamic section's graph by its item (QuranIslamicItem):
- * the surah list, search, bookmarks and the reader.
+ * the surah list, search, bookmarks, the reader and its translation.
  */
 fun NavGraphBuilder.quranScreens(navController: NavHostController) {
     composable(Screen.Quran.route) {
@@ -24,6 +25,9 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
             onOpenBookmarks = { navController.navigate(Screen.QuranBookmarks.route) { launchSingleTop = true } },
             onOpenSearch = { navController.navigate(Screen.QuranSearch.route) { launchSingleTop = true } }
         )
+    }
+    composable(Screen.QuranTranslations.route) {
+        TranslationPickerRoute(onNavigateBack = { navController.popBackStack() })
     }
     composable(Screen.QuranSearch.route) {
         QuranSearchRoute(
@@ -47,6 +51,7 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
     ) {
         SurahReaderRoute(
             onNavigateBack = { navController.popBackStack() },
+            onOpenTranslations = { navController.navigate(Screen.QuranTranslations.route) { launchSingleTop = true } },
             // The next (or previous) surah opens in this one's place: Back still returns to the list.
             onOpenSurah = { surah ->
                 navController.navigate(Screen.QuranSurah.createRoute(surah)) {

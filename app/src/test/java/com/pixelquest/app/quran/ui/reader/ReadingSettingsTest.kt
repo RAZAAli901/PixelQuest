@@ -17,6 +17,9 @@ import com.pixelquest.app.ui.theme.PixelQuestTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithText
+import com.pixelquest.app.quran.ui.translations.TranslationTags
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -77,6 +80,26 @@ class ReadingSettingsTest {
         composeTestRule.onNodeWithTag(ReaderTags.mode(DisplayMode.ARABIC)).performClick()
 
         assertEquals(DisplayMode.ARABIC, latest.displayMode)
+    }
+
+    @Test
+    fun theTranslation_isNamed_andItsButtonOpensThePicker() {
+        var opened = 0
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                ReadingSettingsContent(
+                    settings = ReadingSettings(),
+                    preview = null,
+                    onChange = {},
+                    translation = "Saheeh International",
+                    onOpenTranslations = { opened++ }
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Translation: Saheeh International").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TranslationTags.OPEN).performClick()
+        assertEquals(1, opened)
     }
 
     @Test
