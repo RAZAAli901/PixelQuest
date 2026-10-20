@@ -48,6 +48,7 @@ interface StudyRepository {
 
     /** Now, and the player's own day and week, as their completions and study time record them. */
     fun now(): Instant
+    fun zone(): ZoneId
     fun today(): LocalDate
     fun thisWeek(): LocalDate = weekStartOf(today())
 
@@ -121,7 +122,7 @@ class StudyRepositoryImpl(
     private val parties: PartyDao,
     private val account: DaroodAccount,
     private val clock: () -> Long,
-    private val zone: () -> ZoneId,
+    private val timeZone: () -> ZoneId,
     private val syncScheduler: StudySyncScheduler? = null
 ) : StudyRepository {
 
@@ -137,6 +138,8 @@ class StudyRepositoryImpl(
     override fun myId(): String? = account.id()
 
     override fun now(): Instant = Instant.ofEpochMilli(clock())
+
+    override fun zone(): ZoneId = timeZone()
 
     override fun today(): LocalDate = now().atZone(zone()).toLocalDate()
 
