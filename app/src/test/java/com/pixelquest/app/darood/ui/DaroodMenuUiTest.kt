@@ -97,14 +97,15 @@ class DaroodMenuUiTest {
                 ) {
                     NavHost(nav, startDestination = Screen.Home.route) {
                         composable(Screen.Home.route) { HomeStandIn() }
-                        islamicGraph(nav, hub = { onOpen -> com.pixelquest.app.islamic.ui.IslamicHubScreen(onOpen, viewModel = hub) })
-                        composable(Screen.DaroodParty.route) {
-                            DaroodPartyScreen(
-                                onNavigateBack = { nav.popBackStack() },
-                                onSignIn = { nav.navigate(Screen.Account.route) },
-                                onOpenParty = {},
-                                viewModel = com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel(auth, repository)
-                            )
+                        islamicGraph(nav, hub = { onOpen -> com.pixelquest.app.islamic.ui.IslamicHubScreen(onOpen, viewModel = hub) }) {
+                            composable(Screen.DaroodParty.route) {
+                                DaroodPartyScreen(
+                                    onNavigateBack = { nav.popBackStack() },
+                                    onSignIn = { nav.navigate(Screen.Account.route) },
+                                    onOpenParty = {},
+                                    viewModel = com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel(auth, repository)
+                                )
+                            }
                         }
                         composable(Screen.Account.route) { Text("ACCOUNT SCREEN") }
                     }

@@ -70,8 +70,9 @@ class MenuDrawerUiTest {
                 ) {
                     NavHost(nav, startDestination = Screen.Home.route) {
                         composable(Screen.Home.route) { HomeStandIn() }
-                        islamicGraph(nav, hub = { onOpen -> IslamicHubContent(IslamicHubUiState(listOf(namazCard), loaded = true), onOpen) })
-                        composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }, viewModel = namazViewModel()) }
+                        islamicGraph(nav, hub = { onOpen -> IslamicHubContent(IslamicHubUiState(listOf(namazCard), loaded = true), onOpen) }) {
+                            composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }, viewModel = namazViewModel()) }
+                        }
                     }
                 }
             }

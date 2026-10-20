@@ -230,74 +230,80 @@ fun PixelNavHost(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-        composable(Screen.DaroodParty.route) {
-            com.pixelquest.app.darood.ui.DaroodPartyScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onSignIn = { navController.navigate(Screen.Account.route) },
-                onOpenParty = { partyId -> navController.navigate(Screen.DaroodPartyChat.createRoute(partyId)) },
-                onCreateParty = { navController.navigate(Screen.DaroodCreate.route) { launchSingleTop = true } },
-                onOpenRaceBoard = { navController.navigate(Screen.DaroodRaceBoard.route) { launchSingleTop = true } }
-            )
-        }
-        composable(Screen.DaroodRaceBoard.route) {
-            com.pixelquest.app.darood.ui.race.RaceBoardScreen(onNavigateBack = { navController.popBackStack() })
-        }
-        composable(Screen.DaroodCreate.route) {
-            com.pixelquest.app.darood.ui.create.CreatePartyScreen(
-                onNavigateBack = { navController.popBackStack() },
-                // The new party opens in place of the form, so Back returns to the list.
-                onCreated = { partyId ->
-                    navController.navigate(Screen.DaroodPartyChat.createRoute(partyId)) {
-                        popUpTo(Screen.DaroodCreate.route) { inclusive = true }
-                    }
-                },
-                onChooseUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } }
-            )
-        }
-        composable(
-            route = Screen.DaroodPartyChat.route,
-            arguments = listOf(navArgument("partyId") { type = NavType.StringType })
-        ) { entry ->
-            val partyId = entry.arguments?.getString("partyId").orEmpty()
-            com.pixelquest.app.darood.ui.chat.PartyChatRoute(
-                partyId = partyId,
-                onNavigateBack = { navController.popBackStack() },
-                onOpenInfo = { navController.navigate(Screen.DaroodPartyInfo.createRoute(partyId)) { launchSingleTop = true } },
-                onAddPeople = { navController.navigate(Screen.DaroodAddPeople.createRoute(partyId)) { launchSingleTop = true } }
-            )
-        }
-        composable(
-            route = Screen.DaroodPartyInfo.route,
-            arguments = listOf(navArgument("partyId") { type = NavType.StringType })
-        ) { entry ->
-            val partyId = entry.arguments?.getString("partyId").orEmpty()
-            com.pixelquest.app.darood.ui.info.PartyInfoScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onAddPeople = { navController.navigate(Screen.DaroodAddPeople.createRoute(partyId)) { launchSingleTop = true } },
-                // Out of the party: back to the list, past its chat.
-                onLeft = {
-                    if (!navController.popBackStack(Screen.DaroodParty.route, inclusive = false)) {
-                        navController.navigate(Screen.DaroodParty.route)
-                    }
-                }
-            )
-        }
-        composable(
-            route = Screen.DaroodAddPeople.route,
-            arguments = listOf(navArgument("partyId") { type = NavType.StringType })
-        ) {
-            com.pixelquest.app.darood.ui.invite.AddPeopleScreen(onNavigateBack = { navController.popBackStack() })
-        }
         composable(Screen.UsernameSetup.route) {
             com.pixelquest.app.darood.ui.username.UsernameSetupScreen(
                 onDone = { navController.popBackStack() },
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-        composable(Screen.Namaz.route) {
-            com.pixelquest.app.ui.screens.namaz.NamazScreen(onNavigateBack = { navController.popBackStack() })
+        islamicGraph(navController, islamicItems) {
+            // The Islamic screens from before the hub (docs/islamic-hub.md): the Namaz Tracker, and
+            // Darood Party's.
+            composable(Screen.Namaz.route) {
+                com.pixelquest.app.ui.screens.namaz.NamazScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(Screen.DaroodParty.route) {
+                com.pixelquest.app.darood.ui.DaroodPartyScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onSignIn = { navController.navigate(Screen.Account.route) },
+                    onOpenParty = { partyId -> navController.navigate(Screen.DaroodPartyChat.createRoute(partyId)) },
+                    onCreateParty = { navController.navigate(Screen.DaroodCreate.route) { launchSingleTop = true } },
+                    onOpenRaceBoard = { navController.navigate(Screen.DaroodRaceBoard.route) { launchSingleTop = true } }
+                )
+            }
+            composable(Screen.DaroodRaceBoard.route) {
+                com.pixelquest.app.darood.ui.race.RaceBoardScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(Screen.DaroodCreate.route) {
+                com.pixelquest.app.darood.ui.create.CreatePartyScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    // The new party opens in place of the form, so Back returns to the list.
+                    onCreated = { partyId ->
+                        navController.navigate(Screen.DaroodPartyChat.createRoute(partyId)) {
+                            popUpTo(Screen.DaroodCreate.route) { inclusive = true }
+                        }
+                    },
+                    onChooseUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } }
+                )
+            }
+            composable(
+                route = Screen.DaroodPartyChat.route,
+                arguments = listOf(navArgument("partyId") { type = NavType.StringType })
+            ) { entry ->
+                val partyId = entry.arguments?.getString("partyId").orEmpty()
+                com.pixelquest.app.darood.ui.chat.PartyChatRoute(
+                    partyId = partyId,
+                    onNavigateBack = { navController.popBackStack() },
+                    onOpenInfo = { navController.navigate(Screen.DaroodPartyInfo.createRoute(partyId)) { launchSingleTop = true } },
+                    onAddPeople = { navController.navigate(Screen.DaroodAddPeople.createRoute(partyId)) { launchSingleTop = true } }
+                )
+            }
+            composable(
+                route = Screen.DaroodPartyInfo.route,
+                arguments = listOf(navArgument("partyId") { type = NavType.StringType })
+            ) { entry ->
+                val partyId = entry.arguments?.getString("partyId").orEmpty()
+                com.pixelquest.app.darood.ui.info.PartyInfoScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onAddPeople = { navController.navigate(Screen.DaroodAddPeople.createRoute(partyId)) { launchSingleTop = true } },
+                    // Out of the party: back to the list, past its chat.
+                    onLeft = {
+                        if (!navController.popBackStack(Screen.DaroodParty.route, inclusive = false)) {
+                            navController.navigate(Screen.DaroodParty.route)
+                        }
+                    }
+                )
+            }
+            composable(
+                route = Screen.DaroodAddPeople.route,
+                arguments = listOf(navArgument("partyId") { type = NavType.StringType })
+            ) {
+                com.pixelquest.app.darood.ui.invite.AddPeopleScreen(onNavigateBack = { navController.popBackStack() })
+            }
         }
-        islamicGraph(navController, islamicItems)
+        // Namaz's and Darood Party's routes before the hub, for notifications set by 1.4.
+        redirect(Routes.LEGACY_NAMAZ, Screen.Namaz.route, navController)
+        redirect(Routes.LEGACY_DAROOD, Screen.DaroodParty.route, navController)
         composable(Screen.Leaderboard.route) {
             val leaderboardViewModel: com.pixelquest.app.ui.screens.leaderboard.LeaderboardViewModel = hiltViewModel()
             com.pixelquest.app.ui.screens.leaderboard.LeaderboardScreen(

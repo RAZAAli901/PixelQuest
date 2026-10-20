@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
@@ -37,7 +38,13 @@ class IslamicRoutesTest {
             nav = rememberNavController()
             NavHost(nav, startDestination = Screen.Home.route) {
                 composable(Screen.Home.route) { Text("home") }
-                islamicGraph(nav, items = listOf(com.pixelquest.app.quran.QuranIslamicItem()), hub = { Text("hub") })
+                islamicGraph(nav, items = listOf(com.pixelquest.app.quran.QuranIslamicItem()), hub = { Text("hub") }) {
+                    composable(Screen.Namaz.route) { Text("namaz screen") }
+                    composable(Screen.DaroodParty.route) { Text("darood screen") }
+                    composable(Screen.DaroodPartyChat.route) { Text("chat") }
+                }
+                redirect(Routes.LEGACY_NAMAZ, Screen.Namaz.route, nav)
+                redirect(Routes.LEGACY_DAROOD, Screen.DaroodParty.route, nav)
             }
         }
     }
@@ -73,6 +80,36 @@ class IslamicRoutesTest {
 
         composeTestRule.onNodeWithContentDescription("Back").performClick()
         assertEquals("its Back returns to the hub", Screen.IslamicHub.route, current())
+    }
+
+    @Test
+    fun namazAndDarood_liveInsideTheSection() {
+        for (route in listOf(Screen.Namaz.route, Screen.DaroodParty.route, Screen.DaroodPartyChat.createRoute("p1"))) {
+            assertTrue(route, Routes.isIslamic(route))
+        }
+        open(Screen.DaroodPartyChat.createRoute("p1"))
+        assertTrue(composeTestRule.runOnIdle { nav.currentDestination!!.hierarchy.any { it.route == Routes.ISLAMIC } })
+    }
+
+    @Test
+    fun theOldNamazRoute_opensTheTracker_andLeavesNothingBehind() {
+        open(Routes.LEGACY_NAMAZ)
+        composeTestRule.waitForIdle()
+
+        assertEquals(Screen.Namaz.route, current())
+        composeTestRule.onNodeWithText("namaz screen").assertExists()
+        assertFalse(
+            "the redirect isn't on the back stack",
+            composeTestRule.runOnIdle { nav.currentBackStack.value.any { it.destination.route == Routes.LEGACY_NAMAZ } }
+        )
+    }
+
+    @Test
+    fun theOldDaroodRoute_opensTheParties() {
+        open(Routes.LEGACY_DAROOD)
+        composeTestRule.waitForIdle()
+
+        assertEquals(Screen.DaroodParty.route, current())
     }
 
     @Test

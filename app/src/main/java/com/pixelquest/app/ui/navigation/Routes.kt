@@ -24,25 +24,25 @@ sealed class Screen(val route: String) {
     object Leaderboard : Screen("leaderboard")
     object ThemeSelection : Screen("theme_selection")
     object AiInsight : Screen("ai_insight")
-    /** The Namaz Tracker, from the side menu. */
-    object Namaz : Screen("namaz")
-    /** Darood Party, from the side menu. */
-    object DaroodParty : Screen("darood")
+    /** The Namaz Tracker, from the Islamic hub. */
+    object Namaz : Screen("${Routes.ISLAMIC}/namaz")
+    /** Darood Party, from the Islamic hub. */
+    object DaroodParty : Screen("${Routes.ISLAMIC}/darood")
     /** Starting a Darood Party. */
-    object DaroodCreate : Screen("darood/create")
+    object DaroodCreate : Screen("${Routes.ISLAMIC}/darood/create")
     /** One Darood Party's own screen (its chat). */
-    object DaroodPartyChat : Screen("darood/party/{partyId}") {
-        fun createRoute(partyId: String) = "darood/party/$partyId"
+    object DaroodPartyChat : Screen("${Routes.ISLAMIC}/darood/party/{partyId}") {
+        fun createRoute(partyId: String) = "${Routes.ISLAMIC}/darood/party/$partyId"
     }
     /** The Darood Party race board. */
-    object DaroodRaceBoard : Screen("darood/race")
+    object DaroodRaceBoard : Screen("${Routes.ISLAMIC}/darood/race")
     /** A Darood Party's info: its members. */
-    object DaroodPartyInfo : Screen("darood/party/{partyId}/info") {
-        fun createRoute(partyId: String) = "darood/party/$partyId/info"
+    object DaroodPartyInfo : Screen("${Routes.ISLAMIC}/darood/party/{partyId}/info") {
+        fun createRoute(partyId: String) = "${Routes.ISLAMIC}/darood/party/$partyId/info"
     }
     /** Adding people to a Darood Party by username. */
-    object DaroodAddPeople : Screen("darood/party/{partyId}/add") {
-        fun createRoute(partyId: String) = "darood/party/$partyId/add"
+    object DaroodAddPeople : Screen("${Routes.ISLAMIC}/darood/party/{partyId}/add") {
+        fun createRoute(partyId: String) = "${Routes.ISLAMIC}/darood/party/$partyId/add"
     }
     /** Claiming or changing the Darood Party username. */
     object UsernameSetup : Screen("username_setup")
@@ -65,6 +65,15 @@ object Routes {
 
     /** Whether [route] is one of the Islamic section's screens. */
     fun isIslamic(route: String?): Boolean = route != null && route.startsWith("$ISLAMIC/")
+
+    /**
+     * The Namaz Tracker's route before the hub (1.4). Reminders and alarms set by 1.4 still carry it
+     * after the update, so it stays, opening the tracker in its new place.
+     */
+    const val LEGACY_NAMAZ = "namaz"
+
+    /** Darood Party's route before the hub (1.4), kept the same way. */
+    const val LEGACY_DAROOD = "darood"
 
     /** The bottom bar's five tabs: where the side menu opens from, by its icon or a swipe from the left edge. */
     val Tabs: Set<String> = setOf(

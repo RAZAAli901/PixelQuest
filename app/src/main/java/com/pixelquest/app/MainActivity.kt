@@ -230,7 +230,8 @@ class MainActivity : ComponentActivity() {
         /** A screen to open, from a notification's tap. */
         const val EXTRA_OPEN_ROUTE = "com.pixelquest.app.extra.OPEN_ROUTE"
 
-        private val OPENABLE_ROUTES = setOf(Screen.Namaz.route)
+        // The Namaz Tracker's, and its route before the Islamic hub, which 1.4's reminders carry.
+        private val OPENABLE_ROUTES = setOf(Screen.Namaz.route, com.pixelquest.app.ui.navigation.Routes.LEGACY_NAMAZ)
     }
 
     private fun checkNotificationPermission() {
