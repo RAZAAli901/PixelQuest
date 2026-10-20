@@ -39,7 +39,7 @@ import com.pixelquest.app.quran.data.QuranLoadRequest
 import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.data.TranslationSwitcher
 import com.pixelquest.app.quran.domain.Translation
-import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.quran.ui.QuranPanel
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -214,7 +214,7 @@ private fun TranslationOption(option: BundledTranslation, selected: Boolean, onC
 @Composable
 private fun Terms(translation: Translation) {
     val colors = PixelTheme.colors
-    PixelCard(contentPadding = 14.dp, modifier = Modifier.fillMaxWidth().testTag(TranslationTags.TERMS)) {
+    QuranPanel(contentPadding = 14.dp, modifier = Modifier.fillMaxWidth().testTag(TranslationTags.TERMS)) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 text = stringResource(R.string.quran_translation_terms, translation.name),

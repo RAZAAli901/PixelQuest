@@ -34,7 +34,7 @@ import com.pixelquest.app.quran.data.QuranAssetSource
 import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.data.QuranSources
 import com.pixelquest.app.quran.domain.Translation
-import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.quran.ui.QuranPanel
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
@@ -156,7 +156,7 @@ fun QuranSourcesScreen(state: QuranSourcesUiState, onNavigateBack: () -> Unit) {
 
 @Composable
 private fun Section(title: String, tag: String, content: @Composable () -> Unit) {
-    PixelCard(contentPadding = 14.dp, modifier = Modifier.fillMaxWidth().testTag(tag)) {
+    QuranPanel(contentPadding = 14.dp, modifier = Modifier.fillMaxWidth().testTag(tag)) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 text = title,

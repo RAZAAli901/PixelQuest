@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.quran.ui.framed
+import com.pixelquest.app.quran.ui.quranChipShape
 import com.pixelquest.app.quran.ui.quranFrame
 import com.pixelquest.app.quran.domain.Revelation
 import com.pixelquest.app.quran.domain.Surah
@@ -148,10 +148,7 @@ fun SurahRow(surah: Surah, onClick: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 private fun SurahNumberBadge(number: Int) {
     val colors = PixelTheme.colors
-    val shape: Shape = when (PixelTheme.mode) {
-        ThemeMode.Pixel, ThemeMode.System -> CutCornerShape(6.dp)
-        else -> CircleShape
-    }
+    val shape: Shape = quranChipShape(chamfer = 6.dp, round = CircleShape)
     val ink = if (PixelTheme.mode == ThemeMode.Comic) {
         Modifier.border(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack, shape)
     } else {

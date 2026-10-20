@@ -16,7 +16,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
-import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.quran.ui.QuranPanel
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
@@ -28,7 +28,7 @@ import com.pixelquest.app.ui.theme.inkOnPanel
 @Composable
 fun ContinueReadingCard(place: ContinueReading, onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val colors = PixelTheme.colors
-    PixelCard(
+    QuranPanel(
         variant = PixelPanelVariant.BLUE,
         contentPadding = 12.dp,
         modifier = modifier

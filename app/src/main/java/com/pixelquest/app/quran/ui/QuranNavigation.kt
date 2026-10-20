@@ -1,5 +1,8 @@
 package com.pixelquest.app.quran.ui
 
+import androidx.compose.runtime.Composable
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -18,7 +21,7 @@ import com.pixelquest.app.ui.navigation.Screen
  * the surah list, search, bookmarks, the reader, its translation, and About and Sources.
  */
 fun NavGraphBuilder.quranScreens(navController: NavHostController) {
-    composable(Screen.Quran.route) {
+    quranScreen(Screen.Quran.route) {
         QuranRoute(
             onNavigateBack = { navController.popBackStack() },
             onOpenSurah = { surah -> navController.navigate(Screen.QuranSurah.createRoute(surah)) },
@@ -28,26 +31,26 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
             onOpenSources = { navController.navigate(Screen.QuranSources.route) { launchSingleTop = true } }
         )
     }
-    composable(Screen.QuranSources.route) {
+    quranScreen(Screen.QuranSources.route) {
         QuranSourcesRoute(onNavigateBack = { navController.popBackStack() })
     }
-    composable(Screen.QuranTranslations.route) {
+    quranScreen(Screen.QuranTranslations.route) {
         TranslationPickerRoute(onNavigateBack = { navController.popBackStack() })
     }
-    composable(Screen.QuranSearch.route) {
+    quranScreen(Screen.QuranSearch.route) {
         QuranSearchRoute(
             onNavigateBack = { navController.popBackStack() },
             onOpenSurah = { surah -> navController.navigate(Screen.QuranSurah.createRoute(surah)) },
             onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) }
         )
     }
-    composable(Screen.QuranBookmarks.route) {
+    quranScreen(Screen.QuranBookmarks.route) {
         BookmarksRoute(
             onNavigateBack = { navController.popBackStack() },
             onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) }
         )
     }
-    composable(
+    quranScreen(
         route = Screen.QuranSurah.route,
         arguments = listOf(
             navArgument(SurahReaderViewModel.ARG_SURAH) { type = NavType.IntType },
@@ -65,4 +68,13 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
             }
         )
     }
+}
+
+/** One of the Quran's screens: in its look, told whether the app is in Simple Mode ([QuranLook]). */
+private fun NavGraphBuilder.quranScreen(
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    content: @Composable (NavBackStackEntry) -> Unit
+) {
+    composable(route = route, arguments = arguments) { entry -> QuranLook { content(entry) } }
 }

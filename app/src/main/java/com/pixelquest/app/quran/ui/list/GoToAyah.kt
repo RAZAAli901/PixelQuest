@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.pixelquest.app.R
 import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.quran.ui.QuranPanel
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.theme.PixelTheme
 
@@ -102,7 +102,7 @@ fun GoToAyahContent(
         is GoToCheck.NoSuchAyah -> stringResource(R.string.quran_go_no_ayah, check.surah, check.ayahs)
         else -> null
     }
-    PixelCard(modifier = modifier.fillMaxWidth().testTag(GoToTags.DIALOG)) {
+    QuranPanel(modifier = modifier.fillMaxWidth().testTag(GoToTags.DIALOG)) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
                 text = stringResource(R.string.quran_go_title),

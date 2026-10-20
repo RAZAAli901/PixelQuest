@@ -2,6 +2,10 @@ package com.pixelquest.app.quran.ui
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -41,14 +45,16 @@ class QuranLookTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private fun framesIn(vararg modes: ThemeMode): Map<ThemeMode, Pair<QuranFrame, AppColorScheme>> {
+    private fun framesIn(vararg modes: ThemeMode, simple: Boolean = false): Map<ThemeMode, Pair<QuranFrame, AppColorScheme>> {
         var mode by mutableStateOf(modes.first())
         var frame: QuranFrame? = null
         var colors: AppColorScheme? = null
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode) {
-                frame = quranFrame()
-                colors = PixelTheme.colors
+                CompositionLocalProvider(LocalQuranSimpleMode provides simple) {
+                    frame = quranFrame()
+                    colors = PixelTheme.colors
+                }
             }
         }
         return modes.associateWith { each ->
@@ -75,6 +81,70 @@ class QuranLookTest {
         assertEquals(ComicTokens.SolidBlack, (frame.border!!.brush as androidx.compose.ui.graphics.SolidColor).value)
         assertEquals(ComicShapeTokens.BorderWidthThin, frame.border!!.width)
         assertNotNull(frame.shadow)
+    }
+
+    @Test
+    fun light_isRounded_withAThinBorder() {
+        val (frame, colors) = framesIn(ThemeMode.Light).getValue(ThemeMode.Light)
+
+        assertTrue(frame.shape is RoundedCornerShape)
+        assertEquals(1.dp, frame.border!!.width)
+        assertEquals(colors.pixelBorder, (frame.border!!.brush as androidx.compose.ui.graphics.SolidColor).value)
+        assertNull(frame.shadow)
+    }
+
+    @Test
+    fun simpleMode_isAPlainBlock_inEveryLook() {
+        val frames = framesIn(ThemeMode.Pixel, ThemeMode.Comic, ThemeMode.Light, simple = true)
+
+        for ((mode, pair) in frames) {
+            val (frame, colors) = pair
+            assertTrue("rounded in $mode", frame.shape is RoundedCornerShape)
+            assertNull("no border in $mode", frame.border)
+            assertNull("no shadow in $mode", frame.shadow)
+            assertEquals(colors.surface, frame.fill)
+        }
+    }
+
+    @Test
+    fun simpleMode_roundsThePixelChoices() {
+        var shape: androidx.compose.ui.graphics.Shape? = null
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                CompositionLocalProvider(LocalQuranSimpleMode provides true) { shape = quranChipShape() }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        assertTrue(shape is RoundedCornerShape)
+    }
+
+    @Test
+    fun theQuranScreen_inSimpleMode_inEachLook_stillWorks() {
+        val surah = Surah(2, "ـ", "Al-Baqara", "The Cow", Revelation.MEDINAN, 286, 1, null)
+        var mode by mutableStateOf(ThemeMode.Pixel)
+        val opened = mutableListOf<Pair<Int, Int>>()
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = mode) {
+                CompositionLocalProvider(LocalQuranSimpleMode provides true) {
+                    QuranHomeScreen(
+                        onNavigateBack = {},
+                        list = com.pixelquest.app.quran.ui.list.SurahListUiState(
+                            surahs = listOf(surah), loaded = true, ayahCounts = mapOf(2 to 286),
+                            continueReading = com.pixelquest.app.quran.ui.list.ContinueReading(surah, 255)
+                        ),
+                        onOpenAyah = { s, a -> opened += s to a }
+                    )
+                }
+            }
+        }
+        for (each in listOf(ThemeMode.Pixel, ThemeMode.Comic, ThemeMode.Light)) {
+            mode = each
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithTag(com.pixelquest.app.quran.ui.list.CONTINUE_READING).performClick()
+        }
+
+        assertEquals(List(3) { 2 to 255 }, opened)
     }
 
     private fun SemanticsNodeInteraction.fontFamily(): FontFamily? {
