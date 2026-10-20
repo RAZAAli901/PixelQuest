@@ -71,6 +71,22 @@ class StudyPartyScreenTest {
     }
 
     @Test
+    fun pinnedItems_stripAcrossTheTop_andOpen() {
+        val pinned = com.pixelquest.app.study.domain.StudyItem(
+            "q", "p1", com.pixelquest.app.study.domain.StudyItemKind.QUIZ, "Waves quiz", null, null, null, true, "aria", Instant.EPOCH
+        )
+        val row = ItemRow(pinned, null, 0, 2, DueState.NONE, canUndo = false, canEdit = true)
+        var opened: String? = null
+        val state = StudyPartyUiState(party = party, myId = "aria", members = members, items = listOf(row), thisWeek = listOf(row), pinned = listOf(row), loaded = true)
+        composeTestRule.setContent {
+            PixelQuestTheme { StudyPartyContent(state = state, onNavigateBack = {}, onOpenInfo = {}, onOpenItem = { opened = it }) }
+        }
+        composeTestRule.onNodeWithTag(StudyTags.PINNED).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.pinned("q")).performClick()
+        assertEquals("q", opened)
+    }
+
+    @Test
     fun theTabs_switch_andEachShowsItsOwn() {
         var state by mutableStateOf(StudyPartyUiState(party = party, myId = "aria", isLeader = true, members = members, loaded = true))
         composeTestRule.setContent {

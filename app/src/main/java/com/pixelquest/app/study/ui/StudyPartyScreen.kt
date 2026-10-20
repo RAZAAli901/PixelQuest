@@ -119,8 +119,14 @@ fun StudyPartyContent(
                     modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab))
                 ) {
                     when (state.tab) {
-                        PartyTab.THIS_WEEK -> thisWeek(state, onOpenItem)
-                        PartyTab.ALL_ITEMS -> itemCards(state.items, R.string.study_items_empty, state.loaded, onOpenItem)
+                        PartyTab.THIS_WEEK -> {
+                            pinnedStrip(state, onOpenItem)
+                            thisWeek(state, onOpenItem)
+                        }
+                        PartyTab.ALL_ITEMS -> {
+                            pinnedStrip(state, onOpenItem)
+                            itemCards(state.items, R.string.study_items_empty, state.loaded, onOpenItem)
+                        }
                         PartyTab.SCOREBOARD -> boardLines(state)
                         PartyTab.PEOPLE -> people(state, onAddPeople, onOpenInfo)
                         PartyTab.CHAT -> Unit
@@ -205,6 +211,11 @@ private fun LazyListScope.emptyLine(text: Int, loaded: Boolean) {
             modifier = Modifier.fillMaxWidth().testTag(StudyTags.EMPTY)
         )
     }
+}
+
+private fun LazyListScope.pinnedStrip(state: StudyPartyUiState, onOpenItem: (String) -> Unit) {
+    if (state.pinned.isEmpty()) return
+    item(key = "pinned") { PinnedStrip(state.pinned, onOpen = onOpenItem) }
 }
 
 /** This week: how far the player is, then the week's items under overdue, each day, and no date. */
@@ -314,6 +325,8 @@ object StudyTags {
     const val EMPTY = "study_empty"
     const val ADD_PEOPLE = "study_add_people"
     const val WEEK_SUMMARY = "study_week_summary"
+    const val PINNED = "study_pinned"
+    fun pinned(id: String) = "study_pinned_$id"
     fun tab(tab: PartyTab) = "study_tab_${tab.name}"
     fun tabButton(tab: PartyTab) = "study_tab_button_${tab.name}"
     fun item(id: String) = "study_item_$id"

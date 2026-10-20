@@ -49,6 +49,9 @@
     <string name="study_item_done">✓ Done</string>
     <string name="study_item_waiting">✓ Waiting to send</string>
     <string name="study_item_refused">Not saved</string>
+    <!-- The strip of the leader's pinned items, and one of them ("📌 Waves quiz"). -->
+    <string name="study_pinned_title">Pinned</string>
+    <string name="study_pinned_line">📌 <xliff:g id="title" example="Waves quiz">%1$s</xliff:g></string>
     <!-- While the party is loading for the first time. -->
     <string name="study_loading">Loading the party…</string>
     <!-- What happened to something the player just tried. -->
