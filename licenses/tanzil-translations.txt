@@ -1,7 +1,7 @@
-The English translation bundled in PixelQuest (data/quran-source/en.sahih.xml, and the app's data
+The English translation bundled in PixelQuest (data/quran-source/en.sahih.txt, and the app's data
 files written from it) is Saheeh International's, from Tanzil.
 
-The file's own header, exactly as it is in the file:
+The file's own notice, at its end, exactly as it is in the file:
 
 # --------------------------------------------------------------------
 #

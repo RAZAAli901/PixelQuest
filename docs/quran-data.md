@@ -11,10 +11,11 @@ All three files come from the [Tanzil Project](https://tanzil.net):
 | File | What | Version | From |
 |---|---|---|---|
 | `quran-uthmani.xml` | The Quran in Uthmani script, as in the Madina Mushaf | 1.1 (February 2021) | [tanzil.net/download](https://tanzil.net/download/) |
-| `en.sahih.xml` | Saheeh International's English translation (`en.sahih`) | Last update April 24, 2011 | [tanzil.net/trans](https://tanzil.net/trans/) |
+| `en.sahih.txt` | Saheeh International's English translation (`en.sahih`) | Last update April 24, 2011 | [tanzil.net/trans](https://tanzil.net/trans/) |
 | `quran-data.xml` | Metadata: each surah's names, place of revelation, ayah count; the juz | 1.0 | [tanzil.net/docs/Quran_Metadata](https://tanzil.net/docs/Quran_Metadata) |
 
-- **Format:** XML, for both texts. Tanzil's XML keeps the Bismillah apart: the first ayah of each surah but Al-Fatihah and At-Tawbah carries a `bismillah` attribute, and its `text` doesn't start with it. In the plain-text format, the Bismillah is joined to that ayah's text, and the app would have to cut it off.
+- **The Arabic is XML.** Tanzil's XML keeps the Bismillah apart: the first ayah of each surah but Al-Fatihah and At-Tawbah carries a `bismillah` attribute, and its `text` doesn't start with it. In the plain-text format, the Bismillah is joined to that ayah's text, and the app would have to cut it off.
+- **The translation is text,** one ayah a line (`surah|ayah|text`), with Tanzil's notice in `#` lines at the end. Its XML has a header comment that XML doesn't allow (`--` inside it), so a strict reader refuses the file. The text format holds the same 6,236 ayahs, character for character.
 - **Options:** Uthmani with Tanzil's defaults: pause marks, sajdah signs, superscript alefs, and tatweel below superscript alefs.
 
 ## Terms
