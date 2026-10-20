@@ -178,7 +178,8 @@ Invited and active rows together never exceed the party's limit, nor 30 (`party_
 ### Functions (signed-in players)
 | Function | What it does |
 |---|---|
-| `create_party(name, max_members, milestone)` | A party and its leader, together; needs a username |
+| `create_party(name, max_members, party_type)` | A party of a kind (`darood` or `study`) and its leader, together; needs a username (`20261019000034`) |
+| `create_party(name, max_members, milestone)` | The 1.4 form: a Darood Party, with an optional milestone, as before |
 | `invite_member(party_id, username)` | Leader only; answers `sent` whether or not the name exists; 20 an hour per account |
 | `respond_invite(party_id, accept)` | Accept or decline an unanswered invitation |
 | `leave_party(party_id)` | Members leave; the leader hands over first |
