@@ -19,7 +19,7 @@ import com.pixelquest.app.islamic.ui.IslamicHubContent
 import com.pixelquest.app.islamic.ui.IslamicHubUiState
 import com.pixelquest.app.islamic.ui.IslamicTestTags
 import com.pixelquest.app.quran.QuranIslamicItem
-import com.pixelquest.app.quran.ui.QURAN_PLACEHOLDER
+import com.pixelquest.app.quran.ui.QURAN_HOME
 import com.pixelquest.app.testing.namazViewModel
 import com.pixelquest.app.ui.menu.MenuContext
 import com.pixelquest.app.ui.menu.MenuDrawerContent
@@ -89,7 +89,7 @@ class IslamicHubStoryTest {
                         composable(Screen.Home.route) { HomeStandIn() }
                         islamicGraph(
                             nav,
-                            items = listOf(QuranIslamicItem { back -> com.pixelquest.app.quran.ui.QuranPlaceholderScreen(onNavigateBack = back) }),
+                            items = listOf(QuranIslamicItem { back -> com.pixelquest.app.quran.ui.QuranHomeScreen(onNavigateBack = back) }),
                             hub = { onOpen -> IslamicHubContent(IslamicHubUiState(cards, loaded = true), onOpen) }
                         ) {
                             composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }, viewModel = namazViewModel()) }
@@ -163,7 +163,7 @@ class IslamicHubStoryTest {
         openTheHubFromTheMenu()
 
         openCard("quran")
-        composeTestRule.onNodeWithTag(QURAN_PLACEHOLDER).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(QURAN_HOME).assertIsDisplayed()
 
         composeTestRule.onNodeWithContentDescription("Back").performClick()
         composeTestRule.waitForIdle()

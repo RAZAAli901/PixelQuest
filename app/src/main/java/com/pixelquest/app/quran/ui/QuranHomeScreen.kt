@@ -15,35 +15,56 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
+import com.pixelquest.app.quran.ui.list.SurahList
+import com.pixelquest.app.quran.ui.list.SurahListUiState
+import com.pixelquest.app.quran.ui.list.SurahListViewModel
 import com.pixelquest.app.ui.components.PixelProgressBar
 import com.pixelquest.app.ui.components.PixelTopAppBar
 import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
 
-/** The Quran's screen, with its state from [QuranViewModel]. */
+/** The Quran's screen, with its state from [QuranViewModel] and [SurahListViewModel]. */
 @Composable
-fun QuranRoute(onNavigateBack: () -> Unit, viewModel: QuranViewModel = hiltViewModel()) {
+fun QuranRoute(
+    onNavigateBack: () -> Unit,
+    onOpenSurah: (surah: Int) -> Unit = {},
+    viewModel: QuranViewModel = hiltViewModel(),
+    listViewModel: SurahListViewModel = hiltViewModel()
+) {
     val preparing by viewModel.preparing.collectAsState()
-    QuranPlaceholderScreen(onNavigateBack = onNavigateBack, preparing = preparing)
+    val list by listViewModel.state.collectAsState()
+    QuranHomeScreen(
+        onNavigateBack = onNavigateBack,
+        preparing = preparing,
+        list = list,
+        onSearch = listViewModel::search,
+        onOpenSurah = onOpenSurah
+    )
 }
 
 /**
- * The Quran's screen until the reader is built: what's coming, and the way back. The first time,
- * while the Quran is being put on the phone, it says so instead ([preparing]).
+ * The Quran's home: the 114 surahs, searchable as the player types. The first time, while the
+ * Quran is being put on the phone, it says so instead ([preparing]).
  */
 @Composable
-fun QuranPlaceholderScreen(onNavigateBack: () -> Unit, preparing: QuranPreparing? = null) {
+fun QuranHomeScreen(
+    onNavigateBack: () -> Unit,
+    preparing: QuranPreparing? = null,
+    list: SurahListUiState = SurahListUiState(),
+    onSearch: (String) -> Unit = {},
+    onOpenSurah: (surah: Int) -> Unit = {}
+) {
     val colors = PixelTheme.colors
     Scaffold(
         containerColor = colors.background,
@@ -62,33 +83,26 @@ fun QuranPlaceholderScreen(onNavigateBack: () -> Unit, preparing: QuranPreparing
                 }
             )
         },
-        modifier = Modifier.testTag(QURAN_PLACEHOLDER)
+        modifier = Modifier.testTag(QURAN_HOME)
     ) { padding ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(24.dp)
-        ) {
-            Text(text = "📖", fontSize = 48.sp, modifier = Modifier.clearAndSetSemantics {})
-            if (preparing != null) {
+        if (preparing != null) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(24.dp)
+            ) {
+                Text(text = "📖", fontSize = 48.sp, modifier = Modifier.clearAndSetSemantics {})
                 Preparing(preparing)
-                return@Column
             }
-            Text(
-                text = stringResource(R.string.quran_coming_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = colors.primaryText,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.semantics { heading() }
-            )
-            Text(
-                text = stringResource(R.string.quran_coming_body),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface,
-                textAlign = TextAlign.Center
+        } else {
+            SurahList(
+                state = list,
+                onSearch = onSearch,
+                onOpenSurah = onOpenSurah,
+                modifier = Modifier.padding(padding)
             )
         }
     }
@@ -126,8 +140,8 @@ private fun Preparing(preparing: QuranPreparing) {
     }
 }
 
-/** The placeholder's test tag. */
-const val QURAN_PLACEHOLDER = "quran_placeholder"
+/** The Quran home's test tag. */
+const val QURAN_HOME = "quran_home"
 
 /** The preparing message's test tag. */
 const val QURAN_PREPARING = "quran_preparing"

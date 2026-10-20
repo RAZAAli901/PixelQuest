@@ -38,7 +38,7 @@ class IslamicRoutesTest {
             nav = rememberNavController()
             NavHost(nav, startDestination = Screen.Home.route) {
                 composable(Screen.Home.route) { Text("home") }
-                islamicGraph(nav, items = listOf(com.pixelquest.app.quran.QuranIslamicItem { back -> com.pixelquest.app.quran.ui.QuranPlaceholderScreen(onNavigateBack = back) }), hub = { Text("hub") }) {
+                islamicGraph(nav, items = listOf(com.pixelquest.app.quran.QuranIslamicItem { back -> com.pixelquest.app.quran.ui.QuranHomeScreen(onNavigateBack = back) }), hub = { Text("hub") }) {
                     composable(Screen.Namaz.route) { Text("namaz screen") }
                     composable(Screen.DaroodParty.route) { Text("darood screen") }
                     composable(Screen.DaroodPartyChat.route) { Text("chat") }
@@ -76,7 +76,7 @@ class IslamicRoutesTest {
         open(Screen.Quran.route)
 
         assertEquals("islamic/quran", current())
-        composeTestRule.onNodeWithTag(com.pixelquest.app.quran.ui.QURAN_PLACEHOLDER).assertExists()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.quran.ui.QURAN_HOME).assertExists()
 
         composeTestRule.onNodeWithContentDescription("Back").performClick()
         assertEquals("its Back returns to the hub", Screen.IslamicHub.route, current())

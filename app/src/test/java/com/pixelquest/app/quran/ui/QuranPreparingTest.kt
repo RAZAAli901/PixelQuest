@@ -105,7 +105,7 @@ class QuranPreparingTest {
     @Test
     fun theMessage_saysWhatsHappening_withAProgressBar() {
         composeTestRule.setContent {
-            PixelQuestTheme { QuranPlaceholderScreen(onNavigateBack = {}, preparing = QuranPreparing(0.5f)) }
+            PixelQuestTheme { QuranHomeScreen(onNavigateBack = {}, preparing = QuranPreparing(0.5f)) }
         }
 
         composeTestRule.onNodeWithTag(QURAN_PREPARING).assertIsDisplayed()
@@ -116,12 +116,12 @@ class QuranPreparingTest {
     }
 
     @Test
-    fun onceReady_theMessageIsGone() {
+    fun onceReady_theMessageIsGone_forTheSurahs() {
         composeTestRule.setContent {
-            PixelQuestTheme { QuranPlaceholderScreen(onNavigateBack = {}, preparing = null) }
+            PixelQuestTheme { QuranHomeScreen(onNavigateBack = {}, preparing = null) }
         }
 
         assertEquals(0, composeTestRule.onAllNodes(hasTestTag(QURAN_PREPARING)).fetchSemanticsNodes().size)
-        composeTestRule.onNodeWithText("The Quran reader is on its way").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.quran.ui.list.QuranListTags.SEARCH).assertIsDisplayed()
     }
 }

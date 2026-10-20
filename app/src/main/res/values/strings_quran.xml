@@ -5,8 +5,11 @@
 
     For translators:
     - "Quran" is a proper name: keep the form your language uses for it.
+    - Surah names come from the Quran's data, never from this file.
+    - <xliff:g> marks a value filled in by the app; keep it, move it where your grammar needs it,
+      and leave what's inside unchanged. Its example shows what the app puts there.
 -->
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Its card on the Islamic hub, and its screen's title. -->
     <string name="quran_title">Quran</string>
     <string name="quran_description">Read the Quran in Arabic and English</string>
@@ -16,7 +19,17 @@
     <!-- If that ever fails (the app's files are damaged). Opening the app again tries again. -->
     <string name="quran_preparing_failed_title">The Quran couldn\'t be prepared</string>
     <string name="quran_preparing_failed_body">Close PixelQuest and open it again to try again.</string>
-    <!-- Until the reader is built: what's coming. -->
-    <string name="quran_coming_title">The Quran reader is on its way</string>
-    <string name="quran_coming_body">All 114 surahs, in Arabic with an English translation, kept on your phone so they open without the internet.</string>
+
+    <!-- The surah list. -->
+    <string name="quran_surah_search">Search by name or number</string>
+    <string name="quran_surah_none">No surah matches that</string>
+    <!-- Where a surah was revealed: Tanzil's terms, kept as the usual English names. -->
+    <string name="quran_meccan">Meccan</string>
+    <string name="quran_medinan">Medinan</string>
+    <plurals name="quran_ayah_count">
+        <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> ayah</item>
+        <item quantity="other"><xliff:g id="count" example="286">%d</xliff:g> ayahs</item>
+    </plurals>
+    <!-- What TalkBack says for a surah's row, one button: number, English name, meaning, place, ayahs. -->
+    <string name="quran_surah_spoken"><xliff:g id="number" example="2">%1$d</xliff:g>. <xliff:g id="name" example="Al-Baqara">%2$s</xliff:g>, <xliff:g id="meaning" example="The Cow">%3$s</xliff:g>. <xliff:g id="place" example="Medinan">%4$s</xliff:g>, <xliff:g id="count" example="286 ayahs">%5$s</xliff:g></string>
 </resources>
