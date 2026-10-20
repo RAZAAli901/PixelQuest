@@ -32,8 +32,8 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         // The Namaz Tracker (docs/namaz-design.md), from version 8.
         com.pixelquest.app.data.local.entity.NamazLogEntity::class,
         com.pixelquest.app.data.local.entity.NamazSettingsEntity::class,
-        com.pixelquest.app.darood.data.local.PartyEntity::class,
-        com.pixelquest.app.darood.data.local.PartyMemberEntity::class,
+        com.pixelquest.app.party.data.local.PartyEntity::class,
+        com.pixelquest.app.party.data.local.PartyMemberEntity::class,
         com.pixelquest.app.darood.data.local.DaroodEntryEntity::class,
         com.pixelquest.app.darood.data.local.PendingEntryEntity::class,
         // The Quran (docs/quran-data.md), from version 13: loaded from the app's own files.
@@ -46,7 +46,7 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         // The player's Quran bookmarks, from version 15; the ayahs' Arabic search key, from 16.
         com.pixelquest.app.quran.data.local.QuranBookmarkEntity::class
     ],
-    version = 16,
+    version = 17,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -61,6 +61,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun namazLogDao(): com.pixelquest.app.data.local.dao.NamazLogDao
     abstract fun namazSettingsDao(): com.pixelquest.app.data.local.dao.NamazSettingsDao
     abstract fun daroodDao(): com.pixelquest.app.darood.data.local.DaroodDao
+    abstract fun partyDao(): com.pixelquest.app.party.data.local.PartyDao
     abstract fun quranDao(): com.pixelquest.app.quran.data.local.QuranDao
     abstract fun quranBookmarkDao(): com.pixelquest.app.quran.data.local.QuranBookmarkDao
 
@@ -70,7 +71,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -243,6 +244,16 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_15_16 = object : Migration(15, 16) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `quran_ayah` ADD COLUMN `arabicPlain` TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
+        /**
+         * Each cached party's kind (docs/party-core.md): every party cached before is a Darood Party.
+         * The cache's tables keep their names (darood_party, darood_party_member), so nothing moves.
+         */
+        val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `darood_party` ADD COLUMN `partyType` TEXT NOT NULL DEFAULT 'DAROOD'")
             }
         }
 

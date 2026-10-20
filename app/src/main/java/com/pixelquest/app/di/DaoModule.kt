@@ -68,6 +68,12 @@ object DaoModule {
     @Singleton
     fun provideDaroodDao(database: AppDatabase): com.pixelquest.app.darood.data.local.DaroodDao = database.daroodDao()
 
+    // Every party's cache (docs/party-core.md): the same tables Darood Party's DAO reads.
+
+    @Provides
+    @Singleton
+    fun providePartyDao(database: AppDatabase): com.pixelquest.app.party.data.local.PartyDao = database.partyDao()
+
     // The Quran on the phone (docs/quran-data.md).
 
     @Provides

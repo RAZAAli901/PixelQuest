@@ -18,6 +18,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import java.time.LocalDate
+import com.pixelquest.app.party.data.local.PartyEntity
+import com.pixelquest.app.party.data.local.PartyMemberEntity
 
 /** Darood Party's cache in the real database: refreshes, pending entries, and clearing it all. */
 @RunWith(RobolectricTestRunner::class)

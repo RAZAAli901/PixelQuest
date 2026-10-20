@@ -248,6 +248,7 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion13() = updateFrom(13)
     @Test fun fromVersion14() = updateFrom(14)
     @Test fun fromVersion15() = updateFrom(15)
+    @Test fun fromVersion16() = updateFrom(16)
 
     @Test
     fun theQuransSearchIndex_followsItsTable_afterTheUpdate(): Unit = runBlocking {

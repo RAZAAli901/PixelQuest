@@ -9,59 +9,11 @@ import com.pixelquest.app.darood.domain.EntryState
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyRole
 import java.time.LocalDate
+import com.pixelquest.app.party.data.local.PartyEntity
 
-// Darood Party's cache on the phone (docs/darood-design.md): what the server last said, so the
-// screens open at once and offline, plus the entries waiting to be sent. The server is the truth;
-// a refresh replaces these rows. Times are epoch millis; days use the app's LocalDate converter.
-
-/**
- * A party the signed-in account is active in or invited to, with its numbers.
- *
- * @param myRole the account's role in it; [myStatus] its status (active or invited).
- * @param syncedAt when this row last came from the server.
- */
-@Entity(tableName = "darood_party")
-data class PartyEntity(
-    @PrimaryKey val id: String,
-    val name: String,
-    val leaderId: String?,
-    val maxMembers: Int,
-    val milestone: Long?,
-    val milestoneSetAt: Long?,
-    val completedAt: Long?,
-    val createdAt: Long,
-    val total: Long,
-    val entryCount: Int,
-    val memberCount: Int,
-    val lastEntryDate: LocalDate?,
-    val myRole: PartyRole,
-    val myStatus: MemberStatus,
-    val syncedAt: Long,
-    /** On the race board (from version 12). */
-    @ColumnInfo(defaultValue = "0") val isPublicRace: Boolean = false
-)
-
-/** Someone in a party, with their part of its total (zero until they post). */
-@Entity(
-    tableName = "darood_party_member",
-    primaryKeys = ["partyId", "userId"],
-    foreignKeys = [ForeignKey(entity = PartyEntity::class, parentColumns = ["id"], childColumns = ["partyId"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("partyId")]
-)
-data class PartyMemberEntity(
-    val partyId: String,
-    val userId: String,
-    val username: String?,
-    val role: PartyRole,
-    val status: MemberStatus,
-    val invitedAt: Long?,
-    val joinedAt: Long?,
-    @ColumnInfo(defaultValue = "0") val total: Long = 0,
-    @ColumnInfo(defaultValue = "0") val activeDays: Int = 0,
-    val lastEntryDate: LocalDate? = null,
-    /** When their row last changed on the server (from version 11). */
-    val statusChangedAt: Long? = null
-)
+// Darood Party's own cache on the phone (docs/darood-design.md): its entries, and those waiting to be
+// sent. Every party's rows (the parties and their members) are in party.data.local. The server is
+// the truth; a refresh replaces these rows. Times are epoch millis; days use the app's LocalDate converter.
 
 /** An entry the server has, by its id. [clientId] is set for the account's own, matching its pending row. */
 @Entity(

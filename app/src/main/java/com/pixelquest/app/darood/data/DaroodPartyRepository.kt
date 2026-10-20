@@ -3,8 +3,8 @@ package com.pixelquest.app.darood.data
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.local.DaroodDao
 import com.pixelquest.app.darood.data.local.DaroodEntryEntity
-import com.pixelquest.app.darood.data.local.PartyEntity
-import com.pixelquest.app.darood.data.local.PartyMemberEntity
+import com.pixelquest.app.party.data.local.PartyEntity
+import com.pixelquest.app.party.data.local.PartyMemberEntity
 import com.pixelquest.app.darood.data.local.PendingEntryEntity
 import com.pixelquest.app.darood.data.remote.DaroodAccount
 import com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource
@@ -43,6 +43,7 @@ import java.time.ZoneId
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.pixelquest.app.party.domain.PartyType
 
 /**
  * Darood Parties for the screens (docs/darood-design.md). They watch the cache on the phone, so a
@@ -418,7 +419,8 @@ internal fun RemoteParty.toEntity(stats: PartyStats?, syncedAt: Long) = PartyEnt
     myRole = roleOf(membership.role),
     myStatus = statusOf(membership.status),
     syncedAt = syncedAt,
-    isPublicRace = party.isPublicRace
+    isPublicRace = party.isPublicRace,
+    partyType = PartyType.fromWire(party.partyType)
 )
 
 internal fun PartyEntity.toDomain() = Party(
@@ -433,7 +435,8 @@ internal fun PartyEntity.toDomain() = Party(
     total = total,
     memberCount = memberCount,
     myStatus = myStatus,
-    isPublicRace = isPublicRace
+    isPublicRace = isPublicRace,
+    type = partyType
 )
 
 internal fun PartyMember.toEntity(stats: MemberStats?) = PartyMemberEntity(
