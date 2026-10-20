@@ -3,6 +3,7 @@ package com.pixelquest.app.quran.ui.reader
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -36,7 +37,7 @@ class ReadingSettingsTest {
 
     private fun show() {
         composeTestRule.setContent {
-            var settings by mutableStateOf(ReadingSettings())
+            var settings by remember { mutableStateOf(ReadingSettings()) }
             PixelQuestTheme {
                 ReadingSettingsContent(settings = settings, preview = "ـ" to "made-up", onChange = { settings = it; latest = it })
             }

@@ -3,6 +3,7 @@ package com.pixelquest.app.quran.ui.list
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -62,8 +63,8 @@ class GoToAyahTest {
     fun goingTo_anAyahThatsThere() {
         val went = mutableListOf<Pair<Int, Int>>()
         composeTestRule.setContent {
-            var surah by mutableStateOf("")
-            var ayah by mutableStateOf("")
+            var surah by remember { mutableStateOf("") }
+            var ayah by remember { mutableStateOf("") }
             PixelQuestTheme {
                 GoToAyahContent(
                     surah = surah, ayah = ayah, check = GoToCheck.of(surah, ayah, counts),

@@ -3,6 +3,7 @@ package com.pixelquest.app.quran.ui.reader
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasTestTag
@@ -37,7 +38,7 @@ class DisplayModeSwitchTest {
 
     private fun show(mode: ThemeMode = ThemeMode.Pixel) {
         composeTestRule.setContent {
-            var state by mutableStateOf(ReaderUiState(surah = surah, ayahs = ayahs, hasMore = false))
+            var state by remember { mutableStateOf(ReaderUiState(surah = surah, ayahs = ayahs, hasMore = false)) }
             PixelQuestTheme(themeMode = mode) {
                 SurahReaderScreen(state = state, onNavigateBack = {}, onDisplayMode = { state = state.copy(settings = state.settings.copy(displayMode = it)) })
             }
