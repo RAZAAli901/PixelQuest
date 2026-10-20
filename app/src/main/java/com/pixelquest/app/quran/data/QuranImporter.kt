@@ -151,6 +151,7 @@ class QuranImporter(
     }
 
     companion object {
+        /** Its name in the APK: the repository's `quran_ar.json.gz`, unzipped by the build ([AndroidQuranAssetSource]). */
         const val QURAN_FILE = "quran_ar.json"
 
         /** Saheeh International's file, the default translation ([TranslationSwitcher]). */

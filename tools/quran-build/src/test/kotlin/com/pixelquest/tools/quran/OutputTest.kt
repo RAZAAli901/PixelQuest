@@ -25,8 +25,8 @@ class OutputTest {
     private fun build(): Pair<QuranFile, TranslationFile> {
         val out = temp.newFolder()
         QuranBuild(source, out).run()
-        return json.decodeFromString<QuranFile>(File(out, Output.QURAN).readText()) to
-            json.decodeFromString<TranslationFile>(File(out, Output.TRANSLATION).readText())
+        return json.decodeFromString<QuranFile>(Output.readGzip(File(out, Output.QURAN))) to
+            json.decodeFromString<TranslationFile>(Output.readGzip(File(out, Output.TRANSLATION)))
     }
 
     @Test
@@ -80,10 +80,30 @@ class OutputTest {
     @Test
     fun theAppsFiles_areAFreshBuildsExactly() {
         // So nothing in app/src/main/assets/quran is ever edited by hand: run the tool to change them.
+        // Their content is compared, not the gzip bytes, which another machine's zlib may pack differently.
         val out = temp.newFolder("fresh")
         QuranBuild(source, out).run()
         for (name in listOf(Output.QURAN, Output.TRANSLATION)) {
-            assertArrayEquals(name, File(out, name).readBytes(), File("app/src/main/assets/quran", name).readBytes())
+            assertEquals(name, Output.readGzip(File(out, name)), Output.readGzip(File("app/src/main/assets/quran", name)))
+        }
+        assertEquals("only the gzipped files", setOf(Output.QURAN, Output.TRANSLATION), File("app/src/main/assets/quran").list()!!.toSet())
+    }
+
+    @Test
+    fun theAppsFiles_stayWithinTheirBudget() {
+        // docs/quran-data.md, Size: at most 600 KB together, as the repository keeps them.
+        val total = listOf(Output.QURAN, Output.TRANSLATION).sumOf { File("app/src/main/assets/quran", it).length() }
+        assertTrue("$total bytes", total <= 600_000)
+    }
+
+    @Test
+    fun theFiles_areGzipped() {
+        val out = temp.newFolder()
+        QuranBuild(source, out).run()
+        for (name in listOf(Output.QURAN, Output.TRANSLATION)) {
+            val bytes = File(out, name).readBytes()
+            assertArrayEquals(name, byteArrayOf(0x1f, 0x8b.toByte()), bytes.copyOf(2))
+            assertTrue(name, bytes.size < Output.readGzip(File(out, name)).toByteArray().size / 2)
         }
     }
 }

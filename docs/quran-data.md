@@ -36,7 +36,9 @@ All three files come from the [Tanzil Project](https://tanzil.net):
 - **`data/quran-source/`:** the three files exactly as downloaded. Git treats them as binary (`.gitattributes`), so line endings are never changed and their checksums hold on every machine.
 - **`licenses/`:** the terms above, as Tanzil states them, and where and when each file was downloaded.
 - **`tools/quran-build/`:** a small Kotlin program, run with Gradle, that reads the three files, checks them, and writes the app's data files.
-- **`app/src/main/assets/quran/`:** what the app bundles, written by the tool, never by hand. The Arabic and the translation are separate files, so another translation can be added as one more file.
+- **`app/src/main/assets/quran/`:** what the app bundles, written by the tool, never by hand: `quran_ar.json.gz` and `quran_en.json.gz`.
+  - The Arabic and the translation are separate files, so another translation can be added as one more file.
+  - They're gzipped in the repository. The Android build unzips `.gz` assets as it merges them, so in the APK they're `quran/quran_ar.json` and `quran/quran_en.json`, which the app reads.
 
 ## Backups and sync
 
@@ -56,6 +58,28 @@ The tool refuses to write anything unless all of these hold:
 - Each source file's SHA-256 is the one recorded for it, so a changed character fails the build.
 
 The app's tests also compare every ayah in its data files with the source files, character for character.
+
+## Size
+
+Measured on 2026-10-20, Tanzil's files as above:
+
+| What | Bytes |
+|---|---|
+| The three source files | 2,516,670 |
+| The app's two files as plain JSON | 2,274,609 |
+| The same, gzipped (best compression), as the repository keeps them | 540,295 |
+| In the APK: the build unzips them, then deflates them with every asset | 558,690 |
+| Release APK, 1.4.1 | 6,936,271 |
+| Release APK with the Quran and the Islamic hub | 7,539,359 |
+
+- **The APK:** gzip makes no difference to it, since the build unzips the files and deflates them itself; 559 KB of its 603 KB growth is the Quran. Gzip keeps the repository 1.7 MB smaller.
+- **On the phone:** the Quran's tables, with the translation's search index, take a few MB in the database.
+
+**Budget:**
+- The Quran's files in the APK: at most 700 KB.
+- The release APK: at most 8 MB.
+
+The tool's tests keep the gzipped files within budget (at most 600 KB together), and Phase F checks the APK against it before the release.
 
 ## Updating
 

@@ -2,6 +2,7 @@ package com.pixelquest.app.quran.data
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.InputStream
 import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -71,10 +72,10 @@ class AndroidQuranAssetSource @Inject constructor(
     @ApplicationContext private val context: Context
 ) : QuranAssetSource {
     override fun read(name: String): String =
-        context.assets.open("$FOLDER/$name").use { it.readBytes().toString(Charsets.UTF_8) }
+        open(name).use { it.readBytes().toString(Charsets.UTF_8) }
 
     override fun head(name: String, chars: Int): String =
-        context.assets.open("$FOLDER/$name").bufferedReader(Charsets.UTF_8).use { reader ->
+        open(name).bufferedReader(Charsets.UTF_8).use { reader ->
             // One read may return less than asked: keep reading until full, or the file ends.
             val buffer = CharArray(chars)
             var filled = 0
@@ -87,6 +88,13 @@ class AndroidQuranAssetSource @Inject constructor(
         }
 
     override fun list(): List<String> = context.assets.list(FOLDER)?.toList().orEmpty()
+
+    /**
+     * A bundled file. The repository keeps them gzipped (`quran_ar.json.gz`), but the Android build
+     * unzips `.gz` assets as it merges them, so in the APK each is plain JSON under its name without
+     * `.gz` (then deflated with every other asset). The app's tests run on those merged files.
+     */
+    private fun open(name: String): InputStream = context.assets.open("$FOLDER/$name")
 
     private companion object {
         const val FOLDER = "quran"

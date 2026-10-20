@@ -6,10 +6,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * A translation the app bundles: one file in assets/quran, `quran_<language>.json`, as
- * tools/quran-build writes it (docs/quran-data.md).
+ * A translation the app bundles: one file in assets/quran, `quran_<language>.json.gz` as
+ * tools/quran-build writes it (docs/quran-data.md), unzipped by the build into the APK.
  *
- * @param file the file's name, such as `quran_en.json`.
+ * @param file its name in the APK, such as `quran_en.json`.
  */
 data class BundledTranslation(
     val id: String,
@@ -48,8 +48,8 @@ class PrefsTranslationChoiceStore @Inject constructor(
 
 /**
  * The translations the app bundles, found by their files, and which one the player reads. A new
- * translation is added as one more `quran_<language>.json`, with nothing to change here: each file
- * says who it is at its start.
+ * translation is added as one more `quran_<language>.json.gz` from the tool, with nothing to change
+ * here: each file says who it is at its start.
  */
 @Singleton
 class TranslationSwitcher @Inject constructor(

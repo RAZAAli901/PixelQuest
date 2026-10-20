@@ -4,7 +4,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.OutputStream
 import java.security.MessageDigest
+import java.util.zip.Deflater
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 /**
  * The Quran file the app bundles (`quran_ar.json`): the Arabic text, each surah's details and
@@ -61,10 +65,14 @@ data class TranslationFile(
 @Serializable
 data class TranslationFileSurah(val number: Int, val ayahs: List<String>)
 
-/** Writing the app's files, then reading them back to check every ayah came through unchanged. */
+/**
+ * Writing the app's files, gzipped, then reading them back to check every ayah came through
+ * unchanged. The APK deflates its assets anyway, so gzip saves little there; it keeps these files
+ * small in the repository (sizes in docs/quran-data.md).
+ */
 object Output {
-    const val QURAN = "quran_ar.json"
-    const val TRANSLATION = "quran_en.json"
+    const val QURAN = "quran_ar.json.gz"
+    const val TRANSLATION = "quran_en.json.gz"
 
     /** Where Tanzil publishes the text and its updates: its terms ask for the link. */
     const val TANZIL = "Tanzil Project, https://tanzil.net"
@@ -118,11 +126,11 @@ object Output {
     /** Writes both files to [folder]; then reads them back, and fails unless every ayah is [joined]'s, exactly. */
     fun write(folder: File, quran: QuranFile, translation: TranslationFile, joined: List<JoinedSurah>): List<File> {
         folder.mkdirs()
-        val quranFile = File(folder, QURAN).apply { writeText(json.encodeToString(quran) + "\n", Charsets.UTF_8) }
-        val translationFile = File(folder, TRANSLATION).apply { writeText(json.encodeToString(translation) + "\n", Charsets.UTF_8) }
+        val quranFile = File(folder, QURAN).apply { writeGzip(this, json.encodeToString(quran) + "\n") }
+        val translationFile = File(folder, TRANSLATION).apply { writeGzip(this, json.encodeToString(translation) + "\n") }
 
-        val readQuran = json.decodeFromString<QuranFile>(quranFile.readText(Charsets.UTF_8))
-        val readTranslation = json.decodeFromString<TranslationFile>(translationFile.readText(Charsets.UTF_8))
+        val readQuran = json.decodeFromString<QuranFile>(readGzip(quranFile))
+        val readTranslation = json.decodeFromString<TranslationFile>(readGzip(translationFile))
         val arabicBack = readQuran.surahs.map { it.number to it.ayahs }
         val translationBack = readTranslation.surahs.map { it.number to it.ayahs }
         if (arabicBack != joined.map { s -> s.number to s.ayahs.map { it.arabic } }) {
@@ -135,5 +143,18 @@ object Output {
             throw QuranBuildException("$QURAN's Bismillahs don't read back as the source's")
         }
         return listOf(quranFile, translationFile)
+    }
+
+    /** [text] as UTF-8, gzipped at the best compression. */
+    fun writeGzip(file: File, text: String) {
+        file.outputStream().use { out -> BestGzip(out).use { it.write(text.toByteArray(Charsets.UTF_8)) } }
+    }
+
+    fun readGzip(file: File): String = GZIPInputStream(file.inputStream()).use { it.readBytes().toString(Charsets.UTF_8) }
+
+    private class BestGzip(out: OutputStream) : GZIPOutputStream(out) {
+        init {
+            def.setLevel(Deflater.BEST_COMPRESSION)
+        }
     }
 }
