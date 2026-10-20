@@ -1,0 +1,7 @@
+The surah and juz data bundled in PixelQuest (data/quran-source/quran-data.xml, and the app's data
+files written from it) is Tanzil's Quran Metadata, version 1.0. Its root element states its copyright
+and licence (cc-by: Creative Commons Attribution), exactly as in the file:
+
+<quran type="metadata" version="1.0" copyright="(C) 2008-2009 Tanzil.info" license="cc-by">
+
+https://tanzil.net/docs/Quran_Metadata

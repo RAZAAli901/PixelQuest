@@ -1,0 +1,36 @@
+The English translation bundled in PixelQuest (data/quran-source/en.sahih.xml, and the app's data
+files written from it) is Saheeh International's, from Tanzil.
+
+The file's own header, exactly as it is in the file:
+
+# --------------------------------------------------------------------
+#
+#  Quran Translation
+#  Name: Saheeh International
+#  Translator: Saheeh International
+#  Language: English
+#  ID: en.sahih
+#  Last Update: April 24, 2011
+#  Source: Tanzil.net
+#
+# --------------------------------------------------------------------
+
+
+Tanzil's terms of use for its translations, as https://tanzil.net/trans/ states them:
+
+The translations provided at this page are for non-commercial purposes only.
+If used otherwise, you need to obtain necessary permission from the translator or the publisher.
+If you are using more than three of the following translations in a website or application,
+we require you to put a link back to this page
+to make sure that subsequent users have access to the latest updates.
+Redistributing the following list in another website is not allowed,
+unless direct permission is granted by the Tanzil Project.
+
+
+And its disclaimer there:
+
+No translation of Quran can be a hundred percent accurate,
+nor it can be used as a replacement of the Quran text.
+We have tried to provide a set of mostly acceptable quran translations here,
+but we cannot guarantee their authenticity and/or accuracy.
+Please use them at your own discretion.

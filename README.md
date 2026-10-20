@@ -175,3 +175,5 @@ For complete technical and security details, see [`PRIVACY.md`](PRIVACY.md).
 
 ## 📜 License
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
+
+The Quran's text, its English translation and their data are not under the MIT License: they're the [Tanzil Project](https://tanzil.net)'s and Saheeh International's, under their own terms. See [`licenses/`](licenses/README.md).
