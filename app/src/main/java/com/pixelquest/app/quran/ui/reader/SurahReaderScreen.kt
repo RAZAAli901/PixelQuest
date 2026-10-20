@@ -82,7 +82,7 @@ fun SurahReaderRoute(
                         null
                     )
                 )
-                AyahAction.BOOKMARK -> Unit
+                AyahAction.BOOKMARK -> viewModel.toggleBookmark(ayah.number)
             }
         }
     )
@@ -120,7 +120,7 @@ fun SurahReaderScreen(
         AyahActionsSheet(
             ayah = ayah,
             surahName = surah?.englishName.orEmpty(),
-            bookmarked = false,
+            bookmarked = ayah.number in state.bookmarked,
             onAction = { action ->
                 acting = null
                 onAyahAction(ayah, action)
@@ -190,7 +190,13 @@ fun SurahReaderScreen(
                     item(key = "bismillah") { BismillahHeader(bismillah = bismillah, typography = typography) }
                 }
                 items(state.ayahs, key = { it.id }) { ayah ->
-                    AyahItem(ayah = ayah, mode = state.displayMode, typography = typography, onClick = { acting = ayah.number })
+                    AyahItem(
+                        ayah = ayah,
+                        mode = state.displayMode,
+                        typography = typography,
+                        bookmarked = ayah.number in state.bookmarked,
+                        onClick = { acting = ayah.number }
+                    )
                     HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = colors.onSurface.copy(alpha = 0.12f))
                 }
                 // The surah's end: on to the next, or back to the one before.
@@ -251,6 +257,7 @@ object ReaderTags {
     const val BISMILLAH = "quran_bismillah"
     const val PREVIOUS = "quran_previous_surah"
     const val ACTIONS = "quran_ayah_actions"
+    const val RIBBON = "quran_bookmark_ribbon"
     const val NEXT = "quran_next_surah"
     const val LIST = "quran_reader_list"
     const val SETTINGS = "quran_reader_settings"

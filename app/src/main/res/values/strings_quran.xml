@@ -48,6 +48,8 @@
     <string name="quran_ayah_open_actions">show what you can do with it</string>
     <string name="quran_bookmark">Bookmark</string>
     <string name="quran_unbookmark">Remove bookmark</string>
+    <!-- A bookmarked ayah's state, as TalkBack says it. -->
+    <string name="quran_bookmarked">Bookmarked</string>
     <string name="quran_copy_arabic">Copy the Arabic</string>
     <string name="quran_copy_translation">Copy the translation</string>
     <string name="quran_share">Share</string>

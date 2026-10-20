@@ -3,6 +3,7 @@ package com.pixelquest.app.quran.ui.reader
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pixelquest.app.quran.data.BookmarkRepository
 import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.data.ReadingSettingsStore
 import com.pixelquest.app.quran.domain.Ayah
@@ -37,6 +38,7 @@ enum class DisplayMode {
  * @param settings the sizes, spacing and display mode the player reads with.
  * @param previous the surah before this one, and [next] the one after: null at either end.
  * @param translator who made the translation being read, for its credit when an ayah is shared.
+ * @param bookmarked the surah's bookmarked ayahs, by number.
  */
 data class ReaderUiState(
     val surah: Surah? = null,
@@ -47,7 +49,8 @@ data class ReaderUiState(
     val loading: Boolean = false,
     val target: Int? = null,
     val settings: ReadingSettings = ReadingSettings(),
-    val translator: String = ""
+    val translator: String = "",
+    val bookmarked: Set<Int> = emptySet()
 ) {
     val displayMode: DisplayMode get() = settings.displayMode
 }
@@ -61,7 +64,8 @@ data class ReaderUiState(
 class SurahReaderViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: QuranRepository,
-    private val settingsStore: ReadingSettingsStore
+    private val settingsStore: ReadingSettingsStore,
+    private val bookmarks: BookmarkRepository
 ) : ViewModel() {
 
     /** The surah this reader shows ([ARG_SURAH] in its route). */
@@ -81,6 +85,9 @@ class SurahReaderViewModel @Inject constructor(
         // How the player reads, as last kept on this phone.
         viewModelScope.launch {
             settingsStore.settings.collect { settings -> _state.update { it.copy(settings = settings) } }
+        }
+        viewModelScope.launch {
+            bookmarks.bookmarkedIn(surahNumber).collect { marked -> _state.update { it.copy(bookmarked = marked) } }
         }
         // The translation on the phone, for its credit (there's one at a time: TranslationSwitcher).
         viewModelScope.launch {
@@ -120,6 +127,11 @@ class SurahReaderViewModel @Inject constructor(
                 loading = false
             )
         }
+    }
+
+    /** Bookmarks [ayah] of this surah, or removes its bookmark. */
+    fun toggleBookmark(ayah: Int) {
+        viewModelScope.launch { bookmarks.toggle(surahNumber, ayah) }
     }
 
     /** The player is reading [ayah] (the first in view): kept, so a rotation brings them back to it. */

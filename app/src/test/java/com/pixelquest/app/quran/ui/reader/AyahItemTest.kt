@@ -60,6 +60,24 @@ class AyahItemTest {
     }
 
     @Test
+    fun aBookmarkedAyah_hasItsRibbon_andSaysSo() {
+        composeTestRule.setContent {
+            PixelQuestTheme { AyahItem(ayah = ayah, mode = DisplayMode.BOTH, typography = QuranTypography.of(), bookmarked = true) }
+        }
+
+        assertEquals(1, shown(ReaderTags.RIBBON))
+        val state = composeTestRule.onNodeWithTag(ReaderTags.ayah(255)).fetchSemanticsNode().config.getOrNull(SemanticsProperties.StateDescription)
+        assertEquals("Bookmarked", state)
+    }
+
+    @Test
+    fun anAyahNotBookmarked_hasNoRibbon() {
+        show(DisplayMode.BOTH)
+
+        assertEquals(0, shown(ReaderTags.RIBBON))
+    }
+
+    @Test
     fun arabicOnly_hasNoTranslation() {
         show(DisplayMode.ARABIC)
 

@@ -89,7 +89,7 @@ class ReadingSettingsTest {
     fun theReader_usesWhatsChosen() {
         val repository = NoQuran
         val store = com.pixelquest.app.quran.data.MemoryReadingSettingsStore()
-        val vm = SurahReaderViewModel(SavedStateHandle(mapOf("surah" to 1)), repository, store)
+        val vm = SurahReaderViewModel(SavedStateHandle(mapOf("surah" to 1)), repository, store, com.pixelquest.app.quran.data.MemoryBookmarks())
 
         vm.updateSettings(ReadingSettings(arabicSize = 40f, displayMode = DisplayMode.TRANSLATION))
 

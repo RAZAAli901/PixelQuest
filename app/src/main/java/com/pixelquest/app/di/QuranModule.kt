@@ -17,6 +17,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class QuranModule {
 
+    /** The player's bookmarks. */
+    @Binds
+    @Singleton
+    abstract fun bindBookmarkRepository(repository: com.pixelquest.app.quran.data.RoomBookmarkRepository): com.pixelquest.app.quran.data.BookmarkRepository
+
     /** How the player reads, kept between visits. */
     @Binds
     @Singleton

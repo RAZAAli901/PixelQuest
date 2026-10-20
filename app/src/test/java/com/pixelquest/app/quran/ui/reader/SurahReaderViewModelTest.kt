@@ -59,9 +59,10 @@ class SurahReaderViewModelTest {
     }
 
     private val settings = com.pixelquest.app.quran.data.MemoryReadingSettingsStore()
+    private val bookmarks = com.pixelquest.app.quran.data.MemoryBookmarks()
 
     private fun reader(surah: Int, ayah: Int? = null, saved: SavedStateHandle? = null) =
-        SurahReaderViewModel(saved ?: SavedStateHandle(mapOf("surah" to surah, "ayah" to ayah).filterValues { it != null }), repository, settings)
+        SurahReaderViewModel(saved ?: SavedStateHandle(mapOf("surah" to surah, "ayah" to ayah).filterValues { it != null }), repository, settings, bookmarks)
 
     @Test
     fun aSurah_opensAtItsStart_withItsFirstPage() {
@@ -124,6 +125,18 @@ class SurahReaderViewModelTest {
 
         assertEquals(120, again.state.value.target)
         assertTrue(again.state.value.ayahs.size >= 120)
+    }
+
+    @Test
+    fun aBookmark_togglesOnAndOff_forThisSurahsAyah() {
+        val vm = reader(2)
+
+        vm.toggleBookmark(255)
+        assertEquals(setOf(255), vm.state.value.bookmarked)
+        assertEquals(listOf(2 to 255), bookmarks.marks.value)
+
+        vm.toggleBookmark(255)
+        assertTrue(vm.state.value.bookmarked.isEmpty())
     }
 
     @Test

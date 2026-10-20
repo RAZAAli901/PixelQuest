@@ -1,6 +1,11 @@
 package com.pixelquest.app.quran.ui.reader
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,11 +13,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
@@ -38,6 +47,7 @@ fun AyahItem(
     mode: DisplayMode,
     typography: QuranTypography,
     modifier: Modifier = Modifier,
+    bookmarked: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
@@ -46,9 +56,15 @@ fun AyahItem(
     } else {
         Modifier
     }
+    val marked = stringResource(R.string.quran_bookmarked)
+    Box(modifier = modifier.fillMaxWidth()) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier.fillMaxWidth().then(tap).testTag(ReaderTags.ayah(ayah.number))
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(tap)
+            .semantics { if (bookmarked) stateDescription = marked }
+            .testTag(ReaderTags.ayah(ayah.number))
     ) {
         if (mode != DisplayMode.TRANSLATION) {
             RightToLeft {
@@ -78,6 +94,32 @@ fun AyahItem(
             }
         }
     }
+    if (bookmarked) BookmarkRibbon(modifier = Modifier.align(Alignment.TopStart))
+    }
+}
+
+/**
+ * A small ribbon at a bookmarked ayah's top-left corner, in the look's accent: a strip with a notch
+ * cut in its foot, as a ribbon marker has. TalkBack hears "Bookmarked" from the ayah instead.
+ */
+@Composable
+private fun BookmarkRibbon(modifier: Modifier = Modifier) {
+    val ribbon = GenericShape { size, _ ->
+        moveTo(0f, 0f)
+        lineTo(size.width, 0f)
+        lineTo(size.width, size.height)
+        lineTo(size.width / 2, size.height * 0.72f)
+        lineTo(0f, size.height)
+        close()
+    }
+    Box(
+        modifier = modifier
+            .offset(x = (-12).dp, y = (-8).dp)
+            .size(width = 10.dp, height = 18.dp)
+            .background(PixelTheme.colors.secondary, ribbon)
+            .testTag(ReaderTags.RIBBON)
+            .clearAndSetSemantics {}
+    )
 }
 
 /** [content] laid out right to left, as Arabic is, whatever the phone's direction. */
