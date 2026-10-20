@@ -52,8 +52,8 @@ object TranslationSource {
 /** One ayah with its translation. */
 data class JoinedAyah(val number: Int, val arabic: String, val translation: String)
 
-/** One surah's ayahs, each with its translation. */
-data class JoinedSurah(val number: Int, val ayahs: List<JoinedAyah>)
+/** One surah's ayahs, each with its translation, and its Bismillah, shown above it ([Bismillah]). */
+data class JoinedSurah(val number: Int, val ayahs: List<JoinedAyah>, val bismillah: String? = null)
 
 /** The Arabic and a translation, ayah by ayah. */
 object Join {
@@ -67,7 +67,7 @@ object Join {
                 val text = translation.ayahs[surah.number to ayah.number]
                     ?: throw QuranBuildException("${translation.id} has no ${surah.number}:${ayah.number}")
                 JoinedAyah(ayah.number, ayah.text, text)
-            })
+            }, surah.bismillah)
         }
     }
 }

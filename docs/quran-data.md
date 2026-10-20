@@ -14,7 +14,7 @@ All three files come from the [Tanzil Project](https://tanzil.net):
 | `en.sahih.txt` | Saheeh International's English translation (`en.sahih`) | Last update April 24, 2011 | [tanzil.net/trans](https://tanzil.net/trans/) |
 | `quran-data.xml` | Metadata: each surah's names, place of revelation, ayah count; the juz | 1.0 | [tanzil.net/docs/Quran_Metadata](https://tanzil.net/docs/Quran_Metadata) |
 
-- **The Arabic is XML.** Tanzil's XML keeps the Bismillah apart: the first ayah of each surah but Al-Fatihah and At-Tawbah carries a `bismillah` attribute, and its `text` doesn't start with it. In the plain-text format, the Bismillah is joined to that ayah's text, and the app would have to cut it off.
+- **The Arabic is XML.** Tanzil's XML keeps the Bismillah apart: the first ayah of each surah but Al-Fatihah and At-Tawbah carries a `bismillah` attribute, and its `text` doesn't start with it. In the plain-text format, the Bismillah is joined to that ayah's text, and the app would have to cut it off. Each surah keeps its own Bismillah, exactly as Tanzil gives it: they aren't all alike, since surahs 95 and 97 carry one more mark (a shadda), as in their Mushaf.
 - **The translation is text,** one ayah a line (`surah|ayah|text`), with Tanzil's notice in `#` lines at the end. Its XML has a header comment that XML doesn't allow (`--` inside it), so a strict reader refuses the file. The text format holds the same 6,236 ayahs, character for character.
 - **Options:** Uthmani with Tanzil's defaults: pause marks, sajdah signs, superscript alefs, and tatweel below superscript alefs.
 
@@ -44,7 +44,7 @@ The tool refuses to write anything unless all of these hold:
 - 114 surahs and 6,236 ayahs, numbered in order, with no empty text.
 - Each surah's ayah count matches the metadata.
 - The translation has exactly the same surahs and ayahs as the Arabic.
-- The Bismillah is on the first ayah of every surah except 1 and 9.
+- The Bismillah is on the first ayah of every surah except 1 and 9, and on no other ayah. It's shown above those 112 surahs; in Al-Fatihah it's the first ayah itself, the only place it counts as an ayah.
 - Each source file's SHA-256 is the one recorded for it, so a changed character fails the build.
 
 The app's tests also compare every ayah in its data files with the source files, character for character.

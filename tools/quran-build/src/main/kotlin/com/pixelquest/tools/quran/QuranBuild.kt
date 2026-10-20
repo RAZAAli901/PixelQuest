@@ -47,6 +47,7 @@ class QuranBuild(source: File, private val output: File) {
         // Each file is read whole before anything is written: the Arabic and the metadata as XML,
         // the translation as text, one ayah a line.
         val arabic = ArabicSource.read(files.arabic)
+        Bismillah.check(arabic)
         MetadataSource.read(files.metadata)
         Join.of(arabic, TranslationSource.read(files.translation))
         output.mkdirs()
