@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.quran.ui.bookmarks.BookmarkTags
+import com.pixelquest.app.quran.ui.list.ContinueReadingCard
 import com.pixelquest.app.quran.ui.list.GoToAyahDialog
 import com.pixelquest.app.quran.ui.list.GoToTags
 import com.pixelquest.app.quran.ui.list.JuzList
@@ -67,8 +68,9 @@ fun QuranRoute(
 }
 
 /**
- * The Quran's home: the 114 surahs, searchable as the player types. The first time, while the
- * Quran is being put on the phone, it says so instead ([preparing]).
+ * The Quran's home: the 114 surahs, searchable as the player types, with a card to carry on from
+ * the last place read. The first time, while the Quran is being put on the phone, it says so
+ * instead ([preparing]).
  */
 @Composable
 fun QuranHomeScreen(
@@ -145,6 +147,13 @@ fun QuranHomeScreen(
         } else {
             var tab by rememberSaveable { mutableStateOf(QuranTab.SURAHS) }
             Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+                list.continueReading?.let { place ->
+                    ContinueReadingCard(
+                        place = place,
+                        onOpen = { onOpenAyah(place.surah.number, place.ayah) },
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp)
+                    )
+                }
                 QuranTabs(selected = tab, onSelect = { tab = it }, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 when (tab) {
                     QuranTab.SURAHS -> SurahList(state = list, onSearch = onSearch, onOpenSurah = onOpenSurah)

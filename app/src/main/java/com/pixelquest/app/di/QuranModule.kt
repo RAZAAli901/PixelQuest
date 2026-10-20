@@ -27,8 +27,13 @@ abstract class QuranModule {
     @Singleton
     abstract fun bindReadingSettingsStore(store: com.pixelquest.app.quran.data.DataStoreReadingSettingsStore): com.pixelquest.app.quran.data.ReadingSettingsStore
 
+    /** Where the player last read. */
+    @Binds
+    @Singleton
+    abstract fun bindLastReadStore(store: com.pixelquest.app.quran.data.DataStoreLastReadStore): com.pixelquest.app.quran.data.LastReadStore
+
     companion object {
-        /** The reading settings' DataStore: one per process, as DataStore requires. */
+        /** The reading settings' DataStore, with the last place read: one per process, as DataStore requires. */
         @Provides
         @Singleton
         fun provideReadingDataStore(

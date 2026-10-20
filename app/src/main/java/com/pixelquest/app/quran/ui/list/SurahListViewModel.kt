@@ -2,6 +2,7 @@ package com.pixelquest.app.quran.ui.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pixelquest.app.quran.data.LastReadStore
 import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.domain.Juz
 import com.pixelquest.app.quran.domain.Surah
@@ -21,28 +22,41 @@ import javax.inject.Inject
  * @param loaded false until the surahs first arrive, so the list doesn't flash "no matches".
  * @param ayahCounts every surah's ayah count, whatever the search: for "Go to surah and ayah".
  * @param juzs the 30 juz, for the Juz tab.
+ * @param continueReading where the player last read; null before they've read anything.
  */
 data class SurahListUiState(
     val query: String = "",
     val surahs: List<Surah> = emptyList(),
     val loaded: Boolean = false,
     val ayahCounts: Map<Int, Int> = emptyMap(),
-    val juzs: List<Juz> = emptyList()
+    val juzs: List<Juz> = emptyList(),
+    val continueReading: ContinueReading? = null
 )
 
-/** The surah list, with search as you type over the surahs' numbers and names. */
+/** The last place read, to carry on from: its surah, and the ayah within it. */
+data class ContinueReading(val surah: Surah, val ayah: Int)
+
+/** The surah list, with search as you type over the surahs' numbers and names, and the last place read. */
 @HiltViewModel
-class SurahListViewModel @Inject constructor(repository: QuranRepository) : ViewModel() {
+class SurahListViewModel @Inject constructor(repository: QuranRepository, lastRead: LastReadStore) : ViewModel() {
 
     private val query = MutableStateFlow("")
 
-    val state: StateFlow<SurahListUiState> = combine(repository.surahs(), repository.juzs(), query.asStateFlow()) { surahs, juzs, q ->
+    val state: StateFlow<SurahListUiState> = combine(
+        repository.surahs(),
+        repository.juzs(),
+        query.asStateFlow(),
+        lastRead.lastRead
+    ) { surahs, juzs, q, place ->
         SurahListUiState(
             query = q,
             surahs = SurahSearch.filter(surahs, q),
             loaded = surahs.isNotEmpty(),
             ayahCounts = surahs.associate { it.number to it.ayahCount },
-            juzs = juzs
+            juzs = juzs,
+            continueReading = place?.let { p ->
+                surahs.firstOrNull { it.number == p.surah }?.let { ContinueReading(it, p.ayah.coerceAtMost(it.ayahCount)) }
+            }
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SurahListUiState())
 

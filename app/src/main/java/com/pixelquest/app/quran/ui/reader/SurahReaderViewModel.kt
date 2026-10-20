@@ -4,14 +4,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.quran.data.BookmarkRepository
+import com.pixelquest.app.quran.data.LastRead
+import com.pixelquest.app.quran.data.LastReadStore
 import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.data.ReadingSettingsStore
 import com.pixelquest.app.quran.domain.Ayah
 import com.pixelquest.app.quran.domain.Surah
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -58,14 +63,15 @@ data class ReaderUiState(
 /**
  * One surah in the reader: its ayahs a page at a time as the player scrolls (QuranRepository.PAGE_SIZE),
  * where they've scrolled to, and how each ayah is shown. Opened at an ayah, it loads the pages up to
- * it at once.
+ * it at once. Where the player settles is kept as the last place read, for "Continue reading".
  */
 @HiltViewModel
 class SurahReaderViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: QuranRepository,
     private val settingsStore: ReadingSettingsStore,
-    private val bookmarks: BookmarkRepository
+    private val bookmarks: BookmarkRepository,
+    private val lastRead: LastReadStore
 ) : ViewModel() {
 
     /** The surah this reader shows ([ARG_SURAH] in its route). */
@@ -81,10 +87,18 @@ class SurahReaderViewModel @Inject constructor(
 
     private var nextPage = 0
 
+    /** The ayah first in view, as the player scrolls. */
+    private val reading = MutableStateFlow<Int?>(null)
+
     init {
         // How the player reads, as last kept on this phone.
         viewModelScope.launch {
             settingsStore.settings.collect { settings -> _state.update { it.copy(settings = settings) } }
+        }
+        // The last place read: once the player settles, not at every ayah a fling passes.
+        viewModelScope.launch {
+            @OptIn(FlowPreview::class)
+            reading.filterNotNull().debounce(KEEP_PLACE_AFTER_MS).collect { ayah -> lastRead.save(LastRead(surahNumber, ayah)) }
         }
         viewModelScope.launch {
             bookmarks.bookmarkedIn(surahNumber).collect { marked -> _state.update { it.copy(bookmarked = marked) } }
@@ -134,9 +148,13 @@ class SurahReaderViewModel @Inject constructor(
         viewModelScope.launch { bookmarks.toggle(surahNumber, ayah) }
     }
 
-    /** The player is reading [ayah] (the first in view): kept, so a rotation brings them back to it. */
+    /**
+     * The player is reading [ayah] (the first in view): kept, so a rotation brings them back to it,
+     * and, once they settle there, as the last place read.
+     */
     fun onScrolled(ayah: Int) {
         savedStateHandle[KEY_SCROLLED] = ayah
+        reading.value = ayah
     }
 
     /** The reader has brought [target][ReaderUiState.target] into view: it's done with it. */
@@ -160,5 +178,8 @@ class SurahReaderViewModel @Inject constructor(
         const val ARG_AYAH = "ayah"
 
         private const val KEY_SCROLLED = "reader_scrolled"
+
+        /** How long the player stays at an ayah before it's kept as the last place read. */
+        const val KEEP_PLACE_AFTER_MS = 500L
     }
 }

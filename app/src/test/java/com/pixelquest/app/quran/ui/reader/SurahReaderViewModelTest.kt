@@ -47,10 +47,11 @@ class SurahReaderViewModelTest {
     }
 
     private val repository = TwoSurahs()
+    private val main = UnconfinedTestDispatcher()
 
     @Before
     fun setUp() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
+        Dispatchers.setMain(main)
     }
 
     @After
@@ -60,9 +61,10 @@ class SurahReaderViewModelTest {
 
     private val settings = com.pixelquest.app.quran.data.MemoryReadingSettingsStore()
     private val bookmarks = com.pixelquest.app.quran.data.MemoryBookmarks()
+    private val lastRead = com.pixelquest.app.quran.data.MemoryLastReadStore()
 
     private fun reader(surah: Int, ayah: Int? = null, saved: SavedStateHandle? = null) =
-        SurahReaderViewModel(saved ?: SavedStateHandle(mapOf("surah" to surah, "ayah" to ayah).filterValues { it != null }), repository, settings, bookmarks)
+        SurahReaderViewModel(saved ?: SavedStateHandle(mapOf("surah" to surah, "ayah" to ayah).filterValues { it != null }), repository, settings, bookmarks, lastRead)
 
     @Test
     fun aSurah_opensAtItsStart_withItsFirstPage() {
@@ -137,6 +139,18 @@ class SurahReaderViewModelTest {
 
         vm.toggleBookmark(255)
         assertTrue(vm.state.value.bookmarked.isEmpty())
+    }
+
+    @Test
+    fun wherePlayerSettles_isKeptAsTheLastPlaceRead() {
+        val vm = reader(2)
+
+        vm.onScrolled(120)
+        vm.onScrolled(121)
+        assertNull("not at every ayah a fling passes", lastRead.lastRead.value)
+
+        main.scheduler.advanceTimeBy(SurahReaderViewModel.KEEP_PLACE_AFTER_MS + 1)
+        assertEquals(com.pixelquest.app.quran.data.LastRead(2, 121), lastRead.lastRead.value)
     }
 
     @Test

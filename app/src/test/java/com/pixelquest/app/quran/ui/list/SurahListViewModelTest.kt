@@ -37,13 +37,14 @@ class SurahListViewModelTest {
     private val context = ApplicationProvider.getApplicationContext<Application>()
     private val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).allowMainThreadQueries().build()
     private val viewModels = TestViewModels()
+    private val lastRead = com.pixelquest.app.quran.data.MemoryLastReadStore()
     private lateinit var vm: SurahListViewModel
 
     @Before
     fun setUp() = runBlocking {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         QuranImporter(AndroidQuranAssetSource(context), db.quranDao(), RoomTransactionRunner(db)) { QuranImporter.TRANSLATION_FILE }.import()
-        vm = viewModels.keep(SurahListViewModel::class.java) { SurahListViewModel(QuranRepositoryImpl(db.quranDao())) }
+        vm = viewModels.keep(SurahListViewModel::class.java) { SurahListViewModel(QuranRepositoryImpl(db.quranDao()), lastRead) }
         launch(Dispatchers.Unconfined) { vm.state.first { it.loaded } }.join()
     }
 
@@ -96,6 +97,24 @@ class SurahListViewModelTest {
         val alBaqarah = runBlocking { QuranRepositoryImpl(db.quranDao()).surah(2)!!.arabicName }
         assertEquals(listOf(2), found(alBaqarah))
         assertEquals(listOf(2), found(SurahSearch.arabic(alBaqarah).drop(2)))
+    }
+
+    @Test
+    fun theLastPlaceRead_comesWithItsSurah_andNoneBeforeAnyReading() = runBlocking {
+        assertEquals(null, vm.state.value.continueReading)
+
+        lastRead.save(com.pixelquest.app.quran.data.LastRead(2, 255))
+        val place = vm.state.first { it.continueReading != null }.continueReading!!
+
+        assertEquals("Al-Baqara", place.surah.englishName)
+        assertEquals(255, place.ayah)
+    }
+
+    @Test
+    fun aPlacePastItsSurahsEnd_isItsLastAyah() = runBlocking {
+        lastRead.save(com.pixelquest.app.quran.data.LastRead(1, 99))
+
+        assertEquals(7, vm.state.first { it.continueReading != null }.continueReading!!.ayah)
     }
 
     @Test
