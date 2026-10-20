@@ -1,8 +1,8 @@
 package com.pixelquest.app.darood.data.remote
 
 import com.pixelquest.app.darood.domain.EntryState
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.PartyRole
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.PartyRole
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
@@ -10,6 +10,11 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.Instant
 import java.time.LocalDate
+import com.pixelquest.app.party.data.remote.PartyDto
+import com.pixelquest.app.party.data.remote.PartyMemberDto
+import com.pixelquest.app.party.data.remote.parseInstant
+import com.pixelquest.app.party.data.remote.statusOf
+import com.pixelquest.app.party.data.remote.toDomain
 
 /** The JSON Supabase sends for Darood Parties (as seen on the local stack) reads into the domain models. */
 class PartyDtosTest {

@@ -1,5 +1,7 @@
 package com.pixelquest.app.darood.domain
 
+import com.pixelquest.app.party.domain.Party
+
 /**
  * Darood Party's feature flag: whether the feature is offered at all. It's kept with the app's
  * settings (SettingsRepository.daroodAvailable). Off, the side menu has no Darood Party entry and

@@ -11,6 +11,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import com.pixelquest.app.party.domain.Party
 
 /** Darood Party's flag is on by default, and the settings keep it once changed. */
 @RunWith(RobolectricTestRunner::class)

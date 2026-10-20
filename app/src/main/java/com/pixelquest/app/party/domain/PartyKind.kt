@@ -2,7 +2,6 @@ package com.pixelquest.app.party.domain
 
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
-import com.pixelquest.app.darood.domain.Party
 
 /**
  * A party's kind, as the server (`parties.party_type`) and the phone's cache name it. Every party is

@@ -7,7 +7,7 @@ import com.pixelquest.app.auth.AuthUser
 import com.pixelquest.app.auth.FakeAuthRepository
 import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
-import com.pixelquest.app.darood.data.remote.PartyMemberDto
+import com.pixelquest.app.party.data.remote.PartyMemberDto
 import com.pixelquest.app.testing.FakeDaroodServer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

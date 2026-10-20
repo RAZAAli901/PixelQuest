@@ -18,7 +18,7 @@ import com.pixelquest.app.R
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.data.DaroodReminderSettings
-import com.pixelquest.app.darood.domain.MemberStatus
+import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.notification.NotificationChannels
 import com.pixelquest.app.notification.NotificationHelper
 import dagger.assisted.Assisted

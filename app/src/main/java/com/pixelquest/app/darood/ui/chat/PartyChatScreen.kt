@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import com.pixelquest.app.R
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.DaroodPartyRepository
-import com.pixelquest.app.darood.domain.Party
+import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.PartyAvatar
 import com.pixelquest.app.ui.components.PixelTopAppBar
@@ -581,7 +581,7 @@ fun PartyChatRoute(
         loadingOlder = loadingOlder,
         onReachOldest = viewModel::loadOlder,
         // Only an active member posts, and only while the party isn't finished (the server insists too).
-        canPost = party != null && party.myStatus == com.pixelquest.app.darood.domain.MemberStatus.ACTIVE && !party.isFinished,
+        canPost = party != null && party.myStatus == com.pixelquest.app.party.domain.MemberStatus.ACTIVE && !party.isFinished,
         draft = draft,
         onDraftChange = viewModel::onDraftChange,
         onSend = viewModel::send,

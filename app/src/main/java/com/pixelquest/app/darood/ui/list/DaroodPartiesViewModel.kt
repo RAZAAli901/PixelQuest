@@ -6,8 +6,8 @@ import com.pixelquest.app.auth.AuthRepository
 import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.domain.DaroodRefusal
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.Party
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.Party
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

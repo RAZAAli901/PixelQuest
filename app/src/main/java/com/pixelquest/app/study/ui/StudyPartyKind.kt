@@ -1,7 +1,7 @@
 package com.pixelquest.app.study.ui
 
 import com.pixelquest.app.R
-import com.pixelquest.app.darood.domain.Party
+import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyKind
 import com.pixelquest.app.party.domain.PartyKindRules
 import com.pixelquest.app.party.domain.PartySummary

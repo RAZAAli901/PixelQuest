@@ -107,7 +107,7 @@ class MenuViewModel @Inject constructor(
     val context: StateFlow<MenuContext> = combine(
         settingsRepository.simpleModeEnabled,
         settingsRepository.daroodAvailable,
-        daroodParties?.observeMyParties()?.map { parties -> parties.any { it.myStatus == com.pixelquest.app.darood.domain.MemberStatus.INVITED } }
+        daroodParties?.observeMyParties()?.map { parties -> parties.any { it.myStatus == com.pixelquest.app.party.domain.MemberStatus.INVITED } }
             ?: flowOf(false)
     ) { simple, darood, inviteWaiting ->
         MenuContext(isSimpleMode = simple, daroodInviteWaiting = darood && inviteWaiting)

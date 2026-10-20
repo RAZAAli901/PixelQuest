@@ -160,7 +160,7 @@ class AddPeopleTest {
         waitUntil { vm.uiState.value.result != null && vm.uiState.value.people.size == 2 }
         assertEquals(InviteResult.Sent("bram"), vm.uiState.value.result)
         assertEquals(
-            listOf("aria_k" to com.pixelquest.app.darood.domain.MemberStatus.ACTIVE, "bram" to com.pixelquest.app.darood.domain.MemberStatus.INVITED),
+            listOf("aria_k" to com.pixelquest.app.party.domain.MemberStatus.ACTIVE, "bram" to com.pixelquest.app.party.domain.MemberStatus.INVITED),
             vm.uiState.value.people.map { it.username to it.status }
         )
 
@@ -169,15 +169,15 @@ class AddPeopleTest {
         vm.invite("cleo_r")
         waitUntil {
             vm.uiState.value.result != null &&
-                vm.uiState.value.people.any { it.username == "bram" && it.status == com.pixelquest.app.darood.domain.MemberStatus.DECLINED }
+                vm.uiState.value.people.any { it.username == "bram" && it.status == com.pixelquest.app.party.domain.MemberStatus.DECLINED }
         }
         assertEquals(InviteResult.Sent("cleo_r"), vm.uiState.value.result)
     }
 
     @Test
     fun aFullParty_orNoConnection_isSaid() = runTest(dispatcher) {
-        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(partyId, "x1", "member", "active", null, null)
-        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(partyId, "x2", "member", "invited", null, null)
+        server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(partyId, "x1", "member", "active", null, null)
+        server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(partyId, "x2", "member", "invited", null, null)
         val vm = viewModel()
         vm.invite("bram")
         waitUntil { vm.uiState.value.result != null }
@@ -191,10 +191,10 @@ class AddPeopleTest {
     @Test
     fun theScreen_showsBadges_andTheResult() {
         val people = listOf(
-            com.pixelquest.app.darood.domain.PartyMember(partyId, "aria-id", "aria_k", com.pixelquest.app.darood.domain.PartyRole.LEADER, com.pixelquest.app.darood.domain.MemberStatus.ACTIVE, null, null),
-            com.pixelquest.app.darood.domain.PartyMember(partyId, "bram-id", "bram", com.pixelquest.app.darood.domain.PartyRole.MEMBER, com.pixelquest.app.darood.domain.MemberStatus.INVITED, null, null),
-            com.pixelquest.app.darood.domain.PartyMember(partyId, "cleo-id", "cleo_r", com.pixelquest.app.darood.domain.PartyRole.MEMBER, com.pixelquest.app.darood.domain.MemberStatus.DECLINED, null, null),
-            com.pixelquest.app.darood.domain.PartyMember(partyId, "dan-id", "dan", com.pixelquest.app.darood.domain.PartyRole.MEMBER, com.pixelquest.app.darood.domain.MemberStatus.ACTIVE, null, null)
+            com.pixelquest.app.party.domain.PartyMember(partyId, "aria-id", "aria_k", com.pixelquest.app.party.domain.PartyRole.LEADER, com.pixelquest.app.party.domain.MemberStatus.ACTIVE, null, null),
+            com.pixelquest.app.party.domain.PartyMember(partyId, "bram-id", "bram", com.pixelquest.app.party.domain.PartyRole.MEMBER, com.pixelquest.app.party.domain.MemberStatus.INVITED, null, null),
+            com.pixelquest.app.party.domain.PartyMember(partyId, "cleo-id", "cleo_r", com.pixelquest.app.party.domain.PartyRole.MEMBER, com.pixelquest.app.party.domain.MemberStatus.DECLINED, null, null),
+            com.pixelquest.app.party.domain.PartyMember(partyId, "dan-id", "dan", com.pixelquest.app.party.domain.PartyRole.MEMBER, com.pixelquest.app.party.domain.MemberStatus.ACTIVE, null, null)
         )
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Light, darkTheme = false) {
@@ -211,8 +211,8 @@ class AddPeopleTest {
     @Test
     fun aFullParty_stopsInviting_beforeTheServerIsAsked() = runTest(dispatcher) {
         // 3 places: the leader, a member and an invitation.
-        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(partyId, "x1", "member", "active", null, null)
-        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(partyId, "x2", "member", "invited", null, null)
+        server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(partyId, "x1", "member", "active", null, null)
+        server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(partyId, "x2", "member", "invited", null, null)
         val vm = viewModel()
         waitUntil { vm.uiState.value.isFull }
         assertEquals(3, vm.uiState.value.placesTaken)
@@ -231,7 +231,7 @@ class AddPeopleTest {
     @Test
     fun theScreen_saysItsFull_andInviteWaits() {
         val people = (1..10).map {
-            com.pixelquest.app.darood.domain.PartyMember(partyId, "u$it", "user$it", com.pixelquest.app.darood.domain.PartyRole.MEMBER, com.pixelquest.app.darood.domain.MemberStatus.ACTIVE, null, null)
+            com.pixelquest.app.party.domain.PartyMember(partyId, "u$it", "user$it", com.pixelquest.app.party.domain.PartyRole.MEMBER, com.pixelquest.app.party.domain.MemberStatus.ACTIVE, null, null)
         }
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Comic) {

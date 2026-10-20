@@ -11,7 +11,7 @@ import com.pixelquest.app.darood.data.SetUsernameResult
 import com.pixelquest.app.darood.data.remote.SupabaseDaroodPartyRemoteDataSource
 import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.EntryState
-import com.pixelquest.app.darood.domain.MemberStatus
+import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.darood.domain.Username
 import com.pixelquest.app.darood.sync.SupabaseDaroodLiveSource
 import com.pixelquest.app.testing.LocalSupabase
@@ -90,8 +90,8 @@ class LocalSupabaseDaroodTest {
         val (bram, bramName) = phone("bram")
 
         val party = (aria.parties.createParty("Friday circle", 5, 1_000) as SupabaseResult.Success).data
-        assertEquals(SupabaseResult.Success(com.pixelquest.app.darood.data.remote.InviteOutcome.SENT), aria.parties.invite(party, bramName.uppercase()))
-        assertEquals(SupabaseResult.Success(com.pixelquest.app.darood.data.remote.InviteOutcome.SENT), aria.parties.invite(party, "nobody_by_this_name"))
+        assertEquals(SupabaseResult.Success(com.pixelquest.app.party.data.remote.InviteOutcome.SENT), aria.parties.invite(party, bramName.uppercase()))
+        assertEquals(SupabaseResult.Success(com.pixelquest.app.party.data.remote.InviteOutcome.SENT), aria.parties.invite(party, "nobody_by_this_name"))
 
         bram.parties.refreshParties()
         assertEquals(MemberStatus.INVITED, bram.parties.observeParty(party).first()!!.myStatus)

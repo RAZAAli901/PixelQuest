@@ -202,7 +202,7 @@ private fun InviteResultLine(result: InviteResult) {
 
 /** Someone the party has asked or had, with where they stand: Joined, Invited, Declined, Left or Removed. */
 @Composable
-private fun PersonRow(person: com.pixelquest.app.darood.domain.PartyMember) {
+private fun PersonRow(person: com.pixelquest.app.party.domain.PartyMember) {
     val colors = PixelTheme.colors
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -217,13 +217,13 @@ private fun PersonRow(person: com.pixelquest.app.darood.domain.PartyMember) {
         Text(
             text = stringResource(
                 when {
-                    person.role == com.pixelquest.app.darood.domain.PartyRole.LEADER -> R.string.darood_badge_leader
+                    person.role == com.pixelquest.app.party.domain.PartyRole.LEADER -> R.string.darood_badge_leader
                     else -> when (person.status) {
-                        com.pixelquest.app.darood.domain.MemberStatus.ACTIVE -> R.string.darood_badge_joined
-                        com.pixelquest.app.darood.domain.MemberStatus.INVITED -> R.string.darood_badge_invited
-                        com.pixelquest.app.darood.domain.MemberStatus.DECLINED -> R.string.darood_badge_declined
-                        com.pixelquest.app.darood.domain.MemberStatus.LEFT -> R.string.darood_badge_left
-                        com.pixelquest.app.darood.domain.MemberStatus.REMOVED -> R.string.darood_badge_removed
+                        com.pixelquest.app.party.domain.MemberStatus.ACTIVE -> R.string.darood_badge_joined
+                        com.pixelquest.app.party.domain.MemberStatus.INVITED -> R.string.darood_badge_invited
+                        com.pixelquest.app.party.domain.MemberStatus.DECLINED -> R.string.darood_badge_declined
+                        com.pixelquest.app.party.domain.MemberStatus.LEFT -> R.string.darood_badge_left
+                        com.pixelquest.app.party.domain.MemberStatus.REMOVED -> R.string.darood_badge_removed
                     }
                 }
             ),

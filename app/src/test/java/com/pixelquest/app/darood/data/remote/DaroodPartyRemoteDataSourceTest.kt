@@ -1,7 +1,7 @@
 package com.pixelquest.app.darood.data.remote
 
 import com.pixelquest.app.data.remote.SupabaseResult
-import com.pixelquest.app.darood.domain.MemberStatus
+import com.pixelquest.app.party.domain.MemberStatus
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.postgrest
@@ -19,6 +19,8 @@ import kotlinx.serialization.json.JsonElement
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.pixelquest.app.party.data.remote.InviteOutcome
+import com.pixelquest.app.party.data.remote.RemoteParty
 
 /** The Darood Party calls against a fake Supabase: what each sends, and how the answers are read. */
 class DaroodPartyRemoteDataSourceTest {

@@ -9,8 +9,8 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.Party
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.darood.ui.DaroodPartyContent
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -143,7 +143,7 @@ class PartyListUiTest {
     @Test
     fun theWeeklyNote_isOffUnlessTurnedOn_andSaysPlainlyWhatItIs() {
         var turned: Boolean? = null
-        val party = com.pixelquest.app.darood.domain.Party("p1", "Friday circle", "me", 10, null, null, null, java.time.Instant.EPOCH, myStatus = com.pixelquest.app.darood.domain.MemberStatus.ACTIVE)
+        val party = com.pixelquest.app.party.domain.Party("p1", "Friday circle", "me", 10, null, null, null, java.time.Instant.EPOCH, myStatus = com.pixelquest.app.party.domain.MemberStatus.ACTIVE)
         composeTestRule.setContent {
             com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Pixel) {
                 DaroodPartyContent(

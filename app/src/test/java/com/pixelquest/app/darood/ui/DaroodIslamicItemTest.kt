@@ -6,7 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.pixelquest.app.R
 import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
-import com.pixelquest.app.darood.data.remote.PartyMemberDto
+import com.pixelquest.app.party.data.remote.PartyMemberDto
 import com.pixelquest.app.testing.FakeDaroodServer
 import com.pixelquest.app.testing.FakeSettingsRepository
 import com.pixelquest.app.ui.navigation.Screen

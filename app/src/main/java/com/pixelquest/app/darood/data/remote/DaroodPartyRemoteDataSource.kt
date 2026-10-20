@@ -6,8 +6,8 @@ import com.pixelquest.app.darood.domain.DayTotal
 import com.pixelquest.app.darood.domain.DaroodEntry
 import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.MemberStats
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.PartyMember
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.PartyMember
 import com.pixelquest.app.darood.domain.PartyStats
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.postgrest.Postgrest
@@ -20,6 +20,15 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.pixelquest.app.party.data.remote.InviteOutcome
+import com.pixelquest.app.party.data.remote.MemberNameDto
+import com.pixelquest.app.party.data.remote.PartyDto
+import com.pixelquest.app.party.data.remote.PartyMemberDto
+import com.pixelquest.app.party.data.remote.toDomain
+import com.pixelquest.app.party.data.remote.PartyStatusReply
+import com.pixelquest.app.party.data.remote.RemoteParty
+import com.pixelquest.app.party.data.remote.parseInstant
+import com.pixelquest.app.party.data.remote.statusOf
 
 /** The signed-in account, as Darood Party asks for it. */
 fun interface DaroodAccount {
@@ -31,12 +40,6 @@ fun interface DaroodAccount {
 class SupabaseDaroodAccount @Inject constructor(private val auth: Auth) : DaroodAccount {
     override fun id(): String? = auth.currentUserOrNull()?.id
 }
-
-/** A party the account is in or invited to, with the account's own membership row. */
-data class RemoteParty(val party: PartyDto, val membership: PartyMemberDto)
-
-/** What invite_member answered. It never says whether a name exists. */
-enum class InviteOutcome { SENT, ALREADY_MEMBER }
 
 /**
  * Darood Party on Supabase, through the app's one Postgrest client. Row-level security decides
@@ -130,7 +133,9 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
                 }
             }.decodeList<PartyMemberDto>()
             if (memberships.isEmpty()) return@safeSupabaseCall emptyList()
-            val parties = postgrest[PARTIES].select(Columns.list(PARTY_COLUMNS)) {
+            // Every column, not a list: the app reads party_type where the server has it, and still
+            // reads the parties of a server without it (before 20261019000031), each a Darood Party.
+            val parties = postgrest[PARTIES].select(Columns.ALL) {
                 filter { isIn("id", memberships.map { it.partyId }) }
             }.decodeList<PartyDto>().associateBy { it.id }
             // A party deleted meanwhile isn't readable: its membership is dropped with it.
@@ -324,7 +329,6 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         val STATS_COLUMNS = listOf("party_id", "total", "entry_count", "member_count", "last_entry_date")
         val MEMBER_STATS_COLUMNS = listOf("party_id", "user_id", "username", "total", "active_days", "last_entry_date")
         val ENTRY_COLUMNS = listOf("id", "party_id", "user_id", "amount", "local_date", "tz", "created_at", "client_id")
-        val PARTY_COLUMNS = listOf("id", "name", "leader_id", "max_members", "milestone", "milestone_set_at", "completed_at", "created_at", "is_public_race")
         val MEMBER_COLUMNS = listOf("party_id", "user_id", "role", "status", "invited_at", "joined_at", "updated_at")
     }
 }

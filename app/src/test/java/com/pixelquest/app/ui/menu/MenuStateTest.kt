@@ -219,7 +219,7 @@ class MenuStateTest {
             val parties = com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl(
                 server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }
             )
-            server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(server.seedParty("Family", "u2"), "me", "member", "invited", null, null)
+            server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(server.seedParty("Family", "u2"), "me", "member", "invited", null, null)
             parties.refreshParties()
             val settings = FakeSettingsRepository()
             val vm = viewModels.keep(MenuViewModel::class.java) { viewModel(settings = settings, parties = parties) }

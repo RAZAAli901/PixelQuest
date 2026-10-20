@@ -13,7 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
-import com.pixelquest.app.darood.domain.Party
+import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant

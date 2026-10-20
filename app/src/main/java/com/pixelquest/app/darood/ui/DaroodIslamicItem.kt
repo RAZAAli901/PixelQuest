@@ -2,7 +2,7 @@ package com.pixelquest.app.darood.ui
 
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.data.DaroodPartyRepository
-import com.pixelquest.app.darood.domain.MemberStatus
+import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.islamic.IslamicIcon
 import com.pixelquest.app.islamic.IslamicItem

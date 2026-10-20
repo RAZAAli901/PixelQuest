@@ -5,8 +5,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.domain.EntryState
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.PartyRole
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.PartyRole
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After

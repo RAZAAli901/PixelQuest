@@ -20,8 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.MemberStats
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.PartyMember
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.PartyMember
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.formatCount
 import com.pixelquest.app.ui.theme.PixelTheme

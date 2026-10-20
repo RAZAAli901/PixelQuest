@@ -6,8 +6,8 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.pixelquest.app.darood.domain.EntryState
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.PartyRole
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.PartyRole
 import java.time.LocalDate
 
 // Darood Party's cache on the phone (docs/darood-design.md): what the server last said, so the

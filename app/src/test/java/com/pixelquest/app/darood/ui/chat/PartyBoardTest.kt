@@ -6,9 +6,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import com.pixelquest.app.darood.domain.MemberStats
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.PartyMember
-import com.pixelquest.app.darood.domain.PartyRole
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.PartyMember
+import com.pixelquest.app.party.domain.PartyRole
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode

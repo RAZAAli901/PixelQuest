@@ -1,7 +1,6 @@
 package com.pixelquest.app.party.domain
 
 import com.pixelquest.app.R
-import com.pixelquest.app.darood.domain.Party
 import com.pixelquest.app.darood.ui.DaroodPartyKind
 import com.pixelquest.app.party.PartyKinds
 import com.pixelquest.app.study.ui.StudyPartyKind

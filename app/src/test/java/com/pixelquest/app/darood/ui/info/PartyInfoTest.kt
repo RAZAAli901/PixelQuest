@@ -13,11 +13,11 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.SavedStateHandle
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
-import com.pixelquest.app.darood.data.remote.PartyMemberDto
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.Party
-import com.pixelquest.app.darood.domain.PartyMember
-import com.pixelquest.app.darood.domain.PartyRole
+import com.pixelquest.app.party.data.remote.PartyMemberDto
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.Party
+import com.pixelquest.app.party.domain.PartyMember
+import com.pixelquest.app.party.domain.PartyRole
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.chat.PartyChatScreen
 import com.pixelquest.app.testing.FakeDaroodServer

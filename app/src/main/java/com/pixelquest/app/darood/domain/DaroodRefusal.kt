@@ -1,6 +1,7 @@
 package com.pixelquest.app.darood.domain
 
 import com.pixelquest.app.data.remote.SupabaseResult
+import com.pixelquest.app.party.domain.Party
 
 /**
  * Why the server said no to a Darood Party request (supabase/schema.md, Darood Parties). Each

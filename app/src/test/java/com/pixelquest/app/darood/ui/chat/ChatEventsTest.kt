@@ -10,10 +10,10 @@ import androidx.test.core.app.ApplicationProvider
 import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
 import com.pixelquest.app.darood.domain.DaroodEntry
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.Party
-import com.pixelquest.app.darood.domain.PartyMember
-import com.pixelquest.app.darood.domain.PartyRole
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.Party
+import com.pixelquest.app.party.domain.PartyMember
+import com.pixelquest.app.party.domain.PartyRole
 import com.pixelquest.app.testing.FakeDaroodServer
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode

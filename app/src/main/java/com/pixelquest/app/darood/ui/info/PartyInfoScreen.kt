@@ -48,10 +48,10 @@ import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.data.remote.DaroodAccount
 import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.DaroodRules
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.Party
-import com.pixelquest.app.darood.domain.PartyMember
-import com.pixelquest.app.darood.domain.PartyRole
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.Party
+import com.pixelquest.app.party.domain.PartyMember
+import com.pixelquest.app.party.domain.PartyRole
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.formatCount
 import com.pixelquest.app.ui.components.PixelButton

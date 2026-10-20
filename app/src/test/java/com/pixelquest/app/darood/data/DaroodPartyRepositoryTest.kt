@@ -5,8 +5,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.data.remote.SupabaseResult
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.PartyRole
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.PartyRole
 import com.pixelquest.app.testing.FakeDaroodServer
 import com.pixelquest.app.darood.data.remote.toDomain
 import kotlinx.coroutines.flow.first
@@ -64,7 +64,7 @@ class DaroodPartyRepositoryTest {
         val friday = server.seedParty("Friday circle", "me", "u2", milestone = 1000)
         server.seedEntry(friday, "u2", 300)
         val family = server.seedParty("Family", "u3")
-        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(family, "me", "member", "invited", null, null)
+        server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(family, "me", "member", "invited", null, null)
 
         assertEquals(SupabaseResult.Success(Unit), repository.refreshParties())
 
@@ -264,7 +264,7 @@ class DaroodPartyRepositoryTest {
         following.refreshParty(friday)
         val job = launch(kotlinx.coroutines.Dispatchers.Unconfined) { following.followParty(friday).collect { } }
 
-        server.members += com.pixelquest.app.darood.data.remote.PartyMemberDto(friday, "u2", "member", "active", null, null)
+        server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(friday, "u2", "member", "active", null, null)
         live.send(friday, com.pixelquest.app.darood.sync.PartyChange.MembersChanged)
         waitUntil { following.observeMembers(friday).first().size == 2 }
 

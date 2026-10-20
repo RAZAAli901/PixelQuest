@@ -1,15 +1,18 @@
 package com.pixelquest.app.darood.domain
 
+import com.pixelquest.app.party.domain.PartyRules
 import java.time.Instant
 import java.time.LocalDate
+import com.pixelquest.app.party.domain.Party
 
-/** The limits the server enforces (supabase/schema.md, Darood Parties), for the app to mirror. */
+/** Darood Party's limits the server enforces (supabase/schema.md, Parties), for the app to mirror. */
 object DaroodRules {
-    const val NAME_MIN = 2
-    const val NAME_MAX = 40
-    const val MEMBERS_MIN = 2
-    const val MEMBERS_MAX = 30
-    const val MEMBERS_DEFAULT = 10
+    // A party's name and size are every party's (PartyRules); Darood's own limits follow.
+    const val NAME_MIN = PartyRules.NAME_MIN
+    const val NAME_MAX = PartyRules.NAME_MAX
+    const val MEMBERS_MIN = PartyRules.MEMBERS_MIN
+    const val MEMBERS_MAX = PartyRules.MEMBERS_MAX
+    const val MEMBERS_DEFAULT = PartyRules.MEMBERS_DEFAULT
     const val AMOUNT_MIN = 1
     const val AMOUNT_MAX = 100_000
     const val DAILY_MAX = 500_000
@@ -17,12 +20,6 @@ object DaroodRules {
     /** How far back an entry's day may be (in its own time zone), so entries made offline still count. */
     const val DAYS_BACK_MAX = 7L
 }
-
-/** A person's part in a party. */
-enum class PartyRole { LEADER, MEMBER }
-
-/** Where a person stands in a party. Only [ACTIVE] members post and see the party's entries. */
-enum class MemberStatus { INVITED, ACTIVE, DECLINED, LEFT, REMOVED }
 
 /** Whether an entry has reached the server. */
 enum class EntryState {
@@ -35,50 +32,6 @@ enum class EntryState {
     /** The server refused it (a rule, not the connection): it won't be sent again as it is. */
     FAILED
 }
-
-/**
- * A Darood Party (docs/darood-design.md, Parties).
- *
- * @param total everything posted in it, by everyone, ever.
- * @param memberCount its active members.
- * @param myStatus the signed-in player's place in it.
- */
-data class Party(
-    val id: String,
-    val name: String,
-    val leaderId: String?,
-    val maxMembers: Int,
-    val milestone: Long?,
-    val milestoneSetAt: Instant?,
-    val completedAt: Instant?,
-    val createdAt: Instant,
-    val total: Long = 0,
-    val memberCount: Int = 0,
-    val myStatus: MemberStatus? = null,
-    /** Its leader has put it on the race board: its name and progress, nothing else. */
-    val isPublicRace: Boolean = false
-) {
-    val isFinished: Boolean get() = completedAt != null
-
-    /** How far the total is toward the milestone, 0 to 1; null without a milestone. */
-    val progress: Float? get() = milestone?.let { (total.toDouble() / it).coerceIn(0.0, 1.0).toFloat() }
-}
-
-/**
- * Someone in a party, as its members see them. [username] is null where it isn't theirs to see.
- * [statusChangedAt] is when their row last changed: for someone who left or was removed, when that
- * happened.
- */
-data class PartyMember(
-    val partyId: String,
-    val userId: String,
-    val username: String?,
-    val role: PartyRole,
-    val status: MemberStatus,
-    val invitedAt: Instant?,
-    val joinedAt: Instant?,
-    val statusChangedAt: Instant? = null
-)
 
 /**
  * One number a member posted. [id] is the server's, null until it's there; [clientId] is the

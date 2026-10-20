@@ -7,11 +7,11 @@ import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.data.MyUsername
 import com.pixelquest.app.darood.data.UsernameRepository
-import com.pixelquest.app.darood.data.remote.InviteOutcome
+import com.pixelquest.app.party.data.remote.InviteOutcome
 import com.pixelquest.app.darood.domain.DaroodRefusal
-import com.pixelquest.app.darood.domain.MemberStatus
-import com.pixelquest.app.darood.domain.PartyMember
-import com.pixelquest.app.darood.domain.PartyRole
+import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.party.domain.PartyMember
+import com.pixelquest.app.party.domain.PartyRole
 import com.pixelquest.app.darood.domain.Username
 import com.pixelquest.app.darood.domain.UsernameProblem
 import dagger.hilt.android.lifecycle.HiltViewModel
