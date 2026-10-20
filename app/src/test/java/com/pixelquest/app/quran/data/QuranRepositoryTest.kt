@@ -132,6 +132,15 @@ class QuranRepositoryTest {
     }
 
     @Test
+    fun theJuz_startWhereTheFileSays_withTheirSurahsNames() = runBlocking {
+        val juzs = repository.juzs().first()
+
+        assertEquals(30, juzs.size)
+        assertEquals(quran.juzs.map { it.surah to it.ayah }, juzs.map { it.surah to it.ayah })
+        juzs.forEach { assertEquals(quran.surahs[it.surah - 1].englishName, it.surahName) }
+    }
+
+    @Test
     fun nothingToSearch_findsNothing() = runBlocking {
         assertTrue(repository.searchTranslation("  ?! ").isEmpty())
         assertTrue(repository.searchTranslation("zzqxj").isEmpty())

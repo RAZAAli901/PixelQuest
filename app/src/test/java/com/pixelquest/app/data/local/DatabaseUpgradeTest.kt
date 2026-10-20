@@ -225,6 +225,8 @@ class DatabaseUpgradeTest {
             assertEquals(0, db.quranDao().surahCount())
             assertEquals(0, db.quranDao().ayahCount())
             assertEquals(null, db.quranDao().getTranslation("en.sahih"))
+            // Version 14's juz table too.
+            assertEquals(0, db.quranDao().juzCount())
         } finally {
             db.close()
         }
@@ -242,6 +244,7 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion10_theDaroodPartyCache() = updateFrom(10)
     @Test fun fromVersion11() = updateFrom(11)
     @Test fun fromVersion12_theV1_4_xReleases() = updateFrom(12)
+    @Test fun fromVersion13() = updateFrom(13)
 
     @Test
     fun theQuransSearchIndex_followsItsTable_afterTheUpdate(): Unit = runBlocking {

@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.data.local.RoomTransactionRunner
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -71,6 +72,25 @@ class QuranImporterTest {
         }
         assertNull(dao.getSurah(1)!!.bismillah)
         assertNull(dao.getSurah(9)!!.bismillah)
+    }
+
+    @Test
+    fun the30Juz_areLoaded_asTheFileHasThem() = runBlocking {
+        importer.import()
+
+        val juzs = db.quranDao().observeJuzs().first()
+        assertEquals(quran.juzs.map { Triple(it.number, it.surah, it.ayah) }, juzs.map { Triple(it.number, it.surah, it.ayah) })
+        assertEquals(30, juzs.size)
+    }
+
+    @Test
+    fun aCopyWithoutItsJuz_isLoadedAgain() = runBlocking {
+        importer.import()
+        // As a phone updated from version 13 has it: the Quran, but no juz yet.
+        db.quranDao().deleteJuzs()
+
+        assertEquals(6236, importer.importIfNeeded()!!.ayahs)
+        assertEquals(30, db.quranDao().juzCount())
     }
 
     @Test

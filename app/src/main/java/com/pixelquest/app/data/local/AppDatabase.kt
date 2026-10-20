@@ -40,9 +40,11 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         com.pixelquest.app.quran.data.local.QuranSurahEntity::class,
         com.pixelquest.app.quran.data.local.QuranAyahEntity::class,
         com.pixelquest.app.quran.data.local.QuranAyahFtsEntity::class,
-        com.pixelquest.app.quran.data.local.TranslationInfoEntity::class
+        com.pixelquest.app.quran.data.local.TranslationInfoEntity::class,
+        // Where each juz starts, from version 14.
+        com.pixelquest.app.quran.data.local.QuranJuzEntity::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -65,7 +67,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -214,6 +216,13 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_12_13 = object : Migration(12, 13) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 QURAN_TABLES_13.forEach { db.execSQL(it) }
+            }
+        }
+
+        /** Where each juz starts: empty until the Quran's loader fills it (it loads again to do so). */
+        val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `quran_juz` (`number` INTEGER NOT NULL, `surah` INTEGER NOT NULL, `ayah` INTEGER NOT NULL, PRIMARY KEY(`number`))")
             }
         }
 

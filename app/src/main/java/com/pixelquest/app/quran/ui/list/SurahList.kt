@@ -170,6 +170,11 @@ private fun SurahNumberBadge(number: Int) {
 object QuranListTags {
     const val SEARCH = "quran_surah_search"
     const val LIST = "quran_surah_list"
+    const val JUZ_LIST = "quran_juz_list"
 
     fun row(surah: Int) = "quran_surah_$surah"
+
+    fun juz(number: Int) = "quran_juz_$number"
+
+    fun tab(tab: QuranTab) = "quran_tab_${tab.name.lowercase()}"
 }

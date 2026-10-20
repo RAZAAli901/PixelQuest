@@ -76,6 +76,14 @@ data class TranslationInfoEntity(
     val dataVersion: String
 )
 
+/** Where a juz starts (from version 14), from Tanzil's metadata: the Quran's 30 parts. */
+@Entity(tableName = "quran_juz")
+data class QuranJuzEntity(
+    @PrimaryKey val number: Int,
+    val surah: Int,
+    val ayah: Int
+)
+
 /**
  * A full-text index over [QuranAyahEntity.translation], for searching the translation by its words.
  * It follows its table by the row id (the ayah's place in the Quran), and Room keeps it in step.

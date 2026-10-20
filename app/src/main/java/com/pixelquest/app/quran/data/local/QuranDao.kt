@@ -23,6 +23,15 @@ interface QuranDao {
     @Query("SELECT COUNT(*) FROM quran_surah")
     suspend fun surahCount(): Int
 
+    // Juz
+
+    /** All 30, in order (empty until the Quran is loaded). */
+    @Query("SELECT * FROM quran_juz ORDER BY number")
+    fun observeJuzs(): Flow<List<QuranJuzEntity>>
+
+    @Query("SELECT COUNT(*) FROM quran_juz")
+    suspend fun juzCount(): Int
+
     // Ayahs
 
     /** A page of [surah]'s ayahs in order: [limit] of them, from the [offset]th (0 for its first). */
@@ -73,6 +82,12 @@ interface QuranDao {
 
     @Query("DELETE FROM quran_surah")
     suspend fun deleteSurahs()
+
+    @Query("DELETE FROM quran_juz")
+    suspend fun deleteJuzs()
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertJuzs(juzs: List<QuranJuzEntity>)
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertSurahs(surahs: List<QuranSurahEntity>)

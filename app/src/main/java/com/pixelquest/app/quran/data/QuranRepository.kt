@@ -5,10 +5,12 @@ import com.pixelquest.app.quran.data.local.QuranDao
 import com.pixelquest.app.quran.data.local.QuranSurahEntity
 import com.pixelquest.app.quran.data.local.TranslationInfoEntity
 import com.pixelquest.app.quran.domain.Ayah
+import com.pixelquest.app.quran.domain.Juz
 import com.pixelquest.app.quran.domain.Revelation
 import com.pixelquest.app.quran.domain.Surah
 import com.pixelquest.app.quran.domain.Translation
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,6 +24,9 @@ interface QuranRepository {
     fun surahs(): Flow<List<Surah>>
 
     suspend fun surah(number: Int): Surah?
+
+    /** The 30 juz, in order, each with where it starts: empty until the Quran is on the phone. */
+    fun juzs(): Flow<List<Juz>>
 
     /** A page of [surah]'s ayahs, in order: page 0 is its first [pageSize]. */
     suspend fun ayahs(surah: Int, page: Int, pageSize: Int = PAGE_SIZE): List<Ayah>
@@ -51,6 +56,11 @@ class QuranRepositoryImpl @Inject constructor(private val dao: QuranDao) : Quran
     override fun surahs(): Flow<List<Surah>> = dao.observeSurahs().map { list -> list.map { it.toDomain() } }
 
     override suspend fun surah(number: Int): Surah? = dao.getSurah(number)?.toDomain()
+
+    override fun juzs(): Flow<List<Juz>> = combine(dao.observeJuzs(), dao.observeSurahs()) { juzs, surahs ->
+        val names = surahs.associate { it.number to it.englishName }
+        juzs.mapNotNull { juz -> names[juz.surah]?.let { Juz(juz.number, juz.surah, juz.ayah, it) } }
+    }
 
     override suspend fun ayahs(surah: Int, page: Int, pageSize: Int): List<Ayah> =
         dao.ayahsOf(surah, offset = page * pageSize, limit = pageSize).map { it.toDomain() }

@@ -45,6 +45,9 @@ data class Ayah(
     val translationId: String
 )
 
+/** Where a juz starts: its surah (with that surah's English name) and ayah. */
+data class Juz(val number: Int, val surah: Int, val ayah: Int, val surahName: String)
+
 /** A translation on the phone: its credits and terms, for the About screen. */
 data class Translation(
     val id: String,

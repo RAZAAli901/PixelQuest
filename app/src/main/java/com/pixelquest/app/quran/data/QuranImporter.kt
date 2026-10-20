@@ -3,6 +3,7 @@ package com.pixelquest.app.quran.data
 import com.pixelquest.app.data.local.TransactionRunner
 import com.pixelquest.app.quran.data.local.QuranAyahEntity
 import com.pixelquest.app.quran.data.local.QuranDao
+import com.pixelquest.app.quran.data.local.QuranJuzEntity
 import com.pixelquest.app.quran.data.local.QuranSurahEntity
 import com.pixelquest.app.quran.data.local.TranslationInfoEntity
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -76,7 +77,7 @@ class QuranImporter(
         // Complete means this bundle, with this translation in every ayah: a newly chosen one isn't yet.
         val held = dao.getTranslation(id)
         val complete = held?.dataVersion == version && dao.surahCount() == SURAHS &&
-            dao.ayahCount() == AYAHS && dao.ayahCountIn(id) == AYAHS
+            dao.ayahCount() == AYAHS && dao.ayahCountIn(id) == AYAHS && dao.juzCount() == JUZS
         return if (complete) null else import()
     }
 
@@ -125,10 +126,14 @@ class QuranImporter(
             dataVersion = quran.version
         )
 
+        val juzs = quran.juzs.map { QuranJuzEntity(it.number, it.surah, it.ayah) }
+
         transactions.inTransaction {
             dao.deleteAyahs()
             dao.deleteSurahs()
+            dao.deleteJuzs()
             dao.insertSurahs(surahs)
+            dao.insertJuzs(juzs)
             // A surah at a time, so the message can show how far it's got.
             ayahs.groupBy { it.surah }.values.forEachIndexed { i, surah ->
                 dao.insertAyahs(surah)
@@ -144,6 +149,7 @@ class QuranImporter(
         fun fail(message: String): Nothing = throw QuranImportException(message)
         if (quran.surahs.size != SURAHS) fail("$QURAN_FILE has ${quran.surahs.size} surahs, not $SURAHS")
         if (quran.surahs.sumOf { it.ayahs.size } != AYAHS) fail("$QURAN_FILE has ${quran.surahs.sumOf { it.ayahs.size }} ayahs, not $AYAHS")
+        if (quran.juzs.map { it.number } != (1..JUZS).toList()) fail("$QURAN_FILE doesn't have the $JUZS juz in order")
         if (translation.version != quran.version) fail("$TRANSLATION_FILE is from bundle ${translation.version}, not ${quran.version}")
         if (translation.surahs.map { it.number to it.ayahs.size } != quran.surahs.map { it.number to it.ayahs.size }) {
             fail("$TRANSLATION_FILE's ayahs don't match the Arabic's")
@@ -158,6 +164,7 @@ class QuranImporter(
         const val TRANSLATION_FILE = "quran_en.json"
         const val SURAHS = 114
         const val AYAHS = 6236
+        const val JUZS = 30
 
         /** How much of a file's start holds its version and id (tools/quran-build writes them first). */
         private const val HEAD_CHARS = 200

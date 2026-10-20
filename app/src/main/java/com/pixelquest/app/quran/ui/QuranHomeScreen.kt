@@ -31,6 +31,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.quran.ui.list.GoToAyahDialog
 import com.pixelquest.app.quran.ui.list.GoToTags
+import com.pixelquest.app.quran.ui.list.JuzList
+import com.pixelquest.app.quran.ui.list.QuranTab
+import com.pixelquest.app.quran.ui.list.QuranTabs
 import com.pixelquest.app.quran.ui.list.SurahList
 import com.pixelquest.app.quran.ui.list.SurahListUiState
 import com.pixelquest.app.quran.ui.list.SurahListViewModel
@@ -128,12 +131,14 @@ fun QuranHomeScreen(
                 Preparing(preparing)
             }
         } else {
-            SurahList(
-                state = list,
-                onSearch = onSearch,
-                onOpenSurah = onOpenSurah,
-                modifier = Modifier.padding(padding)
-            )
+            var tab by rememberSaveable { mutableStateOf(QuranTab.SURAHS) }
+            Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+                QuranTabs(selected = tab, onSelect = { tab = it }, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                when (tab) {
+                    QuranTab.SURAHS -> SurahList(state = list, onSearch = onSearch, onOpenSurah = onOpenSurah)
+                    QuranTab.JUZ -> JuzList(juzs = list.juzs, onOpenAyah = onOpenAyah)
+                }
+            }
         }
     }
 }

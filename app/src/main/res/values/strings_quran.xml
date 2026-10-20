@@ -30,6 +30,13 @@
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> ayah</item>
         <item quantity="other"><xliff:g id="count" example="286">%d</xliff:g> ayahs</item>
     </plurals>
+    <!-- The Quran screen's two lists. -->
+    <string name="quran_tab_surahs">Surahs</string>
+    <string name="quran_tab_juz">Juz</string>
+    <!-- A juz's row: its number, and the surah (its English name, then its number) and ayah it starts at. -->
+    <string name="quran_juz_title">Juz <xliff:g id="number" example="2">%d</xliff:g></string>
+    <string name="quran_juz_from">From <xliff:g id="surah_name" example="Al-Baqara">%1$s</xliff:g> <xliff:g id="surah" example="2">%2$d</xliff:g>:<xliff:g id="ayah" example="142">%3$d</xliff:g></string>
+    <string name="quran_juz_spoken">Juz <xliff:g id="number" example="2">%1$d</xliff:g>, from <xliff:g id="surah_name" example="Al-Baqara">%2$s</xliff:g>, ayah <xliff:g id="ayah" example="142">%3$d</xliff:g></string>
     <!-- The fast-scroll strip beside the list: each mark, as TalkBack reads it. -->
     <string name="quran_jump_to_surah">Jump to surah <xliff:g id="number" example="20">%d</xliff:g></string>
     <!-- Going straight to an ayah: the dialog over the list. -->

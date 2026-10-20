@@ -3,6 +3,7 @@ package com.pixelquest.app.quran.ui.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.quran.data.QuranRepository
+import com.pixelquest.app.quran.domain.Juz
 import com.pixelquest.app.quran.domain.Surah
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,12 +20,14 @@ import javax.inject.Inject
  *
  * @param loaded false until the surahs first arrive, so the list doesn't flash "no matches".
  * @param ayahCounts every surah's ayah count, whatever the search: for "Go to surah and ayah".
+ * @param juzs the 30 juz, for the Juz tab.
  */
 data class SurahListUiState(
     val query: String = "",
     val surahs: List<Surah> = emptyList(),
     val loaded: Boolean = false,
-    val ayahCounts: Map<Int, Int> = emptyMap()
+    val ayahCounts: Map<Int, Int> = emptyMap(),
+    val juzs: List<Juz> = emptyList()
 )
 
 /** The surah list, with search as you type over the surahs' numbers and names. */
@@ -33,12 +36,13 @@ class SurahListViewModel @Inject constructor(repository: QuranRepository) : View
 
     private val query = MutableStateFlow("")
 
-    val state: StateFlow<SurahListUiState> = combine(repository.surahs(), query.asStateFlow()) { surahs, q ->
+    val state: StateFlow<SurahListUiState> = combine(repository.surahs(), repository.juzs(), query.asStateFlow()) { surahs, juzs, q ->
         SurahListUiState(
             query = q,
             surahs = SurahSearch.filter(surahs, q),
             loaded = surahs.isNotEmpty(),
-            ayahCounts = surahs.associate { it.number to it.ayahCount }
+            ayahCounts = surahs.associate { it.number to it.ayahCount },
+            juzs = juzs
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SurahListUiState())
 
