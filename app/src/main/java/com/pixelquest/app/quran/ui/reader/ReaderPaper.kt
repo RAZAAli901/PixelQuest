@@ -27,6 +27,10 @@ enum class ReaderPaper {
 internal class SepiaColorScheme(base: AppColorScheme) : AppColorScheme by base {
     override val primary = Color(0xFF8B5A2B)
     override val onPrimary = Color.White
+
+    /** A burnt orange: the bookmark ribbon, warm on the paper (the looks' cyan isn't). */
+    override val secondary = Color(0xFFB4532A)
+    override val onSecondary = Color.White
     override val background = SEPIA_PAPER
     override val onBackground = Color(0xFF3B2F23)
     override val surface = Color(0xFFEDE0C4)

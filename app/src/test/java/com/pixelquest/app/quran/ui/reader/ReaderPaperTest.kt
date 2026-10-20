@@ -80,5 +80,7 @@ class ReaderPaperTest {
             assertTrue("4.5:1 on the paper", contrast(ink, sepia.background) >= 4.5f)
             assertTrue("4.5:1 on a panel", contrast(ink, sepia.surface) >= 4.5f)
         }
+        // The bookmark ribbon (the secondary colour) is a mark, not text: 3:1.
+        assertTrue("the ribbon shows on the paper", contrast(sepia.secondary, sepia.background) >= 3f)
     }
 }
