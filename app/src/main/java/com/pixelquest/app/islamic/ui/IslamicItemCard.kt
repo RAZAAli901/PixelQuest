@@ -25,10 +25,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pixelquest.app.R
 import com.pixelquest.app.islamic.IslamicIcon
 import com.pixelquest.app.islamic.IslamicItem
 import com.pixelquest.app.ui.components.PixelCard
@@ -41,6 +46,9 @@ import com.pixelquest.app.ui.theme.inkOnPanel
 /**
  * One item on the hub: its icon, with its badge across from it, then its title and what it is in a
  * line. The whole card opens the item. In Simple Mode it's a plain row instead: icon, words, badge.
+ *
+ * To TalkBack the card is one button, read as a sentence: its title, its description, and what its
+ * badge counts ("2 prayers to mark"), never the emoji's name or a bare number.
  */
 @Composable
 fun IslamicItemCard(
@@ -50,10 +58,14 @@ fun IslamicItemCard(
     isSimpleMode: Boolean = false
 ) {
     val colors = PixelTheme.colors
+    val spoken = islamicCardSpoken(item)
     IslamicCardFrame(
         isSimpleMode = isSimpleMode,
         onClick = onClick,
-        modifier = modifier.testTag(IslamicTestTags.card(item.id))
+        onClickLabel = stringResource(R.string.islamic_card_open),
+        modifier = modifier
+            .semantics(mergeDescendants = true) { contentDescription = spoken }
+            .testTag(IslamicTestTags.card(item.id))
     ) {
         if (isSimpleMode) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -95,21 +107,33 @@ fun IslamicItemCard(
     }
 }
 
+/** What TalkBack says for [item]'s card: its title, its description, and its badge in words. */
+@Composable
+internal fun islamicCardSpoken(item: IslamicItem): String {
+    val title = stringResource(item.titleRes)
+    val description = stringResource(item.descriptionRes)
+    if (!item.hasBadge) return stringResource(R.string.islamic_card_spoken, title, description)
+    val badge = item.badgeLabel?.let { pluralStringResource(it, item.badgeCount, item.badgeCount) } ?: item.badgeCount.toString()
+    return stringResource(R.string.islamic_card_spoken_badge, title, description, badge)
+}
+
 /**
  * A hub card's frame. Pixel, Comic and Light use the app's panels ([PixelCard]: Pixel's frame,
  * Comic's ink and flat shadow, Light's daylight panel, as Home's cards). Simple Mode, in any theme,
  * is the plain look its side menu has: a softly rounded block, no border, no shadow.
  *
  * @param onClick makes the whole frame one button; null for a card that opens nothing.
+ * @param onClickLabel what TalkBack says the button does.
  */
 @Composable
 internal fun IslamicCardFrame(
     isSimpleMode: Boolean,
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    onClickLabel: String? = null,
     content: @Composable () -> Unit
 ) {
-    val tap = if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier
+    val tap = if (onClick != null) Modifier.clickable(role = Role.Button, onClickLabel = onClickLabel, onClick = onClick) else Modifier
     if (isSimpleMode) {
         val shape = RoundedCornerShape(12.dp)
         Box(
@@ -133,10 +157,10 @@ private fun IslamicItemIcon(icon: IslamicIcon, isSimpleMode: Boolean) {
             painter = painterResource(drawn),
             contentDescription = null,
             tint = inkOnPanel(PixelTheme.colors.primaryText),
-            modifier = Modifier.size(32.dp)
+            modifier = Modifier.size(32.dp).testTag(IslamicTestTags.DRAWN_ICON)
         )
     } else {
-        Text(text = icon.emoji, fontSize = 28.sp)
+        Text(text = icon.emoji, fontSize = 28.sp, modifier = Modifier.testTag(IslamicTestTags.EMOJI).clearAndSetSemantics {})
     }
 }
 
@@ -165,13 +189,18 @@ private fun IslamicBadge(count: Int, isSimpleMode: Boolean = false) {
             .then(ink)
             .padding(horizontal = 6.dp)
             .testTag(IslamicTestTags.BADGE)
+            // The card says what it counts; the number alone would be read out of context.
+            .clearAndSetSemantics {}
     ) {
         Text(
-            text = if (count > MAX_SHOWN) "$MAX_SHOWN+" else count.toString(),
+            text = badgeText(count),
             style = MaterialTheme.typography.labelMedium,
             color = colors.onSecondary
         )
     }
 }
+
+/** A badge's number as shown: up to 99, then 99+. */
+internal fun badgeText(count: Int): String = if (count > MAX_SHOWN) "$MAX_SHOWN+" else count.toString()
 
 private const val MAX_SHOWN = 99

@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.getBoundsInRoot
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.pixelquest.app.R
@@ -91,10 +91,9 @@ class IslamicHubScreenshotTest(private val look: Look) {
         for (x in 0 until window.width step 3) for (y in 0 until window.height step 3) colours += window.getPixel(x, y)
         assertTrue("$look is blank (${colours.size} colours)", colours.size > 20)
 
-        val emoji = listOf("🕌", "📿", "📖").sumOf { e ->
-            composeTestRule.onAllNodes(hasText(e), useUnmergedTree = true).fetchSemanticsNodes().size
-        }
-        assertEquals("$look: emoji shown", if (look.drawn) 0 else 3, emoji)
+        fun shown(tag: String) = composeTestRule.onAllNodes(hasTestTag(tag), useUnmergedTree = true).fetchSemanticsNodes().size
+        assertEquals("$look: emoji shown", if (look.drawn) 0 else 3, shown(IslamicTestTags.EMOJI))
+        assertEquals("$look: drawings shown", if (look.drawn) 3 else 0, shown(IslamicTestTags.DRAWN_ICON))
 
         // Simple Mode is a plain list, one card a row; the others two to a row.
         val namaz = composeTestRule.onNodeWithTag(IslamicTestTags.card("namaz")).getBoundsInRoot()

@@ -43,7 +43,7 @@ class IslamicItemCardTest {
     fun theCard_hasItsIconTitleAndDescription_andOpensOnATap() {
         show(darood)
 
-        composeTestRule.onNodeWithText("📿", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(IslamicTestTags.EMOJI, useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("Darood Party", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("No parties yet", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithTag(IslamicTestTags.card("darood")).performClick()
@@ -58,24 +58,24 @@ class IslamicItemCardTest {
     }
 
     @Test
-    fun aBadge_showsTheCount() {
+    fun aBadge_appearsWhileSomethingWaits() {
         show(darood.copy(badgeCount = 2))
 
         assertEquals(1, badges())
-        composeTestRule.onNodeWithText("2", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
-    fun aBigCount_stopsAt99() {
-        show(darood.copy(badgeCount = 250))
-
-        composeTestRule.onNodeWithText("99+", useUnmergedTree = true).assertIsDisplayed()
+    fun aBadgesNumber_stopsAt99() {
+        assertEquals("2", badgeText(2))
+        assertEquals("99", badgeText(99))
+        assertEquals("99+", badgeText(250))
     }
 
     @Test
     fun inPixel_aDrawnIcon_takesTheEmojisPlace() {
         show(darood.copy(icon = IslamicIcon("📿", pixel = R.drawable.ic_darood_pixel, comic = R.drawable.ic_darood_comic)), ThemeMode.Pixel)
 
-        assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasText("📿"), useUnmergedTree = true).fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodes(hasTestTag(IslamicTestTags.EMOJI), useUnmergedTree = true).fetchSemanticsNodes().size)
+        composeTestRule.onNodeWithTag(IslamicTestTags.DRAWN_ICON, useUnmergedTree = true).assertIsDisplayed()
     }
 }

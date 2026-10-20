@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -85,10 +86,12 @@ fun IslamicHubContent(
         modifier = modifier.testTag(IslamicTestTags.HUB)
     ) { padding ->
         val cells = state.items.map { HubCell.Item(it) } + if (showComingSoon && state.loaded) listOf(HubCell.ComingSoon) else emptyList()
+        // Simple Mode is a plain list, one item a row; so is the grid at large text sizes, where two
+        // cards a row would leave each description a word a line.
+        val largeText = LocalDensity.current.fontScale >= LARGE_TEXT
         IslamicGrid(
             cells = cells,
-            // Simple Mode is a plain list, one item a row.
-            columns = if (state.isSimpleMode) 1 else 2,
+            columns = if (state.isSimpleMode || largeText) 1 else 2,
             modifier = Modifier.padding(padding)
         ) { cell, cellModifier ->
             when (cell) {
@@ -103,6 +106,9 @@ fun IslamicHubContent(
         }
     }
 }
+
+/** From this font scale the hub is one card a row. */
+internal const val LARGE_TEXT = 1.5f
 
 /** A card that only says more is coming, where the next item will sit. It opens nothing. */
 @Composable

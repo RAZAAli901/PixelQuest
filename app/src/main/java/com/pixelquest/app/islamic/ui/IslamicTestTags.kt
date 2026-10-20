@@ -7,6 +7,10 @@ object IslamicTestTags {
     /** The "More coming soon" card, in debug builds. */
     const val COMING_SOON = "islamic_coming_soon"
 
+    /** A card's icon: its emoji (Light, Simple Mode), or its drawing (Pixel, Comic). */
+    const val EMOJI = "islamic_emoji"
+    const val DRAWN_ICON = "islamic_drawn_icon"
+
     /** A card's badge: how many things wait in the item. */
     const val BADGE = "islamic_badge"
 
