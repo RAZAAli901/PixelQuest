@@ -1,7 +1,8 @@
-// Parties on the server (migrations 20261019000004 to 20261019000034): who reads what, the limits,
+// Parties on the server (migrations 20261019000004 to 20261019000043): who reads what, the limits,
 // the leader's rights, invitations, leaving, and finishing. Every rule the app relies on is checked
 // here against the real database, row-level security and functions. Darood Parties first; then Study
-// parties, which share the same core (docs/party-core.md) and none of Darood's own rules. They share
+// parties, which share the same core (docs/party-core.md) and none of Darood's own rules, and their
+// own items, completions, study time and weekly points (docs/study-party.md). They share
 // one file, and one cast of players, to keep under the stack's sign-in limit.
 import assert from "node:assert/strict";
 import { asService, call, localTest, newEmail, newPlayer, sql, type Session } from "./stack.ts";
@@ -617,4 +618,166 @@ localTest("a study party has none of Darood's own: no entries, milestone or race
   const name = (await call(`/rest/v1/parties?id=eq.${party}&select=name`, { token: leader.accessToken })).body[0].name;
   const board = (await call("/rest/v1/race_board?select=name", { token: outsider.accessToken })).body;
   assert.ok(!board.some((line: { name: string }) => line.name === name));
+});
+
+// A study party's own: items, completions, study time, weekly points (20261019000035 to 20261019000043).
+
+/** [tz]'s date now, as yyyy-MM-dd. */
+const todayIn = (tz: string) => new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(new Date());
+
+/** The Monday of [date]'s week (yyyy-MM-dd), as the scores count it. */
+function mondayOf(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+  return d.toISOString().slice(0, 10);
+}
+
+const returning = { Prefer: "return=representation" };
+
+function addItem(who: Session, party: string, body: Record<string, unknown>) {
+  return call("/rest/v1/study_items", { token: who.accessToken, body: { party_id: party, ...body }, headers: returning });
+}
+
+function complete(who: Session, item: string, tz = "UTC", extra: Record<string, unknown> = {}) {
+  return call("/rest/v1/study_completions", { token: who.accessToken, body: { item_id: item, local_date: todayIn(tz), tz, ...extra }, headers: returning });
+}
+
+function logStudy(who: Session, party: string, minutes: number, tz = "UTC", extra: Record<string, unknown> = {}) {
+  return call("/rest/v1/study_sessions", { token: who.accessToken, body: { party_id: party, minutes, local_date: todayIn(tz), tz, ...extra }, headers: returning });
+}
+
+const inDays = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
+
+localTest("a study party's items, completions, study time and scores are its active members' alone", async () => {
+  const { leader, member, invitee, outsider } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Study"), ...study });
+  await rpc(leader, "invite_member", { party_id: party, username: invitee.username });
+  const item = (await addItem(member, party, { kind: "assignment", title: "Essay" })).body[0].id;
+  assert.equal((await complete(member, item)).status, 201);
+  assert.equal((await logStudy(member, party, 30)).status, 201);
+
+  const paths = [
+    `/rest/v1/study_items?party_id=eq.${party}`,
+    `/rest/v1/study_completions?party_id=eq.${party}`,
+    `/rest/v1/study_sessions?party_id=eq.${party}`,
+    `/rest/v1/study_week_scores?party_id=eq.${party}`,
+    `/rest/v1/study_week_winners?party_id=eq.${party}`,
+  ];
+  for (const path of paths) {
+    for (const who of [invitee, outsider]) assert.deepEqual((await call(path, { token: who.accessToken })).body, [], `${path} for ${who.username}`);
+    assert.equal((await call(path)).status, 401, `${path} signed out`);
+  }
+  for (const path of paths.slice(0, 4)) assert.equal((await call(path, { token: leader.accessToken })).body.length, 1, path);
+
+  // Outsiders write nothing either; nor does a Darood Party take study items.
+  assert.equal((await addItem(outsider, party, { kind: "assignment", title: "Spam" })).status, 403);
+  assert.equal((await logStudy(outsider, party, 30)).status, 403);
+  assert.equal((await complete(outsider, item)).status, 403);
+  const darood = await partyOf(leader, [], { name: fresh("Darood") });
+  assert.equal((await addItem(leader, darood, { kind: "assignment", title: "Not here" })).status, 403);
+});
+
+localTest("items: any member adds one, only its creator or the leader edits it, only the leader pins", async () => {
+  const { leader, member } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Items"), ...study });
+
+  const mine = (await addItem(member, party, { kind: "assignment", title: "Lab report", subject: "Physics" })).body[0];
+  assert.equal(mine.created_by, member.userId);
+  const theirs = (await addItem(leader, party, { kind: "quiz", title: "Quiz 1", due_at: inDays(3) })).body[0];
+  const edit = (who: Session, id: string, body: Record<string, unknown>) =>
+    call(`/rest/v1/study_items?id=eq.${id}`, { method: "PATCH", token: who.accessToken, body, headers: returning });
+
+  assert.equal((await edit(member, mine.id, { title: "Lab report 2" })).body[0].title, "Lab report 2");
+  assert.deepEqual((await edit(member, theirs.id, { title: "Taken" })).body, [], "not the member's to edit");
+  assert.equal((await edit(leader, mine.id, { notes: "Due after lunch" })).body[0].notes, "Due after lunch");
+  assert.equal((await edit(member, mine.id, { pinned: true })).body.message, "not_leader");
+  assert.equal((await addItem(member, party, { kind: "assignment", title: "Pinned", pinned: true })).body.message, "not_leader");
+  assert.equal((await edit(leader, mine.id, { pinned: true })).body[0].pinned, true);
+  assert.equal((await edit(member, mine.id, { created_by: leader.userId })).status, 403, "who added it is for good");
+
+  // The limits: a quiz needs a date; a title is 2 to 80; notes up to 500.
+  for (const body of [{ kind: "quiz", title: "No date" }, { kind: "assignment", title: "x" }, { kind: "assignment", title: "Long", notes: "n".repeat(501) }, { kind: "exam", title: "Exam" }]) {
+    assert.equal((await addItem(member, party, body)).status, 400, JSON.stringify(body));
+  }
+
+  assert.deepEqual((await call(`/rest/v1/study_items?id=eq.${theirs.id}`, { method: "DELETE", token: member.accessToken, headers: returning })).body, []);
+  assert.equal((await call(`/rest/v1/study_items?id=eq.${mine.id}`, { method: "DELETE", token: member.accessToken, headers: returning })).body.length, 1);
+});
+
+localTest("completions: your own, once, undone within 24 hours, then final", async () => {
+  const { leader, member } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Done"), ...study });
+  const item = (await addItem(leader, party, { kind: "assignment", title: "Essay" })).body[0].id;
+
+  const done = await complete(member, item, "Asia/Karachi");
+  assert.equal(done.status, 201);
+  assert.deepEqual([done.body[0].user_id, done.body[0].party_id], [member.userId, party]);
+  assert.equal((await complete(member, item)).status, 409, "once each");
+  assert.equal((await complete(member, item, "UTC", { tz: "Mars/Olympus" })).status, 400, "a real time zone");
+  const sneaky = await call("/rest/v1/study_completions", { token: leader.accessToken, body: { item_id: item, user_id: member.userId, local_date: todayIn("UTC"), tz: "UTC" } });
+  assert.equal(sneaky.status, 403, "never for someone else");
+
+  const undo = (who: Session) => call(`/rest/v1/study_completions?item_id=eq.${item}&user_id=eq.${member.userId}`, { method: "DELETE", token: who.accessToken, headers: returning });
+  assert.deepEqual((await undo(leader)).body, [], "not the leader's to undo");
+  assert.equal((await undo(member)).body.length, 1, "undone within a day");
+  assert.equal((await complete(member, item)).status, 201);
+  sql(`UPDATE public.study_completions SET completed_at = now() - interval '25 hours' WHERE item_id = '${item}'`);
+  assert.deepEqual((await undo(member)).body, [], "final after 24 hours");
+  assert.equal((await call(`/rest/v1/study_completions?item_id=eq.${item}`, { method: "PATCH", token: member.accessToken, body: { local_date: todayIn("UTC") } })).status, 403);
+});
+
+localTest("points: 10 an assignment, 15 a quiz, +5 a day early, study time 1 per 10 minutes and 12 a day", async () => {
+  const { leader, member } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Points"), ...study });
+  const essay = (await addItem(leader, party, { kind: "assignment", title: "Essay" })).body[0].id;
+  const quiz = (await addItem(leader, party, { kind: "quiz", title: "Quiz 1", due_at: inDays(3) })).body[0].id;
+  const lateQuiz = (await addItem(leader, party, { kind: "quiz", title: "Quiz 2", due_at: inDays(0.5) })).body[0].id;
+  for (const item of [essay, quiz, lateQuiz]) assert.equal((await complete(member, item)).status, 201);
+  // 25 + 40 minutes today: 65, so 6 points.
+  for (const minutes of [25, 40]) assert.equal((await logStudy(member, party, minutes)).status, 201);
+  // Out of bounds: 4 and 241 minutes, a day in the future, 8 days back.
+  for (const extra of [{ minutes: 4 }, { minutes: 241 }]) assert.equal((await logStudy(member, party, extra.minutes)).status, 400);
+  const future = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10);
+  const longAgo = new Date(Date.now() - 9 * 86_400_000).toISOString().slice(0, 10);
+  for (const local_date of [future, longAgo]) assert.equal((await logStudy(member, party, 30, "UTC", { local_date })).body.message, "bad_day");
+
+  const scores = (await call(`/rest/v1/study_week_scores?party_id=eq.${party}&user_id=eq.${member.userId}&select=week_start,points,item_points,bonus_points,study_points,items_completed,study_minutes`, { token: leader.accessToken })).body;
+  assert.deepEqual(scores, [{ week_start: mondayOf(todayIn("UTC")), points: 51, item_points: 40, bonus_points: 5, study_points: 6, items_completed: 3, study_minutes: 65 }]);
+
+  // 200 minutes in a day is 20 points' worth, capped at 12.
+  assert.equal((await logStudy(member, party, 200)).status, 201);
+  const capped = (await call(`/rest/v1/study_week_scores?party_id=eq.${party}&user_id=eq.${member.userId}&select=study_points`, { token: leader.accessToken })).body;
+  assert.deepEqual(capped, [{ study_points: 12 }]);
+
+  // The values are the ones the app mirrors (StudyPointsConfig).
+  const config = (await call("/rest/v1/study_points_config?select=*", { token: member.accessToken })).body;
+  assert.deepEqual(config, [{ assignment: 10, quiz: 15, early_bonus: 5, minutes_per_point: 10, daily_study_max: 12 }]);
+});
+
+localTest("a week is each member's own: Monday to Sunday by the day they recorded, in their time zone", async () => {
+  const { leader, member } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Weeks"), ...study });
+  // The same moment, Sunday 18 October 2026 at 22:00 UTC: Monday the 19th in Karachi, still Sunday in New York.
+  sql(`BEGIN;
+    ALTER TABLE public.study_sessions DISABLE TRIGGER study_session_guard;
+    INSERT INTO public.study_sessions (party_id, user_id, minutes, local_date, tz, created_at) VALUES
+      ('${party}', '${leader.userId}', 30, '2026-10-19', 'Asia/Karachi', '2026-10-18T22:00:00Z'),
+      ('${party}', '${member.userId}', 30, '2026-10-18', 'America/New_York', '2026-10-18T22:00:00Z');
+    ALTER TABLE public.study_sessions ENABLE TRIGGER study_session_guard;
+    COMMIT;`);
+  const weeks = (await call(`/rest/v1/study_week_scores?party_id=eq.${party}&select=user_id,week_start,points&order=week_start`, { token: member.accessToken })).body;
+  assert.deepEqual(weeks, [
+    { user_id: member.userId, week_start: "2026-10-12", points: 3 },
+    { user_id: leader.userId, week_start: "2026-10-19", points: 3 },
+  ]);
+
+  // Closing: once a week has ended everywhere; the top scorer, ties all, recorded once.
+  assert.equal((await rpc(member, "close_study_week", { party_id: party, week_start: mondayOf(todayIn("UTC")) })).body.message, "week_not_over");
+  assert.equal((await rpc(member, "close_study_week", { party_id: party, week_start: "2026-10-13" })).body.message, "bad_week");
+  const closed = (await rpc(member, "close_study_week", { party_id: party, week_start: "2026-10-12" })).body;
+  assert.deepEqual(closed, { status: "closed", winners: [{ user_id: member.userId, points: 3 }] });
+  assert.equal((await rpc(leader, "close_study_week", { party_id: party, week_start: "2026-10-12" })).body.status, "already_closed");
+  assert.deepEqual((await call(`/rest/v1/study_week_winners?party_id=eq.${party}&select=user_id,points`, { token: leader.accessToken })).body, [{ user_id: member.userId, points: 3 }]);
+  const { outsider } = await cast();
+  assert.equal((await rpc(outsider, "close_study_week", { party_id: party, week_start: "2026-10-12" })).body.message, "not_a_member");
 });

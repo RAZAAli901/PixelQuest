@@ -190,3 +190,19 @@ Invited and active rows together never exceed the party's limit, nor 30 (`party_
 
 Refusals carry a token in `message` (`party_full`, `not_leader`, `daily_limit`, `milestone_too_low` and so on), with HTTP 400 for broken rules and 403 for permissions.
 
+## Study parties (`20261019000035` to `20261019000043`)
+
+A study party's own data (docs/study-party.md). Only its active members read any of it (`private.is_active_study_member`); outsiders, the invited and Darood Parties' members read nothing. Tested at the end of `supabase/tests/local/darood_parties.test.ts`.
+
+| Table | What | Who writes |
+|---|---|---|
+| `study_items` | Assignments and quizzes: kind, title (2-80), subject (up to 40), notes (up to 500), `due_at` (a quiz needs one), `pinned` | Any member adds; its creator or the leader edits or deletes; only the leader pins (`not_leader`) |
+| `study_completions` | Who finished which item, once each, with their own day and time zone, and the phone's key | A member, for themselves; undone within 24 hours, then final |
+| `study_sessions` | Study time: 5 to 240 minutes, the member's own day and time zone, the phone's key | A member, for themselves; never edited |
+| `study_week_winners` | Each closed week's winners (ties all) | `close_study_week` only |
+
+- `study_points_config`: every points value (10, 15, +5, 1 per 10 minutes, 12 a day), mirrored by the app's `StudyPointsConfig`.
+- `study_week_scores`: points per party, member and week (Monday to Sunday by each row's own day), with the breakdown. With the reader's rights.
+- `close_study_week(party_id, week_start)`: any member; a Monday's week once it has ended everywhere (from its second Tuesday); records the winners once (`bad_week`, `week_not_over`, `already_closed`).
+- Days are today or up to 7 days back in a real time zone (`bad_day`, `bad_time_zone`).
+
