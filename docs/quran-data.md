@@ -38,6 +38,14 @@ All three files come from the [Tanzil Project](https://tanzil.net):
 - **`tools/quran-build/`:** a small Kotlin program, run with Gradle, that reads the three files, checks them, and writes the app's data files.
 - **`app/src/main/assets/quran/`:** what the app bundles, written by the tool, never by hand. The Arabic and the translation are separate files, so another translation can be added as one more file.
 
+## Backups and sync
+
+The Quran is the app's own text, not the player's progress:
+- **The game's backup file** and its daily copies on the phone never hold it, and **the synced profile** never mentions it.
+- **Resetting all progress, or restoring a backup,** leaves it be: those clear the game's own tables only.
+- **Android's own backup** copies the whole database file, so the Quran's tables go with it: a few MB, well under Android's 25 MB per app. A restored copy is checked against the app's bundle, and loaded again if it differs.
+- **The player's choice of translation** is a preference on the phone, not backed up.
+
 ## Checks
 
 The tool refuses to write anything unless all of these hold:

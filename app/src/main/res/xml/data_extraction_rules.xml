@@ -3,6 +3,11 @@
     What Android's own backup and phone-to-phone transfer may copy (Android 12 and up; backup_rules.xml
     is the same for older versions). Only the player's progress and settings; never the sign-in
     session, AI data, reminder bookkeeping or pending leaderboard syncs. See backup_rules.xml.
+
+    The database also holds the Quran's tables (docs/quran-data.md, from version 13), a few MB, well
+    under Android's 25 MB. They can't be left out of the file, and needn't be: a restored copy is
+    checked against the app's own bundle, and loaded again if it differs. The game's own backup file
+    and the synced profile never hold them (QuranOutOfBackupsTest).
 -->
 <data-extraction-rules>
     <cloud-backup>

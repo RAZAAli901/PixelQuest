@@ -6,6 +6,11 @@
     preferences): restored onto another phone it would sign that phone in without the player. Also
     out: AI usage counts and cached AI lines, reminder bookkeeping and pending leaderboard syncs, which
     belong to this device. Day 34; before, android:allowBackup copied everything.
+
+    The database also holds the Quran's tables (docs/quran-data.md, from version 13), a few MB, well
+    under Android's 25 MB. They can't be left out of the file, and needn't be: a restored copy is
+    checked against the app's own bundle, and loaded again if it differs. The game's own backup file
+    and the synced profile never hold them (QuranOutOfBackupsTest).
 -->
 <full-backup-content>
     <include domain="database" path="pixelquest.db" />
