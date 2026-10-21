@@ -42,7 +42,9 @@ data class ChessPartyState(
     val preview: List<HeadToHead> = emptyList(),
     val sending: Boolean = false,
     val problem: String? = null,
-    val names: Map<String, String?> = emptyMap()
+    val names: Map<String, String?> = emptyMap(),
+    /** Games the chat's cards have asked about, by id. */
+    val games: Map<String, ChessGame> = emptyMap()
 )
 
 /** What a challenge became, for the screen to open. */
@@ -62,7 +64,8 @@ class ChessPartyViewModel @Inject constructor(
     private val ratings: ChessRatingRepository,
     private val spectate: SpectateRepository,
     private val party: PartyRepository,
-    account: DaroodAccount
+    account: DaroodAccount,
+    private val chess: com.pixelquest.app.chess.data.ChessRepository? = null
 ) : ViewModel() {
     val partyId: String = savedStateHandle[ARG_PARTY] ?: ""
     private val me = account.id()
@@ -98,6 +101,17 @@ class ChessPartyViewModel @Inject constructor(
         _state.update { it.copy(boardTimeControl = timeControl) }
         viewModelScope.launch {
             (ratings.leaderboard(partyId, timeControl) as? SupabaseResult.Success)?.data?.let { rows -> _state.update { it.copy(leaderboard = rows) } }
+        }
+    }
+
+    private val asked = mutableSetOf<String>()
+
+    /** A game a chat card is about: read once, then kept. */
+    fun needGame(gameId: String) {
+        val chess = chess ?: return
+        if (!asked.add(gameId)) return
+        viewModelScope.launch {
+            (chess.fetchGame(gameId) as? SupabaseResult.Success)?.data?.first?.let { game -> _state.update { it.copy(games = it.games + (game.id to game)) } }
         }
     }
 

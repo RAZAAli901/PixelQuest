@@ -33,9 +33,10 @@ import com.pixelquest.app.ui.theme.PqType
 val LocalChessChatCards = staticCompositionLocalOf<(@Composable (token: String, refId: String) -> Unit)?> { null }
 
 /** The chess lines the chat draws as cards. */
-val CHESS_CHAT_TOKENS = setOf("chess_open_challenge")
+val CHESS_CHAT_TOKENS = setOf("chess_open_challenge", "chess_challenge_sent", "chess_game_started", "chess_game_result")
 
 object ChessChatTags {
+    fun watch(refId: String) = "chess_chat_watch_$refId"
     fun card(refId: String) = "chess_chat_card_$refId"
     fun accept(refId: String) = "chess_chat_accept_$refId"
 }
@@ -46,7 +47,17 @@ object ChessChatTags {
  * or has run out says so.
  */
 @Composable
-fun ChessChatCard(token: String, refId: String, state: ChessPartyState, onAnswer: (String, Boolean) -> Unit) {
+fun ChessChatCard(
+    token: String,
+    refId: String,
+    state: ChessPartyState,
+    onAnswer: (String, Boolean) -> Unit,
+    onNeedGame: (String) -> Unit = {},
+    onOpenGame: (String) -> Unit = {}
+) {
+    if (token == "chess_game_started" || token == "chess_game_result") {
+        androidx.compose.runtime.LaunchedEffect(refId) { onNeedGame(refId) }
+    }
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
@@ -83,6 +94,46 @@ fun ChessChatCard(token: String, refId: String, state: ChessPartyState, onAnswer
                     PqButton(stringResource(R.string.chess_accept), onClick = { onAnswer(refId, true) }, enabled = !state.sending, modifier = Modifier.fillMaxWidth().testTag(ChessChatTags.accept(refId)))
                 }
             }
+            // The other lines (J156): a challenge sent, a game started, a result.
+            "chess_challenge_sent" -> {
+                val challenge = state.challenges.firstOrNull { it.id == refId }
+                val from = challenge?.let { c -> state.names[c.fromUser]?.let { "@$it" } } ?: stringResource(R.string.darood_someone)
+                val to = challenge?.toUser?.let { id -> state.names[id]?.let { "@$it" } } ?: stringResource(R.string.darood_someone)
+                CardTitle(stringResource(R.string.chess_chat_sent_title))
+                Text(text = challenge?.let { stringResource(R.string.chess_chat_sent_body, from, to, stringResource(R.string.chess_minutes, it.timeControl.seconds / 60)) } ?: stringResource(R.string.chess_chat_open_gone), style = PqType.Body)
+            }
+            "chess_game_started", "chess_game_result" -> {
+                val game = state.games[refId] ?: state.liveGames.firstOrNull { it.id == refId }
+                val white = game?.let { g -> state.names[g.whiteId]?.let { "@$it" } } ?: stringResource(R.string.chess_white)
+                val black = game?.let { g -> state.names[g.blackId]?.let { "@$it" } } ?: stringResource(R.string.chess_black)
+                if (token == "chess_game_started") {
+                    CardTitle(stringResource(R.string.chess_chat_started_title))
+                    Text(text = stringResource(R.string.chess_live_players, white, black), style = PqType.Body)
+                    if (game == null || game.status.live) {
+                        PqButton(stringResource(R.string.chess_watch), onClick = { onOpenGame(refId) }, style = PqButtonStyle.Secondary, modifier = Modifier.fillMaxWidth().testTag(ChessChatTags.watch(refId)))
+                    }
+                } else {
+                    CardTitle(stringResource(R.string.chess_chat_result_title))
+                    Text(
+                        text = when (game?.result) {
+                            com.pixelquest.app.chess.domain.GameResult.WHITE -> stringResource(R.string.chess_chat_beat, white, black)
+                            com.pixelquest.app.chess.domain.GameResult.BLACK -> stringResource(R.string.chess_chat_beat, black, white)
+                            com.pixelquest.app.chess.domain.GameResult.DRAW -> stringResource(R.string.chess_chat_drew, white, black)
+                            null -> stringResource(R.string.chess_live_players, white, black)
+                        },
+                        style = PqType.BodyStrong
+                    )
+                    game?.reason?.let { Text(text = reasonText(it), style = PqType.Meta) }
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun CardTitle(text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Icon(Icons.Rounded.SportsEsports, contentDescription = null, tint = PqColors.Ink)
+        Text(text = text, style = PqType.BodyStrong)
     }
 }

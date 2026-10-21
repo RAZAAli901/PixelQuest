@@ -35,7 +35,7 @@ class ChessChatCardTest {
     fun anotherMember_canAccept() {
         val answers = mutableListOf<Pair<String, Boolean>>()
         composeTestRule.setContent {
-            PixelQuestTheme { ChessChatCard("chess_open_challenge", "c1", ChessPartyState(me = "me", challenges = listOf(open), names = mapOf("sara" to "sara"))) { id, a -> answers += id to a } }
+            PixelQuestTheme { ChessChatCard("chess_open_challenge", "c1", ChessPartyState(me = "me", challenges = listOf(open), names = mapOf("sara" to "sara")), onAnswer = { id, a -> answers += id to a }) }
         }
         composeTestRule.onNodeWithText("@sara wants a game: 5 min, Rated.").assertExists()
         composeTestRule.onNodeWithTag(ChessChatTags.accept("c1")).performClick()
@@ -45,8 +45,30 @@ class ChessChatCardTest {
     @Test
     fun aTakenOne_saysSo() {
         composeTestRule.setContent {
-            PixelQuestTheme { ChessChatCard("chess_open_challenge", "c1", ChessPartyState(me = "me")) { _, _ -> } }
+            PixelQuestTheme { ChessChatCard("chess_open_challenge", "c1", ChessPartyState(me = "me"), onAnswer = { _, _ -> }) }
         }
         composeTestRule.onNodeWithText("Taken, or no longer open.").assertExists()
+    }
+
+    @Test
+    fun aResult_andAGameToWatch() {
+        val needed = mutableListOf<String>()
+        val opened = mutableListOf<String>()
+        val done = com.pixelquest.app.chess.domain.ChessGame("g1", "p", "ali", "sara", TimeControl.THREE, true, com.pixelquest.app.chess.domain.GameStatus.FINISHED,
+            com.pixelquest.app.chess.domain.GameResult.BLACK, com.pixelquest.app.chess.domain.ResultReason.CHECKMATE, "fen", com.pixelquest.app.chess.domain.ChessColour.WHITE, 1, 1, 9, t, t, t, t)
+        val state = ChessPartyState(me = "me", names = mapOf("ali" to "ali", "sara" to "sara"), games = mapOf("g1" to done))
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                androidx.compose.foundation.layout.Column {
+                    ChessChatCard("chess_game_result", "g1", state, { _, _ -> }, onNeedGame = { needed += it })
+                    ChessChatCard("chess_game_started", "g2", state, { _, _ -> }, onNeedGame = { needed += it }, onOpenGame = { opened += it })
+                }
+            }
+        }
+        composeTestRule.onNodeWithText("@sara beat @ali").assertExists()
+        composeTestRule.onNodeWithText("By checkmate.").assertExists()
+        composeTestRule.onNodeWithTag(ChessChatTags.watch("g2")).performClick()
+        assertEquals(listOf("g2"), opened)
+        assertEquals(setOf("g1", "g2"), needed.toSet())
     }
 }

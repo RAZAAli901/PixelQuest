@@ -119,4 +119,10 @@
     <string name="chess_leave">Leave</string>
     <string name="chess_next_live">Next live game</string>
     <string name="chess_flip">Flip board</string>
+    <string name="chess_chat_sent_title">Chess challenge</string>
+    <string name="chess_chat_sent_body"><xliff:g id="from" example="@ali">%1$s</xliff:g> challenged <xliff:g id="to" example="@sara">%2$s</xliff:g> to <xliff:g id="time" example="3 min">%3$s</xliff:g>.</string>
+    <string name="chess_chat_started_title">A game has started</string>
+    <string name="chess_chat_result_title">Chess result</string>
+    <string name="chess_chat_beat"><xliff:g id="winner" example="@ali">%1$s</xliff:g> beat <xliff:g id="loser" example="@sara">%2$s</xliff:g></string>
+    <string name="chess_chat_drew"><xliff:g id="white" example="@ali">%1$s</xliff:g> and <xliff:g id="black" example="@sara">%2$s</xliff:g> drew</string>
 </resources>

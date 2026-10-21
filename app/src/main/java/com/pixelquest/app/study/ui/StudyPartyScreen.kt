@@ -137,7 +137,7 @@ fun StudyPartyScreen(
         }
     }
     val chessCards: (@Composable (String, String) -> Unit)? = chessViewModel?.let { chess ->
-        { token, ref -> com.pixelquest.app.chess.ui.ChessChatCard(token, ref, chessState, chess::answer) }
+        { token, ref -> com.pixelquest.app.chess.ui.ChessChatCard(token, ref, chessState, chess::answer, chess::needGame, onOpenChessGame) }
     }
     val chessTab: (@Composable () -> Unit)? = chessViewModel?.let { chess ->
         {
