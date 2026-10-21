@@ -49,7 +49,7 @@ class DaroodIslamicItemTest {
 
         assertEquals("darood", card.id)
         assertEquals(R.string.darood_title, card.titleRes)
-        assertEquals(Screen.DaroodParty.route, card.route)
+        assertEquals("Deen's tile opens the parties of every kind", Screen.Parties.route, card.route)
         assertEquals(R.drawable.ic_darood_pixel, card.icon.pixel)
         assertEquals(R.drawable.ic_darood_comic, card.icon.comic)
         assertEquals(0, card.badgeCount)

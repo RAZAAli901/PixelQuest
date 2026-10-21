@@ -37,7 +37,7 @@ enum class PartiesProblem {
 }
 
 /**
- * Darood Party's home.
+ * The Parties hub (UI v2): the parties of every kind the account is in, or of one kind.
  *
  * @param signedIn null while the saved session loads.
  * @param parties the parties the account is in, by name.
@@ -61,12 +61,21 @@ class DaroodPartiesViewModel @Inject constructor(
     authRepository: AuthRepository,
     private val repository: DaroodPartyRepository,
     private val reminder: com.pixelquest.app.darood.data.DaroodReminderSettings? = null,
-    savedStateHandle: SavedStateHandle = SavedStateHandle()
+    savedStateHandle: SavedStateHandle = SavedStateHandle(),
+    myUsername: com.pixelquest.app.darood.data.MyUsername? = null,
+    settings: com.pixelquest.app.domain.repository.SettingsRepository? = null
 ) : ViewModel() {
 
-    /** The kind of party this list shows: Darood Parties, unless its route says otherwise. */
-    val type: PartyType = PartyType.fromWire(savedStateHandle[ARG_TYPE])
-    val kind: PartyKind = PartyKinds.of(type)
+    /** The kind of party this list shows, if its route names one; every kind without ([ARG_TYPE]). */
+    val type: PartyType? = savedStateHandle.get<String>(ARG_TYPE)?.let { PartyType.fromWire(it) }
+
+    /** Darood Parties show while Darood is available ([SettingsRepository.daroodAvailable]). */
+    val daroodAvailable: StateFlow<Boolean> = (settings?.daroodAvailable ?: kotlinx.coroutines.flow.flowOf(true))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    /** The account's username, for the hub's footer and its Share button; null without one. */
+    val username: StateFlow<String?> = (myUsername?.username?.map { it?.value } ?: kotlinx.coroutines.flow.flowOf(null))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** The weekly note, off unless the player turns it on. */
     val weeklyReminder: StateFlow<Boolean> = reminder?.weeklyReminder ?: kotlinx.coroutines.flow.MutableStateFlow(false)
@@ -88,11 +97,17 @@ class DaroodPartiesViewModel @Inject constructor(
         if (signedIn) all.filter { it.myStatus == MemberStatus.INVITED } else emptyList()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    val uiState: StateFlow<DaroodPartiesUiState> = combine(signedIn, repository.observeMyParties(type), status) { signedIn, all, status ->
+    val uiState: StateFlow<DaroodPartiesUiState> = combine(
+        signedIn,
+        if (type != null) repository.observeMyParties(type) else repository.observeMyParties(),
+        daroodAvailable,
+        status
+    ) { signedIn, all, darood, status ->
+        val shown = all.filter { darood || it.type != PartyType.DAROOD }
         status.copy(
             signedIn = signedIn,
-            parties = if (signedIn) all.filter { it.myStatus == MemberStatus.ACTIVE } else emptyList(),
-            invites = if (signedIn) all.filter { it.myStatus == MemberStatus.INVITED } else emptyList()
+            parties = if (signedIn) shown.filter { it.myStatus == MemberStatus.ACTIVE } else emptyList(),
+            invites = if (signedIn) shown.filter { it.myStatus == MemberStatus.INVITED } else emptyList()
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DaroodPartiesUiState())
 
@@ -139,7 +154,7 @@ class DaroodPartiesViewModel @Inject constructor(
     }
 
     companion object {
-        /** The route's argument: the kind of party listed (PartyType's wire name); Darood Parties without it. */
+        /** The route's argument: the kind of party listed (PartyType's wire name); every kind without it. */
         const val ARG_TYPE = "type"
     }
 }

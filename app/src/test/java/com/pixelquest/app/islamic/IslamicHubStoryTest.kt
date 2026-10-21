@@ -59,7 +59,7 @@ class IslamicHubStoryTest {
 
     private val cards = listOf(
         IslamicItem("namaz", R.string.namaz_title, R.string.islamic_namaz_description, IslamicIcon("🕌"), Screen.Namaz.route),
-        IslamicItem("darood", R.string.darood_title, R.string.islamic_darood_description, IslamicIcon("📿"), Screen.DaroodParty.route),
+        IslamicItem("darood", R.string.darood_title, R.string.islamic_darood_description, IslamicIcon("📿"), Screen.Parties.route),
         IslamicItem("quran", R.string.quran_title, R.string.quran_description, IslamicIcon("📖"), Screen.Quran.route)
     )
 
@@ -77,10 +77,11 @@ class IslamicHubStoryTest {
                             hub = { onOpen -> IslamicHubContent(IslamicHubUiState(cards, loaded = true), onOpen) }
                         ) {
                             composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }, viewModel = namazViewModel()) }
-                            composable(Screen.DaroodParty.route) { Text("DAROOD PARTIES") }
                         }
+                        // Deen's Darood tile opens the parties, outside the Islamic section.
+                        composable(Screen.Parties.route) { Text("DAROOD PARTIES") }
                         redirect(Routes.LEGACY_NAMAZ, Screen.Namaz.route, nav)
-                        redirect(Routes.LEGACY_DAROOD, Screen.DaroodParty.route, nav)
+                        redirect(Routes.LEGACY_DAROOD, Screen.Parties.route, nav)
                     }
                 }
             }

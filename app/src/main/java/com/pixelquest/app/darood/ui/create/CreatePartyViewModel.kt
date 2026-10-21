@@ -45,8 +45,10 @@ data class CreatePartyUiState(
     val error: CreatePartyError? = null,
     /** The new party's id, once it's made: the screen moves on to it. */
     val created: String? = null,
-    /** The kind of party it starts: a Darood Party, unless the route says otherwise. */
-    val type: PartyType = PartyType.DAROOD
+    /** The kind of party it starts: chosen on the form; a Darood Party unless the route says otherwise. */
+    val type: PartyType = PartyType.DAROOD,
+    /** The kinds that can be started: Darood only while it's available. */
+    val types: List<PartyType> = PartyType.entries
 ) {
     /** Its kind has a milestone, asked for here (optional). */
     val asksMilestone: Boolean get() = PartyKinds.of(type).rules.milestone
@@ -81,11 +83,29 @@ data class CreatePartyUiState(
 @HiltViewModel
 class CreatePartyViewModel @Inject constructor(
     private val repository: DaroodPartyRepository,
-    savedStateHandle: SavedStateHandle = SavedStateHandle()
+    savedStateHandle: SavedStateHandle = SavedStateHandle(),
+    settings: com.pixelquest.app.domain.repository.SettingsRepository? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreatePartyUiState(type = PartyType.fromWire(savedStateHandle[ARG_TYPE])))
     val uiState: StateFlow<CreatePartyUiState> = _uiState.asStateFlow()
+
+    init {
+        // Without Darood, a study party is all there is to start.
+        settings?.let { repo ->
+            viewModelScope.launch {
+                repo.daroodAvailable.collect { darood ->
+                    _uiState.update { state ->
+                        val types = if (darood) PartyType.entries else PartyType.entries - PartyType.DAROOD
+                        state.copy(types = types, type = state.type.takeIf { it in types } ?: types.first())
+                    }
+                }
+            }
+        }
+    }
+
+    /** Picks the kind of party: Darood with its milestone, or study. */
+    fun setType(type: PartyType) = _uiState.update { if (type in it.types) it.copy(type = type) else it }
 
     /** A little past the limit can still be typed, so the counter can say it's too long. */
     fun onNameChange(name: String) = _uiState.update { it.copy(name = name.take(DaroodRules.NAME_MAX + 10)) }

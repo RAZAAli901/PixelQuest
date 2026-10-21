@@ -33,7 +33,7 @@ import com.pixelquest.app.auth.FakeAuthRepository
 import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.data.local.RoomTransactionRunner
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
-import com.pixelquest.app.darood.ui.DaroodPartyScreen
+import com.pixelquest.app.party.ui.PartiesScreen
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.chat.PartyChatRoute
 import com.pixelquest.app.darood.ui.chat.PartyChatViewModel
@@ -138,7 +138,7 @@ class IslamicEndToEndTest {
 
     private val cards = listOf(
         IslamicItem("namaz", R.string.namaz_title, R.string.islamic_namaz_description, IslamicIcon("🕌"), Screen.Namaz.route),
-        IslamicItem("darood", R.string.darood_title, R.string.islamic_darood_description, IslamicIcon("📿"), Screen.DaroodParty.route),
+        IslamicItem("darood", R.string.darood_title, R.string.islamic_darood_description, IslamicIcon("📿"), Screen.Parties.route),
         IslamicItem("quran", R.string.quran_title, R.string.quran_description, IslamicIcon("📖"), Screen.Quran.route)
     )
 
@@ -165,22 +165,6 @@ class IslamicEndToEndTest {
                             hub = { onOpen -> IslamicHubContent(IslamicHubUiState(cards, loaded = true), onOpen) }
                         ) {
                             composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }, viewModel = namazVm) }
-                            composable(Screen.DaroodParty.route) {
-                                DaroodPartyScreen(
-                                    onNavigateBack = { nav.popBackStack() },
-                                    onSignIn = { nav.navigate(Screen.Account.route) },
-                                    onOpenParty = { nav.navigate(Screen.DaroodPartyChat.createRoute(it)) },
-                                    viewModel = viewModel { DaroodPartiesViewModel(auth, darood, null, SavedStateHandle()) }
-                                )
-                            }
-                            composable(Screen.DaroodPartyChat.route, arguments = listOf(navArgument("partyId") { type = NavType.StringType })) { entry ->
-                                PartyChatRoute(
-                                    partyId = entry.arguments?.getString("partyId").orEmpty(),
-                                    onNavigateBack = { nav.popBackStack() },
-                                    onOpenInfo = {},
-                                    viewModel = viewModel { PartyChatViewModel(createSavedStateHandle(), darood, { auth.userFlow.value?.id }) }
-                                )
-                            }
                             composable(Screen.Quran.route) {
                                 QuranRoute(
                                     onNavigateBack = { nav.popBackStack() },
@@ -208,6 +192,24 @@ class IslamicEndToEndTest {
                                     }
                                 )
                             }
+                        }
+                        // Deen's Darood tile opens the parties, outside the Islamic section.
+                        composable(Screen.Parties.route) {
+                            PartiesScreen(
+                                onNavigateBack = { nav.popBackStack() },
+                                onSignIn = { nav.navigate(Screen.Account.route) },
+                                onOpenParty = { nav.navigate(Screen.DaroodRoom.createRoute(it.id)) },
+                                onCreateParty = {},
+                                viewModel = viewModel { DaroodPartiesViewModel(auth, darood, null, SavedStateHandle()) }
+                            )
+                        }
+                        composable(Screen.DaroodRoom.route, arguments = listOf(navArgument("partyId") { type = NavType.StringType })) { entry ->
+                            PartyChatRoute(
+                                partyId = entry.arguments?.getString("partyId").orEmpty(),
+                                onNavigateBack = { nav.popBackStack() },
+                                onOpenInfo = {},
+                                viewModel = viewModel { PartyChatViewModel(createSavedStateHandle(), darood, { auth.userFlow.value?.id }) }
+                            )
                         }
                     }
                 }

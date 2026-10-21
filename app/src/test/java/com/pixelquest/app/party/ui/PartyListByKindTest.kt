@@ -82,13 +82,13 @@ class PartyListByKindTest {
     }
 
     @Test
-    fun withoutAKind_theListIsDaroodParties_asOnTheIslamicHub() {
+    fun withoutAKind_theListIsEveryKind_asOnTheHub() {
         val vm = list(null)
         val state = settled(vm)
 
-        assertEquals(DaroodPartyKind, vm.kind)
-        assertEquals(listOf("Friday circle"), state.parties.map { it.name })
-        assertEquals(listOf("Night circle"), state.invites.map { it.name })
+        assertEquals(null, vm.type)
+        assertEquals(setOf("Friday circle", "Physics group"), state.parties.map { it.name }.toSet())
+        assertEquals(setOf("Night circle", "Exam group"), state.invites.map { it.name }.toSet())
     }
 
     @Test
@@ -96,7 +96,7 @@ class PartyListByKindTest {
         val vm = list("study")
         val state = settled(vm)
 
-        assertEquals(StudyPartyKind, vm.kind)
+        assertEquals(PartyType.STUDY, vm.type)
         assertEquals(listOf("Physics group"), state.parties.map { it.name })
         assertEquals(listOf("Exam group"), state.invites.map { it.name })
     }

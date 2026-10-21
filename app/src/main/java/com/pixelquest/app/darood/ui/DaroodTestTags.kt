@@ -24,6 +24,9 @@ object DaroodTestTags {
     const val CREATE_MILESTONE = "darood_create_milestone"
     const val CREATE_BUTTON = "darood_create_button"
     const val CREATE_ERROR = "darood_create_error"
+
+    /** A kind of party to start, on the New party form (its wire name). */
+    fun createType(type: String) = "party_create_type_$type"
     const val ADD_SCREEN = "darood_add_screen"
     const val ADD_SEARCH = "darood_add_search"
     const val ADD_STATUS = "darood_add_status"

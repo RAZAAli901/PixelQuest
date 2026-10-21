@@ -4,24 +4,29 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
-import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.PartyKinds
+import com.pixelquest.app.party.ui.icon
+import com.pixelquest.app.party.ui.tint
+import com.pixelquest.app.ui.components.CategoryTile
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
 /**
  * An invitation to a party, waiting for an answer: what kind of party (its icon and name, so
@@ -30,39 +35,28 @@ import com.pixelquest.app.party.PartyKinds
  */
 @Composable
 fun InviteRow(party: Party, enabled: Boolean, onAccept: () -> Unit, onDecline: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = PixelTheme.colors
-    PixelCard(
-        variant = PixelPanelVariant.BEIGE,
-        contentPadding = 16.dp,
-        modifier = modifier.fillMaxWidth().testTag(DaroodTestTags.inviteRow(party.id))
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-            val kind = PartyKinds.of(party.type)
-            Text(
-                text = kind.icon + "  " + stringResource(R.string.party_invite_to, stringResource(kind.titleRes)),
-                style = MaterialTheme.typography.labelMedium,
-                color = colors.onSurface
-            )
-            Text(
-                text = party.name,
-                style = MaterialTheme.typography.titleMedium,
-                color = inkOnPanel(colors.primaryText),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                PixelButton(
-                    text = stringResource(R.string.darood_invite_accept),
-                    onClick = onAccept,
-                    enabled = enabled,
-                    modifier = Modifier.weight(1f).testTag(DaroodTestTags.inviteAccept(party.id))
+    PqCard(modifier.fillMaxWidth().testTag(DaroodTestTags.inviteRow(party.id)), shadow = PqDimens.ShadowLg) {
+        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                CategoryTile(party.type.icon, party.type.tint)
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.party_invite_to, stringResource(PartyKinds.of(party.type).titleRes)),
+                        style = PqType.Meta
+                    )
+                    Text(text = party.name, style = PqType.BodyStrong, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                PqButton(
+                    stringResource(R.string.darood_invite_accept), onAccept,
+                    // Not red: the screen's one red button is its own (New party, or Create a party).
+                    Modifier.weight(1f).testTag(DaroodTestTags.inviteAccept(party.id)), style = PqButtonStyle.Secondary,
+                    icon = Icons.Rounded.Check, enabled = enabled, height = 44.dp
                 )
-                PixelButton(
-                    text = stringResource(R.string.darood_invite_decline),
-                    onClick = onDecline,
-                    enabled = enabled,
-                    variant = PixelButtonVariant.BLUE,
-                    modifier = Modifier.weight(1f).testTag(DaroodTestTags.inviteDecline(party.id))
+                PqButton(
+                    stringResource(R.string.darood_invite_decline), onDecline,
+                    Modifier.weight(1f).testTag(DaroodTestTags.inviteDecline(party.id)), style = PqButtonStyle.Secondary, enabled = enabled, height = 44.dp
                 )
             }
         }

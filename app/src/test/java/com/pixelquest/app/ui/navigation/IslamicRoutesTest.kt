@@ -40,11 +40,12 @@ class IslamicRoutesTest {
                 composable(Screen.Home.route) { Text("home") }
                 islamicGraph(nav, items = listOf(com.pixelquest.app.quran.QuranIslamicItem { nav -> composable(Screen.Quran.route) { com.pixelquest.app.quran.ui.QuranHomeScreen(onNavigateBack = { nav.popBackStack() }) } }), hub = { Text("hub") }) {
                     composable(Screen.Namaz.route) { Text("namaz screen") }
-                    composable(Screen.DaroodParty.route) { Text("darood screen") }
-                    composable(Screen.DaroodPartyChat.route) { Text("chat") }
                 }
+                // The parties, Darood's too, are outside the section.
+                composable(Screen.Parties.route) { Text("parties") }
+                composable(Screen.DaroodRoom.route) { Text("chat") }
                 redirect(Routes.LEGACY_NAMAZ, Screen.Namaz.route, nav)
-                redirect(Routes.LEGACY_DAROOD, Screen.DaroodParty.route, nav)
+                redirect(Routes.LEGACY_DAROOD, Screen.Parties.route, nav)
             }
         }
     }
@@ -83,12 +84,14 @@ class IslamicRoutesTest {
     }
 
     @Test
-    fun namazAndDarood_liveInsideTheSection() {
-        for (route in listOf(Screen.Namaz.route, Screen.DaroodParty.route, Screen.DaroodPartyChat.createRoute("p1"))) {
-            assertTrue(route, Routes.isIslamic(route))
+    fun namaz_livesInsideTheSection_andDaroodPartiesWithTheOtherParties() {
+        assertTrue(Routes.isIslamic(Screen.Namaz.route))
+        for (route in listOf(Screen.Parties.route, Screen.DaroodRoom.createRoute("p1"))) {
+            assertFalse(route, Routes.isIslamic(route))
+            assertTrue(route, Routes.isParties(route))
         }
-        open(Screen.DaroodPartyChat.createRoute("p1"))
-        assertTrue(composeTestRule.runOnIdle { nav.currentDestination!!.hierarchy.any { it.route == Routes.ISLAMIC } })
+        open(Screen.DaroodRoom.createRoute("p1"))
+        assertFalse(composeTestRule.runOnIdle { nav.currentDestination!!.hierarchy.any { it.route == Routes.ISLAMIC } })
     }
 
     private fun back() = composeTestRule.runOnIdle { nav.popBackStack() }
@@ -107,12 +110,12 @@ class IslamicRoutesTest {
     @Test
     fun fromInsideTheSection_itIsAnOrdinaryStep() {
         open(Screen.IslamicHub.route)
-        open(Screen.DaroodParty.route)
+        open(Screen.Quran.route)
 
         composeTestRule.runOnIdle { nav.navigateInIslamic(Screen.Namaz.route) }
 
         back()
-        assertEquals("no second hub was added", Screen.DaroodParty.route, current())
+        assertEquals("no second hub was added", Screen.Quran.route, current())
         back()
         assertEquals(Screen.IslamicHub.route, current())
     }
@@ -135,7 +138,7 @@ class IslamicRoutesTest {
         open(Routes.LEGACY_DAROOD)
         composeTestRule.waitForIdle()
 
-        assertEquals(Screen.DaroodParty.route, current())
+        assertEquals(Screen.Parties.route, current())
     }
 
     @Test
@@ -152,8 +155,7 @@ class IslamicRoutesTest {
     @Test
     fun theHub_whenOpenBeneath_isGoneBackTo_notOpenedAgain() {
         open(Screen.IslamicHub.route)
-        open(Screen.DaroodParty.route)
-        open(Screen.DaroodPartyChat.createRoute("p1"))
+        open(Screen.Quran.route)
 
         composeTestRule.runOnIdle { nav.navigateInIslamic(Screen.IslamicHub.route) }
 

@@ -21,7 +21,6 @@ import com.pixelquest.app.auth.FakeAuthRepository
 import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
 import com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource
-import com.pixelquest.app.darood.ui.DaroodPartyScreen
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.create.CreatePartyScreen
 import com.pixelquest.app.darood.ui.create.CreatePartyViewModel
@@ -117,7 +116,7 @@ class PartyFlowForEveryKindTest(private val type: PartyType) {
         // Aria starts one, of this kind.
         var created: String? = null
         val create = viewModels.keep(CreatePartyViewModel::class.java) { CreatePartyViewModel(aria.parties, SavedStateHandle(kind)) }
-        screen = { CreatePartyScreen(onNavigateBack = {}, onCreated = { created = it }, viewModel = create) }
+        screen = { CreatePartyScreen(onNavigateBack = {}, onCreated = { id, _ -> created = id }, viewModel = create) }
         composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_NAME))).performTextInput("Friday circle")
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_BUTTON).performClick()
         waitFor("the party made") { created != null }
@@ -134,12 +133,9 @@ class PartyFlowForEveryKindTest(private val type: PartyType) {
         composeTestRule.onNodeWithTag(DaroodTestTags.ADD_INVITE).performClick()
         waitFor("Bram invited") { server.members.any { it.partyId == party && it.userId == "bram-id" && it.status == "invited" } }
 
-        // Bram accepts, from his kind's list.
-        val list = viewModels.keep(DaroodPartiesViewModel::class.java) { DaroodPartiesViewModel(bram.auth, bram.parties, null, SavedStateHandle(kind)) }
-        screen = when (type) {
-            PartyType.DAROOD -> ({ DaroodPartyScreen(onNavigateBack = null, onSignIn = {}, onOpenParty = {}, viewModel = list) })
-            PartyType.STUDY -> ({ PartiesScreen(onSignIn = {}, onOpenParty = {}, onCreateParty = {}, viewModel = list) })
-        }
+        // Bram accepts, from the parties hub, where every kind's invitations arrive.
+        val list = viewModels.keep(DaroodPartiesViewModel::class.java) { DaroodPartiesViewModel(bram.auth, bram.parties, null, SavedStateHandle()) }
+        screen = { PartiesScreen(onSignIn = {}, onOpenParty = {}, onCreateParty = {}, viewModel = list) }
         waitFor("Bram's invitation") { shown(DaroodTestTags.inviteRow(party)) }
         composeTestRule.onNodeWithTag(DaroodTestTags.inviteAccept(party)).performClick()
         waitFor("Bram in") { shown(DaroodTestTags.partyRow(party)) }

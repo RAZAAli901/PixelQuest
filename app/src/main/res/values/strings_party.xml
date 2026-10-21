@@ -26,4 +26,28 @@
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> member</item>
         <item quantity="other"><xliff:g id="count" example="4">%d</xliff:g> members</item>
     </plurals>
+
+    <!-- The Parties hub (UI v2, mocks 4B and 4C): every party, of both kinds. -->
+    <string name="pq_party_darood">Darood</string>
+    <string name="pq_party_study">Study</string>
+    <string name="pq_parties_new">New party</string>
+    <string name="pq_parties_filter_all">All · <xliff:g id="count" example="2">%d</xliff:g></string>
+    <!-- Under a party's name: its kind and members ("Darood · 3 members"). -->
+    <string name="pq_party_card_line"><xliff:g id="kind" example="Darood">%1$s</xliff:g> · <xliff:g id="members" example="3 members">%2$s</xliff:g></string>
+    <string name="pq_parties_footer">Invites from friends show up here. Your username is @<xliff:g id="username" example="raza">%s</xliff:g>.</string>
+    <string name="pq_parties_footer_no_username">Invites from friends show up here, once you have a username they can find you by.</string>
+    <string name="pq_parties_empty_title">NO PARTIES YET</string>
+    <string name="pq_parties_empty_body">Team up with 2 to 30 friends. Count Darood toward a shared goal, or share study deadlines and earn party points.</string>
+    <string name="pq_parties_empty_body_study">Team up with 2 to 30 friends. Share study deadlines, log study time and earn party points.</string>
+    <string name="pq_parties_create">Create a party</string>
+    <string name="pq_parties_share">Share @<xliff:g id="username" example="raza">%s</xliff:g></string>
+    <string name="pq_parties_choose_username">Choose a username</string>
+    <!-- What sharing the username sends, so a friend can invite the player. -->
+    <string name="pq_parties_share_text">Invite me to a party on PixelQuest: my username is @<xliff:g id="username" example="raza">%s</xliff:g></string>
+    <string name="pq_parties_kinds">Two kinds of party</string>
+    <string name="pq_parties_kind_one">What a party is</string>
+    <string name="pq_party_darood_about">Post your daily count and reach a milestone together.</string>
+    <string name="pq_party_study_about">Share assignments and quizzes, log study time, top the weekly board.</string>
+    <!-- The New party form (mock 4D): which kind to start. -->
+    <string name="pq_new_party_type">Type</string>
 </resources>

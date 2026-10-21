@@ -6,10 +6,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.pixelquest.app.darood.ui.create.CreatePartyScreen
-import com.pixelquest.app.darood.ui.create.CreatePartyViewModel
+import com.pixelquest.app.darood.ui.chat.PartyChatRoute
 import com.pixelquest.app.darood.ui.info.PartyInfoScreen
 import com.pixelquest.app.darood.ui.invite.AddPeopleScreen
-import com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel
+import com.pixelquest.app.darood.ui.race.RaceBoardScreen
 import com.pixelquest.app.party.domain.PartyType
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -20,34 +20,50 @@ import com.pixelquest.app.study.ui.StudyPartyViewModel
 import com.pixelquest.app.ui.navigation.Screen
 
 /**
- * The main app's parties (docs/party-core.md): the study parties, from the side menu's Parties,
- * outside the Islamic section. The screens are the shared ones Darood Parties use, told they're
- * showing study parties. A study party opens on its own screen (its tabs); its info opens from there.
+ * The parties (docs/party-core.md; UI v2, mocks 4B to 4J), outside the Islamic section: the hub of
+ * every kind, starting one, a Darood Party's room or a study party's own screen, its info, adding
+ * people, and Darood's race board.
  */
 fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
-    val study = navArgument(DaroodPartiesViewModel.ARG_TYPE) { type = NavType.StringType; defaultValue = PartyType.STUDY.wire }
-    composable(Screen.Parties.route, arguments = listOf(study)) {
+    // A party opens in its kind's own screen.
+    fun roomOf(partyId: String, type: PartyType) =
+        if (type == PartyType.DAROOD) Screen.DaroodRoom.createRoute(partyId) else Screen.PartiesParty.createRoute(partyId)
+    composable(Screen.Parties.route) {
         PartiesScreen(
             onSignIn = { navController.navigate(Screen.Account.route) },
-            onOpenParty = { partyId -> navController.navigate(Screen.PartiesParty.createRoute(partyId)) { launchSingleTop = true } },
+            onOpenParty = { party -> navController.navigate(roomOf(party.id, party.type)) { launchSingleTop = true } },
             onCreateParty = { navController.navigate(Screen.PartiesCreate.route) { launchSingleTop = true } },
-            onNavigateBack = { navController.popBackStack() }
+            onNavigateBack = { navController.popBackStack() },
+            onOpenRaceBoard = { navController.navigate(Screen.PartiesRaceBoard.route) { launchSingleTop = true } },
+            onChooseUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } }
         )
     }
-    composable(
-        Screen.PartiesCreate.route,
-        arguments = listOf(navArgument(CreatePartyViewModel.ARG_TYPE) { type = NavType.StringType; defaultValue = PartyType.STUDY.wire })
-    ) {
+    composable(Screen.PartiesCreate.route) {
         CreatePartyScreen(
             onNavigateBack = { navController.popBackStack() },
             // The new party opens in place of the form, so Back returns to the list.
-            onCreated = { partyId ->
-                navController.navigate(Screen.PartiesParty.createRoute(partyId)) {
+            onCreated = { partyId, type ->
+                navController.navigate(roomOf(partyId, type)) {
                     popUpTo(Screen.PartiesCreate.route) { inclusive = true }
                 }
             },
             onChooseUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } }
         )
+    }
+    composable(
+        route = Screen.DaroodRoom.route,
+        arguments = listOf(navArgument("partyId") { type = NavType.StringType })
+    ) { entry ->
+        val partyId = entry.arguments?.getString("partyId").orEmpty()
+        PartyChatRoute(
+            partyId = partyId,
+            onNavigateBack = { navController.popBackStack() },
+            onOpenInfo = { navController.navigate(Screen.PartiesInfo.createRoute(partyId)) { launchSingleTop = true } },
+            onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } }
+        )
+    }
+    composable(Screen.PartiesRaceBoard.route) {
+        RaceBoardScreen(onNavigateBack = { navController.popBackStack() })
     }
     composable(
         route = Screen.PartiesParty.route,

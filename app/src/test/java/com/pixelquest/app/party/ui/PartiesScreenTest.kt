@@ -39,7 +39,7 @@ class PartiesScreenTest {
                 PartiesContent(
                     state = state,
                     onSignIn = { opened += "sign in" },
-                    onOpenParty = { opened += it },
+                    onOpenParty = { opened += it.id },
                     onCreateParty = { opened += "create" },
                     onAccept = { opened += "accept $it" }
                 )
@@ -52,8 +52,8 @@ class PartiesScreenTest {
         show(DaroodPartiesUiState(signedIn = true, parties = listOf(party("s1", "Physics group", MemberStatus.ACTIVE)), invites = listOf(party("s2", "Exam group", MemberStatus.INVITED))), ThemeMode.Comic)
 
         composeTestRule.onNodeWithTag(PartiesTags.CREATE).performClick()
-        composeTestRule.onNodeWithText("Invitations").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Study parties").assertIsDisplayed()
+        composeTestRule.onNodeWithText("INVITATIONS").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Study · 3 members").assertIsDisplayed()
         composeTestRule.onNodeWithTag(DaroodTestTags.partyRow("s1")).performClick()
         composeTestRule.onNodeWithTag(DaroodTestTags.inviteRow("s2")).assertIsDisplayed()
 
@@ -61,14 +61,15 @@ class PartiesScreenTest {
     }
 
     @Test
-    fun withNone_itSaysWhatStudyPartiesAre_andStillOffersToStartOne() {
+    fun withNone_itSaysWhatPartiesAre_andOffersToStartOne() {
         show(DaroodPartiesUiState(signedIn = true), ThemeMode.Light)
 
-        composeTestRule.onNodeWithText("Parties").assertIsDisplayed()
+        composeTestRule.onNodeWithText("PARTIES").assertIsDisplayed()
         composeTestRule.onNodeWithTag(PartiesTags.EMPTY).assertIsDisplayed()
-        composeTestRule.onNodeWithText("No study parties yet").assertIsDisplayed()
-        composeTestRule.onNodeWithText("📚").assertIsDisplayed()
-        composeTestRule.onNodeWithTag(PartiesTags.CREATE).assertIsDisplayed()
+        composeTestRule.onNodeWithText("NO PARTIES YET").assertIsDisplayed()
+        composeTestRule.onNodeWithText("TWO KINDS OF PARTY").assertIsDisplayed()
+        composeTestRule.onNodeWithTag(DaroodTestTags.CREATE).performClick()
+        assertEquals(listOf("create"), opened)
     }
 
     @Test
@@ -77,13 +78,12 @@ class PartiesScreenTest {
         val study = party("s2", "Exam group", MemberStatus.INVITED)
         composeTestRule.setContent {
             PixelQuestTheme {
-                PartiesContent(state = DaroodPartiesUiState(signedIn = true), invites = listOf(darood, study), onSignIn = {}, onOpenParty = {}, onCreateParty = {})
+                PartiesContent(state = DaroodPartiesUiState(signedIn = true, invites = listOf(darood, study)), onSignIn = {}, onOpenParty = {}, onCreateParty = {})
             }
         }
 
-        composeTestRule.onNodeWithText("📿  You're invited to a Darood Party", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("📚  You're invited to a Study party", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithTag(PartiesTags.EMPTY).assertDoesNotExist()
+        composeTestRule.onNodeWithText("You're invited to a Darood Party", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("You're invited to a Study party", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test

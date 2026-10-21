@@ -46,24 +46,12 @@ sealed class Screen(val route: String) {
     object PartiesAddPeople : Screen("${Routes.PARTIES}/party/{partyId}/add") {
         fun createRoute(partyId: String) = "${Routes.PARTIES}/party/$partyId/add"
     }
-    /** Darood Party, from the Islamic hub. */
-    object DaroodParty : Screen("${Routes.ISLAMIC}/darood")
-    /** Starting a Darood Party. */
-    object DaroodCreate : Screen("${Routes.ISLAMIC}/darood/create")
-    /** One Darood Party's own screen (its chat). */
-    object DaroodPartyChat : Screen("${Routes.ISLAMIC}/darood/party/{partyId}") {
-        fun createRoute(partyId: String) = "${Routes.ISLAMIC}/darood/party/$partyId"
+    /** A Darood Party's room: its count, kept as a chat (mock 4E). Its own route, so the bar can hide. */
+    object DaroodRoom : Screen("${Routes.PARTIES}/darood/{partyId}") {
+        fun createRoute(partyId: String) = "${Routes.PARTIES}/darood/$partyId"
     }
     /** The Darood Party race board. */
-    object DaroodRaceBoard : Screen("${Routes.ISLAMIC}/darood/race")
-    /** A Darood Party's info: its members. */
-    object DaroodPartyInfo : Screen("${Routes.ISLAMIC}/darood/party/{partyId}/info") {
-        fun createRoute(partyId: String) = "${Routes.ISLAMIC}/darood/party/$partyId/info"
-    }
-    /** Adding people to a Darood Party by username. */
-    object DaroodAddPeople : Screen("${Routes.ISLAMIC}/darood/party/{partyId}/add") {
-        fun createRoute(partyId: String) = "${Routes.ISLAMIC}/darood/party/$partyId/add"
-    }
+    object PartiesRaceBoard : Screen("${Routes.PARTIES}/race")
     /** Claiming or changing the Darood Party username. */
     object UsernameSetup : Screen("username_setup")
     /** The Islamic section's landing screen, its cards (docs/islamic-hub.md). */
@@ -93,7 +81,7 @@ object Routes {
     /** The hub, where the Islamic section starts. */
     const val ISLAMIC_HUB = "$ISLAMIC/hub"
 
-    /** The main app's parties: the Parties screen, and every study party screen under `parties/`. */
+    /** The parties of every kind (docs/party-core.md): the hub, and every party screen under `parties/`. */
     const val PARTIES = "parties"
 
     /** Whether [route] is one of the main app's party screens. */
@@ -108,7 +96,7 @@ object Routes {
      */
     const val LEGACY_NAMAZ = "namaz"
 
-    /** Darood Party's route before the hub (1.4), kept the same way. */
+    /** Darood Party's route before the hub (1.4), kept the same way: it opens the parties. */
     const val LEGACY_DAROOD = "darood"
 
     /**
@@ -117,5 +105,5 @@ object Routes {
      */
     fun isFullScreen(route: String?): Boolean = route in FULL_SCREEN
 
-    private val FULL_SCREEN = setOf(Screen.Splash.route, Screen.Onboarding.route, Screen.QuranSurah.route, Screen.DaroodPartyChat.route)
+    private val FULL_SCREEN = setOf(Screen.Splash.route, Screen.Onboarding.route, Screen.QuranSurah.route, Screen.DaroodRoom.route)
 }

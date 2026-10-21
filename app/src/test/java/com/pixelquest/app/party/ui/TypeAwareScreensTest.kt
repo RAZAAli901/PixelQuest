@@ -12,7 +12,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.SavedStateHandle
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
-import com.pixelquest.app.darood.ui.DaroodPartyContent
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.create.CreatePartyScreen
 import com.pixelquest.app.darood.ui.create.CreatePartyViewModel
@@ -78,7 +77,7 @@ class TypeAwareScreensTest {
         var opened: String? = null
         val viewModel = CreatePartyViewModel(repository, SavedStateHandle(mapOf(CreatePartyViewModel.ARG_TYPE to "study")))
         composeTestRule.setContent {
-            PixelQuestTheme { CreatePartyScreen(onNavigateBack = {}, onCreated = { opened = it }, viewModel = viewModel) }
+            PixelQuestTheme { CreatePartyScreen(onNavigateBack = {}, onCreated = { id, _ -> opened = id }, viewModel = viewModel) }
         }
         gone(DaroodTestTags.CREATE_MILESTONE)
 
@@ -93,7 +92,7 @@ class TypeAwareScreensTest {
     @Test
     fun startingWithoutAKind_isADaroodParty_withItsMilestone() {
         composeTestRule.setContent {
-            PixelQuestTheme { CreatePartyScreen(onNavigateBack = {}, onCreated = {}, viewModel = CreatePartyViewModel(repository)) }
+            PixelQuestTheme { CreatePartyScreen(onNavigateBack = {}, onCreated = { _, _ -> }, viewModel = CreatePartyViewModel(repository)) }
         }
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_MILESTONE).assertIsDisplayed()
     }
@@ -113,21 +112,19 @@ class TypeAwareScreensTest {
     }
 
     @Test
-    fun theStudyPartiesList_saysItsOwn_withNoRaceOrWeeklyNote() {
+    fun aStudyPartysCard_saysItsKind_withNoMilestone_andNoWeeklyNoteWithoutDarood() {
         composeTestRule.setContent {
             PixelQuestTheme {
-                DaroodPartyContent(
+                PartiesContent(
                     state = DaroodPartiesUiState(signedIn = true, parties = listOf(study)),
                     onSignIn = {},
-                    onNavigateBack = null,
-                    weeklyReminder = false,
-                    kind = StudyPartyKind
+                    onOpenParty = {},
+                    onCreateParty = {},
+                    weeklyNote = false
                 )
             }
         }
-        composeTestRule.onNodeWithText("Study parties").assertIsDisplayed()
-        composeTestRule.onNodeWithText("3 members", useUnmergedTree = true).assertIsDisplayed()
-        gone(DaroodTestTags.RACE_ACTION)
+        composeTestRule.onNodeWithText("Study · 3 members", useUnmergedTree = true).assertIsDisplayed()
         gone(DaroodTestTags.WEEKLY_SWITCH)
         composeTestRule.onNodeWithText("No milestone yet", useUnmergedTree = true).assertDoesNotExist()
     }

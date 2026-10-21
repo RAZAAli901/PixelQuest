@@ -65,7 +65,7 @@ class CreatePartyLimitsUiTest {
         var opened: String? = null
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = theme, darkTheme = theme != ThemeMode.Light) {
-                CreatePartyScreen(onNavigateBack = {}, onCreated = { opened = it }, viewModel = CreatePartyViewModel(repository))
+                CreatePartyScreen(onNavigateBack = {}, onCreated = { id, _ -> opened = id }, viewModel = CreatePartyViewModel(repository))
             }
         }
         composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_NAME))).performTextInput("Friday circle")

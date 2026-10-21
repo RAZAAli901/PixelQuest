@@ -36,7 +36,7 @@ import org.robolectric.annotation.Config
 
 /**
  * Darood Party from the Deen tab, built from the same pieces as MainActivity: the tab opens the hub,
- * whose Darood card opens its screen. That asks a signed-out player to sign in (opening the Account
+ * whose Darood card opens the parties. That asks a signed-out player to sign in (opening the Account
  * screen) and shows a signed-in one their parties. With its flag off, the card is gone; a waiting
  * invitation puts a dot on the Deen tab.
  */
@@ -84,15 +84,16 @@ class DaroodDeenTabUiTest {
                         islamicGraph(nav, hub = { onOpen ->
                             val state by hub.state.collectAsState()
                             com.pixelquest.app.islamic.ui.IslamicHubContent(state, onOpen)
-                        }) {
-                            composable(Screen.DaroodParty.route) {
-                                DaroodPartyScreen(
-                                    onNavigateBack = { nav.popBackStack() },
-                                    onSignIn = { nav.navigate(Screen.Account.route) },
-                                    onOpenParty = {},
-                                    viewModel = com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel(auth, repository)
-                                )
-                            }
+                        })
+                        // Deen's Darood tile opens the parties, outside the Islamic section.
+                        composable(Screen.Parties.route) {
+                            com.pixelquest.app.party.ui.PartiesScreen(
+                                onNavigateBack = { nav.popBackStack() },
+                                onSignIn = { nav.navigate(Screen.Account.route) },
+                                onOpenParty = {},
+                                onCreateParty = {},
+                                viewModel = com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel(auth, repository)
+                            )
                         }
                         composable(Screen.Account.route) { Text("ACCOUNT SCREEN") }
                     }

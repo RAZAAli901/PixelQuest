@@ -159,7 +159,7 @@ class CreatePartyTest {
         val viewModel = viewModel()
         var opened: String? = null
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = ThemeMode.Comic) { CreatePartyScreen(onNavigateBack = {}, onCreated = { opened = it }, viewModel = viewModel) }
+            PixelQuestTheme(themeMode = ThemeMode.Comic) { CreatePartyScreen(onNavigateBack = {}, onCreated = { id, _ -> opened = id }, viewModel = viewModel) }
         }
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_BUTTON).assertIsNotEnabled()
 
@@ -188,7 +188,7 @@ class CreatePartyTest {
         waitFor { viewModel.uiState.value.error != null }
 
         composeTestRule.onNodeWithText("Choose a username first: party members see each other, and invite each other, by username.").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Choose a username").performClick()
+        composeTestRule.onNodeWithText("CHOOSE A USERNAME").performClick()
         assertEquals(1, choose)
         assertNull(viewModel.uiState.value.created)
     }

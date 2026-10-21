@@ -137,13 +137,13 @@ class StudyEndToEndTest {
         var creating = false
         val ariaList = viewModels.keep(DaroodPartiesViewModel::class.java) { DaroodPartiesViewModel(aria.auth, aria.parties, null, studyKind()) }
         screen = { PartiesScreen(onSignIn = {}, onOpenParty = {}, onCreateParty = { creating = true }, viewModel = ariaList) }
-        waitFor("Aria's Parties") { shown(com.pixelquest.app.party.ui.PartiesTags.CREATE) }
-        composeTestRule.onNodeWithTag(com.pixelquest.app.party.ui.PartiesTags.CREATE).performSemanticsAction(SemanticsActions.OnClick)
+        waitFor("Aria's Parties") { shown(com.pixelquest.app.darood.ui.DaroodTestTags.CREATE) }
+        composeTestRule.onNodeWithTag(com.pixelquest.app.darood.ui.DaroodTestTags.CREATE).performSemanticsAction(SemanticsActions.OnClick)
         waitFor("the form asked for") { creating }
 
         var party: String? = null
         val create = viewModels.keep(CreatePartyViewModel::class.java) { CreatePartyViewModel(aria.parties, studyKind()) }
-        screen = { CreatePartyScreen(onNavigateBack = {}, onCreated = { party = it }, viewModel = create) }
+        screen = { CreatePartyScreen(onNavigateBack = {}, onCreated = { id, _ -> party = id }, viewModel = create) }
         composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_NAME))).performTextInput("Physics group")
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_BUTTON).performSemanticsAction(SemanticsActions.OnClick)
         waitFor("the party") { party != null }

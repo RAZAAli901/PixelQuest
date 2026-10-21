@@ -16,8 +16,8 @@ import javax.inject.Inject
 import com.pixelquest.app.party.domain.PartyType
 
 /**
- * Darood Party on the Islamic hub (docs/islamic-hub.md): shown while its feature flag is on, with
- * the drawn bead icons the side menu's entry had. Its badge counts invitations waiting for an answer.
+ * Darood Party on Deen (docs/islamic-hub.md): shown while its feature flag is on, opening the
+ * parties. Its badge counts invitations waiting for an answer.
  */
 class DaroodIslamicItem @Inject constructor(
     private val settings: SettingsRepository,
@@ -32,7 +32,7 @@ class DaroodIslamicItem @Inject constructor(
             titleRes = R.string.darood_title,
             descriptionRes = R.string.islamic_darood_description,
             icon = IslamicIcon("📿", pixel = R.drawable.ic_darood_pixel, comic = R.drawable.ic_darood_comic),
-            route = Screen.DaroodParty.route,
+            route = Screen.Parties.route,
             enabled = available,
             badgeCount = invitations,
             badgeLabel = R.plurals.islamic_darood_badge
