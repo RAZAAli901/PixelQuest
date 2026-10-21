@@ -25,3 +25,6 @@ supabase/.env*
 
 # Local-only function settings for the Supabase test bench (docs/LOCAL_SUPABASE.md)
 supabase/functions/.env*
+
+# The Edge Functions tests' Node dependencies (supabase/functions/package.json)
+node_modules/

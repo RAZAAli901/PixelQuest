@@ -1,0 +1,9 @@
+{
+  "name": "pixelquest-functions",
+  "private": true,
+  "type": "module",
+  "description": "Node-side dependencies for the Edge Functions tests (node --test). The Deno runtime gets the same versions through each function's deno.json.",
+  "devDependencies": {
+    "chess.js": "1.4.0"
+  }
+}

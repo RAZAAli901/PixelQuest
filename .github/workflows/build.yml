@@ -24,6 +24,10 @@ jobs:
         with:
           node-version: '24'
 
+      # The chess functions' rules are chess.js (pinned in supabase/functions/package.json).
+      - name: Install the Edge Functions' test dependencies
+        run: npm ci --prefix supabase/functions --no-audit --no-fund
+
       - name: Test Edge Functions
         run: node --test "supabase/functions/**/*.test.ts"
 
