@@ -1,5 +1,7 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.ui.chat.MemberColors
+import com.pixelquest.app.ui.chat.memberColor
 import android.app.Application
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance

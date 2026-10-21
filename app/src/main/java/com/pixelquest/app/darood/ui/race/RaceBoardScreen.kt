@@ -36,7 +36,7 @@ import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.domain.RaceLine
 import com.pixelquest.app.darood.domain.rankRace
 import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.darood.ui.chat.dayDate
+import com.pixelquest.app.ui.chat.dayDate
 import com.pixelquest.app.darood.ui.formatCount
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqCard

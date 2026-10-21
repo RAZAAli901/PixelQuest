@@ -1,5 +1,8 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.ui.chat.ChatLook
+import com.pixelquest.app.ui.chat.LocalChatSimpleMode
+import com.pixelquest.app.ui.chat.chatLook
 import android.app.Application
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +30,7 @@ class ChatLookTest {
         var look: ChatLook? = null
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode) {
-                androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides simple) { look = chatLook() }
+                androidx.compose.runtime.CompositionLocalProvider(LocalChatSimpleMode provides simple) { look = chatLook() }
             }
         }
         composeTestRule.waitForIdle()

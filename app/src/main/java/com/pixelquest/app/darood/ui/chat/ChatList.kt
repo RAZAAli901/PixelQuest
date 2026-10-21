@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.ui.chat.DaySeparator
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -119,7 +120,7 @@ fun ChatList(
         ) {
             items(newestFirst, key = { it.key }) { item ->
                 when (item) {
-                    is DayItem -> DaySeparator(day = item.day, today = today)
+                    is DayItem -> DaySeparator(day = item.day, today = today, tag = DaroodTestTags.day(item.day.toString()))
                     is EntryItem -> ChatEntryRow(item = item.bubble, sender = item.bubble.entry.userId?.let(usernames::get), onRetry = onRetry)
                     is EventItem -> EventPill(item.event)
                 }
@@ -156,9 +157,9 @@ private const val OLDEST_MARGIN = 3
 @Composable
 private fun BoxScope.JumpToNewest(unseen: Int, onClick: () -> Unit) {
     val label = if (unseen > 0) {
-        stringResource(R.string.darood_chat_jump) + ", " + pluralStringResource(R.plurals.darood_chat_unseen, unseen, unseen)
+        stringResource(R.string.chat_jump) + ", " + pluralStringResource(R.plurals.chat_unseen, unseen, unseen)
     } else {
-        stringResource(R.string.darood_chat_jump)
+        stringResource(R.string.chat_jump)
     }
     Box(modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)) {
         Box(

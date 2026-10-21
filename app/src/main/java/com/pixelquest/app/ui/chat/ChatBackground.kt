@@ -1,4 +1,4 @@
-package com.pixelquest.app.darood.ui.chat
+package com.pixelquest.app.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

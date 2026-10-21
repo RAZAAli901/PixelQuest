@@ -1,5 +1,8 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.ui.chat.ChatBackground
+import com.pixelquest.app.ui.chat.LocalChatSimpleMode
+import com.pixelquest.app.ui.chat.chatLook
 import com.pixelquest.app.ui.components.PqConfirmDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -111,7 +114,7 @@ fun PartyChatScreen(
     completedAt: java.time.Instant? = null,
     startedAt: java.time.Instant? = null
 ) {
-    androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides simpleMode) {
+    androidx.compose.runtime.CompositionLocalProvider(LocalChatSimpleMode provides simpleMode) {
         PartyChatContent(
             partyName, onNavigateBack, onOpenInfo, isLeader, onAddPeople, memberCount, items, usernames, today, loadingOlder,
             onReachOldest, canPost, draft, onDraftChange, onSend, confirming, onConfirmSend, onCancelSend, onRetry, todayTotals,

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- What every party chat says (ui.chat): the Darood chat's and the study chat's alike. -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="chat_day_today">Today</string>
+    <string name="chat_day_yesterday">Yesterday</string>
+    <string name="chat_jump">Jump to the newest</string>
+    <plurals name="chat_unseen">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> new</item>
+        <item quantity="other"><xliff:g id="count" example="3">%1$d</xliff:g> new</item>
+    </plurals>
+</resources>

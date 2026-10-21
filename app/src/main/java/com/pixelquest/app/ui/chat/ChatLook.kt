@@ -1,4 +1,4 @@
-package com.pixelquest.app.darood.ui.chat
+package com.pixelquest.app.ui.chat
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +18,7 @@ import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.isPixelSkin
 
 /**
- * How a party's chat draws its pieces (mock 4E): ink round every bubble, pill and field, and a small
+ * How a party's chat draws its pieces (mock 4E), the Darood chat's and the study chat's alike: ink round every bubble, pill and field, and a small
  * hard shadow under each, in the skin's corners (square in Pixel). One place, so the whole chat
  * changes together.
  *
@@ -67,8 +67,8 @@ data class ChatLook(
         }
 }
 
-/** Simple Mode in a party's chat, provided once at its root (PartyChatScreen). */
-val LocalDaroodSimpleMode = staticCompositionLocalOf { false }
+/** Simple Mode in a party's chat, provided once at its root (each chat's screen). */
+val LocalChatSimpleMode = staticCompositionLocalOf { false }
 
 /** The chat's look in the active skin; Simple Mode keeps the ink and drops the shadows. */
 @Composable
@@ -78,6 +78,6 @@ fun chatLook(): ChatLook {
         corner = if (pixel) 0.dp else 16.dp,
         tailCorner = if (pixel) 0.dp else 4.dp,
         outline = PqDimens.BorderThin,
-        shadow = if (LocalDaroodSimpleMode.current) 0.dp else 2.dp
+        shadow = if (LocalChatSimpleMode.current) 0.dp else 2.dp
     )
 }
