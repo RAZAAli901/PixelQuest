@@ -408,6 +408,9 @@ verify_jwt = false
 [functions.request-upload]
 verify_jwt = false
 
+[functions.finalize-upload]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
