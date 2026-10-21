@@ -203,6 +203,15 @@
     <string name="study_chat_not_sent">Not sent.</string>
     <string name="study_chat_reply">Reply</string>
     <string name="study_chat_attach">Share a file</string>
+    <string name="study_file_type_pdf">PDF</string>
+    <string name="study_file_type_word">Word</string>
+    <string name="study_file_type_excel">Spreadsheet</string>
+    <string name="study_file_type_powerpoint">Slides</string>
+    <string name="study_file_type_text">Text</string>
+    <string name="study_file_type_image">Image</string>
+    <string name="study_file_by">from %1$s</string>
+    <string name="study_file_open">Open the file</string>
+    <string name="study_file_loading">A file, on its way</string>
     <string name="study_chat_upload_waiting">Waiting to send</string>
     <string name="study_chat_upload_sending">Sending, %1$d%%</string>
     <string name="study_chat_upload_sending_unknown">Sending</string>

@@ -50,6 +50,8 @@ fun MessageBubbleRow(
     onReply: (() -> Unit)? = null,
     /** Opens its menu (a long press); null for none. */
     onMenu: (() -> Unit)? = null,
+    /** Opens a shared file (a file message's); null where files aren't opened. */
+    onOpenFile: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit = {}
 ) {
     val message = row.message
@@ -73,7 +75,14 @@ fun MessageBubbleRow(
                 modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
             )
         }
-        MessageBubble(row, onMenu, content)
+        MessageBubble(row, onMenu) {
+            row.file?.let { FileCard(it, onOpen = onOpenFile, content = bubbleColors(row.mine).content, secondary = bubbleColors(row.mine).secondary) }
+            // A file message whose file the phone doesn't have yet (it's coming with the next refresh).
+            if (row.file == null && message.kind == ChatMessageKind.FILE && !message.deleted) {
+                Text(text = stringResource(R.string.study_file_loading), style = PqType.Meta.copy(color = bubbleColors(row.mine).secondary))
+            }
+            content()
+        }
         val key = message.clientId
         if (row.mine && message.sync == SyncState.FAILED && key != null) NotSentLine(onRetry = { onRetry(key) }, onDiscard = { onDiscard(key) })
     }

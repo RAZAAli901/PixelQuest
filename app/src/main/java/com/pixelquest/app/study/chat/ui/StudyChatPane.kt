@@ -49,6 +49,8 @@ data class ChatActions(
     val onAttach: ((String) -> Unit)? = null,
     val onRemoveAttachment: () -> Unit = {},
     val onCancelUpload: (String) -> Unit = {},
+    /** Opens a shared file; null where files aren't opened. */
+    val onOpenFile: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)? = null,
     val onRetryUpload: (String) -> Unit = {},
     val onDismissUpload: (String) -> Unit = {}
 )
@@ -128,7 +130,8 @@ fun StudyChatPane(
             onRetry = actions.onRetry,
             onDiscard = actions.onDiscard,
             onReply = { actions.onReply(row) },
-            onMenu = { menuFor = row }
+            onMenu = { menuFor = row },
+            onOpenFile = actions.onOpenFile
         )
     }
     menuFor?.let { row ->
@@ -247,6 +250,8 @@ object StudyChatTags {
     const val INPUT = "study_chat_input"
     const val SEND = "study_chat_send"
     const val COUNTER = "study_chat_counter"
+    const val FILE_STATUS = "study_chat_file_status"
+    fun file(id: String) = "study_chat_file_$id"
     const val UPLOAD_STATUS = "study_chat_upload_status"
     const val UPLOAD_PROGRESS = "study_chat_upload_progress"
     const val UPLOAD_CANCEL = "study_chat_upload_cancel"
