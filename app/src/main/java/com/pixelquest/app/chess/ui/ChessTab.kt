@@ -50,6 +50,7 @@ object ChessTabTags {
     const val BOARD = "chess_tab_board"
     fun challenge(id: String) = "chess_tab_challenge_$id"
     fun row(userId: String) = "chess_tab_row_$userId"
+    fun filter(tc: TimeControl?) = "chess_tab_filter_${tc?.seconds ?: "best"}"
 }
 
 /** What the Chess tab does with taps. */
@@ -98,6 +99,16 @@ fun ChessTab(state: ChessPartyState, actions: ChessTabActions) {
         }
         item(key = "board_label") {
             Text(text = stringResource(R.string.chess_tab_board).uppercase(), style = PqType.CardTitle, modifier = Modifier.semantics { heading() })
+        }
+        item(key = "board_filter") {
+            // The ladder in one time control, or by each member's best (J159).
+            Segmented(
+                options = listOf<TimeControl?>(null) + TimeControl.entries,
+                selected = state.boardTimeControl,
+                label = { tc -> if (tc == null) stringResource(R.string.chess_board_best) else stringResource(R.string.chess_minutes, tc.seconds / 60) },
+                tag = { tc -> ChessTabTags.filter(tc) },
+                onSelect = actions.onBoardTime
+            )
         }
         item(key = "board") {
             Ladder(state.leaderboard, state, onChallenge = { sheetFor = it; sheetOpen = true; actions.onPick(it) }, onOpen = actions.onOpenRival)

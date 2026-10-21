@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.pixelquest.app.chess.domain.ChessColour
 import com.pixelquest.app.chess.domain.ChessGame
 import com.pixelquest.app.chess.domain.GameStatus
@@ -57,5 +58,14 @@ class ChessTabTest {
         composeTestRule.onNodeWithText("@raza (you)").assertExists()
         composeTestRule.onNodeWithTag(ChessTabTags.CHALLENGE).performClick()
         composeTestRule.onNodeWithTag(ChallengeTags.SHEET).assertExists()
+    }
+
+    @Test
+    fun theLadder_filtersByTimeControl() {
+        val chosen = mutableListOf<TimeControl?>()
+        composeTestRule.setContent { PixelQuestTheme { ChessTab(ChessPartyState(me = "me"), ChessTabActions(onBoardTime = { chosen += it })) } }
+        composeTestRule.onNodeWithTag(ChessTabTags.filter(TimeControl.ONE)).performScrollTo().performClick()
+        composeTestRule.onNodeWithTag(ChessTabTags.filter(null)).performClick()
+        assertEquals(listOf<TimeControl?>(TimeControl.ONE, null), chosen)
     }
 }
