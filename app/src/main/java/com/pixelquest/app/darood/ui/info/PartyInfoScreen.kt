@@ -72,6 +72,8 @@ import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqDangerButton
+import androidx.compose.material.icons.rounded.Logout
 import com.pixelquest.app.ui.components.PqGroupLabel
 import com.pixelquest.app.ui.components.PqSwitch
 import com.pixelquest.app.ui.components.PqTopBar
@@ -474,9 +476,9 @@ fun PartyInfoContent(
                 style = PqType.Meta,
                 modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE_HINT)
             )
-            DestructiveButton(stringResource(R.string.darood_info_delete), enabled = !state.busy, onClick = onDelete, modifier = Modifier.testTag(DaroodTestTags.INFO_DELETE))
+            PqDangerButton(stringResource(R.string.darood_info_delete), onDelete, Modifier.testTag(DaroodTestTags.INFO_DELETE), enabled = !state.busy)
         } else {
-            DestructiveButton(stringResource(R.string.darood_info_leave), enabled = !state.busy, onClick = onLeave, modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE))
+            PqDangerButton(stringResource(R.string.darood_info_leave), onLeave, Modifier.testTag(DaroodTestTags.INFO_LEAVE), enabled = !state.busy, icon = Icons.Rounded.Logout)
         }
     }
 
@@ -591,29 +593,6 @@ private fun QuietAction(text: String, enabled: Boolean, onClick: () -> Unit, mod
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 6.dp, vertical = 6.dp)
     )
-}
-
-/**
- * Leaving or deleting the party (mock 4G): drawn in the primary text colour as an outline, never
- * filled, so it never looks like the screen's main action.
- */
-@Composable
-private fun DestructiveButton(text: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val shape = pqShape(12.dp)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        modifier = modifier
-            .heightIn(min = 44.dp)
-            .alpha(if (enabled) 1f else 0.45f)
-            .clip(shape)
-            .border(PqDimens.Border, PqColors.RedText, shape)
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .padding(horizontal = 14.dp)
-    ) {
-        Icon(Icons.Rounded.Delete, contentDescription = null, tint = PqColors.RedText, modifier = Modifier.size(20.dp))
-        Text(text = text.uppercase(), style = PqType.Button.copy(color = PqColors.RedText))
-    }
 }
 
 /**

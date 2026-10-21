@@ -1,5 +1,7 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.ui.draw.alpha
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import com.pixelquest.app.ui.theme.*
@@ -165,6 +167,29 @@ fun PqQuietButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifi
         text, style = PqType.MetaStrong.copy(color = PqColors.RedText, fontSize = 13.bsp),
         modifier = modifier.clip(pqShape(8.dp)).clickable(onClick = onClick).padding(horizontal = 6.dp, vertical = 6.dp),
     )
+}
+
+/**
+ * Something that can't be undone (leave, delete, reset): drawn in the primary text colour as an
+ * outline, never filled, so it never looks like the screen's one red action.
+ */
+@Composable
+fun PqDangerButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, icon: ImageVector = Icons.Rounded.Delete) {
+    val shape = pqShape(12.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = modifier
+            .heightIn(min = 44.dp)
+            .alpha(if (enabled) 1f else 0.45f)
+            .clip(shape)
+            .border(PqDimens.Border, PqColors.RedText, shape)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 14.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = PqColors.RedText, modifier = Modifier.size(20.dp))
+        Text(text = text.uppercase(), style = PqType.Button.copy(color = PqColors.RedText))
+    }
 }
 
 /** Back, as every v2 top bar has it: an inked square with an arrow. */

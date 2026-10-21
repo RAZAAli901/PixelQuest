@@ -1,32 +1,37 @@
 package com.pixelquest.app.ui.screens.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Cloud
+import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Policy
+import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.Undo
+import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelTheme
-import androidx.compose.ui.platform.testTag
+import com.pixelquest.app.ui.components.PixelTextField
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqDangerButton
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
 /** Settings > Look's Comic / Pixel switch. */
 const val SETTINGS_LOOK_TAG = "settings_look"
@@ -37,6 +42,7 @@ fun SettingsScreen(
     onNavigateToDifficulty: () -> Unit = {},
     onNavigateToAvatar: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
+    onNavigateBack: (() -> Unit)? = null,
     onResetComplete: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -57,80 +63,51 @@ fun SettingsScreen(
     }
 
     SettingsScreenScaffold(
+        onNavigateBack = onNavigateBack,
         accountSection = {
             val savedName = state.profile?.username ?: "PixelHero"
             val nameDraft by viewModel.nameDraft.collectAsState()
             val shownName = nameDraft ?: savedName
             val nameError = nameDraft?.let { com.pixelquest.app.domain.HeroName.error(it) }
-            com.pixelquest.app.ui.components.PixelTextField(
+            PixelTextField(
                 value = shownName,
                 onValueChange = { viewModel.onNameDraftChanged(it) },
-                label = "EDIT HERO NAME",
+                label = "Hero name",
                 placeholder = "Enter username",
                 errorText = nameError,
                 modifier = Modifier.fillMaxWidth()
             )
             if (nameDraft != null && nameDraft != savedName) {
-                PixelButton(
-                    text = "💾 SAVE NAME",
-                    onClick = { viewModel.saveName() },
-                    variant = PixelButtonVariant.YELLOW,
-                    enabled = nameError == null,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                PqButton("Save name", { viewModel.saveName() }, Modifier.fillMaxWidth(), enabled = nameError == null)
             }
-            val avatarId = state.profile?.avatarId ?: "avatar_hero"
-            val level = state.profile?.level ?: 1
-            com.pixelquest.app.ui.components.PixelAvatarFrame(
-                avatarId = avatarId,
-                level = level,
-                size = 64.dp
-            )
-            PixelButton(
-                text = "🧙 CHANGE AVATAR",
-                onClick = onNavigateToAvatar,
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                com.pixelquest.app.ui.components.PixelAvatarFrame(
+                    avatarId = state.profile?.avatarId ?: "avatar_hero",
+                    level = state.profile?.level ?: 1,
+                    size = 56.dp
+                )
+                Column(Modifier.weight(1f)) {
+                    Text(text = "Avatar", style = PqType.BodyStrong)
+                    Text(text = "Level ${state.profile?.level ?: 1}", style = PqType.Meta)
+                }
+                PqButton("Change", onNavigateToAvatar, style = PqButtonStyle.Secondary, height = 38.dp)
+            }
             val diffLevel = state.difficulty?.difficultyLevel ?: com.pixelquest.app.domain.model.DifficultyLevel.MEDIUM
-            val diffName = com.pixelquest.app.domain.DifficultyMode.getDisplayName(diffLevel)
-            androidx.compose.material3.Text(
-                text = "CURRENT DIFFICULTY: ${diffName.uppercase()}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.primary)
+            SettingLink(
+                Icons.Rounded.Tune, "Difficulty", onNavigateToDifficulty,
+                value = com.pixelquest.app.domain.DifficultyMode.getDisplayName(diffLevel),
+                enabled = !state.isSimpleModeEnabled
             )
-            PixelButton(
-                text = "🛡️ CHANGE DIFFICULTY",
-                onClick = onNavigateToDifficulty,
-                enabled = !state.isSimpleModeEnabled,
-                variant = PixelButtonVariant.YELLOW,
-                modifier = Modifier.fillMaxWidth()
-            )
-            if (state.isSimpleModeEnabled) {
-                androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(4.dp))
-                androidx.compose.material3.Text(
-                    text = DIFFICULTY_LOCKED_IN_SIMPLE_MODE,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant
-                )
-            }
-            PixelButton(
-                text = "☁️ CLOUD & LEADERBOARD",
-                onClick = onNavigateToAccount,
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (state.isSimpleModeEnabled) SettingNote(DIFFICULTY_LOCKED_IN_SIMPLE_MODE)
+            SettingLink(Icons.Rounded.Cloud, "Cloud & leaderboard", onNavigateToAccount)
         },
         notificationsSection = {
-            val notifText = if (state.isNotificationsEnabled) "🔔 NOTIFICATIONS: ON" else "🔕 NOTIFICATIONS: OFF"
-            PixelButton(
-                text = notifText,
-                onClick = {
-                    if (!state.isNotificationsEnabled) askForNotifications()
-                    viewModel.toggleNotifications(!state.isNotificationsEnabled)
-                },
-                variant = PixelButtonVariant.YELLOW,
-                modifier = Modifier.fillMaxWidth()
+            SettingSwitch(
+                "Notifications", "Reminders and nudges from PixelQuest", state.isNotificationsEnabled,
+                { on ->
+                    if (on) askForNotifications()
+                    viewModel.toggleNotifications(on)
+                }
             )
             if (state.isNotificationsEnabled) {
                 ExactAlarmPrompt(
@@ -138,30 +115,20 @@ fun SettingsScreen(
                     onAllow = { context.startActivity(viewModel.exactAlarmSettingsIntent()) }
                 )
                 val reminderSoundOn by viewModel.isReminderSoundEnabled.collectAsState()
-                PixelButton(
-                    text = if (reminderSoundOn) "🔊 REMINDER SOUND: ON" else "🔇 REMINDER SOUND: OFF",
-                    onClick = { viewModel.setReminderSoundEnabled(!reminderSoundOn) },
-                    variant = PixelButtonVariant.BLUE,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                SettingSwitch("Reminder sound", "Off, reminders arrive silently", reminderSoundOn, { viewModel.setReminderSoundEnabled(it) })
             }
-            PixelButton(
-                text = "⚙️ OS NOTIFICATION SETTINGS",
-                onClick = {
-                    val intent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = android.net.Uri.fromParts("package", context.packageName, null)
-                        addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-                    context.startActivity(intent)
-                },
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.fillMaxWidth()
-            )
+            SettingLink(Icons.Rounded.Settings, "Android's notification settings", {
+                val intent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = android.net.Uri.fromParts("package", context.packageName, null)
+                    addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(intent)
+            })
             NotificationChannelLinks()
         },
         appearanceSection = {
             // Settings > Look: UI v2's two skins (docs/ui-v2.md). The choice is kept and re-skins every screen.
-            com.pixelquest.app.ui.components.PqGroupLabel(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_settings_look))
+            com.pixelquest.app.ui.components.PqFieldLabel(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_settings_look))
             com.pixelquest.app.ui.components.PqSegmented(
                 options = listOf(
                     androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_look_comic),
@@ -171,315 +138,126 @@ fun SettingsScreen(
                 onSelect = { viewModel.setThemeMode(if (it == 1) com.pixelquest.app.ui.theme.ThemeMode.Pixel else com.pixelquest.app.ui.theme.ThemeMode.Comic) },
                 modifier = Modifier.testTag(SETTINGS_LOOK_TAG)
             )
-            val soundText = if (state.isSoundEnabled) "🔊 SFX: ON" else "🔇 SFX: OFF"
-            PixelButton(
-                text = soundText,
-                onClick = { viewModel.toggleSound(!state.isSoundEnabled) },
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.fillMaxWidth()
-            )
-            val hapticText = if (state.isHapticsEnabled) "📳 HAPTICS: ON" else "📴 HAPTICS: OFF"
-            PixelButton(
-                text = hapticText,
-                onClick = { viewModel.toggleHaptics(!state.isHapticsEnabled) },
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.fillMaxWidth()
-            )
-            val crtText = if (state.isCrtEnabled) "📺 CRT FILTER: ON" else "📺 CRT FILTER: OFF"
-            PixelButton(
-                text = crtText,
-                onClick = { viewModel.toggleCrt(!state.isCrtEnabled) },
-                variant = PixelButtonVariant.YELLOW,
-                modifier = Modifier.fillMaxWidth()
-            )
+            SettingSwitch("Sound effects", null, state.isSoundEnabled, { viewModel.toggleSound(it) })
+            SettingSwitch("Haptics", null, state.isHapticsEnabled, { viewModel.toggleHaptics(it) })
+            // The scanlines are the Pixel look's own.
+            if (state.themeMode.skin == com.pixelquest.app.ui.theme.PqSkin.Pixel) {
+                SettingSwitch("CRT filter", "Old-screen scanlines over the Pixel look", state.isCrtEnabled, { viewModel.toggleCrt(it) })
+            }
             val reduceMotionOn by viewModel.isReduceMotionEnabled.collectAsState()
-            PixelButton(
-                text = if (reduceMotionOn) "🧘 REDUCE MOTION: ON" else "🎞️ REDUCE MOTION: OFF",
-                onClick = { viewModel.setReduceMotionEnabled(!reduceMotionOn) },
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.fillMaxWidth()
-            )
+            SettingSwitch("Reduce motion", "Pulses, spinners and bounces hold still", reduceMotionOn, { viewModel.setReduceMotionEnabled(it) })
             if (!reduceMotionOn && com.pixelquest.app.ui.theme.rememberReduceMotion(appSetting = false)) {
-                Text(
-                    text = "Android's \"Remove animations\" is on, so motion is reduced anyway.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = PixelTheme.colors.onSurfaceVariant
-                )
+                SettingNote("Android's \"Remove animations\" is on, so motion is reduced anyway.")
             }
         },
         aiSection = {
             val signedIn by viewModel.isSignedIn.collectAsState()
-            androidx.compose.material3.Text(
-                text = "Personalized coaching debriefs and actionable habit suggestions generated by Google Gemini. Anonymized streak trends with zero PII.",
-                style = MaterialTheme.typography.bodySmall,
-                color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant
+            SettingNote("Personalized coaching debriefs and actionable habit suggestions generated by Google Gemini. Anonymized streak trends with zero PII.")
+            val aiSetting = com.pixelquest.app.domain.ai.AiCoachSetting.of(
+                state.isAiInsightsEnabled, com.pixelquest.app.domain.ai.AiAvailability.inThisBuild, signedIn
             )
-            androidx.compose.foundation.layout.Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-            ) {
-                androidx.compose.material3.Text(
-                    text = "FEATURE STATUS:",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.primary)
-                )
-                val aiSetting = com.pixelquest.app.domain.ai.AiCoachSetting.of(
-                    state.isAiInsightsEnabled, com.pixelquest.app.domain.ai.AiAvailability.inThisBuild, signedIn
-                )
-                androidx.compose.material3.Text(
-                    text = when (aiSetting) {
-                        com.pixelquest.app.domain.ai.AiCoachSetting.ENABLED -> "✨ ENABLED"
-                        com.pixelquest.app.domain.ai.AiCoachSetting.CAN_OPT_IN -> "🔒 DISABLED (OPT-IN)"
-                        com.pixelquest.app.domain.ai.AiCoachSetting.NEEDS_SIGN_IN -> "🔐 SIGN IN REQUIRED"
-                        com.pixelquest.app.domain.ai.AiCoachSetting.NOT_IN_THIS_BUILD -> "⛔ NOT IN THIS BUILD"
-                    },
-                    style = MaterialTheme.typography.labelMedium,
-                    color = com.pixelquest.app.ui.theme.inkOnPanel(if (state.isAiInsightsEnabled) com.pixelquest.app.ui.theme.PixelTheme.colors.tertiary else com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant)
-                )
-            }
             if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild && !signedIn) {
-                Text(
-                    text = com.pixelquest.app.domain.ai.AiErrorCopy.SIGN_IN_REQUIRED,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = PixelTheme.colors.onSurfaceVariant
-                )
-                PixelButton(
-                    text = "🔐 SIGN IN TO USE AI COACH",
-                    onClick = onNavigateToAccount,
-                    variant = PixelButtonVariant.YELLOW,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            if (state.isAiInsightsEnabled) {
-                PixelButton(
-                    text = "🔒 DISABLE AI COACH",
-                    onClick = { viewModel.disableAiInsights() },
-                    variant = PixelButtonVariant.BLUE,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                PixelButton(
-                    text = "📜 VIEW PRIVACY DISCLOSURE",
-                    onClick = { viewModel.requestEnableAiInsights() },
-                    variant = PixelButtonVariant.BLUE,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                val aiMessagesOn by viewModel.isAiReminderMessagesEnabled.collectAsState()
-                PixelButton(
-                    text = if (aiMessagesOn) "💬 AI REMINDER MESSAGES: ON" else "💬 AI REMINDER MESSAGES: OFF",
-                    onClick = {
-                        viewModel.setAiReminderMessagesEnabled(!aiMessagesOn)
-                        if (!aiMessagesOn) com.pixelquest.app.worker.EncouragementPackWorker.runNow(context)
-                    },
-                    variant = PixelButtonVariant.BLUE,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(
-                    text = "Once a day, Gemini writes a few short encouraging lines for your reminders from the same anonymous stats. Task names are never sent.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = PixelTheme.colors.onSurfaceVariant
-                )
+                SettingNote(com.pixelquest.app.domain.ai.AiErrorCopy.SIGN_IN_REQUIRED)
+                PqButton("Sign in to use AI coach", onNavigateToAccount, Modifier.fillMaxWidth())
             } else if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
-                // Signed out, the SIGN IN button above takes its place.
-                if (signedIn) {
-                    PixelButton(
-                        text = "✨ OPT IN & ENABLE AI COACH",
-                        onClick = { viewModel.requestEnableAiInsights() },
-                        variant = PixelButtonVariant.YELLOW,
-                        modifier = Modifier.fillMaxWidth()
+                // On asks first, with the privacy disclosure.
+                SettingSwitch(
+                    "AI coach",
+                    if (aiSetting == com.pixelquest.app.domain.ai.AiCoachSetting.ENABLED) "Daily debriefs are on" else "Off until you opt in",
+                    state.isAiInsightsEnabled,
+                    { on -> if (on) viewModel.requestEnableAiInsights() else viewModel.disableAiInsights() }
+                )
+                if (state.isAiInsightsEnabled) {
+                    SettingLink(Icons.Rounded.Policy, "Privacy disclosure", { viewModel.requestEnableAiInsights() })
+                    val aiMessagesOn by viewModel.isAiReminderMessagesEnabled.collectAsState()
+                    SettingSwitch(
+                        "AI reminder messages",
+                        "Once a day, Gemini writes a few short encouraging lines for your reminders from the same anonymous stats. Task names are never sent.",
+                        aiMessagesOn,
+                        { on ->
+                            viewModel.setAiReminderMessagesEnabled(on)
+                            if (on) com.pixelquest.app.worker.EncouragementPackWorker.runNow(context)
+                        }
                     )
                 }
             } else {
-                Text(
-                    text = "This build of PixelQuest has no AI service or sign-in set up, so AI Coach can't be turned on. Everything else works as usual.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = PixelTheme.colors.onSurfaceVariant
-                )
+                SettingNote("This build of PixelQuest has no AI service or sign-in set up, so AI Coach can't be turned on. Everything else works as usual.")
             }
         },
         islamicSection = { com.pixelquest.app.islamic.ui.IslamicSettingsSection() },
         simpleModeSection = {
             if (state.showSimpleModeHighlight && !state.isSimpleModeEnabled) {
-                // Lightweight, non-naggy one-time highlight (Step 36)
-                Box(
+                // A one-time tip, until dismissed.
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(PixelTheme.colors.secondary.copy(alpha = 0.15f))
-                        .border(1.dp, PixelTheme.colors.secondary, RoundedCornerShape(6.dp))
+                        .comic(bg = PqColors.Sky, radius = PqDimens.RadiusSm, border = PqDimens.BorderThin, shadow = 0.dp)
                         .padding(10.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "✨ NEW: TRY SIMPLE MODE",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = com.pixelquest.app.ui.theme.inkOnPanel(PixelTheme.colors.secondary),
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Looking for a calm, distraction-free checklist? Switch off gamification anytime.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = PixelTheme.colors.onSurface
-                            )
-                        }
-                        com.pixelquest.app.ui.components.DismissButton(
-                            contentDescription = "Dismiss the Simple Mode tip",
-                            onClick = { viewModel.dismissSimpleModeHighlight() },
-                            color = PixelTheme.colors.onSurfaceVariant
-                        )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = "New: try Simple Mode", style = PqType.BodyStrong)
+                        Text(text = "Looking for a calm, distraction-free checklist? Switch off gamification anytime.", style = PqType.Meta.copy(color = PqColors.Ink))
                     }
+                    com.pixelquest.app.ui.components.DismissButton(
+                        contentDescription = "Dismiss the Simple Mode tip",
+                        onClick = { viewModel.dismissSimpleModeHighlight() },
+                        color = PqColors.Ink
+                    )
                 }
             }
-
-            androidx.compose.material3.Text(
-                text = "Minimalist, un-gamified task tracking. Hides XP, streaks, levels, and celebration modals while preserving all background progress.",
-                style = MaterialTheme.typography.bodySmall,
-                color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurfaceVariant
+            SettingSwitch(
+                "Simple Mode",
+                if (state.isSimpleModeEnabled) {
+                    "A calm checklist: no XP, streaks, levels or celebrations. Your progress is kept, and returns when you switch it off."
+                } else {
+                    "Minimalist, un-gamified task tracking. Hides XP, streaks, levels, and celebration modals while preserving all background progress."
+                },
+                state.isSimpleModeEnabled,
+                { on -> if (on) viewModel.requestEnableSimpleMode() else viewModel.toggleSimpleMode(false) }
             )
-            androidx.compose.foundation.layout.Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
-                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-            ) {
-                androidx.compose.material3.Text(
-                    text = "MODE STATUS:",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = com.pixelquest.app.ui.theme.inkOnPanel(com.pixelquest.app.ui.theme.PixelTheme.colors.primary)
-                )
-                androidx.compose.material3.Text(
-                    text = if (state.isSimpleModeEnabled) "✨ SIMPLE (ACTIVE)" else "⚔️ GAMIFIED (ACTIVE)",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = com.pixelquest.app.ui.theme.inkOnPanel(if (state.isSimpleModeEnabled) com.pixelquest.app.ui.theme.PixelTheme.colors.secondary else com.pixelquest.app.ui.theme.PixelTheme.colors.tertiary)
-                )
-            }
-            if (state.isSimpleModeEnabled) {
-                // Polished "Switch back to Full Game Mode" affordance (Step 35)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(PixelTheme.colors.surfaceVariant.copy(alpha = 0.4f))
-                        .border(
-                            1.dp,
-                            PixelTheme.colors.gold.copy(alpha = 0.6f),
-                            RoundedCornerShape(6.dp)
-                        )
-                        .padding(12.dp)
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "🎮",
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(end = 6.dp)
-                            )
-                            Text(
-                                text = "RETURN TO ADVENTURE",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = com.pixelquest.app.ui.theme.inkOnPanel(PixelTheme.colors.gold),
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Text(
-                            text = "Restore XP bars, level milestones, streak flames, and celebration fanfares. All background progress is fully preserved.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = PixelTheme.colors.onSurfaceVariant
-                        )
-                        PixelButton(
-                            text = "🎮 SWITCH BACK TO FULL GAME MODE",
-                            onClick = {
-                                viewModel.toggleSimpleMode(false)
-                            },
-                            variant = PixelButtonVariant.YELLOW,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            } else {
-                PixelButton(
-                    text = "📋 ENABLE SIMPLE MODE",
-                    onClick = {
-                        viewModel.requestEnableSimpleMode()
-                    },
-                    variant = PixelButtonVariant.BLUE,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
         },
         dataSection = {
-            PixelButton(
-                text = "📤 EXPORT QUEST DATA (JSON)",
+            PqButton(
+                "Export quest data",
                 // Dated, so several backups can sit side by side.
-                onClick = { exportLauncher.launch("pixelquest-backup-${java.time.LocalDate.now()}.json") },
-                variant = PixelButtonVariant.YELLOW,
-                modifier = Modifier.fillMaxWidth()
+                { exportLauncher.launch("pixelquest-backup-${java.time.LocalDate.now()}.json") },
+                Modifier.fillMaxWidth(),
+                style = PqButtonStyle.Secondary,
+                icon = Icons.Rounded.Upload
             )
             val lastBackup by viewModel.lastBackupText.collectAsState()
-            if (lastBackup.isNotEmpty()) {
-                Text(
-                    text = lastBackup,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = PixelTheme.colors.onSurface
-                )
-            }
+            if (lastBackup.isNotEmpty()) SettingNote(lastBackup)
             val autoBackupDays by viewModel.autoBackupDays.collectAsState()
             if (autoBackupDays.isNotEmpty()) {
                 // Kept on the phone by AutoBackupWorker, in case of a corrupt database or a mistake.
-                Text(
-                    text = "Automatic backups on this phone (the last ${com.pixelquest.app.data.backup.AutoBackups.KEEP} days):",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = PixelTheme.colors.onSurface
-                )
+                SettingNote("Automatic backups on this phone (the last ${com.pixelquest.app.data.backup.AutoBackups.KEEP} days):")
                 autoBackupDays.forEach { day ->
-                    PixelButton(
-                        text = "↺ RESTORE " + day.format(java.time.format.DateTimeFormatter.ofPattern("d MMM", java.util.Locale.ENGLISH)).uppercase(),
-                        onClick = { viewModel.onAutoBackupSelected(day) },
-                        variant = PixelButtonVariant.BLUE,
-                        modifier = Modifier.fillMaxWidth()
+                    SettingLink(
+                        Icons.Rounded.Restore,
+                        "Restore " + day.format(java.time.format.DateTimeFormatter.ofPattern("d MMM", java.util.Locale.ENGLISH)),
+                        { viewModel.onAutoBackupSelected(day) }
                     )
                 }
             }
             val canUndoRestore by viewModel.canUndoRestore.collectAsState()
             if (canUndoRestore) {
                 // What the phone had before the last restore is kept until it's used or replaced.
-                PixelButton(
-                    text = "↩ UNDO LAST RESTORE",
-                    onClick = { viewModel.undoLastRestore() },
-                    variant = PixelButtonVariant.BLUE,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                SettingLink(Icons.Rounded.Undo, "Undo last restore", { viewModel.undoLastRestore() })
             }
-            PixelButton(
-                text = "📥 IMPORT QUEST DATA (JSON)",
-                onClick = { importLauncher.launch(arrayOf("application/json", "*/*")) },
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.fillMaxWidth()
+            PqButton(
+                "Import quest data",
+                { importLauncher.launch(arrayOf("application/json", "*/*")) },
+                Modifier.fillMaxWidth(),
+                style = PqButtonStyle.Secondary,
+                icon = Icons.Rounded.Download
             )
             val backupMessage by viewModel.backupMessage.collectAsState()
-            backupMessage?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = PixelTheme.colors.onSurface
-                )
-            }
+            backupMessage?.let { SettingNote(it) }
         },
         dangerZoneSection = {
-            PixelButton(
-                text = "🔥 RESET ALL PROGRESS",
-                onClick = { viewModel.onResetProgressClicked() },
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.fillMaxWidth()
-            )
+            SettingNote("Wipes every quest, your XP, level and streaks on this phone. It asks twice first.")
+            PqDangerButton("Reset all progress", { viewModel.onResetProgressClicked() }, icon = Icons.Rounded.DeleteForever)
         }
     )
 

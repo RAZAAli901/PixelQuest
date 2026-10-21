@@ -183,6 +183,7 @@ fun PixelNavHost(
                 onNavigateToDifficulty = { navController.navigate(Screen.DifficultySelection.route) },
                 onNavigateToAvatar = { navController.navigate(Screen.AvatarSelection.route) },
                 onNavigateToAccount = { navController.navigate(Screen.Account.route) },
+                onNavigateBack = { navController.popBackStack() },
                 onResetComplete = {
                     navController.navigate(Screen.Onboarding.route) {
                         popUpTo(0) { inclusive = true }

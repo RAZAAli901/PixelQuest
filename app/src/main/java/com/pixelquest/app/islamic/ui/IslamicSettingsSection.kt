@@ -98,18 +98,17 @@ fun IslamicSettingsContent(
     onReading: (ReadingSettings) -> Unit,
     reminders: IslamicReminders
 ) {
-    val colors = PixelTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().testTag(IslamicTestTags.SETTINGS)) {
         ToggleRow(
             stringResource(R.string.settings_islamic_show), stringResource(R.string.settings_islamic_show_body),
             hubShown, onHubShown, IslamicTestTags.SETTINGS_SHOW_HUB
         )
         Heading(stringResource(R.string.settings_islamic_quran))
-        Text(text = stringResource(R.string.settings_islamic_quran_body), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+        Text(text = stringResource(R.string.settings_islamic_quran_body), style = com.pixelquest.app.ui.theme.PqType.Meta)
         ReadingSettingsContent(settings = reading, preview = null, onChange = onReading, embedded = true)
 
         Heading(stringResource(R.string.settings_islamic_reminders))
-        Text(text = stringResource(R.string.settings_islamic_namaz_reminders), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+        Text(text = stringResource(R.string.settings_islamic_namaz_reminders), style = com.pixelquest.app.ui.theme.PqType.Meta)
         ToggleRow(
             stringResource(R.string.darood_weekly_switch), stringResource(R.string.darood_weekly_explained),
             reminders.daroodWeekly, reminders.onDaroodWeekly, IslamicTestTags.SETTINGS_DAROOD_WEEKLY
@@ -127,5 +126,5 @@ fun IslamicSettingsContent(
 
 @Composable
 private fun Heading(text: String) {
-    Text(text = text, style = MaterialTheme.typography.titleSmall, color = PixelTheme.colors.primaryText, modifier = Modifier.semantics { heading() })
+    com.pixelquest.app.ui.components.PqFieldLabel(text, Modifier.semantics { heading() })
 }
