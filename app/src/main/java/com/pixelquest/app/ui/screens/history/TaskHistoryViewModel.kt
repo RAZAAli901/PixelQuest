@@ -14,6 +14,17 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 import javax.inject.Inject
 
+/** One day of one quest in the history: done (with its XP) or missed. */
+data class TaskHistoryItem(
+    val logId: Long,
+    val taskId: Long,
+    val taskName: String,
+    val category: TaskCategory,
+    val completedDate: LocalDate,
+    val pointsAwarded: Int,
+    val wasCompleted: Boolean
+)
+
 enum class HistoryFilter {
     LAST_7_DAYS,
     LAST_30_DAYS,

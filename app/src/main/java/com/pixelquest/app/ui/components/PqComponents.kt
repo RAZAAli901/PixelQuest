@@ -6,6 +6,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -200,7 +201,8 @@ fun PqSegmented(options: List<String>, selected: Int, onSelect: (Int) -> Unit, m
             val on = i == selected
             Box(
                 Modifier.weight(1f).height(34.dp).clip(pqShape(9.dp))
-                    .background(if (on) PqColors.Ink else Color.Transparent).clickable { onSelect(i) },
+                    .background(if (on) PqColors.Ink else Color.Transparent)
+                    .selectable(selected = on, role = Role.Tab) { onSelect(i) },
                 contentAlignment = Alignment.Center,
             ) { Text(label, style = PqType.Button.copy(letterSpacing = 0.sp, color = if (on) PqColors.Paper else PqColors.Ink)) }
         }
@@ -329,7 +331,8 @@ fun QuestRow(quest: QuestUi, onToggle: () -> Unit, onClick: () -> Unit, modifier
                 ), maxLines = 1, overflow = TextOverflow.Ellipsis,
             )
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                if (quest.overdue && !quest.done) PqTag(stringResource(R.string.pq_overdue))
+                if (quest.missed) PqTag(stringResource(R.string.pq_missed), color = PqColors.Muted)
+                else if (quest.overdue && !quest.done) PqTag(stringResource(R.string.pq_overdue))
                 Text(listOfNotNull(quest.time, stringResource(quest.category.label), quest.repeatLabel).joinToString(" · "), style = PqType.Meta, maxLines = 1)
             }
         }

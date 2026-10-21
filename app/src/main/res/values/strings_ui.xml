@@ -22,6 +22,7 @@
     <string name="pq_avatar_ranger">Ranger</string>
     <!-- A quest's state, and the XP it gave ("+20"). -->
     <string name="pq_overdue">Overdue</string>
+    <string name="pq_missed">Missed</string>
     <string name="pq_xp_plus">+<xliff:g id="xp" example="20">%d</xliff:g></string>
     <string name="pq_xp_earned">+<xliff:g id="xp" example="40">%d</xliff:g> XP</string>
     <!-- A number stepper's buttons. -->
@@ -59,6 +60,7 @@
     <string name="pq_repeat_daily">Daily</string>
     <string name="pq_repeat_weekly">Weekly</string>
     <string name="pq_repeat_monthly">Monthly</string>
+    <string name="pq_repeat_once">One-time</string>
 
     <!-- Skipping a quest for today, from Home or Quests (a swipe, or TalkBack's action) -->
     <string name="pq_skip_action">Skip for today</string>
@@ -103,4 +105,33 @@
     <string name="pq_home_empty_title">No quests today</string>
     <string name="pq_home_empty_title_simple">No tasks today</string>
     <string name="pq_home_empty_body">Add one and it shows up here, with its reminder.</string>
+
+    <!-- Quests (mock 2C): today's, all of them, and the history -->
+    <string name="pq_quests_title">Quests</string>
+    <string name="pq_quests_title_simple">Tasks</string>
+    <string name="pq_quests_search">Search</string>
+    <string name="pq_quests_search_close">Close search</string>
+    <string name="pq_quests_search_hint">Search quests</string>
+    <string name="pq_quests_search_hint_simple">Search tasks</string>
+    <string name="pq_quests_tab_today">Today · <xliff:g id="count" example="4">%d</xliff:g></string>
+    <string name="pq_quests_tab_all">All quests</string>
+    <string name="pq_quests_tab_all_simple">All tasks</string>
+    <string name="pq_quests_tab_history">History</string>
+    <string name="pq_quests_morning">Morning</string>
+    <string name="pq_quests_afternoon">Afternoon</string>
+    <string name="pq_quests_evening">Evening</string>
+    <!-- A group's label: "Evening · 2 left", "Morning · 2 done", "Daily · 3". -->
+    <string name="pq_quests_group_left"><xliff:g id="part" example="Evening">%1$s</xliff:g> · <xliff:g id="count" example="2">%2$d</xliff:g> left</string>
+    <string name="pq_quests_group_done"><xliff:g id="part" example="Morning">%1$s</xliff:g> · <xliff:g id="count" example="2">%2$d</xliff:g> done</string>
+    <string name="pq_quests_group_count"><xliff:g id="kind" example="Daily">%1$s</xliff:g> · <xliff:g id="count" example="3">%2$d</xliff:g></string>
+    <string name="pq_quests_empty_today">Nothing scheduled today.</string>
+    <string name="pq_quests_empty_all">No quests yet. Add one with the button below.</string>
+    <string name="pq_quests_no_match">Nothing matches “<xliff:g id="query" example="gym">%s</xliff:g>”.</string>
+    <string name="pq_history_today">Today</string>
+    <string name="pq_history_yesterday">Yesterday</string>
+    <string name="pq_history_7_days">7 days</string>
+    <string name="pq_history_30_days">30 days</string>
+    <string name="pq_history_all_time">All time</string>
+    <string name="pq_history_more">Show more</string>
+    <string name="pq_history_empty">Nothing here yet. What you finish or miss shows up here.</string>
 </resources>

@@ -9,7 +9,7 @@ import kotlin.math.min
 import kotlin.math.pow
 
 /**
- * Step 33: Verify empty states (EmptyTasksState, Leaderboard not-signed-in state,
+ * Step 33: Verify empty states (Leaderboard not-signed-in state,
  * LevelHistoryScreen's empty state) render correctly with compliant contrast in light mode.
  */
 class EmptyStatesLightModeTest {
@@ -25,17 +25,6 @@ class EmptyStatesLightModeTest {
         val l1 = calculateLuminance(c1)
         val l2 = calculateLuminance(c2)
         return (max(l1, l2) + 0.05) / (min(l1, l2) + 0.05)
-    }
-
-    @Test
-    fun testEmptyTasksState_lightModeContrastCompliance() {
-        val scheme = DefaultLightColorScheme
-        // EmptyTasksState uses primary for title and onSurfaceVariant for message over surface (card fill)
-        val titleContrast = calculateContrastRatio(scheme.primary, scheme.surface)
-        val messageContrast = calculateContrastRatio(scheme.onSurfaceVariant, scheme.surface)
-
-        assertTrue("EmptyTasksState title contrast on surface ($titleContrast) must be >= 4.5:1", titleContrast >= 4.5)
-        assertTrue("EmptyTasksState message contrast on surface ($messageContrast) must be >= 4.5:1", messageContrast >= 4.5)
     }
 
     @Test

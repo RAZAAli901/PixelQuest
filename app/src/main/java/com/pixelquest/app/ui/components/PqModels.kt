@@ -42,6 +42,8 @@ enum class QuestCategory(@StringRes val label: Int, val icon: ImageVector, priva
  *
  * @param time its scheduled time, already formatted ("21:00"), or null.
  * @param repeatLabel how it repeats ("Daily"), or null for a one-time quest.
+ * @param overdue past its time today and not done yet.
+ * @param missed a day gone by without it (Quests > History).
  */
 data class QuestUi(
     val id: Long,
@@ -52,6 +54,7 @@ data class QuestUi(
     val done: Boolean = false,
     val overdue: Boolean = false,
     val xp: Int = 0,
+    val missed: Boolean = false,
 )
 
 data class QuestGroupUi(val title: String, val quests: List<QuestUi>)

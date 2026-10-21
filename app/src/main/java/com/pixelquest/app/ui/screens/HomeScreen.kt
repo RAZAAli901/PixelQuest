@@ -208,11 +208,7 @@ fun HomeScreen(
     Box(Modifier.fillMaxSize().background(PqColors.Ground)) {
         (today as? TodayUiState.Success)?.let { state ->
             val time = rememberPrayerTimeFormatter()
-            val labels = mapOf(
-                RecurrenceType.DAILY to stringResource(R.string.pq_repeat_daily),
-                RecurrenceType.WEEKLY to stringResource(R.string.pq_repeat_weekly),
-                RecurrenceType.MONTHLY to stringResource(R.string.pq_repeat_monthly),
-            )
+            val labels = repeatLabels()
             val home = remember(state, time, labels) { state.toHomeUi(time) { labels[it] } }
             HomeContent(
                 state = home,
@@ -282,15 +278,7 @@ fun HomeContent(
     studySection: @Composable () -> Unit = {},
 ) {
     var toSkip by remember { mutableStateOf<QuestUi?>(null) }
-    toSkip?.let { quest ->
-        PqConfirmDialog(
-            title = stringResource(if (state.isSimpleMode) R.string.pq_skip_title_simple else R.string.pq_skip_title),
-            message = stringResource(R.string.pq_skip_message, quest.title),
-            confirm = stringResource(R.string.pq_skip_confirm),
-            onConfirm = { toSkip = null; onSkipQuest(quest) },
-            onDismiss = { toSkip = null },
-        )
-    }
+    toSkip?.let { quest -> SkipQuestDialog(quest, state.isSimpleMode, onSkip = { toSkip = null; onSkipQuest(quest) }, onDismiss = { toSkip = null }) }
 
     LazyColumn(
         modifier.fillMaxSize().background(PqColors.Ground).testTag(HomeTags.SCREEN),
@@ -323,7 +311,7 @@ fun HomeContent(
                 PqSectionHeader(stringResource(R.string.pq_home_up_next), action = stringResource(R.string.pq_home_see_all), onAction = onSeeAllQuests)
             }
             items(state.upNext, key = { it.id }) { quest ->
-                SkippableQuestRow(quest, onComplete = { onCompleteQuest(quest) }, onSkip = { toSkip = quest }, onClick = { onQuestClick(quest) })
+                SkippableQuestRow(quest, HomeTags.quest(quest.id), onComplete = { onCompleteQuest(quest) }, onSkip = { toSkip = quest }, onClick = { onQuestClick(quest) })
             }
         }
         if (state.doneToday.isNotEmpty()) {
@@ -335,10 +323,25 @@ fun HomeContent(
     }
 }
 
-/** A quest still to do: its circle completes it; swiped left, it asks to skip it. */
+/** Asks before skipping [quest] for today: it counts as not done, but can still be done later today. */
+@Composable
+internal fun SkipQuestDialog(quest: QuestUi, isSimpleMode: Boolean, onSkip: () -> Unit, onDismiss: () -> Unit) {
+    PqConfirmDialog(
+        title = stringResource(if (isSimpleMode) R.string.pq_skip_title_simple else R.string.pq_skip_title),
+        message = stringResource(R.string.pq_skip_message, quest.title),
+        confirm = stringResource(R.string.pq_skip_confirm),
+        onConfirm = onSkip,
+        onDismiss = onDismiss,
+    )
+}
+
+/**
+ * A quest still to do today (Home, and Quests' Today): its circle completes it; swiped left, or
+ * with TalkBack's action, it asks to skip it.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SkippableQuestRow(quest: QuestUi, onComplete: () -> Unit, onSkip: () -> Unit, onClick: () -> Unit) {
+internal fun SkippableQuestRow(quest: QuestUi, tag: String, onComplete: () -> Unit, onSkip: () -> Unit, onClick: () -> Unit) {
     val skipLabel = stringResource(R.string.pq_skip_action)
     val swipe = rememberSwipeToDismissBoxState(confirmValueChange = { value ->
         if (value == SwipeToDismissBoxValue.EndToStart) onSkip()
@@ -354,7 +357,7 @@ private fun SkippableQuestRow(quest: QuestUi, onComplete: () -> Unit, onSkip: ()
             ) { Text(skipLabel.uppercase(), style = PqType.Button) }
         },
         modifier = Modifier
-            .testTag(HomeTags.quest(quest.id))
+            .testTag(tag)
             .semantics { customActions = listOf(CustomAccessibilityAction(skipLabel) { onSkip(); true }) },
     ) {
         QuestRow(quest, onToggle = { if (!quest.done) onComplete() }, onClick = onClick)

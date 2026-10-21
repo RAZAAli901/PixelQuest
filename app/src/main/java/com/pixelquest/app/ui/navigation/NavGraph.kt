@@ -20,7 +20,6 @@ import com.pixelquest.app.ui.screens.HomeScreen
 import com.pixelquest.app.ui.screens.ProfileScreen
 import com.pixelquest.app.ui.screens.SplashScreen
 import com.pixelquest.app.ui.screens.StatsScreen
-import com.pixelquest.app.ui.screens.TasksScreen
 import com.pixelquest.app.ui.screens.tasks.CreateTaskScreen
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 
@@ -95,13 +94,10 @@ fun PixelNavHost(
             )
         }
         composable(Screen.Tasks.route) {
-            TasksScreen(
-                onNavigateToCreateTask = {
-                    navController.navigate(Screen.CreateTask.route)
-                },
-                onNavigateToEditTask = { taskId ->
-                    navController.navigate(Screen.EditTask.createRoute(taskId))
-                }
+            com.pixelquest.app.ui.screens.QuestsScreen(
+                onNewQuest = { navController.navigate(Screen.CreateTask.route) },
+                onEditQuest = { taskId -> navController.navigate(Screen.EditTask.createRoute(taskId)) },
+                onOpenHistoryQuest = { taskId -> navController.navigate(Screen.TaskAnalytics.createRoute(taskId)) }
             )
         }
         composable(
@@ -197,11 +193,14 @@ fun PixelNavHost(
                 onBackClick = { navController.popBackStack() }
             )
         }
+        // Hero's Quest history: Quests, open at its History, with a way back to Hero.
         composable(Screen.TaskHistory.route) {
-            com.pixelquest.app.ui.screens.history.TaskHistoryScreen(
-                onTaskClick = { taskId ->
-                    navController.navigate(Screen.TaskAnalytics.createRoute(taskId))
-                }
+            com.pixelquest.app.ui.screens.QuestsScreen(
+                initialTab = com.pixelquest.app.ui.screens.QuestTab.History,
+                onNavigateBack = { navController.popBackStack() },
+                onNewQuest = { navController.navigate(Screen.CreateTask.route) },
+                onEditQuest = { taskId -> navController.navigate(Screen.EditTask.createRoute(taskId)) },
+                onOpenHistoryQuest = { taskId -> navController.navigate(Screen.TaskAnalytics.createRoute(taskId)) }
             )
         }
         composable(
