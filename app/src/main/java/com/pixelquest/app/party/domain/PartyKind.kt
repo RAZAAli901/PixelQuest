@@ -18,7 +18,7 @@ enum class PartyType(val wire: String) {
 }
 
 /** A tab on a party's own screen. Each kind shows its own ([PartyKind.tabs]). */
-enum class PartyTab { CHAT, PEOPLE, THIS_WEEK, ALL_ITEMS, SCOREBOARD }
+enum class PartyTab { CHAT, PEOPLE, THIS_WEEK, ALL_ITEMS, SCOREBOARD, FILES }
 
 /**
  * What a kind of party may do beyond the shared core, as its server allows it.

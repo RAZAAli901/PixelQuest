@@ -129,7 +129,7 @@ class NewScreensAccessibilityTest(private val fontScale: Float) {
     fun everyTab_ofTheStudyParty() {
         val tab = androidx.compose.runtime.mutableStateOf(PartyTab.THIS_WEEK)
         check({ StudyPartyContent(state.copy(tab = tab.value), onNavigateBack = {}, onOpenInfo = {}) })
-        for (next in listOf(PartyTab.ALL_ITEMS, PartyTab.SCOREBOARD, PartyTab.PEOPLE)) {
+        for (next in listOf(PartyTab.ALL_ITEMS, PartyTab.SCOREBOARD, PartyTab.CHAT, PartyTab.FILES, PartyTab.PEOPLE)) {
             tab.value = next
             composeTestRule.waitForIdle()
             assertEquals(next.name, emptyList<String>(), problems())

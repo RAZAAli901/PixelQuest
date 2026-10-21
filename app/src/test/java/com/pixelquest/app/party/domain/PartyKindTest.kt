@@ -38,7 +38,7 @@ class PartyKindTest {
         assertTrue(DaroodPartyKind.rules.milestone && DaroodPartyKind.rules.raceBoard)
         assertFalse(StudyPartyKind.rules.milestone || StudyPartyKind.rules.raceBoard)
         assertEquals(PartyTab.PEOPLE, DaroodPartyKind.tabs.last())
-        assertEquals(listOf(PartyTab.THIS_WEEK, PartyTab.ALL_ITEMS, PartyTab.SCOREBOARD, PartyTab.PEOPLE), StudyPartyKind.tabs)
+        assertEquals(listOf(PartyTab.THIS_WEEK, PartyTab.ALL_ITEMS, PartyTab.SCOREBOARD, PartyTab.CHAT, PartyTab.FILES, PartyTab.PEOPLE), StudyPartyKind.tabs)
     }
 
     @Test

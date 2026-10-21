@@ -1,6 +1,9 @@
 package com.pixelquest.app.study.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -90,7 +93,9 @@ fun StudyPartyScreen(
     onOpenItem: (String) -> Unit = {},
     viewModel: StudyPartyViewModel = hiltViewModel(),
     /** The party's reminders (docs/study-reminders.md); without one (a test), the screen has none. */
-    remindersViewModel: StudyRemindersViewModel? = null
+    remindersViewModel: StudyRemindersViewModel? = null,
+    /** The party's chat (docs/study-chat.md); without one (a test), its Chat and Files tabs are empty. */
+    chatViewModel: com.pixelquest.app.study.chat.ui.StudyChatViewModel? = null
 ) {
     val state by viewModel.uiState.collectAsState()
     val reminderState by (remindersViewModel?.uiState ?: remember { kotlinx.coroutines.flow.MutableStateFlow(ReminderUiState()) }).collectAsState()
@@ -101,6 +106,15 @@ fun StudyPartyScreen(
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(lifecycle, viewModel) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { viewModel.followWhileVisible() }
+    }
+    val chatState by (chatViewModel?.uiState ?: remember { kotlinx.coroutines.flow.MutableStateFlow(com.pixelquest.app.study.chat.ui.ChatUiState()) }).collectAsState()
+    // The chat is followed live, and read, only while its tab is on screen.
+    val chatShown = state.tab == PartyTab.CHAT
+    LaunchedEffect(lifecycle, chatViewModel, chatShown) {
+        if (chatViewModel != null && chatShown) lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { chatViewModel.followWhileVisible() }
+    }
+    LaunchedEffect(chatViewModel, chatShown, chatState.rows.lastOrNull()?.message?.id) {
+        if (chatViewModel != null && chatShown && chatState.loaded) chatViewModel.markRead()
     }
     StudyPartyContent(
         state = state,
@@ -134,6 +148,20 @@ fun StudyPartyScreen(
             weeklySummary,
             { on -> if (on) askForNotifications(); viewModel.setWeeklySummary(on) }
         ),
+        chatState = chatViewModel?.let { chatState },
+        chatActions = chatViewModel?.let { vm ->
+            com.pixelquest.app.study.chat.ui.ChatActions(
+                onDraftChange = vm::changeDraft,
+                onSend = vm::send,
+                onReply = vm::replyTo,
+                onCancelReply = vm::cancelReply,
+                onDelete = { vm.delete(it.id) },
+                onRetry = vm::retry,
+                onDiscard = vm::discard,
+                onReachOldest = vm::loadOlder,
+                onDismissNotice = vm::dismissNotice
+            )
+        } ?: com.pixelquest.app.study.chat.ui.ChatActions(),
         reminderState = reminderState,
         reminderActions = remindersViewModel?.let { vm ->
             ReminderActions(
@@ -190,10 +218,13 @@ fun StudyPartyContent(
     reminders: ReminderToggles = ReminderToggles(),
     reminderState: ReminderUiState = ReminderUiState(),
     /** Null when the screen has no reminders (a test without them): no Add reminder. */
-    reminderActions: ReminderActions? = null
+    reminderActions: ReminderActions? = null,
+    /** Null when the screen has no chat (a test without one). */
+    chatState: com.pixelquest.app.study.chat.ui.ChatUiState? = null,
+    chatActions: com.pixelquest.app.study.chat.ui.ChatActions = com.pixelquest.app.study.chat.ui.ChatActions()
 ) {
-    CompositionLocalProvider(LocalStudySimpleMode provides state.simpleMode) {
-        StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders, reminderState, reminderActions)
+    CompositionLocalProvider(LocalStudySimpleMode provides state.simpleMode, com.pixelquest.app.ui.chat.LocalChatSimpleMode provides state.simpleMode) {
+        StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders, reminderState, reminderActions, chatState, chatActions)
     }
 }
 
@@ -218,7 +249,9 @@ private fun StudyPartyScaffold(
     onDismissWinners: () -> Unit,
     reminders: ReminderToggles,
     reminderState: ReminderUiState,
-    reminderActions: ReminderActions?
+    reminderActions: ReminderActions?,
+    chatState: com.pixelquest.app.study.chat.ui.ChatUiState?,
+    chatActions: com.pixelquest.app.study.chat.ui.ChatActions
 ) {
     Scaffold(
         containerColor = PqColors.Ground,
@@ -305,6 +338,17 @@ private fun StudyPartyScaffold(
             StudyTabRow(tabs = state.tabs, selected = state.tab, onSelect = onSelectTab)
             state.notice?.let { NoticeLine(it, onDismissNotice) }
             reminderState.notice?.let { ReminderNoticeLine(it, reminderActions?.onDismissNotice ?: {}) }
+            // The chat is a messaging app's list, newest at the bottom, with its own input: not a pulled list.
+            if (state.tab == PartyTab.CHAT) {
+                Box(modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab))) {
+                    com.pixelquest.app.study.chat.ui.StudyChatPane(
+                        state = chatState ?: com.pixelquest.app.study.chat.ui.ChatUiState(loaded = true),
+                        zone = java.time.ZoneId.systemDefault(),
+                        actions = chatActions
+                    )
+                }
+                return@Column
+            }
             PartyRefreshBox(refreshing = state.refreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     // Room at the end for the Add item button over the last card.
@@ -349,6 +393,7 @@ private fun StudyPartyScaffold(
                             reminderToggles(reminders, simpleMode = state.simpleMode)
                             if (reminderActions != null) reminderMutes(reminderState, reminderActions)
                         }
+                        PartyTab.FILES -> sharedFiles(chatState?.files.orEmpty())
                         PartyTab.CHAT -> Unit
                     }
                 }
@@ -361,6 +406,8 @@ private fun StudyPartyScaffold(
 @Composable
 private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (PartyTab) -> Unit) {
     val shape = pqShape(12.dp)
+    // Up to four share the bar; more, as a study party has, scroll along it, each its own width.
+    val fits = tabs.size <= 4
     Row(
         horizontalArrangement = Arrangement.spacedBy(3.dp),
         modifier = Modifier
@@ -369,6 +416,7 @@ private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (Par
             .clip(shape)
             .background(PqColors.Paper)
             .border(PqDimens.Border, PqColors.Ink, shape)
+            .then(if (fits) Modifier else Modifier.horizontalScroll(rememberScrollState()))
             .padding(3.dp)
             .selectableGroup()
     ) {
@@ -377,8 +425,8 @@ private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (Par
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .weight(1f)
-                    .heightIn(min = 40.dp)
+                    .then(if (fits) Modifier.weight(1f) else Modifier.widthIn(min = 72.dp))
+                    .heightIn(min = 48.dp)
                     .clip(pqShape(9.dp))
                     .background(if (isSelected) PqColors.Ink else PqColors.Paper)
                     .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab) })
@@ -389,7 +437,7 @@ private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (Par
                     style = PqType.MetaStrong.copy(color = if (isSelected) PqColors.Paper else PqColors.Ink),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
-                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(horizontal = if (fits) 4.dp else 12.dp, vertical = 8.dp)
                 )
             }
         }
@@ -401,7 +449,8 @@ fun tabLabel(tab: PartyTab): Int = when (tab) {
     PartyTab.ALL_ITEMS -> R.string.study_tab_all_items
     PartyTab.SCOREBOARD -> R.string.study_tab_scoreboard
     PartyTab.PEOPLE -> R.string.study_tab_people
-    PartyTab.CHAT -> R.string.party_study_title
+    PartyTab.CHAT -> R.string.study_tab_chat
+    PartyTab.FILES -> R.string.study_tab_files
 }
 
 @Composable
@@ -608,6 +657,17 @@ private fun LazyListScope.reminderToggles(reminders: ReminderToggles, simpleMode
 }
 
 /** A setting that's on or off: its name, a line about it, and a switch; the whole row toggles it. */
+/** The party's shared files, newest first; their own tab comes with its search and filters. */
+private fun LazyListScope.sharedFiles(files: List<com.pixelquest.app.study.chat.domain.ChatFile>) {
+    if (files.isEmpty()) {
+        emptyLine(R.string.study_files_empty, loaded = true)
+        return
+    }
+    items(files, key = { "file_" + it.id }) { file ->
+        Text(text = file.displayName, style = PqType.BodyStrong, modifier = Modifier.fillMaxWidth().testTag("study_file_" + file.id))
+    }
+}
+
 /** Study reminders' switches on this phone: all of them, and this party's (docs/study-reminders.md, Channel). */
 private fun LazyListScope.reminderMutes(state: ReminderUiState, actions: ReminderActions) {
     item(key = "reminder_alerts") {

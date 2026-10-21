@@ -88,6 +88,7 @@ class StudyChatViewModel @Inject constructor(
         ChatUiState(
             loaded = ready,
             rows = rows,
+            files = files.filter { it.status == com.pixelquest.app.study.chat.domain.ChatFileStatus.READY },
             draft = text,
             replyingTo = replyId?.let { id -> rows.firstOrNull { it.message.id == id } },
             myId = me,

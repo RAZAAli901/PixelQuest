@@ -224,7 +224,7 @@ class StudyPartyViewModelTest {
             StudyPartyViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), parties, repo, simple, timer)
         }.also { watching = it.uiState.launchIn(MainScope()) }
         waitFor("loaded, simply") { vm.uiState.value.loaded && vm.uiState.value.simpleMode }
-        assertEquals(listOf(com.pixelquest.app.party.domain.PartyTab.THIS_WEEK, com.pixelquest.app.party.domain.PartyTab.ALL_ITEMS, com.pixelquest.app.party.domain.PartyTab.PEOPLE), vm.uiState.value.tabs)
+        assertEquals(listOf(com.pixelquest.app.party.domain.PartyTab.THIS_WEEK, com.pixelquest.app.party.domain.PartyTab.ALL_ITEMS, com.pixelquest.app.party.domain.PartyTab.CHAT, com.pixelquest.app.party.domain.PartyTab.FILES, com.pixelquest.app.party.domain.PartyTab.PEOPLE), vm.uiState.value.tabs)
         vm.selectTab(com.pixelquest.app.party.domain.PartyTab.SCOREBOARD)
         shadowOf(Looper.getMainLooper()).idle()
         assertEquals(com.pixelquest.app.party.domain.PartyTab.THIS_WEEK, vm.uiState.value.tab)

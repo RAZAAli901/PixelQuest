@@ -21,6 +21,8 @@ data class ChatMessageRow(
 data class ChatUiState(
     val loaded: Boolean = false,
     val rows: List<ChatMessageRow> = emptyList(),
+    /** The party's shared files, ready and not deleted, newest first (the Files tab). */
+    val files: List<ChatFile> = emptyList(),
     val draft: String = "",
     /** The message the next one answers, chosen with Reply. */
     val replyingTo: ChatMessageRow? = null,
