@@ -890,3 +890,26 @@ Every release from v1.0.0 to 1.4.0 used `java.time` without core library desugar
 - **Darood Party signed in, on Android 7.** It needs an account on the live project, so it wasn't tried. Lint finds no call there that Android 7 lacks.
 - **Quest reminders and workers** firing on Android 7.
 
+
+## Section Q -- 1.5.0: the Islamic section, the Quran and study parties
+
+Phases A to F of the Islamic hub plan (I001 to I150), released as 1.5.0 (versionCode 106) on 2026-10-21.
+
+### Builds and tests
+- **Unit tests:** 2,080, 0 failing. The 19 skipped need the local Supabase stack; the study and party ones were run against it (LocalSupabaseStudyTest, 2/2).
+- **Server tests:** `supabase/tests/local/darood_parties.test.ts`, 27/27 on the local stack, including the privacy sweep of every party table.
+- **Quran data:** `:tools:quran-build:test` passes: the sources are Tanzil's files byte for byte, and the bundled files are exactly what they build (114 surahs, 6,236 ayahs).
+- **Lint:** `lintDebug` passes.
+- **Release build:** `assembleRelease` with R8 and the release key (the same certificate as 1.4.1's, SHA-256 `9a84b2cf...acbb8`). The APK is 7,381,270 bytes, within its 8 MB budget; the Quran's files in it are 558,690 bytes, within 700 KB.
+- **Hosted Supabase:** migrations 20261019000035 to 000044 pushed on 2026-10-21; up to date, and every study table, and `close_study_week`, refuse a signed-out caller (401).
+
+### Installed over 1.4.1 on the Android 7.0 emulator (`PixelQuest_API24`, port 5556)
+1.4.0 can't run on Android 7 (Section P), so its data can't be made there; 1.4.1 keeps the same data (database version 12), so 1.5.0 was installed over that.
+- **1.4.1** (built from tag v1.4.1, release key), installed fresh: onboarding as "Upgrader", Medium; its three starter quests; Read 15 Pages marked done. Home: 50 XP, level 1, 33% of 70%.
+- **1.5.0, installed over it at once:** the same 50 XP, level 1, 33%; the same three quests, Read 15 Pages done; the hero's name in the side menu, which now has Islamic and Parties. The Quran loaded in the background (QuranImportWorker, about 3 seconds).
+- **New on Android 7:** the Islamic hub, with its first-run tip, dismissed with Got it; the Quran's surah list and tip; Al-Fatihah with the Amiri Arabic, the translation and the ayah markers. The log had no crash. The emulator was shut down afterwards.
+- **A first try was set aside:** the emulator's earlier 1.4.1 data was left open on Home for 15 minutes before the install, and 1.5.0 then showed every quest done. The log shows no app work completing quests in that time; the run above, with nothing in between, kept everything exactly. A tap on the visible emulator window is the likely cause.
+
+### Not verified
+- **Study parties and Darood signed in on a phone:** they need accounts on the live project. Both are covered end to end in tests, and against the local stack.
+- **Installing over 1.4.0 on Android 8 and later:** the API34 emulator holds a debug install, which a release build mustn't replace. DatabaseUpgradeTest covers every database version from 1 to 17.
