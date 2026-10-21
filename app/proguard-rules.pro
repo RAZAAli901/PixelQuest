@@ -29,6 +29,8 @@
 -keep class com.pixelquest.app.party.data.remote.** { *; }
 # Study parties' Supabase DTOs (study/data/remote), like the other parties'.
 -keep class com.pixelquest.app.study.data.remote.** { *; }
+# The study chat's DTOs and its functions' answers (study/chat/data/remote).
+-keep class com.pixelquest.app.study.chat.data.remote.** { *; }
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 -keepclassmembers class * {
     @kotlinx.serialization.Serializable <fields>;

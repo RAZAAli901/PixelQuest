@@ -19,7 +19,7 @@ The owner's plan is `C:\Users\tipto\Downloads\Study Chat, Darood Weekly Ranking 
 | Phase | Items | State |
 |---|---|---|
 | A: Study reminders | J001–J020 | Done, tested, on main |
-| B: Study chat with file uploads | J021–J065 | J021–J061 done; **J062–J065 left: see NEXT-J062.md** |
+| B: Study chat with file uploads | J021–J065 | Done (J021–J065), tested, on main |
 | C: Darood weekly ranking and goal extension | J066–J090 | Not started |
 | D: Chess backend | J091–J135 | Not started |
 | E: Plug in the chess UI | J136–J165 | Not started. The owner's UI is in `C:\Users\tipto\Downloads\chess-design\`; per the plan it goes into `/chess-ui` at the repo root before Phase E |
@@ -27,12 +27,12 @@ The owner's plan is `C:\Users\tipto\Downloads\Study Chat, Darood Weekly Ranking 
 
 ## Exactly where it stopped
 
-- The last plan commit is J061 (`e31c9ddc`): chat styling, plus a crash fix.
-- **Next: J062.** The full brief, through J180, is in [NEXT-J062.md](NEXT-J062.md).
+- The last plan commit is J065 (`c0c5d3c3`). Phase B is done.
+- **Next: J066, the start of Phase C** (Darood weekly ranking). The pointers for Phases C–F are at the end of [NEXT-J062.md](NEXT-J062.md).
 
 ## The server
 
-- **Hosted Supabase has migrations through `20261019000065`.** `066` (reports and blocks) is local only.
+- **Hosted Supabase has migrations through `20261019000066`.** The next one is `067`.
 - **Every hosted push needs the owner's OK.**
 - **Deployed Edge Functions:** `request-upload`, `finalize-upload`, `get-download-url`, `cleanup-uploads` (all with `--no-verify-jwt`; each checks the caller itself), plus the older `gemini-proxy`.
 - **No schedule calls `cleanup-uploads` yet.** `request-upload` runs a small cleanup round on each call instead. A schedule needs the service key stored in the hosted database, which needs the owner's OK.

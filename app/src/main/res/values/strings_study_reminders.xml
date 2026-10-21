@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Study reminders (docs/study-reminders.md): the Create reminder sheet, the This week banner,
      the alerts and their channel. -->
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="study_reminder_add">Add reminder</string>
     <string name="study_reminder_create">Create reminder</string>
     <string name="study_reminder_edit">Edit reminder</string>
@@ -22,7 +22,7 @@
     <string name="study_reminder_when_time">A day and time</string>
     <string name="study_reminder_week_this">This week</string>
     <string name="study_reminder_week_next">Next week</string>
-    <string name="study_reminder_week_of">Week of %1$s</string>
+    <string name="study_reminder_week_of">Week of <xliff:g id="value1" example="x">%1$s</xliff:g></string>
 
     <string name="study_reminder_field_repeat">Repeat</string>
     <string name="study_reminder_repeat_none">Once</string>
@@ -43,16 +43,16 @@
     <string name="study_reminder_alerts_locked">Its alerts are set by the person who made it.</string>
     <string name="study_reminder_alert_at_start">When it starts</string>
     <plurals name="study_reminder_alert_minutes">
-        <item quantity="one">%d minute before</item>
-        <item quantity="other">%d minutes before</item>
+        <item quantity="one"><xliff:g id="value1" example="3">%d</xliff:g> minute before</item>
+        <item quantity="other"><xliff:g id="value1" example="3">%d</xliff:g> minutes before</item>
     </plurals>
     <plurals name="study_reminder_alert_hours">
-        <item quantity="one">%d hour before</item>
-        <item quantity="other">%d hours before</item>
+        <item quantity="one"><xliff:g id="value1" example="3">%d</xliff:g> hour before</item>
+        <item quantity="other"><xliff:g id="value1" example="3">%d</xliff:g> hours before</item>
     </plurals>
     <plurals name="study_reminder_alert_days">
-        <item quantity="one">%d day before</item>
-        <item quantity="other">%d days before</item>
+        <item quantity="one"><xliff:g id="value1" example="3">%d</xliff:g> day before</item>
+        <item quantity="other"><xliff:g id="value1" example="3">%d</xliff:g> days before</item>
     </plurals>
     <string name="study_reminder_alert_week">A week before</string>
 
@@ -63,16 +63,16 @@
     <string name="study_reminder_problem_zone">Your phone\'s time zone isn\'t one the party knows.</string>
 
     <string name="study_reminder_banner_title">Reminders this week</string>
-    <string name="study_reminder_banner_line">%1$s: %2$s</string>
+    <string name="study_reminder_banner_line"><xliff:g id="value1" example="x">%1$s</xliff:g>: <xliff:g id="value2" example="x">%2$s</xliff:g></string>
     <string name="study_reminder_all_week">All week</string>
-    <string name="study_reminder_day_time">%1$s, %2$s</string>
+    <string name="study_reminder_day_time"><xliff:g id="value1" example="x">%1$s</xliff:g>, <xliff:g id="value2" example="x">%2$s</xliff:g></string>
     <string name="study_reminder_just_you">Just you</string>
     <string name="study_reminder_waiting">Waiting to send</string>
     <string name="study_reminder_refused">Not saved by the party</string>
 
     <string name="study_reminder_delete">Delete reminder</string>
     <string name="study_reminder_delete_title">Delete this reminder?</string>
-    <string name="study_reminder_delete_message">\"%1$s\" goes for everyone it was for, and its alerts stop.</string>
+    <string name="study_reminder_delete_message">\"<xliff:g id="value1" example="x">%1$s</xliff:g>\" goes for everyone it was for, and its alerts stop.</string>
     <string name="study_reminder_delete_confirm">Delete</string>
     <string name="study_reminder_keep">Keep it</string>
 

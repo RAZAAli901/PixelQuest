@@ -209,15 +209,15 @@
     <string name="study_file_type_powerpoint">Slides</string>
     <string name="study_file_type_text">Text</string>
     <string name="study_file_type_image">Image</string>
-    <string name="study_file_by">from %1$s</string>
+    <string name="study_file_by">from <xliff:g id="value1" example="x">%1$s</xliff:g></string>
     <string name="study_file_open">Open the file</string>
     <string name="study_file_open_with">Open with</string>
     <string name="study_files_search">Search by name</string>
     <string name="study_files_all">All</string>
-    <string name="study_chat_said_theirs">%1$s said: %2$s, at %3$s.</string>
-    <string name="study_chat_said_mine">You said: %1$s, at %2$s.</string>
-    <string name="study_chat_said_file">shared the file %1$s</string>
-    <string name="study_chat_said_reply">Replying to %1$s.</string>
+    <string name="study_chat_said_theirs"><xliff:g id="value1" example="x">%1$s</xliff:g> said: <xliff:g id="value2" example="x">%2$s</xliff:g>, at <xliff:g id="value3" example="x">%3$s</xliff:g>.</string>
+    <string name="study_chat_said_mine">You said: <xliff:g id="value1" example="x">%1$s</xliff:g>, at <xliff:g id="value2" example="x">%2$s</xliff:g>.</string>
+    <string name="study_chat_said_file">shared the file <xliff:g id="value1" example="x">%1$s</xliff:g></string>
+    <string name="study_chat_said_reply">Replying to <xliff:g id="value1" example="x">%1$s</xliff:g>.</string>
     <string name="study_chat_reported">Reported. Thank you: it\'ll be looked at.</string>
     <string name="study_chat_block">Block this person</string>
     <string name="study_chat_unblock">Show</string>
@@ -226,8 +226,8 @@
     <string name="study_chat_mute_body">No notifications for its new messages and files on this phone.</string>
     <string name="study_chat_notif_hidden">New study chat messages</string>
     <plurals name="study_chat_notif_new">
-        <item quantity="one">%d new message</item>
-        <item quantity="other">%d new messages</item>
+        <item quantity="one"><xliff:g id="value1" example="3">%d</xliff:g> new message</item>
+        <item quantity="other"><xliff:g id="value1" example="3">%d</xliff:g> new messages</item>
     </plurals>
     <string name="study_item_materials">Materials</string>
     <string name="study_item_link_files">Link files from the chat</string>
@@ -240,17 +240,17 @@
     <string name="study_files_oldest">Oldest first</string>
     <string name="study_files_none_found">No files match.</string>
     <string name="study_file_warning_title">Files come from other people</string>
-    <string name="study_file_warning_message">\"%1$s\" was shared by someone in the party. PixelQuest checks that each file is the kind it says, with no macros or programs inside, but it can\'t check what the file says. Only open files you expected.</string>
+    <string name="study_file_warning_message">\"<xliff:g id="value1" example="x">%1$s</xliff:g>\" was shared by someone in the party. PixelQuest checks that each file is the kind it says, with no macros or programs inside, but it can\'t check what the file says. Only open files you expected.</string>
     <string name="study_file_warning_open">Open it</string>
     <string name="study_file_not_allowed">That file can\'t be opened: it was deleted, or you\'re no longer in the party.</string>
     <string name="study_file_corrupted">That file didn\'t arrive whole. Try opening it again.</string>
     <string name="study_file_no_viewer">No app on this phone opens that kind of file.</string>
     <string name="study_file_loading">A file, on its way</string>
     <string name="study_chat_upload_waiting">Waiting to send</string>
-    <string name="study_chat_upload_sending">Sending, %1$d%%</string>
+    <string name="study_chat_upload_sending">Sending, <xliff:g id="value1" example="3">%1$d</xliff:g>%%</string>
     <string name="study_chat_upload_sending_unknown">Sending</string>
     <string name="study_chat_upload_checking">Checking the file</string>
-    <string name="study_chat_upload_rejected">Not shared: %1$s</string>
+    <string name="study_chat_upload_rejected">Not shared: <xliff:g id="value1" example="x">%1$s</xliff:g></string>
     <string name="study_chat_upload_failed">Couldn\'t be sent</string>
     <string name="study_chat_upload_cancel">Cancel</string>
     <string name="study_chat_upload_retry">Try again</string>
@@ -274,12 +274,12 @@
     <string name="study_chat_attach_remove">Don\'t share this file</string>
     <string name="study_chat_unread">Unread messages</string>
     <plurals name="study_chat_unread_count">
-        <item quantity="one">%d unread message</item>
-        <item quantity="other">%d unread messages</item>
+        <item quantity="one"><xliff:g id="value1" example="3">%d</xliff:g> unread message</item>
+        <item quantity="other"><xliff:g id="value1" example="3">%d</xliff:g> unread messages</item>
     </plurals>
     <plurals name="study_chat_unread_tab">
-        <item quantity="one">%1$s, %2$d unread message</item>
-        <item quantity="other">%1$s, %2$d unread messages</item>
+        <item quantity="one"><xliff:g id="value1" example="x">%1$s</xliff:g>, <xliff:g id="value2" example="3">%2$d</xliff:g> unread message</item>
+        <item quantity="other"><xliff:g id="value1" example="x">%1$s</xliff:g>, <xliff:g id="value2" example="3">%2$d</xliff:g> unread messages</item>
     </plurals>
     <string name="study_chat_menu">Message options</string>
     <string name="study_chat_copy">Copy</string>
@@ -295,7 +295,7 @@
     <string name="study_chat_input_label">Message</string>
     <string name="study_chat_input_placeholder">Write a message</string>
     <string name="study_chat_send">Send</string>
-    <string name="study_chat_counter">%1$s of %2$s</string>
+    <string name="study_chat_counter"><xliff:g id="value1" example="x">%1$s</xliff:g> of <xliff:g id="value2" example="x">%2$s</xliff:g></string>
     <string name="study_chat_saved_offline">Saved on this phone. It goes to the party when you\'re back online.</string>
     <string name="study_chat_offline">You\'re offline: showing the messages on this phone.</string>
     <string name="study_chat_too_many">That\'s a lot of messages at once. Wait a minute, then send again.</string>
