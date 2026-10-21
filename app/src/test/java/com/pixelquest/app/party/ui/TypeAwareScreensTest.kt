@@ -103,7 +103,7 @@ class TypeAwareScreensTest {
         composeTestRule.setContent {
             PixelQuestTheme { PartyInfoContent(state = PartyInfoUiState(party = study, members = members, myId = "me"), onNavigateBack = {}) }
         }
-        composeTestRule.onNodeWithText("Physics group").assertIsDisplayed()
+        composeTestRule.onNodeWithText("PHYSICS GROUP").assertIsDisplayed()
         gone(DaroodTestTags.INFO_MILESTONE)
         gone(DaroodTestTags.INFO_SET_MILESTONE)
         gone(DaroodTestTags.INFO_RACE_SWITCH)

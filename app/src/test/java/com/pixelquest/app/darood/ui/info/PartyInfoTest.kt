@@ -126,12 +126,12 @@ class PartyInfoTest {
                 PartyInfoContent(state = state(myId = "aria-id"), onNavigateBack = {}, onAddPeople = { added = true })
             }
         }
-        composeTestRule.onNodeWithText("Friday circle").assertIsDisplayed()
-        composeTestRule.onNodeWithText("2 members, up to 5").assertIsDisplayed()
+        composeTestRule.onNodeWithText("FRIDAY CIRCLE").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Darood · 2 members, up to 5").assertIsDisplayed()
         composeTestRule.onNodeWithText("@aria_k (you)").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Leader").assertIsDisplayed()
+        // The leader is marked; everyone else is simply a member (mock 4G).
+        composeTestRule.onNodeWithText("LEADER").assertIsDisplayed()
         composeTestRule.onNodeWithText("@bram").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Member").assertIsDisplayed()
         composeTestRule.onNodeWithText("Joined Oct 2, 2026").assertIsDisplayed()
         composeTestRule.onNodeWithTag(DaroodTestTags.INFO_ADD_PEOPLE).performClick()
         assertTrue(added)

@@ -52,13 +52,14 @@ import com.pixelquest.app.ui.theme.*
 /** Form + misc building blocks used by Parties, Study party and Coach. All skin-aware. */
 
 @Composable
-fun PqSwitch(checked: Boolean, onCheckedChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+/** A switch; with no [onCheckedChange] it only shows [checked], for a row that is the toggle itself. */
+fun PqSwitch(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, modifier: Modifier = Modifier) {
     val x by animateDpAsState(if (checked) 22.dp else 2.dp, label = "knob")
     Box(
         modifier.size(48.dp, 28.dp).clip(PqCircle)
             .background(if (checked) PqColors.Progress else PqColors.Sunken)
             .border(PqDimens.Border, PqColors.Ink, PqCircle)
-            .toggleable(checked, onValueChange = onCheckedChange, role = Role.Switch),
+            .then(if (onCheckedChange != null) Modifier.toggleable(checked, onValueChange = onCheckedChange, role = Role.Switch) else Modifier),
         contentAlignment = Alignment.CenterStart,
     ) {
         Box(Modifier.offset(x = x).size(19.dp).clip(PqCircle).background(if (checked) PqColors.Paper else PqColors.Ink))

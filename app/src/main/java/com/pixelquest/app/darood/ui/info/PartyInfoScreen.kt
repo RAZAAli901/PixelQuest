@@ -1,23 +1,28 @@
 package com.pixelquest.app.darood.ui.info
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Switch
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Flag
+import androidx.compose.material.icons.rounded.PersonAdd
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +30,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -43,39 +50,45 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.R
-import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.data.remote.DaroodAccount
 import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.DaroodRules
+import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.darood.ui.PartyAvatar
+import com.pixelquest.app.darood.ui.formatCount
+import com.pixelquest.app.data.remote.SupabaseResult
+import com.pixelquest.app.party.PartyKinds
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyMember
 import com.pixelquest.app.party.domain.PartyRole
-import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.darood.ui.formatCount
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
+import com.pixelquest.app.party.ui.components.MemberList
+import com.pixelquest.app.party.ui.components.displayName
+import com.pixelquest.app.party.ui.shortName
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelDialog
-import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelTextField
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.components.PqSwitch
+import com.pixelquest.app.ui.components.PqTopBar
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.bsp
+import com.pixelquest.app.ui.theme.pqShape
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Instant
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.Instant
-import javax.inject.Inject
-import com.pixelquest.app.party.PartyKinds
-import com.pixelquest.app.party.ui.components.MemberList
-import com.pixelquest.app.party.ui.components.displayName
 
 /** Why the last change didn't happen. */
 sealed interface InfoProblem {
@@ -353,133 +366,117 @@ fun PartyInfoContent(
     onConfirmDelete: () -> Unit = {},
     onDismissDialog: () -> Unit = {}
 ) {
-    val colors = PixelTheme.colors
-    Scaffold(
-        containerColor = colors.background,
-        topBar = {
-            PixelTopAppBar(
-                title = stringResource(R.string.darood_party_info),
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        SymbolIcon(
-                            symbol = "◀",
-                            contentDescription = stringResource(R.string.navigate_back),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.primaryText
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(PqColors.Ground)
+            .verticalScroll(rememberScrollState())
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp)
+            .testTag(DaroodTestTags.INFO_SCREEN),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        PqTopBar(stringResource(R.string.darood_party_info), onBack = onNavigateBack)
+        val party = state.party ?: return@Column
+        // What the party's kind has of its own: a Darood Party's milestone and race board.
+        val kind = PartyKinds.of(party.type)
+        PqCard(shadow = PqDimens.ShadowLg) {
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(14.dp)
+                ) {
+                    PartyAvatar(party.name, size = 52.dp)
+                    Column {
+                        Text(text = party.name.uppercase(), style = PqType.Title, modifier = Modifier.semantics { heading() })
+                        Text(
+                            text = stringResource(
+                                R.string.pq_party_card_line,
+                                stringResource(party.type.shortName()),
+                                pluralStringResource(R.plurals.darood_info_size, state.members.size, state.members.size, party.maxMembers)
+                            ),
+                            style = PqType.Meta
                         )
                     }
                 }
+                if (kind.rules.milestone) {
+                    Box(Modifier.fillMaxWidth().height(PqDimens.BorderThin).background(PqColors.Ink))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp).heightIn(min = 40.dp)
+                    ) {
+                        Icon(Icons.Rounded.Flag, contentDescription = null, tint = PqColors.Ink)
+                        Text(
+                            text = party.milestone?.let { stringResource(R.string.darood_info_milestone, formatCount(it)) }
+                                ?: stringResource(R.string.darood_info_no_milestone),
+                            style = PqType.BodyStrong,
+                            modifier = Modifier.weight(1f).testTag(DaroodTestTags.INFO_MILESTONE)
+                        )
+                        // A finish is final: the milestone stays as it was reached.
+                        if (state.isLeader && !party.isFinished) {
+                            QuietAction(
+                                text = stringResource(if (party.milestone == null) R.string.darood_info_set_milestone else R.string.darood_info_change_milestone),
+                                enabled = !state.busy,
+                                onClick = onMilestone,
+                                modifier = Modifier.testTag(DaroodTestTags.INFO_SET_MILESTONE)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        if (state.isLeader) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (!party.isFinished) {
+                    PqButton(
+                        text = stringResource(R.string.darood_add_title),
+                        onClick = onAddPeople,
+                        icon = Icons.Rounded.PersonAdd,
+                        modifier = Modifier.weight(1.3f).testTag(DaroodTestTags.INFO_ADD_PEOPLE)
+                    )
+                }
+                PqButton(
+                    text = stringResource(R.string.darood_info_rename),
+                    onClick = onRename,
+                    style = PqButtonStyle.Secondary,
+                    icon = Icons.Rounded.Edit,
+                    enabled = !state.busy,
+                    modifier = Modifier.weight(1f).testTag(DaroodTestTags.INFO_RENAME)
+                )
+            }
+        }
+        if (state.isLeader && kind.rules.raceBoard) {
+            RaceBoardSwitch(on = party.isPublicRace, hasMilestone = party.milestone != null, enabled = !state.busy, onChange = onRaceBoard)
+        } else if (party.isPublicRace && kind.rules.raceBoard) {
+            Text(
+                text = stringResource(R.string.darood_race_on_board),
+                style = PqType.Meta,
+                modifier = Modifier.testTag(DaroodTestTags.INFO_RACE_NOTE)
             )
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-                .testTag(DaroodTestTags.INFO_SCREEN),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            val party = state.party ?: return@Column
-            // What the party's kind has of its own: a Darood Party's milestone and race board.
-            val kind = PartyKinds.of(party.type)
+        PqGroupLabel(
+            stringResource(R.string.darood_info_members) + " · " + state.members.size,
+            Modifier.semantics { heading() }
+        )
+        state.problem?.let { ProblemLine(it) }
+        MemberList(
+            members = state.members,
+            myId = state.myId,
+            isLeader = state.isLeader,
+            enabled = !state.busy,
+            onRemove = onRemove,
+            onTransfer = onTransfer
+        )
+        if (state.isLeader) {
             Text(
-                text = party.name,
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primaryText,
-                modifier = Modifier.semantics { heading() }
+                text = stringResource(R.string.darood_info_leader_leave_hint),
+                style = PqType.Meta,
+                modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE_HINT)
             )
-            Text(
-                text = pluralStringResource(R.plurals.darood_info_size, state.members.size, state.members.size, party.maxMembers),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface
-            )
-            if (kind.rules.milestone) Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = party.milestone?.let { stringResource(R.string.darood_info_milestone, formatCount(it)) }
-                        ?: stringResource(R.string.darood_info_no_milestone),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurface,
-                    modifier = Modifier.weight(1f).testTag(DaroodTestTags.INFO_MILESTONE)
-                )
-                // A finish is final: the milestone stays as it was reached.
-                if (state.isLeader && !party.isFinished) {
-                    PixelButton(
-                        text = stringResource(if (party.milestone == null) R.string.darood_info_set_milestone else R.string.darood_info_change_milestone),
-                        onClick = onMilestone,
-                        variant = PixelButtonVariant.BLUE,
-                        enabled = !state.busy,
-                        modifier = Modifier.testTag(DaroodTestTags.INFO_SET_MILESTONE)
-                    )
-                }
-            }
-            if (state.isLeader) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (!party.isFinished) {
-                        PixelButton(
-                            text = stringResource(R.string.darood_add_title),
-                            onClick = onAddPeople,
-                            modifier = Modifier.testTag(DaroodTestTags.INFO_ADD_PEOPLE)
-                        )
-                    }
-                    PixelButton(
-                        text = stringResource(R.string.darood_info_rename),
-                        onClick = onRename,
-                        variant = PixelButtonVariant.BLUE,
-                        enabled = !state.busy,
-                        modifier = Modifier.testTag(DaroodTestTags.INFO_RENAME)
-                    )
-                }
-            }
-            if (state.isLeader && kind.rules.raceBoard) {
-                RaceBoardSwitch(on = party.isPublicRace, hasMilestone = party.milestone != null, enabled = !state.busy, onChange = onRaceBoard)
-            } else if (party.isPublicRace && kind.rules.raceBoard) {
-                Text(
-                    text = stringResource(R.string.darood_race_on_board),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant,
-                    modifier = Modifier.testTag(DaroodTestTags.INFO_RACE_NOTE)
-                )
-            }
-            Text(
-                text = stringResource(R.string.darood_info_members),
-                style = MaterialTheme.typography.titleSmall,
-                color = colors.primaryText,
-                modifier = Modifier.semantics { heading() }
-            )
-            state.problem?.let { ProblemLine(it) }
-            MemberList(
-                members = state.members,
-                myId = state.myId,
-                isLeader = state.isLeader,
-                enabled = !state.busy,
-                onRemove = onRemove,
-                onTransfer = onTransfer
-            )
-            if (state.isLeader) {
-                Text(
-                    text = stringResource(R.string.darood_info_leader_leave_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant,
-                    modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE_HINT)
-                )
-                PixelButton(
-                    text = stringResource(R.string.darood_info_delete),
-                    onClick = onDelete,
-                    variant = PixelButtonVariant.BLUE,
-                    enabled = !state.busy,
-                    modifier = Modifier.testTag(DaroodTestTags.INFO_DELETE)
-                )
-            } else {
-                PixelButton(
-                    text = stringResource(R.string.darood_info_leave),
-                    onClick = onLeave,
-                    variant = PixelButtonVariant.BLUE,
-                    enabled = !state.busy,
-                    modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE)
-                )
-            }
+            DestructiveButton(stringResource(R.string.darood_info_delete), enabled = !state.busy, onClick = onDelete, modifier = Modifier.testTag(DaroodTestTags.INFO_DELETE))
+        } else {
+            DestructiveButton(stringResource(R.string.darood_info_leave), enabled = !state.busy, onClick = onLeave, modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE))
         }
     }
 
@@ -560,50 +557,62 @@ fun PartyInfoContent(
  */
 @Composable
 internal fun RaceBoardSwitch(on: Boolean, hasMilestone: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
-    val colors = PixelTheme.colors
-    PixelCard(variant = PixelPanelVariant.BORDER, contentPadding = 12.dp, modifier = Modifier.fillMaxWidth()) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp)
-                .toggleable(value = on, enabled = enabled, role = Role.Switch, onValueChange = onChange)
-                .testTag(DaroodTestTags.INFO_RACE_SWITCH)
-        ) {
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    text = stringResource(R.string.darood_race_join),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = inkOnPanel(colors.primaryText)
-                )
-                Text(
-                    text = stringResource(R.string.darood_race_explained),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurface
-                )
-                if (!hasMilestone) {
-                    Text(
-                        text = stringResource(R.string.darood_race_needs_milestone),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant
-                    )
-                }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(DaroodTestTags.INFO_RACE_SWITCH)
+            .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
+            .toggleable(value = on, enabled = enabled, role = Role.Switch, onValueChange = onChange)
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .heightIn(min = 48.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(text = stringResource(R.string.darood_race_join), style = PqType.BodyStrong)
+            Text(text = stringResource(R.string.darood_race_explained), style = PqType.Meta.copy(color = PqColors.Ink2))
+            if (!hasMilestone) {
+                Text(text = stringResource(R.string.darood_race_needs_milestone), style = PqType.Meta)
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            // The row handles the toggle; the switch only shows it.
-            Switch(
-                checked = on,
-                onCheckedChange = null,
-                enabled = enabled,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = colors.onPrimary,
-                    checkedTrackColor = colors.primary,
-                    uncheckedThumbColor = colors.onSurfaceVariant,
-                    uncheckedTrackColor = colors.surfaceVariant,
-                    uncheckedBorderColor = colors.pixelBorder
-                )
-            )
         }
+        // The row handles the toggle; the switch only shows it.
+        PqSwitch(checked = on, onCheckedChange = null)
+    }
+}
+
+/** A small action in the primary text colour, as v2's quiet buttons are, that can wait while busy. */
+@Composable
+private fun QuietAction(text: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        style = PqType.MetaStrong.copy(color = PqColors.RedText, fontSize = 13.bsp),
+        modifier = modifier
+            .clip(pqShape(8.dp))
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 6.dp, vertical = 6.dp)
+    )
+}
+
+/**
+ * Leaving or deleting the party (mock 4G): drawn in the primary text colour as an outline, never
+ * filled, so it never looks like the screen's main action.
+ */
+@Composable
+private fun DestructiveButton(text: String, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = pqShape(12.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = modifier
+            .heightIn(min = 44.dp)
+            .alpha(if (enabled) 1f else 0.45f)
+            .clip(shape)
+            .border(PqDimens.Border, PqColors.RedText, shape)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 14.dp)
+    ) {
+        Icon(Icons.Rounded.Delete, contentDescription = null, tint = PqColors.RedText, modifier = Modifier.size(20.dp))
+        Text(text = text.uppercase(), style = PqType.Button.copy(color = PqColors.RedText))
     }
 }
 
@@ -656,11 +665,7 @@ internal fun RenameField(name: String, problem: com.pixelquest.app.darood.ui.cre
 @Composable
 internal fun DeleteConfirmation(typed: String, partyName: String, confirmed: Boolean, onTypedChange: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(
-            text = stringResource(R.string.darood_info_delete_message),
-            style = MaterialTheme.typography.bodyMedium,
-            color = PixelTheme.colors.onSurface
-        )
+        Text(text = stringResource(R.string.darood_info_delete_message), style = PqType.Body.copy(color = PqColors.Ink2))
         // Deleting waits for the name, typed exactly: a slip of the finger can't delete a party.
         PixelTextField(
             value = typed,
@@ -691,8 +696,7 @@ private fun ProblemLine(problem: InfoProblem) {
                 }
             }
         ),
-        style = MaterialTheme.typography.bodyMedium,
-        color = PixelTheme.colors.error,
+        style = PqType.Body.copy(color = PqColors.Error),
         modifier = Modifier.testTag(DaroodTestTags.INFO_PROBLEM).semantics { liveRegion = LiveRegionMode.Polite }
     )
 }

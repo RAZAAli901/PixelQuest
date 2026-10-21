@@ -179,7 +179,7 @@ private fun PartyChatContent(
                             Text(partyName.uppercase(), style = PqType.CardTitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             if (memberCount > 0) {
                                 Text(
-                                    stringResource(R.string.darood_room_subtitle, pluralStringResource(R.plurals.darood_members, memberCount, memberCount)),
+                                    stringResource(R.string.pq_party_card_line, stringResource(R.string.pq_party_darood), pluralStringResource(R.plurals.darood_members, memberCount, memberCount)),
                                     style = PqType.Meta,
                                     maxLines = 1
                                 )
