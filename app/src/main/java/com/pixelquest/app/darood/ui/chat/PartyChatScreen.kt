@@ -589,11 +589,12 @@ fun PartyChatRoute(
     openWeekly: Boolean = false,
     onOpenWeeks: () -> Unit = {},
     viewModel: PartyChatViewModel = hiltViewModel(),
-    weeklyViewModel: com.pixelquest.app.darood.ui.weekly.WeeklyRankingViewModel = hiltViewModel()
+    // The Weekly ranking sheet's (navigation gives it); without one, the room has no ranking button.
+    weeklyViewModel: com.pixelquest.app.darood.ui.weekly.WeeklyRankingViewModel? = null
 ) {
     var showingWeekly by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(openWeekly) }
     var showingExtend by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    if (showingWeekly) {
+    if (showingWeekly && weeklyViewModel != null) {
         com.pixelquest.app.darood.ui.weekly.WeeklyRankingSheet(
             state = weeklyViewModel.state.collectAsState().value,
             onDismiss = { showingWeekly = false },
@@ -649,7 +650,7 @@ fun PartyChatRoute(
         onDismissBanner = viewModel::dismissMilestoneBanner,
         completedAt = party?.completedAt,
         startedAt = party?.createdAt,
-        onOpenWeekly = { showingWeekly = true },
+        onOpenWeekly = if (weeklyViewModel != null) ({ showingWeekly = true }) else null,
         goalNumber = viewModel.goals.collectAsState().value.lastOrNull()?.sequence,
         onExtendGoal = {
             viewModel.extendShown()

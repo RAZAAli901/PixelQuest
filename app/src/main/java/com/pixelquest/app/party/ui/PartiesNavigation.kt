@@ -60,7 +60,8 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
             onNavigateBack = { navController.popBackStack() },
             onOpenInfo = { navController.navigate(Screen.PartiesInfo.createRoute(partyId)) { launchSingleTop = true } },
             onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } },
-            onOpenWeeks = { navController.navigate(Screen.DaroodWeeks.createRoute(partyId)) { launchSingleTop = true } }
+            onOpenWeeks = { navController.navigate(Screen.DaroodWeeks.createRoute(partyId)) { launchSingleTop = true } },
+            weeklyViewModel = hiltViewModel()
         )
     }
     // From the week's notification: the same room, its Weekly ranking sheet open.
@@ -75,7 +76,8 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
             onOpenInfo = { navController.navigate(Screen.PartiesInfo.createRoute(partyId)) { launchSingleTop = true } },
             onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } },
             openWeekly = true,
-            onOpenWeeks = { navController.navigate(Screen.DaroodWeeks.createRoute(partyId)) { launchSingleTop = true } }
+            onOpenWeeks = { navController.navigate(Screen.DaroodWeeks.createRoute(partyId)) { launchSingleTop = true } },
+            weeklyViewModel = hiltViewModel()
         )
     }
     composable(
