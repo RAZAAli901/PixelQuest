@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.username
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,9 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,11 +29,13 @@ import androidx.compose.runtime.collectAsState
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.UsernameProblem
 import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelTextField
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqTopBar
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -68,35 +68,19 @@ fun UsernameSetupContent(
     onSave: () -> Unit,
     onNavigateBack: (() -> Unit)?
 ) {
-    val colors = PixelTheme.colors
-    Scaffold(
-        containerColor = colors.background,
-        topBar = {
-            PixelTopAppBar(
-                title = stringResource(R.string.darood_username_title),
-                navigationIcon = onNavigateBack?.let { back ->
-                    {
-                        com.pixelquest.app.ui.components.PqBackButton(back)
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-                .testTag(DaroodTestTags.USERNAME_SCREEN),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.darood_username_intro),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface
-            )
-            state.current?.let { current ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(PqColors.Ground)
+            .verticalScroll(rememberScrollState())
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp)
+            .testTag(DaroodTestTags.USERNAME_SCREEN),
+        verticalArrangement = Arrangement.spacedBy(PqDimens.Gap)
+    ) {
+        PqTopBar(stringResource(R.string.darood_username_title), onBack = onNavigateBack)
+        Text(text = stringResource(R.string.darood_username_intro), style = PqType.Body.copy(color = PqColors.Ink2))
+        state.current?.let { current ->
+            PqCard(Modifier.fillMaxWidth(), bg = PqColors.Sunken, shadow = 0.dp) {
                 Text(
                     text = stringResource(R.string.darood_username_current, current.username.value) +
                         if (current.changeableAt.isAfter(Instant.now())) {
@@ -104,47 +88,42 @@ fun UsernameSetupContent(
                         } else {
                             ""
                         },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.primaryText
+                    style = PqType.BodyStrong,
+                    modifier = Modifier.padding(12.dp)
                 )
             }
-            PixelTextField(
-                value = state.input,
-                onValueChange = onInputChange,
-                label = stringResource(R.string.darood_username_label),
-                placeholder = stringResource(R.string.darood_username_placeholder),
-                errorText = errorText(state),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
-                    autoCorrect = false,
-                    keyboardType = KeyboardType.Ascii,
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(onDone = { onSave() }),
-                modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.USERNAME_FIELD)
-            )
-            statusText(state)?.let { status ->
-                Text(
-                    text = status,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.primaryText,
-                    modifier = Modifier
-                        .testTag(DaroodTestTags.USERNAME_STATUS)
-                        .semantics { liveRegion = LiveRegionMode.Polite }
-                )
-            }
+        }
+        PixelTextField(
+            value = state.input,
+            onValueChange = onInputChange,
+            label = stringResource(R.string.darood_username_label),
+            placeholder = stringResource(R.string.darood_username_placeholder),
+            errorText = errorText(state),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                autoCorrect = false,
+                keyboardType = KeyboardType.Ascii,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(onDone = { onSave() }),
+            modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.USERNAME_FIELD)
+        )
+        statusText(state)?.let { status ->
             Text(
-                text = stringResource(R.string.darood_username_rules),
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant
-            )
-            PixelButton(
-                text = stringResource(if (state.saving) R.string.darood_username_saving else R.string.darood_username_save),
-                onClick = onSave,
-                enabled = state.canSave,
-                modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.USERNAME_SAVE)
+                text = status,
+                style = PqType.BodyStrong.copy(color = if (state.availability == UsernameAvailability.AVAILABLE && !state.isCurrent) PqColors.Live else PqColors.Ink2),
+                modifier = Modifier
+                    .testTag(DaroodTestTags.USERNAME_STATUS)
+                    .semantics { liveRegion = LiveRegionMode.Polite }
             )
         }
+        Text(text = stringResource(R.string.darood_username_rules), style = PqType.Meta)
+        PqButton(
+            text = stringResource(if (state.saving) R.string.darood_username_saving else R.string.darood_username_save),
+            onClick = onSave,
+            enabled = state.canSave,
+            modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.USERNAME_SAVE)
+        )
     }
 }
 

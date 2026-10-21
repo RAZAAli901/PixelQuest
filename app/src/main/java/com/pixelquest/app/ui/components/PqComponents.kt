@@ -148,6 +148,7 @@ fun PqButton(
     Row(
         modifier
             .heightIn(min = height)
+            .alpha(if (enabled) 1f else 0.5f)
             .comicPressable(onClick, bg = bg, radius = 12.dp, enabled = enabled)
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,

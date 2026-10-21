@@ -1,9 +1,10 @@
 package com.pixelquest.app.party.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,12 +22,12 @@ import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.UsernameProblem
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.invite.Lookup
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.InitialAvatar
 import com.pixelquest.app.ui.components.PixelTextField
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 
 // Finding someone to invite by username: shared by every kind of party (docs/party-core.md).
 
@@ -52,7 +53,6 @@ fun InviteSearch(query: String, onQueryChange: (String) -> Unit, modifier: Modif
 /** What the search found: a row to invite from, or a line saying why not. */
 @Composable
 fun LookupResult(lookup: Lookup, enabled: Boolean, onInvite: (String) -> Unit) {
-    val colors = PixelTheme.colors
     val line = when (lookup) {
         Lookup.Idle -> null
         Lookup.Checking -> stringResource(R.string.darood_username_checking)
@@ -72,25 +72,24 @@ fun LookupResult(lookup: Lookup, enabled: Boolean, onInvite: (String) -> Unit) {
     if (line != null) {
         Text(
             text = line,
-            style = MaterialTheme.typography.bodyMedium,
-            color = colors.onSurfaceVariant,
+            style = PqType.Body.copy(color = PqColors.Ink2),
             modifier = Modifier.testTag(DaroodTestTags.ADD_STATUS).semantics { liveRegion = LiveRegionMode.Polite }
         )
     }
     if (lookup is Lookup.Found) {
-        PixelCard(
-            variant = PixelPanelVariant.BORDER,
-            contentPadding = 16.dp,
-            modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.ADD_RESULT)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        PqCard(Modifier.fillMaxWidth().testTag(DaroodTestTags.ADD_RESULT)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth().padding(12.dp)
+            ) {
+                InitialAvatar(lookup.username.value)
                 Text(
                     text = stringResource(R.string.darood_username_handle, lookup.username.value),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = inkOnPanel(colors.primaryText),
+                    style = PqType.BodyStrong,
                     modifier = Modifier.weight(1f)
                 )
-                PixelButton(
+                PqButton(
                     text = stringResource(R.string.darood_add_invite),
                     onClick = { onInvite(lookup.username.value) },
                     enabled = enabled,

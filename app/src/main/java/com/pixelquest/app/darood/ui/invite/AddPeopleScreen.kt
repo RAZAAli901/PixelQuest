@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.invite
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,9 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,11 +25,17 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
-import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.party.ui.components.InviteSearch
 import com.pixelquest.app.party.ui.components.LookupResult
+import com.pixelquest.app.ui.components.InitialAvatar
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.components.PqTopBar
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
 /** Adding people to a party by their exact username. */
 @Composable
@@ -50,47 +54,36 @@ fun AddPeopleContent(
     onNavigateBack: () -> Unit,
     onInvite: (String) -> Unit = {}
 ) {
-    val colors = PixelTheme.colors
-    Scaffold(
-        containerColor = colors.background,
-        topBar = {
-            PixelTopAppBar(
-                title = stringResource(R.string.darood_add_title),
-                navigationIcon = {
-                    com.pixelquest.app.ui.components.PqBackButton(onNavigateBack)
-                }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(PqColors.Ground)
+            .verticalScroll(rememberScrollState())
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp)
+            .testTag(DaroodTestTags.ADD_SCREEN),
+        verticalArrangement = Arrangement.spacedBy(PqDimens.Gap)
+    ) {
+        PqTopBar(stringResource(R.string.darood_add_title), onBack = onNavigateBack)
+        Text(text = stringResource(R.string.darood_add_intro), style = PqType.Body.copy(color = PqColors.Ink2))
+        InviteSearch(query = state.query, onQueryChange = onQueryChange)
+        if (state.isFull) {
+            Text(
+                text = stringResource(R.string.darood_add_is_full, state.placesTaken, state.limit ?: 0),
+                style = PqType.BodyStrong.copy(color = PqColors.Error),
+                modifier = Modifier.testTag(DaroodTestTags.ADD_FULL)
             )
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-                .testTag(DaroodTestTags.ADD_SCREEN),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(text = stringResource(R.string.darood_add_intro), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
-            InviteSearch(query = state.query, onQueryChange = onQueryChange)
-            if (state.isFull) {
-                Text(
-                    text = stringResource(R.string.darood_add_is_full, state.placesTaken, state.limit ?: 0),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.error,
-                    modifier = Modifier.testTag(DaroodTestTags.ADD_FULL)
-                )
-            }
-            LookupResult(state.lookup, enabled = !state.sending && !state.isFull, onInvite = onInvite)
-            state.result?.let { InviteResultLine(it) }
-            if (state.people.isNotEmpty()) {
-                Text(
-                    text = stringResource(R.string.darood_add_people_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = colors.primaryText,
-                    modifier = Modifier.semantics { heading() }
-                )
-                state.people.forEach { PersonRow(it) }
+        LookupResult(state.lookup, enabled = !state.sending && !state.isFull, onInvite = onInvite)
+        state.result?.let { InviteResultLine(it) }
+        if (state.people.isNotEmpty()) {
+            PqGroupLabel(stringResource(R.string.darood_add_people_title), Modifier.semantics { heading() })
+            PqCard(Modifier.fillMaxWidth(), radius = PqDimens.Radius, shadow = 0.dp) {
+                Column {
+                    state.people.forEachIndexed { i, person ->
+                        PersonRow(person)
+                        if (i != state.people.lastIndex) Box(Modifier.fillMaxWidth().height(2.dp).background(PqColors.Divider))
+                    }
+                }
             }
         }
     }
@@ -115,8 +108,7 @@ private fun InviteResultLine(result: InviteResult) {
     }
     Text(
         text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        color = PixelTheme.colors.primaryText,
+        style = PqType.BodyStrong.copy(color = PqColors.RedText),
         modifier = Modifier.testTag(DaroodTestTags.ADD_RESULT_LINE).semantics { liveRegion = LiveRegionMode.Polite }
     )
 }
@@ -124,17 +116,14 @@ private fun InviteResultLine(result: InviteResult) {
 /** Someone the party has asked or had, with where they stand: Joined, Invited, Declined, Left or Removed. */
 @Composable
 private fun PersonRow(person: com.pixelquest.app.party.domain.PartyMember) {
-    val colors = PixelTheme.colors
+    val name = person.username?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone)
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.person(person.userId))
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.person(person.userId)).padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
-        Text(
-            text = person.username?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone),
-            style = MaterialTheme.typography.bodyLarge,
-            color = colors.onSurface,
-            modifier = Modifier.weight(1f)
-        )
+        InitialAvatar(person.username ?: "?")
+        Text(text = name, style = PqType.BodyStrong, modifier = Modifier.weight(1f))
         Text(
             text = stringResource(
                 when {
@@ -148,9 +137,7 @@ private fun PersonRow(person: com.pixelquest.app.party.domain.PartyMember) {
                     }
                 }
             ),
-            style = MaterialTheme.typography.labelMedium,
-            color = colors.primaryText
+            style = PqType.MetaStrong.copy(color = PqColors.Ink2)
         )
     }
 }
-
