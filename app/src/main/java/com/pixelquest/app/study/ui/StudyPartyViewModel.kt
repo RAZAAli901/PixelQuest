@@ -19,6 +19,7 @@ import com.pixelquest.app.study.sync.StudyChange
 import com.pixelquest.app.study.domain.StudyRefusal
 import com.pixelquest.app.study.domain.SyncState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -61,7 +62,9 @@ class StudyPartyViewModel @Inject constructor(
     val partyId: String = savedStateHandle[ARG_PARTY] ?: ""
 
     private val tab = MutableStateFlow(PartyTab.THIS_WEEK)
+    /** A refresh the player pulled for: the only kind that shows the circle. */
     private val refreshing = MutableStateFlow(false)
+    private var sync: Job? = null
     private val loaded = MutableStateFlow(false)
     private val notice = MutableStateFlow<StudyNotice?>(null)
     private val form = MutableStateFlow<ItemForm?>(null)
@@ -157,7 +160,8 @@ class StudyPartyViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StudyPartyUiState(weekStart = weekStart))
 
     init {
-        refresh()
+        // Catching up on entry is silent: the party is already on screen from the phone.
+        sync(shown = false)
     }
 
     fun selectTab(selected: PartyTab) {
@@ -174,14 +178,26 @@ class StudyPartyViewModel @Inject constructor(
         }
     }
 
-    /** Brings the party and its study data from the server. */
-    fun refresh() {
-        if (refreshing.value) return
-        refreshing.value = true
-        viewModelScope.launch {
+    /** Pull-to-refresh: brings the party and its study data from the server, with the circle. */
+    fun refresh() = sync(shown = true)
+
+    private fun sync(shown: Boolean) {
+        if (shown) refreshing.value = true
+        val running = sync
+        if (running != null && running.isActive) {
+            // One is under way (the catch-up): the pull waits for it rather than starting another.
+            if (shown) running.invokeOnCompletion { refreshing.value = false }
+            return
+        }
+        sync = viewModelScope.launch {
+            val noticeBefore = notice.value
             try {
+                // The party first: its study rows are kept against it. Their own fetches run together.
                 parties.refreshParty(partyId)
-                report(study.refresh(partyId))
+                val result = study.refresh(partyId)
+                // A success clears what was showing when it began, never what the player did since
+                // (ticking an item off offline while it ran says Offline, and that must stay).
+                if (result !is SupabaseResult.Success || notice.value == noticeBefore) report(result)
             } finally {
                 refreshing.value = false
                 loaded.value = true

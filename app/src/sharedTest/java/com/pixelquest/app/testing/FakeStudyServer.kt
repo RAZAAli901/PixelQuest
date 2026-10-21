@@ -38,7 +38,9 @@ class FakeStudyServer(val parties: FakeDaroodServer) : StudyRemoteDataSource {
     private var nextItem = 1
     private var nextRow = 1L
 
-    private fun <T> answer(name: String, block: (String) -> SupabaseResult<T>): SupabaseResult<T> {
+    // One request at a time, as the real server keeps its tables consistent: the app asks for a
+    // party's items, completions, study time and board at once, from several threads.
+    private fun <T> answer(name: String, block: (String) -> SupabaseResult<T>): SupabaseResult<T> = synchronized(this) {
         calls += name
         if (parties.offline) return SupabaseResult.NetworkError(IOException("offline"))
         val account = parties.me ?: return SupabaseResult.AuthError(IllegalStateException("signed out"))

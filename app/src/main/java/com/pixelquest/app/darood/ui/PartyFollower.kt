@@ -35,6 +35,8 @@ class PartyFollower(
     private val partyId: String
 ) {
     private val _refreshing = MutableStateFlow(false)
+
+    /** A refresh the player pulled for: the circle. The catch-up on returning to the screen is silent. */
     val refreshing: StateFlow<Boolean> = _refreshing.asStateFlow()
 
     private val _offline = MutableStateFlow(false)
@@ -42,22 +44,24 @@ class PartyFollower(
 
     /** Catches up, then follows live until cancelled: call it while the screen is visible. */
     suspend fun followWhileVisible() {
-        refreshNow()
+        refreshNow(shown = false)
         repository.followParty(partyId).collect { }
     }
 
     /** Pull-to-refresh: the party, its members and its newest entries, from the server. */
     fun refresh() {
-        scope.launch { refreshNow() }
+        scope.launch { refreshNow(shown = true) }
     }
 
-    private suspend fun refreshNow() {
-        _refreshing.value = true
-        val result = repository.refreshParty(partyId)
-        _offline.value = result is SupabaseResult.NetworkError
-        // Waiting entries go too, now there may be a connection.
+    private suspend fun refreshNow(shown: Boolean) {
+        if (shown) _refreshing.value = true
+        val result = try {
+            repository.refreshParty(partyId).also { _offline.value = it is SupabaseResult.NetworkError }
+        } finally {
+            if (shown) _refreshing.value = false
+        }
+        // Waiting entries go too, now there may be a connection (after the circle: it's not a refresh).
         if (result is SupabaseResult.Success) repository.sendPending()
-        _refreshing.value = false
     }
 }
 

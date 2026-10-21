@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.SavedStateHandle
@@ -42,7 +43,8 @@ enum class PartiesProblem {
  * @param signedIn null while the saved session loads.
  * @param parties the parties the account is in, by name.
  * @param invites parties it's invited to, waiting for an answer.
- * @param loading a refresh is under way.
+ * @param loading a refresh the player pulled for is under way (the circle); the catch-up on opening
+ *   is silent, as the list is already on screen from the phone.
  * @param answering the invitation being answered, while it is.
  */
 data class DaroodPartiesUiState(
@@ -113,12 +115,23 @@ class DaroodPartiesViewModel @Inject constructor(
 
     init {
         // Each sign-in (and the first launch signed in) brings the list from the server.
-        viewModelScope.launch { signedIn.collect { if (it) refresh() } }
+        viewModelScope.launch { signedIn.collect { if (it) sync(shown = false) } }
     }
 
-    fun refresh() {
-        viewModelScope.launch {
-            status.update { it.copy(loading = true) }
+    private var sync: Job? = null
+
+    /** Pull-to-refresh: the list from the server, with the circle. */
+    fun refresh() = sync(shown = true)
+
+    private fun sync(shown: Boolean) {
+        if (shown) status.update { it.copy(loading = true) }
+        val running = sync
+        if (running != null && running.isActive) {
+            // One is under way: the pull waits for it rather than asking the server twice.
+            if (shown) running.invokeOnCompletion { status.update { it.copy(loading = false) } }
+            return
+        }
+        sync = viewModelScope.launch {
             val result = repository.refreshParties()
             status.update { it.copy(loading = false, problem = problemOf(result)) }
         }

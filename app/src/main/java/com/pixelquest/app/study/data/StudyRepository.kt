@@ -27,7 +27,11 @@ import com.pixelquest.app.study.domain.weekStartOf
 import com.pixelquest.app.study.sync.StudyChange
 import com.pixelquest.app.study.sync.StudyLiveSource
 import com.pixelquest.app.study.sync.StudySyncScheduler
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.channelFlow
@@ -206,19 +210,55 @@ class StudyRepositoryImpl(
 
     override fun observePendingCount(): Flow<Int> = dao.observePendingCount()
 
+    /** The refresh running for each party, which a catch-up joins rather than starting another. */
+    private val inFlight = ConcurrentHashMap<String, CompletableDeferred<SupabaseResult<Unit>>>()
+
     override suspend fun refresh(partyId: String): SupabaseResult<Unit> {
+        val mine = CompletableDeferred<SupabaseResult<Unit>>()
+        inFlight[partyId] = mine
+        return try {
+            fetchAll(partyId).also { mine.complete(it) }
+        } catch (e: Throwable) {
+            mine.completeExceptionally(e)
+            throw e
+        } finally {
+            inFlight.remove(partyId, mine)
+        }
+    }
+
+    /** A catch-up (live updates just started): the refresh already running, or a new one. */
+    private suspend fun catchUp(partyId: String): SupabaseResult<Unit> =
+        inFlight[partyId]?.let { runCatching { it.await() }.getOrNull() } ?: refresh(partyId)
+
+    /**
+     * Everything about the party from the server. The fetches don't depend on each other, so they
+     * run together (one round trip's wait, not six); last week's board is closed before its scores
+     * are read. Each table is saved as before, in order, stopping at the first that fails.
+     */
+    private suspend fun fetchAll(partyId: String): SupabaseResult<Unit> = coroutineScope {
         val since = weekStartOf(today()).minusWeeks(HISTORY_WEEKS)
-        val items = remote.fetchItems(partyId)
-        if (items !is SupabaseResult.Success) return items.map { }
-        dao.replaceItems(partyId, items.data.map { it.toEntity() })
-        val completions = remote.fetchCompletions(partyId)
-        if (completions !is SupabaseResult.Success) return completions.map { }
-        dao.replaceCompletions(partyId, completions.data.map { it.toEntity() })
-        val sessions = remote.fetchSessions(partyId, since)
-        if (sessions !is SupabaseResult.Success) return sessions.map { }
-        dao.replaceSessions(partyId, since, sessions.data.map { it.toEntity() })
-        closeLastWeek(partyId)
-        return refreshScores(partyId, since)
+        val items = async { remote.fetchItems(partyId) }
+        val completions = async { remote.fetchCompletions(partyId) }
+        val sessions = async { remote.fetchSessions(partyId, since) }
+        val board = async {
+            closeLastWeek(partyId)
+            remote.fetchScores(partyId, since) to remote.fetchWinners(partyId)
+        }
+        val i = items.await()
+        if (i !is SupabaseResult.Success) return@coroutineScope i.map { }
+        dao.replaceItems(partyId, i.data.map { it.toEntity() })
+        val c = completions.await()
+        if (c !is SupabaseResult.Success) return@coroutineScope c.map { }
+        dao.replaceCompletions(partyId, c.data.map { it.toEntity() })
+        val t = sessions.await()
+        if (t !is SupabaseResult.Success) return@coroutineScope t.map { }
+        dao.replaceSessions(partyId, since, t.data.map { it.toEntity() })
+        val (scores, winners) = board.await()
+        if (scores !is SupabaseResult.Success) return@coroutineScope scores.map { }
+        dao.replaceScores(partyId, since, scores.data.map { it.toEntity() })
+        if (winners !is SupabaseResult.Success) return@coroutineScope winners.map { }
+        dao.replaceWinners(partyId, winners.data.map { StudyWeekWinnerEntity(it.partyId, it.weekStart, it.userId, it.points) })
+        SupabaseResult.Success(Unit)
     }
 
     private suspend fun refreshScores(partyId: String, since: LocalDate = weekStartOf(today()).minusWeeks(HISTORY_WEEKS)): SupabaseResult<Unit> {
@@ -371,7 +411,8 @@ class StudyRepositoryImpl(
         source.changes(partyId).collect { change ->
             when (change) {
                 StudyChange.Activity -> changed.tryEmit(Unit)
-                StudyChange.Subscribed -> refresh(partyId)
+                // The screen often has a refresh of its own running already: this joins it.
+                StudyChange.Subscribed -> catchUp(partyId)
                 StudyChange.MembersChanged -> Unit
             }
             send(change)

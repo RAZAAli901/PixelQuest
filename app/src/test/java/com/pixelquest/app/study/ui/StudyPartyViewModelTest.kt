@@ -140,7 +140,8 @@ class StudyPartyViewModelTest {
         server.offline = true
         vm.complete(item.id)
         waitFor("ticked on the phone") { vm.uiState.value.items.single().done }
-        assertEquals(StudyNotice.Offline, vm.uiState.value.notice)
+        // The tick shows at once; the notice follows the send that couldn't go.
+        waitFor("said offline") { vm.uiState.value.notice == StudyNotice.Offline }
         assertEquals(1, vm.uiState.value.items.single().doneCount)
         assertEquals(com.pixelquest.app.study.domain.SyncState.PENDING, vm.uiState.value.items.single().mine?.state)
 
