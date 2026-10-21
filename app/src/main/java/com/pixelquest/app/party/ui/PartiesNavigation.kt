@@ -88,7 +88,13 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
     }
     // Chess's notifications open these; Phase E (docs/chess-design.md) puts the board here.
     composable(Screen.ChessChallenge.route, arguments = listOf(navArgument("challengeId") { type = NavType.StringType })) {
-        com.pixelquest.app.chess.ui.ChessComingScreen(onNavigateBack = { navController.popBackStack() })
+        com.pixelquest.app.chess.ui.IncomingChallengeRoute(
+            onNavigateBack = { navController.popBackStack() },
+            // Accepted: the game opens in the challenge's place.
+            onOpenGame = { game ->
+                navController.navigate(Screen.ChessGame.createRoute(game)) { popUpTo(Screen.ChessChallenge.route) { inclusive = true } }
+            }
+        )
     }
     composable(Screen.ChessGame.route, arguments = listOf(navArgument("gameId") { type = NavType.StringType })) {
         com.pixelquest.app.chess.ui.ChessGameRoute(onNavigateBack = { navController.popBackStack() })

@@ -119,6 +119,7 @@ class FakeChessRemote(var me: String = "white") : ChessRemote {
     override suspend fun openChallenges(partyId: String) = answer("openChallenges") {
         SupabaseResult.Success(challenges.values.filter { it.partyId == partyId && it.status == "open" })
     }
+    override suspend fun challenge(challengeId: String) = answer("challenge") { SupabaseResult.Success(challenges[challengeId]) }
     override suspend fun ratings(userId: String) = answer("ratings") { SupabaseResult.Success(ratings.filter { it.userId == userId }) }
     override suspend fun headToHead(me: String, other: String) = answer("headToHead") {
         SupabaseResult.Success(headToHead.filter { setOf(it.userLow, it.userHigh) == setOf(me, other) })

@@ -52,6 +52,9 @@ interface ChessChallengeRepository {
 
     suspend fun cancel(challengeId: String): SupabaseResult<Unit>
 
+    /** One challenge, as the server has it now (for the incoming-challenge screen). */
+    suspend fun fetchChallenge(challengeId: String): SupabaseResult<Challenge?>
+
     /** The party's open challenges, the player's own and those to them or the room. */
     fun observeChallenges(partyId: String): Flow<List<Challenge>>
 

@@ -173,6 +173,9 @@ class FakeChessBackend(
         return SupabaseResult.Success(Unit)
     }
 
+    override suspend fun fetchChallenge(challengeId: String): SupabaseResult<Challenge?> =
+        SupabaseResult.Success(challenges.value.firstOrNull { it.id == challengeId })
+
     override fun observeChallenges(partyId: String): Flow<List<Challenge>> = challenges
     override suspend fun refreshChallenges(partyId: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 

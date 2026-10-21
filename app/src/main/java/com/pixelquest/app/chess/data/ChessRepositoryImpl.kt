@@ -134,6 +134,9 @@ class ChessRepositoryImpl(
     /** The challenger's "no" cancels their own challenge. */
     override suspend fun cancel(challengeId: String): SupabaseResult<Unit> = respond(challengeId, accept = false).mapData { }
 
+    override suspend fun fetchChallenge(challengeId: String): SupabaseResult<Challenge?> =
+        remote.challenge(challengeId).mapData { it?.toDomain() }
+
     override fun observeChallenges(partyId: String): Flow<List<Challenge>> = challengesOf(partyId)
 
     override suspend fun refreshChallenges(partyId: String): SupabaseResult<Unit> =

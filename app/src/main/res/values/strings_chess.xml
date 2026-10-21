@@ -87,4 +87,10 @@
     <string name="chess_problem_answered">That challenge was already answered.</string>
     <string name="chess_problem_offline">No connection. Nothing was sent.</string>
     <string name="chess_problem_other">That didn\'t work. Try again.</string>
+    <string name="chess_incoming_title">Challenge</string>
+    <string name="chess_incoming_from"><xliff:g id="name" example="sara">%1$s</xliff:g> challenges you</string>
+    <string name="chess_you_play_white">You play White</string>
+    <string name="chess_you_play_black">You play Black</string>
+    <string name="chess_you_play_random">Colours by lot</string>
+    <string name="chess_incoming_left"><xliff:g id="time" example="9:41">%1$s</xliff:g> left to answer</string>
 </resources>

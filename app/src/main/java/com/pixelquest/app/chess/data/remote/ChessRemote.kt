@@ -41,6 +41,7 @@ interface ChessRemote {
     suspend fun moves(gameId: String): SupabaseResult<List<ChessMoveDto>>
     suspend fun myLiveGame(me: String): SupabaseResult<ChessGameDto?>
     suspend fun openChallenges(partyId: String): SupabaseResult<List<ChallengeDto>>
+    suspend fun challenge(challengeId: String): SupabaseResult<ChallengeDto?>
     suspend fun ratings(userId: String): SupabaseResult<List<RatingDto>>
     suspend fun headToHead(me: String, other: String): SupabaseResult<List<HeadToHeadDto>>
     suspend fun leaderboard(partyId: String, timeControlSec: Int?): SupabaseResult<List<RatingDto>>
@@ -162,6 +163,10 @@ class SupabaseChessRemote(
             }
             order("created_at", Order.DESCENDING)
         }.decodeList<ChallengeDto>()
+    }
+
+    override suspend fun challenge(challengeId: String) = safeSupabaseCall {
+        postgrest[CHALLENGES].select { filter { eq("id", challengeId) } }.decodeList<ChallengeDto>().firstOrNull()
     }
 
     override suspend fun ratings(userId: String) = safeSupabaseCall {
