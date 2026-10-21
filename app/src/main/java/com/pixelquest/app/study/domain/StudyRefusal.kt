@@ -18,6 +18,9 @@ enum class StudyRefusal(val token: String) {
     /** A member keeps at most 100 reminders in a party (docs/study-reminders.md). */
     TOO_MANY_REMINDERS("too_many_reminders"),
 
+    /** A member sends at most 30 chat messages a minute (docs/study-chat.md). */
+    TOO_MANY_MESSAGES("too_many_messages"),
+
     /** Row-level security let nothing through: not the item's creator or leader, or past the 24 hours to undo. */
     NOT_ALLOWED("not_allowed"),
 
