@@ -44,7 +44,10 @@ data class ChatActions(
     val onReachOldest: () -> Unit = {},
     val onDismissNotice: () -> Unit = {},
     /** Reports a message; null while there's no way to report (the menu leaves it out). */
-    val onReport: ((ChatMessage) -> Unit)? = null
+    val onReport: ((ChatMessage) -> Unit)? = null,
+    /** A document was picked to share; null where sharing files isn't offered. */
+    val onAttach: ((String) -> Unit)? = null,
+    val onRemoveAttachment: () -> Unit = {}
 )
 
 /** A line of the Chat tab: a day's heading, or a message. */
@@ -98,7 +101,12 @@ fun StudyChatPane(
             value = state.draft,
             onValueChange = actions.onDraftChange,
             onSend = actions.onSend,
-            above = { state.replyingTo?.let { ReplyPreview(it, onCancel = actions.onCancelReply) } }
+            canSend = state.canSendAnything,
+            above = {
+                state.replyingTo?.let { ReplyPreview(it, onCancel = actions.onCancelReply) }
+                state.attachment?.let { AttachmentChip(it, onRemove = actions.onRemoveAttachment) }
+            },
+            leading = { actions.onAttach?.let { ChatAttachButton(onPicked = it) } }
         )
     },
     message: (@Composable (ChatMessageRow) -> Unit)? = null
@@ -221,6 +229,9 @@ object StudyChatTags {
     const val INPUT = "study_chat_input"
     const val SEND = "study_chat_send"
     const val COUNTER = "study_chat_counter"
+    const val ATTACH = "study_chat_attach"
+    const val ATTACHMENT = "study_chat_attachment"
+    const val ATTACHMENT_REMOVE = "study_chat_attachment_remove"
     const val UNREAD = "study_chat_unread"
     const val MENU = "study_chat_menu"
     const val MENU_COPY = "study_chat_menu_copy"

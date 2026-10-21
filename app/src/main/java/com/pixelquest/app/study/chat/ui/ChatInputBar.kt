@@ -57,12 +57,13 @@ fun ChatInputBar(
     onValueChange: (String) -> Unit,
     onSend: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Whether there's something to send; text alone by default (a picked file counts too). */
+    canSend: Boolean = value.isNotBlank() && value.length <= StudyChatConfig.MESSAGE_MAX_CHARS,
     above: @Composable ColumnScope.() -> Unit = {},
     leading: @Composable RowScope.() -> Unit = {}
 ) {
     val look = chatLook()
     val label = stringResource(R.string.study_chat_input_label)
-    val canSend = value.isNotBlank() && value.length <= StudyChatConfig.MESSAGE_MAX_CHARS
     Column(modifier = modifier.fillMaxWidth().background(PqColors.Paper).imePadding()) {
         Box(Modifier.fillMaxWidth().height(PqDimens.BorderThin).background(PqColors.Ink))
         Column(

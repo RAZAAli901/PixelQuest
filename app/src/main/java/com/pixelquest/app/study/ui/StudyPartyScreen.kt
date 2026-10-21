@@ -159,7 +159,9 @@ fun StudyPartyScreen(
                 onRetry = vm::retry,
                 onDiscard = vm::discard,
                 onReachOldest = vm::loadOlder,
-                onDismissNotice = vm::dismissNotice
+                onDismissNotice = vm::dismissNotice,
+                onAttach = vm::attach,
+                onRemoveAttachment = vm::removeAttachment
             )
         } ?: com.pixelquest.app.study.chat.ui.ChatActions(),
         reminderState = reminderState,

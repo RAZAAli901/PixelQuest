@@ -202,6 +202,8 @@
     <string name="study_chat_deleted">Message deleted</string>
     <string name="study_chat_not_sent">Not sent.</string>
     <string name="study_chat_reply">Reply</string>
+    <string name="study_chat_attach">Share a file</string>
+    <string name="study_chat_attach_remove">Don\'t share this file</string>
     <string name="study_chat_unread">Unread messages</string>
     <plurals name="study_chat_unread_count">
         <item quantity="one">%d unread message</item>

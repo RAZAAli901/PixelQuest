@@ -50,7 +50,8 @@ class StudyChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val chat: StudyChatRepository,
     private val parties: PartyRepository,
-    private val study: StudyRepository
+    private val study: StudyRepository,
+    private val picked: com.pixelquest.app.study.chat.data.PickedFileReader = com.pixelquest.app.study.chat.data.PickedFileReader { null }
 ) : ViewModel() {
 
     val partyId: String = savedStateHandle[StudyPartyViewModel.ARG_PARTY] ?: ""
@@ -60,6 +61,7 @@ class StudyChatViewModel @Inject constructor(
     private val replyingTo = MutableStateFlow<String?>(null)
     private val loadingOlder = MutableStateFlow(false)
     private val notice = MutableStateFlow<ChatNotice?>(null)
+    private val attachment = MutableStateFlow<com.pixelquest.app.study.chat.data.PickedFile?>(null)
     /** False once the server has said there's nothing older than what the phone has. */
     @Volatile
     private var serverHasOlder = true
@@ -81,8 +83,8 @@ class StudyChatViewModel @Inject constructor(
         people,
         combine(draft, replyingTo, loadingOlder, ::Triple),
         combine(readAtOpening, loaded, chat.observeUnread(), ::Triple),
-        notice
-    ) { (all, files), people, (text, replyId, older), (readAt, ready, unread), said ->
+        combine(notice, attachment, ::Pair)
+    ) { (all, files), people, (text, replyId, older), (readAt, ready, unread), (said, file) ->
         val me = study.myId()
         val rows = rowsOf(all, files, me, people.names, study.zone())
         ChatUiState(
@@ -97,7 +99,8 @@ class StudyChatViewModel @Inject constructor(
             today = study.today(),
             loadingOlder = older,
             notice = said,
-            unread = unread[partyId] ?: 0
+            unread = unread[partyId] ?: 0,
+            attachment = file
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, TabSharing, ChatUiState())
 
@@ -134,6 +137,15 @@ class StudyChatViewModel @Inject constructor(
 
     fun changeDraft(text: String) {
         draft.value = text.take(StudyChatConfig.MESSAGE_MAX_CHARS)
+    }
+
+    /** The player picked a document to share: what it says it is, to show before it's sent. */
+    fun attach(uri: String) {
+        viewModelScope.launch { attachment.value = picked.describe(uri) }
+    }
+
+    fun removeAttachment() {
+        attachment.value = null
     }
 
     fun replyTo(row: ChatMessageRow) {

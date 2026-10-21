@@ -36,7 +36,12 @@ data class ChatUiState(
     /** The last thing tried, said once: a send saved offline, or refused. */
     val notice: ChatNotice? = null,
     /** Others' messages not yet read, for the Chat tab's count. */
-    val unread: Int = 0
+    val unread: Int = 0,
+    /** The file picked to share, waiting to be sent. */
+    val attachment: com.pixelquest.app.study.chat.data.PickedFile? = null
 ) {
+    /** Something to send: text, a file, or both. */
+    val canSendAnything: Boolean get() = canSend || (attachment != null && draft.length <= com.pixelquest.app.study.chat.domain.StudyChatConfig.MESSAGE_MAX_CHARS)
+
     val canSend: Boolean get() = draft.isNotBlank() && draft.length <= com.pixelquest.app.study.chat.domain.StudyChatConfig.MESSAGE_MAX_CHARS
 }

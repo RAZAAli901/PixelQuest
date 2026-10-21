@@ -296,6 +296,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindPickedFileReader(
+        impl: com.pixelquest.app.study.chat.data.ContentResolverPickedFileReader
+    ): com.pixelquest.app.study.chat.data.PickedFileReader
+
+    @Binds
+    @Singleton
     abstract fun bindChatLiveSource(
         impl: com.pixelquest.app.study.chat.sync.SupabaseChatLiveSource
     ): com.pixelquest.app.study.chat.sync.ChatLiveSource
