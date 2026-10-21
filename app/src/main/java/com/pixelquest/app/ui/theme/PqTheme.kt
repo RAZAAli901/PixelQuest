@@ -161,7 +161,8 @@ object PqDimens {
     val RadiusSm get() = 10.dp * s.radiusScale
     val ScreenPad = 16.dp
     val Gap = 12.dp
-    val TouchMin = 44.dp
+    /** The smallest tap target: 48dp, Android's and the app's accessibility rule (the handoff had 44). */
+    val TouchMin = 48.dp
 }
 
 /** Skin-aware shapes: rounded in Comic, square in Pixel. */

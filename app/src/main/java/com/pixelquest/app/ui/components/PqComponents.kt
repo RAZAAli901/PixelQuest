@@ -1,5 +1,7 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import com.pixelquest.app.ui.theme.*
 
 import androidx.compose.foundation.Canvas
@@ -165,6 +167,11 @@ fun PqQuietButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifi
     )
 }
 
+/** Back, as every v2 top bar has it: an inked square with an arrow. */
+@Composable
+fun PqBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) =
+    PqIconButton(Icons.Rounded.ArrowBack, stringResource(R.string.navigate_back), onClick, modifier)
+
 @Composable
 fun PqIconButton(icon: ImageVector, contentDescription: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
@@ -310,11 +317,12 @@ fun CategoryTile(icon: ImageVector, bg: Color, size: Dp = 44.dp, iconSize: Dp = 
 
 /** Tap target that completes a quest. Empty ring → filled ink check. */
 @Composable
-fun CheckCircle(checked: Boolean, onClick: () -> Unit, size: Dp = 40.dp) {
+fun CheckCircle(checked: Boolean, onClick: () -> Unit, size: Dp = 40.dp, modifier: Modifier = Modifier, label: String? = null) {
     Box(
-        // A checkbox to TalkBack: its row's title says what it's for.
-        Modifier.size(PqDimens.TouchMin.coerceAtLeast(size)).clip(PqCircle)
-            .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onClick() }),
+        // A checkbox to TalkBack: its row's title says what it's for, or [label] does.
+        modifier.size(PqDimens.TouchMin.coerceAtLeast(size)).clip(PqCircle)
+            .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onClick() })
+            .then(if (label != null) Modifier.semantics { contentDescription = label } else Modifier),
         contentAlignment = Alignment.Center,
     ) {
         Box(

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -17,7 +16,8 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.theme.PqType
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -26,19 +26,13 @@ import java.time.format.FormatStyle
 fun LazyListScope.activityFeed(state: StudyPartyUiState, zone: ZoneId = ZoneId.systemDefault()) {
     if (state.activity.isEmpty()) return
     item(key = "activity_title") {
-        Text(
-            text = stringResource(R.string.study_activity_title),
-            style = MaterialTheme.typography.titleSmall,
-            color = PixelTheme.colors.primaryText,
-            modifier = Modifier.semantics { heading() }.testTag(StudyTags.ACTIVITY)
-        )
+        PqGroupLabel(stringResource(R.string.study_activity_title), Modifier.semantics { heading() }.testTag(StudyTags.ACTIVITY))
     }
     itemsIndexed(state.activity, key = { index, line -> "activity_${line.at.toEpochMilli()}_$index" }) { _, line -> ActivityRow(line, state, zone) }
 }
 
 @Composable
 private fun ActivityRow(line: ActivityLine, state: StudyPartyUiState, zone: ZoneId) {
-    val colors = PixelTheme.colors
     val username = state.members.firstOrNull { it.userId == line.userId }?.username
     val who = when {
         line.userId != null && line.userId == state.myId -> stringResource(R.string.study_activity_you)
@@ -58,7 +52,7 @@ private fun ActivityRow(line: ActivityLine, state: StudyPartyUiState, zone: Zone
         at.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale))
     )
     Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.fillMaxWidth()) {
-        Text(text = what, style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
-        Text(text = whenText, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+        Text(text = what, style = PqType.Body)
+        Text(text = whenText, style = PqType.Meta)
     }
 }

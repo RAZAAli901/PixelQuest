@@ -146,7 +146,7 @@ class StudyPartyFlowTest {
         // The board: 15 for the quiz, 5 for being early, 4 for the study time, and gold.
         composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.SCOREBOARD)).performClick()
         waitFor("his points") { bram.vm.uiState.value.board.firstOrNull()?.let { it.userId == "bram" && it.points == 24 } == true }
-        composeTestRule.onNodeWithText("🥇", useUnmergedTree = true).assertExists()
+        assertEquals(Medal.GOLD, bram.vm.uiState.value.board.first().let { medalFor(it.place, it.points) })
 
         // Aria's phone, refreshed, agrees.
         aria.vm.refresh()

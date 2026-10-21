@@ -1,5 +1,7 @@
 package com.pixelquest.app.study.ui
 
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onAllNodesWithText
 import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,9 +77,8 @@ class StudyLookTest(private val mode: ThemeMode) {
             composeTestRule.onNodeWithTag(StudyTags.tab(tab)).assertExists()
         }
         composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.SCOREBOARD)).performClick()
-        composeTestRule.onNodeWithText("🥇", useUnmergedTree = true).assertExists()
-        composeTestRule.onNodeWithText("🥈", useUnmergedTree = true).assertExists()
-        composeTestRule.onNodeWithText("🥉", useUnmergedTree = true).assertExists()
+        // The first three on their medals, by number.
+        for (place in listOf("1", "2", "3")) composeTestRule.onAllNodesWithText(place, useUnmergedTree = true).onFirst().assertExists()
     }
 
     @Test
@@ -103,9 +104,9 @@ class StudyLookTest(private val mode: ThemeMode) {
 
     @Test
     fun medals_areForTheFirstThreeWithPoints() {
-        assertEquals("🥇", medalFor(1, 10))
-        assertEquals("🥈", medalFor(2, 5))
-        assertEquals("🥉", medalFor(3, 1))
+        assertEquals(Medal.GOLD, medalFor(1, 10))
+        assertEquals(Medal.SILVER, medalFor(2, 5))
+        assertEquals(Medal.BRONZE, medalFor(3, 1))
         assertNull(medalFor(4, 50))
         assertNull("no medal for nothing", medalFor(1, 0))
     }

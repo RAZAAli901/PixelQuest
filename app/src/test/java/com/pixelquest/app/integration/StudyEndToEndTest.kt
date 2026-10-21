@@ -199,7 +199,7 @@ class StudyEndToEndTest {
         // The scoreboard: Bram first with 20 (15 for the quiz, 5 for two days early), gold; Aria second.
         composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.SCOREBOARD)).performClick()
         waitFor("his line") { shown(StudyTags.boardRow("bram")) }
-        composeTestRule.onNodeWithText("🥇", useUnmergedTree = true).assertExists()
+        assertEquals(com.pixelquest.app.study.ui.Medal.GOLD, bramParty.uiState.value.board.first().let { com.pixelquest.app.study.ui.medalFor(it.place, it.points) })
         assertEquals(listOf("bram" to 20, "aria" to 0), bramParty.uiState.value.board.map { it.userId to it.points })
 
         // Aria's phone agrees once it refreshes.

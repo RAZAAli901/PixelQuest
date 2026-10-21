@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,7 +19,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import java.time.ZoneId
 
 /**
@@ -30,36 +33,28 @@ import java.time.ZoneId
 @Composable
 fun PinnedStrip(rows: List<ItemRow>, onOpen: (String) -> Unit, modifier: Modifier = Modifier, zone: ZoneId = ZoneId.systemDefault()) {
     if (rows.isEmpty()) return
-    val colors = PixelTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = modifier.fillMaxWidth().testTag(StudyTags.PINNED)) {
-        Text(
-            text = stringResource(R.string.study_pinned_title),
-            style = MaterialTheme.typography.titleSmall,
-            color = colors.primaryText,
-            modifier = Modifier.semantics { heading() }
-        )
+        PqGroupLabel(stringResource(R.string.study_pinned_title), Modifier.semantics { heading() })
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(rows, key = { "pinned_" + it.item.id }) { row ->
                 Column(
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                     modifier = Modifier
                         .widthIn(min = 140.dp, max = 220.dp)
-                        .studyChip(colors.surfaceVariant)
+                        .comic(bg = PqColors.Gold, radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
                         .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_open_item)) { onOpen(row.item.id) }
                         .padding(horizontal = 12.dp, vertical = 10.dp)
                         .testTag(StudyTags.pinned(row.item.id))
                 ) {
                     Text(
                         text = stringResource(R.string.study_pinned_line, row.item.title),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = colors.onSurface,
+                        style = PqType.BodyStrong,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = dueText(row.due, row.item.dueAt, zone),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (row.due == DueState.OVERDUE) colors.error else colors.onSurfaceVariant,
+                        style = PqType.Meta.copy(color = if (row.due == DueState.OVERDUE) PqColors.Error else PqColors.Ink2),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

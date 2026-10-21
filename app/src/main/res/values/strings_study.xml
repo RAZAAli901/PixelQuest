@@ -8,9 +8,9 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- The party screen's tabs. -->
-    <string name="study_tab_this_week">This week</string>
-    <string name="study_tab_all_items">All items</string>
-    <string name="study_tab_scoreboard">Scoreboard</string>
+    <string name="study_tab_this_week">Week</string>
+    <string name="study_tab_all_items">Items</string>
+    <string name="study_tab_scoreboard">Scores</string>
     <string name="study_tab_people">People</string>
     <!-- The top bar's button that opens the party's info (members, leader actions). -->
     <string name="study_open_info">Party info</string>
@@ -35,8 +35,8 @@
     <string name="study_section_tomorrow">Tomorrow</string>
     <string name="study_section_no_date">No due date</string>
     <!-- An item's card. -->
-    <string name="study_kind_assignment">📝 Assignment</string>
-    <string name="study_kind_quiz">❓ Quiz</string>
+    <string name="study_kind_assignment">Assignment</string>
+    <string name="study_kind_quiz">Quiz</string>
     <string name="study_pinned">Pinned by the leader</string>
     <string name="study_open_item">Open item</string>
     <!-- When it's due: day, then time ("Due Fri 23 Oct, 17:00"). -->
@@ -60,6 +60,8 @@
     <string name="study_field_notes">Notes (optional)</string>
     <string name="study_field_due">Due</string>
     <string name="study_field_pin">Pin it for the party</string>
+    <!-- Under "Pin for the party" in the Add item sheet (mock 4I). -->
+    <string name="study_field_pin_body">Stays at the top of everyone\'s week</string>
     <string name="study_title_short">A title needs at least 2 characters.</string>
     <string name="study_quiz_needs_date">A quiz needs a due date.</string>
     <string name="study_add_item_save">Add it</string>
@@ -178,6 +180,10 @@
     <string name="study_past_mine">You: <xliff:g id="points" example="25 points">%1$s</xliff:g></string>
     <!-- How points are earned. -->
     <string name="study_points_title">How points work</string>
+    <!-- Under a member's points on the board (mock 4J). -->
+    <string name="study_points_short">pts</string>
+    <!-- Beside the week's dates over the board (mock 4J). -->
+    <string name="study_board_resets">Resets Monday</string>
     <string name="study_points_assignment">An assignment done: <xliff:g id="points" example="10">%d</xliff:g></string>
     <string name="study_points_quiz">A quiz done: <xliff:g id="points" example="15">%d</xliff:g></string>
     <string name="study_points_early">Done a day or more early: <xliff:g id="points" example="5">%d</xliff:g> more</string>

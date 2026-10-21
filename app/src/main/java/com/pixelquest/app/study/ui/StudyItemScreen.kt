@@ -124,9 +124,7 @@ private fun StudyItemBody(
                 title = row?.let { kindLabel(it.item.kind) } ?: stringResource(R.string.party_study_title),
                 subtitle = state.party?.name,
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        SymbolIcon(symbol = "◀", contentDescription = stringResource(R.string.navigate_back), style = MaterialTheme.typography.titleMedium, color = colors.primaryText)
-                    }
+                    com.pixelquest.app.ui.components.PqBackButton(onNavigateBack)
                 },
                 actions = {
                     if (row != null && (row.canEdit || state.isLeader)) ItemTopMenu(row, state.isLeader, actions)

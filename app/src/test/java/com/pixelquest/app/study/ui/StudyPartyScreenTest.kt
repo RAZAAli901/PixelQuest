@@ -60,8 +60,7 @@ class StudyPartyScreenTest {
                 ItemCard(ItemRow(quiz, waiting, 2, 5, DueState.OVERDUE, canUndo = true, canEdit = true), onOpen = { opened = true }, zone = zone)
             }
         }
-        composeTestRule.onNodeWithText("❓ Quiz", useUnmergedTree = true).assertExists()
-        composeTestRule.onNodeWithText("Physics", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithText("Quiz · Physics", useUnmergedTree = true).assertExists()
         composeTestRule.onNodeWithContentDescription("Pinned by the leader", useUnmergedTree = true).assertExists()
         composeTestRule.onNodeWithTag(StudyTags.itemDue("q"), useUnmergedTree = true).assertTextContains("Overdue: due Mon 19 Oct", substring = true)
         composeTestRule.onNodeWithText("2 of 5 finished", useUnmergedTree = true).assertExists()
@@ -169,7 +168,7 @@ class StudyPartyScreenTest {
         composeTestRule.setContent {
             PixelQuestTheme { StudyPartyContent(state = state, onNavigateBack = {}, onOpenInfo = {}) }
         }
-        composeTestRule.onNodeWithText("Mon 19 Oct to Sun 25 Oct").assertExists()
+        composeTestRule.onNodeWithText("Mon 19 Oct to Sun 25 Oct", ignoreCase = true).assertExists()
         composeTestRule.onNodeWithTag(StudyTags.boardRow("bram"))
             .assertExists()
         composeTestRule.onNodeWithContentDescription("1. @bram, 26 points 1 item, 5 bonus, 65 minutes", useUnmergedTree = true).assertExists()

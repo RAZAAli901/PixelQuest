@@ -1,65 +1,80 @@
 package com.pixelquest.app.study.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.PersonAdd
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.ui.PartyRefreshBox
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyTab
 import com.pixelquest.app.party.ui.components.MemberList
 import com.pixelquest.app.study.domain.StudyRefusal
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelConfirmDialog
-import com.pixelquest.app.ui.components.PixelFloatingActionButton
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.components.PqIconButton
+import com.pixelquest.app.ui.components.PqSwitch
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.components.comicPressable
+import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.pqShape
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
-import com.pixelquest.app.ui.theme.PixelTheme
 
 /**
  * A study party's own screen (docs/study-party.md): its name over four tabs, This week, All items,
@@ -158,29 +173,53 @@ private fun StudyPartyScaffold(
     onDismissWinners: () -> Unit,
     reminders: ReminderToggles
 ) {
-    val colors = PixelTheme.colors
     Scaffold(
-        containerColor = colors.background,
+        containerColor = PqColors.Ground,
         topBar = {
-            PixelTopAppBar(
-                title = state.party?.name ?: stringResource(R.string.party_study_title),
-                subtitle = stringResource(R.string.party_study_title),
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        SymbolIcon(symbol = "◀", contentDescription = stringResource(R.string.navigate_back), style = MaterialTheme.typography.titleMedium, color = colors.primaryText)
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onOpenInfo, modifier = Modifier.testTag(StudyTags.INFO)) {
-                        SymbolIcon(symbol = "ⓘ", contentDescription = stringResource(R.string.study_open_info), style = MaterialTheme.typography.titleMedium, color = colors.primaryText)
-                    }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth().background(PqColors.Ground).padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp).heightIn(min = 56.dp)
+            ) {
+                PqIconButton(Icons.Rounded.ArrowBack, stringResource(R.string.navigate_back), onNavigateBack)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = (state.party?.name ?: stringResource(R.string.party_study_title)).uppercase(),
+                        style = PqType.Title.copy(color = PqColors.Title),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.semantics { heading() }
+                    )
+                    Text(
+                        text = if (state.memberCount > 0) {
+                            stringResource(R.string.pq_party_card_line, stringResource(R.string.party_study_title), pluralStringResource(R.plurals.party_members, state.memberCount, state.memberCount))
+                        } else {
+                            stringResource(R.string.party_study_title)
+                        },
+                        style = PqType.Meta,
+                        maxLines = 1
+                    )
                 }
-            )
+                PqIconButton(Icons.Rounded.Info, stringResource(R.string.study_open_info), onOpenInfo, Modifier.testTag(StudyTags.INFO))
+            }
         },
         floatingActionButton = {
             if (state.tab == PartyTab.THIS_WEEK || state.tab == PartyTab.ALL_ITEMS) {
                 val label = stringResource(R.string.study_add_item)
-                PixelFloatingActionButton(onClick = onAddItem, modifier = Modifier.semantics { contentDescription = label }.testTag(StudyTags.ADD_ITEM))
+                // ADD ITEM, on red with its plus (mock 4H).
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .semantics(mergeDescendants = true) { contentDescription = label }
+                        .testTag(StudyTags.ADD_ITEM)
+                        .height(52.dp)
+                        .comicPressable(onAddItem, bg = PqColors.Red, radius = 16.dp, shadow = PqDimens.ShadowLg, role = Role.Button)
+                        .padding(start = 14.dp, end = 18.dp)
+                ) {
+                    Icon(Icons.Rounded.Add, contentDescription = null, tint = PqColors.OnRed, modifier = Modifier.size(24.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(text = label.uppercase(), style = PqType.Button.copy(color = PqColors.OnRed), modifier = Modifier.clearAndSetSemantics { })
+                }
             }
         },
         modifier = Modifier.testTag(StudyTags.SCREEN)
@@ -204,7 +243,7 @@ private fun StudyPartyScaffold(
             PartyRefreshBox(refreshing = state.refreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     // Room at the end for the Add item button over the last card.
-                    contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 96.dp),
+                    contentPadding = PaddingValues(start = PqDimens.ScreenPad, top = 12.dp, end = PqDimens.ScreenPad, bottom = 96.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab))
                 ) {
@@ -244,32 +283,41 @@ private fun StudyPartyScaffold(
     }
 }
 
-/** The tabs, side by side, scrolling sideways when the text is large. */
+/** The tabs, side by side in one inked bar (mock 4H), the chosen one filled. */
 @Composable
 private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (PartyTab) -> Unit) {
-    val colors = PixelTheme.colors
+    val shape = pqShape(12.dp)
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
         modifier = Modifier
+            .padding(horizontal = PqDimens.ScreenPad, vertical = 8.dp)
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(shape)
+            .background(PqColors.Paper)
+            .border(PqDimens.Border, PqColors.Ink, shape)
+            .padding(3.dp)
             .selectableGroup()
     ) {
         tabs.forEach { tab ->
             val isSelected = tab == selected
-            Text(
-                text = stringResource(tabLabel(tab)),
-                style = MaterialTheme.typography.labelLarge,
-                color = if (isSelected) colors.onPrimary else colors.onSurface,
-                textAlign = TextAlign.Center,
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .studyChip(if (isSelected) colors.primary else colors.surface)
+                    .weight(1f)
+                    .heightIn(min = 40.dp)
+                    .clip(pqShape(9.dp))
+                    .background(if (isSelected) PqColors.Ink else PqColors.Paper)
                     .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab) })
-                    .heightIn(min = 48.dp)
-                    .padding(horizontal = 14.dp, vertical = 13.dp)
                     .testTag(StudyTags.tabButton(tab))
-            )
+            ) {
+                Text(
+                    text = stringResource(tabLabel(tab)),
+                    style = PqType.MetaStrong.copy(color = if (isSelected) PqColors.Paper else PqColors.Ink),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
+                )
+            }
         }
     }
 }
@@ -286,8 +334,7 @@ fun tabLabel(tab: PartyTab): Int = when (tab) {
 private fun NoticeLine(notice: StudyNotice, onDismiss: () -> Unit) {
     Text(
         text = stringResource(noticeText(notice)),
-        style = MaterialTheme.typography.bodySmall,
-        color = PixelTheme.colors.onSurfaceVariant,
+        style = PqType.Meta.copy(color = PqColors.Ink2),
         modifier = Modifier
             .fillMaxWidth()
             .selectable(selected = false, role = Role.Button, onClick = onDismiss)
@@ -312,9 +359,8 @@ private fun LazyListScope.emptyLine(text: Int, loaded: Boolean) {
     item(key = "empty") {
         Text(
             text = stringResource(if (loaded) text else R.string.study_loading),
-            style = MaterialTheme.typography.bodyMedium,
-            color = PixelTheme.colors.onSurfaceVariant,
-            modifier = Modifier.fillMaxWidth().testTag(StudyTags.EMPTY)
+            style = PqType.Body.copy(color = PqColors.Ink2),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).testTag(StudyTags.EMPTY)
         )
     }
 }
@@ -370,35 +416,25 @@ private fun CardFor(state: StudyPartyUiState, row: ItemRow, onOpenItem: (String)
 /** The week's line: items done of those this week, and the player's points so far. */
 @Composable
 private fun WeekSummary(state: StudyPartyUiState) {
-    val colors = PixelTheme.colors
-    PixelCard(variant = PixelPanelVariant.BEIGE, contentPadding = 16.dp, modifier = Modifier.fillMaxWidth().testTag(StudyTags.WEEK_SUMMARY)) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().testTag(StudyTags.WEEK_SUMMARY).semantics(mergeDescendants = true) { }
+    ) {
+        PqGroupLabel(stringResource(R.string.study_week_progress, state.weekProgress.done, state.weekProgress.total), Modifier.weight(1f))
+        if (!state.simpleMode) {
+            val points = state.myScore?.points ?: 0
             Text(
-                text = stringResource(R.string.study_week_progress, state.weekProgress.done, state.weekProgress.total),
-                style = MaterialTheme.typography.titleSmall,
-                color = inkOnPanel(colors.primaryText)
+                text = stringResource(R.string.study_week_points, pluralStringResource(R.plurals.study_points, points, points)),
+                style = PqType.MetaStrong,
+                modifier = Modifier.testTag(StudyTags.WEEK_POINTS)
             )
-            if (!state.simpleMode) {
-                val points = state.myScore?.points ?: 0
-                Text(
-                    text = stringResource(R.string.study_week_points, pluralStringResource(R.plurals.study_points, points, points)),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurface,
-                    modifier = Modifier.testTag(StudyTags.WEEK_POINTS)
-                )
-            }
         }
     }
 }
 
 @Composable
 private fun SectionHeading(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleSmall,
-        color = PixelTheme.colors.primaryText,
-        modifier = Modifier.padding(top = 4.dp).semantics { heading() }
-    )
+    PqGroupLabel(text, Modifier.semantics { heading() })
 }
 
 private fun sectionKey(section: WeekSection): String = when (section) {
@@ -439,11 +475,11 @@ private fun LazyListScope.people(state: StudyPartyUiState, onAddPeople: () -> Un
     }
     if (state.isLeader) {
         item(key = "add") {
-            PixelButton(text = stringResource(R.string.study_add_people), onClick = onAddPeople, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag(StudyTags.ADD_PEOPLE))
+            PqButton(text = stringResource(R.string.study_add_people), onClick = onAddPeople, icon = Icons.Rounded.PersonAdd, modifier = Modifier.fillMaxWidth().testTag(StudyTags.ADD_PEOPLE))
         }
     }
     item(key = "info") {
-        PixelButton(text = stringResource(R.string.study_open_info), onClick = onOpenInfo, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp))
+        PqButton(text = stringResource(R.string.study_open_info), onClick = onOpenInfo, style = PqButtonStyle.Secondary, icon = Icons.Rounded.Info, modifier = Modifier.fillMaxWidth())
     }
 }
 
@@ -457,12 +493,7 @@ data class ReminderToggles(
 
 private fun LazyListScope.reminderToggles(reminders: ReminderToggles, simpleMode: Boolean) {
     item(key = "reminders_title") {
-        Text(
-            text = stringResource(R.string.study_reminders_title),
-            style = MaterialTheme.typography.titleSmall,
-            color = PixelTheme.colors.primaryText,
-            modifier = Modifier.padding(top = 8.dp).semantics { heading() }
-        )
+        PqGroupLabel(stringResource(R.string.study_reminders_title), Modifier.padding(top = 8.dp).semantics { heading() })
     }
     item(key = "reminders_due") {
         ToggleRow(stringResource(R.string.study_reminders_due), stringResource(R.string.study_reminders_due_body), reminders.due, reminders.onDue, StudyTags.REMINDERS_DUE)
@@ -476,21 +507,22 @@ private fun LazyListScope.reminderToggles(reminders: ReminderToggles, simpleMode
 /** A setting that's on or off: its name, a line about it, and a switch; the whole row toggles it. */
 @Composable
 fun ToggleRow(title: String, body: String, on: Boolean, onChange: (Boolean) -> Unit, tag: String) {
-    val colors = PixelTheme.colors
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 48.dp)
-            .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
             .testTag(tag)
+            .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
+            .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .heightIn(min = 48.dp)
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge, color = colors.onSurface)
-            Text(text = body, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+            Text(text = title, style = PqType.BodyStrong)
+            Text(text = body, style = PqType.Meta.copy(color = PqColors.Ink2))
         }
-        androidx.compose.material3.Switch(checked = on, onCheckedChange = null)
+        PqSwitch(checked = on, onCheckedChange = null)
     }
 }
 
