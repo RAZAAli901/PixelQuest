@@ -70,6 +70,18 @@ data class ChessGameActions(
 fun ChessGameRoute(onNavigateBack: () -> Unit, onOpenGame: (String) -> Unit = {}, viewModel: ChessSessionViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
+    // Sounds and haptics for each move and the end (J161).
+    val view = androidx.compose.ui.platform.LocalView.current
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    androidx.compose.runtime.LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ChessSessionEvent.Moved -> ChessFeedback.play(ChessFeedback.cueOf(event.move), view, haptic, viewModel.prefs.value.sounds)
+                is ChessSessionEvent.Ended -> ChessFeedback.play(ChessCue.END, view, haptic, viewModel.prefs.value.sounds)
+                else -> Unit
+            }
+        }
+    }
     ChessGameScreen(
         state = state,
         sync = viewModel.clockSync,
