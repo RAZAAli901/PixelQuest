@@ -70,7 +70,7 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         com.pixelquest.app.chess.data.local.ChessHeadToHeadEntity::class,
         com.pixelquest.app.chess.data.local.ChessFinishedGameEntity::class
     ],
-    version = 22,
+    version = 23,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -99,7 +99,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, MIGRATION_21_22)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, MIGRATION_21_22, MIGRATION_22_23)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -338,6 +338,16 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_21_22 = object : Migration(21, 22) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 CHESS_TABLES_22.forEach { db.execSQL(it) }
+            }
+        }
+
+        /**
+         * The study chat's server lines say what they're about (refId: a chess challenge or game,
+         * docs/chess-ui-integration.md). One nullable column; every message kept has none.
+         */
+        val MIGRATION_22_23 = object : Migration(22, 23) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `chat_message` ADD COLUMN `refId` TEXT")
             }
         }
 

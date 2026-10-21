@@ -113,7 +113,9 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
             onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } },
             onOpenItem = { itemId -> navController.navigate(Screen.PartiesItem.createRoute(partyId, itemId)) { launchSingleTop = true } },
             remindersViewModel = hiltViewModel(),
-            chatViewModel = hiltViewModel()
+            chatViewModel = hiltViewModel(),
+            chessViewModel = hiltViewModel(),
+            onOpenChessGame = { game -> navController.navigate(Screen.ChessGame.createRoute(game)) { launchSingleTop = true } }
         )
     }
     composable(

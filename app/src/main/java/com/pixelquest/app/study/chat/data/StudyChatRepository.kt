@@ -279,12 +279,12 @@ class StudyChatRepositoryImpl(
 
 private fun ChatMessage.toEntity() = ChatMessageEntity(
     id = id, partyId = partyId, senderId = senderId, kind = kind, body = body, fileId = fileId, replyTo = replyTo,
-    clientId = clientId, createdAt = createdAt.toEpochMilli(), deletedAt = deletedAt?.toEpochMilli()
+    clientId = clientId, createdAt = createdAt.toEpochMilli(), deletedAt = deletedAt?.toEpochMilli(), refId = refId
 )
 
 private fun ChatMessageEntity.toDomain() = ChatMessage(
     id = id, partyId = partyId, senderId = senderId, kind = kind, body = body, fileId = fileId, replyTo = replyTo,
-    clientId = clientId, createdAt = Instant.ofEpochMilli(createdAt), deletedAt = deletedAt?.let(Instant::ofEpochMilli)
+    clientId = clientId, createdAt = Instant.ofEpochMilli(createdAt), deletedAt = deletedAt?.let(Instant::ofEpochMilli), refId = refId
 )
 
 private fun PendingChatMessageEntity.toMessage(me: String?) = ChatMessage(

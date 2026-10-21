@@ -30,7 +30,9 @@ data class ChatMessageEntity(
     val replyTo: String?,
     val clientId: String?,
     val createdAt: Long,
-    val deletedAt: Long?
+    val deletedAt: Long?,
+    /** What a server line is about (from version 23). */
+    val refId: String? = null
 )
 
 /**

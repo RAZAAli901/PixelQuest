@@ -58,6 +58,13 @@ fun MessageBubbleRow(
 ) {
     val message = row.message
     if (message.kind == ChatMessageKind.SYSTEM) {
+        // Chess's lines are cards, drawn by the party's chess (J152).
+        val chess = com.pixelquest.app.chess.ui.LocalChessChatCards.current
+        val ref = message.refId
+        if (chess != null && ref != null && message.body in com.pixelquest.app.chess.ui.CHESS_CHAT_TOKENS) {
+            Box(modifier) { chess(message.body!!, ref) }
+            return
+        }
         SystemLine(message.body, modifier)
         return
     }

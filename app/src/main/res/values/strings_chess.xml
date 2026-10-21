@@ -93,4 +93,8 @@
     <string name="chess_you_play_black">You play Black</string>
     <string name="chess_you_play_random">Colours by lot</string>
     <string name="chess_incoming_left"><xliff:g id="time" example="9:41">%1$s</xliff:g> left to answer</string>
+    <string name="chess_chat_open_title">Open chess challenge</string>
+    <string name="chess_chat_open_body"><xliff:g id="name" example="@sara">%1$s</xliff:g> wants a game: <xliff:g id="time" example="3 min">%2$s</xliff:g>, <xliff:g id="rated" example="Rated">%3$s</xliff:g>.</string>
+    <string name="chess_chat_open_gone">Taken, or no longer open.</string>
+    <string name="chess_chat_cancel">Cancel my challenge</string>
 </resources>

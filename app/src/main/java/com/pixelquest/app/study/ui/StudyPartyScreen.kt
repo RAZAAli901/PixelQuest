@@ -98,7 +98,10 @@ fun StudyPartyScreen(
     /** The party's reminders (docs/study-reminders.md); without one (a test), the screen has none. */
     remindersViewModel: StudyRemindersViewModel? = null,
     /** The party's chat (docs/study-chat.md); without one (a test), its Chat and Files tabs are empty. */
-    chatViewModel: com.pixelquest.app.study.chat.ui.StudyChatViewModel? = null
+    chatViewModel: com.pixelquest.app.study.chat.ui.StudyChatViewModel? = null,
+    /** The party's chess; without one (a test), chess lines in the chat stay plain. */
+    chessViewModel: com.pixelquest.app.chess.ui.ChessPartyViewModel? = null,
+    onOpenChessGame: (String) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     val reminderState by (remindersViewModel?.uiState ?: remember { kotlinx.coroutines.flow.MutableStateFlow(ReminderUiState()) }).collectAsState()
@@ -127,6 +130,16 @@ fun StudyPartyScreen(
             if (!com.pixelquest.app.study.chat.ui.openInViewer(context, saved)) chatViewModel.noViewer()
         }
     }
+    val chessState by (chessViewModel?.state ?: remember { kotlinx.coroutines.flow.MutableStateFlow(com.pixelquest.app.chess.ui.ChessPartyState()) }).collectAsState()
+    LaunchedEffect(chessViewModel) {
+        chessViewModel?.events?.collect { event ->
+            if (event is com.pixelquest.app.chess.ui.ChessPartyEvent.GameStarted) onOpenChessGame(event.gameId)
+        }
+    }
+    val chessCards: (@Composable (String, String) -> Unit)? = chessViewModel?.let { chess ->
+        { token, ref -> com.pixelquest.app.chess.ui.ChessChatCard(token, ref, chessState, chess::answer) }
+    }
+    androidx.compose.runtime.CompositionLocalProvider(com.pixelquest.app.chess.ui.LocalChessChatCards provides chessCards) {
     StudyPartyContent(
         state = state,
         onNavigateBack = onNavigateBack,
@@ -203,6 +216,7 @@ fun StudyPartyScreen(
             )
         }
     )
+    }
 }
 
 /** What the reminders' part of the screen can do (docs/study-reminders.md). */

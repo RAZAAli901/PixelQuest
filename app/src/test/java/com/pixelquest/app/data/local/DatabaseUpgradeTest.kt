@@ -301,6 +301,7 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion19() = updateFrom(19)
     @Test fun fromVersion20() = updateFrom(20)
     @Test fun fromVersion21() = updateFrom(21)
+    @Test fun fromVersion22() = updateFrom(22)
 
     @Test
     fun theChessCache_keepsOnlyFinishedGamesOfKeptParties_andClears(): Unit = runBlocking {

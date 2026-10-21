@@ -164,7 +164,7 @@ class SupabaseStudyChatRemoteDataSource @Inject constructor(
         const val MESSAGES = "chat_messages"
         const val FILES = "chat_files"
         const val SINCE_LIMIT = 500L
-        val MESSAGE_COLUMNS = listOf("id", "party_id", "sender_id", "kind", "body", "file_id", "reply_to", "client_id", "created_at", "deleted_at")
+        val MESSAGE_COLUMNS = listOf("id", "party_id", "sender_id", "kind", "body", "file_id", "reply_to", "client_id", "created_at", "deleted_at", "ref_id")
         // Never storage_path: it isn't granted.
         val FILE_COLUMNS = listOf(
             "id", "party_id", "uploader_id", "display_name", "mime", "size_bytes", "sha256", "status", "reject_reason", "pinned", "created_at", "ready_at"

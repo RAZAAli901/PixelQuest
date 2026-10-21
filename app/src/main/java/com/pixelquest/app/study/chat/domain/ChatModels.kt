@@ -62,7 +62,9 @@ data class ChatMessage(
     val clientId: String?,
     val createdAt: Instant,
     val deletedAt: Instant?,
-    val sync: SyncState? = null
+    val sync: SyncState? = null,
+    /** What one of the server's lines is about (a chess challenge, a game). */
+    val refId: String? = null
 ) {
     val deleted: Boolean get() = deletedAt != null
 }

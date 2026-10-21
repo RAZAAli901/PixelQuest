@@ -25,7 +25,8 @@ data class ChatMessageDto(
     @SerialName("reply_to") val replyTo: String? = null,
     @SerialName("client_id") val clientId: String? = null,
     @SerialName("created_at") val createdAt: String,
-    @SerialName("deleted_at") val deletedAt: String? = null
+    @SerialName("deleted_at") val deletedAt: String? = null,
+    @SerialName("ref_id") val refId: String? = null
 )
 
 /** What a member sends: text, as themselves (the server fills in who and when). Its kind is always sent. */
@@ -106,7 +107,8 @@ fun ChatMessageDto.toDomain(): ChatMessage = ChatMessage(
     replyTo = replyTo,
     clientId = clientId,
     createdAt = parseInstant(createdAt),
-    deletedAt = deletedAt?.let(::parseInstant)
+    deletedAt = deletedAt?.let(::parseInstant),
+    refId = refId
 )
 
 fun ChatFileDto.toDomain(): ChatFile = ChatFile(
