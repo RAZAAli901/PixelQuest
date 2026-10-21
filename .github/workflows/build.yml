@@ -62,7 +62,8 @@ jobs:
           echo "GEMINI_VIA_PROXY=true" >> local.properties
 
       # The Quran's data (docs/quran-data.md): its sources must still be Tanzil's files, whole and
-      # unchanged (114 surahs, 6,236 ayahs, the Bismillah rule), or this fails.
+      # unchanged (114 surahs, 6,236 ayahs, the Bismillah rule), and the files the app bundles exactly
+      # what they build, or this fails.
       - name: Check the Quran data
         run: ./gradlew :tools:quran-build:test
 
