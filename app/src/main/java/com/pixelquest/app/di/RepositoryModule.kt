@@ -296,6 +296,24 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindChatFilesRemote(
+        impl: com.pixelquest.app.study.chat.data.remote.HttpChatFilesRemote
+    ): com.pixelquest.app.study.chat.data.remote.ChatFilesRemote
+
+    @Binds
+    @Singleton
+    abstract fun bindPickedDocuments(
+        impl: com.pixelquest.app.study.chat.data.ContentResolverPickedDocuments
+    ): com.pixelquest.app.study.chat.data.PickedDocuments
+
+    @Binds
+    @Singleton
+    abstract fun bindChatUploadScheduler(
+        impl: com.pixelquest.app.study.chat.sync.WorkManagerChatUploadScheduler
+    ): com.pixelquest.app.study.chat.data.ChatUploadScheduler
+
+    @Binds
+    @Singleton
     abstract fun bindPickedFileReader(
         impl: com.pixelquest.app.study.chat.data.ContentResolverPickedFileReader
     ): com.pixelquest.app.study.chat.data.PickedFileReader

@@ -57,7 +57,8 @@ class StudyChatViewModel @Inject constructor(
     private val chat: StudyChatRepository,
     private val parties: PartyRepository,
     private val study: StudyRepository,
-    private val picked: com.pixelquest.app.study.chat.data.PickedFileReader = com.pixelquest.app.study.chat.data.PickedFileReader { null }
+    private val picked: com.pixelquest.app.study.chat.data.PickedFileReader = com.pixelquest.app.study.chat.data.PickedFileReader { null },
+    private val uploads: com.pixelquest.app.study.chat.data.ChatUploads? = null
 ) : ViewModel() {
 
     val partyId: String = savedStateHandle[StudyPartyViewModel.ARG_PARTY] ?: ""
@@ -89,8 +90,8 @@ class StudyChatViewModel @Inject constructor(
         people,
         combine(draft, replyingTo, loadingOlder, ::Triple),
         combine(readAtOpening, loaded, chat.observeUnread(), ::Triple),
-        combine(notice, attachment, ::Pair)
-    ) { (all, files), people, (text, replyId, older), (readAt, ready, unread), (said, file) ->
+        combine(notice, attachment, uploads?.observe(partyId) ?: kotlinx.coroutines.flow.flowOf(emptyList()), ::Triple)
+    ) { (all, files), people, (text, replyId, older), (readAt, ready, unread), (said, file, sharing) ->
         val me = study.myId()
         val rows = rowsOf(all, files, me, people.names, study.zone())
         ChatUiState(
@@ -106,7 +107,8 @@ class StudyChatViewModel @Inject constructor(
             loadingOlder = older,
             notice = said,
             unread = unread[partyId] ?: 0,
-            attachment = file
+            attachment = file,
+            uploads = sharing.map { ChatUploadRow(it.clientId, it.displayName, it.mime, it.sizeBytes, it.sentBytes, it.state, it.reason) }
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, TabSharing, ChatUiState())
 
@@ -186,6 +188,11 @@ class StudyChatViewModel @Inject constructor(
 
     fun send() {
         val text = draft.value
+        val file = attachment.value
+        if (file != null) {
+            attachment.value = null
+            viewModelScope.launch { uploads?.share(partyId, file) }
+        }
         if (text.isBlank()) return
         val reply = replyingTo.value
         draft.value = ""
@@ -198,6 +205,18 @@ class StudyChatViewModel @Inject constructor(
                 is ChatSend.Refused -> notice.value = ChatNotice.Refused(result.refusal)
             }
         }
+    }
+
+    fun cancelUpload(clientId: String) {
+        viewModelScope.launch { uploads?.cancel(clientId) }
+    }
+
+    fun retryUpload(clientId: String) {
+        viewModelScope.launch { uploads?.retry(clientId) }
+    }
+
+    fun dismissUpload(clientId: String) {
+        viewModelScope.launch { uploads?.dismiss(clientId) }
     }
 
     fun retry(clientId: String) {

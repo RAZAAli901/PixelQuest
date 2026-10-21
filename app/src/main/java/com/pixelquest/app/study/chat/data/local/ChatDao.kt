@@ -134,6 +134,10 @@ interface ChatDao {
     @Query("DELETE FROM chat_upload WHERE clientId = :clientId")
     suspend fun deleteUpload(clientId: String)
 
+    /** How many bytes have gone: called from the upload's own thread, as they go. */
+    @Query("UPDATE chat_upload SET sentBytes = :bytes WHERE clientId = :clientId")
+    fun setSentBytes(clientId: String, bytes: Long)
+
     // How far it's read
 
     @Query("SELECT lastReadAt FROM chat_read WHERE partyId = :partyId")

@@ -47,7 +47,10 @@ data class ChatActions(
     val onReport: ((ChatMessage) -> Unit)? = null,
     /** A document was picked to share; null where sharing files isn't offered. */
     val onAttach: ((String) -> Unit)? = null,
-    val onRemoveAttachment: () -> Unit = {}
+    val onRemoveAttachment: () -> Unit = {},
+    val onCancelUpload: (String) -> Unit = {},
+    val onRetryUpload: (String) -> Unit = {},
+    val onDismissUpload: (String) -> Unit = {}
 )
 
 /** A line of the Chat tab: a day's heading, or a message. */
@@ -65,6 +68,11 @@ internal sealed interface ChatLine {
     /** Where what the player hasn't read starts. */
     data object Unread : ChatLine {
         override val key get() = "unread"
+    }
+
+    /** A file the player is sharing, on its way. */
+    data class Upload(val upload: ChatUploadRow) : ChatLine {
+        override val key get() = "upload-" + upload.clientId
     }
 }
 
@@ -151,10 +159,10 @@ fun StudyChatPane(
                 EmptyChat()
             } else {
                 ChatTimeline(
-                    lines = linesOf(state.rows, zone, state.lastReadAt),
+                    lines = linesOf(state.rows, zone, state.lastReadAt) + state.uploads.map { ChatLine.Upload(it) },
                     key = { it.key },
-                    isMessage = { it is ChatLine.Message },
-                    isMine = { (it as? ChatLine.Message)?.row?.mine == true },
+                    isMessage = { it is ChatLine.Message || it is ChatLine.Upload },
+                    isMine = { (it as? ChatLine.Message)?.row?.mine == true || it is ChatLine.Upload },
                     loadingOlder = state.loadingOlder,
                     onReachOldest = actions.onReachOldest,
                     tags = ChatTimelineTags(list = StudyChatTags.LIST, loadingOlder = StudyChatTags.LOADING_OLDER, jump = StudyChatTags.JUMP),
@@ -164,6 +172,7 @@ fun StudyChatPane(
                         is ChatLine.Day -> DaySeparator(day = line.day, today = state.today, tag = StudyChatTags.day(line.day))
                         is ChatLine.Message -> line(line.row)
                         ChatLine.Unread -> UnreadLine()
+                        is ChatLine.Upload -> UploadBubble(line.upload, onCancel = actions.onCancelUpload, onRetry = actions.onRetryUpload, onDismiss = actions.onDismissUpload)
                     }
                 }
             }
@@ -238,6 +247,12 @@ object StudyChatTags {
     const val INPUT = "study_chat_input"
     const val SEND = "study_chat_send"
     const val COUNTER = "study_chat_counter"
+    const val UPLOAD_STATUS = "study_chat_upload_status"
+    const val UPLOAD_PROGRESS = "study_chat_upload_progress"
+    const val UPLOAD_CANCEL = "study_chat_upload_cancel"
+    const val UPLOAD_RETRY = "study_chat_upload_retry"
+    const val UPLOAD_DISMISS = "study_chat_upload_dismiss"
+    fun upload(clientId: String) = "study_chat_upload_$clientId"
     const val ATTACH = "study_chat_attach"
     const val ATTACHMENT = "study_chat_attachment"
     const val ATTACHMENT_REMOVE = "study_chat_attachment_remove"

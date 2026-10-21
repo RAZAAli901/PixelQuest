@@ -58,6 +58,7 @@ class UnreadTest {
                 is ChatLine.Day -> "day"
                 is ChatLine.Message -> it.row.message.body!!
                 ChatLine.Unread -> "unread"
+                is ChatLine.Upload -> "upload"
             }
         })
         assertEquals("never opened: no line", 0, linesOf(rows, ZoneId.of("UTC"), readAt = null).count { it == ChatLine.Unread })

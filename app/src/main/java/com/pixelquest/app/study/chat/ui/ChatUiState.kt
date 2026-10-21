@@ -17,6 +17,20 @@ data class ChatMessageRow(
     val lastOfRun: Boolean = true
 )
 
+/** A file the player is sharing, on its way: how far it's got, or why it stopped. */
+data class ChatUploadRow(
+    val clientId: String,
+    val name: String,
+    val mime: String,
+    val sizeBytes: Long,
+    val sentBytes: Long,
+    val state: com.pixelquest.app.study.chat.data.local.UploadState,
+    val reason: String?
+) {
+    /** How much has gone, 0 to 1; null while it isn't known (the document didn't say its size). */
+    val progress: Float? get() = if (sizeBytes > 0) (sentBytes.toFloat() / sizeBytes).coerceIn(0f, 1f) else null
+}
+
 /** What a study party's Chat tab shows. */
 data class ChatUiState(
     val loaded: Boolean = false,
@@ -38,7 +52,9 @@ data class ChatUiState(
     /** Others' messages not yet read, for the Chat tab's count. */
     val unread: Int = 0,
     /** The file picked to share, waiting to be sent. */
-    val attachment: com.pixelquest.app.study.chat.data.PickedFile? = null
+    val attachment: com.pixelquest.app.study.chat.data.PickedFile? = null,
+    /** Files the player is sharing, on their way, oldest first. */
+    val uploads: List<ChatUploadRow> = emptyList()
 ) {
     /** Something to send: text, a file, or both. */
     val canSendAnything: Boolean get() = canSend || (attachment != null && draft.length <= com.pixelquest.app.study.chat.domain.StudyChatConfig.MESSAGE_MAX_CHARS)
