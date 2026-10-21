@@ -119,6 +119,9 @@ class ChessSessionViewModel @Inject constructor(
                 apply(game, moves)
                 follow(spectator = game.colourOf(me) == null)
                 loadPlayers(game)
+                if (game.colourOf(me) == null) {
+                    (spectate.liveGames(game.partyId) as? SupabaseResult.Success)?.data?.let { list -> others = list.map { it.id }.filter { it != game.id } }
+                }
             }
             is SupabaseResult.ServerError -> _state.update { it.copy(notFound = true, phase = SessionPhase.FINISHED) }
             else -> {
@@ -228,6 +231,17 @@ class ChessSessionViewModel @Inject constructor(
                 else -> _events.tryEmit(ChessSessionEvent.Refused(OFFLINE))
             }
         }
+    }
+
+    private var others: List<String> = emptyList()
+
+    /** Another game being played in the party, for a watcher's Next (null when none is known). */
+    fun nextLiveGame(): String? {
+        val game = _state.value.game ?: return null
+        viewModelScope.launch {
+            (spectate.liveGames(game.partyId) as? SupabaseResult.Success)?.data?.let { list -> others = list.map { it.id }.filter { it != game.id } }
+        }
+        return others.firstOrNull()
     }
 
     fun resign() = _state.value.game?.let { game -> send { chess.resign(game.id) } }

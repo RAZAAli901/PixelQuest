@@ -20,6 +20,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -43,6 +47,9 @@ object ChessGameTags {
     const val WATCHERS = "chess_game_watchers"
     const val SPECTATING = "chess_game_spectating"
     const val LOADING = "chess_game_loading"
+    const val LEAVE = "chess_watch_leave"
+    const val NEXT = "chess_watch_next"
+    const val FLIP = "chess_watch_flip"
     fun captured(colour: ChessColour) = "chess_captured_${colour.name.lowercase()}"
 }
 
@@ -58,7 +65,7 @@ data class ChessGameActions(
 )
 
 @Composable
-fun ChessGameRoute(onNavigateBack: () -> Unit, viewModel: ChessSessionViewModel = hiltViewModel()) {
+fun ChessGameRoute(onNavigateBack: () -> Unit, onOpenGame: (String) -> Unit = {}, viewModel: ChessSessionViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     ChessGameScreen(
         state = state,
@@ -69,7 +76,8 @@ fun ChessGameRoute(onNavigateBack: () -> Unit, viewModel: ChessSessionViewModel 
             onResign = { viewModel.resign() },
             onOfferDraw = { viewModel.offerDraw() },
             onAnswerDraw = { viewModel.answerDraw(it) },
-            onRematch = viewModel::rematch
+            onRematch = viewModel::rematch,
+            onNextGame = { viewModel.nextLiveGame()?.let(onOpenGame) }
         )
     )
 }
@@ -98,14 +106,17 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
             }
             return@Column
         }
-        val bottomColour = state.myColour ?: ChessColour.WHITE
+        // A watcher may turn the board round (J155); a player sees their own side below.
+        var watcherFlipped by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+        val bottomColour = state.myColour ?: if (watcherFlipped) ChessColour.BLACK else ChessColour.WHITE
         val topColour = if (bottomColour == ChessColour.WHITE) ChessColour.BLACK else ChessColour.WHITE
         val now = rememberTicking(running = game.status.live)
         Player(game, state, topColour, now, sync)
         PlayableBoard(
             fen = state.boardFen ?: game.fen,
             myColour = state.myColour,
-            enabled = state.myTurn,
+            // Watching: the board only shows (no moves can be sent from it).
+            enabled = state.myTurn && !state.spectating,
             lastMove = state.lastMove,
             onMove = actions.onMove,
             flipped = bottomColour == ChessColour.BLACK,
@@ -114,6 +125,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
         Player(game, state, bottomColour, now, sync)
         MoveList(state.moves)
         if (!state.spectating && game.status.live) GameActions(state, actions)
+        if (state.spectating) SpectatorActions(onLeave = actions.onBack, onNext = actions.onNextGame, onFlip = { watcherFlipped = !watcherFlipped })
         if (!game.status.live) GameOverCard(game, state, actions.onRematch)
     }
 }
@@ -186,3 +198,13 @@ fun kickerOf(game: ChessGame): String = stringResource(
     game.timeControl.seconds / 60,
     stringResource(if (game.rated) R.string.chess_rated else R.string.chess_friendly)
 ).uppercase()
+
+/** Watching (J155), as the design's spectate screen: Leave, Next live game, and Flip board. */
+@Composable
+private fun SpectatorActions(onLeave: () -> Unit, onNext: () -> Unit, onFlip: () -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp)) {
+        com.pixelquest.app.ui.components.PqButton(stringResource(R.string.chess_leave), onClick = onLeave, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary, icon = Icons.AutoMirrored.Rounded.Logout, modifier = Modifier.weight(1f).testTag(ChessGameTags.LEAVE))
+        com.pixelquest.app.ui.components.PqButton(stringResource(R.string.chess_next_live), onClick = onNext, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary, icon = Icons.Rounded.SkipNext, modifier = Modifier.weight(1f).testTag(ChessGameTags.NEXT))
+    }
+    com.pixelquest.app.ui.components.PqButton(stringResource(R.string.chess_flip), onClick = onFlip, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary, icon = Icons.Rounded.SwapVert, modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp).testTag(ChessGameTags.FLIP))
+}

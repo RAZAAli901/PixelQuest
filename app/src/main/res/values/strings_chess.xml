@@ -116,4 +116,7 @@
         <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> watching</item>
         <item quantity="other"><xliff:g id="count" example="4">%1$d</xliff:g> watching</item>
     </plurals>
+    <string name="chess_leave">Leave</string>
+    <string name="chess_next_live">Next live game</string>
+    <string name="chess_flip">Flip board</string>
 </resources>

@@ -45,7 +45,7 @@ class ChessGameScreenTest {
     private val did = mutableListOf<String>()
 
     fun show(state: ChessSessionState) {
-        val actions = ChessGameActions(onResign = { did += "resign" }, onOfferDraw = { did += "offer" }, onAnswerDraw = { did += "answer $it" })
+        val actions = ChessGameActions(onResign = { did += "resign" }, onOfferDraw = { did += "offer" }, onAnswerDraw = { did += "answer $it" }, onMove = { did += "move $it" })
         composeTestRule.setContent { PixelQuestTheme { ChessGameScreen(state, ClockSync(), actions) } }
     }
 
@@ -67,9 +67,17 @@ class ChessGameScreenTest {
     }
 
     @Test
-    fun watching_saysSo() {
+    fun watching_saysSo_cantMove_andCanFlip() {
         show(ChessSessionState(SessionPhase.ACTIVE, game, me = "cleo", myColour = null))
         composeTestRule.onNodeWithTag(ChessGameTags.SPECTATING).assertExists()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.GameActionTags.RESIGN).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.ChessBoardTags.square("e2")).performClick()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.ChessBoardTags.square("e4")).performClick()
+        org.junit.Assert.assertEquals("nothing sent", emptyList<String>(), did)
+        fun top(sq: String) = composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.ChessBoardTags.square(sq)).fetchSemanticsNode().boundsInRoot.top
+        org.junit.Assert.assertTrue(top("a1") > top("a8"))
+        composeTestRule.onNodeWithTag(ChessGameTags.FLIP).performScrollTo().performClick()
+        org.junit.Assert.assertTrue(top("a1") < top("a8"))
     }
 
     @Test
