@@ -893,6 +893,21 @@ localTest("reminders: only its creator, or the leader for a party one, changes o
   assert.equal((await remove(member, own.id)).body.length, 1);
 });
 
+localTest("reminders: sent twice with one key, it's stored once", async () => {
+  const { leader, member } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Remind4"), ...study });
+  const key = crypto.randomUUID();
+  const first = await addReminder(member, party, { title: "Sent once", client_id: key });
+  assert.equal(first.status, 201, JSON.stringify(first.body));
+  assert.equal((await addReminder(member, party, { title: "Sent once", client_id: key })).status, 409, "the second is refused");
+  assert.equal((await addReminder(leader, party, { title: "Another's key", client_id: key })).status, 201, "a key is the creator's own");
+  const mine = await call(`/rest/v1/study_reminders?party_id=eq.${party}&client_id=eq.${key}&created_by=eq.${member.userId}&select=id`, {
+    token: member.accessToken,
+  });
+  assert.deepEqual(mine.body, [{ id: first.body[0].id }], "and the first is read back by it");
+  assert.equal((await editReminder(member, first.body[0].id, { client_id: crypto.randomUUID() })).status, 403, "the key never changes");
+});
+
 localTest("reminders: the limits hold, whoever writes them", async () => {
   const { leader, member } = await cast();
   const party = await partyOf(leader, [member], { name: fresh("Remind3"), ...study });
