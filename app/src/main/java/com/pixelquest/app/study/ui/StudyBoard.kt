@@ -68,9 +68,9 @@ fun LazyListScope.scoreboard(state: StudyPartyUiState) {
 }
 
 /** Last week's winners, over This week and the Scoreboard, until dismissed. */
-fun LazyListScope.winnerBanner(state: StudyPartyUiState, onDismiss: () -> Unit) {
-    if (state.winnerBanner.isEmpty()) return
-    item(key = "winner_banner") { WinnerBanner(state, onDismiss) }
+@Composable
+fun WinnerBannerIfAny(state: StudyPartyUiState, onDismiss: () -> Unit) {
+    if (state.winnerBanner.isNotEmpty()) WinnerBanner(state, onDismiss)
 }
 
 @Composable

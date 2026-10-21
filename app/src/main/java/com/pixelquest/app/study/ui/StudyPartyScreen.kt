@@ -209,16 +209,26 @@ private fun StudyPartyScaffold(
                 ) {
                     when (state.tab) {
                         PartyTab.THIS_WEEK -> {
-                            winnerBanner(state, onDismissWinners)
-                            pinnedStrip(state, onOpenItem)
-                            thisWeek(state, onOpenItem, actions, timerActions)
+                            // One first item for what sits at the top, so what arrives there (a banner,
+                            // a pin) shows in place rather than above where the list is held.
+                            item(key = "top") {
+                                TopOfList {
+                                    WinnerBannerIfAny(state, onDismissWinners)
+                                    if (state.pinned.isNotEmpty()) PinnedStrip(state.pinned, onOpen = onOpenItem)
+                                    if (state.thisWeek.isNotEmpty()) WeekSummary(state)
+                                    StudyTimerCard(state, timerActions)
+                                }
+                            }
+                            thisWeek(state, onOpenItem, actions)
                         }
                         PartyTab.ALL_ITEMS -> {
-                            pinnedStrip(state, onOpenItem)
+                            item(key = "top") {
+                                TopOfList { if (state.pinned.isNotEmpty()) PinnedStrip(state.pinned, onOpen = onOpenItem) }
+                            }
                             itemCards(state, state.items, R.string.study_items_empty, onOpenItem, actions)
                         }
                         PartyTab.SCOREBOARD -> {
-                            winnerBanner(state, onDismissWinners)
+                            item(key = "top") { TopOfList { WinnerBannerIfAny(state, onDismissWinners) } }
                             scoreboard(state)
                         }
                         PartyTab.PEOPLE -> {
@@ -308,15 +318,14 @@ private fun LazyListScope.emptyLine(text: Int, loaded: Boolean) {
     }
 }
 
-private fun LazyListScope.pinnedStrip(state: StudyPartyUiState, onOpenItem: (String) -> Unit) {
-    if (state.pinned.isEmpty()) return
-    item(key = "pinned") { PinnedStrip(state.pinned, onOpen = onOpenItem) }
+/** The top of a tab's list, its pieces spaced as the list's items are. */
+@Composable
+private fun TopOfList(content: @Composable () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) { content() }
 }
 
-/** This week: how far the player is, then the week's items under overdue, each day, and no date. */
-private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String) -> Unit, actions: ItemActions, timerActions: TimerActions) {
-    if (state.thisWeek.isNotEmpty()) item(key = "week_summary") { WeekSummary(state) }
-    item(key = "timer") { StudyTimerCard(state, timerActions) }
+/** This week's items under overdue, each day, and no date, then the party's recent activity. */
+private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String) -> Unit, actions: ItemActions) {
     if (state.thisWeek.isEmpty()) {
         emptyLine(R.string.study_week_empty, state.loaded)
         return activityFeed(state)
