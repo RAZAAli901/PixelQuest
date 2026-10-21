@@ -50,7 +50,10 @@ data class ChessSessionState(
     /** The players' names (from the party), by user id. */
     val names: Map<String, String?> = emptyMap(),
     /** Each player's Int points in this game's time control. */
-    val points: Map<String, Int> = emptyMap()
+    val points: Map<String, Int> = emptyMap(),
+    /** The player's record against this opponent, read again when the game ends. */
+    val headToHead: List<com.pixelquest.app.chess.domain.HeadToHead> = emptyList(),
+    val rematchSent: Boolean = false
 ) {
     /** What the board shows: the player's move straight away, then the server's position. */
     val boardFen: String? get() = pendingFen ?: game?.fen
@@ -86,7 +89,8 @@ class ChessSessionViewModel @Inject constructor(
     private val spectate: SpectateRepository,
     account: DaroodAccount,
     private val party: com.pixelquest.app.party.data.PartyRepository? = null,
-    private val ratings: com.pixelquest.app.chess.data.ChessRatingRepository? = null
+    private val ratings: com.pixelquest.app.chess.data.ChessRatingRepository? = null,
+    private val challenges: com.pixelquest.app.chess.data.ChessChallengeRepository? = null
 ) : ViewModel() {
     val gameId: String = savedStateHandle[ARG_GAME] ?: ""
     private val me: String? = account.id()
@@ -177,7 +181,10 @@ class ChessSessionViewModel @Inject constructor(
             GameStatus.FINISHED, GameStatus.ABORTED -> SessionPhase.FINISHED
         }
         _state.update { it.copy(phase = phase, game = game, moves = moves, myColour = game.colourOf(me), sending = false, pendingFen = null, pendingMove = null) }
-        if (phase == SessionPhase.FINISHED && before?.status?.live != false) _events.tryEmit(ChessSessionEvent.Ended(game))
+        if (phase == SessionPhase.FINISHED && before?.status?.live != false) {
+            _events.tryEmit(ChessSessionEvent.Ended(game))
+            loadRecord(game)
+        }
         if (game.drawOfferedBy != null && game.drawOfferedBy != me && before?.drawOfferedBy != game.drawOfferedBy && game.colourOf(me) != null) {
             _events.tryEmit(ChessSessionEvent.DrawOffered)
         }
@@ -194,6 +201,33 @@ class ChessSessionViewModel @Inject constructor(
         }
         _state.update { it.copy(pendingFen = after, pendingMove = after?.let { uci }) }
         send { chess.makeMove(game.id, game.ply + 1, uci) }
+    }
+
+    /** The record against the opponent, as the end card shows it (both, not watchers). */
+    private fun loadRecord(game: ChessGame) {
+        val other = me?.let(game::opponentOf) ?: return
+        val ratings = ratings ?: return
+        viewModelScope.launch {
+            (ratings.headToHead(other) as? SupabaseResult.Success)?.data?.let { record -> _state.update { it.copy(headToHead = record) } }
+            ratings.refreshRatings(me)
+        }
+    }
+
+    /** The same game again, colours swapped (the design's Rematch). */
+    fun rematch() {
+        val game = _state.value.game ?: return
+        val other = me?.let(game::opponentOf) ?: return
+        val mine = game.colourOf(me) ?: return
+        val challenges = challenges ?: return
+        if (_state.value.rematchSent) return
+        viewModelScope.launch {
+            val colour = if (mine == ChessColour.WHITE) com.pixelquest.app.chess.domain.ColourChoice.BLACK else com.pixelquest.app.chess.domain.ColourChoice.WHITE
+            when (val sent = challenges.challenge(game.partyId, other, game.timeControl, colour, game.rated)) {
+                is SupabaseResult.Success -> _state.update { it.copy(rematchSent = true) }
+                is SupabaseResult.ServerError -> _events.tryEmit(ChessSessionEvent.Refused(sent.message))
+                else -> _events.tryEmit(ChessSessionEvent.Refused(OFFLINE))
+            }
+        }
     }
 
     fun resign() = _state.value.game?.let { game -> send { chess.resign(game.id) } }

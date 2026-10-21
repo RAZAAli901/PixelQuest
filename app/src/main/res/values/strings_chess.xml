@@ -43,4 +43,28 @@
     <string name="chess_resign">Resign</string>
     <string name="chess_resign_title">Resign this game?</string>
     <string name="chess_resign_message">Your opponent wins. A rated game counts for Int points.</string>
+    <string name="chess_reason_checkmate">By checkmate.</string>
+    <string name="chess_reason_resign">By resignation.</string>
+    <string name="chess_reason_timeout">On time.</string>
+    <string name="chess_reason_stalemate">Stalemate: no legal move, and no check.</string>
+    <string name="chess_reason_material">Neither side can mate.</string>
+    <string name="chess_reason_repetition">The same position, three times.</string>
+    <string name="chess_reason_fifty">Fifty moves without a capture or a pawn move.</string>
+    <string name="chess_reason_agreed">Agreed.</string>
+    <string name="chess_reason_aborted">No first move in time, so nothing counts.</string>
+    <string name="chess_reason_timeout_draw">On time, but the other side couldn\'t mate.</string>
+    <string name="chess_over_win">You won</string>
+    <string name="chess_over_loss">You lost</string>
+    <string name="chess_over_draw">A draw</string>
+    <string name="chess_over_white">White won</string>
+    <string name="chess_over_black">Black won</string>
+    <string name="chess_over_aborted">Game aborted</string>
+    <string name="chess_over_change"><xliff:g id="change" example="+14">%1$s</xliff:g> Int</string>
+    <string name="chess_over_not_counted">No Int change: too short, or too many games against each other today.</string>
+    <string name="chess_over_tier">New tier: <xliff:g id="tier" example="Knight">%1$s</xliff:g></string>
+    <string name="chess_record_you">YOU</string>
+    <string name="chess_record_draws">DRAWS</string>
+    <string name="chess_record_them">THEM</string>
+    <string name="chess_rematch">Rematch</string>
+    <string name="chess_rematch_sent">Rematch sent</string>
 </resources>

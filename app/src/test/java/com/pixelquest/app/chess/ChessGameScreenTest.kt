@@ -92,4 +92,18 @@ class ChessGameScreenTest {
         composeTestRule.onAllNodesWithText("RESIGN").onLast().performClick()
         org.junit.Assert.assertEquals(listOf("answer false", "resign"), did)
     }
+
+    @Test
+    fun theEnd_resultIntTierRecordAndRematch() {
+        val won = game.copy(status = GameStatus.FINISHED, result = com.pixelquest.app.chess.domain.GameResult.WHITE, reason = com.pixelquest.app.chess.domain.ResultReason.CHECKMATE, whiteChange = 14, blackChange = -14, ratingApplied = true)
+        val record = listOf(com.pixelquest.app.chess.domain.HeadToHead("me", "sara", null, 5, 1, 2))
+        show(ChessSessionState(SessionPhase.FINISHED, won, me = "me", myColour = ChessColour.WHITE, points = mapOf("me" to 905), headToHead = record, names = mapOf("sara" to "sara")))
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.GameOverTags.CARD).performScrollTo()
+        composeTestRule.onNodeWithText("YOU WON").assertExists()
+        composeTestRule.onNodeWithText("By checkmate.").assertExists()
+        composeTestRule.onNodeWithText("+14 Int").assertExists()
+        composeTestRule.onNodeWithText("New tier: Knight").assertExists()
+        composeTestRule.onNodeWithText("+1").assertExists()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.GameOverTags.REMATCH).assertExists()
+    }
 }

@@ -68,7 +68,8 @@ fun ChessGameRoute(onNavigateBack: () -> Unit, viewModel: ChessSessionViewModel 
             onMove = viewModel::move,
             onResign = { viewModel.resign() },
             onOfferDraw = { viewModel.offerDraw() },
-            onAnswerDraw = { viewModel.answerDraw(it) }
+            onAnswerDraw = { viewModel.answerDraw(it) },
+            onRematch = viewModel::rematch
         )
     )
 }
@@ -113,6 +114,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
         Player(game, state, bottomColour, now, sync)
         MoveList(state.moves)
         if (!state.spectating && game.status.live) GameActions(state, actions)
+        if (!game.status.live) GameOverCard(game, state, actions.onRematch)
     }
 }
 
