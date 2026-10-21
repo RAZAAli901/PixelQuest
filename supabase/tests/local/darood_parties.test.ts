@@ -825,3 +825,116 @@ localTest("privacy, every party table: an outsider reads nothing, and the board 
   assert.deepEqual(Object.keys(line!).sort(), ["completed_at", "member_count", "milestone", "mine", "name", "progress", "total"]);
   assert.ok(!board.some((row) => row.name === studyName), "a study party is never on the board");
 });
+
+// A study party's reminders (20261019000045 to 20261019000048, docs/study-reminders.md).
+
+function addReminder(who: Session, party: string, body: Record<string, unknown>) {
+  return call("/rest/v1/study_reminders", {
+    token: who.accessToken,
+    body: { party_id: party, kind: "quiz", scope: "time", due_at: inDays(2), tz: "Asia/Karachi", ...body },
+    headers: returning,
+  });
+}
+
+function editReminder(who: Session, id: string, body: Record<string, unknown>) {
+  return call(`/rest/v1/study_reminders?id=eq.${id}`, { method: "PATCH", token: who.accessToken, body, headers: returning });
+}
+
+const remindersOf = async (who: Session | undefined, party: string) =>
+  (await call(`/rest/v1/study_reminders?party_id=eq.${party}&select=title&order=title`, { token: who?.accessToken })).body;
+
+localTest("reminders: a party's for its active members, a member's own for them alone", async () => {
+  const { leader, member, invitee, outsider } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Remind"), ...study });
+  await rpc(leader, "invite_member", { party_id: party, username: invitee.username });
+
+  const shared = await addReminder(member, party, { title: "Quiz this week", scope: "week", due_at: null, week_start: mondayOf(todayIn("Asia/Karachi")) });
+  assert.equal(shared.status, 201, JSON.stringify(shared.body));
+  assert.equal(shared.body[0].created_by, member.userId, "the server fills in who");
+  assert.equal((await addReminder(member, party, { title: "My own revision", audience: "me" })).status, 201);
+
+  assert.deepEqual(await remindersOf(member, party), [{ title: "My own revision" }, { title: "Quiz this week" }]);
+  assert.deepEqual(await remindersOf(leader, party), [{ title: "Quiz this week" }], "the leader doesn't read a member's own");
+  for (const who of [invitee, outsider]) assert.deepEqual(await remindersOf(who, party), [], who.username);
+  assert.equal((await call(`/rest/v1/study_reminders?party_id=eq.${party}`)).status, 401, "signed out");
+
+  // Outsiders and the invited add nothing; nor does a Darood Party take reminders.
+  assert.equal((await addReminder(outsider, party, { title: "Spam" })).status, 403);
+  assert.equal((await addReminder(invitee, party, { title: "Not yet" })).status, 403);
+  const darood = await partyOf(leader, [], { name: fresh("Darood") });
+  assert.equal((await addReminder(leader, darood, { title: "Not here" })).status, 403);
+
+  // Removed, a member reads nothing at once, not even their own.
+  assert.deepEqual((await rpc(leader, "remove_member", { party_id: party, user_id: member.userId })).body, { status: "removed" });
+  assert.deepEqual(await remindersOf(member, party), []);
+  assert.equal((await addReminder(member, party, { title: "After" })).status, 403);
+});
+
+localTest("reminders: only its creator, or the leader for a party one, changes or deletes it", async () => {
+  const { leader, member } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Remind2"), ...study });
+  const theirs = (await addReminder(member, party, { title: "Lab due" })).body[0];
+  const own = (await addReminder(member, party, { title: "Private", audience: "me" })).body[0];
+  const leaders = (await addReminder(leader, party, { title: "Exam", kind: "exam" })).body[0];
+
+  assert.equal((await editReminder(member, theirs.id, { title: "Lab due Friday" })).body[0].title, "Lab due Friday");
+  assert.equal((await editReminder(leader, theirs.id, { title: "Lab due Monday" })).body[0].title, "Lab due Monday", "the leader, for a party one");
+  assert.deepEqual((await editReminder(leader, own.id, { title: "Seen" })).body, [], "not a member's own");
+  assert.deepEqual((await editReminder(member, leaders.id, { title: "Mine now" })).body, [], "not another member's");
+  for (const body of [{ audience: "me" }, { party_id: party }, { created_by: leader.userId }]) {
+    assert.equal((await editReminder(member, theirs.id, body)).status, 403, `${JSON.stringify(body)} is for good`);
+  }
+
+  const remove = (who: Session, id: string) =>
+    call(`/rest/v1/study_reminders?id=eq.${id}`, { method: "DELETE", token: who.accessToken, headers: returning });
+  assert.deepEqual((await remove(member, leaders.id)).body, [], "not the member's to delete");
+  assert.equal((await remove(leader, theirs.id)).body.length, 1, "the leader deletes a party one");
+  assert.deepEqual((await remove(leader, own.id)).body, [], "but not a member's own");
+  assert.equal((await remove(member, own.id)).body.length, 1);
+});
+
+localTest("reminders: the limits hold, whoever writes them", async () => {
+  const { leader, member } = await cast();
+  const party = await partyOf(leader, [member], { name: fresh("Remind3"), ...study });
+  const monday = mondayOf(todayIn("UTC"));
+  const tuesday = new Date(Date.parse(`${monday}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+  const refused: Record<string, unknown>[] = [
+    { title: "x" },
+    { title: " Padded " },
+    { title: "t".repeat(81) },
+    { title: "Kind", kind: "lecture" },
+    { title: "Week, no week", scope: "week", due_at: null },
+    { title: "Week, not a Monday", scope: "week", due_at: null, week_start: tuesday },
+    { title: "Week and a time", scope: "week", week_start: monday },
+    { title: "Day, no moment", scope: "day", due_at: null },
+    { title: "Daily week", scope: "week", due_at: null, week_start: monday, repeat: "daily" },
+    { title: "Hourly", repeat: "hourly" },
+    { title: "Everyone", audience: "everyone" },
+    { title: "Five alerts", alert_offsets: [10, 20, 30, 40, 50] },
+    { title: "Negative", alert_offsets: [-5] },
+    { title: "Too early", alert_offsets: [20161] },
+  ];
+  for (const body of refused) assert.equal((await addReminder(member, party, body)).status, 400, JSON.stringify(body));
+  const badZone = await addReminder(member, party, { title: "Nowhere", tz: "Mars/Olympus" });
+  assert.equal(badZone.status, 400);
+  assert.equal(badZone.body.message, "bad_time_zone");
+
+  // What's allowed: a weekly day reminder with custom alerts, and a daily one.
+  for (const body of [
+    { title: "Weekly test", scope: "day", repeat: "weekly", alert_offsets: [60, 1440] },
+    { title: "Daily practice", scope: "time", repeat: "daily" },
+  ]) assert.equal((await addReminder(member, party, body)).status, 201, JSON.stringify(body));
+
+  // At most 100 of one member's in a party.
+  // The fillers go in as the database's owner, past the guard (which would make them nobody's).
+  sql(
+    `ALTER TABLE public.study_reminders DISABLE TRIGGER study_reminder_guard; ` +
+      `INSERT INTO public.study_reminders (party_id, created_by, title, kind, scope, due_at, tz) ` +
+      `SELECT '${party}', '${member.userId}', 'Filler ' || n, 'custom', 'time', now() + interval '1 day', 'UTC' FROM generate_series(1, 98) AS n; ` +
+      `ALTER TABLE public.study_reminders ENABLE TRIGGER study_reminder_guard;`,
+  );
+  const tooMany = await addReminder(member, party, { title: "One more" });
+  assert.equal(tooMany.status, 400);
+  assert.equal(tooMany.body.message, "too_many_reminders");
+  assert.equal((await addReminder(leader, party, { title: "The leader's own count" })).status, 201);
+});
