@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -170,6 +172,8 @@ fun ReminderFormContent(
         )
         if (form.editingId != null) Text(text = stringResource(R.string.study_reminder_who_fixed), style = PqType.Meta)
 
+        AlertChoice(form, onChange)
+
         if (problem != null && problem != com.pixelquest.app.study.domain.ReminderProblem.TITLE) {
             Text(text = stringResource(reminderProblemText(problem)), style = PqType.Meta.copy(color = PqColors.Error), modifier = Modifier.testTag(ReminderTags.PROBLEM))
         }
@@ -190,6 +194,65 @@ fun ReminderFormContent(
             )
         }
     }
+}
+
+/**
+ * The alerts: the usual times for its kind of When, or the creator's own, up to four, each a
+ * choice that's on or off. Someone else's reminder (the leader's edit) shows them, fixed.
+ */
+@Composable
+private fun AlertChoice(form: ReminderForm, onChange: (ReminderForm) -> Unit) {
+    PqFieldLabel(stringResource(R.string.study_reminder_field_alerts))
+    if (form.alertsLocked) {
+        Text(text = stringResource(R.string.study_reminder_alerts_locked), style = PqType.Meta, modifier = Modifier.testTag(ReminderTags.ALERTS_LOCKED))
+        return
+    }
+    val custom = form.alertOffsets.orEmpty()
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        item(key = "usual") {
+            ChoiceChip(stringResource(R.string.study_reminder_alerts_default), form.alertOffsets == null, Modifier.testTag(ReminderTags.ALERTS_DEFAULT)) {
+                onChange(form.withDefaultAlerts())
+            }
+        }
+        items((ReminderForm.ALERT_CHOICES + custom).distinct().sorted(), key = { "alert_$it" }) { minutes ->
+            val on = minutes in custom
+            ToggleChip(alertLabel(minutes), on, enabled = on || custom.size < com.pixelquest.app.study.domain.ReminderRules.ALERTS_MAX, Modifier.testTag(ReminderTags.alert(minutes))) {
+                onChange(form.toggleAlert(minutes))
+            }
+        }
+    }
+    val note = when {
+        form.alertOffsets != null -> R.string.study_reminder_alerts_custom
+        form.scope == ReminderScope.WEEK -> R.string.study_reminder_alerts_default_week
+        form.scope == ReminderScope.DAY -> R.string.study_reminder_alerts_default_day
+        else -> R.string.study_reminder_alerts_default_time
+    }
+    Text(text = stringResource(note), style = PqType.Meta)
+}
+
+/** One choice that's on or off, of several that can all be on: filled with ink when on. */
+@Composable
+private fun ToggleChip(label: String, on: Boolean, enabled: Boolean, modifier: Modifier = Modifier, onToggle: () -> Unit) {
+    Text(
+        text = label,
+        style = PqType.MetaStrong.copy(color = if (on) PqColors.Paper else if (enabled) PqColors.Ink else PqColors.Muted),
+        maxLines = 1,
+        modifier = modifier
+            .studyChip(if (on) PqColors.Ink else PqColors.Paper)
+            .toggleable(value = on, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle() })
+            .heightIn(min = 40.dp)
+            .padding(horizontal = 14.dp, vertical = 11.dp)
+    )
+}
+
+/** "When it starts", "30 minutes before", "2 hours before", "1 day before", "A week before". */
+@Composable
+fun alertLabel(minutes: Int): String = when {
+    minutes == 0 -> stringResource(R.string.study_reminder_alert_at_start)
+    minutes == 7 * 24 * 60 -> stringResource(R.string.study_reminder_alert_week)
+    minutes % (24 * 60) == 0 -> pluralStringResource(R.plurals.study_reminder_alert_days, minutes / (24 * 60), minutes / (24 * 60))
+    minutes % 60 == 0 -> pluralStringResource(R.plurals.study_reminder_alert_hours, minutes / 60, minutes / 60)
+    else -> pluralStringResource(R.plurals.study_reminder_alert_minutes, minutes, minutes)
 }
 
 /** A few choices side by side in one inked bar, the chosen one filled (as the item sheet's kind). */
@@ -259,6 +322,9 @@ object ReminderTags {
     const val PROBLEM = "study_reminder_problem"
     const val SAVE = "study_reminder_save"
     const val DELETE = "study_reminder_delete"
+    const val ALERTS_DEFAULT = "study_reminder_alerts_default"
+    const val ALERTS_LOCKED = "study_reminder_alerts_locked"
+    fun alert(minutes: Int) = "study_reminder_alert_$minutes"
     const val NOTICE = "study_reminder_notice"
     const val BANNER = "study_reminder_banner"
     fun line(id: String) = "study_reminder_line_$id"

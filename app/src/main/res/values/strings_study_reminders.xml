@@ -34,6 +34,28 @@
     <string name="study_reminder_who_party">Whole party</string>
     <string name="study_reminder_who_fixed">Who it\'s for can\'t change once it\'s made.</string>
 
+    <string name="study_reminder_field_alerts">Alerts</string>
+    <string name="study_reminder_alerts_default">Usual times</string>
+    <string name="study_reminder_alerts_default_week">Monday at 9:00, and Saturday at 18:00</string>
+    <string name="study_reminder_alerts_default_day">The evening before at 18:00, and that morning at 7:00</string>
+    <string name="study_reminder_alerts_default_time">A day before, and 30 minutes before</string>
+    <string name="study_reminder_alerts_custom">Up to 4, before it starts. Everyone it\'s for gets the same.</string>
+    <string name="study_reminder_alerts_locked">Its alerts are set by the person who made it.</string>
+    <string name="study_reminder_alert_at_start">When it starts</string>
+    <plurals name="study_reminder_alert_minutes">
+        <item quantity="one">%d minute before</item>
+        <item quantity="other">%d minutes before</item>
+    </plurals>
+    <plurals name="study_reminder_alert_hours">
+        <item quantity="one">%d hour before</item>
+        <item quantity="other">%d hours before</item>
+    </plurals>
+    <plurals name="study_reminder_alert_days">
+        <item quantity="one">%d day before</item>
+        <item quantity="other">%d days before</item>
+    </plurals>
+    <string name="study_reminder_alert_week">A week before</string>
+
     <string name="study_reminder_problem_title">A reminder needs 2 to 80 characters.</string>
     <string name="study_reminder_problem_when">Pick when it is.</string>
     <string name="study_reminder_problem_repeat">A week reminder can\'t repeat every day.</string>

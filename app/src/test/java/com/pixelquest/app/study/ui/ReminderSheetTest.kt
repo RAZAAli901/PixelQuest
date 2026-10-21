@@ -80,6 +80,30 @@ class ReminderSheetTest {
     }
 
     @Test
+    fun alerts_arePickedUpToFour_orTheUsualTimes() {
+        var form by mutableStateOf(ReminderForm.new(today))
+        composeTestRule.setContent {
+            PixelQuestTheme { ReminderFormContent(form, today, zone, onChange = { form = it }, onSave = {}) }
+        }
+        composeTestRule.onNodeWithTag(ReminderTags.ALERTS_DEFAULT).performScrollTo().assertIsSelected()
+        for (minutes in listOf(0, 15, 30, 60)) {
+            composeTestRule.onNodeWithTag(ReminderTags.alert(minutes)).performScrollTo().performClick()
+        }
+        assertEquals(listOf(60, 30, 15, 0), form.alertOffsets)
+        composeTestRule.onNodeWithTag(ReminderTags.alert(120)).performScrollTo().assertIsNotEnabled()
+        composeTestRule.onNodeWithTag(ReminderTags.ALERTS_DEFAULT).performScrollTo().performClick()
+        assertEquals(null, form.alertOffsets)
+    }
+
+    @Test
+    fun someoneElsesReminder_keepsItsAlerts() {
+        val form = ReminderForm.new(today).copy(editingId = "r1", alertsLocked = true)
+        composeTestRule.setContent { PixelQuestTheme { ReminderFormContent(form, today, zone, onChange = {}, onSave = {}) } }
+        composeTestRule.onNodeWithTag(ReminderTags.ALERTS_LOCKED).performScrollTo().assertExists()
+        composeTestRule.onNodeWithTag(ReminderTags.ALERTS_DEFAULT).assertDoesNotExist()
+    }
+
+    @Test
     fun aProblem_showsOnlyOnceSaveIsTried() {
         var form by mutableStateOf(ReminderForm.new(today))
         composeTestRule.setContent {

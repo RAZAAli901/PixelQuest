@@ -63,6 +63,20 @@ class ReminderFormTest {
     }
 
     @Test
+    fun alerts_areTheUsualTimes_untilTheCreatorPicksUpToFour() {
+        var form = ReminderForm.new(today).withTitle("Exam")
+        assertNull(form.draft(zone).alertOffsets)
+        form = form.toggleAlert(30).toggleAlert(1440)
+        assertEquals(listOf(1440, 30), form.draft(zone).alertOffsets)
+        form = form.toggleAlert(0).toggleAlert(60).toggleAlert(120)
+        assertEquals("no fifth", listOf(1440, 60, 30, 0), form.alertOffsets)
+        assertNull(form.problem(zone))
+        form = form.toggleAlert(1440).toggleAlert(60).toggleAlert(30).toggleAlert(0)
+        assertNull("the last taken away is the usual times again", form.alertOffsets)
+        assertNull(form.toggleAlert(30).withDefaultAlerts().alertOffsets)
+    }
+
+    @Test
     fun anEdit_startsFromTheReminder_asItIs() {
         val reminder = StudyReminder(
             id = "r1", partyId = "p1", createdBy = "aria", title = "Lab", kind = ReminderKind.ASSIGNMENT, scope = ReminderScope.TIME,
@@ -75,5 +89,7 @@ class ReminderFormTest {
         assertEquals(LocalTime.of(10, 0), form.time)
         assertEquals(ReminderAudience.ME, form.audience)
         assertEquals(reminder.dueAt, form.draft(zone).dueAt)
+        assertEquals(false, form.alertsLocked)
+        assertEquals("the leader's edit leaves its alerts to its creator", true, ReminderForm.of(reminder, today, zone, myId = "bram").alertsLocked)
     }
 }

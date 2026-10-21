@@ -102,7 +102,7 @@ class StudyRemindersViewModel @Inject constructor(
 
     /** The Edit sheet for [reminder], as it is. Who may change it is the screen's to know, and the server's to check. */
     fun openEdit(reminder: com.pixelquest.app.study.domain.StudyReminder) {
-        form.value = ReminderForm.of(reminder, study.today(), study.zone())
+        form.value = ReminderForm.of(reminder, study.today(), study.zone(), study.myId())
     }
 
     fun change(next: ReminderForm) {
