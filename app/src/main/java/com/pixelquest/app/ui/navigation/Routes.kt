@@ -5,8 +5,8 @@ sealed class Screen(val route: String) {
     object Splash : Screen("splash")
     object Home : Screen("home")
     object Tasks : Screen("tasks")
-    object Stats : Screen("stats")
-    object Profile : Screen("profile")
+    /** The Hero tab: the player's profile and stats (docs/ui-v2.md). */
+    object Hero : Screen("hero")
     object AvatarSelection : Screen("avatar_selection")
     object DifficultySelection : Screen("difficulty_selection")
     object LevelHistory : Screen("level_history")
@@ -113,14 +113,11 @@ object Routes {
     /** Darood Party's route before the hub (1.4), kept the same way. */
     const val LEGACY_DAROOD = "darood"
 
-    /** The bottom bar's five tabs: where the side menu opens from, by its icon or a swipe from the left edge. */
-    val Tabs: Set<String> = setOf(
-        Screen.Home.route,
-        Screen.Tasks.route,
-        Screen.Leaderboard.route,
-        Screen.Stats.route,
-        Screen.Profile.route
-    )
+    /**
+     * Routes whose screens have no bottom bar: the splash, onboarding, the Quran reader, and a Darood
+     * Party's chat (mock 4E), which needs the room for its composer.
+     */
+    fun isFullScreen(route: String?): Boolean = route in FULL_SCREEN
 
-    fun isTab(route: String?): Boolean = route in Tabs
+    private val FULL_SCREEN = setOf(Screen.Splash.route, Screen.Onboarding.route, Screen.QuranSurah.route, Screen.DaroodPartyChat.route)
 }

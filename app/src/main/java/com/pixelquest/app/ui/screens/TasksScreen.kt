@@ -55,7 +55,7 @@ fun TasksContent(
     val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
 
     Scaffold(
-        // The screen had no title: the menu icon and the screen's name now sit at the top left.
+        // The screen's name, at the top left.
         topBar = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -63,7 +63,6 @@ fun TasksContent(
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
             ) {
-                com.pixelquest.app.ui.menu.MenuTopBarAction()
                 androidx.compose.material3.Text(
                     text = androidx.compose.ui.res.stringResource(
                         if (isSimpleMode) com.pixelquest.app.R.string.tasks_title_simple else com.pixelquest.app.R.string.tasks_title

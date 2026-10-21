@@ -68,8 +68,7 @@ class Day25FullRegressionPassTest {
             Screen.Tasks.route,
             Screen.CreateTask.route,
             Screen.EditTask.route,
-            Screen.Profile.route,
-            Screen.Stats.route,
+            Screen.Hero.route,
             Screen.Settings.route,
             Screen.AiInsight.route
         )

@@ -30,7 +30,8 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
         PartiesScreen(
             onSignIn = { navController.navigate(Screen.Account.route) },
             onOpenParty = { partyId -> navController.navigate(Screen.PartiesParty.createRoute(partyId)) { launchSingleTop = true } },
-            onCreateParty = { navController.navigate(Screen.PartiesCreate.route) { launchSingleTop = true } }
+            onCreateParty = { navController.navigate(Screen.PartiesCreate.route) { launchSingleTop = true } },
+            onNavigateBack = { navController.popBackStack() }
         )
     }
     composable(

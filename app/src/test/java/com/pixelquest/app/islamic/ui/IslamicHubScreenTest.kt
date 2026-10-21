@@ -1,19 +1,15 @@
 package com.pixelquest.app.islamic.ui
 
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.pixelquest.app.R
 import com.pixelquest.app.islamic.IslamicIcon
 import com.pixelquest.app.islamic.IslamicItem
-import com.pixelquest.app.ui.menu.LocalMenuDrawer
-import com.pixelquest.app.ui.menu.rememberMenuDrawerController
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
@@ -23,7 +19,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/** The Islamic hub's screen: its top bar, and a card for each item that opens the item's route. */
+/** The Islamic hub's screen (the Deen tab's first screen): its title, and a card for each item that opens the item's route. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w411dp-h914dp")
 class IslamicHubScreenTest {
@@ -39,23 +35,20 @@ class IslamicHubScreenTest {
 
     private val opened = mutableListOf<String>()
 
-    private fun show(mode: ThemeMode = ThemeMode.Pixel, withMenu: Boolean = true, comingSoon: Boolean = false) {
+    private fun show(mode: ThemeMode = ThemeMode.Pixel, comingSoon: Boolean = false) {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode) {
-                val menu = if (withMenu) rememberMenuDrawerController() else null
-                CompositionLocalProvider(LocalMenuDrawer provides menu) {
-                    IslamicHubContent(state = IslamicHubUiState(items = items, loaded = true), onOpen = { opened += it }, showComingSoon = comingSoon)
-                }
+                IslamicHubContent(state = IslamicHubUiState(items = items, loaded = true), onOpen = { opened += it }, showComingSoon = comingSoon)
             }
         }
     }
 
     @Test
-    fun theHub_hasItsTitle_theMenuIcon_andACardPerItem() {
+    fun theHub_hasItsTitle_andACardPerItem() {
         show()
 
         composeTestRule.onNodeWithTag(IslamicTestTags.HUB).assertIsDisplayed()
-        composeTestRule.onNodeWithContentDescription("Open menu").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Islamic", ignoreCase = true).assertIsDisplayed()
         items.forEach { composeTestRule.onNodeWithTag(IslamicTestTags.card(it.id)).assertIsDisplayed() }
     }
 
@@ -98,13 +91,5 @@ class IslamicHubScreenTest {
         show()
 
         assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(IslamicTestTags.COMING_SOON)).fetchSemanticsNodes().size)
-    }
-
-    @Test
-    fun withoutAMenu_noMenuIcon() {
-        show(withMenu = false)
-
-        composeTestRule.onNodeWithText("Islamic", ignoreCase = true).assertIsDisplayed()
-        assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasContentDescription("Open menu")).fetchSemanticsNodes().size)
     }
 }

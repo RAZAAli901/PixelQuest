@@ -14,7 +14,7 @@ import com.pixelquest.app.islamic.ui.IslamicHubScreen
 
 /**
  * The Islamic section (docs/islamic-hub.md): one nested graph, starting at the hub, that holds every
- * Islamic screen. Its routes all begin `islamic/`, so the side menu can tell when the player is inside.
+ * Islamic screen. It is the Deen tab; its routes all begin `islamic/`.
  *
  * @param items the hub's items (IslamicRegistry.providers): each adds its own screens, if it has any.
  * @param hub the hub's screen, given what opening a card does; tests pass one without Hilt.
@@ -37,17 +37,17 @@ fun NavGraphBuilder.islamicGraph(
 }
 
 /**
- * Opens an Islamic screen with the hub beneath it, so Back returns to the hub and then to wherever
- * the player was, whichever way they came in: the side menu, Home's Namaz card, a notification.
+ * Opens an Islamic screen in the Deen tab, with the hub beneath it, so Back returns to the hub and
+ * then Home, whichever way the player came in: Home's prayer card, a notification, another tab.
  * From inside the section, where the hub is already on the back stack, it's an ordinary step; and
  * the hub itself is gone back to, not opened again.
  */
 fun NavController.navigateInIslamic(route: String) {
+    if (!isOnBackStack(Routes.ISLAMIC_HUB)) navigateToTab(Routes.ISLAMIC)
     if (route == Routes.ISLAMIC_HUB) {
-        if (!popBackStack(Routes.ISLAMIC_HUB, inclusive = false)) navigate(Routes.ISLAMIC_HUB)
+        popBackStack(Routes.ISLAMIC_HUB, inclusive = false)
         return
     }
-    if (!isOnBackStack(Routes.ISLAMIC_HUB)) navigate(Routes.ISLAMIC_HUB)
     navigate(route) { launchSingleTop = true }
 }
 

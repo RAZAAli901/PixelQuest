@@ -10,32 +10,14 @@
     <string name="coach_cooldown_hours">%1$dh</string>
     <string name="coach_refresh_description">Get a fresh insight</string>
 
-    <!-- Side menu (docs/ai-coach-compact.md, Phase 2). The Namaz Tracker's own text is in strings_namaz.xml. -->
-    <string name="menu_open">Open menu</string>
-    <string name="menu_close">Close menu</string>
-    <string name="menu_opened">Menu open</string>
-    <string name="menu_closed">Menu closed</string>
-    <string name="menu_level_xp">LVL %1$d · %2$d XP</string>
     <string name="tasks_title">📜 QUEST LOG</string>
     <string name="tasks_title_simple">📋 ALL TASKS</string>
-    <string name="menu_something_waiting">Something waits for you here</string>
     <string name="navigate_back">Back</string>
-    <!-- The side menu's entry for study parties with friends. -->
-    <string name="menu_parties">Parties</string>
-    <string name="menu_history">Quest History</string>
-    <string name="menu_history_simple">Task History</string>
-    <string name="menu_leaderboard">Leaderboard</string>
-    <string name="menu_account">Account</string>
-    <string name="menu_settings">Settings</string>
 
     <!-- Plurals: lint (PluralsCandidate) on a number followed by words. -->
     <plurals name="coach_cooldown_description">
         <item quantity="one">A fresh insight is ready in about %1$d hour</item>
         <item quantity="other">A fresh insight is ready in about %1$d hours</item>
-    </plurals>
-    <plurals name="menu_level_progress">
-        <item quantity="one">%1$d of %2$d perfect day to LVL %3$d</item>
-        <item quantity="other">%1$d of %2$d perfect days to LVL %3$d</item>
     </plurals>
     <!-- First-run tips: one card on each screen, until dismissed. -->
     <string name="tip_got_it">Got it</string>

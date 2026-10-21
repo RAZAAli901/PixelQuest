@@ -138,7 +138,7 @@ fun LeaderboardContent(
                             )
                         }
                     }
-                } ?: { com.pixelquest.app.ui.menu.MenuTopBarAction() },
+                },
                 actions = {
                     IconButton(onClick = onRefresh) {
                         com.pixelquest.app.ui.components.SymbolIcon(

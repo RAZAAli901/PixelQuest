@@ -36,4 +36,17 @@
     <!-- When the brief was written, and when the next comes ("8:48 AM · next brief in ~6h"). -->
     <string name="pq_coach_next_brief"><xliff:g id="time" example="8:48 AM">%1$s</xliff:g> · next brief in <xliff:g id="wait" example="~6h">%2$s</xliff:g></string>
     <string name="pq_coach_brief_ready"><xliff:g id="time" example="8:48 AM">%1$s</xliff:g> · new brief ready</string>
+
+    <!-- The bottom bar -->
+    <string name="pq_tab_home">Home</string>
+    <string name="pq_tab_quests">Quests</string>
+    <string name="pq_tab_quests_simple">Tasks</string>
+    <string name="pq_tab_deen">Deen</string>
+    <string name="pq_tab_hero">Hero</string>
+    <string name="pq_nav_leaderboard">Leaderboard</string>
+    <string name="pq_nav_something_waiting">something waits for you here</string>
+
+    <!-- Hero's two halves -->
+    <string name="pq_hero_profile">Profile</string>
+    <string name="pq_hero_stats">Stats</string>
 </resources>

@@ -2,17 +2,12 @@ package com.pixelquest.app.ui.screens.insight
 
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.ai.HabitInsightResponse
-import com.pixelquest.app.ui.components.PixelBottomNavBar
-import com.pixelquest.app.ui.components.bottomNavItems
-import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
@@ -143,27 +138,4 @@ class CompactCoachUiTest {
         composeTestRule.onNodeWithText("Try reading at lunch.").assertExists()
         assertEquals("the other stays one line", 0, composeTestRule.onAllNodesWithText("Add a short walk.").fetchSemanticsNodes().size)
     }
-
-    private fun barIsEven(mode: ThemeMode) {
-        composeTestRule.setContent {
-            PixelQuestTheme(themeMode = mode) {
-                PixelBottomNavBar(currentRoute = Screen.Home.route, onNavigate = {})
-            }
-        }
-        val widths = bottomNavItems.map { item ->
-            val bounds = composeTestRule.onNodeWithContentDescription(item.title).getBoundsInRoot()
-            assertTrue("${item.title} is a full-height tab", bounds.bottom - bounds.top >= 48.dp)
-            bounds.right - bounds.left
-        }
-        val narrowest = widths.minOf { it.value }
-        val widest = widths.maxOf { it.value }
-        // The Leaderboard used to be a 44-48dp round button among wider tabs.
-        assertTrue("tabs $widths", widest - narrowest <= 1f)
-    }
-
-    @Test fun pixelBar_tabsAreEven() = barIsEven(ThemeMode.Pixel)
-
-    @Test fun lightBar_tabsAreEven() = barIsEven(ThemeMode.Light)
-
-    @Test fun comicBar_tabsAreEven() = barIsEven(ThemeMode.Comic)
 }

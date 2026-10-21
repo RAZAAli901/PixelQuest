@@ -3,6 +3,10 @@ package com.pixelquest.app.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -63,7 +67,7 @@ fun PixelNavHost(
                     navController.navigate(Screen.EditTask.createRoute(taskId))
                 },
                 onNavigateToProfile = {
-                    navController.navigate(Screen.Profile.route)
+                    navController.navigateToTab(Screen.Hero.route)
                 },
                 onNavigateToAiInsight = {
                     navController.navigate(Screen.AiInsight.route)
@@ -132,39 +136,44 @@ fun PixelNavHost(
                 onNavigateBack = { navController.popBackStack() }
             )
         }
-        composable(Screen.Stats.route) {
-            StatsScreen(
-                onNavigateToTaskHistory = {
-                    navController.navigate(Screen.TaskHistory.route)
+        composable(Screen.Hero.route) {
+            // Until Hero's own screen (mocks 2G and 2H), its halves are the Profile and Stats screens.
+            HeroTabHost(
+                profile = {
+                    ProfileScreen(
+                        onNavigateToAvatarSelection = {
+                            navController.navigate(Screen.AvatarSelection.route)
+                        },
+                        onNavigateToDifficulty = {
+                            navController.navigate(Screen.DifficultySelection.route)
+                        },
+                        onNavigateToLevelHistory = {
+                            navController.navigate(Screen.LevelHistory.route)
+                        },
+                        onNavigateToSettings = {
+                            navController.navigate(Screen.Settings.route)
+                        },
+                        onNavigateToUsername = {
+                            navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true }
+                        }
+                    )
                 },
-                onNavigateToLevelHistory = {
-                    navController.navigate(Screen.LevelHistory.route)
-                },
-                onNavigateToTaskAnalytics = { taskId ->
-                    navController.navigate(Screen.TaskAnalytics.createRoute(taskId))
-                },
-                onNavigateToLeaderboard = {
-                    // The leaderboard is a bottom-bar tab, so open it like one.
-                    navController.navigateToTab(Screen.Leaderboard.route)
-                }
-            )
-        }
-        composable(Screen.Profile.route) {
-            ProfileScreen(
-                onNavigateToAvatarSelection = {
-                    navController.navigate(Screen.AvatarSelection.route)
-                },
-                onNavigateToDifficulty = {
-                    navController.navigate(Screen.DifficultySelection.route)
-                },
-                onNavigateToLevelHistory = {
-                    navController.navigate(Screen.LevelHistory.route)
-                },
-                onNavigateToSettings = {
-                    navController.navigate(Screen.Settings.route)
-                },
-                onNavigateToUsername = {
-                    navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true }
+                stats = {
+                    StatsScreen(
+                        onNavigateToTaskHistory = {
+                            navController.navigate(Screen.TaskHistory.route)
+                        },
+                        onNavigateToLevelHistory = {
+                            navController.navigate(Screen.LevelHistory.route)
+                        },
+                        onNavigateToTaskAnalytics = { taskId ->
+                            navController.navigate(Screen.TaskAnalytics.createRoute(taskId))
+                        },
+                        onNavigateToLeaderboard = {
+                            // The trophy's screen, so open it the way the trophy does.
+                            navController.navigateToTab(Screen.Leaderboard.route)
+                        }
+                    )
                 }
             )
         }
@@ -320,3 +329,22 @@ fun PixelNavHost(
     }
 }
 
+/** The Hero tab's two halves, Profile and Stats, chosen at the top; the choice survives rotation. */
+@Composable
+private fun HeroTabHost(profile: @Composable () -> Unit, stats: @Composable () -> Unit) {
+    var segment by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableIntStateOf(0) }
+    androidx.compose.foundation.layout.Column(Modifier.fillMaxSize()) {
+        com.pixelquest.app.ui.components.PqSegmented(
+            options = listOf(
+                androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_hero_profile),
+                androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_hero_stats)
+            ),
+            selected = segment,
+            onSelect = { segment = it },
+            modifier = Modifier.padding(horizontal = com.pixelquest.app.ui.theme.PqDimens.ScreenPad, vertical = 8.dp)
+        )
+        androidx.compose.foundation.layout.Box(Modifier.weight(1f)) {
+            if (segment == 0) profile() else stats()
+        }
+    }
+}

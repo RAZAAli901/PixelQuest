@@ -1,7 +1,8 @@
 package com.pixelquest.app.islamic
 
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsDisplayed
@@ -21,12 +22,10 @@ import com.pixelquest.app.islamic.ui.IslamicTestTags
 import com.pixelquest.app.quran.QuranIslamicItem
 import com.pixelquest.app.quran.ui.QURAN_HOME
 import com.pixelquest.app.testing.namazViewModel
-import com.pixelquest.app.ui.menu.MenuContext
-import com.pixelquest.app.ui.menu.MenuDrawerContent
-import com.pixelquest.app.ui.menu.MenuDrawerScaffold
-import com.pixelquest.app.ui.menu.MenuHeaderState
-import com.pixelquest.app.ui.menu.MenuTopBarAction
-import com.pixelquest.app.ui.menu.rememberMenuDrawerController
+import com.pixelquest.app.ui.navigation.PqAppFrame
+import com.pixelquest.app.ui.navigation.PqNavTags
+import com.pixelquest.app.ui.navigation.PqRootState
+import com.pixelquest.app.ui.navigation.PqTab
 import com.pixelquest.app.ui.navigation.Routes
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.navigation.islamicGraph
@@ -45,9 +44,9 @@ import org.robolectric.annotation.Config
 
 /**
  * The Islamic hub end to end (docs/islamic-hub.md), built from the pieces MainActivity and NavGraph
- * use: the side menu's Islamic entry opens the hub; its cards open the Namaz Tracker, Darood Party
- * and the Quran; Back goes from each to the hub and out; and 1.4's notification route still opens
- * the tracker, over the hub.
+ * use: the Deen tab opens the hub; its cards open the Namaz Tracker, Darood Party and the Quran;
+ * Back goes from each to the hub and out; and 1.4's notification route still opens the tracker,
+ * over the hub.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w411dp-h914dp")
@@ -67,25 +66,10 @@ class IslamicHubStoryTest {
     private fun showApp(mode: ThemeMode = ThemeMode.Pixel) {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode) {
-                val menu = rememberMenuDrawerController()
                 nav = rememberNavController()
-                MenuDrawerScaffold(
-                    controller = menu,
-                    gesturesEnabled = true,
-                    drawerContent = {
-                        MenuDrawerContent(
-                            header = MenuHeaderState(name = "Aria", avatarId = "avatar_mage"),
-                            context = MenuContext(),
-                            selected = null,
-                            // As MainActivity opens an Islamic entry.
-                            onItemClick = { item ->
-                                menu.close()
-                                if (Routes.isIslamic(item.route)) nav.navigateInIslamic(item.route) else nav.navigate(item.route)
-                            }
-                        )
-                    }
-                ) {
-                    NavHost(nav, startDestination = Screen.Home.route) {
+                // The frame as MainActivity builds it: the bottom bar, whose Deen tab opens the hub.
+                PqAppFrame(nav, PqRootState()) { padding ->
+                    NavHost(nav, startDestination = Screen.Home.route, modifier = Modifier.padding(padding)) {
                         composable(Screen.Home.route) { HomeStandIn() }
                         islamicGraph(
                             nav,
@@ -105,10 +89,7 @@ class IslamicHubStoryTest {
 
     @Composable
     private fun HomeStandIn() {
-        Row {
-            MenuTopBarAction()
-            Text("TODAY'S DASHBOARD")
-        }
+        Text("TODAY'S DASHBOARD")
     }
 
     private fun current() = composeTestRule.runOnIdle { nav.currentDestination?.route }
@@ -118,10 +99,8 @@ class IslamicHubStoryTest {
         composeTestRule.waitForIdle()
     }
 
-    private fun openTheHubFromTheMenu() {
-        composeTestRule.onNodeWithContentDescription("Open menu").performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("ISLAMIC").performClick()
+    private fun openTheHubFromTheDeenTab() {
+        composeTestRule.onNodeWithTag(PqNavTags.tab(PqTab.Deen)).performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithTag(IslamicTestTags.HUB).assertIsDisplayed()
     }
@@ -132,9 +111,9 @@ class IslamicHubStoryTest {
     }
 
     @Test
-    fun theMenu_opensTheHub_andNamazOpens_thenBackGoesToTheHubAndHome() {
+    fun theDeenTab_opensTheHub_andNamazOpens_thenBackGoesToTheHubAndHome() {
         showApp()
-        openTheHubFromTheMenu()
+        openTheHubFromTheDeenTab()
 
         openCard("namaz")
         composeTestRule.onNodeWithTag(NamazTestTags.SCREEN).assertIsDisplayed()
@@ -148,7 +127,7 @@ class IslamicHubStoryTest {
     @Test
     fun theDaroodCard_opensTheParties() {
         showApp(ThemeMode.Comic)
-        openTheHubFromTheMenu()
+        openTheHubFromTheDeenTab()
 
         openCard("darood")
 
@@ -160,7 +139,7 @@ class IslamicHubStoryTest {
     @Test
     fun theQuranCard_opensItsOwnScreen_whoseBackReturnsToTheHub() {
         showApp()
-        openTheHubFromTheMenu()
+        openTheHubFromTheDeenTab()
 
         openCard("quran")
         composeTestRule.onNodeWithTag(QURAN_HOME).assertIsDisplayed()
@@ -171,14 +150,14 @@ class IslamicHubStoryTest {
     }
 
     @Test
-    fun theMenusIslamicEntry_fromInside_goesBackToTheHub() {
+    fun theDeenTab_fromInside_goesBackToTheHub() {
         showApp()
-        openTheHubFromTheMenu()
+        openTheHubFromTheDeenTab()
         openCard("darood")
 
-        // Choosing the menu's Islamic entry here, as MainActivity opens it, goes back to the hub
-        // beneath rather than stacking a second one.
-        composeTestRule.runOnIdle { nav.navigateInIslamic(Screen.IslamicHub.route) }
+        // Tapping Deen again goes back to the hub beneath rather than stacking a second one.
+        composeTestRule.onNodeWithTag(PqNavTags.tab(PqTab.Deen)).performClick()
+        composeTestRule.waitForIdle()
 
         assertEquals(Screen.IslamicHub.route, current())
         back()

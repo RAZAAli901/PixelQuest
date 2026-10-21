@@ -30,8 +30,6 @@ import com.pixelquest.app.BuildConfig
 import com.pixelquest.app.R
 import com.pixelquest.app.islamic.IslamicItem
 import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.menu.LocalMenuDrawer
-import com.pixelquest.app.ui.menu.MenuTopBarAction
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
 
@@ -74,14 +72,10 @@ fun IslamicHubContent(
     showComingSoon: Boolean = false
 ) {
     val colors = PixelTheme.colors
-    val hasMenu = LocalMenuDrawer.current != null
     Scaffold(
         containerColor = colors.background,
         topBar = {
-            PixelTopAppBar(
-                title = stringResource(R.string.islamic_title),
-                navigationIcon = if (hasMenu) { { MenuTopBarAction() } } else null
-            )
+            PixelTopAppBar(title = stringResource(R.string.islamic_title))
         },
         modifier = modifier.testTag(IslamicTestTags.HUB)
     ) { padding ->

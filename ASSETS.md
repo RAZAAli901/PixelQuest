@@ -23,12 +23,9 @@
 - `pixel_bar_background.png`: Recessed dark progress bar track container
 - `pixel_bar_green_fill.png`: Bright 8-bit green progress bar fill indicator
 
-### Navigation Icons (`res/drawable/`)
-16x16 pixel-art vector drawables in Pixel gold (`#F4C430`), drawn at 24dp:
-- `ic_home.xml`: house
-- `ic_tasks.xml`: checklist (also the notification small icon)
-- `ic_stats.xml`: bar chart
-- `ic_profile.xml`: person
+### Notification Icon (`res/drawable/`)
+A 16x16 pixel-art vector drawable in Pixel gold (`#F4C430`), drawn at 24dp. The old bottom bar's house, bar chart and person went with it in UI v2, whose bar uses Material icons:
+- `ic_tasks.xml`: checklist, the notification small icon
 
 ### App and Notification Icons (UI v2)
 Made for PixelQuest in Claude Design (docs/ui-v2.md):

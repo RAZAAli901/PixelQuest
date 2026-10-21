@@ -14,7 +14,7 @@ class IslamicRegistryTest {
 
     private class Item(override val order: Int, id: String, route: String = "islamic/$id", badge: Int = 0) : IslamicItemProvider {
         val state = MutableStateFlow(
-            IslamicItem(id, R.string.menu_settings, R.string.menu_settings, IslamicIcon("•"), route, badgeCount = badge)
+            IslamicItem(id, R.string.pq_tab_hero, R.string.pq_tab_hero, IslamicIcon("•"), route, badgeCount = badge)
         )
 
         override fun item(): Flow<IslamicItem> = state

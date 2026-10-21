@@ -28,7 +28,7 @@ import org.junit.Test
 class IslamicHubViewModelTest {
 
     private class Item(override val order: Int, id: String) : IslamicItemProvider {
-        val state = MutableStateFlow(IslamicItem(id, R.string.menu_settings, R.string.menu_settings, IslamicIcon("•"), "islamic/$id"))
+        val state = MutableStateFlow(IslamicItem(id, R.string.pq_tab_hero, R.string.pq_tab_hero, IslamicIcon("•"), "islamic/$id"))
         override fun item(): Flow<IslamicItem> = state
     }
 

@@ -190,9 +190,7 @@ fun TodayContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // The side menu's three-line icon at the top left, then the title.
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    com.pixelquest.app.ui.menu.MenuTopBarAction()
                     Text(
                         text = terminology.todayHeader,
                         style = MaterialTheme.typography.titleLarge,

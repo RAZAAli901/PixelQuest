@@ -3,7 +3,7 @@ package com.pixelquest.app.integration
 import android.app.Application
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
@@ -61,12 +61,10 @@ import com.pixelquest.app.quran.ui.reader.SurahReaderViewModel
 import com.pixelquest.app.testing.FakeDaroodServer
 import com.pixelquest.app.testing.FakeNamazRepository
 import com.pixelquest.app.testing.namazViewModel
-import com.pixelquest.app.ui.menu.MenuContext
-import com.pixelquest.app.ui.menu.MenuDrawerContent
-import com.pixelquest.app.ui.menu.MenuDrawerScaffold
-import com.pixelquest.app.ui.menu.MenuHeaderState
-import com.pixelquest.app.ui.menu.MenuTopBarAction
-import com.pixelquest.app.ui.menu.rememberMenuDrawerController
+import com.pixelquest.app.ui.navigation.PqAppFrame
+import com.pixelquest.app.ui.navigation.PqNavTags
+import com.pixelquest.app.ui.navigation.PqRootState
+import com.pixelquest.app.ui.navigation.PqTab
 import com.pixelquest.app.ui.navigation.Routes
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.navigation.islamicGraph
@@ -94,7 +92,7 @@ import java.time.ZoneId
 
 /**
  * The Islamic side of the app in one run, through its real screens and view models (in memory, as
- * Hilt would make them): signing in, opening the hub from the side menu, marking Asr in the Namaz
+ * Hilt would make them): signing in, opening the hub from the Deen tab, marking Asr in the Namaz
  * Tracker, posting Darood in a party, and reading a surah of the real Quran.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -147,31 +145,11 @@ class IslamicEndToEndTest {
     private fun showApp() {
         composeTestRule.setContent {
             PixelQuestTheme {
-                val menu = rememberMenuDrawerController()
                 nav = rememberNavController()
-                MenuDrawerScaffold(
-                    controller = menu,
-                    gesturesEnabled = true,
-                    drawerContent = {
-                        MenuDrawerContent(
-                            header = MenuHeaderState(name = "Aria", avatarId = "avatar_mage"),
-                            context = MenuContext(),
-                            selected = null,
-                            // As MainActivity opens an Islamic entry.
-                            onItemClick = { item ->
-                                menu.close()
-                                if (Routes.isIslamic(item.route)) nav.navigateInIslamic(item.route) else nav.navigate(item.route)
-                            }
-                        )
-                    }
-                ) {
-                    NavHost(nav, startDestination = Screen.Home.route) {
-                        composable(Screen.Home.route) {
-                            Row {
-                                MenuTopBarAction()
-                                Text("TODAY'S DASHBOARD")
-                            }
-                        }
+                // The frame as MainActivity builds it: the bottom bar, whose Deen tab opens the hub.
+                PqAppFrame(nav, PqRootState()) { padding ->
+                    NavHost(nav, startDestination = Screen.Home.route, modifier = Modifier.padding(padding)) {
+                        composable(Screen.Home.route) { Text("TODAY'S DASHBOARD") }
                         // The account screen, as far as this run needs it: signing in.
                         composable(Screen.Account.route) {
                             Column {
@@ -253,10 +231,8 @@ class IslamicEndToEndTest {
     fun signIn_openTheHub_markAPrayer_postDarood_andReadASurah() {
         showApp()
 
-        // The side menu's Islamic entry opens the hub.
-        composeTestRule.onNodeWithContentDescription("Open menu").performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("ISLAMIC").performClick()
+        // The Deen tab opens the hub.
+        composeTestRule.onNodeWithTag(PqNavTags.tab(PqTab.Deen)).performClick()
         waitForTag(IslamicTestTags.HUB)
 
         // Namaz: Asr marked as prayed.

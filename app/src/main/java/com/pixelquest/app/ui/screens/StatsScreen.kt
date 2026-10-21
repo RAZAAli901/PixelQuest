@@ -67,9 +67,7 @@ fun StatsContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // The side menu's three-line icon at the top left, then the title.
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            com.pixelquest.app.ui.menu.MenuTopBarAction()
             Text(
                 text = if (state.isSimpleMode) "📊 TASK STATISTICS" else "📊 HERO STATISTICS",
                 style = MaterialTheme.typography.titleLarge,

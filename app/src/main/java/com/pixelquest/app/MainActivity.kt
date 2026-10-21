@@ -13,7 +13,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,12 +22,12 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.pixelquest.app.domain.repository.TaskRepository
-import com.pixelquest.app.ui.components.PixelBottomNavBar
 import com.pixelquest.app.ui.components.PixelNotificationPermissionBanner
 import com.pixelquest.app.ui.navigation.PixelNavHost
+import com.pixelquest.app.ui.navigation.PqAppFrame
+import com.pixelquest.app.ui.navigation.Routes
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.navigation.navigateInIslamic
-import com.pixelquest.app.ui.navigation.navigateToTab
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -110,6 +109,12 @@ class MainActivity : ComponentActivity() {
                     // CRT overlay is architecturally restricted to Pixel theme mode only, and forced OFF in Simple Mode.
                     val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
                     val effectiveTheme = themeMode.resolveEffective(isSystemDark)
+                    // UI v2's two skins: Pixel's own, and Comic for the rest (docs/ui-v2.md).
+                    androidx.compose.runtime.SideEffect {
+                        com.pixelquest.app.ui.theme.PqSkinState.skin =
+                            if (effectiveTheme == com.pixelquest.app.ui.theme.ThemeMode.Pixel) com.pixelquest.app.ui.theme.PqSkin.Pixel
+                            else com.pixelquest.app.ui.theme.PqSkin.Comic
+                    }
                     val shouldApplyCrt = com.pixelquest.app.domain.model.CrtFilterPolicy.shouldApplyCrt(
                         isCrtSettingEnabled = isCrtEnabled,
                         effectiveThemeMode = effectiveTheme,
@@ -119,13 +124,8 @@ class MainActivity : ComponentActivity() {
                         val navController = rememberNavController()
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentRoute = navBackStackEntry?.destination?.route
-                        val menuDrawer = com.pixelquest.app.ui.menu.rememberMenuDrawerController()
-                        val menuViewModel: com.pixelquest.app.ui.menu.MenuViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-                        val menuHeader by menuViewModel.header.collectAsState()
-                        val menuSelected by menuViewModel.selected.collectAsState()
-                        val menuContext by menuViewModel.context.collectAsState()
-                        // The highlight follows where the player is, however they got there.
-                        androidx.compose.runtime.LaunchedEffect(currentRoute) { menuViewModel.syncWithRoute(currentRoute) }
+                        val rootViewModel: com.pixelquest.app.ui.navigation.PqRootViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+                        val root by rootViewModel.state.collectAsState()
                         // A screen asked for by a notification opens once the app is past the
                         // splash and onboarding, over Home, so Back returns there.
                         androidx.compose.runtime.LaunchedEffect(pendingRoute, currentRoute, onboardingComplete) {
@@ -137,7 +137,7 @@ class MainActivity : ComponentActivity() {
                             when {
                                 currentRoute == route -> Unit
                                 // The Namaz Tracker: over the Islamic hub, so Back goes there, then Home.
-                                com.pixelquest.app.ui.navigation.Routes.isIslamic(route) ->
+                                Routes.isIslamic(route) ->
                                     navController.navigateInIslamic(route)
                                 else -> navController.navigate(route) { launchSingleTop = true }
                             }
@@ -157,45 +157,9 @@ class MainActivity : ComponentActivity() {
                             navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true }
                         }
 
-                        // The side menu slides in over the screens and the bottom bar (docs/ai-coach-compact.md).
-                        com.pixelquest.app.ui.menu.MenuDrawerScaffold(
-                            controller = menuDrawer,
-                            // Swiping in from the left edge opens it on the tabs. A dialog is its own
-                            // window and takes the touches while it's up, so it can't open behind one.
-                            gesturesEnabled = com.pixelquest.app.ui.navigation.Routes.isTab(currentRoute),
-                            isSimpleMode = menuHeader.isSimpleMode,
-                            drawerContent = {
-                                com.pixelquest.app.ui.menu.MenuDrawerContent(
-                                    header = menuHeader,
-                                    context = menuContext,
-                                    selected = menuSelected,
-                                    onItemClick = { item ->
-                                        menuDrawer.close()
-                                        menuViewModel.select(item.id)
-                                        when {
-                                            // The Leaderboard is also a tab: open it the way its tab does.
-                                            com.pixelquest.app.ui.navigation.Routes.isTab(item.route) ->
-                                                navController.navigateToTab(item.route)
-                                            // Islamic: back to the hub if it's open beneath, else open it.
-                                            com.pixelquest.app.ui.navigation.Routes.isIslamic(item.route) ->
-                                                navController.navigateInIslamic(item.route)
-                                            else -> navController.navigate(item.route) { launchSingleTop = true }
-                                        }
-                                    }
-                                )
-                            }
-                        ) {
-                        Scaffold(
-                            modifier = Modifier.fillMaxSize(),
-                            bottomBar = {
-                                if (currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {
-                                    PixelBottomNavBar(
-                                        currentRoute = currentRoute,
-                                        onNavigate = { route -> navController.navigateToTab(route) }
-                                    )
-                                }
-                            }
-                        ) { innerPadding ->
+                        // The bottom bar (docs/ui-v2.md): a screen opened from a tab keeps that tab lit,
+                        // and the trophy opens the Leaderboard.
+                        PqAppFrame(navController, root) { innerPadding ->
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -227,7 +191,6 @@ class MainActivity : ComponentActivity() {
                                     com.pixelquest.app.ui.screens.settings.LostProgressPrompt(lostProgressViewModel)
                                 }
                             }
-                        }
                         }
                     }
                 }

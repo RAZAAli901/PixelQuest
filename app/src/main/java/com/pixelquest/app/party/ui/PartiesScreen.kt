@@ -36,8 +36,6 @@ import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.menu.LocalMenuDrawer
-import com.pixelquest.app.ui.menu.MenuTopBarAction
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.inkOnPanel
 import com.pixelquest.app.party.domain.Party
@@ -46,12 +44,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 
-/** The Parties screen, from the side menu, with its state from the list's view model (its route says: study parties). */
+/** The Parties screen, from Home, Deen or Hero, with its state from the list's view model (its route says: study parties). */
 @Composable
 fun PartiesScreen(
     onSignIn: () -> Unit,
     onOpenParty: (String) -> Unit,
     onCreateParty: () -> Unit,
+    onNavigateBack: (() -> Unit)? = null,
     viewModel: DaroodPartiesViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -70,14 +69,15 @@ fun PartiesScreen(
         onOpenParty = onOpenParty,
         onCreateParty = onCreateParty,
         onAccept = viewModel::accept,
-        onDecline = viewModel::decline
+        onDecline = viewModel::decline,
+        onNavigateBack = onNavigateBack
     )
 }
 
 /**
  * Parties, the main app's (docs/party-core.md): a button to start a study party, the invitations
  * waiting for an answer, and the study parties the player is in. Signed out, why they need an
- * account. A top-level screen: the side menu's three lines at its top, not a way back.
+ * account. Opened from a tab, with a way back to it.
  *
  * @param invites every invitation waiting, of any kind: one inbox, each saying its kind.
  */
@@ -91,16 +91,27 @@ fun PartiesContent(
     invites: List<Party> = state.invites,
     onRefresh: () -> Unit = {},
     onAccept: (String) -> Unit = {},
-    onDecline: (String) -> Unit = {}
+    onDecline: (String) -> Unit = {},
+    onNavigateBack: (() -> Unit)? = null
 ) {
     val colors = PixelTheme.colors
-    val hasMenu = LocalMenuDrawer.current != null
     Scaffold(
         containerColor = colors.background,
         topBar = {
             PixelTopAppBar(
                 title = stringResource(R.string.parties_title),
-                navigationIcon = if (hasMenu) { { MenuTopBarAction() } } else null
+                navigationIcon = onNavigateBack?.let { back ->
+                    {
+                        androidx.compose.material3.IconButton(onClick = back) {
+                            com.pixelquest.app.ui.components.SymbolIcon(
+                                symbol = "◀",
+                                contentDescription = stringResource(R.string.navigate_back),
+                                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                                color = colors.primaryText
+                            )
+                        }
+                    }
+                }
             )
         },
         modifier = Modifier.testTag(PartiesTags.SCREEN)

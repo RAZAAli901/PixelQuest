@@ -1,9 +1,9 @@
 package com.pixelquest.app.darood.ui
 
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -17,12 +17,10 @@ import androidx.navigation.compose.rememberNavController
 import com.pixelquest.app.auth.AuthUser
 import com.pixelquest.app.auth.FakeAuthRepository
 import com.pixelquest.app.testing.closeAfterWrites
-import com.pixelquest.app.ui.menu.MenuContext
-import com.pixelquest.app.ui.menu.MenuDrawerContent
-import com.pixelquest.app.ui.menu.MenuDrawerScaffold
-import com.pixelquest.app.ui.menu.MenuHeaderState
-import com.pixelquest.app.ui.menu.MenuTopBarAction
-import com.pixelquest.app.ui.menu.rememberMenuDrawerController
+import com.pixelquest.app.ui.navigation.PqAppFrame
+import com.pixelquest.app.ui.navigation.PqNavTags
+import com.pixelquest.app.ui.navigation.PqRootState
+import com.pixelquest.app.ui.navigation.PqTab
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.navigation.islamicGraph
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -35,14 +33,14 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Darood Party from the side menu, built from the same pieces as MainActivity: the Islamic entry
- * opens the hub, whose Darood card opens its screen. That asks a signed-out player to sign in
- * (opening the Account screen) and shows a signed-in one their parties. With its flag off, the card
- * is gone; a waiting invitation puts a dot on the Islamic entry.
+ * Darood Party from the Deen tab, built from the same pieces as MainActivity: the tab opens the hub,
+ * whose Darood card opens its screen. That asks a signed-out player to sign in (opening the Account
+ * screen) and shows a signed-in one their parties. With its flag off, the card is gone; a waiting
+ * invitation puts a dot on the Deen tab.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w411dp-h914dp")
-class DaroodMenuUiTest {
+class DaroodDeenTabUiTest {
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
@@ -74,29 +72,13 @@ class DaroodMenuUiTest {
         db.closeAfterWrites()
     }
 
-    private fun showApp(mode: ThemeMode = ThemeMode.Pixel, context: MenuContext = MenuContext()) {
+    private fun showApp(mode: ThemeMode = ThemeMode.Pixel, root: PqRootState = PqRootState()) {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode, darkTheme = mode == ThemeMode.Pixel) {
-                val controller = rememberMenuDrawerController()
                 val nav = rememberNavController()
-                MenuDrawerScaffold(
-                    controller = controller,
-                    gesturesEnabled = true,
-                    isSimpleMode = context.isSimpleMode,
-                    drawerContent = {
-                        MenuDrawerContent(
-                            header = MenuHeaderState(name = "Aria", avatarId = "avatar_mage", isSimpleMode = context.isSimpleMode),
-                            context = context,
-                            selected = null,
-                            onItemClick = { item ->
-                                controller.close()
-                                nav.navigate(item.route)
-                            }
-                        )
-                    }
-                ) {
-                    NavHost(nav, startDestination = Screen.Home.route) {
-                        composable(Screen.Home.route) { HomeStandIn() }
+                PqAppFrame(nav, root) { padding ->
+                    NavHost(nav, startDestination = Screen.Home.route, modifier = Modifier.padding(padding)) {
+                        composable(Screen.Home.route) { Text("TODAY'S DASHBOARD") }
                         islamicGraph(nav, hub = { onOpen -> com.pixelquest.app.islamic.ui.IslamicHubScreen(onOpen, viewModel = hub) }) {
                             composable(Screen.DaroodParty.route) {
                                 DaroodPartyScreen(
@@ -114,29 +96,19 @@ class DaroodMenuUiTest {
         }
     }
 
-    @Composable
-    private fun HomeStandIn() {
-        Row {
-            MenuTopBarAction()
-            Text("TODAY'S DASHBOARD")
-        }
-    }
-
     /** The list comes from the database, which answers on its own thread. */
     private fun waitForTag(tag: String) = composeTestRule.waitUntil(timeoutMillis = 5_000) {
         composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(tag)).fetchSemanticsNodes().isNotEmpty()
     }
 
-    private fun openTheHub(islamicLabel: String) {
-        composeTestRule.onNodeWithContentDescription("Open menu").performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(islamicLabel).assertIsDisplayed().performClick()
+    private fun openTheHub() {
+        composeTestRule.onNodeWithTag(PqNavTags.tab(PqTab.Deen)).assertIsDisplayed().performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithTag(com.pixelquest.app.islamic.ui.IslamicTestTags.HUB).assertIsDisplayed()
     }
 
-    private fun openDaroodFromTheMenu(islamicLabel: String) {
-        openTheHub(islamicLabel)
+    private fun openDaroodFromTheDeenTab() {
+        openTheHub()
         waitForTag(com.pixelquest.app.islamic.ui.IslamicTestTags.card("darood"))
         composeTestRule.onNodeWithTag(com.pixelquest.app.islamic.ui.IslamicTestTags.card("darood")).performClick()
         composeTestRule.waitForIdle()
@@ -144,9 +116,9 @@ class DaroodMenuUiTest {
     }
 
     @Test
-    fun signedOut_theEntryOpensTheSignInPrompt_whichOpensTheAccountScreen() {
+    fun signedOut_theCardOpensTheSignInPrompt_whichOpensTheAccountScreen() {
         showApp(ThemeMode.Pixel)
-        openDaroodFromTheMenu("ISLAMIC")
+        openDaroodFromTheDeenTab()
 
         waitForTag(DaroodTestTags.SIGNED_OUT)
         composeTestRule.onNodeWithTag(DaroodTestTags.SIGNED_OUT).assertIsDisplayed()
@@ -157,10 +129,10 @@ class DaroodMenuUiTest {
     }
 
     @Test
-    fun signedIn_theEntryOpensThePlaceholder_inComic() {
+    fun signedIn_theCardOpensThePlaceholder_inComic() {
         auth.userFlow.value = AuthUser(id = "aria-id", email = null, displayName = null)
         showApp(ThemeMode.Comic)
-        openDaroodFromTheMenu("ISLAMIC")
+        openDaroodFromTheDeenTab()
 
         waitForTag(DaroodTestTags.EMPTY)
         composeTestRule.onNodeWithTag(DaroodTestTags.EMPTY).assertIsDisplayed()
@@ -168,39 +140,35 @@ class DaroodMenuUiTest {
     }
 
     @Test
-    fun inLight_theEntryReadsAsWritten() {
+    fun inLight_theCardOpensToo() {
         showApp(ThemeMode.Light)
-        openDaroodFromTheMenu("Islamic")
+        openDaroodFromTheDeenTab()
     }
 
     @Test
     fun withItsFlagOff_theCardIsGone() {
         settings.daroodAvailable.value = false
         showApp()
-        openTheHub("ISLAMIC")
+        openTheHub()
         composeTestRule.waitForIdle()
 
         assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(com.pixelquest.app.islamic.ui.IslamicTestTags.card("darood"))).fetchSemanticsNodes().size)
     }
 
     @Test
-    fun aWaitingInvitation_putsADotOnTheEntry() {
-        showApp(context = MenuContext(daroodInviteWaiting = true))
-        composeTestRule.onNodeWithContentDescription("Open menu").performClick()
-        composeTestRule.waitForIdle()
+    fun aWaitingInvitation_putsADotOnTheDeenTab() {
+        showApp(root = PqRootState(daroodInviteWaiting = true))
 
-        // The row is one button to TalkBack, so the dot is found in the unmerged tree, and its words
-        // in the row's own description.
-        composeTestRule.onNodeWithTag(com.pixelquest.app.ui.menu.MenuDot, useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithContentDescription("Something waits for you here", substring = true).assertIsDisplayed()
+        // The tab is one button to TalkBack, so the dot is found in the unmerged tree, and its words
+        // in the tab's own description.
+        composeTestRule.onNodeWithTag(PqNavTags.dot(PqTab.Deen), useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription("something waits for you here", substring = true).assertIsDisplayed()
     }
 
     @Test
     fun noInvitation_noDot() {
         showApp()
-        composeTestRule.onNodeWithContentDescription("Open menu").performClick()
-        composeTestRule.waitForIdle()
 
-        assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(com.pixelquest.app.ui.menu.MenuDot), useUnmergedTree = true).fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(PqNavTags.dot(PqTab.Deen)), useUnmergedTree = true).fetchSemanticsNodes().size)
     }
 }
