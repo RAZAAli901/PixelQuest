@@ -167,6 +167,21 @@ class MenuStateTest {
     }
 
     @Test
+    fun theIslamicEntry_hidesWhenThePlayerHidesTheSection() = runTest {
+        assertFalse(MenuItems.all.visibleIn(MenuContext(islamicHubShown = false)).any { it.id == MenuItemId.ISLAMIC })
+        assertTrue("Parties is the main app's, and stays", MenuItems.all.visibleIn(MenuContext(islamicHubShown = false)).any { it.id == MenuItemId.PARTIES })
+
+        val settings = FakeSettingsRepository()
+        val vm = viewModel(settings = settings)
+        backgroundScope.launch { vm.context.collect {} }
+        advanceUntilIdle()
+        assertTrue(vm.context.value.islamicHubShown)
+        settings.setIslamicHubShown(false)
+        advanceUntilIdle()
+        assertFalse(vm.context.value.islamicHubShown)
+    }
+
+    @Test
     fun theContext_followsSimpleMode() = runTest {
         val vm = viewModel(settings = FakeSettingsRepository(simpleMode = true))
         backgroundScope.launch { vm.context.collect {} }

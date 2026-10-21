@@ -61,16 +61,18 @@ class NamazSummaryViewModel(
     private val repository: NamazRepository,
     private val nextPrayer: NextPrayerUseCase,
     private val clock: AppClock,
-    private val zone: () -> ZoneId
+    private val zone: () -> ZoneId,
+    hubShown: kotlinx.coroutines.flow.Flow<Boolean> = flowOf(true)
 ) : ViewModel() {
 
     @Inject
-    constructor(repository: NamazRepository, nextPrayer: NextPrayerUseCase, clock: AppClock) :
-        this(repository, nextPrayer, clock, { ZoneId.systemDefault() })
+    constructor(repository: NamazRepository, nextPrayer: NextPrayerUseCase, clock: AppClock, settings: com.pixelquest.app.domain.repository.SettingsRepository) :
+        this(repository, nextPrayer, clock, { ZoneId.systemDefault() }, settings.islamicHubShown)
 
+    /** The card while the tracker is on, and the Islamic section shows (it's hidden in Settings otherwise). */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val summary: StateFlow<NamazSummary?> = combine(clock.minuteTicks(), repository.observeSettings()) { _, settings ->
-        settings.enabled
+    val summary: StateFlow<NamazSummary?> = combine(clock.minuteTicks(), repository.observeSettings(), hubShown) { _, settings, shown ->
+        settings.enabled && shown
     }.flatMapLatest { enabled ->
         if (!enabled) {
             flowOf(null)

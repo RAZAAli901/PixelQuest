@@ -48,9 +48,11 @@ class NamazSummaryTest {
     private val repository = FakeNamazRepository(NamazSettingsEntity(enabled = false))
     private val clock = FixedClock(LocalDateTime.of(day, java.time.LocalTime.of(16, 0)))
 
+    private val hubShown = kotlinx.coroutines.flow.MutableStateFlow(true)
+
     private fun viewModel(): NamazSummaryViewModel {
         val provider = DefaultPrayerTimeProvider(repository, PrayerTimesCalculator(), clock) { LahoreZone }
-        return NamazSummaryViewModel(repository, NextPrayerUseCase(provider), clock) { LahoreZone }
+        return NamazSummaryViewModel(repository, NextPrayerUseCase(provider), clock, zone = { LahoreZone }, hubShown = hubShown)
     }
 
     @Before
@@ -79,6 +81,19 @@ class NamazSummaryTest {
 
         repository.saveSettings(NamazSettingsEntity(enabled = false))
         assertNull(viewModel.summary.value)
+    }
+
+    @Test
+    fun theCard_goesWhenTheIslamicSectionIsHidden_andComesBack() = runTest {
+        repository.saveSettings(NamazSettingsEntity(enabled = true))
+        val viewModel = viewModel()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.summary.collect {} }
+        assertEquals(true, viewModel.summary.value != null)
+
+        hubShown.value = false
+        assertNull(viewModel.summary.value)
+        hubShown.value = true
+        assertEquals(true, viewModel.summary.value != null)
     }
 
     @Test

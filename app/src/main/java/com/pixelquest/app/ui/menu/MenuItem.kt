@@ -20,7 +20,9 @@ data class MenuContext(
     /** A Darood Party invitation is waiting for an answer, while Darood is available. */
     val daroodInviteWaiting: Boolean = false,
     /** An invitation to a party of any kind is waiting: the Parties screen's inbox has it. */
-    val partyInviteWaiting: Boolean = false
+    val partyInviteWaiting: Boolean = false,
+    /** The Islamic section shows: on unless the player hid it in Settings. */
+    val islamicHubShown: Boolean = true
 )
 
 /**
@@ -71,7 +73,7 @@ fun List<MenuItem>.visibleIn(context: MenuContext): List<MenuItem> = filter { it
 object MenuItems {
     /**
      * The Islamic section (docs/islamic-hub.md): the hub of Namaz, Darood Party and the Quran, in
-     * place of their own entries. Always there, since the Quran always is. It stays highlighted on
+     * place of their own entries. There unless the player hid it in Settings. It stays highlighted on
      * every screen inside, and keeps Darood's dot for a waiting invitation. No game terms, so no
      * Simple Mode label.
      */
@@ -83,6 +85,7 @@ object MenuItems {
         pixelIcon = R.drawable.ic_islamic_pixel,
         comicIcon = R.drawable.ic_islamic_comic,
         dot = { it.daroodInviteWaiting },
+        visibleWhen = { it.islamicHubShown },
         owns = Routes::isIslamic
     )
 

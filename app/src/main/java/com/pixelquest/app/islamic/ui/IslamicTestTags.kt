@@ -6,6 +6,7 @@ object IslamicTestTags {
 
     /** The Islamic section in Settings, and its reminders' switches. */
     const val SETTINGS = "islamic_settings"
+    const val SETTINGS_SHOW_HUB = "islamic_settings_show_hub"
     const val SETTINGS_DAROOD_WEEKLY = "islamic_settings_darood_weekly"
     const val SETTINGS_STUDY_DUE = "islamic_settings_study_due"
     const val SETTINGS_STUDY_WEEKLY = "islamic_settings_study_weekly"

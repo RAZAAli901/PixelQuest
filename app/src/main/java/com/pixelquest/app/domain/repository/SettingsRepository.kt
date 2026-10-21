@@ -97,6 +97,15 @@ interface SettingsRepository {
 
     suspend fun setDaroodAvailable(available: Boolean) {}
 
+    /**
+     * Whether the Islamic section shows (docs/islamic-hub.md): its entry in the side menu and the
+     * Namaz card on Home. On by default; a player who doesn't want it turns it off in Settings. Its
+     * data and reminders stay as they are, and come back with it.
+     */
+    val islamicHubShown: Flow<Boolean> get() = kotlinx.coroutines.flow.flowOf(true)
+
+    suspend fun setIslamicHubShown(shown: Boolean) {}
+
     /** Whether the Namaz Tracker's first-time setup was shown: once, when its switch is first turned on. */
     val namazSetupShown: Flow<Boolean> get() = kotlinx.coroutines.flow.flowOf(false)
 

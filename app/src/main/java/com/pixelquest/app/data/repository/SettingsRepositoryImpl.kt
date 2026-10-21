@@ -269,6 +269,19 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_DAROOD_AVAILABLE, available).apply()
     }
 
+    override val islamicHubShown: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_ISLAMIC_HUB_SHOWN) trySend(prefs.getBoolean(KEY_ISLAMIC_HUB_SHOWN, true))
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        trySend(prefs.getBoolean(KEY_ISLAMIC_HUB_SHOWN, true))
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setIslamicHubShown(shown: Boolean) {
+        prefs.edit().putBoolean(KEY_ISLAMIC_HUB_SHOWN, shown).apply()
+    }
+
     override val namazSetupShown: Flow<Boolean> = callbackFlow {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_NAMAZ_SETUP_SHOWN) trySend(prefs.getBoolean(KEY_NAMAZ_SETUP_SHOWN, false))
@@ -321,6 +334,7 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_NAMAZ_AVAILABLE = "key_namaz_available"
         private const val KEY_NAMAZ_SETUP_SHOWN = "key_namaz_setup_shown"
         private const val KEY_DAROOD_AVAILABLE = "key_darood_available"
+        private const val KEY_ISLAMIC_HUB_SHOWN = "key_islamic_hub_shown"
         private const val KEY_ONBOARDING_COMPLETE = "key_onboarding_complete"
         private const val KEY_NOTIFICATIONS_ENABLED = "key_notifications_enabled"
         private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"

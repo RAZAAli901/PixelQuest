@@ -105,18 +105,21 @@ class MenuViewModel @Inject constructor(
 
     /**
      * What decides what the entries say: Simple Mode; a Darood invitation waiting (while Darood is
-     * available), for Islamic's dot; and an invitation of any kind waiting, for Parties'.
+     * available), for Islamic's dot; an invitation of any kind waiting, for Parties'; and whether the
+     * Islamic section shows at all.
      */
     val context: StateFlow<MenuContext> = combine(
         settingsRepository.simpleModeEnabled,
         settingsRepository.daroodAvailable,
         daroodParties?.observeMyParties()?.map { parties -> parties.filter { it.myStatus == com.pixelquest.app.party.domain.MemberStatus.INVITED } }
-            ?: flowOf(emptyList())
-    ) { simple, darood, invited ->
+            ?: flowOf(emptyList()),
+        settingsRepository.islamicHubShown
+    ) { simple, darood, invited, islamic ->
         MenuContext(
             isSimpleMode = simple,
             daroodInviteWaiting = darood && invited.any { it.type == com.pixelquest.app.party.domain.PartyType.DAROOD },
-            partyInviteWaiting = invited.isNotEmpty()
+            partyInviteWaiting = invited.isNotEmpty(),
+            islamicHubShown = islamic
         )
     }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MenuContext())

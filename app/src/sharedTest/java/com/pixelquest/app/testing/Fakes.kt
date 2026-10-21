@@ -154,6 +154,8 @@ open class FakeSettingsRepository(
     override val namazSetupShown = MutableStateFlow(false)
     override val daroodAvailable = MutableStateFlow(true)
     override suspend fun setDaroodAvailable(available: Boolean) { daroodAvailable.value = available }
+    override val islamicHubShown = MutableStateFlow(true)
+    override suspend fun setIslamicHubShown(shown: Boolean) { islamicHubShown.value = shown }
     override suspend fun setNamazSetupShown(shown: Boolean) { namazSetupShown.value = shown }
     override suspend fun setLastBackupAt(timestamp: Long) { lastBackupAt.value = timestamp }
     var themeBeforeComic: ThemeMode = ThemeMode.Pixel

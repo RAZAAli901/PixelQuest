@@ -40,8 +40,17 @@ import javax.inject.Inject
 class IslamicSettingsViewModel @Inject constructor(
     private val reading: ReadingSettingsStore,
     private val darood: DaroodReminderSettings,
-    private val study: StudyReminderSettings
+    private val study: StudyReminderSettings,
+    private val settings: com.pixelquest.app.domain.repository.SettingsRepository? = null
 ) : ViewModel() {
+    /** The Islamic section shows: in the side menu, and the Namaz card on Home. */
+    val hubShown: StateFlow<Boolean> = (settings?.islamicHubShown ?: kotlinx.coroutines.flow.flowOf(true))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    fun setHubShown(shown: Boolean) {
+        viewModelScope.launch { settings?.setIslamicHubShown(shown) }
+    }
+
     val readingSettings: StateFlow<ReadingSettings> = reading.settings.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReadingSettings())
     val daroodWeekly: StateFlow<Boolean> = darood.weeklyReminder
     val studyDue: StateFlow<Boolean> = study.dueReminders
@@ -63,7 +72,9 @@ fun IslamicSettingsSection(viewModel: IslamicSettingsViewModel = hiltViewModel()
     val daroodWeekly by viewModel.daroodWeekly.collectAsState()
     val studyDue by viewModel.studyDue.collectAsState()
     val studyWeekly by viewModel.studyWeekly.collectAsState()
+    val hubShown by viewModel.hubShown.collectAsState()
     IslamicSettingsContent(
+        hubShown, viewModel::setHubShown,
         reading, viewModel::setReading,
         IslamicReminders(daroodWeekly, viewModel::setDaroodWeekly, studyDue, viewModel::setStudyDue, studyWeekly, viewModel::setStudyWeekly)
     )
@@ -80,9 +91,19 @@ data class IslamicReminders(
 )
 
 @Composable
-fun IslamicSettingsContent(reading: ReadingSettings, onReading: (ReadingSettings) -> Unit, reminders: IslamicReminders) {
+fun IslamicSettingsContent(
+    hubShown: Boolean,
+    onHubShown: (Boolean) -> Unit,
+    reading: ReadingSettings,
+    onReading: (ReadingSettings) -> Unit,
+    reminders: IslamicReminders
+) {
     val colors = PixelTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().testTag(IslamicTestTags.SETTINGS)) {
+        ToggleRow(
+            stringResource(R.string.settings_islamic_show), stringResource(R.string.settings_islamic_show_body),
+            hubShown, onHubShown, IslamicTestTags.SETTINGS_SHOW_HUB
+        )
         Heading(stringResource(R.string.settings_islamic_quran))
         Text(text = stringResource(R.string.settings_islamic_quran_body), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
         ReadingSettingsContent(settings = reading, preview = null, onChange = onReading, embedded = true)

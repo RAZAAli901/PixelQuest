@@ -71,4 +71,18 @@ class IslamicSettingsTest {
         composeTestRule.onNodeWithTag(IslamicTestTags.SETTINGS_STUDY_WEEKLY).performScrollTo().performClick()
         assertEquals(true, study.weeklySummary.value)
     }
+
+    @Test
+    fun theSectionCanBeHidden_fromHere() {
+        val settings = com.pixelquest.app.testing.FakeSettingsRepository()
+        val vm = viewModels.keep(IslamicSettingsViewModel::class.java) { IslamicSettingsViewModel(reading, darood, study, settings) }
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                androidx.compose.foundation.layout.Column(androidx.compose.ui.Modifier.verticalScroll(androidx.compose.foundation.rememberScrollState())) { IslamicSettingsSection(viewModel = vm) }
+            }
+        }
+        composeTestRule.onNodeWithTag(IslamicTestTags.SETTINGS_SHOW_HUB).assertIsOn().performClick()
+        composeTestRule.waitUntil(5_000) { !settings.islamicHubShown.value }
+        composeTestRule.onNodeWithTag(IslamicTestTags.SETTINGS_SHOW_HUB).assertIsOff()
+    }
 }
