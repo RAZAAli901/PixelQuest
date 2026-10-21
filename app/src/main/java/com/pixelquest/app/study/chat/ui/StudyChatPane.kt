@@ -192,6 +192,9 @@ private fun ChatNoticeLine(notice: ChatNotice, onDismiss: () -> Unit) {
         ChatNotice.SavedOffline -> R.string.study_chat_saved_offline
         ChatNotice.Offline -> R.string.study_chat_offline
         ChatNotice.FileUnreadable -> R.string.study_chat_file_unreadable
+        ChatNotice.FileNotAllowed -> R.string.study_file_not_allowed
+        ChatNotice.FileCorrupted -> R.string.study_file_corrupted
+        ChatNotice.NoViewer -> R.string.study_file_no_viewer
         is ChatNotice.FileProblem -> when (notice.problem) {
             com.pixelquest.app.study.chat.domain.UploadProblem.BAD_TYPE -> R.string.study_chat_file_bad_type
             com.pixelquest.app.study.chat.domain.UploadProblem.MACROS -> R.string.study_chat_file_macros

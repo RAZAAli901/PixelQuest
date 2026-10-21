@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    What the app's FileProvider may hand to another app: only the study chat's opened files, in the
+    app's own cache (docs/study-chat.md, How a file is shared, step 5). Nothing else is ever exposed.
+-->
+<paths>
+    <cache-path name="study_files" path="study-files/" />
+</paths>

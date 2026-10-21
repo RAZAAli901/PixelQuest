@@ -116,6 +116,13 @@ fun StudyPartyScreen(
     LaunchedEffect(chatViewModel, chatShown, chatState.rows.lastOrNull()?.message?.id) {
         if (chatViewModel != null && chatShown && chatState.loaded) chatViewModel.markRead()
     }
+    // A shared file, fetched on the player's tap, goes to the system viewer they choose.
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(chatViewModel) {
+        chatViewModel?.openRequests?.collect { saved ->
+            if (!com.pixelquest.app.study.chat.ui.openInViewer(context, saved)) chatViewModel.noViewer()
+        }
+    }
     StudyPartyContent(
         state = state,
         onNavigateBack = onNavigateBack,
@@ -163,6 +170,7 @@ fun StudyPartyScreen(
                 onAttach = vm::attach,
                 onRemoveAttachment = vm::removeAttachment,
                 onCancelUpload = vm::cancelUpload,
+                onOpenFile = vm::openFile,
                 onRetryUpload = vm::retryUpload,
                 onDismissUpload = vm::dismissUpload
             )

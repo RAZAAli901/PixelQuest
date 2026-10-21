@@ -302,6 +302,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindChatFileFetcher(
+        impl: com.pixelquest.app.study.chat.data.HttpChatFileFetcher
+    ): com.pixelquest.app.study.chat.data.ChatFileFetcher
+
+    @Binds
+    @Singleton
     abstract fun bindPickedDocuments(
         impl: com.pixelquest.app.study.chat.data.ContentResolverPickedDocuments
     ): com.pixelquest.app.study.chat.data.PickedDocuments

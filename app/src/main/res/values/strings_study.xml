@@ -211,6 +211,10 @@
     <string name="study_file_type_image">Image</string>
     <string name="study_file_by">from %1$s</string>
     <string name="study_file_open">Open the file</string>
+    <string name="study_file_open_with">Open with</string>
+    <string name="study_file_not_allowed">That file can\'t be opened: it was deleted, or you\'re no longer in the party.</string>
+    <string name="study_file_corrupted">That file didn\'t arrive whole. Try opening it again.</string>
+    <string name="study_file_no_viewer">No app on this phone opens that kind of file.</string>
     <string name="study_file_loading">A file, on its way</string>
     <string name="study_chat_upload_waiting">Waiting to send</string>
     <string name="study_chat_upload_sending">Sending, %1$d%%</string>

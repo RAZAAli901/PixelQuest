@@ -42,6 +42,15 @@ sealed interface ChatNotice {
 
     /** A picked document the app couldn't read (it went, or the picker gave nothing to open). */
     data object FileUnreadable : ChatNotice
+
+    /** A shared file the player may no longer open (they left, or it was deleted). */
+    data object FileNotAllowed : ChatNotice
+
+    /** A shared file that didn't arrive as the server checked it: not kept. */
+    data object FileCorrupted : ChatNotice
+
+    /** No app on the phone opens that kind of file. */
+    data object NoViewer : ChatNotice
 }
 
 /**
@@ -58,8 +67,16 @@ class StudyChatViewModel @Inject constructor(
     private val parties: PartyRepository,
     private val study: StudyRepository,
     private val picked: com.pixelquest.app.study.chat.data.PickedFileReader = com.pixelquest.app.study.chat.data.PickedFileReader { null },
-    private val uploads: com.pixelquest.app.study.chat.data.ChatUploads? = null
+    private val uploads: com.pixelquest.app.study.chat.data.ChatUploads? = null,
+    private val fetcher: com.pixelquest.app.study.chat.data.ChatFileFetcher? = null
 ) : ViewModel() {
+
+    /** A shared file saved and ready for the system viewer: the screen opens it, once. */
+    val openRequests = kotlinx.coroutines.flow.MutableSharedFlow<com.pixelquest.app.study.chat.data.OpenedFile.Saved>(extraBufferCapacity = 1)
+
+    /** The file being fetched to open, while it is. */
+    private val opening = MutableStateFlow<String?>(null)
+
 
     val partyId: String = savedStateHandle[StudyPartyViewModel.ARG_PARTY] ?: ""
 
@@ -89,9 +106,10 @@ class StudyChatViewModel @Inject constructor(
         combine(messages, chat.observeFiles(partyId), ::Pair),
         people,
         combine(draft, replyingTo, loadingOlder, ::Triple),
-        combine(readAtOpening, loaded, chat.observeUnread(), ::Triple),
+        combine(readAtOpening, combine(loaded, opening, ::Pair), chat.observeUnread(), ::Triple),
         combine(notice, attachment, uploads?.observe(partyId) ?: kotlinx.coroutines.flow.flowOf(emptyList()), ::Triple)
-    ) { (all, files), people, (text, replyId, older), (readAt, ready, unread), (said, file, sharing) ->
+    ) { (all, files), people, (text, replyId, older), (readAt, readyAndOpening, unread), (said, file, sharing) ->
+        val (ready, fetching) = readyAndOpening
         val me = study.myId()
         val rows = rowsOf(all, files, me, people.names, study.zone())
         ChatUiState(
@@ -108,7 +126,8 @@ class StudyChatViewModel @Inject constructor(
             notice = said,
             unread = unread[partyId] ?: 0,
             attachment = file,
-            uploads = sharing.map { ChatUploadRow(it.clientId, it.displayName, it.mime, it.sizeBytes, it.sentBytes, it.state, it.reason) }
+            uploads = sharing.map { ChatUploadRow(it.clientId, it.displayName, it.mime, it.sizeBytes, it.sentBytes, it.state, it.reason) },
+            opening = fetching
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, TabSharing, ChatUiState())
 
@@ -205,6 +224,30 @@ class StudyChatViewModel @Inject constructor(
                 is ChatSend.Refused -> notice.value = ChatNotice.Refused(result.refusal)
             }
         }
+    }
+
+    /**
+     * The player tapped a shared file: fetched into the app's own storage (membership checked
+     * again by the server), then handed to the system viewer they choose. Never opened otherwise.
+     */
+    fun openFile(file: com.pixelquest.app.study.chat.domain.ChatFile) {
+        val fetch = fetcher ?: return
+        if (opening.value != null) return
+        opening.value = file.id
+        viewModelScope.launch {
+            when (val got = fetch.fetch(file)) {
+                is com.pixelquest.app.study.chat.data.OpenedFile.Saved -> openRequests.emit(got)
+                com.pixelquest.app.study.chat.data.OpenedFile.NotAllowed -> notice.value = ChatNotice.FileNotAllowed
+                com.pixelquest.app.study.chat.data.OpenedFile.Offline -> notice.value = ChatNotice.Offline
+                com.pixelquest.app.study.chat.data.OpenedFile.Corrupted -> notice.value = ChatNotice.FileCorrupted
+            }
+            opening.value = null
+        }
+    }
+
+    /** No app opened it: said, so the player knows why nothing happened. */
+    fun noViewer() {
+        notice.value = ChatNotice.NoViewer
     }
 
     fun cancelUpload(clientId: String) {
