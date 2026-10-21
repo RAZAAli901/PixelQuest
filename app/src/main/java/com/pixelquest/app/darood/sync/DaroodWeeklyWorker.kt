@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.sync
 
+import com.pixelquest.app.notification.PqNotifications
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -69,9 +70,7 @@ class DaroodWeeklyWorker @AssistedInject constructor(
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val notification = NotificationCompat.Builder(applicationContext, NotificationChannels.Spec.DAROOD.id)
-            .setSmallIcon(R.drawable.ic_tasks)
-            .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
+        val notification = PqNotifications.builder(applicationContext, NotificationChannels.Spec.DAROOD.id)
             .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))

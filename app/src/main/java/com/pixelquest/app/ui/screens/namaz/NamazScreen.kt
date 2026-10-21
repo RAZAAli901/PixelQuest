@@ -109,9 +109,7 @@ fun NamazScreen(
     }
     var pickingCity by rememberSaveable { mutableStateOf(false) }
     // Reminders chosen in the setup: Android's notification prompt right then, while it's clear why.
-    val askForNotifications = androidx.activity.compose.rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
-    ) { }
+    val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
 
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
@@ -193,7 +191,10 @@ fun NamazScreen(
             onReminderOffset = viewModel::setReminderOffset,
             nudge = reminderOptions.nudge,
             onNudge = viewModel::setNudge,
-            onReminder = viewModel::setReminder,
+            onReminder = { prayer, on ->
+                if (on) askForNotifications()
+                viewModel.setReminder(prayer, on)
+            },
             sound = reminderOptions.sound,
             onSound = viewModel::setSound,
             fajrThroughDnd = reminderOptions.fajrThroughDnd,
@@ -212,8 +213,8 @@ fun NamazScreen(
             onUseMyLocation = locationRequest::launch,
             onDone = { method, remind ->
                 viewModel.finishSetup(method, remind)
-                if (remind && needsNotificationPermission(context)) {
-                    askForNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                if (remind) {
+                    askForNotifications()
                 }
             },
             onDismiss = viewModel::dismissSetup

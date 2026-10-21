@@ -91,6 +91,7 @@ fun StudyPartyScreen(
     val state by viewModel.uiState.collectAsState()
     val dueReminders by viewModel.dueReminders.collectAsState()
     val weeklySummary by viewModel.weeklySummary.collectAsState()
+    val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
     // Followed live only while the screen is visible.
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(lifecycle, viewModel) {
@@ -122,7 +123,12 @@ fun StudyPartyScreen(
         onCancelDelete = viewModel::cancelDelete,
         timerActions = TimerActions(viewModel::startTimer, viewModel::stopTimer, viewModel::cancelTimer, viewModel::logStudy),
         onDismissWinners = viewModel::dismissWinnerBanner,
-        reminders = ReminderToggles(dueReminders, viewModel::setDueReminders, weeklySummary, viewModel::setWeeklySummary)
+        reminders = ReminderToggles(
+            dueReminders,
+            { on -> if (on) askForNotifications(); viewModel.setDueReminders(on) },
+            weeklySummary,
+            { on -> if (on) askForNotifications(); viewModel.setWeeklySummary(on) }
+        )
     )
 }
 

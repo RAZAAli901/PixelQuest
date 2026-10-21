@@ -123,6 +123,7 @@ fun PartiesScreen(
     }
     val context = LocalContext.current
     val shareText = username?.let { stringResource(R.string.pq_parties_share_text, it) }
+    val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
     PartiesContent(
         state = state,
         onSignIn = onSignIn,
@@ -133,7 +134,10 @@ fun PartiesScreen(
         onAccept = viewModel::accept,
         onDecline = viewModel::decline,
         weeklyNote = weekly,
-        onWeeklyNote = viewModel::setWeeklyReminder,
+        onWeeklyNote = { on ->
+            if (on) askForNotifications()
+            viewModel.setWeeklyReminder(on)
+        },
         username = username,
         daroodAvailable = darood,
         onOpenRaceBoard = onOpenRaceBoard,

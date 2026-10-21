@@ -13,13 +13,6 @@ object NotificationHelper {
     /** Default reminder channel; see [NotificationChannels] for the full set. */
     val CHANNEL_ID: String = NotificationChannels.Spec.REMINDERS.id
 
-    /**
-     * Accent color for system notifications.
-     * Uses PixelQuest Daylight Gold / Retro Amber (0xFFB45309): 5.0:1 on a white notification shade
-     * (text-safe) and 3.7:1 on a #121212 dark shade, which clears the 3:1 bar for the icon tint.
-     */
-    const val NOTIFICATION_ACCENT_COLOR = 0xFFB45309.toInt()
-
     /** Reminders share a group so several due at once collapse under one summary. */
     const val REMINDER_GROUP_KEY = "com.pixelquest.app.REMINDERS"
     const val REMINDER_SUMMARY_ID = 900_001
@@ -51,9 +44,7 @@ object NotificationHelper {
         isSimpleMode: Boolean = false,
         copy: NotificationCopy? = null
     ): Notification {
-        val builder = NotificationCompat.Builder(context, NotificationChannels.reminderChannel(soundEnabled).id)
-            .setSmallIcon(R.drawable.ic_tasks)
-            .setColor(NOTIFICATION_ACCENT_COLOR)
+        val builder = PqNotifications.builder(context, NotificationChannels.reminderChannel(soundEnabled).id)
             .setContentTitle(copy?.title ?: getReminderTitle(taskName, isSimpleMode))
             .setContentText(copy?.text ?: getReminderText(taskName, isSimpleMode))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -122,9 +113,7 @@ object NotificationHelper {
         isSimpleMode: Boolean = false,
         silent: Boolean = false
     ): Notification {
-        val builder = NotificationCompat.Builder(context, NotificationChannels.Spec.MISSED.id)
-            .setSmallIcon(R.drawable.ic_tasks)
-            .setColor(NOTIFICATION_ACCENT_COLOR)
+        val builder = PqNotifications.builder(context, NotificationChannels.Spec.MISSED.id)
             .setContentTitle(getMissedTaskTitle(taskName, isSimpleMode))
             .setContentText(getMissedTaskText(taskName, isSimpleMode))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -164,9 +153,7 @@ object NotificationHelper {
         val inbox = NotificationCompat.InboxStyle()
         active.mapNotNull { it.notification.extras.getCharSequence(Notification.EXTRA_TITLE) }
             .forEach { inbox.addLine(it) }
-        val summary = NotificationCompat.Builder(context, NotificationChannels.reminderChannel(soundEnabled).id)
-            .setSmallIcon(R.drawable.ic_tasks)
-            .setColor(NOTIFICATION_ACCENT_COLOR)
+        val summary = PqNotifications.builder(context, NotificationChannels.reminderChannel(soundEnabled).id)
             .setContentTitle("${active.size} $noun due")
             .setStyle(inbox.setSummaryText("PixelQuest"))
             .setGroup(REMINDER_GROUP_KEY)

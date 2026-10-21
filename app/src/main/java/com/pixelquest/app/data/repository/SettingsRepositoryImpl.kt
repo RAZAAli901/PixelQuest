@@ -17,7 +17,7 @@ class SettingsRepositoryImpl @Inject constructor(
 ) : SettingsRepository {
 
     private val prefs: SharedPreferences by lazy {
-        context.getSharedPreferences("pixelquest_settings", Context.MODE_PRIVATE)
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
     override val isSoundEnabled: Flow<Boolean> = callbackFlow {
@@ -339,7 +339,14 @@ class SettingsRepositoryImpl @Inject constructor(
         private const val KEY_NOTIFICATIONS_ENABLED = "key_notifications_enabled"
         private const val KEY_NOTIFICATION_SOUND = "key_notification_sound"
         private const val KEY_NOTIFICATION_VIBRATION = "key_notification_vibration"
+        private const val PREFS_NAME = "pixelquest_settings"
         private const val KEY_THEME_MODE = "key_theme_mode"
+
+        /** Settings > Look as stored, read without the repository: for a notification built in the background. */
+        fun storedThemeMode(context: Context): com.pixelquest.app.ui.theme.ThemeMode = com.pixelquest.app.ui.theme.ThemeMode.fromId(
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.DEFAULT.id)
+        )
         private const val KEY_THEME_MODE_BEFORE_COMIC = "key_theme_mode_before_comic"
         private const val KEY_SIMPLE_MODE_ENABLED = "key_simple_mode_enabled"
         private const val KEY_SIMPLE_MODE_HIGHLIGHT_SEEN = "key_simple_mode_highlight_seen"

@@ -1,5 +1,6 @@
 package com.pixelquest.app.worker
 
+import com.pixelquest.app.notification.PqNotifications
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -49,9 +50,7 @@ class InsightReadyWorker @AssistedInject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         val (title, text) = copy(isSimpleMode)
-        val notification = NotificationCompat.Builder(applicationContext, NotificationChannels.Spec.COACH.id)
-            .setSmallIcon(R.drawable.ic_tasks)
-            .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
+        val notification = PqNotifications.builder(applicationContext, NotificationChannels.Spec.COACH.id)
             .setContentTitle(title)
             .setContentText(text)
             .setContentIntent(openApp)

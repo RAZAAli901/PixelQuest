@@ -2,7 +2,6 @@ package com.pixelquest.app
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.pixelquest.app.domain.repository.TaskRepository
@@ -209,16 +207,18 @@ class MainActivity : ComponentActivity() {
         private val OPENABLE_ROUTES = setOf(Screen.Namaz.route, com.pixelquest.app.ui.navigation.Routes.LEGACY_NAMAZ)
     }
 
+    /**
+     * Notifications aren't asked for at launch, but when the player first turns a reminder on
+     * (rememberAskForNotifications). The banner offering them shows only once they've said no.
+     */
     private fun checkNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val permission = Manifest.permission.POST_NOTIFICATIONS
-            val granted = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
-            isNotificationPermissionGranted = granted
-            if (!granted) {
-                requestNotificationPermissionLauncher.launch(permission)
-            }
-        } else {
-            isNotificationPermissionGranted = true
-        }
+        val ask = com.pixelquest.app.ui.notifications.NotificationAsk
+        isNotificationPermissionGranted = !ask.needed(this) || !ask.asked(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Back from Android's permission prompt or its settings: the banner follows the answer.
+        checkNotificationPermission()
     }
 }

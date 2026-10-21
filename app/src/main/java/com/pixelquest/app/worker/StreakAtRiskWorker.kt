@@ -1,5 +1,6 @@
 package com.pixelquest.app.worker
 
+import com.pixelquest.app.notification.PqNotifications
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -72,13 +73,21 @@ class StreakAtRiskWorker @AssistedInject constructor(
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val notification = NotificationCompat.Builder(applicationContext, NotificationChannels.Spec.PROGRESS.id)
-            .setSmallIcon(R.drawable.ic_tasks)
-            .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
+        val notification = PqNotifications.builder(applicationContext, NotificationChannels.Spec.PROGRESS.id)
             .setContentTitle(title)
             .setContentText(text)
             .setContentIntent(openApp)
             .setAutoCancel(true)
+            .apply {
+                val simple = settingsRepository.simpleModeEnabled.first()
+                val (small, big) = PqNotifications.card(
+                    applicationContext,
+                    kicker = applicationContext.resources.getQuantityString(R.plurals.pq_notif_streak_kicker, streak, streak),
+                    title = applicationContext.getString(if (simple) R.string.pq_notif_streak_title_simple else R.string.pq_notif_streak_title),
+                    body = text
+                )
+                setStyle(NotificationCompat.DecoratedCustomViewStyle()).setCustomContentView(small).setCustomBigContentView(big)
+            }
             .build()
         try {
             NotificationManagerCompat.from(applicationContext).notify(NOTIFICATION_ID, notification)

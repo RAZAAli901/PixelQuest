@@ -1,5 +1,6 @@
 package com.pixelquest.app.study.sync
 
+import com.pixelquest.app.notification.PqNotifications
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -77,9 +78,7 @@ class StudyWeeklyWorker @AssistedInject constructor(
             Intent(applicationContext, MainActivity::class.java).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val notification = NotificationCompat.Builder(applicationContext, NotificationChannels.Spec.STUDY.id)
-            .setSmallIcon(R.drawable.ic_tasks)
-            .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
+        val notification = PqNotifications.builder(applicationContext, NotificationChannels.Spec.STUDY.id)
             .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))

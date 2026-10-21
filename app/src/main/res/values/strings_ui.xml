@@ -32,6 +32,13 @@
     <!-- The AI coach's card on Home. -->
     <string name="pq_coach_title">COACH INTEL</string>
     <string name="pq_coach_live">Live</string>
+    <!-- The streak-at-risk notification's card (mock 1D): "5-day streak" over "STREAK AT RISK!". -->
+    <plurals name="pq_notif_streak_kicker">
+        <item quantity="one"><xliff:g id="days" example="1">%d</xliff:g>-day streak</item>
+        <item quantity="other"><xliff:g id="days" example="5">%d</xliff:g>-day streak</item>
+    </plurals>
+    <string name="pq_notif_streak_title">STREAK AT RISK!</string>
+    <string name="pq_notif_streak_title_simple">STREAK ENDS TONIGHT</string>
     <!-- The coach card's title in Simple Mode, without the game's words. -->
     <string name="pq_coach_title_simple">HABIT COACH</string>
     <!-- Home's AI teaser (mock 4A), before the coach is on. -->

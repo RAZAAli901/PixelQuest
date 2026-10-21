@@ -149,7 +149,7 @@ class ProfileSyncWorker @AssistedInject constructor(
             applicationContext,
             com.pixelquest.app.notification.NotificationChannels.Spec.SYNC.id
         )
-            .setSmallIcon(com.pixelquest.app.R.drawable.ic_tasks)
+            .setSmallIcon(com.pixelquest.app.notification.PqNotifications.SMALL_ICON)
             .setContentTitle("PixelQuest Sync")
             .setContentText("Syncing hero stats to leaderboard...")
             .setPriority(androidx.core.app.NotificationCompat.PRIORITY_LOW)

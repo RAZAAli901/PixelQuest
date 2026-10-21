@@ -49,6 +49,7 @@ fun CreateTaskScreen(
     val formState by viewModel.formState.collectAsState()
     var showDeleteConfirm by remember { mutableStateOf(false) }
     val context = androidx.compose.ui.platform.LocalContext.current
+    val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
 
     TaskFormContent(
         formState = formState,
@@ -59,10 +60,15 @@ fun CreateTaskScreen(
         onDayToggled = { viewModel.onDayToggled(it) },
         onTimeSelected = { viewModel.onTimeSelected(it) },
         onCategorySelected = { viewModel.onCategorySelected(it) },
-        onReminderEnabledChanged = { viewModel.onReminderEnabledChanged(it) },
+        onReminderEnabledChanged = {
+            if (it) askForNotifications()
+            viewModel.onReminderEnabledChanged(it)
+        },
         onReminderLeadSelected = { viewModel.onReminderLeadSelected(it) },
         onReminderStyleSelected = { viewModel.onReminderStyleSelected(it) },
         onSave = {
+            // A new quest's reminder is on from the start: saving it is turning it on.
+            if (formState.reminderEnabled) askForNotifications()
             viewModel.saveTask {
                 onNavigateBack()
             }

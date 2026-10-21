@@ -42,6 +42,7 @@ fun SettingsScreen(
     val state by viewModel.uiState.collectAsState()
 
     val context = androidx.compose.ui.platform.LocalContext.current
+    val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
 
     val exportLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
         contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
@@ -124,7 +125,10 @@ fun SettingsScreen(
             val notifText = if (state.isNotificationsEnabled) "🔔 NOTIFICATIONS: ON" else "🔕 NOTIFICATIONS: OFF"
             PixelButton(
                 text = notifText,
-                onClick = { viewModel.toggleNotifications(!state.isNotificationsEnabled) },
+                onClick = {
+                    if (!state.isNotificationsEnabled) askForNotifications()
+                    viewModel.toggleNotifications(!state.isNotificationsEnabled)
+                },
                 variant = PixelButtonVariant.YELLOW,
                 modifier = Modifier.fillMaxWidth()
             )

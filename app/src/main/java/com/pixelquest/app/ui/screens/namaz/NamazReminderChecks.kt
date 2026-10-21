@@ -119,9 +119,7 @@ internal fun canShowPrayerReminders(context: Context): Boolean {
 }
 
 /** Android 13+ asks for notifications at run time. */
-internal fun needsNotificationPermission(context: Context): Boolean =
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+internal fun needsNotificationPermission(context: Context): Boolean = com.pixelquest.app.ui.notifications.NotificationAsk.needed(context)
 
 /** Android's notification settings for this app. */
 internal fun notificationSettingsIntent(context: Context): Intent =

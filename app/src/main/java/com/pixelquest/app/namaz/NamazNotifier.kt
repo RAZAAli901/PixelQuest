@@ -1,5 +1,6 @@
 package com.pixelquest.app.namaz
 
+import com.pixelquest.app.notification.PqNotifications
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
@@ -88,9 +89,7 @@ class AndroidNamazNotifier @Inject constructor(
         } else {
             context.getString(R.string.namaz_notification_title, name)
         }
-        val builder = NotificationCompat.Builder(context, NamazChannels.reminderChannel(reminder.sound, reminder.asAlarm))
-            .setSmallIcon(R.drawable.ic_tasks)
-            .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
+        val builder = PqNotifications.builder(context, NamazChannels.reminderChannel(reminder.sound, reminder.asAlarm))
             .setContentTitle(title)
             .setContentText(text)
             .setContentIntent(openNamaz())
@@ -113,9 +112,7 @@ class AndroidNamazNotifier @Inject constructor(
     private fun nudge(reminder: NamazReminder): Notification {
         val name = context.getString(reminder.prayer.displayName)
         val text = reminder.next?.let { context.getString(R.string.namaz_nudge_text, context.getString(it.prayer.displayName), it.time.format(timeFormat)) }
-        return NotificationCompat.Builder(context, NamazChannels.NUDGE)
-            .setSmallIcon(R.drawable.ic_tasks)
-            .setColor(NotificationHelper.NOTIFICATION_ACCENT_COLOR)
+        return PqNotifications.builder(context, NamazChannels.NUDGE)
             .setContentTitle(context.getString(R.string.namaz_nudge_title, name))
             .setContentText(text)
             .setContentIntent(openNamaz())
