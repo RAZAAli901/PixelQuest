@@ -47,3 +47,16 @@ export function ratingChanges(a: Side, b: Side, scoreA: 0 | 0.5 | 1, rules: Rati
   };
   return [change(a, b, scoreA), change(b, a, 1 - scoreA)];
 }
+
+/** chess_config's anti-farming values. */
+export const FARMING = { pairRatedPerDay: 10, minMovesEach: 4 };
+
+/**
+ * Whether a rated game changes Int points (20261019000092): the pair has had fewer than 10 count
+ * today, and each side made at least 4 moves, unless it ended in checkmate. [ply] is the moves
+ * made in all; [pairCountedToday] the pair's games that counted today before this one.
+ */
+export function ratingCounts(ply: number, reason: string, pairCountedToday: number, rules = FARMING): boolean {
+  const eachMoved = Math.floor(ply / 2) >= rules.minMovesEach;
+  return (reason === "checkmate" || eachMoved) && pairCountedToday < rules.pairRatedPerDay;
+}
