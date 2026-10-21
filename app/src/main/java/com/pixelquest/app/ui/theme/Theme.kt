@@ -1,12 +1,15 @@
 package com.pixelquest.app.ui.theme
 
 import android.app.Activity
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
 /**
  * Settings > REDUCE MOTION. Looping animations (pulses, spinners, the level-up bounce) hold still
@@ -15,58 +18,45 @@ import androidx.compose.ui.platform.LocalView
 val LocalReduceMotion = androidx.compose.runtime.staticCompositionLocalOf { false }
 
 /**
- * PixelQuest Theme wrapper supporting multiple theme modes:
- * - [ThemeMode.Pixel]: Classic retro dark arcade theme.
- * - [ThemeMode.Light]: Crisp light theme (full design Day 17).
- * - [ThemeMode.Comic]: Dynamic comic-book pop art (foundation Day 20, screens Days 21-23).
+ * The app's theme: UI v2's tokens in the active skin (docs/ui-v2.md), and Material's colours and type
+ * from them for the screens from before UI v2. The app sets the skin itself, before setContent and
+ * as Settings > Look changes, and leaves [themeMode] null. A [themeMode] given (a test, a preview)
+ * wears that skin for as long as this theme is shown, and gives the one before it back after.
  */
 @Composable
 fun PixelQuestTheme(
-    themeMode: ThemeMode = ThemeMode.Pixel,
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: ThemeMode? = null,
     isReduceMotion: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val effectiveMode = themeMode.resolveEffective(darkTheme)
-    val rawColorScheme: AppColorScheme = when (effectiveMode) {
-        ThemeMode.Pixel, ThemeMode.System -> DefaultPixelColorScheme
-        ThemeMode.Light -> DefaultLightColorScheme
-        ThemeMode.Comic -> DefaultComicColorScheme
+    if (themeMode != null) {
+        val before = remember { PqSkinState.skin }
+        if (PqSkinState.skin != themeMode.skin) PqSkinState.skin = themeMode.skin
+        DisposableEffect(Unit) { onDispose { PqSkinState.skin = before } }
     }
-    val appColorScheme = rememberAnimatedAppColorScheme(
-        targetScheme = rawColorScheme,
-        isReduceMotion = isReduceMotion
-    )
-    val materialColorScheme = appColorScheme.toMaterialColorScheme()
-    val effectiveTypography = when (effectiveMode) {
-        ThemeMode.Comic -> ComicTypography
-        else -> PixelTypography
-    }
+    val skin = PqSkinState.skin
+    val colors = remember(skin) { pqMaterialColors() }
+    val typography = remember(skin) { pqTypography() }
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val activity = view.context as? Activity
-            activity?.window?.let { window ->
-                window.statusBarColor = appColorScheme.background.toArgb()
-                window.navigationBarColor = appColorScheme.background.toArgb()
-                val insetsController = androidx.core.view.WindowCompat.getInsetsController(window, view)
-                val isLight = !appColorScheme.isDark
-                insetsController.isAppearanceLightStatusBars = isLight
-                insetsController.isAppearanceLightNavigationBars = isLight
+            (view.context as? Activity)?.window?.let { window ->
+                window.statusBarColor = colors.background.toArgb()
+                window.navigationBarColor = colors.background.toArgb()
+                WindowCompat.getInsetsController(window, view).apply {
+                    isAppearanceLightStatusBars = true
+                    isAppearanceLightNavigationBars = true
+                }
             }
         }
     }
 
-    androidx.compose.runtime.CompositionLocalProvider(
-        LocalAppColorScheme provides appColorScheme,
-        LocalAppThemeMode provides effectiveMode,
+    CompositionLocalProvider(
+        LocalAppColorScheme provides PqAppColors,
+        LocalAppThemeMode provides ThemeMode.Comic,
         LocalReduceMotion provides isReduceMotion
     ) {
-        MaterialTheme(
-            colorScheme = materialColorScheme,
-            typography = effectiveTypography,
-            content = content
-        )
+        MaterialTheme(colorScheme = colors, typography = typography, content = content)
     }
 }

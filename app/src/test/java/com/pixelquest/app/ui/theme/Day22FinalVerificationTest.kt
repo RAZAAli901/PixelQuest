@@ -38,17 +38,4 @@ class Day22FinalVerificationTest {
         assertEquals(AvatarTier.GOLD, AvatarTierCalculator.calculateTier(10))
         assertEquals(AvatarTier.GOLD, AvatarTierCalculator.calculateTier(30))
     }
-
-    @Test
-    fun comicTokens_maintainLockedSpecifications() {
-        // Assert Comic key tokens are intact
-        assertEquals(2.5.dp, ComicShapeTokens.BorderWidthDefault)
-        assertEquals(4.dp, ComicShapeTokens.ShadowOffsetDefault)
-        assertEquals(androidx.compose.ui.graphics.Color(0xFF000000), ComicTokens.SolidBlack)
-        assertEquals(androidx.compose.ui.graphics.Color(0xFFFAF8F5), ComicTokens.PaperBackground)
-        assertEquals(androidx.compose.ui.graphics.Color(0xFFFF5A4E), ComicTokens.CoralRed)
-        assertEquals(androidx.compose.ui.graphics.Color(0xFF8ECAE6), ComicTokens.SkyBlue)
-        assertEquals(androidx.compose.ui.graphics.Color(0xFFF0A868), ComicTokens.BurntOrange)
-        assertEquals(androidx.compose.ui.graphics.Color(0xFFB8A4D4), ComicTokens.Lavender)
-    }
 }

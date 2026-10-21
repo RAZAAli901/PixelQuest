@@ -29,6 +29,7 @@ import com.pixelquest.app.ui.navigation.Routes
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.navigation.navigateInIslamic
 import com.pixelquest.app.ui.theme.PixelQuestTheme
+import kotlinx.coroutines.flow.first
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -41,7 +42,6 @@ import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.ui.components.PixelCrtOverlay
 
 import androidx.activity.viewModels
-import com.pixelquest.app.ui.theme.ThemeViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -64,7 +64,6 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var tips: com.pixelquest.app.ui.tips.TipsStore
 
-    private val themeViewModel: ThemeViewModel by viewModels()
 
     private val lostProgressViewModel: com.pixelquest.app.ui.screens.settings.LostProgressViewModel by viewModels()
 
@@ -88,11 +87,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) pendingRoute = routeFrom(intent)
         checkNotificationPermission()
+        // Settings > Look, read before the first frame so it opens in the player's skin (docs/ui-v2.md).
+        val startLook = kotlinx.coroutines.runBlocking { settingsRepository.themeMode.first() }
+        com.pixelquest.app.ui.theme.PqSkinState.skin = startLook.skin
         setContent {
-            val themeMode by themeViewModel.themeMode.collectAsState()
+            // ...and as it changes, every screen re-skins at once.
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                settingsRepository.themeMode.collect { com.pixelquest.app.ui.theme.PqSkinState.skin = it.skin }
+            }
             val isReduceMotionEnabled by settingsRepository.isReduceMotionEnabled.collectAsState(initial = false)
             PixelQuestTheme(
-                themeMode = themeMode,
                 isReduceMotion = com.pixelquest.app.ui.theme.rememberReduceMotion(isReduceMotionEnabled)
             ) {
                 CompositionLocalProvider(LocalSoundManager provides soundManager, com.pixelquest.app.ui.tips.LocalTipsStore provides tips) {
@@ -106,15 +110,10 @@ class MainActivity : ComponentActivity() {
                         ) { flag, profile -> com.pixelquest.app.domain.OnboardingGate.isDone(flag, profile) }
                     }
                     val onboardingComplete by onboardingFlow.collectAsState(initial = true)
-                    // CRT overlay is architecturally restricted to Pixel theme mode only, and forced OFF in Simple Mode.
-                    val isSystemDark = androidx.compose.foundation.isSystemInDarkTheme()
-                    val effectiveTheme = themeMode.resolveEffective(isSystemDark)
-                    // UI v2's two skins: Pixel's own, and Comic for the rest (docs/ui-v2.md).
-                    androidx.compose.runtime.SideEffect {
-                        com.pixelquest.app.ui.theme.PqSkinState.skin =
-                            if (effectiveTheme == com.pixelquest.app.ui.theme.ThemeMode.Pixel) com.pixelquest.app.ui.theme.PqSkin.Pixel
-                            else com.pixelquest.app.ui.theme.PqSkin.Comic
-                    }
+                    // CRT overlay is restricted to the Pixel skin, and forced OFF in Simple Mode.
+                    val effectiveTheme =
+                        if (com.pixelquest.app.ui.theme.isPixelSkin) com.pixelquest.app.ui.theme.ThemeMode.Pixel
+                        else com.pixelquest.app.ui.theme.ThemeMode.Comic
                     val shouldApplyCrt = com.pixelquest.app.domain.model.CrtFilterPolicy.shouldApplyCrt(
                         isCrtSettingEnabled = isCrtEnabled,
                         effectiveThemeMode = effectiveTheme,

@@ -139,6 +139,9 @@
     <string name="pq_hero_profile">Profile</string>
     <string name="pq_hero_stats">Stats</string>
     <string name="pq_hero_settings">Settings</string>
+    <string name="pq_settings_look">Look</string>
+    <string name="pq_look_comic">Comic</string>
+    <string name="pq_look_pixel">Pixel</string>
     <string name="pq_hero_change_avatar">Change avatar</string>
     <string name="pq_hero_difficulty">Difficulty</string>
     <!-- A row's value when it can't be used yet: the Leaderboard signed out, Difficulty in Simple Mode. -->

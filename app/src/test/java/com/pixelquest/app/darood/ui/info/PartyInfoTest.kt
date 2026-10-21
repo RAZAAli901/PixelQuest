@@ -396,7 +396,7 @@ class PartyInfoTest {
                 RenameField(name = "x", problem = com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_SHORT, onNameChange = {})
             }
         }
-        composeTestRule.onNodeWithText("Party name").assertIsDisplayed()
+        composeTestRule.onNodeWithText("PARTY NAME").assertIsDisplayed()
         composeTestRule.onNodeWithText("At least 2 characters.").assertIsDisplayed()
     }
 

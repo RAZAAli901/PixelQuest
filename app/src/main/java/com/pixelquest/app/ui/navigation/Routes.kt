@@ -22,7 +22,6 @@ sealed class Screen(val route: String) {
     object Settings : Screen("settings")
     object Account : Screen("account")
     object Leaderboard : Screen("leaderboard")
-    object ThemeSelection : Screen("theme_selection")
     object AiInsight : Screen("ai_insight")
     /** The Namaz Tracker, from the Islamic hub. */
     object Namaz : Screen("${Routes.ISLAMIC}/namaz")

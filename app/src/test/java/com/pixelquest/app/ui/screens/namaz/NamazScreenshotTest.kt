@@ -100,7 +100,7 @@ class NamazScreenshotTest(private val look: Look) {
     @Test
     fun eachButtonState_isDrawn_andLooksDifferent() {
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = look.mode, darkTheme = look.dark) {
+            PixelQuestTheme(themeMode = look.mode) {
                 CompositionLocalProvider(LocalNamazSimpleMode provides look.simpleMode) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         PrayerButtonState.entries.forEach { state ->
@@ -146,7 +146,7 @@ class NamazScreenshotTest(private val look: Look) {
             settings = FakeSettingsRepository(simpleMode = look.simpleMode)
         )
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = look.mode, darkTheme = look.dark) { NamazScreen(viewModel = viewModel) }
+            PixelQuestTheme(themeMode = look.mode) { NamazScreen(viewModel = viewModel) }
         }
         composeTestRule.waitForIdle()
 
@@ -163,7 +163,7 @@ class NamazScreenshotTest(private val look: Look) {
             settings = FakeSettingsRepository(simpleMode = look.simpleMode)
         )
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = look.mode, darkTheme = look.dark) { NamazScreen(viewModel = viewModel) }
+            PixelQuestTheme(themeMode = look.mode) { NamazScreen(viewModel = viewModel) }
         }
         composeTestRule.waitForIdle()
 

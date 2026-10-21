@@ -60,7 +60,7 @@ class NamazButtonsAcrossThemesTest(private val mode: ThemeMode, private val simp
             settings = FakeSettingsRepository(simpleMode = simpleMode)
         )
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = mode, darkTheme = mode == ThemeMode.Pixel) { NamazScreen(viewModel = viewModel) }
+            PixelQuestTheme(themeMode = mode) { NamazScreen(viewModel = viewModel) }
         }
         composeTestRule.waitForIdle()
     }

@@ -172,7 +172,7 @@ class QuranStoryTest {
 
         composeTestRule.onNodeWithTag(QuranListTags.row(2)).performClick()
         waitForTag(ReaderTags.ayah(1))
-        composeTestRule.onNodeWithText("Al-Baqara", substring = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Al-Baqara", substring = true, ignoreCase = true).assertIsDisplayed()
 
         // The first page is 50 ayahs (and the Bismillah): scrolling to its end loads the next.
         // The list composes only what's on screen: it can be scrolled to index 100 once that's loaded.

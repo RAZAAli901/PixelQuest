@@ -76,7 +76,7 @@ class DaroodDeenTabUiTest {
 
     private fun showApp(mode: ThemeMode = ThemeMode.Pixel, root: PqRootState = PqRootState()) {
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = mode, darkTheme = mode == ThemeMode.Pixel) {
+            PixelQuestTheme(themeMode = mode) {
                 val nav = rememberNavController()
                 PqAppFrame(nav, root) { padding ->
                     NavHost(nav, startDestination = Screen.Home.route, modifier = Modifier.padding(padding)) {

@@ -22,7 +22,7 @@ import com.pixelquest.app.quran.ui.search.QuranSearchScreen
 import com.pixelquest.app.quran.ui.search.QuranSearchUiState
 import com.pixelquest.app.quran.ui.search.SearchTags
 import com.pixelquest.app.ui.theme.PixelQuestTheme
-import com.pixelquest.app.ui.theme.PressStart2P
+import com.pixelquest.app.ui.theme.PressStart
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -84,6 +84,6 @@ class QuranFontsTest {
 
         val font = composeTestRule.onNodeWithTag(SearchTags.translation(2, 1), useUnmergedTree = true).fontFamily()
         assertEquals(FontFamily.SansSerif, font)
-        check(font != PressStart2P)
+        check(font != PressStart)
     }
 }

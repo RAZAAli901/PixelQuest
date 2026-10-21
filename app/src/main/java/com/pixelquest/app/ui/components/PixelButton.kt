@@ -1,33 +1,33 @@
 package com.pixelquest.app.ui.components
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.R
-
 import com.pixelquest.app.audio.LocalSoundManager
+import com.pixelquest.app.ui.haptics.PixelHaptics
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 
+/** A button's kind, from before UI v2: the main one (now red), or a quieter one (now paper). */
 enum class PixelButtonVariant {
     YELLOW,
     BLUE
 }
 
+/**
+ * A button, as the screens from before UI v2 ask for one: now the skin's own (docs/ui-v2.md). The
+ * main kind is red, the other paper; the text is as given. It clicks and buzzes as before.
+ */
 @Composable
 fun PixelButton(
     text: String,
@@ -37,84 +37,36 @@ fun PixelButton(
     textColor: Color = Color.Unspecified,
     enabled: Boolean = true
 ) {
-    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
+    LegacyButton(
+        text = text,
+        onClick = onClick,
+        modifier = modifier,
+        fill = if (variant == PixelButtonVariant.YELLOW) PqColors.Red else PqColors.Paper,
+        textColor = if (textColor != Color.Unspecified) textColor else if (variant == PixelButtonVariant.YELLOW) PqColors.OnRed else PqColors.Ink,
+        enabled = enabled
+    )
+}
 
-    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-        val comicVariant = when (variant) {
-            PixelButtonVariant.YELLOW -> ComicButtonVariant.PRIMARY
-            PixelButtonVariant.BLUE -> ComicButtonVariant.SKY_BLUE
-        }
-        ComicButton(
-            text = text,
-            onClick = onClick,
-            modifier = modifier,
-            variant = comicVariant,
-            textColor = textColor,
-            enabled = enabled
-        )
-        return
-    }
-
-    val soundManager = LocalSoundManager.current
-    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    val bgRes = when (variant) {
-        PixelButtonVariant.YELLOW -> if (isPressed && enabled) R.drawable.pixel_button_yellow_pressed else R.drawable.pixel_button_yellow
-        PixelButtonVariant.BLUE -> if (isPressed && enabled) R.drawable.pixel_button_blue_pressed else R.drawable.pixel_button_blue
-    }
-
-    val contentOffsetY = if (isPressed && enabled) 2.dp else 0.dp
-
-    val tintColor = if (variant == PixelButtonVariant.YELLOW) {
-        com.pixelquest.app.ui.theme.PixelTheme.colors.primary
-    } else {
-        com.pixelquest.app.ui.theme.PixelTheme.colors.secondary
-    }
-    val assetFilter = com.pixelquest.app.ui.theme.PixelThemeAssetFilter.buttonTint(activeMode, tintColor)
-
-    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
-    val resolvedTextColor = if (textColor != Color.Unspecified) {
-        textColor
-    } else if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Light) {
-        if (variant == PixelButtonVariant.YELLOW) colors.onPrimary else colors.onSecondary
-    } else {
-        if (variant == PixelButtonVariant.YELLOW) Color.Black else Color.White
-    }
-
+/** The buttons from before UI v2, drawn as the skin's: ink, its corners, its shadow, and a press. */
+@Composable
+internal fun LegacyButton(text: String, onClick: () -> Unit, modifier: Modifier, fill: Color, textColor: Color, enabled: Boolean) {
+    val sound = LocalSoundManager.current
+    val haptic = LocalHapticFeedback.current
     Box(
         modifier = modifier
-            .graphicsLayer {
-                alpha = if (!enabled) 0.5f else if (isPressed && activeMode == com.pixelquest.app.ui.theme.ThemeMode.Light) 0.92f else 1f
-            }
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                role = androidx.compose.ui.semantics.Role.Button,
-                onClick = {
-                    com.pixelquest.app.ui.haptics.PixelHaptics.performLightTap(haptic)
-                    soundManager?.playClickSound()
+            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+            .alpha(if (enabled) 1f else 0.45f)
+            .comicPressable(
+                {
+                    PixelHaptics.performLightTap(haptic)
+                    sound?.playClickSound()
                     onClick()
-                }
-            ),
+                },
+                bg = fill, radius = 12.dp, enabled = enabled, role = Role.Button
+            )
+            .padding(horizontal = 16.dp, vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = bgRes),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            colorFilter = assetFilter,
-            modifier = Modifier.matchParentSize()
-        )
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge,
-            color = resolvedTextColor,
-            modifier = Modifier
-                .offset(y = contentOffsetY)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        )
+        Text(text = text, style = PqType.Button.copy(color = textColor), textAlign = TextAlign.Center)
     }
 }

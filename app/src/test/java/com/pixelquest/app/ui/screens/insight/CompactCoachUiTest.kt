@@ -88,8 +88,6 @@ class CompactCoachUiTest {
 
     @Test fun compact_comic_fitsA6InchPhone() = compactFitsWithoutScrolling(ThemeMode.Comic)
 
-    @Test fun compact_light_fitsA6InchPhone() = compactFitsWithoutScrolling(ThemeMode.Light)
-
     @Test fun compact_simpleMode_fitsA6InchPhone() {
         compactFitsWithoutScrolling(ThemeMode.Pixel, simple = true)
         // The top bar and the header both say it.
@@ -109,8 +107,6 @@ class CompactCoachUiTest {
     @Test fun expanded_pixel_showsAllThreeSections() = expandedShowsEverything(ThemeMode.Pixel)
 
     @Test fun expanded_comic_showsAllThreeSections() = expandedShowsEverything(ThemeMode.Comic)
-
-    @Test fun expanded_light_showsAllThreeSections() = expandedShowsEverything(ThemeMode.Light)
 
     @Test
     fun notCompact_showsEverything_withoutAToggle() {

@@ -64,7 +64,7 @@ class CreatePartyLimitsUiTest {
     private fun openCreate(theme: ThemeMode): () -> String? {
         var opened: String? = null
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = theme, darkTheme = theme != ThemeMode.Light) {
+            PixelQuestTheme(themeMode = theme) {
                 CreatePartyScreen(onNavigateBack = {}, onCreated = { id, _ -> opened = id }, viewModel = CreatePartyViewModel(repository))
             }
         }

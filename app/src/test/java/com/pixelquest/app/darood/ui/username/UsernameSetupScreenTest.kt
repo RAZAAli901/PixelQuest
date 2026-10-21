@@ -27,7 +27,7 @@ class UsernameSetupScreenTest {
 
     private fun show(state: UsernameSetupUiState, mode: ThemeMode) {
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = mode, darkTheme = false) {
+            PixelQuestTheme(themeMode = mode) {
                 UsernameSetupContent(state = state, onInputChange = {}, onSave = {}, onNavigateBack = {})
             }
         }

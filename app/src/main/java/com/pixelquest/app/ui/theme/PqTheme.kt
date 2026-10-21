@@ -145,8 +145,10 @@ object PqColors {
     val StatusPartial get() = p.statusPartial
     val StatusMissed get() = p.statusMissed
     val AvatarBg get() = p.avatarBg
-    /** The coach's Live tag. */
+    /** The coach's Live tag; also "done" and "saved" on the screens from before UI v2. */
     val Live get() = Color(0xFF1F7A3A)
+    /** Error text and outlines: red ink that passes contrast on paper in both skins. */
+    val Error get() = if (isPixelSkin) p.statusMissed else p.primaryText
 }
 
 object PqDimens {
@@ -208,11 +210,42 @@ object PqType {
  */
 fun pqMaterialColors() = lightColorScheme(
     primary = PqColors.Red, onPrimary = PqColors.OnRed,
+    primaryContainer = PqColors.Amber, onPrimaryContainer = PqColors.Ink,
     secondary = PqColors.Sky, onSecondary = PqColors.Ink,
-    tertiary = PqColors.Gold, onTertiary = PqColors.Ink,
+    secondaryContainer = PqColors.Sky, onSecondaryContainer = PqColors.Ink,
+    tertiary = PqColors.Lilac, onTertiary = PqColors.Ink,
+    tertiaryContainer = PqColors.Lilac, onTertiaryContainer = PqColors.Ink,
     background = PqColors.Ground, onBackground = PqColors.Ink,
     surface = PqColors.Paper, onSurface = PqColors.Ink,
-    outline = PqColors.Ink,
+    surfaceVariant = PqColors.Sunken, onSurfaceVariant = PqColors.Muted,
+    error = PqColors.Error, onError = PqColors.Paper,
+    outline = PqColors.Ink, outlineVariant = PqColors.Divider,
 )
 
-fun pqTypography() = Typography(bodyMedium = PqType.Body, bodyLarge = PqType.Body, labelLarge = PqType.Button)
+private val typeBySkin = HashMap<PqSkin, Typography>()
+
+/**
+ * Material's type scale in the active skin's fonts, for the screens from before UI v2 that ask for
+ * `MaterialTheme.typography`. Titles are the display face; body and labels are the body and label
+ * faces. No colour, so text keeps its container's.
+ */
+fun pqTypography(): Typography = typeBySkin.getOrPut(PqSkinState.skin) {
+    fun TextStyle.plain() = copy(color = Color.Unspecified)
+    Typography(
+        displayLarge = PqType.display(36).plain(),
+        displayMedium = PqType.display(30).plain(),
+        displaySmall = PqType.display(26).plain(),
+        headlineLarge = PqType.display(28).plain(),
+        headlineMedium = PqType.display(24).plain(),
+        headlineSmall = PqType.display(22).plain(),
+        titleLarge = PqType.display(22).plain(),
+        titleMedium = PqType.BodyStrong.copy(fontSize = 16.bsp, lineHeight = 22.bsp).plain(),
+        titleSmall = PqType.BodyStrong.copy(fontSize = 14.bsp, lineHeight = 20.bsp).plain(),
+        bodyLarge = PqType.Body.copy(fontSize = 16.bsp, lineHeight = 22.bsp).plain(),
+        bodyMedium = PqType.Body.plain(),
+        bodySmall = PqType.Body.copy(fontSize = 12.bsp, lineHeight = 16.bsp).plain(),
+        labelLarge = PqType.Button.plain(),
+        labelMedium = PqType.Label.copy(fontSize = 12.lsp, lineHeight = 16.lsp).plain(),
+        labelSmall = PqType.Label.plain(),
+    )
+}

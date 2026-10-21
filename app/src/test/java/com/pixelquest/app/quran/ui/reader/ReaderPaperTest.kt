@@ -42,11 +42,11 @@ class ReaderPaperTest {
     }
 
     @Test
-    fun theThemesPage_isTheLooksOwn_darkInPixel() {
+    fun theThemesPage_isTheLooksOwn() {
         val (look, page) = colorsOn(ReaderPaper.THEME, ThemeMode.Pixel)
 
         assertEquals(look.background, page.background)
-        assertTrue("Pixel reads at night", page.isDark)
+        assertFalse("both skins read on light paper", page.isDark)
     }
 
     @Test
@@ -71,7 +71,7 @@ class ReaderPaperTest {
 
     @Test
     fun sepiasText_isReadableOnItsPaper() {
-        val sepia = SepiaColorScheme(com.pixelquest.app.ui.theme.DefaultPixelColorScheme)
+        val sepia = SepiaColorScheme(com.pixelquest.app.ui.theme.PqAppColors)
         fun contrast(a: Color, b: Color): Float {
             val (hi, lo) = listOf(a.luminance(), b.luminance()).sortedDescending()
             return (hi + 0.05f) / (lo + 0.05f)

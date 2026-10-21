@@ -22,6 +22,9 @@ enum class ThemeMode(
     /**
      * Resolves the concrete runtime theme mode based on device dark/light state.
      */
+    /** The UI v2 skin this stored choice wears: Pixel's own; Comic for the rest (docs/ui-v2.md). */
+    val skin: PqSkin get() = if (this == Pixel) PqSkin.Pixel else PqSkin.Comic
+
     fun resolveEffective(isSystemInDark: Boolean): ThemeMode = when (this) {
         System -> if (isSystemInDark) Pixel else Light
         Pixel -> Pixel

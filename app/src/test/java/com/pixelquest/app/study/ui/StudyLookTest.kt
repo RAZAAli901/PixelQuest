@@ -61,7 +61,7 @@ class StudyLookTest(private val mode: ThemeMode) {
         )
         var opened: String? = null
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = mode, darkTheme = false) {
+            PixelQuestTheme(themeMode = mode) {
                 StudyPartyContent(state = state, onNavigateBack = {}, onOpenInfo = {}, onSelectTab = { state = state.copy(tab = it) }, onOpenItem = { opened = it })
             }
         }
@@ -89,7 +89,7 @@ class StudyLookTest(private val mode: ThemeMode) {
         )
         var current by mutableStateOf(state)
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = mode, darkTheme = false) {
+            PixelQuestTheme(themeMode = mode) {
                 StudyPartyContent(state = current, onNavigateBack = {}, onOpenInfo = {}, onSelectTab = { current = current.copy(tab = it) })
             }
         }

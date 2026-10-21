@@ -3,10 +3,12 @@ package com.pixelquest.app.ui.components
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextWhite
-import com.pixelquest.app.ui.theme.PixelTypography
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.pixelquest.app.ui.haptics.PixelHaptics
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 
+/** A yes-or-no question about something that can't be undone: a [PixelDialog] with [message]. */
 @Composable
 fun PixelConfirmDialog(
     title: String = "ABANDON QUEST?",
@@ -17,37 +19,19 @@ fun PixelConfirmDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
-    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-        ComicConfirmDialog(
-            title = title,
-            message = message,
-            confirmText = confirmText,
-            dismissText = dismissText,
-            onConfirm = onConfirm,
-            onDismiss = onDismiss,
-            modifier = modifier
-        )
-        return
-    }
-
-    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val haptic = LocalHapticFeedback.current
     PixelDialog(
         title = title,
         onDismissRequest = onDismiss,
         confirmButtonText = confirmText,
         onConfirm = {
-            com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
+            PixelHaptics.performWarning(haptic)
             onConfirm()
         },
         dismissButtonText = dismissText,
         onDismiss = onDismiss,
         modifier = modifier
     ) {
-        Text(
-            text = message,
-            style = PixelTypography.bodyMedium,
-            color = com.pixelquest.app.ui.theme.PixelTheme.colors.onSurface
-        )
+        Text(text = message, style = PqType.Body.copy(color = PqColors.Ink2))
     }
 }

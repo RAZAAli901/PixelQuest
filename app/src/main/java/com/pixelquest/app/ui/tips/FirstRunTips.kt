@@ -36,8 +36,7 @@ import javax.inject.Singleton
 /** A first-run tip: shown on its screen until the player dismisses it, once, on this phone. */
 enum class Tip(@StringRes val title: Int, @StringRes val body: Int) {
     ISLAMIC_HUB(R.string.tip_hub_title, R.string.tip_hub_body),
-    QURAN(R.string.tip_quran_title, R.string.tip_quran_body),
-    STUDY_PARTIES(R.string.tip_study_title, R.string.tip_study_body)
+    QURAN(R.string.tip_quran_title, R.string.tip_quran_body)
 }
 
 /** Which tips the player has dismissed. */

@@ -79,7 +79,7 @@ class StringsAuditTest {
     @Test
     fun theTips_areResourcesToo() {
         val strings = repo("app/src/main/res/values/strings.xml").readText()
-        for (name in listOf("tip_got_it", "tip_hub_title", "tip_hub_body", "tip_quran_title", "tip_quran_body", "tip_study_title", "tip_study_body")) {
+        for (name in listOf("tip_got_it", "tip_hub_title", "tip_hub_body", "tip_quran_title", "tip_quran_body")) {
             assertTrue(name, "name=\"$name\"" in strings)
         }
     }

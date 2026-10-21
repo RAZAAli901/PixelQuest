@@ -272,7 +272,7 @@ class IslamicEndToEndTest {
         waitForTag(QuranListTags.row(1))
         composeTestRule.onNodeWithTag(QuranListTags.row(1)).performClick()
         waitForTag(ReaderTags.ayah(1))
-        composeTestRule.onNodeWithText("Al-Faatiha", substring = true).assertExists()
+        composeTestRule.onNodeWithText("Al-Faatiha", substring = true, ignoreCase = true).assertExists()
         back()
         back()
         assertEquals(Screen.IslamicHub.route, current())

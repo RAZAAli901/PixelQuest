@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -25,9 +24,10 @@ import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.ComicShapeTokens
-import com.pixelquest.app.ui.theme.ComicTokens
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.ThemeMode
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.isPixelSkin
+import androidx.compose.ui.graphics.RectangleShape
 import com.pixelquest.app.ui.theme.comicDropShadow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -53,31 +53,24 @@ val LocalQuranSimpleMode = staticCompositionLocalOf { false }
 private val PLAIN = RoundedCornerShape(12.dp)
 
 /**
- * The look's frame for a row: in Pixel, chamfered corners and the pixel border, as Pixel's panels
- * have; in Comic, an inked outline and a flat black shadow down and right, as Comic's panels have;
- * in Light, rounded with a thin border, as Light's panels have. In Simple Mode, in any theme, a
- * plain rounded block.
+ * The frame for a row: the skin's panel (docs/ui-v2.md), inked, with a flat shadow under it, rounded
+ * in Comic and square in Pixel. In Simple Mode a plain rounded block.
  */
 @Composable
 fun quranFrame(): QuranFrame {
-    val colors = PixelTheme.colors
-    if (LocalQuranSimpleMode.current) return QuranFrame(PLAIN, colors.surface, null)
-    return when (PixelTheme.mode) {
-        ThemeMode.Pixel, ThemeMode.System -> QuranFrame(CutCornerShape(6.dp), colors.surface, BorderStroke(2.dp, colors.pixelBorder))
-        ThemeMode.Comic -> QuranFrame(
-            shape = ComicShapeTokens.ShapeDefault,
-            fill = colors.surface,
-            border = BorderStroke(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack),
-            shadow = ComicShapeTokens.ShadowOffsetSmall
-        )
-        else -> QuranFrame(RoundedCornerShape(10.dp), colors.surface, BorderStroke(1.dp, colors.pixelBorder))
-    }
+    if (LocalQuranSimpleMode.current) return QuranFrame(PLAIN, PqColors.Paper, null)
+    return QuranFrame(
+        shape = ComicShapeTokens.ShapeDefault,
+        fill = PqColors.Paper,
+        border = BorderStroke(PqDimens.BorderThin, PqColors.Ink),
+        shadow = 2.dp
+    )
 }
 
-/** The shape of a small choice or badge: chamfered in Pixel, round elsewhere and in Simple Mode. */
+/** The shape of a small choice or badge: square in the Pixel skin, round elsewhere and in Simple Mode. */
 @Composable
-fun quranChipShape(chamfer: Dp = 4.dp, round: Shape = RoundedCornerShape(50)): Shape =
-    if (!LocalQuranSimpleMode.current && (PixelTheme.mode == ThemeMode.Pixel || PixelTheme.mode == ThemeMode.System)) CutCornerShape(chamfer) else round
+fun quranChipShape(round: Shape = RoundedCornerShape(50)): Shape =
+    if (!LocalQuranSimpleMode.current && isPixelSkin) RectangleShape else round
 
 /**
  * A panel on the Quran's screens (the Continue reading card, the sources, a translation's terms):
@@ -91,7 +84,7 @@ fun QuranPanel(
     content: @Composable () -> Unit
 ) {
     if (LocalQuranSimpleMode.current) {
-        Box(modifier = modifier.background(PixelTheme.colors.surface, PLAIN).padding(contentPadding)) { content() }
+        Box(modifier = modifier.background(PqColors.Paper, PLAIN).padding(contentPadding)) { content() }
     } else {
         PixelCard(modifier = modifier, variant = variant, contentPadding = contentPadding, content = content)
     }

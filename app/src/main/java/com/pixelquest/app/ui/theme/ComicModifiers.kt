@@ -13,18 +13,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * Default comic stroke and shadow parameters extracted from Nitnode reference aesthetics:
- * - Solid black border (~2.5dp)
- * - Flat unblurred drop shadow offset down-right (4dp x 4dp)
- * - Moderate corner radius (~10dp)
- */
-val DefaultComicBorderWidth: Dp = 2.5.dp
-val DefaultComicBorderColor: Color = Color.Black
-val DefaultComicCornerRadius: Dp = 10.dp
-val DefaultComicShadowOffsetX: Dp = 4.dp
-val DefaultComicShadowOffsetY: Dp = 4.dp
-val DefaultComicShadowColor: Color = Color.Black
+/** The ink, corners and shadow a comic border or shadow gets unless told otherwise: the skin's. */
+val DefaultComicBorderWidth: Dp get() = PqDimens.Border
+val DefaultComicBorderColor: Color get() = PqColors.Ink
+val DefaultComicCornerRadius: Dp get() = if (isPixelSkin) 0.dp else 10.dp
+val DefaultComicShadowOffsetX: Dp get() = PqDimens.Shadow
+val DefaultComicShadowOffsetY: Dp get() = PqDimens.Shadow
+val DefaultComicShadowColor: Color get() = PqColors.Ink
 
 /**
  * Step 6: Reusable comicBorder modifier.
@@ -33,7 +28,7 @@ val DefaultComicShadowColor: Color = Color.Black
 fun Modifier.comicBorder(
     width: Dp = DefaultComicBorderWidth,
     color: Color = DefaultComicBorderColor,
-    shape: Shape = RoundedCornerShape(DefaultComicCornerRadius)
+    shape: Shape = pqShape(10.dp)
 ): Modifier = this.border(
     width = width,
     color = color,
@@ -50,21 +45,22 @@ fun Modifier.comicBorder(
 ): Modifier = this.border(
     width = width,
     color = color,
-    shape = RoundedCornerShape(cornerRadius)
+    shape = pqShape(cornerRadius)
 )
 
 /**
  * Step 7: Reusable comicDropShadow modifier.
  * Draws a hard-edged, flat, solid black shadow offset down-right behind the component.
  * This is a comic-panel drop shadow (a literal duplicated offset shape), not a blurred Material elevation shadow.
+ * In the Pixel skin it is a straight step down, as UI v2 draws it.
  */
 fun Modifier.comicDropShadow(
     offsetX: Dp = DefaultComicShadowOffsetX,
     offsetY: Dp = DefaultComicShadowOffsetY,
     color: Color = DefaultComicShadowColor,
-    shape: Shape = RoundedCornerShape(DefaultComicCornerRadius)
+    shape: Shape = pqShape(10.dp)
 ): Modifier = this.drawBehind {
-    val dx = offsetX.toPx()
+    val dx = if (isPixelSkin) 0f else offsetX.toPx()
     val dy = offsetY.toPx()
     when (val outline = shape.createOutline(size, layoutDirection, this)) {
         is Outline.Rectangle -> {
@@ -104,5 +100,5 @@ fun Modifier.comicDropShadow(
     offsetX = offsetX,
     offsetY = offsetY,
     color = color,
-    shape = RoundedCornerShape(cornerRadius)
+    shape = pqShape(cornerRadius)
 )

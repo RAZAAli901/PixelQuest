@@ -209,11 +209,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /** Settings > Look. The skin changes at once; the choice is kept for the next launch. */
     fun setThemeMode(mode: ThemeMode) {
+        com.pixelquest.app.ui.theme.PqSkinState.skin = mode.skin
         viewModelScope.launch {
-            if (mode == ThemeMode.Comic) {
-                settingsRepository.setComicModeHighlightSeen(true)
-            }
             settingsRepository.setThemeMode(mode)
         }
     }

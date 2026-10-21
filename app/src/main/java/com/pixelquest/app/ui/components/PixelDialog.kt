@@ -3,19 +3,23 @@ package com.pixelquest.app.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
+/**
+ * A dialog, as the screens from before UI v2 ask for one: now the skin's own card (docs/ui-v2.md),
+ * with its title, [content], and its buttons side by side, the quieter one first. Text is as given.
+ */
 @Composable
 fun PixelDialog(
     onDismissRequest: () -> Unit,
@@ -27,60 +31,17 @@ fun PixelDialog(
     onDismiss: (() -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
-    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-        ComicDialog(
-            onDismissRequest = onDismissRequest,
-            title = title,
-            modifier = modifier,
-            confirmButtonText = confirmButtonText,
-            onConfirm = onConfirm,
-            dismissButtonText = dismissButtonText,
-            onDismiss = onDismiss,
-            content = content
-        )
-        return
-    }
-
     Dialog(onDismissRequest = onDismissRequest) {
-        PixelCard(
-            modifier = modifier.fillMaxWidth(0.92f),
-            variant = PixelPanelVariant.BORDER,
-            contentPadding = 20.dp
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                androidx.compose.runtime.CompositionLocalProvider(
-                    androidx.compose.material3.LocalContentColor provides com.pixelquest.app.ui.theme.PixelTheme.colors.onSurface
-                ) {
-                    content()
-                }
-                Spacer(modifier = Modifier.height(20.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
+        PqCard(modifier.fillMaxWidth(), shadow = PqDimens.ShadowLg, radius = 18.dp) {
+            Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(text = title, style = PqType.CardTitle)
+                CompositionLocalProvider(LocalContentColor provides PqColors.Ink2) { content() }
+                Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (onDismiss != null && dismissButtonText != null) {
-                        PixelButton(
-                            text = dismissButtonText,
-                            onClick = onDismiss,
-                            variant = PixelButtonVariant.BLUE
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
+                        LegacyButton(dismissButtonText, onDismiss, Modifier.weight(1f), fill = PqColors.Paper, textColor = PqColors.Ink, enabled = true)
                     }
                     if (onConfirm != null && confirmButtonText != null) {
-                        PixelButton(
-                            text = confirmButtonText,
-                            onClick = onConfirm,
-                            variant = PixelButtonVariant.YELLOW
-                        )
+                        LegacyButton(confirmButtonText, onConfirm, Modifier.weight(1f), fill = PqColors.Red, textColor = PqColors.OnRed, enabled = true)
                     }
                 }
             }

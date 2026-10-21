@@ -1,49 +1,41 @@
 package com.pixelquest.app.ui.theme
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Step 31: Validated and locked shape system tokens for Comic Book UI Mode,
- * refined against Nitnode reference visual specifications:
- * - Border width: 2.5dp solid black ink stroke
- * - Shadow offset: 4dp down-right flat unblurred duplicated shape
- * - Corner radius: 10dp for cards and buttons (8dp for chips, 12dp for hero banners)
+ * The comic shape tokens, by the names the screens from before UI v2 use: each now follows the active
+ * skin (docs/ui-v2.md), so corners are square in Pixel and the ink and shadow are v2's.
  */
 object ComicShapeTokens {
-    // Exact Validated Corner Radii
-    val RadiusSmall: Dp = 8.dp
-    val RadiusDefault: Dp = 10.dp
-    val RadiusLarge: Dp = 12.dp
-    val RadiusPill: Dp = 999.dp
+    private fun r(dp: Dp): Dp = if (isPixelSkin) 0.dp else dp
 
-    // Component-Specific Radii
-    val ButtonRadius: Dp = 10.dp
-    val CardRadius: Dp = 10.dp
-    val StatCardRadius: Dp = 10.dp
-    val HeroRadius: Dp = 12.dp
-    val ChipRadius: Dp = 8.dp
+    val RadiusSmall: Dp get() = r(8.dp)
+    val RadiusDefault: Dp get() = r(10.dp)
+    val RadiusLarge: Dp get() = r(12.dp)
+    val RadiusPill: Dp get() = r(999.dp)
 
-    // Predefined Shapes
-    val ShapeSmall: Shape = RoundedCornerShape(RadiusSmall)
-    val ShapeDefault: Shape = RoundedCornerShape(RadiusDefault)
-    val ShapeLarge: Shape = RoundedCornerShape(RadiusLarge)
-    val ShapePill: Shape = RoundedCornerShape(RadiusPill)
+    val ButtonRadius: Dp get() = r(12.dp)
+    val CardRadius: Dp get() = r(14.dp)
+    val StatCardRadius: Dp get() = r(14.dp)
+    val HeroRadius: Dp get() = r(16.dp)
+    val ChipRadius: Dp get() = r(8.dp)
 
-    // Validated Border Widths
-    val BorderWidthThin: Dp = 2.dp
-    val BorderWidthDefault: Dp = 2.5.dp
-    val BorderWidthThick: Dp = 3.dp
+    val ShapeSmall: Shape get() = pqShape(8.dp)
+    val ShapeDefault: Shape get() = pqShape(10.dp)
+    val ShapeLarge: Shape get() = pqShape(12.dp)
+    val ShapePill: Shape get() = pqShape(999.dp)
 
-    // Validated Drop Shadow Offsets
-    val ShadowOffsetSmall: Dp = 3.dp
-    val ShadowOffsetDefault: Dp = 4.dp
-    val ShadowOffsetLarge: Dp = 6.dp
+    val BorderWidthThin: Dp get() = PqDimens.BorderThin
+    val BorderWidthDefault: Dp get() = PqDimens.Border
+    val BorderWidthThick: Dp get() = PqDimens.Border + 0.5.dp
 
-    // Invariant Colors
-    val BorderColor: Color = Color.Black
-    val ShadowColor: Color = Color.Black
+    val ShadowOffsetSmall: Dp get() = PqDimens.Shadow
+    val ShadowOffsetDefault: Dp get() = PqDimens.Shadow
+    val ShadowOffsetLarge: Dp get() = PqDimens.ShadowLg
+
+    val BorderColor: Color get() = PqColors.Ink
+    val ShadowColor: Color get() = PqColors.Ink
 }

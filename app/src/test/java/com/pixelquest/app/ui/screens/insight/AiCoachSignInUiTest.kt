@@ -31,9 +31,6 @@ class AiCoachSignInUiTest {
     fun theAiCoachScreen_offersSignIn_inPixel() = screenOffersSignIn(ThemeMode.Pixel, "SIGN IN")
 
     @Test
-    fun theAiCoachScreen_offersSignIn_inLight() = screenOffersSignIn(ThemeMode.Light, "Sign in")
-
-    @Test
     fun theAiCoachScreen_offersSignIn_inComic() = screenOffersSignIn(ThemeMode.Comic, "SIGN IN")
 
     private fun screenOffersSignIn(mode: ThemeMode, button: String) {

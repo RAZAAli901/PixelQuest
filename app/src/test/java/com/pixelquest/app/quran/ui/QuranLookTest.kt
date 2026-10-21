@@ -1,8 +1,11 @@
 package com.pixelquest.app.quran.ui
 
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.SolidColor
+import com.pixelquest.app.ui.theme.PqColors
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
@@ -45,64 +48,52 @@ class QuranLookTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
-    private fun framesIn(vararg modes: ThemeMode, simple: Boolean = false): Map<ThemeMode, Pair<QuranFrame, AppColorScheme>> {
+    /** The frame in each skin, with the paper and ink it was drawn in. */
+    private fun framesIn(vararg modes: ThemeMode, simple: Boolean = false): Map<ThemeMode, Triple<QuranFrame, Color, Color>> {
         var mode by mutableStateOf(modes.first())
-        var frame: QuranFrame? = null
-        var colors: AppColorScheme? = null
+        var drawn: Triple<QuranFrame, Color, Color>? = null
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode) {
                 CompositionLocalProvider(LocalQuranSimpleMode provides simple) {
-                    frame = quranFrame()
-                    colors = PixelTheme.colors
+                    drawn = Triple(quranFrame(), PqColors.Paper, PqColors.Ink)
                 }
             }
         }
         return modes.associateWith { each ->
             mode = each
             composeTestRule.waitForIdle()
-            frame!! to colors!!
+            drawn!!
         }
     }
 
     @Test
-    fun pixel_isChamfered_inThePixelBorder() {
-        val (frame, colors) = framesIn(ThemeMode.Pixel).getValue(ThemeMode.Pixel)
+    fun pixel_isSquare_inked_withAFlatShadow() {
+        val (frame, _, ink) = framesIn(ThemeMode.Pixel).getValue(ThemeMode.Pixel)
 
-        assertTrue(frame.shape is CutCornerShape)
-        assertEquals(colors.pixelBorder, frame.border!!.brush.let { (it as androidx.compose.ui.graphics.SolidColor).value })
-        assertNull(frame.shadow)
-    }
-
-    @Test
-    fun comic_isInked_withAFlatShadow() {
-        val (frame, _) = framesIn(ThemeMode.Comic).getValue(ThemeMode.Comic)
-
-        assertEquals(ComicShapeTokens.ShapeDefault, frame.shape)
-        assertEquals(ComicTokens.SolidBlack, (frame.border!!.brush as androidx.compose.ui.graphics.SolidColor).value)
-        assertEquals(ComicShapeTokens.BorderWidthThin, frame.border!!.width)
+        assertEquals(RectangleShape, frame.shape)
+        assertEquals(ink, (frame.border!!.brush as SolidColor).value)
         assertNotNull(frame.shadow)
     }
 
     @Test
-    fun light_isRounded_withAThinBorder() {
-        val (frame, colors) = framesIn(ThemeMode.Light).getValue(ThemeMode.Light)
+    fun comic_isInked_withAFlatShadow() {
+        val (frame, _, ink) = framesIn(ThemeMode.Comic).getValue(ThemeMode.Comic)
 
         assertTrue(frame.shape is RoundedCornerShape)
-        assertEquals(1.dp, frame.border!!.width)
-        assertEquals(colors.pixelBorder, (frame.border!!.brush as androidx.compose.ui.graphics.SolidColor).value)
-        assertNull(frame.shadow)
+        assertEquals(ink, (frame.border!!.brush as SolidColor).value)
+        assertNotNull(frame.shadow)
     }
 
     @Test
     fun simpleMode_isAPlainBlock_inEveryLook() {
-        val frames = framesIn(ThemeMode.Pixel, ThemeMode.Comic, ThemeMode.Light, simple = true)
+        val frames = framesIn(ThemeMode.Pixel, ThemeMode.Comic, simple = true)
 
-        for ((mode, pair) in frames) {
-            val (frame, colors) = pair
+        for ((mode, drawn) in frames) {
+            val (frame, paper, _) = drawn
             assertTrue("rounded in $mode", frame.shape is RoundedCornerShape)
             assertNull("no border in $mode", frame.border)
             assertNull("no shadow in $mode", frame.shadow)
-            assertEquals(colors.surface, frame.fill)
+            assertEquals(paper, frame.fill)
         }
     }
 
@@ -138,7 +129,7 @@ class QuranLookTest {
                 }
             }
         }
-        for (each in listOf(ThemeMode.Pixel, ThemeMode.Comic, ThemeMode.Light)) {
+        for (each in listOf(ThemeMode.Pixel, ThemeMode.Comic, ThemeMode.Pixel)) {
             mode = each
             composeTestRule.waitForIdle()
             composeTestRule.onNodeWithTag(com.pixelquest.app.quran.ui.list.CONTINUE_READING).performClick()

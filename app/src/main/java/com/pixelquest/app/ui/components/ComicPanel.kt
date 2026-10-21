@@ -1,11 +1,9 @@
 package com.pixelquest.app.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,18 +11,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.ComicShapeTokens
-import com.pixelquest.app.ui.theme.ComicTokens
-import com.pixelquest.app.ui.theme.comicBorder
-import com.pixelquest.app.ui.theme.comicDropShadow
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
 
-/**
- * Comic panel style variants matching Nitnode reference aesthetics:
- * - SURFACE: Crisp white panel fill
- * - BURNT_ORANGE: Warm action container
- * - SKY_BLUE: Energetic cool container
- * - LAVENDER: Accent mystery container
- * - PAPER: Warm neutral newsprint canvas
- */
+/** A panel's colour, from before UI v2: paper, amber, sky, lilac, or the ground ([fill]). */
 enum class ComicPanelVariant {
     SURFACE,
     BURNT_ORANGE,
@@ -33,12 +23,19 @@ enum class ComicPanelVariant {
     PAPER
 }
 
+/** The fill UI v2 gives a panel of [this] variant. */
+fun ComicPanelVariant.fill(): Color = when (this) {
+    ComicPanelVariant.SURFACE -> PqColors.Paper
+    ComicPanelVariant.BURNT_ORANGE -> PqColors.Amber
+    ComicPanelVariant.SKY_BLUE -> PqColors.Sky
+    ComicPanelVariant.LAVENDER -> PqColors.Lilac
+    ComicPanelVariant.PAPER -> PqColors.Ground
+}
+
 /**
- * Step 9: ComicPanel base composable combining border + flat drop-shadow + corner radius + solid background.
- * The Comic Mode equivalent of [PixelPanel] / [PixelCard].
- *
- * Automatically reserves shadow clearance (`padding(end = shadowOffset, bottom = shadowOffset)`)
- * so the duplicated flat black drop shadow renders within layout boundaries across all sizes without clipping.
+ * A comic panel, as the screens from before UI v2 ask for one: now the skin's own card
+ * ([Modifier.comic]), in [variant]'s colour or [backgroundColor]. A panel asked for without a
+ * shadow ([shadowOffset] 0) gets none; the ink and corners are the skin's.
  */
 @Composable
 fun ComicPanel(
@@ -54,31 +51,9 @@ fun ComicPanel(
     contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val resolvedBg = backgroundColor ?: when (variant) {
-        ComicPanelVariant.SURFACE -> ComicTokens.PanelSurface
-        ComicPanelVariant.BURNT_ORANGE -> ComicTokens.BurntOrange
-        ComicPanelVariant.SKY_BLUE -> ComicTokens.SkyBlue
-        ComicPanelVariant.LAVENDER -> ComicTokens.Lavender
-        ComicPanelVariant.PAPER -> ComicTokens.PaperBackground
-    }
-
-    val shape = RoundedCornerShape(cornerRadius)
-
     Box(
         modifier = modifier
-            .padding(end = shadowOffset, bottom = shadowOffset)
-            .comicDropShadow(
-                offsetX = shadowOffset,
-                offsetY = shadowOffset,
-                color = shadowColor,
-                shape = shape
-            )
-            .background(color = resolvedBg, shape = shape)
-            .comicBorder(
-                width = borderWidth,
-                color = borderColor,
-                shape = shape
-            )
+            .comic(bg = backgroundColor ?: variant.fill(), radius = PqDimens.RadiusLg, shadow = if (shadowOffset > 0.dp) PqDimens.Shadow else 0.dp)
             .padding(contentPadding),
         contentAlignment = contentAlignment
     ) {

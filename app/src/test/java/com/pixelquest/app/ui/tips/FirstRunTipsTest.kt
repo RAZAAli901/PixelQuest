@@ -5,10 +5,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import com.pixelquest.app.darood.ui.list.DaroodPartiesUiState
 import com.pixelquest.app.islamic.ui.IslamicHubContent
 import com.pixelquest.app.islamic.ui.IslamicHubUiState
-import com.pixelquest.app.party.ui.PartiesContent
 import com.pixelquest.app.quran.ui.QuranHomeScreen
 import com.pixelquest.app.quran.ui.list.SurahListUiState
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -40,9 +38,6 @@ class FirstRunTipsTest {
                         androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.weight(1f)) {
                             QuranHomeScreen(onNavigateBack = {}, list = SurahListUiState(loaded = true))
                         }
-                        androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.weight(1f)) {
-                            PartiesContent(DaroodPartiesUiState(signedIn = true), onSignIn = {}, onOpenParty = {}, onCreateParty = {})
-                        }
                     }
                 }
             }
@@ -72,7 +67,7 @@ class FirstRunTipsTest {
     @Test
     fun aDismissal_isKept_acrossLaunches() {
         val context = androidx.test.core.app.ApplicationProvider.getApplicationContext<Application>()
-        PrefsTipsStore(context).dismiss(Tip.STUDY_PARTIES)
-        assertEquals(setOf(Tip.STUDY_PARTIES), PrefsTipsStore(context).dismissed.value)
+        PrefsTipsStore(context).dismiss(Tip.QURAN)
+        assertEquals(setOf(Tip.QURAN), PrefsTipsStore(context).dismissed.value)
     }
 }

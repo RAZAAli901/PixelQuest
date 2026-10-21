@@ -26,6 +26,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.theme.PixelTheme
+import androidx.compose.ui.platform.testTag
+
+/** Settings > Look's Comic / Pixel switch. */
+const val SETTINGS_LOOK_TAG = "settings_look"
 
 @Composable
 fun SettingsScreen(
@@ -33,7 +37,6 @@ fun SettingsScreen(
     onNavigateToDifficulty: () -> Unit = {},
     onNavigateToAvatar: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
-    onNavigateToThemeSelection: () -> Unit = {},
     onResetComplete: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -153,52 +156,16 @@ fun SettingsScreen(
             NotificationChannelLinks()
         },
         appearanceSection = {
-            if (state.showComicModeHighlight && state.themeMode != com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-                // One-time discoverability highlight for Comic Book Mode (Day 23 Step 30)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(PixelTheme.colors.primary.copy(alpha = 0.15f))
-                        .border(1.5.dp, PixelTheme.colors.primary, RoundedCornerShape(6.dp))
-                        .padding(10.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "💥 NEW: COMIC BOOK MODE!",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = PixelTheme.colors.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Transform PixelQuest into a graphic novel with bold ink borders and halftone panels.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = PixelTheme.colors.onSurface
-                            )
-                        }
-                        com.pixelquest.app.ui.components.DismissButton(
-                            contentDescription = "Dismiss the Comic mode tip",
-                            onClick = { viewModel.dismissComicModeHighlight() },
-                            color = PixelTheme.colors.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-            ThemeSelectionCard(
-                currentTheme = state.themeMode,
-                onThemeSelected = { viewModel.setThemeMode(it) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            PixelButton(
-                text = "🎨 FULL THEME SETTINGS",
-                onClick = onNavigateToThemeSelection,
-                variant = PixelButtonVariant.YELLOW,
-                modifier = Modifier.fillMaxWidth()
+            // Settings > Look: UI v2's two skins (docs/ui-v2.md). The choice is kept and re-skins every screen.
+            com.pixelquest.app.ui.components.PqGroupLabel(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_settings_look))
+            com.pixelquest.app.ui.components.PqSegmented(
+                options = listOf(
+                    androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_look_comic),
+                    androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_look_pixel)
+                ),
+                selected = if (state.themeMode.skin == com.pixelquest.app.ui.theme.PqSkin.Pixel) 1 else 0,
+                onSelect = { viewModel.setThemeMode(if (it == 1) com.pixelquest.app.ui.theme.ThemeMode.Pixel else com.pixelquest.app.ui.theme.ThemeMode.Comic) },
+                modifier = Modifier.testTag(SETTINGS_LOOK_TAG)
             )
             val soundText = if (state.isSoundEnabled) "🔊 SFX: ON" else "🔇 SFX: OFF"
             PixelButton(

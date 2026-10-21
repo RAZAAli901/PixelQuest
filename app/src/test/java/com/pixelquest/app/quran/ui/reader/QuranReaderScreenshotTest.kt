@@ -83,7 +83,7 @@ class QuranReaderScreenshotTest(private val look: Look, private val mode: Displa
             bookmarked = setOf(2)
         )
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = look.theme, darkTheme = look.dark) {
+            PixelQuestTheme(themeMode = look.theme) {
                 CompositionLocalProvider(LocalQuranSimpleMode provides look.simpleMode) {
                     SurahReaderScreen(state = state, onNavigateBack = {})
                 }
