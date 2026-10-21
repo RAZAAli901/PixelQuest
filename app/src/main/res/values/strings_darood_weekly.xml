@@ -31,4 +31,10 @@
     <string name="darood_goal_reached_title">Goal <xliff:g id="number" example="1">%1$d</xliff:g> reached!</string>
     <string name="darood_goal_extend">Extend goal</string>
     <string name="darood_goal_waiting">The leader can set the next goal, and the count goes on.</string>
+    <string name="darood_goal_extend_body">The next goal must be above the party\'s total, <xliff:g id="total" example="10,000">%1$s</xliff:g>.</string>
+    <string name="darood_goal_plus">+<xliff:g id="percent" example="25">%1$d</xliff:g>%%</string>
+    <string name="darood_goal_double">Double</string>
+    <string name="darood_goal_set">Set the next goal</string>
+    <string name="darood_goal_too_high">A goal can be at most <xliff:g id="max" example="1,000,000,000,000">%1$s</xliff:g>.</string>
+    <string name="darood_goal_not_set">The goal wasn\'t set. Check your connection, and that it\'s above the total now.</string>
 </resources>

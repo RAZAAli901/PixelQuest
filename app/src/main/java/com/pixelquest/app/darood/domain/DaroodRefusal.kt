@@ -15,6 +15,7 @@ enum class DaroodRefusal(val token: String) {
     NOT_A_MEMBER("not_a_member"),
     LEADER_MUST_HAND_OVER("leader_must_hand_over"),
     MILESTONE_TOO_LOW("milestone_too_low"),
+    MILESTONE_TOO_HIGH("milestone_too_high"),
     USERNAME_REQUIRED("username_required"),
     DAILY_LIMIT("daily_limit"),
     BAD_DAY("bad_day"),

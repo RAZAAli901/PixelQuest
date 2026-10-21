@@ -326,6 +326,31 @@ class PartyChatViewModel @Inject constructor(
 
     private val members = repository.observeMembers(partyId)
 
+    /** The Extend goal sheet's call: busy while it's on its way, and the server's refusal if any. */
+    data class ExtendState(val busy: Boolean = false, val problem: String? = null, val done: Boolean = false)
+
+    private val _extend = kotlinx.coroutines.flow.MutableStateFlow(ExtendState())
+    val extend: StateFlow<ExtendState> = _extend
+
+    /** The leader sets the next goal (docs/darood-weekly.md, Extending); the party opens again. */
+    fun extendGoal(target: Long) {
+        if (_extend.value.busy) return
+        _extend.value = ExtendState(busy = true)
+        viewModelScope.launch {
+            val result = repository.setMilestone(partyId, target)
+            _extend.value = if (result is com.pixelquest.app.data.remote.SupabaseResult.Success) {
+                repository.refreshParty(partyId)
+                ExtendState(done = true)
+            } else {
+                ExtendState(problem = com.pixelquest.app.darood.domain.DaroodRefusal.of(result)?.token ?: "offline")
+            }
+        }
+    }
+
+    fun extendShown() {
+        _extend.value = ExtendState()
+    }
+
     /** The party's goals, oldest first: read again whenever its goal is set or reached. */
     val goals: StateFlow<List<com.pixelquest.app.darood.domain.PartyGoal>> = repository.observeParty(partyId)
         .map { it?.milestoneSetAt to it?.completedAt }
@@ -567,6 +592,7 @@ fun PartyChatRoute(
     weeklyViewModel: com.pixelquest.app.darood.ui.weekly.WeeklyRankingViewModel = hiltViewModel()
 ) {
     var showingWeekly by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(openWeekly) }
+    var showingExtend by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     if (showingWeekly) {
         com.pixelquest.app.darood.ui.weekly.WeeklyRankingSheet(
             state = weeklyViewModel.state.collectAsState().value,
@@ -625,7 +651,21 @@ fun PartyChatRoute(
         startedAt = party?.createdAt,
         onOpenWeekly = { showingWeekly = true },
         goalNumber = viewModel.goals.collectAsState().value.lastOrNull()?.sequence,
-        // The goal's own sheet comes with J087; until then, Party info sets it.
-        onExtendGoal = onOpenInfo
+        onExtendGoal = {
+            viewModel.extendShown()
+            showingExtend = true
+        }
     )
+    val extend = viewModel.extend.collectAsState().value
+    androidx.compose.runtime.LaunchedEffect(extend.done) { if (extend.done) showingExtend = false }
+    if (showingExtend && party != null) {
+        ExtendGoalSheet(
+            total = party.total,
+            reached = party.milestone ?: 0,
+            busy = extend.busy,
+            problem = extend.problem,
+            onExtend = viewModel::extendGoal,
+            onDismiss = { showingExtend = false }
+        )
+    }
 }
