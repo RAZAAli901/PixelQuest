@@ -1,8 +1,8 @@
 -- Migration: 20261019000086_chess_resign.sql
 -- Description: Resigning (docs/chess-design.md), for the service role only:
 --   * private.chess_finish(game, result, reason): the one way a game ends (a live one only; an
---     ended game stays as it is, so asking twice changes nothing). Ratings join it in
---     20261019000092 (finish_game).
+--     ended game stays as it is, so asking twice changes nothing). Ratings and records join it in
+--     20261019000090 (finish_game).
 --   * chess_resign(user, game): a player of a live game resigns; the other side wins.
 -- Re-runnable: CREATE OR REPLACE.
 -- Rollback: DROP FUNCTION public.chess_resign(UUID, UUID), private.chess_finish(UUID, TEXT, TEXT).
