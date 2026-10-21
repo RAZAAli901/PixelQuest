@@ -1,5 +1,5 @@
 // chess-sweep: every minute, the server ends games nobody is left to end (docs/chess-design.md,
-// Clocks): those whose clock has run out. Only the project itself may call it: the caller must
+// Clocks): those whose clock has run out, and those whose first move never came (aborted). Only the project itself may call it: the caller must
 // hold the service role key.
 
 import { fromTheServer, json } from "../_shared/chess.ts";
@@ -9,6 +9,8 @@ import type { RpcResult } from "../_shared/study_files.ts";
 export interface SweepDeps {
   dueGames: () => Promise<RpcResult<{ id: string; fen: string; turn: "w" | "b" }[]>>;
   endOnTime: (game: string, result: string, reason: string) => Promise<RpcResult<unknown>>;
+  /** Games whose first move never came (chess_abort_stalled): how many it aborted. */
+  abortStalled: () => Promise<RpcResult<number>>;
   log?: (event: Record<string, unknown>) => void;
 }
 
@@ -23,6 +25,7 @@ export async function handleSweep(req: Request, serviceKey: string, deps: SweepD
     // Refused only if a move got in first, or it already ended: nothing to do then.
     if ((await deps.endOnTime(game.id, ending.result, ending.reason)).ok) ended++;
   }
-  deps.log?.({ event: "chess_sweep", due: due.data.length, ended });
-  return json(200, { timed_out: ended });
+  const aborted = await deps.abortStalled();
+  deps.log?.({ event: "chess_sweep", due: due.data.length, ended, aborted: aborted.ok ? aborted.data : null });
+  return json(200, { timed_out: ended, aborted: aborted.ok ? aborted.data : 0 });
 }

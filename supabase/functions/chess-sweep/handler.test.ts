@@ -18,10 +18,11 @@ test("the sweep is the server's alone, and ends each game whose clock ran out", 
       { id: "g2", fen: "4k3/8/8/8/8/8/8/q3K3 b - - 0 1", turn: "w" as const },
     ] }),
     endOnTime: async (g: string, r: string, why: string) => { ended.push([g, r, why]); return { ok: true as const, data: {} }; },
+    abortStalled: async () => ({ ok: true as const, data: 1 }),
   };
   assert.equal((await handleSweep(post("guess"), KEY, deps)).status, 401);
   const res = await handleSweep(post(KEY), KEY, deps);
-  assert.deepEqual(await res.json(), { timed_out: 2 });
+  assert.deepEqual(await res.json(), { timed_out: 2, aborted: 1 });
   assert.deepEqual(ended, [["g1", "white", "timeout"], ["g2", "black", "timeout"]]);
 });
 

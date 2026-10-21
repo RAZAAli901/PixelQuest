@@ -13,6 +13,7 @@ Deno.serve((req: Request) =>
   handleSweep(req, serviceKey, {
     dueGames: () => rpc("chess_due_games", {}),
     endOnTime: (game, result, reason) => rpc("chess_claim_timeout", { p_user: null, p_game: game, p_result: result, p_reason: reason }),
+    abortStalled: () => rpc("chess_abort_stalled", {}),
     log: (event) => console.log(JSON.stringify(event)),
   })
 );

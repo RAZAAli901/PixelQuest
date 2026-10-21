@@ -15,6 +15,7 @@ function setup(moves: string[] = [], fen = START_FEN, status = "active") {
     getUserId: async (t) => (t === "white" ? WHITE : t === "black" ? BLACK : null),
     state: async () => ({ ok: true, data: { game, moves } }),
     commit: async (a) => { commits.push(a); return { ok: true, data: { game, move: { ply: a.ply } } }; },
+    abortIfStalled: async () => ({ ok: true, data: { aborted: false } }),
   };
   return { d, commits };
 }
@@ -58,4 +59,13 @@ test("a move after the mover's time ran out ends it on time instead", async () =
   const res = await handleMove(move("white", { game_id: GAME, ply: 3, uci: "g1f3" }), d);
   assert.equal(res.status, 409);
   assert.equal((await res.json()).error, "time_out");
+});
+
+test("a first move after 30 seconds aborts the game instead", async () => {
+  const { d, commits } = setup(["e2e4"]);
+  d.abortIfStalled = async () => ({ ok: true, data: { aborted: true, game: { id: GAME } as GameRow } });
+  const res = await handleMove(move("black", { game_id: GAME, ply: 2, uci: "e7e5" }), d);
+  assert.equal(res.status, 409);
+  assert.equal((await res.json()).error, "aborted");
+  assert.equal(commits.length, 0);
 });

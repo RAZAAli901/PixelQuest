@@ -24,6 +24,8 @@ export interface MoveDeps {
     user: string; game: string; ply: number; uci: string; san: string; fenAfter: string;
     endResult: string | null; endReason: string | null; flagResult: string; flagReason: string;
   }) => Promise<RpcResult<{ game: GameRow; move?: unknown; repeated?: boolean; flagged?: boolean }>>;
+  /** The abort rule (chess_abort_if_stalled): a first move too late aborts the game instead. */
+  abortIfStalled: (game: string) => Promise<RpcResult<{ aborted: boolean; game?: GameRow }>>;
   log?: (event: Record<string, unknown>) => void;
 }
 
@@ -42,6 +44,10 @@ export function handleMove(req: Request, deps: MoveDeps): Promise<Response> {
       if (game.status !== "waiting" && game.status !== "active") return refuse("game_over");
       const mine = game.turn === "w" ? game.white_id : game.black_id;
       if (mine !== user) return refuse("not_your_turn");
+    }
+    if (ply === game.ply + 1 && game.ply < 2) {
+      const stalled = await deps.abortIfStalled(id);
+      if (stalled.ok && stalled.data.aborted) return json(409, { error: "aborted", game: stalled.data.game });
     }
     const check = checkMove(moves, ply, uci);
     if (!check.ok) return refuse(check.error);

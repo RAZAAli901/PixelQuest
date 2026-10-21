@@ -17,6 +17,7 @@ Deno.serve((req: Request) =>
         p_user: a.user, p_game: a.game, p_ply: a.ply, p_uci: a.uci, p_san: a.san, p_fen_after: a.fenAfter,
         p_end_result: a.endResult, p_end_reason: a.endReason, p_flag_result: a.flagResult, p_flag_reason: a.flagReason,
       }),
+    abortIfStalled: (game) => rpc("chess_abort_if_stalled", { p_game: game }),
     log: (event) => console.log(JSON.stringify(event)),
   })
 );
