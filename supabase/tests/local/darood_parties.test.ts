@@ -781,3 +781,47 @@ localTest("a week is each member's own: Monday to Sunday by the day they recorde
   const { outsider } = await cast();
   assert.equal((await rpc(outsider, "close_study_week", { party_id: party, week_start: "2026-10-12" })).body.message, "not_a_member");
 });
+
+localTest("privacy, every party table: an outsider reads nothing, and the board only names and progress", async () => {
+  const { leader, member, outsider } = await cast();
+  // A Darood Party on the race board, with entries; a study party with an item, a tick, study time and a winner.
+  const darood = await partyOf(leader, [member], { name: fresh("Board"), milestone: 9000 });
+  assert.equal((await post(member, darood, 777)).status, 201);
+  await call(`/rest/v1/parties?id=eq.${darood}`, { method: "PATCH", token: leader.accessToken, body: { is_public_race: true } });
+  const studyName = fresh("Secret study");
+  const studyParty = await partyOf(leader, [member], { name: studyName, ...study });
+  const title = fresh("Hidden title");
+  const item = (await addItem(member, studyParty, { kind: "assignment", title })).body[0].id;
+  assert.equal((await complete(member, item)).status, 201);
+  assert.equal((await logStudy(member, studyParty, 30)).status, 201);
+  sql(`INSERT INTO public.study_week_winners (party_id, week_start, user_id, points) VALUES ('${studyParty}', date_trunc('week', now())::date - 7, '${member.userId}', 10)`);
+
+  // Every party table and view the server has, found on it, so a new one is checked too.
+  const tables = sql(
+    "SELECT string_agg(table_name, ',' ORDER BY table_name) FROM information_schema.tables WHERE table_schema = 'public' " +
+      "AND (table_name LIKE 'part%' OR table_name LIKE 'darood%' OR table_name LIKE 'study%' OR table_name IN ('race_board', 'usernames'))",
+  ).split(",");
+  for (const expected of ["parties", "party_members", "darood_entries", "study_items", "study_completions", "study_sessions", "study_week_scores", "study_week_winners", "race_board"]) {
+    assert.ok(tables.includes(expected), `${expected} among ${tables}`);
+  }
+  const secrets = [leader.userId, member.userId, leader.username, member.username, darood, studyParty, item, studyName, title];
+  // Readable by anyone signed in, as they hold no one's data: the points values, and the reader's own username.
+  const shared = new Set(["study_points_config", "usernames", "race_board"]);
+
+  for (const table of tables) {
+    const read = await call(`/rest/v1/${table}?select=*`, { token: outsider.accessToken });
+    assert.equal(read.status, 200, `${table}: ${JSON.stringify(read.body).slice(0, 200)}`);
+    const text = JSON.stringify(read.body);
+    for (const secret of secrets) assert.ok(!text.includes(secret), `${table} shows ${secret}`);
+    if (!shared.has(table)) assert.deepEqual(read.body, [], `${table} is the parties' own`);
+    // Signed out, nothing at all.
+    assert.equal((await call(`/rest/v1/${table}?select=*`)).status, 401, `${table} signed out`);
+  }
+
+  // The board: name and progress (its milestone, total and members' count), and only those; never a study party.
+  const board = (await call("/rest/v1/race_board?select=*", { token: outsider.accessToken })).body as Record<string, unknown>[];
+  const line = board.find((row) => row.total === 777 && row.milestone === 9000);
+  assert.ok(line, "the Darood Party's line is there");
+  assert.deepEqual(Object.keys(line!).sort(), ["completed_at", "member_count", "milestone", "mine", "name", "progress", "total"]);
+  assert.ok(!board.some((row) => row.name === studyName), "a study party is never on the board");
+});
