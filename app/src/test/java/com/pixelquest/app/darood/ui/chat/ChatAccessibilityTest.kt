@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.ui.chat.bubbleTime
 import android.app.Application
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.CompositionLocalProvider

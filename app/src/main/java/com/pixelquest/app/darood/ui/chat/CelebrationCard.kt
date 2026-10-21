@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.ui.chat.bubbleTime
 import com.pixelquest.app.ui.chat.dayDate
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring

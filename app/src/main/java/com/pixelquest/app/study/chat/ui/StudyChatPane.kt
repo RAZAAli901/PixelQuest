@@ -76,7 +76,7 @@ fun StudyChatPane(
     actions: ChatActions,
     modifier: Modifier = Modifier,
     input: @Composable ColumnScope.() -> Unit = { ChatInputBar(value = state.draft, onValueChange = actions.onDraftChange, onSend = actions.onSend) },
-    message: @Composable (ChatMessageRow) -> Unit = { MessageText(it) }
+    message: @Composable (ChatMessageRow) -> Unit = { MessageBubbleRow(it, onRetry = actions.onRetry, onDiscard = actions.onDiscard) }
 ) {
     Column(modifier = modifier.fillMaxSize().testTag(StudyChatTags.PANE)) {
         ChatBackground(modifier = Modifier.fillMaxWidth().weight(1f)) {
@@ -137,15 +137,6 @@ private fun BoxScope.EmptyChat() {
     )
 }
 
-/** A message as plain text, until the chat has its bubbles. */
-@Composable
-private fun MessageText(row: ChatMessageRow) {
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).testTag(StudyChatTags.message(row.message.id))) {
-        if (row.firstOfRun && !row.mine) row.senderName?.let { Text(it, style = PqType.MetaStrong) }
-        Text(row.message.body ?: stringResource(R.string.study_chat_deleted), style = PqType.Body)
-    }
-}
-
 /** Test tags for the study chat. */
 object StudyChatTags {
     const val PANE = "study_chat"
@@ -156,6 +147,12 @@ object StudyChatTags {
     const val INPUT = "study_chat_input"
     const val SEND = "study_chat_send"
     const val COUNTER = "study_chat_counter"
+    const val PENDING = "study_chat_pending"
+    const val SENT = "study_chat_sent"
+    const val FAILED = "study_chat_failed"
+    const val RETRY = "study_chat_retry"
+    const val DISCARD = "study_chat_discard"
+    const val SYSTEM = "study_chat_system_"
     const val NOTICE = "study_chat_notice"
     fun day(day: LocalDate) = "study_chat_day_$day"
     fun message(id: String) = "study_chat_message_$id"

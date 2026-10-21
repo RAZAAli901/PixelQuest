@@ -1,5 +1,7 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.ui.chat.bubbleColors
+import com.pixelquest.app.ui.chat.bubbleTime
 import com.pixelquest.app.ui.chat.chatLook
 import com.pixelquest.app.ui.chat.memberColor
 import androidx.compose.foundation.background
@@ -99,17 +101,6 @@ private fun refusalText(token: String?): Int = when (token) {
     DaroodRefusal.BAD_TIME_ZONE.token -> R.string.darood_entry_refused_time_zone
     else -> R.string.darood_entry_refused
 }
-
-/** A bubble's colours: its fill, and the text on it. */
-data class BubbleColors(val container: Color, val content: Color, val secondary: Color)
-
-/** The player's own bubbles in the primary red (mock 4E); everyone else's on paper. */
-fun bubbleColors(mine: Boolean): BubbleColors =
-    if (mine) {
-        BubbleColors(container = PqColors.Red, content = PqColors.OnRed, secondary = PqColors.OnRed.copy(alpha = 0.8f))
-    } else {
-        BubbleColors(container = PqColors.Paper, content = PqColors.Ink, secondary = PqColors.Muted)
-    }
 
 /**
  * One entry in a party's chat, as a message bubble: who posted it, the amount ("+300"), and when.
@@ -237,6 +228,3 @@ private fun SendMark(state: EntryState, color: Color) {
 }
 
 
-/** The time a bubble shows, in the phone's own clock and language: 10:05 AM, or 10:05. */
-fun bubbleTime(instant: Instant, zone: ZoneId = ZoneId.systemDefault()): String =
-    DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withZone(zone).format(instant)

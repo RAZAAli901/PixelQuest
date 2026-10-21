@@ -1,5 +1,8 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.ui.chat.BubbleColors
+import com.pixelquest.app.ui.chat.bubbleColors
+import com.pixelquest.app.ui.chat.bubbleTime
 import com.pixelquest.app.ui.chat.memberColor
 import android.app.Application
 import androidx.compose.ui.platform.testTag

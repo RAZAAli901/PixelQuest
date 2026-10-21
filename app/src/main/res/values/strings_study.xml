@@ -200,6 +200,10 @@
     <string name="study_tab_files">Files</string>
     <string name="study_chat_empty">No messages yet. Say hello, ask about the homework, or share your notes.</string>
     <string name="study_chat_deleted">Message deleted</string>
+    <string name="study_chat_not_sent">Not sent.</string>
+    <string name="study_chat_retry">Retry</string>
+    <string name="study_chat_discard">Discard</string>
+    <string name="study_chat_system_line">From PixelQuest</string>
     <string name="study_chat_input_label">Message</string>
     <string name="study_chat_input_placeholder">Write a message</string>
     <string name="study_chat_send">Send</string>
