@@ -66,6 +66,9 @@ interface StudyRepository {
 
     fun observeItem(itemId: String): Flow<StudyItem?>
 
+    /** What the player hasn't finished that's due before [until], overdue too, soonest first, across their study parties. */
+    fun observeDueSoon(until: Instant, limit: Int): Flow<List<StudyItem>>
+
     /** Every member's completions in a party, newest first, with this phone's still waiting (PENDING or FAILED) among them. */
     fun observeCompletions(partyId: String): Flow<List<StudyCompletion>>
 
@@ -164,6 +167,11 @@ class StudyRepositoryImpl(
     override fun observeItems(partyId: String): Flow<List<StudyItem>> = dao.observeItems(partyId).map { rows -> rows.map { it.toDomain() } }
 
     override fun observeItem(itemId: String): Flow<StudyItem?> = dao.observeItem(itemId).map { it?.toDomain() }
+
+    override fun observeDueSoon(until: Instant, limit: Int): Flow<List<StudyItem>> {
+        val me = account.id() ?: return kotlinx.coroutines.flow.flowOf(emptyList())
+        return dao.observeUnfinishedDueBefore(me, until.toEpochMilli(), limit).map { rows -> rows.map { it.toDomain() } }
+    }
 
     override fun observeCompletions(partyId: String): Flow<List<StudyCompletion>> =
         combine(dao.observePending(partyId), dao.observeCompletions(partyId)) { waiting, stored ->

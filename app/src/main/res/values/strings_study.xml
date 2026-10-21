@@ -126,6 +126,13 @@
     <string name="study_due_day_title">Due within a day: <xliff:g id="title" example="Waves quiz">%1$s</xliff:g></string>
     <string name="study_due_soon_title">Due in under 2 hours: <xliff:g id="title" example="Waves quiz">%1$s</xliff:g></string>
     <string name="study_due_text">In <xliff:g id="party" example="Physics group">%1$s</xliff:g>. Mark it done once you\'ve finished.</string>
+    <!-- The study parties' card on Home. -->
+    <string name="study_home_title">Due soon in your study parties</string>
+    <string name="study_home_nothing">Nothing due in the next week.</string>
+    <string name="study_home_open">Open Parties</string>
+    <string name="study_home_open_party">Open its party</string>
+    <!-- Where an item is, and when it's due ("Physics group · Due Fri 23 Oct, 09:00"). -->
+    <string name="study_home_where"><xliff:g id="party" example="Physics group">%1$s</xliff:g> · <xliff:g id="due" example="Due Fri 23 Oct, 09:00">%2$s</xliff:g></string>
     <!-- One item's own screen. -->
     <string name="study_item_notes">Notes</string>
     <!-- Who added it ("Added by @aria_k"). -->

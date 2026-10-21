@@ -501,6 +501,8 @@ object StudyTags {
     const val ACTIVITY = "study_activity"
     const val REMINDERS_DUE = "study_reminders_due"
     const val REMINDERS_WEEKLY = "study_reminders_weekly"
+    const val HOME_CARD = "study_home_card"
+    fun homeLine(itemId: String) = "study_home_$itemId"
     const val WINNER_BANNER = "study_winner_banner"
     const val WINNER_DISMISS = "study_winner_dismiss"
     fun pastWeek(weekStart: String) = "study_past_$weekStart"

@@ -20,7 +20,9 @@ fun HomeScreen(
     onNavigateToAiInsight: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onNavigateToAccount: () -> Unit = onNavigateToSettings,
-    onNavigateToNamaz: () -> Unit = {}
+    onNavigateToNamaz: () -> Unit = {},
+    onOpenStudyParty: (String) -> Unit = {},
+    onOpenParties: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -32,7 +34,9 @@ fun HomeScreen(
             onNavigateToAiInsight = onNavigateToAiInsight,
             onNavigateToSettings = onNavigateToSettings,
             onNavigateToAccount = onNavigateToAccount,
-            onNavigateToNamaz = onNavigateToNamaz
+            onNavigateToNamaz = onNavigateToNamaz,
+            onOpenStudyParty = onOpenStudyParty,
+            onOpenParties = onOpenParties
         )
 
         val pendingLevel = uiState.pendingLevelUp

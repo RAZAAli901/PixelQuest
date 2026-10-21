@@ -77,7 +77,9 @@ fun PixelNavHost(
                 onNavigateToNamaz = {
                     // Inside the Islamic section: Back goes to the hub, then Home.
                     navController.navigateInIslamic(Screen.Namaz.route)
-                }
+                },
+                onOpenStudyParty = { partyId -> navController.navigate(Screen.PartiesParty.createRoute(partyId)) { launchSingleTop = true } },
+                onOpenParties = { navController.navigate(Screen.Parties.route) { launchSingleTop = true } }
             )
         }
         composable(Screen.AiInsight.route) {

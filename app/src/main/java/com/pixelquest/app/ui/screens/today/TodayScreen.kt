@@ -52,7 +52,9 @@ fun TodayScreen(
     onNavigateToAiInsight: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onNavigateToAccount: () -> Unit = onNavigateToSettings,
-    onNavigateToNamaz: () -> Unit = {}
+    onNavigateToNamaz: () -> Unit = {},
+    onOpenStudyParty: (String) -> Unit = {},
+    onOpenParties: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     // Coming back to the app (e.g. the next morning) re-reads the date.
@@ -118,7 +120,8 @@ fun TodayScreen(
                     onNavigateToSettings = onNavigateToSettings,
                     onNavigateToAccount = onNavigateToAccount,
                     onToggleComicMode = { themeViewModel.toggleComicMode() },
-                    namazSection = { com.pixelquest.app.ui.screens.namaz.HomeNamazSection(onOpen = onNavigateToNamaz) }
+                    namazSection = { com.pixelquest.app.ui.screens.namaz.HomeNamazSection(onOpen = onNavigateToNamaz) },
+                    studySection = { com.pixelquest.app.study.ui.HomeStudySection(onOpenParty = onOpenStudyParty, onOpenParties = onOpenParties) }
                 )
             }
         }
@@ -148,6 +151,8 @@ fun TodayContent(
     },
     // The Namaz Tracker's card, while it's on. Empty by default: it gets its ViewModel from Hilt.
     namazSection: @Composable () -> Unit = {},
+    // The study parties' card, while the player is in one. Empty by default, for the same reason.
+    studySection: @Composable () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var taskToSkip by remember { mutableStateOf<TaskEntity?>(null) }
@@ -263,6 +268,7 @@ fun TodayContent(
             // One item, so Home has no extra gap while the Namaz card isn't there.
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                 namazSection()
+                studySection()
                 aiInsightSection()
             }
         }

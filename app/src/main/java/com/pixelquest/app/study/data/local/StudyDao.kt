@@ -36,6 +36,18 @@ interface StudyDao {
     @Query("SELECT * FROM study_item WHERE dueAt >= :from AND dueAt < :to ORDER BY dueAt")
     suspend fun itemsDueBetween(from: Long, to: Long): List<StudyItemEntity>
 
+    /**
+     * What [userId] hasn't finished that's due before [until] (epoch millis), overdue too, soonest
+     * first, in every party on the phone: a tick on the server, or still waiting to send, counts as done.
+     */
+    @Query(
+        """SELECT * FROM study_item i WHERE i.dueAt IS NOT NULL AND i.dueAt < :until
+        AND NOT EXISTS (SELECT 1 FROM study_completion c WHERE c.itemId = i.id AND c.userId = :userId)
+        AND NOT EXISTS (SELECT 1 FROM study_pending p WHERE p.itemId = i.id AND p.kind = 'COMPLETION' AND p.state = 'PENDING')
+        ORDER BY i.dueAt LIMIT :limit"""
+    )
+    fun observeUnfinishedDueBefore(userId: String, until: Long, limit: Int): Flow<List<StudyItemEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertItems(items: List<StudyItemEntity>)
 
