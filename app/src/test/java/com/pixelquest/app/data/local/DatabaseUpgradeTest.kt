@@ -271,6 +271,10 @@ class DatabaseUpgradeTest {
             // Version 21's closed-week tables are there, empty: they fill from the server.
             assertTrue(db.daroodDao().observeWeekResults("p1").first().isEmpty())
             assertEquals(false, db.daroodDao().weekNotified("p1", LocalDate.of(2026, 10, 12)))
+
+            // Version 22's chess cache is there, empty: it fills from the server.
+            assertTrue(db.chessDao().observeRatings("u1").first().isEmpty())
+            assertTrue(db.chessDao().observeFinishedGames("p1", 10).first().isEmpty())
         } finally {
             db.close()
         }
@@ -296,6 +300,30 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion18_theV1_6_0Release() = updateFrom(18)
     @Test fun fromVersion19() = updateFrom(19)
     @Test fun fromVersion20() = updateFrom(20)
+    @Test fun fromVersion21() = updateFrom(21)
+
+    @Test
+    fun theChessCache_keepsOnlyFinishedGamesOfKeptParties_andClears(): Unit = runBlocking {
+        val name = "upgrade-chess.db"
+        createAt(21, name)
+        val db = openLikeTheApp(name)
+        try {
+            val dao = db.chessDao()
+            dao.replaceRatings("u1", listOf(com.pixelquest.app.chess.data.local.ChessRatingEntity("u1", 180, 812, 1, 1, 0, 0, 812)))
+            dao.replaceRatings("u1", listOf(com.pixelquest.app.chess.data.local.ChessRatingEntity("u1", 600, 790, 1, 0, 0, 1, 800)))
+            assertEquals("replaced whole", listOf(600), dao.observeRatings("u1").first().map { it.timeControl })
+            val game = com.pixelquest.app.chess.data.local.ChessFinishedGameEntity("g1", "p1", "u1", "u2", 180, true, "white", "checkmate", "fen", 7, 5_000L, 20, -20)
+            assertTrue(dao.keepFinishedGame(game))
+            assertTrue("not for a party the phone doesn't have", !dao.keepFinishedGame(game.copy(id = "g2", partyId = "gone")))
+            assertEquals(listOf("g1"), dao.observeFinishedGames("p1", 10).first().map { it.id })
+            dao.clearAll()
+            assertTrue(dao.observeRatings("u1").first().isEmpty())
+            assertTrue(dao.observeFinishedGames("p1", 10).first().isEmpty())
+        } finally {
+            db.close()
+            context.deleteDatabase(name)
+        }
+    }
 
     @Test
     fun aClosedWeek_isToldOnce_andGoesWithItsParty(): Unit = runBlocking {

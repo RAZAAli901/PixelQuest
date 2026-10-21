@@ -64,9 +64,13 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         com.pixelquest.app.study.chat.data.local.ChatReadEntity::class,
         // Darood Parties' closed weeks (docs/darood-weekly.md), from version 21.
         com.pixelquest.app.darood.data.local.DaroodWeekResultEntity::class,
-        com.pixelquest.app.darood.data.local.DaroodWeekNotifiedEntity::class
+        com.pixelquest.app.darood.data.local.DaroodWeekNotifiedEntity::class,
+        // Chess's cache (docs/chess-design.md), from version 22: never a live game.
+        com.pixelquest.app.chess.data.local.ChessRatingEntity::class,
+        com.pixelquest.app.chess.data.local.ChessHeadToHeadEntity::class,
+        com.pixelquest.app.chess.data.local.ChessFinishedGameEntity::class
     ],
-    version = 21,
+    version = 22,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -87,6 +91,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun studyDao(): com.pixelquest.app.study.data.local.StudyDao
     abstract fun studyReminderDao(): com.pixelquest.app.study.data.local.StudyReminderDao
     abstract fun chatDao(): com.pixelquest.app.study.chat.data.local.ChatDao
+    abstract fun chessDao(): com.pixelquest.app.chess.data.local.ChessDao
 
     companion object {
         /**
@@ -94,7 +99,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, MIGRATION_21_22)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -324,6 +329,25 @@ abstract class AppDatabase : RoomDatabase() {
                 WEEK_TABLES_21.forEach { db.execSQL(it) }
             }
         }
+
+        /**
+         * Chess's cache (docs/chess-design.md): ratings, head-to-head records and finished games.
+         * Three new tables, empty until the first refresh; nothing existing changes. The SQL is
+         * exactly what Room exported for version 22 (22.json).
+         */
+        val MIGRATION_21_22 = object : Migration(21, 22) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                CHESS_TABLES_22.forEach { db.execSQL(it) }
+            }
+        }
+
+        /** Version 22's chess tables, as Room exports them (app/schemas, 22.json). */
+        private val CHESS_TABLES_22 = listOf(
+            "CREATE TABLE IF NOT EXISTS `chess_rating` (`userId` TEXT NOT NULL, `timeControl` INTEGER NOT NULL, `points` INTEGER NOT NULL, `games` INTEGER NOT NULL, `wins` INTEGER NOT NULL, `draws` INTEGER NOT NULL, `losses` INTEGER NOT NULL, `peak` INTEGER NOT NULL, PRIMARY KEY(`userId`, `timeControl`))",
+            "CREATE TABLE IF NOT EXISTS `chess_head_to_head` (`me` TEXT NOT NULL, `them` TEXT NOT NULL, `timeControl` INTEGER NOT NULL, `myWins` INTEGER NOT NULL, `theirWins` INTEGER NOT NULL, `draws` INTEGER NOT NULL, PRIMARY KEY(`me`, `them`, `timeControl`))",
+            "CREATE TABLE IF NOT EXISTS `chess_finished_game` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `whiteId` TEXT NOT NULL, `blackId` TEXT NOT NULL, `timeControl` INTEGER NOT NULL, `rated` INTEGER NOT NULL, `result` TEXT, `reason` TEXT, `fen` TEXT NOT NULL, `ply` INTEGER NOT NULL, `endedAt` INTEGER NOT NULL, `whiteChange` INTEGER, `blackChange` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_chess_finished_game_partyId_endedAt` ON `chess_finished_game` (`partyId`, `endedAt`)"
+        )
 
         /** Version 21's week tables, as Room exports them (app/schemas, 21.json). */
         private val WEEK_TABLES_21 = listOf(

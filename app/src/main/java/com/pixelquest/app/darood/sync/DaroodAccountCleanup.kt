@@ -49,7 +49,8 @@ class DaroodAccountCleanup @Inject constructor(
     private val dao: DaroodDao,
     private val owner: DaroodCacheOwner,
     private val parties: com.pixelquest.app.darood.data.DaroodPartyRepository? = null,
-    private val studyData: com.pixelquest.app.study.data.StudyAccountData? = null
+    private val studyData: com.pixelquest.app.study.data.StudyAccountData? = null,
+    private val chess: com.pixelquest.app.chess.data.local.ChessDao? = null
 ) {
 
     fun start(scope: CoroutineScope): Job = scope.launch {
@@ -60,6 +61,7 @@ class DaroodAccountCleanup @Inject constructor(
         if (accountId == null || owner.owner() != accountId) {
             dao.clearAll()
             studyData?.clear()
+            chess?.clearAll()
             owner.setOwner(accountId)
         }
         // After any clearing, so the two can't race: the account's parties and invitations.

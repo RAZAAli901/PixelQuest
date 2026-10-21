@@ -88,6 +88,10 @@ object DaoModule {
     @Singleton
     fun provideChatDao(database: AppDatabase): com.pixelquest.app.study.chat.data.local.ChatDao = database.chatDao()
 
+    @Provides
+    @Singleton
+    fun provideChessDao(database: AppDatabase): com.pixelquest.app.chess.data.local.ChessDao = database.chessDao()
+
     // The Quran on the phone (docs/quran-data.md).
 
     @Provides
