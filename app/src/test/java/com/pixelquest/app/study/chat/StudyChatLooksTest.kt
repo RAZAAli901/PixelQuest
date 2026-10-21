@@ -82,4 +82,25 @@ class StudyChatLooksTest {
         assertEquals(0.dp, look.shadow)
         assertEquals(true, look.outline > 0.dp)
     }
+
+    @Test
+    fun inSimpleMode_thePartysChatAndFilesTabsAreThere_andTheChatIsPlain() {
+        val party = com.pixelquest.app.party.domain.Party(
+            id = "p1", name = "Physics group", leaderId = "aria", maxMembers = 10, milestone = null, milestoneSetAt = null,
+            completedAt = null, createdAt = Instant.EPOCH, total = 0, memberCount = 2,
+            myStatus = com.pixelquest.app.party.domain.MemberStatus.ACTIVE, type = com.pixelquest.app.party.domain.PartyType.STUDY
+        )
+        val simpleTabs = com.pixelquest.app.study.ui.StudyPartyKind.tabs - com.pixelquest.app.party.domain.PartyTab.SCOREBOARD
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
+                com.pixelquest.app.study.ui.StudyPartyContent(
+                    state = com.pixelquest.app.study.ui.StudyPartyUiState(party = party, tab = com.pixelquest.app.party.domain.PartyTab.CHAT, tabs = simpleTabs, simpleMode = true, loaded = true),
+                    onNavigateBack = {}, onOpenInfo = {}, chatState = state
+                )
+            }
+        }
+        composeTestRule.onNodeWithText("Anyone done Q3?").assertExists()
+        composeTestRule.onNodeWithText("Notes.docx").assertExists()
+        assertEquals(true, com.pixelquest.app.party.domain.PartyTab.CHAT in simpleTabs && com.pixelquest.app.party.domain.PartyTab.FILES in simpleTabs)
+    }
 }
