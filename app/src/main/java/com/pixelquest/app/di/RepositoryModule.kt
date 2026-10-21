@@ -296,6 +296,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindChatLiveSource(
+        impl: com.pixelquest.app.study.chat.sync.SupabaseChatLiveSource
+    ): com.pixelquest.app.study.chat.sync.ChatLiveSource
+
+    @Binds
+    @Singleton
     abstract fun bindChatSendScheduler(
         impl: com.pixelquest.app.study.chat.sync.WorkManagerChatSendScheduler
     ): com.pixelquest.app.study.chat.data.ChatSendScheduler

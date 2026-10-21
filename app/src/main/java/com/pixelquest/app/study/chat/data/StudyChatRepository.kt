@@ -15,7 +15,16 @@ import com.pixelquest.app.study.chat.domain.ChatMessageKind
 import com.pixelquest.app.study.chat.domain.StudyChatConfig
 import com.pixelquest.app.study.domain.StudyRefusal
 import com.pixelquest.app.study.domain.SyncState
+import com.pixelquest.app.study.chat.sync.ChatChange
+import com.pixelquest.app.study.chat.sync.ChatLiveSource
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
@@ -77,6 +86,12 @@ interface StudyChatRepository {
 
     /** The player has read the chat up to now: here, and on the server when it can. */
     suspend fun markRead(partyId: String)
+
+    /**
+     * Follows a party's chat live while collected: each change brings the chat up to date, once the
+     * changes pause, and is passed on. Nothing without a live source.
+     */
+    fun follow(partyId: String): Flow<ChatChange> = emptyFlow()
 }
 
 @Singleton
@@ -85,11 +100,13 @@ class StudyChatRepositoryImpl(
     private val dao: ChatDao,
     private val account: DaroodAccount,
     private val clock: () -> Long,
-    private val sendLater: ChatSendScheduler? = null
+    private val sendLater: ChatSendScheduler? = null,
+    private val live: ChatLiveSource? = null,
+    private val quietMs: Long = QUIET_MS
 ) : StudyChatRepository {
     @Inject
-    constructor(remote: StudyChatRemoteDataSource, dao: ChatDao, account: DaroodAccount, sendLater: ChatSendScheduler) :
-        this(remote, dao, account, System::currentTimeMillis, sendLater)
+    constructor(remote: StudyChatRemoteDataSource, dao: ChatDao, account: DaroodAccount, sendLater: ChatSendScheduler, live: ChatLiveSource) :
+        this(remote, dao, account, System::currentTimeMillis, sendLater, live)
 
     /** One send at a time: two at once would send the same message twice. */
     private val sending = Mutex()
@@ -187,12 +204,27 @@ class StudyChatRepositoryImpl(
         remote.markRead(partyId)
     }
 
+    @OptIn(FlowPreview::class)
+    override fun follow(partyId: String): Flow<ChatChange> = channelFlow {
+        val source = live ?: return@channelFlow
+        // A busy chat changes often: it's brought up to date once the changes pause, not after each.
+        val changed = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+        launch { changed.debounce(quietMs).collect { refresh(partyId) } }
+        source.changes(partyId).collect { change ->
+            if (change == ChatChange.Subscribed) refresh(partyId) else changed.tryEmit(Unit)
+            send(change)
+        }
+    }
+
     internal companion object {
         /** A page of messages: the newest to start, and each one older. */
         const val PAGE = 50
 
         /** A refresh asks again for the last minute before the newest message: a clock skew's room. */
         const val RECENT_SECONDS = 60L
+
+        /** How long a chat's changes must pause before it's brought up to date. */
+        const val QUIET_MS = 500L
     }
 }
 

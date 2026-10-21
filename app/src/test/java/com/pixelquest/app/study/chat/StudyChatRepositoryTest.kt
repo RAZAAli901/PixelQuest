@@ -16,6 +16,7 @@ import com.pixelquest.app.study.domain.SyncState
 import com.pixelquest.app.testing.FakeChatServer
 import com.pixelquest.app.testing.closeAfterWrites
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -34,7 +35,7 @@ class StudyChatRepositoryTest {
     private val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Application>(), AppDatabase::class.java)
         .allowMainThreadQueries().build()
     private var sendsAsked = 0
-    private val repo = StudyChatRepositoryImpl(server, db.chatDao(), { server.me }, clock = { server.now.toEpochMilli() }) { sendsAsked++ }
+    private val repo = StudyChatRepositoryImpl(server, db.chatDao(), { server.me }, clock = { server.now.toEpochMilli() }, sendLater = { sendsAsked++ })
 
     private fun party() = runBlocking {
         db.partyDao().upsertParties(listOf(
@@ -139,6 +140,36 @@ class StudyChatRepositoryTest {
         server.me = "aria"
         repo.refresh("p1")
         assertTrue(shown().single { it.id == bramS.id }.deleted)
+    }
+
+    @Test
+    fun followingLive_catchesUpOnSubscribing_thenOnEachChange_onceTheyPause() = runBlocking {
+        party()
+        val changes = kotlinx.coroutines.channels.Channel<com.pixelquest.app.study.chat.sync.ChatChange>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+        val live = com.pixelquest.app.study.chat.sync.ChatLiveSource { kotlinx.coroutines.flow.flow { for (c in changes) emit(c) } }
+        val following = StudyChatRepositoryImpl(server, db.chatDao(), { server.me }, clock = { server.now.toEpochMilli() }, live = live, quietMs = 50)
+        server.seed("p1", "bram", "Before")
+        val heard = mutableListOf<com.pixelquest.app.study.chat.sync.ChatChange>()
+        val job = launch(kotlinx.coroutines.Dispatchers.Default) { following.follow("p1").collect { heard += it } }
+
+        changes.send(com.pixelquest.app.study.chat.sync.ChatChange.Subscribed)
+        waitUntil { shown().any { it.body == "Before" } }
+        server.seed("p1", "bram", "Live")
+        repeat(3) { changes.send(com.pixelquest.app.study.chat.sync.ChatChange.NewMessage) }
+        waitUntil { shown().any { it.body == "Live" } }
+        val fetches = server.calls
+        Thread.sleep(200)
+        assertEquals("three changes, one catch-up (messages, then files)", fetches, server.calls)
+        job.cancel()
+        assertEquals(4, heard.size)
+    }
+
+    private suspend fun waitUntil(condition: suspend () -> Boolean) {
+        repeat(200) {
+            if (condition()) return
+            kotlinx.coroutines.delay(10)
+        }
+        throw AssertionError("still waiting")
     }
 
     @Test
