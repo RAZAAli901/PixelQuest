@@ -1,5 +1,6 @@
 package com.pixelquest.app.quran.ui.list
 
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,7 +27,6 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
-import com.pixelquest.app.ui.theme.PixelTheme
 import kotlinx.coroutines.launch
 
 /** The surahs the fast-scroll index marks: the first, then every tenth. */
@@ -42,7 +41,6 @@ val FAST_SCROLL_MARKS: List<Int> = listOf(1) + (10..110 step 10)
 @Composable
 fun FastScrollIndex(listState: LazyListState, surahs: List<Int>, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
-    val colors = PixelTheme.colors
     fun jumpTo(mark: Int) {
         val index = surahs.indexOfFirst { it >= mark }.takeIf { it >= 0 } ?: return
         scope.launch { listState.scrollToItem(index) }
@@ -79,7 +77,7 @@ fun FastScrollIndex(listState: LazyListState, surahs: List<Int>, modifier: Modif
                     }
                     .padding(vertical = 2.dp)
             ) {
-                Text(text = mark.toString(), style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
+                Text(text = mark.toString(), style = PqType.Meta)
             }
         }
     }
