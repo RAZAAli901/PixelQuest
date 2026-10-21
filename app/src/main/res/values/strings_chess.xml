@@ -130,4 +130,6 @@
     <string name="chess_h2h_line">You <xliff:g id="wins" example="7">%1$d</xliff:g> – <xliff:g id="losses" example="5">%2$d</xliff:g> <xliff:g id="name" example="Ali">%3$s</xliff:g> with <xliff:g id="draws" example="2">%4$d</xliff:g> draws</string>
     <string name="chess_h2h_by_time">By time control</string>
     <string name="chess_h2h_cell"><xliff:g id="wins" example="3">%1$d</xliff:g>–<xliff:g id="draws" example="1">%2$d</xliff:g>–<xliff:g id="losses" example="1">%3$d</xliff:g></string>
+    <string name="chess_badge_said">Chess: <xliff:g id="points" example="1,180">%1$s</xliff:g> Int, <xliff:g id="tier" example="Knight">%2$s</xliff:g></string>
+    <string name="chess_profile_line">Chess Int · best tier <xliff:g id="tier" example="Knight">%1$s</xliff:g></string>
 </resources>

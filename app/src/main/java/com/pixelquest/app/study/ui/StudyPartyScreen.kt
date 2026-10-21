@@ -156,9 +156,13 @@ fun StudyPartyScreen(
         }
     }
     LaunchedEffect(chessViewModel, state.tab) { if (state.tab == PartyTab.CHESS) chessViewModel?.refresh() }
+    val chessBadge: (@Composable (String) -> Unit)? = chessViewModel?.let {
+        { id -> chessState.best[id]?.let { points -> com.pixelquest.app.chess.ui.TierBadge(points, id) } }
+    }
     androidx.compose.runtime.CompositionLocalProvider(
         com.pixelquest.app.chess.ui.LocalChessChatCards provides chessCards,
-        com.pixelquest.app.chess.ui.LocalChessTab provides chessTab
+        com.pixelquest.app.chess.ui.LocalChessTab provides chessTab,
+        com.pixelquest.app.chess.ui.LocalChessBadge provides chessBadge
     ) {
     StudyPartyContent(
         state = state,
@@ -712,7 +716,8 @@ private fun LazyListScope.people(state: StudyPartyUiState, onAddPeople: () -> Un
                 isLeader = false,
                 enabled = false,
                 onRemove = {},
-                onTransfer = {}
+                onTransfer = {},
+                badge = { member -> com.pixelquest.app.chess.ui.LocalChessBadge.current?.invoke(member.userId) }
             )
         }
     }

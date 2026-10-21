@@ -51,7 +51,9 @@ fun MemberList(
     isLeader: Boolean,
     enabled: Boolean,
     onRemove: (PartyMember) -> Unit,
-    onTransfer: (PartyMember) -> Unit
+    onTransfer: (PartyMember) -> Unit,
+    /** Something beside a member's name (a study party's chess badge). */
+    badge: @Composable (PartyMember) -> Unit = {}
 ) {
     if (members.isEmpty()) return
     PqCard(radius = PqDimens.Radius, shadow = 0.dp) {
@@ -62,7 +64,8 @@ fun MemberList(
                     isMe = member.userId == myId,
                     onRemove = if (isLeader && member.role != PartyRole.LEADER) ({ onRemove(member) }) else null,
                     onTransfer = if (isLeader && member.role != PartyRole.LEADER) ({ onTransfer(member) }) else null,
-                    enabled = enabled
+                    enabled = enabled,
+                    badge = { badge(member) }
                 )
                 if (i != members.lastIndex) Box(Modifier.fillMaxWidth().height(2.dp).background(PqColors.Divider))
             }
@@ -77,7 +80,7 @@ fun displayName(member: PartyMember): String =
 
 /** One member: their picture, username and the day they joined, the leader marked; for the leader, a way to hand over or remove. */
 @Composable
-fun MemberRow(member: PartyMember, isMe: Boolean, onRemove: (() -> Unit)?, onTransfer: (() -> Unit)?, enabled: Boolean) {
+fun MemberRow(member: PartyMember, isMe: Boolean, onRemove: (() -> Unit)?, onTransfer: (() -> Unit)?, enabled: Boolean, badge: @Composable () -> Unit = {}) {
     val name = displayName(member)
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -94,6 +97,7 @@ fun MemberRow(member: PartyMember, isMe: Boolean, onRemove: (() -> Unit)?, onTra
                     Text(text = stringResource(R.string.darood_info_joined, joinedDate(joined)), style = PqType.Meta)
                 }
             }
+            badge()
             if (member.role == PartyRole.LEADER) PqChip(stringResource(R.string.darood_badge_leader).uppercase(), PqColors.Gold)
         }
         // The leader's tools for this member, on their own line so the name keeps its room.

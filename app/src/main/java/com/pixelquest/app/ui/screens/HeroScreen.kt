@@ -224,6 +224,7 @@ fun HeroScreen(
         onLeaderboard = onLeaderboard,
         onParties = onParties,
         onUsername = onUsername,
+        chess = { com.pixelquest.app.chess.ui.ChessProfileRoute() },
     )
 }
 
@@ -241,6 +242,8 @@ fun HeroContent(
     onParties: () -> Unit = {},
     onUsername: () -> Unit = {},
     modifier: Modifier = Modifier,
+    /** The player's chess Int (J158); none in tests that don't give one. */
+    chess: (@Composable () -> Unit)? = null,
 ) {
     val simple = state.isSimpleMode
     LazyColumn(
@@ -261,6 +264,7 @@ fun HeroContent(
         }
         if (segment == HeroSegment.Profile) {
             item(key = "card") { HeroCard(state, onChangeAvatar, onUsername) }
+            if (chess != null) item(key = "chess") { chess() }
             item(key = "list") {
                 PqCard(radius = PqDimens.Radius, shadow = 0.dp) {
                     Column {

@@ -44,7 +44,9 @@ data class ChessPartyState(
     val problem: String? = null,
     val names: Map<String, String?> = emptyMap(),
     /** Games the chat's cards have asked about, by id. */
-    val games: Map<String, ChessGame> = emptyMap()
+    val games: Map<String, ChessGame> = emptyMap(),
+    /** Each member's best Int points, for their badge (J158). */
+    val best: Map<String, Int> = emptyMap()
 )
 
 /** What a challenge became, for the screen to open. */
@@ -95,6 +97,9 @@ class ChessPartyViewModel @Inject constructor(
         viewModelScope.launch { challengesRepo.refreshChallenges(partyId) }
         viewModelScope.launch { (spectate.liveGames(partyId) as? SupabaseResult.Success)?.data?.let { games -> _state.update { it.copy(liveGames = games) } } }
         loadBoard(_state.value.boardTimeControl)
+        viewModelScope.launch {
+            (ratings.leaderboard(partyId, null) as? SupabaseResult.Success)?.data?.let { rows -> _state.update { it.copy(best = rows.associate { r -> r.userId to r.points }) } }
+        }
     }
 
     fun loadBoard(timeControl: TimeControl?) {
