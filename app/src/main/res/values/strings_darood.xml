@@ -243,7 +243,7 @@
         <item quantity="other"><xliff:g id="count" example="3">%1$d</xliff:g> new</item>
     </plurals>
     <string name="darood_chat_empty">Nothing posted yet. The first number sent here starts the party\'s chat.</string>
-    <!-- A username as shown on the profile and in the side menu. -->
+    <!-- A username as shown on Hero's profile. -->
     <string name="darood_username_handle">@<xliff:g id="name" example="aria_k">%1$s</xliff:g></string>
     <string name="darood_username_profile_label">Darood Party username</string>
     <string name="darood_username_profile_change">Change your username</string>

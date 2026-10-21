@@ -4,6 +4,40 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
+## [1.6.0] - 2026-10-21 — A new look: one app, two skins
+
+### ⬆️ Upgrading
+Install 1.6.0 over 1.5.0 (or 1.4.1, 1.4.0, 1.3.0): everything is kept. 1.6.0 doesn't change the app's data. If you'd chosen Clean Light or Follow System, PixelQuest opens in Comic; Retro Pixel opens in Pixel.
+
+### 🎨 A new design
+- **A bottom bar** in place of the side menu: Home, Quests, the trophy (the leaderboard), Deen and Hero. Settings and Cloud & leaderboard open from Hero's gear.
+- **Two skins, Comic and Pixel,** in Settings > Look. Every screen is drawn in either one; Comic is the default. The CRT filter belongs to Pixel and stays off in Simple Mode. Clean Light and Follow System are retired.
+- **Every screen rebuilt:**
+  - Home shows your quest progress, the next prayer, what's due in your study parties, and what's up next.
+  - Quests has Today, All quests and History.
+  - Deen has the next prayer, Darood Party and the Quran.
+  - Hero has your Profile and Stats.
+  - The Quran, parties, the AI Coach, Settings, onboarding and every dialog are rebuilt too.
+- **Clearer to use:** one red button per screen, icons in place of emoji, and buttons that look disabled when they are.
+- **A new app icon,** with a themed layer for Android 13 and later. Notifications have the new icon and your skin's colour, and a streak at risk gets its own card.
+- **Notifications are asked for when you need them:** the first time you turn a reminder on, not at launch. The banner pointing to Android's settings shows only once you've said no.
+
+### ⚡ Smoother and quicker
+- **No refresh circle when you open a party.** Opening a study party, Parties or a Darood party used to show the pull-to-refresh circle for a second or more while it checked the server. It now checks quietly, over what's already on screen; the circle shows only when you pull. A study party's update also asks the server for everything at once, so it finishes sooner.
+- **Tab switches don't reload.** Each tab keeps its data for a minute after you leave it, the heavy sums behind Hero's stats and quest history run in the background, and Hero's heatmap and the Quests list draw with far less work.
+- **A quicker start:** the opening screen takes 0.6 seconds instead of 1.5, and less work happens before the first frame.
+- **Faster everywhere:** the app's code is now compiled ahead of time when it's installed (a baseline profile), and the release build is fully optimised. The app is smaller too: 4.6 MB, down from 7.4.
+
+### 🛠️ Improved
+- **TalkBack** hears each screen's title as a heading.
+
+### 🔧 For developers
+- `ThemeMode` is Comic and Pixel; a stored "light" or "system" reads as Comic. Screens use one component set on the `PqTheme` tokens ([docs/ui-v2.md](docs/ui-v2.md)); the old components and token layer are gone.
+- No database or Supabase change: Room 18, migrations through 20261019000044.
+- R8 no longer keeps all of Compose and Hilt whole (their libraries ship their own rules); `src/main/baseline-prof.txt` lists the app's code, installed by profileinstaller. `TabSharing` keeps a tab's flows for a minute.
+
+---
+
 ## [1.5.0] - 2026-10-21 — The Islamic section, the Quran, and study parties
 
 ### ⬆️ Upgrading

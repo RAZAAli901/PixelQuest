@@ -913,3 +913,33 @@ Phases A to F of the Islamic hub plan (I001 to I150), released as 1.5.0 (version
 ### Not verified
 - **Study parties and Darood signed in on a phone:** they need accounts on the live project. Both are covered end to end in tests, and against the local stack.
 - **Installing over 1.4.0 on Android 8 and later:** the API34 emulator holds a debug install, which a release build mustn't replace. DatabaseUpgradeTest covers every database version from 1 to 17.
+
+
+## Section R -- 1.6.0: the new design (UI v2)
+
+The Claude Design redesign, on main from 1.5.0 to 1.6.0, released as 1.6.0 (versionCode 107) on 2026-10-21. [docs/ui-v2.md](docs/ui-v2.md) maps the old screens to the new ones.
+
+### Builds and tests
+- **Unit tests:** 1,826, 0 failing; the 19 skipped need the local Supabase stack. Fewer than 1.5.0's 2,080: tests of the removed components and themes went with them.
+- **Lint:** `lintDebug` passes with no errors.
+- **Release build:** `assembleRelease` with R8 and the release key (SHA-256 `9a84b2cf...acbb8`, the same as 1.5.0's). The APK is 4,611,796 bytes, within its 8 MB budget (7,030,969 before the speed work let R8 shrink Compose and Hilt).
+- **CI:** the build (with lint and the release APK) and the cloud tests passed on every push of the redesign's last day.
+- **No data change:** Room stays at 18, and there are no new Supabase migrations (through 20261019000044).
+- **Screenshots:** each screen was drawn in both skins with Robolectric and looked over, and the README's images are those renders.
+
+### Installed over 1.5.0 on the Android 7.0 emulator (`PixelQuest_API24`, port 5556)
+- **1.5.0**, as left by Section Q: "Upgrader", level 1, 50 XP, one of three quests done (Read 15 Pages). Clean Light was chosen in its Theme Selection, to test the retired themes.
+- **1.6.0, installed over it:** the same hero, level and quests, Read 15 Pages done with its +50; the bottom bar in place of the side menu. The Clean Light choice opened in Comic.
+- **Deen** opened, and **Settings > Look** switched to Pixel at once, everywhere. After a restart, Pixel was kept from the first frame, with the same data.
+- The log had no crash. The emulator was shut down afterwards.
+
+### The speed work, on the same emulator
+The release build from before it (main at 7ac38d0b) and after it, each installed over the last, launched once so ProfileInstaller writes its profile, then compiled with `cmd package compile -m speed-profile`, as a phone does in the background:
+- **Cold start** (`am start -W`, TotalTime, three runs): 1,907, 1,298 and 1,189 ms before; 998, 1,069 and 1,054 ms after. The splash itself is 0.9 s shorter on top of that.
+- **Tab switches** (Quests, Deen, Hero, Home, three rounds; `dumpsys gfxinfo`): slow UI-thread frames 52 before, 30 after; 99th percentile frame 65 ms before, 53 ms after. The emulator draws on its CPU, so most frames miss 16 ms either way; the UI thread's share is what the changes act on.
+- **After R8's new rules:** every tab, Hero's Stats (the heatmap, now one Canvas), the Quran's surah list and Settings drew correctly, and the log had no crash. The hero's data from Section R's run was kept through both installs.
+- **The refresh circle** in a study party, the Parties list and a Darood party needs a signed-in account on the live project, so it was checked in tests: entering runs the catch-up without the circle, a pull shows it, and a pull during a catch-up waits for it.
+
+### Not verified
+- **Installing over 1.5.0 on Android 8 and later:** the API34 emulator holds a debug install, which a release build mustn't replace. 1.6.0 doesn't change the data, and the theme mapping is covered by unit tests.
+- **Signed-in features on a phone** (parties, the leaderboard, the AI Coach): they need accounts on the live project. Their screens are covered in tests.

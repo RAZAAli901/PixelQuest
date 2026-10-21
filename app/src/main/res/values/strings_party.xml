@@ -9,7 +9,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- One study party, its kind's name. -->
     <string name="party_study_title">Study party</string>
-    <!-- The Parties screen, from the side menu: the main app's study parties. -->
+    <!-- The Parties screen (Home's groups button, Hero > Parties): the main app's study parties. -->
     <string name="parties_title">Parties</string>
     <string name="parties_signed_out_title">Sign in to join a party</string>
     <!-- Over an invitation: the kind of party it's to ("Darood Party", "Study party"). -->
