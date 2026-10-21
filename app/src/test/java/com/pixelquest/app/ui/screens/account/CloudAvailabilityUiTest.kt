@@ -7,7 +7,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import com.pixelquest.app.auth.AuthUiState
 import com.pixelquest.app.domain.CloudAvailability
-import com.pixelquest.app.ui.screens.leaderboard.NotSignedInLeaderboardState
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
@@ -116,10 +115,10 @@ class CloudAvailabilityUiTest {
     fun leaderboard_withoutCloud_saysSo_insteadOfSendingYouToSignIn() {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Comic) {
-                NotSignedInLeaderboardState(onNavigateToAccount = {}, cloudAvailable = false)
+                com.pixelquest.app.ui.screens.LeaderboardLockedScreen(onBack = null, onGoogleSignIn = {}, onEmailCode = {}, cloudAvailable = false)
             }
         }
         composeTestRule.onNodeWithText(CloudAvailability.NOT_IN_THIS_BUILD).assertIsDisplayed()
-        assertEquals(0, composeTestRule.onAllNodesWithText("🔑 SIGN IN VIA ACCOUNT").fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodes(androidx.compose.ui.test.hasTestTag(com.pixelquest.app.ui.screens.LockedBoardTags.GOOGLE)).fetchSemanticsNodes().size)
     }
 }

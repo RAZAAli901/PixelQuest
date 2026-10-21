@@ -57,6 +57,11 @@ fun LeaderboardScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    // Signed out: UI v2's locked board (mock 2J), which signs in with Google right there.
+    if (uiState.authState is LeaderboardAuthState.NotSignedIn) {
+        com.pixelquest.app.ui.screens.LeaderboardLockedRoute(onEmailCode = onNavigateToAccount, onBack = onNavigateBack)
+        return
+    }
     LeaderboardContent(
         uiState = uiState,
         onTabSelected = { viewModel.selectTab(it) },
@@ -152,276 +157,269 @@ fun LeaderboardContent(
             )
         }
     ) { innerPadding ->
-        if (uiState.authState is LeaderboardAuthState.NotSignedIn) {
-            NotSignedInLeaderboardState(
-                onNavigateToAccount = onNavigateToAccount,
-                modifier = Modifier.padding(innerPadding)
-            )
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(nestedScrollConnection)
-                    .padding(innerPadding)
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-                // Pull-to-refresh banner indicator
-                if (pullOffset > 0f || uiState.isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(colors.surface)
-                            .border(1.dp, colors.secondary.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                            .padding(vertical = 6.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = when {
-                                uiState.isLoading -> "🔄 UPDATING HALL OF FAME..."
-                                pullOffset >= refreshThresholdPx -> "⚡ RELEASE TO REFRESH ⚡"
-                                else -> "▼ PULL TO REFRESH ▼"
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (pullOffset >= refreshThresholdPx) colors.primaryText else com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
-                            fontSize = 8.sp
-                        )
-                    }
-                }
-
-                // Tab Selector Row: Top Streaks / Top Levels
-                LeaderboardTabRow(
-                    selectedTab = uiState.selectedTab,
-                    onTabSelected = onTabSelected
-                )
-
-                val isOnBoard = uiState.authState is LeaderboardAuthState.SignedInAndOptedIn
-                val showAroundYou = isOnBoard && uiState.selectedView == LeaderboardView.AROUND_YOU
-                if (isOnBoard) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LeaderboardViewSwitch(
-                        selectedView = uiState.selectedView,
-                        onViewSelected = onViewSelected
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Last updated timestamp & status banner
-                if (uiState.lastUpdatedTimestamp != null) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp, vertical = 2.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "UPDATED: ${uiState.lastUpdatedTimestamp}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colors.onSurfaceVariant,
-                            fontSize = 7.sp
-                        )
-                        Text(
-                            text = if (uiState.isLoading) "SYNCING..." else "ONLINE ●",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (uiState.isLoading) colors.primaryText else com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary),
-                            fontSize = 7.sp
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                } else {
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-
-                // Tab Content: LazyColumn of PixelLeaderboardRows
-                val currentUserId = when (val auth = uiState.authState) {
-                    is LeaderboardAuthState.SignedInAndOptedIn -> auth.userId
-                    is LeaderboardAuthState.SignedInReadOnly -> auth.userId
-                    LeaderboardAuthState.NotSignedIn -> null
-                }
-
-                val currentEntries = when (uiState.selectedTab) {
-                    LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
-                    LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
-                }
-
-                // Inline non-blocking error banner if refresh or pagination failed while cached data is displayed
-                if (uiState.errorMessage != null && currentEntries.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(colors.surface)
-                            .border(1.dp, colors.error, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "⚠️ ${uiState.errorMessage}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = colors.error,
-                                fontSize = 8.sp,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "RETRY",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = colors.primaryText,
-                                fontSize = 8.sp,
-                                modifier = Modifier
-                                    .clickable { onRefresh() }
-                                    .padding(start = 8.dp)
-                            )
-                        }
-                    }
-                }
-
-                if (uiState.reportMessage != null) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(colors.surface)
-                            .border(1.dp, colors.tertiary, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
-                    ) {
-                        Text(
-                            text = "🚩 ${uiState.reportMessage}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary),
-                            fontSize = 8.sp
-                        )
-                    }
-                }
-
-            if (showAroundYou) {
-                AroundYouList(
-                    entries = uiState.aroundYouEntries,
-                    selectedTab = uiState.selectedTab,
-                    currentUserId = currentUserId,
-                    isLoading = uiState.isLoadingAroundYou || uiState.isLoading,
-                    onReport = { id, name -> reportingItem = id to name },
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection)
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        ) {
+            // Pull-to-refresh banner indicator
+            if (pullOffset > 0f || uiState.isLoading) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
+                        .padding(bottom = 8.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(colors.surface)
+                        .border(1.dp, colors.secondary.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                        .padding(vertical = 6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = when {
+                            uiState.isLoading -> "🔄 UPDATING HALL OF FAME..."
+                            pullOffset >= refreshThresholdPx -> "⚡ RELEASE TO REFRESH ⚡"
+                            else -> "▼ PULL TO REFRESH ▼"
+                        },
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (pullOffset >= refreshThresholdPx) colors.primaryText else com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
+                        fontSize = 8.sp
+                    )
+                }
+            }
+
+            // Tab Selector Row: Top Streaks / Top Levels
+            LeaderboardTabRow(
+                selectedTab = uiState.selectedTab,
+                onTabSelected = onTabSelected
+            )
+
+            val isOnBoard = uiState.authState is LeaderboardAuthState.SignedInAndOptedIn
+            val showAroundYou = isOnBoard && uiState.selectedView == LeaderboardView.AROUND_YOU
+            if (isOnBoard) {
+                Spacer(modifier = Modifier.height(8.dp))
+                LeaderboardViewSwitch(
+                    selectedView = uiState.selectedView,
+                    onViewSelected = onViewSelected
                 )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Last updated timestamp & status banner
+            if (uiState.lastUpdatedTimestamp != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "UPDATED: ${uiState.lastUpdatedTimestamp}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colors.onSurfaceVariant,
+                        fontSize = 7.sp
+                    )
+                    Text(
+                        text = if (uiState.isLoading) "SYNCING..." else "ONLINE ●",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (uiState.isLoading) colors.primaryText else com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary),
+                        fontSize = 7.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
             } else {
-            Box(
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+
+            // Tab Content: LazyColumn of PixelLeaderboardRows
+            val currentUserId = when (val auth = uiState.authState) {
+                is LeaderboardAuthState.SignedInAndOptedIn -> auth.userId
+                is LeaderboardAuthState.SignedInReadOnly -> auth.userId
+                LeaderboardAuthState.NotSignedIn -> null
+            }
+
+            val currentEntries = when (uiState.selectedTab) {
+                LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
+                LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
+            }
+
+            // Inline non-blocking error banner if refresh or pagination failed while cached data is displayed
+            if (uiState.errorMessage != null && currentEntries.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(colors.surface)
+                        .border(1.dp, colors.error, RoundedCornerShape(6.dp))
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "⚠️ ${uiState.errorMessage}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colors.error,
+                            fontSize = 8.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = "RETRY",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colors.primaryText,
+                            fontSize = 8.sp,
+                            modifier = Modifier
+                                .clickable { onRefresh() }
+                                .padding(start = 8.dp)
+                        )
+                    }
+                }
+            }
+
+            if (uiState.reportMessage != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(colors.surface)
+                        .border(1.dp, colors.tertiary, RoundedCornerShape(6.dp))
+                        .padding(horizontal = 10.dp, vertical = 6.dp)
+                ) {
+                    Text(
+                        text = "🚩 ${uiState.reportMessage}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary),
+                        fontSize = 8.sp
+                    )
+                }
+            }
+
+        if (showAroundYou) {
+            AroundYouList(
+                entries = uiState.aroundYouEntries,
+                selectedTab = uiState.selectedTab,
+                currentUserId = currentUserId,
+                isLoading = uiState.isLoadingAroundYou || uiState.isLoading,
+                onReport = { id, name -> reportingItem = id to name },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                if (uiState.isLoading && currentEntries.isEmpty()) {
-                    CircularProgressIndicator(
-                        color = colors.primary,
-                        modifier = Modifier.size(36.dp)
-                    )
-                } else if (uiState.errorMessage != null && currentEntries.isEmpty()) {
-                    LeaderboardErrorState(
-                        errorMessage = uiState.errorMessage,
-                        onRetry = onRefresh,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                } else if (currentEntries.isEmpty()) {
-                    Text(
-                        text = "NO HEROES RANKED YET\nOpt in from Account Settings to claim the top spot!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colors.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 18.sp
-                    )
-                } else {
-                    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
-                    val shouldLoadMore = androidx.compose.runtime.remember {
-                        androidx.compose.runtime.derivedStateOf {
-                            val totalItems = listState.layoutInfo.totalItemsCount
-                            val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-                            totalItems > 0 && lastVisibleItemIndex >= totalItems - 2
-                        }
+                    .weight(1f)
+            )
+        } else {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            if (uiState.isLoading && currentEntries.isEmpty()) {
+                CircularProgressIndicator(
+                    color = colors.primary,
+                    modifier = Modifier.size(36.dp)
+                )
+            } else if (uiState.errorMessage != null && currentEntries.isEmpty()) {
+                LeaderboardErrorState(
+                    errorMessage = uiState.errorMessage,
+                    onRetry = onRefresh,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else if (currentEntries.isEmpty()) {
+                Text(
+                    text = "NO HEROES RANKED YET\nOpt in from Account Settings to claim the top spot!",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 18.sp
+                )
+            } else {
+                val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                val shouldLoadMore = androidx.compose.runtime.remember {
+                    androidx.compose.runtime.derivedStateOf {
+                        val totalItems = listState.layoutInfo.totalItemsCount
+                        val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                        totalItems > 0 && lastVisibleItemIndex >= totalItems - 2
                     }
+                }
 
-                    androidx.compose.runtime.LaunchedEffect(shouldLoadMore.value) {
-                        if (shouldLoadMore.value && uiState.canLoadMore && !uiState.isLoading && !uiState.isLoadingMore) {
-                            onLoadMore()
-                        }
+                androidx.compose.runtime.LaunchedEffect(shouldLoadMore.value) {
+                    if (shouldLoadMore.value && uiState.canLoadMore && !uiState.isLoading && !uiState.isLoadingMore) {
+                        onLoadMore()
                     }
+                }
 
-                    androidx.compose.foundation.lazy.LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(
-                            count = currentEntries.size,
-                            key = { index -> currentEntries[index].id }
-                        ) { index ->
-                            val item = currentEntries[index]
-                            val rank = index + 1
-                            val isCurrentUser = currentUserId != null && item.id == currentUserId
+                androidx.compose.foundation.lazy.LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(
+                        count = currentEntries.size,
+                        key = { index -> currentEntries[index].id }
+                    ) { index ->
+                        val item = currentEntries[index]
+                        val rank = index + 1
+                        val isCurrentUser = currentUserId != null && item.id == currentUserId
 
-                            when (uiState.selectedTab) {
-                                LeaderboardTab.TOP_STREAKS -> {
-                                    PixelLeaderboardRow(
-                                        rank = rank,
-                                        displayName = item.displayName,
-                                        statLabel = "DAYS STREAK",
-                                        statValue = "${item.currentStreak} 🔥",
-                                        isCurrentUser = isCurrentUser,
-                                        onReportClicked = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
-                                    )
-                                }
-                                LeaderboardTab.TOP_LEVELS -> {
-                                    PixelLeaderboardRow(
-                                        rank = rank,
-                                        displayName = item.displayName,
-                                        statLabel = "XP: ${item.totalXp}",
-                                        statValue = "LVL ${item.level} ⚔️",
-                                        isCurrentUser = isCurrentUser,
-                                        onReportClicked = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
-                                    )
-                                }
+                        when (uiState.selectedTab) {
+                            LeaderboardTab.TOP_STREAKS -> {
+                                PixelLeaderboardRow(
+                                    rank = rank,
+                                    displayName = item.displayName,
+                                    statLabel = "DAYS STREAK",
+                                    statValue = "${item.currentStreak} 🔥",
+                                    isCurrentUser = isCurrentUser,
+                                    onReportClicked = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
+                                )
+                            }
+                            LeaderboardTab.TOP_LEVELS -> {
+                                PixelLeaderboardRow(
+                                    rank = rank,
+                                    displayName = item.displayName,
+                                    statLabel = "XP: ${item.totalXp}",
+                                    statValue = "LVL ${item.level} ⚔️",
+                                    isCurrentUser = isCurrentUser,
+                                    onReportClicked = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
+                                )
                             }
                         }
+                    }
 
-                        // Pagination Load More trigger item
-                        if (uiState.canLoadMore) {
-                            item(key = "load_more_indicator") {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 12.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (uiState.isLoadingMore) {
-                                        CircularProgressIndicator(
-                                            color = colors.primary,
-                                            modifier = Modifier.size(24.dp)
+                    // Pagination Load More trigger item
+                    if (uiState.canLoadMore) {
+                        item(key = "load_more_indicator") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (uiState.isLoadingMore) {
+                                    CircularProgressIndicator(
+                                        color = colors.primary,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(colors.surface)
+                                            .border(1.dp, colors.secondary.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                            .clickable { onLoadMore() }
+                                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    ) {
+                                        Text(
+                                            text = "▼ LOAD MORE HEROES ▼",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
+                                            fontSize = 9.sp
                                         )
-                                    } else {
-                                        Box(
-                                            modifier = Modifier
-                                                .clip(RoundedCornerShape(6.dp))
-                                                .background(colors.surface)
-                                                .border(1.dp, colors.secondary.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                                                .clickable { onLoadMore() }
-                                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                        ) {
-                                            Text(
-                                                text = "▼ LOAD MORE HEROES ▼",
-                                                style = MaterialTheme.typography.labelMedium,
-                                                color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
-                                                fontSize = 9.sp
-                                            )
-                                        }
                                     }
                                 }
                             }
@@ -429,62 +427,62 @@ fun LeaderboardContent(
                     }
                 }
             }
+        }
 
+        }
+
+        // Footer: Pinned Current User Rank (Opted In) OR Spectator Mode Banner (Read Only).
+        // The AROUND YOU view already shows your row, so it skips the pinned copy.
+        when (uiState.authState) {
+            is LeaderboardAuthState.SignedInReadOnly -> {
+                Spacer(modifier = Modifier.height(12.dp))
+                SpectatorModeBanner(
+                    onNavigateToAccount = onNavigateToAccount
+                )
             }
-
-            // Footer: Pinned Current User Rank (Opted In) OR Spectator Mode Banner (Read Only).
-            // The AROUND YOU view already shows your row, so it skips the pinned copy.
-            when (uiState.authState) {
-                is LeaderboardAuthState.SignedInReadOnly -> {
+            is LeaderboardAuthState.SignedInAndOptedIn -> {
+                val userRank = uiState.currentUserRank
+                if (userRank != null && !showAroundYou) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    SpectatorModeBanner(
-                        onNavigateToAccount = onNavigateToAccount
-                    )
-                }
-                is LeaderboardAuthState.SignedInAndOptedIn -> {
-                    val userRank = uiState.currentUserRank
-                    if (userRank != null && !showAroundYou) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(if (isLight) Color(0xFFFEF3C7) else colors.surface)
-                                .border(1.dp, colors.primary.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                                .padding(8.dp)
-                        ) {
-                            Text(
-                                text = "★ YOUR RANKING",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = colors.primaryText,
-                                fontSize = 8.sp,
-                                modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
-                            )
-                            when (uiState.selectedTab) {
-                                LeaderboardTab.TOP_STREAKS -> {
-                                    PixelLeaderboardRow(
-                                        rank = userRank.rank,
-                                        displayName = userRank.profile.displayName,
-                                        statLabel = "DAYS STREAK",
-                                        statValue = "${userRank.profile.currentStreak} 🔥",
-                                        isCurrentUser = true
-                                    )
-                                }
-                                LeaderboardTab.TOP_LEVELS -> {
-                                    PixelLeaderboardRow(
-                                        rank = userRank.rank,
-                                        displayName = userRank.profile.displayName,
-                                        statLabel = "XP: ${userRank.profile.totalXp}",
-                                        statValue = "LVL ${userRank.profile.level} ⚔️",
-                                        isCurrentUser = true
-                                    )
-                                }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isLight) Color(0xFFFEF3C7) else colors.surface)
+                            .border(1.dp, colors.primary.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .padding(8.dp)
+                    ) {
+                        Text(
+                            text = "★ YOUR RANKING",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colors.primaryText,
+                            fontSize = 8.sp,
+                            modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
+                        )
+                        when (uiState.selectedTab) {
+                            LeaderboardTab.TOP_STREAKS -> {
+                                PixelLeaderboardRow(
+                                    rank = userRank.rank,
+                                    displayName = userRank.profile.displayName,
+                                    statLabel = "DAYS STREAK",
+                                    statValue = "${userRank.profile.currentStreak} 🔥",
+                                    isCurrentUser = true
+                                )
+                            }
+                            LeaderboardTab.TOP_LEVELS -> {
+                                PixelLeaderboardRow(
+                                    rank = userRank.rank,
+                                    displayName = userRank.profile.displayName,
+                                    statLabel = "XP: ${userRank.profile.totalXp}",
+                                    statValue = "LVL ${userRank.profile.level} ⚔️",
+                                    isCurrentUser = true
+                                )
                             }
                         }
                     }
                 }
-                LeaderboardAuthState.NotSignedIn -> Unit
             }
+            LeaderboardAuthState.NotSignedIn -> Unit
         }
     }
     }
@@ -669,65 +667,6 @@ fun AroundYouList(
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun NotSignedInLeaderboardState(
-    onNavigateToAccount: () -> Unit,
-    modifier: Modifier = Modifier,
-    /** False in a build without a Supabase project, where signing in can't work. */
-    cloudAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.inThisBuild
-) {
-    val colors = PixelTheme.colors
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(colors.surface)
-                .border(2.dp, colors.primary, RoundedCornerShape(12.dp))
-                .padding(24.dp)
-        ) {
-            Text(
-                text = "🔒",
-                fontSize = 40.sp,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-            Text(
-                text = "HALL OF FAME LOCKED",
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primaryText,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-            Text(
-                text = if (cloudAvailable) {
-                    "Sign in with your Google Account to view live global rankings, streaks, and top heroes across the realm."
-                } else {
-                    com.pixelquest.app.domain.CloudAvailability.NOT_IN_THIS_BUILD
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface,
-                textAlign = TextAlign.Center,
-                lineHeight = 18.sp,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-            if (cloudAvailable) {
-                com.pixelquest.app.ui.components.PixelButton(
-                    text = "🔑 SIGN IN VIA ACCOUNT",
-                    onClick = onNavigateToAccount,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
     }

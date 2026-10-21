@@ -141,15 +141,7 @@ fun PixelNavHost(
             )
         }
         composable(Screen.AvatarSelection.route) {
-            val avatarViewModel: com.pixelquest.app.ui.screens.avatar.AvatarSelectionViewModel = hiltViewModel()
-            val currentAvatarId by avatarViewModel.currentAvatarId.collectAsState()
-            com.pixelquest.app.ui.screens.avatar.AvatarSelectionScreen(
-                currentAvatarId = currentAvatarId,
-                onAvatarSelected = { selectedId ->
-                    avatarViewModel.selectAvatar(selectedId)
-                },
-                onBackClick = { navController.popBackStack() }
-            )
+            com.pixelquest.app.ui.screens.AvatarPickerRoute(onBack = { navController.popBackStack() })
         }
         composable(Screen.LevelHistory.route) {
             LevelHistoryScreen()

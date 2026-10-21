@@ -192,4 +192,21 @@
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> prayer marked prayed</item>
         <item quantity="other"><xliff:g id="count" example="120">%d</xliff:g> prayers marked prayed</item>
     </plurals>
+
+    <!-- Choosing an avatar (mock 2I): a tap previews it, Equip makes it the hero's. -->
+    <string name="pq_avatar_title">Choose avatar</string>
+    <string name="pq_avatar_preview">PREVIEW</string>
+    <string name="pq_avatar_equipped">Equipped</string>
+    <string name="pq_avatar_current">Currently equipped: <xliff:g id="avatar" example="Hero">%s</xliff:g></string>
+    <string name="pq_avatar_equip">Equip <xliff:g id="avatar" example="Mage">%s</xliff:g></string>
+    <!-- On the tile of the avatar the hero wears. -->
+    <string name="pq_avatar_on">ON</string>
+
+    <!-- The Leaderboard while signed out (mock 2J) -->
+    <string name="pq_lb_title">Leaderboard</string>
+    <string name="pq_lb_locked_title">HALL OF FAME LOCKED</string>
+    <string name="pq_lb_locked_body">Sign in to see global rankings and streaks, and to climb the board against heroes across the realm.</string>
+    <string name="pq_lb_google">Continue with Google</string>
+    <string name="pq_lb_signing_in">Signing in…</string>
+    <string name="pq_lb_email">Email me a code</string>
 </resources>
