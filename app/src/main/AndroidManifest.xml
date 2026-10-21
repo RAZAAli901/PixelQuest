@@ -73,6 +73,10 @@
         <receiver
             android:name=".namaz.NamazActionReceiver"
             android:exported="false" />
+        <!-- Study reminders' alerts (docs/study-reminders.md, On the phone). -->
+        <receiver
+            android:name=".study.alarm.StudyReminderReceiver"
+            android:exported="false" />
         <!-- WorkManager is initialised by PixelQuestApplication with HiltWorkerFactory, so the
              @HiltWorker workers (missed tasks, streaks, sync, AI) can be constructed. -->
         <provider

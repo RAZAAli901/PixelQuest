@@ -198,7 +198,7 @@ class MainActivity : ComponentActivity() {
 
     /** The screen [intent] asks to open, if it's one a notification may open (MainActivity is exported). */
     private fun routeFrom(intent: Intent?): String? =
-        intent?.getStringExtra(EXTRA_OPEN_ROUTE)?.takeIf { it in OPENABLE_ROUTES }
+        intent?.getStringExtra(EXTRA_OPEN_ROUTE)?.takeIf(::isOpenable)
 
     companion object {
         /** A screen to open, from a notification's tap. */
@@ -206,6 +206,12 @@ class MainActivity : ComponentActivity() {
 
         // The Namaz Tracker's, and its route before the Islamic hub, which 1.4's reminders carry.
         private val OPENABLE_ROUTES = setOf(Screen.Namaz.route, com.pixelquest.app.ui.navigation.Routes.LEGACY_NAMAZ)
+
+        /** A study party's screen, for its reminders: only a party id (a UUID), nothing else. */
+        private val STUDY_PARTY_ROUTE = Regex("^" + Regex.escape(Screen.PartiesParty.createRoute("")) + "[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$")
+
+        /** Whether a notification may open [route]: a fixed screen, or a study party by its id. */
+        fun isOpenable(route: String): Boolean = route in OPENABLE_ROUTES || STUDY_PARTY_ROUTE.matches(route)
     }
 
     /**

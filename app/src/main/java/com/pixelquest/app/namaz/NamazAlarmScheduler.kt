@@ -4,9 +4,9 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import com.pixelquest.app.domain.namaz.NamazAlarm
 import com.pixelquest.app.domain.namaz.Prayer
+import com.pixelquest.app.scheduling.AlarmArming
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalDate
 import javax.inject.Inject
@@ -37,8 +37,7 @@ class NamazAlarmScheduler @Inject constructor(
 ) : NamazAlarms {
     private val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java)
 
-    override fun canScheduleExactAlarms(): Boolean =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
+    override fun canScheduleExactAlarms(): Boolean = AlarmArming.canScheduleExact(alarmManager)
 
     override fun schedule(alarm: NamazAlarm) {
         val pendingIntent = PendingIntent.getBroadcast(
@@ -47,18 +46,18 @@ class NamazAlarmScheduler @Inject constructor(
             intentFor(alarm.kind, alarm.date, alarm.prayer),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        try {
+        val armed = try {
             if (canScheduleExactAlarms() && alarm.alarmClock) {
                 // An alarm clock: exact, wakes the phone, and its time shows as the next alarm.
                 alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(alarm.atMillis, openNamaz()), pendingIntent)
-            } else if (canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.atMillis, pendingIntent)
+                true
             } else {
-                alarmManager.setWindow(AlarmManager.RTC_WAKEUP, alarm.atMillis, INEXACT_WINDOW_MS, pendingIntent)
+                AlarmArming.arm(alarmManager, alarm.atMillis, pendingIntent)
             }
         } catch (e: SecurityException) {
-            android.util.Log.w(TAG, "Could not arm the ${alarm.kind} for ${alarm.prayer} on ${alarm.date}", e)
+            false
         }
+        if (!armed) android.util.Log.w(TAG, "Could not arm the ${alarm.kind} for ${alarm.prayer} on ${alarm.date}")
     }
 
     override fun cancel(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
@@ -106,7 +105,7 @@ class NamazAlarmScheduler @Inject constructor(
         private const val SHOW_REQUEST_CODE = 741_000
 
         /** Shortest window Android 12+ honours for inexact alarms. */
-        const val INEXACT_WINDOW_MS = 10 * 60_000L
+        const val INEXACT_WINDOW_MS = AlarmArming.INEXACT_WINDOW_MS
 
         const val EXTRA_DATE = "com.pixelquest.app.extra.NAMAZ_DATE"
         const val EXTRA_PRAYER = "com.pixelquest.app.extra.NAMAZ_PRAYER"
