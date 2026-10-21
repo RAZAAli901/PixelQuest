@@ -65,6 +65,10 @@ sealed class Screen(val route: String) {
     object ChessGame : Screen("chess/game/{gameId}") {
         fun createRoute(gameId: String) = "chess/game/$gameId"
     }
+    /** Two players' record against each other (J157). */
+    object ChessHeadToHead : Screen("chess/h2h/{userId}?name={name}") {
+        fun createRoute(userId: String, name: String?) = "chess/h2h/$userId?name=${android.net.Uri.encode(name.orEmpty())}"
+    }
     /** The Darood Party race board. */
     object PartiesRaceBoard : Screen("${Routes.PARTIES}/race")
     /** Claiming or changing the Darood Party username. */

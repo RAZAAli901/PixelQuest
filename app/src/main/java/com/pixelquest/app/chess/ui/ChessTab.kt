@@ -1,5 +1,6 @@
 package com.pixelquest.app.chess.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -57,7 +58,9 @@ data class ChessTabActions(
     val onPick: (String?) -> Unit = {},
     val onAnswer: (String, Boolean) -> Unit = { _, _ -> },
     val onWatch: (String) -> Unit = {},
-    val onBoardTime: (TimeControl?) -> Unit = {}
+    val onBoardTime: (TimeControl?) -> Unit = {},
+    /** A ladder row's player: the record against them (J157). */
+    val onOpenRival: (String) -> Unit = {}
 )
 
 /**
@@ -97,7 +100,7 @@ fun ChessTab(state: ChessPartyState, actions: ChessTabActions) {
             Text(text = stringResource(R.string.chess_tab_board).uppercase(), style = PqType.CardTitle, modifier = Modifier.semantics { heading() })
         }
         item(key = "board") {
-            Ladder(state.leaderboard, state, onChallenge = { sheetFor = it; sheetOpen = true; actions.onPick(it) })
+            Ladder(state.leaderboard, state, onChallenge = { sheetFor = it; sheetOpen = true; actions.onPick(it) }, onOpen = actions.onOpenRival)
         }
     }
     if (sheetOpen) {
@@ -149,7 +152,7 @@ private fun ChallengeRow(challenge: Challenge, state: ChessPartyState, onAnswer:
 
 /** The party's ladder by Int points, each other member with a challenge button. */
 @Composable
-private fun Ladder(rows: List<Rating>, state: ChessPartyState, onChallenge: (String) -> Unit) {
+private fun Ladder(rows: List<Rating>, state: ChessPartyState, onChallenge: (String) -> Unit, onOpen: (String) -> Unit = {}) {
     Column(Modifier.fillMaxWidth().testTag(ChessTabTags.BOARD).comic(radius = PqDimens.Radius, shadow = PqDimens.Shadow)) {
         if (rows.isEmpty()) {
             Text(stringResource(R.string.chess_tab_board_none), style = PqType.Meta, modifier = Modifier.padding(12.dp))
@@ -168,6 +171,7 @@ private fun Ladder(rows: List<Rating>, state: ChessPartyState, onChallenge: (Str
                     .fillMaxWidth()
                     .testTag(ChessTabTags.row(row.userId))
                     .then(if (me) Modifier.comic(bg = PqColors.Sky, radius = 0.dp, border = 0.dp, shadow = 0.dp) else Modifier)
+                    .then(if (me) Modifier else Modifier.clickable(onClickLabel = stringResource(R.string.chess_h2h_title)) { onOpen(row.userId) })
                     .padding(horizontal = 12.dp, vertical = 10.dp)
             ) {
                 Text(text = place.toString(), style = PqType.Number)

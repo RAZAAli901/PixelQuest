@@ -101,7 +101,8 @@ fun StudyPartyScreen(
     chatViewModel: com.pixelquest.app.study.chat.ui.StudyChatViewModel? = null,
     /** The party's chess; without one (a test), chess lines in the chat stay plain. */
     chessViewModel: com.pixelquest.app.chess.ui.ChessPartyViewModel? = null,
-    onOpenChessGame: (String) -> Unit = {}
+    onOpenChessGame: (String) -> Unit = {},
+    onOpenRival: (userId: String, name: String?) -> Unit = { _, _ -> }
 ) {
     val state by viewModel.uiState.collectAsState()
     val reminderState by (remindersViewModel?.uiState ?: remember { kotlinx.coroutines.flow.MutableStateFlow(ReminderUiState()) }).collectAsState()
@@ -148,7 +149,8 @@ fun StudyPartyScreen(
                     onPick = chess::preview,
                     onAnswer = chess::answer,
                     onWatch = onOpenChessGame,
-                    onBoardTime = chess::loadBoard
+                    onBoardTime = chess::loadBoard,
+                    onOpenRival = { id -> onOpenRival(id, chessState.names[id]) }
                 )
             )
         }

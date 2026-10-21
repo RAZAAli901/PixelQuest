@@ -103,6 +103,12 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
             onOpenGame = { next -> navController.navigate(Screen.ChessGame.createRoute(next)) { popUpTo(Screen.ChessGame.route) { inclusive = true } } }
         )
     }
+    composable(
+        Screen.ChessHeadToHead.route,
+        arguments = listOf(navArgument("userId") { type = NavType.StringType }, navArgument("name") { type = NavType.StringType; defaultValue = "" })
+    ) {
+        com.pixelquest.app.chess.ui.HeadToHeadRoute(onNavigateBack = { navController.popBackStack() })
+    }
     composable(Screen.PartiesRaceBoard.route) {
         RaceBoardScreen(onNavigateBack = { navController.popBackStack() })
     }
@@ -119,7 +125,8 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
             remindersViewModel = hiltViewModel(),
             chatViewModel = hiltViewModel(),
             chessViewModel = hiltViewModel(),
-            onOpenChessGame = { game -> navController.navigate(Screen.ChessGame.createRoute(game)) { launchSingleTop = true } }
+            onOpenChessGame = { game -> navController.navigate(Screen.ChessGame.createRoute(game)) { launchSingleTop = true } },
+            onOpenRival = { id, name -> navController.navigate(Screen.ChessHeadToHead.createRoute(id, name)) { launchSingleTop = true } }
         )
     }
     composable(
