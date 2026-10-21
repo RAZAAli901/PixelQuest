@@ -1,79 +1,31 @@
 package com.pixelquest.app.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.RecurrenceType
-import com.pixelquest.app.ui.theme.PixelCyan
-import com.pixelquest.app.ui.theme.PixelTextMuted
-import com.pixelquest.app.ui.theme.PixelTypography
 
+/** How often a quest repeats: Daily, Weekly or One-time, one chosen, as v2's choice chips. */
 @Composable
 fun PixelRecurrenceSelector(
     selectedType: RecurrenceType,
     onTypeSelected: (RecurrenceType) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "RECURRENCE"
+    label: String = "Repeats"
 ) {
-    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
-    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-        ComicRecurrenceSelector(
-            selectedType = selectedType,
-            onTypeSelected = onTypeSelected,
-            modifier = modifier,
-            label = label
-        )
-        return
-    }
-
     val options = listOf(
         RecurrenceType.DAILY to "Daily",
         RecurrenceType.WEEKLY to "Weekly",
-        RecurrenceType.ONE_TIME to "One-Time"
+        RecurrenceType.ONE_TIME to "One-time"
     )
-
-    Column(modifier = modifier) {
-        Text(
-            text = label,
-            style = PixelTypography.labelLarge,
-            color = com.pixelquest.app.ui.theme.PixelTheme.colors.primary,
-            modifier = Modifier.padding(bottom = 6.dp)
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            options.forEach { (type, typeName) ->
-                val isSelected = selectedType == type
-                val variant = if (isSelected) PixelPanelVariant.BLUE else PixelPanelVariant.BORDER
-
-                PixelCard(
-                    variant = variant,
-                    contentPadding = 8.dp,
-                    modifier = Modifier
-                        .weight(1f)
-                        .choiceChip(isSelected) { onTypeSelected(type) }
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = typeName,
-                            style = PixelTypography.labelSmall,
-                            color = if (isSelected) PixelCyan else PixelTextMuted
-                        )
-                    }
-                }
-            }
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        PqFieldLabel(label)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.selectableGroup()) {
+            options.forEach { (type, name) -> PqChoiceChip(name, selectedType == type, { onTypeSelected(type) }) }
         }
     }
 }

@@ -1,18 +1,18 @@
 package com.pixelquest.app.ui.screens.tasks
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,24 +22,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.RecurrenceType
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelCategorySelector
 import com.pixelquest.app.ui.components.PixelConfirmDialog
 import com.pixelquest.app.ui.components.PixelDaySelector
-import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelRecurrenceSelector
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTimePicker
-import com.pixelquest.app.ui.theme.PixelTheme
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.tooling.preview.Preview
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqIconButton
+import com.pixelquest.app.ui.components.PqTopBar
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
 @Composable
 fun CreateTaskScreen(
@@ -105,10 +103,10 @@ fun TaskFormContent(
 ) {
     if (showDeleteConfirm) {
         PixelConfirmDialog(
-            title = "ABANDON QUEST?",
+            title = "Abandon quest?",
             message = "Are you sure you want to delete '${formState.name}'?",
-            confirmText = "DELETE",
-            dismissText = "CANCEL",
+            confirmText = "Delete",
+            dismissText = "Cancel",
             onConfirm = {
                 onShowDeleteConfirm(false)
                 onDelete()
@@ -117,68 +115,40 @@ fun TaskFormContent(
         )
     }
 
-    Scaffold(
-        topBar = {
-            com.pixelquest.app.ui.components.PixelTopAppBar(
-                title = if (formState.isEditMode) "EDIT QUEST" else "NEW QUEST",
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        com.pixelquest.app.ui.components.SymbolIcon(
-                            "◀", contentDescription = "Go Back",
-                            style = MaterialTheme.typography.titleMedium, color = PixelTheme.colors.primaryText
-                        )
-                    }
-                },
-                actions = {
-                    if (formState.isEditMode) {
-                        IconButton(onClick = { onShowDeleteConfirm(true) }) {
-                            com.pixelquest.app.ui.components.SymbolIcon(
-                                "🗑️", contentDescription = "Delete Quest", style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-                    }
-                }
-            )
-        },
-        containerColor = PixelTheme.colors.background
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(PixelTheme.colors.background)
-                .imePadding()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            PixelTextField(
-                value = formState.name,
-                onValueChange = onNameChanged,
-                label = "QUEST NAME",
-                placeholder = "Enter quest title...",
-                errorText = formState.nameError,
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(PqColors.Ground)
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 32.dp)
+    ) {
+        PqTopBar(if (formState.isEditMode) "Edit quest" else "New quest", onBack = onNavigateBack) {
+            if (formState.isEditMode) PqIconButton(Icons.Rounded.Delete, "Delete quest", { onShowDeleteConfirm(true) })
+        }
+        PixelTextField(
+            value = formState.name,
+            onValueChange = onNameChanged,
+            label = "Quest name",
+            placeholder = "Enter quest title...",
+            errorText = formState.nameError,
+            modifier = Modifier.fillMaxWidth()
+        )
+        PixelRecurrenceSelector(
+            selectedType = formState.recurrenceType,
+            onTypeSelected = onRecurrenceSelected,
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (formState.recurrenceType == RecurrenceType.WEEKLY) {
+            PixelDaySelector(
+                selectedDays = formState.selectedDays,
+                onDayToggled = onDayToggled,
+                errorText = formState.daysError,
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PixelRecurrenceSelector(
-                selectedType = formState.recurrenceType,
-                onTypeSelected = onRecurrenceSelected,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (formState.recurrenceType == RecurrenceType.WEEKLY) {
-                PixelDaySelector(
-                    selectedDays = formState.selectedDays,
-                    onDayToggled = onDayToggled,
-                    errorText = formState.daysError,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             PixelTimePicker(
                 selectedTime = formState.scheduledTime,
                 onTimeSelected = onTimeSelected,
@@ -186,77 +156,33 @@ fun TaskFormContent(
                 modifier = Modifier.fillMaxWidth()
             )
             if (formState.startsTomorrow) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = "Today's time has passed, so this quest starts from tomorrow.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = PixelTheme.colors.onSurfaceVariant
-                )
+                Text(text = "Today's time has passed, so this quest starts from tomorrow.", style = PqType.Meta)
             }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PixelCategorySelector(
-                selectedCategory = formState.category,
-                onCategorySelected = onCategorySelected,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ReminderSettingsSection(
-                reminderEnabled = formState.reminderEnabled,
-                leadMinutes = formState.reminderLeadMinutes,
-                style = formState.reminderStyle,
-                onReminderEnabledChanged = onReminderEnabledChanged,
-                onLeadSelected = onReminderLeadSelected,
-                onStyleSelected = onReminderStyleSelected
-            )
-            // Where the reminder is set: without "Alarms & reminders" Android may ring it up to 10
-            // minutes late (seen on the emulator), and the note was only in Settings.
-            if (formState.reminderEnabled) {
-                Spacer(modifier = Modifier.height(8.dp))
-                com.pixelquest.app.ui.screens.settings.ExactAlarmPrompt(canScheduleExact = canScheduleExact, onAllow = onAllowExact)
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-
-            PixelButton(
-                text = if (formState.isEditMode) "UPDATE QUEST" else "SAVE QUEST",
-                onClick = onSave,
-                variant = PixelButtonVariant.YELLOW,
-                enabled = !formState.isSubmitting && formState.isValid,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
-    }
-}
-
-@Preview(name = "Create Task Screen - Comic Mode", showBackground = true, widthDp = 360, heightDp = 740)
-@Composable
-fun CreateTaskScreenComicPreview() {
-    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-        TaskFormContent(
-            formState = TaskFormState(
-                name = "Defeat the Dragon",
-                isEditMode = false,
-                category = com.pixelquest.app.domain.model.TaskCategory.FITNESS,
-                recurrenceType = RecurrenceType.DAILY
-            )
+        PixelCategorySelector(
+            selectedCategory = formState.category,
+            onCategorySelected = onCategorySelected,
+            modifier = Modifier.fillMaxWidth()
+        )
+        ReminderSettingsSection(
+            reminderEnabled = formState.reminderEnabled,
+            leadMinutes = formState.reminderLeadMinutes,
+            style = formState.reminderStyle,
+            onReminderEnabledChanged = onReminderEnabledChanged,
+            onLeadSelected = onReminderLeadSelected,
+            onStyleSelected = onReminderStyleSelected
+        )
+        // Where the reminder is set: without "Alarms & reminders" Android may ring it up to 10
+        // minutes late (seen on the emulator), and the note was only in Settings.
+        if (formState.reminderEnabled) {
+            com.pixelquest.app.ui.screens.settings.ExactAlarmPrompt(canScheduleExact = canScheduleExact, onAllow = onAllowExact)
+        }
+        PqButton(
+            text = if (formState.isEditMode) "Update quest" else "Save quest",
+            onClick = onSave,
+            enabled = !formState.isSubmitting && formState.isValid,
+            height = 52.dp,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
-
-@Preview(name = "Edit Task Screen - Comic Mode", showBackground = true, widthDp = 360, heightDp = 740)
-@Composable
-fun EditTaskScreenComicPreview() {
-    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-        TaskFormContent(
-            formState = TaskFormState(
-                name = "Read Comic Chapter 5",
-                isEditMode = true,
-                category = com.pixelquest.app.domain.model.TaskCategory.LEARNING,
-                recurrenceType = RecurrenceType.WEEKLY,
-                selectedDays = setOf(java.time.DayOfWeek.MONDAY, java.time.DayOfWeek.WEDNESDAY, java.time.DayOfWeek.FRIDAY)
-            )
-        )
-    }
-}
-

@@ -1,100 +1,73 @@
 package com.pixelquest.app.ui.components
 
 import android.app.TimePickerDialog
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Schedule
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelTypography
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
+/**
+ * A quest's time: an inked field showing it (or --:--), which opens Android's own time picker. A
+ * problem with it ([errorText]) is said under it.
+ */
 @Composable
 fun PixelTimePicker(
     selectedTime: LocalTime?,
     onTimeSelected: (LocalTime) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "SET TIME",
+    label: String = "Time",
     errorText: String? = null
 ) {
-    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
-    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-        ComicTimePicker(
-            selectedTime = selectedTime,
-            onTimeSelected = onTimeSelected,
-            modifier = modifier,
-            label = label,
-            errorText = errorText
-        )
-        return
-    }
-
-    // Theme roles: identical to the fixed Pixel colours in Pixel, readable on Light's white field.
-    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
     val context = LocalContext.current
-    val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
-
-    val initialHour = selectedTime?.hour ?: 9
-    val initialMinute = selectedTime?.minute ?: 0
-
-    val timePickerDialog = TimePickerDialog(
-        context,
-        { _, hourOfDay, minute ->
-            onTimeSelected(LocalTime.of(hourOfDay, minute))
-        },
-        initialHour,
-        initialMinute,
-        false
-    )
-
-    Column(modifier = modifier) {
-        Text(
-            text = label,
-            style = PixelTypography.labelLarge,
-            color = colors.primary,
-            modifier = Modifier.padding(bottom = 6.dp)
-        )
-        PixelCard(
-            variant = PixelPanelVariant.BORDER,
-            contentPadding = 12.dp,
+    val formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        PqFieldLabel(label)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { timePickerDialog.show() }
+                .heightIn(min = 48.dp)
+                .comicPressable(
+                    {
+                        TimePickerDialog(
+                            context,
+                            { _, hour, minute -> onTimeSelected(LocalTime.of(hour, minute)) },
+                            selectedTime?.hour ?: 9,
+                            selectedTime?.minute ?: 0,
+                            android.text.format.DateFormat.is24HourFormat(context)
+                        ).show()
+                    },
+                    radius = 12.dp,
+                    shadow = 2.dp,
+                    onClickLabel = label,
+                    role = Role.Button
+                )
+                .padding(horizontal = 14.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "⏰",
-                    style = PixelTypography.bodyLarge
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = selectedTime?.format(timeFormatter) ?: "--:--",
-                    style = PixelTypography.bodyMedium,
-                    color = if (selectedTime != null) colors.onSurface else colors.onSurfaceVariant
-                )
-            }
-        }
-        if (errorText != null) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Icon(Icons.Rounded.Schedule, contentDescription = null, tint = PqColors.Ink)
             Text(
-                text = errorText,
-                style = PixelTypography.bodySmall,
-                color = colors.error,
-                modifier = Modifier.padding(start = 4.dp)
+                text = selectedTime?.format(formatter) ?: "--:--",
+                style = PqType.BodyStrong.copy(color = if (selectedTime != null) PqColors.Ink else PqColors.Muted)
             )
         }
+        if (errorText != null) Text(text = errorText, style = PqType.Meta.copy(color = PqColors.Error))
     }
 }

@@ -1,14 +1,17 @@
 package com.pixelquest.app.ui.screens.tasks
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.NotificationsActive
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,15 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.ReminderStyle
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.PqChoiceChip
+import com.pixelquest.app.ui.components.PqFieldLabel
+import com.pixelquest.app.ui.components.PqSwitch
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
 /**
- * Per-task reminder settings on the Create/Edit task form: on/off, how early, and how loud.
- * Option chips are PixelCards, so they pick up the Pixel, Light or Comic treatment automatically.
+ * Per-quest reminder settings on the quest form: on or off (the whole row is the switch), how early,
+ * and how loud, as v2's choice chips.
  */
 @Composable
 fun ReminderSettingsSection(
@@ -37,32 +42,38 @@ fun ReminderSettingsSection(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        PixelButton(
-            text = if (reminderEnabled) "🔔 REMINDER: ON" else "🔕 REMINDER: OFF",
-            onClick = { onReminderEnabledChanged(!reminderEnabled) },
-            variant = PixelButtonVariant.BLUE,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
+                .toggleable(value = reminderEnabled, role = Role.Switch, onValueChange = onReminderEnabledChanged)
+                .padding(horizontal = 14.dp, vertical = 12.dp)
+        ) {
+            Icon(Icons.Rounded.NotificationsActive, contentDescription = null, tint = PqColors.Ink)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "Remind me", style = PqType.BodyStrong)
+                Text(text = if (reminderEnabled) leadLabel(leadMinutes) else "No reminder", style = PqType.Meta)
+            }
+            PqSwitch(checked = reminderEnabled, onCheckedChange = null)
+        }
         if (reminderEnabled) {
             OptionRow(
-                label = "REMIND ME",
+                label = "When",
                 options = REMINDER_LEAD_OPTIONS,
                 selected = leadMinutes,
                 optionLabel = ::leadLabel,
                 onSelected = onLeadSelected
             )
             OptionRow(
-                label = "ALERT STYLE",
+                label = "Alert style",
                 options = ReminderStyle.values().toList(),
                 selected = style,
                 optionLabel = ::styleLabel,
                 onSelected = onStyleSelected
             )
-            Text(
-                text = styleHint(style),
-                style = MaterialTheme.typography.bodySmall,
-                color = PixelTheme.colors.onSurfaceVariant
-            )
+            Text(text = styleHint(style), style = PqType.Meta)
         }
     }
 }
@@ -94,31 +105,14 @@ private fun <T> OptionRow(
     optionLabel: (T) -> String,
     onSelected: (T) -> Unit
 ) {
-    val colors = PixelTheme.colors
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(text = label, style = MaterialTheme.typography.labelLarge, color = colors.primaryText)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        PqFieldLabel(label)
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.selectableGroup()
         ) {
-            options.forEach { option ->
-                val isSelected = option == selected
-                PixelCard(
-                    variant = if (isSelected) PixelPanelVariant.BLUE else PixelPanelVariant.BORDER,
-                    contentPadding = 8.dp,
-                    modifier = Modifier
-                        .widthIn(min = 88.dp)
-                        .selectable(selected = isSelected, role = Role.RadioButton) { onSelected(option) }
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = optionLabel(option),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (isSelected) colors.onSurface else colors.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            options.forEach { option -> PqChoiceChip(optionLabel(option), option == selected, { onSelected(option) }) }
         }
     }
 }
