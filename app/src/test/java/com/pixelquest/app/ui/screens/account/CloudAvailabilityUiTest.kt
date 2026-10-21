@@ -53,11 +53,11 @@ class CloudAvailabilityUiTest {
             }
         }
         composeTestRule.onNodeWithText(CloudAvailability.NOT_IN_THIS_BUILD).assertIsDisplayed()
-        assertEquals(0, composeTestRule.onAllNodesWithText("🌐 SIGN IN WITH GOOGLE").fetchSemanticsNodes().size)
-        assertEquals(0, composeTestRule.onAllNodesWithText("✉️ SIGN IN WITH EMAIL").fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodesWithText("SIGN IN WITH GOOGLE").fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodesWithText("SIGN IN WITH EMAIL").fetchSemanticsNodes().size)
         // Nothing above it still invites the player to connect or join.
         assertEquals(0, composeTestRule.onAllNodesWithText("Connect your Google account", substring = true).fetchSemanticsNodes().size)
-        assertEquals(0, composeTestRule.onAllNodesWithText("🏆 JOIN THE LEADERBOARD").fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodesWithText("JOIN THE LEADERBOARD").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -67,8 +67,8 @@ class CloudAvailabilityUiTest {
                 AccountContent(authState = AuthUiState.SignedOut, accountState = AccountUiState(), cloudAvailable = true, googleAvailable = true, emailAvailable = true)
             }
         }
-        composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").assertIsDisplayed()
-        composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").assertIsDisplayed()
+        composeTestRule.onNodeWithText("SIGN IN WITH GOOGLE").assertIsDisplayed()
+        composeTestRule.onNodeWithText("SIGN IN WITH EMAIL").assertIsDisplayed()
     }
 
     @Test
@@ -78,8 +78,8 @@ class CloudAvailabilityUiTest {
                 AccountContent(authState = AuthUiState.SignedOut, accountState = AccountUiState(), cloudAvailable = true, googleAvailable = false, emailAvailable = true)
             }
         }
-        assertEquals(0, composeTestRule.onAllNodesWithText("🌐 SIGN IN WITH GOOGLE").fetchSemanticsNodes().size)
-        composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").assertIsDisplayed()
+        assertEquals(0, composeTestRule.onAllNodesWithText("SIGN IN WITH GOOGLE").fetchSemanticsNodes().size)
+        composeTestRule.onNodeWithText("SIGN IN WITH EMAIL").assertIsDisplayed()
     }
 
     @Test
@@ -93,8 +93,8 @@ class CloudAvailabilityUiTest {
                 )
             }
         }
-        composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").assertIsDisplayed()
-        assertEquals(0, composeTestRule.onAllNodesWithText("✉️ SIGN IN WITH EMAIL").fetchSemanticsNodes().size)
+        composeTestRule.onNodeWithText("SIGN IN WITH GOOGLE").assertIsDisplayed()
+        assertEquals(0, composeTestRule.onAllNodesWithText("SIGN IN WITH EMAIL").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -108,7 +108,7 @@ class CloudAvailabilityUiTest {
             }
         }
         composeTestRule.onNodeWithText(CloudAvailability.NOT_IN_THIS_BUILD).assertIsDisplayed()
-        assertEquals(0, composeTestRule.onAllNodesWithText("✉️ SIGN IN WITH EMAIL").fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodesWithText("SIGN IN WITH EMAIL").fetchSemanticsNodes().size)
     }
 
     @Test

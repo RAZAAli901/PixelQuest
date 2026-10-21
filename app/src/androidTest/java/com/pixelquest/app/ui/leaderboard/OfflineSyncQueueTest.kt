@@ -91,10 +91,10 @@ class OfflineSyncQueueTest {
         }
 
         // 1. Initially offline: tap Sync Now
-        composeTestRule.onNodeWithText("🔄 SYNC NOW").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("SYNC NOW").performScrollTo().performClick()
 
         // 2. Verify subtle offline warning is displayed without crashing
-        composeTestRule.onNodeWithText("☁️⚠️ Cloud sync currently unavailable (retrying in background) — local progress is safe").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Cloud sync is unavailable right now. It keeps retrying in the background, and your progress is safe on this phone.").performScrollTo().assertIsDisplayed()
         assertTrue(accountState.isSyncFailed)
         assertEquals(null, cloudServerProfile)
 
@@ -105,7 +105,7 @@ class OfflineSyncQueueTest {
         isNetworkConnected = true
 
         // 5. Trigger sync upon reconnect
-        composeTestRule.onNodeWithText("🔄 SYNC NOW").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("SYNC NOW").performScrollTo().performClick()
 
         // 6. Verify sync succeeds and server receives updated streak
         composeTestRule.onNodeWithText("Cloud sync successful!").performScrollTo().assertIsDisplayed()

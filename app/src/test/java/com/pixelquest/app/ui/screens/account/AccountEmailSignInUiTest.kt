@@ -76,27 +76,27 @@ class AccountEmailSignInUiTest {
             }
         }
 
-        composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").performScrollTo().performClick()
-        composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").assertDoesNotExist() // one way at a time
+        composeTestRule.onNodeWithText("SIGN IN WITH EMAIL").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("SIGN IN WITH GOOGLE").assertDoesNotExist() // one way at a time
         composeTestRule.onNode(hasSetTextAction()).performTextInput("hero@pixelquest.test")
-        composeTestRule.onNodeWithText("📨 SEND CODE").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("SEND CODE").performScrollTo().performClick()
         composeTestRule.waitForIdle()
 
         assertEquals(listOf("hero@pixelquest.test"), auth.sentTo)
         composeTestRule.onNodeWithText("We emailed a sign-in code to hero@pixelquest.test", substring = true).assertExists()
-        composeTestRule.onNodeWithText("📨 SEND A NEW CODE", substring = true).assertIsNotEnabled()
+        composeTestRule.onNodeWithText("SEND A NEW CODE", substring = true).assertIsNotEnabled()
 
         composeTestRule.onNode(hasSetTextAction()).performTextInput("111111")
-        composeTestRule.onNodeWithText("🔓 SIGN IN").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("SIGN IN").performScrollTo().performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("wrong or has expired", substring = true).assertExists()
 
         viewModel.onCodeChanged("246810")
-        composeTestRule.onNodeWithText("🔓 SIGN IN").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("SIGN IN").performScrollTo().performClick()
         composeTestRule.waitForIdle()
 
         assertTrue(viewModel.uiState.value is AuthUiState.SignedIn)
-        composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").assertDoesNotExist()
+        composeTestRule.onNodeWithText("SIGN IN WITH EMAIL").assertDoesNotExist()
     }
 
     @Test
@@ -123,13 +123,13 @@ class AccountEmailSignInUiTest {
             }
         }
 
-        composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("SIGN IN WITH GOOGLE").performScrollTo().performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("No credentials available").assertExists()
 
-        composeTestRule.onNodeWithText("✉️ SIGN IN WITH EMAIL").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("SIGN IN WITH EMAIL").performScrollTo().performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("No credentials available").assertDoesNotExist()
-        composeTestRule.onNodeWithText("📨 SEND CODE").assertExists()
+        composeTestRule.onNodeWithText("SEND CODE").assertExists()
     }
 }

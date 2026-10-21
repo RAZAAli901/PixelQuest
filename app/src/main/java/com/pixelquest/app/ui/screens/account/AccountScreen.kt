@@ -1,34 +1,49 @@
 package com.pixelquest.app.ui.screens.account
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.Logout
+import androidx.compose.material.icons.rounded.Policy
+import androidx.compose.material.icons.rounded.Sync
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.auth.AuthViewModel
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
 import com.pixelquest.app.ui.components.PixelConfirmDialog
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.PixelTextField
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqDangerButton
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.components.PqTopBar
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
 /**
  * AccountScreen provides the entry point for signing into cloud services and joining the leaderboard.
@@ -120,433 +135,231 @@ fun AccountContent(
      */
     emailAvailable: Boolean = com.pixelquest.app.BuildConfig.EMAIL_SIGN_IN
 ) {
-    val colors = PixelTheme.colors
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .background(PqColors.Ground)
+            .verticalScroll(rememberScrollState())
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp)
+    ) {
+        PqTopBar("Cloud & leaderboard", onBack = onNavigateBack)
+        Text(
+            text = when {
+                !cloudAvailable -> "Cloud features are off in this build."
+                // Signed in (by email or Google): no more invitation to sign in, nor to join
+                // a board the player is already on (seen on the emulator).
+                authState is com.pixelquest.app.auth.AuthUiState.SignedIn && accountState.isOptedIn ->
+                    "You're signed in and on the leaderboard. Your streaks and level sync as you play."
+                authState is com.pixelquest.app.auth.AuthUiState.SignedIn ->
+                    "You're signed in. Join the leaderboard below to compare streaks with other players."
+                else -> "Sign in with Google or your email to join the community quest leaderboard, sync your stats and use the AI Coach."
+            },
+            style = PqType.Body.copy(color = PqColors.Ink2)
+        )
 
-    Scaffold(
-        containerColor = colors.background,
-        modifier = modifier.fillMaxSize()
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp, vertical = 20.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Screen Header
-            PixelCard(
-                variant = PixelPanelVariant.BLUE,
-                contentPadding = 16.dp,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // A failed sign-in (say, Google with no Google account on the phone) shows its error
+        // above the sign-in card, so email sign-in is still there.
+        if (authState is com.pixelquest.app.auth.AuthUiState.Error) {
+            AccountProblem((authState as com.pixelquest.app.auth.AuthUiState.Error).message, onSignInWithGoogle)
+        }
+
+        if (authState is com.pixelquest.app.auth.AuthUiState.SignedOut || authState is com.pixelquest.app.auth.AuthUiState.Error) {
+            AccountSection(if (cloudAvailable) "Join the leaderboard" else "Leaderboard") {
+                if (cloudAvailable && (googleAvailable || emailAvailable)) {
                     Text(
-                        text = "☁️ CLOUD & LEADERBOARD",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
-                        textAlign = TextAlign.Center
+                        text = "Sign in to join the leaderboard and use the AI Coach. By default, your stats remain private until you explicitly choose to opt in.",
+                        style = PqType.Body.copy(color = PqColors.Ink2)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = when {
-                            !cloudAvailable -> "Cloud features are off in this build."
-                            // Signed in (by email or Google): no more invitation to sign in, nor to join
-                            // a board the player is already on (seen on the emulator).
-                            authState is com.pixelquest.app.auth.AuthUiState.SignedIn && accountState.isOptedIn ->
-                                "You're signed in and on the leaderboard. Your streaks and level sync as you play."
-                            authState is com.pixelquest.app.auth.AuthUiState.SignedIn ->
-                                "You're signed in. Join the leaderboard below to compare streaks with other players."
-                            else -> "Sign in with Google or your email to join the community quest leaderboard, sync your stats and use the AI Coach."
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurface,
-                        textAlign = TextAlign.Center
-                    )
+                    if (googleAvailable && !emailState.isOpen) {
+                        PqButton("Sign in with Google", onSignInWithGoogle, Modifier.fillMaxWidth())
+                    }
+                    if (emailAvailable) {
+                        EmailSignInSection(
+                            state = emailState,
+                            onOpen = onOpenEmailSignIn,
+                            onEmailChange = onEmailChange,
+                            onSendCode = onSendEmailCode,
+                            onCodeChange = onEmailCodeChange,
+                            onVerifyCode = onVerifyEmailCode,
+                            onUseDifferentEmail = onUseDifferentEmail,
+                            onClose = onCloseEmailSignIn
+                        )
+                    }
+                } else {
+                    Text(text = com.pixelquest.app.domain.CloudAvailability.NOT_IN_THIS_BUILD, style = PqType.Body.copy(color = PqColors.Ink2))
+                }
+                com.pixelquest.app.ui.screens.settings.SettingLink(Icons.Rounded.Policy, "Privacy policy", onViewPrivacyPolicy)
+            }
+        }
+
+        if (authState is com.pixelquest.app.auth.AuthUiState.SigningIn) {
+            PqCard(radius = PqDimens.RadiusLg) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+                    CircularProgressIndicator(color = PqColors.Ink, strokeWidth = 3.dp, modifier = Modifier.size(28.dp))
+                    Text(text = "Signing you in…", style = PqType.BodyStrong)
                 }
             }
+        }
 
-            // Entry Point Card
-            // A failed sign-in (say, Google with no Google account on the phone) shows its error
-            // above the sign-in card, so email sign-in is still there; it used to replace the card.
-            if (authState is com.pixelquest.app.auth.AuthUiState.Error) {
-                val errorMsg = (authState as com.pixelquest.app.auth.AuthUiState.Error).message
-                com.pixelquest.app.ui.components.PixelErrorState(
-                    errorMessage = errorMsg,
-                    onRetry = onSignInWithGoogle,
+        if (authState is com.pixelquest.app.auth.AuthUiState.SignedIn) {
+            val signedIn = authState as com.pixelquest.app.auth.AuthUiState.SignedIn
+            val user = signedIn.user
+            AccountSection("Linked account") {
+                if (signedIn.serverUnreachable) {
+                    Text(
+                        text = "Can't reach the server right now. You're still signed in: sync, the leaderboard and the AI Coach come back with the connection.",
+                        style = PqType.Meta.copy(color = PqColors.Ink)
+                    )
+                }
+                Column {
+                    Text(text = "Signed in as", style = PqType.Meta)
+                    Text(text = user.email ?: user.displayName ?: "Hero", style = PqType.BodyStrong)
+                    Text(text = "Cloud ID ${user.id.take(8)}…${user.id.takeLast(4)}", style = PqType.Meta)
+                }
+                PqButton("Sign out", onSignOut, Modifier.fillMaxWidth(), style = PqButtonStyle.Secondary, icon = Icons.Rounded.Logout)
+            }
+
+            // The leaderboard: off until the player chooses it.
+            AccountSection("Leaderboard") {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Box(
+                        Modifier.size(12.dp).clip(com.pixelquest.app.ui.theme.PqCircle)
+                            .background(if (accountState.isOptedIn) PqColors.Live else PqColors.Muted)
+                    )
+                    Text(
+                        text = if (accountState.isOptedIn) "You're on the leaderboard" else "You're not on the leaderboard",
+                        style = PqType.BodyStrong
+                    )
+                }
+                if (accountState.choiceWaiting) {
+                    Text(text = "Waiting to reach the server: it's sent as soon as you're online.", style = PqType.Meta.copy(color = PqColors.Ink))
+                }
+                PixelTextField(
+                    value = accountState.displayNameInput,
+                    onValueChange = onDisplayNameChange,
+                    label = "Public leaderboard name",
+                    placeholder = "Enter public pseudonym",
+                    errorText = accountState.displayNameError,
                     modifier = Modifier.fillMaxWidth()
                 )
-            }
-
-            if (authState is com.pixelquest.app.auth.AuthUiState.SignedOut || authState is com.pixelquest.app.auth.AuthUiState.Error) {
-                PixelCard(
-                    variant = PixelPanelVariant.BEIGE,
-                    contentPadding = 20.dp,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = if (cloudAvailable) "🏆 JOIN THE LEADERBOARD" else "🏆 LEADERBOARD",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
-                            textAlign = TextAlign.Center
-                        )
-                        if (cloudAvailable && (googleAvailable || emailAvailable)) {
-                            Text(
-                                text = "Sign in to join the leaderboard and use the AI Coach. By default, your stats remain private until you explicitly choose to opt in.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = colors.onSurface,
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            if (googleAvailable && !emailState.isOpen) {
-                                PixelButton(
-                                    text = "🌐 SIGN IN WITH GOOGLE",
-                                    onClick = onSignInWithGoogle,
-                                    variant = PixelButtonVariant.YELLOW,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                            if (emailAvailable) {
-                                EmailSignInSection(
-                                    state = emailState,
-                                    onOpen = onOpenEmailSignIn,
-                                    onEmailChange = onEmailChange,
-                                    onSendCode = onSendEmailCode,
-                                    onCodeChange = onEmailCodeChange,
-                                    onVerifyCode = onVerifyEmailCode,
-                                    onUseDifferentEmail = onUseDifferentEmail,
-                                    onClose = onCloseEmailSignIn
-                                )
-                            }
-                        } else {
-                            Text(
-                                text = com.pixelquest.app.domain.CloudAvailability.NOT_IN_THIS_BUILD,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = colors.onSurface,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        PixelButton(
-                            text = "📜 VIEW PRIVACY POLICY",
-                            onClick = onViewPrivacyPolicy,
-                            variant = PixelButtonVariant.BLUE,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
-
-            if (authState is com.pixelquest.app.auth.AuthUiState.SigningIn) {
-                com.pixelquest.app.ui.components.PixelLoadingState(
-                    message = "AUTHENTICATING QUEST HERO...",
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            if (authState is com.pixelquest.app.auth.AuthUiState.SignedIn) {
-                val user = (authState as com.pixelquest.app.auth.AuthUiState.SignedIn).user
-                PixelCard(
-                    variant = PixelPanelVariant.BEIGE,
-                    contentPadding = 20.dp,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = "🛡️ LINKED CLOUD ACCOUNT",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
-                            textAlign = TextAlign.Center
-                        )
-                        if ((authState as com.pixelquest.app.auth.AuthUiState.SignedIn).serverUnreachable) {
-                            Text(
-                                text = "📡 Can't reach the server right now. You're still signed in: sync, the leaderboard and the AI Coach come back with the connection.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colors.onSurface,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        Text(
-                            text = "Signed in as:",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.onSurfaceVariant
-                        )
-                        Text(
-                            text = user.email ?: user.displayName ?: "Hero",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = "Cloud UID: ${user.id.take(8)}...${user.id.takeLast(4)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        PixelButton(
-                            text = "🚪 SIGN OUT",
-                            onClick = onSignOut,
-                            variant = PixelButtonVariant.BLUE,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-
-                // Leaderboard Opt-In Card (Defaults to OFF)
-                PixelCard(
-                    variant = PixelPanelVariant.BEIGE,
-                    contentPadding = 20.dp,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = "🏆 LEADERBOARD PARTICIPATION",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
-                            textAlign = TextAlign.Center
-                        )
-                        val optInStatusText = if (accountState.isOptedIn) {
-                            "STATUS: ACTIVE (OPTED IN)"
-                        } else {
-                            "STATUS: INACTIVE (DEFAULT OFF)"
-                        }
-                        Text(
-                            text = optInStatusText,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(if (accountState.isOptedIn) colors.tertiary else colors.primary),
-                            textAlign = TextAlign.Center
-                        )
-                        if (accountState.choiceWaiting) {
-                            Text(
-                                text = "⏳ Waiting to reach the server: it's sent as soon as you're online.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colors.onSurface,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        com.pixelquest.app.ui.components.PixelTextField(
-                            value = accountState.displayNameInput,
-                            onValueChange = onDisplayNameChange,
-                            label = "PUBLIC LEADERBOARD NAME",
-                            placeholder = "Enter public pseudonym",
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        if (accountState.displayNameError != null) {
-                            Text(
-                                text = accountState.displayNameError ?: "",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colors.error,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                        Text(
-                            text = "ℹ️ Shown publicly on the leaderboard. Decoupled from local hero name and never shows your email or real name. Names are unique: nobody else can use yours while your account has it.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "📋 Note: When Simple Mode is active, your habit completions, streaks, and XP points are still tracked in the background and accurately reflected on the global leaderboard.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        PixelButton(
-                            text = if (accountState.isOptedIn) "🔴 LEAVE LEADERBOARD (OPT OUT)" else "🟢 JOIN LEADERBOARD (OPT IN)",
-                            onClick = { onOptInToggle(!accountState.isOptedIn) },
-                            variant = if (accountState.isOptedIn) PixelButtonVariant.BLUE else PixelButtonVariant.YELLOW,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-
-                // Manual Cloud Sync Card (Foundation phase debugging & manual push)
-                if (accountState.isOptedIn) {
-                    PixelCard(
-                        variant = PixelPanelVariant.BEIGE,
-                        contentPadding = 16.dp,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "☁️ CLOUD SYNCHRONIZATION",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
-                                textAlign = TextAlign.Center
-                            )
-                            if (accountState.lastSyncTime != null) {
-                                val formattedTime = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
-                                    .format(java.util.Date(accountState.lastSyncTime))
-                                Text(
-                                    text = "Last synced: $formattedTime",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = colors.onSurfaceVariant
-                                )
-                            }
-                            if (accountState.isSyncFailed) {
-                                Text(
-                                    text = "☁️⚠️ Cloud sync currently unavailable (retrying in background) — local progress is safe",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                            if (accountState.syncMessage != null) {
-                                Text(
-                                    text = accountState.syncMessage,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = if (accountState.syncMessage.contains("successful", ignoreCase = true)) {
-                                        com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary)
-                                    } else {
-                                        com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
-                                    },
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                            Text(
-                                text = "ℹ️ Sync runs automatically in background on task completion & level-up.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = colors.onSurfaceVariant,
-                                textAlign = TextAlign.Center
-                            )
-                            PixelButton(
-                                text = if (accountState.isSyncing) "⏳ SYNCING..." else "🔄 SYNC NOW",
-                                onClick = onSyncNow,
-                                enabled = !accountState.isSyncing,
-                                variant = PixelButtonVariant.YELLOW,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-                }
-
-                // Cloud Account & Data Management
-                PixelCard(
-                    variant = PixelPanelVariant.BEIGE,
-                    contentPadding = 16.dp,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = "🛡️ CLOUD DATA & PRIVACY",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = "Permanently purge your public cloud leaderboard profile and unlink your Supabase account. Local quests and streak history remain untouched.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        PixelButton(
-                            text = "🗑️ DELETE MY CLOUD DATA",
-                            onClick = onRequestDeleteCloudData,
-                            variant = PixelButtonVariant.YELLOW,
-                            textColor = colors.error,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f, fill = false))
-
-            PixelButton(
-                text = "⬅️ BACK TO SETTINGS",
-                onClick = onNavigateBack,
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        if (accountState.showConfirmDialog) {
-            LeaderboardPrivacyConfirmDialog(
-                displayName = accountState.displayNameInput.trim().ifBlank { "Hero" },
-                onConfirm = onConfirmOptIn,
-                onDismiss = onDismissOptInDialog
-            )
-        }
-
-        // Lightweight Single Confirmation Dialog for Leaving Leaderboard (Opt-Out)
-        if (accountState.showOptOutConfirmDialog) {
-            PixelConfirmDialog(
-                title = "LEAVE LEADERBOARD?",
-                message = "Are you sure you want to leave the leaderboard? Your rank and public display name will no longer be visible to other players. You can rejoin at any time.",
-                confirmText = "LEAVE",
-                dismissText = "STAY",
-                onConfirm = onConfirmOptOut,
-                onDismiss = onDismissOptOutDialog
-            )
-        }
-
-        // Confirmation Notice After Leaving Leaderboard
-        if (accountState.showOptOutSuccessNotice) {
-            com.pixelquest.app.ui.components.PixelDialog(
-                title = "LEADERBOARD",
-                onDismissRequest = onDismissOptOutNotice,
-                confirmButtonText = "OK",
-                onConfirm = onDismissOptOutNotice,
-                dismissButtonText = null
-            ) {
                 Text(
-                    text = "You've left the leaderboard. Your rank and display name have been removed from public rankings.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurface,
-                    textAlign = TextAlign.Center
+                    text = "Shown publicly on the leaderboard. Separate from your hero name, and never your email or real name. Names are unique: nobody else can use yours while your account has it.",
+                    style = PqType.Meta
                 )
+                Text(
+                    text = "In Simple Mode, your completions, streaks and XP are still counted in the background and shown on the leaderboard.",
+                    style = PqType.Meta
+                )
+                if (accountState.isOptedIn) {
+                    PqButton("Leave the leaderboard", { onOptInToggle(false) }, Modifier.fillMaxWidth(), style = PqButtonStyle.Secondary)
+                } else {
+                    PqButton("Join the leaderboard", { onOptInToggle(true) }, Modifier.fillMaxWidth())
+                }
+            }
+
+            if (accountState.isOptedIn) {
+                AccountSection("Cloud sync") {
+                    if (accountState.lastSyncTime != null) {
+                        val formattedTime = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(accountState.lastSyncTime))
+                        Text(text = "Last synced $formattedTime", style = PqType.Meta)
+                    }
+                    if (accountState.isSyncFailed) {
+                        Text(text = "Cloud sync is unavailable right now. It keeps retrying in the background, and your progress is safe on this phone.", style = PqType.Meta.copy(color = PqColors.Error))
+                    }
+                    if (accountState.syncMessage != null) {
+                        Text(
+                            text = accountState.syncMessage,
+                            style = PqType.MetaStrong.copy(color = if (accountState.syncMessage.contains("successful", ignoreCase = true)) PqColors.Live else PqColors.Error)
+                        )
+                    }
+                    Text(text = "Sync runs by itself when you finish a quest or level up.", style = PqType.Meta)
+                    PqButton(
+                        if (accountState.isSyncing) "Syncing…" else "Sync now",
+                        onSyncNow,
+                        Modifier.fillMaxWidth(),
+                        style = PqButtonStyle.Secondary,
+                        icon = Icons.Rounded.Sync,
+                        enabled = !accountState.isSyncing
+                    )
+                }
+            }
+
+            AccountSection("Cloud data & privacy") {
+                Text(
+                    text = "Permanently delete your public leaderboard profile and unlink your cloud account. Your quests and streak history on this phone stay as they are.",
+                    style = PqType.Meta
+                )
+                PqDangerButton("Delete my cloud data", onRequestDeleteCloudData)
             }
         }
+    }
 
-        // Deletion Step 1: Initial Warning
-        if (accountState.showDeleteConfirmDialog) {
-            PixelConfirmDialog(
-                title = "DELETE CLOUD DATA?",
-                message = "Are you sure you want to delete your cloud account and public leaderboard record? This action cannot be undone.",
-                confirmText = "CONTINUE",
-                dismissText = "CANCEL",
-                onConfirm = onProceedDeleteDoubleConfirm,
-                onDismiss = onDismissDeleteDialog
+    if (accountState.showConfirmDialog) {
+        LeaderboardPrivacyConfirmDialog(
+            displayName = accountState.displayNameInput.trim().ifBlank { "Hero" },
+            onConfirm = onConfirmOptIn,
+            onDismiss = onDismissOptInDialog
+        )
+    }
+
+    // Lightweight Single Confirmation Dialog for Leaving Leaderboard (Opt-Out)
+    if (accountState.showOptOutConfirmDialog) {
+        PixelConfirmDialog(
+            title = "LEAVE LEADERBOARD?",
+            message = "Are you sure you want to leave the leaderboard? Your rank and public display name will no longer be visible to other players. You can rejoin at any time.",
+            confirmText = "LEAVE",
+            dismissText = "STAY",
+            onConfirm = onConfirmOptOut,
+            onDismiss = onDismissOptOutDialog
+        )
+    }
+
+    // Confirmation Notice After Leaving Leaderboard
+    if (accountState.showOptOutSuccessNotice) {
+        com.pixelquest.app.ui.components.PixelDialog(
+            title = "Left the leaderboard",
+            onDismissRequest = onDismissOptOutNotice,
+            confirmButtonText = "OK",
+            onConfirm = onDismissOptOutNotice,
+            dismissButtonText = null
+        ) {
+            Text(
+                text = "You've left the leaderboard. Your rank and display name have been removed from public rankings.",
+                style = PqType.Body.copy(color = PqColors.Ink2)
             )
         }
+    }
 
-        // Deletion Step 2: Final Double Confirmation
-        if (accountState.showDeleteDoubleConfirmDialog) {
-            PixelConfirmDialog(
-                title = "FINAL WARNING: PURGE",
-                message = "This permanently erases your leaderboard rank, display name, and cloud profile, and signs you out.\n\nLocal quests and streak history on this device will remain safe.",
-                confirmText = "PURGE CLOUD",
-                dismissText = "KEEP ACCOUNT",
-                onConfirm = onConfirmDeleteCloudData,
-                onDismiss = onDismissDeleteDialog
-            )
-        }
+    // Deletion Step 1: Initial Warning
+    if (accountState.showDeleteConfirmDialog) {
+        PixelConfirmDialog(
+            title = "DELETE CLOUD DATA?",
+            message = "Are you sure you want to delete your cloud account and public leaderboard record? This action cannot be undone.",
+            confirmText = "CONTINUE",
+            dismissText = "CANCEL",
+            onConfirm = onProceedDeleteDoubleConfirm,
+            onDismiss = onDismissDeleteDialog
+        )
+    }
 
-        // Informed Consent: In-App Privacy Information Dialog
-        if (accountState.showPrivacyDialog) {
-            PrivacyPolicyDialog(
-                onDismiss = onDismissPrivacyPolicy
-            )
-        }
+    // Deletion Step 2: Final Double Confirmation
+    if (accountState.showDeleteDoubleConfirmDialog) {
+        PixelConfirmDialog(
+            title = "FINAL WARNING: PURGE",
+            message = "This permanently erases your leaderboard rank, display name, and cloud profile, and signs you out.\n\nLocal quests and streak history on this device will remain safe.",
+            confirmText = "PURGE CLOUD",
+            dismissText = "KEEP ACCOUNT",
+            onConfirm = onConfirmDeleteCloudData,
+            onDismiss = onDismissDeleteDialog
+        )
+    }
+
+    // Informed Consent: In-App Privacy Information Dialog
+    if (accountState.showPrivacyDialog) {
+        PrivacyPolicyDialog(
+            onDismiss = onDismissPrivacyPolicy
+        )
     }
 }
 
@@ -554,9 +367,8 @@ fun AccountContent(
 fun PrivacyPolicyDialog(
     onDismiss: () -> Unit
 ) {
-    val colors = PixelTheme.colors
     com.pixelquest.app.ui.components.PixelDialog(
-        title = "PRIVACY POLICY",
+        title = "Privacy policy",
         onDismissRequest = onDismiss,
         confirmButtonText = "I UNDERSTAND",
         onConfirm = onDismiss,
@@ -571,34 +383,54 @@ fun PrivacyPolicyDialog(
         ) {
             Text(
                 text = "🛡️ 100% LOCAL-FIRST OPERATION",
-                style = MaterialTheme.typography.titleSmall,
-                color = colors.primaryText
+                style = PqType.BodyStrong
             )
             Text(
                 text = "By default, all your quests, schedule times, recurrence rules, completion logs, and streak history are stored strictly on your local device. We never run third-party advertising SDKs or tracking telemetry.",
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurface
+                style = PqType.Meta.copy(color = PqColors.Ink2)
             )
             Text(
                 text = "🏆 OPTIONAL CLOUD LEADERBOARD",
-                style = MaterialTheme.typography.titleSmall,
-                color = colors.primaryText
+                style = PqType.BodyStrong
             )
             Text(
                 text = "Leaderboard participation defaults to OFF. You can sign in with Google or with a code sent to your email; signing in alone shares nothing. If you opt in, only your public display name, level, streak, and XP are synchronized. Your individual quest descriptions and email are NEVER shared. The AI Coach is for signed-in players.",
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurface
+                style = PqType.Meta.copy(color = PqColors.Ink2)
             )
             Text(
                 text = "🗑️ RIGHT TO ERASE",
-                style = MaterialTheme.typography.titleSmall,
-                color = colors.primaryText
+                style = PqType.BodyStrong
             )
             Text(
                 text = "You can leave the leaderboard at any time, or permanently delete your cloud account and public record with one tap from this screen. Local progress remains safe on your device.",
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurface
+                style = PqType.Meta.copy(color = PqColors.Ink2)
             )
+        }
+    }
+}
+
+/** A section of the account screen: its name over a card. */
+@Composable
+private fun AccountSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    PqGroupLabel(title, Modifier.padding(top = 8.dp).semantics { heading() })
+    PqCard(radius = PqDimens.Radius, shadow = 0.dp) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().padding(14.dp), content = content)
+    }
+}
+
+/** A sign-in that didn't work: what Android or the server said, and a way to try Google again. */
+@Composable
+private fun AccountProblem(message: String, onRetry: () -> Unit) {
+    PqCard(radius = PqDimens.RadiusLg) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Box(Modifier.size(36.dp).clip(com.pixelquest.app.ui.theme.pqShape(10.dp)).background(PqColors.Rose), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Rounded.ErrorOutline, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.size(20.dp))
+                }
+                Text(text = "Couldn't sign in", style = PqType.BodyStrong)
+            }
+            Text(text = message, style = PqType.Body.copy(color = PqColors.Ink2))
+            PqButton("Try again", onRetry, Modifier.fillMaxWidth(), style = PqButtonStyle.Secondary)
         }
     }
 }

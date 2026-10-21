@@ -88,11 +88,11 @@ class AccountDeletionFlowTest {
         }
 
         // 1. Initial State: Signed in with linked account
-        composeTestRule.onNodeWithText("🛡️ LINKED CLOUD ACCOUNT").assertIsDisplayed()
+        composeTestRule.onNodeWithText("LINKED ACCOUNT").assertIsDisplayed()
         composeTestRule.onNodeWithText("DragonSlayer").assertIsDisplayed()
 
         // 2. Tap "DELETE MY CLOUD DATA"
-        composeTestRule.onNodeWithText("🗑️ DELETE MY CLOUD DATA").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("DELETE MY CLOUD DATA").performScrollTo().performClick()
         assertTrue(accountState.showDeleteConfirmDialog)
 
         // 3. First Confirmation Dialog
@@ -118,7 +118,7 @@ class AccountDeletionFlowTest {
         assertEquals("", accountState.displayNameInput)
 
         // 7. UI updates immediately to SignedOut state
-        composeTestRule.onNodeWithText("🏆 JOIN THE LEADERBOARD").performScrollTo().assertIsDisplayed()
-        composeTestRule.onNodeWithText("🌐 SIGN IN WITH GOOGLE").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("JOIN THE LEADERBOARD").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("SIGN IN WITH GOOGLE").performScrollTo().assertIsDisplayed()
     }
 }

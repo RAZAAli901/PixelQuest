@@ -45,11 +45,11 @@ class LeaderboardOptOutUiTest {
 
         // Verify status and discoverable Leave Leaderboard action
         // The account screen scrolls; bring each item into view first.
-        composeTestRule.onNodeWithText("STATUS: ACTIVE (OPTED IN)").performScrollTo().assertIsDisplayed()
-        composeTestRule.onNodeWithText("🔴 LEAVE LEADERBOARD (OPT OUT)").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("You're on the leaderboard").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithText("LEAVE THE LEADERBOARD").performScrollTo().assertIsDisplayed()
 
         // Clicking triggers opt-out request
-        composeTestRule.onNodeWithText("🔴 LEAVE LEADERBOARD (OPT OUT)").performClick()
+        composeTestRule.onNodeWithText("LEAVE THE LEADERBOARD").performClick()
         assertTrue(optInToggledValue == false)
     }
 
@@ -126,7 +126,7 @@ class LeaderboardOptOutUiTest {
         }
 
         // Verify post-opt-out confirmation notice
-        composeTestRule.onNodeWithText("LEADERBOARD").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Left the leaderboard").assertIsDisplayed()
         composeTestRule.onNodeWithText("You've left the leaderboard. Your rank and display name have been removed from public rankings.").assertIsDisplayed()
         composeTestRule.onNodeWithText("OK").assertIsDisplayed()
 
