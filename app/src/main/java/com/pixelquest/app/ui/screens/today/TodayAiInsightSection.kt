@@ -2,19 +2,16 @@ package com.pixelquest.app.ui.screens.today
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,37 +19,41 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.pixelquest.app.ui.components.ComicButton
-import com.pixelquest.app.ui.components.ComicButtonVariant
-import com.pixelquest.app.ui.components.ComicPanel
-import com.pixelquest.app.ui.components.ComicPanelVariant
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.screens.insight.AiInsightCard
-import com.pixelquest.app.ui.screens.insight.AiInsightDisabledState
+import com.pixelquest.app.R
+import com.pixelquest.app.ui.components.CoachCard
+import com.pixelquest.app.ui.components.CoachUi
+import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.screens.insight.AiInsightErrorState
 import com.pixelquest.app.ui.screens.insight.AiInsightLoadingState
 import com.pixelquest.app.ui.screens.insight.AiInsightNotEnoughDataState
 import com.pixelquest.app.ui.screens.insight.AiInsightRateLimitedState
 import com.pixelquest.app.ui.screens.insight.AiInsightUiState
 import com.pixelquest.app.ui.screens.insight.AiInsightViewModel
-import com.pixelquest.app.ui.theme.BangersFontFamily
-import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
-import com.pixelquest.app.ui.theme.ThemeMode
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.bsp
+import com.pixelquest.app.ui.theme.pqShape
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+
+/** Home's coach card and teaser, for tests. */
+object CoachTags {
+    const val CARD = "home_coach_card"
+    const val TEASER = "home_ai_teaser"
+}
 
 /**
- * Step 24: Contextual AI Habit Insights card surfaced on the Today dashboard.
- * Seamlessly integrates into TodayScreen's quest feed, dynamically rendering
- * insights or an opt-in prompt across Pixel, Light, and Comic modes.
+ * The coach on Home (mock 4A): with a brief, one Coach Intel card (the situation, when it was written
+ * and when the next one comes, and the way into the coach); before AI is on, or signed out, the AI
+ * teaser. Its other states (loading, waiting, not enough days yet, a problem) say so as before.
  */
 @Composable
 fun TodayAiInsightSection(
@@ -64,216 +65,80 @@ fun TodayAiInsightSection(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isSimpleMode by viewModel.isSimpleMode.collectAsState()
-    val display by viewModel.displayState.collectAsState()
     val themeMode = PixelTheme.mode
 
     Box(modifier = modifier.fillMaxWidth()) {
         when (val state = uiState) {
-            is AiInsightUiState.Success -> {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    AiInsightCard(
-                        insight = state.insight,
-                        isCached = state.isCached,
-                        canRefresh = state.canRefresh,
-                        remainingCooldownSeconds = state.remainingCooldownSeconds,
-                        onRefresh = { viewModel.refreshInsight() },
-                        expanded = !display.compact || display.latestExpanded,
-                        onToggleExpanded = if (display.compact) viewModel::toggleLatestExpanded else null
-                    )
-                    // The AI Coach's own screen had no way in since Day 24.
-                    Spacer(modifier = Modifier.height(8.dp))
-                    PixelButton(
-                        text = if (isSimpleMode) "OPEN HABIT COACH ▶" else "OPEN AI COACH ▶",
-                        onClick = onNavigateToAiInsight,
-                        variant = PixelButtonVariant.BLUE,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+            is AiInsightUiState.Success -> CoachCard(
+                coach = coachUiOf(state),
+                // The whole brief is the coach's own screen.
+                onOpen = onNavigateToAiInsight,
+                onExpand = onNavigateToAiInsight,
+                title = stringResource(if (isSimpleMode) R.string.pq_coach_title_simple else R.string.pq_coach_title),
+                modifier = Modifier.testTag(CoachTags.CARD)
+            )
+            is AiInsightUiState.Loading -> AiInsightLoadingState(themeMode = themeMode)
+            is AiInsightUiState.RateLimited -> AiInsightRateLimitedState(state = state, themeMode = themeMode, onRefresh = { viewModel.refreshInsight() })
+            is AiInsightUiState.NotEnoughData -> AiInsightNotEnoughDataState(state = state, themeMode = themeMode)
+            // No teaser in a build that can't reach Gemini: the opt-in isn't offered there.
+            is AiInsightUiState.Disabled -> if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
+                AiTeaser(isSimpleMode = isSimpleMode, needsSignIn = false, onUnlock = onNavigateToSettings)
             }
-            is AiInsightUiState.Loading -> {
-                AiInsightLoadingState(themeMode = themeMode)
+            is AiInsightUiState.SignInRequired -> if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
+                AiTeaser(isSimpleMode = isSimpleMode, needsSignIn = true, onUnlock = onNavigateToAccount)
             }
-            is AiInsightUiState.RateLimited -> {
-                AiInsightRateLimitedState(
-                    state = state,
-                    themeMode = themeMode,
-                    onRefresh = { viewModel.refreshInsight() }
-                )
-            }
-            is AiInsightUiState.NotEnoughData -> {
-                AiInsightNotEnoughDataState(
-                    state = state,
-                    themeMode = themeMode
-                )
-            }
-            is AiInsightUiState.Disabled -> {
-                // No "unlock" teaser in a build that can't reach Gemini: the opt-in isn't offered there.
-                if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
-                    TodayAiInsightOptInCard(
-                        themeMode = themeMode,
-                        isSimpleMode = isSimpleMode,
-                        onEnableClick = onNavigateToSettings
-                    )
-                }
-            }
-            is AiInsightUiState.SignInRequired -> {
-                // Same rule as the opt-in teaser: nothing to offer in a build that can't reach Gemini.
-                if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
-                    TodayAiInsightOptInCard(
-                        themeMode = themeMode,
-                        isSimpleMode = isSimpleMode,
-                        onEnableClick = onNavigateToAccount,
-                        needsSignIn = true
-                    )
-                }
-            }
-            is AiInsightUiState.CapReached -> {
-                com.pixelquest.app.ui.screens.insight.AiInsightCapReachedState(
-                    state = state,
-                    themeMode = themeMode
-                )
-            }
-            is AiInsightUiState.Error -> {
-                AiInsightErrorState(
-                    state = state,
-                    themeMode = themeMode,
-                    onRetry = { viewModel.refreshInsight() }
-                )
-            }
+            is AiInsightUiState.CapReached -> com.pixelquest.app.ui.screens.insight.AiInsightCapReachedState(state = state, themeMode = themeMode)
+            is AiInsightUiState.Error -> AiInsightErrorState(state = state, themeMode = themeMode, onRetry = { viewModel.refreshInsight() })
         }
     }
 }
 
+/** The card's words from the brief: live when just written, its summary, its time, and the wait for the next. */
+fun coachUiOf(state: AiInsightUiState.Success, zone: ZoneId = ZoneId.systemDefault()): CoachUi = CoachUi(
+    live = !state.isCached,
+    situation = state.insight.summary,
+    updatedAt = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withZone(zone).format(Instant.ofEpochMilli(state.insight.generatedAt)),
+    nextBriefIn = waitText(state.remainingCooldownSeconds)
+)
+
+/** "~6h", "~25m", or null once a new brief can be asked for. */
+fun waitText(seconds: Long): String? = when {
+    seconds <= 0 -> null
+    seconds >= 3600 -> "~${(seconds + 1800) / 3600}h"
+    else -> "~${((seconds + 59) / 60).coerceAtLeast(1)}m"
+}
+
+/**
+ * Before the AI coach is on (mock 4A): an amber line that says what it is and how to get it, signing
+ * in first if the player isn't, and one button to it.
+ */
 @Composable
-fun TodayAiInsightOptInCard(
-    themeMode: ThemeMode,
-    onEnableClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    isSimpleMode: Boolean = false,
-    /** Signed out: the card asks the player to sign in (the AI Coach is for signed-in players). */
-    needsSignIn: Boolean = false
-) {
-    val signInLine = "Sign in with Google or an emailed code to unlock it."
-    when (themeMode) {
-        ThemeMode.Comic -> {
-            ComicPanel(
-                variant = ComicPanelVariant.BURNT_ORANGE,
-                modifier = modifier.fillMaxWidth(),
-                contentPadding = 16.dp
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = if (isSimpleMode) "🌱" else "💥", fontSize = 24.sp)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = if (isSimpleMode) "UNLOCK AI HABIT COACH!" else "UNLOCK AI QUESTMASTER!",
-                            fontFamily = BangersFontFamily,
-                            fontSize = 18.sp,
-                            color = ComicTokens.SolidBlack
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = (if (isSimpleMode) {
-                            "Get daily habit analysis, sustainable routines, and thoughtful guidance powered by Google Gemini."
-                        } else {
-                            "Get daily tactical debriefs, habit analysis, and power surges powered by Google Gemini."
-                        }) + if (needsSignIn) " $signInLine" else "",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = ComicTokens.SolidBlack.copy(alpha = 0.85f)
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    ComicButton(
-                        text = if (needsSignIn) "SIGN IN" else "ENABLE IN SETTINGS",
-                        onClick = onEnableClick,
-                        variant = ComicButtonVariant.PRIMARY
-                    )
-                }
-            }
+fun AiTeaser(isSimpleMode: Boolean, needsSignIn: Boolean, onUnlock: () -> Unit, modifier: Modifier = Modifier) {
+    val shape = pqShape(PqDimens.Radius)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag(CoachTags.TEASER)
+            .clip(shape)
+            .background(PqColors.Amber)
+            .border(PqDimens.Border, PqColors.Ink, shape)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Box(Modifier.size(40.dp).clip(pqShape(10.dp)).background(PqColors.Ink), contentAlignment = Alignment.Center) {
+            Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = PqColors.Gold, modifier = Modifier.size(22.dp))
         }
-        ThemeMode.Light -> {
-            Box(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-                    .padding(16.dp)
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFF6366F1))
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = if (isSimpleMode) "AI Habit Coach Available" else "AI Habit Insights Available",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = Color(0xFF1E293B),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = if (needsSignIn) {
-                            "Receive personalized habit guidance and consistency analysis. $signInLine"
-                        } else if (isSimpleMode) {
-                            "Receive personalized habit guidance, rhythm tracking, and consistency analysis. Enable anytime in Settings."
-                        } else {
-                            "Receive personalized habit guidance and consistency analysis. Enable anytime in Settings."
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF64748B)
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    PixelButton(
-                        text = if (needsSignIn) "Sign in" else "Enable in Settings",
-                        onClick = onEnableClick,
-                        variant = PixelButtonVariant.YELLOW
-                    )
-                }
-            }
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = stringResource(if (isSimpleMode) R.string.pq_ai_teaser_title_simple else R.string.pq_ai_teaser_title),
+                style = PqType.BodyStrong.copy(fontSize = 14.bsp)
+            )
+            Text(
+                text = stringResource(if (needsSignIn) R.string.pq_ai_teaser_sign_in else R.string.pq_ai_teaser_settings),
+                style = PqType.Meta.copy(color = PqColors.Ink)
+            )
         }
-        else -> {
-            PixelCard(
-                variant = PixelPanelVariant.BEIGE,
-                modifier = modifier.fillMaxWidth(),
-                contentPadding = 14.dp
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = if (isSimpleMode) "🌱" else "✦", color = Color(0xFFFBBF24), fontSize = 16.sp)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = if (isSimpleMode) "HABIT COACH INSIGHTS" else "QUESTMASTER AI INTEL",
-                            style = PixelTypography.titleSmall,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(PixelTheme.colors.primary),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = (if (isSimpleMode) {
-                            "Receive personalized habit guidance and consistency analysis powered by Gemini AI."
-                        } else {
-                            "Receive tactical debriefs and streak coaching powered by Gemini AI."
-                        }) + if (needsSignIn) " $signInLine" else "",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = PixelTheme.colors.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    PixelButton(
-                        text = if (needsSignIn) "SIGN IN" else "ENABLE IN SETTINGS",
-                        onClick = onEnableClick,
-                        variant = PixelButtonVariant.YELLOW,
-                        modifier = Modifier.height(34.dp)
-                    )
-                }
-            }
-        }
+        PqButton(stringResource(R.string.pq_ai_teaser_unlock), onUnlock)
     }
 }

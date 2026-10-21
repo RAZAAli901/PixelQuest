@@ -6,7 +6,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.pixelquest.app.domain.ai.AiErrorCopy
-import com.pixelquest.app.ui.screens.today.TodayAiInsightOptInCard
+import com.pixelquest.app.ui.screens.today.AiTeaser
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
@@ -54,12 +54,12 @@ class AiCoachSignInUiTest {
         var openedAccount = 0
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) {
-                TodayAiInsightOptInCard(themeMode = ThemeMode.Pixel, onEnableClick = { openedAccount++ }, needsSignIn = true)
+                AiTeaser(isSimpleMode = false, needsSignIn = true, onUnlock = { openedAccount++ })
             }
         }
-        composeTestRule.onNodeWithText("ENABLE IN SETTINGS").assertDoesNotExist()
-        composeTestRule.onNodeWithText("Sign in with Google or an emailed code", substring = true).assertExists()
-        composeTestRule.onNodeWithText("SIGN IN").performClick()
+        composeTestRule.onNodeWithText("Settings", substring = true).assertDoesNotExist()
+        composeTestRule.onNodeWithText("Sign in for daily debriefs").assertExists()
+        composeTestRule.onNodeWithText("UNLOCK").performClick()
         assertEquals(1, openedAccount)
     }
 }

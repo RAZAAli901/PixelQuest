@@ -2,6 +2,7 @@ package com.pixelquest.app.ui.screens.today
 
 import android.app.Application
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
@@ -53,7 +54,11 @@ class OpenAiCoachLinkTest {
             }
         }
 
-        composeTestRule.onNodeWithText("OPEN AI COACH ▶").performClick()
+        composeTestRule.onNodeWithText("OPEN COACH").performClick()
         assertEquals(1, opened)
+        // The card says the brief's situation, and the whole card opens the coach too.
+        composeTestRule.onNodeWithText("Summary").assertExists()
+        composeTestRule.onNodeWithTag(CoachTags.CARD).performClick()
+        assertEquals(2, opened)
     }
 }

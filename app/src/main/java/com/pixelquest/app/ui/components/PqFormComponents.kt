@@ -164,7 +164,7 @@ data class CoachUi(
 
 /** Replaces the old Coach Intel card + disabled COOLDOWN button + separate "OPEN AI COACH" button. */
 @Composable
-fun CoachCard(coach: CoachUi, onOpen: () -> Unit, onExpand: () -> Unit, modifier: Modifier = Modifier) {
+fun CoachCard(coach: CoachUi, onOpen: () -> Unit, onExpand: () -> Unit, modifier: Modifier = Modifier, title: String = stringResource(R.string.pq_coach_title)) {
     PqCard(modifier.fillMaxWidth(), onClick = onOpen) {
         Column {
             Column(Modifier.padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -172,7 +172,7 @@ fun CoachCard(coach: CoachUi, onOpen: () -> Unit, onExpand: () -> Unit, modifier
                     Box(Modifier.size(36.dp).clip(pqShape(10.dp)).background(PqColors.Ink), contentAlignment = Alignment.Center) {
                         Icon(Icons.Rounded.AutoAwesome, null, tint = PqColors.Gold, modifier = Modifier.size(20.dp))
                     }
-                    Text(stringResource(R.string.pq_coach_title), style = PqType.CardTitle, modifier = Modifier.weight(1f))
+                    Text(title, style = PqType.CardTitle, modifier = Modifier.weight(1f))
                     if (coach.live) PqTag(stringResource(R.string.pq_coach_live), color = PqColors.Live)
                 }
                 Text(stringResource(R.string.pq_coach_situation), style = PqType.Label.copy(color = PqColors.Muted))

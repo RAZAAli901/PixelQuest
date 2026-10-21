@@ -32,6 +32,14 @@
     <!-- The AI coach's card on Home. -->
     <string name="pq_coach_title">COACH INTEL</string>
     <string name="pq_coach_live">Live</string>
+    <!-- The coach card's title in Simple Mode, without the game's words. -->
+    <string name="pq_coach_title_simple">HABIT COACH</string>
+    <!-- Home's AI teaser (mock 4A), before the coach is on. -->
+    <string name="pq_ai_teaser_title">AI Questmaster</string>
+    <string name="pq_ai_teaser_title_simple">AI Habit Coach</string>
+    <string name="pq_ai_teaser_sign_in">Sign in for daily debriefs</string>
+    <string name="pq_ai_teaser_settings">Turn it on in Settings for daily debriefs</string>
+    <string name="pq_ai_teaser_unlock">Unlock</string>
     <string name="pq_coach_situation">THE SITUATION</string>
     <string name="pq_coach_full_brief">Show full brief</string>
     <string name="pq_coach_open">Open coach</string>

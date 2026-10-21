@@ -198,7 +198,7 @@ fun PqChip(text: String, bg: Color, modifier: Modifier = Modifier, icon: ImageVe
 fun PqTag(text: String, color: Color = PqColors.RedText) {
     Text(
         text.uppercase(), style = PqType.Label.copy(fontSize = 10.lsp, letterSpacing = 0.6.sp, color = color),
-        modifier = Modifier.border(1.5.dp, color, pqShape(6.dp)).padding(horizontal = 5.dp, vertical = 1.dp),
+        modifier = Modifier.border(1.5.dp, color, pqShape(6.dp)).padding(horizontal = 5.dp, vertical = 2.dp),
     )
 }
 
