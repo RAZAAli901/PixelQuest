@@ -10,6 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -36,7 +40,9 @@ data class ChatActions(
     val onRetry: (String) -> Unit = {},
     val onDiscard: (String) -> Unit = {},
     val onReachOldest: () -> Unit = {},
-    val onDismissNotice: () -> Unit = {}
+    val onDismissNotice: () -> Unit = {},
+    /** Reports a message; null while there's no way to report (the menu leaves it out). */
+    val onReport: ((ChatMessage) -> Unit)? = null
 )
 
 /** A line of the Chat tab: a day's heading, or a message. */
@@ -83,10 +89,42 @@ fun StudyChatPane(
             above = { state.replyingTo?.let { ReplyPreview(it, onCancel = actions.onCancelReply) } }
         )
     },
-    message: @Composable (ChatMessageRow) -> Unit = { row ->
-        MessageBubbleRow(row, onRetry = actions.onRetry, onDiscard = actions.onDiscard, onReply = { actions.onReply(row) })
-    }
+    message: (@Composable (ChatMessageRow) -> Unit)? = null
 ) {
+    // The message whose menu is open, and the one waiting for its delete to be confirmed.
+    var menuFor by remember { mutableStateOf<ChatMessageRow?>(null) }
+    var deleting by remember { mutableStateOf<ChatMessageRow?>(null) }
+    val line: @Composable (ChatMessageRow) -> Unit = message ?: { row ->
+        MessageBubbleRow(
+            row,
+            onRetry = actions.onRetry,
+            onDiscard = actions.onDiscard,
+            onReply = { actions.onReply(row) },
+            onMenu = { menuFor = row }
+        )
+    }
+    menuFor?.let { row ->
+        MessageMenu(
+            row = row,
+            items = menuItemsFor(row, state.isLeader, canReport = actions.onReport != null),
+            onReply = { actions.onReply(row) },
+            onDelete = {
+                menuFor = null
+                deleting = row
+            },
+            onReport = { actions.onReport?.invoke(row.message) },
+            onDismiss = { menuFor = null }
+        )
+    }
+    deleting?.let { row ->
+        DeleteMessageDialog(
+            onConfirm = {
+                deleting = null
+                actions.onDelete(row.message)
+            },
+            onDismiss = { deleting = null }
+        )
+    }
     Column(modifier = modifier.fillMaxSize().testTag(StudyChatTags.PANE)) {
         ChatBackground(modifier = Modifier.fillMaxWidth().weight(1f)) {
             if (state.loaded && state.rows.isEmpty()) {
@@ -104,7 +142,7 @@ fun StudyChatPane(
                 ) { line ->
                     when (line) {
                         is ChatLine.Day -> DaySeparator(day = line.day, today = state.today, tag = StudyChatTags.day(line.day))
-                        is ChatLine.Message -> message(line.row)
+                        is ChatLine.Message -> line(line.row)
                     }
                 }
             }
@@ -156,6 +194,11 @@ object StudyChatTags {
     const val INPUT = "study_chat_input"
     const val SEND = "study_chat_send"
     const val COUNTER = "study_chat_counter"
+    const val MENU = "study_chat_menu"
+    const val MENU_COPY = "study_chat_menu_copy"
+    const val MENU_REPLY = "study_chat_menu_reply"
+    const val MENU_DELETE = "study_chat_menu_delete"
+    const val MENU_REPORT = "study_chat_menu_report"
     const val QUOTE = "study_chat_quote"
     const val REPLY_PREVIEW = "study_chat_reply_preview"
     const val REPLY_CANCEL = "study_chat_reply_cancel"

@@ -202,6 +202,12 @@
     <string name="study_chat_deleted">Message deleted</string>
     <string name="study_chat_not_sent">Not sent.</string>
     <string name="study_chat_reply">Reply</string>
+    <string name="study_chat_menu">Message options</string>
+    <string name="study_chat_copy">Copy</string>
+    <string name="study_chat_delete">Delete</string>
+    <string name="study_chat_report">Report</string>
+    <string name="study_chat_delete_title">Delete this message?</string>
+    <string name="study_chat_delete_message">It goes for everyone in the party.</string>
     <string name="study_chat_replying_to">Replying to</string>
     <string name="study_chat_reply_cancel">Don\'t reply</string>
     <string name="study_chat_retry">Retry</string>

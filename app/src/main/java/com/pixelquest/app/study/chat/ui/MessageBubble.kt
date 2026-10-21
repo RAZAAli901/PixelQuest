@@ -2,6 +2,7 @@ package com.pixelquest.app.study.chat.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,8 @@ fun MessageBubbleRow(
     onDiscard: (String) -> Unit = {},
     /** Answers it (swiped, or TalkBack's action); null for one that can't be (deleted, or not sent yet). */
     onReply: (() -> Unit)? = null,
+    /** Opens its menu (a long press); null for none. */
+    onMenu: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit = {}
 ) {
     val message = row.message
@@ -70,14 +73,15 @@ fun MessageBubbleRow(
                 modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
             )
         }
-        MessageBubble(row, content)
+        MessageBubble(row, onMenu, content)
         val key = message.clientId
         if (row.mine && message.sync == SyncState.FAILED && key != null) NotSentLine(onRetry = { onRetry(key) }, onDiscard = { onDiscard(key) })
     }
 }
 
 @Composable
-private fun MessageBubble(row: ChatMessageRow, content: @Composable ColumnScope.() -> Unit) {
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
+private fun MessageBubble(row: ChatMessageRow, onMenu: (() -> Unit)?, content: @Composable ColumnScope.() -> Unit) {
     val message = row.message
     val colors = bubbleColors(row.mine)
     val look = chatLook()
@@ -90,6 +94,13 @@ private fun MessageBubble(row: ChatMessageRow, content: @Composable ColumnScope.
             .clip(shape)
             .background(if (message.deleted) PqColors.Sunken else colors.container)
             .then(look.outlined(shape))
+            .then(
+                if (onMenu != null) {
+                    Modifier.combinedClickable(onClickLabel = null, onLongClickLabel = stringResource(R.string.study_chat_menu), onLongClick = onMenu, onClick = {})
+                } else {
+                    Modifier
+                }
+            )
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         if (message.deleted) {
