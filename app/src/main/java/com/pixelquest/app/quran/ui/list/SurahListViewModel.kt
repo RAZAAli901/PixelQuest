@@ -1,5 +1,6 @@
 package com.pixelquest.app.quran.ui.list
 
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.quran.data.LastReadStore
@@ -58,7 +59,7 @@ class SurahListViewModel @Inject constructor(repository: QuranRepository, lastRe
                 surahs.firstOrNull { it.number == p.surah }?.let { ContinueReading(it, p.ayah.coerceAtMost(it.ayahCount)) }
             }
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SurahListUiState())
+    }.stateIn(viewModelScope, TabSharing, SurahListUiState())
 
     fun search(text: String) {
         query.value = text

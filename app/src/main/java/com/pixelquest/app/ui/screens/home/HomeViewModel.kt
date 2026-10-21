@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens.home
 
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
@@ -52,7 +53,7 @@ class HomeViewModel @Inject constructor(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = TabSharing,
         initialValue = HomeUiState()
     )
 

@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens.today
 
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
@@ -57,7 +58,7 @@ class TodayViewModel @Inject constructor(
      * into grace-period ones as their time passes.
      */
     private val clock: StateFlow<LocalDateTime> = combine(appClock.minuteTicks(), refreshRequests) { _, _ -> appClock.now() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), appClock.now())
+        .stateIn(viewModelScope, TabSharing, appClock.now())
 
     /** The day the screen shows, which completing and skipping record against. */
     private val currentDate: LocalDate get() = clock.value.toLocalDate()
@@ -138,7 +139,7 @@ class TodayViewModel @Inject constructor(
         ) as TodayUiState
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = TabSharing,
         initialValue = TodayUiState.Loading
     )
 
@@ -174,7 +175,9 @@ class TodayViewModel @Inject constructor(
 
     /** Re-reads the clock: the REFRESH button, and returning to the app, can move to a new day. */
     fun refresh() {
-        refreshRequests.value++
+        // Within the same minute the screen is already right: returning to Home rebuilds nothing.
+        val now = appClock.now().truncatedTo(java.time.temporal.ChronoUnit.MINUTES)
+        if (now != clock.value.truncatedTo(java.time.temporal.ChronoUnit.MINUTES)) refreshRequests.value++
     }
 
     fun skipTask(task: TaskEntity) {

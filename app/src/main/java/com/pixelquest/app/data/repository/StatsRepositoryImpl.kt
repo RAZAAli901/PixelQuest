@@ -1,5 +1,7 @@
 package com.pixelquest.app.data.repository
 
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.Dispatchers
 import com.pixelquest.app.domain.model.DailyStatus
 import com.pixelquest.app.domain.model.PerTaskStats
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
@@ -55,7 +57,7 @@ class StatsRepositoryImpl @Inject constructor(
             }
 
             if (totalScheduled == 0) 0f else (totalCompleted.toFloat() / totalScheduled.toFloat()).coerceIn(0f, 1f)
-        }
+        }.flowOn(Dispatchers.Default)
     }
 
     companion object {
@@ -117,7 +119,7 @@ class StatsRepositoryImpl @Inject constructor(
             }
 
             resultMap
-        }
+        }.flowOn(Dispatchers.Default)
     }
 
     override fun getPerTaskStats(taskId: Long): Flow<PerTaskStats> {

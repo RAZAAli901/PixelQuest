@@ -1,5 +1,6 @@
 package com.pixelquest.app.islamic.ui
 
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.domain.repository.SettingsRepository
@@ -33,5 +34,5 @@ class IslamicHubViewModel @Inject constructor(
 
     val state: StateFlow<IslamicHubUiState> = combine(registry.items, settingsRepository.simpleModeEnabled) { items, simple ->
         IslamicHubUiState(items = items.filter { it.enabled }, isSimpleMode = simple, loaded = true)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), IslamicHubUiState())
+    }.stateIn(viewModelScope, TabSharing, IslamicHubUiState())
 }

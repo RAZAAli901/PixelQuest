@@ -1,5 +1,8 @@
 package com.pixelquest.app.ui.screens.profile
 
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.Dispatchers
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
@@ -86,9 +89,9 @@ class ProfileViewModel @Inject constructor(
             xpLastWeek = xpLastWeek,
             signedIn = signedIn
         )
-    }.stateIn(
+    }.flowOn(Dispatchers.Default).stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = TabSharing,
         initialValue = ProfileUiState()
     )
 

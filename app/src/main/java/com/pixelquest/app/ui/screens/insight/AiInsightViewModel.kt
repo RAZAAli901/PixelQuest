@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens.insight
 
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.remote.GeminiResult
@@ -55,7 +56,7 @@ class AiInsightViewModel @Inject constructor(
     val olderInsights: StateFlow<List<OlderInsight>> = insightCacheRepository
         .observeRecentInsights(OLDER_INSIGHTS_SHOWN + 1)
         .map { rows -> rows.drop(1).map { OlderInsight(it.id, it.toInsightResponse()) } }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(viewModelScope, TabSharing, emptyList())
 
     /** Opens an earlier insight, closing any other; tapping the open one closes it. */
     fun toggleOlder(id: Long) {
@@ -71,7 +72,7 @@ class AiInsightViewModel @Inject constructor(
     val isSimpleMode: StateFlow<Boolean> = settingsRepository.simpleModeEnabled
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = TabSharing,
             initialValue = false
         )
 

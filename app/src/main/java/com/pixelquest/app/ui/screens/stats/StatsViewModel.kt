@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens.stats
 
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.domain.model.DailyStatus
@@ -122,7 +123,7 @@ class StatsViewModel @Inject constructor(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = TabSharing,
         initialValue = StatsUiState()
     )
 

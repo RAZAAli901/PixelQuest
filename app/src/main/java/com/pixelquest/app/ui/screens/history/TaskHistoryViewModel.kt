@@ -1,5 +1,8 @@
 package com.pixelquest.app.ui.screens.history
 
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.Dispatchers
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.domain.model.TaskCategory
@@ -87,9 +90,9 @@ class TaskHistoryViewModel @Inject constructor(
             selectedFilter = filter,
             hasMoreItems = hasMore
         )
-    }.stateIn(
+    }.flowOn(Dispatchers.Default).stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = TabSharing,
         initialValue = TaskHistoryUiState(isLoading = true)
     )
 

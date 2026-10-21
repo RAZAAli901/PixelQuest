@@ -1,5 +1,6 @@
 package com.pixelquest.app.study.ui
 
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -80,7 +81,7 @@ class HomeStudyViewModel @Inject constructor(
                 )
             }
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    }.stateIn(viewModelScope, TabSharing, null)
 
     private companion object {
         const val LIMIT = 3

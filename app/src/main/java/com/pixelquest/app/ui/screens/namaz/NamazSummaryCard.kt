@@ -1,5 +1,11 @@
 package com.pixelquest.app.ui.screens.namaz
 
+import java.time.LocalDate
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.SharedFlow
+import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -80,31 +86,42 @@ class NamazSummaryViewModel(
     constructor(repository: NamazRepository, nextPrayer: NextPrayerUseCase, clock: AppClock, settings: com.pixelquest.app.domain.repository.SettingsRepository) :
         this(repository, nextPrayer, clock, { ZoneId.systemDefault() }, settings.islamicHubShown)
 
-    /** The card while the tracker is on, and the Islamic section shows (it's hidden in Settings otherwise). */
+    /** The next prayer and today, each minute, while the card shows; null while it doesn't. */
+    private val moment: SharedFlow<Pair<NextPrayer, LocalDate>?> =
+        combine(clock.minuteTicks(), repository.observeSettings(), hubShown) { _, settings, shown ->
+            if (settings.enabled && shown) clock.now().atZone(zone()).let { now -> nextPrayer(now) to now.toLocalDate() } else null
+        }.shareIn(viewModelScope, TabSharing, replay = 1)
+
+    /**
+     * The card while the tracker is on, and the Islamic section shows (it's hidden in Settings
+     * otherwise). The log is read again only when the prayer's day or today changes; each minute
+     * only moves the countdown on.
+     */
     @OptIn(ExperimentalCoroutinesApi::class)
-    val summary: StateFlow<NamazSummary?> = combine(clock.minuteTicks(), repository.observeSettings(), hubShown) { _, settings, shown ->
-        settings.enabled && shown
-    }.flatMapLatest { enabled ->
-        if (!enabled) {
-            flowOf(null)
-        } else {
-            val now = clock.now().atZone(zone())
-            val next = nextPrayer(now)
-            val today = now.toLocalDate()
-            combine(
-                repository.observeDay(next.prayerDay),
-                repository.observePrayedPerDay(today.minusYears(STREAK_YEARS), today)
-            ) { logs, perDay ->
-                val prayed = logs.filter { it.status == PrayerStatus.PRAYED }
-                NamazSummary(
-                    next = next,
-                    prayed = prayed.size,
-                    prayedPrayers = prayed.map { it.prayer }.toSet(),
-                    allFiveStreak = com.pixelquest.app.domain.namaz.NamazStreak.current(perDay.associate { it.date to it.prayed }, today)
-                )
+    val summary: StateFlow<NamazSummary?> = moment
+        .map { it?.let { (next, today) -> next.prayerDay to today } }
+        .distinctUntilChanged()
+        .flatMapLatest { days ->
+            if (days == null) {
+                flowOf(null)
+            } else {
+                val (prayerDay, today) = days
+                val log = combine(
+                    repository.observeDay(prayerDay),
+                    repository.observePrayedPerDay(today.minusYears(STREAK_YEARS), today).map { perDay ->
+                        com.pixelquest.app.domain.namaz.NamazStreak.current(perDay.associate { it.date to it.prayed }, today)
+                    }
+                ) { logs, streak -> logs.filter { it.status == PrayerStatus.PRAYED } to streak }
+                combine(log, moment.filterNotNull()) { (prayed, streak), (next, _) ->
+                    NamazSummary(
+                        next = next,
+                        prayed = prayed.size,
+                        prayedPrayers = prayed.map { it.prayer }.toSet(),
+                        allFiveStreak = streak
+                    )
+                }
             }
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+        }.stateIn(viewModelScope, TabSharing, null)
 
     private companion object {
         /** How far back the streak is counted, as the tracker counts it. */
