@@ -61,6 +61,7 @@ class ChatEventsTest {
         is PartyEvent.Removed -> "${event.userId} removed"
         is PartyEvent.MilestoneSet -> "milestone ${event.target}"
         is PartyEvent.MilestoneReached -> "reached ${event.target}"
+        is PartyEvent.WeekClosed -> "week ${event.week.weekStart}"
     }
 
     @Test

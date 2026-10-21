@@ -322,11 +322,12 @@ class PartyChatViewModel @Inject constructor(
     val items: StateFlow<List<ChatItem>> = kotlinx.coroutines.flow.combine(
         limit.flatMapLatest { repository.observeEntries(partyId, it) },
         members,
-        repository.observeParty(partyId)
-    ) { entries, members, party ->
+        repository.observeParty(partyId),
+        repository.observeWeekResults(partyId)
+    ) { entries, members, party, weeks ->
         shownFromServer = entries.count { it.id != null }
-        // The cache gives the newest first; the chat reads oldest first.
-        chatItemsOf(entries.asReversed(), accountId, java.time.ZoneId.systemDefault(), partyEventsOf(party, members))
+        // The cache gives the newest first; the chat reads oldest first. Each closed week is a card.
+        chatItemsOf(entries.asReversed(), accountId, java.time.ZoneId.systemDefault(), partyEventsOf(party, members, weeks, accountId))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     /** The player's numbers in the party: total, share and place, from the members' totals. */
