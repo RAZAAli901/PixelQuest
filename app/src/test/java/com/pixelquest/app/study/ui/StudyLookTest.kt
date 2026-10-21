@@ -39,7 +39,7 @@ class StudyLookTest(private val mode: ThemeMode) {
     companion object {
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-        fun modes() = listOf(ThemeMode.Pixel, ThemeMode.Comic, ThemeMode.Light).map { arrayOf<Any>(it) }
+        fun modes() = listOf(ThemeMode.Pixel, ThemeMode.Comic).map { arrayOf<Any>(it) }
     }
 
     @get:Rule

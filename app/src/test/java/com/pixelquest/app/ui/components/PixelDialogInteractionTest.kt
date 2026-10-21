@@ -41,7 +41,7 @@ class PixelDialogInteractionTest {
 
     @Test
     fun dialogInteraction_consistentAcrossAllThemeModes() {
-        val themes = listOf(ThemeMode.Pixel, ThemeMode.Light, ThemeMode.Comic)
+        val themes = listOf(ThemeMode.Pixel, ThemeMode.Comic)
         val confirmHits = mutableListOf<ThemeMode>()
         val dismissHits = mutableListOf<ThemeMode>()
 

@@ -50,7 +50,7 @@ class IslamicHubAccessibilityTest {
         composeTestRule.setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
-                PixelQuestTheme(themeMode = ThemeMode.Light) {
+                PixelQuestTheme(themeMode = ThemeMode.Comic) {
                     IslamicHubContent(IslamicHubUiState(items, isSimpleMode = simpleMode, loaded = true), onOpen = {})
                 }
             }

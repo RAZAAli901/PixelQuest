@@ -88,7 +88,7 @@ class NumberInputBarTest {
 
     @Test
     fun itAsksForTheNumberPad_andTalkBackKnowsWhatItsFor() {
-        showBar(ThemeMode.Light)
+        showBar(ThemeMode.Comic)
         field().assertIsDisplayed()
         val node = field().fetchSemanticsNode()
         assertEquals(listOf("How many to add"), node.config[SemanticsProperties.ContentDescription])

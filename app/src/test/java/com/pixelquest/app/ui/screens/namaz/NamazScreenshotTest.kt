@@ -46,7 +46,6 @@ class NamazScreenshotTest(private val look: Look) {
     enum class Look(val mode: ThemeMode, val simpleMode: Boolean, val dark: Boolean) {
         PIXEL(ThemeMode.Pixel, simpleMode = false, dark = true),
         COMIC(ThemeMode.Comic, simpleMode = false, dark = false),
-        LIGHT(ThemeMode.Light, simpleMode = false, dark = false),
         SIMPLE(ThemeMode.Comic, simpleMode = true, dark = false),
         SIMPLE_DARK(ThemeMode.Pixel, simpleMode = true, dark = true)
     }

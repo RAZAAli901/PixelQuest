@@ -147,7 +147,7 @@ class DaroodDeenTabUiTest {
 
     @Test
     fun inLight_theCardOpensToo() {
-        showApp(ThemeMode.Light)
+        showApp(ThemeMode.Comic)
         openDaroodFromTheDeenTab()
     }
 

@@ -62,7 +62,7 @@ class PartiesScreenTest {
 
     @Test
     fun withNone_itSaysWhatPartiesAre_andOffersToStartOne() {
-        show(DaroodPartiesUiState(signedIn = true), ThemeMode.Light)
+        show(DaroodPartiesUiState(signedIn = true), ThemeMode.Comic)
 
         composeTestRule.onNodeWithText("PARTIES").assertIsDisplayed()
         composeTestRule.onNodeWithTag(PartiesTags.EMPTY).assertIsDisplayed()

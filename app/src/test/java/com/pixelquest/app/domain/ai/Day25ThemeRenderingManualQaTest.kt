@@ -8,7 +8,7 @@ import org.junit.Test
 
 /**
  * Step 36: Manual QA Verification Test for Theme-Dispatched Rendering of AI Insights.
- * Verifies that the AI Insight feature correctly dispatches across Pixel, Light, and Comic themes,
+ * Verifies that the AI Insight feature correctly dispatches across the Pixel and Comic skins,
  * confirming visual token alignment, appropriate framing, and exhaustive coverage of all states.
  */
 class Day25ThemeRenderingManualQaTest {
@@ -29,21 +29,6 @@ class Day25ThemeRenderingManualQaTest {
     }
 
     @Test
-    fun lightTheme_verifiesCleanSurfacesAndHighContrast() {
-        val theme = ThemeMode.Light
-        assertEquals("light", theme.id)
-
-        // Light mode uses clean white/slate card backgrounds, high-contrast dark text, and subtle 1.dp dividers
-        val cardElevationDp = 2
-        val borderWidthDp = 1
-        val isMinimal = true
-
-        assertTrue(cardElevationDp > 0)
-        assertEquals(1, borderWidthDp)
-        assertTrue(isMinimal)
-    }
-
-    @Test
     fun comicTheme_verifiesSpeechBubblePanelsAndInkStyling() {
         val theme = ThemeMode.Comic
         assertEquals("comic", theme.id)
@@ -60,7 +45,7 @@ class Day25ThemeRenderingManualQaTest {
 
     @Test
     fun allStates_haveDedicatedDispatchedComponentsAcrossThemes() {
-        val themes = listOf(ThemeMode.Pixel, ThemeMode.Light, ThemeMode.Comic)
+        val themes = listOf(ThemeMode.Pixel, ThemeMode.Comic)
         val stateKinds = listOf(
             "Loading",
             "Success",

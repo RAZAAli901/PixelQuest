@@ -11,17 +11,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Step 39: Integration test covering the Simple Mode × Theme Mode combination matrix
- * for Pixel and Light themes (with note for Comic theme extension once Day 23 lands).
+ * Simple Mode against the two skins:
  *
- * Matrix:
- * | Theme Mode | Simple Mode | Color Scheme | CRT Overlay | Terminology | Level/Streak UI |
- * |------------|-------------|--------------|-------------|-------------|-----------------|
- * | Pixel      | False       | Dark Pixel   | Allowed     | Quest       | Visible         |
- * | Pixel      | True        | Dark Pixel   | Forced OFF  | Task        | Suppressed      |
- * | Light      | False       | Crisp Light  | Prohibited  | Quest       | Visible         |
- * | Light      | True        | Crisp Light  | Prohibited  | Task        | Suppressed      |
- * | [Comic D23]| [Pending]   | Dynamic      | [TBD]       | [Adapts]    | [Adapts]        |
+ * | Skin  | Simple Mode | CRT Overlay | Terminology | Level/Streak UI |
+ * |-------|-------------|-------------|-------------|-----------------|
+ * | Pixel | False       | Allowed     | Quest       | Visible         |
+ * | Pixel | True        | Forced OFF  | Task        | Suppressed      |
+ * | Comic | False       | Never       | Quest       | Visible         |
+ * | Comic | True        | Never       | Task        | Suppressed      |
  */
 class SimpleModeThemeMatrixIntegrationTest {
 
@@ -43,9 +40,7 @@ class SimpleModeThemeMatrixIntegrationTest {
     private fun evaluateMatrix(state: MatrixState): EvaluatedMatrixResult {
         val colorSchemeType = when (state.themeMode) {
             ThemeMode.Pixel -> "PixelColorScheme"
-            ThemeMode.Light -> "LightColorScheme"
             ThemeMode.Comic -> "ComicColorScheme"
-            ThemeMode.System -> "SystemResolved"
         }
 
         val shouldApplyCrt = CrtFilterPolicy.shouldApplyCrt(
@@ -104,12 +99,12 @@ class SimpleModeThemeMatrixIntegrationTest {
     }
 
     @Test
-    fun `light theme with gamified mode retains gamified mechanics without crt`() {
-        val state = MatrixState(ThemeMode.Light, isSimpleMode = false, isCrtSettingEnabled = true)
+    fun `comic skin with gamified mode retains gamified mechanics without crt`() {
+        val state = MatrixState(ThemeMode.Comic, isSimpleMode = false, isCrtSettingEnabled = true)
         val result = evaluateMatrix(state)
 
-        assertEquals("LightColorScheme", result.colorSchemeType)
-        assertFalse("CRT prohibited in Light theme", result.shouldApplyCrt)
+        assertEquals("ComicColorScheme", result.colorSchemeType)
+        assertFalse("CRT never in the Comic skin", result.shouldApplyCrt)
         assertEquals("Quest", result.taskNoun)
         assertFalse(result.isStreakSuppressed)
         assertFalse(result.isDifficultyLocked)
@@ -117,12 +112,12 @@ class SimpleModeThemeMatrixIntegrationTest {
     }
 
     @Test
-    fun `light theme with simple mode cleanly combines crisp styling with minimalist suppression`() {
-        val state = MatrixState(ThemeMode.Light, isSimpleMode = true, isCrtSettingEnabled = true)
+    fun `comic skin with simple mode combines its styling with minimalist suppression`() {
+        val state = MatrixState(ThemeMode.Comic, isSimpleMode = true, isCrtSettingEnabled = true)
         val result = evaluateMatrix(state)
 
-        assertEquals("LightColorScheme", result.colorSchemeType)
-        assertFalse("CRT prohibited in Light theme", result.shouldApplyCrt)
+        assertEquals("ComicColorScheme", result.colorSchemeType)
+        assertFalse("CRT never in the Comic skin", result.shouldApplyCrt)
         assertEquals("Task", result.taskNoun)
         assertTrue("Streaks suppressed in Simple Mode", result.isStreakSuppressed)
         assertTrue("Difficulty locked in Simple Mode", result.isDifficultyLocked)
@@ -137,16 +132,10 @@ class SimpleModeThemeMatrixIntegrationTest {
         val result1 = evaluateMatrix(MatrixState(currentTheme, simpleMode, isCrtSettingEnabled = true))
         assertTrue(result1.isStreakSuppressed)
 
-        // Switch to Light
-        currentTheme = ThemeMode.Light
+        // Switch to Comic
+        currentTheme = ThemeMode.Comic
         val result2 = evaluateMatrix(MatrixState(currentTheme, simpleMode, isCrtSettingEnabled = true))
         assertTrue("Simple Mode remains active after theme switch", result2.isStreakSuppressed)
         assertEquals("Task", result2.taskNoun)
     }
-
-    /**
-     * NOTE for Day 23: When Comic theme lands, add:
-     * - ThemeMode.Comic × SimpleMode = false (Comic book halftones + gamified terminology)
-     * - ThemeMode.Comic × SimpleMode = true (Comic styling with suppressed gamification metrics)
-     */
 }

@@ -50,15 +50,12 @@ class ComicCrtExclusionTest {
     }
 
     @Test
-    fun crtFilter_excludedWhenResolvingSystemThemeToComic() {
-        for (systemDark in listOf(true, false)) {
-            val effective = ThemeMode.Comic.resolveEffective(systemDark)
-            val shouldApply = CrtFilterPolicy.shouldApplyCrt(
-                isCrtSettingEnabled = true,
-                effectiveThemeMode = effective,
-                isSimpleModeEnabled = false
-            )
-            assertFalse("CRT filter must not apply when Comic mode is resolved", shouldApply)
-        }
+    fun crtFilter_neverInTheComicSkin() {
+        val shouldApply = CrtFilterPolicy.shouldApplyCrt(
+            isCrtSettingEnabled = true,
+            effectiveThemeMode = ThemeMode.Comic,
+            isSimpleModeEnabled = false
+        )
+        assertFalse("CRT filter must not apply in the Comic skin", shouldApply)
     }
 }

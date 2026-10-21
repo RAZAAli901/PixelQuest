@@ -197,7 +197,7 @@ class AddPeopleTest {
             com.pixelquest.app.party.domain.PartyMember(partyId, "dan-id", "dan", com.pixelquest.app.party.domain.PartyRole.MEMBER, com.pixelquest.app.party.domain.MemberStatus.ACTIVE, null, null)
         )
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = ThemeMode.Light) {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
                 AddPeopleContent(state = AddPeopleUiState(people = people, result = InviteResult.Sent("bram")), onQueryChange = {}, onNavigateBack = {})
             }
         }

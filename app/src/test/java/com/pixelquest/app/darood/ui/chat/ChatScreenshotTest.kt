@@ -39,8 +39,7 @@ class ChatScreenshotTest(private val look: Look) {
     enum class Look(val mode: ThemeMode, val dark: Boolean, val simpleMode: Boolean) {
         PIXEL(ThemeMode.Pixel, dark = true, simpleMode = false),
         COMIC(ThemeMode.Comic, dark = false, simpleMode = false),
-        LIGHT(ThemeMode.Light, dark = false, simpleMode = false),
-        SIMPLE(ThemeMode.Light, dark = false, simpleMode = true),
+        SIMPLE(ThemeMode.Comic, dark = false, simpleMode = true),
         SIMPLE_DARK(ThemeMode.Pixel, dark = true, simpleMode = true)
     }
 

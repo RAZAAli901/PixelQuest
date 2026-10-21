@@ -54,7 +54,6 @@ fun PixelQuestTheme(
 
     CompositionLocalProvider(
         LocalAppColorScheme provides PqAppColors,
-        LocalAppThemeMode provides ThemeMode.Comic,
         LocalReduceMotion provides isReduceMotion
     ) {
         MaterialTheme(colorScheme = colors, typography = typography, content = content)

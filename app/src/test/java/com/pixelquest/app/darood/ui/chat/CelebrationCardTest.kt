@@ -69,7 +69,7 @@ class CelebrationCardTest {
     @Test
     fun aFinishedParty_showsTheCard_inPlaceOfTheField() {
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = ThemeMode.Light) {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
                 PartyChatScreen(
                     partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {}, canPost = false,
                     milestone = 10_000, total = 10_240, finished = true, completedAt = finished, startedAt = started,

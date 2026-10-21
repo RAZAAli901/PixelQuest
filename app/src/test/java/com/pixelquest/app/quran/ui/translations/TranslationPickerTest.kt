@@ -126,7 +126,7 @@ class TranslationPickerTest {
 
     @Test
     fun choosingTheOneRead_doesNothing() {
-        show(ThemeMode.Light)
+        show(ThemeMode.Comic)
 
         composeTestRule.onNodeWithTag(TranslationTags.option("en.sahih")).performClick()
         composeTestRule.waitForIdle()

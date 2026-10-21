@@ -60,7 +60,7 @@ class ReaderPaperTest {
                 ReaderPage(ReaderPaper.SEPIA) { page = PixelTheme.colors }
             }
         }
-        for (each in listOf(ThemeMode.Pixel, ThemeMode.Comic, ThemeMode.Light)) {
+        for (each in listOf(ThemeMode.Pixel, ThemeMode.Comic)) {
             mode = each
             composeTestRule.waitForIdle()
             assertEquals(SEPIA_PAPER, page.background)

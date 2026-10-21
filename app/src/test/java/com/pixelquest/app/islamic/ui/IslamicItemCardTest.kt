@@ -31,7 +31,7 @@ class IslamicItemCardTest {
 
     private var clicks = 0
 
-    private fun show(item: IslamicItem, mode: ThemeMode = ThemeMode.Light) {
+    private fun show(item: IslamicItem, mode: ThemeMode = ThemeMode.Comic) {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = mode) { IslamicItemCard(item = item, onClick = { clicks++ }) }
         }

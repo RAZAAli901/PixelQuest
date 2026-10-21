@@ -18,18 +18,15 @@ class Day23ComicCrtExclusionVerificationTest {
 
         for (isCrtSettingEnabled in booleanOptions) {
             for (isSimpleModeEnabled in booleanOptions) {
-                for (isSystemDark in booleanOptions) {
-                    val effective = ThemeMode.Comic.resolveEffective(isSystemDark)
-                    val applied = CrtFilterPolicy.shouldApplyCrt(
-                        isCrtSettingEnabled = isCrtSettingEnabled,
-                        effectiveThemeMode = effective,
-                        isSimpleModeEnabled = isSimpleModeEnabled
-                    )
-                    assertFalse(
-                        "CRT filter must NEVER apply to Comic mode (crtEnabled=$isCrtSettingEnabled, simpleMode=$isSimpleModeEnabled, systemDark=$isSystemDark)",
-                        applied
-                    )
-                }
+                val applied = CrtFilterPolicy.shouldApplyCrt(
+                    isCrtSettingEnabled = isCrtSettingEnabled,
+                    effectiveThemeMode = ThemeMode.Comic,
+                    isSimpleModeEnabled = isSimpleModeEnabled
+                )
+                assertFalse(
+                    "CRT filter must NEVER apply to Comic mode (crtEnabled=$isCrtSettingEnabled, simpleMode=$isSimpleModeEnabled)",
+                    applied
+                )
             }
         }
     }
@@ -41,15 +38,6 @@ class Day23ComicCrtExclusionVerificationTest {
             CrtFilterPolicy.shouldApplyCrt(
                 isCrtSettingEnabled = true,
                 effectiveThemeMode = ThemeMode.Pixel,
-                isSimpleModeEnabled = false
-            )
-        )
-
-        assertFalse(
-            "Light mode must never apply CRT",
-            CrtFilterPolicy.shouldApplyCrt(
-                isCrtSettingEnabled = true,
-                effectiveThemeMode = ThemeMode.Light,
                 isSimpleModeEnabled = false
             )
         )

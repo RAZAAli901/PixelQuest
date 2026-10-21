@@ -68,7 +68,7 @@ class QuranSourcesScreenTest {
 
     @Test
     fun aLink_opensItsSource() {
-        show(ThemeMode.Light)
+        show(ThemeMode.Comic)
 
         composeTestRule.onNodeWithTag(SourcesTags.link("https://tanzil.net")).performScrollTo().performClick()
         composeTestRule.onNodeWithTag(SourcesTags.link("https://openfontlicense.org")).performScrollTo().performClick()

@@ -129,7 +129,7 @@ class CompactCoachUiTest {
 
     @Test
     fun anEarlierInsight_opens_toShowItsSuggestion() {
-        show(ThemeMode.Light, display = CoachDisplayState(expandedOlderId = 2))
+        show(ThemeMode.Comic, display = CoachDisplayState(expandedOlderId = 2))
 
         composeTestRule.onNodeWithText("Try reading at lunch.").assertExists()
         assertEquals("the other stays one line", 0, composeTestRule.onAllNodesWithText("Add a short walk.").fetchSemanticsNodes().size)

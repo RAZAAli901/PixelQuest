@@ -145,7 +145,7 @@ class CreatePartyTest {
     fun theMilestoneField_readsTheNumberBack() {
         val viewModel = viewModel()
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = ThemeMode.Light) { CreatePartyScreen(onNavigateBack = {}, viewModel = viewModel) }
+            PixelQuestTheme(themeMode = ThemeMode.Comic) { CreatePartyScreen(onNavigateBack = {}, viewModel = viewModel) }
         }
         composeTestRule.onNodeWithText("The total the party aims for. You can set it later.").assertIsDisplayed()
         composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_MILESTONE))).performTextInput("100000")

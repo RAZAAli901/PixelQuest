@@ -67,7 +67,7 @@ class DisplayModeSwitchTest {
 
     @Test
     fun translation_hidesTheArabic() {
-        show(ThemeMode.Light)
+        show(ThemeMode.Comic)
 
         composeTestRule.onNodeWithTag(ReaderTags.mode(DisplayMode.TRANSLATION)).performClick()
 

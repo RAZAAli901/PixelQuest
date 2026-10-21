@@ -51,7 +51,7 @@ class UsernameSetupScreenTest {
 
     @Test
     fun aBrokenRule_isExplained_inLight() {
-        show(UsernameSetupUiState(input = "admin", problem = UsernameProblem.RESERVED, loadingCurrent = false), ThemeMode.Light)
+        show(UsernameSetupUiState(input = "admin", problem = UsernameProblem.RESERVED, loadingCurrent = false), ThemeMode.Comic)
 
         composeTestRule.onNodeWithText("That name is reserved. Try another one.").assertIsDisplayed()
         composeTestRule.onNodeWithTag(DaroodTestTags.USERNAME_SAVE).assertIsNotEnabled()

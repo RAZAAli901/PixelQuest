@@ -146,7 +146,6 @@ open class FakeSettingsRepository(
     override val themeMode = MutableStateFlow(theme)
     override val simpleModeEnabled = MutableStateFlow(simpleMode)
     override val hasSeenSimpleModeHighlight = MutableStateFlow(false)
-    override val hasSeenComicModeHighlight = MutableStateFlow(false)
     override val aiInsightsEnabled = MutableStateFlow(aiInsights)
     override val lastAiInsightTimestamp = MutableStateFlow(0L)
     override val aiReminderMessagesEnabled = MutableStateFlow(false)
@@ -158,10 +157,8 @@ open class FakeSettingsRepository(
     override suspend fun setIslamicHubShown(shown: Boolean) { islamicHubShown.value = shown }
     override suspend fun setNamazSetupShown(shown: Boolean) { namazSetupShown.value = shown }
     override suspend fun setLastBackupAt(timestamp: Long) { lastBackupAt.value = timestamp }
-    var themeBeforeComic: ThemeMode = ThemeMode.Pixel
 
     override suspend fun setSimpleModeHighlightSeen(seen: Boolean) { hasSeenSimpleModeHighlight.value = seen }
-    override suspend fun setComicModeHighlightSeen(seen: Boolean) { hasSeenComicModeHighlight.value = seen }
     override suspend fun setSoundEnabled(enabled: Boolean) { isSoundEnabled.value = enabled }
     override suspend fun setCrtEnabled(enabled: Boolean) { isCrtEnabled.value = enabled }
     override suspend fun setHapticsEnabled(enabled: Boolean) { isHapticsEnabled.value = enabled }
@@ -171,10 +168,8 @@ open class FakeSettingsRepository(
     override suspend fun setNotificationSoundEnabled(enabled: Boolean) { isNotificationSoundEnabled.value = enabled }
     override suspend fun setNotificationVibrationEnabled(enabled: Boolean) { isNotificationVibrationEnabled.value = enabled }
     override suspend fun setThemeMode(mode: ThemeMode) {
-        if (mode == ThemeMode.Comic && themeMode.value != ThemeMode.Comic) themeBeforeComic = themeMode.value
         themeMode.value = mode
     }
-    override suspend fun getThemeModeBeforeComic(): ThemeMode = themeBeforeComic
     override suspend fun setSimpleModeEnabled(enabled: Boolean) { simpleModeEnabled.value = enabled }
     override suspend fun setAiInsightsEnabled(enabled: Boolean) { aiInsightsEnabled.value = enabled }
     override suspend fun setLastAiInsightTimestamp(timestamp: Long) { lastAiInsightTimestamp.value = timestamp }

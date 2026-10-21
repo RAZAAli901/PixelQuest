@@ -45,7 +45,6 @@ class SimpleModeAiInsightInteractionUiTest {
         val topBar = when {
             isSimpleMode -> "HABIT COACH"
             themeMode == ThemeMode.Comic -> "AI QUESTMASTER"
-            themeMode == ThemeMode.Light -> "Habit Insights"
             else -> "AI COACH"
         }
 

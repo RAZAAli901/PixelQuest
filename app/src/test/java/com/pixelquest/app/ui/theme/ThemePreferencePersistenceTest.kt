@@ -66,8 +66,8 @@ class ThemePreferencePersistenceTest {
 
     @Test
     fun settingThemeModeUpdatesFlowReactively() = runBlocking {
-        repository.setThemeMode(ThemeMode.Light)
-        assertEquals(ThemeMode.Light, repository.themeMode.first())
+        repository.setThemeMode(ThemeMode.Pixel)
+        assertEquals(ThemeMode.Pixel, repository.themeMode.first())
 
         repository.setThemeMode(ThemeMode.Comic)
         assertEquals(ThemeMode.Comic, repository.themeMode.first())
@@ -75,14 +75,14 @@ class ThemePreferencePersistenceTest {
 
     @Test
     fun themePreferencePersistsAcrossRepositoryRecreation() = runBlocking {
-        // User selects Light mode
-        repository.setThemeMode(ThemeMode.Light)
+        // User selects the Pixel skin
+        repository.setThemeMode(ThemeMode.Pixel)
 
         // Simulate app restart / new repository instance reading from same backing store
         val reloadedRepository = TestableSettingsRepository()
         val restoredMode = reloadedRepository.themeMode.first()
 
-        assertEquals(ThemeMode.Light, restoredMode)
+        assertEquals(ThemeMode.Pixel, restoredMode)
     }
 
     @Test

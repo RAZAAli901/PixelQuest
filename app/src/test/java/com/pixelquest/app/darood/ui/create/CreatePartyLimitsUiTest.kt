@@ -114,7 +114,7 @@ class CreatePartyLimitsUiTest {
 
     @Test
     fun theLimitReadsTheSame_inLight() {
-        openCreate(ThemeMode.Light)
+        openCreate(ThemeMode.Comic)
         limit().assertTextEquals("10")
         more().performClick()
         limit().assertTextEquals("11")

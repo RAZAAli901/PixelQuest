@@ -84,7 +84,7 @@ class MyStatsTest {
         )
         var opened = 0
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = ThemeMode.Light) {
+            PixelQuestTheme(themeMode = ThemeMode.Comic) {
                 PartyChatScreen(
                     partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {},
                     myStats = myStatsOf(stats, 10_000, "aria-id"), consistency = steady, onOpenStats = { opened++ }

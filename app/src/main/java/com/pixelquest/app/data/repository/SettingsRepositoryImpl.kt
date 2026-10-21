@@ -147,21 +147,6 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putBoolean(KEY_SIMPLE_MODE_HIGHLIGHT_SEEN, seen).apply()
     }
 
-    override val hasSeenComicModeHighlight: Flow<Boolean> = callbackFlow {
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == KEY_COMIC_MODE_HIGHLIGHT_SEEN) {
-                trySend(prefs.getBoolean(KEY_COMIC_MODE_HIGHLIGHT_SEEN, false))
-            }
-        }
-        trySend(prefs.getBoolean(KEY_COMIC_MODE_HIGHLIGHT_SEEN, false))
-        prefs.registerOnSharedPreferenceChangeListener(listener)
-        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
-    }
-
-    override suspend fun setComicModeHighlightSeen(seen: Boolean) {
-        prefs.edit().putBoolean(KEY_COMIC_MODE_HIGHLIGHT_SEEN, seen).apply()
-    }
-
     override suspend fun setSoundEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
     }
@@ -195,20 +180,7 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setThemeMode(mode: com.pixelquest.app.ui.theme.ThemeMode) {
-        val editor = prefs.edit()
-        if (mode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-            val current = com.pixelquest.app.ui.theme.ThemeMode.fromId(prefs.getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.DEFAULT.id))
-            if (current != com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-                editor.putString(KEY_THEME_MODE_BEFORE_COMIC, current.id)
-            }
-        }
-        editor.putString(KEY_THEME_MODE, mode.id).apply()
-    }
-
-    override suspend fun getThemeModeBeforeComic(): com.pixelquest.app.ui.theme.ThemeMode {
-        val id = prefs.getString(KEY_THEME_MODE_BEFORE_COMIC, null)
-        val mode = com.pixelquest.app.ui.theme.ThemeMode.fromId(id)
-        return if (mode == com.pixelquest.app.ui.theme.ThemeMode.Comic) com.pixelquest.app.ui.theme.ThemeMode.Pixel else mode
+        prefs.edit().putString(KEY_THEME_MODE, mode.id).apply()
     }
 
     override suspend fun setSimpleModeEnabled(enabled: Boolean) {
@@ -347,10 +319,8 @@ class SettingsRepositoryImpl @Inject constructor(
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.DEFAULT.id)
         )
-        private const val KEY_THEME_MODE_BEFORE_COMIC = "key_theme_mode_before_comic"
         private const val KEY_SIMPLE_MODE_ENABLED = "key_simple_mode_enabled"
         private const val KEY_SIMPLE_MODE_HIGHLIGHT_SEEN = "key_simple_mode_highlight_seen"
-        private const val KEY_COMIC_MODE_HIGHLIGHT_SEEN = "key_comic_mode_highlight_seen"
         private const val KEY_AI_INSIGHTS_ENABLED = "key_ai_insights_enabled"
         private const val KEY_LAST_AI_INSIGHT_TIMESTAMP = "key_last_ai_insight_timestamp"
         private const val KEY_AI_REMINDER_MESSAGES_ENABLED = "key_ai_reminder_messages_enabled"

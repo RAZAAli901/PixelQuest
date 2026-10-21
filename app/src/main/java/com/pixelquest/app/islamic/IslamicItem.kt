@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
-import com.pixelquest.app.ui.theme.ThemeMode
 
 /**
  * One card on the Islamic hub (docs/islamic-hub.md): what it's called, what it is in a line, its
@@ -41,12 +40,4 @@ data class IslamicIcon(
     @DrawableRes val pixel: Int? = null,
     @DrawableRes val comic: Int? = null
 ) {
-    /** The drawn icon for [mode], or null to show [emoji]. Light and Simple Mode keep the emoji. */
-    @DrawableRes
-    fun drawableFor(mode: ThemeMode, isSimpleMode: Boolean): Int? = when {
-        isSimpleMode -> null
-        mode == ThemeMode.Comic -> comic
-        mode == ThemeMode.Pixel || mode == ThemeMode.System -> pixel
-        else -> null
-    }
 }

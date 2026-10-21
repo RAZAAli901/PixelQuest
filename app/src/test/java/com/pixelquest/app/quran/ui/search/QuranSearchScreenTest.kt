@@ -73,7 +73,7 @@ class QuranSearchScreenTest {
     @Test
     fun aCappedSearch_saysItShowsOnlyTheFirst() {
         val two = listOf(AyahResult(ayah, "Al-Baqara"), AyahResult(ayah.copy(id = 263, number = 256), "Al-Baqara"))
-        show("allah", QuranSearchUiState("allah", ayahs = two, capped = true), ThemeMode.Light)
+        show("allah", QuranSearchUiState("allah", ayahs = two, capped = true), ThemeMode.Comic)
 
         composeTestRule.onNodeWithText("THE FIRST 2 AYAHS: ADD A WORD TO NARROW IT").assertIsDisplayed()
     }

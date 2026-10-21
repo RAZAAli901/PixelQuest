@@ -76,27 +76,10 @@ val LocalAppColorScheme = androidx.compose.runtime.staticCompositionLocalOf<AppC
 }
 
 /**
- * The route the screens from before UI v2 take: always [ThemeMode.Comic]'s ink and shadows, whose
- * tokens ([ComicTokens], [ComicShapeTokens]) follow the active skin.
- */
-val LocalAppThemeMode = androidx.compose.runtime.staticCompositionLocalOf<ThemeMode> {
-    ThemeMode.Comic
-}
-
-/**
- * Alias for [LocalAppThemeMode] providing direct access to the current [ThemeMode].
- */
-val LocalThemeMode = LocalAppThemeMode
-
-/**
  * Convenient accessor for theme tokens in composables.
  */
 object PixelTheme {
     val colors: AppColorScheme
         @androidx.compose.runtime.Composable
         get() = LocalAppColorScheme.current
-
-    val mode: ThemeMode
-        @androidx.compose.runtime.Composable
-        get() = LocalAppThemeMode.current
 }

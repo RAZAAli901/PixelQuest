@@ -71,7 +71,7 @@ class JuzListTest {
 
     @Test
     fun aJuz_isOneButton_readAsASentence() {
-        show(ThemeMode.Light)
+        show(ThemeMode.Comic)
         composeTestRule.onNodeWithTag(QuranListTags.tab(QuranTab.JUZ)).performClick()
 
         val spoken = composeTestRule.onNodeWithTag(QuranListTags.juz(2)).fetchSemanticsNode()

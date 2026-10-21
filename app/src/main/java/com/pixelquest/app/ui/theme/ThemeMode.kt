@@ -1,47 +1,26 @@
 package com.pixelquest.app.ui.theme
 
 /**
- * PixelQuest Theming Architecture Modes:
- * - [System]: Follows the device's dark setting: Pixel when dark, Light when light. Never Comic.
- * - [Pixel]: Classic 8-bit retro dark arcade aesthetic (default).
- * - [Light]: Clean, high-contrast light theme (Day 17).
- * - [Comic]: Bold pop-art comic-book theme with ink borders (Days 20-23).
- *
- * Every mode is available ([isAvailable] = true). Comic was gated until Day 23 and unlocked then.
+ * The skin the player chose in Settings > Look (docs/ui-v2.md), stored by its [id]: [Comic] or
+ * [Pixel]. Versions before UI v2 also offered Clean Light and Follow System; a phone that kept one
+ * of those wears Comic, as it has since UI v2.
  */
-enum class ThemeMode(
-    val id: String,
-    val displayName: String,
-    val isAvailable: Boolean = true
-) {
-    System("system", "Follow System", isAvailable = true),
-    Pixel("pixel", "Retro Pixel (Dark)", isAvailable = true),
-    Light("light", "Clean Light", isAvailable = true),
-    Comic("comic", "Comic Pop", isAvailable = true);
+enum class ThemeMode(val id: String) {
+    Pixel("pixel"),
+    Comic("comic");
 
-    /**
-     * Resolves the concrete runtime theme mode based on device dark/light state.
-     */
-    /** The UI v2 skin this stored choice wears: Pixel's own; Comic for the rest (docs/ui-v2.md). */
+    /** The UI v2 skin this choice wears. */
     val skin: PqSkin get() = if (this == Pixel) PqSkin.Pixel else PqSkin.Comic
 
-    fun resolveEffective(isSystemInDark: Boolean): ThemeMode = when (this) {
-        System -> if (isSystemInDark) Pixel else Light
-        Pixel -> Pixel
-        Light -> Light
-        Comic -> Comic
-    }
-
     companion object {
-        /**
-         * The theme of a player who hasn't chosen one: Comic Pop from 1.2.0 (Retro Pixel before).
-         * A theme chosen in Settings or with the Home screen's toggle is kept through updates.
-         */
+        /** The skin of a player who hasn't chosen one: Comic (from 1.2.0; Pixel before). */
         val DEFAULT: ThemeMode get() = Comic
 
-        fun fromId(id: String?): ThemeMode {
-            val cleanId = id?.trim()
-            return entries.firstOrNull { it.id.equals(cleanId, ignoreCase = true) } ?: Pixel
-        }
+        /** The ids of the looks before UI v2 that wear Comic now. */
+        private val WEARS_COMIC = setOf("comic", "light", "system")
+
+        /** The skin stored as [id]: Comic for "comic" and the old "light" and "system", Pixel otherwise. */
+        fun fromId(id: String?): ThemeMode =
+            if (id?.trim()?.lowercase() in WEARS_COMIC) Comic else Pixel
     }
 }

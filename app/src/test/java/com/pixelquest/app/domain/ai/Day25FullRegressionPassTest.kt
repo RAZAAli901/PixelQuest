@@ -85,11 +85,12 @@ class Day25FullRegressionPassTest {
 
     @Test
     fun themeModes_allSupportedWithoutConflict() {
-        val modes = listOf(ThemeMode.Pixel, ThemeMode.Light, ThemeMode.Comic)
-        assertEquals(3, modes.size)
+        assertEquals(listOf(ThemeMode.Pixel, ThemeMode.Comic), ThemeMode.entries)
         assertEquals(ThemeMode.Pixel, ThemeMode.fromId("pixel"))
-        assertEquals(ThemeMode.Light, ThemeMode.fromId("light"))
         assertEquals(ThemeMode.Comic, ThemeMode.fromId("comic"))
+        // The looks before UI v2: a phone that kept Light or Follow System wears Comic.
+        assertEquals(ThemeMode.Comic, ThemeMode.fromId("light"))
+        assertEquals(ThemeMode.Comic, ThemeMode.fromId("system"))
         // Fallback safety
         assertEquals(ThemeMode.Pixel, ThemeMode.fromId("unknown_mode"))
     }

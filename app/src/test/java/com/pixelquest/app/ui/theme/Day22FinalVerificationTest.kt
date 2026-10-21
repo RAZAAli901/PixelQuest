@@ -11,22 +11,9 @@ import org.junit.Test
 
 /**
  * Step 42: Day 22 Final Verification Test.
- * Confirms that:
- * 1. Comic mode, gated on Day 22, has been available to everyone since Day 23.
- * 2. Pixel, Light, and System modes remain fully available.
- * 3. Debug Comic preview toggle is properly gated behind BuildConfig.DEBUG.
- * 4. AvatarTierCalculator remains pure and untouched across all tier thresholds.
- * 5. All Day 22 component tokens and color ramps remain orthogonal and regression-free.
+ * Confirms that AvatarTierCalculator stays pure across all its tier thresholds.
  */
 class Day22FinalVerificationTest {
-
-    @Test
-    fun comicMode_remainsStrictlyGatedFromUsers() {
-        assertTrue("Comic mode is available since Day 23", ThemeMode.Comic.isAvailable)
-        assertTrue("Pixel mode must remain fully available", ThemeMode.Pixel.isAvailable)
-        assertTrue("Light mode must remain fully available", ThemeMode.Light.isAvailable)
-        assertTrue("System mode must remain fully available", ThemeMode.System.isAvailable)
-    }
 
     @Test
     fun avatarTierCalculator_remainsPristineAndUntouched() {

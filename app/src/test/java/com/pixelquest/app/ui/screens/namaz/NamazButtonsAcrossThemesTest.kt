@@ -42,7 +42,6 @@ class NamazButtonsAcrossThemesTest(private val mode: ThemeMode, private val simp
         fun looks() = listOf(
             arrayOf<Any>(ThemeMode.Pixel, false),
             arrayOf<Any>(ThemeMode.Comic, false),
-            arrayOf<Any>(ThemeMode.Light, false),
             arrayOf<Any>(ThemeMode.Comic, true)
         )
     }

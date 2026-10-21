@@ -43,8 +43,7 @@ class QuranReaderScreenshotTest(private val look: Look, private val mode: Displa
     enum class Look(val theme: ThemeMode, val dark: Boolean, val simpleMode: Boolean = false, val paper: ReaderPaper = ReaderPaper.THEME) {
         PIXEL(ThemeMode.Pixel, dark = true),
         COMIC(ThemeMode.Comic, dark = false),
-        LIGHT(ThemeMode.Light, dark = false),
-        SIMPLE(ThemeMode.Light, dark = false, simpleMode = true),
+        SIMPLE(ThemeMode.Comic, dark = false, simpleMode = true),
         SIMPLE_DARK(ThemeMode.Pixel, dark = true, simpleMode = true),
         SEPIA(ThemeMode.Pixel, dark = true, paper = ReaderPaper.SEPIA)
     }
