@@ -51,6 +51,8 @@ class StudyChatViewModelTest {
     private val study = StudyRepositoryImpl(FakeStudyServer(server), db.studyDao(), db.partyDao(), { server.me }, clock = { server.now.toEpochMilli() }, timeZone = { zone })
     private val chat = StudyChatRepositoryImpl(chatServer, db.chatDao(), { server.me }, clock = { chatServer.now.toEpochMilli() })
     private val viewModels = TestViewModels()
+    private val pickedFiles = mutableMapOf<String, com.pixelquest.app.study.chat.data.PickedFile>()
+    private val picked = com.pixelquest.app.study.chat.data.PickedFileReader { pickedFiles[it] }
     private var watching: Job? = null
 
     @After
@@ -66,7 +68,7 @@ class StudyChatViewModelTest {
             parties.refreshParty(party)
         }
         return viewModels.keep(StudyChatViewModel::class.java) {
-            StudyChatViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), chat, parties, study)
+            StudyChatViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), chat, parties, study, picked)
         }.also { vm -> watching = vm.uiState.launchIn(MainScope()) }
     }
 
@@ -133,6 +135,23 @@ class StudyChatViewModelTest {
         vm.markRead()
         waitFor("marked") { chatServer.reads[party to "aria"] != null }
         assertEquals("kept while it's open", server.now, vm.uiState.value.lastReadAt)
+    }
+
+    @Test
+    fun aPickedFile_isCheckedOnThePhone_beforeItWaitsToBeSent() {
+        pickedFiles["content://1"] = com.pixelquest.app.study.chat.data.PickedFile("content://1", "setup.exe", "application/x-msdownload", 100)
+        pickedFiles["content://2"] = com.pixelquest.app.study.chat.data.PickedFile("content://2", "C:/notes/Past paper.pdf", "application/pdf", 100)
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.loaded }
+        vm.attach("content://1")
+        waitFor("said why") { vm.uiState.value.notice == ChatNotice.FileProblem(com.pixelquest.app.study.chat.domain.UploadProblem.BAD_TYPE) }
+        assertEquals(null, vm.uiState.value.attachment)
+        vm.attach("content://2")
+        waitFor("waiting") { vm.uiState.value.attachment != null }
+        assertEquals("Past paper.pdf", vm.uiState.value.attachment!!.name)
+        assertEquals("the problem's gone with it", null, vm.uiState.value.notice)
+        vm.attach("content://gone")
+        waitFor("unreadable") { vm.uiState.value.notice == ChatNotice.FileUnreadable }
     }
 
     @Test

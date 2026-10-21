@@ -203,6 +203,13 @@
     <string name="study_chat_not_sent">Not sent.</string>
     <string name="study_chat_reply">Reply</string>
     <string name="study_chat_attach">Share a file</string>
+    <string name="study_chat_file_bad_type">That kind of file can\'t be shared. Share a PDF, Word, Excel, PowerPoint, text, CSV, PNG or JPG file.</string>
+    <string name="study_chat_file_macros">Files with macros can\'t be shared. Save it as an ordinary document (docx, xlsx, pptx) or a PDF first.</string>
+    <string name="study_chat_file_archive">Zip and other archives can\'t be shared. Share the files inside them instead.</string>
+    <string name="study_chat_file_empty">That file is empty.</string>
+    <string name="study_chat_file_too_large">That file is over 20 MB. Share a smaller one, or save it as a PDF.</string>
+    <string name="study_chat_file_bad_name">That file has no usable name. Rename it, then share it.</string>
+    <string name="study_chat_file_unreadable">That file couldn\'t be opened. Pick it again.</string>
     <string name="study_chat_attach_remove">Don\'t share this file</string>
     <string name="study_chat_unread">Unread messages</string>
     <plurals name="study_chat_unread_count">

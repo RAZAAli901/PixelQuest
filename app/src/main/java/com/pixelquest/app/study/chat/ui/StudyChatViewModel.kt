@@ -36,6 +36,12 @@ sealed interface ChatNotice {
     data object SavedOffline : ChatNotice
     data object Offline : ChatNotice
     data class Refused(val refusal: StudyRefusal) : ChatNotice
+
+    /** A picked file that can't be shared, and why, before anything's sent. */
+    data class FileProblem(val problem: com.pixelquest.app.study.chat.domain.UploadProblem) : ChatNotice
+
+    /** A picked document the app couldn't read (it went, or the picker gave nothing to open). */
+    data object FileUnreadable : ChatNotice
 }
 
 /**
@@ -139,9 +145,27 @@ class StudyChatViewModel @Inject constructor(
         draft.value = text.take(StudyChatConfig.MESSAGE_MAX_CHARS)
     }
 
-    /** The player picked a document to share: what it says it is, to show before it's sent. */
+    /**
+     * The player picked a document to share: checked on the phone first (type, size, name), so a
+     * file sure to be refused is said at once; otherwise it waits over the field, cleanly named.
+     */
     fun attach(uri: String) {
-        viewModelScope.launch { attachment.value = picked.describe(uri) }
+        viewModelScope.launch {
+            val file = picked.describe(uri)
+            if (file == null) {
+                notice.value = ChatNotice.FileUnreadable
+                return@launch
+            }
+            com.pixelquest.app.study.chat.domain.UploadChecks.check(file.name, file.mime, file.sizeBytes)
+                .onSuccess { ok ->
+                    attachment.value = file.copy(name = ok.name, mime = ok.mime)
+                    if (notice.value is ChatNotice.FileProblem) notice.value = null
+                }
+                .onFailure { e ->
+                    attachment.value = null
+                    notice.value = (e as? com.pixelquest.app.study.chat.domain.UploadRefused)?.let { ChatNotice.FileProblem(it.problem) } ?: ChatNotice.FileUnreadable
+                }
+        }
     }
 
     fun removeAttachment() {

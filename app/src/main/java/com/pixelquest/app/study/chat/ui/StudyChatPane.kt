@@ -179,6 +179,15 @@ private fun ChatNoticeLine(notice: ChatNotice, onDismiss: () -> Unit) {
     val text = when (notice) {
         ChatNotice.SavedOffline -> R.string.study_chat_saved_offline
         ChatNotice.Offline -> R.string.study_chat_offline
+        ChatNotice.FileUnreadable -> R.string.study_chat_file_unreadable
+        is ChatNotice.FileProblem -> when (notice.problem) {
+            com.pixelquest.app.study.chat.domain.UploadProblem.BAD_TYPE -> R.string.study_chat_file_bad_type
+            com.pixelquest.app.study.chat.domain.UploadProblem.MACROS -> R.string.study_chat_file_macros
+            com.pixelquest.app.study.chat.domain.UploadProblem.ARCHIVE -> R.string.study_chat_file_archive
+            com.pixelquest.app.study.chat.domain.UploadProblem.EMPTY -> R.string.study_chat_file_empty
+            com.pixelquest.app.study.chat.domain.UploadProblem.TOO_LARGE -> R.string.study_chat_file_too_large
+            com.pixelquest.app.study.chat.domain.UploadProblem.BAD_NAME -> R.string.study_chat_file_bad_name
+        }
         is ChatNotice.Refused -> when (notice.refusal) {
             com.pixelquest.app.study.domain.StudyRefusal.TOO_MANY_MESSAGES -> R.string.study_chat_too_many
             else -> com.pixelquest.app.study.ui.noticeText(com.pixelquest.app.study.ui.StudyNotice.Refused(notice.refusal))
