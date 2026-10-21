@@ -90,6 +90,9 @@ interface StudyChatRepository {
     /** The player has read the chat up to now: here, and on the server when it can. */
     suspend fun markRead(partyId: String)
 
+    /** The leader pins or unpins a file (the server checks). */
+    suspend fun pinFile(file: ChatFile, pinned: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
     /**
      * Follows a party's chat live while collected: each change brings the chat up to date, once the
      * changes pause, and is passed on. Nothing without a live source.
@@ -211,6 +214,9 @@ class StudyChatRepositoryImpl(
         dao.markRead(partyId, clock())
         remote.markRead(partyId)
     }
+
+    override suspend fun pinFile(file: ChatFile, pinned: Boolean): SupabaseResult<Unit> =
+        remote.pinFile(file.id, pinned).also { if (it is SupabaseResult.Success) dao.upsertFilesIfKept(file.partyId, listOf(file.copy(pinned = pinned).toEntity())) }
 
     @OptIn(FlowPreview::class)
     override fun follow(partyId: String): Flow<ChatChange> = channelFlow {

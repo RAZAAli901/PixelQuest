@@ -40,6 +40,9 @@ interface StudyChatRemoteDataSource {
 
     /** Moves the account's read mark on the server (mark_chat_read). */
     suspend fun markRead(partyId: String): SupabaseResult<Unit>
+
+    /** The party's leader pins or unpins a ready file (pin_chat_file). */
+    suspend fun pinFile(fileId: String, pinned: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
 
 @Singleton
@@ -106,6 +109,13 @@ class SupabaseStudyChatRemoteDataSource @Inject constructor(
 
     override suspend fun markRead(partyId: String): SupabaseResult<Unit> = signedIn {
         postgrest.rpc("mark_chat_read", buildJsonObject { put("party_id", partyId) })
+    }.map { }
+
+    override suspend fun pinFile(fileId: String, pinned: Boolean): SupabaseResult<Unit> = signedIn {
+        postgrest.rpc("pin_chat_file", buildJsonObject {
+            put("file_id", fileId)
+            put("pinned", pinned)
+        })
     }.map { }
 
     internal companion object {

@@ -232,3 +232,15 @@ localTest("chat: a member's read state is their own, and only moves on", async (
   assert.equal((await rpc(outsider, "mark_chat_read", { party_id: party })).body.message, "not_a_member");
   assert.equal((await call(`/rest/v1/chat_reads?party_id=eq.${party}&select=user_id`, { token: leader.accessToken })).body.length, 0, "another's isn't read");
 });
+
+localTest("chat files: only the leader pins a ready file", async () => {
+  const { leader, member } = await cast();
+  const party = await studyParty(leader, [member]);
+  const ready = fileRow(party, member.userId, { status: "ready" });
+  assert.equal((await rpc(member, "pin_chat_file", { file_id: ready, pinned: true })).body.message, "not_allowed");
+  assert.equal((await rpc(leader, "pin_chat_file", { file_id: ready, pinned: true })).status, 204);
+  assert.equal(sql(`SELECT pinned FROM public.chat_files WHERE id = '${ready}'`), "t");
+  const pending = fileRow(party, member.userId);
+  assert.equal((await rpc(leader, "pin_chat_file", { file_id: pending, pinned: true })).body.message, "not_allowed");
+  forgetUploads(member);
+});

@@ -271,6 +271,13 @@ class StudyChatViewModel @Inject constructor(
         }
     }
 
+    /** The leader pins or unpins a file. */
+    fun pinFile(file: com.pixelquest.app.study.chat.domain.ChatFile, pinned: Boolean) {
+        viewModelScope.launch {
+            StudyRefusal.of(chat.pinFile(file, pinned))?.let { notice.value = ChatNotice.Refused(it) }
+        }
+    }
+
     /** No app opened it: said, so the player knows why nothing happened. */
     fun noViewer() {
         notice.value = ChatNotice.NoViewer

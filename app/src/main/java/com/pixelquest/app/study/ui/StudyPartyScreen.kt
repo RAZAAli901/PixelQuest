@@ -56,6 +56,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.remember
+import androidx.compose.material.icons.outlined.PushPin
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -173,6 +175,7 @@ fun StudyPartyScreen(
                 onCancelUpload = vm::cancelUpload,
                 onOpenFile = vm::openFile,
                 onConfirmOpen = vm::confirmOpen,
+                onPinFile = vm::pinFile,
                 onCancelOpen = vm::cancelOpen,
                 onRetryUpload = vm::retryUpload,
                 onDismissUpload = vm::dismissUpload
@@ -392,6 +395,10 @@ private fun StudyPartyScaffold(
                                     WinnerBannerIfAny(state, onDismissWinners)
                                     if (state.pinned.isNotEmpty()) PinnedStrip(state.pinned, onOpen = onOpenItem)
                                     if (state.thisWeek.isNotEmpty()) WeekSummary(state)
+                                    chatState?.files?.filter { it.pinned }?.takeIf { it.isNotEmpty() }?.let { pinnedFiles ->
+                                        PqGroupLabel(stringResource(R.string.study_files_pinned))
+                                        pinnedFiles.forEach { com.pixelquest.app.study.chat.ui.FileCard(it, onOpen = chatActions.onOpenFile) }
+                                    }
                                     StudyTimerCard(state, timerActions)
                                     if (reminderActions != null) AddReminderButton(reminderActions.onAdd)
                                 }
@@ -413,7 +420,7 @@ private fun StudyPartyScaffold(
                             reminderToggles(reminders, simpleMode = state.simpleMode)
                             if (reminderActions != null) reminderMutes(reminderState, reminderActions)
                         }
-                        PartyTab.FILES -> sharedFiles(chatState?.files.orEmpty(), filesQuery, { filesQuery = it }, chatActions.onOpenFile)
+                        PartyTab.FILES -> sharedFiles(chatState?.files.orEmpty(), filesQuery, { filesQuery = it }, chatActions.onOpenFile, chatActions.onPinFile.takeIf { state.isLeader })
                         PartyTab.CHAT -> Unit
                     }
                 }
@@ -694,7 +701,8 @@ private fun LazyListScope.sharedFiles(
     files: List<com.pixelquest.app.study.chat.domain.ChatFile>,
     query: com.pixelquest.app.study.chat.ui.FilesQuery,
     onQuery: (com.pixelquest.app.study.chat.ui.FilesQuery) -> Unit,
-    onOpen: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)?
+    onOpen: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)?,
+    onPin: ((com.pixelquest.app.study.chat.domain.ChatFile, Boolean) -> Unit)?
 ) {
     if (files.isEmpty()) {
         emptyLine(R.string.study_files_empty, loaded = true)
@@ -703,7 +711,19 @@ private fun LazyListScope.sharedFiles(
     item(key = "files_controls") { com.pixelquest.app.study.chat.ui.FilesControls(query, onQuery) }
     val shown = com.pixelquest.app.study.chat.ui.filesFor(files, query)
     if (shown.isEmpty()) item(key = "files_none") { com.pixelquest.app.study.chat.ui.NoFilesFound() }
-    items(shown, key = { "file_" + it.id }) { file -> com.pixelquest.app.study.chat.ui.FileCard(file, onOpen = onOpen) }
+    items(shown, key = { "file_" + it.id }) { file ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            com.pixelquest.app.study.chat.ui.FileCard(file, onOpen = onOpen, modifier = Modifier.weight(1f))
+            if (onPin != null) {
+                PqIconButton(
+                    if (file.pinned) Icons.Rounded.PushPin else Icons.Outlined.PushPin,
+                    stringResource(if (file.pinned) R.string.study_file_unpin else R.string.study_file_pin),
+                    { onPin(file, !file.pinned) },
+                    Modifier.testTag("study_file_pin_" + file.id)
+                )
+            }
+        }
+    }
 }
 
 /** Study reminders' switches on this phone: all of them, and this party's (docs/study-reminders.md, Channel). */
