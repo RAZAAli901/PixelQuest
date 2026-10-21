@@ -1,28 +1,9 @@
 package com.pixelquest.app.ui.screens.onboarding
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelTextField
-import com.pixelquest.app.ui.theme.PixelTheme
 
 @Composable
 fun OnboardingNameEntryScreen(
@@ -33,68 +14,22 @@ fun OnboardingNameEntryScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
-    val colors = PixelTheme.colors
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .imePadding()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+    OnboardingStepFrame(
+        step = 1,
+        title = "Name your hero",
+        body = "Every quest begins with a hero's name.",
+        primary = "Next",
+        onPrimary = onNextClick,
+        onBack = onBackClick,
+        primaryEnabled = isValid
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+        PixelTextField(
+            value = username,
+            onValueChange = onUsernameChange,
+            label = "Hero name",
+            placeholder = "e.g. PixelKnight",
+            errorText = nameError,
             modifier = Modifier.fillMaxWidth()
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "👑 NAME YOUR HERO",
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primaryText,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "Every legendary quest begins with a hero's name.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PixelTextField(
-                value = username,
-                onValueChange = onUsernameChange,
-                label = "HERO USERNAME",
-                placeholder = "e.g. PixelKnight",
-                errorText = nameError,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            PixelButton(
-                text = "◀ BACK",
-                onClick = onBackClick,
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.weight(1f)
-            )
-            PixelButton(
-                text = "NEXT ▶",
-                onClick = onNextClick,
-                enabled = isValid,
-                variant = PixelButtonVariant.YELLOW,
-                modifier = Modifier.weight(1f)
-            )
-        }
+        )
     }
 }

@@ -73,25 +73,25 @@ class OnboardingFlowTest {
         }
 
         // 1. Welcome Screen
-        composeTestRule.onNodeWithText("⚔️ WELCOME HERO ⚔️").assertIsDisplayed()
-        composeTestRule.onNodeWithText("START YOUR JOURNEY ▶").performClick()
+        composeTestRule.onNodeWithText("WELCOME, HERO").assertIsDisplayed()
+        composeTestRule.onNodeWithText("START YOUR JOURNEY").performClick()
 
         // 2. Name Entry Screen
-        composeTestRule.onNodeWithText("👑 NAME YOUR HERO").assertIsDisplayed()
+        composeTestRule.onNodeWithText("NAME YOUR HERO").assertIsDisplayed()
         composeTestRule.onNode(hasSetTextAction()).performTextInput("KnightArthur")
-        composeTestRule.onNodeWithText("NEXT ▶").performClick()
+        composeTestRule.onNodeWithText("NEXT").performClick()
 
         // 3. Avatar Selection Screen
-        composeTestRule.onNodeWithText("🧙 CHOOSE YOUR AVATAR").assertIsDisplayed()
-        composeTestRule.onNodeWithText("NEXT ▶").performClick()
+        composeTestRule.onNodeWithText("CHOOSE YOUR AVATAR").assertIsDisplayed()
+        composeTestRule.onNodeWithText("NEXT").performClick()
 
         // 4. Difficulty Pick Screen
-        composeTestRule.onNodeWithText("🛡️ CHOOSE DIFFICULTY").assertIsDisplayed()
-        composeTestRule.onNodeWithText("NEXT ▶").performClick()
+        composeTestRule.onNodeWithText("CHOOSE DIFFICULTY").assertIsDisplayed()
+        composeTestRule.onNodeWithText("NEXT").performClick()
 
         // 5. Summary Screen
-        composeTestRule.onNodeWithText("📜 HERO SUMMARY").assertIsDisplayed()
-        composeTestRule.onNodeWithText("BEGIN QUEST ▶").performClick()
+        composeTestRule.onNodeWithText("YOUR HERO").assertIsDisplayed()
+        composeTestRule.onNodeWithText("BEGIN QUEST").performClick()
 
         assertTrue(onboardingCompleted)
         assertEquals("KnightArthur", username)

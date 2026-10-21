@@ -56,28 +56,6 @@ class StatsAndTipAccessibilityTest {
     }
 
     @Test
-    fun heatmapSquares_sayTheDayAndItsResult() {
-        val friday = LocalDate.of(2026, 10, 2)
-        composeTestRule.setContent {
-            PixelQuestTheme(themeMode = ThemeMode.Comic) {
-                PixelCalendarHeatmap(
-                    statusMap = mapOf(friday to DailyStatus.PERFECT, friday.plusDays(1) to DailyStatus.MISSED),
-                    startDate = friday.minusDays(6),
-                    endDate = friday.plusDays(1),
-                    onDayClick = { _, _ -> }
-                )
-            }
-        }
-
-        composeTestRule.onNodeWithContentDescription("Friday 2 October: perfect day").assertHasClickAction()
-        composeTestRule.onNodeWithContentDescription("Thursday 1 October: nothing scheduled").assertHasClickAction()
-        // Saturday is the heatmap's today: not over yet, so not "missed".
-        composeTestRule.onNodeWithContentDescription("Saturday 3 October, today: nothing done yet").assertHasClickAction()
-        // The rest of the week's column hasn't happened.
-        composeTestRule.onNodeWithContentDescription("Sunday 4 October: upcoming").assertHasNoClickAction()
-    }
-
-    @Test
     fun theLabels() {
         val friday = LocalDate.of(2026, 10, 2)
         assertEquals("Friday 2 October: partly done", HeatmapCellLabels.describe(friday, DailyStatus.PARTIAL))

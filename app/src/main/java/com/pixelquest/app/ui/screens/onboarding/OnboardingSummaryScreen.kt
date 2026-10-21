@@ -1,32 +1,24 @@
 package com.pixelquest.app.ui.screens.onboarding
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.domain.AvatarCatalog
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
-import com.pixelquest.app.ui.components.PixelAvatarFrame
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.AvatarClass
+import com.pixelquest.app.ui.components.PixelAvatar
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
 @Composable
 fun OnboardingSummaryScreen(
@@ -36,106 +28,39 @@ fun OnboardingSummaryScreen(
     onConfirmClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
-    val colors = PixelTheme.colors
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+    val avatar = AvatarClass.from(avatarId)
+    OnboardingStepFrame(
+        step = 4,
+        title = "Your hero",
+        body = "Here's who you'll start as. You can change any of it later in Settings.",
+        primary = "Begin quest",
+        onPrimary = onConfirmClick,
+        onBack = onBackClick
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "📜 HERO SUMMARY",
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primaryText,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "Review your character choices before starting your adventure.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            PixelAvatarFrame(
-                avatarId = avatarId,
-                level = 1,
-                size = 96.dp
-            )
-
-            PixelCard(
-                variant = PixelPanelVariant.BORDER,
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = 16.dp
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = username.uppercase(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary)
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "AVATAR:", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
-                        Text(text = AvatarCatalog.getAvatarById(avatarId).name.uppercase(), style = MaterialTheme.typography.bodySmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary))
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "DIFFICULTY:", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
-                        Text(
-                            text = DifficultyMode.getDisplayName(difficultyLevel).uppercase(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary)
-                        )
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "PERFECT DAY:", style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
-                        val pct = (DifficultyMode.getPerfectDayThreshold(difficultyLevel) * 100).toInt()
-                        Text(text = "$pct%", style = MaterialTheme.typography.bodySmall, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
-                    }
+        PqCard(bg = PqColors.Gold, shadow = PqDimens.ShadowLg, radius = 18.dp) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                PixelAvatar(avatar, 96.dp)
+                Column(Modifier.padding(start = 16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(text = "LEVEL 1", style = PqType.Label)
+                    Text(text = username.uppercase(), style = PqType.display(32))
+                    Text(text = stringResource(avatar.label), style = PqType.Body)
                 }
             }
         }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            PixelButton(
-                text = "◀ BACK",
-                onClick = onBackClick,
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.weight(1f)
-            )
-            PixelButton(
-                // Short enough for one line beside BACK; the longer label wrapped in Comic.
-                text = "BEGIN QUEST ▶",
-                onClick = onConfirmClick,
-                variant = PixelButtonVariant.YELLOW,
-                modifier = Modifier.weight(1f)
-            )
+        PqCard(radius = PqDimens.Radius, shadow = 0.dp) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+                SummaryLine("Difficulty", DifficultyMode.getDisplayName(difficultyLevel))
+                SummaryLine("Perfect day", "${(DifficultyMode.getPerfectDayThreshold(difficultyLevel) * 100).toInt()}% of the day's quests")
+                SummaryLine("A level takes", "${DifficultyMode.getDaysRequiredPerLevel(difficultyLevel)} days")
+            }
         }
+    }
+}
+
+@Composable
+private fun SummaryLine(label: String, value: String) {
+    Row(Modifier.fillMaxWidth()) {
+        Text(text = label, style = PqType.Meta, modifier = Modifier.weight(1f))
+        Text(text = value, style = PqType.MetaStrong)
     }
 }

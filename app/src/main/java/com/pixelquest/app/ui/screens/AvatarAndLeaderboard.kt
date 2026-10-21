@@ -123,36 +123,7 @@ fun AvatarPickerScreen(
                 }
             }
         }
-        LazyVerticalGrid(
-            GridCells.Fixed(3), Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(top = 8.dp, end = 4.dp, bottom = 4.dp),
-        ) {
-            items(AvatarClass.entries) { a ->
-                val sel = a == selected
-                Box {
-                    Column(
-                        Modifier.fillMaxWidth()
-                            .comic(bg = if (sel) PqColors.Gold else PqColors.Paper, shadow = if (sel) PqDimens.Shadow else 0.dp, tappable = true)
-                            .selectable(selected = sel, role = Role.RadioButton) { onSelect(a) }
-                            .testTag(AvatarTags.tile(a))
-                            .padding(top = 12.dp, bottom = 10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        PixelAvatar(a, 60.dp, Modifier.clearAndSetSemantics {})
-                        Text(stringResource(a.label).uppercase(), style = PqType.Button.copy(fontSize = 12.lsp))
-                    }
-                    if (sel) Box(
-                        Modifier.align(Alignment.TopEnd).offset(8.dp, (-8).dp).size(26.dp).clip(PqCircle).background(PqColors.Ink),
-                        contentAlignment = Alignment.Center,
-                    ) { Icon(Icons.Rounded.Check, null, tint = PqColors.Gold, modifier = Modifier.size(18.dp)) }
-                    if (a == equipped) Text(
-                        stringResource(R.string.pq_avatar_on), style = PqType.Label.copy(fontSize = 8.lsp, color = PqColors.Paper),
-                        modifier = Modifier.padding(6.dp).clip(pqShape(4.dp)).background(PqColors.Ink).padding(horizontal = 4.dp, vertical = 2.dp),
-                    )
-                }
-            }
-        }
+        AvatarChoiceGrid(selected = selected, onSelect = onSelect, equipped = equipped, modifier = Modifier.weight(1f))
         PqButton(
             if (selected == equipped) stringResource(R.string.pq_avatar_equipped) else stringResource(R.string.pq_avatar_equip, stringResource(selected.label)),
             { onEquip(selected) },
@@ -238,6 +209,44 @@ fun LeaderboardLockedScreen(
                     )
                     error?.let { Text(it, style = PqType.MetaStrong.copy(color = PqColors.RedText), modifier = Modifier.testTag(LockedBoardTags.ERROR)) }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * The avatars three to a row (mock 2I): a tap chooses one (it fills gold and gets a check); the one the
+ * hero wears now, if any, is marked. The avatar picker and onboarding both use it.
+ */
+@Composable
+fun AvatarChoiceGrid(selected: AvatarClass, onSelect: (AvatarClass) -> Unit, modifier: Modifier = Modifier, equipped: AvatarClass? = null) {
+    LazyVerticalGrid(
+        GridCells.Fixed(3), modifier,
+        horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(top = 8.dp, end = 4.dp, bottom = 4.dp),
+    ) {
+        items(AvatarClass.entries) { a ->
+            val sel = a == selected
+            Box {
+                Column(
+                    Modifier.fillMaxWidth()
+                        .comic(bg = if (sel) PqColors.Gold else PqColors.Paper, shadow = if (sel) PqDimens.Shadow else 0.dp, tappable = true)
+                        .selectable(selected = sel, role = Role.RadioButton) { onSelect(a) }
+                        .testTag(AvatarTags.tile(a))
+                        .padding(top = 12.dp, bottom = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    PixelAvatar(a, 60.dp, Modifier.clearAndSetSemantics {})
+                    Text(stringResource(a.label).uppercase(), style = PqType.Button.copy(fontSize = 12.lsp))
+                }
+                if (sel) Box(
+                    Modifier.align(Alignment.TopEnd).offset(8.dp, (-8).dp).size(26.dp).clip(PqCircle).background(PqColors.Ink),
+                    contentAlignment = Alignment.Center,
+                ) { Icon(Icons.Rounded.Check, null, tint = PqColors.Gold, modifier = Modifier.size(18.dp)) }
+                if (a == equipped) Text(
+                    stringResource(R.string.pq_avatar_on), style = PqType.Label.copy(fontSize = 8.lsp, color = PqColors.Paper),
+                    modifier = Modifier.padding(6.dp).clip(pqShape(4.dp)).background(PqColors.Ink).padding(horizontal = 4.dp, vertical = 2.dp),
+                )
             }
         }
     }

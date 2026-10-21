@@ -101,7 +101,7 @@ class RestoreFromWelcomeTest {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) { OnboardingWelcomeScreen(onRestoreClick = {}) }
         }
-        composeTestRule.onNodeWithText("📥 I HAVE A BACKUP").assertExists()
+        composeTestRule.onNodeWithText("I HAVE A BACKUP").assertExists()
     }
 
     @Test
@@ -109,7 +109,7 @@ class RestoreFromWelcomeTest {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) { OnboardingWelcomeScreen() }
         }
-        assertEquals(0, composeTestRule.onAllNodesWithText("📥 I HAVE A BACKUP").fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodesWithText("I HAVE A BACKUP").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -176,7 +176,7 @@ class RestoreFromWelcomeTest {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) { OnboardingWelcomeScreen(onRestoreClick = {}, autoBackupDay = "11 Oct") }
         }
-        composeTestRule.onNodeWithText("↺ RESTORE MY GAME FROM 11 OCT").assertExists()
+        composeTestRule.onNodeWithText("RESTORE MY GAME FROM 11 OCT").assertExists()
     }
 }
 

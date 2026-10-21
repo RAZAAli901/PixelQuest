@@ -1,7 +1,6 @@
 package com.pixelquest.app.ui.today
 
 import com.pixelquest.app.domain.model.TaskTerminology
-import com.pixelquest.app.ui.components.CountdownFormatter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -14,31 +13,6 @@ import java.time.LocalTime
  * and visually intact in Simple Mode.
  */
 class SimpleModeTodayFunctionalIntegrityTest {
-
-    @Test
-    fun testCountdownFormatter_operatesNeutrallyWithoutGamificationBias() {
-        val now = LocalTime.of(12, 0)
-
-        // Future task
-        val futureTime = LocalTime.of(13, 30)
-        val formattedRemaining = CountdownFormatter.formatRemainingTime(futureTime, now)
-        assertEquals("01h 30m left", formattedRemaining)
-        assertFalse(CountdownFormatter.isExpired(futureTime, now))
-        assertFalse(CountdownFormatter.isUrgent(futureTime, now))
-
-        // Urgent task (within 15 minutes)
-        val urgentTime = LocalTime.of(12, 10)
-        val formattedUrgent = CountdownFormatter.formatRemainingTime(urgentTime, now)
-        assertEquals("10m left", formattedUrgent)
-        assertTrue(CountdownFormatter.isUrgent(urgentTime, now))
-        assertFalse(CountdownFormatter.isExpired(urgentTime, now))
-
-        // Expired task
-        val pastTime = LocalTime.of(11, 45)
-        val formattedPast = CountdownFormatter.formatRemainingTime(pastTime, now)
-        assertEquals("TIME'S UP!", formattedPast)
-        assertTrue(CountdownFormatter.isExpired(pastTime, now))
-    }
 
     @Test
     fun testTaskTerminology_switchesAccuratelyBetweenGamifiedAndSimple() {

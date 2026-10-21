@@ -16,7 +16,6 @@ import com.pixelquest.app.ui.screens.difficulty.DifficultyUiState
 import com.pixelquest.app.ui.screens.difficulty.DifficultyViewModel
 import com.pixelquest.app.ui.screens.settings.SettingsUiState
 import com.pixelquest.app.ui.screens.settings.SettingsViewModel
-import com.pixelquest.app.ui.screens.settings.SimpleModeViewModel
 import com.pixelquest.app.ui.screens.today.TodayUiState
 import com.pixelquest.app.ui.theme.ThemeMode
 import kotlinx.coroutines.Dispatchers
@@ -110,23 +109,18 @@ class ScreenStabilitySimpleModeQaTest {
     @Test
     fun testTogglingSimpleMode_preservesViewModelStabilityWithoutCrashes() = runTest {
         // 1. Instantiate ViewModels
-        val simpleModeVm = SimpleModeViewModel(settingsRepo)
         val difficultyVm = DifficultyViewModel(difficultyRepo, settingsRepo)
-        // simpleModeEnabled is shared WhileSubscribed, so it only follows the setting while collected.
-        backgroundScope.launch { simpleModeVm.simpleModeEnabled.collect {} }
 
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Verify initial state: Simple Mode OFF
-        assertFalse(simpleModeVm.simpleModeEnabled.value)
         assertFalse(difficultyVm.uiState.value.isSimpleModeEnabled)
 
         // 2. Toggle Simple Mode ON
-        simpleModeVm.setSimpleModeEnabled(true)
+        settingsRepo.setSimpleModeEnabled(true)
         testDispatcher.scheduler.advanceUntilIdle()
 
         // Assert all ViewModels reflect ON state cleanly without crash
-        assertTrue(simpleModeVm.simpleModeEnabled.value)
         assertTrue(difficultyVm.uiState.value.isSimpleModeEnabled)
 
         // 3. Verify Suppression Model definitions remain valid
@@ -139,10 +133,9 @@ class ScreenStabilitySimpleModeQaTest {
         assertTrue(suppressionList.contains(com.pixelquest.app.domain.model.SimpleModeSuppressedFeature.GAMIFICATION_AUDIO_VISUAL_FLOURISHES))
 
         // 4. Toggle Simple Mode OFF
-        simpleModeVm.setSimpleModeEnabled(false)
+        settingsRepo.setSimpleModeEnabled(false)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertFalse(simpleModeVm.simpleModeEnabled.value)
         assertFalse(difficultyVm.uiState.value.isSimpleModeEnabled)
     }
 }

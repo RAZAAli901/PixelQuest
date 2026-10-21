@@ -1,28 +1,12 @@
 package com.pixelquest.app.ui.screens.onboarding
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.DifficultyLevel
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
 import com.pixelquest.app.ui.components.PixelDifficultyCards
-import com.pixelquest.app.ui.theme.PixelTheme
 
 @Composable
 fun OnboardingDifficultyStepScreen(
@@ -31,61 +15,18 @@ fun OnboardingDifficultyStepScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
-    val colors = PixelTheme.colors
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+    OnboardingStepFrame(
+        step = 3,
+        title = "Choose difficulty",
+        body = "How much of each day's quests counts as a perfect day.",
+        primary = "Next",
+        onPrimary = onNextClick,
+        onBack = onBackClick
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "🛡️ CHOOSE DIFFICULTY",
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primaryText,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Select how demanding your daily quest completion targets should be.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PixelDifficultyCards(
-                selectedLevel = selectedLevel,
-                onLevelSelected = onLevelSelected,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            PixelButton(
-                text = "◀ BACK",
-                onClick = onBackClick,
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.weight(1f)
-            )
-            PixelButton(
-                text = "NEXT ▶",
-                onClick = onNextClick,
-                variant = PixelButtonVariant.YELLOW,
-                modifier = Modifier.weight(1f)
-            )
-        }
+        PixelDifficultyCards(
+            selectedLevel = selectedLevel,
+            onLevelSelected = onLevelSelected,
+            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+        )
     }
 }

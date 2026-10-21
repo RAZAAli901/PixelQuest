@@ -1,25 +1,8 @@
 package com.pixelquest.app.ui.screens.onboarding
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.components.PixelAvatarGrid
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.AvatarClass
+import com.pixelquest.app.ui.screens.AvatarChoiceGrid
 
 @Composable
 fun OnboardingAvatarStepScreen(
@@ -28,54 +11,14 @@ fun OnboardingAvatarStepScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
-    val colors = PixelTheme.colors
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    OnboardingStepFrame(
+        step = 2,
+        title = "Choose your avatar",
+        body = "Pick the hero who stands for you. You can change it any time.",
+        primary = "Next",
+        onPrimary = onNextClick,
+        onBack = onBackClick
     ) {
-        Text(
-            text = "🧙 CHOOSE YOUR AVATAR",
-            style = MaterialTheme.typography.titleLarge,
-            color = colors.primaryText,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Pick an 8-bit avatar to represent your hero in PixelQuest.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = colors.onSurface,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        PixelAvatarGrid(
-            selectedAvatarId = selectedAvatarId,
-            onAvatarSelected = onAvatarSelected,
-            modifier = Modifier.weight(1f)
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            PixelButton(
-                text = "◀ BACK",
-                onClick = onBackClick,
-                variant = PixelButtonVariant.BLUE,
-                modifier = Modifier.weight(1f)
-            )
-            PixelButton(
-                text = "NEXT ▶",
-                onClick = onNextClick,
-                variant = PixelButtonVariant.YELLOW,
-                modifier = Modifier.weight(1f)
-            )
-        }
+        AvatarChoiceGrid(selected = AvatarClass.from(selectedAvatarId), onSelect = { onAvatarSelected(it.id) })
     }
 }
