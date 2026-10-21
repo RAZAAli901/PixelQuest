@@ -66,7 +66,7 @@ class RaceBoardTest {
         }
         composeTestRule.onNodeWithTag(DaroodTestTags.raceRow(1, mine = false)).assertIsDisplayed()
         composeTestRule.onNodeWithTag(DaroodTestTags.raceRow(2, mine = true)).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Yours", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("YOURS", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("240 of 1,000 (24%)", substring = true, useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("never anyone's name or numbers", substring = true).assertIsDisplayed()
     }
@@ -80,7 +80,7 @@ class RaceBoardTest {
         composeTestRule.onNodeWithTag(DaroodTestTags.RACE_EMPTY).assertIsDisplayed()
         state.value = RaceBoardUiState(problem = RaceProblem.OFFLINE)
         composeTestRule.onNodeWithTag(DaroodTestTags.RACE_PROBLEM).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Try again").assertIsDisplayed()
+        composeTestRule.onNodeWithText("TRY AGAIN").assertIsDisplayed()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

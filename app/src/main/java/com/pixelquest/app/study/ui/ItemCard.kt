@@ -214,7 +214,7 @@ fun kindTint(kind: StudyItemKind): Color = when (kind) {
 
 /** The ⋯ button and its menu: Edit, Pin or Unpin, Delete, as the player may. */
 @Composable
-private fun ItemMenu(itemId: String, pinned: Boolean, onEdit: (() -> Unit)?, onTogglePin: (() -> Unit)?, onDelete: (() -> Unit)?) {
+internal fun ItemMenu(itemId: String, pinned: Boolean, onEdit: (() -> Unit)?, onTogglePin: (() -> Unit)?, onDelete: (() -> Unit)?) {
     var open by remember { mutableStateOf(false) }
     Box {
         IconButton(onClick = { open = true }, modifier = Modifier.size(48.dp).testTag(StudyTags.itemMenu(itemId))) {

@@ -81,11 +81,7 @@ fun SettingsScreen(
                 PqButton("Save name", { viewModel.saveName() }, Modifier.fillMaxWidth(), enabled = nameError == null)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                com.pixelquest.app.ui.components.PixelAvatarFrame(
-                    avatarId = state.profile?.avatarId ?: "avatar_hero",
-                    level = state.profile?.level ?: 1,
-                    size = 56.dp
-                )
+                com.pixelquest.app.ui.components.PixelAvatar(com.pixelquest.app.ui.components.AvatarClass.from(state.profile?.avatarId), 56.dp)
                 Column(Modifier.weight(1f)) {
                     Text(text = "Avatar", style = PqType.BodyStrong)
                     Text(text = "Level ${state.profile?.level ?: 1}", style = PqType.Meta)
