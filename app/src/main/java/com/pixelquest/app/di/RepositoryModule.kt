@@ -254,6 +254,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindReminderSendScheduler(
+        impl: com.pixelquest.app.study.sync.WorkManagerReminderSendScheduler
+    ): com.pixelquest.app.study.sync.ReminderSendScheduler
+
+    @Binds
+    @Singleton
     abstract fun bindStudyReminderAlarms(
         impl: com.pixelquest.app.study.alarm.AlarmManagerStudyReminderAlarms
     ): com.pixelquest.app.study.alarm.StudyReminderAlarms

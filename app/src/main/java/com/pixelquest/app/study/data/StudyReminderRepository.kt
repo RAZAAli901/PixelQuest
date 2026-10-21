@@ -19,6 +19,7 @@ import com.pixelquest.app.study.domain.StudyReminder
 import com.pixelquest.app.study.domain.StudyReminderDraft
 import com.pixelquest.app.study.domain.SyncState
 import com.pixelquest.app.study.domain.problem
+import com.pixelquest.app.study.sync.ReminderSendScheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.sync.Mutex
@@ -83,11 +84,12 @@ class StudyReminderRepositoryImpl(
     private val remote: StudyReminderRemoteDataSource,
     private val dao: StudyReminderDao,
     private val account: DaroodAccount,
-    private val clock: () -> Long
+    private val clock: () -> Long,
+    private val sendLater: ReminderSendScheduler? = null
 ) : StudyReminderRepository {
     @Inject
-    constructor(remote: StudyReminderRemoteDataSource, dao: StudyReminderDao, account: DaroodAccount) :
-        this(remote, dao, account, System::currentTimeMillis)
+    constructor(remote: StudyReminderRemoteDataSource, dao: StudyReminderDao, account: DaroodAccount, sendLater: ReminderSendScheduler) :
+        this(remote, dao, account, System::currentTimeMillis, sendLater)
 
     /** One send at a time: two at once would send the same change twice. */
     private val sending = Mutex()
@@ -168,6 +170,8 @@ class StudyReminderRepositoryImpl(
         return if (left.state == SyncState.FAILED) {
             ReminderSave.Refused(StudyRefusal.entries.firstOrNull { it.token.isNotEmpty() && it.token == left.refusal } ?: StudyRefusal.INVALID)
         } else {
+            // It goes once there's a connection, even with the app closed.
+            sendLater?.scheduleSend()
             ReminderSave.Waiting
         }
     }

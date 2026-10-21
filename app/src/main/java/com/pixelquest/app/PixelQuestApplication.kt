@@ -115,6 +115,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
             studySync.scheduleSend()
             // Reminders of what's due, unless the player turned them off.
             if (studyReminders.dueReminders.value) com.pixelquest.app.study.sync.StudyDueWorker.schedule(this@PixelQuestApplication)
+            // Study reminders made by others reach the phone, and get armed, with the app closed.
+            com.pixelquest.app.study.sync.StudyReminderSyncWorker.schedule(this@PixelQuestApplication)
             // The Quran reader's text, loaded from the app's own files on the first start (docs/quran-data.md).
             com.pixelquest.app.quran.data.QuranImportWorker.schedule(this@PixelQuestApplication)
         }
