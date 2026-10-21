@@ -129,7 +129,10 @@ localTest("chess spectators: only the party's active members may join a game's c
   const game = gameRow(party, white, black);
   const mayWatch = (who: Session, topic = `chess:game:${game}`) =>
     sql(`BEGIN; SET LOCAL ROLE authenticated; SELECT set_config('request.jwt.claims', '{"sub":"${who.userId}","role":"authenticated"}', true); SELECT private.chess_may_watch('${topic}'); COMMIT;`).split("\n").filter((l) => l === "t" || l === "f").pop();
-  assert.equal(mayWatch(third), "t", "a member who isn't playing");
+  assert.equal(mayWatch(third), "f", "a member who isn't playing asks to watch first");
+  assert.deepEqual((await rpc(third, "chess_watch", { game_id: game })).body, { status: "watching" });
+  assert.equal(mayWatch(third), "t");
+  assert.equal((await rpc(outsider, "chess_watch", { game_id: game })).body.message, "not_found");
   assert.equal(mayWatch(white), "t");
   assert.equal(mayWatch(outsider), "f");
   assert.equal(mayWatch(third, `chess:game:${game}x`), "f", "only a real game's topic");
@@ -138,4 +141,22 @@ localTest("chess spectators: only the party's active members may join a game's c
   const sent = JSON.parse(sql(`SELECT payload FROM realtime.messages WHERE topic = 'chess:game:${game}' ORDER BY inserted_at DESC LIMIT 1`));
   assert.equal(sent.move.uci, "e2e4");
   assert.equal(sent.game.ply, 1);
+});
+
+localTest("chess rate limits: 5 moves a second in a game, 20 watches an hour", async () => {
+  const { white, black, third } = await chessCast();
+  endGames(white, black, third);
+  const party = await studyParty(white, [black, third]);
+  const game = gameRow(party, white, black);
+  // Six in one go, well inside a second: the sixth is refused.
+  const burst = (n: number) => sql(`DO $$ BEGIN FOR p IN 1..${n} LOOP INSERT INTO public.chess_moves (game_id, ply, san, uci, fen_after, white_ms_after, black_ms_after) VALUES ('${game}', p, 'a3', 'a2a3', 'x', 1, 1); END LOOP; END $$`);
+  assert.throws(() => burst(6), /rate_limited/);
+  burst(5);
+  assert.equal(sql(`SELECT count(*) FROM public.chess_moves WHERE game_id = '${game}'`), "5");
+
+  sql(`DELETE FROM public.chess_watch_log WHERE user_id = '${third.userId}'`);
+  sql(`INSERT INTO public.chess_watch_log (user_id, game_id) SELECT '${third.userId}', '${game}' FROM generate_series(1, 20)`);
+  assert.equal((await rpc(third, "chess_watch", { game_id: game })).body.message, "rate_limited");
+  assert.deepEqual((await rpc(white, "chess_watch", { game_id: game })).body, { status: "player" }, "a player needs no watch");
+  sql(`DELETE FROM public.chess_watch_log WHERE user_id = '${third.userId}'`);
 });
