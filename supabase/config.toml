@@ -404,6 +404,10 @@ deno_version = 2
 [functions.gemini-proxy]
 verify_jwt = false
 
+# The study chat's file functions check the caller's sign-in themselves too (docs/study-chat.md).
+[functions.request-upload]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
