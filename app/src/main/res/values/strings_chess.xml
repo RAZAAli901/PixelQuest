@@ -147,4 +147,15 @@
     <string name="chess_reconnecting">Reconnecting… The game goes on: the clocks are the server\'s.</string>
     <string name="chess_leave_title">Leave the game?</string>
     <string name="chess_leave_message">Leaving isn\'t resigning: your clock keeps running on the server. Open the game again from the party to play on.</string>
+    <string name="chess_square_said"><xliff:g id="square" example="e4">%1$s</xliff:g>, <xliff:g id="what" example="white pawn">%2$s</xliff:g></string>
+    <string name="chess_square_piece"><xliff:g id="side" example="White">%1$s</xliff:g> <xliff:g id="piece" example="pawn">%2$s</xliff:g></string>
+    <string name="chess_square_empty">empty</string>
+    <string name="chess_square_target">a move here</string>
+    <string name="chess_said_to"><xliff:g id="side" example="White">%1$s</xliff:g> <xliff:g id="piece" example="knight">%2$s</xliff:g> to <xliff:g id="square" example="f3">%3$s</xliff:g></string>
+    <string name="chess_said_takes"><xliff:g id="side" example="Black">%1$s</xliff:g> <xliff:g id="piece" example="pawn">%2$s</xliff:g> takes on <xliff:g id="square" example="d5">%3$s</xliff:g></string>
+    <string name="chess_said_promotes">becomes a <xliff:g id="piece" example="queen">%1$s</xliff:g></string>
+    <string name="chess_said_castle_short"><xliff:g id="side" example="White">%1$s</xliff:g> castles king side</string>
+    <string name="chess_said_castle_long"><xliff:g id="side" example="White">%1$s</xliff:g> castles queen side</string>
+    <string name="chess_said_check">check</string>
+    <string name="chess_said_mate">checkmate</string>
 </resources>

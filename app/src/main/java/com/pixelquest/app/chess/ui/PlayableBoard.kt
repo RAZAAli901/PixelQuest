@@ -83,6 +83,15 @@ fun PlayableBoard(
         return true
     }
 
+    fun tap(square: Int) {
+        val from = selected
+        when {
+            from != null && tryMove(from, square) -> Unit
+            isMine(square) -> selected = if (selected == square) null else square
+            else -> selected = null
+        }
+    }
+
     val check = position?.takeIf { it.inCheck() }?.kingSquare(position.whiteToMove)
     val marks = BoardMarks(
         lastMove = lastMove?.let { Move.ofUci(it) }?.let { setOf(Move.name(it.from), Move.name(it.to)) }.orEmpty(),
@@ -97,19 +106,12 @@ fun PlayableBoard(
             marks = marks,
             flipped = flipped,
             animate = animate,
+            onSquareClick = if (enabled) ({ square -> tap(square) }) else null,
             modifier = Modifier
                 .onSizeChanged { size = it }
                 .pointerInput(fen, enabled) {
                     if (!enabled) return@pointerInput
-                    detectTapGestures { offset ->
-                        val square = squareAt(offset) ?: return@detectTapGestures
-                        val from = selected
-                        when {
-                            from != null && tryMove(from, square) -> Unit
-                            isMine(square) -> selected = if (selected == square) null else square
-                            else -> selected = null
-                        }
-                    }
+                    detectTapGestures { offset -> squareAt(offset)?.let(::tap) }
                 }
                 .pointerInput(fen, enabled) {
                     if (!enabled) return@pointerInput

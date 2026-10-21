@@ -53,6 +53,7 @@ object ChessGameTags {
     const val FLIP = "chess_watch_flip"
     const val CONFIRM = "chess_confirm_move"
     const val RECONNECTING = "chess_reconnecting"
+    const val SAID = "chess_last_move_said"
     const val CONFIRM_YES = "chess_confirm_yes"
     fun captured(colour: ChessColour) = "chess_captured_${colour.name.lowercase()}"
 }
@@ -166,6 +167,11 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
             ConfirmMove(uci, onConfirm = { confirming = null; actions.onMove(uci) }, onCancel = { confirming = null })
         }
         MoveList(state.moves)
+        // The last move, said by TalkBack as it comes (J165): "White knight to f3".
+        state.moves.lastOrNull()?.let { last ->
+            val said = moveSaid(last)
+            Box(Modifier.testTag(ChessGameTags.SAID).semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite; contentDescription = said }) {}
+        }
         if (!state.spectating && game.status.live) GameActions(state, actions)
         if (state.spectating) SpectatorActions(onLeave = actions.onBack, onNext = actions.onNextGame, onFlip = { watcherFlipped = !watcherFlipped })
         if (!game.status.live) GameOverCard(game, state, actions.onRematch)

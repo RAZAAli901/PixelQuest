@@ -21,6 +21,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.unit.sp
 import com.pixelquest.app.chess.domain.BoardPosition
 import com.pixelquest.app.chess.domain.squareName
@@ -56,6 +60,8 @@ fun ChessBoard(
     marks: BoardMarks = BoardMarks(),
     flipped: Boolean = false,
     animate: Boolean = false,
+    /** TalkBack's tap on a square (J165): the same as a finger's. */
+    onSquareClick: ((Int) -> Unit)? = null,
     square: @Composable (name: String, content: @Composable () -> Unit) -> Unit = { _, content -> content() }
 ) {
     val position = BoardPosition.of(fen)
@@ -82,7 +88,19 @@ fun ChessBoard(
                             else -> ChessLook.dark
                         }
                         val shown = if (animate) androidx.compose.animation.animateColorAsState(bg, androidx.compose.animation.core.tween(220), label = "square").value else bg
-                        Box(Modifier.size(side).background(shown).testTag(ChessBoardTags.square(name)), contentAlignment = Alignment.Center) {
+                        val said = squareSaid(name, position.pieces[index], name in marks.dots)
+                        Box(
+                            Modifier
+                                .size(side)
+                                .background(shown)
+                                .testTag(ChessBoardTags.square(name))
+                                .clearAndSetSemantics {
+                                    contentDescription = said
+                                    if (name == marks.selected) selected = true
+                                    onSquareClick?.let { tap -> onClick { tap(index); true } }
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
                             square(name) {
                                 position.pieces[index]?.let { PieceGlyph(it, size = side) }
                                 if (name in marks.dots) Box(Modifier.size(12.dp).clip(CircleShape).background(ChessLook.dot))
