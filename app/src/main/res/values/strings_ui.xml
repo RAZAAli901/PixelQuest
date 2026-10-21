@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    UI v2's shared text (docs/ui-v2.md): its components, categories and heroes. Each screen's own
+    text is with that screen's feature.
+
+    For translators: <xliff:g> marks a value filled in by the app; keep it, move it where your
+    grammar needs it, and leave what's inside unchanged. Its example shows what the app puts there.
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Quest categories. -->
+    <string name="pq_category_fitness">Fitness</string>
+    <string name="pq_category_learning">Learning</string>
+    <string name="pq_category_health">Health</string>
+    <string name="pq_category_chores">Chores</string>
+    <string name="pq_category_other">Other</string>
+    <!-- The six hero classes. -->
+    <string name="pq_avatar_hero">Hero</string>
+    <string name="pq_avatar_mage">Mage</string>
+    <string name="pq_avatar_rogue">Rogue</string>
+    <string name="pq_avatar_warrior">Warrior</string>
+    <string name="pq_avatar_paladin">Paladin</string>
+    <string name="pq_avatar_ranger">Ranger</string>
+    <!-- A quest's state, and the XP it gave ("+20"). -->
+    <string name="pq_done">Done</string>
+    <string name="pq_overdue">Overdue</string>
+    <string name="pq_xp_plus">+<xliff:g id="xp" example="20">%d</xliff:g></string>
+    <!-- A number stepper's buttons. -->
+    <string name="pq_fewer">Fewer</string>
+    <string name="pq_more">More</string>
+    <!-- The AI coach's card on Home. -->
+    <string name="pq_coach_title">COACH INTEL</string>
+    <string name="pq_coach_live">Live</string>
+    <string name="pq_coach_situation">THE SITUATION</string>
+    <string name="pq_coach_full_brief">Show full brief</string>
+    <string name="pq_coach_open">Open coach</string>
+    <!-- When the brief was written, and when the next comes ("8:48 AM · next brief in ~6h"). -->
+    <string name="pq_coach_next_brief"><xliff:g id="time" example="8:48 AM">%1$s</xliff:g> · next brief in <xliff:g id="wait" example="~6h">%2$s</xliff:g></string>
+    <string name="pq_coach_brief_ready"><xliff:g id="time" example="8:48 AM">%1$s</xliff:g> · new brief ready</string>
+</resources>

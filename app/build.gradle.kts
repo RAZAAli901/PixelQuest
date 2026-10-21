@@ -151,6 +151,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    // UI v2's icons (docs/ui-v2.md); R8 keeps only those the app uses.
+    implementation(libs.androidx.material.icons.extended)
 
     // Section B Step 7: Navigation Compose Dependency
     implementation(libs.androidx.navigation.compose)
