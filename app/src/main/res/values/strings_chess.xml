@@ -34,4 +34,5 @@
     <string name="chess_game_kicker"><xliff:g id="minutes" example="3">%1$d</xliff:g> min · <xliff:g id="rated" example="Rated">%2$s</xliff:g></string>
     <string name="chess_rated">Rated</string>
     <string name="chess_friendly">Friendly</string>
+    <string name="chess_captured_said">Took <xliff:g id="count" example="3">%1$d</xliff:g>, ahead by <xliff:g id="lead" example="2">%2$d</xliff:g></string>
 </resources>

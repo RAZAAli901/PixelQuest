@@ -25,6 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.chess.domain.ChessColour
@@ -40,6 +43,7 @@ object ChessGameTags {
     const val WATCHERS = "chess_game_watchers"
     const val SPECTATING = "chess_game_spectating"
     const val LOADING = "chess_game_loading"
+    fun captured(colour: ChessColour) = "chess_captured_${colour.name.lowercase()}"
 }
 
 /** What the game screen does with the player's taps, so it can be shown without a view model. */
@@ -115,7 +119,30 @@ internal fun Player(game: ChessGame, state: ChessSessionState, colour: ChessColo
     val id = if (colour == ChessColour.WHITE) game.whiteId else game.blackId
     val raw = state.names[id]?.let { "@$it" } ?: stringResource(if (colour == ChessColour.WHITE) R.string.chess_white else R.string.chess_black)
     val name = if (id == state.me) stringResource(R.string.chess_you_named, raw) else raw
-    PlayerRow(game, colour, name, state.points[id], if (colour == ChessColour.WHITE) 2 else 0, now, sync)
+    val material = com.pixelquest.app.chess.domain.Material.of(com.pixelquest.app.chess.domain.BoardPosition.of(state.boardFen ?: game.fen))
+    val white = colour == ChessColour.WHITE
+    val taken = if (white) material.byWhite else material.byBlack
+    val lead = if (white) material.advantage else -material.advantage
+    PlayerRow(game, colour, name, state.points[id], if (white) 2 else 0, now, sync) { Captured(taken, lead, colour) }
+}
+
+/** What a player has taken, as glyphs, and their material lead (J146). */
+@Composable
+internal fun Captured(pieces: List<Char>, lead: Int, colour: ChessColour) {
+    val said = stringResource(R.string.chess_captured_said, pieces.size, lead.coerceAtLeast(0))
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier
+            .testTag(ChessGameTags.captured(colour))
+            .semantics(mergeDescendants = true) { contentDescription = said }
+    ) {
+        Text(
+            text = pieces.joinToString("") { ChessLook.glyph(it) },
+            style = androidx.compose.ui.text.TextStyle(fontSize = 15.sp, lineHeight = 16.sp, color = PqColors.Ink2)
+        )
+        if (lead > 0) Text(text = "+$lead", style = PqType.MetaStrong)
+    }
 }
 
 @Composable

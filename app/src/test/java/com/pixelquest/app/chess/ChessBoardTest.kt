@@ -73,3 +73,17 @@ class ChessBoardFlipTest {
         org.junit.Assert.assertTrue(top("a1") < top("a8"))
     }
 }
+
+/** Captured pieces and the material lead, from the pieces left (J146). */
+class MaterialTest {
+    @Test
+    fun afterScholarsMate_whiteHasTakenAPawn() {
+        val m = com.pixelquest.app.chess.domain.Material.of(BoardPosition.of("r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"))
+        assertEquals(listOf('p'), m.byWhite)
+        assertEquals(emptyList<Char>(), m.byBlack)
+        assertEquals(1, m.advantage)
+        val queenUp = com.pixelquest.app.chess.domain.Material.of(BoardPosition.of("4k3/8/8/8/8/8/8/3QK3 w - - 0 1"))
+        assertEquals(9, queenUp.advantage)
+        assertEquals(15, queenUp.byWhite.size)
+    }
+}

@@ -49,3 +49,24 @@ fun squareIndex(square: String): Int? {
     if (file !in 0..7 || rank !in 0..7) return null
     return (7 - rank) * 8 + file
 }
+
+/**
+ * What each side has taken, worked out from the pieces left (J146): [byWhite] are Black's pieces
+ * gone from the board, most valuable first, and [advantage] White's material lead (pawn 1, knight
+ * and bishop 3, rook 5, queen 9; negative when Black leads). A promoted pawn counts as its new piece.
+ */
+data class Material(val byWhite: List<Char>, val byBlack: List<Char>, val advantage: Int) {
+    companion object {
+        private val START = mapOf('q' to 1, 'r' to 2, 'b' to 2, 'n' to 2, 'p' to 8)
+        private val VALUE = mapOf('q' to 9, 'r' to 5, 'b' to 3, 'n' to 3, 'p' to 1)
+
+        fun of(position: BoardPosition): Material {
+            fun missing(white: Boolean): List<Char> = START.flatMap { (kind, count) ->
+                val have = position.pieces.count { it != null && it.lowercaseChar() == kind && it.isUpperCase() == white }
+                List((count - have).coerceAtLeast(0)) { if (white) kind.uppercaseChar() else kind }
+            }
+            fun worth(white: Boolean) = position.pieces.filterNotNull().filter { it.isUpperCase() == white }.sumOf { VALUE[it.lowercaseChar()] ?: 0 }
+            return Material(byWhite = missing(white = false), byBlack = missing(white = true), advantage = worth(true) - worth(false))
+        }
+    }
+}
