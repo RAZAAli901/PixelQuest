@@ -16,4 +16,12 @@
     <string name="chess_tier_rook">Rook</string>
     <string name="chess_tier_queen">Queen</string>
     <string name="chess_tier_king">King</string>
+    <string name="chess_promote_title">Promote to</string>
+    <string name="chess_promote_cancel">Cancel</string>
+    <string name="chess_piece_queen">Queen</string>
+    <string name="chess_piece_rook">Rook</string>
+    <string name="chess_piece_bishop">Bishop</string>
+    <string name="chess_piece_knight">Knight</string>
+    <string name="chess_piece_king">King</string>
+    <string name="chess_piece_pawn">Pawn</string>
 </resources>

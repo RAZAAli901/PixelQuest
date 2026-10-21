@@ -16,6 +16,17 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import com.pixelquest.app.chess.domain.ChessColour
 import com.pixelquest.app.chess.rules.Move
 import com.pixelquest.app.chess.rules.Position
@@ -24,7 +35,8 @@ import kotlin.math.roundToInt
 /**
  * The board to play on (J142): tap a piece of yours to see its legal moves as dots, then tap
  * where it goes; or drag it there. The last move is highlighted, and a king in check is red. The
- * hints come from the phone's rules (ChessRules); [onMove] sends the move, and the server decides.
+ * hints come from the phone's rules (ChessRules); [onMove] sends the move (UCI, with the piece a
+ * pawn becomes from the promotion picker, J143), and the server decides.
  * [enabled] is false while it isn't the player's turn, or a move is on its way.
  */
 @Composable
@@ -33,15 +45,18 @@ fun PlayableBoard(
     myColour: ChessColour?,
     enabled: Boolean,
     lastMove: String?,
-    onMove: (from: Int, to: Int) -> Unit,
+    onMove: (uci: String) -> Unit,
     modifier: Modifier = Modifier,
-    flipped: Boolean = myColour == ChessColour.BLACK
+    flipped: Boolean = myColour == ChessColour.BLACK,
+    /** Promote to a queen without asking (a chess setting). */
+    autoQueen: Boolean = false
 ) {
     val position = remember(fen) { Position.of(fen) }
     var selected by remember(fen) { mutableStateOf<Int?>(null) }
     var dragFrom by remember(fen) { mutableStateOf<Int?>(null) }
     var dragAt by remember { mutableStateOf(Offset.Zero) }
     var size by remember { mutableStateOf(IntSize.Zero) }
+    var promoting by remember(fen) { mutableStateOf<Pair<Int, Int>?>(null) }
 
     fun squareAt(offset: Offset): Int? {
         if (size.width == 0) return null
@@ -58,7 +73,11 @@ fun PlayableBoard(
     fun tryMove(from: Int, to: Int): Boolean {
         if (to !in (position?.movesFrom(from)?.map { it.to } ?: emptyList())) return false
         selected = null
-        onMove(from, to)
+        when {
+            position?.promotes(from, to) != true -> onMove(Move(from, to).uci)
+            autoQueen -> onMove(Move(from, to, 'q').uci)
+            else -> promoting = from to to
+        }
         return true
     }
 
@@ -116,5 +135,53 @@ fun PlayableBoard(
                 PieceGlyph(piece, size = side * 1.2f)
             }
         }
+        promoting?.let { (from, to) ->
+            PromotionPicker(
+                white = myColour == ChessColour.WHITE,
+                onPick = { promoting = null; onMove(Move(from, to, it).uci) },
+                onCancel = { promoting = null },
+                modifier = Modifier.align(androidx.compose.ui.Alignment.Center)
+            )
+        }
+    }
+}
+
+object PromotionTags {
+    const val PICKER = "chess_promotion"
+    fun piece(kind: Char) = "chess_promotion_$kind"
+}
+
+/** Which piece a pawn becomes (J143): queen, rook, bishop or knight, in the player's colour. */
+@Composable
+fun PromotionPicker(white: Boolean, onPick: (Char) -> Unit, onCancel: () -> Unit, modifier: Modifier = Modifier) {
+    val names = mapOf('q' to com.pixelquest.app.R.string.chess_piece_queen, 'r' to com.pixelquest.app.R.string.chess_piece_rook, 'b' to com.pixelquest.app.R.string.chess_piece_bishop, 'n' to com.pixelquest.app.R.string.chess_piece_knight)
+    androidx.compose.foundation.layout.Column(
+        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+        modifier = modifier
+            .testTag(PromotionTags.PICKER)
+            .then(Modifier.comic(radius = PqDimens.Radius, shadow = PqDimens.Shadow))
+            .padding(12.dp)
+    ) {
+        androidx.compose.material3.Text(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.chess_promote_title), style = PqType.BodyStrong)
+        androidx.compose.foundation.layout.Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
+            for ((kind, name) in names) {
+                val label = androidx.compose.ui.res.stringResource(name)
+                Box(
+                    contentAlignment = androidx.compose.ui.Alignment.Center,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .comic(bg = ChessLook.light, radius = PqDimens.RadiusSm, border = PqDimens.BorderThin, shadow = 0.dp)
+                        .clickable(onClickLabel = label, role = androidx.compose.ui.semantics.Role.Button) { onPick(kind) }
+                        .semantics { contentDescription = label }
+                        .testTag(PromotionTags.piece(kind))
+                ) { PieceGlyph(if (white) kind.uppercaseChar() else kind, size = 52.dp) }
+            }
+        }
+        androidx.compose.material3.Text(
+            androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.chess_promote_cancel),
+            style = PqType.MetaStrong.copy(color = PqColors.RedText),
+            modifier = Modifier.clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onCancel).padding(8.dp)
+        )
     }
 }

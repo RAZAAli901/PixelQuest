@@ -30,7 +30,7 @@ class PlayableBoardTest {
 
     private fun board(colour: ChessColour = ChessColour.WHITE, enabled: Boolean = true, fen: String = Position.START) {
         composeTestRule.setContent {
-            PixelQuestTheme { PlayableBoard(fen, colour, enabled, lastMove = null, onMove = { f, t -> sent += Move(f, t).uci }) }
+            PixelQuestTheme { PlayableBoard(fen, colour, enabled, lastMove = null, onMove = { sent += it }) }
         }
     }
 
@@ -72,5 +72,15 @@ class PlayableBoardTest {
         tap("e7")
         tap("e5")
         assertEquals(listOf("e7e5"), sent)
+    }
+
+    @Test
+    fun aPawnOnTheLastRank_asksWhatItBecomes() {
+        board(fen = "8/P7/8/8/8/8/8/k6K w - - 0 1")
+        tap("a7")
+        tap("a8")
+        assertEquals(emptyList<String>(), sent)
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.PromotionTags.piece('n')).performClick()
+        assertEquals(listOf("a7a8n"), sent)
     }
 }
