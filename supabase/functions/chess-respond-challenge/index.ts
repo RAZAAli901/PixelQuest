@@ -2,6 +2,7 @@
 // Deployed with --no-verify-jwt: the handler checks the caller's access token itself.
 
 import { authUserId, rpcCaller } from "../_shared/study_files.ts";
+import { pushFromEnv } from "../_shared/push.ts";
 import { handleRespondChallenge } from "./handler.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
@@ -12,6 +13,7 @@ Deno.serve((req: Request) =>
   handleRespondChallenge(req, {
     getUserId: authUserId(fetch, supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY") || serviceKey),
     respond: (user, challenge, accept) => rpc("chess_respond_challenge", { p_user: user, p_challenge: challenge, p_accept: accept }),
+    notify: pushFromEnv((name) => Deno.env.get(name), rpc),
     log: (event) => console.log(JSON.stringify(event)),
   })
 );

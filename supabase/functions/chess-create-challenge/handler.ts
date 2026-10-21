@@ -9,6 +9,8 @@ import type { RpcResult } from "../_shared/study_files.ts";
 export interface CreateChallengeDeps {
   getUserId: (accessToken: string) => Promise<string | null>;
   create: (user: string, party: string, to: string | null, timeControl: number, colour: string, rated: boolean) => Promise<RpcResult<Record<string, unknown>>>;
+  /** Tells the one challenged, by push (J122). */
+  notify?: import("../_shared/push.ts").Notify;
   log?: (event: Record<string, unknown>) => void;
 }
 
@@ -23,6 +25,9 @@ export function handleCreateChallenge(req: Request, deps: CreateChallengeDeps): 
     if (!made.ok) {
       deps.log?.({ event: "challenge_refused", reason: made.error });
       return refuse(made.error);
+    }
+    if (typeof made.data.to_user === "string") {
+      deps.notify?.("challenge_received", [made.data.to_user], { challenge_id: String(made.data.id), party_id: String(made.data.party_id) });
     }
     return json(200, { challenge: made.data });
   }, deps.log);

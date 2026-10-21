@@ -7,7 +7,9 @@ import type { RpcResult } from "../_shared/study_files.ts";
 
 export interface RespondChallengeDeps {
   getUserId: (accessToken: string) => Promise<string | null>;
-  respond: (user: string, challenge: string, accept: boolean) => Promise<RpcResult<{ challenge?: unknown; game?: unknown; error?: string }>>;
+  respond: (user: string, challenge: string, accept: boolean) => Promise<RpcResult<{ challenge?: Record<string, unknown>; game?: Record<string, unknown>; error?: string }>>;
+  /** Tells the challenger their challenge was taken, by push (J122). */
+  notify?: import("../_shared/push.ts").Notify;
   log?: (event: Record<string, unknown>) => void;
 }
 
@@ -19,6 +21,10 @@ export function handleRespondChallenge(req: Request, deps: RespondChallengeDeps)
     if (!answer.ok) return refuse(answer.error);
     // Expired: stored as such, and said as a refusal.
     if (answer.data.error) return refuse(answer.data.error);
-    return json(200, { challenge: answer.data.challenge, game: answer.data.game ?? null });
+    const { challenge: taken, game } = answer.data;
+    if (game && taken && typeof taken.from_user === "string") {
+      deps.notify?.("challenge_accepted", [taken.from_user], { game_id: String(game.id), party_id: String(game.party_id) });
+    }
+    return json(200, { challenge: taken, game: game ?? null });
   }, deps.log);
 }
