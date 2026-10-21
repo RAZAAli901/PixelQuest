@@ -28,4 +28,7 @@
     <string name="darood_week_switch">Weekly ranking notification</string>
     <string name="darood_week_switch_body">After each week closes, your Darood Parties tell you your place. Each party can be turned off in its info too.</string>
     <string name="darood_week_switch_party">After each week closes, this party tells you your place. On this phone only.</string>
+    <string name="darood_goal_reached_title">Goal <xliff:g id="number" example="1">%1$d</xliff:g> reached!</string>
+    <string name="darood_goal_extend">Extend goal</string>
+    <string name="darood_goal_waiting">The leader can set the next goal, and the count goes on.</string>
 </resources>

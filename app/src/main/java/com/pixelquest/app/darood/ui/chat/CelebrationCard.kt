@@ -51,7 +51,10 @@ fun CelebrationCard(
     startedAt: Instant?,
     posters: Int,
     modifier: Modifier = Modifier,
-    zone: ZoneId = ZoneId.systemDefault()
+    zone: ZoneId = ZoneId.systemDefault(),
+    goalNumber: Int? = null,
+    isLeader: Boolean = false,
+    onExtend: () -> Unit = {}
 ) {
     val still = LocalReduceMotion.current
     val grow = remember { Animatable(if (still) 1f else 0.8f) }
@@ -71,7 +74,7 @@ fun CelebrationCard(
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Text(
-            text = stringResource(R.string.darood_done_title),
+            text = goalNumber?.let { stringResource(R.string.darood_goal_reached_title, it) } ?: stringResource(R.string.darood_done_title),
             style = PqType.CardTitle,
             modifier = Modifier.semantics { heading() }
         )
@@ -93,5 +96,20 @@ fun CelebrationCard(
             style = PqType.Meta.copy(color = PqColors.Ink2),
             textAlign = TextAlign.Center
         )
+        // Goals that go on: the leader sets the next one; everyone else hears when it's set.
+        if (isLeader) {
+            com.pixelquest.app.ui.components.PqButton(
+                text = stringResource(R.string.darood_goal_extend),
+                onClick = onExtend,
+                modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.CHAT_EXTEND_GOAL)
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.darood_goal_waiting),
+                style = PqType.Meta,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag(DaroodTestTags.CHAT_GOAL_WAITING)
+            )
+        }
     }
 }

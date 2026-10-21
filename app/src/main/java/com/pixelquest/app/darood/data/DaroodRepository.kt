@@ -45,6 +45,9 @@ interface DaroodRepository {
      */
     suspend fun closeLastWeek(partyId: String): SupabaseResult<com.pixelquest.app.darood.domain.WeekResult?>
 
+    /** The party's goals, oldest first: each target, and when it was reached. */
+    suspend fun fetchGoals(partyId: String): SupabaseResult<List<com.pixelquest.app.darood.domain.PartyGoal>>
+
     /** Marks a closed week told on this phone: true only the first time, so it's told once. */
     suspend fun markWeekTold(partyId: String, weekStart: LocalDate): Boolean
 

@@ -121,6 +121,8 @@ class DaroodPartyRepositoryImpl(
         return cached(partyId, remote.fetchWeekResults(partyId, monday)).map { weeks -> weeks.firstOrNull { it.weekStart == monday } }
     }
 
+    override suspend fun fetchGoals(partyId: String): SupabaseResult<List<com.pixelquest.app.darood.domain.PartyGoal>> = remote.fetchGoals(partyId)
+
     override suspend fun markWeekTold(partyId: String, weekStart: LocalDate): Boolean = dao.markWeekNotified(partyId, weekStart, now())
 
     override fun observeWeekResults(partyId: String): Flow<List<WeekResult>> =

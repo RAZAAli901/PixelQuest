@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -102,14 +103,16 @@ fun PartyChatScreen(
     onDismissBanner: () -> Unit = {},
     completedAt: java.time.Instant? = null,
     startedAt: java.time.Instant? = null,
-    onOpenWeekly: (() -> Unit)? = null
+    onOpenWeekly: (() -> Unit)? = null,
+    goalNumber: Int? = null,
+    onExtendGoal: () -> Unit = {}
 ) {
     androidx.compose.runtime.CompositionLocalProvider(LocalChatSimpleMode provides simpleMode) {
         PartyChatContent(
             partyName, onNavigateBack, onOpenInfo, isLeader, onAddPeople, memberCount, items, usernames, today, loadingOlder,
             onReachOldest, canPost, draft, onDraftChange, onSend, confirming, onConfirmSend, onCancelSend, onRetry, todayTotals,
             milestone, total, finished, myStats, consistency, onOpenStats, board, milestoneBanner, onDismissBanner,
-            completedAt, startedAt, onOpenWeekly
+            completedAt, startedAt, onOpenWeekly, goalNumber, onExtendGoal
         )
     }
 }
@@ -147,7 +150,9 @@ private fun PartyChatContent(
     onDismissBanner: () -> Unit,
     completedAt: java.time.Instant?,
     startedAt: java.time.Instant?,
-    onOpenWeekly: (() -> Unit)?
+    onOpenWeekly: (() -> Unit)?,
+    goalNumber: Int?,
+    onExtendGoal: () -> Unit
 ) {
     var showingStats by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     ChatScaffold(
@@ -204,7 +209,10 @@ private fun PartyChatContent(
                     milestone = milestone,
                     completedAt = completedAt,
                     startedAt = startedAt,
-                    posters = myStats?.posters ?: board?.rows?.size ?: 0
+                    posters = myStats?.posters ?: board?.rows?.size ?: 0,
+                    goalNumber = goalNumber,
+                    isLeader = isLeader,
+                    onExtend = onExtendGoal
                 )
             } else if (canPost) {
                 // Empty and 0 simply can't be sent; too many is said, as the server would refuse it.
@@ -317,6 +325,13 @@ class PartyChatViewModel @Inject constructor(
     val loadingOlder: StateFlow<Boolean> = _loadingOlder
 
     private val members = repository.observeMembers(partyId)
+
+    /** The party's goals, oldest first: read again whenever its goal is set or reached. */
+    val goals: StateFlow<List<com.pixelquest.app.darood.domain.PartyGoal>> = repository.observeParty(partyId)
+        .map { it?.milestoneSetAt to it?.completedAt }
+        .distinctUntilChanged()
+        .mapLatest { (repository.fetchGoals(partyId) as? com.pixelquest.app.data.remote.SupabaseResult.Success)?.data.orEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     /** The chat's lines, oldest first: entries, days and what happened, as [chatItemsOf] makes them. */
     val items: StateFlow<List<ChatItem>> = kotlinx.coroutines.flow.combine(
@@ -608,6 +623,9 @@ fun PartyChatRoute(
         onDismissBanner = viewModel::dismissMilestoneBanner,
         completedAt = party?.completedAt,
         startedAt = party?.createdAt,
-        onOpenWeekly = { showingWeekly = true }
+        onOpenWeekly = { showingWeekly = true },
+        goalNumber = viewModel.goals.collectAsState().value.lastOrNull()?.sequence,
+        // The goal's own sheet comes with J087; until then, Party info sets it.
+        onExtendGoal = onOpenInfo
     )
 }

@@ -163,3 +163,15 @@ fun List<WeekResultDto>.toWeeks(): List<com.pixelquest.app.darood.domain.WeekRes
             parseInstant(rows.first().closedAt)
         )
     }.sortedByDescending { it.weekStart }
+
+/** A row of public.party_milestones: one of a party's goals. */
+@Serializable
+data class PartyGoalDto(
+    val sequence: Int,
+    val target: Long,
+    @SerialName("set_by") val setBy: String? = null,
+    @SerialName("set_at") val setAt: String,
+    @SerialName("reached_at") val reachedAt: String? = null
+) {
+    fun toDomain() = com.pixelquest.app.darood.domain.PartyGoal(sequence, target, setBy, parseInstant(setAt), reachedAt?.let(::parseInstant))
+}

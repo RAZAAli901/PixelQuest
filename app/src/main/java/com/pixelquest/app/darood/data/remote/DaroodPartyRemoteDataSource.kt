@@ -75,6 +75,9 @@ interface DaroodPartyRemoteDataSource : PartyRemoteDataSource {
      */
     suspend fun closeWeek(partyId: String, weekStart: LocalDate): SupabaseResult<Int>
 
+    /** The party's goals, oldest first (docs/darood-weekly.md, Goals that go on). */
+    suspend fun fetchGoals(partyId: String): SupabaseResult<List<com.pixelquest.app.darood.domain.PartyGoal>>
+
     /** The party's closed weeks from [since] on, newest first. */
     suspend fun fetchWeekResults(partyId: String, since: LocalDate): SupabaseResult<List<com.pixelquest.app.darood.domain.WeekResult>>
 
@@ -237,6 +240,16 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         }
     }
 
+    override suspend fun fetchGoals(partyId: String): SupabaseResult<List<com.pixelquest.app.darood.domain.PartyGoal>> {
+        if (account.id() == null) return signedOut()
+        return safeSupabaseCall {
+            postgrest[GOALS].select(Columns.list("sequence", "target", "set_by", "set_at", "reached_at")) {
+                filter { eq("party_id", partyId) }
+                order("sequence", Order.ASCENDING)
+            }.decodeList<PartyGoalDto>().map { it.toDomain() }
+        }
+    }
+
     override suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<List<DayTotal>> {
         if (account.id() == null) return signedOut()
         return safeSupabaseCall {
@@ -347,6 +360,7 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         const val PARTY_STATS = "party_stats"
         const val MEMBER_STATS = "party_member_stats"
         const val WEEK_RESULTS = "darood_week_results"
+        const val GOALS = "party_milestones"
         val STATS_COLUMNS = listOf("party_id", "total", "entry_count", "member_count", "last_entry_date")
         val MEMBER_STATS_COLUMNS = listOf("party_id", "user_id", "username", "total", "active_days", "last_entry_date")
         val ENTRY_COLUMNS = listOf("id", "party_id", "user_id", "amount", "local_date", "tz", "created_at", "client_id")

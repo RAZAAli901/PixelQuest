@@ -38,6 +38,9 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
     val usernames = mutableMapOf<String, String>()
     val calls = mutableListOf<String>()
 
+    /** Each party's goals, oldest first (party_milestones). */
+    val goals = mutableMapOf<String, MutableList<com.pixelquest.app.darood.domain.PartyGoal>>()
+
     /** Closed weeks, by (party, Monday): stored once, as the server does. */
     val weekResults = linkedMapOf<Pair<String, LocalDate>, com.pixelquest.app.darood.domain.WeekResult>()
 
@@ -73,6 +76,7 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
     fun seedParty(name: String, leader: String, vararg active: String, milestone: Long? = null, maxMembers: Int = 10, type: PartyType = PartyType.DAROOD): String {
         val id = "party-${nextParty++}"
         parties[id] = PartyDto(id, name, leader, maxMembers, milestone, milestone?.let { now.toString() }, null, now.toString(), partyType = type.wire)
+        if (milestone != null) goals[id] = mutableListOf(com.pixelquest.app.darood.domain.PartyGoal(1, milestone, leader, now, null))
         members += PartyMemberDto(id, leader, "leader", "active", now.toString(), now.toString())
         active.forEach { members += PartyMemberDto(id, it, "member", "active", now.toString(), now.toString()) }
         return id
@@ -236,10 +240,18 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         val party = parties[partyId]
         when {
             party?.leaderId != account -> refuse("not_leader", 403)
-            party.completedAt != null -> refuse("party_closed")
             target <= total(partyId) -> refuse("milestone_too_low")
+            target > com.pixelquest.app.darood.domain.GoalRules.MAX -> refuse("milestone_too_high")
             else -> {
-                parties[partyId] = party.copy(milestone = target, milestoneSetAt = now.toString())
+                // Goals that go on (20261019000072): a reached goal is followed by the next.
+                val list = goals.getOrPut(partyId) { mutableListOf() }
+                val current = list.lastOrNull()
+                when {
+                    current == null -> list += com.pixelquest.app.darood.domain.PartyGoal(1, target, account, now, null)
+                    !current.reached && party.completedAt == null -> list[list.lastIndex] = current.copy(target = target, setBy = account, setAt = now)
+                    else -> list += com.pixelquest.app.darood.domain.PartyGoal(current.sequence + 1, target, account, now, null)
+                }
+                parties[partyId] = party.copy(milestone = target, milestoneSetAt = now.toString(), completedAt = null)
                 SupabaseResult.Success(target)
             }
         }
@@ -265,7 +277,10 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
                 val stored = DaroodEntryDto(nextEntry++, partyId, account, amount, localDate.toString(), tz, now.toString(), clientId)
                 entries += stored
                 val milestone = party.milestone
-                if (milestone != null && total(partyId) >= milestone) parties[partyId] = party.copy(completedAt = now.toString())
+                if (milestone != null && total(partyId) >= milestone) {
+                    parties[partyId] = party.copy(completedAt = now.toString())
+                    goals[partyId]?.let { list -> list.indexOfLast { !it.reached }.takeIf { it >= 0 }?.let { i -> list[i] = list[i].copy(reachedAt = now) } }
+                }
                 if (loseNextAnswer) {
                     loseNextAnswer = false
                     return@answer SupabaseResult.NetworkError(IOException("the answer was lost"))
@@ -310,6 +325,11 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
             com.pixelquest.app.darood.domain.WeekResult(partyId, weekStart, places, now)
         }
         SupabaseResult.Success(week.members)
+    }
+
+    override suspend fun fetchGoals(partyId: String): SupabaseResult<List<com.pixelquest.app.darood.domain.PartyGoal>> = answer("fetchGoals") { account ->
+        if (!isActive(partyId, account)) return@answer SupabaseResult.Success(emptyList())
+        SupabaseResult.Success(goals[partyId].orEmpty().toList())
     }
 
     override suspend fun fetchWeekResults(partyId: String, since: LocalDate): SupabaseResult<List<com.pixelquest.app.darood.domain.WeekResult>> = answer("fetchWeekResults") { account ->
