@@ -173,3 +173,36 @@ sealed interface GameEvent {
     /** The connection dropped; the repository is trying again. */
     data object Disconnected : GameEvent
 }
+
+/** How a finished game went for one player. */
+enum class Outcome { WIN, DRAW, LOSS }
+
+/** [userId]'s outcome, once the game has a result (an aborted game has none). */
+fun ChessGame.outcomeFor(userId: String): Outcome? {
+    val mine = colourOf(userId) ?: return null
+    return when (result) {
+        null -> null
+        GameResult.DRAW -> Outcome.DRAW
+        GameResult.WHITE -> if (mine == ChessColour.WHITE) Outcome.WIN else Outcome.LOSS
+        GameResult.BLACK -> if (mine == ChessColour.BLACK) Outcome.WIN else Outcome.LOSS
+    }
+}
+
+/** Whether it's [userId]'s move in a live game. */
+fun ChessGame.isTurnOf(userId: String?): Boolean = status.live && userId != null && colourOf(userId) == turn
+
+/** A side's clock as the server last set it. */
+fun ChessGame.millisOf(colour: ChessColour): Long = if (colour == ChessColour.WHITE) whiteMs else blackMs
+
+/** Whether a challenge can still be answered at [now]. */
+fun Challenge.isAnswerable(now: java.time.Instant): Boolean = status == ChallengeStatus.OPEN && now.isBefore(expiresAt)
+
+/** Whether [userId] may take this challenge: theirs by name, or an open one that isn't their own. */
+fun Challenge.isFor(userId: String): Boolean = toUser == userId || (toUser == null && fromUser != userId)
+
+/** The rating's tier. */
+val Rating.tier: Tier get() = ChessConfig.tierOf(points)
+
+/** A player's rating where they've no games yet. */
+fun startingRating(userId: String, timeControl: TimeControl) =
+    Rating(userId, timeControl, ChessConfig.START_RATING, games = 0, wins = 0, draws = 0, losses = 0, peak = ChessConfig.START_RATING)
