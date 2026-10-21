@@ -452,3 +452,6 @@ verify_jwt = false
 
 [functions.chess-respond-challenge]
 verify_jwt = false
+
+[functions.chess-move]
+verify_jwt = false
