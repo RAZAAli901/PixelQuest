@@ -91,7 +91,7 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
         com.pixelquest.app.chess.ui.ChessComingScreen(onNavigateBack = { navController.popBackStack() })
     }
     composable(Screen.ChessGame.route, arguments = listOf(navArgument("gameId") { type = NavType.StringType })) {
-        com.pixelquest.app.chess.ui.ChessComingScreen(onNavigateBack = { navController.popBackStack() })
+        com.pixelquest.app.chess.ui.ChessGameRoute(onNavigateBack = { navController.popBackStack() })
     }
     composable(Screen.PartiesRaceBoard.route) {
         RaceBoardScreen(onNavigateBack = { navController.popBackStack() })

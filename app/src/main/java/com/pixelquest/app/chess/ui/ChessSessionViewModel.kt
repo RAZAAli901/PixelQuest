@@ -46,7 +46,11 @@ data class ChessSessionState(
     val notFound: Boolean = false,
     /** The player's move, shown on the board at once, until the server takes it or says no (J144). */
     val pendingFen: String? = null,
-    val pendingMove: String? = null
+    val pendingMove: String? = null,
+    /** The players' names (from the party), by user id. */
+    val names: Map<String, String?> = emptyMap(),
+    /** Each player's Int points in this game's time control. */
+    val points: Map<String, Int> = emptyMap()
 ) {
     /** What the board shows: the player's move straight away, then the server's position. */
     val boardFen: String? get() = pendingFen ?: game?.fen
@@ -80,7 +84,9 @@ class ChessSessionViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val chess: ChessRepository,
     private val spectate: SpectateRepository,
-    account: DaroodAccount
+    account: DaroodAccount,
+    private val party: com.pixelquest.app.party.data.PartyRepository? = null,
+    private val ratings: com.pixelquest.app.chess.data.ChessRatingRepository? = null
 ) : ViewModel() {
     val gameId: String = savedStateHandle[ARG_GAME] ?: ""
     private val me: String? = account.id()
@@ -108,12 +114,31 @@ class ChessSessionViewModel @Inject constructor(
                 val (game, moves) = read.data
                 apply(game, moves)
                 follow(spectator = game.colourOf(me) == null)
+                loadPlayers(game)
             }
             is SupabaseResult.ServerError -> _state.update { it.copy(notFound = true, phase = SessionPhase.FINISHED) }
             else -> {
                 _state.update { it.copy(phase = SessionPhase.DISCONNECTED) }
                 delay(RETRY_MS)
                 load()
+            }
+        }
+    }
+
+    /** The players' names and Int points, for the rows beside the board. */
+    private fun loadPlayers(game: ChessGame) {
+        val party = party
+        if (party != null) viewModelScope.launch {
+            party.observeMembers(game.partyId).collect { members -> _state.update { s -> s.copy(names = members.associate { it.userId to it.username }) } }
+        }
+        val ratings = ratings ?: return
+        for (player in listOf(game.whiteId, game.blackId)) {
+            viewModelScope.launch {
+                ratings.refreshRatings(player)
+                ratings.observeRatings(player).collect { list ->
+                    val points = list.firstOrNull { it.timeControl == game.timeControl }?.points ?: com.pixelquest.app.chess.domain.ChessConfig.START_RATING
+                    _state.update { s -> s.copy(points = s.points + (player to points)) }
+                }
             }
         }
     }

@@ -24,4 +24,14 @@
     <string name="chess_piece_knight">Knight</string>
     <string name="chess_piece_king">King</string>
     <string name="chess_piece_pawn">Pawn</string>
+    <string name="chess_clock_said"><xliff:g id="name" example="@sara">%1$s</xliff:g>, <xliff:g id="time" example="2:41">%2$s</xliff:g> left</string>
+    <string name="chess_white">White</string>
+    <string name="chess_black">Black</string>
+    <string name="chess_you_named"><xliff:g id="name" example="@raza">%1$s</xliff:g> (you)</string>
+    <string name="chess_back">Back</string>
+    <string name="chess_spectating">SPECTATING</string>
+    <string name="chess_watching_said"><xliff:g id="count" example="4">%1$d</xliff:g> watching</string>
+    <string name="chess_game_kicker"><xliff:g id="minutes" example="3">%1$d</xliff:g> min · <xliff:g id="rated" example="Rated">%2$s</xliff:g></string>
+    <string name="chess_rated">Rated</string>
+    <string name="chess_friendly">Friendly</string>
 </resources>
