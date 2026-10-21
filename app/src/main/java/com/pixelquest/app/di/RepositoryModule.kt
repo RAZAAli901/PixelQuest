@@ -332,6 +332,10 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindChatMutes(impl: com.pixelquest.app.study.chat.sync.PrefsChatMutes): com.pixelquest.app.study.chat.sync.ChatMutes
+
+    @Binds
+    @Singleton
     abstract fun bindChatLiveSource(
         impl: com.pixelquest.app.study.chat.sync.SupabaseChatLiveSource
     ): com.pixelquest.app.study.chat.sync.ChatLiveSource

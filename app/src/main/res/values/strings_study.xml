@@ -214,6 +214,13 @@
     <string name="study_file_open_with">Open with</string>
     <string name="study_files_search">Search by name</string>
     <string name="study_files_all">All</string>
+    <string name="study_chat_mute">Mute this party\'s chat</string>
+    <string name="study_chat_mute_body">No notifications for its new messages and files on this phone.</string>
+    <string name="study_chat_notif_hidden">New study chat messages</string>
+    <plurals name="study_chat_notif_new">
+        <item quantity="one">%d new message</item>
+        <item quantity="other">%d new messages</item>
+    </plurals>
     <string name="study_item_materials">Materials</string>
     <string name="study_item_link_files">Link files from the chat</string>
     <string name="study_item_linked">Linked to this item</string>

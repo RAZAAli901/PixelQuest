@@ -52,6 +52,9 @@ data class ChatActions(
     /** Opens a shared file; null where files aren't opened. */
     val onOpenFile: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)? = null,
     val onConfirmOpen: () -> Unit = {},
+    /** This party's chat notifications on this phone: muted or not, and the switch; null without one. */
+    val chatMuted: Boolean = false,
+    val onSetChatMuted: ((Boolean) -> Unit)? = null,
     /** The leader pins or unpins a file; null for everyone else. */
     val onPinFile: ((com.pixelquest.app.study.chat.domain.ChatFile, Boolean) -> Unit)? = null,
     val onCancelOpen: () -> Unit = {},

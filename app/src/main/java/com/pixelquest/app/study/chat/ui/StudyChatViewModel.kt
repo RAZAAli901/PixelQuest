@@ -69,8 +69,18 @@ class StudyChatViewModel @Inject constructor(
     private val picked: com.pixelquest.app.study.chat.data.PickedFileReader = com.pixelquest.app.study.chat.data.PickedFileReader { null },
     private val uploads: com.pixelquest.app.study.chat.data.ChatUploads? = null,
     private val fetcher: com.pixelquest.app.study.chat.data.ChatFileFetcher? = null,
-    private val warned: com.pixelquest.app.study.chat.data.FileWarningSeen = com.pixelquest.app.study.chat.data.MemoryFileWarningSeen()
+    private val warned: com.pixelquest.app.study.chat.data.FileWarningSeen = com.pixelquest.app.study.chat.data.MemoryFileWarningSeen(),
+    private val mutes: com.pixelquest.app.study.chat.sync.ChatMutes? = null
 ) : ViewModel() {
+
+    /** Whether this party's chat notifies on this phone. */
+    val chatMuted: StateFlow<Boolean> = (mutes?.mutedFlow ?: MutableStateFlow(emptySet()))
+        .let { flow -> kotlinx.coroutines.flow.combine(flow, MutableStateFlow(Unit)) { set, _ -> partyId in set } }
+        .stateIn(viewModelScope, TabSharing, false)
+
+    fun setChatMuted(muted: Boolean) {
+        mutes?.setMuted(partyId, muted)
+    }
 
     /** A file waiting for the player to say yes to the first-open warning. */
     private val confirmingOpen = MutableStateFlow<com.pixelquest.app.study.chat.domain.ChatFile?>(null)

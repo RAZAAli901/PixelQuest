@@ -110,6 +110,7 @@ fun StudyPartyScreen(
     LaunchedEffect(lifecycle, viewModel) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { viewModel.followWhileVisible() }
     }
+    val chatMuted by (chatViewModel?.chatMuted ?: remember { kotlinx.coroutines.flow.MutableStateFlow(false) }).collectAsState()
     val chatState by (chatViewModel?.uiState ?: remember { kotlinx.coroutines.flow.MutableStateFlow(com.pixelquest.app.study.chat.ui.ChatUiState()) }).collectAsState()
     // The chat is followed live, and read, only while its tab is on screen.
     val chatShown = state.tab == PartyTab.CHAT
@@ -176,6 +177,8 @@ fun StudyPartyScreen(
                 onOpenFile = vm::openFile,
                 onConfirmOpen = vm::confirmOpen,
                 onPinFile = vm::pinFile,
+                chatMuted = chatMuted,
+                onSetChatMuted = vm::setChatMuted,
                 onCancelOpen = vm::cancelOpen,
                 onRetryUpload = vm::retryUpload,
                 onDismissUpload = vm::dismissUpload
@@ -419,6 +422,11 @@ private fun StudyPartyScaffold(
                             people(state, onAddPeople, onOpenInfo)
                             reminderToggles(reminders, simpleMode = state.simpleMode)
                             if (reminderActions != null) reminderMutes(reminderState, reminderActions)
+                            chatActions.onSetChatMuted?.let { onMute ->
+                                item(key = "chat_mute") {
+                                    ToggleRow(stringResource(R.string.study_chat_mute), stringResource(R.string.study_chat_mute_body), chatActions.chatMuted, onMute, "study_chat_mute")
+                                }
+                            }
                         }
                         PartyTab.FILES -> sharedFiles(chatState?.files.orEmpty(), filesQuery, { filesQuery = it }, chatActions.onOpenFile, chatActions.onPinFile.takeIf { state.isLeader })
                         PartyTab.CHAT -> Unit
