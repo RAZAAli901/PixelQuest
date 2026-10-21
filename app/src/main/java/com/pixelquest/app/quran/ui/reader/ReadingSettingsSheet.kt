@@ -84,6 +84,7 @@ fun ReadingSettingsSheet(
  *
  * @param preview the open surah's first ayah (its Arabic and translation, as given), or null.
  * @param translation the translation's name; with [onOpenTranslations], a button to choose another.
+ * @param embedded inside a screen that scrolls already (Settings): no scrolling or padding of its own.
  */
 @Composable
 fun ReadingSettingsContent(
@@ -92,15 +93,15 @@ fun ReadingSettingsContent(
     onChange: (ReadingSettings) -> Unit,
     modifier: Modifier = Modifier,
     translation: String = "",
-    onOpenTranslations: (() -> Unit)? = null
+    onOpenTranslations: (() -> Unit)? = null,
+    embedded: Boolean = false
 ) {
     val colors = PixelTheme.colors
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .then(if (embedded) Modifier else Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp))
             .testTag(ReaderTags.SETTINGS_SHEET)
     ) {
         Text(

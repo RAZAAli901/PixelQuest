@@ -4,6 +4,12 @@ package com.pixelquest.app.islamic.ui
 object IslamicTestTags {
     const val HUB = "islamic_hub"
 
+    /** The Islamic section in Settings, and its reminders' switches. */
+    const val SETTINGS = "islamic_settings"
+    const val SETTINGS_DAROOD_WEEKLY = "islamic_settings_darood_weekly"
+    const val SETTINGS_STUDY_DUE = "islamic_settings_study_due"
+    const val SETTINGS_STUDY_WEEKLY = "islamic_settings_study_weekly"
+
     /** The "More coming soon" card, in debug builds. */
     const val COMING_SOON = "islamic_coming_soon"
 

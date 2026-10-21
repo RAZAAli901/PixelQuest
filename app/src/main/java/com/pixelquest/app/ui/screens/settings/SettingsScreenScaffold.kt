@@ -27,6 +27,7 @@ fun SettingsScreenScaffold(
     notificationsSection: @Composable () -> Unit = {},
     appearanceSection: @Composable () -> Unit = {},
     aiSection: @Composable () -> Unit = {},
+    islamicSection: (@Composable () -> Unit)? = null,
     simpleModeSection: @Composable () -> Unit = {},
     dataSection: @Composable () -> Unit = {},
     dangerZoneSection: @Composable () -> Unit = {}
@@ -93,6 +94,20 @@ fun SettingsScreenScaffold(
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(text = "✨ AI HABIT COACH", style = MaterialTheme.typography.titleMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
                 aiSection()
+            }
+        }
+
+        // Islamic Section Card (docs/islamic-hub.md): the Quran's reading defaults and the reminders.
+        if (islamicSection != null) {
+            PixelCard(
+                variant = PixelPanelVariant.BORDER,
+                contentPadding = 16.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(text = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.settings_islamic_title), style = MaterialTheme.typography.titleMedium, color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary))
+                    islamicSection()
+                }
             }
         }
 

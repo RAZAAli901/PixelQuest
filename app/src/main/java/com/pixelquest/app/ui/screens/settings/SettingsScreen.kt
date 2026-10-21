@@ -326,6 +326,7 @@ fun SettingsScreen(
                 )
             }
         },
+        islamicSection = { com.pixelquest.app.islamic.ui.IslamicSettingsSection() },
         simpleModeSection = {
             if (state.showSimpleModeHighlight && !state.isSimpleModeEnabled) {
                 // Lightweight, non-naggy one-time highlight (Step 36)
