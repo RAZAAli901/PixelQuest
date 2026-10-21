@@ -197,3 +197,21 @@ localTest("chess challenges: members only, one live game, and blocked pairs can'
   assert.deepEqual(respond(black, late, true), { error: "expired" });
   assert.equal(sql(`SELECT status FROM public.chess_challenges WHERE id = '${late}'`), "expired");
 });
+
+localTest("device tokens: only their owner writes or reads them; a token moves with its phone", async () => {
+  const { white, black } = await chessCast();
+  const token = `fcm_${"x".repeat(30)}_${Math.random().toString(36).slice(2)}`;
+  assert.equal((await rpc(white, "register_device_token", { token, platform: "android" })).status, 204);
+  assert.equal((await read(white, `device_tokens?token=eq.${token}&select=user_id`))[0].user_id, white.userId);
+  assert.deepEqual(await read(black, `device_tokens?token=eq.${token}&select=user_id`), [], "nobody else's");
+  const direct = await call("/rest/v1/device_tokens", { method: "POST", token: black.accessToken, body: { token: `${token}y`, user_id: white.userId } });
+  assert.notEqual(direct.status, 201, "no writing a token for someone else");
+  assert.equal((await rpc(black, "forget_device_token", { token })).status, 204);
+  assert.equal(sql(`SELECT user_id FROM public.device_tokens WHERE token = '${token}'`), white.userId, "not theirs to forget");
+  // Signed in on the same phone as someone else: the token moves to them.
+  await rpc(black, "register_device_token", { token });
+  assert.equal(sql(`SELECT user_id FROM public.device_tokens WHERE token = '${token}'`), black.userId);
+  assert.equal((await rpc(black, "register_device_token", { token: "bad token!" })).status >= 400, true);
+  await rpc(black, "forget_device_token", { token });
+  assert.equal(sql(`SELECT count(*) FROM public.device_tokens WHERE token = '${token}'`), "0");
+});
