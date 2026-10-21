@@ -160,3 +160,40 @@ localTest("chess rate limits: 5 moves a second in a game, 20 watches an hour", a
   assert.deepEqual((await rpc(white, "chess_watch", { game_id: game })).body, { status: "player" }, "a player needs no watch");
   sql(`DELETE FROM public.chess_watch_log WHERE user_id = '${third.userId}'`);
 });
+
+localTest("chess challenges: members only, one live game, and blocked pairs can't play", async () => {
+  const { white, black, third, outsider } = await chessCast();
+  endGames(white, black, third);
+  const party = await studyParty(white, [black, third]);
+  sql(`DELETE FROM public.chess_challenges WHERE from_user IN ('${white.userId}', '${black.userId}', '${third.userId}')`);
+  sql(`DELETE FROM public.member_blocks WHERE blocker_id IN ('${white.userId}', '${black.userId}', '${third.userId}')`);
+  const challenge = (from: Player, to: Player | null) =>
+    sql(`SELECT public.chess_create_challenge('${from.userId}', '${party}', ${to ? `'${to.userId}'` : "NULL"}, 300, 'white', true) ->> 'id'`);
+  const respond = (who: Player, id: string, accept: boolean) => JSON.parse(sql(`SELECT public.chess_respond_challenge('${who.userId}', '${id}', ${accept})`));
+
+  assert.throws(() => challenge(white, outsider), /not_a_member/);
+  const direct = challenge(white, black);
+  assert.throws(() => respond(third, direct, true), /not_a_player/, "not theirs to take");
+  const accepted = respond(black, direct, true);
+  assert.equal(accepted.game.white_id, white.userId, "the colour asked for");
+  assert.equal(accepted.game.status, "waiting");
+  assert.throws(() => respond(black, direct, true), /already_answered/);
+  assert.throws(() => challenge(white, third), /already_playing/);
+  endGames(white, black);
+
+  // Blocked, either way round: no challenge, and no taking an open one.
+  sql(`INSERT INTO public.member_blocks (blocker_id, blocked_id) VALUES ('${third.userId}', '${white.userId}')`);
+  assert.throws(() => challenge(white, third), /blocked/);
+  assert.throws(() => challenge(third, white), /blocked/);
+  const open = challenge(white, null);
+  assert.throws(() => respond(third, open, true), /blocked/);
+  assert.equal(respond(black, open, true).game.black_id, black.userId);
+  endGames(white, black);
+  sql(`DELETE FROM public.member_blocks WHERE blocker_id = '${third.userId}'`);
+
+  // A challenge expires after 10 minutes, and says so.
+  const late = challenge(third, black);
+  sql(`UPDATE public.chess_challenges SET expires_at = now() - interval '1 second' WHERE id = '${late}'`);
+  assert.deepEqual(respond(black, late, true), { error: "expired" });
+  assert.equal(sql(`SELECT status FROM public.chess_challenges WHERE id = '${late}'`), "expired");
+});
