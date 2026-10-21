@@ -21,6 +21,7 @@ import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.notification.NotificationChannels
 import com.pixelquest.app.notification.NotificationHelper
+import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.study.data.StudyReminderSettings
 import com.pixelquest.app.study.data.StudyRepository
 import com.pixelquest.app.study.ui.boardOf
@@ -48,11 +49,14 @@ class StudyWeeklyWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val parties: PartyRepository,
     private val study: StudyRepository,
-    private val settings: StudyReminderSettings
+    private val settings: StudyReminderSettings,
+    private val appSettings: SettingsRepository? = null
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         if (!settings.weeklySummary.value) return Result.success()
+        // Points and places are game terms: Simple Mode has none, so no summary.
+        if (appSettings?.simpleModeEnabled?.first() == true) return Result.success()
         val me = study.myId() ?: return Result.success()
         if (parties.refreshParties() !is SupabaseResult.Success) return Result.success()
         val mine = parties.observeMyParties(PartyType.STUDY).first().filter { it.myStatus == MemberStatus.ACTIVE }

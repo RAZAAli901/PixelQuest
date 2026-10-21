@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -130,6 +131,32 @@ fun StudyPartyContent(
     onDismissWinners: () -> Unit = {},
     reminders: ReminderToggles = ReminderToggles()
 ) {
+    CompositionLocalProvider(LocalStudySimpleMode provides state.simpleMode) {
+        StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders)
+    }
+}
+
+@Composable
+private fun StudyPartyScaffold(
+    state: StudyPartyUiState,
+    onNavigateBack: () -> Unit,
+    onOpenInfo: () -> Unit,
+    onAddPeople: () -> Unit,
+    onSelectTab: (PartyTab) -> Unit,
+    onRefresh: () -> Unit,
+    onDismissNotice: () -> Unit,
+    onOpenItem: (String) -> Unit,
+    onAddItem: () -> Unit,
+    onFormChange: (ItemForm) -> Unit,
+    onSaveForm: () -> Unit,
+    onCloseForm: () -> Unit,
+    actions: ItemActions,
+    onConfirmDelete: () -> Unit,
+    onCancelDelete: () -> Unit,
+    timerActions: TimerActions,
+    onDismissWinners: () -> Unit,
+    reminders: ReminderToggles
+) {
     val colors = PixelTheme.colors
     Scaffold(
         containerColor = colors.background,
@@ -196,7 +223,7 @@ fun StudyPartyContent(
                         }
                         PartyTab.PEOPLE -> {
                             people(state, onAddPeople, onOpenInfo)
-                            reminderToggles(reminders)
+                            reminderToggles(reminders, simpleMode = state.simpleMode)
                         }
                         PartyTab.CHAT -> Unit
                     }
@@ -341,12 +368,15 @@ private fun WeekSummary(state: StudyPartyUiState) {
                 style = MaterialTheme.typography.titleSmall,
                 color = inkOnPanel(colors.primaryText)
             )
-            val points = state.myScore?.points ?: 0
-            Text(
-                text = stringResource(R.string.study_week_points, pluralStringResource(R.plurals.study_points, points, points)),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurface
-            )
+            if (!state.simpleMode) {
+                val points = state.myScore?.points ?: 0
+                Text(
+                    text = stringResource(R.string.study_week_points, pluralStringResource(R.plurals.study_points, points, points)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurface,
+                    modifier = Modifier.testTag(StudyTags.WEEK_POINTS)
+                )
+            }
         }
     }
 }
@@ -415,7 +445,7 @@ data class ReminderToggles(
     val onWeekly: (Boolean) -> Unit = {}
 )
 
-private fun LazyListScope.reminderToggles(reminders: ReminderToggles) {
+private fun LazyListScope.reminderToggles(reminders: ReminderToggles, simpleMode: Boolean) {
     item(key = "reminders_title") {
         Text(
             text = stringResource(R.string.study_reminders_title),
@@ -427,7 +457,8 @@ private fun LazyListScope.reminderToggles(reminders: ReminderToggles) {
     item(key = "reminders_due") {
         ToggleRow(stringResource(R.string.study_reminders_due), stringResource(R.string.study_reminders_due_body), reminders.due, reminders.onDue, StudyTags.REMINDERS_DUE)
     }
-    item(key = "reminders_weekly") {
+    // The summary is points and places: Simple Mode has none.
+    if (!simpleMode) item(key = "reminders_weekly") {
         ToggleRow(stringResource(R.string.study_reminders_weekly), stringResource(R.string.study_reminders_weekly_body), reminders.weekly, reminders.onWeekly, StudyTags.REMINDERS_WEEKLY)
     }
 }
@@ -461,6 +492,7 @@ object StudyTags {
     const val EMPTY = "study_empty"
     const val ADD_PEOPLE = "study_add_people"
     const val WEEK_SUMMARY = "study_week_summary"
+    const val WEEK_POINTS = "study_week_points"
     const val PINNED = "study_pinned"
     const val ADD_ITEM = "study_add_item"
     const val FORM = "study_form"

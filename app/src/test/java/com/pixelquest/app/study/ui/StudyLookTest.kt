@@ -81,6 +81,27 @@ class StudyLookTest(private val mode: ThemeMode) {
     }
 
     @Test
+    fun inSimpleMode_noPointsAnywhere_andNoSundaySummary() {
+        val state = StudyPartyUiState(
+            party = party, myId = "aria", members = members, items = listOf(row), thisWeek = listOf(row),
+            weekSections = listOf(WeekSection.NoDate to listOf(row)), weekProgress = WeekProgress(0, 1), weekStart = week, today = week,
+            tabs = listOf(PartyTab.THIS_WEEK, PartyTab.ALL_ITEMS, PartyTab.PEOPLE), simpleMode = true, loaded = true
+        )
+        var current by mutableStateOf(state)
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = mode, darkTheme = false) {
+                StudyPartyContent(state = current, onNavigateBack = {}, onOpenInfo = {}, onSelectTab = { current = current.copy(tab = it) })
+            }
+        }
+        composeTestRule.onNodeWithTag(StudyTags.WEEK_SUMMARY).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.WEEK_POINTS).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.SCOREBOARD)).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.PEOPLE)).performClick()
+        composeTestRule.onNodeWithTag(StudyTags.REMINDERS_DUE).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.REMINDERS_WEEKLY).assertDoesNotExist()
+    }
+
+    @Test
     fun medals_areForTheFirstThreeWithPoints() {
         assertEquals("🥇", medalFor(1, 10))
         assertEquals("🥈", medalFor(2, 5))

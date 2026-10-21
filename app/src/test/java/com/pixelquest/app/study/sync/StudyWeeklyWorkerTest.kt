@@ -53,11 +53,14 @@ class StudyWeeklyWorkerTest {
         db.close()
     }
 
-    private fun run(on: Boolean) = runBlocking {
+    private fun run(on: Boolean, simpleMode: Boolean = false) = runBlocking {
+        val appSettings = io.mockk.mockk<com.pixelquest.app.domain.repository.SettingsRepository>(relaxed = true) {
+            io.mockk.every { simpleModeEnabled } returns kotlinx.coroutines.flow.flowOf(simpleMode)
+        }
         TestListenableWorkerBuilder<StudyWeeklyWorker>(context)
             .setWorkerFactory(object : WorkerFactory() {
                 override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters) =
-                    StudyWeeklyWorker(appContext, workerParameters, parties, repo, MemoryStudyReminderSettings(weekly = on))
+                    StudyWeeklyWorker(appContext, workerParameters, parties, repo, MemoryStudyReminderSettings(weekly = on), appSettings)
             })
             .build()
             .doWork()
@@ -82,6 +85,13 @@ class StudyWeeklyWorkerTest {
     fun turnedOff_nothing() {
         server.seedParty("Physics group", "aria", type = PartyType.STUDY)
         run(on = false)
+        assertTrue(notifications.isEmpty())
+    }
+
+    @Test
+    fun inSimpleMode_nothing_sinceItsPointsAndPlaces() {
+        server.seedParty("Physics group", "aria", type = PartyType.STUDY)
+        run(on = true, simpleMode = true)
         assertTrue(notifications.isEmpty())
     }
 

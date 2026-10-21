@@ -209,6 +209,26 @@ class StudyPartyViewModelTest {
     }
 
     @Test
+    fun inSimpleMode_thereIsNoScoreboard_norWinnerBanner() {
+        val item = study.seedItem(party, "aria", "Lab report")
+        study.seedCompletion(item.id, "bram", LocalDate.of(2026, 10, 21))
+        server.now = Instant.parse("2026-10-27T10:00:00Z")
+        val simple = io.mockk.mockk<com.pixelquest.app.domain.repository.SettingsRepository>(relaxed = true) {
+            io.mockk.every { simpleModeEnabled } returns kotlinx.coroutines.flow.flowOf(true)
+        }
+        val vm = viewModels.keep(StudyPartyViewModel::class.java) {
+            StudyPartyViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), parties, repo, simple, timer)
+        }.also { watching = it.uiState.launchIn(MainScope()) }
+        waitFor("loaded, simply") { vm.uiState.value.loaded && vm.uiState.value.simpleMode }
+        assertEquals(listOf(com.pixelquest.app.party.domain.PartyTab.THIS_WEEK, com.pixelquest.app.party.domain.PartyTab.ALL_ITEMS, com.pixelquest.app.party.domain.PartyTab.PEOPLE), vm.uiState.value.tabs)
+        vm.selectTab(com.pixelquest.app.party.domain.PartyTab.SCOREBOARD)
+        shadowOf(Looper.getMainLooper()).idle()
+        assertEquals(com.pixelquest.app.party.domain.PartyTab.THIS_WEEK, vm.uiState.value.tab)
+        waitFor("last week recorded") { vm.uiState.value.pastWeeks.isNotEmpty() }
+        assertTrue("no winner banner", vm.uiState.value.winnerBanner.isEmpty())
+    }
+
+    @Test
     fun theLeader_pinsFromTheEditSheet() {
         val item = study.seedItem(party, "bram", "Lab report")
         val vm = viewModel()

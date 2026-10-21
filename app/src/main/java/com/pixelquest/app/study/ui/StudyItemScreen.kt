@@ -90,6 +90,24 @@ fun StudyItemContent(
     onCancelDelete: () -> Unit = {},
     zone: ZoneId = ZoneId.systemDefault()
 ) {
+    androidx.compose.runtime.CompositionLocalProvider(LocalStudySimpleMode provides state.simpleMode) {
+        StudyItemBody(state, itemId, onNavigateBack, actions, onFormChange, onSaveForm, onCloseForm, onConfirmDelete, onCancelDelete, zone)
+    }
+}
+
+@Composable
+private fun StudyItemBody(
+    state: StudyPartyUiState,
+    itemId: String,
+    onNavigateBack: () -> Unit,
+    actions: ItemActions,
+    onFormChange: (ItemForm) -> Unit,
+    onSaveForm: () -> Unit,
+    onCloseForm: () -> Unit,
+    onConfirmDelete: () -> Unit,
+    onCancelDelete: () -> Unit,
+    zone: ZoneId
+) {
     val colors = PixelTheme.colors
     val row = state.items.firstOrNull { it.item.id == itemId }
     // Once shown, an item that goes (deleted here or by someone else) closes its screen.
