@@ -117,6 +117,11 @@
     <string name="study_reminders_title">Notifications on this phone</string>
     <string name="study_reminders_due">Reminders of what\'s due</string>
     <string name="study_reminders_due_body">A day before, and two hours before, anything you haven\'t finished.</string>
+    <string name="study_reminders_weekly">Sunday summary</string>
+    <string name="study_reminders_weekly_body">On Sunday evening, your points and place this week in each study party.</string>
+    <!-- The Sunday summary: its title, and a line per party ("Physics group: 45 points, place 2 of 5"). -->
+    <string name="study_weekly_title">Your study week</string>
+    <string name="study_weekly_line"><xliff:g id="party" example="Physics group">%1$s</xliff:g>: <xliff:g id="points" example="45 points">%2$s</xliff:g>, place <xliff:g id="place" example="2">%3$d</xliff:g> of <xliff:g id="members" example="5">%4$d</xliff:g></string>
     <!-- A reminder: what's due, then where ("Due tomorrow: Waves quiz" / "In Physics group"). -->
     <string name="study_due_day_title">Due within a day: <xliff:g id="title" example="Waves quiz">%1$s</xliff:g></string>
     <string name="study_due_soon_title">Due in under 2 hours: <xliff:g id="title" example="Waves quiz">%1$s</xliff:g></string>

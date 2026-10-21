@@ -51,6 +51,13 @@ class StudyPartyViewModel @Inject constructor(
         reminders?.setDueReminders(on)
     }
 
+    /** The Sunday summary of the player's points and place, on this phone. */
+    val weeklySummary: StateFlow<Boolean> = reminders?.weeklySummary ?: MutableStateFlow(false)
+
+    fun setWeeklySummary(on: Boolean) {
+        reminders?.setWeeklySummary(on)
+    }
+
     val partyId: String = savedStateHandle[ARG_PARTY] ?: ""
 
     private val tab = MutableStateFlow(PartyTab.THIS_WEEK)

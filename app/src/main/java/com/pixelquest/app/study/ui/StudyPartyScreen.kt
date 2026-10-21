@@ -76,6 +76,7 @@ fun StudyPartyScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val dueReminders by viewModel.dueReminders.collectAsState()
+    val weeklySummary by viewModel.weeklySummary.collectAsState()
     // Followed live only while the screen is visible.
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(lifecycle, viewModel) {
@@ -107,7 +108,7 @@ fun StudyPartyScreen(
         onCancelDelete = viewModel::cancelDelete,
         timerActions = TimerActions(viewModel::startTimer, viewModel::stopTimer, viewModel::cancelTimer, viewModel::logStudy),
         onDismissWinners = viewModel::dismissWinnerBanner,
-        reminders = ReminderToggles(dueReminders, viewModel::setDueReminders)
+        reminders = ReminderToggles(dueReminders, viewModel::setDueReminders, weeklySummary, viewModel::setWeeklySummary)
     )
 }
 
@@ -412,7 +413,12 @@ private fun LazyListScope.people(state: StudyPartyUiState, onAddPeople: () -> Un
 }
 
 /** The player's study notifications on this phone, and turning each on or off. */
-data class ReminderToggles(val due: Boolean = false, val onDue: (Boolean) -> Unit = {})
+data class ReminderToggles(
+    val due: Boolean = false,
+    val onDue: (Boolean) -> Unit = {},
+    val weekly: Boolean = false,
+    val onWeekly: (Boolean) -> Unit = {}
+)
 
 private fun LazyListScope.reminderToggles(reminders: ReminderToggles) {
     item(key = "reminders_title") {
@@ -425,6 +431,9 @@ private fun LazyListScope.reminderToggles(reminders: ReminderToggles) {
     }
     item(key = "reminders_due") {
         ToggleRow(stringResource(R.string.study_reminders_due), stringResource(R.string.study_reminders_due_body), reminders.due, reminders.onDue, StudyTags.REMINDERS_DUE)
+    }
+    item(key = "reminders_weekly") {
+        ToggleRow(stringResource(R.string.study_reminders_weekly), stringResource(R.string.study_reminders_weekly_body), reminders.weekly, reminders.onWeekly, StudyTags.REMINDERS_WEEKLY)
     }
 }
 
@@ -491,6 +500,7 @@ object StudyTags {
     const val POINTS_RULES = "study_points_rules"
     const val ACTIVITY = "study_activity"
     const val REMINDERS_DUE = "study_reminders_due"
+    const val REMINDERS_WEEKLY = "study_reminders_weekly"
     const val WINNER_BANNER = "study_winner_banner"
     const val WINNER_DISMISS = "study_winner_dismiss"
     fun pastWeek(weekStart: String) = "study_past_$weekStart"
