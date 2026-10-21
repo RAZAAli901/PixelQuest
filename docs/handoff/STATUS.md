@@ -54,18 +54,42 @@
 - Item materials (J058).
 - Chat notifications every 30 minutes, with a per-party mute (J059).
 
-**Left:**
+**J060–J065:** done. Reports and blocks are in 066 (`chat_reports`, `member_blocks`, `report_chat_message`, `block_member`, `unblock_member`). Migrations 065 and 066 are on hosted.
+
+## Phase C: Darood weekly ranking and goals (J066–J090): done
+
+**Docs:** `docs/darood-weekly.md`.
+
+**Server, migrations 067–074 (local only: they need the owner's OK before any hosted push):**
 
 | Item | What |
 |---|---|
-| J060 | Report a message or file (reuse the report flow; the `public.reports` table exists) and honour a block list. No block list exists yet: decide the simplest safe option and write it in the commit body. |
-| J061, J062 | Pixel/Comic chat styling; light mode and Simple Mode styling. Mostly already follows `chatLook()`. Check and fix gaps. |
-| J063 | TalkBack descriptions for bubbles and files, and large-font layouts (study `MessageBubble.kt` against the Darood `EntryBubble.kt`'s `bubbleSaid`). |
-| J064 | UI tests: send text, attach a PDF, see progress, ready, open, and a rejected file's error. |
-| J065 | Security tests: a removed member loses access at once; a signed URL expires (add to `supabase/tests/local/study_files.test.ts`). |
+| 067 | `parties.week_tz`, `set_party_week_tz` (the leader's; the app sets it from the phone's zone on create) |
+| 068 | `weekly_ranking(party_id, week_start)`: rank() by week total, ties share, 0 for no entries |
+| 069 | `darood_week_results`: a closed week's places, stored once |
+| 070 | `close_darood_week` (any active member, only after the week ends in the party's zone), `close_due_darood_weeks` (service role; pg_cron hourly when the extension exists) |
+| 071 | `party_milestones` (goal 1, 2, ...); the old milestone is copied in as goal 1 |
+| 072 | `set_milestone` extends a reached goal (the next row; `completed_at` clears so entries flow again); above the total, at most 10^12 |
+| 073 | The entry that reaches the goal marks `reached_at` once (`goal_is_final` guards it) |
+| 074 | `race_board` gains `goal_number` and `goals_reached` |
 
-After J065, run all the unit tests and report to the owner, with a reminder that 065 isn't on hosted yet.
+**Tests:** `supabase/tests/local/darood_weekly.test.ts`, `darood_goals.test.ts`, and `darood_parties.test.ts` updated (36/36 pass locally).
 
-## Phases C–F: not started
+**App:**
+- `darood/domain/WeekResults.kt` (WeekResult, WeekPlace, DaroodWeeks, WeekTone) and `Goals.kt`
+- Room v21: `darood_week_result` and `darood_week_notified` (MIGRATION_20_21)
+- `darood/sync/DaroodWeekResultsWorker` (every 3 h and on open) runs `WeekResultsRun` (close, read, cache, tell once) and `GoalNotifyRun` (Goal reached, New goal set)
+- Text: `WeekRankingText` ("Your position this week: 2nd of 8 with 3,200 Darood", tone lines); strings in `strings_darood_weekly.xml`
+- UI: the Weekly ranking sheet (from the notification, route `parties/darood/{id}/week`, or the trophy in the room's top bar); the ranking screen `parties/darood/{id}/weeks` (8 weeks and a place trend); a week card in the chat; the Extend goal sheet; the goal history in Party info
+- Toggles: `WeekRankingMutes` (Settings > Islamic reminders, for all; Party info, per party)
 
-See the plan for each item.
+**Decisions:**
+- A reached goal still finishes the party (no entries) until the leader extends it.
+- A muted party's week is marked told, so turning it back on never brings old weeks.
+- The phone asks to close last week by its own calendar; while it's still Sunday in the party's zone the server says `week_not_over` and the next round tries again.
+
+**Full unit run:** 2,032 tests, 0 failures.
+
+## Phases D–F: not started
+
+See the plan for each item. Phase D (chess backend) starts at J091.
