@@ -145,4 +145,6 @@
     <string name="chess_confirm_move">Play <xliff:g id="move" example="e2-e4">%1$s</xliff:g>?</string>
     <string name="chess_confirm">Confirm</string>
     <string name="chess_reconnecting">Reconnecting… The game goes on: the clocks are the server\'s.</string>
+    <string name="chess_leave_title">Leave the game?</string>
+    <string name="chess_leave_message">Leaving isn\'t resigning: your clock keeps running on the server. Open the game again from the party to play on.</string>
 </resources>

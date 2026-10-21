@@ -5,6 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -32,6 +33,17 @@ fun PixelNavHost(
     // The NavHost keeps the first composable lambdas it is given, so read the flag through
     // State; otherwise the splash timeout sees the initial value and skips onboarding.
     val latestOnboardingComplete by rememberUpdatedState(onboardingComplete)
+    // A chess game left in play when the app was closed opens again on Home (J163).
+    val resume = androidx.hilt.navigation.compose.hiltViewModel<com.pixelquest.app.chess.ui.ChessResumeViewModel>()
+    val resumeGame by resume.game.collectAsState()
+    val current by navController.currentBackStackEntryAsState()
+    LaunchedEffect(resumeGame, current?.destination?.route) {
+        val game = resumeGame ?: return@LaunchedEffect
+        if (current?.destination?.route == Screen.Home.route) {
+            resume.opened()
+            navController.navigate(Screen.ChessGame.createRoute(game)) { launchSingleTop = true }
+        }
+    }
     NavHost(
         navController = navController,
         startDestination = startDestination,

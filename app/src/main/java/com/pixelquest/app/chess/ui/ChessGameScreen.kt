@@ -72,6 +72,10 @@ data class ChessGameActions(
 fun ChessGameRoute(onNavigateBack: () -> Unit, onOpenGame: (String) -> Unit = {}, viewModel: ChessSessionViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     val prefs by viewModel.prefs.collectAsState()
+    // A player's live game: the screen stays on, and Back asks first (J163).
+    val playing = state.game?.status?.live == true && state.myColour != null
+    KeepScreenOn(playing)
+    LeaveGameGuard(playing, onLeave = onNavigateBack)
     // Sounds and haptics for each move and the end (J161).
     val view = androidx.compose.ui.platform.LocalView.current
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
