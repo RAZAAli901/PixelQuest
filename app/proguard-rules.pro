@@ -13,8 +13,9 @@
 -keep class * implements dagger.hilt.internal.GeneratedComponent
 -keep class * implements dagger.hilt.internal.ComponentEntryPoint
 
-# Jetpack Compose keep rules
--keep class androidx.compose.** { *; }
+# Jetpack Compose keep rules. The Material icons are left out: UI v2 uses a few dozen of the
+# thousands in material-icons-extended, and R8 drops the rest (the APK's budget is 8 MB).
+-keep class !androidx.compose.material.icons.**,androidx.compose.** { *; }
 -dontwarn androidx.compose.**
 
 # WorkManager keep rules
