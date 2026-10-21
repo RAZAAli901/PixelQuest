@@ -11,6 +11,8 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="namaz_title">Namaz Tracker</string>
+    <!-- The tracker's own top bar (UI v2, mock 2E). -->
+    <string name="namaz_title_short">Namaz</string>
 
     <!-- The five daily prayers, in the day's order. -->
     <string name="prayer_fajr">Fajr</string>
@@ -83,14 +85,7 @@
     <string name="namaz_location_finding">Finding your location…</string>
     <string name="namaz_location_unavailable">Couldn\'t get your location, so the times stay for <xliff:g id="place" example="Lahore">%1$s</xliff:g>. You can pick a city instead.</string>
 
-    <!-- The next-prayer card. -->
-    <string name="namaz_next_label">Next prayer</string>
-    <string name="namaz_next_at">at <xliff:g id="time" example="5:29 PM">%1$s</xliff:g></string>
-    <string name="namaz_next_starts_in">Starts in <xliff:g id="countdown" example="1:29:00">%1$s</xliff:g></string>
-    <string name="namaz_now_label">Now: <xliff:g id="prayer" example="Asr">%1$s</xliff:g></string>
-
     <!-- The day's prayers and progress. -->
-    <string name="namaz_prayers_title">Today\'s prayers</string>
     <string name="namaz_prayers_on">Prayers on <xliff:g id="date" example="Fri 16 Oct">%1$s</xliff:g></string>
     <!-- Counted by the prayers prayed: some languages change "prayed" with the number. -->
     <plurals name="namaz_progress">
@@ -104,8 +99,6 @@
     <string name="namaz_past_read_only">Earlier days are for looking back: they can\'t be changed.</string>
 
     <!-- The week: one tab per day, today last. -->
-    <string name="namaz_days_label">Your week</string>
-    <string name="namaz_day_today">Today</string>
     <!-- What TalkBack says for a day's tab. -->
     <plurals name="namaz_day_spoken">
         <item quantity="one"><xliff:g id="date" example="Saturday 17 October">%1$s</xliff:g>, <xliff:g id="prayed" example="1">%2$d</xliff:g> of <xliff:g id="total" example="5">%3$d</xliff:g> prayed</item>
@@ -117,6 +110,11 @@
     <string name="namaz_status_prayed">Prayed</string>
     <string name="namaz_status_missed">Missed</string>
     <string name="namaz_status_locked">Not yet</string>
+    <!-- A prayer row's button (UI v2, mock 2E): mark it prayed, or mark a missed one prayed late. -->
+    <string name="namaz_mark">Mark</string>
+    <string name="namaz_make_up">Make up</string>
+    <!-- An earlier day's prayer that was never marked. -->
+    <string name="namaz_status_not_marked">Not marked</string>
     <!-- Tapping a prayer whose time hasn't come. -->
     <string name="namaz_starts_at">Starts at <xliff:g id="time" example="5:29 PM">%1$s</xliff:g></string>
     <!-- Asked before taking a prayed mark back. -->

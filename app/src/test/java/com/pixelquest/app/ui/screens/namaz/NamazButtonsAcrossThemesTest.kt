@@ -106,6 +106,6 @@ class NamazButtonsAcrossThemesTest(private val mode: ThemeMode, private val simp
         composeTestRule.waitForIdle()
 
         assertEquals(PrayerStatus.PENDING, repository.statusOf(day, Prayer.ASR))
-        composeTestRule.onNodeWithTag(asr).assertTextContains("Tap when prayed", substring = true)
+        composeTestRule.onNodeWithTag(asr).assertTextContains("MARK", substring = true)
     }
 }

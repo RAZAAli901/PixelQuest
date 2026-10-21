@@ -5,21 +5,25 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
@@ -32,10 +36,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -47,12 +50,17 @@ import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerSlot
 import com.pixelquest.app.domain.namaz.PrayerStatus
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.components.prayerColor
+import com.pixelquest.app.ui.components.prayerIcon
 import com.pixelquest.app.ui.theme.LocalReduceMotion
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.PqCircle
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.lsp
+import com.pixelquest.app.ui.theme.pqShape
 import com.pixelquest.app.ui.theme.rememberReduceMotion
-import com.pixelquest.app.ui.theme.inkOnPanel
 import kotlinx.coroutines.launch
 
 /** How a prayer's button looks: what the player can do with it now. */
@@ -75,31 +83,15 @@ enum class PrayerButtonState(@StringRes val label: Int, val mark: String?) {
     }
 }
 
-/** Each prayer's picture: dawn, midday sun, afternoon, sunset, night. */
-val Prayer.icon: String
-    get() = when (this) {
-        Prayer.FAJR -> "🌅"
-        Prayer.DHUHR -> "☀️"
-        Prayer.ASR -> "🌤️"
-        Prayer.MAGHRIB -> "🌇"
-        Prayer.ISHA -> "🌙"
-    }
-
-/** The accent a state is drawn in, in the theme's Namaz style: its ring, its mark and its label. */
-internal fun NamazStyle.colorOf(state: PrayerButtonState): Color = when (state) {
-    PrayerButtonState.PENDING -> pending
-    PrayerButtonState.PRAYED -> prayed
-    PrayerButtonState.MISSED -> missed
-    PrayerButtonState.LOCKED -> locked
-}
-
 /**
- * One prayer's button: its picture in a ring that shows its state, its name and time, and what
- * the state means. A whole-width row, easy to read and to hit. A locked one is dimmed, and
- * tapping it says when it starts ("Starts at 17:29") instead of marking it. [readOnly] (an earlier
- * day) shows the same row with nothing to tap.
+ * One prayer's row (UI v2, mock 2E): its icon in its colour, its name and time, and on the right
+ * what can be done: Mark, Make up (missed, prayed late), or the inked Prayed. The next prayer stands
+ * out, with how long until it. A locked one is dimmed, and tapping it says when it starts ("Starts
+ * at 17:29") instead of marking it. [readOnly] (an earlier day) shows the same row with nothing to tap.
  *
  * TalkBack reads it as one item, "Fajr, 5:12 AM, not prayed", and says what a double tap does.
+ *
+ * @param isNext the prayer coming up next, drawn with a red shadow and [countdown].
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,10 +102,12 @@ fun PrayerButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
-    readOnly: Boolean = false
+    readOnly: Boolean = false,
+    isNext: Boolean = false,
+    countdown: String? = null
 ) {
     if (state != PrayerButtonState.LOCKED || readOnly) {
-        PrayerButtonBody(prayer, time, state, onClick, modifier, onLongClick, readOnly)
+        PrayerButtonBody(prayer, time, state, onClick, modifier, onLongClick, readOnly, isNext, countdown)
         return
     }
     val tooltipState = rememberTooltipState()
@@ -127,7 +121,7 @@ fun PrayerButton(
         },
         state = tooltipState
     ) {
-        PrayerButtonBody(prayer, time, state, onClick = { scope.launch { tooltipState.show() } }, modifier = modifier)
+        PrayerButtonBody(prayer, time, state, onClick = { scope.launch { tooltipState.show() } }, modifier = modifier, isNext = isNext, countdown = countdown)
     }
 }
 
@@ -140,11 +134,10 @@ private fun PrayerButtonBody(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
-    readOnly: Boolean = false
+    readOnly: Boolean = false,
+    isNext: Boolean = false,
+    countdown: String? = null
 ) {
-    val colors = PixelTheme.colors
-    val style = namazStyle()
-    val accent = style.colorOf(state)
     val description = stringResource(
         R.string.namaz_a11y_prayer,
         stringResource(prayer.displayName),
@@ -156,7 +149,7 @@ private fun PrayerButtonBody(
             PrayerButtonState.LOCKED -> stringResource(R.string.namaz_a11y_locked, time)
         }
     )
-    // TalkBack says "double tap to …" with these.
+    // TalkBack says "double tap to ..." with these.
     val clickLabel = stringResource(
         when (state) {
             PrayerButtonState.PENDING -> R.string.namaz_a11y_mark
@@ -166,11 +159,16 @@ private fun PrayerButtonBody(
         }
     )
     val longClickLabel = onLongClick?.let { stringResource(R.string.namaz_a11y_undo) }
-    PixelCard(
-        variant = PixelPanelVariant.BORDER,
-        contentPadding = style.cardPadding,
+    val shape = pqShape(PqDimens.Radius)
+    val frame = if (isNext && !readOnly) {
+        Modifier.comic(radius = PqDimens.Radius, shadowColor = PqColors.Red, tappable = true)
+    } else {
+        Modifier.clip(shape).background(PqColors.Paper).border(PqDimens.BorderThin, PqColors.Ink, shape)
+    }
+    Row(
         modifier = modifier
             .fillMaxWidth()
+            .then(frame)
             .then(
                 if (readOnly) {
                     Modifier
@@ -185,32 +183,57 @@ private fun PrayerButtonBody(
                 }
             )
             .semantics(mergeDescendants = true) { contentDescription = description }
+            .heightIn(min = 56.dp)
+            .padding(horizontal = 12.dp, vertical = if (isNext) 10.dp else 8.dp)
+            // A prayer still to come is dimmed, except the next one, which stands out.
+            .alpha(if (state == PrayerButtonState.LOCKED && !isNext) 0.6f else 1f),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 56.dp)
-                .alpha(if (state == PrayerButtonState.LOCKED) 0.6f else 1f),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            PrayerStateRing(icon = prayer.icon, state = state, accent = accent, style = style, modifier = Modifier.prayedPop(state))
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = stringResource(prayer.displayName),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = inkOnPanel(colors.primaryText)
-                )
-                Text(text = time, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
-            }
-            Spacer(modifier = Modifier.width(8.dp))
+        val key = prayer.name.lowercase()
+        Box(
+            Modifier.prayedPop(state).size(40.dp).clip(PqCircle).background(prayerColor(key)).border(PqDimens.BorderThin, PqColors.Ink, PqCircle).clearAndSetSemantics {},
+            contentAlignment = Alignment.Center
+        ) { Icon(prayerIcon(key), null, tint = PqColors.Ink, modifier = Modifier.size(22.dp)) }
+        Column(Modifier.weight(1f)) {
+            Text(stringResource(prayer.displayName), style = PqType.BodyStrong)
             Text(
-                text = stringResource(state.label),
-                style = MaterialTheme.typography.labelMedium,
-                color = if (state == PrayerButtonState.PENDING) inkOnPanel(colors.primaryText) else accent
+                if (isNext && countdown != null) "$time · $countdown" else time,
+                style = if (isNext) PqType.MetaStrong.copy(color = PqColors.RedText) else PqType.Meta
             )
         }
+        // What a tap does, drawn: the row itself is the button. Its words are the row's state, for
+        // tests; TalkBack reads the row's description.
+        Box {
+            when (state) {
+                PrayerButtonState.PRAYED -> Row(
+                    Modifier.height(30.dp).clip(PqCircle).background(PqColors.Ink).padding(start = 6.dp, end = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Rounded.Check, null, tint = PqColors.Paper, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(3.dp))
+                    Text(stringResource(R.string.namaz_status_prayed), style = PqType.Button.copy(fontSize = 12.lsp, color = PqColors.Paper, letterSpacing = 0.sp))
+                }
+                PrayerButtonState.MISSED -> if (readOnly) StatusText(R.string.namaz_status_missed) else ActionPill(R.string.namaz_make_up)
+                PrayerButtonState.PENDING -> if (readOnly) StatusText(R.string.namaz_status_not_marked) else ActionPill(R.string.namaz_mark)
+                PrayerButtonState.LOCKED -> StatusText(R.string.namaz_status_locked)
+            }
+        }
     }
+}
+
+/** A pill like a secondary button: what tapping the row does. */
+@Composable
+private fun ActionPill(label: Int) {
+    Box(
+        Modifier.height(34.dp).comic(radius = 12.dp, shadow = 2.dp).padding(horizontal = 14.dp),
+        contentAlignment = Alignment.Center
+    ) { Text(stringResource(label).uppercase(), style = PqType.Button) }
+}
+
+@Composable
+private fun StatusText(label: Int) {
+    Text(stringResource(label), style = PqType.MetaStrong.copy(color = PqColors.Muted))
 }
 
 /**
@@ -231,31 +254,4 @@ private fun Modifier.prayedPop(state: PrayerButtonState): Modifier {
         wasPrayed[0] = nowPrayed
     }
     return graphicsLayer { scaleX = scale.value; scaleY = scale.value }
-}
-
-/** The prayer's picture in a ring: outlined while pending, filled once prayed, with the state's mark. */
-@Composable
-private fun PrayerStateRing(
-    icon: String,
-    state: PrayerButtonState,
-    accent: Color,
-    style: NamazStyle,
-    modifier: Modifier = Modifier
-) {
-    Box(modifier = modifier.size(48.dp).clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val stroke = style.ringStroke.toPx()
-            if (state == PrayerButtonState.PRAYED) drawCircle(color = style.prayedFill)
-            drawCircle(color = accent, radius = (size.minDimension - stroke) / 2, style = Stroke(width = stroke))
-        }
-        Text(text = icon, fontSize = 20.sp)
-        state.mark?.let { mark ->
-            Text(
-                text = mark,
-                fontSize = 12.sp,
-                color = style.mark ?: accent,
-                modifier = Modifier.align(Alignment.BottomEnd)
-            )
-        }
-    }
 }

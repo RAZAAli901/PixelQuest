@@ -25,7 +25,9 @@ class PrayerButtonStateTest {
     }
 
     @Test
-    fun everyPrayer_hasItsOwnPicture() {
-        assertEquals(Prayer.entries.size, Prayer.entries.map { it.icon }.toSet().size)
+    fun everyPrayer_hasItsOwnIcon_andColour() {
+        val keys = Prayer.entries.map { it.name.lowercase() }
+        assertEquals(Prayer.entries.size, keys.map { com.pixelquest.app.ui.components.prayerIcon(it) }.toSet().size)
+        assertEquals(Prayer.entries.size, keys.map { com.pixelquest.app.ui.components.prayerColor(it) }.toSet().size)
     }
 }

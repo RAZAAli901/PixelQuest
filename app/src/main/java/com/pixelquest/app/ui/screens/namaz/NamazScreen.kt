@@ -4,12 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -25,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -40,11 +42,16 @@ import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerSlot
 import com.pixelquest.app.domain.namaz.remindsFor
-import com.pixelquest.app.ui.components.PixelProgressBar
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.components.PqIconButton
+import com.pixelquest.app.ui.components.PqSegmentBar
+import com.pixelquest.app.ui.components.PqTopBar
 import com.pixelquest.app.ui.haptics.PixelHaptics
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.bsp
 import kotlinx.coroutines.launch
 
 /** Test tags for the Namaz screen's parts. */
@@ -273,11 +280,10 @@ private fun NamazScaffold(
     snackbarHostState: SnackbarHostState,
     onPrayerClick: (PrayerSlot) -> Unit
 ) {
-    val colors = PixelTheme.colors
     val formatter = rememberPrayerTimeFormatter()
     val playful = namazStyle().playful
     Scaffold(
-        containerColor = colors.background,
+        containerColor = PqColors.Ground,
         topBar = {
             NamazTopBar(
                 onNavigateBack = onNavigateBack,
@@ -300,10 +306,10 @@ private fun NamazScaffold(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colors.background)
+                .background(PqColors.Ground)
                 .testTag(NamazTestTags.SCREEN),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            contentPadding = PaddingValues(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 4.dp, bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             // Nothing until the settings are read, so a tracker that's on doesn't flash the explainer.
             if (state.loading) return@LazyColumn
@@ -318,9 +324,6 @@ private fun NamazScaffold(
             // Only while there's a reminder for the phone to get in the way of.
             if (Prayer.entries.any { state.settings.remindsFor(it) }) {
                 item(key = "reminder_checks") { reminderChecks() }
-            }
-            state.next?.let { next ->
-                item(key = "next") { NextPrayerCard(next = next, onCountdownEnd = onRefresh) }
             }
             item(key = "location") {
                 NamazLocationCard(
@@ -353,34 +356,29 @@ private fun NamazScaffold(
                         } else {
                             plain
                         },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colors.onSurface,
+                        style = PqType.MetaStrong,
                         modifier = Modifier.testTag(NamazTestTags.STREAK).semantics { contentDescription = plain }
                     )
                 }
             }
-            item(key = "prayers_title") {
-                NamazHeading(
-                    text = if (state.isPastDay) {
-                        stringResource(R.string.namaz_prayers_on, state.day!!.date.format(DayTitleFormatter))
-                    } else {
-                        stringResource(R.string.namaz_prayers_title)
+            // An earlier day says which, and that it's only to look at.
+            if (state.isPastDay) {
+                item(key = "prayers_title") {
+                    Column {
+                        PqGroupLabel(stringResource(R.string.namaz_prayers_on, state.day!!.date.format(DayTitleFormatter)))
+                        Text(text = stringResource(R.string.namaz_past_read_only), style = PqType.Meta)
                     }
-                )
-                if (state.isPastDay) {
-                    Text(
-                        text = stringResource(R.string.namaz_past_read_only),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant
-                    )
                 }
             }
             item(key = "progress") {
                 NamazProgress(prayed = state.progress, pastDay = state.isPastDay, xp = state.dayXp.takeIf { state.showXp && it > 0 })
             }
             // Five separate buttons, in the day's order.
+            // The prayer coming up, today: its row stands out, with how long until it.
+            val next = state.next?.next?.takeIf { !state.isPastDay && it.day == state.day?.date }
             items(state.slots, key = { it.prayer.name }) { slot ->
                 val buttonState = PrayerButtonState.of(slot)
+                val isNext = next?.prayer == slot.prayer
                 PrayerButton(
                     prayer = slot.prayer,
                     time = slot.time.format(formatter),
@@ -390,6 +388,8 @@ private fun NamazScaffold(
                     onLongClick = if (buttonState == PrayerButtonState.PRAYED && !state.isPastDay) ({ onPrayerClick(slot) }) else null,
                     // An earlier day is read-only: nothing to tap, and TalkBack offers nothing.
                     readOnly = state.isPastDay,
+                    isNext = isNext,
+                    countdown = if (isNext) state.next?.let { untilText(it.remaining) } else null,
                     modifier = Modifier.testTag(NamazTestTags.prayer(slot.prayer))
                 )
             }
@@ -406,79 +406,51 @@ private fun NamazScaffold(
     }
 }
 
-/** The prayer day's Hijri date, under the title: "🌙 6 Jumada al-Ula 1448 AH". */
+/** The prayer day's Hijri date, under the title: "6 Jumada al-Ula 1448 AH". */
 @Composable
 private fun HijriDateLine(date: java.time.LocalDate) {
     val hijri = remember(date) { HijriDate.of(date) }
     val month = stringArrayResource(R.array.namaz_hijri_months)[hijri.month - 1]
     val text = stringResource(R.string.namaz_hijri_date, hijri.day, month, hijri.year)
-    Text(
-        text = "🌙 $text",
-        style = MaterialTheme.typography.bodyMedium,
-        color = PixelTheme.colors.onSurfaceVariant,
-        // Without the moon's name read first.
-        modifier = Modifier.testTag(NamazTestTags.HIJRI).semantics { contentDescription = text }
-    )
+    Text(text = text, style = PqType.MetaStrong.copy(color = PqColors.Muted), modifier = Modifier.testTag(NamazTestTags.HIJRI))
 }
 
 /** "Mon 12 Oct", for an earlier day's heading. */
 private val DayTitleFormatter = java.time.format.DateTimeFormatter.ofPattern("EEE d MMM")
 
-/** How many of the day's five prayers are prayed: "3 / 5 prayed today", over a bar. */
+/** How many of the day's five prayers are prayed: "3 / 5 prayed today", the XP, and a bar of five. */
 @Composable
 private fun NamazProgress(prayed: Int, pastDay: Boolean, xp: Int?) {
-    Column(modifier = Modifier.testTag(NamazTestTags.PROGRESS), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            text = pluralStringResource(
-                if (pastDay) R.plurals.namaz_progress_past else R.plurals.namaz_progress,
-                prayed,
-                prayed,
-                NamazUiState.PRAYERS_PER_DAY
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-            color = PixelTheme.colors.onSurface
-        )
-        PixelProgressBar(progress = prayed / NamazUiState.PRAYERS_PER_DAY.toFloat(), height = 14.dp)
-        // The XP those prayers earned (none shown in Simple Mode or with Namaz XP off).
-        xp?.let {
-            Text(
-                text = stringResource(if (pastDay) R.string.namaz_xp_that_day else R.string.namaz_xp_today, it),
-                style = MaterialTheme.typography.labelMedium,
-                color = PixelTheme.colors.primaryText,
-                modifier = Modifier.testTag(NamazTestTags.DAY_XP)
-            )
+    PqCard(Modifier.testTag(NamazTestTags.PROGRESS), radius = PqDimens.Radius) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = pluralStringResource(
+                        if (pastDay) R.plurals.namaz_progress_past else R.plurals.namaz_progress,
+                        prayed,
+                        prayed,
+                        NamazUiState.PRAYERS_PER_DAY
+                    ),
+                    style = PqType.BodyStrong.copy(fontSize = 16.bsp),
+                    modifier = Modifier.weight(1f)
+                )
+                // The XP those prayers earned (none shown in Simple Mode or with Namaz XP off).
+                xp?.let {
+                    Text(
+                        text = stringResource(if (pastDay) R.string.namaz_xp_that_day else R.string.namaz_xp_today, it),
+                        style = PqType.MetaStrong.copy(color = PqColors.RedText),
+                        modifier = Modifier.testTag(NamazTestTags.DAY_XP)
+                    )
+                }
+            }
+            PqSegmentBar(NamazUiState.PRAYERS_PER_DAY, prayed, fill = PqColors.Progress, height = 10.dp)
         }
     }
 }
 
 @Composable
 private fun NamazTopBar(onNavigateBack: (() -> Unit)?, onOpenSettings: (() -> Unit)?) {
-    val colors = PixelTheme.colors
-    PixelTopAppBar(
-        title = stringResource(R.string.namaz_title),
-        actions = onOpenSettings?.let { open ->
-            {
-                IconButton(onClick = open) {
-                    SymbolIcon(
-                        symbol = "⚙️",
-                        contentDescription = stringResource(R.string.namaz_settings_open),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = colors.primaryText
-                    )
-                }
-            }
-        },
-        navigationIcon = onNavigateBack?.let { back ->
-            {
-                IconButton(onClick = back) {
-                    SymbolIcon(
-                        symbol = "◀",
-                        contentDescription = stringResource(R.string.navigate_back),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = colors.primaryText
-                    )
-                }
-            }
-        }
-    )
+    PqTopBar(stringResource(R.string.namaz_title_short), onBack = onNavigateBack, modifier = Modifier.padding(horizontal = PqDimens.ScreenPad)) {
+        onOpenSettings?.let { open -> PqIconButton(Icons.Rounded.Tune, stringResource(R.string.namaz_settings_open), open) }
+    }
 }

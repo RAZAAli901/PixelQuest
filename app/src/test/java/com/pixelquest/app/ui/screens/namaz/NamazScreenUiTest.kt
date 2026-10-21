@@ -109,7 +109,7 @@ class NamazScreenUiTest {
         show()
         val asr = NamazTestTags.prayer(Prayer.ASR)
         scrollTo(asr)
-        composeTestRule.onNodeWithTag(asr).assertTextContains("Tap when prayed", substring = true)
+        composeTestRule.onNodeWithTag(asr).assertTextContains("MARK", substring = true)
 
         composeTestRule.onNodeWithTag(asr).performClick()
         composeTestRule.waitForIdle()
@@ -123,7 +123,7 @@ class NamazScreenUiTest {
         show()
         val dhuhr = NamazTestTags.prayer(Prayer.DHUHR)
         scrollTo(dhuhr)
-        composeTestRule.onNodeWithTag(dhuhr).assertTextContains("Missed", substring = true)
+        composeTestRule.onNodeWithTag(dhuhr).assertTextContains("MAKE UP", substring = true)
 
         composeTestRule.onNodeWithTag(dhuhr).performClick()
         composeTestRule.waitForIdle()
@@ -149,7 +149,7 @@ class NamazScreenUiTest {
         composeTestRule.waitForIdle()
 
         assertEquals(PrayerStatus.PENDING, repository.statusOf(day, Prayer.ASR))
-        composeTestRule.onNodeWithTag(asr).assertTextContains("Tap when prayed", substring = true)
+        composeTestRule.onNodeWithTag(asr).assertTextContains("MARK", substring = true)
     }
 
     @Test
@@ -195,7 +195,7 @@ class NamazScreenUiTest {
 
         // The heading sits just above the day's progress.
         scrollTo(NamazTestTags.PROGRESS)
-        composeTestRule.onNodeWithText("Prayers on", substring = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("PRAYERS ON", substring = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("1 / 5 prayed that day").assertIsDisplayed()
         // Tapping its prayers changes nothing.
         scrollTo(NamazTestTags.prayer(Prayer.ASR))

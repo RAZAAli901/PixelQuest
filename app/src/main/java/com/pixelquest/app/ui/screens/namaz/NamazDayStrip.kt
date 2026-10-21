@@ -3,18 +3,14 @@ package com.pixelquest.app.ui.screens.namaz
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,22 +23,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.PrayerStatus
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.comicDropShadow
+import com.pixelquest.app.ui.components.DayStatus
+import com.pixelquest.app.ui.theme.PqCircle
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.bsp
+import com.pixelquest.app.ui.theme.pqShape
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-private val WeekdayFormatter = DateTimeFormatter.ofPattern("EEE")
+private val WeekdayFormatter = DateTimeFormatter.ofPattern("EEEEE")
 private val SpokenDayFormatter = DateTimeFormatter.ofPattern("EEEE d MMMM")
 
+/** How a prayer day went, as its dot shows it: all five, some, none and gone, or still going. */
+fun dayStatusOf(statuses: List<PrayerStatus>): DayStatus {
+    val prayed = statuses.count { it == PrayerStatus.PRAYED }
+    return when {
+        statuses.isEmpty() -> DayStatus.None
+        prayed >= NamazUiState.PRAYERS_PER_DAY -> DayStatus.Perfect
+        prayed > 0 -> DayStatus.Partial
+        statuses.any { it == PrayerStatus.MISSED } -> DayStatus.Missed
+        else -> DayStatus.None
+    }
+}
+
 /**
- * The last week's prayer days, one tab each, today last, each with five dots for its prayers:
- * the week at a glance. Picking an earlier one shows its five prayers, read-only; today goes back
- * to marking.
+ * The last week's prayer days (UI v2, mock 2E), one tab each, today last: its weekday's letter, its
+ * date, and a dot for how it went. Picking an earlier one shows its five prayers, read-only; today
+ * goes back to marking. The day shown is inked.
  */
 @Composable
 fun NamazDayStrip(
@@ -53,84 +65,43 @@ fun NamazDayStrip(
     modifier: Modifier = Modifier,
     week: Map<LocalDate, List<PrayerStatus>> = emptyMap()
 ) {
-    val colors = PixelTheme.colors
-    val style = namazStyle()
-    val shape = style.chipShape
-    Column(modifier = modifier.testTag(NamazTestTags.DAY_STRIP), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        NamazHeading(text = stringResource(R.string.namaz_days_label))
-        Row(
-            modifier = Modifier.fillMaxWidth().selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            days.forEach { date ->
-                val isSelected = date == selected
-                val statuses = week[date].orEmpty()
-                val prayed = statuses.count { it == PrayerStatus.PRAYED }
-                val spoken = pluralStringResource(
-                    R.plurals.namaz_day_spoken,
-                    prayed,
-                    date.format(SpokenDayFormatter),
-                    prayed,
-                    NamazUiState.PRAYERS_PER_DAY
-                )
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .heightIn(min = 56.dp)
-                        .then(if (isSelected && style.chipShadow) Modifier.comicDropShadow(offsetX = 3.dp, offsetY = 3.dp, shape = shape) else Modifier)
-                        .clip(shape)
-                        .background(if (isSelected) style.chipSelectedFill else style.chipFill, shape)
-                        .border(
-                            width = if (isSelected) style.chipBorderWidth + 1.dp else style.chipBorderWidth,
-                            color = if (isSelected) style.chipSelectedBorder else style.chipBorder,
-                            shape = shape
-                        )
-                        .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(date) })
-                        .semantics { contentDescription = spoken }
-                        .padding(vertical = 8.dp)
-                        .testTag(NamazTestTags.day(date)),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = if (date == today) stringResource(R.string.namaz_day_today) else date.format(WeekdayFormatter),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = colors.onSurfaceVariant,
-                        maxLines = 1
-                    )
-                    Text(
-                        text = date.dayOfMonth.toString(),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = colors.onSurface,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                    )
-                    if (statuses.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        PrayerDots(statuses, style)
-                    }
-                }
-            }
-        }
-    }
-}
-
-/** A day's five prayers as dots, Fajr to Isha: filled for prayed, quieter for missed, hollow for still to come. */
-@Composable
-private fun PrayerDots(statuses: List<PrayerStatus>, style: NamazStyle) {
-    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-        statuses.forEach { status ->
-            val fill = when (status) {
-                PrayerStatus.PRAYED -> style.dotPrayed
-                PrayerStatus.MISSED -> style.dotMissed
-                PrayerStatus.PENDING -> Color.Transparent
-            }
-            Spacer(
+    Row(
+        modifier = modifier.fillMaxWidth().selectableGroup().testTag(NamazTestTags.DAY_STRIP),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        days.forEach { date ->
+            val isSelected = date == selected
+            val statuses = week[date].orEmpty()
+            val prayed = statuses.count { it == PrayerStatus.PRAYED }
+            val spoken = pluralStringResource(R.plurals.namaz_day_spoken, prayed, date.format(SpokenDayFormatter), prayed, NamazUiState.PRAYERS_PER_DAY)
+            val bg = if (isSelected) PqColors.Ink else PqColors.Paper
+            val fg = if (isSelected) PqColors.Paper else PqColors.Ink
+            Column(
                 modifier = Modifier
-                    .size(5.dp)
-                    .clip(CircleShape)
-                    .background(fill, CircleShape)
-                    .border(1.dp, style.dotOutline, CircleShape)
-            )
+                    .weight(1f)
+                    .height(62.dp)
+                    .clip(pqShape(12.dp))
+                    .background(bg)
+                    .border(PqDimens.BorderThin, PqColors.Ink, pqShape(12.dp))
+                    .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(date) })
+                    .semantics { contentDescription = spoken }
+                    .testTag(NamazTestTags.day(date)),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically)
+            ) {
+                Text(
+                    date.format(WeekdayFormatter),
+                    style = PqType.NavLabel.copy(color = fg), maxLines = 1
+                )
+                Text(date.dayOfMonth.toString(), style = PqType.BodyStrong.copy(fontSize = 16.bsp, color = fg))
+                val status = dayStatusOf(statuses)
+                val dot = when {
+                    isSelected && date == today -> PqColors.Gold
+                    status == DayStatus.None -> Color.Transparent
+                    else -> status.color
+                }
+                Box(Modifier.size(8.dp).clip(PqCircle).background(dot))
+            }
         }
     }
 }
