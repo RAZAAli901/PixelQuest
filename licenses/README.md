@@ -27,3 +27,7 @@ All were downloaded on **2026-10-20**, and are kept exactly as downloaded (the f
 - **The translation:** the second is what [tanzil.net/trans](https://tanzil.net/trans/) opens for Saheeh International's download, as "Text (with aya numbers)". Its XML has a header comment XML doesn't allow (it contains `--`), so strict readers refuse it; the text format holds the same 6,236 ayahs, character for character.
 - **Updates:** Tanzil publishes them at [tanzil.net/updates](https://tanzil.net/updates/).
 - **The font:** Amiri Quran 1.003, Google Fonts' copy of [the Amiri project](https://github.com/aliftype/amiri)'s release (its `Amiri-1.003.zip`). It's made for the Quran's text: its marks, and the end-of-ayah sign with its number.
+
+## Chess
+
+The chess screens (docs/chess-ui-integration.md, design in `chess-ui/`) bring no new third-party files: the pieces are Unicode glyphs drawn with the system font, the icons are the Material Symbols the app already has, and the type is the fonts listed in ASSETS.md. chess.js (BSD-2-Clause) runs only on the server, in the Edge Functions (`supabase/functions/package.json`), and is not bundled in the app.
