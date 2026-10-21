@@ -69,7 +69,7 @@ BEGIN
         RAISE EXCEPTION 'Not authenticated' USING ERRCODE = 'insufficient_privilege';
     END IF;
     SELECT * INTO party FROM public.parties p WHERE p.id = party_id FOR UPDATE;
-    IF NOT FOUND OR party.deleted_at IS NOT NULL OR party.leader_id IS DISTINCT FROM caller OR party.party_type <> 'darood' THEN
+    IF NOT FOUND OR party.deleted_at IS NOT NULL OR party.leader_id IS DISTINCT FROM caller THEN
         RAISE EXCEPTION 'not_leader' USING ERRCODE = 'insufficient_privilege',
             DETAIL = 'Only the party''s leader can set its goal.';
     END IF;

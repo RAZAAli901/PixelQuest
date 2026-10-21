@@ -338,7 +338,7 @@ localTest("the race board: opted-in parties with a milestone, name and progress 
   assert.equal((await race(leader, racing, true)).body[0].is_public_race, true);
   assert.equal((await race(leader, aimless, true)).status, 200);
   const row = (await board(outsider)).find((r) => r.name === racingName);
-  assert.deepEqual(row, { name: racingName, member_count: 2, total: 250, milestone: 1000, progress: 0.25, completed_at: null, mine: false });
+  assert.deepEqual(row, { name: racingName, member_count: 2, total: 250, milestone: 1000, progress: 0.25, completed_at: null, mine: false, goal_number: 1, goals_reached: [] });
   assert.equal((await board(member)).find((r) => r.name === racingName)?.mine, true, "a member's own is marked");
 
   // Never the quiet one, nor one without a milestone; never anything signed out.
@@ -389,11 +389,11 @@ localTest("privacy: an outsider sees an opted-in party's race line, and no name,
     for (const secret of hidden) assert.ok(!shows(text, secret), `${path} shows ${secret}: ${text.slice(0, 300)}`);
   }
 
-  // The board shows the line, with its six columns and mine, and only those.
+  // The board shows the line, with its six columns, mine and its goals (20261019000074), and only those.
   const line = ((reads.find(([path]) => path.startsWith("/rest/v1/race_board"))![1]) as Record<string, unknown>[])
     .find((row) => row.total === 1547);
   assert.ok(line, "the party's line is there");
-  assert.deepEqual(Object.keys(line!).sort(), ["completed_at", "member_count", "milestone", "mine", "name", "progress", "total"]);
+  assert.deepEqual(Object.keys(line!).sort(), ["completed_at", "goal_number", "goals_reached", "member_count", "milestone", "mine", "name", "progress", "total"]);
   assert.equal(line!.mine, false);
 
   // Asking the board for more gets nothing more: no hidden columns, nothing to embed.
@@ -447,7 +447,7 @@ localTest("members leave, the leader hands over first, and a deleted leader's pa
   assert.deepEqual(leaderRows, [{ user_id: first.userId }]);
 });
 
-localTest("a party finishes once, when its total first reaches the milestone, and for good", async () => {
+localTest("a party finishes once, when its total first reaches the milestone, until its leader extends it", async () => {
   const { leader, member } = await cast();
   const party = await partyOf(leader, [member], { milestone: 1000 });
   const finished = async () => (await asService(`/rest/v1/parties?id=eq.${party}&select=completed_at`)).body[0].completed_at;
@@ -460,11 +460,14 @@ localTest("a party finishes once, when its total first reaches the milestone, an
   assert.equal(typeof stamp, "string");
 
   assert.equal((await post(leader, party, 1)).body.message, "party_closed");
-  assert.equal((await rpc(leader, "set_milestone", { party_id: party, target: 5000 })).body.message, "party_closed");
   const undo = await asService(`/rest/v1/parties?id=eq.${party}`, { method: "PATCH", body: { completed_at: null } });
   assert.equal(undo.body.message, "completion_is_final");
   assert.equal(await finished(), stamp);
   assert.equal((await call(`/rest/v1/party_stats?party_id=eq.${party}&select=total`, { token: leader.accessToken })).body[0].total, 1200);
+  // Goals that go on (20261019000072): extending opens it again, goal 1 keeping its finish time.
+  assert.equal((await rpc(leader, "set_milestone", { party_id: party, target: 5000 })).body.goal, 2);
+  assert.equal(await finished(), null);
+  assert.equal((await post(leader, party, 1)).status, 201);
 });
 
 localTest("an entry sent twice counts once, even if the first answer was lost (20261019000024)", async () => {
@@ -818,9 +821,15 @@ localTest("privacy, every party table: an outsider reads nothing, and the board 
   const shared = new Set(["study_points_config", "study_chat_config", "study_chat_types", "usernames", "race_board"]);
   // chat_files' storage path isn't granted at all: its other columns are read.
   const columns: Record<string, string> = { chat_files: "id,party_id,uploader_id,display_name,status" };
+  // Not granted at all: only the server's functions write them, and nobody reads them back.
+  const unread = new Set(["chat_reports"]);
 
   for (const table of tables) {
     const read = await call(`/rest/v1/${table}?select=${columns[table] ?? "*"}`, { token: outsider.accessToken });
+    if (unread.has(table)) {
+      assert.equal(read.status, 403, `${table} isn't readable`);
+      continue;
+    }
     assert.equal(read.status, 200, `${table}: ${JSON.stringify(read.body).slice(0, 200)}`);
     const text = JSON.stringify(read.body);
     for (const secret of secrets) assert.ok(!text.includes(secret), `${table} shows ${secret}`);
@@ -833,7 +842,7 @@ localTest("privacy, every party table: an outsider reads nothing, and the board 
   const board = (await call("/rest/v1/race_board?select=*", { token: outsider.accessToken })).body as Record<string, unknown>[];
   const line = board.find((row) => row.total === 777 && row.milestone === 9000);
   assert.ok(line, "the Darood Party's line is there");
-  assert.deepEqual(Object.keys(line!).sort(), ["completed_at", "member_count", "milestone", "mine", "name", "progress", "total"]);
+  assert.deepEqual(Object.keys(line!).sort(), ["completed_at", "goal_number", "goals_reached", "member_count", "milestone", "mine", "name", "progress", "total"]);
   assert.ok(!board.some((row) => row.name === studyName), "a study party is never on the board");
 });
 
