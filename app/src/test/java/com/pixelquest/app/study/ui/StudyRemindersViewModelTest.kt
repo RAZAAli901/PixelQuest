@@ -89,7 +89,7 @@ class StudyRemindersViewModelTest {
 
         vm.save()
         waitFor("the short title shown") { vm.uiState.value.form?.triedToSave == true }
-        assertEquals("nothing sent", 0, reminderServer.calls)
+        assertTrue("nothing sent (the screen's own fetch aside)", reminderServer.rows.isEmpty())
 
         vm.change(vm.uiState.value.form!!.withTitle("Quiz this week"))
         vm.save()
