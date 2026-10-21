@@ -1,7 +1,7 @@
 // The database's rating maths and farming rules (migrations 20261019000090 to 092), held to the
 // pure functions in supabase/functions/_shared/chess_rating.ts.
 import assert from "node:assert/strict";
-import { localTest, sql } from "./stack.ts";
+import { call, localTest, sql, type Session } from "./stack.ts";
 import { ratingChanges } from "../../functions/_shared/chess_rating.ts";
 import { chessCast, endGames, gameRow, studyParty } from "./chess_rls.test.ts";
 
@@ -55,4 +55,33 @@ localTest("chess: a finished rated game moves both ratings once; farmed games mo
   play(20, "white", "resign");
   assert.equal(points(), before, "farmed: no rating change");
   assert.equal(h2h(), games + 1, "but it's in the head-to-head");
+});
+
+localTest("chess views: head-to-head per time control and total, the party board, profile stats; party mates only", async () => {
+  const { white, black, third, outsider } = await chessCast();
+  endGames(white, black, third);
+  const party = await studyParty(white, [black, third]);
+  // The farming test's games were today: moved back, so these count.
+  sql(`UPDATE public.chess_games SET ended_at = ended_at - interval '2 days' WHERE ended_at IS NOT NULL AND '${white.userId}' IN (white_id, black_id) AND '${black.userId}' IN (white_id, black_id)`);
+  for (const [tc, result] of [[180, "white"], [180, "draw"], [600, "black"]] as const) {
+    const game = sql(`INSERT INTO public.chess_games (party_id, white_id, black_id, time_control_sec, status, ply, white_ms, black_ms, last_move_at)
+      VALUES ('${party}', '${white.userId}', '${black.userId}', ${tc}, 'active', 20, 1, 1, now()) RETURNING id`).split("\n")[0];
+    sql(`SELECT private.chess_finish('${game}', '${result}', '${result === "draw" ? "draw_agreed" : "resign"}')`);
+  }
+  const low = [white.userId, black.userId].sort()[0];
+  const view = async (who: Session, path: string) => (await call(`/rest/v1/${path}`, { token: who.accessToken })).body;
+  const total = (await view(third, `chess_head_to_head_totals?user_low=eq.${low}&time_control_sec=is.null`))[0];
+  assert.ok(total.games >= 3 && total.draws >= 1, JSON.stringify(total));
+  assert.deepEqual(await view(outsider, `chess_head_to_head_totals?user_low=eq.${low}`), [], "outsiders see no record");
+
+  const board = await view(third, `chess_party_leaderboard?party_id=eq.${party}&time_control_sec=eq.600&order=place`);
+  assert.equal(board.length, 3, "every active member, games or not");
+  assert.equal(board[0].user_id, black.userId, "Black won the 10-minute game");
+  assert.equal(board.find((r: { user_id: string }) => r.user_id === third.userId).int_points, 800);
+  assert.deepEqual(await view(outsider, `chess_party_leaderboard?party_id=eq.${party}`), []);
+
+  const stats = await view(third, `chess_profile_stats?user_id=eq.${white.userId}&time_control_sec=eq.180`);
+  assert.equal(stats[0].tier, "Pawn");
+  assert.ok(stats[0].games >= 2);
+  assert.deepEqual(await view(outsider, `chess_profile_stats?user_id=eq.${white.userId}`), []);
 });
