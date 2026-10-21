@@ -142,7 +142,11 @@ export function refusalOf(body: unknown): string {
   }
 }
 
-/** Study-files' storage, with the service role: signing, reading and deleting by path. */
+/**
+ * Study-files' storage, with the service role: signing, reading and deleting by path. A signed URL
+ * comes back as its path on the project (/storage/v1/...): the app puts its own Supabase address in
+ * front, since the function's SUPABASE_URL may be one only the server can reach.
+ */
 export function storage(fetchFn: Fetch, supabaseUrl: string, serviceKey: string) {
   const base = `${supabaseUrl.replace(/\/$/, "")}/storage/v1`;
   const bucket = "study-files";
@@ -156,7 +160,7 @@ export function storage(fetchFn: Fetch, supabaseUrl: string, serviceKey: string)
       });
       if (!res.ok) throw new Error(`sign upload failed with ${res.status}`);
       const { url } = (await res.json()) as { url: string };
-      return `${base}${url.startsWith("/") ? "" : "/"}${url}`;
+      return `/storage/v1${url.startsWith("/") ? "" : "/"}${url}`;
     },
     /** The stored object's bytes, or null if there's none (never uploaded). */
     async read(path: string, maxBytes: number): Promise<Uint8Array | null> {
@@ -186,7 +190,7 @@ export function storage(fetchFn: Fetch, supabaseUrl: string, serviceKey: string)
       });
       if (!res.ok) throw new Error(`sign download failed with ${res.status}`);
       const { signedURL } = (await res.json()) as { signedURL: string };
-      const url = `${base}${signedURL.startsWith("/") ? "" : "/"}${signedURL}`;
+      const url = `/storage/v1${signedURL.startsWith("/") ? "" : "/"}${signedURL}`;
       return `${url}${url.includes("?") ? "&" : "?"}download=${encodeURIComponent(name)}`;
     },
   };
