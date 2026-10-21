@@ -458,3 +458,6 @@ verify_jwt = false
 
 [functions.chess-resign]
 verify_jwt = false
+
+[functions.chess-draw]
+verify_jwt = false
