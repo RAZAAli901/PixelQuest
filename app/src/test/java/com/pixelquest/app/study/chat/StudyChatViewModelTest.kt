@@ -53,6 +53,11 @@ class StudyChatViewModelTest {
     private val viewModels = TestViewModels()
     private val pickedFiles = mutableMapOf<String, com.pixelquest.app.study.chat.data.PickedFile>()
     private val picked = com.pixelquest.app.study.chat.data.PickedFileReader { pickedFiles[it] }
+    private val fetched = mutableListOf<String>()
+    private val fetcher = com.pixelquest.app.study.chat.data.ChatFileFetcher { file ->
+        fetched += file.id
+        com.pixelquest.app.study.chat.data.OpenedFile.Saved(java.io.File("x"), file.mime)
+    }
     private var watching: Job? = null
 
     @After
@@ -68,7 +73,7 @@ class StudyChatViewModelTest {
             parties.refreshParty(party)
         }
         return viewModels.keep(StudyChatViewModel::class.java) {
-            StudyChatViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), chat, parties, study, picked)
+            StudyChatViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), chat, parties, study, picked, null, fetcher)
         }.also { vm -> watching = vm.uiState.launchIn(MainScope()) }
     }
 
@@ -152,6 +157,29 @@ class StudyChatViewModelTest {
         assertEquals("the problem's gone with it", null, vm.uiState.value.notice)
         vm.attach("content://gone")
         waitFor("unreadable") { vm.uiState.value.notice == ChatNotice.FileUnreadable }
+    }
+
+    @Test
+    fun theFirstFileOpenedInAParty_asksFirst_andOnlyOnce() {
+        fun file(id: String, by: String) = com.pixelquest.app.study.chat.domain.ChatFile(
+            id, party, by, "$id.pdf", "application/pdf", 10, null, com.pixelquest.app.study.chat.domain.ChatFileStatus.READY, null, false, Instant.EPOCH, null
+        )
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.loaded }
+        vm.openFile(file("mine", by = "aria"))
+        waitFor("the player's own opens at once") { fetched == listOf("mine") }
+
+        vm.openFile(file("theirs", by = "bram"))
+        waitFor("asked") { vm.uiState.value.confirmingOpen?.id == "theirs" }
+        assertEquals(listOf("mine"), fetched)
+        vm.cancelOpen()
+        waitFor("not opened") { vm.uiState.value.confirmingOpen == null }
+        vm.openFile(file("theirs", by = "bram"))
+        waitFor("asked again, as it wasn't said yes to") { vm.uiState.value.confirmingOpen != null }
+        vm.confirmOpen()
+        waitFor("opened") { fetched == listOf("mine", "theirs") }
+        vm.openFile(file("another", by = "bram"))
+        waitFor("not asked again in this party") { fetched == listOf("mine", "theirs", "another") }
     }
 
     @Test

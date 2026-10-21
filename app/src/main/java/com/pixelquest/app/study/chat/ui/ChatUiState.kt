@@ -56,7 +56,9 @@ data class ChatUiState(
     /** Files the player is sharing, on their way, oldest first. */
     val uploads: List<ChatUploadRow> = emptyList(),
     /** The shared file being fetched to open, while it is. */
-    val opening: String? = null
+    val opening: String? = null,
+    /** The file waiting for the player to say yes to the first-open warning. */
+    val confirmingOpen: ChatFile? = null
 ) {
     /** Something to send: text, a file, or both. */
     val canSendAnything: Boolean get() = canSend || (attachment != null && draft.length <= com.pixelquest.app.study.chat.domain.StudyChatConfig.MESSAGE_MAX_CHARS)

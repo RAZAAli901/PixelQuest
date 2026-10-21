@@ -51,6 +51,8 @@ data class ChatActions(
     val onCancelUpload: (String) -> Unit = {},
     /** Opens a shared file; null where files aren't opened. */
     val onOpenFile: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)? = null,
+    val onConfirmOpen: () -> Unit = {},
+    val onCancelOpen: () -> Unit = {},
     val onRetryUpload: (String) -> Unit = {},
     val onDismissUpload: (String) -> Unit = {}
 )
@@ -146,6 +148,9 @@ fun StudyChatPane(
             onReport = { actions.onReport?.invoke(row.message) },
             onDismiss = { menuFor = null }
         )
+    }
+    state.confirmingOpen?.let { file ->
+        FileWarningDialog(file, onConfirm = actions.onConfirmOpen, onDismiss = actions.onCancelOpen)
     }
     deleting?.let { row ->
         DeleteMessageDialog(

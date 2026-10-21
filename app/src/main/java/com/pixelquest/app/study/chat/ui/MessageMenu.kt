@@ -108,6 +108,22 @@ private fun MenuLine(icon: ImageVector, label: Int, tag: String, danger: Boolean
     }
 }
 
+/**
+ * The first file opened from a party: files come from other people. The server checks each one's
+ * type by its bytes, but not what it says inside; open only what was expected.
+ */
+@Composable
+fun FileWarningDialog(file: com.pixelquest.app.study.chat.domain.ChatFile, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    PqConfirmDialog(
+        title = stringResource(R.string.study_file_warning_title),
+        message = stringResource(R.string.study_file_warning_message, file.displayName),
+        confirm = stringResource(R.string.study_file_warning_open),
+        dismiss = stringResource(R.string.pq_cancel),
+        onConfirm = onConfirm,
+        onDismiss = onDismiss
+    )
+}
+
 /** Before a delete: it goes for everyone in the party, and can't be brought back. */
 @Composable
 fun DeleteMessageDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {

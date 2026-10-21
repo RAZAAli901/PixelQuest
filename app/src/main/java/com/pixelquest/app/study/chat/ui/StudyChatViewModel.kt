@@ -68,8 +68,12 @@ class StudyChatViewModel @Inject constructor(
     private val study: StudyRepository,
     private val picked: com.pixelquest.app.study.chat.data.PickedFileReader = com.pixelquest.app.study.chat.data.PickedFileReader { null },
     private val uploads: com.pixelquest.app.study.chat.data.ChatUploads? = null,
-    private val fetcher: com.pixelquest.app.study.chat.data.ChatFileFetcher? = null
+    private val fetcher: com.pixelquest.app.study.chat.data.ChatFileFetcher? = null,
+    private val warned: com.pixelquest.app.study.chat.data.FileWarningSeen = com.pixelquest.app.study.chat.data.MemoryFileWarningSeen()
 ) : ViewModel() {
+
+    /** A file waiting for the player to say yes to the first-open warning. */
+    private val confirmingOpen = MutableStateFlow<com.pixelquest.app.study.chat.domain.ChatFile?>(null)
 
     /** A shared file saved and ready for the system viewer: the screen opens it, once. */
     val openRequests = kotlinx.coroutines.flow.MutableSharedFlow<com.pixelquest.app.study.chat.data.OpenedFile.Saved>(extraBufferCapacity = 1)
@@ -106,10 +110,10 @@ class StudyChatViewModel @Inject constructor(
         combine(messages, chat.observeFiles(partyId), ::Pair),
         people,
         combine(draft, replyingTo, loadingOlder, ::Triple),
-        combine(readAtOpening, combine(loaded, opening, ::Pair), chat.observeUnread(), ::Triple),
+        combine(readAtOpening, combine(loaded, opening, confirmingOpen, ::Triple), chat.observeUnread(), ::Triple),
         combine(notice, attachment, uploads?.observe(partyId) ?: kotlinx.coroutines.flow.flowOf(emptyList()), ::Triple)
     ) { (all, files), people, (text, replyId, older), (readAt, readyAndOpening, unread), (said, file, sharing) ->
-        val (ready, fetching) = readyAndOpening
+        val (ready, fetching, confirming) = readyAndOpening
         val me = study.myId()
         val rows = rowsOf(all, files, me, people.names, study.zone())
         ChatUiState(
@@ -127,7 +131,8 @@ class StudyChatViewModel @Inject constructor(
             unread = unread[partyId] ?: 0,
             attachment = file,
             uploads = sharing.map { ChatUploadRow(it.clientId, it.displayName, it.mime, it.sizeBytes, it.sentBytes, it.state, it.reason) },
-            opening = fetching
+            opening = fetching,
+            confirmingOpen = confirming
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, TabSharing, ChatUiState())
 
@@ -231,6 +236,27 @@ class StudyChatViewModel @Inject constructor(
      * again by the server), then handed to the system viewer they choose. Never opened otherwise.
      */
     fun openFile(file: com.pixelquest.app.study.chat.domain.ChatFile) {
+        // Files come from other people: the first one opened from a party asks first (the player's own don't).
+        if (!warned.seen(partyId) && file.uploaderId != study.myId()) {
+            confirmingOpen.value = file
+            return
+        }
+        fetchAndOpen(file)
+    }
+
+    /** The player read the warning and still wants it open: not asked again in this party. */
+    fun confirmOpen() {
+        val file = confirmingOpen.value ?: return
+        confirmingOpen.value = null
+        warned.markSeen(partyId)
+        fetchAndOpen(file)
+    }
+
+    fun cancelOpen() {
+        confirmingOpen.value = null
+    }
+
+    private fun fetchAndOpen(file: com.pixelquest.app.study.chat.domain.ChatFile) {
         val fetch = fetcher ?: return
         if (opening.value != null) return
         opening.value = file.id

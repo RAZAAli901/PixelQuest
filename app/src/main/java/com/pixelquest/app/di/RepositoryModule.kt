@@ -302,6 +302,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindFileWarningSeen(
+        impl: com.pixelquest.app.study.chat.data.PrefsFileWarningSeen
+    ): com.pixelquest.app.study.chat.data.FileWarningSeen
+
+    @Binds
+    @Singleton
     abstract fun bindChatFileFetcher(
         impl: com.pixelquest.app.study.chat.data.HttpChatFileFetcher
     ): com.pixelquest.app.study.chat.data.ChatFileFetcher

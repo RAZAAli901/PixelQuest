@@ -171,6 +171,8 @@ fun StudyPartyScreen(
                 onRemoveAttachment = vm::removeAttachment,
                 onCancelUpload = vm::cancelUpload,
                 onOpenFile = vm::openFile,
+                onConfirmOpen = vm::confirmOpen,
+                onCancelOpen = vm::cancelOpen,
                 onRetryUpload = vm::retryUpload,
                 onDismissUpload = vm::dismissUpload
             )

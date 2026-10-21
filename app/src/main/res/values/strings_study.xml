@@ -212,6 +212,9 @@
     <string name="study_file_by">from %1$s</string>
     <string name="study_file_open">Open the file</string>
     <string name="study_file_open_with">Open with</string>
+    <string name="study_file_warning_title">Files come from other people</string>
+    <string name="study_file_warning_message">\"%1$s\" was shared by someone in the party. PixelQuest checks that each file is the kind it says, with no macros or programs inside, but it can\'t check what the file says. Only open files you expected.</string>
+    <string name="study_file_warning_open">Open it</string>
     <string name="study_file_not_allowed">That file can\'t be opened: it was deleted, or you\'re no longer in the party.</string>
     <string name="study_file_corrupted">That file didn\'t arrive whole. Try opening it again.</string>
     <string name="study_file_no_viewer">No app on this phone opens that kind of file.</string>
