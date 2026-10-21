@@ -327,6 +327,8 @@ object ReminderTags {
     fun alert(minutes: Int) = "study_reminder_alert_$minutes"
     const val NOTICE = "study_reminder_notice"
     const val BANNER = "study_reminder_banner"
+    const val ALERTS_ON = "study_reminder_alerts_on"
+    const val MUTE = "study_reminder_mute"
     fun line(id: String) = "study_reminder_line_$id"
     fun kind(kind: ReminderKind) = "study_reminder_kind_${kind.name}"
     fun scope(scope: ReminderScope) = "study_reminder_scope_${scope.name}"

@@ -33,7 +33,7 @@ class StudyReminderAlertHandler(
      * the next alerts are armed.
      */
     suspend fun handle(reminderId: String, occurrenceAt: Long, index: Int) {
-        val reminder = reminders.allReminders().firstOrNull { it.id == reminderId }
+        val reminder = reminders.allReminders().firstOrNull { it.id == reminderId }?.takeIf { scheduler.alerts(it.partyId) }
         val now = Instant.ofEpochMilli(clock())
         if (index == com.pixelquest.app.study.domain.ReminderAlert.SNOOZE_INDEX) {
             // A snooze comes back as asked, unless the reminder's gone or that occurrence was marked done.

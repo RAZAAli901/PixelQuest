@@ -32,6 +32,9 @@ data class ReminderUiState(
     /** The open reminder's delete, waiting for the player to confirm it. */
     val confirmingDelete: Boolean = false,
     val notice: ReminderNotice? = null,
+    /** Study reminders alert on this phone; and this party's, unless it's muted. */
+    val alertsOn: Boolean = true,
+    val partyMuted: Boolean = false,
     val today: java.time.LocalDate = java.time.LocalDate.MIN,
     val zone: java.time.ZoneId = java.time.ZoneOffset.UTC
 )
@@ -52,7 +55,8 @@ class StudyRemindersViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val reminders: StudyReminderRepository,
     private val study: StudyRepository,
-    parties: com.pixelquest.app.party.data.PartyRepository
+    parties: com.pixelquest.app.party.data.PartyRepository,
+    private val mutes: com.pixelquest.app.study.alarm.StudyReminderMutes = com.pixelquest.app.study.alarm.MemoryStudyReminderMutes()
 ) : ViewModel() {
 
     val partyId: String = savedStateHandle[StudyPartyViewModel.ARG_PARTY] ?: ""
@@ -61,8 +65,13 @@ class StudyRemindersViewModel @Inject constructor(
     private val notice = MutableStateFlow<ReminderNotice?>(null)
     private val confirmingDelete = MutableStateFlow(false)
 
-    val uiState: StateFlow<ReminderUiState> = combine(reminders.observeReminders(partyId), form, notice, confirmingDelete) { all, form, notice, deleting ->
-        ReminderUiState(thisWeek = thisWeekOf(all), form = form, confirmingDelete = deleting && form?.editingId != null, notice = notice, today = study.today(), zone = study.zone())
+    val uiState: StateFlow<ReminderUiState> = combine(
+        reminders.observeReminders(partyId), form, notice, confirmingDelete, combine(mutes.alertsOn, mutes.muted, ::Pair)
+    ) { all, form, notice, deleting, (on, muted) ->
+        ReminderUiState(
+            thisWeek = thisWeekOf(all), form = form, confirmingDelete = deleting && form?.editingId != null, notice = notice,
+            alertsOn = on, partyMuted = partyId in muted, today = study.today(), zone = study.zone()
+        )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, TabSharing, ReminderUiState(today = study.today(), zone = study.zone()))
 
     /**
@@ -95,6 +104,10 @@ class StudyRemindersViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch { reminders.refresh(partyId) }
     }
+
+    fun setAlertsOn(on: Boolean) = mutes.setAlertsOn(on)
+
+    fun setPartyMuted(muted: Boolean) = mutes.setMuted(partyId, muted)
 
     fun openCreate() {
         form.value = ReminderForm.new(study.today())

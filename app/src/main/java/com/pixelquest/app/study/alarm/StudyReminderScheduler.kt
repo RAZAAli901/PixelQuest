@@ -4,6 +4,7 @@ import com.pixelquest.app.study.data.StudyReminderRepository
 import com.pixelquest.app.study.data.local.StudyReminderDao
 import com.pixelquest.app.study.domain.ReminderAlert
 import com.pixelquest.app.study.domain.ReminderAlerts
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Instant
@@ -22,11 +23,23 @@ class StudyReminderScheduler(
     private val dao: StudyReminderDao,
     private val alarms: StudyReminderAlarms,
     private val ledger: StudyReminderLedger,
-    private val clock: () -> Long
+    private val clock: () -> Long,
+    private val mutes: StudyReminderMutes = MemoryStudyReminderMutes(),
+    /** The app's own notifications switch: off, no reminder of any kind is armed. */
+    private val notificationsOn: suspend () -> Boolean = { true }
 ) {
     @Inject
-    constructor(reminders: StudyReminderRepository, dao: StudyReminderDao, alarms: StudyReminderAlarms, ledger: StudyReminderLedger) :
-        this(reminders, dao, alarms, ledger, System::currentTimeMillis)
+    constructor(
+        reminders: StudyReminderRepository,
+        dao: StudyReminderDao,
+        alarms: StudyReminderAlarms,
+        ledger: StudyReminderLedger,
+        mutes: StudyReminderMutes,
+        settings: com.pixelquest.app.domain.repository.SettingsRepository
+    ) : this(reminders, dao, alarms, ledger, System::currentTimeMillis, mutes, { settings.isNotificationsEnabled.first() })
+
+    /** Whether [partyId]'s reminders may alert on this phone now. */
+    suspend fun alerts(partyId: String): Boolean = notificationsOn() && mutes.alerts(partyId)
 
     /** One arming at a time: the ledger is read, then written. */
     private val arming = Mutex()
@@ -38,7 +51,10 @@ class StudyReminderScheduler(
     suspend fun rescheduleAll(catchUp: Boolean = false): List<ReminderAlert> = arming.withLock {
         val now = Instant.ofEpochMilli(clock())
         val since = if (catchUp) now.minus(ReminderAlerts.CATCH_UP) else null
+        val on = notificationsOn()
         val wanted = reminders.allReminders()
+            // Muted (all of them, or the party's), a reminder stays on the phone but nothing's armed.
+            .filter { on && mutes.alerts(it.partyId) }
             .flatMap { ReminderAlerts.upcoming(it, now, since) }
             .filterNot { ledger.wasFired(it.firedKey) }
             .filterNot { dao.isDone(it.reminderId, it.occurrence.start.toInstant().toEpochMilli()) }

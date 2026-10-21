@@ -18,12 +18,14 @@ import javax.inject.Singleton
 @Singleton
 class StudyReminderAlarmSync @Inject constructor(
     private val dao: StudyReminderDao,
-    private val scheduler: StudyReminderScheduler
+    private val scheduler: StudyReminderScheduler,
+    private val mutes: StudyReminderMutes
 ) {
     @OptIn(FlowPreview::class)
     fun start(scope: CoroutineScope) {
         scope.launch {
-            combine(dao.observeAllReminders(), dao.observeAllPending(), ::Pair)
+            // Turning them off or muting a party counts too: its alarms are cancelled, or armed again.
+            combine(dao.observeAllReminders(), dao.observeAllPending(), mutes.alertsOn, mutes.muted) { a, b, c, d -> listOf(a, b, c, d) }
                 .distinctUntilChanged()
                 // A sync writes a party's reminders and its waiting changes in a few steps: armed once they settle.
                 .debounce(QUIET_MS)

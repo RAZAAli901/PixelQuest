@@ -89,6 +89,14 @@ object NotificationChannels {
             sound = true,
             vibration = false
         ),
+        STUDY_REMINDERS(
+            id = "pq_study_reminders",
+            displayName = "Study reminders",
+            description = "Quizzes, exams and other reminders made in your study parties, at the times they set",
+            importance = Importance.HIGH,
+            sound = true,
+            vibration = true
+        ),
         SYNC(
             id = "pq_sync",
             displayName = "Leaderboard sync",
@@ -104,7 +112,7 @@ object NotificationChannels {
         if (soundEnabled) Spec.REMINDERS else Spec.REMINDERS_SILENT
 
     /** Channels the user can tune from Settings (the sync channel is too minor to list). */
-    val userFacing: List<Spec> = listOf(Spec.REMINDERS, Spec.REMINDERS_SILENT, Spec.MISSED, Spec.PROGRESS, Spec.COACH, Spec.DAROOD, Spec.STUDY)
+    val userFacing: List<Spec> = listOf(Spec.REMINDERS, Spec.REMINDERS_SILENT, Spec.MISSED, Spec.PROGRESS, Spec.COACH, Spec.DAROOD, Spec.STUDY, Spec.STUDY_REMINDERS)
 
     /** Opens the system page for one channel; before Android 8 there are no channels, so open the app page. */
     fun systemSettingsIntent(context: Context, spec: Spec): Intent {

@@ -144,6 +144,33 @@ class StudyReminderSchedulerTest {
     }
 
     @Test
+    fun aMutedParty_orTheAppsNotificationsOff_armsAndShowsNothing() = runBlocking {
+        val (reminder) = onThePhone(exam.copy(alertOffsets = listOf(30)))
+        val mutes = MemoryStudyReminderMutes(muted = setOf("p1"))
+        var notificationsOn = true
+        val quiet = StudyReminderScheduler(repo, db.studyReminderDao(), alarms, ledger, clock = { now.toEpochMilli() }, mutes = mutes, notificationsOn = { notificationsOn })
+        assertTrue(quiet.rescheduleAll().isEmpty())
+
+        mutes.setMuted("p1", false)
+        assertEquals(1, quiet.rescheduleAll().size)
+        notificationsOn = false
+        assertTrue("the app's own switch, off", quiet.rescheduleAll().isEmpty())
+        assertTrue(alarms.armed.isEmpty())
+
+        // An alarm armed before the mute shows nothing.
+        mutes.setMuted("p1", true)
+        notificationsOn = true
+        val alert = com.pixelquest.app.study.domain.ReminderAlerts.upcoming(reminder, now).single()
+        now = alert.at
+        StudyReminderAlertHandler(repo, db.studyReminderDao(), quiet, object : StudyReminderNotifier {
+            override fun show(reminder: StudyReminder, alert: ReminderAlert) {
+                shown += alert
+            }
+        }, clock = { now.toEpochMilli() }).handle(reminder.id, alert.occurrence.start.toInstant().toEpochMilli(), alert.index)
+        assertTrue(shown.isEmpty())
+    }
+
+    @Test
     fun aStaleAlarm_orOneForAMovedReminder_showsNothing() = runBlocking {
         val (reminder) = onThePhone(exam.copy(alertOffsets = listOf(30)))
         scheduler.rescheduleAll()

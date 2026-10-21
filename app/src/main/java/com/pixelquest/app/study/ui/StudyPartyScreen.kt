@@ -145,7 +145,9 @@ fun StudyPartyScreen(
                 onDismissNotice = vm::dismissNotice,
                 onDelete = vm::askDelete,
                 onConfirmDelete = vm::confirmDelete,
-                onCancelDelete = vm::cancelDelete
+                onCancelDelete = vm::cancelDelete,
+                onSetAlertsOn = { on -> if (on) askForNotifications(); vm.setAlertsOn(on) },
+                onSetMuted = vm::setPartyMuted
             )
         }
     )
@@ -161,7 +163,9 @@ data class ReminderActions(
     val onDismissNotice: () -> Unit = {},
     val onDelete: () -> Unit = {},
     val onConfirmDelete: () -> Unit = {},
-    val onCancelDelete: () -> Unit = {}
+    val onCancelDelete: () -> Unit = {},
+    val onSetAlertsOn: (Boolean) -> Unit = {},
+    val onSetMuted: (Boolean) -> Unit = {}
 )
 
 @Composable
@@ -343,6 +347,7 @@ private fun StudyPartyScaffold(
                         PartyTab.PEOPLE -> {
                             people(state, onAddPeople, onOpenInfo)
                             reminderToggles(reminders, simpleMode = state.simpleMode)
+                            if (reminderActions != null) reminderMutes(reminderState, reminderActions)
                         }
                         PartyTab.CHAT -> Unit
                     }
@@ -603,6 +608,24 @@ private fun LazyListScope.reminderToggles(reminders: ReminderToggles, simpleMode
 }
 
 /** A setting that's on or off: its name, a line about it, and a switch; the whole row toggles it. */
+/** Study reminders' switches on this phone: all of them, and this party's (docs/study-reminders.md, Channel). */
+private fun LazyListScope.reminderMutes(state: ReminderUiState, actions: ReminderActions) {
+    item(key = "reminder_alerts") {
+        ToggleRow(
+            stringResource(R.string.study_reminder_alerts_on), stringResource(R.string.study_reminder_alerts_on_body),
+            state.alertsOn, actions.onSetAlertsOn, ReminderTags.ALERTS_ON
+        )
+    }
+    if (state.alertsOn) {
+        item(key = "reminder_mute") {
+            ToggleRow(
+                stringResource(R.string.study_reminder_mute), stringResource(R.string.study_reminder_mute_body),
+                state.partyMuted, actions.onSetMuted, ReminderTags.MUTE
+            )
+        }
+    }
+}
+
 @Composable
 fun ToggleRow(title: String, body: String, on: Boolean, onChange: (Boolean) -> Unit, tag: String) {
     Row(

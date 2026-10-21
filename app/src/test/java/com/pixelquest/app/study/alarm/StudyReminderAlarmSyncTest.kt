@@ -41,7 +41,8 @@ class StudyReminderAlarmSyncTest {
         .allowMainThreadQueries().build()
     private val repo = StudyReminderRepositoryImpl(server, db.studyReminderDao(), { "aria" }, clock = { now.toEpochMilli() })
     private val alarms = StudyReminderSchedulerTest.FakeAlarms()
-    private val scheduler = StudyReminderScheduler(repo, db.studyReminderDao(), alarms, MemoryStudyReminderLedger(), clock = { now.toEpochMilli() })
+    private val mutes = MemoryStudyReminderMutes()
+    private val scheduler = StudyReminderScheduler(repo, db.studyReminderDao(), alarms, MemoryStudyReminderLedger(), clock = { now.toEpochMilli() }, mutes = mutes)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val exam = StudyReminderDraft(
@@ -74,7 +75,7 @@ class StudyReminderAlarmSyncTest {
                 myStatus = MemberStatus.ACTIVE, syncedAt = 0, partyType = PartyType.STUDY
             )
         ))
-        StudyReminderAlarmSync(db.studyReminderDao(), scheduler).start(scope)
+        StudyReminderAlarmSync(db.studyReminderDao(), scheduler, mutes).start(scope)
 
         // Someone else's, brought by a sync.
         val theirs = server.seed("p1", "bram", exam)
@@ -95,6 +96,14 @@ class StudyReminderAlarmSyncTest {
         server.rows.removeIf { it.id == theirs.id }
         repo.refresh("p1")
         waitFor("cancelled") { armedAt() == listOf(Instant.parse("2026-10-22T09:00:00Z")) }
+
+        // Muting the party cancels its alarms, and unmuting brings them back; so does turning them all off.
+        mutes.setMuted("p1", true)
+        waitFor("muted") { armedAt().isEmpty() }
+        mutes.setMuted("p1", false)
+        waitFor("unmuted") { armedAt().size == 1 }
+        mutes.setAlertsOn(false)
+        waitFor("all off") { armedAt().isEmpty() }
     }
 
     @Test

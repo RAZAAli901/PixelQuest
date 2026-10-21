@@ -59,6 +59,16 @@ class NotificationChannelsTest {
     }
 
     @Test
+    fun studyReminders_haveTheirOwnChannel_thatAlerts_andIsListed() {
+        NotificationChannels.createAll(context)
+        val manager = context.getSystemService(android.app.NotificationManager::class.java)
+        val channel = manager.getNotificationChannel("pq_study_reminders")
+        org.junit.Assert.assertEquals("Study reminders", channel.name.toString())
+        org.junit.Assert.assertEquals(android.app.NotificationManager.IMPORTANCE_HIGH, channel.importance)
+        org.junit.Assert.assertTrue(NotificationChannels.Spec.STUDY_REMINDERS in NotificationChannels.userFacing)
+    }
+
+    @Test
     fun createAll_deletesLegacyChannel() {
         manager.createNotificationChannel(
             NotificationChannel(NotificationChannels.LEGACY_CHANNEL_ID, "PixelQuest Reminders", NotificationManager.IMPORTANCE_HIGH)

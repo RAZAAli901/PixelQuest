@@ -147,6 +147,16 @@ class StudyRemindersViewModelTest {
     }
 
     @Test
+    fun theSwitches_muteThisParty_orAllReminders_onThisPhone() {
+        val vm = viewModel()
+        waitFor("on") { vm.uiState.value.alertsOn && !vm.uiState.value.partyMuted }
+        vm.setPartyMuted(true)
+        waitFor("muted") { vm.uiState.value.partyMuted }
+        vm.setAlertsOn(false)
+        waitFor("off") { !vm.uiState.value.alertsOn }
+    }
+
+    @Test
     fun offline_itsSavedOnThePhone_andSaysSo() {
         val vm = viewModel()
         reminderServer.online = false

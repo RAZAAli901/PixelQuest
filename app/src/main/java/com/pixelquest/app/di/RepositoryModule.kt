@@ -260,6 +260,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindStudyReminderMutes(
+        impl: com.pixelquest.app.study.alarm.PrefsStudyReminderMutes
+    ): com.pixelquest.app.study.alarm.StudyReminderMutes
+
+    @Binds
+    @Singleton
     abstract fun bindStudyReminderAlarms(
         impl: com.pixelquest.app.study.alarm.AlarmManagerStudyReminderAlarms
     ): com.pixelquest.app.study.alarm.StudyReminderAlarms

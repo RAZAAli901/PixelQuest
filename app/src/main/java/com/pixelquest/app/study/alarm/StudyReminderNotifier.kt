@@ -99,8 +99,8 @@ class AndroidStudyReminderNotifier @Inject constructor(
     }
 
     companion object {
-        /** Until study reminders have their own channel: the study party's. */
-        private val CHANNEL = NotificationChannels.Spec.STUDY.id
+        /** Their own channel (docs/study-reminders.md, Channel), tuned in Android's settings apart from the rest. */
+        private val CHANNEL = NotificationChannels.Spec.STUDY_REMINDERS.id
 
         private const val NOTIFICATION_BASE = 920_000
 

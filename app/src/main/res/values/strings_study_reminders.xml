@@ -82,6 +82,11 @@
     <string name="study_reminder_action_snooze">Snooze 1 hour</string>
     <string name="study_reminder_action_open">Open</string>
 
+    <string name="study_reminder_alerts_on">Study reminders</string>
+    <string name="study_reminder_alerts_on_body">Alerts for the reminders made in your study parties, on this phone.</string>
+    <string name="study_reminder_mute">Mute this party\'s reminders</string>
+    <string name="study_reminder_mute_body">They still show on This week, without alerts.</string>
+
     <string name="study_reminder_saved_offline">Saved on this phone. It goes to the party when you\'re back online.</string>
     <string name="study_reminder_too_many">You have 100 reminders in this party already. Delete one to add another.</string>
 </resources>
