@@ -153,10 +153,13 @@ fun QuestsScreen(
     val repeat = repeatLabels()
 
     val todayItems = (today as? TodayUiState.Success)?.tasks.orEmpty()
-    val todayById = todayItems.associateBy { it.task.id }
+    val todayById = remember(todayItems) { todayItems.associateBy { it.task.id } }
+    // Grouping and mapping every quest is done once per change of the lists, not on every
+    // recomposition (a keystroke in search, a dialog opening): only the group titles are rebuilt.
     val groups: List<QuestGroup> = when (tab) {
-        QuestTab.Today -> todayParts(todayItems).map { (part, items) ->
-            val quests = items.map { it.toQuestUi(time) { t -> repeat[t] } }
+        QuestTab.Today -> remember(todayItems, time, repeat) {
+            todayParts(todayItems).map { (part, items) -> part to items.map { it.toQuestUi(time) { t -> repeat[t] } } }
+        }.map { (part, quests) ->
             val left = quests.count { !it.done }
             val name = stringResource(part.label)
             QuestGroup(
@@ -165,17 +168,25 @@ fun QuestsScreen(
                 quests,
             )
         }
-        QuestTab.All -> recurrenceGroups((all as? TaskUiState.Success)?.tasks.orEmpty()).map { (type, tasks) ->
-            QuestGroup(
-                type.name,
-                stringResource(R.string.pq_quests_group_count, repeat[type] ?: stringResource(R.string.pq_repeat_once), tasks.size),
-                tasks.map { it.toQuestUi(time) { t -> repeat[t] } },
-            )
+        QuestTab.All -> {
+            val tasks = (all as? TaskUiState.Success)?.tasks.orEmpty()
+            remember(tasks, time, repeat) {
+                recurrenceGroups(tasks).map { (type, list) -> type to list.map { it.toQuestUi(time) { t -> repeat[t] } } }
+            }.map { (type, quests) ->
+                QuestGroup(
+                    type.name,
+                    stringResource(R.string.pq_quests_group_count, repeat[type] ?: stringResource(R.string.pq_repeat_once), quests.size),
+                    quests,
+                )
+            }
         }
-        QuestTab.History -> historyDays(history.items).map { (date, items) ->
-            QuestGroup(date.toString(), dayTitle(date), items.map { it.toQuestUi() })
+        QuestTab.History -> remember(history.items) {
+            historyDays(history.items).map { (date, items) -> date to items.map { it.toQuestUi() } }
+        }.map { (date, quests) ->
+            QuestGroup(date.toString(), dayTitle(date), quests)
         }
     }
+    val shown = remember(groups, query) { groups.matching(query.orEmpty()) }
 
     var toSkip by remember { mutableStateOf<QuestUi?>(null) }
     toSkip?.let { quest ->
@@ -193,7 +204,7 @@ fun QuestsScreen(
         tab = tab,
         onTabChange = { tab = it },
         todayCount = todayItems.size,
-        groups = groups.matching(query.orEmpty()),
+        groups = shown,
         query = query,
         onQueryChange = { query = it },
         isSimpleMode = simple,

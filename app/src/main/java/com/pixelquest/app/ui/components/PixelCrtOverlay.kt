@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -30,43 +32,29 @@ fun PixelCrtOverlay(
             .fillMaxSize()
             .then(
                 if (enabled) {
-                    Modifier.drawWithContent {
-                        drawContent()
-
-                        val canvasWidth = size.width
-                        val canvasHeight = size.height
+                    // Built once per size, not per frame: the overlay covers the whole app, so every
+                    // frame of a scroll or a tab's slide draws it. One path of scanlines and one
+                    // gradient rect, instead of a line per 4dp and a new brush each time.
+                    Modifier.drawWithCache {
                         val scanlineStep = 4.dp.toPx()
-                        val lineStrokeWidth = 1.5f.dp.toPx()
-                        val scanlineColor = Color.Black.copy(alpha = 0.12f)
-
-                        // Draw lightweight horizontal scanlines
-                        var y = 0f
-                        while (y < canvasHeight) {
-                            drawLine(
-                                color = scanlineColor,
-                                start = Offset(0f, y),
-                                end = Offset(canvasWidth, y),
-                                strokeWidth = lineStrokeWidth
-                            )
-                            y += scanlineStep
+                        val lineHeight = 1.5f.dp.toPx()
+                        val scanlines = Path().apply {
+                            var y = 0f
+                            while (y < size.height) {
+                                addRect(Rect(0f, y - lineHeight / 2, size.width, y + lineHeight / 2))
+                                y += scanlineStep
+                            }
                         }
-
-                        // Draw subtle CRT vignette border
-                        val vignetteRadius = maxOf(canvasWidth, canvasHeight) * 0.75f
-                        val vignetteBrush = Brush.radialGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.05f),
-                                Color.Black.copy(alpha = 0.35f)
-                            ),
-                            center = Offset(canvasWidth / 2f, canvasHeight / 2f),
-                            radius = vignetteRadius
+                        val vignette = Brush.radialGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.05f), Color.Black.copy(alpha = 0.35f)),
+                            center = Offset(size.width / 2f, size.height / 2f),
+                            radius = maxOf(size.width, size.height) * 0.75f
                         )
-
-                        drawRect(
-                            brush = vignetteBrush,
-                            size = Size(canvasWidth, canvasHeight)
-                        )
+                        onDrawWithContent {
+                            drawContent()
+                            drawPath(scanlines, Color.Black.copy(alpha = 0.12f))
+                            drawRect(brush = vignette, size = Size(size.width, size.height))
+                        }
                     }
                 } else Modifier
             )

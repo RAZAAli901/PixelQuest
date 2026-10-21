@@ -181,13 +181,25 @@ val Number.lsp: TextUnit get() = (toFloat() * s.labelScale).sp     // buttons / 
  */
 private val features: String? get() = if (isPixelSkin) "liga 0, clig 0" else null
 
+/**
+ * Each style, built once per skin. Every Text on every screen reads these, so building them anew on
+ * each read (as plain getters did) made every composition allocate hundreds of styles. Reading the
+ * skin still happens on each access, so a change of Settings > Look restyles everything at once.
+ */
+private val styleCache = java.util.concurrent.ConcurrentHashMap<PqSkin, java.util.concurrent.ConcurrentHashMap<Any, TextStyle>>()
+
+private inline fun cached(key: Any, crossinline build: () -> TextStyle): TextStyle =
+    styleCache.getOrPut(PqSkinState.skin) { java.util.concurrent.ConcurrentHashMap() }.getOrPut(key) { build() }
+
 object PqType {
-    fun display(size: Int, line: Int? = null) = TextStyle(
-        fontFamily = s.display, fontSize = (size * s.displayScale).sp,
-        lineHeight = ((line ?: size) * s.displayScale * s.displayLine).sp,
-        letterSpacing = if (isPixelSkin) 0.sp else 1.sp, color = PqColors.Ink, fontFeatureSettings = features,
-    )
-    fun number(size: Int) = display(size).copy(letterSpacing = 0.sp)
+    fun display(size: Int, line: Int? = null): TextStyle = cached("display" to (size to line)) {
+        TextStyle(
+            fontFamily = s.display, fontSize = (size * s.displayScale).sp,
+            lineHeight = ((line ?: size) * s.displayScale * s.displayLine).sp,
+            letterSpacing = if (isPixelSkin) 0.sp else 1.sp, color = PqColors.Ink, fontFeatureSettings = features,
+        )
+    }
+    fun number(size: Int): TextStyle = cached("number" to size) { display(size).copy(letterSpacing = 0.sp) }
 
     val Display get() = display(36)
     val Title get() = display(30)
@@ -195,14 +207,14 @@ object PqType {
     val Hero get() = display(48, 46)
     val Number get() = number(24)
 
-    val Body get() = TextStyle(fontFamily = s.body, fontWeight = FontWeight.Medium, fontSize = 14.bsp, lineHeight = 20.bsp, color = PqColors.Ink, fontFeatureSettings = features)
-    val BodyStrong get() = Body.copy(fontWeight = if (isPixelSkin) FontWeight.SemiBold else FontWeight.ExtraBold, fontSize = 15.bsp)
-    val Meta get() = Body.copy(fontSize = 12.bsp, lineHeight = 16.bsp, color = PqColors.Muted)
-    val MetaStrong get() = Meta.copy(fontWeight = FontWeight.Bold, color = PqColors.Ink)
-    val Label get() = TextStyle(fontFamily = s.label, fontWeight = s.labelWeight, fontSize = 11.lsp, lineHeight = 15.lsp, letterSpacing = if (isPixelSkin) 0.sp else 1.3.sp, color = PqColors.Ink, fontFeatureSettings = features)
-    val Button get() = Label.copy(fontSize = 13.lsp, lineHeight = 18.lsp, letterSpacing = if (isPixelSkin) 0.sp else 0.5.sp)
-    val NavLabel get() = Label.copy(fontSize = 11.lsp, letterSpacing = 0.sp, fontWeight = if (isPixelSkin) FontWeight.Normal else FontWeight.Bold)
-    val Arabic get() = TextStyle(fontFamily = Amiri, fontSize = 24.sp, lineHeight = 30.sp, color = PqColors.Ink)
+    val Body get() = cached("Body") { TextStyle(fontFamily = s.body, fontWeight = FontWeight.Medium, fontSize = 14.bsp, lineHeight = 20.bsp, color = PqColors.Ink, fontFeatureSettings = features) }
+    val BodyStrong get() = cached("BodyStrong") { Body.copy(fontWeight = if (isPixelSkin) FontWeight.SemiBold else FontWeight.ExtraBold, fontSize = 15.bsp) }
+    val Meta get() = cached("Meta") { Body.copy(fontSize = 12.bsp, lineHeight = 16.bsp, color = PqColors.Muted) }
+    val MetaStrong get() = cached("MetaStrong") { Meta.copy(fontWeight = FontWeight.Bold, color = PqColors.Ink) }
+    val Label get() = cached("Label") { TextStyle(fontFamily = s.label, fontWeight = s.labelWeight, fontSize = 11.lsp, lineHeight = 15.lsp, letterSpacing = if (isPixelSkin) 0.sp else 1.3.sp, color = PqColors.Ink, fontFeatureSettings = features) }
+    val Button get() = cached("Button") { Label.copy(fontSize = 13.lsp, lineHeight = 18.lsp, letterSpacing = if (isPixelSkin) 0.sp else 0.5.sp) }
+    val NavLabel get() = cached("NavLabel") { Label.copy(fontSize = 11.lsp, letterSpacing = 0.sp, fontWeight = if (isPixelSkin) FontWeight.Normal else FontWeight.Bold) }
+    val Arabic get() = cached("Arabic") { TextStyle(fontFamily = Amiri, fontSize = 24.sp, lineHeight = 30.sp, color = PqColors.Ink) }
 }
 
 /**

@@ -1,5 +1,11 @@
 package com.pixelquest.app.ui.screens
 
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -204,8 +210,10 @@ fun HeroScreen(
     val profile by profileViewModel.uiState.collectAsState()
     val stats by statsViewModel.uiState.collectAsState()
     var segment by rememberSaveable { mutableStateOf(HeroSegment.Profile) }
+    // Built once per change of the profile or stats, not on every recomposition.
+    val state = remember(profile, stats) { heroUiOf(profile, stats, LocalDate.now()) }
     HeroContent(
-        state = heroUiOf(profile, stats, LocalDate.now()),
+        state = state,
         segment = segment,
         onSegmentChange = { segment = it },
         onSettings = onSettings,
@@ -407,15 +415,7 @@ private fun Heatmap(days: List<DayStatus>, simple: Boolean) {
                         Text(it?.let { r -> stringResource(r) }.orEmpty(), style = PqType.Meta.copy(fontSize = 9.bsp, lineHeight = 13.bsp), modifier = Modifier.height(13.dp))
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    days.chunked(7).forEach { week ->
-                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            week.forEach { d ->
-                                Box(Modifier.size(13.dp).clip(pqShape(3.dp)).background(d.color).border(1.5.dp, PqColors.Ink, pqShape(3.dp)))
-                            }
-                        }
-                    }
-                }
+                HeatmapCells(days)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 listOf(
@@ -429,6 +429,31 @@ private fun Heatmap(days: List<DayStatus>, simple: Boolean) {
                         Text(" " + stringResource(l), style = PqType.Meta.copy(fontSize = 11.bsp, color = PqColors.Ink2))
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * The heatmap's days, a week to a column, drawn in one Canvas: as many bordered boxes, it took the
+ * Hero tab a frame of its own to lay out. Each cell is the skin's small shape, filled and inked.
+ */
+@Composable
+private fun HeatmapCells(days: List<DayStatus>) {
+    val weeks = (days.size + 6) / 7
+    val shape = pqShape(3.dp)
+    val ink = PqColors.Ink
+    val colors = days.map { it.color }
+    Canvas(Modifier.size(width = 13.dp * weeks + 3.dp * (weeks - 1).coerceAtLeast(0), height = 13.dp * 7 + 3.dp * 6)) {
+        val cell = 13.dp.toPx()
+        val gap = 3.dp.toPx()
+        val stroke = 1.5.dp.toPx()
+        val fill = shape.createOutline(Size(cell, cell), layoutDirection, this)
+        val edge = shape.createOutline(Size(cell - stroke, cell - stroke), layoutDirection, this)
+        colors.forEachIndexed { i, color ->
+            translate(left = (i / 7) * (cell + gap), top = (i % 7) * (cell + gap)) {
+                drawOutline(fill, color)
+                translate(stroke / 2, stroke / 2) { drawOutline(edge, ink, style = Stroke(stroke)) }
             }
         }
     }
