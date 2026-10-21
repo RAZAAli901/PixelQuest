@@ -57,6 +57,14 @@ sealed class Screen(val route: String) {
     object DaroodWeeks : Screen("${Routes.PARTIES}/darood/{partyId}/weeks") {
         fun createRoute(partyId: String) = "${Routes.PARTIES}/darood/$partyId/weeks"
     }
+    /** A chess challenge, from its notification (docs/chess-design.md). */
+    object ChessChallenge : Screen("chess/challenge/{challengeId}") {
+        fun createRoute(challengeId: String) = "chess/challenge/$challengeId"
+    }
+    /** A chess game, to play or watch. */
+    object ChessGame : Screen("chess/game/{gameId}") {
+        fun createRoute(gameId: String) = "chess/game/$gameId"
+    }
     /** The Darood Party race board. */
     object PartiesRaceBoard : Screen("${Routes.PARTIES}/race")
     /** Claiming or changing the Darood Party username. */

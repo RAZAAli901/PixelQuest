@@ -86,6 +86,13 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
     ) {
         com.pixelquest.app.darood.ui.weekly.WeeklyRankingScreen(onNavigateBack = { navController.popBackStack() })
     }
+    // Chess's notifications open these; Phase E (docs/chess-design.md) puts the board here.
+    composable(Screen.ChessChallenge.route, arguments = listOf(navArgument("challengeId") { type = NavType.StringType })) {
+        com.pixelquest.app.chess.ui.ChessComingScreen(onNavigateBack = { navController.popBackStack() })
+    }
+    composable(Screen.ChessGame.route, arguments = listOf(navArgument("gameId") { type = NavType.StringType })) {
+        com.pixelquest.app.chess.ui.ChessComingScreen(onNavigateBack = { navController.popBackStack() })
+    }
     composable(Screen.PartiesRaceBoard.route) {
         RaceBoardScreen(onNavigateBack = { navController.popBackStack() })
     }

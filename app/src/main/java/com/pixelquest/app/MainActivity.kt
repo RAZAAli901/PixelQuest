@@ -214,8 +214,11 @@ class MainActivity : ComponentActivity() {
         private val DAROOD_WEEK_ROUTE = Regex("^" + Regex.escape(Screen.DaroodWeek.createRoute("@")).replace("@", "\\E[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\\Q") + "$")
         private val DAROOD_ROOM_ROUTE = Regex("^" + Regex.escape(Screen.DaroodRoom.createRoute("@")).replace("@", "\\E[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\\Q") + "$")
 
+        /** A chess challenge or game, for chess's notifications: only an id (a UUID). */
+        private val CHESS_ROUTE = Regex("^chess/(challenge|game)/[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$")
+
         /** Whether a notification may open [route]: a fixed screen, or a party by its id. */
-        fun isOpenable(route: String): Boolean = route in OPENABLE_ROUTES || STUDY_PARTY_ROUTE.matches(route) || DAROOD_WEEK_ROUTE.matches(route) || DAROOD_ROOM_ROUTE.matches(route)
+        fun isOpenable(route: String): Boolean = route in OPENABLE_ROUTES || STUDY_PARTY_ROUTE.matches(route) || DAROOD_WEEK_ROUTE.matches(route) || DAROOD_ROOM_ROUTE.matches(route) || CHESS_ROUTE.matches(route)
     }
 
     /**

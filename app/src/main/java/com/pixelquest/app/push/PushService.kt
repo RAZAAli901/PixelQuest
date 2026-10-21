@@ -12,7 +12,7 @@ import javax.inject.Inject
 /**
  * Firebase's messages to this phone (docs/chess-design.md): a new token is registered for the
  * signed-in account. Each push carries only a kind and ids; what it says is built on the phone
- * (ChessPushNotifier, J123).
+ * (ChessPushNotifier).
  */
 @AndroidEntryPoint
 class PushService : FirebaseMessagingService() {
@@ -24,5 +24,5 @@ class PushService : FirebaseMessagingService() {
         scope.launch { registration.onNewToken(token) }
     }
 
-    override fun onMessageReceived(message: RemoteMessage) = Unit
+    override fun onMessageReceived(message: RemoteMessage) = ChessPushNotifier.show(applicationContext, message.data)
 }

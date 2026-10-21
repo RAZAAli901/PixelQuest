@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chess in study parties (docs/chess-design.md). -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="chess_push_challenge_title">New chess challenge</string>
+    <string name="chess_push_challenge_text">A study party member wants a game. It lasts 10 minutes.</string>
+    <string name="chess_push_accepted_title">Your challenge was accepted</string>
+    <string name="chess_push_accepted_text">Your game is ready. White moves first.</string>
+    <string name="chess_push_draw_title">Draw offered</string>
+    <string name="chess_push_draw_text">Your opponent offers a draw.</string>
+    <string name="chess_push_hidden">Chess</string>
+    <string name="chess_coming_title">Chess</string>
+    <string name="chess_coming_text">Chess opens here soon. For now, open it from the study party.</string>
+</resources>
