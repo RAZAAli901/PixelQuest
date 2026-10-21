@@ -137,18 +137,31 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
     }
 
     override suspend fun createParty(name: String, maxMembers: Int, type: PartyType): SupabaseResult<String> =
-        call("create_party") {
+        call<String>("create_party") {
             put("name", name.trim())
             put("max_members", maxMembers)
             put("party_type", type.wire)
-        }
+        }.also { if (it is SupabaseResult.Success) setWeekZone(it.data) }
 
     override suspend fun createParty(name: String, maxMembers: Int, milestone: Long?): SupabaseResult<String> =
-        call("create_party") {
+        call<String>("create_party") {
             put("name", name.trim())
             put("max_members", maxMembers)
             put("milestone", milestone)
+        }.also { if (it is SupabaseResult.Success) setWeekZone(it.data) }
+
+    /**
+     * A new party's week runs in its leader's zone (docs/darood-weekly.md): sent right after it's
+     * made. Best effort: without it the week runs in UTC, and the leader can set it later.
+     */
+    private suspend fun setWeekZone(partyId: String) {
+        safeSupabaseCall {
+            postgrest.rpc("set_party_week_tz", buildJsonObject {
+                put("party_id", partyId)
+                put("tz", java.time.ZoneId.systemDefault().id)
+            })
         }
+    }
 
     override suspend fun invite(partyId: String, username: String): SupabaseResult<InviteOutcome> =
         call<PartyStatusReply>("invite_member") {
