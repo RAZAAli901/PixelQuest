@@ -795,27 +795,38 @@ localTest("privacy, every party table: an outsider reads nothing, and the board 
   assert.equal((await complete(member, item)).status, 201);
   assert.equal((await logStudy(member, studyParty, 30)).status, 201);
   sql(`INSERT INTO public.study_week_winners (party_id, week_start, user_id, points) VALUES ('${studyParty}', date_trunc('week', now())::date - 7, '${member.userId}', 10)`);
+  // And its chat: a message, and a shared file.
+  const chatText = fresh("Hidden chat");
+  const fileName = fresh("Hidden file");
+  assert.equal((await call("/rest/v1/chat_messages", { token: member.accessToken, body: { party_id: studyParty, body: chatText } })).status, 201);
+  sql(
+    `INSERT INTO public.chat_files (party_id, uploader_id, storage_path, display_name, mime, size_bytes, status) ` +
+      `VALUES ('${studyParty}', '${member.userId}', '${studyParty}/${crypto.randomUUID()}', '${fileName}.pdf', 'application/pdf', 10, 'ready')`,
+  );
 
   // Every party table and view the server has, found on it, so a new one is checked too.
   const tables = sql(
     "SELECT string_agg(table_name, ',' ORDER BY table_name) FROM information_schema.tables WHERE table_schema = 'public' " +
-      "AND (table_name LIKE 'part%' OR table_name LIKE 'darood%' OR table_name LIKE 'study%' OR table_name IN ('race_board', 'usernames'))",
+      "AND (table_name LIKE 'part%' OR table_name LIKE 'darood%' OR table_name LIKE 'study%' OR table_name LIKE 'chat%' OR table_name IN ('race_board', 'usernames'))",
   ).split(",");
-  for (const expected of ["parties", "party_members", "darood_entries", "study_items", "study_completions", "study_sessions", "study_week_scores", "study_week_winners", "race_board"]) {
+  for (const expected of ["parties", "party_members", "darood_entries", "study_items", "study_completions", "study_sessions", "study_week_scores", "study_week_winners", "race_board", "chat_messages", "chat_files", "chat_reads"]) {
     assert.ok(tables.includes(expected), `${expected} among ${tables}`);
   }
-  const secrets = [leader.userId, member.userId, leader.username, member.username, darood, studyParty, item, studyName, title];
-  // Readable by anyone signed in, as they hold no one's data: the points values, and the reader's own username.
-  const shared = new Set(["study_points_config", "usernames", "race_board"]);
+  const secrets = [leader.userId, member.userId, leader.username, member.username, darood, studyParty, item, studyName, title, chatText, fileName];
+  // Readable by anyone signed in, as they hold no one's data: the points values, the chat's limits
+  // and types, and the reader's own username.
+  const shared = new Set(["study_points_config", "study_chat_config", "study_chat_types", "usernames", "race_board"]);
+  // chat_files' storage path isn't granted at all: its other columns are read.
+  const columns: Record<string, string> = { chat_files: "id,party_id,uploader_id,display_name,status" };
 
   for (const table of tables) {
-    const read = await call(`/rest/v1/${table}?select=*`, { token: outsider.accessToken });
+    const read = await call(`/rest/v1/${table}?select=${columns[table] ?? "*"}`, { token: outsider.accessToken });
     assert.equal(read.status, 200, `${table}: ${JSON.stringify(read.body).slice(0, 200)}`);
     const text = JSON.stringify(read.body);
     for (const secret of secrets) assert.ok(!text.includes(secret), `${table} shows ${secret}`);
     if (!shared.has(table)) assert.deepEqual(read.body, [], `${table} is the parties' own`);
     // Signed out, nothing at all.
-    assert.equal((await call(`/rest/v1/${table}?select=*`)).status, 401, `${table} signed out`);
+    assert.equal((await call(`/rest/v1/${table}?select=${columns[table] ?? "*"}`)).status, 401, `${table} signed out`);
   }
 
   // The board: name and progress (its milestone, total and members' count), and only those; never a study party.

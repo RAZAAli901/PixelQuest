@@ -15,7 +15,7 @@ Use it to test cloud changes before they reach the real project, and to try the 
 From the project folder:
 
 ```bash
-npx supabase@2.120.0 start -x studio,postgres-meta,storage-api,imgproxy,logflare,vector,supavisor
+npx supabase@2.120.0 start -x studio,postgres-meta,imgproxy,logflare,vector,supavisor
 ```
 
 The first start downloads the images (several minutes). After that it takes about 30 seconds. It applies every file in `supabase/migrations` and prints the local URL and keys. Those keys are the same well-known defaults on every machine, not secrets. `-x` skips services PixelQuest doesn't use.
