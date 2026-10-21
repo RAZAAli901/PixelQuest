@@ -7,15 +7,9 @@
 -keep class com.pixelquest.app.data.local.Converters { *; }
 -dontwarn androidx.room.paging.**
 
-# Dagger Hilt keep rules
--keep class * extends javax.inject.Provider
--keep class dagger.hilt.** { *; }
--keep class * implements dagger.hilt.internal.GeneratedComponent
--keep class * implements dagger.hilt.internal.ComponentEntryPoint
-
-# Jetpack Compose keep rules. The Material icons are left out: UI v2 uses a few dozen of the
-# thousands in material-icons-extended, and R8 drops the rest (the APK's budget is 8 MB).
--keep class !androidx.compose.material.icons.**,androidx.compose.** { *; }
+# Dagger Hilt and Jetpack Compose need no rules here: their libraries ship their own (consumer
+# rules in their AARs). Keeping either whole stopped R8 from shrinking and optimising thousands of
+# classes the app runs on every frame, which made the release build slower than it needed to be.
 -dontwarn androidx.compose.**
 
 # WorkManager keep rules

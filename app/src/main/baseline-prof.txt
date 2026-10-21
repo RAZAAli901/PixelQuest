@@ -1,0 +1,6 @@
+# PixelQuest's baseline profile. ART compiles what's listed here when the app is installed, instead
+# of interpreting it until the JIT warms up, so the first launch and the first visit to each screen
+# are smooth. The app is small enough to list whole: every class and method in com.pixelquest.app.
+# Compose, navigation and the other libraries bring their own profiles.
+HSPLcom/pixelquest/app/**->**(**)**
+Lcom/pixelquest/app/**;

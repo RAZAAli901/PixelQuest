@@ -144,6 +144,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    // Installs the baseline profile (src/main/baseline-prof.txt) so ART compiles the UI ahead of time.
+    implementation(libs.androidx.profileinstaller)
 
     // Section B Step 6: Compose BOM & Core Compose UI Dependencies
     implementation(platform(libs.androidx.compose.bom))
