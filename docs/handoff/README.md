@@ -2,7 +2,7 @@
 
 This folder is for the next agent picking up PixelQuest. Read these in order:
 
-1. **README.md** (this file): where things stand, and what to do next.
+1. **README.md** (this file), then **[NEXT-J062.md](NEXT-J062.md)**: the brief for J062 onwards.
 2. **[RULES.md](RULES.md)**: the owner's standing rules. They override your defaults.
 3. **[STATUS.md](STATUS.md)**: the plan item by item, what's done, what's left, and the decisions made.
 4. **[HOW-TO.md](HOW-TO.md)**: building, testing, the local Supabase stack, deploying, and how commits are made.
@@ -19,7 +19,7 @@ The owner's plan is `C:\Users\tipto\Downloads\Study Chat, Darood Weekly Ranking 
 | Phase | Items | State |
 |---|---|---|
 | A: Study reminders | J001–J020 | Done, tested, on main |
-| B: Study chat with file uploads | J021–J065 | J021–J059 done; **J060–J065 left** |
+| B: Study chat with file uploads | J021–J065 | J021–J061 done; **J062–J065 left: see NEXT-J062.md** |
 | C: Darood weekly ranking and goal extension | J066–J090 | Not started |
 | D: Chess backend | J091–J135 | Not started |
 | E: Plug in the chess UI | J136–J165 | Not started. The owner's UI is in `C:\Users\tipto\Downloads\chess-design\`; per the plan it goes into `/chess-ui` at the repo root before Phase E |
@@ -33,7 +33,7 @@ The owner's plan is `C:\Users\tipto\Downloads\Study Chat, Darood Weekly Ranking 
 
 ## The server
 
-- **Hosted Supabase has migrations through `20261019000064`.** The owner approved and pushed them on 2026-10-21.
+- **Hosted Supabase has migrations through `20261019000065`.** `066` (reports and blocks) is local only.
 - **`20261019000065_study_item_files.sql` (J058) is local only.** Pushing it needs the owner's OK, like every hosted push.
 - **Deployed Edge Functions:** `request-upload`, `finalize-upload`, `get-download-url`, `cleanup-uploads` (all with `--no-verify-jwt`; each checks the caller itself), plus the older `gemini-proxy`.
 - **No schedule calls `cleanup-uploads` yet.** `request-upload` runs a small cleanup round on each call instead. A schedule needs the service key stored in the hosted database, which needs the owner's OK.
