@@ -212,6 +212,11 @@
     <string name="study_file_by">from %1$s</string>
     <string name="study_file_open">Open the file</string>
     <string name="study_file_open_with">Open with</string>
+    <string name="study_files_search">Search by name</string>
+    <string name="study_files_all">All</string>
+    <string name="study_files_newest">Newest first</string>
+    <string name="study_files_oldest">Oldest first</string>
+    <string name="study_files_none_found">No files match.</string>
     <string name="study_file_warning_title">Files come from other people</string>
     <string name="study_file_warning_message">\"%1$s\" was shared by someone in the party. PixelQuest checks that each file is the kind it says, with no macros or programs inside, but it can\'t check what the file says. Only open files you expected.</string>
     <string name="study_file_warning_open">Open it</string>

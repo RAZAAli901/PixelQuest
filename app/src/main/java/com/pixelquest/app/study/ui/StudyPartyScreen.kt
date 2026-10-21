@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -268,6 +269,10 @@ private fun StudyPartyScaffold(
     chatState: com.pixelquest.app.study.chat.ui.ChatUiState?,
     chatActions: com.pixelquest.app.study.chat.ui.ChatActions
 ) {
+    var filesQuery by androidx.compose.runtime.saveable.rememberSaveable(stateSaver = androidx.compose.runtime.saveable.Saver<com.pixelquest.app.study.chat.ui.FilesQuery, String>(
+        save = { it.search + "\u0000" + (it.type?.name ?: "") + "\u0000" + it.newestFirst },
+        restore = { s -> s.split("\u0000").let { com.pixelquest.app.study.chat.ui.FilesQuery(it[0], it[1].takeIf { t -> t.isNotEmpty() }?.let(com.pixelquest.app.study.chat.domain.ChatFileType::valueOf), it[2].toBoolean()) } }
+    )) { androidx.compose.runtime.mutableStateOf(com.pixelquest.app.study.chat.ui.FilesQuery()) }
     Scaffold(
         containerColor = PqColors.Ground,
         topBar = {
@@ -408,7 +413,7 @@ private fun StudyPartyScaffold(
                             reminderToggles(reminders, simpleMode = state.simpleMode)
                             if (reminderActions != null) reminderMutes(reminderState, reminderActions)
                         }
-                        PartyTab.FILES -> sharedFiles(chatState?.files.orEmpty())
+                        PartyTab.FILES -> sharedFiles(chatState?.files.orEmpty(), filesQuery, { filesQuery = it }, chatActions.onOpenFile)
                         PartyTab.CHAT -> Unit
                     }
                 }
@@ -684,15 +689,21 @@ private fun LazyListScope.reminderToggles(reminders: ReminderToggles, simpleMode
 }
 
 /** A setting that's on or off: its name, a line about it, and a switch; the whole row toggles it. */
-/** The party's shared files, newest first; their own tab comes with its search and filters. */
-private fun LazyListScope.sharedFiles(files: List<com.pixelquest.app.study.chat.domain.ChatFile>) {
+/** The party's shared files: searched by name, filtered by kind, newest or oldest first, pinned on top. */
+private fun LazyListScope.sharedFiles(
+    files: List<com.pixelquest.app.study.chat.domain.ChatFile>,
+    query: com.pixelquest.app.study.chat.ui.FilesQuery,
+    onQuery: (com.pixelquest.app.study.chat.ui.FilesQuery) -> Unit,
+    onOpen: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)?
+) {
     if (files.isEmpty()) {
         emptyLine(R.string.study_files_empty, loaded = true)
         return
     }
-    items(files, key = { "file_" + it.id }) { file ->
-        Text(text = file.displayName, style = PqType.BodyStrong, modifier = Modifier.fillMaxWidth().testTag("study_file_" + file.id))
-    }
+    item(key = "files_controls") { com.pixelquest.app.study.chat.ui.FilesControls(query, onQuery) }
+    val shown = com.pixelquest.app.study.chat.ui.filesFor(files, query)
+    if (shown.isEmpty()) item(key = "files_none") { com.pixelquest.app.study.chat.ui.NoFilesFound() }
+    items(shown, key = { "file_" + it.id }) { file -> com.pixelquest.app.study.chat.ui.FileCard(file, onOpen = onOpen) }
 }
 
 /** Study reminders' switches on this phone: all of them, and this party's (docs/study-reminders.md, Channel). */
