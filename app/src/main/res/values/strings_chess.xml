@@ -10,4 +10,10 @@
     <string name="chess_push_hidden">Chess</string>
     <string name="chess_coming_title">Chess</string>
     <string name="chess_coming_text">Chess opens here soon. For now, open it from the study party.</string>
+    <string name="chess_tier_pawn">Pawn</string>
+    <string name="chess_tier_knight">Knight</string>
+    <string name="chess_tier_bishop">Bishop</string>
+    <string name="chess_tier_rook">Rook</string>
+    <string name="chess_tier_queen">Queen</string>
+    <string name="chess_tier_king">King</string>
 </resources>
