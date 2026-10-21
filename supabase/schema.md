@@ -207,3 +207,24 @@ A study party's own data (docs/study-party.md). Only its active members read any
 - Days are today or up to 7 days back in a real time zone (`bad_day`, `bad_time_zone`).
 - Realtime (`20261019000044`): new and changed items, new ticks and new study time reach a party's open screens, checked against each listener's own row-level security. What's taken away shows at the next refresh.
 
+### Study reminders (`20261019000045` to `20261019000049`)
+
+A member's reminders in a study party (docs/study-reminders.md): they only remind, and never touch points, XP, levels or streaks.
+
+| Column | Rules |
+|---|---|
+| `kind` | `quiz`, `assignment`, `exam` or `custom` |
+| `title` | 2 to 80 characters, trimmed |
+| `scope`, `week_start`, `due_at` | `week` (a Monday, no moment), `day` (the day's start) or `time` (a moment) |
+| `tz` | A real time zone name (`bad_time_zone`) |
+| `repeat` | `none`, `daily` (a day or time only) or `weekly` |
+| `audience` | `party` or `me`; never changes |
+| `alert_offsets` | Optional: 1 to 4, each 0 to 20160 minutes before |
+| `client_id` | Optional, the phone's own key: one per creator, set only on adding (049) |
+| `created_by`, `created_at` | Set by the server (the guard trigger) |
+
+- Reading: a `party` reminder by every active member; a `me` one by its creator alone, not even the leader.
+- Adding: any active member, at most 100 in a party (`too_many_reminders`).
+- Changing and deleting: its creator, or the leader for a `party` one. No update grant on `party_id`, `created_by`, `audience` or `client_id`.
+- Default deny for everyone else, the signed out included; revoked from `anon`.
+

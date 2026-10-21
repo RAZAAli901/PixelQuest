@@ -55,7 +55,7 @@ Each alert is a moment, worked out on the phone in the reminder's `tz`.
 
 ## On the phone
 
-- **Cache:** reminders are kept on the phone (Room), like items, so they show and alert offline. Creating one offline waits and is sent when there's a connection.
+- **Cache:** reminders are kept on the phone (Room), like items, so they show and alert offline. Creating one offline waits and is sent when there's a connection, with the phone's own key (`client_id`), so a send whose answer was lost is stored once, never twice.
 - **Sync:** the phone fetches a party's reminders when its screen opens, when live updates say something changed, and every 30 minutes in the background (WorkManager, with a network), so a reminder made by someone else is armed even if the app stays closed.
 - **Alarms:** each alert is an exact alarm when Android allows it, otherwise an inexact one in a 10-minute window, as quest reminders are. They're armed again after a reboot, a change of time zone or clock, an update of the app, an edit, a delete and every sync.
 - **The notification:** the reminder's title and when it is, with **Mark done**, **Snooze 1 hour** and **Open** (the party's This week tab). Mark done stops the rest of that occurrence's alerts on this phone; it isn't shared.
