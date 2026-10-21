@@ -411,6 +411,9 @@ verify_jwt = false
 [functions.finalize-upload]
 verify_jwt = false
 
+[functions.get-download-url]
+verify_jwt = false
+
 # Called with the service role key only, which the handler checks itself.
 [functions.cleanup-uploads]
 verify_jwt = false

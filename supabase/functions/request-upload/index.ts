@@ -15,7 +15,8 @@ const files = storage(fetch, supabaseUrl, serviceKey);
 /** Work the runtime keeps going after the answer has gone (Supabase's EdgeRuntime.waitUntil). */
 const afterwards = (work: Promise<unknown>) => {
   const runtime = (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime;
-  runtime?.waitUntil?.(work.catch((e) => console.log(JSON.stringify({ event: "cleanup_failed", error: String(e) }))));
+  const settled = work.catch((e) => console.log(JSON.stringify({ event: "cleanup_failed", error: String(e) })));
+  runtime?.waitUntil?.(settled);
 };
 
 Deno.serve(async (req: Request) => {
