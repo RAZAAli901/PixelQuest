@@ -70,6 +70,7 @@ fun ItemCard(
     val item = row.item
     PixelCard(
         variant = if (row.done) PixelPanelVariant.BEIGE else PixelPanelVariant.BORDER,
+        comicVariant = if (row.done) STANDOUT_COMIC else null,
         contentPadding = 14.dp,
         modifier = modifier
             .fillMaxWidth()

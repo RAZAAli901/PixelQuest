@@ -135,13 +135,14 @@ fun BoardRow(line: BoardLine) {
     val said = stringResource(R.string.study_board_line, line.place, shownName, points) + breakdownText(line)
     PixelCard(
         variant = if (line.isMe) PixelPanelVariant.BEIGE else PixelPanelVariant.BORDER,
+        comicVariant = if (line.isMe) STANDOUT_COMIC else null,
         contentPadding = 12.dp,
         modifier = Modifier.fillMaxWidth().testTag(StudyTags.boardRow(line.userId))
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.clearAndSetSemantics { contentDescription = said }) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = stringResource(R.string.study_board_place, line.place),
+                    text = medalFor(line.place, line.points) ?: stringResource(R.string.study_board_place, line.place),
                     style = MaterialTheme.typography.titleMedium,
                     color = inkOnPanel(colors.primaryText),
                     modifier = Modifier.widthIn(min = 32.dp).testTag(StudyTags.boardPlace(line.userId))

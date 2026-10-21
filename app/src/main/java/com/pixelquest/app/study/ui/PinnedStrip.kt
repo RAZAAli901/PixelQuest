@@ -1,7 +1,5 @@
 package com.pixelquest.app.study.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,12 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -44,14 +40,11 @@ fun PinnedStrip(rows: List<ItemRow>, onOpen: (String) -> Unit, modifier: Modifie
         )
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(rows, key = { "pinned_" + it.item.id }) { row ->
-                val shape = RoundedCornerShape(8.dp)
                 Column(
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                     modifier = Modifier
                         .widthIn(min = 140.dp, max = 220.dp)
-                        .clip(shape)
-                        .background(colors.surfaceVariant)
-                        .border(1.dp, colors.pixelBorder, shape)
+                        .studyChip(colors.surfaceVariant)
                         .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_open_item)) { onOpen(row.item.id) }
                         .padding(horizontal = 12.dp, vertical = 10.dp)
                         .testTag(StudyTags.pinned(row.item.id))
