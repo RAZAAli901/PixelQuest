@@ -29,11 +29,15 @@ class DaroodWeekResultsWorker @AssistedInject constructor(
     private val repository: DaroodPartyRepository,
     private val account: DaroodAccount,
     private val notifier: WeekResultNotifier,
-    private val mutes: WeekRankingMutes
+    private val mutes: WeekRankingMutes,
+    private val goalsTold: GoalToldStore,
+    private val goalNotifier: GoalNotifier
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         WeekResultsRun(repository, account::id, notifier, mutes).run()
+        // Goal reached and New goal set (J089), in the same rounds.
+        GoalNotifyRun(repository, account::id, goalsTold, goalNotifier).run()
         return Result.success()
     }
 

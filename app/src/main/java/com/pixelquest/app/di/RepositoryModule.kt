@@ -339,6 +339,13 @@ abstract class RepositoryModule {
     abstract fun bindWeekRankingMutes(impl: com.pixelquest.app.darood.sync.PrefsWeekRankingMutes): com.pixelquest.app.darood.sync.WeekRankingMutes
 
     @Binds
+    @Singleton
+    abstract fun bindGoalToldStore(impl: com.pixelquest.app.darood.sync.PrefsGoalToldStore): com.pixelquest.app.darood.sync.GoalToldStore
+
+    @Binds
+    abstract fun bindGoalNotifier(impl: com.pixelquest.app.darood.sync.AndroidGoalNotifier): com.pixelquest.app.darood.sync.GoalNotifier
+
+    @Binds
     abstract fun bindWeekResultNotifier(impl: com.pixelquest.app.darood.sync.AndroidWeekResultNotifier): com.pixelquest.app.darood.sync.WeekResultNotifier
 
     @Binds

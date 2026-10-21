@@ -40,4 +40,9 @@
     <string name="darood_goal_history">Goals</string>
     <string name="darood_goal_history_reached">Goal <xliff:g id="number" example="1">%1$d</xliff:g>: <xliff:g id="target" example="10,000">%2$s</xliff:g>, reached on <xliff:g id="date" example="21 Oct 2026">%3$s</xliff:g></string>
     <string name="darood_goal_history_open">Goal <xliff:g id="number" example="2">%1$d</xliff:g> in progress: <xliff:g id="total" example="12,000">%2$s</xliff:g> of <xliff:g id="target" example="15,000">%3$s</xliff:g></string>
+    <string name="darood_goal_notif_reached">Goal <xliff:g id="number" example="1">%1$d</xliff:g> reached: <xliff:g id="party" example="Friday circle">%2$s</xliff:g></string>
+    <string name="darood_goal_notif_reached_text">Together you reached <xliff:g id="target" example="10,000">%1$s</xliff:g> Darood. MashaAllah!</string>
+    <string name="darood_goal_notif_new">New goal set: <xliff:g id="party" example="Friday circle">%1$s</xliff:g></string>
+    <string name="darood_goal_notif_new_text">Goal <xliff:g id="number" example="2">%1$d</xliff:g>: <xliff:g id="target" example="15,000">%2$s</xliff:g> Darood. The count goes on.</string>
+    <string name="darood_goal_notif_hidden">News from a Darood Party</string>
 </resources>
