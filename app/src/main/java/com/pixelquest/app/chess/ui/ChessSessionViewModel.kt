@@ -43,8 +43,17 @@ data class ChessSessionState(
     val sending: Boolean = false,
     /** The server's last refusal, if the screen should say it. */
     val problem: String? = null,
-    val notFound: Boolean = false
+    val notFound: Boolean = false,
+    /** The player's move, shown on the board at once, until the server takes it or says no (J144). */
+    val pendingFen: String? = null,
+    val pendingMove: String? = null
 ) {
+    /** What the board shows: the player's move straight away, then the server's position. */
+    val boardFen: String? get() = pendingFen ?: game?.fen
+
+    /** The last move to highlight: the one on its way, or the last the server took. */
+    val lastMove: String? get() = pendingMove ?: moves.lastOrNull()?.uci
+
     val myTurn: Boolean get() = game?.isTurnOf(me) == true && !sending
     val spectating: Boolean get() = game != null && myColour == null
     /** The other player has offered a draw. */
@@ -142,7 +151,7 @@ class ChessSessionViewModel @Inject constructor(
             GameStatus.ACTIVE -> SessionPhase.ACTIVE
             GameStatus.FINISHED, GameStatus.ABORTED -> SessionPhase.FINISHED
         }
-        _state.update { it.copy(phase = phase, game = game, moves = moves, myColour = game.colourOf(me), sending = false) }
+        _state.update { it.copy(phase = phase, game = game, moves = moves, myColour = game.colourOf(me), sending = false, pendingFen = null, pendingMove = null) }
         if (phase == SessionPhase.FINISHED && before?.status?.live != false) _events.tryEmit(ChessSessionEvent.Ended(game))
         if (game.drawOfferedBy != null && game.drawOfferedBy != me && before?.drawOfferedBy != game.drawOfferedBy && game.colourOf(me) != null) {
             _events.tryEmit(ChessSessionEvent.DrawOffered)
@@ -154,6 +163,11 @@ class ChessSessionViewModel @Inject constructor(
         val current = _state.value
         val game = current.game ?: return
         if (!current.myTurn) return
+        // Shown at once; the server's answer replaces it, or takes it back (send's refusal path).
+        val after = com.pixelquest.app.chess.rules.Position.of(game.fen)?.let { position ->
+            com.pixelquest.app.chess.rules.Move.ofUci(uci)?.takeIf { it in position.legalMoves() }?.let { position.apply(it).fen() }
+        }
+        _state.update { it.copy(pendingFen = after, pendingMove = after?.let { uci }) }
         send { chess.makeMove(game.id, game.ply + 1, uci) }
     }
 
@@ -168,13 +182,13 @@ class ChessSessionViewModel @Inject constructor(
             when (val result = call()) {
                 is SupabaseResult.Success -> apply(result.data, (chess.fetchGame(result.data.id) as? SupabaseResult.Success)?.data?.second ?: _state.value.moves)
                 is SupabaseResult.ServerError -> {
-                    _state.update { it.copy(sending = false, problem = result.message) }
+                    _state.update { it.copy(sending = false, problem = result.message, pendingFen = null, pendingMove = null) }
                     _events.tryEmit(ChessSessionEvent.Refused(result.message))
                     // The game may have moved on (ended on time, aborted): read it again.
                     (chess.fetchGame(gameId) as? SupabaseResult.Success)?.data?.let { (g, m) -> apply(g, m) }
                 }
                 else -> {
-                    _state.update { it.copy(sending = false, problem = OFFLINE) }
+                    _state.update { it.copy(sending = false, problem = OFFLINE, pendingFen = null, pendingMove = null) }
                     _events.tryEmit(ChessSessionEvent.Refused(OFFLINE))
                 }
             }

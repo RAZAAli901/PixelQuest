@@ -109,4 +109,18 @@ class ChessSessionViewModelTest {
         waitFor("count") { vm.state.value.watchers == 3 }
         assertTrue("watching is logged first", "watch" in remote.calls)
     }
+
+    @Test
+    fun aMove_showsAtOnce_andIsTakenBackIfRefused() {
+        val game = remote.seedGame()
+        remote.games[game] = remote.games.getValue(game).copy(fen = com.pixelquest.app.chess.rules.Position.START)
+        val vm = session(game)
+        waitFor("loaded") { vm.state.value.phase == SessionPhase.ACTIVE }
+        remote.offline = true
+        vm.move("e2e4")
+        // Before the answer the board already shows it... and once refused, it's taken back.
+        waitFor("taken back") { vm.state.value.problem == ChessSessionViewModel.OFFLINE }
+        assertEquals(com.pixelquest.app.chess.rules.Position.START, vm.state.value.boardFen)
+        assertEquals(null, vm.state.value.pendingMove)
+    }
 }

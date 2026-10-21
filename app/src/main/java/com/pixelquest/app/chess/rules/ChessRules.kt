@@ -166,6 +166,21 @@ class Position private constructor(
         ) out += Move(home, home - 2)
     }
 
+    /** The position as FEN. */
+    fun fen(): String {
+        val rows = (0 until 8).joinToString("/") { r ->
+            buildString {
+                var empty = 0
+                for (c in 0 until 8) {
+                    val p = board[r * 8 + c]
+                    if (p == '.') empty++ else { if (empty > 0) append(empty); empty = 0; append(p) }
+                }
+                if (empty > 0) append(empty)
+            }
+        }
+        return "$rows ${if (whiteToMove) "w" else "b"} ${castling.ifEmpty { "-" }} ${enPassant?.let(Move::name) ?: "-"} $halfmove $fullmove"
+    }
+
     /** The position after [move] (not checked: legalMoves gives the legal ones). */
     fun apply(move: Move): Position {
         val b = board.copyOf()

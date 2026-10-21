@@ -46,5 +46,8 @@ class ChessRulesTest {
         assertFalse(start.promotes(Move.index("e2")!!, Move.index("e4")!!))
         assertEquals(null, Position.of("garbage"))
         assertEquals("e7e8q", Move.ofUci("e7e8q")!!.uci)
+        // FEN out. The en passant square is always named (chess.js names it only when a pawn can take; drawing ignores it).
+        assertEquals(Position.START, start.fen())
+        assertEquals("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", start.apply(Move.ofUci("e2e4")!!).fen())
     }
 }
