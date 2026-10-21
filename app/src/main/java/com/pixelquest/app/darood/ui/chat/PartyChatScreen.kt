@@ -547,6 +547,7 @@ fun PartyChatRoute(
     onOpenInfo: () -> Unit,
     onAddPeople: () -> Unit = {},
     openWeekly: Boolean = false,
+    onOpenWeeks: () -> Unit = {},
     viewModel: PartyChatViewModel = hiltViewModel(),
     weeklyViewModel: com.pixelquest.app.darood.ui.weekly.WeeklyRankingViewModel = hiltViewModel()
 ) {
@@ -554,7 +555,11 @@ fun PartyChatRoute(
     if (showingWeekly) {
         com.pixelquest.app.darood.ui.weekly.WeeklyRankingSheet(
             state = weeklyViewModel.state.collectAsState().value,
-            onDismiss = { showingWeekly = false }
+            onDismiss = { showingWeekly = false },
+            onSeeAll = {
+                showingWeekly = false
+                onOpenWeeks()
+            }
         )
     }
     val party = viewModel.party.collectAsState().value

@@ -17,4 +17,12 @@
     <string name="darood_week_all">All weeks</string>
     <string name="darood_week_dates"><xliff:g id="start" example="12 Oct 2026">%1$s</xliff:g> to <xliff:g id="end" example="18 Oct 2026">%2$s</xliff:g></string>
     <string name="darood_week_row_said"><xliff:g id="place" example="2nd">%1$s</xliff:g>, <xliff:g id="name" example="bram">%2$s</xliff:g>, <xliff:g id="total" example="3,200">%3$s</xliff:g> Darood</string>
+    <string name="darood_week_trend">Your place, week by week</string>
+    <string name="darood_week_trend_said">Week of <xliff:g id="date" example="12 Oct">%1$s</xliff:g>: <xliff:g id="place" example="2nd">%2$s</xliff:g></string>
+    <string name="darood_week_trend_up">Up from <xliff:g id="before" example="4th">%1$s</xliff:g> to <xliff:g id="now" example="2nd">%2$s</xliff:g>. MashaAllah.</string>
+    <string name="darood_week_trend_same">Holding <xliff:g id="place" example="2nd">%1$s</xliff:g>, week after week.</string>
+    <string name="darood_week_trend_down">From <xliff:g id="before" example="2nd">%1$s</xliff:g> to <xliff:g id="now" example="4th">%2$s</xliff:g>. Every Darood counts.</string>
+    <string name="darood_week_not_ranked">Not ranked that week</string>
+    <string name="darood_week_shown">Places shown</string>
+    <string name="darood_week_hidden">Places hidden</string>
 </resources>
