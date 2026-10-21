@@ -187,9 +187,9 @@ class SendStateTest {
             }
         }
         composeTestRule.onNode(androidx.compose.ui.test.hasText("Send 12,000?") and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).assertIsDisplayed()
-        composeTestRule.onNode(androidx.compose.ui.test.hasText("Change it") and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).performClick()
+        composeTestRule.onNode(androidx.compose.ui.test.hasText("CHANGE IT") and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).performClick()
         assertEquals(1, changed)
-        composeTestRule.onNode(androidx.compose.ui.test.hasText("Send") and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).performClick()
+        composeTestRule.onNode(androidx.compose.ui.test.hasText("SEND") and androidx.compose.ui.test.hasAnyAncestor(androidx.compose.ui.test.isDialog())).performClick()
         assertEquals(1, sent)
     }
 

@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import com.pixelquest.app.R
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqConfirmDialog
 
 /** Asks for the phone's rough location, after saying why (docs/namaz-design.md, Location). */
 @Stable
@@ -40,11 +40,11 @@ fun rememberLocationPermissionRequest(onResult: (granted: Boolean) -> Unit): Loc
     }
 
     if (explaining) {
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = stringResource(R.string.namaz_location_title),
             message = stringResource(R.string.namaz_location_message),
-            confirmText = stringResource(R.string.namaz_location_allow),
-            dismissText = stringResource(R.string.namaz_location_not_now),
+            confirm = stringResource(R.string.namaz_location_allow),
+            dismiss = stringResource(R.string.namaz_location_not_now),
             onConfirm = {
                 explaining = false
                 launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)

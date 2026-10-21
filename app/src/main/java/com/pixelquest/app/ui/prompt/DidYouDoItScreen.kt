@@ -1,35 +1,38 @@
 package com.pixelquest.app.ui.prompt
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.audio.LocalSoundManager
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelBackgroundDark
-import com.pixelquest.app.ui.theme.PixelGold
-import com.pixelquest.app.ui.theme.PixelTextWhite
-import com.pixelquest.app.ui.theme.PixelTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.tooling.preview.Preview
+import com.pixelquest.app.ui.components.CategoryTile
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import kotlinx.coroutines.delay
 
+/**
+ * The full-screen "did you do it?" at a quest's time: the quest, and Yes or Not yet. In the game
+ * (the copy has its quest icon) a quest tile heads it; Simple Mode asks plainly. It closes itself
+ * after [timeoutMillis].
+ */
 @Composable
 fun DidYouDoItScreen(
     taskId: Long,
@@ -49,54 +52,26 @@ fun DidYouDoItScreen(
     }
 
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
-    val colors = PixelTheme.colors
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(colors.background),
+            .background(PqColors.Ground)
+            .padding(PqDimens.ScreenPad),
         contentAlignment = Alignment.Center
     ) {
-        PixelCard(
-            variant = PixelPanelVariant.BEIGE,
-            contentPadding = 24.dp,
-            modifier = Modifier.fillMaxWidth(0.9f)
-        ) {
+        PqCard(Modifier.fillMaxWidth(), shadow = PqDimens.ShadowLg, radius = 18.dp) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxWidth().padding(20.dp)
             ) {
-                if (copy.iconEmoji != null) {
-                    Text(
-                        text = copy.iconEmoji,
-                        style = MaterialTheme.typography.displayLarge
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                Text(
-                    text = copy.headerTitle,
-                    style = MaterialTheme.typography.displaySmall,
-                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.primary),
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = copy.questionPrompt,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = taskName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = colors.onSurface,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    PixelButton(
+                // The game's copy carries its quest icon; v2 draws it as a tile, not the emoji.
+                if (copy.iconEmoji != null) CategoryTile(Icons.Rounded.Bolt, PqColors.Gold, size = 56.dp, iconSize = 32.dp, radius = 14.dp)
+                Text(text = copy.headerTitle, style = PqType.Title, textAlign = TextAlign.Center)
+                Text(text = copy.questionPrompt, style = PqType.Meta, textAlign = TextAlign.Center)
+                Text(text = taskName, style = PqType.CardTitle, textAlign = TextAlign.Center)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    PqButton(
                         text = copy.dismissButtonText,
                         onClick = {
                             com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
@@ -104,11 +79,10 @@ fun DidYouDoItScreen(
                             onNoClick()
                             onDismiss()
                         },
-                        variant = PixelButtonVariant.BLUE,
+                        style = PqButtonStyle.Secondary,
                         modifier = Modifier.weight(1f)
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    PixelButton(
+                    PqButton(
                         text = copy.confirmButtonText,
                         onClick = {
                             com.pixelquest.app.ui.haptics.PixelHaptics.performSuccessPattern(haptic)
@@ -116,7 +90,6 @@ fun DidYouDoItScreen(
                             onYesClick()
                             onDismiss()
                         },
-                        variant = PixelButtonVariant.YELLOW,
                         modifier = Modifier.weight(1f)
                     )
                 }

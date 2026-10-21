@@ -1,39 +1,30 @@
 package com.pixelquest.app.ui.screens.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.VisibilityOff
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.PqDialog
 import com.pixelquest.app.ui.haptics.PixelHaptics
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 
 /**
- * Step 34: Polished explanatory enable-dialog for Simple Mode with proper
- * theme-aware pixel styling, structured feature breakdown, and clear reassurance.
+ * Asked before Simple Mode is turned on: what it hides, that nothing stops being recorded, and that
+ * it can be turned off again with everything kept.
  */
 @Composable
 fun SimpleModeEnableDialog(
@@ -41,131 +32,38 @@ fun SimpleModeEnableDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = PixelTheme.colors
     val haptic = LocalHapticFeedback.current
-
-    Dialog(onDismissRequest = onDismiss) {
-        PixelCard(
-            modifier = modifier.fillMaxWidth(0.95f),
-            variant = PixelPanelVariant.BORDER,
-            contentPadding = 20.dp
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Header badge
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(colors.primaryContainer.copy(alpha = 0.25f))
-                        .border(1.dp, colors.primary, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "📋 SIMPLE MODE",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = colors.primaryText,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Text(
-                    text = "Streamlines PixelQuest into a clean, minimalist task checklist without gamification pressure.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurface,
-                    lineHeight = 20.sp
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Explanatory breakdown items
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(colors.surfaceVariant.copy(alpha = 0.35f))
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    ExplainingRow(
-                        icon = "🙈",
-                        title = "Hidden UI",
-                        description = "Streaks, XP points, levels, and celebratory popups are suppressed.",
-                        colors = colors
-                    )
-                    ExplainingRow(
-                        icon = "🛡️",
-                        title = "Safe Tracking",
-                        description = "100% of habit data and streaks continue recording silently in the background.",
-                        colors = colors
-                    )
-                    ExplainingRow(
-                        icon = "🔄",
-                        title = "Reversible Anytime",
-                        description = "Return to Full Game Mode whenever you like with all progress intact.",
-                        colors = colors
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    PixelButton(
-                        text = "CANCEL",
-                        onClick = onDismiss,
-                        variant = PixelButtonVariant.BLUE,
-                        modifier = Modifier.weight(1f)
-                    )
-                    PixelButton(
-                        text = "ENABLE",
-                        onClick = {
-                            PixelHaptics.performSuccessPattern(haptic)
-                            onConfirm()
-                        },
-                        variant = PixelButtonVariant.YELLOW,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
+    PqDialog(
+        title = "Simple Mode",
+        onDismissRequest = onDismiss,
+        modifier = modifier,
+        confirm = "Turn on",
+        onConfirm = {
+            PixelHaptics.performSuccessPattern(haptic)
+            onConfirm()
+        },
+        dismiss = "Cancel",
+        onDismiss = onDismiss
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = "PixelQuest becomes a clean, calm task checklist, without the game.",
+                style = PqType.Body
+            )
+            ExplainingRow(Icons.Rounded.VisibilityOff, "Hidden", "Streaks, XP, levels and celebrations aren't shown.")
+            ExplainingRow(Icons.Rounded.Shield, "Still recorded", "Your habits and streaks keep being recorded in the background.")
+            ExplainingRow(Icons.Rounded.Restore, "Reversible", "Turn it off whenever you like, with all your progress there.")
         }
     }
 }
 
 @Composable
-private fun ExplainingRow(
-    icon: String,
-    title: String,
-    description: String,
-    colors: com.pixelquest.app.ui.theme.AppColorScheme
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
-    ) {
-        Text(
-            text = icon,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(end = 8.dp)
-        )
-        Column {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelMedium,
-                color = colors.primaryText,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant
-            )
+private fun ExplainingRow(icon: ImageVector, title: String, description: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+        Icon(icon, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.padding(top = 2.dp).size(22.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = title, style = PqType.BodyStrong)
+            Text(text = description, style = PqType.Body.copy(color = PqColors.Ink2))
         }
     }
 }

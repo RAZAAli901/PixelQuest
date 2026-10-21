@@ -231,7 +231,7 @@ class PartyInfoTest {
         shown.value = shown.value.copy(confirmingRemoval = asked)
         composeTestRule.onNodeWithText("Remove @bram?").assertIsDisplayed()
         composeTestRule.onNodeWithText("stays in the party's total", substring = true).assertIsDisplayed()
-        composeTestRule.onNode(hasText("Remove") and hasAnyAncestor(isDialog())).performClick()
+        composeTestRule.onNode(hasText("REMOVE") and hasAnyAncestor(isDialog())).performClick()
         assertTrue(confirmed)
     }
 

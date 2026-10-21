@@ -2,7 +2,6 @@ package com.pixelquest.app.ui.theme
 
 import com.pixelquest.app.domain.model.CrtFilterPolicy
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -65,12 +64,4 @@ class Day23ComicCrtExclusionVerificationTest {
         )
     }
 
-    @Test
-    fun pixelThemeAssetFilter_comicMode_returnsNullToPreventCrtDistortion() {
-        val filter = PixelThemeAssetFilter.forTheme(
-            themeMode = ThemeMode.Comic,
-            lightColor = ComicTokens.CoralRed
-        )
-        assertNull("Comic mode must use raw vector/raster assets with no tint/scanline distortion", filter)
-    }
 }

@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens.account
 
+import com.pixelquest.app.ui.components.PqDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,7 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.auth.AuthViewModel
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
@@ -305,11 +306,11 @@ fun AccountContent(
 
     // Lightweight Single Confirmation Dialog for Leaving Leaderboard (Opt-Out)
     if (accountState.showOptOutConfirmDialog) {
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = "LEAVE LEADERBOARD?",
             message = "Are you sure you want to leave the leaderboard? Your rank and public display name will no longer be visible to other players. You can rejoin at any time.",
-            confirmText = "LEAVE",
-            dismissText = "STAY",
+            confirm = "LEAVE",
+            dismiss = "STAY",
             onConfirm = onConfirmOptOut,
             onDismiss = onDismissOptOutDialog
         )
@@ -317,12 +318,12 @@ fun AccountContent(
 
     // Confirmation Notice After Leaving Leaderboard
     if (accountState.showOptOutSuccessNotice) {
-        com.pixelquest.app.ui.components.PixelDialog(
+        PqDialog(
             title = "Left the leaderboard",
             onDismissRequest = onDismissOptOutNotice,
-            confirmButtonText = "OK",
+            confirm = "OK",
             onConfirm = onDismissOptOutNotice,
-            dismissButtonText = null
+            dismiss = null
         ) {
             Text(
                 text = "You've left the leaderboard. Your rank and display name have been removed from public rankings.",
@@ -333,11 +334,11 @@ fun AccountContent(
 
     // Deletion Step 1: Initial Warning
     if (accountState.showDeleteConfirmDialog) {
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = "DELETE CLOUD DATA?",
             message = "Are you sure you want to delete your cloud account and public leaderboard record? This action cannot be undone.",
-            confirmText = "CONTINUE",
-            dismissText = "CANCEL",
+            confirm = "CONTINUE",
+            dismiss = "CANCEL",
             onConfirm = onProceedDeleteDoubleConfirm,
             onDismiss = onDismissDeleteDialog
         )
@@ -345,11 +346,11 @@ fun AccountContent(
 
     // Deletion Step 2: Final Double Confirmation
     if (accountState.showDeleteDoubleConfirmDialog) {
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = "FINAL WARNING: PURGE",
             message = "This permanently erases your leaderboard rank, display name, and cloud profile, and signs you out.\n\nLocal quests and streak history on this device will remain safe.",
-            confirmText = "PURGE CLOUD",
-            dismissText = "KEEP ACCOUNT",
+            confirm = "PURGE CLOUD",
+            dismiss = "KEEP ACCOUNT",
             onConfirm = onConfirmDeleteCloudData,
             onDismiss = onDismissDeleteDialog
         )
@@ -367,12 +368,12 @@ fun AccountContent(
 fun PrivacyPolicyDialog(
     onDismiss: () -> Unit
 ) {
-    com.pixelquest.app.ui.components.PixelDialog(
+    PqDialog(
         title = "Privacy policy",
         onDismissRequest = onDismiss,
-        confirmButtonText = "I UNDERSTAND",
+        confirm = "I UNDERSTAND",
         onConfirm = onDismiss,
-        dismissButtonText = null
+        dismiss = null
     ) {
         Column(
             modifier = Modifier

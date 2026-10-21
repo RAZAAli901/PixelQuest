@@ -9,7 +9,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.pixelquest.app.domain.model.DifficultyLevel
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -30,7 +30,7 @@ class DifficultyChangeFlowTest {
             PixelQuestTheme {
                 androidx.compose.foundation.layout.Column {
                     androidx.compose.material3.Text("Current: ${currentDifficulty.name}")
-                    com.pixelquest.app.ui.components.PixelButton(
+                    com.pixelquest.app.ui.components.PqButton(
                         text = "SELECT HARD",
                         onClick = {
                             pendingDifficulty = DifficultyLevel.HARD
@@ -39,11 +39,11 @@ class DifficultyChangeFlowTest {
                     )
 
                     if (showWarningDialog && pendingDifficulty != null) {
-                        PixelConfirmDialog(
+                        PqConfirmDialog(
                             title = "CHANGE DIFFICULTY?",
                             message = "Changing difficulty will update your target threshold. Confirm change?",
-                            confirmText = "CONFIRM",
-                            dismissText = "CANCEL",
+                            confirm = "CONFIRM",
+                            dismiss = "CANCEL",
                             onConfirm = {
                                 currentDifficulty = pendingDifficulty!!
                                 pendingDifficulty = null

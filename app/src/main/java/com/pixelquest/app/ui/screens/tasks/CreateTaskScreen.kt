@@ -27,7 +27,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.ui.components.PixelCategorySelector
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PixelDaySelector
 import com.pixelquest.app.ui.components.PixelRecurrenceSelector
 import com.pixelquest.app.ui.components.PixelTextField
@@ -102,11 +102,11 @@ fun TaskFormContent(
     onAllowExact: () -> Unit = {}
 ) {
     if (showDeleteConfirm) {
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = "Abandon quest?",
             message = "Are you sure you want to delete '${formState.name}'?",
-            confirmText = "Delete",
-            dismissText = "Cancel",
+            confirm = "Delete",
+            dismiss = "Cancel",
             onConfirm = {
                 onShowDeleteConfirm(false)
                 onDelete()

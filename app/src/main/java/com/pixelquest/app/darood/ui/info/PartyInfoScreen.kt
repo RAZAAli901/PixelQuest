@@ -66,8 +66,8 @@ import com.pixelquest.app.party.domain.PartyRole
 import com.pixelquest.app.party.ui.components.MemberList
 import com.pixelquest.app.party.ui.components.displayName
 import com.pixelquest.app.party.ui.shortName
-import com.pixelquest.app.ui.components.PixelConfirmDialog
-import com.pixelquest.app.ui.components.PixelDialog
+import com.pixelquest.app.ui.components.PqConfirmDialog
+import com.pixelquest.app.ui.components.PqDialog
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
@@ -484,67 +484,67 @@ fun PartyInfoContent(
 
     state.confirmingRemoval?.let { member ->
         val name = displayName(member)
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = stringResource(R.string.darood_info_remove_title, name),
             message = stringResource(R.string.darood_info_remove_message),
-            confirmText = stringResource(R.string.darood_info_remove),
-            dismissText = stringResource(R.string.darood_cancel),
+            confirm = stringResource(R.string.darood_info_remove),
+            dismiss = stringResource(R.string.darood_cancel),
             onConfirm = onConfirmRemoval,
             onDismiss = onDismissDialog
         )
     }
     if (state.confirmingLeave) {
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = stringResource(R.string.darood_info_leave_title, state.party?.name.orEmpty()),
             message = stringResource(R.string.darood_info_leave_message),
-            confirmText = stringResource(R.string.darood_info_leave),
-            dismissText = stringResource(R.string.darood_cancel),
+            confirm = stringResource(R.string.darood_info_leave),
+            dismiss = stringResource(R.string.darood_cancel),
             onConfirm = onConfirmLeave,
             onDismiss = onDismissDialog
         )
     }
     state.confirmingTransfer?.let { member ->
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = stringResource(R.string.darood_info_transfer_title, displayName(member)),
             message = stringResource(state.party?.let { PartyKinds.of(it.type).handOverRes } ?: R.string.darood_info_transfer_message),
-            confirmText = stringResource(R.string.darood_info_make_leader),
-            dismissText = stringResource(R.string.darood_cancel),
+            confirm = stringResource(R.string.darood_info_make_leader),
+            dismiss = stringResource(R.string.darood_cancel),
             onConfirm = onConfirmTransfer,
             onDismiss = onDismissDialog
         )
     }
     state.deleteConfirmation?.let { typed ->
         val partyName = state.party?.name.orEmpty()
-        PixelDialog(
+        PqDialog(
             onDismissRequest = onDismissDialog,
             title = stringResource(R.string.darood_info_delete_title, partyName),
-            confirmButtonText = stringResource(R.string.darood_info_delete_confirm),
+            confirm = stringResource(R.string.darood_info_delete_confirm),
             onConfirm = onConfirmDelete,
-            dismissButtonText = stringResource(R.string.darood_cancel),
+            dismiss = stringResource(R.string.darood_cancel),
             onDismiss = onDismissDialog
         ) {
             DeleteConfirmation(typed = typed, partyName = partyName, confirmed = state.deleteConfirmed, onTypedChange = onDeleteConfirmationChange)
         }
     }
     state.newMilestone?.let { typed ->
-        PixelDialog(
+        PqDialog(
             onDismissRequest = onDismissDialog,
             title = stringResource(R.string.darood_info_milestone_title),
-            confirmButtonText = stringResource(R.string.darood_info_rename_save),
+            confirm = stringResource(R.string.darood_info_rename_save),
             onConfirm = onConfirmMilestone,
-            dismissButtonText = stringResource(R.string.darood_cancel),
+            dismiss = stringResource(R.string.darood_cancel),
             onDismiss = onDismissDialog
         ) {
             MilestoneField(typed = typed, total = state.party?.total ?: 0, onTypedChange = onMilestoneChange)
         }
     }
     state.newName?.let { name ->
-        PixelDialog(
+        PqDialog(
             onDismissRequest = onDismissDialog,
             title = stringResource(R.string.darood_info_rename_title),
-            confirmButtonText = stringResource(R.string.darood_info_rename_save),
+            confirm = stringResource(R.string.darood_info_rename_save),
             onConfirm = onConfirmRename,
-            dismissButtonText = stringResource(R.string.darood_cancel),
+            dismiss = stringResource(R.string.darood_cancel),
             onDismiss = onDismissDialog
         ) {
             RenameField(name = name, problem = state.newNameProblem, onNameChange = onNewNameChange)

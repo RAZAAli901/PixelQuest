@@ -68,7 +68,7 @@ class BackupSummaryTest {
                 RestoreDataConfirmDialog(onConfirm = {}, onDismiss = {}, summary = "Aria, level 5 and 2 quests.", replacesAGame = false)
             }
         }
-        composeTestRule.onNodeWithText("💾 RESTORE THIS BACKUP?").assertExists()
+        composeTestRule.onNodeWithText("RESTORE THIS BACKUP?").assertExists()
         composeTestRule.onNodeWithText("come back from it", substring = true).assertExists()
         assertEquals(0, composeTestRule.onAllNodesWithText("overwrite", substring = true).fetchSemanticsNodes().size)
     }

@@ -1,5 +1,9 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -206,7 +210,7 @@ fun CoachCard(coach: CoachUi, onOpen: () -> Unit, onExpand: () -> Unit, modifier
 
 /**
  * Asks before something that can't simply be taken back (skipping a quest, leaving a party): a
- * card with the question, Cancel, and [confirm] as the dialog's one red button.
+ * card with the question, [dismiss] (Cancel), and [confirm] as the dialog's one red button.
  */
 @Composable
 fun PqConfirmDialog(
@@ -215,16 +219,66 @@ fun PqConfirmDialog(
     confirm: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    dismiss: String = stringResource(R.string.pq_cancel),
 ) {
-    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
-        PqCard(Modifier.fillMaxWidth(), shadow = PqDimens.ShadowLg, radius = 18.dp) {
-            Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(title, style = PqType.CardTitle)
-                Text(message, style = PqType.Body.copy(color = PqColors.Ink2))
-                Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    PqButton(stringResource(R.string.pq_cancel), onDismiss, Modifier.weight(1f), style = PqButtonStyle.Secondary)
-                    PqButton(confirm, onConfirm, Modifier.weight(1f))
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    PqDialog(
+        title, onDismiss,
+        confirm = confirm,
+        onConfirm = {
+            com.pixelquest.app.ui.haptics.PixelHaptics.performWarning(haptic)
+            onConfirm()
+        },
+        dismiss = dismiss, onDismiss = onDismiss,
+    ) {
+        Text(message, style = PqType.Body.copy(color = PqColors.Ink2))
+    }
+}
+
+/**
+ * A dialog: v2's card with its [title], [content] (scrolling, if it's long or the text is large),
+ * and its buttons side by side: [dismiss] quiet, then [confirm] as the dialog's one red button.
+ */
+@Composable
+fun PqDialog(
+    title: String,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    confirm: String? = null,
+    onConfirm: (() -> Unit)? = null,
+    dismiss: String? = null,
+    onDismiss: (() -> Unit)? = null,
+    content: @Composable () -> Unit,
+) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismissRequest) {
+        PqCard(modifier.fillMaxWidth(), shadow = PqDimens.ShadowLg, radius = 18.dp) {
+            Column(
+                Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(title, style = PqType.CardTitle, modifier = Modifier.semantics { heading() })
+                content()
+                val showDismiss = onDismiss != null && dismiss != null
+                val showConfirm = onConfirm != null && confirm != null
+                if (showDismiss || showConfirm) {
+                    Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        if (showDismiss) PqButton(dismiss!!, onDismiss!!, Modifier.weight(1f), style = PqButtonStyle.Secondary)
+                        if (showConfirm) PqButton(confirm!!, onConfirm!!, Modifier.weight(1f))
+                    }
                 }
+            }
+        }
+    }
+}
+
+/** A short list, each line after a dot: what a dialog shares, or what a mode changes. */
+@Composable
+fun PqBullets(lines: List<String>, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        lines.forEach { line ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("\u2022", style = PqType.BodyStrong)
+                Text(line, style = PqType.Body.copy(color = PqColors.Ink2), modifier = Modifier.weight(1f))
             }
         }
     }

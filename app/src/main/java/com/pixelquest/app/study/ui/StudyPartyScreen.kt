@@ -60,7 +60,7 @@ import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyTab
 import com.pixelquest.app.party.ui.components.MemberList
 import com.pixelquest.app.study.domain.StudyRefusal
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqGroupLabel
@@ -231,11 +231,11 @@ private fun StudyPartyScaffold(
         modifier = Modifier.testTag(StudyTags.SCREEN)
     ) { innerPadding ->
         state.confirmingDelete?.let { row ->
-            PixelConfirmDialog(
+            PqConfirmDialog(
                 title = stringResource(R.string.study_delete_title),
                 message = stringResource(R.string.study_delete_message, row.item.title),
-                confirmText = stringResource(R.string.study_delete),
-                dismissText = stringResource(R.string.study_keep),
+                confirm = stringResource(R.string.study_delete),
+                dismiss = stringResource(R.string.study_keep),
                 onConfirm = onConfirmDelete,
                 onDismiss = onCancelDelete
             )

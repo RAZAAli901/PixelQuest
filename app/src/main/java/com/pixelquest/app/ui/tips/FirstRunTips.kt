@@ -1,15 +1,18 @@
 package com.pixelquest.app.ui.tips
 
+import androidx.compose.foundation.layout.padding
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -22,10 +25,6 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -75,20 +74,17 @@ fun FirstRunTip(tip: Tip, modifier: Modifier = Modifier) {
     val store = LocalTipsStore.current ?: return
     val dismissed by store.dismissed.collectAsState()
     if (tip in dismissed) return
-    val colors = PixelTheme.colors
-    PixelCard(variant = PixelPanelVariant.BLUE, contentPadding = 14.dp, modifier = modifier.fillMaxWidth().testTag(TipTags.tip(tip))) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                text = stringResource(tip.title),
-                style = MaterialTheme.typography.titleSmall,
-                color = inkOnPanel(colors.primaryText),
-                modifier = Modifier.semantics { heading() }
-            )
-            Text(text = stringResource(tip.body), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
+    PqCard(modifier.fillMaxWidth().testTag(TipTags.tip(tip)), bg = PqColors.Sky) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(text = stringResource(tip.title), style = PqType.BodyStrong, modifier = Modifier.semantics { heading() })
+            Text(text = stringResource(tip.body), style = PqType.Body.copy(color = PqColors.Ink2))
             Row(horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                TextButton(onClick = { store.dismiss(tip) }, modifier = Modifier.heightIn(min = 48.dp).testTag(TipTags.dismiss(tip))) {
-                    Text(text = stringResource(R.string.tip_got_it), color = colors.primaryText)
-                }
+                PqButton(
+                    text = stringResource(R.string.tip_got_it),
+                    onClick = { store.dismiss(tip) },
+                    style = PqButtonStyle.Secondary,
+                    modifier = Modifier.testTag(TipTags.dismiss(tip))
+                )
             }
         }
     }

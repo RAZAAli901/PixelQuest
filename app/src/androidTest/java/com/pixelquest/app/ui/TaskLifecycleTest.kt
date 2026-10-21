@@ -18,8 +18,8 @@ import androidx.compose.ui.test.performTextInput
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.TaskCategory
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import org.junit.Assert.assertEquals
@@ -46,7 +46,7 @@ class TaskLifecycleTest {
                 when (screenState) {
                     "LIST" -> {
                         androidx.compose.foundation.layout.Column {
-                            PixelButton(text = "NEW QUEST", onClick = { screenState = "CREATE" })
+                            PqButton(text = "NEW QUEST", onClick = { screenState = "CREATE" })
                             tasks.forEach { task ->
                                 androidx.compose.foundation.layout.Row {
                                     androidx.compose.material3.Text(
@@ -56,7 +56,7 @@ class TaskLifecycleTest {
                                             screenState = "EDIT"
                                         }
                                     )
-                                    PixelButton(text = "DELETE", onClick = {
+                                    PqButton(text = "DELETE", onClick = {
                                         selectedTaskForEdit = task
                                         showDeleteDialog = true
                                     })
@@ -65,8 +65,9 @@ class TaskLifecycleTest {
                         }
 
                         if (showDeleteDialog && selectedTaskForEdit != null) {
-                            PixelConfirmDialog(
+                            PqConfirmDialog(
                                 title = "DELETE QUEST",
+                                confirm = "DELETE",
                                 message = "Are you sure you want to delete '${selectedTaskForEdit?.name}'?",
                                 onConfirm = {
                                     tasks.removeIf { it.id == selectedTaskForEdit?.id }
@@ -86,7 +87,7 @@ class TaskLifecycleTest {
                                 label = "Quest Title",
                                 placeholder = "Enter quest title..."
                             )
-                            PixelButton(text = "SAVE QUEST", onClick = {
+                            PqButton(text = "SAVE QUEST", onClick = {
                                 val newTask = TaskEntity(
                                     id = tasks.size.toLong() + 1,
                                     name = title,
@@ -110,7 +111,7 @@ class TaskLifecycleTest {
                                 label = "Quest Title",
                                 placeholder = "Edit quest title..."
                             )
-                            PixelButton(text = "UPDATE QUEST", onClick = {
+                            PqButton(text = "UPDATE QUEST", onClick = {
                                 val index = tasks.indexOfFirst { it.id == selectedTaskForEdit?.id }
                                 if (index != -1) {
                                     tasks[index] = tasks[index].copy(name = title)

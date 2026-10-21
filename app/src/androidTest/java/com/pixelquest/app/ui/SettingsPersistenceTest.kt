@@ -8,7 +8,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.pixelquest.app.ui.components.PixelButton
+import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -30,19 +30,19 @@ class SettingsPersistenceTest {
         composeTestRule.setContent {
             PixelQuestTheme {
                 androidx.compose.foundation.layout.Column {
-                    PixelButton(
+                    PqButton(
                         text = if (isSoundEnabled) "🔊 SFX: ON" else "🔇 SFX: OFF",
                         onClick = { isSoundEnabled = !isSoundEnabled }
                     )
-                    PixelButton(
+                    PqButton(
                         text = if (isCrtEnabled) "📺 CRT FILTER: ON" else "📺 CRT FILTER: OFF",
                         onClick = { isCrtEnabled = !isCrtEnabled }
                     )
-                    PixelButton(
+                    PqButton(
                         text = if (isHapticsEnabled) "📳 HAPTICS: ON" else "📴 HAPTICS: OFF",
                         onClick = { isHapticsEnabled = !isHapticsEnabled }
                     )
-                    PixelButton(
+                    PqButton(
                         text = if (isNotificationsEnabled) "🔔 NOTIFICATIONS: ON" else "🔕 NOTIFICATIONS: OFF",
                         onClick = { isNotificationsEnabled = !isNotificationsEnabled }
                     )

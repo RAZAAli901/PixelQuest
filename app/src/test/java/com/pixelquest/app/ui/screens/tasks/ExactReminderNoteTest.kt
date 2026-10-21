@@ -47,7 +47,7 @@ class ExactReminderNoteTest {
         form(reminderOn = true, exactAllowed = false, onAllow = { asked++ })
 
         assertEquals(1, noteCount())
-        composeTestRule.onNodeWithText("⏰ ALLOW EXACT REMINDER TIMES").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("ALLOW EXACT REMINDER TIMES").performScrollTo().performClick()
         assertEquals(1, asked)
     }
 

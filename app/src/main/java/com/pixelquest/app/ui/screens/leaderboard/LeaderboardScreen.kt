@@ -32,7 +32,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqCard
@@ -285,11 +285,11 @@ fun LeaderboardContent(
 
     if (reportingItem != null) {
         val (profileId, name) = reportingItem!!
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = "Report this name?",
             message = "Report '$name' for an offensive or inappropriate public display name?",
-            confirmText = "Report",
-            dismissText = "Cancel",
+            confirm = "Report",
+            dismiss = "Cancel",
             onConfirm = {
                 onReportProfile(profileId, name)
                 reportingItem = null

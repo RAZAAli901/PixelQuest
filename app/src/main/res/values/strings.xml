@@ -24,5 +24,5 @@
     <string name="tip_hub_title">Welcome to the Islamic section</string>
     <string name="tip_hub_body">The Namaz Tracker, Darood Parties and the Quran live here. None of it changes your XP, level or streaks, except prayers in the tracker if you turn them on. You can hide this section in Settings.</string>
     <string name="tip_quran_title">Reading the Quran</string>
-    <string name="tip_quran_body">Tap a surah to read, then tap an ayah to bookmark, copy or share it. The ⚙️ in the reader changes the text size and what each ayah shows. It all works offline.</string>
+    <string name="tip_quran_body">Tap a surah to read, then tap an ayah to bookmark, copy or share it. The reader\'s settings button (top right) changes the text size and what each ayah shows. It all works offline.</string>
 </resources>

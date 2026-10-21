@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.pixelquest.app.domain.repository.TaskRepository
-import com.pixelquest.app.ui.components.PixelNotificationPermissionBanner
+import com.pixelquest.app.ui.notifications.NotificationsOffBanner
 import com.pixelquest.app.ui.navigation.PixelNavHost
 import com.pixelquest.app.ui.navigation.PqAppFrame
 import com.pixelquest.app.ui.navigation.Routes
@@ -163,8 +163,8 @@ class MainActivity : ComponentActivity() {
                                     .padding(innerPadding)
                             ) {
                                 if (!isNotificationPermissionGranted && currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {
-                                    PixelNotificationPermissionBanner(
-                                        onRequestPermission = {
+                                    NotificationsOffBanner(
+                                        onAllow = {
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                                 requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                                             } else {

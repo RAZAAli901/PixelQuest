@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -280,11 +281,11 @@ private fun PartyChatContent(
 
     if (showingStats && myStats != null) MyStatsSheet(stats = myStats, consistency = consistency, board = board, onDismiss = { showingStats = false })
     if (confirming != null) {
-        com.pixelquest.app.ui.components.PixelConfirmDialog(
+        PqConfirmDialog(
             title = stringResource(R.string.darood_confirm_title, com.pixelquest.app.darood.ui.formatCount(confirming)),
             message = stringResource(R.string.darood_confirm_message),
-            confirmText = stringResource(R.string.darood_send),
-            dismissText = stringResource(R.string.darood_confirm_change),
+            confirm = stringResource(R.string.darood_send),
+            dismiss = stringResource(R.string.darood_confirm_change),
             onConfirm = onConfirmSend,
             onDismiss = onCancelSend
         )

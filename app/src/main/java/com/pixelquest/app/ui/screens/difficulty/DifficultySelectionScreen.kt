@@ -22,9 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.model.DifficultyLevel
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelConfirmDialog
-import com.pixelquest.app.ui.components.PixelPanelVariant
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqTopBar
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
@@ -41,11 +39,11 @@ fun DifficultySelectionScreen(
         val target = state.pendingLevel!!
         val targetPct = (DifficultyMode.getPerfectDayThreshold(target) * 100).toInt()
         val daysReq = DifficultyMode.getDaysRequiredPerLevel(target)
-        PixelConfirmDialog(
+        PqConfirmDialog(
             title = "Change difficulty?",
             message = "Changing difficulty will update your target to $targetPct% and level threshold to $daysReq days. Progress count carries over. Confirm difficulty change?",
-            confirmText = "Change",
-            dismissText = "Cancel",
+            confirm = "Change",
+            dismiss = "Cancel",
             onConfirm = { viewModel.confirmDifficultyChange() },
             onDismiss = { viewModel.dismissWarningDialog() }
         )

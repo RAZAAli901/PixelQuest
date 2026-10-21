@@ -8,8 +8,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -31,11 +31,11 @@ class DataImportExportUiTest {
         composeTestRule.setContent {
             PixelQuestTheme {
                 androidx.compose.foundation.layout.Column {
-                    PixelButton(
+                    PqButton(
                         text = "📤 EXPORT QUEST DATA (JSON)",
                         onClick = { isExportTriggered = true }
                     )
-                    PixelButton(
+                    PqButton(
                         text = "📥 IMPORT QUEST DATA (JSON)",
                         onClick = {
                             isImportTriggered = true
@@ -44,11 +44,11 @@ class DataImportExportUiTest {
                     )
 
                     if (showRestoreDialog) {
-                        PixelConfirmDialog(
+                        PqConfirmDialog(
                             title = "RESTORE DATA?",
                             message = "Importing quest data will replace your current progress. Confirm restore?",
-                            confirmText = "RESTORE",
-                            dismissText = "CANCEL",
+                            confirm = "RESTORE",
+                            dismiss = "CANCEL",
                             onConfirm = {
                                 dataRestored = true
                                 showRestoreDialog = false

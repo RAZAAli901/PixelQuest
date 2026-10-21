@@ -1,7 +1,7 @@
 package com.pixelquest.app.ui.screens.settings
 
 import androidx.compose.runtime.Composable
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqConfirmDialog
 
 /**
  * Confirms restoring a backup. Uses the app's themed confirm dialog, so it matches Pixel, Light and
@@ -19,16 +19,16 @@ fun RestoreDataConfirmDialog(
      */
     replacesAGame: Boolean = true
 ) {
-    PixelConfirmDialog(
-        title = if (replacesAGame) "💾 OVERWRITE QUEST DATA?" else "💾 RESTORE THIS BACKUP?",
+    PqConfirmDialog(
+        title = if (replacesAGame) "OVERWRITE QUEST DATA?" else "RESTORE THIS BACKUP?",
         message = (summary?.let { "This backup has $it\n\n" } ?: "") +
             if (replacesAGame) {
                 "Restoring it will completely overwrite your current hero profile, streak, and tasks. Are you sure you want to proceed?"
             } else {
                 "Your hero, quests and history come back from it, and the welcome steps are skipped."
             },
-        confirmText = "RESTORE BACKUP",
-        dismissText = "CANCEL",
+        confirm = "RESTORE BACKUP",
+        dismiss = "CANCEL",
         onConfirm = onConfirm,
         onDismiss = onDismiss
     )

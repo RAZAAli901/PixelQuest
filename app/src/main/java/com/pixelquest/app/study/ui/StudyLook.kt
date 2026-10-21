@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
-import com.pixelquest.app.ui.components.ComicPanelVariant
 import com.pixelquest.app.ui.theme.PqCircle
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
@@ -35,12 +34,6 @@ fun Modifier.studyChip(fill: Color): Modifier {
     val shape = studyChipShape()
     return this.background(fill, shape).border(studyBorderWidth(), PqColors.Ink, shape)
 }
-
-/**
- * The comic panel for a card that stands out (an item done, the player's own line): paper, so its
- * ink stays easy to read; elsewhere the card's own.
- */
-val STANDOUT_COMIC: ComicPanelVariant = ComicPanelVariant.PAPER
 
 /** A medal on the board (mock 4J), behind a place's number. */
 enum class Medal { GOLD, SILVER, BRONZE }

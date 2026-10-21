@@ -1,9 +1,14 @@
 package com.pixelquest.app.ui.screens.settings
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Alarm
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -16,9 +21,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelTheme
 
 /**
  * Shown while Android won't let PixelQuest set exact alarms. Re-checks on resume, so it disappears
@@ -40,13 +42,13 @@ fun ExactAlarmPrompt(canScheduleExact: () -> Boolean, onAllow: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             text = "Reminders can arrive up to 10 minutes late (longer if your phone is idle). Allow \"Alarms & reminders\" so they fire on time.",
-            style = MaterialTheme.typography.bodySmall,
-            color = PixelTheme.colors.onSurface
+            style = PqType.Meta.copy(color = PqColors.Ink2)
         )
-        PixelButton(
-            text = "⏰ ALLOW EXACT REMINDER TIMES",
+        PqButton(
+            text = "Allow exact reminder times",
             onClick = onAllow,
-            variant = PixelButtonVariant.YELLOW,
+            style = PqButtonStyle.Secondary,
+            icon = Icons.Rounded.Alarm,
             modifier = Modifier.fillMaxWidth()
         )
     }

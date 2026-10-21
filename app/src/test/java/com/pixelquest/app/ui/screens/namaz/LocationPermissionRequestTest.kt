@@ -44,10 +44,10 @@ class LocationPermissionRequestTest {
 
         composeTestRule.onNodeWithText("USE MY LOCATION").performClick()
         composeTestRule.onNodeWithText("prayer times", substring = true).assertExists()
-        composeTestRule.onNodeWithText("Not now").performClick()
+        composeTestRule.onNodeWithText("NOT NOW").performClick()
 
         assertEquals(listOf(false), results)
-        assertEquals("the explanation closed", 0, composeTestRule.onAllNodesWithText("Not now").fetchSemanticsNodes().size)
+        assertEquals("the explanation closed", 0, composeTestRule.onAllNodesWithText("NOT NOW").fetchSemanticsNodes().size)
     }
 
     @Test
@@ -58,6 +58,6 @@ class LocationPermissionRequestTest {
         composeTestRule.onNodeWithText("USE MY LOCATION").performClick()
 
         assertEquals(listOf(true), results)
-        assertEquals(0, composeTestRule.onAllNodesWithText("Not now").fetchSemanticsNodes().size)
+        assertEquals(0, composeTestRule.onAllNodesWithText("NOT NOW").fetchSemanticsNodes().size)
     }
 }

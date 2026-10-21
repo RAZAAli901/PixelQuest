@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.backup.BackupSummary
 import com.pixelquest.app.data.backup.LostProgress
-import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -86,13 +86,13 @@ fun LostProgressPrompt(viewModel: LostProgressViewModel) {
 
 @Composable
 fun LostProgressDialog(prompt: LostProgressViewModel.Prompt, onRestore: () -> Unit, onNotNow: () -> Unit) {
-    PixelConfirmDialog(
-        title = "💾 RESTORE YOUR GAME?",
+    PqConfirmDialog(
+        title = "RESTORE YOUR GAME?",
         message = "Your game is empty, but the phone kept an automatic backup from ${prompt.day}: ${prompt.summary}" +
             "\n\nThis can happen when the phone had to start the game's data over. " +
             "Not now keeps it in Settings > Data & Backup.",
-        confirmText = "RESTORE ${prompt.day.uppercase()}",
-        dismissText = "NOT NOW",
+        confirm = "RESTORE ${prompt.day.uppercase()}",
+        dismiss = "NOT NOW",
         onConfirm = onRestore,
         onDismiss = onNotNow
     )
