@@ -346,6 +346,26 @@ abstract class RepositoryModule {
     abstract fun bindGoalNotifier(impl: com.pixelquest.app.darood.sync.AndroidGoalNotifier): com.pixelquest.app.darood.sync.GoalNotifier
 
     @Binds
+    @Singleton
+    abstract fun bindChessRemote(impl: com.pixelquest.app.chess.data.remote.SupabaseChessRemote): com.pixelquest.app.chess.data.remote.ChessRemote
+
+    @Binds
+    @Singleton
+    abstract fun bindChessLiveSource(impl: com.pixelquest.app.chess.sync.SupabaseChessLiveSource): com.pixelquest.app.chess.sync.ChessLiveSource
+
+    @Binds
+    abstract fun bindChessRepository(impl: com.pixelquest.app.chess.data.ChessRepositoryImpl): com.pixelquest.app.chess.data.ChessRepository
+
+    @Binds
+    abstract fun bindChessChallengeRepository(impl: com.pixelquest.app.chess.data.ChessRepositoryImpl): com.pixelquest.app.chess.data.ChessChallengeRepository
+
+    @Binds
+    abstract fun bindChessRatingRepository(impl: com.pixelquest.app.chess.data.ChessRepositoryImpl): com.pixelquest.app.chess.data.ChessRatingRepository
+
+    @Binds
+    abstract fun bindSpectateRepository(impl: com.pixelquest.app.chess.data.ChessRepositoryImpl): com.pixelquest.app.chess.data.SpectateRepository
+
+    @Binds
     abstract fun bindPushTokens(impl: com.pixelquest.app.push.FirebasePushTokens): com.pixelquest.app.push.PushTokens
 
     @Binds
