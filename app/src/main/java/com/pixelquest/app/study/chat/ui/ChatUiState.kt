@@ -32,7 +32,9 @@ data class ChatUiState(
     val lastReadAt: java.time.Instant? = null,
     val today: LocalDate = LocalDate.MIN,
     val loadingOlder: Boolean = false,
-    val offline: Boolean = false
+    val offline: Boolean = false,
+    /** The last thing tried, said once: a send saved offline, or refused. */
+    val notice: ChatNotice? = null
 ) {
     val canSend: Boolean get() = draft.isNotBlank() && draft.length <= com.pixelquest.app.study.chat.domain.StudyChatConfig.MESSAGE_MAX_CHARS
 }

@@ -1,5 +1,6 @@
 package com.pixelquest.app.study.chat.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -74,7 +75,7 @@ fun StudyChatPane(
     zone: ZoneId,
     actions: ChatActions,
     modifier: Modifier = Modifier,
-    input: @Composable ColumnScope.() -> Unit = {},
+    input: @Composable ColumnScope.() -> Unit = { ChatInputBar(value = state.draft, onValueChange = actions.onDraftChange, onSend = actions.onSend) },
     message: @Composable (ChatMessageRow) -> Unit = { MessageText(it) }
 ) {
     Column(modifier = modifier.fillMaxSize().testTag(StudyChatTags.PANE)) {
@@ -99,8 +100,31 @@ fun StudyChatPane(
                 }
             }
         }
+        state.notice?.let { ChatNoticeLine(it, actions.onDismissNotice) }
         input()
     }
+}
+
+/** What the last send came to, over the input; a tap puts it away. */
+@Composable
+private fun ChatNoticeLine(notice: ChatNotice, onDismiss: () -> Unit) {
+    val text = when (notice) {
+        ChatNotice.SavedOffline -> R.string.study_chat_saved_offline
+        ChatNotice.Offline -> R.string.study_chat_offline
+        is ChatNotice.Refused -> when (notice.refusal) {
+            com.pixelquest.app.study.domain.StudyRefusal.TOO_MANY_MESSAGES -> R.string.study_chat_too_many
+            else -> com.pixelquest.app.study.ui.noticeText(com.pixelquest.app.study.ui.StudyNotice.Refused(notice.refusal))
+        }
+    }
+    Text(
+        text = stringResource(text),
+        style = PqType.Meta.copy(color = com.pixelquest.app.ui.theme.PqColors.Ink2),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onDismiss)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .testTag(StudyChatTags.NOTICE)
+    )
 }
 
 @Composable
@@ -131,6 +155,7 @@ object StudyChatTags {
     const val EMPTY = "study_chat_empty"
     const val INPUT = "study_chat_input"
     const val SEND = "study_chat_send"
+    const val COUNTER = "study_chat_counter"
     const val NOTICE = "study_chat_notice"
     fun day(day: LocalDate) = "study_chat_day_$day"
     fun message(id: String) = "study_chat_message_$id"
