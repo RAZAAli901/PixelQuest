@@ -98,7 +98,7 @@ class ReadingSettingsTest {
             }
         }
 
-        composeTestRule.onNodeWithText("Translation: Saheeh International").assertIsDisplayed()
+        composeTestRule.onNodeWithText("TRANSLATION: SAHEEH INTERNATIONAL").assertIsDisplayed()
         composeTestRule.onNodeWithTag(TranslationTags.OPEN).performClick()
         assertEquals(1, opened)
     }

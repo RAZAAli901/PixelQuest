@@ -1,5 +1,7 @@
 package com.pixelquest.app.quran.ui.reader
 
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,8 +14,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.quran.domain.Surah
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
 
 /**
  * At the end of a surah: the way to the one before it and the one after, each by name. Al-Fatihah has
@@ -26,17 +26,17 @@ fun SurahNeighbours(previous: Surah?, next: Surah?, onOpenSurah: (Int) -> Unit, 
         modifier = modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp)
     ) {
         if (previous != null) {
-            PixelButton(
+            PqButton(
                 text = stringResource(R.string.quran_previous_surah, previous.englishName),
                 onClick = { onOpenSurah(previous.number) },
-                variant = PixelButtonVariant.BLUE,
+                style = PqButtonStyle.Secondary,
                 modifier = Modifier.weight(1f).testTag(ReaderTags.PREVIOUS)
             )
         } else {
             Spacer(modifier = Modifier.weight(1f))
         }
         if (next != null) {
-            PixelButton(
+            PqButton(
                 text = stringResource(R.string.quran_next_surah, next.englishName),
                 onClick = { onOpenSurah(next.number) },
                 modifier = Modifier.weight(1f).testTag(ReaderTags.NEXT)

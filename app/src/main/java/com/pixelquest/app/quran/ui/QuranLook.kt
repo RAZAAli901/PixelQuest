@@ -1,5 +1,6 @@
 package com.pixelquest.app.quran.ui
 
+import com.pixelquest.app.ui.components.PqCard
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,8 +22,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.domain.repository.SettingsRepository
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.theme.ComicShapeTokens
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
@@ -73,20 +72,19 @@ fun quranChipShape(round: Shape = RoundedCornerShape(50)): Shape =
     if (!LocalQuranSimpleMode.current && isPixelSkin) RectangleShape else round
 
 /**
- * A panel on the Quran's screens (the Continue reading card, the sources, a translation's terms):
- * the look's own (PixelCard), or in Simple Mode a plain rounded block.
+ * A panel on the Quran's screens (the sources, a translation's terms, Go to): v2's card, or in
+ * Simple Mode a plain rounded block.
  */
 @Composable
 fun QuranPanel(
     modifier: Modifier = Modifier,
-    variant: PixelPanelVariant = PixelPanelVariant.BORDER,
     contentPadding: Dp = 16.dp,
     content: @Composable () -> Unit
 ) {
     if (LocalQuranSimpleMode.current) {
         Box(modifier = modifier.background(PqColors.Paper, PLAIN).padding(contentPadding)) { content() }
     } else {
-        PixelCard(modifier = modifier, variant = variant, contentPadding = contentPadding, content = content)
+        PqCard(modifier) { Box(Modifier.padding(contentPadding)) { content() } }
     }
 }
 

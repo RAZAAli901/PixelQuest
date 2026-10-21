@@ -1,5 +1,17 @@
 package com.pixelquest.app.quran.ui.translations
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqTopBar
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,11 +25,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -40,10 +47,6 @@ import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.data.TranslationSwitcher
 import com.pixelquest.app.quran.domain.Translation
 import com.pixelquest.app.quran.ui.QuranPanel
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -129,54 +132,41 @@ fun TranslationPickerScreen(
     onNavigateBack: () -> Unit,
     onChoose: (String) -> Unit
 ) {
-    val colors = PixelTheme.colors
-    Scaffold(
-        containerColor = colors.background,
-        topBar = {
-            PixelTopAppBar(
-                title = stringResource(R.string.quran_translation_title),
-                navigationIcon = {
-                    com.pixelquest.app.ui.components.PqBackButton(onNavigateBack)
-                }
-            )
-        },
-        modifier = Modifier.testTag(TranslationTags.SCREEN)
-    ) { padding ->
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.selectableGroup()) {
-                state.options.forEach { option ->
-                    TranslationOption(option = option, selected = option.id == state.selected, onChoose = { onChoose(option.id) })
+    Column(
+        verticalArrangement = Arrangement.spacedBy(PqDimens.Gap),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(PqColors.Ground)
+            .verticalScroll(rememberScrollState())
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp)
+            .testTag(TranslationTags.SCREEN)
+    ) {
+        PqTopBar(stringResource(R.string.quran_translation_title), onBack = onNavigateBack)
+        if (state.options.isNotEmpty()) {
+            PqCard(Modifier.fillMaxWidth()) {
+                Column(Modifier.selectableGroup()) {
+                    state.options.forEachIndexed { i, option ->
+                        TranslationOption(option = option, selected = option.id == state.selected, onChoose = { onChoose(option.id) })
+                        if (i != state.options.lastIndex) Box(Modifier.fillMaxWidth().height(2.dp).background(PqColors.Divider))
+                    }
                 }
             }
-            if (state.switching) {
-                Text(
-                    text = stringResource(R.string.quran_translation_switching),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurface,
-                    modifier = Modifier.testTag(TranslationTags.SWITCHING)
-                )
-            }
-            state.onPhone?.let { Terms(it) }
+        }
+        if (state.switching) {
             Text(
-                text = stringResource(R.string.quran_translation_bundled),
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant
+                text = stringResource(R.string.quran_translation_switching),
+                style = PqType.BodyStrong,
+                modifier = Modifier.testTag(TranslationTags.SWITCHING)
             )
         }
+        state.onPhone?.let { Terms(it) }
+        Text(text = stringResource(R.string.quran_translation_bundled), style = PqType.Meta)
     }
 }
 
 /** One translation to choose: a radio button, its name, and who made it in what language. */
 @Composable
 private fun TranslationOption(option: BundledTranslation, selected: Boolean, onChoose: () -> Unit) {
-    val colors = PixelTheme.colors
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -184,21 +174,19 @@ private fun TranslationOption(option: BundledTranslation, selected: Boolean, onC
             .heightIn(min = 56.dp)
             .selectable(selected = selected, role = Role.RadioButton, onClick = onChoose)
             .testTag(TranslationTags.option(option.id))
-            .padding(vertical = 4.dp)
+            .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
-        RadioButton(
-            selected = selected,
-            onClick = null,
-            colors = RadioButtonDefaults.colors(selectedColor = colors.primary, unselectedColor = colors.onSurfaceVariant)
-        )
+        // A v2 radio: an inked ring, filled with ink when chosen.
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.size(22.dp).clip(CircleShape).background(PqColors.Paper).border(PqDimens.Border, PqColors.Ink, CircleShape)
+        ) {
+            if (selected) Box(Modifier.size(10.dp).clip(CircleShape).background(PqColors.Ink))
+        }
         Spacer(modifier = Modifier.width(12.dp))
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(text = option.name, style = MaterialTheme.typography.titleSmall, color = colors.primaryText)
-            Text(
-                text = stringResource(R.string.quran_translation_by, option.translator, option.language),
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurface
-            )
+            Text(text = option.name, style = PqType.BodyStrong)
+            Text(text = stringResource(R.string.quran_translation_by, option.translator, option.language), style = PqType.Meta)
         }
     }
 }
@@ -206,21 +194,15 @@ private fun TranslationOption(option: BundledTranslation, selected: Boolean, onC
 /** The terms of the translation on the phone, as its source states them, and when it was last updated. */
 @Composable
 private fun Terms(translation: Translation) {
-    val colors = PixelTheme.colors
     QuranPanel(contentPadding = 14.dp, modifier = Modifier.fillMaxWidth().testTag(TranslationTags.TERMS)) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 text = stringResource(R.string.quran_translation_terms, translation.name),
-                style = MaterialTheme.typography.titleSmall,
-                color = inkOnPanel(colors.primaryText),
+                style = PqType.BodyStrong,
                 modifier = Modifier.semantics { heading() }
             )
-            Text(text = translation.licenceNote, style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
-            Text(
-                text = stringResource(R.string.quran_translation_updated, translation.lastUpdate),
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.onSurfaceVariant
-            )
+            Text(text = translation.licenceNote, style = PqType.Body.copy(color = PqColors.Ink2))
+            Text(text = stringResource(R.string.quran_translation_updated, translation.lastUpdate), style = PqType.Meta)
         }
     }
 }

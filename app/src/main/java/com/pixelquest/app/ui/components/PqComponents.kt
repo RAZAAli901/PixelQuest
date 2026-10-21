@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.draw.alpha
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.ui.semantics.semantics
@@ -312,10 +313,18 @@ fun ProgressRing(progress: Float, label: String, diameter: Dp = 78.dp) {
 // ---------- Structure ----------
 
 @Composable
-fun PqTopBar(title: String, onBack: (() -> Unit)? = null, modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit = {}) {
-    Row(modifier.fillMaxWidth().height(56.dp), verticalAlignment = Alignment.CenterVertically) {
+fun PqTopBar(title: String, onBack: (() -> Unit)? = null, modifier: Modifier = Modifier, subtitle: String? = null, actions: @Composable RowScope.() -> Unit = {}) {
+    Row(modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
         if (onBack != null) { PqIconButton(Icons.Rounded.ArrowBack, stringResource(R.string.navigate_back), onBack); Spacer(Modifier.width(12.dp)) }
-        Text(title.uppercase(), style = (if (onBack != null) PqType.Title else PqType.Display).copy(color = PqColors.Title), modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Column(Modifier.weight(1f)) {
+            val style = when {
+                subtitle != null -> PqType.CardTitle
+                onBack != null -> PqType.Title
+                else -> PqType.Display
+            }
+            Text(title.uppercase(), style = style.copy(color = PqColors.Title), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.semantics { heading() })
+            if (subtitle != null) Text(subtitle, style = PqType.Meta, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, content = actions)
     }
 }

@@ -1,5 +1,11 @@
 package com.pixelquest.app.quran.ui.search
 
+import androidx.compose.foundation.background
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.components.PqTopBar
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,9 +16,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,10 +43,6 @@ import com.pixelquest.app.quran.ui.QuranTypography
 import com.pixelquest.app.quran.ui.list.SurahRow
 import com.pixelquest.app.quran.ui.reader.RightToLeft
 import com.pixelquest.app.ui.components.PixelTextField
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
 
 @Composable
 fun QuranSearchRoute(
@@ -81,37 +80,28 @@ fun QuranSearchScreen(
     onOpenAyah: (surah: Int, ayah: Int) -> Unit,
     focusOnOpen: Boolean = true
 ) {
-    val colors = PixelTheme.colors
     val focus = remember { FocusRequester() }
     if (focusOnOpen) LaunchedEffect(Unit) { runCatching { focus.requestFocus() } }
-    Scaffold(
-        containerColor = colors.background,
-        topBar = {
-            PixelTopAppBar(
-                title = stringResource(R.string.quran_search_title),
-                navigationIcon = {
-                    com.pixelquest.app.ui.components.PqBackButton(onNavigateBack)
-                }
-            )
-        },
-        modifier = Modifier.testTag(SearchTags.SCREEN)
-    ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            PixelTextField(
-                value = query,
-                onValueChange = onSearch,
-                placeholder = stringResource(R.string.quran_search_placeholder),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .focusRequester(focus)
-                    .testTag(SearchTags.FIELD)
-            )
-            when {
-                query.isBlank() -> Note(stringResource(R.string.quran_search_hint))
-                state.query == query && state.isEmpty -> Note(stringResource(R.string.quran_search_none, query.trim()))
-                else -> Results(state, onOpenSurah, onOpenAyah)
-            }
+    Column(modifier = Modifier.fillMaxSize().background(PqColors.Ground).testTag(SearchTags.SCREEN)) {
+        PqTopBar(
+            stringResource(R.string.quran_search_title),
+            onBack = onNavigateBack,
+            modifier = Modifier.padding(horizontal = PqDimens.ScreenPad).padding(top = 8.dp)
+        )
+        PixelTextField(
+            value = query,
+            onValueChange = onSearch,
+            placeholder = stringResource(R.string.quran_search_placeholder),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = PqDimens.ScreenPad, vertical = 8.dp)
+                .focusRequester(focus)
+                .testTag(SearchTags.FIELD)
+        )
+        when {
+            query.isBlank() -> Note(stringResource(R.string.quran_search_hint))
+            state.query == query && state.isEmpty -> Note(stringResource(R.string.quran_search_none, query.trim()))
+            else -> Results(state, onOpenSurah, onOpenAyah)
         }
     }
 }
@@ -120,8 +110,7 @@ fun QuranSearchScreen(
 private fun Note(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.bodyMedium,
-        color = PixelTheme.colors.onSurface,
+        style = PqType.Body.copy(color = PqColors.Ink2),
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth().padding(24.dp).testTag(SearchTags.NOTE)
     )
@@ -168,12 +157,7 @@ private fun Results(
 
 @Composable
 private fun Heading(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleSmall,
-        color = inkOnPanel(PixelTheme.colors.primaryText),
-        modifier = Modifier.padding(top = 8.dp).semantics { heading() }
-    )
+    PqGroupLabel(text, Modifier.padding(top = 8.dp).semantics { heading() })
 }
 
 /**
@@ -182,8 +166,7 @@ private fun Heading(text: String) {
  */
 @Composable
 private fun AyahResultRow(result: AyahResult, query: String, showArabic: Boolean, onClick: () -> Unit) {
-    val colors = PixelTheme.colors
-    val marked = SpanStyle(fontWeight = FontWeight.Bold, background = colors.primary.copy(alpha = 0.25f))
+    val marked = SpanStyle(fontWeight = FontWeight.Bold, background = PqColors.Gold)
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier
@@ -196,21 +179,20 @@ private fun AyahResultRow(result: AyahResult, query: String, showArabic: Boolean
     ) {
         Text(
             text = stringResource(R.string.quran_search_reference, result.surahName, result.ayah.surah, result.ayah.number),
-            style = MaterialTheme.typography.labelLarge,
-            color = colors.primaryText
+            style = PqType.MetaStrong.copy(color = PqColors.RedText)
         )
         if (showArabic) {
             RightToLeft {
                 Text(
                     text = result.ayah.arabic,
-                    style = QuranTypography.of(arabicSize = QuranTypography.ARABIC_MIN, color = colors.onSurface).arabic,
+                    style = QuranTypography.of(arabicSize = QuranTypography.ARABIC_MIN, color = PqColors.Ink).arabic,
                     modifier = Modifier.fillMaxWidth().testTag(SearchTags.arabic(result.ayah.surah, result.ayah.number))
                 )
             }
         }
         Text(
             text = SearchHighlight.annotate(result.ayah.translation, query, marked),
-            style = QuranTypography.snippet(colors.onSurface),
+            style = QuranTypography.snippet(PqColors.Ink),
             modifier = Modifier.testTag(SearchTags.translation(result.ayah.surah, result.ayah.number))
         )
     }

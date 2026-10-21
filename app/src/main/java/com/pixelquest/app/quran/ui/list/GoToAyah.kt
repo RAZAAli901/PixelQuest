@@ -1,12 +1,15 @@
 package com.pixelquest.app.quran.ui.list
 
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,10 +28,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.pixelquest.app.R
-import com.pixelquest.app.ui.components.PixelButton
 import com.pixelquest.app.quran.ui.QuranPanel
 import com.pixelquest.app.ui.components.PixelTextField
-import com.pixelquest.app.ui.theme.PixelTheme
 
 /** Whether a surah and ayah can be gone to: both numbers, and an ayah that surah has. */
 sealed interface GoToCheck {
@@ -97,7 +98,6 @@ fun GoToAyahContent(
     onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = PixelTheme.colors
     val problem = when (check) {
         is GoToCheck.NoSuchSurah -> pluralStringResource(R.plurals.quran_go_no_surah, check.count, check.count)
         is GoToCheck.NoSuchAyah -> pluralStringResource(R.plurals.quran_go_no_ayah, check.ayahs, check.surah, check.ayahs)
@@ -107,8 +107,7 @@ fun GoToAyahContent(
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
                 text = stringResource(R.string.quran_go_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = colors.primaryText,
+                style = PqType.CardTitle,
                 modifier = Modifier.semantics { heading() }
             )
             PixelTextField(
@@ -128,14 +127,13 @@ fun GoToAyahContent(
             if (problem != null) {
                 Text(
                     text = problem,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.error,
+                    style = PqType.BodyStrong.copy(color = PqColors.Error),
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.testTag(GoToTags.PROBLEM)
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
-                PixelButton(text = stringResource(R.string.quran_go_cancel), onClick = onCancel, modifier = Modifier.weight(1f))
-                PixelButton(
+                PqButton(text = stringResource(R.string.quran_go_cancel), onClick = onCancel, style = PqButtonStyle.Secondary, modifier = Modifier.weight(1f))
+                PqButton(
                     text = stringResource(R.string.quran_go_button),
                     onClick = { (check as? GoToCheck.Go)?.let { onGo(it.surah, it.ayah) } },
                     enabled = check is GoToCheck.Go,

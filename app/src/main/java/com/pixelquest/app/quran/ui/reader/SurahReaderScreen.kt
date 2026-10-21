@@ -1,5 +1,12 @@
 package com.pixelquest.app.quran.ui.reader
 
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Settings
+import com.pixelquest.app.ui.components.PqIconButton
+import com.pixelquest.app.ui.components.PqTopBar
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -40,8 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.quran.domain.Ayah
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
 import com.pixelquest.app.ui.theme.PixelTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -160,25 +164,21 @@ fun SurahReaderScreen(
             containerColor = colors.background,
             snackbarHost = { SnackbarHost(snackbars) },
             topBar = {
-                PixelTopAppBar(
+                PqTopBar(
                     title = surah?.englishName.orEmpty(),
+                    onBack = onNavigateBack,
                     subtitle = surah?.let {
                         "${it.englishMeaning} · ${pluralStringResource(R.plurals.quran_ayah_count, it.ayahCount, it.ayahCount)}"
                     },
-                    navigationIcon = {
-                        com.pixelquest.app.ui.components.PqBackButton(onNavigateBack)
-                    },
-                    actions = {
-                        IconButton(onClick = { showingSettings = true }, modifier = Modifier.testTag(ReaderTags.SETTINGS)) {
-                            SymbolIcon(
-                                symbol = "⚙️",
-                                contentDescription = stringResource(R.string.quran_reader_settings),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = colors.primaryText
-                            )
-                        }
-                    }
-                )
+                    modifier = Modifier.background(PqColors.Ground).padding(horizontal = PqDimens.ScreenPad).padding(top = 8.dp, bottom = 4.dp)
+                ) {
+                    PqIconButton(
+                        Icons.Rounded.Settings,
+                        stringResource(R.string.quran_reader_settings),
+                        { showingSettings = true },
+                        Modifier.testTag(ReaderTags.SETTINGS)
+                    )
+                }
             },
             modifier = Modifier.testTag(ReaderTags.SCREEN)
         ) { padding ->

@@ -60,8 +60,8 @@ class QuranSearchScreenTest {
     fun results_openTheSurah_orTheAyah() {
         show("throne", QuranSearchUiState("throne", listOf(surah), listOf(AyahResult(ayah, "Al-Baqara"))), ThemeMode.Comic)
 
-        composeTestRule.onNodeWithText("1 surah").assertIsDisplayed()
-        composeTestRule.onNodeWithText("1 ayah").assertIsDisplayed()
+        composeTestRule.onNodeWithText("1 SURAH").assertIsDisplayed()
+        composeTestRule.onNodeWithText("1 AYAH").assertIsDisplayed()
         composeTestRule.onNodeWithText("Al-Baqara 2:255", useUnmergedTree = true).assertIsDisplayed()
 
         composeTestRule.onNodeWithTag(SearchTags.ayah(2, 255)).performClick()
@@ -75,7 +75,7 @@ class QuranSearchScreenTest {
         val two = listOf(AyahResult(ayah, "Al-Baqara"), AyahResult(ayah.copy(id = 263, number = 256), "Al-Baqara"))
         show("allah", QuranSearchUiState("allah", ayahs = two, capped = true), ThemeMode.Light)
 
-        composeTestRule.onNodeWithText("The first 2 ayahs: add a word to narrow it").assertIsDisplayed()
+        composeTestRule.onNodeWithText("THE FIRST 2 AYAHS: ADD A WORD TO NARROW IT").assertIsDisplayed()
     }
 
     @Test

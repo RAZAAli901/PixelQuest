@@ -1,7 +1,10 @@
 package com.pixelquest.app.quran.ui.reader
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.ui.unit.sp
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -12,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,12 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
-import com.pixelquest.app.quran.ui.quranChipShape
-import com.pixelquest.app.ui.theme.ComicShapeTokens
-import com.pixelquest.app.ui.theme.ComicTokens
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.ThemeMode
-import com.pixelquest.app.ui.theme.inkOnPanel
 
 /** The order the switch offers the modes in: the Arabic, both, the translation. */
 private val SWITCH_ORDER = listOf(DisplayMode.ARABIC, DisplayMode.BOTH, DisplayMode.TRANSLATION)
@@ -94,12 +90,13 @@ private fun <T> Segments(
     modifier: Modifier = Modifier
 ) {
     val labels = options.map { label(it) }
-    val typography = MaterialTheme.typography
     val largeText = LocalDensity.current.fontScale >= STACK_AT_FONT_SCALE
     val measurer = rememberTextMeasurer()
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val room = with(LocalDensity.current) { ((maxWidth - SEGMENT_GAP * (options.size - 1)) / options.size - SEGMENT_PADDING * 2).toPx() }
-        val styles = if (largeText) listOf(typography.labelLarge) else listOf(typography.labelLarge, typography.labelMedium, typography.labelSmall)
+        val full = PqType.Button.copy(letterSpacing = 0.sp)
+        // Then the body face, narrower than Pixel's pixel labels, before stacking.
+        val styles = if (largeText) listOf(full) else listOf(full, full.copy(fontSize = 11.sp), PqType.BodyStrong.copy(fontSize = 13.sp), PqType.MetaStrong)
         // Measured bold, as the chosen one is drawn.
         val sideBySide = styles.firstOrNull { style ->
             labels.all { measurer.measure(it, style.copy(fontWeight = FontWeight.Bold), softWrap = false, maxLines = 1).size.width <= room }
@@ -113,7 +110,7 @@ private fun <T> Segments(
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(SEGMENT_GAP), modifier = Modifier.fillMaxWidth().selectableGroup()) {
                 options.forEachIndexed { i, option ->
-                    Segment(labels[i], typography.labelLarge, option == selected, { onSelect(option) }, Modifier.fillMaxWidth().testTag(tag(option)))
+                    Segment(labels[i], full, option == selected, { onSelect(option) }, Modifier.fillMaxWidth().testTag(tag(option)))
                 }
             }
         }
@@ -125,28 +122,16 @@ private val SEGMENT_PADDING = 8.dp
 
 @Composable
 private fun Segment(label: String, style: TextStyle, chosen: Boolean, onSelect: () -> Unit, modifier: Modifier) {
-    val colors = PixelTheme.colors
-    val shape: Shape = quranChipShape()
-    val ink = if (PixelTheme.mode == ThemeMode.Comic) {
-        Modifier.border(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack, shape)
-    } else {
-        Modifier.border(1.dp, colors.primary.copy(alpha = if (chosen) 1f else 0.4f), shape)
-    }
+    // v2's segmented control (PqSegmented): the chosen one filled with ink, the others on paper.
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .heightIn(min = MIN_TARGET)
-            .background(if (chosen) colors.primary.copy(alpha = 0.18f) else colors.surface, shape)
-            .then(ink)
+            .comic(bg = if (chosen) PqColors.Ink else PqColors.Paper, radius = 12.dp, border = PqDimens.BorderThin, shadow = 0.dp)
             .selectable(selected = chosen, role = Role.RadioButton, onClick = onSelect)
             .padding(horizontal = SEGMENT_PADDING, vertical = 4.dp)
     ) {
-        Text(
-            text = label,
-            style = style,
-            fontWeight = if (chosen) FontWeight.Bold else FontWeight.Normal,
-            color = inkOnPanel(colors.primaryText)
-        )
+        Text(text = label, style = style.copy(color = if (chosen) PqColors.Paper else PqColors.Ink))
     }
 }
 

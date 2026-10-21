@@ -1,5 +1,14 @@
 package com.pixelquest.app.quran.ui.reader
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronRight
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqFieldLabel
+import com.pixelquest.app.ui.components.PqSheet
+import com.pixelquest.app.ui.components.PqSwitch
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,12 +21,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,9 +37,6 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.quran.ui.QuranTypography
 import com.pixelquest.app.quran.ui.translations.TranslationTags
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelTheme
 import kotlin.math.roundToInt
 
 /**
@@ -66,7 +68,7 @@ fun ReadingSettingsSheet(
     translation: String = "",
     onOpenTranslations: (() -> Unit)? = null
 ) {
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = PixelTheme.colors.background) {
+    PqSheet(onDismiss) {
         ReadingSettingsContent(
             settings = settings,
             preview = preview,
@@ -96,22 +98,16 @@ fun ReadingSettingsContent(
     onOpenTranslations: (() -> Unit)? = null,
     embedded: Boolean = false
 ) {
-    val colors = PixelTheme.colors
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier
             .fillMaxWidth()
-            .then(if (embedded) Modifier else Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp))
+            .then(if (embedded) Modifier else Modifier.verticalScroll(rememberScrollState()).padding(vertical = 8.dp))
             .testTag(ReaderTags.SETTINGS_SHEET)
     ) {
-        Text(
-            text = stringResource(R.string.quran_reader_settings),
-            style = MaterialTheme.typography.titleMedium,
-            color = colors.primaryText,
-            modifier = Modifier.semantics { heading() }
-        )
+        if (!embedded) Text(text = stringResource(R.string.quran_reader_settings), style = PqType.CardTitle, modifier = Modifier.semantics { heading() })
         DisplayModeSwitch(selected = settings.displayMode, onSelect = { onChange(settings.copy(displayMode = it)) })
-        Text(text = stringResource(R.string.quran_paper), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
+        PqFieldLabel(stringResource(R.string.quran_paper))
         PaperSwitch(selected = settings.paper, onSelect = { onChange(settings.copy(paper = it)) })
         SettingSlider(
             label = stringResource(R.string.quran_setting_arabic_size),
@@ -142,15 +138,16 @@ fun ReadingSettingsContent(
         )
         KeepScreenOnSwitch(on = settings.keepScreenOn, onChange = { onChange(settings.copy(keepScreenOn = it)) })
         if (onOpenTranslations != null) {
-            PixelButton(
+            PqButton(
                 text = stringResource(R.string.quran_translation_open, translation),
                 onClick = onOpenTranslations,
-                variant = PixelButtonVariant.BLUE,
+                style = PqButtonStyle.Secondary,
+                trailingIcon = Icons.Rounded.ChevronRight,
                 modifier = Modifier.fillMaxWidth().testTag(TranslationTags.OPEN)
             )
         }
         if (preview != null) {
-            val typography = settings.typography(colors.onBackground)
+            val typography = settings.typography(PqColors.Ink)
             Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)) {
                 if (settings.displayMode != DisplayMode.TRANSLATION) Text(text = preview.first, style = typography.arabic, modifier = Modifier.fillMaxWidth())
                 if (settings.displayMode != DisplayMode.ARABIC) Text(text = preview.second, style = typography.translation, modifier = Modifier.fillMaxWidth())
@@ -162,7 +159,6 @@ fun ReadingSettingsContent(
 /** Whether the screen stays on while reading: the whole row is the switch, read by TalkBack as one. */
 @Composable
 private fun KeepScreenOnSwitch(on: Boolean, onChange: (Boolean) -> Unit) {
-    val colors = PixelTheme.colors
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -172,21 +168,11 @@ private fun KeepScreenOnSwitch(on: Boolean, onChange: (Boolean) -> Unit) {
             .testTag(ReaderTags.KEEP_SCREEN_ON)
     ) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(text = stringResource(R.string.quran_keep_screen_on), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
-            Text(text = stringResource(R.string.quran_keep_screen_on_explained), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+            Text(text = stringResource(R.string.quran_keep_screen_on), style = PqType.BodyStrong)
+            Text(text = stringResource(R.string.quran_keep_screen_on_explained), style = PqType.Meta)
         }
         Spacer(modifier = Modifier.width(12.dp))
-        Switch(
-            checked = on,
-            onCheckedChange = null,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = colors.onPrimary,
-                checkedTrackColor = colors.primary,
-                uncheckedThumbColor = colors.onSurfaceVariant,
-                uncheckedTrackColor = colors.surfaceVariant,
-                uncheckedBorderColor = colors.pixelBorder
-            )
-        )
+        PqSwitch(checked = on, onCheckedChange = null)
     }
 }
 
@@ -204,18 +190,23 @@ private fun SettingSlider(
     tag: String,
     onChange: (Float) -> Unit
 ) {
-    val colors = PixelTheme.colors
     Column {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(text = label, style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
-            Text(text = shown, style = MaterialTheme.typography.labelLarge, color = colors.primaryText)
+            Text(text = label, style = PqType.BodyStrong)
+            Text(text = shown, style = PqType.MetaStrong)
         }
         Slider(
             value = value.coerceIn(range),
             onValueChange = { onChange(snap(it, range.start, step)) },
             valueRange = range,
             steps = ((range.endInclusive - range.start) / step).roundToInt() - 1,
-            colors = SliderDefaults.colors(thumbColor = colors.primary, activeTrackColor = colors.primary),
+            colors = SliderDefaults.colors(
+                thumbColor = PqColors.Ink,
+                activeTrackColor = PqColors.Ink,
+                inactiveTrackColor = PqColors.Sunken,
+                activeTickColor = PqColors.Paper,
+                inactiveTickColor = PqColors.Muted
+            ),
             modifier = Modifier.fillMaxWidth().semantics { stateDescription = shown }.testTag(tag)
         )
     }
