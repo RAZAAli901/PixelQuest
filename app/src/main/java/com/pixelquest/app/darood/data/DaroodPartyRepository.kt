@@ -14,6 +14,8 @@ import com.pixelquest.app.darood.domain.EntryState
 import com.pixelquest.app.darood.domain.MemberStats
 import com.pixelquest.app.darood.domain.DaroodWeeks
 import com.pixelquest.app.darood.domain.WeekResult
+import com.pixelquest.app.darood.domain.WeekPlace
+import com.pixelquest.app.darood.data.local.DaroodWeekResultEntity
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.darood.sync.DaroodLiveSource
 import com.pixelquest.app.darood.sync.DaroodSyncScheduler
@@ -116,11 +118,28 @@ class DaroodPartyRepositoryImpl(
         // Still Sunday in the party's own zone: its week isn't over there yet.
         if (closed is SupabaseResult.ServerError && closed.message.contains(WEEK_NOT_OVER)) return SupabaseResult.Success(null)
         if (closed !is SupabaseResult.Success) return closed.failure()
-        return remote.fetchWeekResults(partyId, monday).map { weeks -> weeks.firstOrNull { it.weekStart == monday } }
+        return cached(partyId, remote.fetchWeekResults(partyId, monday)).map { weeks -> weeks.firstOrNull { it.weekStart == monday } }
     }
 
+    override fun observeWeekResults(partyId: String): Flow<List<WeekResult>> =
+        dao.observeWeekResults(partyId).map { rows ->
+            rows.groupBy { it.weekStart }.map { (monday, places) ->
+                WeekResult(partyId, monday, places.map { WeekPlace(it.userId, it.position, it.weekTotal, it.activeDays) }, Instant.ofEpochMilli(places.first().closedAt))
+            }
+        }
+
     override suspend fun fetchWeekResults(partyId: String, weeks: Int): SupabaseResult<List<WeekResult>> =
-        remote.fetchWeekResults(partyId, DaroodWeeks.mondayOf(today()).minusWeeks(weeks.toLong()))
+        cached(partyId, remote.fetchWeekResults(partyId, DaroodWeeks.mondayOf(today()).minusWeeks(weeks.toLong())))
+
+    /** Closed weeks never change on the server, so what's read is kept as it is. */
+    private suspend fun cached(partyId: String, read: SupabaseResult<List<WeekResult>>): SupabaseResult<List<WeekResult>> {
+        if (read is SupabaseResult.Success) {
+            dao.upsertWeekResultsIfKept(partyId, read.data.flatMap { week ->
+                week.places.map { DaroodWeekResultEntity(partyId, week.weekStart, it.userId, it.position, it.weekTotal, it.activeDays, week.closedAt.toEpochMilli()) }
+            })
+        }
+        return read
+    }
 
     override suspend fun addEntry(partyId: String, amount: Int): DaroodEntry {
         require(amount in DaroodRules.AMOUNT_MIN..DaroodRules.AMOUNT_MAX) { "An entry is 1 to 100,000" }

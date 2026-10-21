@@ -51,3 +51,30 @@ data class PendingEntryEntity(
     @ColumnInfo(defaultValue = "0") val attempts: Int = 0,
     val refusal: String? = null
 )
+
+/**
+ * One member's place in a party's closed week (docs/darood-weekly.md, Results), as the server
+ * stored it: never changed there, so a refresh only adds weeks. [weekStart] is its Monday.
+ */
+@Entity(
+    tableName = "darood_week_result",
+    primaryKeys = ["partyId", "weekStart", "userId"],
+    foreignKeys = [ForeignKey(entity = PartyEntity::class, parentColumns = ["id"], childColumns = ["partyId"], onDelete = ForeignKey.CASCADE)]
+)
+data class DaroodWeekResultEntity(
+    val partyId: String,
+    val weekStart: LocalDate,
+    val userId: String,
+    val position: Int,
+    val weekTotal: Long,
+    val activeDays: Int,
+    val closedAt: Long
+)
+
+/** A closed week this phone has told the player about: one notification per party per week. */
+@Entity(
+    tableName = "darood_week_notified",
+    primaryKeys = ["partyId", "weekStart"],
+    foreignKeys = [ForeignKey(entity = PartyEntity::class, parentColumns = ["id"], childColumns = ["partyId"], onDelete = ForeignKey.CASCADE)]
+)
+data class DaroodWeekNotifiedEntity(val partyId: String, val weekStart: LocalDate, val notifiedAt: Long)

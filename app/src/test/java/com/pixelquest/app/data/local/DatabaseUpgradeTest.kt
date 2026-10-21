@@ -267,6 +267,10 @@ class DatabaseUpgradeTest {
             assertTrue(db.chatDao().observeFiles("p1").first().isEmpty())
             assertTrue(db.chatDao().uploadsUnderWay().isEmpty())
             assertEquals(null, db.chatDao().lastRead("p1"))
+
+            // Version 21's closed-week tables are there, empty: they fill from the server.
+            assertTrue(db.daroodDao().observeWeekResults("p1").first().isEmpty())
+            assertEquals(false, db.daroodDao().weekNotified("p1", LocalDate.of(2026, 10, 12)))
         } finally {
             db.close()
         }
@@ -291,6 +295,32 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion17() = updateFrom(17)
     @Test fun fromVersion18_theV1_6_0Release() = updateFrom(18)
     @Test fun fromVersion19() = updateFrom(19)
+    @Test fun fromVersion20() = updateFrom(20)
+
+    @Test
+    fun aClosedWeek_isToldOnce_andGoesWithItsParty(): Unit = runBlocking {
+        val name = "upgrade-weeks.db"
+        createAt(20, name)
+        val db = openLikeTheApp(name)
+        try {
+            val dao = db.daroodDao()
+            val monday = LocalDate.of(2026, 10, 12)
+            val row = com.pixelquest.app.darood.data.local.DaroodWeekResultEntity("p1", monday, "u1", 1, 3_200L, 5, 9_000L)
+            assertTrue(dao.upsertWeekResultsIfKept("p1", listOf(row, row.copy(userId = "u2", position = 2, weekTotal = 0L, activeDays = 0))))
+            assertTrue("not for a party the phone doesn't have", !dao.upsertWeekResultsIfKept("gone", listOf(row.copy(partyId = "gone"))))
+            assertEquals(listOf("u1", "u2"), dao.observeWeekResults("p1").first().map { it.userId })
+            assertTrue(dao.markWeekNotified("p1", monday, 10_000L))
+            assertTrue("only once", !dao.markWeekNotified("p1", monday, 11_000L))
+            assertTrue(dao.weekNotified("p1", monday))
+
+            db.openHelper.writableDatabase.execSQL("DELETE FROM darood_party WHERE id = 'p1'")
+            assertTrue("a party's weeks go with it", dao.observeWeekResults("p1").first().isEmpty())
+            assertEquals(false, dao.weekNotified("p1", monday))
+        } finally {
+            db.close()
+            context.deleteDatabase(name)
+        }
+    }
 
     @Test
     fun aPartysChat_goesWithIt_andItsReadMarkOnlyMovesOn(): Unit = runBlocking {

@@ -87,6 +87,36 @@ interface DaroodDao : PartyDao {
         deletePending(clientId)
     }
 
+    // Closed weeks (docs/darood-weekly.md)
+
+    /** A party's closed weeks, newest first, each in display order. */
+    @Query("SELECT * FROM darood_week_result WHERE partyId = :partyId ORDER BY weekStart DESC, position ASC, activeDays DESC")
+    fun observeWeekResults(partyId: String): Flow<List<DaroodWeekResultEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertWeekResults(rows: List<DaroodWeekResultEntity>)
+
+    /** A week's places, unless the party has left the phone meanwhile. */
+    @Transaction
+    suspend fun upsertWeekResultsIfKept(partyId: String, rows: List<DaroodWeekResultEntity>): Boolean {
+        if (getParty(partyId) == null) return false
+        upsertWeekResults(rows)
+        return true
+    }
+
+    @Query("SELECT EXISTS(SELECT 1 FROM darood_week_notified WHERE partyId = :partyId AND weekStart = :weekStart)")
+    suspend fun weekNotified(partyId: String, weekStart: LocalDate): Boolean
+
+    /** Marks the week told; false if it already was (or the party's gone), so only one notification goes. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertWeekNotified(row: DaroodWeekNotifiedEntity): Long
+
+    @Transaction
+    suspend fun markWeekNotified(partyId: String, weekStart: LocalDate, at: Long): Boolean {
+        if (getParty(partyId) == null) return false
+        return insertWeekNotified(DaroodWeekNotifiedEntity(partyId, weekStart, at)) != -1L
+    }
+
     // Everything
 
     /** Signing out: none of it stays on the phone (members, entries and pending entries go with their parties). */

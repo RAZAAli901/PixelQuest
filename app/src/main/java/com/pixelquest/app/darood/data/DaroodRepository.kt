@@ -45,6 +45,9 @@ interface DaroodRepository {
      */
     suspend fun closeLastWeek(partyId: String): SupabaseResult<com.pixelquest.app.darood.domain.WeekResult?>
 
+    /** The party's closed weeks as the phone has them, newest first (refreshed by the calls below). */
+    fun observeWeekResults(partyId: String): Flow<List<com.pixelquest.app.darood.domain.WeekResult>>
+
     /** The party's closed weeks for the ranking screen, newest first: the last [weeks] of them. */
     suspend fun fetchWeekResults(partyId: String, weeks: Int = com.pixelquest.app.darood.domain.DaroodWeeks.HISTORY_WEEKS): SupabaseResult<List<com.pixelquest.app.darood.domain.WeekResult>>
 

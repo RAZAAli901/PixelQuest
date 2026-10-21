@@ -61,9 +61,12 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         com.pixelquest.app.study.chat.data.local.PendingChatMessageEntity::class,
         com.pixelquest.app.study.chat.data.local.ChatFileEntity::class,
         com.pixelquest.app.study.chat.data.local.ChatUploadEntity::class,
-        com.pixelquest.app.study.chat.data.local.ChatReadEntity::class
+        com.pixelquest.app.study.chat.data.local.ChatReadEntity::class,
+        // Darood Parties' closed weeks (docs/darood-weekly.md), from version 21.
+        com.pixelquest.app.darood.data.local.DaroodWeekResultEntity::class,
+        com.pixelquest.app.darood.data.local.DaroodWeekNotifiedEntity::class
     ],
-    version = 20,
+    version = 21,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -91,7 +94,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -310,6 +313,23 @@ abstract class AppDatabase : RoomDatabase() {
                 CHAT_TABLES_20.forEach { db.execSQL(it) }
             }
         }
+
+        /**
+         * Darood Parties' closed weeks (docs/darood-weekly.md): each member's place, and which weeks
+         * this phone has told the player about. Two new tables, empty until the first refresh;
+         * nothing existing changes. The SQL is exactly what Room exported for version 21 (21.json).
+         */
+        val MIGRATION_20_21 = object : Migration(20, 21) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                WEEK_TABLES_21.forEach { db.execSQL(it) }
+            }
+        }
+
+        /** Version 21's week tables, as Room exports them (app/schemas, 21.json). */
+        private val WEEK_TABLES_21 = listOf(
+            "CREATE TABLE IF NOT EXISTS `darood_week_result` (`partyId` TEXT NOT NULL, `weekStart` TEXT NOT NULL, `userId` TEXT NOT NULL, `position` INTEGER NOT NULL, `weekTotal` INTEGER NOT NULL, `activeDays` INTEGER NOT NULL, `closedAt` INTEGER NOT NULL, PRIMARY KEY(`partyId`, `weekStart`, `userId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE TABLE IF NOT EXISTS `darood_week_notified` (`partyId` TEXT NOT NULL, `weekStart` TEXT NOT NULL, `notifiedAt` INTEGER NOT NULL, PRIMARY KEY(`partyId`, `weekStart`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+        )
 
         /** Version 20's chat tables, as Room exports them (app/schemas, 20.json). */
         private val CHAT_TABLES_20 = listOf(
