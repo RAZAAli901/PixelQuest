@@ -22,7 +22,7 @@ object StudyPartyKind : PartyKind {
     override val signedOutBodyRes = R.string.party_signed_out_body
     override val handOverRes = R.string.party_hand_over
     override val icon = "📚"
-    override val tabs = listOf(PartyTab.THIS_WEEK, PartyTab.ALL_ITEMS, PartyTab.SCOREBOARD, PartyTab.CHAT, PartyTab.FILES, PartyTab.PEOPLE)
+    override val tabs = listOf(PartyTab.THIS_WEEK, PartyTab.ALL_ITEMS, PartyTab.CHESS, PartyTab.SCOREBOARD, PartyTab.CHAT, PartyTab.FILES, PartyTab.PEOPLE)
     override val rules = PartyKindRules(milestone = false, raceBoard = false, weeklyNote = false)
 
     /** Its members. */

@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyMember
@@ -260,7 +261,7 @@ class StudyPartyScreenTest {
         composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.THIS_WEEK)).assertIsSelected()
         composeTestRule.onNodeWithTag(StudyTags.EMPTY).assertExists()
 
-        composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.PEOPLE)).performClick()
+        composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.PEOPLE)).performScrollTo().performClick()
         assertEquals(PartyTab.PEOPLE, state.tab)
         composeTestRule.onNodeWithTag(StudyTags.tab(PartyTab.PEOPLE)).assertExists()
         composeTestRule.onNodeWithTag(StudyTags.ADD_PEOPLE).assertExists()

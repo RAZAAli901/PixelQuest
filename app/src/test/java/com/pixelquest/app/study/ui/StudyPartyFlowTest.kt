@@ -11,6 +11,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
@@ -168,7 +169,7 @@ class StudyPartyFlowTest {
             assertTrue("$tag is ${node.size.height}px high", node.size.height >= minimum)
         }
         // The last tab is reached by scrolling the row sideways, and still opens.
-        composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.PEOPLE)).performClick()
+        composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.PEOPLE)).performScrollTo().performClick()
         waitFor("People") { bram.vm.uiState.value.tab == PartyTab.PEOPLE }
     }
 }

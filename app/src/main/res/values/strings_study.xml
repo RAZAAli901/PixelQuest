@@ -301,4 +301,5 @@
     <string name="study_chat_too_many">That\'s a lot of messages at once. Wait a minute, then send again.</string>
     <string name="study_files_empty">No files shared yet. Share study material from the Chat tab.</string>
     <string name="study_refused_other">The party couldn\'t save that. Check it and try again.</string>
+    <string name="study_tab_chess">Chess</string>
 </resources>

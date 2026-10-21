@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyMember
@@ -73,7 +74,7 @@ class StudyLookTest(private val mode: ThemeMode) {
         composeTestRule.onNodeWithTag(StudyTags.LOG_MINUTES).assertExists()
 
         PartyTab.entries.filter { it != PartyTab.CHAT }.forEach { tab ->
-            composeTestRule.onNodeWithTag(StudyTags.tabButton(tab)).performClick()
+            composeTestRule.onNodeWithTag(StudyTags.tabButton(tab)).performScrollTo().performClick()
             composeTestRule.onNodeWithTag(StudyTags.tab(tab)).assertExists()
         }
         composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.SCOREBOARD)).performClick()

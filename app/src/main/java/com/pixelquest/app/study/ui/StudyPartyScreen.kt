@@ -139,7 +139,25 @@ fun StudyPartyScreen(
     val chessCards: (@Composable (String, String) -> Unit)? = chessViewModel?.let { chess ->
         { token, ref -> com.pixelquest.app.chess.ui.ChessChatCard(token, ref, chessState, chess::answer) }
     }
-    androidx.compose.runtime.CompositionLocalProvider(com.pixelquest.app.chess.ui.LocalChessChatCards provides chessCards) {
+    val chessTab: (@Composable () -> Unit)? = chessViewModel?.let { chess ->
+        {
+            com.pixelquest.app.chess.ui.ChessTab(
+                chessState,
+                com.pixelquest.app.chess.ui.ChessTabActions(
+                    onChallenge = chess::challenge,
+                    onPick = chess::preview,
+                    onAnswer = chess::answer,
+                    onWatch = onOpenChessGame,
+                    onBoardTime = chess::loadBoard
+                )
+            )
+        }
+    }
+    LaunchedEffect(chessViewModel, state.tab) { if (state.tab == PartyTab.CHESS) chessViewModel?.refresh() }
+    androidx.compose.runtime.CompositionLocalProvider(
+        com.pixelquest.app.chess.ui.LocalChessChatCards provides chessCards,
+        com.pixelquest.app.chess.ui.LocalChessTab provides chessTab
+    ) {
     StudyPartyContent(
         state = state,
         onNavigateBack = onNavigateBack,
@@ -391,6 +409,13 @@ private fun StudyPartyScaffold(
                 }
                 return@Column
             }
+            // The Chess tab is the party's chess (J153), drawn by the screen that has it.
+            if (state.tab == PartyTab.CHESS) {
+                Box(modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab))) {
+                    com.pixelquest.app.chess.ui.LocalChessTab.current?.invoke()
+                }
+                return@Column
+            }
             PartyRefreshBox(refreshing = state.refreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     // Room at the end for the Add item button over the last card.
@@ -445,7 +470,7 @@ private fun StudyPartyScaffold(
                             }
                         }
                         PartyTab.FILES -> sharedFiles(chatState?.files.orEmpty(), filesQuery, { filesQuery = it }, chatActions.onOpenFile, chatActions.onPinFile.takeIf { state.isLeader })
-                        PartyTab.CHAT -> Unit
+                        PartyTab.CHAT, PartyTab.CHESS -> Unit
                     }
                 }
             }
@@ -514,6 +539,7 @@ fun tabLabel(tab: PartyTab): Int = when (tab) {
     PartyTab.PEOPLE -> R.string.study_tab_people
     PartyTab.CHAT -> R.string.study_tab_chat
     PartyTab.FILES -> R.string.study_tab_files
+    PartyTab.CHESS -> R.string.study_tab_chess
 }
 
 @Composable

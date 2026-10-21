@@ -97,4 +97,15 @@
     <string name="chess_chat_open_body"><xliff:g id="name" example="@sara">%1$s</xliff:g> wants a game: <xliff:g id="time" example="3 min">%2$s</xliff:g>, <xliff:g id="rated" example="Rated">%3$s</xliff:g>.</string>
     <string name="chess_chat_open_gone">Taken, or no longer open.</string>
     <string name="chess_chat_cancel">Cancel my challenge</string>
+    <string name="chess_tab_challenges">Challenges</string>
+    <string name="chess_tab_live">Live now · <xliff:g id="count" example="2">%1$d</xliff:g></string>
+    <string name="chess_tab_live_none">No games right now.</string>
+    <string name="chess_tab_board">Chess ladder</string>
+    <string name="chess_tab_board_none">No games yet. The first one starts the ladder.</string>
+    <string name="chess_tab_mine">Your challenge to <xliff:g id="name" example="@sara">%1$s</xliff:g></string>
+    <string name="chess_tab_theirs"><xliff:g id="name" example="@sara">%1$s</xliff:g> challenges you</string>
+    <string name="chess_record_line"><xliff:g id="wins" example="12">%1$d</xliff:g>W · <xliff:g id="draws" example="3">%2$d</xliff:g>D · <xliff:g id="losses" example="5">%3$d</xliff:g>L</string>
+    <string name="chess_challenge_named">Challenge <xliff:g id="name" example="@sara">%1$s</xliff:g></string>
+    <string name="chess_live_players"><xliff:g id="white" example="@ali">%1$s</xliff:g> vs <xliff:g id="black" example="@sara">%2$s</xliff:g></string>
+    <string name="chess_watch">Watch</string>
 </resources>
