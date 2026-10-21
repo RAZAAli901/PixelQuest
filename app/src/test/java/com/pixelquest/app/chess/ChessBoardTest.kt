@@ -14,6 +14,8 @@ import com.pixelquest.app.chess.ui.ChessBoardTags
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,5 +52,24 @@ class ChessBoardTest {
         composeTestRule.onNodeWithTag(ChessBoardTags.BOARD).assertExists()
         composeTestRule.onAllNodesWithTag(ChessBoardTags.square("a1")).assertCountEquals(1)
         composeTestRule.onNodeWithTag(ChessBoardTags.square("h8")).assertExists()
+    }
+}
+
+/** Flipped, Black sits at the bottom (J140). */
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], application = Application::class)
+class ChessBoardFlipTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun flipped_putsTheEighthRankAtTheBottom() {
+        var flipped by androidx.compose.runtime.mutableStateOf(false)
+        composeTestRule.setContent { PixelQuestTheme { ChessBoard("8/8/8/8/8/8/8/8 w - - 0 1", flipped = flipped) } }
+        fun top(square: String) = composeTestRule.onNodeWithTag(ChessBoardTags.square(square)).fetchSemanticsNode().boundsInRoot.top
+        org.junit.Assert.assertTrue(top("a1") > top("a8"))
+        flipped = true
+        composeTestRule.waitForIdle()
+        org.junit.Assert.assertTrue(top("a1") < top("a8"))
     }
 }

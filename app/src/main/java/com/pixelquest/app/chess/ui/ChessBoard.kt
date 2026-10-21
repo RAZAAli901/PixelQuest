@@ -46,13 +46,15 @@ data class BoardMarks(
  * The board (J139), as the design draws it: 8 by 8 in the skin's light and dark squares, a
  * border and small shadow, the last move and the selected square in the highlight colour, a king
  * in check in red, legal-move dots, and coordinates (ranks on the left file, files on the bottom
- * rank). It draws any position from its FEN.
+ * rank). It draws any position from its FEN; [flipped] puts Black at the bottom, as a
+ * player with Black sees it.
  */
 @Composable
 fun ChessBoard(
     fen: String,
     modifier: Modifier = Modifier,
     marks: BoardMarks = BoardMarks(),
+    flipped: Boolean = false,
     square: @Composable (name: String, content: @Composable () -> Unit) -> Unit = { _, content -> content() }
 ) {
     val position = BoardPosition.of(fen)
@@ -69,7 +71,7 @@ fun ChessBoard(
             for (row in 0 until 8) {
                 Row(Modifier.fillMaxWidth()) {
                     for (col in 0 until 8) {
-                        val index = row * 8 + col
+                        val index = if (flipped) (7 - row) * 8 + (7 - col) else row * 8 + col
                         val name = squareName(index)
                         val light = (index / 8 + index % 8) % 2 == 0
                         val bg = when {
@@ -101,12 +103,19 @@ private fun Coordinates(name: String, showRank: Boolean, showFile: Boolean) {
     }
 }
 
-/** A piece, plainly (J140 gives it the design's outline). */
+/**
+ * A piece as the design draws it (J140): the same solid glyph for both sides, Black's in ink and
+ * White's in the skin's paper with an ink outline, so both read on light and dark squares.
+ */
 @Composable
 fun PieceGlyph(piece: Char, size: androidx.compose.ui.unit.Dp) {
     val white = piece.isUpperCase()
-    Text(
-        text = ChessLook.glyph(piece),
-        style = TextStyle(fontSize = (size.value * 0.68f).sp, lineHeight = (size.value * 0.68f).sp, color = if (white) PqColors.Paper else PqColors.Ink)
-    )
+    val style = TextStyle(fontSize = (size.value * 0.68f).sp, lineHeight = (size.value * 0.68f).sp)
+    val glyph = ChessLook.glyph(piece)
+    Box(contentAlignment = Alignment.Center) {
+        if (white) {
+            Text(glyph, style = style.copy(color = PqColors.Ink, drawStyle = androidx.compose.ui.graphics.drawscope.Stroke(width = size.value * 0.09f, join = androidx.compose.ui.graphics.StrokeJoin.Round)))
+        }
+        Text(glyph, style = style.copy(color = if (white) PqColors.Paper else PqColors.Ink))
+    }
 }
