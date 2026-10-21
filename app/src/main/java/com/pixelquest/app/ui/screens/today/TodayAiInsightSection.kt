@@ -33,7 +33,6 @@ import com.pixelquest.app.ui.screens.insight.AiInsightNotEnoughDataState
 import com.pixelquest.app.ui.screens.insight.AiInsightRateLimitedState
 import com.pixelquest.app.ui.screens.insight.AiInsightUiState
 import com.pixelquest.app.ui.screens.insight.AiInsightViewModel
-import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
@@ -65,7 +64,6 @@ fun TodayAiInsightSection(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isSimpleMode by viewModel.isSimpleMode.collectAsState()
-    val themeMode = PixelTheme.mode
 
     Box(modifier = modifier.fillMaxWidth()) {
         when (val state = uiState) {
@@ -77,9 +75,9 @@ fun TodayAiInsightSection(
                 title = stringResource(if (isSimpleMode) R.string.pq_coach_title_simple else R.string.pq_coach_title),
                 modifier = Modifier.testTag(CoachTags.CARD)
             )
-            is AiInsightUiState.Loading -> AiInsightLoadingState(themeMode = themeMode)
-            is AiInsightUiState.RateLimited -> AiInsightRateLimitedState(state = state, themeMode = themeMode, onRefresh = { viewModel.refreshInsight() })
-            is AiInsightUiState.NotEnoughData -> AiInsightNotEnoughDataState(state = state, themeMode = themeMode)
+            is AiInsightUiState.Loading -> AiInsightLoadingState()
+            is AiInsightUiState.RateLimited -> AiInsightRateLimitedState(state = state, onRefresh = { viewModel.refreshInsight() })
+            is AiInsightUiState.NotEnoughData -> AiInsightNotEnoughDataState(state = state)
             // No teaser in a build that can't reach Gemini: the opt-in isn't offered there.
             is AiInsightUiState.Disabled -> if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
                 AiTeaser(isSimpleMode = isSimpleMode, needsSignIn = false, onUnlock = onNavigateToSettings)
@@ -87,8 +85,8 @@ fun TodayAiInsightSection(
             is AiInsightUiState.SignInRequired -> if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild) {
                 AiTeaser(isSimpleMode = isSimpleMode, needsSignIn = true, onUnlock = onNavigateToAccount)
             }
-            is AiInsightUiState.CapReached -> com.pixelquest.app.ui.screens.insight.AiInsightCapReachedState(state = state, themeMode = themeMode)
-            is AiInsightUiState.Error -> AiInsightErrorState(state = state, themeMode = themeMode, onRetry = { viewModel.refreshInsight() })
+            is AiInsightUiState.CapReached -> com.pixelquest.app.ui.screens.insight.AiInsightCapReachedState(state = state)
+            is AiInsightUiState.Error -> AiInsightErrorState(state = state, onRetry = { viewModel.refreshInsight() })
         }
     }
 }

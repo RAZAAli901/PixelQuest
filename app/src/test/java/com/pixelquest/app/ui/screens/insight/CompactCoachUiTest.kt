@@ -69,8 +69,8 @@ class CompactCoachUiTest {
         }
     }
 
-    private fun expandLabel(mode: ThemeMode) = if (mode == ThemeMode.Light) "Show more ▾" else "SHOW MORE ▾"
-    private fun earlierLabel(mode: ThemeMode) = if (mode == ThemeMode.Light) "Earlier insights" else "EARLIER INSIGHTS"
+    private fun expandLabel(@Suppress("UNUSED_PARAMETER") mode: ThemeMode) = "SHOW MORE ▾"
+    private fun earlierLabel(@Suppress("UNUSED_PARAMETER") mode: ThemeMode) = "EARLIER INSIGHTS"
 
     private fun compactFitsWithoutScrolling(mode: ThemeMode, simple: Boolean = false) {
         show(mode, simple = simple)
@@ -90,7 +90,7 @@ class CompactCoachUiTest {
 
     @Test fun compact_simpleMode_fitsA6InchPhone() {
         compactFitsWithoutScrolling(ThemeMode.Pixel, simple = true)
-        // The top bar and the header both say it.
+        // The top bar and the card both say it.
         assertTrue(composeTestRule.onAllNodesWithText("HABIT COACH").fetchSemanticsNodes().isNotEmpty())
         assertEquals("no quest words in Simple Mode", 0, composeTestRule.onAllNodesWithText("QUESTMASTER COACH").fetchSemanticsNodes().size)
     }
@@ -101,7 +101,7 @@ class CompactCoachUiTest {
         composeTestRule.onNodeWithText(summary).assertExists()
         composeTestRule.onNodeWithText(suggestion).assertExists()
         composeTestRule.onNodeWithText(encouragement).assertExists()
-        composeTestRule.onNodeWithText(if (mode == ThemeMode.Light) "Show less ▴" else "SHOW LESS ▴").assertExists()
+        composeTestRule.onNodeWithText("SHOW LESS ▴").assertExists()
     }
 
     @Test fun expanded_pixel_showsAllThreeSections() = expandedShowsEverything(ThemeMode.Pixel)
