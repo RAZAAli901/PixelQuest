@@ -44,8 +44,8 @@ class TaskPromptActivity : ComponentActivity() {
 
         // Read the saved theme before the first frame (a SharedPreferences read) so the prompt opens
         // in the user's theme instead of flashing Pixel and fading over.
-        val initialTheme = runBlocking { settingsRepository.themeMode.first() }
-        val initialReduceMotion = runBlocking { settingsRepository.isReduceMotionEnabled.first() }
+        val initialTheme = com.pixelquest.app.data.repository.SettingsRepositoryImpl.storedThemeMode(this)
+        val initialReduceMotion = com.pixelquest.app.data.repository.SettingsRepositoryImpl.storedReduceMotion(this)
 
         setContent {
             val isSimpleMode by viewModel.isSimpleMode.collectAsState()

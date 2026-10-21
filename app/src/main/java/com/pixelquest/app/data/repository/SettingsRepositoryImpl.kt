@@ -319,6 +319,15 @@ class SettingsRepositoryImpl @Inject constructor(
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                 .getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.DEFAULT.id)
         )
+
+        /** Reduce motion as stored, read at once: for a screen's first frame. */
+        fun storedReduceMotion(context: Context): Boolean =
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getBoolean(KEY_REDUCE_MOTION_ENABLED, false)
+
+        /** Loads the settings file off the main thread, so the first frame's reads find it in memory. */
+        fun warm(context: Context) {
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).all
+        }
         private const val KEY_SIMPLE_MODE_ENABLED = "key_simple_mode_enabled"
         private const val KEY_SIMPLE_MODE_HIGHLIGHT_SEEN = "key_simple_mode_highlight_seen"
         private const val KEY_AI_INSIGHTS_ENABLED = "key_ai_insights_enabled"

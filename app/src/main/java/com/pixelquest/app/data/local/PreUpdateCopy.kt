@@ -28,14 +28,19 @@ object PreUpdateCopy {
      * says 0 for a game never checkpointed, or the old version just after an update).
      */
     fun versionOf(dbFile: File): Int? {
+        val header = headerVersionOf(dbFile) ?: return null
+        return walVersionOf(File(dbFile.path + "-wal")) ?: header
+    }
+
+    /** The user_version in the file's own header, without the -wal; null if it isn't a database. */
+    private fun headerVersionOf(dbFile: File): Int? {
         if (!dbFile.isFile || dbFile.length() < 100) return null
-        val header = RandomAccessFile(dbFile, "r").use { file ->
+        return RandomAccessFile(dbFile, "r").use { file ->
             val magic = ByteArray(16).also { file.readFully(it) }
             if (String(magic, Charsets.US_ASCII) != "SQLite format 3\u0000") return null
             file.seek(USER_VERSION_OFFSET)
             file.readInt()
         }
-        return walVersionOf(File(dbFile.path + "-wal")) ?: header
     }
 
     /**
@@ -83,6 +88,9 @@ object PreUpdateCopy {
      * copy the migrated game over the copy taken before it.
      */
     fun keepIfOlder(dbFile: File, dir: File, currentVersion: Int): Int? {
+        // A version never goes down, so a header already at the current one settles it without
+        // reading the -wal frame by frame (this runs at every launch, before the first screen).
+        if ((headerVersionOf(dbFile) ?: return null) >= currentVersion) return null
         val version = versionOf(dbFile) ?: return null
         if (version <= 0 || version >= currentVersion) return null
         dir.deleteRecursively()

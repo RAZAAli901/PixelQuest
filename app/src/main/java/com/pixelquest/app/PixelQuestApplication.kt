@@ -79,34 +79,40 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         appScope.launch { daroodCleanup.get().start(this) }
         // Start connectivity observer for prompt sync retry on reconnection
         connectivitySyncObserver.startObserving()
-        // Background async enqueue of periodic background workers
-        scheduleMissedTaskWorker()
-        // Nightly at 02:05 local time; replaces the old 24-hour periodic job (see StreakEvaluationWorker.RUN_AT).
-        com.pixelquest.app.worker.StreakEvaluationWorker.schedule(this)
-        // Evening streak-at-risk nudge; posts nothing unless a live streak is actually at risk.
-        com.pixelquest.app.worker.StreakAtRiskWorker.schedule(this)
-        // A daily backup kept on the phone (AutoBackups), restorable from Settings, and one an hour
-        // after the app is opened, so it holds that session's play.
-        com.pixelquest.app.worker.AutoBackupWorker.schedule(this)
-        com.pixelquest.app.worker.AutoBackupWorker.scheduleAfterPlay(this)
-        // Does nothing unless AI Coach and AI reminder messages are both on.
-        com.pixelquest.app.worker.EncouragementPackWorker.schedule(this)
-        // Namaz Tracker: each day's five pending rows just after midnight, and hourly missed marks.
-        // Both do nothing while the tracker is off.
-        com.pixelquest.app.worker.NamazMidnightWorker.schedule(this)
-        com.pixelquest.app.worker.NamazMissedWorker.schedule(this)
         // The next 48 hours of prayer reminders, armed again whenever the tracker's settings change,
         // and once a day as a safety net.
         namazReminders.start(appScope)
-        com.pixelquest.app.worker.NamazRescheduleWorker.schedule(this)
-        // Darood entries left waiting when the app last closed go once there's a connection.
-        daroodSync.scheduleSend()
-        // So do study party ticks and study time (docs/study-party.md).
-        studySync.scheduleSend()
-        // Reminders of what's due, unless the player turned them off.
-        if (studyReminders.dueReminders.value) com.pixelquest.app.study.sync.StudyDueWorker.schedule(this)
-        // The Quran reader's text, loaded from the app's own files on the first start (docs/quran-data.md).
-        com.pixelquest.app.quran.data.QuranImportWorker.schedule(this)
+        // The settings file, loaded off the main thread so MainActivity's first read finds it ready.
+        appScope.launch { com.pixelquest.app.data.repository.SettingsRepositoryImpl.warm(this@PixelQuestApplication) }
+        // The background work's schedules: none of it has to be in place before the first frame,
+        // so it's queued off the main thread, which then only starts the app.
+        appScope.launch {
+            // Background async enqueue of periodic background workers
+            scheduleMissedTaskWorker()
+            // Nightly at 02:05 local time; replaces the old 24-hour periodic job (see StreakEvaluationWorker.RUN_AT).
+            com.pixelquest.app.worker.StreakEvaluationWorker.schedule(this@PixelQuestApplication)
+            // Evening streak-at-risk nudge; posts nothing unless a live streak is actually at risk.
+            com.pixelquest.app.worker.StreakAtRiskWorker.schedule(this@PixelQuestApplication)
+            // A daily backup kept on the phone (AutoBackups), restorable from Settings, and one an hour
+            // after the app is opened, so it holds that session's play.
+            com.pixelquest.app.worker.AutoBackupWorker.schedule(this@PixelQuestApplication)
+            com.pixelquest.app.worker.AutoBackupWorker.scheduleAfterPlay(this@PixelQuestApplication)
+            // Does nothing unless AI Coach and AI reminder messages are both on.
+            com.pixelquest.app.worker.EncouragementPackWorker.schedule(this@PixelQuestApplication)
+            // Namaz Tracker: each day's five pending rows just after midnight, and hourly missed marks.
+            // Both do nothing while the tracker is off.
+            com.pixelquest.app.worker.NamazMidnightWorker.schedule(this@PixelQuestApplication)
+            com.pixelquest.app.worker.NamazMissedWorker.schedule(this@PixelQuestApplication)
+            com.pixelquest.app.worker.NamazRescheduleWorker.schedule(this@PixelQuestApplication)
+            // Darood entries left waiting when the app last closed go once there's a connection.
+            daroodSync.scheduleSend()
+            // So do study party ticks and study time (docs/study-party.md).
+            studySync.scheduleSend()
+            // Reminders of what's due, unless the player turned them off.
+            if (studyReminders.dueReminders.value) com.pixelquest.app.study.sync.StudyDueWorker.schedule(this@PixelQuestApplication)
+            // The Quran reader's text, loaded from the app's own files on the first start (docs/quran-data.md).
+            com.pixelquest.app.quran.data.QuranImportWorker.schedule(this@PixelQuestApplication)
+        }
         rearmReminders()
     }
 

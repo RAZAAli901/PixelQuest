@@ -85,8 +85,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) pendingRoute = routeFrom(intent)
         checkNotificationPermission()
-        // Settings > Look, read before the first frame so it opens in the player's skin (docs/ui-v2.md).
-        val startLook = kotlinx.coroutines.runBlocking { settingsRepository.themeMode.first() }
+        // Settings > Look, read before the first frame so it opens in the player's skin (docs/ui-v2.md):
+        // one preference read, not a flow run to its first value.
+        val startLook = com.pixelquest.app.data.repository.SettingsRepositoryImpl.storedThemeMode(this)
         com.pixelquest.app.ui.theme.PqSkinState.skin = startLook.skin
         setContent {
             // ...and as it changes, every screen re-skins at once.

@@ -37,7 +37,8 @@ fun SplashScreen(onSplashTimeout: () -> Unit = {}) {
     val progress = remember { Animatable(0f) }
     val done by rememberUpdatedState(onSplashTimeout)
     LaunchedEffect(Unit) {
-        progress.animateTo(1f, animationSpec = tween(durationMillis = 1500))
+        // A brief moment for the mark: it waits on nothing, so it's kept short (it was 1.5 seconds).
+        progress.animateTo(1f, animationSpec = tween(durationMillis = 600))
         done()
     }
     Box(modifier = Modifier.fillMaxSize().background(PqColors.Ground), contentAlignment = Alignment.Center) {
