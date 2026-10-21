@@ -449,3 +449,6 @@ enabled = true
 # The chess functions check the caller's sign-in themselves (docs/chess-design.md).
 [functions.chess-create-challenge]
 verify_jwt = false
+
+[functions.chess-respond-challenge]
+verify_jwt = false
