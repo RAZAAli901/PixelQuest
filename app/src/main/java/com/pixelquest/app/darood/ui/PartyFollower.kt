@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -89,7 +90,9 @@ fun PartyRefreshBox(
     LaunchedEffect(refreshing) {
         if (refreshing) state.startRefresh() else state.endRefresh()
     }
-    Box(modifier = modifier.nestedScroll(state.nestedScrollConnection)) {
+    // Clipped: the circle waits hidden just above the box, and must never draw over what sits there
+    // (a study party's tabs), only slide down into the box when pulled.
+    Box(modifier = modifier.clipToBounds().nestedScroll(state.nestedScrollConnection)) {
         content()
         PullToRefreshContainer(state = state, modifier = Modifier.align(Alignment.TopCenter))
     }
