@@ -15,7 +15,9 @@ import com.pixelquest.app.testing.FakeStudyServer
 import com.pixelquest.app.testing.TestViewModels
 import com.pixelquest.app.testing.closeAfterWrites
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.MainScope
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -65,7 +67,8 @@ class StudyPartyViewModelTest {
 
     private fun waitFor(what: String, condition: () -> Boolean) {
         repeat(200) {
-            shadowOf(Looper.getMainLooper()).idle()
+            // Time passes on the main looper too, for what waits on it (the live refresh waits for a pause).
+            shadowOf(Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(20))
             if (condition()) return
             Thread.sleep(10)
         }
@@ -226,6 +229,92 @@ class StudyPartyViewModelTest {
         assertEquals(com.pixelquest.app.party.domain.PartyTab.THIS_WEEK, vm.uiState.value.tab)
         waitFor("last week recorded") { vm.uiState.value.pastWeeks.isNotEmpty() }
         assertTrue("no winner banner", vm.uiState.value.winnerBanner.isEmpty())
+    }
+
+    @Test
+    fun offline_itShowsWhatThePhoneHas_andSaysSo() {
+        val item = study.seedItem(party, "bram", "Lab report")
+        val first = viewModel()
+        waitFor("cached") { first.uiState.value.items.isNotEmpty() }
+        watching?.cancel()
+        viewModels.clear()
+
+        server.offline = true
+        val vm = viewModel()
+        waitFor("loaded from the phone") { vm.uiState.value.loaded }
+        assertEquals(listOf(item.id), vm.uiState.value.items.map { it.item.id })
+        assertEquals(StudyNotice.Offline, vm.uiState.value.notice)
+        vm.dismissNotice()
+        waitFor("dismissed") { vm.uiState.value.notice == null }
+    }
+
+    @Test
+    fun aRefusedTick_canBeTriedAgain_orDropped_fromTheScreen() {
+        val item = study.seedItem(party, "bram", "Lab report")
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.items.isNotEmpty() }
+        study.items.remove(item.id)
+
+        vm.complete(item.id)
+        waitFor("refused") { vm.uiState.value.refused.isNotEmpty() }
+        val key = vm.uiState.value.refused.single().clientId!!
+        vm.retry(key)
+        waitFor("refused again") { study.calls.count { it == "complete" } == 2 && vm.uiState.value.refused.size == 1 }
+        vm.discard(key)
+        waitFor("dropped") { vm.uiState.value.refused.isEmpty() && vm.uiState.value.items.single().mine == null }
+    }
+
+    @Test
+    fun studyTime_outsideFiveTo240_isntLogged() {
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.loaded }
+        vm.logStudy(4)
+        vm.logStudy(241)
+        shadowOf(Looper.getMainLooper()).idle()
+        Thread.sleep(50)
+        assertTrue(study.sessions.isEmpty())
+        assertEquals(0, vm.uiState.value.studiedToday)
+    }
+
+    @Test
+    fun aChangeOfMembers_heardLive_refreshesThem() {
+        val changes = kotlinx.coroutines.channels.Channel<com.pixelquest.app.study.sync.StudyChange>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+        val live = com.pixelquest.app.study.sync.StudyLiveSource { kotlinx.coroutines.flow.flow { for (c in changes) emit(c) } }
+        val following = StudyRepositoryImpl(study, db.studyDao(), db.partyDao(), { server.me }, clock = { server.now.toEpochMilli() }, timeZone = { zone }, live = live, quietMs = 50)
+        val vm = viewModels.keep(StudyPartyViewModel::class.java) {
+            StudyPartyViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), parties, following, null, timer)
+        }.also { watching = it.uiState.launchIn(MainScope()) }
+        waitFor("loaded") { vm.uiState.value.memberCount == 2 }
+        val follow = MainScope().launch { vm.followWhileVisible() }
+
+        server.members += com.pixelquest.app.party.data.remote.PartyMemberDto(party, "cleo", "member", "active", server.now.toString(), server.now.toString())
+        changes.trySend(com.pixelquest.app.study.sync.StudyChange.MembersChanged)
+        waitFor("Cleo on the screen") { vm.uiState.value.memberCount == 3 }
+
+        study.seedItem(party, "cleo", "Essay")
+        changes.trySend(com.pixelquest.app.study.sync.StudyChange.Activity)
+        waitFor("her item too") { vm.uiState.value.items.map { it.item.title } == listOf("Essay") }
+        follow.cancel()
+    }
+
+    @Test
+    fun nothingHere_touchesXpLevelsOrStreaks() {
+        kotlinx.coroutines.runBlocking {
+            db.userProfileDao().insertProfile(com.pixelquest.app.data.local.entity.UserProfileEntity(username = "Aria", avatarId = "a1", level = 4, totalXp = 1500))
+        }
+        val item = study.seedItem(party, "bram", "Lab report")
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.items.isNotEmpty() }
+        vm.complete(item.id)
+        vm.logStudy(60)
+        waitFor("sent") { study.completions.size == 1 && study.sessions.size == 1 }
+        kotlinx.coroutines.runBlocking {
+            val profile = db.userProfileDao().getProfile().first()!!
+            assertEquals(4, profile.level)
+            assertEquals(1500, profile.totalXp)
+            assertNull(db.streakDao().getCurrentStreak().first())
+            assertTrue(db.taskCompletionLogDao().getAllLogs().first().isEmpty())
+        }
     }
 
     @Test
