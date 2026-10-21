@@ -55,9 +55,15 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         // Study reminders (docs/study-reminders.md), from version 19.
         com.pixelquest.app.study.data.local.StudyReminderEntity::class,
         com.pixelquest.app.study.data.local.PendingStudyReminderEntity::class,
-        com.pixelquest.app.study.data.local.StudyReminderDoneEntity::class
+        com.pixelquest.app.study.data.local.StudyReminderDoneEntity::class,
+        // Study chat (docs/study-chat.md), from version 20.
+        com.pixelquest.app.study.chat.data.local.ChatMessageEntity::class,
+        com.pixelquest.app.study.chat.data.local.PendingChatMessageEntity::class,
+        com.pixelquest.app.study.chat.data.local.ChatFileEntity::class,
+        com.pixelquest.app.study.chat.data.local.ChatUploadEntity::class,
+        com.pixelquest.app.study.chat.data.local.ChatReadEntity::class
     ],
-    version = 19,
+    version = 20,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -77,6 +83,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun quranBookmarkDao(): com.pixelquest.app.quran.data.local.QuranBookmarkDao
     abstract fun studyDao(): com.pixelquest.app.study.data.local.StudyDao
     abstract fun studyReminderDao(): com.pixelquest.app.study.data.local.StudyReminderDao
+    abstract fun chatDao(): com.pixelquest.app.study.chat.data.local.ChatDao
 
     companion object {
         /**
@@ -84,7 +91,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -292,6 +299,31 @@ abstract class AppDatabase : RoomDatabase() {
                 REMINDER_TABLES_19.forEach { db.execSQL(it) }
             }
         }
+
+        /**
+         * The study chat (docs/study-chat.md): messages, those waiting to be sent, files, uploads
+         * under way, and how far each chat is read. Five new tables, empty until the first refresh;
+         * nothing existing changes. The SQL is exactly what Room exported for version 20 (20.json).
+         */
+        val MIGRATION_19_20 = object : Migration(19, 20) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                CHAT_TABLES_20.forEach { db.execSQL(it) }
+            }
+        }
+
+        /** Version 20's chat tables, as Room exports them (app/schemas, 20.json). */
+        private val CHAT_TABLES_20 = listOf(
+            "CREATE TABLE IF NOT EXISTS `chat_message` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `senderId` TEXT, `kind` TEXT NOT NULL, `body` TEXT, `fileId` TEXT, `replyTo` TEXT, `clientId` TEXT, `createdAt` INTEGER NOT NULL, `deletedAt` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_chat_message_partyId_createdAt` ON `chat_message` (`partyId`, `createdAt`)",
+            "CREATE INDEX IF NOT EXISTS `index_chat_message_clientId` ON `chat_message` (`clientId`)",
+            "CREATE TABLE IF NOT EXISTS `chat_message_pending` (`clientId` TEXT NOT NULL, `partyId` TEXT NOT NULL, `body` TEXT NOT NULL, `replyTo` TEXT, `createdAt` INTEGER NOT NULL, `state` TEXT NOT NULL, `attempts` INTEGER NOT NULL DEFAULT 0, `refusal` TEXT, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_chat_message_pending_partyId` ON `chat_message_pending` (`partyId`)",
+            "CREATE TABLE IF NOT EXISTS `chat_file` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `uploaderId` TEXT, `displayName` TEXT NOT NULL, `mime` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `sha256` TEXT, `status` TEXT NOT NULL, `rejectReason` TEXT, `pinned` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `readyAt` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_chat_file_partyId_createdAt` ON `chat_file` (`partyId`, `createdAt`)",
+            "CREATE TABLE IF NOT EXISTS `chat_upload` (`clientId` TEXT NOT NULL, `partyId` TEXT NOT NULL, `uri` TEXT NOT NULL, `displayName` TEXT NOT NULL, `mime` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `fileId` TEXT, `state` TEXT NOT NULL, `sentBytes` INTEGER NOT NULL DEFAULT 0, `reason` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_chat_upload_partyId` ON `chat_upload` (`partyId`)",
+            "CREATE TABLE IF NOT EXISTS `chat_read` (`partyId` TEXT NOT NULL, `lastReadAt` INTEGER NOT NULL, PRIMARY KEY(`partyId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"
+        )
 
         /** Version 19's reminder tables, as Room exports them (app/schemas, 19.json). */
         private val REMINDER_TABLES_19 = listOf(

@@ -260,6 +260,13 @@ class DatabaseUpgradeTest {
             // Version 19's reminder tables are there, empty: they fill from the server.
             assertTrue(db.studyReminderDao().allReminders().isEmpty())
             assertTrue(db.studyReminderDao().pendingToSend().isEmpty())
+
+            // Version 20's chat tables are there, empty too.
+            assertTrue(db.chatDao().observeMessages("p1", 50).first().isEmpty())
+            assertTrue(db.chatDao().pendingToSend().isEmpty())
+            assertTrue(db.chatDao().observeFiles("p1").first().isEmpty())
+            assertTrue(db.chatDao().uploadsUnderWay().isEmpty())
+            assertEquals(null, db.chatDao().lastRead("p1"))
         } finally {
             db.close()
         }
@@ -283,6 +290,35 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion16() = updateFrom(16)
     @Test fun fromVersion17() = updateFrom(17)
     @Test fun fromVersion18_theV1_6_0Release() = updateFrom(18)
+    @Test fun fromVersion19() = updateFrom(19)
+
+    @Test
+    fun aPartysChat_goesWithIt_andItsReadMarkOnlyMovesOn(): Unit = runBlocking {
+        val name = "upgrade-chat.db"
+        createAt(19, name)
+        val db = openLikeTheApp(name)
+        try {
+            val dao = db.chatDao()
+            val message = com.pixelquest.app.study.chat.data.local.ChatMessageEntity(
+                id = "m1", partyId = "p1", senderId = "u2", kind = com.pixelquest.app.study.chat.domain.ChatMessageKind.TEXT,
+                body = "Anyone done Q3?", fileId = null, replyTo = null, clientId = null, createdAt = 2_000L, deletedAt = null
+            )
+            assertTrue(dao.upsertMessagesIfKept("p1", listOf(message)))
+            assertTrue("not for a party the phone doesn't have", !dao.upsertMessagesIfKept("gone", listOf(message.copy(id = "m2", partyId = "gone"))))
+            assertEquals(listOf(com.pixelquest.app.study.chat.data.local.UnreadCount("p1", 1)), dao.observeUnread("u1").first())
+            dao.markRead("p1", 3_000L)
+            dao.markRead("p1", 1_000L)
+            assertEquals("never back", 3_000L, dao.lastRead("p1"))
+            assertTrue(dao.observeUnread("u1").first().isEmpty())
+
+            db.openHelper.writableDatabase.execSQL("DELETE FROM darood_party WHERE id = 'p1'")
+            assertTrue("a party's chat goes with it", dao.observeMessages("p1", 50).first().isEmpty())
+            assertEquals(null, dao.lastRead("p1"))
+        } finally {
+            db.close()
+            context.deleteDatabase(name)
+        }
+    }
 
     @Test
     fun aStudyReminder_goesWithItsParty_afterTheUpdate(): Unit = runBlocking {
