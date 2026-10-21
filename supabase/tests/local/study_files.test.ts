@@ -201,3 +201,33 @@ localTest("files: an upload arriving after its 5 minutes is refused, and cleanup
   assert.equal((await call("/functions/v1/cleanup-uploads", { token: member.accessToken, body: {} })).status, 401, "nobody else runs it");
   forget(member);
 });
+
+localTest("files: a removed member loses messages and files at once, and a download link expires", async () => {
+  const { leader, member } = await cast();
+  const party = await studyParty(leader, [member]);
+  forget(leader);
+  const bytes = enc.encode("%PDF-1.7\n1 0 obj<<>>endobj\n%%EOF\n");
+  const { file, done } = await share(leader, party, "Revision.pdf", PDF, bytes);
+  assert.equal(done.body.status, "ready", JSON.stringify(done.body));
+
+  // A member's link works now.
+  const link = await fn("get-download-url", member, { file_id: file });
+  assert.equal(link.status, 200);
+  assert.equal((await fetch(`${stack().apiUrl}${link.body.url}`)).status, 200);
+
+  // Removed: no messages, no file rows, no new link, at once.
+  assert.deepEqual((await rpc(leader, "remove_member", { party_id: party, user_id: member.userId })).body, { status: "removed" });
+  assert.deepEqual((await call(`/rest/v1/chat_messages?party_id=eq.${party}&select=id`, { token: member.accessToken })).body, []);
+  assert.deepEqual((await call(`/rest/v1/chat_files?party_id=eq.${party}&select=id`, { token: member.accessToken })).body, []);
+  assert.equal((await fn("get-download-url", member, { file_id: file })).status, 403);
+  assert.equal((await fn("request-upload", member, { party_id: party, name: "x.pdf", mime: PDF, size: 10 })).status, 403);
+
+  // A signed link stops working once its time is up (one signed for a second, here).
+  const path = storedPath(file);
+  const short = await asService(`/storage/v1/object/sign/study-files/${path}`, { body: { expiresIn: 1 } });
+  assert.equal(short.status, 200, JSON.stringify(short.body));
+  await new Promise((r) => setTimeout(r, 2500));
+  const late = await fetch(`${stack().apiUrl}/storage/v1${short.body.signedURL}`);
+  assert.ok([400, 401, 403].includes(late.status), `an expired link is refused (${late.status})`);
+  forget(leader);
+});
