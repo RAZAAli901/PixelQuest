@@ -134,14 +134,7 @@ fun LeaderboardContent(
                 // Opened from Stats it has a way back; as a tab, the side menu's icon takes that place.
                 navigationIcon = onNavigateBack?.let { back ->
                     {
-                        IconButton(onClick = back) {
-                            com.pixelquest.app.ui.components.SymbolIcon(
-                                symbol = "◀",
-                                contentDescription = "Back",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = colors.primaryText
-                            )
-                        }
+                        com.pixelquest.app.ui.components.PqBackButton(back)
                     }
                 },
                 actions = {

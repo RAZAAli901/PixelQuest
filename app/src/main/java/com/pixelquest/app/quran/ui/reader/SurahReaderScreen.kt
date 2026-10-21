@@ -166,14 +166,7 @@ fun SurahReaderScreen(
                         "${it.englishMeaning} · ${pluralStringResource(R.plurals.quran_ayah_count, it.ayahCount, it.ayahCount)}"
                     },
                     navigationIcon = {
-                        IconButton(onClick = onNavigateBack) {
-                            SymbolIcon(
-                                symbol = "◀",
-                                contentDescription = stringResource(R.string.navigate_back),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = colors.primaryText
-                            )
-                        }
+                        com.pixelquest.app.ui.components.PqBackButton(onNavigateBack)
                     },
                     actions = {
                         IconButton(onClick = { showingSettings = true }, modifier = Modifier.testTag(ReaderTags.SETTINGS)) {

@@ -76,14 +76,7 @@ fun UsernameSetupContent(
                 title = stringResource(R.string.darood_username_title),
                 navigationIcon = onNavigateBack?.let { back ->
                     {
-                        IconButton(onClick = back) {
-                            SymbolIcon(
-                                symbol = "◀",
-                                contentDescription = stringResource(R.string.navigate_back),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = colors.primaryText
-                            )
-                        }
+                        com.pixelquest.app.ui.components.PqBackButton(back)
                     }
                 }
             )

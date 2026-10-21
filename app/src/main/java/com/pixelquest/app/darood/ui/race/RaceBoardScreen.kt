@@ -118,14 +118,7 @@ fun RaceBoardContent(state: RaceBoardUiState, onNavigateBack: () -> Unit, onRetr
             PixelTopAppBar(
                 title = stringResource(R.string.darood_race_title),
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        SymbolIcon(
-                            symbol = "◀",
-                            contentDescription = stringResource(R.string.navigate_back),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.primaryText
-                        )
-                    }
+                    com.pixelquest.app.ui.components.PqBackButton(onNavigateBack)
                 }
             )
         }

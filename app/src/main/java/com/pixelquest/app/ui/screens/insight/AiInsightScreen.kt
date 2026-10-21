@@ -93,14 +93,7 @@ fun AiInsightScreenContent(
                     },
                     navigationIcon = if (onNavigateBack != null) {
                         {
-                            androidx.compose.material3.IconButton(onClick = onNavigateBack) {
-                                com.pixelquest.app.ui.components.SymbolIcon(
-                                    symbol = "◀",
-                                    contentDescription = "Back",
-                                    style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                                    color = colors.primaryText
-                                )
-                            }
+                            com.pixelquest.app.ui.components.PqBackButton(onNavigateBack)
                         }
                     } else null
                 )

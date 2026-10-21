@@ -1,30 +1,31 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.PixelTypography
-import com.pixelquest.app.ui.theme.ThemeMode
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
 /**
- * Step 4 (Day 23): Theme-dispatching Top App Bar.
- *
- * Automatically dispatches to [ComicTopAppBar] when [PixelTheme.mode] is [ThemeMode.Comic],
- * while rendering the classic 8-bit [PixelCard] header for Pixel and Light modes.
+ * A top bar, as the screens from before UI v2 ask for one: now v2's (docs/ui-v2.md), on the ground,
+ * with [navigationIcon] (usually [PqBackButton]), the title in capitals, and [actions] at the end.
  *
  * [leading] (a picture before the title) and [subtitle] (a line under it) are for a header that
- * names something, as a chat's does: its picture, its name, and how many are in it.
+ * names something: its picture, its name, and a line about it.
  */
 @Composable
 fun PixelTopAppBar(
@@ -35,71 +36,29 @@ fun PixelTopAppBar(
     subtitle: String? = null,
     leading: (@Composable () -> Unit)? = null
 ) {
-    val activeMode = PixelTheme.mode
-    if (activeMode == ThemeMode.Comic) {
-        ComicTopAppBar(
-            title = title,
-            modifier = modifier,
-            navigationIcon = navigationIcon,
-            actions = actions,
-            subtitle = subtitle,
-            leading = leading
-        )
-        return
-    }
-
-    val colors = PixelTheme.colors
-
-    PixelCard(
-        variant = PixelPanelVariant.BEIGE,
-        contentPadding = 12.dp,
-        modifier = modifier.fillMaxWidth()
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(PqColors.Ground)
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 4.dp)
+            .heightIn(min = 56.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            if (navigationIcon != null) {
-                navigationIcon()
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            if (leading != null) {
-                leading()
-                Spacer(modifier = Modifier.width(10.dp))
-            }
-
-            if (subtitle == null) {
-                Text(
-                    text = title,
-                    style = PixelTypography.titleLarge,
-                    color = colors.primary,
-                    modifier = Modifier.weight(1f)
-                )
-            } else {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = title,
-                        style = PixelTypography.titleLarge,
-                        color = colors.primary,
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = subtitle,
-                        style = PixelTypography.bodySmall,
-                        color = colors.primary,
-                        maxLines = 1
-                    )
-                }
-            }
-
-            if (actions != null) {
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically,
-                    content = actions
-                )
-            }
+        navigationIcon?.invoke()
+        leading?.invoke()
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title.uppercase(),
+                style = (if (subtitle == null) PqType.Title else PqType.CardTitle).copy(color = PqColors.Title),
+                maxLines = if (subtitle == null) 2 else 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.semantics { heading() }
+            )
+            if (subtitle != null) Text(text = subtitle, style = PqType.Meta, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        if (actions != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, content = actions)
         }
     }
 }

@@ -136,14 +136,7 @@ fun TranslationPickerScreen(
             PixelTopAppBar(
                 title = stringResource(R.string.quran_translation_title),
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        SymbolIcon(
-                            symbol = "◀",
-                            contentDescription = stringResource(R.string.navigate_back),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.primaryText
-                        )
-                    }
+                    com.pixelquest.app.ui.components.PqBackButton(onNavigateBack)
                 }
             )
         },
