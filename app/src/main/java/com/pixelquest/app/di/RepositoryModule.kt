@@ -366,6 +366,10 @@ abstract class RepositoryModule {
     abstract fun bindSpectateRepository(impl: com.pixelquest.app.chess.data.ChessRepositoryImpl): com.pixelquest.app.chess.data.SpectateRepository
 
     @Binds
+    @Singleton
+    abstract fun bindChessSettings(impl: com.pixelquest.app.chess.data.PrefsChessSettings): com.pixelquest.app.chess.data.ChessSettings
+
+    @Binds
     abstract fun bindPushTokens(impl: com.pixelquest.app.push.FirebasePushTokens): com.pixelquest.app.push.PushTokens
 
     @Binds

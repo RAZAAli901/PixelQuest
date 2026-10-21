@@ -133,4 +133,15 @@
     <string name="chess_badge_said">Chess: <xliff:g id="points" example="1,180">%1$s</xliff:g> Int, <xliff:g id="tier" example="Knight">%2$s</xliff:g></string>
     <string name="chess_profile_line">Chess Int · best tier <xliff:g id="tier" example="Knight">%1$s</xliff:g></string>
     <string name="chess_board_best">Best</string>
+    <string name="chess_settings_title">Chess</string>
+    <string name="chess_settings_confirm">Confirm moves</string>
+    <string name="chess_settings_confirm_body">Ask before each move is sent.</string>
+    <string name="chess_settings_animate">Move animation</string>
+    <string name="chess_settings_animate_body">The last move\'s squares light up gently.</string>
+    <string name="chess_settings_queen">Auto-queen</string>
+    <string name="chess_settings_queen_body">A pawn reaching the end becomes a queen without asking.</string>
+    <string name="chess_settings_sounds">Sounds and vibration</string>
+    <string name="chess_settings_sounds_body">For moves, captures, checks and the end of a game.</string>
+    <string name="chess_confirm_move">Play <xliff:g id="move" example="e2-e4">%1$s</xliff:g>?</string>
+    <string name="chess_confirm">Confirm</string>
 </resources>

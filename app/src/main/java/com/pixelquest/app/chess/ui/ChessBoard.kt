@@ -55,6 +55,7 @@ fun ChessBoard(
     modifier: Modifier = Modifier,
     marks: BoardMarks = BoardMarks(),
     flipped: Boolean = false,
+    animate: Boolean = false,
     square: @Composable (name: String, content: @Composable () -> Unit) -> Unit = { _, content -> content() }
 ) {
     val position = BoardPosition.of(fen)
@@ -80,7 +81,8 @@ fun ChessBoard(
                             light -> ChessLook.light
                             else -> ChessLook.dark
                         }
-                        Box(Modifier.size(side).background(bg).testTag(ChessBoardTags.square(name)), contentAlignment = Alignment.Center) {
+                        val shown = if (animate) androidx.compose.animation.animateColorAsState(bg, androidx.compose.animation.core.tween(220), label = "square").value else bg
+                        Box(Modifier.size(side).background(shown).testTag(ChessBoardTags.square(name)), contentAlignment = Alignment.Center) {
                             square(name) {
                                 position.pieces[index]?.let { PieceGlyph(it, size = side) }
                                 if (name in marks.dots) Box(Modifier.size(12.dp).clip(CircleShape).background(ChessLook.dot))

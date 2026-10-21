@@ -90,8 +90,12 @@ class ChessSessionViewModel @Inject constructor(
     account: DaroodAccount,
     private val party: com.pixelquest.app.party.data.PartyRepository? = null,
     private val ratings: com.pixelquest.app.chess.data.ChessRatingRepository? = null,
-    private val challenges: com.pixelquest.app.chess.data.ChessChallengeRepository? = null
+    private val challenges: com.pixelquest.app.chess.data.ChessChallengeRepository? = null,
+    settings: com.pixelquest.app.chess.data.ChessSettings? = null
 ) : ViewModel() {
+    /** The player's chess settings (J160). */
+    val prefs: StateFlow<com.pixelquest.app.chess.data.ChessPrefs> = settings?.prefs ?: MutableStateFlow(com.pixelquest.app.chess.data.ChessPrefs())
+
     val gameId: String = savedStateHandle[ARG_GAME] ?: ""
     private val me: String? = account.id()
 

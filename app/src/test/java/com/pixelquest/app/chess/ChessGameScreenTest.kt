@@ -44,9 +44,9 @@ class ChessGameScreenTest {
 
     private val did = mutableListOf<String>()
 
-    fun show(state: ChessSessionState) {
+    fun show(state: ChessSessionState, prefs: com.pixelquest.app.chess.data.ChessPrefs = com.pixelquest.app.chess.data.ChessPrefs()) {
         val actions = ChessGameActions(onResign = { did += "resign" }, onOfferDraw = { did += "offer" }, onAnswerDraw = { did += "answer $it" }, onMove = { did += "move $it" })
-        composeTestRule.setContent { PixelQuestTheme { ChessGameScreen(state, ClockSync(), actions) } }
+        composeTestRule.setContent { PixelQuestTheme { ChessGameScreen(state, ClockSync(), actions, prefs) } }
     }
 
     @Test
@@ -113,5 +113,17 @@ class ChessGameScreenTest {
         composeTestRule.onNodeWithText("New tier: Knight").assertExists()
         composeTestRule.onNodeWithText("+1").assertExists()
         composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.GameOverTags.REMATCH).assertExists()
+    }
+
+    @Test
+    fun confirmMoves_waitsForAYes() {
+        val mine = game.copy(fen = com.pixelquest.app.chess.rules.Position.START, ply = 0, status = GameStatus.WAITING)
+        show(ChessSessionState(SessionPhase.WAITING, mine, me = "me", myColour = ChessColour.WHITE), com.pixelquest.app.chess.data.ChessPrefs(confirmMoves = true))
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.ChessBoardTags.square("e2")).performClick()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.ChessBoardTags.square("e4")).performClick()
+        org.junit.Assert.assertEquals("not yet", emptyList<String>(), did)
+        composeTestRule.onNodeWithText("Play e2-e4?").assertExists()
+        composeTestRule.onNodeWithTag(ChessGameTags.CONFIRM_YES).performScrollTo().performClick()
+        org.junit.Assert.assertEquals(listOf("move e2e4"), did)
     }
 }

@@ -181,6 +181,7 @@ fun SettingsScreen(
             }
         },
         islamicSection = { com.pixelquest.app.islamic.ui.IslamicSettingsSection() },
+        chessSection = { com.pixelquest.app.chess.ui.ChessSettingsRoute() },
         simpleModeSection = {
             if (state.showSimpleModeHighlight && !state.isSimpleModeEnabled) {
                 // A one-time tip, until dismissed.

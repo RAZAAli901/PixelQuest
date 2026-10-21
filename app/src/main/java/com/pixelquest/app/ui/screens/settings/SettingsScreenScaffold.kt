@@ -50,6 +50,7 @@ fun SettingsScreenScaffold(
     appearanceSection: @Composable ColumnScope.() -> Unit = {},
     aiSection: @Composable ColumnScope.() -> Unit = {},
     islamicSection: (@Composable ColumnScope.() -> Unit)? = null,
+    chessSection: (@Composable ColumnScope.() -> Unit)? = null,
     simpleModeSection: @Composable ColumnScope.() -> Unit = {},
     dataSection: @Composable ColumnScope.() -> Unit = {},
     dangerZoneSection: @Composable ColumnScope.() -> Unit = {}
@@ -68,6 +69,7 @@ fun SettingsScreenScaffold(
         SettingsSection("Look & sound", appearanceSection)
         SettingsSection("AI coach", aiSection)
         if (islamicSection != null) SettingsSection(stringResource(R.string.settings_islamic_title), islamicSection)
+        if (chessSection != null) SettingsSection(stringResource(R.string.chess_settings_title), chessSection)
         SettingsSection("Simple Mode", simpleModeSection)
         SettingsSection("Data & backup", dataSection)
         SettingsSection("Danger zone", dangerZoneSection)

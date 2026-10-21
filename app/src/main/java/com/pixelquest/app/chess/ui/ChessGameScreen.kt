@@ -50,6 +50,8 @@ object ChessGameTags {
     const val LEAVE = "chess_watch_leave"
     const val NEXT = "chess_watch_next"
     const val FLIP = "chess_watch_flip"
+    const val CONFIRM = "chess_confirm_move"
+    const val CONFIRM_YES = "chess_confirm_yes"
     fun captured(colour: ChessColour) = "chess_captured_${colour.name.lowercase()}"
 }
 
@@ -67,9 +69,11 @@ data class ChessGameActions(
 @Composable
 fun ChessGameRoute(onNavigateBack: () -> Unit, onOpenGame: (String) -> Unit = {}, viewModel: ChessSessionViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
+    val prefs by viewModel.prefs.collectAsState()
     ChessGameScreen(
         state = state,
         sync = viewModel.clockSync,
+        prefs = prefs,
         actions = ChessGameActions(
             onBack = onNavigateBack,
             onMove = viewModel::move,
@@ -88,7 +92,9 @@ fun ChessGameRoute(onNavigateBack: () -> Unit, onOpenGame: (String) -> Unit = {}
  * watching), each with their clock, and the board, which only the side to move can play on.
  */
 @Composable
-fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGameActions) {
+fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGameActions, prefs: com.pixelquest.app.chess.data.ChessPrefs = com.pixelquest.app.chess.data.ChessPrefs()) {
+    // Confirm moves (J160): the move waits under the board for a yes.
+    var confirming by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf<String?>(null) }
     val game = state.game
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -118,11 +124,16 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
             // Watching: the board only shows (no moves can be sent from it).
             enabled = state.myTurn && !state.spectating,
             lastMove = state.lastMove,
-            onMove = actions.onMove,
+            onMove = { uci -> if (prefs.confirmMoves) confirming = uci else actions.onMove(uci) },
             flipped = bottomColour == ChessColour.BLACK,
+            autoQueen = prefs.autoQueen,
+            animate = prefs.animate,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Player(game, state, bottomColour, now, sync)
+        confirming?.let { uci ->
+            ConfirmMove(uci, onConfirm = { confirming = null; actions.onMove(uci) }, onCancel = { confirming = null })
+        }
         MoveList(state.moves)
         if (!state.spectating && game.status.live) GameActions(state, actions)
         if (state.spectating) SpectatorActions(onLeave = actions.onBack, onNext = actions.onNextGame, onFlip = { watcherFlipped = !watcherFlipped })
@@ -207,4 +218,18 @@ private fun SpectatorActions(onLeave: () -> Unit, onNext: () -> Unit, onFlip: ()
         com.pixelquest.app.ui.components.PqButton(stringResource(R.string.chess_next_live), onClick = onNext, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary, icon = Icons.Rounded.SkipNext, modifier = Modifier.weight(1f).testTag(ChessGameTags.NEXT))
     }
     com.pixelquest.app.ui.components.PqButton(stringResource(R.string.chess_flip), onClick = onFlip, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary, icon = Icons.Rounded.SwapVert, modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp).testTag(ChessGameTags.FLIP))
+}
+
+/** "Play e2e4?" with Confirm and Cancel, when the player asks to confirm moves (J160). */
+@Composable
+private fun ConfirmMove(uci: String, onConfirm: () -> Unit, onCancel: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp).testTag(ChessGameTags.CONFIRM)
+    ) {
+        Text(text = stringResource(R.string.chess_confirm_move, uci.substring(0, 2) + "-" + uci.substring(2)), style = PqType.BodyStrong, modifier = Modifier.weight(1f))
+        com.pixelquest.app.ui.components.PqButton(stringResource(R.string.pq_cancel), onClick = onCancel, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary)
+        com.pixelquest.app.ui.components.PqButton(stringResource(R.string.chess_confirm), onClick = onConfirm, modifier = Modifier.testTag(ChessGameTags.CONFIRM_YES))
+    }
 }

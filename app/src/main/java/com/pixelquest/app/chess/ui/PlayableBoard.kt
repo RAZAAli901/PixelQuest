@@ -49,7 +49,9 @@ fun PlayableBoard(
     modifier: Modifier = Modifier,
     flipped: Boolean = myColour == ChessColour.BLACK,
     /** Promote to a queen without asking (a chess setting). */
-    autoQueen: Boolean = false
+    autoQueen: Boolean = false,
+    /** Fade the last move's highlight in (a chess setting). */
+    animate: Boolean = true
 ) {
     val position = remember(fen) { Position.of(fen) }
     var selected by remember(fen) { mutableStateOf<Int?>(null) }
@@ -94,6 +96,7 @@ fun PlayableBoard(
             fen = fen,
             marks = marks,
             flipped = flipped,
+            animate = animate,
             modifier = Modifier
                 .onSizeChanged { size = it }
                 .pointerInput(fen, enabled) {
