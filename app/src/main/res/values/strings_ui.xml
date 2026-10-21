@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    UI v2's shared text (docs/ui-v2.md): its components, categories and heroes. Each screen's own
-    text is with that screen's feature.
+    UI v2's text (docs/ui-v2.md): its components, the bottom bar, and the core screens (Home,
+    Quests, Hero). The Islamic, party and study screens' text is with those features.
 
     For translators: <xliff:g> marks a value filled in by the app; keep it, move it where your
     grammar needs it, and leave what's inside unchanged. Its example shows what the app puts there.
@@ -21,9 +21,9 @@
     <string name="pq_avatar_paladin">Paladin</string>
     <string name="pq_avatar_ranger">Ranger</string>
     <!-- A quest's state, and the XP it gave ("+20"). -->
-    <string name="pq_done">Done</string>
     <string name="pq_overdue">Overdue</string>
     <string name="pq_xp_plus">+<xliff:g id="xp" example="20">%d</xliff:g></string>
+    <string name="pq_xp_earned">+<xliff:g id="xp" example="40">%d</xliff:g> XP</string>
     <!-- A number stepper's buttons. -->
     <string name="pq_fewer">Fewer</string>
     <string name="pq_more">More</string>
@@ -49,4 +49,58 @@
     <!-- Hero's two halves -->
     <string name="pq_hero_profile">Profile</string>
     <string name="pq_hero_stats">Stats</string>
+
+    <!-- Shared -->
+    <string name="pq_cancel">Cancel</string>
+    <!-- A percentage, as a ring or a bar shows it ("70%"). -->
+    <string name="pq_percent"><xliff:g id="percent" example="70">%d</xliff:g>%%</string>
+    <string name="pq_new_quest">New quest</string>
+    <string name="pq_new_task">New task</string>
+    <string name="pq_repeat_daily">Daily</string>
+    <string name="pq_repeat_weekly">Weekly</string>
+    <string name="pq_repeat_monthly">Monthly</string>
+
+    <!-- Skipping a quest for today, from Home or Quests (a swipe, or TalkBack's action) -->
+    <string name="pq_skip_action">Skip for today</string>
+    <string name="pq_skip_title">Skip quest?</string>
+    <string name="pq_skip_title_simple">Skip task?</string>
+    <string name="pq_skip_message">Skip “<xliff:g id="name" example="Go to Gym">%s</xliff:g>” for today? It counts as not done, but you can still complete it later today.</string>
+    <string name="pq_skip_confirm">Skip</string>
+
+    <!-- Home (mocks 2A and 2B) -->
+    <string name="pq_home_greeting_morning">Good morning</string>
+    <string name="pq_home_greeting_afternoon">Good afternoon</string>
+    <string name="pq_home_greeting_evening">Good evening</string>
+    <!-- The player's name and level, under the greeting ("Aria · LVL 3"). -->
+    <string name="pq_home_name_level"><xliff:g id="name" example="Aria">%1$s</xliff:g> · LVL <xliff:g id="level" example="3">%2$d</xliff:g></string>
+    <string name="pq_home_parties">Parties</string>
+    <plurals name="pq_home_streak_days">
+        <item quantity="one"><xliff:g id="days" example="1">%d</xliff:g> day streak</item>
+        <item quantity="other"><xliff:g id="days" example="3">%d</xliff:g> day streak</item>
+    </plurals>
+    <string name="pq_home_progress">QUEST PROGRESS</string>
+    <string name="pq_home_progress_simple">TODAY\'S PROGRESS</string>
+    <!-- "2 of 4 done · target 70%" -->
+    <string name="pq_home_progress_line"><xliff:g id="done" example="2">%1$d</xliff:g> of <xliff:g id="total" example="4">%2$d</xliff:g> done · target <xliff:g id="target" example="70">%3$d</xliff:g>%%</string>
+    <string name="pq_home_xp_today">+<xliff:g id="xp" example="40">%d</xliff:g> XP today</string>
+    <plurals name="pq_home_all_done">
+        <item quantity="one">ALL <xliff:g id="count" example="1">%d</xliff:g> QUEST DONE</item>
+        <item quantity="other">ALL <xliff:g id="count" example="4">%d</xliff:g> QUESTS DONE</item>
+    </plurals>
+    <plurals name="pq_home_all_done_simple">
+        <item quantity="one">ALL <xliff:g id="count" example="1">%d</xliff:g> TASK DONE</item>
+        <item quantity="other">ALL <xliff:g id="count" example="4">%d</xliff:g> TASKS DONE</item>
+    </plurals>
+    <!-- A perfect day reached before every quest is done (the target is the difficulty's). -->
+    <string name="pq_home_some_done"><xliff:g id="done" example="3">%1$d</xliff:g> OF <xliff:g id="total" example="4">%2$d</xliff:g> DONE</string>
+    <string name="pq_home_perfect_day">PERFECT DAY!</string>
+    <string name="pq_home_perfect_body">Streak protected. Every perfect day moves you toward LVL <xliff:g id="level" example="4">%d</xliff:g>.</string>
+    <string name="pq_home_perfect_body_simple">Today\'s target is met. Nice work.</string>
+    <string name="pq_home_streak_broken">Streak broken. Start a new one today.</string>
+    <string name="pq_home_up_next">Up next</string>
+    <string name="pq_home_see_all">See all</string>
+    <string name="pq_home_done_today">Done today · <xliff:g id="count" example="4">%d</xliff:g></string>
+    <string name="pq_home_empty_title">No quests today</string>
+    <string name="pq_home_empty_title_simple">No tasks today</string>
+    <string name="pq_home_empty_body">Add one and it shows up here, with its reminder.</string>
 </resources>

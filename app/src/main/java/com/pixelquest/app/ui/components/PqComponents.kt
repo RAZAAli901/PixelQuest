@@ -6,6 +6,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -301,14 +303,16 @@ fun CategoryTile(icon: ImageVector, bg: Color, size: Dp = 44.dp, iconSize: Dp = 
 @Composable
 fun CheckCircle(checked: Boolean, onClick: () -> Unit, size: Dp = 40.dp) {
     Box(
-        Modifier.size(PqDimens.TouchMin.coerceAtLeast(size)).clip(PqCircle).clickable(onClick = onClick),
+        // A checkbox to TalkBack: its row's title says what it's for.
+        Modifier.size(PqDimens.TouchMin.coerceAtLeast(size)).clip(PqCircle)
+            .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onClick() }),
         contentAlignment = Alignment.Center,
     ) {
         Box(
             Modifier.size(size).clip(PqCircle).background(if (checked) PqColors.Ink else PqColors.Paper)
                 .border(PqDimens.Border, PqColors.Ink, PqCircle),
             contentAlignment = Alignment.Center,
-        ) { if (checked) Icon(Icons.Rounded.Check, stringResource(R.string.pq_done), tint = PqColors.Paper, modifier = Modifier.size(size * 0.6f)) }
+        ) { if (checked) Icon(Icons.Rounded.Check, null, tint = PqColors.Paper, modifier = Modifier.size(size * 0.6f)) }
     }
 }
 
@@ -343,7 +347,7 @@ fun QuestRowCompact(quest: QuestUi, modifier: Modifier = Modifier) {
     ) {
         CategoryTile(quest.category.icon, quest.category.color, size = 32.dp, iconSize = 18.dp, radius = 8.dp)
         Text(quest.title, style = PqType.Body.copy(fontSize = 14.bsp, color = PqColors.Muted, textDecoration = TextDecoration.LineThrough), modifier = Modifier.weight(1f), maxLines = 1)
-        Text(stringResource(R.string.pq_xp_plus, quest.xp), style = PqType.MetaStrong.copy(color = PqColors.Muted))
+        if (quest.xp > 0) Text(stringResource(R.string.pq_xp_plus, quest.xp), style = PqType.MetaStrong.copy(color = PqColors.Muted))
         Box(Modifier.size(28.dp).clip(PqCircle).background(PqColors.Ink), contentAlignment = Alignment.Center) {
             Icon(Icons.Rounded.Check, null, tint = PqColors.Paper, modifier = Modifier.size(18.dp))
         }

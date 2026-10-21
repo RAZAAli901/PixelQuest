@@ -1,14 +1,13 @@
 package com.pixelquest.app.ui.screens.namaz
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,23 +18,24 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.R
+import com.pixelquest.app.ui.components.CategoryTile
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.prayerIcon
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.bsp
 import com.pixelquest.app.domain.namaz.NextPrayer
 import com.pixelquest.app.domain.namaz.NextPrayerUseCase
 import com.pixelquest.app.domain.namaz.PrayerStatus
 import com.pixelquest.app.domain.repository.NamazRepository
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
 import com.pixelquest.app.util.AppClock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -95,40 +95,46 @@ fun HomeNamazSection(
     summary?.let { NamazSummaryCard(summary = it, onClick = onOpen) }
 }
 
-/** The next prayer and today's progress at a glance; a tap opens the tracker. */
+/**
+ * The next prayer and today's progress at a glance (UI v2, mock 2A): "NEXT PRAYER · 4/5 TODAY",
+ * the prayer and its time, and how long until it. A tap opens the tracker.
+ */
 @Composable
 fun NamazSummaryCard(summary: NamazSummary, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = PixelTheme.colors
     val formatter = rememberPrayerTimeFormatter()
-    val nextLine = stringResource(
-        R.string.namaz_home_next,
-        stringResource(summary.next.next.prayer.displayName),
-        summary.next.next.time.format(formatter)
-    )
+    val prayer = stringResource(summary.next.next.prayer.displayName)
+    val time = summary.next.next.time.format(formatter)
+    val nextLine = stringResource(R.string.namaz_home_next, prayer, time)
     val progressLine = pluralStringResource(R.plurals.namaz_progress, summary.prayed, summary.prayed, NamazUiState.PRAYERS_PER_DAY)
     val title = stringResource(R.string.namaz_title)
-    PixelCard(
-        variant = PixelPanelVariant.BORDER,
-        contentPadding = 14.dp,
-        modifier = modifier
+    val key = summary.next.next.prayer.name.lowercase()
+    PqCard(
+        modifier
             .fillMaxWidth()
-            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.namaz_home_open), onClick = onClick)
-            .semantics(mergeDescendants = true) { contentDescription = "$title: $nextLine, $progressLine" }
-            .testTag(NamazTestTags.HOME_CARD)
+            .semantics(mergeDescendants = true) { contentDescription = "$title: $nextLine, $progressLine"; role = Role.Button }
+            .testTag(NamazTestTags.HOME_CARD),
+        bg = PqColors.Sky,
+        onClick = onClick,
     ) {
-        Row(modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "🕌", fontSize = 24.sp, modifier = Modifier.clearAndSetSemantics {})
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(text = nextLine, style = MaterialTheme.typography.titleSmall, color = inkOnPanel(colors.primaryText))
-                Text(text = progressLine, style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
+        Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            CategoryTile(prayerIcon(key), PqColors.Paper)
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.namaz_home_label, summary.prayed, NamazUiState.PRAYERS_PER_DAY), style = PqType.Label)
+                Text(stringResource(R.string.namaz_home_prayer_time, prayer, time), style = PqType.BodyStrong.copy(fontSize = 16.bsp))
+                Text(untilText(summary.next.remaining), style = PqType.MetaStrong)
             }
-            Text(
-                text = "›",
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.onSurfaceVariant,
-                modifier = Modifier.clearAndSetSemantics {}
-            )
+            Icon(Icons.Rounded.ChevronRight, null, tint = PqColors.Ink)
         }
+    }
+}
+
+/** How long until a prayer, in words: "in 36 min", "in 2 h 5 min". */
+@Composable
+fun untilText(remaining: java.time.Duration): String {
+    val minutes = remaining.toMinutes().coerceAtLeast(0).toInt()
+    return if (minutes < 60) {
+        pluralStringResource(R.plurals.namaz_in_minutes, minutes, minutes)
+    } else {
+        stringResource(R.string.namaz_in_hours_minutes, minutes / 60, minutes % 60)
     }
 }

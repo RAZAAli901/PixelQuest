@@ -7,7 +7,9 @@ import java.time.LocalTime
 data class TodayTaskItem(
     val task: TaskEntity,
     val status: TaskItemStatus,
-    val scheduledTime: LocalTime = task.scheduledTime
+    val scheduledTime: LocalTime = task.scheduledTime,
+    /** The XP its completion earned today; 0 until it's done. */
+    val xp: Int = 0
 )
 
 sealed class TodayUiState {
@@ -24,7 +26,12 @@ sealed class TodayUiState {
         val isPerfectDay: Boolean = false,
         val isStreakBroken: Boolean = false,
         val flavorText: String = "",
-        val isSimpleMode: Boolean = false
+        val isSimpleMode: Boolean = false,
+        /** The player's name and avatar, for Home's header. */
+        val heroName: String = "",
+        val avatarId: String = "",
+        /** The XP today's completed quests earned. */
+        val xpToday: Int = 0
     ) : TodayUiState()
     data class Error(val message: String) : TodayUiState()
 }

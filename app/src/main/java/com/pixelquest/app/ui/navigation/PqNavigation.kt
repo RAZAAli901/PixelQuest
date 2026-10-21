@@ -32,6 +32,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -204,10 +206,13 @@ fun PqRootScaffold(
     ) { padding -> Box(Modifier.fillMaxSize()) { content(padding) } }
 }
 
+/** The frame's state, for the screens inside it: Home's parties button wears the invitation dot. */
+val LocalPqRootState = compositionLocalOf { PqRootState() }
+
 /**
  * The frame as MainActivity builds it around [navController]'s screens: the bar's highlight follows
  * the back stack, its tabs and trophy navigate, and it hides on full-screen routes. [root] says which
- * tabs show and their dots.
+ * tabs show and their dots, and is the screens' [LocalPqRootState].
  */
 @Composable
 fun PqAppFrame(navController: NavHostController, root: PqRootState, content: @Composable (PaddingValues) -> Unit) {
@@ -222,6 +227,5 @@ fun PqAppFrame(navController: NavHostController, root: PqRootState, content: @Co
         showDeen = root.islamicHubShown,
         deenDot = root.daroodInviteWaiting,
         isSimpleMode = root.isSimpleMode,
-        content = content,
-    )
+    ) { padding -> CompositionLocalProvider(LocalPqRootState provides root) { content(padding) } }
 }

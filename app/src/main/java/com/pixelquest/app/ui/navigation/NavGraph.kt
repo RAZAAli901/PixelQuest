@@ -82,6 +82,7 @@ fun PixelNavHost(
                     // Inside the Islamic section: Back goes to the hub, then Home.
                     navController.navigateInIslamic(Screen.Namaz.route)
                 },
+                onSeeAllQuests = { navController.navigateToTab(Screen.Tasks.route) },
                 onOpenStudyParty = { partyId -> navController.navigate(Screen.PartiesParty.createRoute(partyId)) { launchSingleTop = true } },
                 onOpenParties = { navController.navigate(Screen.Parties.route) { launchSingleTop = true } }
             )

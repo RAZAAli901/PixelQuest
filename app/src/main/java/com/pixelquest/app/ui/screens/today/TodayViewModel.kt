@@ -62,13 +62,6 @@ class TodayViewModel @Inject constructor(
     /** The day the screen shows, which completing and skipping record against. */
     private val currentDate: LocalDate get() = clock.value.toLocalDate()
 
-    private val _quickCompleteFlourishEvent = MutableStateFlow<Boolean?>(null)
-    val quickCompleteFlourishEvent: StateFlow<Boolean?> = _quickCompleteFlourishEvent.asStateFlow()
-
-    fun dismissFlourishEvent() {
-        _quickCompleteFlourishEvent.value = null
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     private val dayData = clock.map { it.toLocalDate() }.distinctUntilChanged().flatMapLatest { date ->
         combine(
@@ -101,7 +94,8 @@ class TodayViewModel @Inject constructor(
             TodayTaskItem(
                 task = task,
                 status = status,
-                scheduledTime = task.scheduledTime
+                scheduledTime = task.scheduledTime,
+                xp = if (log?.wasCompleted == true) log.pointsAwarded else 0
             )
         }
         val sortedItems = items.sortedWith(
@@ -137,7 +131,10 @@ class TodayViewModel @Inject constructor(
             isPerfectDay = isPerfectDay,
             isStreakBroken = isStreakBroken,
             flavorText = flavorText,
-            isSimpleMode = isSimpleMode
+            isSimpleMode = isSimpleMode,
+            heroName = profile?.username.orEmpty(),
+            avatarId = profile?.avatarId.orEmpty(),
+            xpToday = logs.filter { it.wasCompleted }.sumOf { it.pointsAwarded }
         ) as TodayUiState
     }.stateIn(
         scope = viewModelScope,
@@ -151,8 +148,6 @@ class TodayViewModel @Inject constructor(
             if (taskResultRecorder.recordCompleted(task.id, currentDate) == 0) return@launch
             rearmAfterToday(task)
             taskAlarmScheduler.clearReminder(task.id)
-            val isSimple = settingsRepository?.simpleModeEnabled?.first() ?: false
-            _quickCompleteFlourishEvent.value = !isSimple
         }
     }
 

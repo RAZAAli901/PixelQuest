@@ -187,3 +187,31 @@ fun CoachCard(coach: CoachUi, onOpen: () -> Unit, onExpand: () -> Unit, modifier
         }
     }
 }
+
+// ---------- Confirm ----------
+
+/**
+ * Asks before something that can't simply be taken back (skipping a quest, leaving a party): a
+ * card with the question, Cancel, and [confirm] as the dialog's one red button.
+ */
+@Composable
+fun PqConfirmDialog(
+    title: String,
+    message: String,
+    confirm: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
+        PqCard(Modifier.fillMaxWidth(), shadow = PqDimens.ShadowLg, radius = 18.dp) {
+            Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(title, style = PqType.CardTitle)
+                Text(message, style = PqType.Body.copy(color = PqColors.Ink2))
+                Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    PqButton(stringResource(R.string.pq_cancel), onDismiss, Modifier.weight(1f), style = PqButtonStyle.Secondary)
+                    PqButton(confirm, onConfirm, Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}

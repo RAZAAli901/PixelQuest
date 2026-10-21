@@ -157,6 +157,15 @@
     <string name="namaz_home_next">Next: <xliff:g id="prayer" example="Maghrib">%1$s</xliff:g> at <xliff:g id="time" example="5:29 PM">%2$s</xliff:g></string>
     <!-- After TalkBack's "double tap to". -->
     <string name="namaz_home_open">open the Namaz Tracker</string>
+    <!-- Home's prayer card (UI v2, mock 2A): "NEXT PRAYER · 4/5 TODAY", then "Isha · 6:46 PM". -->
+    <string name="namaz_home_label">NEXT PRAYER · <xliff:g id="prayed" example="4">%1$d</xliff:g>/<xliff:g id="total" example="5">%2$d</xliff:g> TODAY</string>
+    <string name="namaz_home_prayer_time"><xliff:g id="prayer" example="Isha">%1$s</xliff:g> · <xliff:g id="time" example="6:46 PM">%2$s</xliff:g></string>
+    <!-- How long until the next prayer: "in 36 min", "in 2 h 5 min". -->
+    <plurals name="namaz_in_minutes">
+        <item quantity="one">in <xliff:g id="minutes" example="1">%d</xliff:g> min</item>
+        <item quantity="other">in <xliff:g id="minutes" example="36">%d</xliff:g> min</item>
+    </plurals>
+    <string name="namaz_in_hours_minutes">in <xliff:g id="hours" example="2">%1$d</xliff:g> h <xliff:g id="minutes" example="5">%2$d</xliff:g> min</string>
 
     <!-- The settings sheet, from the top bar's gear. -->
     <string name="namaz_settings_open">Namaz settings</string>

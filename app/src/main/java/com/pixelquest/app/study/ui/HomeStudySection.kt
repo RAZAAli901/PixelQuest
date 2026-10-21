@@ -1,25 +1,30 @@
 package com.pixelquest.app.study.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.MenuBook
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,10 +33,12 @@ import com.pixelquest.app.party.data.PartyRepository
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.study.data.StudyRepository
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.ui.components.CategoryTile
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.pqShape
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -89,36 +96,39 @@ fun HomeStudySection(onOpenParty: (String) -> Unit, onOpenParties: () -> Unit, v
 
 @Composable
 fun HomeStudyCard(home: HomeStudy, onOpenParty: (String) -> Unit, onOpenParties: () -> Unit, zone: ZoneId = ZoneId.systemDefault()) {
-    val colors = PixelTheme.colors
-    PixelCard(variant = PixelPanelVariant.BORDER, contentPadding = 14.dp, modifier = Modifier.fillMaxWidth().testTag(StudyTags.HOME_CARD)) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    PqCard(Modifier.fillMaxWidth().testTag(StudyTags.HOME_CARD), bg = PqColors.Lilac) {
+        Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 48.dp)
                     .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_home_open), onClick = onOpenParties)
             ) {
-                Text(text = StudyPartyKind.icon, fontSize = 24.sp, modifier = Modifier.clearAndSetSemantics {})
-                Text(text = stringResource(R.string.study_home_title), style = MaterialTheme.typography.titleSmall, color = inkOnPanel(colors.primaryText), modifier = Modifier.weight(1f))
+                CategoryTile(Icons.Rounded.MenuBook, PqColors.Paper)
+                Text(text = stringResource(R.string.study_home_title).uppercase(), style = PqType.Label, modifier = Modifier.weight(1f))
+                Icon(Icons.Rounded.ChevronRight, null, tint = PqColors.Ink)
             }
             if (home.due.isEmpty()) {
-                Text(text = stringResource(R.string.study_home_nothing), style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+                Text(text = stringResource(R.string.study_home_nothing), style = PqType.Body.copy(color = PqColors.Ink2))
             }
             home.due.forEach { line ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 48.dp)
+                        .clip(pqShape(12.dp))
+                        .background(PqColors.Paper)
+                        .border(PqDimens.BorderThin, PqColors.Ink, pqShape(12.dp))
                         .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_home_open_party)) { onOpenParty(line.partyId) }
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
                         .testTag(StudyTags.homeLine(line.itemId))
                 ) {
-                    Text(text = line.title, style = MaterialTheme.typography.bodyLarge, color = colors.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(text = line.title, style = PqType.BodyStrong, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(
                         text = stringResource(R.string.study_home_where, line.partyName, dueText(line.due, line.dueAt, zone)),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (line.due == DueState.OVERDUE) colors.error else colors.onSurfaceVariant
+                        style = if (line.due == DueState.OVERDUE) PqType.MetaStrong.copy(color = PqColors.RedText) else PqType.Meta
                     )
                 }
             }
