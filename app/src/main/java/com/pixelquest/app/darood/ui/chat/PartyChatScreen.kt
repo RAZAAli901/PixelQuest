@@ -1,42 +1,30 @@
 package com.pixelquest.app.darood.ui.chat
 
-import com.pixelquest.app.ui.chat.ChatBackground
+import com.pixelquest.app.ui.chat.ChatScaffold
+import com.pixelquest.app.ui.chat.ChatTopBar
 import com.pixelquest.app.ui.chat.LocalChatSimpleMode
 import com.pixelquest.app.ui.chat.chatLook
 import com.pixelquest.app.ui.components.PqConfirmDialog
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.ui.text.style.TextOverflow
 import com.pixelquest.app.ui.components.PqIconButton
-import com.pixelquest.app.ui.theme.PqColors
-import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -159,37 +147,22 @@ private fun PartyChatContent(
     startedAt: java.time.Instant?
 ) {
     var showingStats by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    Scaffold(
-        containerColor = PqColors.Ground,
+    ChatScaffold(
         topBar = {
-            Column(modifier = Modifier.fillMaxWidth().background(PqColors.Ground)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.fillMaxWidth().padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp).heightIn(min = 52.dp)
-                ) {
-                    PqIconButton(Icons.Rounded.ArrowBack, stringResource(R.string.navigate_back), onNavigateBack)
-                    // The party's picture and name open its info, as in a messaging app.
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .testTag(DaroodTestTags.CHAT_TITLE)
-                            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.darood_party_info), onClick = onOpenInfo)
-                    ) {
-                        PartyAvatar(partyName)
-                        Column {
-                            Text(partyName.uppercase(), style = PqType.CardTitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            if (memberCount > 0) {
-                                Text(
-                                    stringResource(R.string.pq_party_card_line, stringResource(R.string.pq_party_darood), pluralStringResource(R.plurals.darood_members, memberCount, memberCount)),
-                                    style = PqType.Meta,
-                                    maxLines = 1
-                                )
-                            }
-                        }
-                    }
+            ChatTopBar(
+                title = partyName,
+                subtitle = if (memberCount > 0) {
+                    stringResource(R.string.pq_party_card_line, stringResource(R.string.pq_party_darood), pluralStringResource(R.plurals.darood_members, memberCount, memberCount))
+                } else {
+                    null
+                },
+                onNavigateBack = onNavigateBack,
+                // The party's picture and name open its info, as in a messaging app.
+                onOpenTitle = onOpenInfo,
+                openTitleLabel = stringResource(R.string.darood_party_info),
+                titleTag = DaroodTestTags.CHAT_TITLE,
+                avatar = { PartyAvatar(partyName) },
+                actions = {
                     if (myStats != null) {
                         PqIconButton(
                             Icons.Rounded.BarChart,
@@ -202,18 +175,17 @@ private fun PartyChatContent(
                         )
                     }
                     PqIconButton(Icons.Rounded.Info, stringResource(R.string.darood_party_info), onOpenInfo)
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 8.dp)) {
+                },
+                below = {
                     if (milestone != null && milestone > 0) {
                         var folded by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
                         MilestoneBar(total = total, milestone = milestone, finished = finished, collapsed = folded, onToggle = { folded = !folded })
                     }
                     if (todayTotals != null) TodayStrip(todayTotals)
                 }
-                Box(Modifier.fillMaxWidth().height(PqDimens.BorderThin).background(PqColors.Ink))
-            }
+            )
         },
-        bottomBar = {
+        inputBar = {
             // A finished party takes no more numbers: its card takes the field's place, for good.
             if (completedAt != null) {
                 CelebrationCard(
@@ -240,45 +212,42 @@ private fun PartyChatContent(
                     SendButton(enabled = check.canSend, onClick = onSend)
                 }
             }
-        }
-    ) { innerPadding ->
-        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            ChatBackground(modifier = Modifier.fillMaxWidth().weight(1f).testTag(DaroodTestTags.CHAT_BACKGROUND)) {
-                // A new milestone, announced over the top of the chat, like a notification.
-                MilestoneBanner(target = milestoneBanner, onDismiss = onDismissBanner, modifier = Modifier.align(Alignment.TopCenter).zIndex(1f))
-                if (items.isEmpty()) {
-                    // Nothing posted yet: say how the chat starts; the leader can bring people in from here.
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(16.dp).testTag(DaroodTestTags.CHAT_SCREEN),
-                        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.darood_chat_empty),
-                            style = PqType.Body,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.testTag(DaroodTestTags.CHAT_EMPTY)
-                        )
-                        if (isLeader) {
-                            com.pixelquest.app.ui.components.PqButton(
-                                text = stringResource(R.string.darood_add_title),
-                                onClick = onAddPeople,
-                                modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)
-                            )
-                        }
-                    }
-                } else {
-                    ChatList(
-                        items = items,
-                        usernames = usernames,
-                        today = today,
-                        loadingOlder = loadingOlder,
-                        onReachOldest = onReachOldest,
-                        onRetry = onRetry,
-                        modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.CHAT_SCREEN)
+        },
+        backgroundTag = DaroodTestTags.CHAT_BACKGROUND
+    ) {
+        // A new milestone, announced over the top of the chat, like a notification.
+        MilestoneBanner(target = milestoneBanner, onDismiss = onDismissBanner, modifier = Modifier.align(Alignment.TopCenter).zIndex(1f))
+        if (items.isEmpty()) {
+            // Nothing posted yet: say how the chat starts; the leader can bring people in from here.
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp).testTag(DaroodTestTags.CHAT_SCREEN),
+                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.darood_chat_empty),
+                    style = PqType.Body,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.testTag(DaroodTestTags.CHAT_EMPTY)
+                )
+                if (isLeader) {
+                    com.pixelquest.app.ui.components.PqButton(
+                        text = stringResource(R.string.darood_add_title),
+                        onClick = onAddPeople,
+                        modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)
                     )
                 }
             }
+        } else {
+            ChatList(
+                items = items,
+                usernames = usernames,
+                today = today,
+                loadingOlder = loadingOlder,
+                onReachOldest = onReachOldest,
+                onRetry = onRetry,
+                modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.CHAT_SCREEN)
+            )
         }
     }
 
