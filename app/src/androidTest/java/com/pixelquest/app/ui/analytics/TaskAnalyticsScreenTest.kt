@@ -53,7 +53,7 @@ class TaskAnalyticsScreenTest {
         composeTestRule.onNodeWithText("READ BOOKS").assertIsDisplayed()
         composeTestRule.onNodeWithText("15").assertIsDisplayed()
         composeTestRule.onNodeWithText("75%").assertIsDisplayed()
-        composeTestRule.onNodeWithText("5 DAYS").assertIsDisplayed()
-        composeTestRule.onNodeWithText("8 DAYS").assertIsDisplayed()
+        composeTestRule.onNodeWithText("5 days").assertIsDisplayed()
+        composeTestRule.onNodeWithText("8 days").assertIsDisplayed()
     }
 }

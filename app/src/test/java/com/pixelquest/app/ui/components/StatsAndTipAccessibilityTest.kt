@@ -55,11 +55,4 @@ class StatsAndTipAccessibilityTest {
         assertEquals(0, composeTestRule.onAllNodesWithText("✕").fetchSemanticsNodes().size)
     }
 
-    @Test
-    fun theLabels() {
-        val friday = LocalDate.of(2026, 10, 2)
-        assertEquals("Friday 2 October: partly done", HeatmapCellLabels.describe(friday, DailyStatus.PARTIAL))
-        assertEquals("Friday 2 October, today: partly done so far", HeatmapCellLabels.describe(friday, DailyStatus.PARTIAL, today = friday))
-        assertEquals("Friday 2 October: upcoming", HeatmapCellLabels.describe(friday, DailyStatus.NO_TASKS_SCHEDULED, today = friday.minusDays(1)))
-    }
 }

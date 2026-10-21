@@ -2,15 +2,15 @@ package com.pixelquest.app.ui.screens
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,105 +19,35 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.components.PixelAvatarFrame
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.components.PixelProgressBar
+import com.pixelquest.app.R
+import com.pixelquest.app.ui.components.PqProgressBar
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
+/**
+ * The app's first frame (UI v2): its sword-badge mark on red, as the launcher icon has it, the name,
+ * and a bar that fills while the app gets ready, then [onSplashTimeout].
+ */
 @Composable
-fun SplashScreen(
-    onSplashTimeout: () -> Unit = {}
-) {
-    val activeMode = com.pixelquest.app.ui.theme.PixelTheme.mode
-    if (activeMode == com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-        ComicSplashScreen(onSplashTimeout = onSplashTimeout)
-        return
-    }
-
-    val progressAnim = remember { Animatable(0f) }
-    val currentOnSplashTimeout by rememberUpdatedState(onSplashTimeout)
-
+fun SplashScreen(onSplashTimeout: () -> Unit = {}) {
+    val progress = remember { Animatable(0f) }
+    val done by rememberUpdatedState(onSplashTimeout)
     LaunchedEffect(Unit) {
-        progressAnim.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = 1500)
-        )
-        currentOnSplashTimeout()
+        progress.animateTo(1f, animationSpec = tween(durationMillis = 1500))
+        done()
     }
-
-    val colors = com.pixelquest.app.ui.theme.PixelTheme.colors
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        PixelCard(
-            modifier = Modifier.fillMaxWidth(0.92f),
-            variant = PixelPanelVariant.BORDER,
-            contentPadding = 24.dp
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "PIXELQUEST",
-                    style = MaterialTheme.typography.displayMedium,
-                    color = colors.primary
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                PixelAvatarFrame(
-                    avatarId = "avatar_hero",
-                    level = 10,
-                    size = 80.dp
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "8-BIT HABIT TRACKER",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = colors.secondary
-                )
-                Spacer(modifier = Modifier.height(36.dp))
-                Text(
-                    text = "INITIALIZING...",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = colors.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                PixelProgressBar(
-                    progress = progressAnim.value,
-                    modifier = Modifier.fillMaxWidth(0.9f)
-                )
+    Box(modifier = Modifier.fillMaxSize().background(PqColors.Ground), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(32.dp)) {
+            Box(Modifier.size(132.dp).comic(bg = PqColors.Red, radius = 32.dp, shadow = PqDimens.ShadowLg), contentAlignment = Alignment.Center) {
+                Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = null, modifier = Modifier.size(132.dp))
             }
+            Text(text = "PIXELQUEST", style = PqType.Hero)
+            Text(text = "Your day, as quests", style = PqType.Meta.copy(color = PqColors.Ink2))
+            PqProgressBar(progress.value, modifier = Modifier.fillMaxWidth(0.6f))
         }
     }
 }
-
-@androidx.compose.ui.tooling.preview.Preview(name = "Splash Screen - Dark", showBackground = true)
-@Composable
-private fun SplashScreenDarkPreview() {
-    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Pixel) {
-        SplashScreen()
-    }
-}
-
-@androidx.compose.ui.tooling.preview.Preview(name = "Splash Screen - Light", showBackground = true)
-@Composable
-private fun SplashScreenLightPreview() {
-    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Light) {
-        SplashScreen()
-    }
-}
-
-@androidx.compose.ui.tooling.preview.Preview(name = "Splash Screen - Comic", showBackground = true)
-@Composable
-private fun SplashScreenComicPreview() {
-    com.pixelquest.app.ui.theme.PixelQuestTheme(themeMode = com.pixelquest.app.ui.theme.ThemeMode.Comic) {
-        SplashScreen()
-    }
-}
-

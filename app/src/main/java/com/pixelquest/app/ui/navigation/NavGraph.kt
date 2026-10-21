@@ -144,7 +144,7 @@ fun PixelNavHost(
             com.pixelquest.app.ui.screens.AvatarPickerRoute(onBack = { navController.popBackStack() })
         }
         composable(Screen.LevelHistory.route) {
-            LevelHistoryScreen()
+            LevelHistoryScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.DifficultySelection.route) {
             com.pixelquest.app.ui.screens.difficulty.DifficultySelectionScreen(
