@@ -2,5 +2,11 @@
 <!-- Darood Parties' weekly ranking and goals that go on (docs/darood-weekly.md). -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="darood_week_notif_title">Weekly ranking: <xliff:g id="party" example="Friday circle">%1$s</xliff:g></string>
-    <string name="darood_week_notif_ready">Last week\'s ranking is in.</string>
+    <string name="darood_week_notif_place">Your position this week: <xliff:g id="place" example="2nd">%1$s</xliff:g> of <xliff:g id="members" example="8">%2$s</xliff:g> with <xliff:g id="total" example="3,200">%3$s</xliff:g> Darood</string>
+    <string name="darood_week_notif_row"><xliff:g id="place" example="2nd">%1$s</xliff:g>  <xliff:g id="name" example="bram">%2$s</xliff:g>  <xliff:g id="total" example="3,200">%3$s</xliff:g></string>
+    <string name="darood_week_you">You</string>
+    <string name="darood_ordinal_st"><xliff:g id="number" example="1">%1$s</xliff:g>st</string>
+    <string name="darood_ordinal_nd"><xliff:g id="number" example="2">%1$s</xliff:g>nd</string>
+    <string name="darood_ordinal_rd"><xliff:g id="number" example="3">%1$s</xliff:g>rd</string>
+    <string name="darood_ordinal_th"><xliff:g id="number" example="4">%1$s</xliff:g>th</string>
 </resources>

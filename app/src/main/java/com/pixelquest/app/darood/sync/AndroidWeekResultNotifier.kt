@@ -26,9 +26,16 @@ class AndroidWeekResultNotifier @Inject constructor(@ApplicationContext private 
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        val title = context.getString(R.string.darood_week_notif_title, party.name)
+        val line = WeekRankingText.line(context, week, me) ?: return
+        // On the lock screen, only that the week's in: the places are the party's.
+        val hidden = PqNotifications.builder(context, NotificationChannels.Spec.DAROOD.id).setContentTitle(title).build()
         val notification = PqNotifications.builder(context, NotificationChannels.Spec.DAROOD.id)
-            .setContentTitle(context.getString(R.string.darood_week_notif_title, party.name))
-            .setContentText(context.getString(R.string.darood_week_notif_ready))
+            .setContentTitle(title)
+            .setContentText(line)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(WeekRankingText.expanded(context, week, me, names)))
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(hidden)
             .setContentIntent(open)
             .setAutoCancel(true)
             .build()
