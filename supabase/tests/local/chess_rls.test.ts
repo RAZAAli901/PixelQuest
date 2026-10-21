@@ -121,3 +121,21 @@ localTest("chess: constraints: a time control from the list, two players, one li
     "finished needs a result",
   );
 });
+
+localTest("chess spectators: only the party's active members may join a game's channel", async () => {
+  const { white, black, third, outsider } = await chessCast();
+  endGames(white, black, third);
+  const party = await studyParty(white, [black, third]);
+  const game = gameRow(party, white, black);
+  const mayWatch = (who: Session, topic = `chess:game:${game}`) =>
+    sql(`BEGIN; SET LOCAL ROLE authenticated; SELECT set_config('request.jwt.claims', '{"sub":"${who.userId}","role":"authenticated"}', true); SELECT private.chess_may_watch('${topic}'); COMMIT;`).split("\n").filter((l) => l === "t" || l === "f").pop();
+  assert.equal(mayWatch(third), "t", "a member who isn't playing");
+  assert.equal(mayWatch(white), "t");
+  assert.equal(mayWatch(outsider), "f");
+  assert.equal(mayWatch(third, `chess:game:${game}x`), "f", "only a real game's topic");
+  // Each change to the game goes out on its channel, with its move.
+  sql(`SELECT public.chess_commit_move('${white.userId}', '${game}', 1, 'e2e4', 'e4', 'fen', NULL, NULL, 'black', 'timeout')`);
+  const sent = JSON.parse(sql(`SELECT payload FROM realtime.messages WHERE topic = 'chess:game:${game}' ORDER BY inserted_at DESC LIMIT 1`));
+  assert.equal(sent.move.uci, "e2e4");
+  assert.equal(sent.game.ply, 1);
+});
