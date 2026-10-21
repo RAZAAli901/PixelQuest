@@ -87,3 +87,9 @@ A kind says what's its own through `PartyKind`: its name and icon, what its list
 - The list, Create, Add people and Party info screens are shared. Each asks the party's kind what to show.
 - A study party opens on its own screen (`parties/party/{id}`, docs/study-party.md); its info opens from there.
 
+## Checked in Phase F
+
+- **Privacy:** one sweep reads every party table and view the server has, found on it, as an outsider: each is empty and shows no id, username, party name or title; signed out, each refuses. The race board's line has its seven columns alone, and a study party is never on it.
+- **Signing out** clears both kinds of party from the phone, and anything of them kept outside the database, after sending what's still waiting.
+- **No game data:** `NoGameDataFromIslamicCodeTest` proves from the code that nothing in `party`, `darood` or `study` writes XP, levels or streaks.
+

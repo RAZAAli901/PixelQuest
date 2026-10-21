@@ -127,6 +127,16 @@ The Namaz Tracker (off unless you turn it on) works out prayer times on your pho
 - **The race board (off unless a party's leader turns it on):** other signed-in players see the party's name, how many are in it, its total, how far it is to its milestone and when it finished. Never a member's name, username or numbers.
 - **The weekly note (off unless you turn it on):** a notification on your phone on Friday evenings, worked out from your own days. Nothing about it is sent anywhere.
 
+## Study parties
+
+- **Membership** works as for Darood Parties: the same username, invitations and leader, seen by the same people.
+- **What's stored on the server, with the party:** the items members add (a title, a subject, notes and when it's due), who finished each and when, and study time (minutes and a day). Only the party's active members read any of it; nobody else, and nothing of it is on any public board.
+  - Your ticks can be undone for 24 hours, then they're final. Study time can't be edited.
+  - If you delete your cloud account, your ticks and study time go with it; items you added stay in the party, without your name.
+  - A deleted party is gone for everyone, with everything in it.
+- **Points** are worked out on the server from those rows, for each member's own week. They never change your XP, level or streaks, and never reach the leaderboard.
+- **On your phone:** a copy of your parties, for offline use, cleared when you sign out. The study timer, reminders (on unless you turn them off) and the Sunday summary (off unless you turn it on) are worked out on the phone; nothing about them is sent anywhere.
+
 ## 4. How to Delete Your Data (Full Control)
 
 PixelQuest provides transparent, immediate mechanisms to modify or erase your data at any time:

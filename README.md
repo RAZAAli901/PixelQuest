@@ -1,8 +1,8 @@
-# ⚔️ PixelQuest v1.4.1 — Level Up Your Life
+# ⚔️ PixelQuest v1.5.0 — Level Up Your Life
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
 [![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
-[![Version](https://img.shields.io/badge/Release-v1.4.1-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.4.1)
+[![Version](https://img.shields.io/badge/Release-v1.5.0-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.5.0)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 ![PixelQuest Feature Banner](docs/screenshots/banner.png)
@@ -55,7 +55,10 @@ Or see the release notes and files on the **[📦 v1.4.1 release page](https://g
   - Invite friends by username. Each number shows at once and arrives live for everyone. A leader can set a milestone to reach together.
   - My stats shows your total, share, place and how steady you are. An opt-in race board ranks parties by progress, showing names and progress only.
   - It never adds XP or touches the leaderboard. See [docs/darood-design.md](docs/darood-design.md).
-- **Side Menu**: the three-line icon at the top left opens your profile, the Namaz Tracker, Darood Party, History, the Leaderboard, Account and Settings.
+- **The Islamic section** (new in 1.5.0): one hub for the Namaz Tracker, Darood Party and the Quran, from the side menu. Settings can hide it, and sets the Quran's reading defaults and the reminders. See [docs/islamic-hub.md](docs/islamic-hub.md).
+- **The Quran** (new in 1.5.0, offline): the Uthmani Arabic from the Tanzil Project and the Saheeh International translation, bundled unchanged and checked on every build. Search, juz, bookmarks, copy and share, text size, a sepia page, and carrying on where you stopped. See [docs/quran-data.md](docs/quran-data.md).
+- **Study parties** (new in 1.5.0, for signed-in players): friends pin assignments and quizzes, tick them off, log study time and race on a weekly scoreboard, with reminders before things are due. Their points never touch XP. See [docs/study-party.md](docs/study-party.md).
+- **Side Menu**: the three-line icon at the top left opens your profile, the Islamic section, Parties, History, the Leaderboard, Account and Settings.
 - **AI Habit Coach**: Optional short debriefs and suggestions from Google Gemini, for signed-in players, in a compact card. Task names never leave the phone.
 - **Simple Mode**: A calm, un-gamified checklist whenever you want one.
 - **8-Bit Sound Engine**: Built-in 8-bit sound effects (button clicks, quest completion, missed alerts, and level-up fanfares) powered by `SoundPool` with persisted volume & mute controls.
@@ -138,16 +141,22 @@ The cloud side (database rules, email sign-in, the AI server and the app's repos
 
 ---
 
-## 🛡️ Verification Status (v1.4.1)
+## 🛡️ Verification Status (v1.5.0)
 
-- **Unit tests**: 1,660+ on every push, plus the cloud side (database rules, sign-in, the AI server, Darood Parties) tested against a local Supabase stack in CI.
+- **Unit tests**: 2,100+ on every push, plus the cloud side (database rules, sign-in, the AI server, Darood and study parties) tested against a local Supabase stack in CI.
+- **The Islamic section, the Quran and study parties**:
+  - End-to-end tests: signing in, the hub, a prayer, Darood and a surah in one run; a study party created, joined, pinned, finished and won on two phones.
+  - The bundled Quran is checked against Tanzil's files, byte for byte, with its 114 surahs and 6,236 ayahs, on every build.
+  - An outsider reads nothing from any party table, and the race board shows only names and progress.
+  - A scan of their code proves none of it writes XP, levels or streaks.
+  - TalkBack and large-text passes on every new screen.
 - **Darood Party**:
   - Its server rules are tested on a real Postgres: who reads what, the limits, the leader's rights, and the race board's privacy.
   - The app's own calls are tested against it too, live updates included.
   - Screenshots in every theme, and a TalkBack and large-text pass.
   - A test checks it never changes XP, levels, streaks or the leaderboard.
 - **Namaz Tracker**: an end-to-end test turns it on and marks a day's five prayers on the real database: +80 XP, the all-five bonus, the streak, and the level kept. On the emulator, a real prayer reminder was posted and marked from its Prayed button.
-- **Updates**: tested from every earlier version of the app's database (1 to 11), and tried on a device from v1.1.0.
+- **Updates**: tested from every earlier version of the app's database (1 to 17), and tried on a device from v1.1.0.
 - **On the emulator**: backups, restoring after a reinstall, undo, and a lost database offering its automatic backup.
 - **Android 7**: lint fails the build on any call Android 7.0 doesn't have. On an Android 7.0 emulator, the release build went through onboarding, the dashboard, the Namaz Tracker, History and Stats.
 
@@ -165,7 +174,7 @@ PixelQuest is built with a **local-first, privacy-respecting philosophy**:
   - Only your chosen public pseudonym, player level, streak, and XP are synchronized when opted in.
   - Individual quest titles, schedules, and email addresses are **never** uploaded or exposed.
   - The Namaz Tracker's place and prayer log never leave the phone. Prayer XP joins your XP total, and only that total is synced.
-  - **Parties** (signed in): Darood Parties in the Islamic section, and study parties from the side menu's Parties, share one system ([docs/party-core.md](docs/party-core.md)). In a Darood Party, your username is seen only by your party's members, and your entries only by them. A party's leader can put its name and progress on the opt-in race board, and never anyone's name or numbers. See [PRIVACY.md](PRIVACY.md).
+  - **Parties** (signed in): Darood Parties in the Islamic section, and study parties from the side menu's Parties, share one system ([docs/party-core.md](docs/party-core.md)). In a Darood Party, your username is seen only by your party's members, and your entries only by them; a study party's items, ticks, study time and scores, the same. A party's leader can put its name and progress on the opt-in race board, and never anyone's name or numbers. See [PRIVACY.md](PRIVACY.md).
   - **Fair play.** Public names are unique. The server keeps streaks and levels within what the game allows: a streak grows by at most one day a day, a level takes at least three perfect days, and both need the XP to match. Reports are limited to one per player a day.
 - **Full Erasure Control**: Players can opt out at any time to instantly vanish from public rankings, or permanently purge their cloud account and data with one tap via **Settings > Cloud & Leaderboard > Delete My Cloud Data**.
 

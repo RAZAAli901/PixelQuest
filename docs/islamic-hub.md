@@ -95,6 +95,15 @@ The plan for Phase A, in short. The next section says how it was built.
 - `IslamicHubStoryTest`: from the side menu to each screen and back, and a 1.4 reminder's route.
 - `MenuStateTest`, `MenuDrawerUiTest` and `DaroodMenuUiTest` reach Namaz and Darood through the hub.
 
+## In Settings, and on first use (1.5.0)
+
+- **Settings' Islamic card** (`IslamicSettingsSection`):
+  - *Show the Islamic section*: on by default. Off, the side menu's Islamic entry and the Namaz card on Home are hidden (`SettingsRepository.islamicHubShown`). Nothing is deleted, and each reminder keeps its own switch.
+  - *Quran reading*: the reader's own settings (`ReadingSettingsContent`, embedded), saved where the reader reads them.
+  - *Reminders*: the Darood weekly note, and the study parties' due reminders and Sunday summary. Prayer reminders stay in the Namaz Tracker.
+- **First-run tips** (`ui/tips`): one card each on the hub, the Quran's home and Parties, until Got it (`PrefsTipsStore`). MainActivity gives the store through `LocalTipsStore`; a screen drawn without one (tests, previews) shows no tip.
+- **Signing out** clears every party from the phone (`DaroodAccountCleanup`, with `StudyAccountData`) and keeps the Quran and its bookmarks, which are the phone's.
+
 ## Add a new Islamic item in 3 steps
 
 Say the item is a tasbeeh counter. Nothing in the side menu, the hub or `NavGraph.kt` changes.

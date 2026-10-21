@@ -82,7 +82,7 @@
     <string name="quran_sources_font_title">Arabic typeface</string>
     <string name="quran_sources_font_body">Amiri Quran 1.003, by the Amiri Project Authors (Khaled Hosny, Sebastian Kosch), made for the Quran\'s text. Licensed under the SIL Open Font License 1.1.</string>
     <string name="quran_sources_app_title">In this app</string>
-    <string name="quran_sources_downloaded">Downloaded from Tanzil on <xliff:g id="date" example="20 October 2026">%1$s</xliff:g>. The app updates them when Tanzil does.</string>
+    <string name="quran_sources_downloaded">Downloaded from Tanzil on <xliff:g id="date" example="20 October 2026">%1$s</xliff:g>. A new version of the app brings any change Tanzil makes.</string>
     <string name="quran_sources_version">Data version <xliff:g id="version" example="73c20fa2f325b9d2">%1$s</xliff:g></string>
     <string name="quran_sources_link_tanzil">tanzil.net</string>
     <string name="quran_sources_link_updates">Changes to the text: tanzil.net/updates</string>

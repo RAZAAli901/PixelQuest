@@ -89,6 +89,12 @@ The due list only, with no points, ranks or scoreboard text, as Simple Mode has 
 
 **Routes:** `parties/party/{partyId}` and `parties/party/{partyId}/item/{itemId}`; the party's info stays at `parties/party/{partyId}/info`.
 
+**Since, in Phase F:**
+- End to end: `StudyEndToEndTest`, a party created, joined, pinned, finished and won on two phones; and `StudyPartyFlowTest`.
+- A TalkBack and large-text pass on every screen (`NewScreensAccessibilityTest`).
+- Settings' Islamic card has the due reminders' and Sunday summary's switches too, and Parties has a first-run tip.
+- Signing out sends waiting ticks and study time first, then clears the party, its rows, the timer and what was seen.
+
 **Simplest choices made:**
 - Items, edits and undoing a tick already sent need a connection; ticks and study time don't.
 - A due date is picked from the next four weeks, and a time from the hours of the day.
