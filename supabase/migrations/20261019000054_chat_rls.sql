@@ -80,6 +80,7 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = ''
 AS $$
+#variable_conflict use_column
 DECLARE
     me UUID := (SELECT auth.uid());
     party UUID := mark_chat_read.party_id;
