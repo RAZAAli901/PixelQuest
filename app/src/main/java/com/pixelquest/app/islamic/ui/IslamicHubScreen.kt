@@ -89,10 +89,12 @@ fun IslamicHubContent(
         // Simple Mode is a plain list, one item a row; so is the grid at large text sizes, where two
         // cards a row would leave each description a word a line.
         val largeText = LocalDensity.current.fontScale >= LARGE_TEXT
+        Column(modifier = Modifier.padding(padding)) {
+        com.pixelquest.app.ui.tips.FirstRunTip(com.pixelquest.app.ui.tips.Tip.ISLAMIC_HUB, Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp))
         IslamicGrid(
             cells = cells,
             columns = if (state.isSimpleMode || largeText) 1 else 2,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.weight(1f)
         ) { cell, cellModifier ->
             when (cell) {
                 is HubCell.Item -> IslamicItemCard(
@@ -103,6 +105,7 @@ fun IslamicHubContent(
                 )
                 HubCell.ComingSoon -> ComingSoonCard(isSimpleMode = state.isSimpleMode, modifier = cellModifier)
             }
+        }
         }
     }
 }

@@ -281,4 +281,10 @@ abstract class RepositoryModule {
     abstract fun bindStudyAccountData(
         impl: com.pixelquest.app.study.data.PrefsStudyAccountData
     ): com.pixelquest.app.study.data.StudyAccountData
+
+    @Binds
+    @Singleton
+    abstract fun bindTipsStore(
+        impl: com.pixelquest.app.ui.tips.PrefsTipsStore
+    ): com.pixelquest.app.ui.tips.TipsStore
 }

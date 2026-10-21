@@ -171,6 +171,7 @@ fun QuranHomeScreen(
         } else {
             var tab by rememberSaveable { mutableStateOf(QuranTab.SURAHS) }
             Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+                com.pixelquest.app.ui.tips.FirstRunTip(com.pixelquest.app.ui.tips.Tip.QURAN, Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp))
                 list.continueReading?.let { place ->
                     ContinueReadingCard(
                         place = place,

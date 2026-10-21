@@ -62,6 +62,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var islamicRegistry: com.pixelquest.app.islamic.IslamicRegistry
 
+    @Inject
+    lateinit var tips: com.pixelquest.app.ui.tips.TipsStore
+
     private val themeViewModel: ThemeViewModel by viewModels()
 
     private val lostProgressViewModel: com.pixelquest.app.ui.screens.settings.LostProgressViewModel by viewModels()
@@ -93,7 +96,7 @@ class MainActivity : ComponentActivity() {
                 themeMode = themeMode,
                 isReduceMotion = com.pixelquest.app.ui.theme.rememberReduceMotion(isReduceMotionEnabled)
             ) {
-                CompositionLocalProvider(LocalSoundManager provides soundManager) {
+                CompositionLocalProvider(LocalSoundManager provides soundManager, com.pixelquest.app.ui.tips.LocalTipsStore provides tips) {
                     val isCrtEnabled by settingsRepository.isCrtEnabled.collectAsState(initial = false)
                     val isSimpleModeEnabled by settingsRepository.simpleModeEnabled.collectAsState(initial = false)
                     // A player who has played counts as onboarded even without the flag (OnboardingGate).

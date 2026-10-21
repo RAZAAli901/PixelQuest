@@ -123,6 +123,7 @@ fun PartiesContent(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize().testTag(PartiesTags.LIST)
                 ) {
+                    item(key = "tip") { com.pixelquest.app.ui.tips.FirstRunTip(com.pixelquest.app.ui.tips.Tip.STUDY_PARTIES) }
                     item(key = "create") {
                         PixelButton(
                             text = stringResource(R.string.parties_create),

@@ -37,4 +37,12 @@
         <item quantity="one">%1$d of %2$d perfect day to LVL %3$d</item>
         <item quantity="other">%1$d of %2$d perfect days to LVL %3$d</item>
     </plurals>
+    <!-- First-run tips: one card on each screen, until dismissed. -->
+    <string name="tip_got_it">Got it</string>
+    <string name="tip_hub_title">Welcome to the Islamic section</string>
+    <string name="tip_hub_body">The Namaz Tracker, Darood Parties and the Quran live here. None of it changes your XP, level or streaks, except prayers in the tracker if you turn them on. You can hide this section in Settings.</string>
+    <string name="tip_quran_title">Reading the Quran</string>
+    <string name="tip_quran_body">Tap a surah to read, then tap an ayah to bookmark, copy or share it. The ⚙️ in the reader changes the text size and what each ayah shows. It all works offline.</string>
+    <string name="tip_study_title">Study parties</string>
+    <string name="tip_study_body">Start a party with classmates, pin what\'s due, tick things off and log study time. Points are the party\'s own and never touch your XP.</string>
 </resources>
