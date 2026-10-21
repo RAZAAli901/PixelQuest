@@ -41,7 +41,8 @@ class IslamicSettingsViewModel @Inject constructor(
     private val reading: ReadingSettingsStore,
     private val darood: DaroodReminderSettings,
     private val study: StudyReminderSettings,
-    private val settings: com.pixelquest.app.domain.repository.SettingsRepository? = null
+    private val settings: com.pixelquest.app.domain.repository.SettingsRepository? = null,
+    private val weekRanking: com.pixelquest.app.darood.sync.WeekRankingMutes? = null
 ) : ViewModel() {
     /** The Islamic section shows: in the side menu, and the Namaz card on Home. */
     val hubShown: StateFlow<Boolean> = (settings?.islamicHubShown ?: kotlinx.coroutines.flow.flowOf(true))
@@ -61,6 +62,10 @@ class IslamicSettingsViewModel @Inject constructor(
     }
 
     fun setDaroodWeekly(on: Boolean) = darood.setWeeklyReminder(on)
+
+    /** The weekly ranking's notification, for every Darood Party (each can be muted in its info too). */
+    val daroodRanking: StateFlow<Boolean> = weekRanking?.allOn ?: kotlinx.coroutines.flow.MutableStateFlow(true)
+    fun setDaroodRanking(on: Boolean) { weekRanking?.setAllOn(on) }
     fun setStudyDue(on: Boolean) = study.setDueReminders(on)
     fun setStudyWeekly(on: Boolean) = study.setWeeklySummary(on)
 }
@@ -70,13 +75,14 @@ class IslamicSettingsViewModel @Inject constructor(
 fun IslamicSettingsSection(viewModel: IslamicSettingsViewModel = hiltViewModel()) {
     val reading by viewModel.readingSettings.collectAsState()
     val daroodWeekly by viewModel.daroodWeekly.collectAsState()
+    val daroodRanking by viewModel.daroodRanking.collectAsState()
     val studyDue by viewModel.studyDue.collectAsState()
     val studyWeekly by viewModel.studyWeekly.collectAsState()
     val hubShown by viewModel.hubShown.collectAsState()
     IslamicSettingsContent(
         hubShown, viewModel::setHubShown,
         reading, viewModel::setReading,
-        IslamicReminders(daroodWeekly, viewModel::setDaroodWeekly, studyDue, viewModel::setStudyDue, studyWeekly, viewModel::setStudyWeekly)
+        IslamicReminders(daroodWeekly, viewModel::setDaroodWeekly, studyDue, viewModel::setStudyDue, studyWeekly, viewModel::setStudyWeekly, daroodRanking, viewModel::setDaroodRanking)
     )
 }
 
@@ -87,7 +93,9 @@ data class IslamicReminders(
     val studyDue: Boolean = true,
     val onStudyDue: (Boolean) -> Unit = {},
     val studyWeekly: Boolean = false,
-    val onStudyWeekly: (Boolean) -> Unit = {}
+    val onStudyWeekly: (Boolean) -> Unit = {},
+    val daroodRanking: Boolean = true,
+    val onDaroodRanking: (Boolean) -> Unit = {}
 )
 
 @Composable
@@ -112,6 +120,10 @@ fun IslamicSettingsContent(
         ToggleRow(
             stringResource(R.string.darood_weekly_switch), stringResource(R.string.darood_weekly_explained),
             reminders.daroodWeekly, reminders.onDaroodWeekly, IslamicTestTags.SETTINGS_DAROOD_WEEKLY
+        )
+        ToggleRow(
+            stringResource(R.string.darood_week_switch), stringResource(R.string.darood_week_switch_body),
+            reminders.daroodRanking, reminders.onDaroodRanking, IslamicTestTags.SETTINGS_DAROOD_RANKING
         )
         ToggleRow(
             stringResource(R.string.study_reminders_due), stringResource(R.string.study_reminders_due_body),

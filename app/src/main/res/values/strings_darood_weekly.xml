@@ -25,4 +25,7 @@
     <string name="darood_week_not_ranked">Not ranked that week</string>
     <string name="darood_week_shown">Places shown</string>
     <string name="darood_week_hidden">Places hidden</string>
+    <string name="darood_week_switch">Weekly ranking notification</string>
+    <string name="darood_week_switch_body">After each week closes, your Darood Parties tell you your place. Each party can be turned off in its info too.</string>
+    <string name="darood_week_switch_party">After each week closes, this party tells you your place. On this phone only.</string>
 </resources>

@@ -28,11 +28,12 @@ class DaroodWeekResultsWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val repository: DaroodPartyRepository,
     private val account: DaroodAccount,
-    private val notifier: WeekResultNotifier
+    private val notifier: WeekResultNotifier,
+    private val mutes: WeekRankingMutes
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        WeekResultsRun(repository, account::id, notifier).run()
+        WeekResultsRun(repository, account::id, notifier, mutes).run()
         return Result.success()
     }
 

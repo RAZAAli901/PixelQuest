@@ -17,13 +17,15 @@ fun interface WeekResultNotifier {
 /**
  * One round of the weekly results (J074): for each Darood Party the player is active in, last
  * week is closed (any member may ask; it's stored once), read, cached and told, once per party
- * per week. A week still running in the party's zone, or a failed call, is tried on the next round.
+ * per week (a muted party's is marked told without a notification, so turning it back on never
+ * brings old weeks). A week still running in the party's zone, or a failed call, is tried on the next round.
  * The leader's notification is the same as everyone's: nothing here looks at roles.
  */
 class WeekResultsRun(
     private val repository: DaroodPartyRepository,
     private val me: () -> String?,
-    private val notifier: WeekResultNotifier
+    private val notifier: WeekResultNotifier,
+    private val mutes: WeekRankingMutes? = null
 ) {
     /** How many notifications it posted. */
     suspend fun run(): Int {
@@ -36,8 +38,8 @@ class WeekResultsRun(
             val week = (closed as? SupabaseResult.Success)?.data ?: continue
             // Marked before it's posted: two rounds at once still tell it once.
             if (!repository.markWeekTold(party.id, week.weekStart)) continue
-            // Joined after the week closed: nothing of theirs to tell.
-            if (week.placeOf(account) == null) continue
+            // Joined after the week closed: nothing of theirs to tell. Turned off: told, quietly.
+            if (week.placeOf(account) == null || mutes?.silent(party.id) == true) continue
             val names = repository.observeMembers(party.id).first().associate { it.userId to it.username }
             notifier.post(party, week, account, week.places.associate { it.userId to names[it.userId] })
             posted++

@@ -88,6 +88,7 @@ import java.time.Instant
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -154,10 +155,23 @@ data class PartyInfoUiState(
 class PartyInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: DaroodPartyRepository,
+    private val weekMutes: com.pixelquest.app.darood.sync.WeekRankingMutes? = null,
     account: DaroodAccount? = null
 ) : ViewModel() {
 
     val partyId: String = savedStateHandle["partyId"] ?: ""
+
+    /** This party's weekly ranking notification is on (the Settings switch turns them all off). */
+    val weekNotify: StateFlow<Boolean> = weekMutes?.muted?.let { muted ->
+        kotlinx.coroutines.flow.combine(muted, weekMutes.allOn) { set, all -> all && partyId !in set }
+            .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, !weekMutes.silent(partyId))
+    } ?: MutableStateFlow(true)
+
+    fun setWeekNotify(on: Boolean) {
+        weekMutes?.setMuted(partyId, !on)
+        // Turning one party back on while all are off turns the weekly notifications back on.
+        if (on && weekMutes?.allOn?.value == false) weekMutes.setAllOn(true)
+    }
 
     private val _uiState = MutableStateFlow(PartyInfoUiState(myId = account?.id()))
     val uiState: StateFlow<PartyInfoUiState> = _uiState.asStateFlow()
@@ -320,9 +334,12 @@ fun PartyInfoScreen(
     viewModel: PartyInfoViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val weekNotify by viewModel.weekNotify.collectAsState()
     LaunchedEffect(state.left) { if (state.left) onLeft() }
     PartyInfoContent(
         state = state,
+        weekNotify = weekNotify,
+        onWeekNotify = viewModel::setWeekNotify,
         onNavigateBack = onNavigateBack,
         onAddPeople = onAddPeople,
         onRemove = viewModel::askToRemove,
@@ -366,7 +383,9 @@ fun PartyInfoContent(
     onConfirmMilestone: () -> Unit = {},
     onDeleteConfirmationChange: (String) -> Unit = {},
     onConfirmDelete: () -> Unit = {},
-    onDismissDialog: () -> Unit = {}
+    onDismissDialog: () -> Unit = {},
+    weekNotify: Boolean? = null,
+    onWeekNotify: (Boolean) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -456,6 +475,9 @@ fun PartyInfoContent(
                 style = PqType.Meta,
                 modifier = Modifier.testTag(DaroodTestTags.INFO_RACE_NOTE)
             )
+        }
+        if (weekNotify != null && kind.rules.raceBoard && state.members.any { it.userId == state.myId && it.status == com.pixelquest.app.party.domain.MemberStatus.ACTIVE }) {
+            WeekNotifySwitch(on = weekNotify, onChange = onWeekNotify)
         }
         PqGroupLabel(
             stringResource(R.string.darood_info_members) + " · " + state.members.size,
@@ -578,6 +600,28 @@ internal fun RaceBoardSwitch(on: Boolean, hasMilestone: Boolean, enabled: Boolea
             }
         }
         // The row handles the toggle; the switch only shows it.
+        PqSwitch(checked = on, onCheckedChange = null)
+    }
+}
+
+/** The player's switch for this party's weekly ranking notification, on this phone. The whole row toggles. */
+@Composable
+internal fun WeekNotifySwitch(on: Boolean, onChange: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(DaroodTestTags.INFO_WEEK_SWITCH)
+            .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
+            .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
+            .padding(horizontal = 14.dp, vertical = 12.dp)
+            .heightIn(min = 48.dp)
+    ) {
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(text = stringResource(R.string.darood_week_switch), style = PqType.BodyStrong)
+            Text(text = stringResource(R.string.darood_week_switch_party), style = PqType.Meta.copy(color = PqColors.Ink2))
+        }
         PqSwitch(checked = on, onCheckedChange = null)
     }
 }
