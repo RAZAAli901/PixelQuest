@@ -3,7 +3,7 @@
 --   * delete_chat_message(message_id): its sender deletes their own message; the party's leader
 --     deletes any in their party. Both must be active members. The delete is soft: deleted_at is
 --     set, the text cleared, and a file message's file goes with it (deleted_at on the file, which
---     then nobody reads; its bytes are removed by the cleanup, 20261019000060).
+--     then nobody reads; its bytes are removed by the cleanup, 20261019000061).
 --     Deleting again changes nothing. Anyone else: not_allowed.
 --   * chat_files.deleted_at: a file gone with its message (or deleted by the cleanup).
 -- Re-runnable: IF NOT EXISTS, CREATE OR REPLACE, DROP POLICY IF EXISTS.
