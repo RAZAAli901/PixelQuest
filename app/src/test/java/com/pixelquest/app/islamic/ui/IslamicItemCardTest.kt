@@ -19,7 +19,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/** One card on the hub: icon, title, description, and a badge only while something waits. */
+/** One tile on Deen: title, description, and a badge only while something waits. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = android.app.Application::class, qualifiers = "w411dp-h914dp")
 class IslamicItemCardTest {
@@ -43,7 +43,6 @@ class IslamicItemCardTest {
     fun theCard_hasItsIconTitleAndDescription_andOpensOnATap() {
         show(darood)
 
-        composeTestRule.onNodeWithTag(IslamicTestTags.EMOJI, useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("Darood Party", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("No parties yet", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithTag(IslamicTestTags.card("darood")).performClick()
@@ -69,13 +68,5 @@ class IslamicItemCardTest {
         assertEquals("2", badgeText(2))
         assertEquals("99", badgeText(99))
         assertEquals("99+", badgeText(250))
-    }
-
-    @Test
-    fun inPixel_aDrawnIcon_takesTheEmojisPlace() {
-        show(darood.copy(icon = IslamicIcon("📿", pixel = R.drawable.ic_darood_pixel, comic = R.drawable.ic_darood_comic)), ThemeMode.Pixel)
-
-        assertEquals(0, composeTestRule.onAllNodes(hasTestTag(IslamicTestTags.EMOJI), useUnmergedTree = true).fetchSemanticsNodes().size)
-        composeTestRule.onNodeWithTag(IslamicTestTags.DRAWN_ICON, useUnmergedTree = true).assertIsDisplayed()
     }
 }

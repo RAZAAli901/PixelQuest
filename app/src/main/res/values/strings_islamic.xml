@@ -8,15 +8,25 @@
       and leave what's inside unchanged. Its example shows what the app puts there.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- The hub: the Islamic section's landing screen, a grid of cards. -->
-    <string name="islamic_title">Islamic</string>
+
+    <!-- The Deen tab (UI v2, mock 2D): the Islamic section's landing screen. -->
+    <string name="pq_deen_title">Deen</string>
+    <!-- What tapping a tile does, as TalkBack says it ("double-tap to open"). -->
+    <string name="islamic_card_open">open</string>
+    <string name="pq_deen_next_prayer">NEXT PRAYER</string>
+    <!-- Days in a row with all five prayers prayed. -->
+    <plurals name="pq_deen_all_five">
+        <item quantity="one"><xliff:g id="days" example="1">%d</xliff:g> day all five</item>
+        <item quantity="other"><xliff:g id="days" example="2">%d</xliff:g> days all five</item>
+    </plurals>
+    <string name="pq_deen_open_tracker">Open Namaz tracker</string>
+    <!-- The Quran tile, once the player has read: "Continue Al-Baqara · ayah 142". -->
+    <string name="pq_deen_quran_continue">Continue <xliff:g id="surah" example="Al-Baqara">%1$s</xliff:g> · ayah <xliff:g id="ayah" example="142">%2$d</xliff:g></string>
 
     <!-- What TalkBack says for a card, which is one button: its title, then its description. -->
     <string name="islamic_card_spoken"><xliff:g id="title" example="Darood Party">%1$s</xliff:g>. <xliff:g id="description" example="Count Darood together with friends">%2$s</xliff:g></string>
     <!-- The same with its badge, in words (islamic_namaz_badge, islamic_darood_badge). -->
     <string name="islamic_card_spoken_badge"><xliff:g id="title" example="Darood Party">%1$s</xliff:g>. <xliff:g id="description" example="Count Darood together with friends">%2$s</xliff:g>. <xliff:g id="badge" example="1 invitation waiting">%3$s</xliff:g></string>
-    <!-- What tapping a card does, as TalkBack says it ("double-tap to open"). -->
-    <string name="islamic_card_open">open</string>
 
     <!-- A card after the items in debug builds only, where a new item will appear. -->
     <string name="islamic_coming_soon_title">More coming soon</string>

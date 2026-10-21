@@ -172,11 +172,17 @@ val isPixelSkin: Boolean get() = PqSkinState.skin == PqSkin.Pixel
 val Number.bsp: TextUnit get() = (toFloat() * s.bodyScale).sp      // body text
 val Number.lsp: TextUnit get() = (toFloat() * s.labelScale).sp     // buttons / labels
 
+/**
+ * Pixelify Sans joins f and i (and f and l) into one pixel glyph that reads as an A at text sizes
+ * ("all five" read "all Ave"), so the Pixel skin's text keeps its letters apart.
+ */
+private val features: String? get() = if (isPixelSkin) "liga 0, clig 0" else null
+
 object PqType {
     fun display(size: Int, line: Int? = null) = TextStyle(
         fontFamily = s.display, fontSize = (size * s.displayScale).sp,
         lineHeight = ((line ?: size) * s.displayScale * s.displayLine).sp,
-        letterSpacing = if (isPixelSkin) 0.sp else 1.sp, color = PqColors.Ink,
+        letterSpacing = if (isPixelSkin) 0.sp else 1.sp, color = PqColors.Ink, fontFeatureSettings = features,
     )
     fun number(size: Int) = display(size).copy(letterSpacing = 0.sp)
 
@@ -186,11 +192,11 @@ object PqType {
     val Hero get() = display(48, 46)
     val Number get() = number(24)
 
-    val Body get() = TextStyle(fontFamily = s.body, fontWeight = FontWeight.Medium, fontSize = 14.bsp, lineHeight = 20.bsp, color = PqColors.Ink)
+    val Body get() = TextStyle(fontFamily = s.body, fontWeight = FontWeight.Medium, fontSize = 14.bsp, lineHeight = 20.bsp, color = PqColors.Ink, fontFeatureSettings = features)
     val BodyStrong get() = Body.copy(fontWeight = if (isPixelSkin) FontWeight.SemiBold else FontWeight.ExtraBold, fontSize = 15.bsp)
     val Meta get() = Body.copy(fontSize = 12.bsp, lineHeight = 16.bsp, color = PqColors.Muted)
     val MetaStrong get() = Meta.copy(fontWeight = FontWeight.Bold, color = PqColors.Ink)
-    val Label get() = TextStyle(fontFamily = s.label, fontWeight = s.labelWeight, fontSize = 11.lsp, lineHeight = 15.lsp, letterSpacing = if (isPixelSkin) 0.sp else 1.3.sp, color = PqColors.Ink)
+    val Label get() = TextStyle(fontFamily = s.label, fontWeight = s.labelWeight, fontSize = 11.lsp, lineHeight = 15.lsp, letterSpacing = if (isPixelSkin) 0.sp else 1.3.sp, color = PqColors.Ink, fontFeatureSettings = features)
     val Button get() = Label.copy(fontSize = 13.lsp, lineHeight = 18.lsp, letterSpacing = if (isPixelSkin) 0.sp else 0.5.sp)
     val NavLabel get() = Label.copy(fontSize = 11.lsp, letterSpacing = 0.sp, fontWeight = if (isPixelSkin) FontWeight.Normal else FontWeight.Bold)
     val Arabic get() = TextStyle(fontFamily = Amiri, fontSize = 24.sp, lineHeight = 30.sp, color = PqColors.Ink)

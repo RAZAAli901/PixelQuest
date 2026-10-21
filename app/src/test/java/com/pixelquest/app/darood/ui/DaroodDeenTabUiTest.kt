@@ -2,6 +2,8 @@ package com.pixelquest.app.darood.ui
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
@@ -79,7 +81,10 @@ class DaroodDeenTabUiTest {
                 PqAppFrame(nav, root) { padding ->
                     NavHost(nav, startDestination = Screen.Home.route, modifier = Modifier.padding(padding)) {
                         composable(Screen.Home.route) { Text("TODAY'S DASHBOARD") }
-                        islamicGraph(nav, hub = { onOpen -> com.pixelquest.app.islamic.ui.IslamicHubScreen(onOpen, viewModel = hub) }) {
+                        islamicGraph(nav, hub = { onOpen ->
+                            val state by hub.state.collectAsState()
+                            com.pixelquest.app.islamic.ui.IslamicHubContent(state, onOpen)
+                        }) {
                             composable(Screen.DaroodParty.route) {
                                 DaroodPartyScreen(
                                     onNavigateBack = { nav.popBackStack() },

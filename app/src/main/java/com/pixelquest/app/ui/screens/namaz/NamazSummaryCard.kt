@@ -49,8 +49,19 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.ZoneId
 import javax.inject.Inject
 
-/** Home's glance at the Namaz Tracker: the next prayer, and how many of today's five are prayed. */
-data class NamazSummary(val next: NextPrayer, val prayed: Int)
+/**
+ * A glance at the Namaz Tracker, for Home and Deen: the next prayer, and how many of its day's five
+ * are prayed.
+ *
+ * @param prayedPrayers which of them, for Deen's five boxes.
+ * @param allFiveStreak days in a row with all five prayed (NamazStreak).
+ */
+data class NamazSummary(
+    val next: NextPrayer,
+    val prayed: Int,
+    val prayedPrayers: Set<com.pixelquest.app.domain.namaz.Prayer> = emptySet(),
+    val allFiveStreak: Int = 0
+)
 
 /**
  * The Home card's state: null while the tracker is off, so the card isn't there at all. Lighter
@@ -77,12 +88,28 @@ class NamazSummaryViewModel(
         if (!enabled) {
             flowOf(null)
         } else {
-            val next = nextPrayer(clock.now().atZone(zone()))
-            repository.observeDay(next.prayerDay).map { logs ->
-                NamazSummary(next, logs.count { it.status == PrayerStatus.PRAYED })
+            val now = clock.now().atZone(zone())
+            val next = nextPrayer(now)
+            val today = now.toLocalDate()
+            combine(
+                repository.observeDay(next.prayerDay),
+                repository.observePrayedPerDay(today.minusYears(STREAK_YEARS), today)
+            ) { logs, perDay ->
+                val prayed = logs.filter { it.status == PrayerStatus.PRAYED }
+                NamazSummary(
+                    next = next,
+                    prayed = prayed.size,
+                    prayedPrayers = prayed.map { it.prayer }.toSet(),
+                    allFiveStreak = com.pixelquest.app.domain.namaz.NamazStreak.current(perDay.associate { it.date to it.prayed }, today)
+                )
             }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    private companion object {
+        /** How far back the streak is counted, as the tracker counts it. */
+        const val STREAK_YEARS = 10L
+    }
 }
 
 /** Home's Namaz card, shown only while the tracker is on. */

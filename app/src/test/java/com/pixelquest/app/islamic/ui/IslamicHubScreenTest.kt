@@ -13,6 +13,7 @@ import com.pixelquest.app.islamic.IslamicItem
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +49,7 @@ class IslamicHubScreenTest {
         show()
 
         composeTestRule.onNodeWithTag(IslamicTestTags.HUB).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Islamic", ignoreCase = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("DEEN").assertIsDisplayed()
         items.forEach { composeTestRule.onNodeWithTag(IslamicTestTags.card(it.id)).assertIsDisplayed() }
     }
 
@@ -63,25 +64,26 @@ class IslamicHubScreenTest {
     }
 
     @Test
-    fun twoCardsARow_sharingItsHeight() {
+    fun namazAcrossTheTop_thenTwoTilesARow_sharingItsHeight() {
         show()
 
         val namaz = composeTestRule.onNodeWithTag(IslamicTestTags.card("namaz")).getBoundsInRoot()
         val darood = composeTestRule.onNodeWithTag(IslamicTestTags.card("darood")).getBoundsInRoot()
         val quran = composeTestRule.onNodeWithTag(IslamicTestTags.card("quran")).getBoundsInRoot()
 
-        assertEquals("Namaz and Darood share the first row", namaz.top, darood.top)
-        assertEquals(namaz.bottom, darood.bottom)
-        assertEquals("the Quran starts the next row, on the left", namaz.left, quran.left)
+        assertTrue("the Namaz Tracker comes first", darood.top >= namaz.bottom)
+        assertEquals("Darood and the Quran share a row", darood.top, quran.top)
+        assertEquals(darood.bottom, quran.bottom)
+        assertEquals("Darood on the left, under Namaz", namaz.left, darood.left)
     }
 
     @Test
     fun theComingSoonCard_followsTheItems_onlyWhenAskedFor_andOpensNothing() {
         show(comingSoon = true)
 
-        val quran = composeTestRule.onNodeWithTag(IslamicTestTags.card("quran")).getBoundsInRoot()
+        val darood = composeTestRule.onNodeWithTag(IslamicTestTags.card("darood")).getBoundsInRoot()
         val soon = composeTestRule.onNodeWithTag(IslamicTestTags.COMING_SOON).assertIsDisplayed().getBoundsInRoot()
-        assertEquals("it takes the place beside the last item", quran.top, soon.top)
+        assertEquals("it starts the row after the last pair, on the left", darood.left, soon.left)
         composeTestRule.onNodeWithTag(IslamicTestTags.COMING_SOON).performClick()
         assertEquals(emptyList<String>(), opened)
     }

@@ -94,6 +94,8 @@ fun Modifier.comicPressable(
     radius: Dp = PqDimens.Radius,
     shadow: Dp = PqDimens.Shadow,
     enabled: Boolean = true,
+    onClickLabel: String? = null,
+    role: Role? = null,
 ): Modifier {
     val src = remember { MutableInteractionSource() }
     val pressed by src.collectIsPressedAsState()
@@ -101,7 +103,7 @@ fun Modifier.comicPressable(
     return this
         .offset(shift * PqSkinState.spec.shadowX, shift)
         .comic(bg = bg, radius = radius, shadow = if (pressed) 1.dp else shadow, tappable = true)
-        .clickable(interactionSource = src, indication = null, enabled = enabled, onClick = onClick)
+        .clickable(interactionSource = src, indication = null, enabled = enabled, onClickLabel = onClickLabel, role = role, onClick = onClick)
 }
 
 @Composable
@@ -111,9 +113,11 @@ fun PqCard(
     shadow: Dp = PqDimens.Shadow,
     radius: Dp = PqDimens.RadiusLg,
     onClick: (() -> Unit)? = null,
+    /** What TalkBack says a tap does ("open"), for a card that opens something. */
+    onClickLabel: String? = null,
     content: @Composable () -> Unit,
 ) {
-    val m = if (onClick != null) modifier.comicPressable(onClick, bg, radius, shadow) else modifier.comic(bg, radius, shadow = shadow)
+    val m = if (onClick != null) modifier.comicPressable(onClick, bg, radius, shadow, onClickLabel = onClickLabel, role = Role.Button) else modifier.comic(bg, radius, shadow = shadow)
     Box(m) { content() }
 }
 
