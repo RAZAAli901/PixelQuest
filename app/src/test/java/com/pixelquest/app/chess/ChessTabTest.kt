@@ -39,7 +39,7 @@ class ChessTabTest {
     fun liveGames_theLadder_andAChallengeFromIt() {
         val watched = mutableListOf<String>()
         val picked = mutableListOf<String?>()
-        val live = ChessGame("g1", "p", "ali", "sara", TimeControl.FIVE, true, GameStatus.ACTIVE, null, null, "fen", ChessColour.WHITE, 1, 1, 10, t, t, t, null)
+        val live = ChessGame("g1", "p", "ali", "sara", TimeControl.FIVE, true, GameStatus.ACTIVE, null, null, "fen", ChessColour.WHITE, 1, 1, 10, t, t, t, null, watchers = 3)
         val state = ChessPartyState(
             me = "me",
             members = listOf(ChessMember("sara", "sara"), ChessMember("ali", "ali")),
@@ -49,6 +49,7 @@ class ChessTabTest {
         )
         composeTestRule.setContent { PixelQuestTheme { ChessTab(state, ChessTabActions(onWatch = { watched += it }, onPick = { picked += it })) } }
         composeTestRule.onNodeWithText("@ali vs @sara").assertExists()
+        composeTestRule.onNodeWithText("5 min · move 5 · 3 watching").assertExists()
         composeTestRule.onNodeWithTag(LiveGameTags.watch("g1")).performClick()
         assertEquals(listOf("g1"), watched)
         composeTestRule.onNodeWithTag(ChessTabTags.row("sara")).assertExists()

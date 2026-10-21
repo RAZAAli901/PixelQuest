@@ -44,7 +44,8 @@ data class ChessGameDto(
     @SerialName("ended_at") val endedAt: String? = null,
     @SerialName("white_change") val whiteChange: Int? = null,
     @SerialName("black_change") val blackChange: Int? = null,
-    @SerialName("rating_applied") val ratingApplied: Boolean = false
+    @SerialName("rating_applied") val ratingApplied: Boolean = false,
+    val watchers: Int = 0
 ) {
     fun toDomain(): ChessGame? {
         val tc = TimeControl.of(timeControlSec) ?: return null
@@ -56,7 +57,7 @@ data class ChessGameDto(
         whiteMs = whiteMs, blackMs = blackMs, ply = ply,
         lastMoveAt = lastMoveAt?.let(::parseInstant), createdAt = parseInstant(createdAt),
         startedAt = startedAt?.let(::parseInstant), endedAt = endedAt?.let(::parseInstant),
-        drawOfferedBy = drawOfferedBy, whiteChange = whiteChange, blackChange = blackChange, ratingApplied = ratingApplied
+        drawOfferedBy = drawOfferedBy, whiteChange = whiteChange, blackChange = blackChange, ratingApplied = ratingApplied, watchers = watchers
         )
     }
 }

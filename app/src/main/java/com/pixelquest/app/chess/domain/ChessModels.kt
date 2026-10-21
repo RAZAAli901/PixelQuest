@@ -92,7 +92,9 @@ data class ChessGame(
     val whiteChange: Int? = null,
     val blackChange: Int? = null,
     /** Whether it counted for ratings (rated, and not farmed). */
-    val ratingApplied: Boolean = false
+    val ratingApplied: Boolean = false,
+    /** How many members asked to watch it lately (the live games list's count). */
+    val watchers: Int = 0
 ) {
     fun colourOf(userId: String?): ChessColour? = when (userId) {
         whiteId -> ChessColour.WHITE

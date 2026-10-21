@@ -108,4 +108,12 @@
     <string name="chess_challenge_named">Challenge <xliff:g id="name" example="@sara">%1$s</xliff:g></string>
     <string name="chess_live_players"><xliff:g id="white" example="@ali">%1$s</xliff:g> vs <xliff:g id="black" example="@sara">%2$s</xliff:g></string>
     <string name="chess_watch">Watch</string>
+    <plurals name="chess_live_moves">
+        <item quantity="one">move <xliff:g id="count" example="1">%1$d</xliff:g></item>
+        <item quantity="other">move <xliff:g id="count" example="12">%1$d</xliff:g></item>
+    </plurals>
+    <plurals name="chess_live_watching">
+        <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> watching</item>
+        <item quantity="other"><xliff:g id="count" example="4">%1$d</xliff:g> watching</item>
+    </plurals>
 </resources>

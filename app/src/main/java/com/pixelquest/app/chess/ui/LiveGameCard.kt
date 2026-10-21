@@ -23,9 +23,13 @@ import com.pixelquest.app.ui.theme.PqType
 object LiveGameTags {
     fun card(id: String) = "chess_live_$id"
     fun watch(id: String) = "chess_live_watch_$id"
+    fun meta(id: String) = "chess_live_meta_$id"
 }
 
-/** A game being played in the party: who's playing, and Watch. */
+/**
+ * A game being played in the party (J154): who's playing, its time control, how many moves in,
+ * how many are watching, and Watch.
+ */
 @Composable
 fun LiveGameCard(game: ChessGame, state: ChessPartyState, onWatch: () -> Unit) {
     val white = state.names[game.whiteId]?.let { "@$it" } ?: stringResource(R.string.chess_white)
@@ -41,6 +45,15 @@ fun LiveGameCard(game: ChessGame, state: ChessPartyState, onWatch: () -> Unit) {
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(text = stringResource(R.string.chess_live_players, white, black), style = PqType.BodyStrong)
+            Text(
+                text = listOf(
+                    stringResource(R.string.chess_minutes, game.timeControl.seconds / 60),
+                    androidx.compose.ui.res.pluralStringResource(R.plurals.chess_live_moves, (game.ply + 1) / 2, (game.ply + 1) / 2),
+                    androidx.compose.ui.res.pluralStringResource(R.plurals.chess_live_watching, game.watchers, game.watchers)
+                ).joinToString(" · "),
+                style = PqType.Meta,
+                modifier = Modifier.testTag(LiveGameTags.meta(game.id))
+            )
         }
         PqButton(stringResource(R.string.chess_watch), onClick = onWatch, style = PqButtonStyle.Secondary, modifier = Modifier.testTag(LiveGameTags.watch(game.id)))
     }

@@ -84,3 +84,14 @@ localTest("chess, through the functions: a resignation, a draw offer, and a game
   assert.equal(late.body.error, "time_out");
   assert.equal(sql(`SELECT result || ' ' || result_reason FROM public.chess_games WHERE id = '${timed}'`), "black timeout");
 });
+
+localTest("chess: the live games list counts who's watching, not who", async () => {
+  const { white, black, third } = await chessCast();
+  endGames(white, black, third);
+  const party = await studyParty(white, [black, third]);
+  const game = await newGame(party, white, black);
+  assert.equal((await call(`/rest/v1/rpc/chess_watch`, { token: third.accessToken, body: { game_id: game } })).body.status, "watching");
+  const live = await fn("chess-live-games", third, { party_id: party });
+  assert.equal(live.body.games[0].watchers, 1);
+  assert.ok(!JSON.stringify(live.body).includes(third.userId), "the watcher isn't named");
+});
