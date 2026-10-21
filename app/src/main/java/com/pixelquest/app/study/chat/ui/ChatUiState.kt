@@ -46,7 +46,7 @@ data class ChatUiState(
     val isLeader: Boolean = false,
     /** Where the unread divider goes: before the first message after this moment, not the player's own. */
     val lastReadAt: java.time.Instant? = null,
-    val today: LocalDate = LocalDate.MIN,
+    val today: LocalDate = LocalDate.now(),
     val loadingOlder: Boolean = false,
     val offline: Boolean = false,
     /** The last thing tried, said once: a send saved offline, or refused. */
