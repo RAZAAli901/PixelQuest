@@ -64,4 +64,13 @@ class ChessGameScreenTest {
         show(ChessSessionState(SessionPhase.ACTIVE, game, me = "cleo", myColour = null))
         composeTestRule.onNodeWithTag(ChessGameTags.SPECTATING).assertExists()
     }
+
+    @Test
+    fun theMoves_inStandardNotation() {
+        val moves = listOf("e4", "e5", "Bc4").mapIndexed { i, san -> com.pixelquest.app.chess.domain.ChessMove("g", i + 1, san, "a2a3", "fen", 1, 1, t0) }
+        show(ChessSessionState(SessionPhase.ACTIVE, game, moves = moves, me = "me", myColour = ChessColour.WHITE))
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.MoveListTags.move(3)).assertExists()
+        composeTestRule.onNodeWithText("2.").assertExists()
+        composeTestRule.onNodeWithText("Bc4").assertExists()
+    }
 }

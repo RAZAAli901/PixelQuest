@@ -111,6 +111,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Player(game, state, bottomColour, now, sync)
+        MoveList(state.moves)
     }
 }
 
