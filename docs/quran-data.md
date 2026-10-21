@@ -71,6 +71,8 @@ Measured on 2026-10-20, Tanzil's files as above:
 | In the APK: the build unzips them, then deflates them with every asset | 558,690 |
 | Release APK, 1.4.1 | 6,936,271 |
 | Release APK with the Quran and the Islamic hub | 7,539,359 |
+| Release APK, 1.5.0 (Phases C to F), with every library's languages | 8,109,578 |
+| Release APK, 1.5.0, English resources only | 7,381,250 |
 
 - **The APK:** gzip makes no difference to it, since the build unzips the files and deflates them itself; 559 KB of its 603 KB growth is the Quran. Gzip keeps the repository 1.7 MB smaller.
 - **On the phone:** the Quran's tables, with the translation's search index, take a few MB in the database.
@@ -79,7 +81,9 @@ Measured on 2026-10-20, Tanzil's files as above:
 - The Quran's files in the APK: at most 700 KB.
 - The release APK: at most 8 MB.
 
-The tool's tests keep the gzipped files within budget (at most 600 KB together), and Phase F checks the APK against it before the release.
+The tool's tests keep the gzipped files within budget (at most 600 KB together), and CI's "Check the APK's size budget" step checks the release APK and the Quran's files in it on every build.
+
+- **Measured on 2026-10-21 for 1.5.0:** the reader, Darood and study parties' code (Phases C to F) took the APK to 8.11 MB, over budget, mostly in `resources.arsc`: the libraries' own strings in every language, though the app speaks only English. Packing English alone (`resourceConfigurations`, app/build.gradle.kts) took that file from 817 KB to 89 KB, and the APK to 7.38 MB. The Quran's files in it are 559 KB. A translation added later adds its language there.
 
 ## Search
 

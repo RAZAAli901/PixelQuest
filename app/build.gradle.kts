@@ -65,6 +65,11 @@ android {
         buildConfigField("boolean", "EMAIL_SIGN_IN", "$emailSignInProp")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // The app speaks English only (no values-xx folders): its libraries' own strings in other
+        // languages would ship unused, and kept the release APK over its 8 MB budget (docs/quran-data.md).
+        // A translation added later adds its language here.
+        resourceConfigurations += listOf("en")
         vectorDrawables {
             useSupportLibrary = true
         }

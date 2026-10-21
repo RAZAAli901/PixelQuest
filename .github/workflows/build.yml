@@ -72,6 +72,17 @@ jobs:
         # stopped compiling without anyone noticing.
         run: ./gradlew compileDebugKotlin assembleDebug assembleRelease assembleDebugAndroidTest
 
+      # The size budget (docs/quran-data.md): the release APK at most 8 MB, and the Quran's two files in
+      # it at most 700 KB, as the APK stores them.
+      - name: Check the APK's size budget
+        run: |
+          apk=app/build/outputs/apk/release/app-release.apk
+          size=$(stat -c%s "$apk")
+          quran=$(unzip -v "$apk" 'assets/quran/*' | awk '/assets\/quran\// {sum += $3} END {print sum}')
+          echo "Release APK: $size bytes (budget 8,000,000); the Quran's files: $quran bytes (budget 700,000)"
+          test "$size" -le 8000000
+          test "$quran" -le 700000
+
       # The build re-exports the database layout (app/schemas). A difference means a table changed
       # without a new version and migration, which would crash every update (DatabaseUpgradeTest).
       - name: Database layouts match the code
