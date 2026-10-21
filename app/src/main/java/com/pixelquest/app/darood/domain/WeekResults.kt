@@ -32,3 +32,29 @@ object DaroodWeeks {
     /** How many weeks the ranking screen shows (J079). */
     const val HISTORY_WEEKS = 8
 }
+
+/**
+ * The kind line under a player's place (docs/darood-weekly.md, Tone): never a shaming one. It
+ * depends only on the week's numbers, never on who leads the party, so the leader reads what
+ * anyone in that place would.
+ */
+enum class WeekTone {
+    /** First (alone or tied) with Darood to show for it. */
+    TOP,
+    /** Last place, or no Darood that week: an encouraging line. */
+    ENCOURAGE,
+    /** Anywhere between: no extra line. */
+    NONE;
+
+    companion object {
+        fun of(week: WeekResult, userId: String): WeekTone? {
+            val mine = week.placeOf(userId) ?: return null
+            return when {
+                mine.weekTotal == 0L -> ENCOURAGE
+                mine.position == 1 -> TOP
+                mine.position == week.lastPosition -> ENCOURAGE
+                else -> NONE
+            }
+        }
+    }
+}

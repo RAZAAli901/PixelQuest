@@ -3,6 +3,7 @@ package com.pixelquest.app.darood.sync
 import android.content.Context
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.WeekResult
+import com.pixelquest.app.darood.domain.WeekTone
 import com.pixelquest.app.darood.ui.formatCount
 
 /**
@@ -36,7 +37,14 @@ object WeekRankingText {
             context.getString(R.string.darood_week_notif_row, ordinal(context, place.position), who, formatCount(place.weekTotal))
         }
 
-    /** The expanded text: the player's line, then everyone's. */
+    /** The kind line for the player's place (WeekTone): null between first and last. */
+    fun tone(context: Context, week: WeekResult, me: String): String? = when (WeekTone.of(week, me)) {
+        WeekTone.TOP -> context.getString(R.string.darood_week_tone_top)
+        WeekTone.ENCOURAGE -> context.getString(R.string.darood_week_tone_encourage)
+        WeekTone.NONE, null -> null
+    }
+
+    /** The expanded text: the player's line and its kind line, then everyone's. */
     fun expanded(context: Context, week: WeekResult, me: String, names: Map<String, String?>): String =
-        (listOfNotNull(line(context, week, me)) + lines(context, week, me, names)).joinToString("\n")
+        (listOfNotNull(line(context, week, me), tone(context, week, me)) + lines(context, week, me, names)).joinToString("\n")
 }
