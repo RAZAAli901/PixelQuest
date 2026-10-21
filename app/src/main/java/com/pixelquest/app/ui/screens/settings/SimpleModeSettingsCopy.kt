@@ -6,4 +6,4 @@ package com.pixelquest.app.ui.screens.settings
  * player's current difficulty. (Until Day 30 this said "Thresholds and streaks are paused".)
  */
 const val DIFFICULTY_LOCKED_IN_SIMPLE_MODE =
-    "🔒 Difficulty can't be changed while Simple Mode is on. Your streak, perfect days and level keep counting with your current difficulty."
+    "Difficulty can't be changed while Simple Mode is on. Your streak, perfect days and level keep counting with your current difficulty."

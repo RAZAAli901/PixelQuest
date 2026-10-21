@@ -264,6 +264,7 @@ class NamazScreenUiTest {
         scrollTo(NamazTestTags.STREAK)
 
         composeTestRule.onNodeWithTag(NamazTestTags.STREAK).assertTextContains("1 day in a row with all five prayed")
+        composeTestRule.onNodeWithTag(NamazTestTags.STREAK_FLAME, useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test
@@ -274,7 +275,8 @@ class NamazScreenUiTest {
         show(ThemeMode.Comic)
         scrollTo(NamazTestTags.STREAK)
 
-        composeTestRule.onNodeWithTag(NamazTestTags.STREAK).assertTextContains("🔥 1 day in a row with all five prayed")
+        composeTestRule.onNodeWithTag(NamazTestTags.STREAK).assertTextContains("1 day in a row with all five prayed")
+        composeTestRule.onNodeWithTag(NamazTestTags.STREAK_FLAME, useUnmergedTree = true).assertExists()
     }
 
     private fun clickLabel(tag: String): String? =

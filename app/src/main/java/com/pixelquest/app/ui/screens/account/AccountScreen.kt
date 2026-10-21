@@ -375,33 +375,22 @@ fun PrivacyPolicyDialog(
         onConfirm = onDismiss,
         dismiss = null
     ) {
+        // The dialog scrolls a long policy itself.
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 320.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(
-                text = "🛡️ 100% LOCAL-FIRST OPERATION",
-                style = PqType.BodyStrong
-            )
+            PqGroupLabel("Local first")
             Text(
                 text = "By default, all your quests, schedule times, recurrence rules, completion logs, and streak history are stored strictly on your local device. We never run third-party advertising SDKs or tracking telemetry.",
                 style = PqType.Meta.copy(color = PqColors.Ink2)
             )
-            Text(
-                text = "🏆 OPTIONAL CLOUD LEADERBOARD",
-                style = PqType.BodyStrong
-            )
+            PqGroupLabel("The leaderboard is optional")
             Text(
                 text = "Leaderboard participation defaults to OFF. You can sign in with Google or with a code sent to your email; signing in alone shares nothing. If you opt in, only your public display name, level, streak, and XP are synchronized. Your individual quest descriptions and email are NEVER shared. The AI Coach is for signed-in players.",
                 style = PqType.Meta.copy(color = PqColors.Ink2)
             )
-            Text(
-                text = "🗑️ RIGHT TO ERASE",
-                style = PqType.BodyStrong
-            )
+            PqGroupLabel("Your right to erase")
             Text(
                 text = "You can leave the leaderboard at any time, or permanently delete your cloud account and public record with one tap from this screen. Local progress remains safe on your device.",
                 style = PqType.Meta.copy(color = PqColors.Ink2)

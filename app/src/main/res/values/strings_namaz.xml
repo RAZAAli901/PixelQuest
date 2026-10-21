@@ -230,12 +230,7 @@
     <string name="namaz_channel_nudge">Prayer nudges</string>
     <string name="namaz_channel_nudge_description">A quiet reminder before the next prayer starts, while one is still unmarked</string>
 
-    <!-- Days in a row with all five prayers prayed. -->
-    <plurals name="namaz_streak">
-        <item quantity="one">🔥 <xliff:g id="days" example="1">%1$d</xliff:g> day in a row with all five prayed</item>
-        <item quantity="other">🔥 <xliff:g id="days" example="3">%1$d</xliff:g> days in a row with all five prayed</item>
-    </plurals>
-    <!-- The same in Simple Mode, and for TalkBack: plain words, no emoji. -->
+    <!-- Days in a row with all five prayers prayed (after a flame, outside Simple Mode). -->
     <plurals name="namaz_streak_plain">
         <item quantity="one"><xliff:g id="days" example="1">%1$d</xliff:g> day in a row with all five prayed</item>
         <item quantity="other"><xliff:g id="days" example="3">%1$d</xliff:g> days in a row with all five prayed</item>

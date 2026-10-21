@@ -1,5 +1,8 @@
 package com.pixelquest.app.ui.screens.namaz
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -67,6 +70,7 @@ object NamazTestTags {
     const val PROGRESS = "namaz_progress"
     const val DAY_STRIP = "namaz_day_strip"
     const val STREAK = "namaz_streak"
+    const val STREAK_FLAME = "namaz_streak_flame"
     const val SETTINGS = "namaz_settings"
     const val LOCATION = "namaz_location"
     const val HIJRI = "namaz_hijri"
@@ -345,21 +349,23 @@ private fun NamazScaffold(
                     )
                 }
                 item(key = "streak") {
-                    // TalkBack gets the plain words: "fire" isn't part of the sentence.
                     val plain = if (state.streak > 0) {
                         pluralStringResource(R.plurals.namaz_streak_plain, state.streak, state.streak)
                     } else {
                         stringResource(R.string.namaz_streak_none)
                     }
-                    Text(
-                        text = if (state.streak > 0 && playful) {
-                            pluralStringResource(R.plurals.namaz_streak, state.streak, state.streak)
-                        } else {
-                            plain
-                        },
-                        style = PqType.MetaStrong,
-                        modifier = Modifier.testTag(NamazTestTags.STREAK).semantics { contentDescription = plain }
-                    )
+                    // Outside Simple Mode a streak has its flame; TalkBack reads the words alone.
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (state.streak > 0 && playful) {
+                            Icon(
+                                Icons.Rounded.LocalFireDepartment,
+                                contentDescription = null,
+                                tint = PqColors.Flame,
+                                modifier = Modifier.size(18.dp).testTag(NamazTestTags.STREAK_FLAME)
+                            )
+                        }
+                        Text(text = plain, style = PqType.MetaStrong, modifier = Modifier.testTag(NamazTestTags.STREAK))
+                    }
                 }
             }
             // An earlier day says which, and that it's only to look at.

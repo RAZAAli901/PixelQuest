@@ -48,7 +48,7 @@
         <item quantity="other"><xliff:g id="count" example="2">%d</xliff:g> invitations waiting</item>
     </plurals>
     <!-- Settings: the Islamic section. -->
-    <string name="settings_islamic_title">🕌 ISLAMIC</string>
+    <string name="settings_islamic_title">Islamic</string>
     <string name="settings_islamic_show">Show the Islamic section</string>
     <string name="settings_islamic_show_body">Its side menu entry, and the Namaz card on Home. Turned off, they\'re hidden; what you\'ve saved stays, and comes back when it\'s on.</string>
     <string name="settings_islamic_quran">Quran reading</string>
