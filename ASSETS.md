@@ -30,6 +30,12 @@
 - `ic_stats.xml`: bar chart
 - `ic_profile.xml`: person
 
+### App and Notification Icons (UI v2)
+Made for PixelQuest in Claude Design (docs/ui-v2.md):
+- `mipmap-anydpi-v26/ic_launcher.xml`, `ic_launcher_round.xml`: the adaptive launcher icon, logo 1A (Sword Badge): `drawable/ic_launcher_foreground.xml`, a pixel sword, on `@color/pq_icon_bg`, with `drawable/ic_launcher_monochrome.xml` for themed icons. `mipmap/ic_launcher.xml` and `ic_launcher_round.xml` draw the same badge for Android 7.x, which has no adaptive icons
+- `drawable/ic_stat_pixelquest.xml`: the status-bar icon, a white pixel sword
+- `layout/notif_pq_big.xml`, `notif_pq_small.xml` and `drawable/notif_card_bg*.xml`: the notifications' card, in the Comic, gold and Pixel looks; their colours are in `values/pq_colors.xml`
+
 ### Task Category Icons (`res/drawable/`)
 16x16 pixel-art vector drawables in Pixel gold (`#F4C430`):
 - `ic_cat_fitness.xml`: dumbbell
@@ -50,6 +56,8 @@
 - `bangers_regular.ttf`: Bold heavyweight comic display font designed by Vernon Adams (SIL Open Font License 1.1) via Google Fonts / GitHub (`google/fonts`)
 - `kalam_regular.ttf`: Handwritten/marker-style accent font designed by Indian Type Foundry (Lipi Raval, Jonny Pinhorn) (SIL Open Font License 1.1) via Google Fonts
 - `kalam_bold.ttf`: Bold handwritten/marker-style accent font designed by Indian Type Foundry (SIL Open Font License 1.1) via Google Fonts
+- `rubik_medium.ttf`, `rubik_semibold.ttf`, `rubik_bold.ttf`, `rubik_extrabold.ttf`: Rubik, by The Rubik Project Authors (SIL Open Font License 1.1), the Comic skin's text in UI v2 (docs/ui-v2.md). Google Fonts publishes it as one variable font (`google/fonts`, `ofl/rubik/Rubik[wght].ttf`, SHA-256 `1b3a7437...4e88`); each weight here is a static instance of it, cut with fontTools to Latin, Latin-1 and common punctuation, so Android 7 shows each weight. Its licence is in `licenses/rubik-OFL.txt`
+- `pixelify_sans_medium.ttf`, `pixelify_sans_semibold.ttf`, `pixelify_sans_bold.ttf`: Pixelify Sans, by The Pixelify Sans Project Authors (SIL Open Font License 1.1), the Pixel skin's text in UI v2. Made the same way from `ofl/pixelifysans/PixelifySans[wght].ttf` (SHA-256 `9ba86cd0...89e8a5`). Its licence is in `licenses/pixelify-sans-OFL.txt`
 - `amiri_quran.ttf`: Amiri Quran 1.003, the Quran reader's Arabic typeface, by The Amiri Project Authors (Khaled Hosny, Sebastian Kosch) (SIL Open Font License 1.1) via Google Fonts (`google/fonts`, `ofl/amiriquran`); its licence is in `licenses/amiri-quran-OFL.txt`
 
 ### Sound Effects (`res/raw/`)

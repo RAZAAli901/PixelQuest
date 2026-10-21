@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Expanded custom content (used with DecoratedCustomViewStyle so Android still draws the app header).
+     Mirrors mocks 1D–1F: kicker, big comic title, body, optional progress. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pq_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/notif_card_bg_gold">
+    <TextView
+        android:id="@+id/pq_kicker"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textAllCaps="true" android:letterSpacing="0.12"
+        android:textSize="11sp" android:textStyle="bold" android:textColor="@color/pq_ink"
+        android:fontFamily="@font/rubik_extrabold"/>
+    <TextView
+        android:id="@+id/pq_title"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="30sp" android:textColor="@color/pq_red"
+        android:shadowColor="@color/pq_ink" android:shadowDx="3" android:shadowDy="3" android:shadowRadius="0.01"
+        android:fontFamily="@font/bangers_regular"/>
+    <TextView
+        android:id="@+id/pq_body"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="14sp" android:textColor="@color/pq_ink"
+        android:fontFamily="@font/rubik_medium"/>
+    <ProgressBar
+        android:id="@+id/pq_progress"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent" android:layout_height="10dp"
+        android:layout_marginTop="8dp"
+        android:progressTint="@color/pq_red" android:progressBackgroundTint="@color/pq_paper"
+        android:visibility="gone"/>
+</LinearLayout>

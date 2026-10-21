@@ -21,6 +21,8 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         tools:targetApi="31"
         android:label="PixelQuest"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PixelQuest">
         <activity
