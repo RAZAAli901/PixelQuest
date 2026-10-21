@@ -57,6 +57,19 @@ export const isUuid = (v: unknown): v is string => typeof v === "string" && UUID
 /** A move as sent: from, to and an optional promotion piece, e.g. "e2e4" or "e7e8q". */
 export const UCI = /^([a-h][1-8])([a-h][1-8])([qrbn])?$/;
 
+/** Compares two secrets without leaking, by timing, how much of a guess was right. */
+export function sameSecret(a: string, b: string): boolean {
+  if (a.length !== b.length || a.length === 0) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+/** Whether [req] carries the project's service role key: the schedule's calls only. */
+export function fromTheServer(req: Request, serviceKey: string): boolean {
+  return sameSecret(bearerToken(req) ?? req.headers.get("apikey") ?? "", serviceKey);
+}
+
 /**
  * A function that does one thing to one game (resign, a draw offer, a timeout claim): the game's
  * id from the body, the database call, and its game (or refusal) back.

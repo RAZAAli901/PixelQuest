@@ -461,3 +461,10 @@ verify_jwt = false
 
 [functions.chess-draw]
 verify_jwt = false
+
+[functions.chess-claim-timeout]
+verify_jwt = false
+
+# Called with the service role key only (the one-minute sweep), which the handler checks itself.
+[functions.chess-sweep]
+verify_jwt = false
