@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -86,9 +87,11 @@ fun StudyPartyScreen(
     onOpenInfo: () -> Unit,
     onAddPeople: () -> Unit,
     onOpenItem: (String) -> Unit = {},
-    viewModel: StudyPartyViewModel = hiltViewModel()
+    viewModel: StudyPartyViewModel = hiltViewModel(),
+    remindersViewModel: StudyRemindersViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val reminderState by remindersViewModel.uiState.collectAsState()
     val dueReminders by viewModel.dueReminders.collectAsState()
     val weeklySummary by viewModel.weeklySummary.collectAsState()
     val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
@@ -128,9 +131,26 @@ fun StudyPartyScreen(
             { on -> if (on) askForNotifications(); viewModel.setDueReminders(on) },
             weeklySummary,
             { on -> if (on) askForNotifications(); viewModel.setWeeklySummary(on) }
+        ),
+        reminderState = reminderState,
+        reminderActions = ReminderActions(
+            onAdd = { askForNotifications(); remindersViewModel.openCreate() },
+            onChange = remindersViewModel::change,
+            onSave = remindersViewModel::save,
+            onClose = remindersViewModel::close,
+            onDismissNotice = remindersViewModel::dismissNotice
         )
     )
 }
+
+/** What the reminders' part of the screen can do (docs/study-reminders.md). */
+data class ReminderActions(
+    val onAdd: () -> Unit = {},
+    val onChange: (ReminderForm) -> Unit = {},
+    val onSave: () -> Unit = {},
+    val onClose: () -> Unit = {},
+    val onDismissNotice: () -> Unit = {}
+)
 
 @Composable
 fun StudyPartyContent(
@@ -151,10 +171,12 @@ fun StudyPartyContent(
     onCancelDelete: () -> Unit = {},
     timerActions: TimerActions = TimerActions(),
     onDismissWinners: () -> Unit = {},
-    reminders: ReminderToggles = ReminderToggles()
+    reminders: ReminderToggles = ReminderToggles(),
+    reminderState: ReminderUiState = ReminderUiState(),
+    reminderActions: ReminderActions = ReminderActions()
 ) {
     CompositionLocalProvider(LocalStudySimpleMode provides state.simpleMode) {
-        StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders)
+        StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders, reminderState, reminderActions)
     }
 }
 
@@ -177,7 +199,9 @@ private fun StudyPartyScaffold(
     onCancelDelete: () -> Unit,
     timerActions: TimerActions,
     onDismissWinners: () -> Unit,
-    reminders: ReminderToggles
+    reminders: ReminderToggles,
+    reminderState: ReminderUiState,
+    reminderActions: ReminderActions
 ) {
     Scaffold(
         containerColor = PqColors.Ground,
@@ -243,9 +267,16 @@ private fun StudyPartyScaffold(
         state.form?.let { form ->
             ItemSheet(form = form, today = state.today, isLeader = state.isLeader, onChange = onFormChange, onSave = onSaveForm, onDismiss = onCloseForm)
         }
+        reminderState.form?.let { form ->
+            ReminderSheet(
+                form = form, today = reminderState.today, zone = reminderState.zone, onChange = reminderActions.onChange,
+                onSave = reminderActions.onSave, onDismiss = reminderActions.onClose
+            )
+        }
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             StudyTabRow(tabs = state.tabs, selected = state.tab, onSelect = onSelectTab)
             state.notice?.let { NoticeLine(it, onDismissNotice) }
+            reminderState.notice?.let { ReminderNoticeLine(it, reminderActions.onDismissNotice) }
             PartyRefreshBox(refreshing = state.refreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     // Room at the end for the Add item button over the last card.
@@ -263,6 +294,7 @@ private fun StudyPartyScaffold(
                                     if (state.pinned.isNotEmpty()) PinnedStrip(state.pinned, onOpen = onOpenItem)
                                     if (state.thisWeek.isNotEmpty()) WeekSummary(state)
                                     StudyTimerCard(state, timerActions)
+                                    AddReminderButton(reminderActions.onAdd)
                                 }
                             }
                             thisWeek(state, onOpenItem, actions)
@@ -346,6 +378,35 @@ private fun NoticeLine(notice: StudyNotice, onDismiss: () -> Unit) {
             .selectable(selected = false, role = Role.Button, onClick = onDismiss)
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .testTag(StudyTags.NOTICE)
+    )
+}
+
+@Composable
+private fun ReminderNoticeLine(notice: ReminderNotice, onDismiss: () -> Unit) {
+    val text = when (notice) {
+        ReminderNotice.SavedOffline -> R.string.study_reminder_saved_offline
+        is ReminderNotice.Refused -> if (notice.refusal == StudyRefusal.TOO_MANY_REMINDERS) R.string.study_reminder_too_many else noticeText(StudyNotice.Refused(notice.refusal))
+    }
+    Text(
+        text = stringResource(text),
+        style = PqType.Meta.copy(color = PqColors.Ink2),
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(selected = false, role = Role.Button, onClick = onDismiss)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .testTag(ReminderTags.NOTICE)
+    )
+}
+
+/** Add reminder, on This week: for a quiz, an exam or anything the party should be told of in time. */
+@Composable
+private fun AddReminderButton(onAdd: () -> Unit) {
+    PqButton(
+        text = stringResource(R.string.study_reminder_add),
+        onClick = onAdd,
+        style = PqButtonStyle.Secondary,
+        icon = Icons.Rounded.NotificationsActive,
+        modifier = Modifier.fillMaxWidth().testTag(ReminderTags.ADD)
     )
 }
 

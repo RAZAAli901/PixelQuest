@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Study reminders (docs/study-reminders.md): the Create reminder sheet, the This week banner,
+     the alerts and their channel. -->
+<resources>
+    <string name="study_reminder_add">Add reminder</string>
+    <string name="study_reminder_create">Create reminder</string>
+    <string name="study_reminder_edit">Edit reminder</string>
+    <string name="study_reminder_save">Save reminder</string>
+    <string name="study_reminder_save_changes">Save changes</string>
+
+    <string name="study_reminder_kind_quiz">Quiz</string>
+    <string name="study_reminder_kind_assignment">Assignment</string>
+    <string name="study_reminder_kind_exam">Exam</string>
+    <string name="study_reminder_kind_custom">Other</string>
+
+    <string name="study_reminder_field_title">What is it?</string>
+    <string name="study_reminder_title_hint">For example, Quiz this week</string>
+
+    <string name="study_reminder_field_when">When</string>
+    <string name="study_reminder_when_week">This week</string>
+    <string name="study_reminder_when_day">A day</string>
+    <string name="study_reminder_when_time">A day and time</string>
+    <string name="study_reminder_week_this">This week</string>
+    <string name="study_reminder_week_next">Next week</string>
+    <string name="study_reminder_week_of">Week of %1$s</string>
+
+    <string name="study_reminder_field_repeat">Repeat</string>
+    <string name="study_reminder_repeat_none">Once</string>
+    <string name="study_reminder_repeat_daily">Every day</string>
+    <string name="study_reminder_repeat_weekly">Every week</string>
+
+    <string name="study_reminder_field_who">Who</string>
+    <string name="study_reminder_who_me">Just me</string>
+    <string name="study_reminder_who_party">Whole party</string>
+    <string name="study_reminder_who_fixed">Who it\'s for can\'t change once it\'s made.</string>
+
+    <string name="study_reminder_problem_title">A reminder needs 2 to 80 characters.</string>
+    <string name="study_reminder_problem_when">Pick when it is.</string>
+    <string name="study_reminder_problem_repeat">A week reminder can\'t repeat every day.</string>
+    <string name="study_reminder_problem_alerts">Pick up to 4 alert times, each at most 14 days before.</string>
+    <string name="study_reminder_problem_zone">Your phone\'s time zone isn\'t one the party knows.</string>
+
+    <string name="study_reminder_saved_offline">Saved on this phone. It goes to the party when you\'re back online.</string>
+    <string name="study_reminder_too_many">You have 100 reminders in this party already. Delete one to add another.</string>
+</resources>
