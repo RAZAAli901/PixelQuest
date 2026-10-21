@@ -15,15 +15,15 @@
 
 Click the button below to directly download the latest signed release APK onto your Android device:
 
-👉 **[📥 Direct Download app-release.apk (v1.4.1)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.4.1/app-release.apk)** 👈
+👉 **[📥 Direct Download app-release.apk (v1.5.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.5.0/app-release.apk)** 👈
 
-Or see the release notes and files on the **[📦 v1.4.1 release page](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.4.1)**.
+Or see the release notes and files on the **[📦 v1.5.0 release page](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.5.0)**.
 
-> **Upgrading from 1.4.0, 1.3.0 or 1.2.0?** Install v1.4.1 over it: everything is kept.
+> **Upgrading from 1.4.1, 1.4.0, 1.3.0 or 1.2.0?** Install v1.5.0 over it: everything is kept, and the Quran loads once in the background.
 >
-> **On Android 7.0 or 7.1?** Earlier versions closed as soon as they opened there. v1.4.1 is the first that runs.
+> **On Android 7.0 or 7.1?** Versions before 1.4.1 closed as soon as they opened there. 1.4.1 and later run.
 >
-> **Upgrading from 1.1.0?** From 1.2.0 on, PixelQuest is signed with a new, permanent key, so Android won't install it over 1.1.0. In the old app, open Settings → **EXPORT QUEST DATA** and save the file. Then uninstall it, install v1.4.1, and tap **I HAVE A BACKUP** on the welcome screen. Details: [docs/UPDATES_AND_BACKUPS.md](docs/UPDATES_AND_BACKUPS.md).
+> **Upgrading from 1.1.0?** From 1.2.0 on, PixelQuest is signed with a new, permanent key, so Android won't install it over 1.1.0. In the old app, open Settings → **EXPORT QUEST DATA** and save the file. Then uninstall it, install v1.5.0, and tap **I HAVE A BACKUP** on the welcome screen. Details: [docs/UPDATES_AND_BACKUPS.md](docs/UPDATES_AND_BACKUPS.md).
 
 ---
 
@@ -31,13 +31,13 @@ Or see the release notes and files on the **[📦 v1.4.1 release page](https://g
 
 ### Option 1: Direct Download (Recommended)
 1. Open this repository on your Android phone or tablet.
-2. Tap **[Download app-release.apk (v1.4.1)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.4.1/app-release.apk)** to download the file directly.
+2. Tap **[Download app-release.apk (v1.5.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.5.0/app-release.apk)** to download the file directly.
 3. Open your device's **Downloads** folder and tap `app-release.apk`.
 4. If prompted, select **Allow from this source** to grant permission for sideloading unknown apps.
 5. Tap **Install**, open **PixelQuest**, and begin your journey!
 
 ### Option 2: Via GitHub Releases Page
-1. Visit the **[PixelQuest v1.4.1 release](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.4.1)** page.
+1. Visit the **[PixelQuest v1.5.0 release](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.5.0)** page.
 2. Under **Assets**, click on **`app-release.apk`**.
 3. Install and launch the application on your Android device.
 
@@ -88,7 +88,8 @@ The Namaz Tracker's screenshots (the side menu, a day's prayers, the XP pop-up, 
 - **Database & DI**: Room Database 2.6.1 + Dagger Hilt 2.51
 - **Background Tasks**: WorkManager 2.9.0 + AlarmManager Exact Alarms
 - **Prayer Times**: [Adhan](https://github.com/batoulapps/adhan-kotlin) 0.0.5, calculated on the phone
-- **Cloud**: Supabase (Auth with Google sign-in, Postgres with row-level security, an Edge Function for the AI Coach)
+- **Cloud**: Supabase (Auth with Google sign-in, Postgres with row-level security, Realtime for parties' live updates, an Edge Function for the AI Coach)
+- **The Quran's data**: built from the Tanzil Project's files by `tools/quran-build`, which checks them byte for byte ([docs/quran-data.md](docs/quran-data.md))
 - **CI/CD**: GitHub Actions building signed release APKs & publishing GitHub Releases
 
 ---
@@ -131,7 +132,11 @@ To set up sign-in, the leaderboard and the AI Coach from scratch (Supabase proje
 node --test "supabase/functions/**/*.test.ts"
 ```
 
-CI runs both on every push. Unit tests never call the live Gemini API; `GeminiConnectivitySmokeTest` makes a live call only when `PIXELQUEST_LIVE_GEMINI=1` is set.
+```bash
+./gradlew :tools:quran-build:test
+```
+
+CI runs all three on every push; the last checks the bundled Quran against Tanzil's files. Unit tests never call the live Gemini API; `GeminiConnectivitySmokeTest` makes a live call only when `PIXELQUEST_LIVE_GEMINI=1` is set.
 
 The cloud side (database rules, email sign-in, the AI server and the app's repositories) is tested against a Supabase stack running locally in Docker: see [docs/LOCAL_SUPABASE.md](docs/LOCAL_SUPABASE.md). CI runs those tests too (`cloud-tests.yml`), and compiles the instrumented tests (`assembleDebugAndroidTest`); running them needs a device or emulator:
 
@@ -143,7 +148,7 @@ The cloud side (database rules, email sign-in, the AI server and the app's repos
 
 ## 🛡️ Verification Status (v1.5.0)
 
-- **Unit tests**: 2,100+ on every push, plus the cloud side (database rules, sign-in, the AI server, Darood and study parties) tested against a local Supabase stack in CI.
+- **Unit tests**: 2,000+ on every push, plus the cloud side (database rules, sign-in, the AI server, Darood and study parties) tested against a local Supabase stack in CI.
 - **The Islamic section, the Quran and study parties**:
   - End-to-end tests: signing in, the hub, a prayer, Darood and a surah in one run; a study party created, joined, pinned, finished and won on two phones.
   - The bundled Quran is checked against Tanzil's files, byte for byte, with its 114 surahs and 6,236 ayahs, on every build.
