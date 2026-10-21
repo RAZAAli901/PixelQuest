@@ -35,6 +35,14 @@ class StudyReminderAlertHandler(
     suspend fun handle(reminderId: String, occurrenceAt: Long, index: Int) {
         val reminder = reminders.allReminders().firstOrNull { it.id == reminderId }
         val now = Instant.ofEpochMilli(clock())
+        if (index == com.pixelquest.app.study.domain.ReminderAlert.SNOOZE_INDEX) {
+            // A snooze comes back as asked, unless the reminder's gone or that occurrence was marked done.
+            val snoozed = reminder?.let { ReminderAlerts.alert(it, Instant.ofEpochMilli(occurrenceAt), 0) }
+            if (reminder != null && snoozed != null && !dao.isDone(reminderId, occurrenceAt)) {
+                notifier.show(reminder, snoozed.copy(at = now, index = com.pixelquest.app.study.domain.ReminderAlert.SNOOZE_INDEX))
+            }
+            return
+        }
         // As the reminder is now: changed since it was armed, its alert may be at another time, or gone.
         val alert = reminder?.let { ReminderAlerts.alert(it, Instant.ofEpochMilli(occurrenceAt), index) }
         val fresh = alert != null && !alert.at.isAfter(now.plus(EARLY)) && !alert.at.isBefore(now.minus(ReminderAlerts.CATCH_UP))

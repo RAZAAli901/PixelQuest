@@ -17,8 +17,17 @@ data class ReminderAlert(
     /** Which alarm it is on the phone: one per reminder and index. */
     val slot: String get() = "$reminderId/$index"
 
-    /** This alert of this occurrence, once fired: it's never fired again. */
+    /** This alert of this occurrence, once fired: it's never fired again. A snooze comes as asked. */
     val firedKey: String get() = "$reminderId/${occurrence.start.toInstant().toEpochMilli()}/$index"
+
+    val isSnooze: Boolean get() = index == SNOOZE_INDEX
+
+    companion object {
+        /** A snoozed alert's index: its own slot, apart from the reminder's alerts. */
+        const val SNOOZE_INDEX = 99
+
+        fun snoozeSlot(reminderId: String) = "$reminderId/$SNOOZE_INDEX"
+    }
 }
 
 object ReminderAlerts {

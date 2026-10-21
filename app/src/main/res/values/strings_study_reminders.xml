@@ -78,6 +78,9 @@
 
     <string name="study_reminder_notif_week">This week</string>
     <string name="study_reminder_notif_hidden">Study reminder</string>
+    <string name="study_reminder_action_done">Mark done</string>
+    <string name="study_reminder_action_snooze">Snooze 1 hour</string>
+    <string name="study_reminder_action_open">Open</string>
 
     <string name="study_reminder_saved_offline">Saved on this phone. It goes to the party when you\'re back online.</string>
     <string name="study_reminder_too_many">You have 100 reminders in this party already. Delete one to add another.</string>

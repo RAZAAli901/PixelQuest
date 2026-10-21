@@ -23,11 +23,15 @@ import javax.inject.Singleton
 /** Posts a study reminder's alert: Android's notifications in the app, a fake in tests. */
 interface StudyReminderNotifier {
     fun show(reminder: StudyReminder, alert: ReminderAlert)
+
+    /** Takes [reminderId]'s notification away, if it's showing. */
+    fun cancel(reminderId: String) {}
 }
 
 /**
- * The alert as a notification: the reminder's title and when it is; tapping it opens the party.
- * On the lock screen its text is hidden (docs/study-reminders.md, Privacy).
+ * The alert as a notification: the reminder's title and when it is, with Mark done, Snooze 1 hour
+ * and Open (the party's This week tab, as tapping it does). On the lock screen its text is hidden
+ * (docs/study-reminders.md, Privacy).
  */
 @Singleton
 class AndroidStudyReminderNotifier @Inject constructor(
@@ -54,6 +58,9 @@ class AndroidStudyReminderNotifier @Inject constructor(
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setPublicVersion(hidden)
             .setContentIntent(open)
+            .addAction(0, context.getString(R.string.study_reminder_action_done), action(StudyReminderAction.MARK_DONE, reminder, alert))
+            .addAction(0, context.getString(R.string.study_reminder_action_snooze), action(StudyReminderAction.SNOOZE, reminder, alert))
+            .addAction(0, context.getString(R.string.study_reminder_action_open), open)
             .setAutoCancel(true)
             .build()
         try {
@@ -62,6 +69,23 @@ class AndroidStudyReminderNotifier @Inject constructor(
             // POST_NOTIFICATIONS not granted.
         }
     }
+
+    override fun cancel(reminderId: String) {
+        NotificationManagerCompat.from(context).cancel(notificationId(reminderId))
+    }
+
+    /** A button's broadcast, its own per reminder and button (by its address), carrying the occurrence. */
+    private fun action(action: StudyReminderAction, reminder: StudyReminder, alert: ReminderAlert): PendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            0,
+            Intent(context, StudyReminderActionReceiver::class.java)
+                .setAction(action.action)
+                .setData(android.net.Uri.Builder().scheme("pixelquest").authority("study-reminder-action").path(reminder.id).build())
+                .putExtra(AlarmManagerStudyReminderAlarms.EXTRA_REMINDER, reminder.id)
+                .putExtra(AlarmManagerStudyReminderAlarms.EXTRA_OCCURRENCE, alert.occurrence.start.toInstant().toEpochMilli()),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
     /** "This week", "Thursday 22 October", "Thursday 22 October, 10:00", in the phone's own zone. */
     private fun whenText(reminder: StudyReminder, alert: ReminderAlert): String {
