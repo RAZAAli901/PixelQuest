@@ -51,9 +51,13 @@ import com.pixelquest.app.data.local.entity.UserProfileEntity
         com.pixelquest.app.study.data.local.StudySessionEntity::class,
         com.pixelquest.app.study.data.local.StudyWeekScoreEntity::class,
         com.pixelquest.app.study.data.local.StudyWeekWinnerEntity::class,
-        com.pixelquest.app.study.data.local.PendingStudyEntity::class
+        com.pixelquest.app.study.data.local.PendingStudyEntity::class,
+        // Study reminders (docs/study-reminders.md), from version 19.
+        com.pixelquest.app.study.data.local.StudyReminderEntity::class,
+        com.pixelquest.app.study.data.local.PendingStudyReminderEntity::class,
+        com.pixelquest.app.study.data.local.StudyReminderDoneEntity::class
     ],
-    version = 18,
+    version = 19,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -72,6 +76,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun quranDao(): com.pixelquest.app.quran.data.local.QuranDao
     abstract fun quranBookmarkDao(): com.pixelquest.app.quran.data.local.QuranBookmarkDao
     abstract fun studyDao(): com.pixelquest.app.study.data.local.StudyDao
+    abstract fun studyReminderDao(): com.pixelquest.app.study.data.local.StudyReminderDao
 
     companion object {
         /**
@@ -79,7 +84,7 @@ abstract class AppDatabase : RoomDatabase() {
          * checks reaches the current version from each earlier one (layouts in app/schemas).
          */
         val ALL_MIGRATIONS: Array<Migration> by lazy {
-            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18)
+            arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19)
         }
 
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -276,6 +281,26 @@ abstract class AppDatabase : RoomDatabase() {
                 STUDY_TABLES_18.forEach { db.execSQL(it) }
             }
         }
+
+        /**
+         * Study reminders (docs/study-reminders.md): the server's, those waiting to be sent, and
+         * which alerts are done on this phone. Three new tables, empty until the first sync; nothing
+         * existing changes. The SQL is exactly what Room exported for version 19 (19.json).
+         */
+        val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                REMINDER_TABLES_19.forEach { db.execSQL(it) }
+            }
+        }
+
+        /** Version 19's reminder tables, as Room exports them (app/schemas, 19.json). */
+        private val REMINDER_TABLES_19 = listOf(
+            "CREATE TABLE IF NOT EXISTS `study_reminder` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `createdBy` TEXT, `title` TEXT NOT NULL, `kind` TEXT NOT NULL, `scope` TEXT NOT NULL, `dueAt` INTEGER, `weekStart` TEXT, `tz` TEXT NOT NULL, `repeat` TEXT NOT NULL, `audience` TEXT NOT NULL, `alertOffsets` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_study_reminder_partyId` ON `study_reminder` (`partyId`)",
+            "CREATE TABLE IF NOT EXISTS `study_reminder_pending` (`clientId` TEXT NOT NULL, `op` TEXT NOT NULL, `partyId` TEXT NOT NULL, `reminderId` TEXT, `title` TEXT, `kind` TEXT, `scope` TEXT, `dueAt` INTEGER, `weekStart` TEXT, `tz` TEXT, `repeat` TEXT, `audience` TEXT, `alertOffsets` TEXT, `createdAt` INTEGER NOT NULL, `state` TEXT NOT NULL, `attempts` INTEGER NOT NULL DEFAULT 0, `refusal` TEXT, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+            "CREATE INDEX IF NOT EXISTS `index_study_reminder_pending_partyId` ON `study_reminder_pending` (`partyId`)",
+            "CREATE TABLE IF NOT EXISTS `study_reminder_done` (`reminderId` TEXT NOT NULL, `occurrenceAt` INTEGER NOT NULL, `doneAt` INTEGER NOT NULL, PRIMARY KEY(`reminderId`, `occurrenceAt`))"
+        )
 
         /** Version 18's study tables, as Room exports them (app/schemas, 18.json). */
         private val STUDY_TABLES_18 = listOf(

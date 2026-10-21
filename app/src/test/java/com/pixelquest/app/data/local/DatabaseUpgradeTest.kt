@@ -113,6 +113,11 @@ class DatabaseUpgradeTest {
         "quran_bookmark" to listOf(
             mapOf("surah" to 2, "ayah" to 255, "createdAt" to 1_760_200_000_000L)
         ),
+        // From version 18: an item in a study party (the Darood Party row stands in for its party).
+        "study_item" to listOf(
+            mapOf("id" to "i1", "partyId" to "p1", "kind" to "QUIZ", "title" to "Chapter 3 quiz", "subject" to "Physics",
+                "notes" to null, "dueAt" to 1_760_300_000_000L, "pinned" to 0, "createdBy" to "u1", "createdAt" to 1_760_000_000_000L)
+        ),
         // From version 8: the tracker turned on, in Lahore, with Fajr's reminder off.
         "namaz_settings" to listOf(
             mapOf("id" to 1, "enabled" to 1, "method" to "KARACHI", "asrMadhab" to "HANAFI", "highLatitudeRule" to null,
@@ -247,10 +252,14 @@ class DatabaseUpgradeTest {
             assertEquals(0, db.quranDao().juzCount())
             assertEquals(if (version >= 15) 1 else 0, db.quranBookmarkDao().count())
 
-            // Version 18's study party tables are there, empty: they fill from the server.
-            assertTrue(db.studyDao().observeItems("p1").first().isEmpty())
+            // Version 18's study party tables are there: an item cached from 18 on comes through.
+            assertEquals(if (version >= 18) listOf("Chapter 3 quiz") else emptyList<String>(), db.studyDao().observeItems("p1").first().map { it.title })
             assertTrue(db.studyDao().pendingToSend().isEmpty())
             assertTrue(db.studyDao().observeAllScores("p1").first().isEmpty())
+
+            // Version 19's reminder tables are there, empty: they fill from the server.
+            assertTrue(db.studyReminderDao().allReminders().isEmpty())
+            assertTrue(db.studyReminderDao().pendingToSend().isEmpty())
         } finally {
             db.close()
         }
@@ -273,6 +282,38 @@ class DatabaseUpgradeTest {
     @Test fun fromVersion15() = updateFrom(15)
     @Test fun fromVersion16() = updateFrom(16)
     @Test fun fromVersion17() = updateFrom(17)
+    @Test fun fromVersion18_theV1_6_0Release() = updateFrom(18)
+
+    @Test
+    fun aStudyReminder_goesWithItsParty_afterTheUpdate(): Unit = runBlocking {
+        val name = "upgrade-reminders.db"
+        createAt(18, name)
+        val db = openLikeTheApp(name)
+        try {
+            val dao = db.studyReminderDao()
+            val reminder = com.pixelquest.app.study.data.local.StudyReminderEntity(
+                id = "r1", partyId = "p1", createdBy = "u1", title = "Quiz this week",
+                kind = com.pixelquest.app.study.domain.ReminderKind.QUIZ, scope = com.pixelquest.app.study.domain.ReminderScope.WEEK,
+                dueAt = null, weekStart = LocalDate.of(2026, 10, 19), tz = "Asia/Karachi",
+                repeat = com.pixelquest.app.study.domain.ReminderRepeat.NONE, audience = com.pixelquest.app.study.domain.ReminderAudience.PARTY,
+                alertOffsets = "60,1440", createdAt = 1_760_000_000_000L
+            )
+            assertTrue(dao.upsertReminderIfKept(reminder))
+            assertTrue("not for a party the phone doesn't have", !dao.upsertReminderIfKept(reminder.copy(id = "r2", partyId = "gone")))
+            assertEquals(listOf(reminder), dao.allReminders())
+
+            dao.markDone(com.pixelquest.app.study.data.local.StudyReminderDoneEntity("r1", 1_000L, 2_000L))
+            assertTrue(dao.isDone("r1", 1_000L))
+            dao.pruneDone(before = 1_001L)
+            assertTrue("old done marks are forgotten", !dao.isDone("r1", 1_000L))
+
+            db.openHelper.writableDatabase.execSQL("DELETE FROM darood_party WHERE id = 'p1'")
+            assertTrue("a party's reminders go with it", dao.allReminders().isEmpty())
+        } finally {
+            db.close()
+            context.deleteDatabase(name)
+        }
+    }
 
     @Test
     fun theQuransSearchIndex_followsItsTable_afterTheUpdate(): Unit = runBlocking {

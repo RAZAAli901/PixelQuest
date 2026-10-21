@@ -80,6 +80,10 @@ object DaoModule {
     @Singleton
     fun provideStudyDao(database: AppDatabase): com.pixelquest.app.study.data.local.StudyDao = database.studyDao()
 
+    @Provides
+    @Singleton
+    fun provideStudyReminderDao(database: AppDatabase): com.pixelquest.app.study.data.local.StudyReminderDao = database.studyReminderDao()
+
     // The Quran on the phone (docs/quran-data.md).
 
     @Provides
