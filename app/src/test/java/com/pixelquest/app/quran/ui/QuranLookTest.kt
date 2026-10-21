@@ -25,8 +25,6 @@ import com.pixelquest.app.quran.ui.reader.ReaderTags
 import com.pixelquest.app.quran.ui.reader.ReaderUiState
 import com.pixelquest.app.quran.ui.reader.SurahReaderScreen
 import com.pixelquest.app.ui.theme.AppColorScheme
-import com.pixelquest.app.ui.theme.ComicShapeTokens
-import com.pixelquest.app.ui.theme.ComicTokens
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.ThemeMode

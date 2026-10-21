@@ -1,5 +1,12 @@
 package com.pixelquest.app.quran.ui
 
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.drawscope.translate
+import com.pixelquest.app.ui.theme.pqShape
 import com.pixelquest.app.ui.components.PqCard
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -22,12 +29,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.domain.repository.SettingsRepository
-import com.pixelquest.app.ui.theme.ComicShapeTokens
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.isPixelSkin
 import androidx.compose.ui.graphics.RectangleShape
-import com.pixelquest.app.ui.theme.comicDropShadow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -59,7 +64,7 @@ private val PLAIN = RoundedCornerShape(12.dp)
 fun quranFrame(): QuranFrame {
     if (LocalQuranSimpleMode.current) return QuranFrame(PLAIN, PqColors.Paper, null)
     return QuranFrame(
-        shape = ComicShapeTokens.ShapeDefault,
+        shape = pqShape(10.dp),
         fill = PqColors.Paper,
         border = BorderStroke(PqDimens.BorderThin, PqColors.Ink),
         shadow = 2.dp
@@ -107,7 +112,30 @@ fun QuranLook(viewModel: QuranLookViewModel = hiltViewModel(), content: @Composa
  * rows were never clipped.
  */
 fun Modifier.framed(frame: QuranFrame): Modifier {
-    val shadowed = if (frame.shadow != null) comicDropShadow(offsetX = frame.shadow, offsetY = frame.shadow, shape = frame.shape) else this
+    val shadowed = if (frame.shadow != null) flatShadow(frame.shadow, frame.shape) else this
     val filled = shadowed.background(frame.fill, frame.shape)
     return if (frame.border != null) filled.border(frame.border, frame.shape) else filled
+}
+
+/**
+ * A hard, flat ink shadow behind this, [offset] down (and right, in Comic: Pixel's steps straight
+ * down), in [shape]: a copy of the shape, not a blur.
+ */
+private fun Modifier.flatShadow(offset: Dp, shape: Shape): Modifier = drawBehind {
+    val dx = if (isPixelSkin) 0f else offset.toPx()
+    val dy = offset.toPx()
+    val ink = PqColors.Ink
+    when (val outline = shape.createOutline(size, layoutDirection, this)) {
+        is Outline.Rectangle -> drawRect(color = ink, topLeft = Offset(dx, dy), size = outline.rect.size)
+        is Outline.Rounded -> {
+            val rr = outline.roundRect
+            drawRoundRect(
+                color = ink,
+                topLeft = Offset(dx, dy),
+                size = Size(rr.width, rr.height),
+                cornerRadius = CornerRadius(rr.topLeftCornerRadius.x, rr.topLeftCornerRadius.y)
+            )
+        }
+        is Outline.Generic -> translate(dx, dy) { drawPath(path = outline.path, color = ink) }
+    }
 }

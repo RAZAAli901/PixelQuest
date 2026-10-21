@@ -2,7 +2,6 @@ package com.pixelquest.app.ui.components
 
 import com.pixelquest.app.domain.AvatarTier
 import com.pixelquest.app.domain.AvatarTierCalculator
-import com.pixelquest.app.ui.theme.ComicTokens
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -25,19 +24,6 @@ class ComicAvatarTierIntegrationTest {
         // Levels 10+ -> Gold
         assertEquals(AvatarTier.GOLD, AvatarTierCalculator.calculateTier(10))
         assertEquals(AvatarTier.GOLD, AvatarTierCalculator.calculateTier(42))
-    }
-
-    @Test
-    fun comicAvatarFrame_comicTierPaletteMapping_isConsistent() {
-        fun resolveComicTierColor(tier: AvatarTier) = when (tier) {
-            AvatarTier.BRONZE -> ComicTokens.BurntOrange
-            AvatarTier.SILVER -> ComicTokens.SkyBlue
-            AvatarTier.GOLD -> ComicTokens.GoldAccent
-        }
-
-        assertEquals(ComicTokens.BurntOrange, resolveComicTierColor(AvatarTier.BRONZE))
-        assertEquals(ComicTokens.SkyBlue, resolveComicTierColor(AvatarTier.SILVER))
-        assertEquals(ComicTokens.GoldAccent, resolveComicTierColor(AvatarTier.GOLD))
     }
 
     @Test
