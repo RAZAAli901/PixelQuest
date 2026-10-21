@@ -181,7 +181,7 @@ internal fun Player(game: ChessGame, state: ChessSessionState, colour: ChessColo
     val white = colour == ChessColour.WHITE
     val taken = if (white) material.byWhite else material.byBlack
     val lead = if (white) material.advantage else -material.advantage
-    PlayerRow(game, colour, name, state.points[id], if (white) 2 else 0, now, sync) { Captured(taken, lead, colour) }
+    PlayerRow(game, colour, name, state.points[id].takeUnless { state.simple }, if (white) 2 else 0, now, sync) { Captured(taken, lead, colour) }
 }
 
 /** What a player has taken, as glyphs, and their material lead (J146). */

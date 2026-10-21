@@ -53,7 +53,9 @@ data class ChessSessionState(
     val points: Map<String, Int> = emptyMap(),
     /** The player's record against this opponent, read again when the game ends. */
     val headToHead: List<com.pixelquest.app.chess.domain.HeadToHead> = emptyList(),
-    val rematchSent: Boolean = false
+    val rematchSent: Boolean = false,
+    /** The app's Simple Mode (J164): no Int points or tiers anywhere. */
+    val simple: Boolean = false
 ) {
     /** What the board shows: the player's move straight away, then the server's position. */
     val boardFen: String? get() = pendingFen ?: game?.fen
@@ -91,8 +93,10 @@ class ChessSessionViewModel @Inject constructor(
     private val party: com.pixelquest.app.party.data.PartyRepository? = null,
     private val ratings: com.pixelquest.app.chess.data.ChessRatingRepository? = null,
     private val challenges: com.pixelquest.app.chess.data.ChessChallengeRepository? = null,
-    settings: com.pixelquest.app.chess.data.ChessSettings? = null
+    settings: com.pixelquest.app.chess.data.ChessSettings? = null,
+    appSettings: com.pixelquest.app.domain.repository.SettingsRepository? = null
 ) : ViewModel() {
+
     /** The player's chess settings (J160). */
     val prefs: StateFlow<com.pixelquest.app.chess.data.ChessPrefs> = settings?.prefs ?: MutableStateFlow(com.pixelquest.app.chess.data.ChessPrefs())
 
@@ -104,6 +108,10 @@ class ChessSessionViewModel @Inject constructor(
 
     private val _events = MutableSharedFlow<ChessSessionEvent>(extraBufferCapacity = 16, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val events: SharedFlow<ChessSessionEvent> = _events
+
+    init {
+        appSettings?.let { s -> viewModelScope.launch { s.simpleModeEnabled.collect { on -> _state.update { it.copy(simple = on) } } } }
+    }
 
     /** The phone's clock against the server's, for the clocks the screen shows. */
     val clockSync = ClockSync()

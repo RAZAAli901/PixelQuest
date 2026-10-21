@@ -264,7 +264,8 @@ fun HeroContent(
         }
         if (segment == HeroSegment.Profile) {
             item(key = "card") { HeroCard(state, onChangeAvatar, onUsername) }
-            if (chess != null) item(key = "chess") { chess() }
+            // Simple Mode: no chess points either (J164).
+            if (chess != null && !simple) item(key = "chess") { chess() }
             item(key = "list") {
                 PqCard(radius = PqDimens.Radius, shadow = 0.dp) {
                     Column {

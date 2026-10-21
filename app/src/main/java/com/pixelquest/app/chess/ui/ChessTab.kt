@@ -97,6 +97,7 @@ fun ChessTab(state: ChessPartyState, actions: ChessTabActions) {
         } else {
             items(state.liveGames, key = { "g-" + it.id }) { game -> LiveGameCard(game, state, onWatch = { actions.onWatch(game.id) }) }
         }
+        if (state.simple) return@LazyColumn
         item(key = "board_label") {
             Text(text = stringResource(R.string.chess_tab_board).uppercase(), style = PqType.CardTitle, modifier = Modifier.semantics { heading() })
         }

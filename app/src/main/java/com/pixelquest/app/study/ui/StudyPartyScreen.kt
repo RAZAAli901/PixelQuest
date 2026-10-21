@@ -157,7 +157,7 @@ fun StudyPartyScreen(
     }
     LaunchedEffect(chessViewModel, state.tab) { if (state.tab == PartyTab.CHESS) chessViewModel?.refresh() }
     val chessBadge: (@Composable (String) -> Unit)? = chessViewModel?.let {
-        { id -> chessState.best[id]?.let { points -> com.pixelquest.app.chess.ui.TierBadge(points, id) } }
+        { id -> chessState.best[id]?.takeUnless { chessState.simple }?.let { points -> com.pixelquest.app.chess.ui.TierBadge(points, id) } }
     }
     androidx.compose.runtime.CompositionLocalProvider(
         com.pixelquest.app.chess.ui.LocalChessChatCards provides chessCards,

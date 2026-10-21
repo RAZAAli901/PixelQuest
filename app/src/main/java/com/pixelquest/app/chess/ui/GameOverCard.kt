@@ -98,7 +98,8 @@ fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Uni
             ChessColour.BLACK -> game.blackChange
             null -> null
         }
-        if (colour != null && game.rated && game.status == GameStatus.FINISHED) {
+        // Simple Mode: the result, without Int points or tiers (J164).
+        if (colour != null && game.rated && game.status == GameStatus.FINISHED && !state.simple) {
             val text = when {
                 !game.ratingApplied -> stringResource(R.string.chess_over_not_counted)
                 change != null -> stringResource(R.string.chess_over_change, if (change >= 0) "+$change" else "\u2212${-change}")

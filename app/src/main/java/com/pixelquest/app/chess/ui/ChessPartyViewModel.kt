@@ -46,7 +46,9 @@ data class ChessPartyState(
     /** Games the chat's cards have asked about, by id. */
     val games: Map<String, ChessGame> = emptyMap(),
     /** Each member's best Int points, for their badge (J158). */
-    val best: Map<String, Int> = emptyMap()
+    val best: Map<String, Int> = emptyMap(),
+    /** The app's Simple Mode (J164): no Int points, ladder or tiers. */
+    val simple: Boolean = false
 )
 
 /** What a challenge became, for the screen to open. */
@@ -67,7 +69,8 @@ class ChessPartyViewModel @Inject constructor(
     private val spectate: SpectateRepository,
     private val party: PartyRepository,
     account: DaroodAccount,
-    private val chess: com.pixelquest.app.chess.data.ChessRepository? = null
+    private val chess: com.pixelquest.app.chess.data.ChessRepository? = null,
+    appSettings: com.pixelquest.app.domain.repository.SettingsRepository? = null
 ) : ViewModel() {
     val partyId: String = savedStateHandle[ARG_PARTY] ?: ""
     private val me = account.id()
@@ -77,6 +80,7 @@ class ChessPartyViewModel @Inject constructor(
     val events: SharedFlow<ChessPartyEvent> = _events
 
     init {
+        appSettings?.let { s -> viewModelScope.launch { s.simpleModeEnabled.collect { on -> _state.update { it.copy(simple = on) } } } }
         viewModelScope.launch {
             party.observeMembers(partyId).collect { members ->
                 val active = members.filter { it.status == MemberStatus.ACTIVE }
