@@ -214,6 +214,10 @@
     <string name="study_file_open_with">Open with</string>
     <string name="study_files_search">Search by name</string>
     <string name="study_files_all">All</string>
+    <string name="study_chat_said_theirs">%1$s said: %2$s, at %3$s.</string>
+    <string name="study_chat_said_mine">You said: %1$s, at %2$s.</string>
+    <string name="study_chat_said_file">shared the file %1$s</string>
+    <string name="study_chat_said_reply">Replying to %1$s.</string>
     <string name="study_chat_reported">Reported. Thank you: it\'ll be looked at.</string>
     <string name="study_chat_block">Block this person</string>
     <string name="study_chat_unblock">Show</string>

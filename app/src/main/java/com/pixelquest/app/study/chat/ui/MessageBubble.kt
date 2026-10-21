@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
@@ -95,9 +97,12 @@ private fun MessageBubble(row: ChatMessageRow, onMenu: (() -> Unit)?, content: @
     val colors = bubbleColors(row.mine)
     val look = chatLook()
     val shape = look.bubbleShape(mine = row.mine, tail = row.firstOfRun)
+    val said = bubbleSaid(row)
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier
+            // TalkBack reads it as one sentence: who, what, when, and for the player's own, whether it's sent.
+            .semantics(mergeDescendants = true) { contentDescription = said }
             .widthIn(min = 72.dp, max = 300.dp)
             .then(look.shadowed(shape))
             .clip(shape)
@@ -131,6 +136,28 @@ private fun MessageBubble(row: ChatMessageRow, onMenu: (() -> Unit)?, content: @
             if (row.mine && !message.deleted) SendMark(message.sync, colors.secondary)
         }
     }
+}
+
+/** What TalkBack says for a bubble: "bram said: Anyone done Q3?, at 10:05" (the player's own: "You said..., sent"). */
+@Composable
+private fun bubbleSaid(row: ChatMessageRow): String {
+    val message = row.message
+    val time = bubbleTime(message.createdAt)
+    val what = when {
+        message.deleted -> stringResource(R.string.study_chat_deleted)
+        row.file != null -> stringResource(R.string.study_chat_said_file, row.file.displayName) + (message.body?.let { ", $it" } ?: "")
+        else -> message.body.orEmpty()
+    }
+    val reply = row.replyTo?.let { stringResource(R.string.study_chat_said_reply, row.replyToName ?: stringResource(R.string.darood_someone)) + " " }.orEmpty()
+    if (!row.mine) return reply + stringResource(R.string.study_chat_said_theirs, row.senderName ?: stringResource(R.string.darood_someone), what, time)
+    val state = stringResource(
+        when (message.sync) {
+            SyncState.PENDING -> R.string.darood_bubble_said_sending
+            SyncState.FAILED -> R.string.darood_bubble_said_not_sent
+            else -> R.string.darood_bubble_said_sent
+        }
+    )
+    return reply + stringResource(R.string.study_chat_said_mine, what, time) + " " + state
 }
 
 /** On the player's own: a clock while it waits on the phone, a tick once sent, a warning if refused. */
