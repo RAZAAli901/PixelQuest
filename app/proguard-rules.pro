@@ -31,6 +31,8 @@
 -keep class com.pixelquest.app.study.data.remote.** { *; }
 # The study chat's DTOs and its functions' answers (study/chat/data/remote).
 -keep class com.pixelquest.app.study.chat.data.remote.** { *; }
+# Chess's rows and its functions' answers (chess/data/remote).
+-keep class com.pixelquest.app.chess.data.remote.** { *; }
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 -keepclassmembers class * {
     @kotlinx.serialization.Serializable <fields>;

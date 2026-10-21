@@ -87,7 +87,12 @@ data class ChessGame(
     val startedAt: Instant?,
     val endedAt: Instant?,
     /** Who has a draw offer standing, if anyone. */
-    val drawOfferedBy: String? = null
+    val drawOfferedBy: String? = null,
+    /** Each side's Int points change, once it ended (null before, or unrated). */
+    val whiteChange: Int? = null,
+    val blackChange: Int? = null,
+    /** Whether it counted for ratings (rated, and not farmed). */
+    val ratingApplied: Boolean = false
 ) {
     fun colourOf(userId: String?): ChessColour? = when (userId) {
         whiteId -> ChessColour.WHITE
