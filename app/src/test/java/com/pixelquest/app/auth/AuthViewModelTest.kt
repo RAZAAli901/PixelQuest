@@ -211,4 +211,22 @@ class AuthViewModelTest {
         assertEquals(true, signedInWhenSent)
         assertEquals(null, fakeAuthRepo.userFlow.value)
     }
+
+    @Test
+    fun signingOut_firstSendsStudyTicksStillWaiting() = runTest {
+        fakeAuthRepo.userFlow.value = AuthUser(id = "user_123", email = null, displayName = null)
+        var signedInWhenSent: Boolean? = null
+        val study = io.mockk.mockk<com.pixelquest.app.study.data.StudyRepository>(relaxed = true)
+        io.mockk.coEvery { study.sendPending() } answers {
+            signedInWhenSent = fakeAuthRepo.userFlow.value != null
+            com.pixelquest.app.darood.data.SendReport(1, 0, 0)
+        }
+        val viewModel = AuthViewModel(fakeGoogleAuthManager, fakeAuthRepo, fakeUserProfileRepo, study = study)
+
+        viewModel.signOut()
+        advanceUntilIdle()
+
+        assertEquals(true, signedInWhenSent)
+        assertEquals(null, fakeAuthRepo.userFlow.value)
+    }
 }

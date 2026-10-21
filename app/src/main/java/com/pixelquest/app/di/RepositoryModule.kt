@@ -275,4 +275,10 @@ abstract class RepositoryModule {
     abstract fun bindStudyReminderSettings(
         impl: com.pixelquest.app.study.data.PrefsStudyReminderSettings
     ): com.pixelquest.app.study.data.StudyReminderSettings
+
+    @Binds
+    @Singleton
+    abstract fun bindStudyAccountData(
+        impl: com.pixelquest.app.study.data.PrefsStudyAccountData
+    ): com.pixelquest.app.study.data.StudyAccountData
 }

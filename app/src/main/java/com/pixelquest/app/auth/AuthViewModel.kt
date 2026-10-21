@@ -53,7 +53,8 @@ class AuthViewModel @Inject constructor(
     private val accountLink: CloudAccountLink? = null,
     private val cloudProfiles: com.pixelquest.app.data.repository.CloudProfileRepository? = null,
     private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null,
-    private val daroodParties: com.pixelquest.app.darood.data.DaroodPartyRepository? = null
+    private val daroodParties: com.pixelquest.app.darood.data.DaroodPartyRepository? = null,
+    private val study: com.pixelquest.app.study.data.StudyRepository? = null
 ) : ViewModel() {
 
     /** Links [accountId] to this device's profile; a different account than last time starts fresh (see CloudAccountLink). */
@@ -191,6 +192,12 @@ class AuthViewModel @Inject constructor(
             // out clears them from the phone (DaroodAccountCleanup).
             try {
                 daroodParties?.sendPending()
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (_: Exception) {}
+            // So do study ticks and study time.
+            try {
+                study?.sendPending()
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (_: Exception) {}

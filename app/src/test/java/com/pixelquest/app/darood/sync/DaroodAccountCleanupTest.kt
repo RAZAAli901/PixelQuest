@@ -96,6 +96,60 @@ class DaroodAccountCleanupTest {
     }
 
     @Test
+    fun signingOut_clearsStudyPartiesToo_butKeepsTheQuranAndItsBookmarks() = runBlocking {
+        val study = com.pixelquest.app.testing.FakeStudyServer(server)
+        val studyRepo = com.pixelquest.app.study.data.StudyRepositoryImpl(
+            study, db.studyDao(), db.partyDao(), { server.me }, clock = { 1_000L }, timeZone = { java.time.ZoneId.of("UTC") }
+        )
+        val timer = com.pixelquest.app.study.data.MemoryStudyTimerStore()
+        var studyCleared = 0
+        val withStudy = DaroodAccountCleanup(auth, db.daroodDao(), owner, studyData = {
+            timer.clear()
+            studyCleared++
+        })
+        owner.id = "aria"
+        // A study party with an item, a tick still waiting, and a timer running; the Quran on the phone, with a bookmark.
+        val party = server.seedParty("Physics group", "aria", type = com.pixelquest.app.party.domain.PartyType.STUDY)
+        val item = study.seedItem(party, "aria", "Lab report")
+        repository.refreshParties()
+        studyRepo.refresh(party)
+        server.offline = true
+        studyRepo.complete(item)
+        server.offline = false
+        timer.start(party, 1_000L)
+        db.quranDao().insertSurahs(listOf(com.pixelquest.app.quran.data.local.QuranSurahEntity(1, "الفاتحة", "Al-Faatiha", "The Opening", "Meccan", 5, 7, 1, null)))
+        db.quranBookmarkDao().insert(com.pixelquest.app.quran.data.local.QuranBookmarkEntity(1, 5, 1_000L))
+        assertEquals(1, studyRepo.observeItems(party).first().size)
+
+        withStudy.onAccount(null)
+
+        assertTrue(studyRepo.observeItems(party).first().isEmpty())
+        assertEquals(0, studyRepo.observePendingCount().first())
+        assertTrue(studyRepo.observeCompletions(party).first().isEmpty())
+        assertEquals(1, studyCleared)
+        assertEquals(null, timer.running.value)
+        // The Quran and the player's bookmarks are the phone's: they stay.
+        assertEquals(1, db.quranDao().surahCount())
+        assertEquals(1, db.quranBookmarkDao().count())
+    }
+
+    @Test
+    fun theStudyStateKeptOutsideTheDatabase_goes_butNotificationChoicesStay() {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val prefs = context.getSharedPreferences("pixelquest_study", android.content.Context.MODE_PRIVATE)
+        prefs.edit().putString("timer_party", "p1").putLong("timer_started_at", 5L).putString("winner_seen_p1", "2026-10-12")
+            .putStringSet("due_reminders_sent", setOf("i:DAY")).putBoolean("due_reminders", false).putBoolean("weekly_summary", true).commit()
+        val timer = com.pixelquest.app.study.data.PrefsStudyTimerStore(context)
+        assertEquals("p1", timer.running.value?.partyId)
+
+        com.pixelquest.app.study.data.PrefsStudyAccountData(context, timer).clear()
+
+        assertEquals(null, timer.running.value)
+        assertEquals(setOf("due_reminders", "weekly_summary"), prefs.all.keys)
+        assertEquals(false, prefs.getBoolean("due_reminders", true))
+    }
+
+    @Test
     fun anotherAccount_neverSeesThePreviousOnesParties() = runBlocking {
         owner.id = "aria"
         fillCache()
