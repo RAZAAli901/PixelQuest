@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.race
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -120,8 +121,8 @@ class RaceBoardTest {
             assertEquals("the last board stays", 2, vm.uiState.value.lines?.size)
         } finally {
             store.clear()
+            db.closeAfterWrites()
             Dispatchers.resetMain()
-            db.close()
         }
     }
 }

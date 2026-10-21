@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsDisplayed
@@ -131,8 +132,8 @@ class MilestoneBannerTest {
         } finally {
             collectors.cancel()
             store.clear()
+            db.closeAfterWrites()
             Dispatchers.resetMain()
-            db.close()
         }
     }
 }

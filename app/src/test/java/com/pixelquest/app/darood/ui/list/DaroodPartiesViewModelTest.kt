@@ -50,8 +50,8 @@ class DaroodPartiesViewModelTest {
         // Their refreshes and collecting stop, and a write under way finishes, before the database closes.
         collectors.cancel()
         viewModels.clear()
-        Dispatchers.resetMain()
         db.closeAfterWrites()
+        Dispatchers.resetMain()
     }
 
     private val viewModels = com.pixelquest.app.testing.TestViewModels()

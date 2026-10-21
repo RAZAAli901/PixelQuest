@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.test.assertContentDescriptionEquals
@@ -116,8 +117,8 @@ class SendStateTest {
         } finally {
             collectors.cancel()
             store.clear()
+            db.closeAfterWrites()
             Dispatchers.resetMain()
-            db.close()
         }
     }
 
@@ -168,8 +169,8 @@ class SendStateTest {
             assertEquals(listOf(9999, 10_000), posted())
         } finally {
             store.clear()
+            db.closeAfterWrites()
             Dispatchers.resetMain()
-            db.close()
         }
     }
 
@@ -261,8 +262,8 @@ class SendStateTest {
         } finally {
             collectors.cancel()
             store.clear()
+            db.closeAfterWrites()
             Dispatchers.resetMain()
-            db.close()
         }
     }
 }

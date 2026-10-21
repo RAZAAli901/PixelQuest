@@ -76,8 +76,8 @@ class AddPeopleTest {
         // database closes once Room is done with it.
         viewModels.clear()
         dispatcher.scheduler.advanceUntilIdle()
-        Dispatchers.resetMain()
         db.closeAfterWrites()
+        Dispatchers.resetMain()
     }
 
     private val viewModels = com.pixelquest.app.testing.TestViewModels()

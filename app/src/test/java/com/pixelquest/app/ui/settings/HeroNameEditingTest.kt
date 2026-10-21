@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.settings
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -62,8 +63,8 @@ class HeroNameEditingTest {
 
     @After
     fun tearDown() {
+        db.closeAfterWrites()
         Dispatchers.resetMain()
-        db.close()
     }
 
     @Test

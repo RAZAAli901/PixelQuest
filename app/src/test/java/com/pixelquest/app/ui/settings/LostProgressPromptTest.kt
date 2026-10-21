@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.settings
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -64,8 +65,8 @@ class LostProgressPromptTest {
 
     @After
     fun tearDown() {
+        db.closeAfterWrites()
         Dispatchers.resetMain()
-        db.close()
         dir.deleteRecursively()
     }
 

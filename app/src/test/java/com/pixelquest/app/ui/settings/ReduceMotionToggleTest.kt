@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.settings
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.room.Room
@@ -66,8 +67,8 @@ class ReduceMotionToggleTest {
 
     @After
     fun tearDown() {
+        db.closeAfterWrites()
         Dispatchers.resetMain()
-        db.close()
     }
 
     @Test

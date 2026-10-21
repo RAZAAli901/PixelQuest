@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.chat
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertContentDescriptionEquals
@@ -148,8 +149,8 @@ class ChatListTest {
         } finally {
             collectors.cancel()
             store.clear()
+            db.closeAfterWrites()
             kotlinx.coroutines.Dispatchers.resetMain()
-            db.close()
         }
     }
 
@@ -220,8 +221,8 @@ class ChatListTest {
         } finally {
             collectors.cancel()
             store.clear()
+            db.closeAfterWrites()
             kotlinx.coroutines.Dispatchers.resetMain()
-            db.close()
         }
     }
 }

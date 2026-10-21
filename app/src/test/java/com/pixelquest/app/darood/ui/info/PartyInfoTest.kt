@@ -1,5 +1,6 @@
 package com.pixelquest.app.darood.ui.info
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -67,8 +68,8 @@ class PartyInfoTest {
         val drained = java.util.concurrent.CountDownLatch(1)
         db.transactionExecutor.execute { drained.countDown() }
         drained.await(2, java.util.concurrent.TimeUnit.SECONDS)
+        db.closeAfterWrites()
         Dispatchers.resetMain()
-        db.close()
     }
 
     private val viewModels = androidx.lifecycle.ViewModelStore()

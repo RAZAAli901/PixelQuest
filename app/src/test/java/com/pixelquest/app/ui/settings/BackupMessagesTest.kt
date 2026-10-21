@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.settings
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import android.net.Uri
 import androidx.room.Room
@@ -56,8 +57,8 @@ class BackupMessagesTest {
 
     @After
     fun tearDown() {
+        db.closeAfterWrites()
         Dispatchers.resetMain()
-        db.close()
     }
 
     private fun file(name: String, text: String): Uri =

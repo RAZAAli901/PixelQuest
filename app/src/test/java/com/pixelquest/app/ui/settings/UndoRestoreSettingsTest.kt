@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.settings
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import android.net.Uri
 import androidx.room.Room
@@ -60,8 +61,8 @@ class UndoRestoreSettingsTest {
 
     @After
     fun tearDown() {
+        db.closeAfterWrites()
         Dispatchers.resetMain()
-        db.close()
         copyFile.delete()
     }
 

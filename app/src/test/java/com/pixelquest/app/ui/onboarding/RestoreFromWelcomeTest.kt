@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.onboarding
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import android.net.Uri
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -61,8 +62,8 @@ class RestoreFromWelcomeTest {
 
     @After
     fun tearDown() {
+        db.closeAfterWrites()
         Dispatchers.resetMain()
-        db.close()
     }
 
     private fun pick(text: String) {

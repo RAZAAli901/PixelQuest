@@ -1,5 +1,6 @@
 package com.pixelquest.app.integration
 
+import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
@@ -81,8 +82,8 @@ class ResetProgressIntegrationTest {
 
     @After
     fun tearDown() {
+        db.closeAfterWrites()
         Dispatchers.resetMain()
-        db.close()
     }
 
     @Test
