@@ -35,4 +35,12 @@
     <string name="chess_rated">Rated</string>
     <string name="chess_friendly">Friendly</string>
     <string name="chess_captured_said">Took <xliff:g id="count" example="3">%1$d</xliff:g>, ahead by <xliff:g id="lead" example="2">%2$d</xliff:g></string>
+    <string name="chess_draw_offered">Your opponent offers a draw.</string>
+    <string name="chess_accept">Accept</string>
+    <string name="chess_decline">Decline</string>
+    <string name="chess_offer_draw">Offer draw</string>
+    <string name="chess_draw_sent">Draw offered</string>
+    <string name="chess_resign">Resign</string>
+    <string name="chess_resign_title">Resign this game?</string>
+    <string name="chess_resign_message">Your opponent wins. A rated game counts for Int points.</string>
 </resources>

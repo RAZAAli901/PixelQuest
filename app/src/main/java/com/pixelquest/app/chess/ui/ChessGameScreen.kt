@@ -112,6 +112,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
         )
         Player(game, state, bottomColour, now, sync)
         MoveList(state.moves)
+        if (!state.spectating && game.status.live) GameActions(state, actions)
     }
 }
 

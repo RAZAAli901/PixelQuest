@@ -5,6 +5,10 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onLast
+import androidx.compose.ui.test.performScrollTo
 import com.pixelquest.app.chess.domain.ChessColour
 import com.pixelquest.app.chess.domain.ChessGame
 import com.pixelquest.app.chess.domain.ClockSync
@@ -38,8 +42,11 @@ class ChessGameScreenTest {
         whiteMs = 132_000, blackMs = 9_000, ply = 4, lastMoveAt = t0, createdAt = t0, startedAt = t0, endedAt = null
     )
 
+    private val did = mutableListOf<String>()
+
     fun show(state: ChessSessionState) {
-        composeTestRule.setContent { PixelQuestTheme { ChessGameScreen(state, ClockSync(), ChessGameActions()) } }
+        val actions = ChessGameActions(onResign = { did += "resign" }, onOfferDraw = { did += "offer" }, onAnswerDraw = { did += "answer $it" })
+        composeTestRule.setContent { PixelQuestTheme { ChessGameScreen(state, ClockSync(), actions) } }
     }
 
     @Test
@@ -72,5 +79,17 @@ class ChessGameScreenTest {
         composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.MoveListTags.move(3)).assertExists()
         composeTestRule.onNodeWithText("2.").assertExists()
         composeTestRule.onNodeWithText("Bc4").assertExists()
+    }
+
+    @Test
+    fun resignAsksFirst_andTheirDrawOfferIsABanner() {
+        show(ChessSessionState(SessionPhase.ACTIVE, game.copy(drawOfferedBy = "sara"), me = "me", myColour = ChessColour.WHITE))
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.GameActionTags.DRAW_BANNER).assertExists()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.GameActionTags.DECLINE_DRAW).performScrollTo().performClick()
+        composeTestRule.onNodeWithTag(com.pixelquest.app.chess.ui.GameActionTags.RESIGN).performScrollTo().performClick()
+        org.junit.Assert.assertEquals("asked first", listOf("answer false"), did)
+        composeTestRule.onNodeWithText("Resign this game?").assertExists()
+        composeTestRule.onAllNodesWithText("RESIGN").onLast().performClick()
+        org.junit.Assert.assertEquals(listOf("answer false", "resign"), did)
     }
 }
