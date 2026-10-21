@@ -11,4 +11,10 @@
     <string name="darood_ordinal_nd"><xliff:g id="number" example="2">%1$s</xliff:g>nd</string>
     <string name="darood_ordinal_rd"><xliff:g id="number" example="3">%1$s</xliff:g>rd</string>
     <string name="darood_ordinal_th"><xliff:g id="number" example="4">%1$s</xliff:g>th</string>
+    <string name="darood_week_title">Weekly ranking</string>
+    <string name="darood_week_none">No week has closed yet. The first ranking comes after Sunday.</string>
+    <string name="darood_week_offline">The ranking couldn\'t load. Check your connection and try again.</string>
+    <string name="darood_week_all">All weeks</string>
+    <string name="darood_week_dates"><xliff:g id="start" example="12 Oct 2026">%1$s</xliff:g> to <xliff:g id="end" example="18 Oct 2026">%2$s</xliff:g></string>
+    <string name="darood_week_row_said"><xliff:g id="place" example="2nd">%1$s</xliff:g>, <xliff:g id="name" example="bram">%2$s</xliff:g>, <xliff:g id="total" example="3,200">%3$s</xliff:g> Darood</string>
 </resources>

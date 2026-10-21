@@ -15,14 +15,14 @@ import com.pixelquest.app.ui.navigation.Screen
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-/** The week's notification on the Darood channel: one per party, opening that party. */
+/** The week's notification on the Darood channel: one per party, opening its Weekly ranking sheet. */
 class AndroidWeekResultNotifier @Inject constructor(@ApplicationContext private val context: Context) : WeekResultNotifier {
 
     override fun post(party: Party, week: WeekResult, me: String, names: Map<String, String?>) {
         val open = PendingIntent.getActivity(
             context, party.id.hashCode(),
             Intent(context, MainActivity::class.java)
-                .putExtra(MainActivity.EXTRA_OPEN_ROUTE, Screen.PartiesParty.createRoute(party.id))
+                .putExtra(MainActivity.EXTRA_OPEN_ROUTE, Screen.DaroodWeek.createRoute(party.id))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

@@ -210,8 +210,11 @@ class MainActivity : ComponentActivity() {
         /** A study party's screen, for its reminders: only a party id (a UUID), nothing else. */
         private val STUDY_PARTY_ROUTE = Regex("^" + Regex.escape(Screen.PartiesParty.createRoute("")) + "[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$")
 
-        /** Whether a notification may open [route]: a fixed screen, or a study party by its id. */
-        fun isOpenable(route: String): Boolean = route in OPENABLE_ROUTES || STUDY_PARTY_ROUTE.matches(route)
+        /** A Darood Party's weekly ranking, for the week's notification: only a party id (a UUID). */
+        private val DAROOD_WEEK_ROUTE = Regex("^" + Regex.escape(Screen.DaroodWeek.createRoute("@")).replace("@", "\\E[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\\Q") + "$")
+
+        /** Whether a notification may open [route]: a fixed screen, or a party by its id. */
+        fun isOpenable(route: String): Boolean = route in OPENABLE_ROUTES || STUDY_PARTY_ROUTE.matches(route) || DAROOD_WEEK_ROUTE.matches(route)
     }
 
     /**

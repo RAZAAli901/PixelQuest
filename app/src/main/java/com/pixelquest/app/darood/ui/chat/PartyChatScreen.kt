@@ -7,6 +7,7 @@ import com.pixelquest.app.ui.chat.chatLook
 import com.pixelquest.app.ui.components.PqConfirmDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material.icons.rounded.Info
 import com.pixelquest.app.ui.components.PqIconButton
 import com.pixelquest.app.ui.theme.PqType
@@ -100,14 +101,15 @@ fun PartyChatScreen(
     milestoneBanner: Long? = null,
     onDismissBanner: () -> Unit = {},
     completedAt: java.time.Instant? = null,
-    startedAt: java.time.Instant? = null
+    startedAt: java.time.Instant? = null,
+    onOpenWeekly: (() -> Unit)? = null
 ) {
     androidx.compose.runtime.CompositionLocalProvider(LocalChatSimpleMode provides simpleMode) {
         PartyChatContent(
             partyName, onNavigateBack, onOpenInfo, isLeader, onAddPeople, memberCount, items, usernames, today, loadingOlder,
             onReachOldest, canPost, draft, onDraftChange, onSend, confirming, onConfirmSend, onCancelSend, onRetry, todayTotals,
             milestone, total, finished, myStats, consistency, onOpenStats, board, milestoneBanner, onDismissBanner,
-            completedAt, startedAt
+            completedAt, startedAt, onOpenWeekly
         )
     }
 }
@@ -144,7 +146,8 @@ private fun PartyChatContent(
     milestoneBanner: Long?,
     onDismissBanner: () -> Unit,
     completedAt: java.time.Instant?,
-    startedAt: java.time.Instant?
+    startedAt: java.time.Instant?,
+    onOpenWeekly: (() -> Unit)?
 ) {
     var showingStats by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     ChatScaffold(
@@ -172,6 +175,14 @@ private fun PartyChatContent(
                                 onOpenStats()
                             },
                             modifier = Modifier.testTag(DaroodTestTags.CHAT_STATS)
+                        )
+                    }
+                    if (onOpenWeekly != null) {
+                        PqIconButton(
+                            Icons.Rounded.EmojiEvents,
+                            stringResource(R.string.darood_week_title),
+                            onClick = onOpenWeekly,
+                            modifier = Modifier.testTag(com.pixelquest.app.darood.ui.weekly.WeeklyRankingTags.OPEN)
                         )
                     }
                     PqIconButton(Icons.Rounded.Info, stringResource(R.string.darood_party_info), onOpenInfo)
@@ -534,8 +545,17 @@ fun PartyChatRoute(
     onNavigateBack: () -> Unit,
     onOpenInfo: () -> Unit,
     onAddPeople: () -> Unit = {},
-    viewModel: PartyChatViewModel = hiltViewModel()
+    openWeekly: Boolean = false,
+    viewModel: PartyChatViewModel = hiltViewModel(),
+    weeklyViewModel: com.pixelquest.app.darood.ui.weekly.WeeklyRankingViewModel = hiltViewModel()
 ) {
+    var showingWeekly by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(openWeekly) }
+    if (showingWeekly) {
+        com.pixelquest.app.darood.ui.weekly.WeeklyRankingSheet(
+            state = weeklyViewModel.state.collectAsState().value,
+            onDismiss = { showingWeekly = false }
+        )
+    }
     val party = viewModel.party.collectAsState().value
     val items = viewModel.items.collectAsState().value
     val loadingOlder = viewModel.loadingOlder.collectAsState().value
@@ -581,6 +601,7 @@ fun PartyChatRoute(
         milestoneBanner = milestoneBanner,
         onDismissBanner = viewModel::dismissMilestoneBanner,
         completedAt = party?.completedAt,
-        startedAt = party?.createdAt
+        startedAt = party?.createdAt,
+        onOpenWeekly = { showingWeekly = true }
     )
 }

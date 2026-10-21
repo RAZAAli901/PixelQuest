@@ -62,6 +62,20 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
             onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } }
         )
     }
+    // From the week's notification: the same room, its Weekly ranking sheet open.
+    composable(
+        route = Screen.DaroodWeek.route,
+        arguments = listOf(navArgument("partyId") { type = NavType.StringType })
+    ) { entry ->
+        val partyId = entry.arguments?.getString("partyId").orEmpty()
+        PartyChatRoute(
+            partyId = partyId,
+            onNavigateBack = { navController.popBackStack() },
+            onOpenInfo = { navController.navigate(Screen.PartiesInfo.createRoute(partyId)) { launchSingleTop = true } },
+            onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } },
+            openWeekly = true
+        )
+    }
     composable(Screen.PartiesRaceBoard.route) {
         RaceBoardScreen(onNavigateBack = { navController.popBackStack() })
     }

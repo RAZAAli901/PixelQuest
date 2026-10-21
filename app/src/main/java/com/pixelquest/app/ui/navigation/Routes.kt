@@ -49,6 +49,10 @@ sealed class Screen(val route: String) {
     object DaroodRoom : Screen("${Routes.PARTIES}/darood/{partyId}") {
         fun createRoute(partyId: String) = "${Routes.PARTIES}/darood/$partyId"
     }
+    /** A Darood Party's room with its Weekly ranking sheet open: where the week's notification goes. */
+    object DaroodWeek : Screen("${Routes.PARTIES}/darood/{partyId}/week") {
+        fun createRoute(partyId: String) = "${Routes.PARTIES}/darood/$partyId/week"
+    }
     /** The Darood Party race board. */
     object PartiesRaceBoard : Screen("${Routes.PARTIES}/race")
     /** Claiming or changing the Darood Party username. */
