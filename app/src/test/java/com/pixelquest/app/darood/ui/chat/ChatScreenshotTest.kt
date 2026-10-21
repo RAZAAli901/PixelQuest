@@ -70,7 +70,7 @@ class ChatScreenshotTest(private val look: Look) {
         val events = listOf(PartyEvent.Joined("cleo-id", "cleo_r", Instant.parse("2026-10-19T09:03:00Z")))
         var accent = 0
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = look.mode, darkTheme = look.dark) {
+            PixelQuestTheme(themeMode = look.mode) {
                 accent = PixelTheme.colors.primary.toArgb()
                 PartyChatScreen(
                     partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {}, memberCount = 3,

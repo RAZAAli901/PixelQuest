@@ -1,12 +1,11 @@
 package com.pixelquest.app.darood.ui.chat
 
 import android.app.Application
-import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.PixelQuestTheme
-import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -16,7 +15,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/** The chat's look in each theme. */
+/** The chat's look in each skin (mock 4E). */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = Application::class)
 class ChatLookTest {
@@ -24,92 +23,50 @@ class ChatLookTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private fun lookIn(mode: ThemeMode): Pair<ChatLook, com.pixelquest.app.ui.theme.AppColorScheme> {
+    private fun lookIn(mode: ThemeMode, simple: Boolean = false): ChatLook {
         var look: ChatLook? = null
-        var colors: com.pixelquest.app.ui.theme.AppColorScheme? = null
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = mode, darkTheme = mode == ThemeMode.Pixel) {
-                look = chatLook()
-                colors = PixelTheme.colors
+            PixelQuestTheme(themeMode = mode) {
+                androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides simple) { look = chatLook() }
             }
         }
         composeTestRule.waitForIdle()
-        return look!! to colors!!
+        return look!!
     }
 
     @Test
-    fun pixel_cutsItsCorners_andOutlinesEveryPiece() {
-        val (look, colors) = lookIn(ThemeMode.Pixel)
-        assertTrue(look.cut)
+    fun comic_inksEveryPiece_withAFlatShadow_roundedAsItsCards() {
+        val look = lookIn(ThemeMode.Comic)
         assertEquals(2.dp, look.outline)
-        assertEquals("my bubbles: a gold-dark outline on gold", colors.primaryContainer, look.myOutline)
-        assertEquals(colors.pixelBorder, look.theirOutline)
-        assertEquals(colors.pixelBorder, look.pillOutline)
-        assertTrue(look.bubbleShape(mine = true, tail = true) is CutCornerShape)
-        assertTrue(look.pillShape is CutCornerShape)
-        assertTrue(look.fieldShape is CutCornerShape)
-        // A run's first bubble has a square tail on its own side; the rest are chamfered all round.
-        assertEquals(CutCornerShape(topStart = 6.dp, topEnd = 0.dp, bottomEnd = 6.dp, bottomStart = 6.dp), look.bubbleShape(mine = true, tail = true))
-        assertEquals(CutCornerShape(topStart = 0.dp, topEnd = 6.dp, bottomEnd = 6.dp, bottomStart = 6.dp), look.bubbleShape(mine = false, tail = true))
-        assertEquals(CutCornerShape(6.dp), look.bubbleShape(mine = false, tail = false))
-    }
-
-    @Test
-    fun light_isRounded_withAThinWarmOutline() {
-        val (look, colors) = lookIn(ThemeMode.Light)
-        assertEquals(false, look.cut)
-        assertEquals(1.dp, look.outline)
-        assertEquals(colors.surfaceVariant, look.theirOutline)
-        assertEquals(colors.surfaceVariant, look.pillOutline)
-        assertEquals(0.dp, look.shadow)
-        assertTrue(look.pattern)
+        assertEquals(2.dp, look.shadow)
+        // A run's first bubble has a small tail corner on its own side; the rest are round all round.
         assertEquals(RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomEnd = 16.dp, bottomStart = 16.dp), look.bubbleShape(mine = true, tail = true))
-        assertEquals(RoundedCornerShape(16.dp), look.bubbleShape(mine = true, tail = false))
+        assertEquals(RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 16.dp), look.bubbleShape(mine = false, tail = true))
+        assertEquals(RoundedCornerShape(16.dp), look.bubbleShape(mine = false, tail = false))
+        assertTrue(look.pillShape is RoundedCornerShape)
     }
 
     @Test
-    fun darkMode_isPixels_andALightPhone_isLights() {
-        var dark: ChatLook? = null
-        var light: ChatLook? = null
-        composeTestRule.setContent {
-            PixelQuestTheme(themeMode = ThemeMode.System, darkTheme = true) { dark = chatLook() }
-            PixelQuestTheme(themeMode = ThemeMode.System, darkTheme = false) { light = chatLook() }
-        }
-        composeTestRule.waitForIdle()
-        assertTrue("dark mode: Pixel's chamfers", dark!!.cut)
-        assertEquals(false, light!!.cut)
-        assertEquals(1.dp, light!!.outline)
+    fun pixel_isSquare_withTheSameInkAndShadow() {
+        val look = lookIn(ThemeMode.Pixel)
+        assertEquals(2.dp, look.outline)
+        assertEquals(2.dp, look.shadow)
+        assertEquals(RoundedCornerShape(0.dp), look.bubbleShape(mine = true, tail = true))
+        assertEquals(RectangleShape, look.pillShape)
+        assertEquals(RectangleShape, look.fieldShape)
     }
 
     @Test
-    fun simpleMode_isPlainInAnyTheme_withoutThePatternOrShadows() {
-        val looks = mutableMapOf<ThemeMode, ChatLook>()
-        composeTestRule.setContent {
-            androidx.compose.runtime.CompositionLocalProvider(LocalDaroodSimpleMode provides true) {
-                for (mode in listOf(ThemeMode.Pixel, ThemeMode.Comic, ThemeMode.Light)) {
-                    PixelQuestTheme(themeMode = mode, darkTheme = mode == ThemeMode.Pixel) { looks[mode] = chatLook() }
-                }
-            }
-        }
-        composeTestRule.waitForIdle()
-        for ((mode, look) in looks) {
-            assertEquals("$mode", false, look.cut)
-            assertEquals("$mode", 0.dp, look.shadow)
-            assertEquals("$mode", false, look.pattern)
-            assertEquals("$mode", 1.dp, look.outline)
-        }
+    fun simpleMode_keepsTheInk_withoutTheShadows_inComic() {
+        val look = lookIn(ThemeMode.Comic, simple = true)
+        assertEquals(0.dp, look.shadow)
+        assertEquals(2.dp, look.outline)
     }
 
     @Test
-    fun comic_inksEveryPiece_withAFlatShadow_roundedAsItsPanels() {
-        val (look, colors) = lookIn(ThemeMode.Comic)
-        assertEquals(false, look.cut)
-        assertEquals(com.pixelquest.app.ui.theme.ComicShapeTokens.BorderWidthThin, look.outline)
-        val ink = com.pixelquest.app.ui.theme.ComicTokens.SolidBlack
-        assertEquals(listOf(ink, ink, ink), listOf(look.myOutline, look.theirOutline, look.pillOutline))
-        assertEquals(com.pixelquest.app.ui.theme.ComicShapeTokens.ShadowOffsetSmall, look.shadow)
-        assertTrue(look.bubbleShape(mine = true, tail = true) is RoundedCornerShape)
-        // The player's own bubbles in Comic's coral.
-        assertEquals(com.pixelquest.app.ui.theme.ComicTokens.CoralRed, colors.primary)
+    fun simpleMode_keepsTheInk_withoutTheShadows_inPixel() {
+        val look = lookIn(ThemeMode.Pixel, simple = true)
+        assertEquals(0.dp, look.shadow)
+        assertEquals(2.dp, look.outline)
     }
 }

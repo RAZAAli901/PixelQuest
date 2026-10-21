@@ -1,10 +1,18 @@
 package com.pixelquest.app.darood.ui.chat
 
-import androidx.compose.foundation.background
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.components.comic
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.rounded.Flag
+import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,7 +27,6 @@ import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyMember
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.formatCount
-import com.pixelquest.app.ui.theme.PixelTheme
 import java.time.Instant
 
 /** Something that happened to a party, told in its chat between the entries. */
@@ -75,24 +82,37 @@ fun partyEventsOf(party: Party?, members: List<PartyMember>): List<PartyEvent> {
     return events.sortedBy { it.at }
 }
 
-/** An event in the chat: a small centred pill, as a group chat tells who joined. */
+/**
+ * An event in the chat (mock 4E): who joined or left, as a quiet centred line; a milestone set or
+ * reached, on gold with a flag.
+ */
 @Composable
 fun EventPill(event: PartyEvent, modifier: Modifier = Modifier) {
-    val colors = PixelTheme.colors
-    val look = chatLook()
-    Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-        Text(
-            text = eventText(event),
-            style = MaterialTheme.typography.labelMedium,
-            color = colors.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
+    val text = eventText(event)
+    if (event is PartyEvent.MilestoneSet || event is PartyEvent.MilestoneReached) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
                 .testTag(DaroodTestTags.event(event.key))
-                .then(look.shadowed(look.pillShape))
-                .background(colors.surface, look.pillShape)
-                .then(look.outlined(look.pillShape, look.pillOutline))
-                .padding(horizontal = 12.dp, vertical = 4.dp)
-        )
+                .semantics(mergeDescendants = true) { }
+                .comic(bg = PqColors.Gold, radius = PqDimens.Radius, shadow = 0.dp)
+                .padding(12.dp)
+        ) {
+            Icon(Icons.Rounded.Flag, contentDescription = null, tint = PqColors.Ink)
+            Text(text = text, style = PqType.BodyStrong)
+        }
+    } else {
+        Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+            Text(
+                text = text,
+                style = PqType.Meta.copy(color = PqColors.Ink2),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.testTag(DaroodTestTags.event(event.key))
+            )
+        }
     }
 }
 

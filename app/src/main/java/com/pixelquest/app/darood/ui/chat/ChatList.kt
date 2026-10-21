@@ -1,7 +1,6 @@
 package com.pixelquest.app.darood.ui.chat
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,9 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -43,7 +39,15 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.comicPressable
+import com.pixelquest.app.ui.theme.PqCircle
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import androidx.compose.foundation.border
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material3.Icon
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -110,7 +114,7 @@ fun ChatList(
         LazyColumn(
             state = listState,
             reverseLayout = true,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = PqDimens.ScreenPad, vertical = 12.dp),
             modifier = Modifier.fillMaxSize().testTag(DaroodTestTags.CHAT_LIST)
         ) {
             items(newestFirst, key = { it.key }) { item ->
@@ -126,7 +130,7 @@ fun ChatList(
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth().padding(8.dp)) {
                         CircularProgressIndicator(
                             strokeWidth = 2.dp,
-                            color = PixelTheme.colors.primary,
+                            color = PqColors.Ink,
                             modifier = Modifier.size(24.dp).testTag(DaroodTestTags.CHAT_LOADING_OLDER)
                         )
                     }
@@ -151,7 +155,6 @@ private const val OLDEST_MARGIN = 3
 /** The way back down to the newest line, with how many entries arrived while the reader was away. */
 @Composable
 private fun BoxScope.JumpToNewest(unseen: Int, onClick: () -> Unit) {
-    val colors = PixelTheme.colors
     val label = if (unseen > 0) {
         stringResource(R.string.darood_chat_jump) + ", " + pluralStringResource(R.plurals.darood_chat_unseen, unseen, unseen)
     } else {
@@ -163,9 +166,7 @@ private fun BoxScope.JumpToNewest(unseen: Int, onClick: () -> Unit) {
             modifier = Modifier
                 .testTag(DaroodTestTags.CHAT_JUMP)
                 .size(48.dp)
-                .clip(CircleShape)
-                .background(colors.secondary)
-                .clickable(role = Role.Button, onClick = onClick)
+                .comicPressable(onClick, bg = PqColors.Sky, radius = 24.dp, shadow = 2.dp, role = Role.Button)
                 // Read as one button, "Jump to the newest, 3 new": the arrow and the count are for the eye.
                 .clearAndSetSemantics {
                     contentDescription = label
@@ -173,18 +174,18 @@ private fun BoxScope.JumpToNewest(unseen: Int, onClick: () -> Unit) {
                     onClick { onClick(); true }
                 }
         ) {
-            Text(text = "▼", style = MaterialTheme.typography.titleMedium, color = colors.onSecondary)
+            Icon(Icons.Rounded.KeyboardArrowDown, contentDescription = null, tint = PqColors.Ink)
         }
         if (unseen > 0) {
             Text(
                 text = if (unseen > 99) "99+" else unseen.toString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.onPrimary,
+                style = PqType.MetaStrong.copy(color = PqColors.OnRed),
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .offset(x = 4.dp, y = (-4).dp)
                     .clearAndSetSemantics { }
-                    .background(colors.primary, CircleShape)
+                    .background(PqColors.Red, PqCircle)
+                    .border(PqDimens.BorderThin, PqColors.Ink, PqCircle)
                     .padding(horizontal = 5.dp, vertical = 1.dp)
             )
         }

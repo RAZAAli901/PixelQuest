@@ -1,77 +1,65 @@
 package com.pixelquest.app.darood.ui.chat
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.theme.ComicShapeTokens
-import com.pixelquest.app.ui.theme.ComicTokens
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.ThemeMode
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.isPixelSkin
 
 /**
- * How a party's chat draws its pieces in the current look: the bubbles' corners and outlines, the
- * pills', and the number field's. One place, so the whole chat changes together.
+ * How a party's chat draws its pieces (mock 4E): ink round every bubble, pill and field, and a small
+ * hard shadow under each, in the skin's corners (square in Pixel). One place, so the whole chat
+ * changes together.
  *
- * @param cut chamfered corners, as pixel art draws them, instead of rounded ones.
+ * @param corner a bubble's corners; 0 in the Pixel skin.
  * @param tailCorner the corner nearest a run's first bubble's side, drawn in as its tail.
- * @param outline the width of every piece's outline; 0 for none.
- * @param shadow how far a flat, hard-edged shadow sits down and right of each piece, as a comic
- *   panel's; 0 for none.
- * @param pattern the faint pattern behind the chat ([ChatBackground]); off in Simple Mode.
+ * @param outline the width of every piece's ink outline.
+ * @param shadow how far a flat, hard-edged shadow sits under each piece (down and right in Comic,
+ *   straight down in Pixel); 0 for none, as in Simple Mode.
  */
 @Immutable
 data class ChatLook(
-    val cut: Boolean,
     val corner: Dp,
     val tailCorner: Dp,
     val outline: Dp,
-    val myOutline: Color,
-    val theirOutline: Color,
-    val pillOutline: Color,
-    val shadow: Dp = 0.dp,
-    val pattern: Boolean = true
+    val shadow: Dp
 ) {
     fun bubbleShape(mine: Boolean, tail: Boolean): Shape {
         val near = if (tail) tailCorner else corner
         val topStart = if (!mine) near else corner
         val topEnd = if (mine) near else corner
-        return if (cut) {
-            CutCornerShape(topStart = topStart, topEnd = topEnd, bottomEnd = corner, bottomStart = corner)
-        } else {
-            RoundedCornerShape(topStart = topStart, topEnd = topEnd, bottomEnd = corner, bottomStart = corner)
-        }
+        return RoundedCornerShape(topStart = topStart, topEnd = topEnd, bottomEnd = corner, bottomStart = corner)
     }
 
-    val pillShape: Shape get() = if (cut) CutCornerShape(4.dp) else RoundedCornerShape(50)
+    val pillShape: Shape get() = if (corner == 0.dp) RectangleShape else RoundedCornerShape(50)
 
-    val fieldShape: Shape get() = if (cut) CutCornerShape(6.dp) else RoundedCornerShape(24.dp)
+    val fieldShape: Shape get() = if (corner == 0.dp) RectangleShape else RoundedCornerShape(12.dp)
 
-    /** The outline for a piece of [shape], in [color]; nothing in a look without outlines. */
-    fun outlined(shape: Shape, color: Color): Modifier =
-        if (outline > 0.dp) Modifier.border(outline, color, shape) else Modifier
+    /** The ink outline for a piece of [shape]. */
+    fun outlined(shape: Shape): Modifier = Modifier.border(outline, PqColors.Ink, shape)
 
     /**
      * The flat shadow behind a piece of [shape]; before any clip, so it shows. Nothing without one.
      * It's drawn from the piece's own outline, corner by corner, so a bubble's small tail corner shows
-     * in its shadow too (comicDropShadow rounds every corner like the top-left one).
+     * in its shadow too.
      */
     fun shadowed(shape: Shape): Modifier =
         if (shadow > 0.dp) {
             Modifier.drawBehind {
                 val offset = shadow.toPx()
-                translate(left = offset, top = offset) {
-                    drawOutline(shape.createOutline(size, layoutDirection, this), ComicTokens.SolidBlack)
+                translate(left = if (isPixelSkin) 0f else offset, top = offset) {
+                    drawOutline(shape.createOutline(size, layoutDirection, this), PqColors.Ink)
                 }
             }
         } else {
@@ -82,51 +70,14 @@ data class ChatLook(
 /** Simple Mode in a party's chat, provided once at its root (PartyChatScreen). */
 val LocalDaroodSimpleMode = staticCompositionLocalOf { false }
 
-/**
- * The chat's look for the current theme, as the Namaz screen's: its own in Pixel (dark mode too:
- * System follows Pixel on a dark phone) and Comic; plain in Light; and plain in any theme in
- * Simple Mode, without the background's pattern or Comic's shadows.
- */
+/** The chat's look in the active skin; Simple Mode keeps the ink and drops the shadows. */
 @Composable
 fun chatLook(): ChatLook {
-    val colors = PixelTheme.colors
-    if (LocalDaroodSimpleMode.current) return plainLook(colors.surfaceVariant, pattern = false)
-    return when (PixelTheme.mode) {
-        // Pixel: chamfered corners and 2dp outlines, as its panels have; square tails.
-        ThemeMode.Pixel -> ChatLook(
-            cut = true,
-            corner = 6.dp,
-            tailCorner = 0.dp,
-            outline = 2.dp,
-            myOutline = colors.primaryContainer,
-            theirOutline = colors.pixelBorder,
-            pillOutline = colors.pixelBorder
-        )
-        // Comic: black ink round every piece and a flat shadow under it, as its panels have; the
-        // player's own bubbles in its coral.
-        ThemeMode.Comic -> ChatLook(
-            cut = false,
-            corner = 16.dp,
-            tailCorner = 4.dp,
-            outline = ComicShapeTokens.BorderWidthThin,
-            myOutline = ComicTokens.SolidBlack,
-            theirOutline = ComicTokens.SolidBlack,
-            pillOutline = ComicTokens.SolidBlack,
-            shadow = ComicShapeTokens.ShadowOffsetSmall
-        )
-        // Light: rounded, with a thin warm outline so white bubbles stand off the ivory page.
-        else -> plainLook(colors.surfaceVariant, pattern = true)
-    }
+    val pixel = isPixelSkin
+    return ChatLook(
+        corner = if (pixel) 0.dp else 16.dp,
+        tailCorner = if (pixel) 0.dp else 4.dp,
+        outline = PqDimens.BorderThin,
+        shadow = if (LocalDaroodSimpleMode.current) 0.dp else 2.dp
+    )
 }
-
-/** Rounded bubbles with a thin outline in [line], and nothing more. */
-private fun plainLook(line: Color, pattern: Boolean) = ChatLook(
-    cut = false,
-    corner = 16.dp,
-    tailCorner = 4.dp,
-    outline = 1.dp,
-    myOutline = Color.Transparent,
-    theirOutline = line,
-    pillOutline = line,
-    pattern = pattern
-)

@@ -23,6 +23,8 @@
         <item quantity="one"><xliff:g id="count" example="1">%1$d</xliff:g> member</item>
         <item quantity="other"><xliff:g id="count" example="12">%1$d</xliff:g> members</item>
     </plurals>
+    <!-- The room's header under the party's name (mock 4E): "Darood · 4 members". -->
+    <string name="darood_room_subtitle">Darood · <xliff:g id="members" example="4 members">%1$s</xliff:g></string>
     <string name="darood_total">Total <xliff:g id="total" example="2,450">%1$s</xliff:g></string>
     <string name="darood_progress"><xliff:g id="total" example="2,450">%1$s</xliff:g> of <xliff:g id="milestone" example="10,000">%2$s</xliff:g></string>
     <string name="darood_no_milestone">No milestone yet</string>
@@ -219,21 +221,18 @@
     <!-- My stats, in a sheet over the chat. -->
     <string name="darood_stats_title">My stats</string>
     <string name="darood_stats_total">My total</string>
-    <string name="darood_stats_share">My share of the party</string>
+    <string name="darood_stats_share">Share of party</string>
     <string name="darood_stats_place">My place</string>
     <string name="darood_stats_place_value"><xliff:g id="place" example="2">%1$d</xliff:g> of <xliff:g id="posters" example="5">%2$d</xliff:g></string>
     <string name="darood_stats_percent"><xliff:g id="percent" example="34">%1$d</xliff:g>%%</string>
     <string name="darood_stats_share_tiny" formatted="false">under 1%</string>
-    <string name="darood_stats_steady">How steady</string>
+    <string name="darood_stats_steady">How steady · last 30 days</string>
     <string name="darood_stats_active_days">Active days</string>
-    <string name="darood_stats_of_30"><xliff:g id="days" example="12">%1$d</xliff:g> of the last 30</string>
-    <string name="darood_stats_current_streak">Days in a row now</string>
-    <string name="darood_stats_best_streak">Best run of days</string>
-    <string name="darood_stats_average">On a day you add</string>
-    <plurals name="darood_stats_days">
-        <item quantity="one"><xliff:g id="days" example="1">%1$d</xliff:g> day</item>
-        <item quantity="other"><xliff:g id="days" example="7">%1$d</xliff:g> days</item>
-    </plurals>
+    <!-- Active days out of the last 30, in a tile: "12/30". -->
+    <string name="darood_stats_active_value"><xliff:g id="days" example="12">%1$d</xliff:g>/30</string>
+    <string name="darood_stats_current_streak">In a row</string>
+    <string name="darood_stats_best_streak">Best run</string>
+    <string name="darood_stats_average">On a day I add</string>
     <plurals name="darood_calendar_said">
         <item quantity="one">Added on <xliff:g id="days" example="1">%1$d</xliff:g> of the last 30 days</item>
         <item quantity="other">Added on <xliff:g id="days" example="12">%1$d</xliff:g> of the last 30 days</item>

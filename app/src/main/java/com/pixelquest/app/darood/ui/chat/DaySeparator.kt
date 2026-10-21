@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,7 +15,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -24,7 +24,6 @@ import java.time.format.FormatStyle
 /** Where a new day starts in the chat: Today, Yesterday, or the date, in a small centred pill. */
 @Composable
 fun DaySeparator(day: LocalDate, today: LocalDate, modifier: Modifier = Modifier) {
-    val colors = PixelTheme.colors
     val look = chatLook()
     val label = when (day) {
         today -> stringResource(R.string.darood_day_today)
@@ -34,15 +33,13 @@ fun DaySeparator(day: LocalDate, today: LocalDate, modifier: Modifier = Modifier
     Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = colors.onSurfaceVariant,
+            style = PqType.MetaStrong,
             modifier = Modifier
                 .testTag(DaroodTestTags.day(day.toString()))
                 .semantics { heading() }
-                .then(look.shadowed(look.pillShape))
-                .background(colors.surface, look.pillShape)
-                .then(look.outlined(look.pillShape, look.pillOutline))
-                .padding(horizontal = 12.dp, vertical = 4.dp)
+                .background(PqColors.Paper, look.pillShape)
+                .then(look.outlined(look.pillShape))
+                .padding(horizontal = 10.dp, vertical = 3.dp)
         )
     }
 }

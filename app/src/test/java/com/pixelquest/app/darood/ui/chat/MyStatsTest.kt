@@ -84,7 +84,7 @@ class MyStatsTest {
         )
         var opened = 0
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = ThemeMode.Light, darkTheme = false) {
+            PixelQuestTheme(themeMode = ThemeMode.Light) {
                 PartyChatScreen(
                     partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {},
                     myStats = myStatsOf(stats, 10_000, "aria-id"), consistency = steady, onOpenStats = { opened++ }
@@ -93,9 +93,10 @@ class MyStatsTest {
         }
         composeTestRule.onNodeWithTag(DaroodTestTags.CHAT_STATS).performClick()
         assertEquals("opening asks for the days", 1, opened)
-        composeTestRule.onNodeWithText("4 of the last 30", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithText("4/30", useUnmergedTree = true).assertExists()
         // Three days in a row now, and that's the best run too.
-        composeTestRule.onAllNodesWithText("3 days", useUnmergedTree = true).assertCountEquals(2)
+        composeTestRule.onNode(androidx.compose.ui.test.hasText("In a row") and androidx.compose.ui.test.hasText("3")).assertExists()
+        composeTestRule.onNode(androidx.compose.ui.test.hasText("Best run") and androidx.compose.ui.test.hasText("3")).assertExists()
         composeTestRule.onNodeWithText("115", useUnmergedTree = true).assertExists()
     }
 

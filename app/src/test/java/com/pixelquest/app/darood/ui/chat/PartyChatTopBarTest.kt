@@ -32,7 +32,7 @@ class PartyChatTopBarTest {
 
     private fun show(theme: ThemeMode, members: Int, name: String = "Friday circle") {
         composeTestRule.setContent {
-            PixelQuestTheme(themeMode = theme, darkTheme = theme != ThemeMode.Light) {
+            PixelQuestTheme(themeMode = theme) {
                 PartyChatScreen(partyName = name, onNavigateBack = {}, onOpenInfo = {}, memberCount = members)
             }
         }
@@ -50,8 +50,8 @@ class PartyChatTopBarTest {
     @Test
     fun pixel_showsThePicture_theName_andTheMemberCount() {
         show(ThemeMode.Pixel, members = 12)
-        composeTestRule.onNodeWithText("Friday circle").assertIsDisplayed()
-        composeTestRule.onNodeWithText("12 members").assertIsDisplayed()
+        composeTestRule.onNodeWithText("FRIDAY CIRCLE").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Darood · 12 members").assertIsDisplayed()
         // The picture is there, but what TalkBack reads (the merged tree) skips it: the name says the same.
         composeTestRule.onNodeWithTag(DaroodTestTags.PARTY_AVATAR, useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("FC").assertDoesNotExist()
@@ -61,14 +61,14 @@ class PartyChatTopBarTest {
     fun comic_saysOneMember_inItsOwnCapitals() {
         show(ThemeMode.Comic, members = 1)
         composeTestRule.onNodeWithText("FRIDAY CIRCLE").assertIsDisplayed()
-        composeTestRule.onNodeWithText("1 member").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Darood · 1 member").assertIsDisplayed()
     }
 
     @Test
-    fun light_withTheCountNotKnownYet_showsNoCount() {
-        show(ThemeMode.Light, members = 0)
-        composeTestRule.onNodeWithText("Friday circle").assertIsDisplayed()
-        composeTestRule.onNodeWithText("0 members").assertDoesNotExist()
+    fun withTheCountNotKnownYet_showsNoCount() {
+        show(ThemeMode.Comic, members = 0)
+        composeTestRule.onNodeWithText("FRIDAY CIRCLE").assertIsDisplayed()
+        composeTestRule.onNodeWithText("members", substring = true).assertDoesNotExist()
     }
 
     @Test
@@ -83,7 +83,7 @@ class PartyChatTopBarTest {
         // The picture, the name and the count each open it, as in a messaging app.
         composeTestRule.onNodeWithTag(DaroodTestTags.PARTY_AVATAR, useUnmergedTree = true).performClick()
         composeTestRule.onNodeWithText("FRIDAY CIRCLE", useUnmergedTree = true).performClick()
-        composeTestRule.onNodeWithText("12 members", useUnmergedTree = true).performClick()
+        composeTestRule.onNodeWithText("Darood · 12 members", useUnmergedTree = true).performClick()
         assertEquals(3, opened)
 
         // TalkBack reads the bar as one button, "Friday circle, 12 members", that opens the party's info.

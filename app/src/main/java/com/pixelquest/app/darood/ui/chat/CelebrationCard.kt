@@ -3,12 +3,10 @@ package com.pixelquest.app.darood.ui.chat
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +25,10 @@ import com.pixelquest.app.R
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.formatCount
 import com.pixelquest.app.ui.theme.LocalReduceMotion
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import java.time.Instant
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
@@ -50,9 +51,6 @@ fun CelebrationCard(
     modifier: Modifier = Modifier,
     zone: ZoneId = ZoneId.systemDefault()
 ) {
-    val colors = PixelTheme.colors
-    val look = chatLook()
-    val shape = look.bubbleShape(mine = true, tail = false)
     val still = LocalReduceMotion.current
     val grow = remember { Animatable(if (still) 1f else 0.8f) }
     LaunchedEffect(Unit) { grow.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy)) }
@@ -67,15 +65,12 @@ fun CelebrationCard(
             .padding(12.dp)
             .scale(grow.value)
             .testTag(DaroodTestTags.CHAT_CELEBRATION)
-            .then(look.shadowed(shape))
-            .background(colors.primary, shape)
-            .then(look.outlined(shape, look.myOutline))
+            .comic(bg = PqColors.Gold, radius = PqDimens.RadiusLg, shadow = PqDimens.Shadow)
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Text(
             text = stringResource(R.string.darood_done_title),
-            style = MaterialTheme.typography.titleLarge,
-            color = colors.onPrimary,
+            style = PqType.CardTitle,
             modifier = Modifier.semantics { heading() }
         )
         Text(
@@ -84,8 +79,7 @@ fun CelebrationCard(
             } else {
                 pluralStringResource(R.plurals.darood_done_pooled_no_aim, posters, posters, formatCount(total))
             },
-            style = MaterialTheme.typography.bodyLarge,
-            color = colors.onPrimary,
+            style = PqType.Body,
             textAlign = TextAlign.Center
         )
         Text(
@@ -94,8 +88,7 @@ fun CelebrationCard(
                 0L -> stringResource(R.string.darood_done_same_day)
                 else -> pluralStringResource(R.plurals.darood_done_days, daysTaken.toInt(), daysTaken.toInt())
             },
-            style = MaterialTheme.typography.bodySmall,
-            color = colors.onPrimary,
+            style = PqType.Meta.copy(color = PqColors.Ink2),
             textAlign = TextAlign.Center
         )
     }

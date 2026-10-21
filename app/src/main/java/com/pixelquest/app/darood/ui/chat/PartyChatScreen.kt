@@ -1,13 +1,25 @@
 package com.pixelquest.app.darood.ui.chat
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.ui.text.style.TextOverflow
+import com.pixelquest.app.ui.components.PqIconButton
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,9 +46,6 @@ import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.PartyAvatar
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
-import com.pixelquest.app.ui.theme.PixelTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.debounce
@@ -145,56 +154,60 @@ private fun PartyChatContent(
     completedAt: java.time.Instant?,
     startedAt: java.time.Instant?
 ) {
-    val colors = PixelTheme.colors
     var showingStats by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     Scaffold(
-        containerColor = colors.background,
+        containerColor = PqColors.Ground,
         topBar = {
-            PixelTopAppBar(
-                title = partyName,
-                subtitle = if (memberCount > 0) pluralStringResource(R.plurals.darood_members, memberCount, memberCount) else null,
-                leading = { PartyAvatar(partyName) },
-                // The title opens the party's info, as in a messaging app; the buttons keep their own taps.
-                modifier = Modifier
-                    .clickable(role = Role.Button, onClickLabel = stringResource(R.string.darood_party_info), onClick = onOpenInfo)
-                    .testTag(DaroodTestTags.CHAT_TITLE),
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        SymbolIcon(
-                            symbol = "◀",
-                            contentDescription = stringResource(R.string.navigate_back),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.primaryText
-                        )
+            Column(modifier = Modifier.fillMaxWidth().background(PqColors.Ground)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth().padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp).heightIn(min = 52.dp)
+                ) {
+                    PqIconButton(Icons.Rounded.ArrowBack, stringResource(R.string.navigate_back), onNavigateBack)
+                    // The party's picture and name open its info, as in a messaging app.
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag(DaroodTestTags.CHAT_TITLE)
+                            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.darood_party_info), onClick = onOpenInfo)
+                    ) {
+                        PartyAvatar(partyName)
+                        Column {
+                            Text(partyName.uppercase(), style = PqType.CardTitle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            if (memberCount > 0) {
+                                Text(
+                                    stringResource(R.string.darood_room_subtitle, pluralStringResource(R.plurals.darood_members, memberCount, memberCount)),
+                                    style = PqType.Meta,
+                                    maxLines = 1
+                                )
+                            }
+                        }
                     }
-                },
-                actions = {
                     if (myStats != null) {
-                        IconButton(
+                        PqIconButton(
+                            Icons.Rounded.BarChart,
+                            stringResource(R.string.darood_stats_title),
                             onClick = {
                                 showingStats = true
                                 onOpenStats()
                             },
                             modifier = Modifier.testTag(DaroodTestTags.CHAT_STATS)
-                        ) {
-                            SymbolIcon(
-                                symbol = "📊",
-                                contentDescription = stringResource(R.string.darood_stats_title),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = colors.primaryText
-                            )
-                        }
-                    }
-                    IconButton(onClick = onOpenInfo) {
-                        SymbolIcon(
-                            symbol = "ℹ️",
-                            contentDescription = stringResource(R.string.darood_party_info),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.primaryText
                         )
                     }
+                    PqIconButton(Icons.Rounded.Info, stringResource(R.string.darood_party_info), onOpenInfo)
                 }
-            )
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 8.dp)) {
+                    if (milestone != null && milestone > 0) {
+                        var folded by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+                        MilestoneBar(total = total, milestone = milestone, finished = finished, collapsed = folded, onToggle = { folded = !folded })
+                    }
+                    if (todayTotals != null) TodayStrip(todayTotals)
+                }
+                Box(Modifier.fillMaxWidth().height(PqDimens.BorderThin).background(PqColors.Ink))
+            }
         },
         bottomBar = {
             // A finished party takes no more numbers: its card takes the field's place, for good.
@@ -226,11 +239,6 @@ private fun PartyChatContent(
         }
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            if (milestone != null && milestone > 0) {
-                var folded by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-                MilestoneBar(total = total, milestone = milestone, finished = finished, collapsed = folded, onToggle = { folded = !folded })
-            }
-            if (todayTotals != null) TodayStrip(todayTotals)
             ChatBackground(modifier = Modifier.fillMaxWidth().weight(1f).testTag(DaroodTestTags.CHAT_BACKGROUND)) {
                 // A new milestone, announced over the top of the chat, like a notification.
                 MilestoneBanner(target = milestoneBanner, onDismiss = onDismissBanner, modifier = Modifier.align(Alignment.TopCenter).zIndex(1f))
@@ -243,13 +251,12 @@ private fun PartyChatContent(
                     ) {
                         Text(
                             text = stringResource(R.string.darood_chat_empty),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colors.onSurface,
+                            style = PqType.Body,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.testTag(DaroodTestTags.CHAT_EMPTY)
                         )
                         if (isLeader) {
-                            com.pixelquest.app.ui.components.PixelButton(
+                            com.pixelquest.app.ui.components.PqButton(
                                 text = stringResource(R.string.darood_add_title),
                                 onClick = onAddPeople,
                                 modifier = Modifier.testTag(DaroodTestTags.CHAT_ADD_PEOPLE)

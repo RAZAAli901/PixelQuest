@@ -1,13 +1,15 @@
 package com.pixelquest.app.darood.ui.chat
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,8 +24,10 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.formatCount
-import com.pixelquest.app.ui.components.PixelProgressBar
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.PqProgressBar
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 
 /**
  * The party's milestone, pinned under the chat's top bar: how far the total is toward it, as a bar.
@@ -39,7 +43,6 @@ fun MilestoneBar(
     onToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = PixelTheme.colors
     val progress = (total.toDouble() / milestone).coerceIn(0.0, 1.0).toFloat()
     val percent = (progress * 100).toInt()
     val words = if (finished) {
@@ -49,10 +52,9 @@ fun MilestoneBar(
     }
     val state = stringResource(if (collapsed) R.string.darood_milestone_folded else R.string.darood_milestone_open)
     Column(
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
         modifier = modifier
             .fillMaxWidth()
-            .background(colors.surface)
             .testTag(DaroodTestTags.CHAT_MILESTONE)
             .clickable(
                 role = Role.Button,
@@ -64,19 +66,14 @@ fun MilestoneBar(
                 contentDescription = words
                 stateDescription = state
             }
-            .padding(horizontal = 16.dp, vertical = if (collapsed) 4.dp else 8.dp)
+            .padding(horizontal = PqDimens.ScreenPad, vertical = if (collapsed) 4.dp else 6.dp)
     ) {
         if (!collapsed) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = words,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = colors.primaryText,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(text = "▲", style = MaterialTheme.typography.labelLarge, color = colors.onSurfaceVariant)
+                Text(text = words, style = PqType.MetaStrong, modifier = Modifier.weight(1f))
+                Icon(Icons.Rounded.ExpandLess, null, tint = PqColors.Muted, modifier = Modifier.size(20.dp))
             }
         }
-        PixelProgressBar(progress = progress, height = if (collapsed) 4.dp else 10.dp)
+        PqProgressBar(progress, height = if (collapsed) 6.dp else 12.dp)
     }
 }

@@ -5,6 +5,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.pixelquest.app.ui.theme.PixelQuestTheme
+import com.pixelquest.app.ui.theme.ComicSpec
+import com.pixelquest.app.ui.theme.PixelSpec
 import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Assert.assertEquals
@@ -52,31 +54,20 @@ class MemberColorsTest {
     }
 
     @Test
-    fun everyColour_readsOnItsThemesBubbles() {
-        val modes = listOf(ThemeMode.Pixel, ThemeMode.Light, ThemeMode.Comic)
-        val surfaces = mutableMapOf<ThemeMode, Color>()
-        val picked = mutableMapOf<ThemeMode, List<Color>>()
-        composeTestRule.setContent {
-            for (mode in modes) {
-                PixelQuestTheme(themeMode = mode, darkTheme = mode == ThemeMode.Pixel) {
-                    surfaces[mode] = PixelTheme.colors.surface
-                    picked[mode] = ids.map { memberColor(it) }
+    fun everyColour_readsOnBothSkins_groundAndPaper() {
+        for (spec in listOf(ComicSpec, PixelSpec)) {
+            for (surface in listOf(spec.palette.ground, spec.palette.paper)) {
+                for (colour in MemberColors.palette) {
+                    val ratio = contrast(colour, surface)
+                    assertTrue("$colour on $surface is ${"%.2f".format(ratio)}:1", ratio >= 4.5)
                 }
             }
         }
-        composeTestRule.waitForIdle()
-        for (mode in modes) {
-            val surface = surfaces.getValue(mode)
-            for (colour in MemberColors.paletteFor(mode)) {
-                val ratio = contrast(colour, surface)
-                assertTrue("$mode: $colour on $surface is ${"%.2f".format(ratio)}:1", ratio >= 4.5)
-            }
-            assertEquals(mode.name, ids.map { MemberColors.paletteFor(mode)[MemberColors.indexOf(it, 8)] }, picked.getValue(mode))
-        }
+        assertEquals(ids.map { MemberColors.palette[MemberColors.indexOf(it, 8)] }, ids.map { memberColor(it) })
     }
 
     @Test
-    fun anUnknownPoster_getsTheThemesTextColour() {
+    fun anUnknownPoster_getsThePrimaryTextColour() {
         var unknown = Color.Unspecified
         var text = Color.Unspecified
         composeTestRule.setContent {

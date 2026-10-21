@@ -3,13 +3,11 @@ package com.pixelquest.app.darood.ui.chat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,7 +19,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.DaroodEntry
@@ -29,7 +26,8 @@ import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.EntryState
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.formatCount
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -69,7 +67,6 @@ fun ChatEntryRow(item: BubbleItem, sender: String?, modifier: Modifier = Modifie
 /** Under a refused entry: why the server said no, and a way to try it again. */
 @Composable
 private fun RefusedLine(refusal: String?, onRetry: () -> Unit) {
-    val colors = PixelTheme.colors
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -77,14 +74,12 @@ private fun RefusedLine(refusal: String?, onRetry: () -> Unit) {
     ) {
         Text(
             text = stringResource(refusalText(refusal)),
-            style = MaterialTheme.typography.bodySmall,
-            color = colors.error,
+            style = PqType.Meta.copy(color = PqColors.Error),
             modifier = Modifier.weight(1f, fill = false).testTag(DaroodTestTags.ENTRY_REFUSAL)
         )
         Text(
-            text = stringResource(R.string.darood_entry_retry),
-            style = MaterialTheme.typography.labelLarge,
-            color = colors.primaryText,
+            text = stringResource(R.string.darood_entry_retry).uppercase(),
+            style = PqType.Button.copy(color = PqColors.RedText),
             modifier = Modifier
                 .testTag(DaroodTestTags.ENTRY_RETRY)
                 .clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onRetry)
@@ -106,16 +101,13 @@ private fun refusalText(token: String?): Int = when (token) {
 /** A bubble's colours: its fill, and the text on it. */
 data class BubbleColors(val container: Color, val content: Color, val secondary: Color)
 
-/** The player's own bubbles in the theme's accent; everyone else's on the theme's surface. */
-@Composable
-fun bubbleColors(mine: Boolean): BubbleColors {
-    val colors = PixelTheme.colors
-    return if (mine) {
-        BubbleColors(container = colors.primary, content = colors.onPrimary, secondary = colors.onPrimary.copy(alpha = 0.75f))
+/** The player's own bubbles in the primary red (mock 4E); everyone else's on paper. */
+fun bubbleColors(mine: Boolean): BubbleColors =
+    if (mine) {
+        BubbleColors(container = PqColors.Red, content = PqColors.OnRed, secondary = PqColors.OnRed.copy(alpha = 0.8f))
     } else {
-        BubbleColors(container = colors.surface, content = colors.onSurface, secondary = colors.onSurfaceVariant)
+        BubbleColors(container = PqColors.Paper, content = PqColors.Ink, secondary = PqColors.Muted)
     }
-}
 
 /**
  * One entry in a party's chat, as a message bubble: who posted it, the amount ("+300"), and when.
@@ -137,58 +129,58 @@ fun EntryBubble(
     showName: Boolean = true,
     tail: Boolean = true
 ) {
-    val colors = PixelTheme.colors
     val bubble = bubbleColors(mine)
     val look = chatLook()
     val shape = look.bubbleShape(mine = mine, tail = tail)
     val said = bubbleSaid(entry, sender, mine)
     Column(
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalAlignment = if (mine) Alignment.End else Alignment.Start,
         modifier = modifier
             .testTag(DaroodTestTags.bubble(entry.clientId ?: entry.id.toString()))
             // TalkBack reads the bubble as one sentence: "bram added 300 at 2:01 PM".
             .clearAndSetSemantics { contentDescription = said }
-            .widthIn(min = 96.dp, max = 280.dp)
-            .then(look.shadowed(shape))
-            .clip(shape)
-            .background(bubble.container)
-            .then(look.outlined(shape, if (mine) look.myOutline else look.theirOutline))
-            .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
+        // Who posted it, over the bubble (mock 4E), in their own colour.
         if (showName && !mine) {
             Text(
                 text = sender?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone),
-                style = MaterialTheme.typography.labelMedium,
-                color = if (memberColor != Color.Unspecified) memberColor else colors.primaryText,
-                maxLines = 1
+                style = PqType.MetaStrong.copy(color = if (memberColor != Color.Unspecified) memberColor else PqColors.RedText),
+                maxLines = 1,
+                modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
             )
         }
-        // With large text, the time goes under the number rather than squeezing it.
-        val amount = @Composable {
-            Text(
-                text = stringResource(R.string.darood_bubble_amount, formatCount(entry.amount)),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                color = bubble.content,
-                maxLines = 1
-            )
-        }
-        val stamp = @Composable {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier
+                .widthIn(min = 96.dp, max = 280.dp)
+                .then(look.shadowed(shape))
+                .clip(shape)
+                .background(bubble.container)
+                .then(look.outlined(shape))
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            // With large text, the time goes under the number rather than squeezing it.
+            val amount = @Composable {
                 Text(
-                    text = bubbleTime(entry.createdAt),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = bubble.secondary
+                    text = stringResource(R.string.darood_bubble_amount, formatCount(entry.amount)),
+                    style = PqType.number(28).copy(color = bubble.content),
+                    maxLines = 1
                 )
-                if (mine) SendMark(entry.state, bubble.secondary)
             }
-        }
-        if (LocalDensity.current.fontScale >= LARGE_TEXT) {
-            amount()
-            stamp()
-        } else {
-            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            val stamp = @Composable {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(text = bubbleTime(entry.createdAt), style = PqType.Meta.copy(color = bubble.secondary))
+                    if (mine) SendMark(entry.state, bubble.secondary)
+                }
+            }
+            if (LocalDensity.current.fontScale >= LARGE_TEXT) {
                 amount()
                 stamp()
+            } else {
+                Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    amount()
+                    stamp()
+                }
             }
         }
     }
@@ -226,8 +218,7 @@ private fun SendMark(state: EntryState, color: Color) {
         val said = stringResource(R.string.darood_entry_not_sent)
         Text(
             text = "⚠",
-            style = MaterialTheme.typography.labelSmall,
-            color = color,
+            style = PqType.Meta.copy(color = color),
             modifier = Modifier.testTag(DaroodTestTags.ENTRY_FAILED).clearAndSetSemantics { contentDescription = said }
         )
         return
@@ -236,8 +227,7 @@ private fun SendMark(state: EntryState, color: Color) {
     val said = stringResource(if (pending) R.string.darood_entry_sending else R.string.darood_entry_sent)
     Text(
         text = if (pending) "🕓" else "✓",
-        style = MaterialTheme.typography.labelSmall,
-        color = color,
+        style = PqType.Meta.copy(color = color),
         modifier = Modifier
             .testTag(if (pending) DaroodTestTags.ENTRY_PENDING else DaroodTestTags.ENTRY_SENT)
             .clearAndSetSemantics { contentDescription = said }
