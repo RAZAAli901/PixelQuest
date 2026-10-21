@@ -63,6 +63,9 @@ class PixelQuestApplication : Application(), Configuration.Provider {
     @javax.inject.Inject
     lateinit var daroodCleanup: dagger.Lazy<com.pixelquest.app.darood.sync.DaroodAccountCleanup>
 
+    @javax.inject.Inject
+    lateinit var studyReminderAlarms: com.pixelquest.app.study.alarm.StudyReminderAlarmSync
+
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     override fun onCreate() {
@@ -82,6 +85,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         // The next 48 hours of prayer reminders, armed again whenever the tracker's settings change,
         // and once a day as a safety net.
         namazReminders.start(appScope)
+        // Study reminders' alarms, armed again whenever the phone's reminders change (docs/study-reminders.md).
+        studyReminderAlarms.start(appScope)
         // The settings file, loaded off the main thread so MainActivity's first read finds it ready.
         appScope.launch { com.pixelquest.app.data.repository.SettingsRepositoryImpl.warm(this@PixelQuestApplication) }
         // The background work's schedules: none of it has to be in place before the first frame,

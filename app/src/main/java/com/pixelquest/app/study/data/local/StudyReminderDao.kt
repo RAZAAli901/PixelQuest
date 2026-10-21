@@ -34,6 +34,9 @@ interface StudyReminderDao {
     @Query("SELECT * FROM study_reminder")
     suspend fun allReminders(): List<StudyReminderEntity>
 
+    @Query("SELECT * FROM study_reminder")
+    fun observeAllReminders(): Flow<List<StudyReminderEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertReminders(reminders: List<StudyReminderEntity>)
 
@@ -65,6 +68,12 @@ interface StudyReminderDao {
 
     @Query("SELECT * FROM study_reminder_pending WHERE state = 'PENDING' ORDER BY createdAt")
     suspend fun pendingToSend(): List<PendingStudyReminderEntity>
+
+    @Query("SELECT * FROM study_reminder_pending ORDER BY createdAt")
+    suspend fun allPending(): List<PendingStudyReminderEntity>
+
+    @Query("SELECT * FROM study_reminder_pending ORDER BY createdAt")
+    fun observeAllPending(): Flow<List<PendingStudyReminderEntity>>
 
     @Transaction
     suspend fun insertPendingIfKept(pending: PendingStudyReminderEntity): Boolean {

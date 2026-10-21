@@ -54,10 +54,12 @@ class StudyReminderSchedulerTest {
 
     class FakeAlarms : StudyReminderAlarms {
         val armed = mutableMapOf<String, ReminderAlert>()
+        @Synchronized
         override fun schedule(alert: ReminderAlert) {
             armed[alert.slot] = alert
         }
 
+        @Synchronized
         override fun cancel(slot: String) {
             armed.remove(slot)
         }

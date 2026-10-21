@@ -52,7 +52,10 @@ interface StudyReminderRepository {
     /** A party's reminders as the phone has them, with its own changes still waiting applied. */
     fun observeReminders(partyId: String): Flow<List<StudyReminder>>
 
-    /** Every reminder the server has sent to this phone, in every party: what the alarms are armed from. */
+    /**
+     * Every reminder on this phone, in every party, as [observeReminders] shows them (a new one still
+     * waiting to send among them, so it alerts offline too): what the alarms are armed from.
+     */
     suspend fun allReminders(): List<StudyReminder>
 
     /** Brings a party's reminders from the server into the phone, after sending what's waiting. */
@@ -90,17 +93,22 @@ class StudyReminderRepositoryImpl(
     private val sending = Mutex()
 
     override fun observeReminders(partyId: String): Flow<List<StudyReminder>> =
-        combine(dao.observeReminders(partyId), dao.observePending(partyId)) { stored, waiting ->
-            val me = account.id()
-            val deleted = waiting.filter { it.op == PendingReminderOp.DELETE }.mapNotNull { it.reminderId }.toSet()
-            val edits = waiting.filter { it.op == PendingReminderOp.EDIT }.associateBy { it.reminderId }
-            stored.filter { it.id !in deleted }.map { row ->
-                val edit = edits[row.id]
-                if (edit == null) row.toDomain() else row.toDomain().withDraft(edit.toDraft(), edit.state)
-            } + waiting.filter { it.op == PendingReminderOp.CREATE }.map { it.toNewReminder(me) }
-        }
+        combine(dao.observeReminders(partyId), dao.observePending(partyId)) { stored, waiting -> withWaiting(stored, waiting) }
 
-    override suspend fun allReminders(): List<StudyReminder> = dao.allReminders().map { it.toDomain() }
+    // A change the server refused isn't the reminder: it alerts as the server has it (or not at all, a new one).
+    override suspend fun allReminders(): List<StudyReminder> =
+        withWaiting(dao.allReminders(), dao.allPending().filter { it.state == SyncState.PENDING })
+
+    /** The server's reminders with this phone's waiting changes over them: deletes hidden, edits applied, new ones added. */
+    private fun withWaiting(stored: List<StudyReminderEntity>, waiting: List<PendingStudyReminderEntity>): List<StudyReminder> {
+        val me = account.id()
+        val deleted = waiting.filter { it.op == PendingReminderOp.DELETE }.mapNotNull { it.reminderId }.toSet()
+        val edits = waiting.filter { it.op == PendingReminderOp.EDIT }.associateBy { it.reminderId }
+        return stored.filter { it.id !in deleted }.map { row ->
+            val edit = edits[row.id]
+            if (edit == null) row.toDomain() else row.toDomain().withDraft(edit.toDraft(), edit.state)
+        } + waiting.filter { it.op == PendingReminderOp.CREATE }.map { it.toNewReminder(me) }
+    }
 
     override suspend fun refresh(partyId: String): SupabaseResult<Unit> {
         sendPending()
