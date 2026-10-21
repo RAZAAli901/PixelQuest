@@ -67,4 +67,24 @@
     <string name="chess_record_them">THEM</string>
     <string name="chess_rematch">Rematch</string>
     <string name="chess_rematch_sent">Rematch sent</string>
+    <string name="chess_challenge_title">Challenge</string>
+    <string name="chess_challenge_who">Who</string>
+    <string name="chess_challenge_room">Anyone</string>
+    <string name="chess_challenge_first">Your first game against each other.</string>
+    <string name="chess_challenge_record">You <xliff:g id="wins" example="4">%1$d</xliff:g> · draws <xliff:g id="draws" example="2">%2$d</xliff:g> · them <xliff:g id="losses" example="1">%3$d</xliff:g></string>
+    <string name="chess_challenge_time">Time each</string>
+    <string name="chess_minutes"><xliff:g id="minutes" example="3">%1$d</xliff:g> min</string>
+    <string name="chess_challenge_colour">You play</string>
+    <string name="chess_random">Random</string>
+    <string name="chess_rated_body">Counts for Int points.</string>
+    <string name="chess_friendly_body">Just for fun: no Int change.</string>
+    <string name="chess_challenge_send">Send challenge</string>
+    <string name="chess_problem_playing">One of you is already in a game.</string>
+    <string name="chess_problem_rate">That\'s a lot of challenges. Try again in a while.</string>
+    <string name="chess_problem_blocked">You can\'t play this member.</string>
+    <string name="chess_problem_member">Only active members of this party can play here.</string>
+    <string name="chess_problem_expired">That challenge has expired.</string>
+    <string name="chess_problem_answered">That challenge was already answered.</string>
+    <string name="chess_problem_offline">No connection. Nothing was sent.</string>
+    <string name="chess_problem_other">That didn\'t work. Try again.</string>
 </resources>
