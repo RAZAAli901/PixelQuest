@@ -38,6 +38,16 @@ interface DaroodRepository {
     /** The player's total on each day they posted in a party, from the server (party_day_stats). */
     suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>>
 
+    /**
+     * The party's last closed week (docs/darood-weekly.md, Results): closed first if it's over
+     * (any member may ask; it's stored once), then read. Null while the week is still running in
+     * the party's zone.
+     */
+    suspend fun closeLastWeek(partyId: String): SupabaseResult<com.pixelquest.app.darood.domain.WeekResult?>
+
+    /** The party's closed weeks for the ranking screen, newest first: the last [weeks] of them. */
+    suspend fun fetchWeekResults(partyId: String, weeks: Int = com.pixelquest.app.darood.domain.DaroodWeeks.HISTORY_WEEKS): SupabaseResult<List<com.pixelquest.app.darood.domain.WeekResult>>
+
     /** The player's entries for [day] still waiting to be sent, summed. */
     fun observePendingTotalOn(partyId: String, day: LocalDate): Flow<Long>
 

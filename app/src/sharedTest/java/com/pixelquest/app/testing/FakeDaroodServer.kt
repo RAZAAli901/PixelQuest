@@ -38,6 +38,12 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
     val usernames = mutableMapOf<String, String>()
     val calls = mutableListOf<String>()
 
+    /** Closed weeks, by (party, Monday): stored once, as the server does. */
+    val weekResults = linkedMapOf<Pair<String, LocalDate>, com.pixelquest.app.darood.domain.WeekResult>()
+
+    /** The party's own day, for when a week is over (docs/darood-weekly.md): UTC here. */
+    var partyToday: () -> LocalDate = { now.atZone(java.time.ZoneOffset.UTC).toLocalDate() }
+
     /** Invitations sent, as (inviter, when): 20 an hour each at most, as the server allows. */
     val inviteLog = mutableListOf<Pair<String, Instant>>()
     private var nextParty = 1
@@ -284,6 +290,31 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
                 PartyStats(id, total(id), own.size, members.count { it.partyId == id && it.status == "active" }, own.maxOfOrNull { LocalDate.parse(it.localDate) })
             }
         )
+    }
+
+    override suspend fun closeWeek(partyId: String, weekStart: LocalDate): SupabaseResult<Int> = answer("closeWeek") { account ->
+        if (!isActive(partyId, account)) return@answer refuse("not_a_member", 403)
+        if (weekStart.dayOfWeek != java.time.DayOfWeek.MONDAY) return@answer refuse("bad_week")
+        if (!partyToday().isAfter(weekStart.plusDays(6))) return@answer refuse("week_not_over")
+        val week = weekResults.getOrPut(partyId to weekStart) {
+            val ranked = members.filter { it.partyId == partyId && it.status == "active" }.map { member ->
+                val theirs = entries.filter {
+                    it.partyId == partyId && it.userId == member.userId &&
+                        LocalDate.parse(it.localDate).let { d -> !d.isBefore(weekStart) && !d.isAfter(weekStart.plusDays(6)) }
+                }
+                Triple(member.userId, theirs.sumOf { it.amount.toLong() }, theirs.map { it.localDate }.distinct().size)
+            }
+            val places = ranked.map { (user, total, days) ->
+                com.pixelquest.app.darood.domain.WeekPlace(user, 1 + ranked.count { it.second > total }, total, days)
+            }.sortedWith(compareBy({ it.position }, { -it.activeDays }, { usernames[it.userId] ?: it.userId }))
+            com.pixelquest.app.darood.domain.WeekResult(partyId, weekStart, places, now)
+        }
+        SupabaseResult.Success(week.members)
+    }
+
+    override suspend fun fetchWeekResults(partyId: String, since: LocalDate): SupabaseResult<List<com.pixelquest.app.darood.domain.WeekResult>> = answer("fetchWeekResults") { account ->
+        if (!isActive(partyId, account)) return@answer SupabaseResult.Success(emptyList())
+        SupabaseResult.Success(weekResults.values.filter { it.partyId == partyId && !it.weekStart.isBefore(since) }.sortedByDescending { it.weekStart })
     }
 
     override suspend fun fetchMemberStats(partyId: String): SupabaseResult<List<MemberStats>> = answer("fetchMemberStats") { account ->

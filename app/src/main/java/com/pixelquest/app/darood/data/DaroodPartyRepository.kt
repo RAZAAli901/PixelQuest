@@ -12,6 +12,8 @@ import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.DaroodRules
 import com.pixelquest.app.darood.domain.EntryState
 import com.pixelquest.app.darood.domain.MemberStats
+import com.pixelquest.app.darood.domain.DaroodWeeks
+import com.pixelquest.app.darood.domain.WeekResult
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.darood.sync.DaroodLiveSource
 import com.pixelquest.app.darood.sync.DaroodSyncScheduler
@@ -107,6 +109,18 @@ class DaroodPartyRepositoryImpl(
     override suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>> = remote.fetchMyDays(partyId)
 
     override suspend fun fetchRaceBoard(): SupabaseResult<List<com.pixelquest.app.darood.domain.RaceLine>> = remote.fetchRaceBoard()
+
+    override suspend fun closeLastWeek(partyId: String): SupabaseResult<WeekResult?> {
+        val monday = DaroodWeeks.lastClosed(today())
+        val closed = remote.closeWeek(partyId, monday)
+        // Still Sunday in the party's own zone: its week isn't over there yet.
+        if (closed is SupabaseResult.ServerError && closed.message.contains(WEEK_NOT_OVER)) return SupabaseResult.Success(null)
+        if (closed !is SupabaseResult.Success) return closed.failure()
+        return remote.fetchWeekResults(partyId, monday).map { weeks -> weeks.firstOrNull { it.weekStart == monday } }
+    }
+
+    override suspend fun fetchWeekResults(partyId: String, weeks: Int): SupabaseResult<List<WeekResult>> =
+        remote.fetchWeekResults(partyId, DaroodWeeks.mondayOf(today()).minusWeeks(weeks.toLong()))
 
     override suspend fun addEntry(partyId: String, amount: Int): DaroodEntry {
         require(amount in DaroodRules.AMOUNT_MIN..DaroodRules.AMOUNT_MAX) { "An entry is 1 to 100,000" }
@@ -245,6 +259,9 @@ class DaroodPartyRepositoryImpl(
 
         /** How long after listening starts the second catch-up comes, once the server listens too. */
         const val CATCH_UP_DELAY_MS = 3_000L
+
+        /** The server's refusal while a week is still running in the party's zone. */
+        const val WEEK_NOT_OVER = "week_not_over"
     }
 }
 

@@ -69,6 +69,16 @@ interface DaroodPartyRemoteDataSource : PartyRemoteDataSource {
     suspend fun fetchMyDays(partyId: String): SupabaseResult<Map<LocalDate, Long>>
 
     /**
+     * Closes the week from [weekStart] (a Monday) if it's over in the party's zone, storing its
+     * places once; asking again changes nothing. How many members it ranked; week_not_over as a
+     * refusal when the week is still running there.
+     */
+    suspend fun closeWeek(partyId: String, weekStart: LocalDate): SupabaseResult<Int>
+
+    /** The party's closed weeks from [since] on, newest first. */
+    suspend fun fetchWeekResults(partyId: String, since: LocalDate): SupabaseResult<List<com.pixelquest.app.darood.domain.WeekResult>>
+
+    /**
      * Posts an entry as the account; the entry as the server stored it. [clientId] is its own key:
      * posting it again (an answer lost on the way back) returns the same entry, never a second.
      */
@@ -208,6 +218,25 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         }
     }
 
+    override suspend fun closeWeek(partyId: String, weekStart: LocalDate): SupabaseResult<Int> =
+        call<Int>("close_darood_week") {
+            put("party_id", partyId)
+            put("week_start", weekStart.toString())
+        }
+
+    override suspend fun fetchWeekResults(partyId: String, since: LocalDate): SupabaseResult<List<com.pixelquest.app.darood.domain.WeekResult>> {
+        if (account.id() == null) return signedOut()
+        return safeSupabaseCall {
+            postgrest[WEEK_RESULTS].select(Columns.list("party_id", "week_start", "user_id", "position", "week_total", "active_days", "closed_at")) {
+                filter {
+                    eq("party_id", partyId)
+                    gte("week_start", since.toString())
+                }
+                order("week_start", Order.DESCENDING)
+            }.decodeList<WeekResultDto>().toWeeks()
+        }
+    }
+
     override suspend fun fetchDayTotals(partyId: String, day: LocalDate): SupabaseResult<List<DayTotal>> {
         if (account.id() == null) return signedOut()
         return safeSupabaseCall {
@@ -317,6 +346,7 @@ class SupabaseDaroodPartyRemoteDataSource @Inject constructor(
         const val ENTRIES = "darood_entries"
         const val PARTY_STATS = "party_stats"
         const val MEMBER_STATS = "party_member_stats"
+        const val WEEK_RESULTS = "darood_week_results"
         val STATS_COLUMNS = listOf("party_id", "total", "entry_count", "member_count", "last_entry_date")
         val MEMBER_STATS_COLUMNS = listOf("party_id", "user_id", "username", "total", "active_days", "last_entry_date")
         val ENTRY_COLUMNS = listOf("id", "party_id", "user_id", "amount", "local_date", "tz", "created_at", "client_id")

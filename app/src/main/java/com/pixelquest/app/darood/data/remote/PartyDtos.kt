@@ -140,3 +140,26 @@ fun MemberStatsDto.toDomain(): MemberStats = MemberStats(
     activeDays = activeDays,
     lastEntryDate = lastEntryDate?.let(LocalDate::parse)
 )
+
+/** A row of public.darood_week_results: one member's place in a closed week. */
+@Serializable
+data class WeekResultDto(
+    @SerialName("party_id") val partyId: String,
+    @SerialName("week_start") val weekStart: String,
+    @SerialName("user_id") val userId: String,
+    val position: Int,
+    @SerialName("week_total") val weekTotal: Long,
+    @SerialName("active_days") val activeDays: Int = 0,
+    @SerialName("closed_at") val closedAt: String
+)
+
+/** Rows of darood_week_results as weeks: newest first, each in display order. */
+fun List<WeekResultDto>.toWeeks(): List<com.pixelquest.app.darood.domain.WeekResult> =
+    groupBy { it.partyId to it.weekStart }.map { (key, rows) ->
+        com.pixelquest.app.darood.domain.WeekResult(
+            key.first, LocalDate.parse(key.second),
+            rows.map { com.pixelquest.app.darood.domain.WeekPlace(it.userId, it.position, it.weekTotal, it.activeDays) }
+                .sortedWith(compareBy({ it.position }, { -it.activeDays })),
+            parseInstant(rows.first().closedAt)
+        )
+    }.sortedByDescending { it.weekStart }
