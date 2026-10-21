@@ -50,6 +50,8 @@ object DaroodTestTags {
     const val CHAT_STATS = "darood_chat_stats"
     const val INFO_WEEK_SWITCH = "darood_info_week_switch"
     const val CHAT_EXTEND_GOAL = "darood_chat_extend_goal"
+    const val INFO_GOALS = "darood_info_goals"
+    fun infoGoal(sequence: Int) = "darood_info_goal_$sequence"
     const val CHAT_GOAL_WAITING = "darood_chat_goal_waiting"
     const val CHAT_MY_STATS = "darood_chat_my_stats"
     const val CHAT_CALENDAR = "darood_chat_calendar"

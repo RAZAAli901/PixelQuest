@@ -88,6 +88,9 @@ import java.time.Instant
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -160,6 +163,14 @@ class PartyInfoViewModel @Inject constructor(
 ) : ViewModel() {
 
     val partyId: String = savedStateHandle["partyId"] ?: ""
+
+    /** The party's goals, oldest first (docs/darood-weekly.md, History): read again as its goal changes. */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val goals: StateFlow<List<com.pixelquest.app.darood.domain.PartyGoal>> = repository.observeParty(partyId)
+        .map { it?.milestoneSetAt to it?.completedAt }
+        .distinctUntilChanged()
+        .mapLatest { (repository.fetchGoals(partyId) as? SupabaseResult.Success)?.data.orEmpty() }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), emptyList())
 
     /** This party's weekly ranking notification is on (the Settings switch turns them all off). */
     val weekNotify: StateFlow<Boolean> = weekMutes?.muted?.let { muted ->
@@ -335,11 +346,13 @@ fun PartyInfoScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val weekNotify by viewModel.weekNotify.collectAsState()
+    val goals by viewModel.goals.collectAsState()
     LaunchedEffect(state.left) { if (state.left) onLeft() }
     PartyInfoContent(
         state = state,
         weekNotify = weekNotify,
         onWeekNotify = viewModel::setWeekNotify,
+        goals = goals,
         onNavigateBack = onNavigateBack,
         onAddPeople = onAddPeople,
         onRemove = viewModel::askToRemove,
@@ -385,7 +398,8 @@ fun PartyInfoContent(
     onConfirmDelete: () -> Unit = {},
     onDismissDialog: () -> Unit = {},
     weekNotify: Boolean? = null,
-    onWeekNotify: (Boolean) -> Unit = {}
+    onWeekNotify: (Boolean) -> Unit = {},
+    goals: List<com.pixelquest.app.darood.domain.PartyGoal> = emptyList()
 ) {
     Column(
         modifier = Modifier
@@ -476,6 +490,7 @@ fun PartyInfoContent(
                 modifier = Modifier.testTag(DaroodTestTags.INFO_RACE_NOTE)
             )
         }
+        if (goals.isNotEmpty() && kind.rules.raceBoard) GoalHistory(goals, party.total)
         if (weekNotify != null && kind.rules.raceBoard && state.members.any { it.userId == state.myId && it.status == com.pixelquest.app.party.domain.MemberStatus.ACTIVE }) {
             WeekNotifySwitch(on = weekNotify, onChange = onWeekNotify)
         }
@@ -601,6 +616,27 @@ internal fun RaceBoardSwitch(on: Boolean, hasMilestone: Boolean, enabled: Boolea
         }
         // The row handles the toggle; the switch only shows it.
         PqSwitch(checked = on, onCheckedChange = null)
+    }
+}
+
+/** The party's goals, in order: "Goal 1 reached on 21 Oct", "Goal 2 in progress: 1,200 of 2,000". */
+@Composable
+internal fun GoalHistory(goals: List<com.pixelquest.app.darood.domain.PartyGoal>, total: Long) {
+    val dates = java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM)
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_GOALS)) {
+        PqGroupLabel(stringResource(R.string.darood_goal_history), Modifier.semantics { heading() })
+        goals.sortedBy { it.sequence }.forEach { goal ->
+            val reachedAt = goal.reachedAt
+            Text(
+                text = if (reachedAt != null) {
+                    stringResource(R.string.darood_goal_history_reached, goal.sequence, formatCount(goal.target), reachedAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate().format(dates))
+                } else {
+                    stringResource(R.string.darood_goal_history_open, goal.sequence, formatCount(minOf(total, goal.target)), formatCount(goal.target))
+                },
+                style = if (reachedAt != null) PqType.Body else PqType.BodyStrong,
+                modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.infoGoal(goal.sequence))
+            )
+        }
     }
 }
 
