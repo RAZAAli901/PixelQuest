@@ -48,6 +48,12 @@
     <string name="study_reminder_waiting">Waiting to send</string>
     <string name="study_reminder_refused">Not saved by the party</string>
 
+    <string name="study_reminder_delete">Delete reminder</string>
+    <string name="study_reminder_delete_title">Delete this reminder?</string>
+    <string name="study_reminder_delete_message">\"%1$s\" goes for everyone it was for, and its alerts stop.</string>
+    <string name="study_reminder_delete_confirm">Delete</string>
+    <string name="study_reminder_keep">Keep it</string>
+
     <string name="study_reminder_saved_offline">Saved on this phone. It goes to the party when you\'re back online.</string>
     <string name="study_reminder_too_many">You have 100 reminders in this party already. Delete one to add another.</string>
 </resources>

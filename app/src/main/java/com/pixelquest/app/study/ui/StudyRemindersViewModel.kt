@@ -29,6 +29,8 @@ data class ReminderUiState(
     /** This week's reminders, soonest first, for the banner on This week. */
     val thisWeek: List<ReminderLine> = emptyList(),
     val form: ReminderForm? = null,
+    /** The open reminder's delete, waiting for the player to confirm it. */
+    val confirmingDelete: Boolean = false,
     val notice: ReminderNotice? = null,
     val today: java.time.LocalDate = java.time.LocalDate.MIN,
     val zone: java.time.ZoneId = java.time.ZoneOffset.UTC
@@ -57,9 +59,10 @@ class StudyRemindersViewModel @Inject constructor(
 
     private val form = MutableStateFlow<ReminderForm?>(null)
     private val notice = MutableStateFlow<ReminderNotice?>(null)
+    private val confirmingDelete = MutableStateFlow(false)
 
-    val uiState: StateFlow<ReminderUiState> = combine(reminders.observeReminders(partyId), form, notice) { all, form, notice ->
-        ReminderUiState(thisWeek = thisWeekOf(all), form = form, notice = notice, today = study.today(), zone = study.zone())
+    val uiState: StateFlow<ReminderUiState> = combine(reminders.observeReminders(partyId), form, notice, confirmingDelete) { all, form, notice, deleting ->
+        ReminderUiState(thisWeek = thisWeekOf(all), form = form, confirmingDelete = deleting && form?.editingId != null, notice = notice, today = study.today(), zone = study.zone())
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, TabSharing, ReminderUiState(today = study.today(), zone = study.zone()))
 
     /**
@@ -108,6 +111,30 @@ class StudyRemindersViewModel @Inject constructor(
 
     fun close() {
         form.value = null
+        confirmingDelete.value = false
+    }
+
+    fun askDelete() {
+        if (form.value?.editingId != null) confirmingDelete.value = true
+    }
+
+    fun cancelDelete() {
+        confirmingDelete.value = false
+    }
+
+    /** Deletes the open reminder: at once on the phone, then on the server (or once there's a connection). */
+    fun confirmDelete() {
+        val id = form.value?.editingId ?: return
+        confirmingDelete.value = false
+        viewModelScope.launch {
+            val reminder = reminders.observeReminders(partyId).first().firstOrNull { it.id == id }
+            close()
+            when (val result = reminder?.let { reminders.delete(it) }) {
+                ReminderSave.Waiting -> notice.value = ReminderNotice.SavedOffline
+                is ReminderSave.Refused -> notice.value = ReminderNotice.Refused(result.refusal)
+                else -> Unit
+            }
+        }
     }
 
     fun dismissNotice() {

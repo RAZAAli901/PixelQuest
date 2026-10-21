@@ -142,7 +142,10 @@ fun StudyPartyScreen(
                 onChange = vm::change,
                 onSave = vm::save,
                 onClose = vm::close,
-                onDismissNotice = vm::dismissNotice
+                onDismissNotice = vm::dismissNotice,
+                onDelete = vm::askDelete,
+                onConfirmDelete = vm::confirmDelete,
+                onCancelDelete = vm::cancelDelete
             )
         }
     )
@@ -155,7 +158,10 @@ data class ReminderActions(
     val onChange: (ReminderForm) -> Unit = {},
     val onSave: () -> Unit = {},
     val onClose: () -> Unit = {},
-    val onDismissNotice: () -> Unit = {}
+    val onDismissNotice: () -> Unit = {},
+    val onDelete: () -> Unit = {},
+    val onConfirmDelete: () -> Unit = {},
+    val onCancelDelete: () -> Unit = {}
 )
 
 @Composable
@@ -278,8 +284,18 @@ private fun StudyPartyScaffold(
             val acts = reminderActions ?: ReminderActions()
             ReminderSheet(
                 form = form, today = reminderState.today, zone = reminderState.zone, onChange = acts.onChange,
-                onSave = acts.onSave, onDismiss = acts.onClose
+                onSave = acts.onSave, onDismiss = acts.onClose, onDelete = acts.onDelete
             )
+            if (reminderState.confirmingDelete) {
+                PqConfirmDialog(
+                    title = stringResource(R.string.study_reminder_delete_title),
+                    message = stringResource(R.string.study_reminder_delete_message, form.title),
+                    confirm = stringResource(R.string.study_reminder_delete_confirm),
+                    dismiss = stringResource(R.string.study_reminder_keep),
+                    onConfirm = acts.onConfirmDelete,
+                    onDismiss = acts.onCancelDelete
+                )
+            }
         }
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             StudyTabRow(tabs = state.tabs, selected = state.tab, onSelect = onSelectTab)

@@ -121,6 +121,32 @@ class StudyRemindersViewModelTest {
     }
 
     @Test
+    fun anOpenedReminder_isChanged_orDeleted_onceConfirmed() {
+        val mine = reminderServer.seed(party, "aria", com.pixelquest.app.study.domain.StudyReminderDraft(
+            title = "Quiz this week", kind = com.pixelquest.app.study.domain.ReminderKind.QUIZ, scope = ReminderScope.WEEK,
+            dueAt = null, weekStart = LocalDate.of(2026, 10, 19), tz = "Asia/Karachi"
+        ))
+        val vm = viewModel()
+        waitFor("on the banner") { vm.uiState.value.thisWeek.size == 1 }
+
+        vm.openEdit(vm.uiState.value.thisWeek.single().reminder)
+        waitFor("the edit sheet") { vm.uiState.value.form?.editingId == mine.id }
+        vm.change(vm.uiState.value.form!!.withTitle("Quiz on Friday"))
+        vm.save()
+        waitFor("changed") { reminderServer.rows.single().title == "Quiz on Friday" && vm.uiState.value.form == null }
+
+        vm.openEdit(vm.uiState.value.thisWeek.single().reminder)
+        vm.askDelete()
+        waitFor("asked") { vm.uiState.value.confirmingDelete }
+        vm.cancelDelete()
+        waitFor("kept") { !vm.uiState.value.confirmingDelete }
+        assertEquals(1, reminderServer.rows.size)
+        vm.askDelete()
+        vm.confirmDelete()
+        waitFor("deleted") { reminderServer.rows.isEmpty() && vm.uiState.value.thisWeek.isEmpty() && vm.uiState.value.form == null }
+    }
+
+    @Test
     fun offline_itsSavedOnThePhone_andSaysSo() {
         val vm = viewModel()
         reminderServer.online = false

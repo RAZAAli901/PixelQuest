@@ -52,9 +52,17 @@ import java.time.format.FormatStyle
 /** The Create reminder (or Edit reminder) sheet, over the party's screen. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReminderSheet(form: ReminderForm, today: LocalDate, zone: ZoneId, onChange: (ReminderForm) -> Unit, onSave: () -> Unit, onDismiss: () -> Unit) {
+fun ReminderSheet(
+    form: ReminderForm,
+    today: LocalDate,
+    zone: ZoneId,
+    onChange: (ReminderForm) -> Unit,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit,
+    onDelete: () -> Unit = {}
+) {
     PqSheet(onDismiss) {
-        ReminderFormContent(form, today, zone, onChange, onSave)
+        ReminderFormContent(form, today, zone, onChange, onSave, onDelete)
     }
 }
 
@@ -64,7 +72,14 @@ fun ReminderSheet(form: ReminderForm, today: LocalDate, zone: ZoneId, onChange: 
  * the simplest choice that works in every theme.
  */
 @Composable
-fun ReminderFormContent(form: ReminderForm, today: LocalDate, zone: ZoneId, onChange: (ReminderForm) -> Unit, onSave: () -> Unit) {
+fun ReminderFormContent(
+    form: ReminderForm,
+    today: LocalDate,
+    zone: ZoneId,
+    onChange: (ReminderForm) -> Unit,
+    onSave: () -> Unit,
+    onDelete: () -> Unit = {}
+) {
     val locale = LocalConfiguration.current.locales[0]
     val problem = if (form.triedToSave) form.problem(zone) else null
     Column(
@@ -165,6 +180,15 @@ fun ReminderFormContent(form: ReminderForm, today: LocalDate, zone: ZoneId, onCh
             height = 52.dp,
             modifier = Modifier.fillMaxWidth().testTag(ReminderTags.SAVE)
         )
+        if (form.editingId != null) {
+            PqButton(
+                text = stringResource(R.string.study_reminder_delete),
+                onClick = onDelete,
+                style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary,
+                enabled = !form.saving,
+                modifier = Modifier.fillMaxWidth().testTag(ReminderTags.DELETE)
+            )
+        }
     }
 }
 
@@ -234,6 +258,7 @@ object ReminderTags {
     const val TITLE = "study_reminder_title"
     const val PROBLEM = "study_reminder_problem"
     const val SAVE = "study_reminder_save"
+    const val DELETE = "study_reminder_delete"
     const val NOTICE = "study_reminder_notice"
     const val BANNER = "study_reminder_banner"
     fun line(id: String) = "study_reminder_line_$id"
