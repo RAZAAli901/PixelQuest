@@ -40,6 +40,14 @@
     <string name="study_reminder_problem_alerts">Pick up to 4 alert times, each at most 14 days before.</string>
     <string name="study_reminder_problem_zone">Your phone\'s time zone isn\'t one the party knows.</string>
 
+    <string name="study_reminder_banner_title">Reminders this week</string>
+    <string name="study_reminder_banner_line">%1$s: %2$s</string>
+    <string name="study_reminder_all_week">All week</string>
+    <string name="study_reminder_day_time">%1$s, %2$s</string>
+    <string name="study_reminder_just_you">Just you</string>
+    <string name="study_reminder_waiting">Waiting to send</string>
+    <string name="study_reminder_refused">Not saved by the party</string>
+
     <string name="study_reminder_saved_offline">Saved on this phone. It goes to the party when you\'re back online.</string>
     <string name="study_reminder_too_many">You have 100 reminders in this party already. Delete one to add another.</string>
 </resources>

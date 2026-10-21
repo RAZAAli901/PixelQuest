@@ -108,7 +108,7 @@ fun StudyPartyScreen(
         onOpenInfo = onOpenInfo,
         onAddPeople = onAddPeople,
         onSelectTab = viewModel::selectTab,
-        onRefresh = viewModel::refresh,
+        onRefresh = { viewModel.refresh(); remindersViewModel?.refresh() },
         onDismissNotice = viewModel::dismissNotice,
         onAddItem = viewModel::openAddItem,
         onFormChange = viewModel::updateForm,
@@ -138,6 +138,7 @@ fun StudyPartyScreen(
         reminderActions = remindersViewModel?.let { vm ->
             ReminderActions(
                 onAdd = { askForNotifications(); vm.openCreate() },
+                onOpen = vm::openEdit,
                 onChange = vm::change,
                 onSave = vm::save,
                 onClose = vm::close,
@@ -150,6 +151,7 @@ fun StudyPartyScreen(
 /** What the reminders' part of the screen can do (docs/study-reminders.md). */
 data class ReminderActions(
     val onAdd: () -> Unit = {},
+    val onOpen: (com.pixelquest.app.study.domain.StudyReminder) -> Unit = {},
     val onChange: (ReminderForm) -> Unit = {},
     val onSave: () -> Unit = {},
     val onClose: () -> Unit = {},
@@ -296,6 +298,13 @@ private fun StudyPartyScaffold(
                             // a pin) shows in place rather than above where the list is held.
                             item(key = "top") {
                                 TopOfList {
+                                    ReminderBanner(
+                                        lines = reminderState.thisWeek,
+                                        today = reminderState.today,
+                                        zone = reminderState.zone,
+                                        canEdit = { line -> reminderActions != null && (line.mine || (state.isLeader && line.reminder.audience == com.pixelquest.app.study.domain.ReminderAudience.PARTY)) },
+                                        onOpen = { line -> reminderActions?.onOpen?.invoke(line.reminder) }
+                                    )
                                     WinnerBannerIfAny(state, onDismissWinners)
                                     if (state.pinned.isNotEmpty()) PinnedStrip(state.pinned, onOpen = onOpenItem)
                                     if (state.thisWeek.isNotEmpty()) WeekSummary(state)

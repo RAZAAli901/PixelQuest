@@ -235,6 +235,8 @@ object ReminderTags {
     const val PROBLEM = "study_reminder_problem"
     const val SAVE = "study_reminder_save"
     const val NOTICE = "study_reminder_notice"
+    const val BANNER = "study_reminder_banner"
+    fun line(id: String) = "study_reminder_line_$id"
     fun kind(kind: ReminderKind) = "study_reminder_kind_${kind.name}"
     fun scope(scope: ReminderScope) = "study_reminder_scope_${scope.name}"
     fun week(monday: LocalDate) = "study_reminder_week_$monday"

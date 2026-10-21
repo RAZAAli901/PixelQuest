@@ -66,7 +66,7 @@ class StudyRemindersViewModelTest {
             parties.refreshParty(party)
         }
         return viewModels.keep(StudyRemindersViewModel::class.java) {
-            StudyRemindersViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), reminders, study)
+            StudyRemindersViewModel(SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), reminders, study, parties)
         }.also { vm -> watching = vm.uiState.launchIn(MainScope()) }
     }
 
@@ -100,6 +100,24 @@ class StudyRemindersViewModelTest {
         assertEquals(ReminderAudience.PARTY, saved.audience)
         assertEquals("Asia/Karachi", saved.tz)
         assertEquals(null, vm.uiState.value.notice)
+    }
+
+    @Test
+    fun thisWeeksReminders_areOnTheBanner_weeksFirst_withoutThePast() {
+        val week = com.pixelquest.app.study.domain.StudyReminderDraft(
+            title = "Quiz this week", kind = com.pixelquest.app.study.domain.ReminderKind.QUIZ, scope = ReminderScope.WEEK,
+            dueAt = null, weekStart = LocalDate.of(2026, 10, 19), tz = "Asia/Karachi"
+        )
+        reminderServer.seed(party, "bram", week)
+        // 10:00 UTC on Wednesday is 15:00 in Karachi: Monday's has passed, Friday's hasn't.
+        reminderServer.seed(party, "bram", week.copy(title = "Monday lab", scope = ReminderScope.TIME, weekStart = null, dueAt = Instant.parse("2026-10-19T05:00:00Z")))
+        reminderServer.seed(party, "aria", week.copy(title = "Friday exam", kind = com.pixelquest.app.study.domain.ReminderKind.EXAM, scope = ReminderScope.DAY, weekStart = null, dueAt = Instant.parse("2026-10-22T19:00:00Z")))
+        reminderServer.seed(party, "bram", week.copy(title = "Next week", weekStart = LocalDate.of(2026, 10, 26)))
+
+        val vm = viewModel()
+        waitFor("on the banner") { vm.uiState.value.thisWeek.size == 2 }
+        assertEquals(listOf("Quiz this week", "Friday exam"), vm.uiState.value.thisWeek.map { it.reminder.title })
+        assertEquals(listOf(false, true), vm.uiState.value.thisWeek.map { it.mine })
     }
 
     @Test

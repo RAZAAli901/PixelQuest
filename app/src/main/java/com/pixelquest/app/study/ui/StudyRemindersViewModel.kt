@@ -7,19 +7,27 @@ import com.pixelquest.app.study.data.ReminderSave
 import com.pixelquest.app.study.data.StudyReminderRepository
 import com.pixelquest.app.study.data.StudyRepository
 import com.pixelquest.app.study.domain.ReminderProblem
+import com.pixelquest.app.study.domain.ReminderScope
+import com.pixelquest.app.study.domain.isOver
+import com.pixelquest.app.study.domain.occurrencesIn
 import com.pixelquest.app.study.domain.StudyRefusal
 import com.pixelquest.app.ui.navigation.TabSharing
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /** What the reminders part of a study party's screen shows. */
 data class ReminderUiState(
+    /** This week's reminders, soonest first, for the banner on This week. */
+    val thisWeek: List<ReminderLine> = emptyList(),
     val form: ReminderForm? = null,
     val notice: ReminderNotice? = null,
     val today: java.time.LocalDate = java.time.LocalDate.MIN,
@@ -41,7 +49,8 @@ sealed interface ReminderNotice {
 class StudyRemindersViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val reminders: StudyReminderRepository,
-    private val study: StudyRepository
+    private val study: StudyRepository,
+    parties: com.pixelquest.app.party.data.PartyRepository
 ) : ViewModel() {
 
     val partyId: String = savedStateHandle[StudyPartyViewModel.ARG_PARTY] ?: ""
@@ -49,12 +58,48 @@ class StudyRemindersViewModel @Inject constructor(
     private val form = MutableStateFlow<ReminderForm?>(null)
     private val notice = MutableStateFlow<ReminderNotice?>(null)
 
-    val uiState: StateFlow<ReminderUiState> = combine(form, notice) { form, notice ->
-        ReminderUiState(form = form, notice = notice, today = study.today(), zone = study.zone())
-    }.stateIn(viewModelScope, TabSharing, ReminderUiState(today = study.today(), zone = study.zone()))
+    val uiState: StateFlow<ReminderUiState> = combine(reminders.observeReminders(partyId), form, notice) { all, form, notice ->
+        ReminderUiState(thisWeek = thisWeekOf(all), form = form, notice = notice, today = study.today(), zone = study.zone())
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, TabSharing, ReminderUiState(today = study.today(), zone = study.zone()))
+
+    /**
+     * The reminders with an occurrence in the player's week, Monday to Sunday: a week's all week, a
+     * day's or a time's until it's past. Soonest first; weeks first.
+     */
+    private fun thisWeekOf(all: List<com.pixelquest.app.study.domain.StudyReminder>): List<ReminderLine> {
+        val zone = study.zone()
+        val now = study.now()
+        val from = study.thisWeek().atStartOfDay(zone).toInstant()
+        val to = study.thisWeek().plusWeeks(1).atStartOfDay(zone).toInstant()
+        val me = study.myId()
+        return all.flatMap { reminder ->
+            reminder.occurrencesIn(from, to)
+                .filter { reminder.scope == ReminderScope.WEEK || !it.isOver(now) }
+                .take(1)
+                .map { ReminderLine(reminder, it, mine = me != null && reminder.createdBy == me) }
+        }.sortedWith(compareBy<ReminderLine> { it.reminder.scope != ReminderScope.WEEK }.thenBy { it.occurrence.start.toInstant() })
+    }
+
+    init {
+        // Fetched once the party is on the phone (a first visit brings it): its reminders go with it.
+        viewModelScope.launch {
+            parties.observeParty(partyId).filterNotNull().first()
+            reminders.refresh(partyId)
+        }
+    }
+
+    /** The player pulled to refresh: the party's reminders too. */
+    fun refresh() {
+        viewModelScope.launch { reminders.refresh(partyId) }
+    }
 
     fun openCreate() {
         form.value = ReminderForm.new(study.today())
+    }
+
+    /** The Edit sheet for [reminder], as it is. Who may change it is the screen's to know, and the server's to check. */
+    fun openEdit(reminder: com.pixelquest.app.study.domain.StudyReminder) {
+        form.value = ReminderForm.of(reminder, study.today(), study.zone())
     }
 
     fun change(next: ReminderForm) {
