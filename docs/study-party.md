@@ -73,3 +73,24 @@ All of them can be turned off.
 ## In Simple Mode
 
 The due list only, with no points, ranks or scoreboard text, as Simple Mode has no game terms.
+
+## Where it is now (after Phase E)
+
+**On the server** (`20261019000035` to `20261019000044`): the three tables, their limits and row-level security, the points view, closing a week, and Realtime. Tested in `supabase/tests/local/darood_parties.test.ts`, and the app's calls in `LocalSupabaseStudyTest` (opt-in).
+
+**On the phone**, in `com.pixelquest.app.study` (Room version 18 adds the study tables):
+
+| Piece | What |
+|---|---|
+| `domain` | `StudyItem`, `StudyCompletion`, `StudySession`, `WeekScore`, `WeekWinner`; `StudyRules`, `StudyPointsConfig` (held equal to the server's by a test), `StudyRefusal` |
+| `data` | `StudyRepository`: the cache first, ticks and study time saved then sent with their keys; `remote.StudyRemoteDataSource`; `local.StudyDao`; the timer, reminder and winner-seen stores |
+| `sync` | `StudySyncWorker` (sends what waits), `StudyLiveSource` (Realtime), `StudyDueWorker` (reminders), `StudyWeeklyWorker` (the Sunday summary) |
+| `ui` | `StudyPartyScreen` (This week, All items, Scoreboard, People), `StudyItemScreen`, the Add and Edit sheet, the timer, the board and past weeks, the activity feed, and the Home card |
+
+**Routes:** `parties/party/{partyId}` and `parties/party/{partyId}/item/{itemId}`; the party's info stays at `parties/party/{partyId}/info`.
+
+**Simplest choices made:**
+- Items, edits and undoing a tick already sent need a connection; ticks and study time don't.
+- A due date is picked from the next four weeks, and a time from the hours of the day.
+- Realtime brings new and changed rows; what's taken away shows at the next refresh.
+- Tapping a notification opens the app.

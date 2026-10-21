@@ -85,5 +85,5 @@ A kind says what's its own through `PartyKind`: its name and icon, what its list
 - Darood Parties live in the Islamic hub (`islamic/darood/...`), as in 1.4.
 - Study parties live in the side menu's Parties (`parties/...`), where invitations of every kind also arrive.
 - The list, Create, Add people and Party info screens are shared. Each asks the party's kind what to show.
-- Until Phase E gives a study party its own screen, opening one opens its info.
+- A study party opens on its own screen (`parties/party/{id}`, docs/study-party.md); its info opens from there.
 
