@@ -147,7 +147,6 @@
     <!-- The Scoreboard tab: the week it shows ("Mon 19 Oct to Sun 25 Oct"). -->
     <string name="study_board_week"><xliff:g id="from" example="Mon 19 Oct">%1$s</xliff:g> to <xliff:g id="to" example="Sun 25 Oct">%2$s</xliff:g></string>
     <!-- A place on the board ("1"); equal points share a place. -->
-    <string name="study_board_place"><xliff:g id="place" example="1">%d</xliff:g></string>
     <!-- The player's own line ("@aria_k (you)"). -->
     <string name="study_board_you"><xliff:g id="member" example="\@aria_k">%1$s</xliff:g> (you)</string>
     <!-- Where a member's points came from ("3 items, 5 bonus, 65 minutes"). -->

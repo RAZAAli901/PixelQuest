@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- AI Coach (docs/ai-coach-compact.md). Older text is still inline in the composables. -->
-    <string name="coach_status_online">ONLINE</string>
-    <string name="coach_status_light">Gemini AI</string>
     <string name="coach_expand">Show more</string>
     <string name="coach_collapse">Show less</string>
     <string name="coach_earlier">Earlier insights</string>
@@ -10,8 +8,6 @@
     <string name="coach_cooldown_hours">%1$dh</string>
     <string name="coach_refresh_description">Get a fresh insight</string>
 
-    <string name="tasks_title">📜 QUEST LOG</string>
-    <string name="tasks_title_simple">📋 ALL TASKS</string>
     <string name="navigate_back">Back</string>
 
     <!-- Plurals: lint (PluralsCandidate) on a number followed by words. -->

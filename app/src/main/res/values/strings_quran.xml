@@ -127,7 +127,6 @@
     <!-- A found ayah's reference: its surah's name, then surah:ayah. -->
     <string name="quran_search_reference"><xliff:g id="name" example="Al-Baqara">%1$s</xliff:g> <xliff:g id="surah" example="2">%2$d</xliff:g>:<xliff:g id="ayah" example="255">%3$d</xliff:g></string>
     <!-- The bookmarks screen. -->
-    <string name="quran_bookmarks">Bookmarks</string>
     <string name="quran_bookmarks_none_title">No bookmarks yet</string>
     <string name="quran_bookmarks_none_body">Tap an ayah as you read, then Bookmark. It will be here, ready to go back to.</string>
     <!-- A surah's heading there: its number and English name. -->

@@ -13,9 +13,7 @@
     <string name="darood_title">Darood Party</string>
     <string name="darood_empty_title">No parties yet</string>
     <string name="darood_empty_body">Start a party with 2 to 30 friends, post how many Darood you read each day, and reach a goal together. Or wait for a friend to invite you by your username.</string>
-    <string name="darood_create">Create a party</string>
     <!-- Signed out: parties need an account. The button opens the usual sign-in (the Account screen). -->
-    <string name="darood_signed_out_title">Sign in to join a party</string>
     <string name="darood_signed_out_body">Darood Parties are shared with friends, so they need an account. Sign in with Google or an emailed code.</string>
     <string name="darood_sign_in">Sign in</string>
     <!-- The party list: one row per party. -->
@@ -152,7 +150,6 @@
     <string name="darood_invite_decline">Decline</string>
     <string name="darood_invite_gone">That invitation isn\'t there any more: it may have been withdrawn, or the party is full or finished.</string>
     <string name="darood_list_failed">Something went wrong. Pull down to try again.</string>
-    <string name="darood_parties_title">Your parties</string>
     <string name="darood_list_offline">Couldn\'t reach the server. Showing what this phone has.</string>
     <!-- A party's own screen; the chat comes to it later. -->
     <string name="darood_party_info">Party info</string>
