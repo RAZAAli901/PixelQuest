@@ -1,30 +1,20 @@
 package com.pixelquest.app.ui.screens.leaderboard
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CloudOff
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import com.pixelquest.app.ui.components.PixelConfirmDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,20 +25,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.pixelquest.app.R
-import com.pixelquest.app.ui.theme.PixelTheme
+import com.pixelquest.app.ui.components.PixelConfirmDialog
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.components.PqIconButton
+import com.pixelquest.app.ui.components.PqQuietButton
+import com.pixelquest.app.ui.components.PqSegmented
+import com.pixelquest.app.ui.components.PqTopBar
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.pqShape
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeaderboardScreen(
     viewModel: LeaderboardViewModel,
@@ -75,7 +73,6 @@ fun LeaderboardScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeaderboardContent(
     uiState: LeaderboardUiState,
@@ -122,177 +119,88 @@ fun LeaderboardContent(
         }
     }
 
-    val colors = PixelTheme.colors
-    val isLight = PixelTheme.mode == com.pixelquest.app.ui.theme.ThemeMode.Light
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .background(PqColors.Ground)
+            .nestedScroll(nestedScrollConnection)
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 12.dp)
+    ) {
+        PqTopBar("Leaderboard", onBack = onNavigateBack) {
+            PqIconButton(Icons.Rounded.Refresh, "Refresh the leaderboard", onRefresh)
+        }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = colors.background,
-        topBar = {
-            com.pixelquest.app.ui.components.PixelTopAppBar(
-                title = "LEADERBOARD",
-                // Opened from Stats it has a way back; as a tab, the side menu's icon takes that place.
-                navigationIcon = onNavigateBack?.let { back ->
-                    {
-                        com.pixelquest.app.ui.components.PqBackButton(back)
-                    }
+        // Pulled down, or updating: said in a small line.
+        if (pullOffset > 0f || uiState.isLoading) {
+            Text(
+                text = when {
+                    uiState.isLoading -> "Updating the board…"
+                    pullOffset >= refreshThresholdPx -> "Let go to refresh"
+                    else -> "Pull down to refresh"
                 },
-                actions = {
-                    IconButton(onClick = onRefresh) {
-                        com.pixelquest.app.ui.components.SymbolIcon(
-                            symbol = "🔄",
-                            contentDescription = "Refresh the leaderboard",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.secondary
-                        )
-                    }
-                }
+                style = PqType.MetaStrong,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().background(PqColors.Sunken, pqShape(8.dp)).padding(vertical = 6.dp)
             )
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(nestedScrollConnection)
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-        ) {
-            // Pull-to-refresh banner indicator
-            if (pullOffset > 0f || uiState.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(colors.surface)
-                        .border(1.dp, colors.secondary.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                        .padding(vertical = 6.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = when {
-                            uiState.isLoading -> "🔄 UPDATING HALL OF FAME..."
-                            pullOffset >= refreshThresholdPx -> "⚡ RELEASE TO REFRESH ⚡"
-                            else -> "▼ PULL TO REFRESH ▼"
-                        },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (pullOffset >= refreshThresholdPx) colors.primaryText else com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
-                        fontSize = 8.sp
-                    )
-                }
-            }
 
-            // Tab Selector Row: Top Streaks / Top Levels
-            LeaderboardTabRow(
-                selectedTab = uiState.selectedTab,
-                onTabSelected = onTabSelected
+        PqSegmented(
+            options = listOf("Top streaks", "Top levels"),
+            selected = if (uiState.selectedTab == LeaderboardTab.TOP_STREAKS) 0 else 1,
+            onSelect = { onTabSelected(if (it == 0) LeaderboardTab.TOP_STREAKS else LeaderboardTab.TOP_LEVELS) }
+        )
+
+        val isOnBoard = uiState.authState is LeaderboardAuthState.SignedInAndOptedIn
+        val showAroundYou = isOnBoard && uiState.selectedView == LeaderboardView.AROUND_YOU
+        if (isOnBoard) {
+            PqSegmented(
+                options = listOf("Around you", "Top heroes"),
+                selected = if (uiState.selectedView == LeaderboardView.AROUND_YOU) 0 else 1,
+                onSelect = { onViewSelected(if (it == 0) LeaderboardView.AROUND_YOU else LeaderboardView.TOP) }
             )
+        }
 
-            val isOnBoard = uiState.authState is LeaderboardAuthState.SignedInAndOptedIn
-            val showAroundYou = isOnBoard && uiState.selectedView == LeaderboardView.AROUND_YOU
-            if (isOnBoard) {
-                Spacer(modifier = Modifier.height(8.dp))
-                LeaderboardViewSwitch(
-                    selectedView = uiState.selectedView,
-                    onViewSelected = onViewSelected
-                )
+        if (uiState.lastUpdatedTimestamp != null) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(text = "Updated ${uiState.lastUpdatedTimestamp}", style = PqType.Meta, modifier = Modifier.weight(1f))
+                Text(text = if (uiState.isLoading) "Syncing…" else "Online", style = PqType.MetaStrong.copy(color = if (uiState.isLoading) PqColors.RedText else PqColors.Live))
             }
+        }
 
-            Spacer(modifier = Modifier.height(12.dp))
+        val currentUserId = when (val auth = uiState.authState) {
+            is LeaderboardAuthState.SignedInAndOptedIn -> auth.userId
+            is LeaderboardAuthState.SignedInReadOnly -> auth.userId
+            LeaderboardAuthState.NotSignedIn -> null
+        }
+        val currentEntries = when (uiState.selectedTab) {
+            LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
+            LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
+        }
 
-            // Last updated timestamp & status banner
-            if (uiState.lastUpdatedTimestamp != null) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp, vertical = 2.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "UPDATED: ${uiState.lastUpdatedTimestamp}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = colors.onSurfaceVariant,
-                        fontSize = 7.sp
-                    )
-                    Text(
-                        text = if (uiState.isLoading) "SYNCING..." else "ONLINE ●",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (uiState.isLoading) colors.primaryText else com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary),
-                        fontSize = 7.sp
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            } else {
-                Spacer(modifier = Modifier.height(4.dp))
+        // A refresh or a page that failed while the cached board still shows.
+        if (uiState.errorMessage != null && currentEntries.isNotEmpty()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .comic(bg = PqColors.Paper, radius = PqDimens.RadiusSm, border = PqDimens.BorderThin, shadow = 0.dp)
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Text(text = uiState.errorMessage, style = PqType.Meta.copy(color = PqColors.Error), modifier = Modifier.weight(1f))
+                PqQuietButton("Retry", onRefresh)
             }
-
-            // Tab Content: LazyColumn of PixelLeaderboardRows
-            val currentUserId = when (val auth = uiState.authState) {
-                is LeaderboardAuthState.SignedInAndOptedIn -> auth.userId
-                is LeaderboardAuthState.SignedInReadOnly -> auth.userId
-                LeaderboardAuthState.NotSignedIn -> null
-            }
-
-            val currentEntries = when (uiState.selectedTab) {
-                LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
-                LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
-            }
-
-            // Inline non-blocking error banner if refresh or pagination failed while cached data is displayed
-            if (uiState.errorMessage != null && currentEntries.isNotEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(colors.surface)
-                        .border(1.dp, colors.error, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "⚠️ ${uiState.errorMessage}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colors.error,
-                            fontSize = 8.sp,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                            text = "RETRY",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colors.primaryText,
-                            fontSize = 8.sp,
-                            modifier = Modifier
-                                .clickable { onRefresh() }
-                                .padding(start = 8.dp)
-                        )
-                    }
-                }
-            }
-
-            if (uiState.reportMessage != null) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(colors.surface)
-                        .border(1.dp, colors.tertiary, RoundedCornerShape(6.dp))
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = "🚩 ${uiState.reportMessage}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = com.pixelquest.app.ui.theme.inkOnPanel(colors.tertiary),
-                        fontSize = 8.sp
-                    )
-                }
-            }
+        }
+        if (uiState.reportMessage != null) {
+            Text(
+                text = uiState.reportMessage,
+                style = PqType.Meta.copy(color = PqColors.Ink),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .comic(bg = PqColors.Sky, radius = PqDimens.RadiusSm, border = PqDimens.BorderThin, shadow = 0.dp)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            )
+        }
 
         if (showAroundYou) {
             AroundYouList(
@@ -301,118 +209,57 @@ fun LeaderboardContent(
                 currentUserId = currentUserId,
                 isLoading = uiState.isLoadingAroundYou || uiState.isLoading,
                 onReport = { id, name -> reportingItem = id to name },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+                modifier = Modifier.fillMaxWidth().weight(1f)
             )
         } else {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            contentAlignment = Alignment.Center
-        ) {
-            if (uiState.isLoading && currentEntries.isEmpty()) {
-                CircularProgressIndicator(
-                    color = colors.primary,
-                    modifier = Modifier.size(36.dp)
-                )
-            } else if (uiState.errorMessage != null && currentEntries.isEmpty()) {
-                LeaderboardErrorState(
-                    errorMessage = uiState.errorMessage,
-                    onRetry = onRefresh,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else if (currentEntries.isEmpty()) {
-                Text(
-                    text = "NO HEROES RANKED YET\nOpt in from Account Settings to claim the top spot!",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 18.sp
-                )
-            } else {
-                val listState = androidx.compose.foundation.lazy.rememberLazyListState()
-                val shouldLoadMore = androidx.compose.runtime.remember {
-                    androidx.compose.runtime.derivedStateOf {
-                        val totalItems = listState.layoutInfo.totalItemsCount
-                        val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-                        totalItems > 0 && lastVisibleItemIndex >= totalItems - 2
-                    }
-                }
-
-                androidx.compose.runtime.LaunchedEffect(shouldLoadMore.value) {
-                    if (shouldLoadMore.value && uiState.canLoadMore && !uiState.isLoading && !uiState.isLoadingMore) {
-                        onLoadMore()
-                    }
-                }
-
-                androidx.compose.foundation.lazy.LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(
-                        count = currentEntries.size,
-                        key = { index -> currentEntries[index].id }
-                    ) { index ->
-                        val item = currentEntries[index]
-                        val rank = index + 1
-                        val isCurrentUser = currentUserId != null && item.id == currentUserId
-
-                        when (uiState.selectedTab) {
-                            LeaderboardTab.TOP_STREAKS -> {
-                                PixelLeaderboardRow(
-                                    rank = rank,
-                                    displayName = item.displayName,
-                                    statLabel = "DAYS STREAK",
-                                    statValue = "${item.currentStreak} 🔥",
-                                    isCurrentUser = isCurrentUser,
-                                    onReportClicked = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
-                                )
-                            }
-                            LeaderboardTab.TOP_LEVELS -> {
-                                PixelLeaderboardRow(
-                                    rank = rank,
-                                    displayName = item.displayName,
-                                    statLabel = "XP: ${item.totalXp}",
-                                    statValue = "LVL ${item.level} ⚔️",
-                                    isCurrentUser = isCurrentUser,
-                                    onReportClicked = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
-                                )
-                            }
+            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
+                if (uiState.isLoading && currentEntries.isEmpty()) {
+                    CircularProgressIndicator(color = PqColors.Ink, modifier = Modifier.size(36.dp))
+                } else if (uiState.errorMessage != null && currentEntries.isEmpty()) {
+                    LeaderboardErrorState(errorMessage = uiState.errorMessage, onRetry = onRefresh, modifier = Modifier.fillMaxWidth())
+                } else if (currentEntries.isEmpty()) {
+                    Text(
+                        text = "No heroes ranked yet. Join from Account to claim the top spot.",
+                        style = PqType.Body.copy(color = PqColors.Ink2),
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                    val shouldLoadMore = remember {
+                        androidx.compose.runtime.derivedStateOf {
+                            val totalItems = listState.layoutInfo.totalItemsCount
+                            val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                            totalItems > 0 && lastVisibleItemIndex >= totalItems - 2
                         }
                     }
-
-                    // Pagination Load More trigger item
-                    if (uiState.canLoadMore) {
-                        item(key = "load_more_indicator") {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 12.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (uiState.isLoadingMore) {
-                                    CircularProgressIndicator(
-                                        color = colors.primary,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                } else {
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(6.dp))
-                                            .background(colors.surface)
-                                            .border(1.dp, colors.secondary.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                                            .clickable { onLoadMore() }
-                                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                                    ) {
-                                        Text(
-                                            text = "▼ LOAD MORE HEROES ▼",
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
-                                            fontSize = 9.sp
-                                        )
+                    androidx.compose.runtime.LaunchedEffect(shouldLoadMore.value) {
+                        if (shouldLoadMore.value && uiState.canLoadMore && !uiState.isLoading && !uiState.isLoadingMore) {
+                            onLoadMore()
+                        }
+                    }
+                    androidx.compose.foundation.lazy.LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(count = currentEntries.size, key = { index -> currentEntries[index].id }) { index ->
+                            val item = currentEntries[index]
+                            val isCurrentUser = currentUserId != null && item.id == currentUserId
+                            BoardRow(
+                                rank = index + 1,
+                                profile = item,
+                                tab = uiState.selectedTab,
+                                isCurrentUser = isCurrentUser,
+                                onReport = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
+                            )
+                        }
+                        if (uiState.canLoadMore) {
+                            item(key = "load_more_indicator") {
+                                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
+                                    if (uiState.isLoadingMore) {
+                                        CircularProgressIndicator(color = PqColors.Ink, modifier = Modifier.size(24.dp))
+                                    } else {
+                                        PqButton("Load more", onLoadMore, style = PqButtonStyle.Secondary, height = 40.dp)
                                     }
                                 }
                             }
@@ -422,71 +269,27 @@ fun LeaderboardContent(
             }
         }
 
-        }
-
-        // Footer: Pinned Current User Rank (Opted In) OR Spectator Mode Banner (Read Only).
-        // The AROUND YOU view already shows your row, so it skips the pinned copy.
+        // The player's own rank, pinned under the board (Around you already shows it), or how to join.
         when (uiState.authState) {
-            is LeaderboardAuthState.SignedInReadOnly -> {
-                Spacer(modifier = Modifier.height(12.dp))
-                SpectatorModeBanner(
-                    onNavigateToAccount = onNavigateToAccount
-                )
-            }
+            is LeaderboardAuthState.SignedInReadOnly -> SpectatorModeBanner(onNavigateToAccount = onNavigateToAccount)
             is LeaderboardAuthState.SignedInAndOptedIn -> {
                 val userRank = uiState.currentUserRank
                 if (userRank != null && !showAroundYou) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (isLight) Color(0xFFFEF3C7) else colors.surface)
-                            .border(1.dp, colors.primary.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                            .padding(8.dp)
-                    ) {
-                        Text(
-                            text = "★ YOUR RANKING",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colors.primaryText,
-                            fontSize = 8.sp,
-                            modifier = Modifier.padding(bottom = 6.dp, start = 4.dp)
-                        )
-                        when (uiState.selectedTab) {
-                            LeaderboardTab.TOP_STREAKS -> {
-                                PixelLeaderboardRow(
-                                    rank = userRank.rank,
-                                    displayName = userRank.profile.displayName,
-                                    statLabel = "DAYS STREAK",
-                                    statValue = "${userRank.profile.currentStreak} 🔥",
-                                    isCurrentUser = true
-                                )
-                            }
-                            LeaderboardTab.TOP_LEVELS -> {
-                                PixelLeaderboardRow(
-                                    rank = userRank.rank,
-                                    displayName = userRank.profile.displayName,
-                                    statLabel = "XP: ${userRank.profile.totalXp}",
-                                    statValue = "LVL ${userRank.profile.level} ⚔️",
-                                    isCurrentUser = true
-                                )
-                            }
-                        }
-                    }
+                    PqGroupLabel("Your ranking")
+                    BoardRow(rank = userRank.rank, profile = userRank.profile, tab = uiState.selectedTab, isCurrentUser = true, onReport = null)
                 }
             }
             LeaderboardAuthState.NotSignedIn -> Unit
         }
     }
-    }
 
     if (reportingItem != null) {
         val (profileId, name) = reportingItem!!
         PixelConfirmDialog(
-            title = "FLAG HERO NAME?",
+            title = "Report this name?",
             message = "Report '$name' for an offensive or inappropriate public display name?",
-            confirmText = "REPORT",
-            dismissText = "CANCEL",
+            confirmText = "Report",
+            dismissText = "Cancel",
             onConfirm = {
                 onReportProfile(profileId, name)
                 reportingItem = null
@@ -496,96 +299,31 @@ fun LeaderboardContent(
     }
 }
 
+/** A hero's row for the board's tab: their streak, or their level and XP. */
 @Composable
-fun LeaderboardTabRow(
-    selectedTab: LeaderboardTab,
-    onTabSelected: (LeaderboardTab) -> Unit,
-    modifier: Modifier = Modifier
+private fun BoardRow(
+    rank: Int,
+    profile: com.pixelquest.app.data.remote.model.CloudProfileDto,
+    tab: LeaderboardTab,
+    isCurrentUser: Boolean,
+    onReport: (() -> Unit)?
 ) {
-    val colors = PixelTheme.colors
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.pixelBorder, RoundedCornerShape(8.dp))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        LeaderboardTabButton(
-            title = "🔥 TOP STREAKS",
-            isSelected = selectedTab == LeaderboardTab.TOP_STREAKS,
-            onClick = { onTabSelected(LeaderboardTab.TOP_STREAKS) },
-            modifier = Modifier.weight(1f)
+    when (tab) {
+        LeaderboardTab.TOP_STREAKS -> PixelLeaderboardRow(
+            rank = rank,
+            displayName = profile.displayName,
+            statLabel = "Day streak",
+            statValue = profile.currentStreak.toString(),
+            isCurrentUser = isCurrentUser,
+            onReportClicked = onReport?.let { report -> { _ -> report() } }
         )
-
-        LeaderboardTabButton(
-            title = "⚔️ TOP LEVELS",
-            isSelected = selectedTab == LeaderboardTab.TOP_LEVELS,
-            onClick = { onTabSelected(LeaderboardTab.TOP_LEVELS) },
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-fun LeaderboardTabButton(
-    title: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = PixelTheme.colors
-    val shape = RoundedCornerShape(6.dp)
-    val backgroundColor = if (isSelected) colors.primary.copy(alpha = 0.2f) else Color.Transparent
-    val borderColor = if (isSelected) colors.primary else Color.Transparent
-    val textColor = if (isSelected) colors.primaryText else colors.onSurfaceVariant
-
-    Box(
-        modifier = modifier
-            .clip(shape)
-            .background(backgroundColor)
-            .border(1.dp, borderColor, shape)
-            .clickable(onClick = onClick)
-            .padding(vertical = 10.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            color = textColor,
-            fontSize = 9.sp
-        )
-    }
-}
-
-@Composable
-fun LeaderboardViewSwitch(
-    selectedView: LeaderboardView,
-    onViewSelected: (LeaderboardView) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = PixelTheme.colors
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.pixelBorder, RoundedCornerShape(8.dp))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        LeaderboardTabButton(
-            title = "⚔️ AROUND YOU",
-            isSelected = selectedView == LeaderboardView.AROUND_YOU,
-            onClick = { onViewSelected(LeaderboardView.AROUND_YOU) },
-            modifier = Modifier.weight(1f)
-        )
-        LeaderboardTabButton(
-            title = "🏆 TOP HEROES",
-            isSelected = selectedView == LeaderboardView.TOP,
-            onClick = { onViewSelected(LeaderboardView.TOP) },
-            modifier = Modifier.weight(1f)
+        LeaderboardTab.TOP_LEVELS -> PixelLeaderboardRow(
+            rank = rank,
+            displayName = profile.displayName,
+            statLabel = "${profile.totalXp} XP",
+            statValue = "Lvl ${profile.level}",
+            isCurrentUser = isCurrentUser,
+            onReportClicked = onReport?.let { report -> { _ -> report() } }
         )
     }
 }
@@ -603,174 +341,62 @@ fun AroundYouList(
     onReport: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = PixelTheme.colors
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         when {
-            entries.isEmpty() && isLoading -> {
-                CircularProgressIndicator(color = colors.primary, modifier = Modifier.size(36.dp))
-            }
-            entries.isEmpty() -> {
-                Text(
-                    text = "YOU'RE NOT ON THE BOARD YET\nYour rank appears after your profile syncs. Pull down to refresh.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 18.sp
-                )
-            }
-            else -> {
-                androidx.compose.foundation.lazy.LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    item(key = "around_you_header") {
-                        Text(
-                            text = "HEROES ABOVE AND BELOW YOU",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = colors.primaryText,
-                            fontSize = 8.sp,
-                            modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
-                        )
-                    }
-                    items(
-                        count = entries.size,
-                        key = { index -> "around_" + entries[index].profile.id }
-                    ) { index ->
-                        val entry = entries[index]
-                        val profile = entry.profile
-                        val isCurrentUser = currentUserId != null && profile.id == currentUserId
-                        val report: ((String) -> Unit)? = if (isCurrentUser) null else { { _ -> onReport(profile.id, profile.displayName) } }
-                        when (selectedTab) {
-                            LeaderboardTab.TOP_STREAKS -> PixelLeaderboardRow(
-                                rank = entry.rank,
-                                displayName = profile.displayName,
-                                statLabel = "DAYS STREAK",
-                                statValue = "${profile.currentStreak} 🔥",
-                                isCurrentUser = isCurrentUser,
-                                onReportClicked = report
-                            )
-                            LeaderboardTab.TOP_LEVELS -> PixelLeaderboardRow(
-                                rank = entry.rank,
-                                displayName = profile.displayName,
-                                statLabel = "XP: ${profile.totalXp}",
-                                statValue = "LVL ${profile.level} ⚔️",
-                                isCurrentUser = isCurrentUser,
-                                onReportClicked = report
-                            )
-                        }
-                    }
+            entries.isEmpty() && isLoading -> CircularProgressIndicator(color = PqColors.Ink, modifier = Modifier.size(36.dp))
+            entries.isEmpty() -> Text(
+                text = "You're not on the board yet. Your rank appears after your profile syncs. Pull down to refresh.",
+                style = PqType.Body.copy(color = PqColors.Ink2),
+                textAlign = TextAlign.Center
+            )
+            else -> androidx.compose.foundation.lazy.LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item(key = "around_you_header") { PqGroupLabel("Above and below you") }
+                items(count = entries.size, key = { index -> "around_" + entries[index].profile.id }) { index ->
+                    val entry = entries[index]
+                    val profile = entry.profile
+                    val isCurrentUser = currentUserId != null && profile.id == currentUserId
+                    BoardRow(
+                        rank = entry.rank,
+                        profile = profile,
+                        tab = selectedTab,
+                        isCurrentUser = isCurrentUser,
+                        onReport = if (isCurrentUser) null else { { onReport(profile.id, profile.displayName) } }
+                    )
                 }
             }
         }
     }
 }
 
+/** Signed in but not on the board: what that means, and the way to join. */
 @Composable
-fun SpectatorModeBanner(
-    onNavigateToAccount: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = PixelTheme.colors
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.secondary.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-            .padding(12.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 6.dp)
-            ) {
-                Text(
-                    text = "👁️ SPECTATOR MODE",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = com.pixelquest.app.ui.theme.inkOnPanel(colors.secondary),
-                    fontSize = 11.sp
-                )
+fun SpectatorModeBanner(onNavigateToAccount: () -> Unit, modifier: Modifier = Modifier) {
+    PqCard(bg = PqColors.Sky, radius = PqDimens.Radius, shadow = 0.dp, modifier = modifier.fillMaxWidth()) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(12.dp)) {
+            Text(text = "You're watching", style = PqType.BodyStrong)
+            Text(text = "You see the board, but you're not on it. Join from Account to appear on the leaderboard.", style = PqType.Meta.copy(color = PqColors.Ink))
+            PqButton("Join the leaderboard", onNavigateToAccount, Modifier.fillMaxWidth())
+        }
+    }
+}
+
+/** The board couldn't load: why, a way to try again, and that nothing else is affected. */
+@Composable
+fun LeaderboardErrorState(errorMessage: String, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    PqCard(radius = PqDimens.RadiusLg, modifier = modifier) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(14.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Box(Modifier.size(36.dp).clip(pqShape(10.dp)).background(PqColors.Rose), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Rounded.CloudOff, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.size(20.dp))
+                }
+                Text(text = "Couldn't reach the leaderboard", style = PqType.BodyStrong)
             }
-            Text(
-                text = "You are viewing the leaderboard in read-only spectator mode. Opt in from Account Settings to appear on the leaderboard!",
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                fontSize = 8.sp,
-                lineHeight = 14.sp,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            com.pixelquest.app.ui.components.PixelButton(
-                text = "⚔️ JOIN LEADERBOARD",
-                onClick = onNavigateToAccount,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Text(text = errorMessage, style = PqType.Body.copy(color = PqColors.Ink2))
+            PqButton("Try again", onRetry, Modifier.fillMaxWidth())
+            Text(text = "Your quests, streaks and XP keep counting on this phone meanwhile.", style = PqType.Meta)
         }
     }
 }
-
-@Composable
-fun LeaderboardErrorState(
-    errorMessage: String,
-    onRetry: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val colors = PixelTheme.colors
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(colors.surface)
-                .border(2.dp, colors.error, RoundedCornerShape(12.dp))
-                .padding(24.dp)
-        ) {
-            Text(
-                text = "📡",
-                fontSize = 36.sp,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-            Text(
-                text = "REALM TRANSMISSION FAILED",
-                style = MaterialTheme.typography.titleMedium,
-                color = colors.error,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = errorMessage,
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurface,
-                textAlign = TextAlign.Center,
-                lineHeight = 16.sp,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            com.pixelquest.app.ui.components.PixelButton(
-                text = "🔄 RETRY CONNECTION",
-                onClick = onRetry,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 14.dp)
-            )
-            Text(
-                text = "🛡️ Offline Mode Safe: Local quests, streaks, and XP continue tracking uninterrupted on your device.",
-                style = MaterialTheme.typography.labelSmall,
-                color = colors.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                fontSize = 8.sp,
-                lineHeight = 14.sp
-            )
-        }
-    }
-}
-

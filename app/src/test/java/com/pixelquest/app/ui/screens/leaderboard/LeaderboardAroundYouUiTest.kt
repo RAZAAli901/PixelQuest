@@ -65,7 +65,7 @@ class LeaderboardAroundYouUiTest {
     fun aroundYou_listsTheHeroesAboveAndBelow() {
         show(LeaderboardView.AROUND_YOU)
 
-        composeTestRule.onNodeWithText("HEROES ABOVE AND BELOW YOU").assertExists()
+        composeTestRule.onNodeWithText("ABOVE AND BELOW YOU").assertExists()
         listOf("Above_Two", "Above_One", "You_Hero", "Below_One", "Below_Two").forEach {
             composeTestRule.onNodeWithText(it, substring = true).assertExists()
         }
@@ -84,7 +84,7 @@ class LeaderboardAroundYouUiTest {
         var selected: LeaderboardView? = null
         show(LeaderboardView.AROUND_YOU) { selected = it }
 
-        composeTestRule.onNodeWithText("🏆 TOP HEROES").performClick()
+        composeTestRule.onNodeWithText("Top heroes").performClick()
         assertEquals(LeaderboardView.TOP, selected)
     }
 
