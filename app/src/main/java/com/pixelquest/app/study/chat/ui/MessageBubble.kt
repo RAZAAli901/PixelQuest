@@ -45,6 +45,8 @@ fun MessageBubbleRow(
     modifier: Modifier = Modifier,
     onRetry: (String) -> Unit = {},
     onDiscard: (String) -> Unit = {},
+    /** Answers it (swiped, or TalkBack's action); null for one that can't be (deleted, or not sent yet). */
+    onReply: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit = {}
 ) {
     val message = row.message
@@ -57,6 +59,7 @@ fun MessageBubbleRow(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = if (row.firstOfRun) 8.dp else 2.dp)
+            .swipeToReply(onReply?.takeIf { !message.deleted && message.sync == null })
             .testTag(StudyChatTags.message(message.clientId ?: message.id))
     ) {
         if (row.firstOfRun && !row.mine) {
@@ -95,6 +98,7 @@ private fun MessageBubble(row: ChatMessageRow, content: @Composable ColumnScope.
                 style = PqType.Body.copy(color = PqColors.Muted, fontStyle = FontStyle.Italic)
             )
         } else {
+            row.replyTo?.let { ReplyQuote(it, row.replyToName, onBubble = colors.content) }
             content()
             message.body?.let { Text(text = it, style = PqType.Body.copy(color = colors.content)) }
         }

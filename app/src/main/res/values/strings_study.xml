@@ -201,6 +201,9 @@
     <string name="study_chat_empty">No messages yet. Say hello, ask about the homework, or share your notes.</string>
     <string name="study_chat_deleted">Message deleted</string>
     <string name="study_chat_not_sent">Not sent.</string>
+    <string name="study_chat_reply">Reply</string>
+    <string name="study_chat_replying_to">Replying to</string>
+    <string name="study_chat_reply_cancel">Don\'t reply</string>
     <string name="study_chat_retry">Retry</string>
     <string name="study_chat_discard">Discard</string>
     <string name="study_chat_system_line">From PixelQuest</string>

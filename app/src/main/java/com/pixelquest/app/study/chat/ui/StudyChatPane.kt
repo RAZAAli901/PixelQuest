@@ -75,8 +75,17 @@ fun StudyChatPane(
     zone: ZoneId,
     actions: ChatActions,
     modifier: Modifier = Modifier,
-    input: @Composable ColumnScope.() -> Unit = { ChatInputBar(value = state.draft, onValueChange = actions.onDraftChange, onSend = actions.onSend) },
-    message: @Composable (ChatMessageRow) -> Unit = { MessageBubbleRow(it, onRetry = actions.onRetry, onDiscard = actions.onDiscard) }
+    input: @Composable ColumnScope.() -> Unit = {
+        ChatInputBar(
+            value = state.draft,
+            onValueChange = actions.onDraftChange,
+            onSend = actions.onSend,
+            above = { state.replyingTo?.let { ReplyPreview(it, onCancel = actions.onCancelReply) } }
+        )
+    },
+    message: @Composable (ChatMessageRow) -> Unit = { row ->
+        MessageBubbleRow(row, onRetry = actions.onRetry, onDiscard = actions.onDiscard, onReply = { actions.onReply(row) })
+    }
 ) {
     Column(modifier = modifier.fillMaxSize().testTag(StudyChatTags.PANE)) {
         ChatBackground(modifier = Modifier.fillMaxWidth().weight(1f)) {
@@ -147,6 +156,9 @@ object StudyChatTags {
     const val INPUT = "study_chat_input"
     const val SEND = "study_chat_send"
     const val COUNTER = "study_chat_counter"
+    const val QUOTE = "study_chat_quote"
+    const val REPLY_PREVIEW = "study_chat_reply_preview"
+    const val REPLY_CANCEL = "study_chat_reply_cancel"
     const val PENDING = "study_chat_pending"
     const val SENT = "study_chat_sent"
     const val FAILED = "study_chat_failed"
