@@ -45,6 +45,9 @@ interface DaroodRepository {
      */
     suspend fun closeLastWeek(partyId: String): SupabaseResult<com.pixelquest.app.darood.domain.WeekResult?>
 
+    /** Marks a closed week told on this phone: true only the first time, so it's told once. */
+    suspend fun markWeekTold(partyId: String, weekStart: LocalDate): Boolean
+
     /** The party's closed weeks as the phone has them, newest first (refreshed by the calls below). */
     fun observeWeekResults(partyId: String): Flow<List<com.pixelquest.app.darood.domain.WeekResult>>
 

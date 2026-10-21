@@ -121,6 +121,8 @@ class DaroodPartyRepositoryImpl(
         return cached(partyId, remote.fetchWeekResults(partyId, monday)).map { weeks -> weeks.firstOrNull { it.weekStart == monday } }
     }
 
+    override suspend fun markWeekTold(partyId: String, weekStart: LocalDate): Boolean = dao.markWeekNotified(partyId, weekStart, now())
+
     override fun observeWeekResults(partyId: String): Flow<List<WeekResult>> =
         dao.observeWeekResults(partyId).map { rows ->
             rows.groupBy { it.weekStart }.map { (monday, places) ->

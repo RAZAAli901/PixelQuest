@@ -335,6 +335,9 @@ abstract class RepositoryModule {
     abstract fun bindChatMutes(impl: com.pixelquest.app.study.chat.sync.PrefsChatMutes): com.pixelquest.app.study.chat.sync.ChatMutes
 
     @Binds
+    abstract fun bindWeekResultNotifier(impl: com.pixelquest.app.darood.sync.AndroidWeekResultNotifier): com.pixelquest.app.darood.sync.WeekResultNotifier
+
+    @Binds
     @Singleton
     abstract fun bindChatLiveSource(
         impl: com.pixelquest.app.study.chat.sync.SupabaseChatLiveSource

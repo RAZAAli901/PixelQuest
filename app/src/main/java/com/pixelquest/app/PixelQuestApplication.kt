@@ -111,6 +111,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
             com.pixelquest.app.worker.NamazRescheduleWorker.schedule(this@PixelQuestApplication)
             // Darood entries left waiting when the app last closed go once there's a connection.
             daroodSync.scheduleSend()
+            // Each Darood Party's closed week, told once (docs/darood-weekly.md); a round now, too.
+            com.pixelquest.app.darood.sync.DaroodWeekResultsWorker.schedule(this@PixelQuestApplication)
             // So do study party ticks and study time (docs/study-party.md).
             studySync.scheduleSend()
             // Reminders of what's due, unless the player turned them off.

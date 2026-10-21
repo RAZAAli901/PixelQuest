@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Darood Parties' weekly ranking and goals that go on (docs/darood-weekly.md). -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="darood_week_notif_title">Weekly ranking: <xliff:g id="party" example="Friday circle">%1$s</xliff:g></string>
+    <string name="darood_week_notif_ready">Last week\'s ranking is in.</string>
+</resources>
