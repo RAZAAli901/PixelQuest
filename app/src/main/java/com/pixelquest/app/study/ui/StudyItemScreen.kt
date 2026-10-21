@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -231,7 +233,7 @@ private fun ItemTopMenu(row: ItemRow, isLeader: Boolean, actions: ItemActions) {
     var open by remember { mutableStateOf(false) }
     val id = row.item.id
     Box {
-        IconButton(onClick = { open = true }, modifier = Modifier.testTag(StudyTags.itemMenu(id))) {
+        IconButton(onClick = { open = true }, modifier = Modifier.size(48.dp).testTag(StudyTags.itemMenu(id))) {
             SymbolIcon(symbol = "⋯", contentDescription = stringResource(R.string.study_item_actions), style = MaterialTheme.typography.titleMedium, color = PixelTheme.colors.primaryText)
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {

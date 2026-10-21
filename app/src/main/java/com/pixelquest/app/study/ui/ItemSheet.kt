@@ -150,7 +150,7 @@ fun ItemFormContent(form: ItemForm, today: LocalDate, isLeader: Boolean, onChang
             text = stringResource(if (form.editingId == null) R.string.study_add_item_save else R.string.study_edit_item_save),
             onClick = onSave,
             enabled = !form.saving,
-            modifier = Modifier.fillMaxWidth().testTag(StudyTags.FORM_SAVE)
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag(StudyTags.FORM_SAVE)
         )
     }
 }

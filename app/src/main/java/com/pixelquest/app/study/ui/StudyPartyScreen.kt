@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -438,11 +439,11 @@ private fun LazyListScope.people(state: StudyPartyUiState, onAddPeople: () -> Un
     }
     if (state.isLeader) {
         item(key = "add") {
-            PixelButton(text = stringResource(R.string.study_add_people), onClick = onAddPeople, modifier = Modifier.fillMaxWidth().testTag(StudyTags.ADD_PEOPLE))
+            PixelButton(text = stringResource(R.string.study_add_people), onClick = onAddPeople, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag(StudyTags.ADD_PEOPLE))
         }
     }
     item(key = "info") {
-        PixelButton(text = stringResource(R.string.study_open_info), onClick = onOpenInfo, modifier = Modifier.fillMaxWidth())
+        PixelButton(text = stringResource(R.string.study_open_info), onClick = onOpenInfo, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp))
     }
 }
 

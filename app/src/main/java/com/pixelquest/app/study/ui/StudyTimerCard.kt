@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectableGroup
@@ -59,7 +61,7 @@ fun StudyTimerCard(state: StudyPartyUiState, actions: TimerActions, clock: () ->
                 )
             }
             when {
-                running == null -> PixelButton(text = stringResource(R.string.study_timer_start), onClick = actions.onStart, modifier = Modifier.fillMaxWidth().testTag(StudyTags.TIMER_START))
+                running == null -> PixelButton(text = stringResource(R.string.study_timer_start), onClick = actions.onStart, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag(StudyTags.TIMER_START))
                 running.partyId == partyId -> {
                     val elapsed by produceState(clock() - running.startedAt, running) {
                         while (true) {
@@ -74,8 +76,8 @@ fun StudyTimerCard(state: StudyPartyUiState, actions: TimerActions, clock: () ->
                         modifier = Modifier.testTag(StudyTags.TIMER_RUNNING)
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        PixelButton(text = stringResource(R.string.study_timer_stop), onClick = actions.onStop, modifier = Modifier.weight(1f).testTag(StudyTags.TIMER_STOP))
-                        TextButton(onClick = actions.onCancel, modifier = Modifier.testTag(StudyTags.TIMER_CANCEL)) {
+                        PixelButton(text = stringResource(R.string.study_timer_stop), onClick = actions.onStop, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag(StudyTags.TIMER_STOP))
+                        TextButton(onClick = actions.onCancel, modifier = Modifier.heightIn(min = 48.dp).testTag(StudyTags.TIMER_CANCEL)) {
                             Text(text = stringResource(R.string.study_timer_cancel), color = colors.primaryText)
                         }
                     }
@@ -98,7 +100,7 @@ fun StudyTimerCard(state: StudyPartyUiState, actions: TimerActions, clock: () ->
                         actions.onLogMinutes(minutes)
                         chosen = null
                     },
-                    modifier = Modifier.fillMaxWidth().testTag(StudyTags.LOG_MINUTES)
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag(StudyTags.LOG_MINUTES)
                 )
             }
         }

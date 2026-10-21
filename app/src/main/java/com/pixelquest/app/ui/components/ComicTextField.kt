@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
@@ -75,7 +77,8 @@ fun ComicTextField(
                     color = ComicTokens.SolidBlack
                 ),
                 cursorBrush = SolidColor(ComicTokens.CoralRed),
-                modifier = Modifier.fillMaxWidth(),
+                // The label is drawn above the field: TalkBack hears it as the field's name.
+                modifier = Modifier.fillMaxWidth().semantics { if (label != null) contentDescription = label },
                 decorationBox = { innerTextField ->
                     if (value.isEmpty() && placeholder.isNotEmpty()) {
                         Text(

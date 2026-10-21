@@ -12,6 +12,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextButton
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -144,7 +145,7 @@ internal fun DoneActions(row: ItemRow, onDone: (() -> Unit)?, onUndo: (() -> Uni
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         when {
             mine == null -> onDone?.let {
-                PixelButton(text = stringResource(R.string.study_mark_done), onClick = it, modifier = Modifier.weight(1f).testTag(StudyTags.itemDone(id)))
+                PixelButton(text = stringResource(R.string.study_mark_done), onClick = it, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag(StudyTags.itemDone(id)))
             }
             mine.state == SyncState.FAILED -> {
                 onRetry?.let { CardTextButton(stringResource(R.string.study_try_again), StudyTags.itemRetry(id), it) }
@@ -167,7 +168,7 @@ private fun CardTextButton(text: String, tag: String, onClick: () -> Unit) {
 private fun ItemMenu(itemId: String, pinned: Boolean, onEdit: (() -> Unit)?, onTogglePin: (() -> Unit)?, onDelete: (() -> Unit)?) {
     var open by remember { mutableStateOf(false) }
     Box {
-        IconButton(onClick = { open = true }, modifier = Modifier.testTag(StudyTags.itemMenu(itemId))) {
+        IconButton(onClick = { open = true }, modifier = Modifier.size(48.dp).testTag(StudyTags.itemMenu(itemId))) {
             SymbolIcon(symbol = "⋯", contentDescription = stringResource(R.string.study_item_actions), style = MaterialTheme.typography.titleMedium, color = PixelTheme.colors.onSurface)
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {

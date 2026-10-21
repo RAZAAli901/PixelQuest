@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -92,7 +93,7 @@ private fun WinnerBanner(state: StudyPartyUiState, onDismiss: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurface
             )
-            androidx.compose.material3.TextButton(onClick = onDismiss, modifier = Modifier.testTag(StudyTags.WINNER_DISMISS)) {
+            androidx.compose.material3.TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 48.dp).testTag(StudyTags.WINNER_DISMISS)) {
                 Text(text = stringResource(R.string.study_winner_dismiss), color = colors.primaryText)
             }
         }
