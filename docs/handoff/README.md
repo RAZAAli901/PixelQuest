@@ -27,14 +27,13 @@ The owner's plan is `C:\Users\tipto\Downloads\Study Chat, Darood Weekly Ranking 
 
 ## Exactly where it stopped
 
-- The last commit is J059 (chat notifications), `457c55ef` or later.
-- **Next: J060**, reporting a message or file (reusing the report flow) and honouring the block list. The long-press menu already has a Report item that stays hidden until `ChatActions.onReport` is set (`study/chat/ui/MessageMenu.kt`, `StudyChatPane.kt`).
-- Then J061–J063 (styling and accessibility passes), J064 (UI tests), J065 (security tests). After that comes the Phase B report to the owner, then Phase C.
+- The last plan commit is J061 (`e31c9ddc`): chat styling, plus a crash fix.
+- **Next: J062.** The full brief, through J180, is in [NEXT-J062.md](NEXT-J062.md).
 
 ## The server
 
 - **Hosted Supabase has migrations through `20261019000065`.** `066` (reports and blocks) is local only.
-- **`20261019000065_study_item_files.sql` (J058) is local only.** Pushing it needs the owner's OK, like every hosted push.
+- **Every hosted push needs the owner's OK.**
 - **Deployed Edge Functions:** `request-upload`, `finalize-upload`, `get-download-url`, `cleanup-uploads` (all with `--no-verify-jwt`; each checks the caller itself), plus the older `gemini-proxy`.
 - **No schedule calls `cleanup-uploads` yet.** `request-upload` runs a small cleanup round on each call instead. A schedule needs the service key stored in the hosted database, which needs the owner's OK.
 
