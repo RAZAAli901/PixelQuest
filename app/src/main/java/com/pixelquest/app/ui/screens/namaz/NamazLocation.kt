@@ -1,5 +1,15 @@
 package com.pixelquest.app.ui.screens.namaz
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.LocationCity
+import androidx.compose.material.icons.rounded.MyLocation
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqSheet
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,8 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,12 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.NamazCities
 import com.pixelquest.app.domain.namaz.NamazPlace
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
 import com.pixelquest.app.ui.components.PixelTextField
-import com.pixelquest.app.ui.theme.PixelTheme
 
 /**
  * Where the times are for, with the two ways to change it: the phone's rough location (after the
@@ -46,24 +49,22 @@ fun NamazLocationCard(
     onPickCity: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    PixelCard(
-        variant = PixelPanelVariant.BORDER,
-        contentPadding = namazStyle().cardPadding,
-        modifier = modifier.fillMaxWidth().testTag(NamazTestTags.LOCATION)
-    ) {
+    PqCard(modifier.fillMaxWidth().testTag(NamazTestTags.LOCATION)) {
         // One button above the other: side by side, the labels wrapped onto two lines.
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             NamazPlaceLine(place = place, locationLookup = locationLookup)
-            PixelButton(
-                text = "📍 " + stringResource(R.string.namaz_use_my_location),
+            PqButton(
+                text = stringResource(R.string.namaz_use_my_location),
                 onClick = onUseMyLocation,
-                variant = PixelButtonVariant.BLUE,
+                style = PqButtonStyle.Secondary,
+                icon = Icons.Rounded.MyLocation,
                 modifier = Modifier.fillMaxWidth()
             )
-            PixelButton(
-                text = "🏙️ " + stringResource(R.string.namaz_pick_city),
+            PqButton(
+                text = stringResource(R.string.namaz_pick_city),
                 onClick = onPickCity,
-                variant = PixelButtonVariant.BLUE,
+                style = PqButtonStyle.Secondary,
+                icon = Icons.Rounded.LocationCity,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -80,20 +81,17 @@ fun NamazCityPicker(
     onPick: (NamazPlace) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val colors = PixelTheme.colors
     var query by rememberSaveable { mutableStateOf("") }
     val cities = NamazCities.search(query)
 
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = colors.surface, contentColor = colors.onSurface) {
+    PqSheet(onDismiss) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp)
                 .testTag(NamazTestTags.CITY_PICKER),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(text = stringResource(R.string.namaz_pick_city_title), style = MaterialTheme.typography.titleLarge, color = colors.primaryText)
+            Text(text = stringResource(R.string.namaz_pick_city_title), style = PqType.CardTitle)
             PixelTextField(
                 value = query,
                 onValueChange = { query = it },
@@ -101,11 +99,7 @@ fun NamazCityPicker(
                 modifier = Modifier.fillMaxWidth()
             )
             if (cities.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.namaz_city_none),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant
-                )
+                Text(text = stringResource(R.string.namaz_city_none), style = PqType.Body.copy(color = PqColors.Ink2))
             }
             cities.forEach { city ->
                 Row(
@@ -115,7 +109,7 @@ fun NamazCityPicker(
                         .clickable(role = Role.Button) { onPick(city) },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = city.name, style = MaterialTheme.typography.bodyLarge, color = colors.onSurface)
+                    Text(text = city.name, style = PqType.BodyStrong)
                 }
             }
         }

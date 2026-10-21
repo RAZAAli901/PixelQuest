@@ -1,5 +1,16 @@
 package com.pixelquest.app.ui.screens.namaz
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.MyLocation
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqFieldLabel
+import com.pixelquest.app.ui.components.PqRadio
+import com.pixelquest.app.ui.components.PqSheet
+import com.pixelquest.app.ui.components.PqSwitch
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -15,12 +26,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,9 +42,6 @@ import com.pixelquest.app.R
 import com.pixelquest.app.data.local.entity.NamazSettingsEntity
 import com.pixelquest.app.domain.namaz.NamazMethod
 import com.pixelquest.app.domain.namaz.NamazPlace
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.theme.PixelTheme
 
 /**
  * The first-time setup, shown once when the switch is first turned on: where the times are for,
@@ -56,30 +58,24 @@ fun NamazSetupSheet(
     onDone: (method: NamazMethod, remind: Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val colors = PixelTheme.colors
     var method by rememberSaveable { mutableStateOf(NamazMethod.fromName(settings.method)) }
     var remind by rememberSaveable { mutableStateOf(settings.remindFajr) }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = colors.surface, contentColor = colors.onSurface) {
+    PqSheet(onDismiss) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp)
                 .testTag(NamazTestTags.SETUP),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(
-                text = stringResource(R.string.namaz_setup_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primaryText
-            )
+            Text(text = stringResource(R.string.namaz_setup_title), style = PqType.CardTitle)
             NamazSheetSection(title = stringResource(R.string.namaz_setup_location)) {
                 NamazPlaceLine(place = place, locationLookup = locationLookup)
-                PixelButton(
-                    text = "📍 " + stringResource(R.string.namaz_use_my_location),
+                PqButton(
+                    text = stringResource(R.string.namaz_use_my_location),
                     onClick = onUseMyLocation,
-                    variant = PixelButtonVariant.BLUE,
+                    style = PqButtonStyle.Secondary,
+                    icon = Icons.Rounded.MyLocation,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -99,7 +95,7 @@ fun NamazSetupSheet(
                 checked = remind,
                 onCheckedChange = { remind = it }
             )
-            PixelButton(
+            PqButton(
                 text = stringResource(R.string.namaz_setup_done),
                 onClick = { onDone(method, remind) },
                 modifier = Modifier.fillMaxWidth()
@@ -112,7 +108,7 @@ fun NamazSetupSheet(
 @Composable
 internal fun NamazSheetSection(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(text = title, style = MaterialTheme.typography.titleSmall, color = PixelTheme.colors.primaryText)
+        PqFieldLabel(title)
         content()
     }
 }
@@ -120,24 +116,11 @@ internal fun NamazSheetSection(title: String, content: @Composable ColumnScope.(
 /** Where the times are for, and how Use my location is going. */
 @Composable
 internal fun NamazPlaceLine(place: NamazPlace, locationLookup: LocationLookup) {
-    val colors = PixelTheme.colors
     val placeName = place.name.ifBlank { stringResource(R.string.namaz_place_here) }
-    Text(
-        text = stringResource(R.string.namaz_place_times_for, placeName),
-        style = MaterialTheme.typography.bodyMedium,
-        color = colors.onSurface
-    )
+    Text(text = stringResource(R.string.namaz_place_times_for, placeName), style = PqType.BodyStrong)
     when (locationLookup) {
-        LocationLookup.LOOKING -> Text(
-            text = stringResource(R.string.namaz_location_finding),
-            style = MaterialTheme.typography.bodySmall,
-            color = colors.onSurfaceVariant
-        )
-        LocationLookup.UNAVAILABLE -> Text(
-            text = stringResource(R.string.namaz_location_unavailable, placeName),
-            style = MaterialTheme.typography.bodySmall,
-            color = colors.onSurfaceVariant
-        )
+        LocationLookup.LOOKING -> Text(text = stringResource(R.string.namaz_location_finding), style = PqType.Meta)
+        LocationLookup.UNAVAILABLE -> Text(text = stringResource(R.string.namaz_location_unavailable, placeName), style = PqType.Meta)
         LocationLookup.IDLE -> Unit
     }
 }
@@ -145,7 +128,6 @@ internal fun NamazPlaceLine(place: NamazPlace, locationLookup: LocationLookup) {
 /** One choice of several: the whole row selects it, and TalkBack reads it as a radio button. */
 @Composable
 internal fun NamazChoiceRow(label: String, selected: Boolean, onClick: () -> Unit) {
-    val colors = PixelTheme.colors
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -153,20 +135,15 @@ internal fun NamazChoiceRow(label: String, selected: Boolean, onClick: () -> Uni
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(
-            selected = selected,
-            onClick = null,
-            colors = RadioButtonDefaults.colors(selectedColor = colors.primaryText, unselectedColor = colors.onSurfaceVariant)
-        )
+        PqRadio(selected)
         Spacer(modifier = Modifier.width(12.dp))
-        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
+        Text(text = label, style = PqType.Body)
     }
 }
 
 /** An on/off choice in a Namaz sheet: the whole row toggles it. */
 @Composable
 internal fun NamazToggleRow(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    val colors = PixelTheme.colors
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -174,18 +151,8 @@ internal fun NamazToggleRow(label: String, checked: Boolean, onCheckedChange: (B
             .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = colors.onSurface, modifier = Modifier.weight(1f))
+        Text(text = label, style = PqType.Body, modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.width(12.dp))
-        Switch(
-            checked = checked,
-            onCheckedChange = null,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = colors.onPrimary,
-                checkedTrackColor = colors.primary,
-                uncheckedThumbColor = colors.onSurfaceVariant,
-                uncheckedTrackColor = colors.surfaceVariant,
-                uncheckedBorderColor = colors.pixelBorder
-            )
-        )
+        PqSwitch(checked = checked, onCheckedChange = null)
     }
 }

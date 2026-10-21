@@ -282,7 +282,7 @@ private fun NamazScaffold(
     onPrayerClick: (PrayerSlot) -> Unit
 ) {
     val formatter = rememberPrayerTimeFormatter()
-    val playful = namazStyle().playful
+    val playful = namazPlayful()
     Scaffold(
         containerColor = PqColors.Ground,
         topBar = {

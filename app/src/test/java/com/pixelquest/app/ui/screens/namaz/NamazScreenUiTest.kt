@@ -145,7 +145,7 @@ class NamazScreenUiTest {
         // Only asked: still prayed.
         assertEquals(PrayerStatus.PRAYED, repository.statusOf(day, Prayer.ASR))
 
-        composeTestRule.onNodeWithText("Undo").performClick()
+        composeTestRule.onNodeWithText("UNDO").performClick()
         composeTestRule.waitForIdle()
 
         assertEquals(PrayerStatus.PENDING, repository.statusOf(day, Prayer.ASR))
@@ -235,7 +235,7 @@ class NamazScreenUiTest {
         scrollTo(NamazTestTags.LOCATION)
         composeTestRule.onNodeWithText("Times for Lahore").assertIsDisplayed()
 
-        composeTestRule.onNodeWithText("Pick a city", substring = true).performClick()
+        composeTestRule.onNodeWithText("PICK A CITY", substring = true).performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithTag(NamazTestTags.CITY_PICKER).assertIsDisplayed()
         composeTestRule.onNode(hasSetTextAction()).performTextInput("kara")
@@ -443,7 +443,7 @@ class NamazScreenUiTest {
 
         composeTestRule.onNodeWithText("All five prayed!").assertIsDisplayed()
         composeTestRule.onNodeWithText("+30 XP bonus").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Done").performClick()
+        composeTestRule.onNodeWithText("DONE").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("All five prayed!").assertDoesNotExist()
     }

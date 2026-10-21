@@ -94,7 +94,7 @@ class NamazEndToEndTest {
         waitFor { composeTestRule.onAllNodes(hasTestTag(NamazTestTags.SWITCH)).fetchSemanticsNodes().isNotEmpty() }
         composeTestRule.onNodeWithTag(NamazTestTags.SWITCH).performClick()
         waitFor { composeTestRule.onAllNodes(hasTestTag(NamazTestTags.SETUP)).fetchSemanticsNodes().isNotEmpty() }
-        composeTestRule.onNodeWithText("Done").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("DONE").performScrollTo().performClick()
         waitFor { composeTestRule.onAllNodes(hasTestTag(NamazTestTags.SETUP)).fetchSemanticsNodes().isEmpty() }
 
         // Each prayer marked five minutes after it starts.
@@ -112,7 +112,7 @@ class NamazEndToEndTest {
         waitFor { xp() == 580 }
         composeTestRule.onNodeWithText("All five prayed!").assertIsDisplayed()
         composeTestRule.onNodeWithText("+30 XP bonus").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Done").performClick()
+        composeTestRule.onNodeWithText("DONE").performClick()
 
         // A one-day streak, and the level as it was: levels come from perfect days, not XP.
         waitFor { viewModel.uiState.value.streak == 1 && viewModel.uiState.value.dayXp == 80 }

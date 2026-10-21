@@ -1,12 +1,9 @@
 package com.pixelquest.app.quran.ui.translations
 
+import com.pixelquest.app.ui.components.PqRadio
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
 import com.pixelquest.app.ui.components.PqCard
 import com.pixelquest.app.ui.components.PqTopBar
 import com.pixelquest.app.ui.theme.PqColors
@@ -176,13 +173,7 @@ private fun TranslationOption(option: BundledTranslation, selected: Boolean, onC
             .testTag(TranslationTags.option(option.id))
             .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
-        // A v2 radio: an inked ring, filled with ink when chosen.
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.size(22.dp).clip(CircleShape).background(PqColors.Paper).border(PqDimens.Border, PqColors.Ink, CircleShape)
-        ) {
-            if (selected) Box(Modifier.size(10.dp).clip(CircleShape).background(PqColors.Ink))
-        }
+        PqRadio(selected)
         Spacer(modifier = Modifier.width(12.dp))
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(text = option.name, style = PqType.BodyStrong)

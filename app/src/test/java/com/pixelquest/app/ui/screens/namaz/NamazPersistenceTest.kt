@@ -83,7 +83,7 @@ class NamazPersistenceTest {
         waitFor { composeTestRule.onAllNodesWithTagCount(NamazTestTags.EXPLAINER) == 1 }
         composeTestRule.onNodeWithTag(NamazTestTags.SWITCH).performClick()
         waitFor { composeTestRule.onAllNodesWithTagCount(NamazTestTags.SETUP) == 1 }
-        composeTestRule.onNodeWithText("Done").performScrollTo().performClick()
+        composeTestRule.onNodeWithText("DONE").performScrollTo().performClick()
         waitFor { composeTestRule.onAllNodesWithTagCount(NamazTestTags.SETUP) == 0 }
 
         // Mark Asr.

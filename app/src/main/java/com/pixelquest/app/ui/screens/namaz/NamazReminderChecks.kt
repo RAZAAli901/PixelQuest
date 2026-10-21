@@ -1,5 +1,16 @@
 package com.pixelquest.app.ui.screens.namaz
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material3.Icon
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqCard
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import android.Manifest
 import android.app.AlarmManager
 import android.app.NotificationManager
@@ -16,7 +27,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -37,12 +47,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.pixelquest.app.R
 import com.pixelquest.app.namaz.NamazChannels
 import com.pixelquest.app.ui.components.DismissButton
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.PixelCard
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
 
 /**
  * What the phone might be doing to the prayer reminders, each with a way to fix it
@@ -172,25 +176,20 @@ internal fun NamazCheckCard(
     modifier: Modifier = Modifier,
     onDismiss: (() -> Unit)? = null
 ) {
-    val colors = PixelTheme.colors
-    PixelCard(variant = PixelPanelVariant.BORDER, contentPadding = namazStyle().cardPadding, modifier = modifier.fillMaxWidth()) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row {
-                Text(
-                    text = "⚠️ $message",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = inkOnPanel(colors.onSurface),
-                    modifier = Modifier.weight(1f)
-                )
+    PqCard(modifier.fillMaxWidth()) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Icon(Icons.Rounded.WarningAmber, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.padding(top = 2.dp).size(22.dp))
+                Text(text = message, style = PqType.Body, modifier = Modifier.weight(1f))
                 if (onDismiss != null) {
                     DismissButton(
                         contentDescription = stringResource(R.string.namaz_battery_dismiss),
                         onClick = onDismiss,
-                        color = colors.onSurfaceVariant
+                        color = PqColors.Muted
                     )
                 }
             }
-            PixelButton(text = action, onClick = onAction, variant = PixelButtonVariant.YELLOW, modifier = Modifier.fillMaxWidth())
+            PqButton(text = action, onClick = onAction, style = PqButtonStyle.Secondary, modifier = Modifier.fillMaxWidth())
         }
     }
 }

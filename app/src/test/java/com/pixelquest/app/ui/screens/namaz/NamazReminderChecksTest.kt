@@ -61,7 +61,7 @@ class NamazReminderChecksTest {
         show()
 
         composeTestRule.onNodeWithTag(NamazTestTags.EXACT_ALARM_CARD).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Allow exact times").performClick()
+        composeTestRule.onNodeWithText("ALLOW EXACT TIMES").performClick()
 
         val opened = shadowOf(composeTestRule.activity).nextStartedActivity
         assertEquals(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, opened.action)
@@ -83,12 +83,12 @@ class NamazReminderChecksTest {
         composeTestRule.onNodeWithTag(NamazTestTags.NOTIFICATIONS_CARD).assertIsDisplayed()
 
         // Android 13+: its own prompt first.
-        composeTestRule.onNodeWithText("Allow notifications").performClick()
+        composeTestRule.onNodeWithText("ALLOW NOTIFICATIONS").performClick()
         val asked = shadowOf(composeTestRule.activity).lastRequestedPermission
         assertEquals(listOf(android.Manifest.permission.POST_NOTIFICATIONS), asked.requestedPermissions.toList())
 
         // After that, the app's notification settings.
-        composeTestRule.onNodeWithText("Allow notifications").performClick()
+        composeTestRule.onNodeWithText("ALLOW NOTIFICATIONS").performClick()
         val opened = shadowOf(composeTestRule.activity).nextStartedActivity
         assertEquals(Settings.ACTION_APP_NOTIFICATION_SETTINGS, opened.action)
         assertEquals(composeTestRule.activity.packageName, opened.getStringExtra(Settings.EXTRA_APP_PACKAGE))
@@ -100,7 +100,7 @@ class NamazReminderChecksTest {
         notifications(enabled = false)
         show()
 
-        composeTestRule.onNodeWithText("Allow notifications").performClick()
+        composeTestRule.onNodeWithText("ALLOW NOTIFICATIONS").performClick()
 
         assertEquals(Settings.ACTION_APP_NOTIFICATION_SETTINGS, shadowOf(composeTestRule.activity).nextStartedActivity.action)
     }
@@ -119,7 +119,7 @@ class NamazReminderChecksTest {
         show()
         composeTestRule.onNodeWithTag(NamazTestTags.BATTERY_CARD).assertIsDisplayed()
 
-        composeTestRule.onNodeWithText("Open battery settings").performClick()
+        composeTestRule.onNodeWithText("OPEN BATTERY SETTINGS").performClick()
         assertEquals(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS, shadowOf(composeTestRule.activity).nextStartedActivity.action)
 
         composeTestRule.onNodeWithContentDescription("Hide this tip").performClick()

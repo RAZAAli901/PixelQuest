@@ -1,5 +1,16 @@
 package com.pixelquest.app.ui.screens.namaz
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.NotificationsActive
+import androidx.compose.material.icons.rounded.Remove
+import androidx.compose.material3.Icon
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqSheet
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,8 +23,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,10 +41,6 @@ import com.pixelquest.app.domain.namaz.NamazSound
 import com.pixelquest.app.domain.namaz.remindsFor
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.adjustmentFor
-import com.pixelquest.app.ui.components.PixelButton
-import com.pixelquest.app.ui.components.PixelButtonVariant
-import com.pixelquest.app.ui.components.SymbolIcon
-import com.pixelquest.app.ui.theme.PixelTheme
 
 /**
  * The tracker's settings, from the top bar: the calculation method, when Asr starts, and a
@@ -61,24 +66,17 @@ fun NamazSettingsSheet(
     onXpEnabled: (Boolean) -> Unit = {},
     isSimpleMode: Boolean = false
 ) {
-    val colors = PixelTheme.colors
     val method = NamazMethod.fromName(settings.method)
     val madhab = AsrMadhab.fromName(settings.asrMadhab)
 
-    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = colors.surface, contentColor = colors.onSurface) {
+    PqSheet(onDismiss) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp)
                 .testTag(NamazTestTags.SETTINGS),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(
-                text = stringResource(R.string.namaz_settings_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primaryText
-            )
+            Text(text = stringResource(R.string.namaz_settings_title), style = PqType.CardTitle)
             NamazSheetSection(title = stringResource(R.string.namaz_setup_method)) {
                 Column(modifier = Modifier.selectableGroup()) {
                     NamazMethod.entries.forEach { option ->
@@ -101,7 +99,7 @@ fun NamazSettingsSheet(
                         checked = settings.xpEnabled,
                         onCheckedChange = onXpEnabled
                     )
-                    Text(text = stringResource(R.string.namaz_settings_xp_hint), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                    Text(text = stringResource(R.string.namaz_settings_xp_hint), style = PqType.Meta)
                 }
             }
             NamazSheetSection(title = stringResource(R.string.namaz_settings_reminders)) {
@@ -136,19 +134,16 @@ fun NamazSettingsSheet(
                         checked = fajrThroughDnd,
                         onCheckedChange = onFajrThroughDnd
                     )
-                    Text(
-                        text = stringResource(R.string.namaz_settings_fajr_dnd_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant
-                    )
+                    Text(text = stringResource(R.string.namaz_settings_fajr_dnd_hint), style = PqType.Meta)
                 }
             }
             // Debug builds only: a real reminder in 10 seconds, to try the whole path on a phone.
             onTestReminder?.let { test ->
-                PixelButton(
-                    text = "🔔 " + stringResource(R.string.namaz_settings_test_reminder),
+                PqButton(
+                    text = stringResource(R.string.namaz_settings_test_reminder),
                     onClick = test,
-                    variant = PixelButtonVariant.BLUE,
+                    style = PqButtonStyle.Secondary,
+                    icon = Icons.Rounded.NotificationsActive,
                     modifier = Modifier.fillMaxWidth().testTag(NamazTestTags.TEST_REMINDER)
                 )
             }
@@ -169,11 +164,7 @@ fun NamazSettingsSheet(
                 NamazToggleRow(label = stringResource(R.string.namaz_settings_nudge), checked = nudge, onCheckedChange = onNudge)
             }
             NamazSheetSection(title = stringResource(R.string.namaz_settings_adjust)) {
-                Text(
-                    text = stringResource(R.string.namaz_settings_adjust_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant
-                )
+                Text(text = stringResource(R.string.namaz_settings_adjust_hint), style = PqType.Meta)
                 Prayer.entries.forEach { prayer ->
                     AdjustRow(prayer = prayer, minutes = settings.adjustmentFor(prayer), onAdjust = { onAdjust(prayer, it) })
                 }
@@ -185,28 +176,21 @@ fun NamazSettingsSheet(
 /** One prayer's adjustment: its name, a minute earlier, the minutes now, a minute later. */
 @Composable
 private fun AdjustRow(prayer: Prayer, minutes: Int, onAdjust: (Int) -> Unit) {
-    val colors = PixelTheme.colors
     val name = stringResource(prayer.displayName)
     Row(
         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag(NamazTestTags.adjust(prayer)),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = name, style = MaterialTheme.typography.bodyLarge, color = colors.onSurface, modifier = Modifier.weight(1f))
+        Text(text = name, style = PqType.BodyStrong, modifier = Modifier.weight(1f))
         IconButton(
             onClick = { onAdjust(-1) },
             enabled = minutes > -NamazViewModel.MAX_ADJUST_MINUTES
         ) {
-            SymbolIcon(
-                symbol = "−",
-                contentDescription = stringResource(R.string.namaz_adjust_earlier, name),
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primaryText
-            )
+            Icon(Icons.Rounded.Remove, contentDescription = stringResource(R.string.namaz_adjust_earlier, name), tint = PqColors.Ink)
         }
         Text(
             text = stringResource(R.string.namaz_adjust_minutes, minutes),
-            style = MaterialTheme.typography.bodyMedium,
-            color = colors.onSurface,
+            style = PqType.Body,
             textAlign = TextAlign.Center,
             modifier = Modifier.widthIn(min = 64.dp)
         )
@@ -214,12 +198,7 @@ private fun AdjustRow(prayer: Prayer, minutes: Int, onAdjust: (Int) -> Unit) {
             onClick = { onAdjust(1) },
             enabled = minutes < NamazViewModel.MAX_ADJUST_MINUTES
         ) {
-            SymbolIcon(
-                symbol = "+",
-                contentDescription = stringResource(R.string.namaz_adjust_later, name),
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primaryText
-            )
+            Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.namaz_adjust_later, name), tint = PqColors.Ink)
         }
     }
 }

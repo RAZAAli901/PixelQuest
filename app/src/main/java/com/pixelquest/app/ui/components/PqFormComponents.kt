@@ -66,6 +66,17 @@ fun PqSwitch(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, modifier: 
     }
 }
 
+/** A radio's mark: an inked ring, filled with ink when chosen. The row around it is what's selectable. */
+@Composable
+fun PqRadio(selected: Boolean, modifier: Modifier = Modifier) {
+    Box(
+        modifier.size(22.dp).clip(PqCircle).background(PqColors.Paper).border(PqDimens.Border, PqColors.Ink, PqCircle),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (selected) Box(Modifier.size(10.dp).clip(PqCircle).background(PqColors.Ink))
+    }
+}
+
 @Composable
 fun PqFieldLabel(text: String, modifier: Modifier = Modifier, trailing: String? = null) {
     Row(modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.Bottom) {
