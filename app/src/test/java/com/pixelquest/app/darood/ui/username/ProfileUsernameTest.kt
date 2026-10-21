@@ -7,7 +7,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.data.local.entity.UserProfileEntity
-import com.pixelquest.app.ui.screens.ProfileContent
 import com.pixelquest.app.ui.screens.profile.ProfileUiState
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
@@ -19,7 +18,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/** Profile shows the Darood Party username under the hero's name; tapping it opens the username screen. */
+/** Hero's card shows the Darood Party username under the hero's name; tapping it opens the username screen. */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = Application::class, qualifiers = "w411dp-h914dp")
 class ProfileUsernameTest {
@@ -29,12 +28,20 @@ class ProfileUsernameTest {
 
     private val profile = UserProfileEntity(username = "Aria", avatarId = "avatar_mage", level = 3, totalXp = 450)
 
+    @androidx.compose.runtime.Composable
+    private fun hero(state: ProfileUiState, onUsername: () -> Unit = {}) = com.pixelquest.app.ui.screens.HeroContent(
+        state = com.pixelquest.app.ui.screens.heroUiOf(state, com.pixelquest.app.ui.screens.stats.StatsUiState(), java.time.LocalDate.of(2026, 10, 21)),
+        segment = com.pixelquest.app.ui.screens.HeroSegment.Profile,
+        onSegmentChange = {}, onSettings = {}, onChangeAvatar = {}, onDifficulty = {}, onQuestHistory = {}, onLevelHistory = {}, onLeaderboard = {},
+        onUsername = onUsername,
+    )
+
     @Test
     fun theUsername_isShown_andOpensTheUsernameScreen() {
         var opened = 0
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Comic) {
-                ProfileContent(state = ProfileUiState(profile = profile, daroodUsername = "aria_k"), onNavigateToUsername = { opened++ })
+                hero(ProfileUiState(profile = profile, daroodUsername = "aria_k"), onUsername = { opened++ })
             }
         }
 
@@ -51,7 +58,7 @@ class ProfileUsernameTest {
     fun withoutAUsername_thereIsNoLine() {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) {
-                ProfileContent(state = ProfileUiState(profile = profile))
+                hero(ProfileUiState(profile = profile))
             }
         }
 

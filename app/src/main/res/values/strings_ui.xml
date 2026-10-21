@@ -25,6 +25,7 @@
     <string name="pq_missed">Missed</string>
     <string name="pq_xp_plus">+<xliff:g id="xp" example="20">%d</xliff:g></string>
     <string name="pq_xp_earned">+<xliff:g id="xp" example="40">%d</xliff:g> XP</string>
+    <string name="pq_xp_earned_plain"><xliff:g id="xp" example="120">%d</xliff:g> XP</string>
     <!-- A number stepper's buttons. -->
     <string name="pq_fewer">Fewer</string>
     <string name="pq_more">More</string>
@@ -47,9 +48,6 @@
     <string name="pq_nav_leaderboard">Leaderboard</string>
     <string name="pq_nav_something_waiting">something waits for you here</string>
 
-    <!-- Hero's two halves -->
-    <string name="pq_hero_profile">Profile</string>
-    <string name="pq_hero_stats">Stats</string>
 
     <!-- Shared -->
     <string name="pq_cancel">Cancel</string>
@@ -134,4 +132,64 @@
     <string name="pq_history_all_time">All time</string>
     <string name="pq_history_more">Show more</string>
     <string name="pq_history_empty">Nothing here yet. What you finish or miss shows up here.</string>
+
+    <!-- Hero (mocks 2G and 2H): the profile, and the stats -->
+    <string name="pq_hero_title">Hero</string>
+    <string name="pq_hero_title_simple">Profile</string>
+    <string name="pq_hero_profile">Profile</string>
+    <string name="pq_hero_stats">Stats</string>
+    <string name="pq_hero_settings">Settings</string>
+    <string name="pq_hero_change_avatar">Change avatar</string>
+    <string name="pq_hero_difficulty">Difficulty</string>
+    <!-- A row's value when it can't be used yet: the Leaderboard signed out, Difficulty in Simple Mode. -->
+    <string name="pq_hero_locked">Locked</string>
+    <string name="pq_hero_quest_history">Quest history</string>
+    <string name="pq_hero_quest_history_simple">Task history</string>
+    <string name="pq_hero_level_history">Level history</string>
+    <string name="pq_hero_parties">Parties</string>
+    <string name="pq_hero_leaderboard">Leaderboard</string>
+    <!-- The rank chip, by level: under 5, under 10, then 10 and up. -->
+    <string name="pq_tier_bronze">Bronze</string>
+    <string name="pq_tier_silver">Silver</string>
+    <string name="pq_tier_gold">Gold</string>
+    <string name="pq_hero_level_next">LVL <xliff:g id="level" example="1">%1$d</xliff:g> → <xliff:g id="next" example="2">%2$d</xliff:g></string>
+    <!-- Perfect days toward the next level: "2 / 7 perfect days". Its plural follows the second number. -->
+    <plurals name="pq_hero_perfect_days_progress">
+        <item quantity="one"><xliff:g id="done" example="0">%1$d</xliff:g> / <xliff:g id="needed" example="1">%2$d</xliff:g> perfect day</item>
+        <item quantity="other"><xliff:g id="done" example="2">%1$d</xliff:g> / <xliff:g id="needed" example="7">%2$d</xliff:g> perfect days</item>
+    </plurals>
+    <string name="pq_hero_total_xp">TOTAL XP</string>
+    <string name="pq_hero_streak">STREAK</string>
+    <string name="pq_hero_quests">QUESTS</string>
+    <string name="pq_hero_tasks_done">TASKS DONE</string>
+    <string name="pq_hero_active">ACTIVE</string>
+    <string name="pq_hero_last_7_days">Last 7 days</string>
+    <string name="pq_hero_perfect_days_week">Perfect days, last 7</string>
+    <string name="pq_hero_activity">QUEST ACTIVITY</string>
+    <string name="pq_hero_activity_simple">TASK ACTIVITY</string>
+    <!-- The heatmap's rows are Monday to Sunday; every other one is named, by its first letter. -->
+    <string name="pq_heatmap_monday">M</string>
+    <string name="pq_heatmap_wednesday">W</string>
+    <string name="pq_heatmap_friday">F</string>
+    <string name="pq_heatmap_sunday">S</string>
+    <string name="pq_heatmap_perfect">Perfect</string>
+    <string name="pq_heatmap_partial">Partial</string>
+    <string name="pq_heatmap_missed">Missed</string>
+    <string name="pq_heatmap_none">None</string>
+    <string name="pq_hero_weekly">WEEKLY COMPLETION</string>
+    <string name="pq_hero_week_now">Now</string>
+    <!-- A week before this one: "W-3" is three weeks ago. -->
+    <string name="pq_hero_week_ago">W-<xliff:g id="weeks" example="3">%d</xliff:g></string>
+    <plurals name="pq_hero_longest_streak">
+        <item quantity="one">Longest streak: <xliff:g id="days" example="1">%d</xliff:g> day</item>
+        <item quantity="other">Longest streak: <xliff:g id="days" example="12">%d</xliff:g> days</item>
+    </plurals>
+    <string name="pq_hero_completion">Days with something done, last 3 months: <xliff:g id="percent" example="64">%d</xliff:g>%%</string>
+    <string name="pq_hero_target"><xliff:g id="difficulty" example="Medium">%1$s</xliff:g>: a perfect day is <xliff:g id="percent" example="70">%2$d</xliff:g>%% done</string>
+    <string name="pq_hero_namaz">PRAYERS</string>
+    <string name="pq_hero_namaz_xp"><xliff:g id="total" example="480">%1$d</xliff:g> XP from prayers · <xliff:g id="week" example="90">%2$d</xliff:g> this week</string>
+    <plurals name="pq_hero_namaz_prayed">
+        <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> prayer marked prayed</item>
+        <item quantity="other"><xliff:g id="count" example="120">%d</xliff:g> prayers marked prayed</item>
+    </plurals>
 </resources>

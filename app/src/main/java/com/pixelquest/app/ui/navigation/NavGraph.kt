@@ -3,10 +3,6 @@ package com.pixelquest.app.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
@@ -17,9 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.pixelquest.app.ui.screens.HomeScreen
-import com.pixelquest.app.ui.screens.ProfileScreen
 import com.pixelquest.app.ui.screens.SplashScreen
-import com.pixelquest.app.ui.screens.StatsScreen
 import com.pixelquest.app.ui.screens.tasks.CreateTaskScreen
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 
@@ -134,44 +128,16 @@ fun PixelNavHost(
             )
         }
         composable(Screen.Hero.route) {
-            // Until Hero's own screen (mocks 2G and 2H), its halves are the Profile and Stats screens.
-            HeroTabHost(
-                profile = {
-                    ProfileScreen(
-                        onNavigateToAvatarSelection = {
-                            navController.navigate(Screen.AvatarSelection.route)
-                        },
-                        onNavigateToDifficulty = {
-                            navController.navigate(Screen.DifficultySelection.route)
-                        },
-                        onNavigateToLevelHistory = {
-                            navController.navigate(Screen.LevelHistory.route)
-                        },
-                        onNavigateToSettings = {
-                            navController.navigate(Screen.Settings.route)
-                        },
-                        onNavigateToUsername = {
-                            navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true }
-                        }
-                    )
-                },
-                stats = {
-                    StatsScreen(
-                        onNavigateToTaskHistory = {
-                            navController.navigate(Screen.TaskHistory.route)
-                        },
-                        onNavigateToLevelHistory = {
-                            navController.navigate(Screen.LevelHistory.route)
-                        },
-                        onNavigateToTaskAnalytics = { taskId ->
-                            navController.navigate(Screen.TaskAnalytics.createRoute(taskId))
-                        },
-                        onNavigateToLeaderboard = {
-                            // The trophy's screen, so open it the way the trophy does.
-                            navController.navigateToTab(Screen.Leaderboard.route)
-                        }
-                    )
-                }
+            com.pixelquest.app.ui.screens.HeroScreen(
+                onSettings = { navController.navigate(Screen.Settings.route) },
+                onChangeAvatar = { navController.navigate(Screen.AvatarSelection.route) },
+                onDifficulty = { navController.navigate(Screen.DifficultySelection.route) },
+                onQuestHistory = { navController.navigate(Screen.TaskHistory.route) },
+                onLevelHistory = { navController.navigate(Screen.LevelHistory.route) },
+                // The trophy's screen, so open it the way the trophy does.
+                onLeaderboard = { navController.navigateToTab(Screen.Leaderboard.route) },
+                onParties = { navController.navigate(Screen.Parties.route) { launchSingleTop = true } },
+                onUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } }
             )
         }
         composable(Screen.AvatarSelection.route) {
@@ -325,26 +291,6 @@ fun PixelNavHost(
                 viewModel = leaderboardViewModel,
                 onNavigateToAccount = { navController.navigate(Screen.Account.route) }
             )
-        }
-    }
-}
-
-/** The Hero tab's two halves, Profile and Stats, chosen at the top; the choice survives rotation. */
-@Composable
-private fun HeroTabHost(profile: @Composable () -> Unit, stats: @Composable () -> Unit) {
-    var segment by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableIntStateOf(0) }
-    androidx.compose.foundation.layout.Column(Modifier.fillMaxSize()) {
-        com.pixelquest.app.ui.components.PqSegmented(
-            options = listOf(
-                androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_hero_profile),
-                androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_hero_stats)
-            ),
-            selected = segment,
-            onSelect = { segment = it },
-            modifier = Modifier.padding(horizontal = com.pixelquest.app.ui.theme.PqDimens.ScreenPad, vertical = 8.dp)
-        )
-        androidx.compose.foundation.layout.Box(Modifier.weight(1f)) {
-            if (segment == 0) profile() else stats()
         }
     }
 }

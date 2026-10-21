@@ -131,11 +131,6 @@
     <!-- Namaz XP earned on the shown day, under the progress bar. -->
     <string name="namaz_xp_today">+<xliff:g id="xp" example="30">%1$d</xliff:g> XP today</string>
     <string name="namaz_xp_that_day">+<xliff:g id="xp" example="30">%1$d</xliff:g> XP that day</string>
-    <!-- Stats: the Namaz Tracker as its own category, in the Stats screen's capitals. -->
-    <string name="stats_namaz_title">🕌 NAMAZ</string>
-    <string name="stats_namaz_xp">NAMAZ XP</string>
-    <string name="stats_namaz_prayers">PRAYERS PRAYED</string>
-    <string name="stats_namaz_week">+<xliff:g id="xp" example="120">%1$d</xliff:g> XP in the last 7 days</string>
     <!-- XP just earned by marking a prayer, shown for a moment. -->
     <string name="namaz_xp_popup">+<xliff:g id="xp" example="10">%1$d</xliff:g> XP</string>
     <!-- Marking refused: the phone's clock reads earlier than a prayer already marked (set ahead, then back). -->

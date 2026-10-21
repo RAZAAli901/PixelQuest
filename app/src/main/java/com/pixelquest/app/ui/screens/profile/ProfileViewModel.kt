@@ -32,7 +32,11 @@ data class ProfileUiState(
     val totalTasksCompleted: Int = 0,
     val activeTasksCount: Int = 0,
     /** The signed-in account's Darood Party username, without the @; null hides it. */
-    val daroodUsername: String? = null
+    val daroodUsername: String? = null,
+    /** XP from quests over the last 7 days, today's included. */
+    val xpLastWeek: Int = 0,
+    /** Signed in: the Leaderboard is open to them. */
+    val signedIn: Boolean = false
 )
 
 @HiltViewModel
@@ -43,7 +47,9 @@ class ProfileViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val taskRepository: TaskRepository? = null,
     private val taskCompletionRepository: TaskCompletionRepository? = null,
-    private val myUsername: com.pixelquest.app.darood.data.MyUsername? = null
+    private val myUsername: com.pixelquest.app.darood.data.MyUsername? = null,
+    private val authRepository: com.pixelquest.app.auth.AuthRepository? = null,
+    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
 ) : ViewModel() {
 
     val uiState: StateFlow<ProfileUiState> = combine(
@@ -59,10 +65,14 @@ class ProfileViewModel @Inject constructor(
         ) { sound, crt, simpleMode -> Triple(sound, crt, simpleMode) },
         combine(
             taskRepository?.getAllTasks() ?: flowOf(emptyList()),
-            taskCompletionRepository?.getAllLogs() ?: flowOf(emptyList())
-        ) { tasks, logs -> Pair(tasks.size, logs.count { it.wasCompleted }) },
-        myUsername?.username ?: flowOf(null)
-    ) { (profile, streak, difficulty), (soundEnabled, crtEnabled, simpleMode), (activeTasksCount, completedLogsCount), username ->
+            taskCompletionRepository?.getAllLogs() ?: flowOf(emptyList()),
+            appClock.today()
+        ) { tasks, logs, today ->
+            val week = logs.filter { it.wasCompleted && !it.completedDate.isBefore(today.minusDays(6)) && !it.completedDate.isAfter(today) }
+            Triple(tasks.size, logs.count { it.wasCompleted }, week.sumOf { it.pointsAwarded })
+        },
+        combine(myUsername?.username ?: flowOf(null), authRepository?.currentUser ?: flowOf(null)) { username, user -> username to (user != null) }
+    ) { (profile, streak, difficulty), (soundEnabled, crtEnabled, simpleMode), (activeTasksCount, completedLogsCount, xpLastWeek), (username, signedIn) ->
         ProfileUiState(
             profile = profile,
             streak = streak,
@@ -72,7 +82,9 @@ class ProfileViewModel @Inject constructor(
             isSimpleMode = simpleMode,
             totalTasksCompleted = completedLogsCount,
             activeTasksCount = activeTasksCount,
-            daroodUsername = username?.value
+            daroodUsername = username?.value,
+            xpLastWeek = xpLastWeek,
+            signedIn = signedIn
         )
     }.stateIn(
         scope = viewModelScope,
