@@ -12,7 +12,7 @@ import com.pixelquest.app.quran.domain.Revelation
 import com.pixelquest.app.quran.domain.Surah
 import com.pixelquest.app.quran.ui.bookmarks.BookmarkGroup
 import com.pixelquest.app.quran.ui.bookmarks.BookmarkTags
-import com.pixelquest.app.quran.ui.bookmarks.BookmarksScreen
+import com.pixelquest.app.quran.ui.bookmarks.BookmarksList
 import com.pixelquest.app.quran.ui.bookmarks.BookmarksUiState
 import com.pixelquest.app.quran.ui.reader.ReaderTags
 import com.pixelquest.app.quran.ui.reader.ReaderUiState
@@ -66,7 +66,7 @@ class QuranFontsTest {
     fun aBookmarksTranslation_inPixel_isntInThePixelFont() {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) {
-                BookmarksScreen(BookmarksUiState(listOf(BookmarkGroup(2, "Al-Baqara", listOf(ayah))), loaded = true), {}, { _, _ -> }, { _, _ -> })
+                BookmarksList(BookmarksUiState(listOf(BookmarkGroup(2, "Al-Baqara", listOf(ayah))), loaded = true), { _, _ -> }, { _, _ -> })
             }
         }
 

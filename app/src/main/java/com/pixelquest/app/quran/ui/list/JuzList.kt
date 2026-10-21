@@ -8,81 +8,74 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.pixelquest.app.R
-import com.pixelquest.app.quran.ui.framed
-import com.pixelquest.app.quran.ui.quranFrame
 import com.pixelquest.app.quran.domain.Juz
-import com.pixelquest.app.ui.theme.ComicShapeTokens
-import com.pixelquest.app.ui.theme.ComicTokens
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.ThemeMode
-import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.ui.components.pqRuledRow
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.pqShape
 
-/** The Quran screen's two lists. */
-enum class QuranTab { SURAHS, JUZ }
+/** The Quran screen's three lists (UI v2, mock 2F): the surahs, the juz, and the ayahs saved. */
+enum class QuranTab { SURAHS, JUZ, SAVED }
 
 /**
- * Surahs or Juz: two tabs, the chosen one filled. Shaped by the look: chamfered in Pixel, inked in
- * Comic, rounded elsewhere. TalkBack hears them as tabs, the chosen one selected.
+ * Surahs, Juz or Saved: one segmented control, the chosen one inked. TalkBack hears them as tabs,
+ * the chosen one selected; each is a full-size target.
  */
 @Composable
 fun QuranTabs(selected: QuranTab, onSelect: (QuranTab) -> Unit, modifier: Modifier = Modifier) {
-    val colors = PixelTheme.colors
-    val shape: Shape = when (PixelTheme.mode) {
-        ThemeMode.Pixel, ThemeMode.System -> CutCornerShape(4.dp)
-        else -> RoundedCornerShape(50)
-    }
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = modifier.fillMaxWidth().selectableGroup()
+        modifier.fillMaxWidth().clip(pqShape(12.dp)).background(PqColors.Paper)
+            .border(PqDimens.Border, PqColors.Ink, pqShape(12.dp)).padding(3.dp).selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
     ) {
         QuranTab.entries.forEach { tab ->
             val chosen = tab == selected
-            val ink = if (PixelTheme.mode == ThemeMode.Comic) {
-                Modifier.border(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack, shape)
-            } else {
-                Modifier.border(1.dp, colors.primary.copy(alpha = if (chosen) 1f else 0.4f), shape)
-            }
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .weight(1f)
                     .heightIn(min = com.pixelquest.app.quran.ui.reader.MIN_TARGET)
-                    .background(if (chosen) colors.primary.copy(alpha = 0.18f) else colors.surface, shape)
-                    .then(ink)
+                    .clip(pqShape(9.dp))
+                    .background(if (chosen) PqColors.Ink else Color.Transparent)
                     .selectable(selected = chosen, role = Role.Tab, onClick = { onSelect(tab) })
                     .testTag(QuranListTags.tab(tab))
             ) {
                 Text(
-                    text = stringResource(if (tab == QuranTab.SURAHS) R.string.quran_tab_surahs else R.string.quran_tab_juz),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = if (chosen) FontWeight.Bold else FontWeight.Normal,
-                    color = inkOnPanel(colors.primaryText)
+                    text = stringResource(
+                        when (tab) {
+                            QuranTab.SURAHS -> R.string.quran_tab_surahs
+                            QuranTab.JUZ -> R.string.quran_tab_juz
+                            QuranTab.SAVED -> R.string.quran_tab_saved
+                        }
+                    ),
+                    style = PqType.Button.copy(letterSpacing = 0.sp, color = if (chosen) PqColors.Paper else PqColors.Ink)
                 )
             }
         }
@@ -90,18 +83,16 @@ fun QuranTabs(selected: QuranTab, onSelect: (QuranTab) -> Unit, modifier: Modifi
 }
 
 /**
- * The 30 juz, a row each: its number, and the surah and ayah it starts at. A tap opens the reader
- * there. One button to TalkBack: "Juz 2, from Al-Baqara, ayah 142".
+ * The 30 juz, a row each of one ruled card: its number, and the surah and ayah it starts at. A tap
+ * opens the reader there. One button to TalkBack: "Juz 2, from Al-Baqara, ayah 142".
  */
 @Composable
 fun JuzList(juzs: List<Juz>, onOpenAyah: (surah: Int, ayah: Int) -> Unit, modifier: Modifier = Modifier) {
-    val colors = PixelTheme.colors
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp),
         modifier = modifier.fillMaxSize().testTag(QuranListTags.JUZ_LIST)
     ) {
-        items(juzs, key = { it.number }) { juz ->
+        itemsIndexed(juzs, key = { _, juz -> juz.number }) { i, juz ->
             val title = stringResource(R.string.quran_juz_title, juz.number)
             val from = stringResource(R.string.quran_juz_from, juz.surahName, juz.surah, juz.ayah)
             val spoken = stringResource(R.string.quran_juz_spoken, juz.number, juz.surahName, juz.ayah)
@@ -109,19 +100,18 @@ fun JuzList(juzs: List<Juz>, onOpenAyah: (surah: Int, ayah: Int) -> Unit, modifi
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .pqRuledRow(first = i == 0, last = i == juzs.lastIndex)
                     .heightIn(min = 56.dp)
-                    .framed(quranFrame())
                     .clickable(role = Role.Button) { onOpenAyah(juz.surah, juz.ayah) }
                     .testTag(QuranListTags.juz(juz.number))
                     .clearAndSetSemantics { contentDescription = spoken }
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 14.dp, vertical = 10.dp)
             ) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(text = title, style = MaterialTheme.typography.titleSmall, color = inkOnPanel(colors.primaryText))
-                    Text(text = from, style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = title, style = PqType.BodyStrong)
+                    Text(text = from, style = PqType.Meta)
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "›", style = MaterialTheme.typography.titleLarge, color = colors.onSurfaceVariant)
+                Icon(Icons.Rounded.ChevronRight, null, tint = PqColors.Muted, modifier = Modifier.size(22.dp))
             }
         }
     }

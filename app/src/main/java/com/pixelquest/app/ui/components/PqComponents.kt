@@ -40,10 +40,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextDecoration
@@ -384,4 +387,38 @@ fun Modifier.dashedBorder(color: Color = PqColors.Ink, width: Dp = 2.dp, radius:
         color, topLeft = Offset(w / 2, w / 2), size = size.copy(size.width - w, size.height - w),
         cornerRadius = CornerRadius((radius * PqSkinState.spec.radiusScale).toPx()), style = Stroke(w, pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f))),
     )
+}
+
+/**
+ * One row of a ruled card (mock 2F's surah list): rows that read as one bordered card, divided by
+ * thin rules, for a LazyColumn whose rows can't share a container. Rows sit with no gap between.
+ */
+@Composable
+fun Modifier.pqRuledRow(first: Boolean, last: Boolean): Modifier {
+    val radius = PqDimens.Radius
+    val border = PqDimens.Border
+    val shape = when {
+        first && last -> RoundedCornerShape(radius)
+        first -> RoundedCornerShape(topStart = radius, topEnd = radius)
+        last -> RoundedCornerShape(bottomStart = radius, bottomEnd = radius)
+        else -> RectangleShape
+    }
+    val ink = PqColors.Ink
+    val rule = PqColors.Divider
+    return this
+        .clip(shape)
+        .background(PqColors.Paper)
+        .drawWithContent {
+            drawContent()
+            val w = border.toPx()
+            val r = radius.toPx()
+            // The whole card's outline, reaching past this row where it goes on; the clip keeps this row's part.
+            val top = if (first) w / 2 else -(2 * r + w)
+            val bottom = if (last) size.height - w / 2 else size.height + 2 * r + w
+            drawRoundRect(ink, topLeft = Offset(w / 2, top), size = Size(size.width - w, bottom - top), cornerRadius = CornerRadius(r), style = Stroke(w))
+            if (!last) {
+                val y = size.height - 1.dp.toPx()
+                drawLine(rule, Offset(w, y), Offset(size.width - w, y), strokeWidth = 2.dp.toPx())
+            }
+        }
 }

@@ -10,10 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,23 +27,21 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.R
-import com.pixelquest.app.quran.ui.framed
-import com.pixelquest.app.quran.ui.quranFrame
 import com.pixelquest.app.quran.data.BookmarkRepository
 import com.pixelquest.app.quran.data.QuranRepository
 import com.pixelquest.app.quran.domain.Ayah
 import com.pixelquest.app.quran.ui.QuranTypography
-import com.pixelquest.app.ui.components.PixelTopAppBar
-import com.pixelquest.app.ui.components.SymbolIcon
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.ui.components.PqGroupLabel
+import com.pixelquest.app.ui.components.pqRuledRow
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -83,76 +82,57 @@ class BookmarksViewModel @Inject constructor(
     }
 }
 
+/** The Quran screen's Saved tab (UI v2, mock 2F): the player's bookmarks, from [BookmarksViewModel]. */
 @Composable
-fun BookmarksRoute(
-    onNavigateBack: () -> Unit,
+fun SavedBookmarks(
     onOpenAyah: (surah: Int, ayah: Int) -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: BookmarksViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    BookmarksScreen(state = state, onNavigateBack = onNavigateBack, onOpenAyah = onOpenAyah, onRemove = viewModel::remove)
+    BookmarksList(state = state, onOpenAyah = onOpenAyah, onRemove = viewModel::remove, modifier = modifier)
 }
 
 /**
  * The bookmarks, grouped by surah: under each surah's name, its ayahs by number with the start of
- * their translation. A tap opens the reader there; the cross removes a bookmark. With none, it says
- * how to add one.
+ * their translation, as a ruled card. A tap opens the reader there; the cross removes a bookmark.
+ * With none, it says how to add one.
  */
 @Composable
-fun BookmarksScreen(
+fun BookmarksList(
     state: BookmarksUiState,
-    onNavigateBack: () -> Unit,
     onOpenAyah: (surah: Int, ayah: Int) -> Unit,
-    onRemove: (surah: Int, ayah: Int) -> Unit
+    onRemove: (surah: Int, ayah: Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val colors = PixelTheme.colors
-    Scaffold(
-        containerColor = colors.background,
-        topBar = {
-            PixelTopAppBar(
-                title = stringResource(R.string.quran_bookmarks),
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        SymbolIcon(
-                            symbol = "◀",
-                            contentDescription = stringResource(R.string.navigate_back),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = colors.primaryText
-                        )
-                    }
-                }
-            )
-        },
-        modifier = Modifier.testTag(BookmarkTags.SCREEN)
-    ) { padding ->
-        if (state.loaded && state.groups.isEmpty()) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-                modifier = Modifier.fillMaxSize().padding(padding).padding(32.dp)
-            ) {
-                Text(text = stringResource(R.string.quran_bookmarks_none_title), style = MaterialTheme.typography.titleMedium, color = colors.primaryText, textAlign = TextAlign.Center)
-                Text(text = stringResource(R.string.quran_bookmarks_none_body), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface, textAlign = TextAlign.Center)
-            }
-            return@Scaffold
-        }
-        LazyColumn(
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxSize().padding(padding)
+    if (state.loaded && state.groups.isEmpty()) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = modifier.fillMaxWidth().padding(horizontal = PqDimens.ScreenPad, vertical = 16.dp).testTag(BookmarkTags.SCREEN)
         ) {
-            state.groups.forEach { group ->
-                item(key = "surah-${group.surah}") {
-                    Text(
-                        text = stringResource(R.string.quran_bookmarks_surah, group.surah, group.surahName),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = inkOnPanel(colors.primaryText),
-                        modifier = Modifier.padding(top = 8.dp).semantics { heading() }
-                    )
-                }
-                items(group.ayahs, key = { "${it.surah}:${it.number}" }) { ayah ->
-                    BookmarkRow(ayah = ayah, onOpen = { onOpenAyah(ayah.surah, ayah.number) }, onRemove = { onRemove(ayah.surah, ayah.number) })
-                }
+            Text(text = stringResource(R.string.quran_bookmarks_none_title), style = PqType.BodyStrong)
+            Text(text = stringResource(R.string.quran_bookmarks_none_body), style = PqType.Body.copy(color = PqColors.Ink2))
+        }
+        return
+    }
+    LazyColumn(
+        contentPadding = PaddingValues(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp),
+        modifier = modifier.fillMaxSize().testTag(BookmarkTags.SCREEN)
+    ) {
+        state.groups.forEach { group ->
+            item(key = "surah-${group.surah}") {
+                PqGroupLabel(
+                    stringResource(R.string.quran_bookmarks_surah, group.surah, group.surahName),
+                    Modifier.padding(top = 8.dp, bottom = 6.dp).semantics { heading() }
+                )
+            }
+            itemsIndexed(group.ayahs, key = { _, ayah -> "${ayah.surah}:${ayah.number}" }) { i, ayah ->
+                BookmarkRow(
+                    ayah = ayah,
+                    onOpen = { onOpenAyah(ayah.surah, ayah.number) },
+                    onRemove = { onRemove(ayah.surah, ayah.number) },
+                    modifier = Modifier.pqRuledRow(first = i == 0, last = i == group.ayahs.lastIndex)
+                )
             }
         }
     }
@@ -160,15 +140,13 @@ fun BookmarksScreen(
 
 /** One bookmark: its ayah's number and the start of its translation, and a cross to remove it. */
 @Composable
-private fun BookmarkRow(ayah: Ayah, onOpen: () -> Unit, onRemove: () -> Unit) {
-    val colors = PixelTheme.colors
+private fun BookmarkRow(ayah: Ayah, onOpen: () -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val remove = stringResource(R.string.quran_bookmark_remove, ayah.surah, ayah.number)
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 56.dp)
-            .framed(quranFrame())
             .testTag(BookmarkTags.row(ayah.surah, ayah.number))
     ) {
         Column(
@@ -176,23 +154,19 @@ private fun BookmarkRow(ayah: Ayah, onOpen: () -> Unit, onRemove: () -> Unit) {
             modifier = Modifier
                 .weight(1f)
                 .clickable(role = Role.Button, onClick = onOpen)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 14.dp, vertical = 10.dp)
         ) {
-            Text(
-                text = stringResource(R.string.quran_bookmark_ayah, ayah.surah, ayah.number),
-                style = MaterialTheme.typography.labelLarge,
-                color = colors.primaryText
-            )
+            Text(text = stringResource(R.string.quran_bookmark_ayah, ayah.surah, ayah.number), style = PqType.BodyStrong)
             Text(
                 text = ayah.translation,
-                style = QuranTypography.snippet(colors.onSurface),
+                style = QuranTypography.snippet(PqColors.Ink2),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.testTag(BookmarkTags.translation(ayah.surah, ayah.number))
             )
         }
         IconButton(onClick = onRemove, modifier = Modifier.testTag(BookmarkTags.remove(ayah.surah, ayah.number)).semantics { contentDescription = remove }) {
-            Text(text = "✕", style = MaterialTheme.typography.titleMedium, color = colors.onSurfaceVariant)
+            Icon(Icons.Rounded.Close, null, tint = PqColors.Muted)
         }
     }
 }
@@ -200,9 +174,6 @@ private fun BookmarkRow(ayah: Ayah, onOpen: () -> Unit, onRemove: () -> Unit) {
 /** The bookmarks screen's test tags. */
 object BookmarkTags {
     const val SCREEN = "quran_bookmarks"
-
-    /** The Quran screen's top-bar action that opens it. */
-    const val ACTION = "quran_bookmarks_action"
 
     fun row(surah: Int, ayah: Int) = "quran_bookmark_${surah}_$ayah"
 

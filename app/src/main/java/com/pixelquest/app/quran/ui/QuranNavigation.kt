@@ -9,7 +9,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.pixelquest.app.quran.ui.about.QuranSourcesRoute
-import com.pixelquest.app.quran.ui.bookmarks.BookmarksRoute
 import com.pixelquest.app.quran.ui.reader.SurahReaderRoute
 import com.pixelquest.app.quran.ui.reader.SurahReaderViewModel
 import com.pixelquest.app.quran.ui.search.QuranSearchRoute
@@ -18,7 +17,8 @@ import com.pixelquest.app.ui.navigation.Screen
 
 /**
  * The Quran reader's screens, added to the Islamic section's graph by its item (QuranIslamicItem):
- * the surah list, search, bookmarks, the reader, its translation, and About and Sources.
+ * the surah list (with the bookmarks as its Saved tab), search, the reader, its translation, and
+ * About and Sources.
  */
 fun NavGraphBuilder.quranScreens(navController: NavHostController) {
     quranScreen(Screen.Quran.route) {
@@ -26,7 +26,6 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
             onNavigateBack = { navController.popBackStack() },
             onOpenSurah = { surah -> navController.navigate(Screen.QuranSurah.createRoute(surah)) },
             onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) },
-            onOpenBookmarks = { navController.navigate(Screen.QuranBookmarks.route) { launchSingleTop = true } },
             onOpenSearch = { navController.navigate(Screen.QuranSearch.route) { launchSingleTop = true } },
             onOpenSources = { navController.navigate(Screen.QuranSources.route) { launchSingleTop = true } }
         )
@@ -41,12 +40,6 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
         QuranSearchRoute(
             onNavigateBack = { navController.popBackStack() },
             onOpenSurah = { surah -> navController.navigate(Screen.QuranSurah.createRoute(surah)) },
-            onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) }
-        )
-    }
-    quranScreen(Screen.QuranBookmarks.route) {
-        BookmarksRoute(
-            onNavigateBack = { navController.popBackStack() },
             onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) }
         )
     }

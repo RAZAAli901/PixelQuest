@@ -68,7 +68,7 @@ class BookmarksTest {
     private fun show(): BookmarksViewModel {
         val vm = viewModels.keep(BookmarksViewModel::class.java) { BookmarksViewModel(bookmarks, quran) }
         composeTestRule.setContent {
-            PixelQuestTheme { BookmarksRoute(onNavigateBack = {}, onOpenAyah = { s, a -> opened += s to a }, viewModel = vm) }
+            PixelQuestTheme { SavedBookmarks(onOpenAyah = { s, a -> opened += s to a }, viewModel = vm) }
         }
         return vm
     }
@@ -99,7 +99,7 @@ class BookmarksTest {
         assertEquals("the ayah as the database holds it", quran.ayah(2, 255)!!.translation, vm.state.value.groups.first().ayahs[1].translation)
 
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("2. Al-Baqara").assertIsDisplayed()
+        composeTestRule.onNodeWithText("2. AL-BAQARA").assertIsDisplayed()
         composeTestRule.onNodeWithText("Ayah 2:255").performClick()
         assertEquals(listOf(2 to 255), opened)
     }

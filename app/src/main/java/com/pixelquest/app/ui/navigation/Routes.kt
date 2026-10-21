@@ -76,8 +76,6 @@ sealed class Screen(val route: String) {
     object QuranTranslations : Screen("${Routes.ISLAMIC}/quran/translations")
     /** Searching the whole Quran. */
     object QuranSearch : Screen("${Routes.ISLAMIC}/quran/search")
-    /** The player's Quran bookmarks. */
-    object QuranBookmarks : Screen("${Routes.ISLAMIC}/quran/bookmarks")
     /** One surah in the Quran reader, opened at an ayah (0: its start). */
     object QuranSurah : Screen("${Routes.ISLAMIC}/quran/surah/{surah}?ayah={ayah}") {
         fun createRoute(surah: Int, ayah: Int = 0) = "${Routes.ISLAMIC}/quran/surah/$surah?ayah=$ayah"

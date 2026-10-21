@@ -1,6 +1,7 @@
 package com.pixelquest.app.quran.ui.list
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -49,8 +50,12 @@ class ContinueReadingTest {
     fun theCard_namesThePlace_andOpensTheReaderThere() {
         show(SurahListUiState(surahs = listOf(alBaqara), loaded = true, continueReading = ContinueReading(alBaqara, 255)), ThemeMode.Comic)
 
-        composeTestRule.onNodeWithText("Continue reading", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("2. Al-Baqara, ayah 255", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("CONTINUE READING", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("AL-BAQARA", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Ayah 255 / 286", useUnmergedTree = true).assertIsDisplayed()
+        // TalkBack hears the place in words.
+        composeTestRule.onNodeWithTag(CONTINUE_READING)
+            .assert(androidx.compose.ui.test.hasContentDescription("Continue reading: 2. Al-Baqara, ayah 255"))
         composeTestRule.onNodeWithTag(CONTINUE_READING).assertHasClickAction().performClick()
 
         assertEquals(listOf(2 to 255), opened)

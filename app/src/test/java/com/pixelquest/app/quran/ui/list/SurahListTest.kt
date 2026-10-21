@@ -51,8 +51,7 @@ class SurahListTest {
         show(SurahListUiState(surahs = surahs, loaded = true))
 
         composeTestRule.onNodeWithText("Al-Baqara", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("The Cow", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Medinan · 286 ayahs", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("The Cow · Medinan · 286 ayahs", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test

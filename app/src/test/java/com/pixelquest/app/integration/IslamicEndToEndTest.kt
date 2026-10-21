@@ -186,7 +186,6 @@ class IslamicEndToEndTest {
                                     onNavigateBack = { nav.popBackStack() },
                                     onOpenSurah = { nav.navigate(Screen.QuranSurah.createRoute(it)) },
                                     onOpenAyah = { s, a -> nav.navigate(Screen.QuranSurah.createRoute(s, a)) },
-                                    onOpenBookmarks = {},
                                     onOpenSearch = {},
                                     viewModel = viewModel { QuranViewModel(importer, db.quranDao()) },
                                     listViewModel = viewModel { SurahListViewModel(quran, MemoryLastReadStore()) }

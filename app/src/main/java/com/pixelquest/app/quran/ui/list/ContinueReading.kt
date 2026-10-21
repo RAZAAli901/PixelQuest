@@ -1,60 +1,65 @@
 package com.pixelquest.app.quran.ui.list
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
-import com.pixelquest.app.quran.ui.QuranPanel
-import com.pixelquest.app.ui.components.PixelPanelVariant
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.quran.ui.QuranTypography
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.pqShape
 
 /**
- * The card at the top of the Quran screen that takes the player back to where they last read:
- * the surah by name, and the ayah. One button: tapping it opens the reader there.
+ * Where the player stopped reading (UI v2, mock 2F): the surah, in English and Arabic, and how far
+ * through it they are, as a bar and "Ayah 255 / 286". A tap opens the reader there. TalkBack hears
+ * it as "Continue reading: 2. Al-Baqara, ayah 255".
  */
 @Composable
 fun ContinueReadingCard(place: ContinueReading, onOpen: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = PixelTheme.colors
-    QuranPanel(
-        variant = PixelPanelVariant.BLUE,
-        contentPadding = 12.dp,
-        modifier = modifier
+    val title = stringResource(R.string.quran_continue_title)
+    val where = stringResource(R.string.quran_continue_place, place.surah.number, place.surah.englishName, place.ayah)
+    val progress = if (place.surah.ayahCount == 0) 0f else place.ayah / place.surah.ayahCount.toFloat()
+    PqCard(
+        modifier
             .fillMaxWidth()
-            .testTag(CONTINUE_READING)
-            .clickable(role = Role.Button, onClick = onOpen)
+            .semantics(mergeDescendants = true) { contentDescription = "$title: $where" }
+            .testTag(CONTINUE_READING),
+        bg = PqColors.Lilac,
+        onClick = onOpen,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.weight(1f)) {
+        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(title.uppercase(), style = PqType.Label)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(place.surah.englishName.uppercase(), style = PqType.Title, modifier = Modifier.weight(1f), maxLines = 1)
+                Text(place.surah.arabicName, style = QuranTypography.of(arabicSize = 28f, color = PqColors.Ink).arabic, maxLines = 1)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.weight(1f).height(10.dp).clip(pqShape(5.dp)).background(PqColors.Paper).border(PqDimens.BorderThin, PqColors.Ink, pqShape(5.dp))) {
+                    Box(Modifier.fillMaxWidth(progress.coerceIn(0f, 1f)).height(10.dp).background(PqColors.Ink))
+                }
                 Text(
-                    text = stringResource(R.string.quran_continue_title),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = inkOnPanel(colors.primaryText)
-                )
-                Text(
-                    text = stringResource(R.string.quran_continue_place, place.surah.number, place.surah.englishName, place.ayah),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurface
+                    stringResource(R.string.quran_continue_progress, place.ayah, place.surah.ayahCount),
+                    style = PqType.MetaStrong, modifier = Modifier.padding(start = 10.dp)
                 )
             }
-            Text(
-                text = "▶",
-                style = MaterialTheme.typography.titleMedium,
-                color = inkOnPanel(colors.primaryText),
-                modifier = Modifier.clearAndSetSemantics {}
-            )
         }
     }
 }

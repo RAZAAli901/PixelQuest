@@ -35,10 +35,11 @@ import com.pixelquest.app.quran.data.QuranImporter
 import com.pixelquest.app.quran.data.QuranRepositoryImpl
 import com.pixelquest.app.quran.data.RoomBookmarkRepository
 import com.pixelquest.app.quran.ui.bookmarks.BookmarkTags
-import com.pixelquest.app.quran.ui.bookmarks.BookmarksRoute
+import com.pixelquest.app.quran.ui.bookmarks.SavedBookmarks
 import com.pixelquest.app.quran.ui.bookmarks.BookmarksViewModel
 import com.pixelquest.app.quran.ui.list.CONTINUE_READING
 import com.pixelquest.app.quran.ui.list.QuranListTags
+import com.pixelquest.app.quran.ui.list.QuranTab
 import com.pixelquest.app.quran.ui.list.SurahListViewModel
 import com.pixelquest.app.quran.ui.reader.AyahAction
 import com.pixelquest.app.quran.ui.reader.AyahFlash
@@ -113,10 +114,15 @@ class QuranStoryTest {
                     onNavigateBack = {},
                     onOpenSurah = { nav.navigate(Screen.QuranSurah.createRoute(it)) },
                     onOpenAyah = { s, a -> nav.navigate(Screen.QuranSurah.createRoute(s, a)) },
-                    onOpenBookmarks = { nav.navigate(Screen.QuranBookmarks.route) },
                     onOpenSearch = { nav.navigate(Screen.QuranSearch.route) },
                     viewModel = viewModel { QuranViewModel(importer, db.quranDao()) },
-                    listViewModel = viewModel { SurahListViewModel(quran, lastRead) }
+                    listViewModel = viewModel { SurahListViewModel(quran, lastRead) },
+                    saved = {
+                        SavedBookmarks(
+                            onOpenAyah = { s, a -> nav.navigate(Screen.QuranSurah.createRoute(s, a)) },
+                            viewModel = viewModel { BookmarksViewModel(bookmarks, quran) }
+                        )
+                    }
                 )
             }
             composable(
@@ -129,13 +135,6 @@ class QuranStoryTest {
                 SurahReaderRoute(
                     onNavigateBack = { nav.popBackStack() },
                     viewModel = viewModel { SurahReaderViewModel(createSavedStateHandle(), quran, settings, bookmarks, lastRead) }
-                )
-            }
-            composable(Screen.QuranBookmarks.route) {
-                BookmarksRoute(
-                    onNavigateBack = { nav.popBackStack() },
-                    onOpenAyah = { s, a -> nav.navigate(Screen.QuranSurah.createRoute(s, a)) },
-                    viewModel = viewModel { BookmarksViewModel(bookmarks, quran) }
                 )
             }
             composable(Screen.QuranSearch.route) {
@@ -208,7 +207,8 @@ class QuranStoryTest {
 
         back()
         waitForTag(QuranListTags.row(2))
-        composeTestRule.onNodeWithTag(BookmarkTags.ACTION).performClick()
+        // The Saved tab holds the bookmarks.
+        composeTestRule.onNodeWithTag(QuranListTags.tab(QuranTab.SAVED)).performClick()
         waitForTag(BookmarkTags.row(2, 5))
 
         composeTestRule.onNodeWithText("Ayah 2:5").performClick()
@@ -247,7 +247,7 @@ class QuranStoryTest {
 
         back()
         waitForTag(CONTINUE_READING)
-        composeTestRule.onNodeWithText("2. Al-Baqara, ayah ${place!!.ayah}", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Ayah ${place!!.ayah} / 286", useUnmergedTree = true).assertIsDisplayed()
 
         composeTestRule.onNodeWithTag(CONTINUE_READING).performClick()
         waitForTag(ReaderTags.ayah(place.ayah))

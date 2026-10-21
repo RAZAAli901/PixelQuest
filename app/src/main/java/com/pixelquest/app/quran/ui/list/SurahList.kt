@@ -8,49 +8,50 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.pixelquest.app.R
-import com.pixelquest.app.quran.ui.framed
-import com.pixelquest.app.quran.ui.quranChipShape
-import com.pixelquest.app.quran.ui.quranFrame
 import com.pixelquest.app.quran.domain.Revelation
 import com.pixelquest.app.quran.domain.Surah
 import com.pixelquest.app.quran.ui.QuranTypography
-import com.pixelquest.app.ui.components.PixelTextField
-import com.pixelquest.app.ui.theme.ComicShapeTokens
-import com.pixelquest.app.ui.theme.ComicTokens
-import com.pixelquest.app.ui.theme.PixelTheme
-import com.pixelquest.app.ui.theme.ThemeMode
-import com.pixelquest.app.ui.theme.inkOnPanel
+import com.pixelquest.app.ui.components.pqRuledRow
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
+import com.pixelquest.app.ui.theme.pqShape
 
 /**
- * The 114 surahs, or those [state]'s search finds: a search field above a list, a row each.
+ * The 114 surahs, or those [state]'s search finds (UI v2, mock 2F): a search field above one ruled
+ * card, a row each. The surah being read is marked.
  *
  * @param listState the list's scroll position, shared with its fast-scroll index.
  */
@@ -63,35 +64,31 @@ fun SurahList(
     listState: LazyListState = rememberLazyListState()
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        PixelTextField(
-            value = state.query,
-            onValueChange = onSearch,
-            placeholder = stringResource(R.string.quran_surah_search),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .testTag(QuranListTags.SEARCH)
-        )
+        SurahSearchField(state.query, onSearch, Modifier.padding(horizontal = PqDimens.ScreenPad, vertical = 8.dp))
         if (state.loaded && state.surahs.isEmpty()) {
             Text(
                 text = stringResource(R.string.quran_surah_none),
-                style = MaterialTheme.typography.bodyMedium,
-                color = PixelTheme.colors.onSurface,
+                style = PqType.Body.copy(color = PqColors.Ink2),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(24.dp)
             )
         }
         // The fast-scroll index beside the whole list; not while a search narrows it.
         val indexed = state.query.isBlank() && state.surahs.size > FAST_SCROLL_MARKS.size
+        val current = state.continueReading?.surah?.number
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 state = listState,
-                contentPadding = PaddingValues(start = 16.dp, end = if (indexed) 44.dp else 16.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(start = PqDimens.ScreenPad, end = if (indexed) 44.dp else PqDimens.ScreenPad, bottom = 40.dp),
                 modifier = Modifier.fillMaxSize().testTag(QuranListTags.LIST)
             ) {
-                items(state.surahs, key = { it.number }) { surah ->
-                    SurahRow(surah = surah, onClick = { onOpenSurah(surah.number) })
+                itemsIndexed(state.surahs, key = { _, surah -> surah.number }) { i, surah ->
+                    SurahRow(
+                        surah = surah,
+                        onClick = { onOpenSurah(surah.number) },
+                        current = surah.number == current,
+                        modifier = Modifier.pqRuledRow(first = i == 0, last = i == state.surahs.lastIndex)
+                    )
                 }
             }
             if (indexed) {
@@ -105,63 +102,66 @@ fun SurahList(
     }
 }
 
+/** The search over the surahs' names and numbers, as the player types. */
+@Composable
+private fun SurahSearchField(query: String, onSearch: (String) -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier.fillMaxWidth().height(46.dp).clip(pqShape(12.dp)).background(PqColors.Paper)
+            .border(PqDimens.Border, PqColors.Ink, pqShape(12.dp)).padding(horizontal = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(Icons.Rounded.Search, null, tint = PqColors.Muted, modifier = Modifier.size(22.dp))
+        Box(Modifier.weight(1f).padding(start = 8.dp)) {
+            if (query.isEmpty()) Text(stringResource(R.string.quran_surah_search), style = PqType.Body.copy(color = PqColors.Muted))
+            BasicTextField(
+                query, onSearch, singleLine = true, textStyle = PqType.Body, cursorBrush = SolidColor(PqColors.Ink),
+                modifier = Modifier.fillMaxWidth().testTag(QuranListTags.SEARCH)
+            )
+        }
+    }
+}
+
 /**
- * One surah: its number in a badge, its English name and what it means, where it was revealed and
- * how many ayahs it has, and its Arabic name, in Amiri Quran. One button to TalkBack, read in
- * English: "2. Al-Baqara, The Cow. Medinan, 286 ayahs".
+ * One surah: its number in a diamond, its English name, what it means, where it was revealed and how
+ * many ayahs it has, and its Arabic name, in Amiri Quran. One button to TalkBack, read in English:
+ * "2. Al-Baqara, The Cow. Medinan, 286 ayahs".
+ *
+ * @param current the surah the player is reading, its diamond filled.
  */
 @Composable
-fun SurahRow(surah: Surah, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = PixelTheme.colors
+fun SurahRow(surah: Surah, onClick: () -> Unit, modifier: Modifier = Modifier, current: Boolean = false) {
     val place = stringResource(if (surah.revelation == Revelation.MEDINAN) R.string.quran_medinan else R.string.quran_meccan)
     val count = pluralStringResource(R.plurals.quran_ayah_count, surah.ayahCount, surah.ayahCount)
     val spoken = stringResource(R.string.quran_surah_spoken, surah.number, surah.englishName, surah.englishMeaning, place, count)
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 64.dp)
-            .framed(quranFrame())
             .clickable(role = Role.Button, onClick = onClick)
             // The tag before the clearing: anything after it is cleared too.
             .testTag(QuranListTags.row(surah.number))
             .clearAndSetSemantics { contentDescription = spoken }
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
-        SurahNumberBadge(surah.number)
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(text = surah.englishName, style = MaterialTheme.typography.titleSmall, color = inkOnPanel(colors.primaryText))
-            Text(text = surah.englishMeaning, style = MaterialTheme.typography.bodySmall, color = colors.onSurface)
-            Text(text = "$place · $count", style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
+        Box(
+            Modifier.padding(4.dp).size(30.dp).rotate(45f).clip(pqShape(8.dp))
+                .background(if (current) PqColors.Lilac else PqColors.Paper).border(PqDimens.BorderThin, PqColors.Ink, pqShape(8.dp)),
+            contentAlignment = Alignment.Center,
+        ) { Text(surah.number.toString(), style = PqType.Button.copy(letterSpacing = 0.sp), modifier = Modifier.rotate(-45f)) }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = surah.englishName, style = PqType.BodyStrong)
+            Text(
+                text = stringResource(R.string.quran_surah_line, surah.englishMeaning, place, count),
+                style = PqType.Meta, maxLines = 1, overflow = TextOverflow.Ellipsis
+            )
         }
-        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = surah.arabicName,
-            style = QuranTypography.of(arabicSize = QuranTypography.ARABIC_MIN, color = colors.onSurface).arabic,
+            style = QuranTypography.of(arabicSize = QuranTypography.ARABIC_MIN, color = PqColors.Ink).arabic,
             maxLines = 1
         )
-    }
-}
-
-/** A surah's number, in a badge shaped by the look: chamfered in Pixel, an inked circle in Comic, a circle elsewhere. */
-@Composable
-private fun SurahNumberBadge(number: Int) {
-    val colors = PixelTheme.colors
-    val shape: Shape = quranChipShape(chamfer = 6.dp, round = CircleShape)
-    val ink = if (PixelTheme.mode == ThemeMode.Comic) {
-        Modifier.border(ComicShapeTokens.BorderWidthThin, ComicTokens.SolidBlack, shape)
-    } else {
-        Modifier
-    }
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .size(40.dp)
-            .background(colors.primary.copy(alpha = 0.15f), shape)
-            .then(ink)
-    ) {
-        Text(text = number.toString(), style = MaterialTheme.typography.labelLarge, color = inkOnPanel(colors.primaryText))
     }
 }
 
