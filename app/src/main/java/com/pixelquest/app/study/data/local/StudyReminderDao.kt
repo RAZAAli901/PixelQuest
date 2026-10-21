@@ -17,6 +17,10 @@ interface StudyReminderDao {
     @Query("SELECT EXISTS(SELECT 1 FROM darood_party WHERE id = :partyId)")
     suspend fun hasParty(partyId: String): Boolean
 
+    /** The study parties on the phone the account is an active member of: whose reminders it reads. */
+    @Query("SELECT id FROM darood_party WHERE partyType = 'STUDY' AND myStatus = 'ACTIVE'")
+    suspend fun activeStudyParties(): List<String>
+
     // The server's reminders
 
     /** A party's reminders: weeks first by their Monday, then by moment, oldest made first. */
@@ -71,6 +75,38 @@ interface StudyReminderDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPending(pending: PendingStudyReminderEntity)
+
+    /** The change waiting for [id]: a reminder's own (by its id), or a new one (by its key). */
+    @Query("SELECT * FROM study_reminder_pending WHERE reminderId = :id OR (reminderId IS NULL AND clientId = :id) LIMIT 1")
+    suspend fun getPending(id: String): PendingStudyReminderEntity?
+
+    @Query("SELECT * FROM study_reminder_pending WHERE clientId = :clientId")
+    suspend fun getPendingByKey(clientId: String): PendingStudyReminderEntity?
+
+    @Query("DELETE FROM study_reminder_pending WHERE reminderId = :reminderId")
+    suspend fun deletePendingFor(reminderId: String)
+
+    /** A reminder's newest change replaces any still waiting: only the last one matters. */
+    @Transaction
+    suspend fun replacePendingFor(reminderId: String, pending: PendingStudyReminderEntity): Boolean {
+        if (!hasParty(pending.partyId)) return false
+        deletePendingFor(reminderId)
+        insertPending(pending)
+        return true
+    }
+
+    /** The server took [clientId]'s change: the reminder as it now is, in one go. */
+    @Transaction
+    suspend fun confirmSent(clientId: String, reminder: StudyReminderEntity) {
+        deletePending(clientId)
+        if (hasParty(reminder.partyId)) upsertReminders(listOf(reminder))
+    }
+
+    @Transaction
+    suspend fun confirmDeleted(clientId: String, reminderId: String) {
+        deletePending(clientId)
+        deleteReminder(reminderId)
+    }
 
     @Query("UPDATE study_reminder_pending SET attempts = attempts + 1 WHERE clientId = :clientId")
     suspend fun countAttempt(clientId: String)

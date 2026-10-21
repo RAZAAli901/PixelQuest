@@ -242,6 +242,18 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindStudyReminderRemoteDataSource(
+        impl: com.pixelquest.app.study.data.remote.SupabaseStudyReminderRemoteDataSource
+    ): com.pixelquest.app.study.data.remote.StudyReminderRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindStudyReminderRepository(
+        impl: com.pixelquest.app.study.data.StudyReminderRepositoryImpl
+    ): com.pixelquest.app.study.data.StudyReminderRepository
+
+    @Binds
+    @Singleton
     abstract fun bindStudyRepository(
         impl: com.pixelquest.app.study.data.StudyRepositoryImpl
     ): com.pixelquest.app.study.data.StudyRepository

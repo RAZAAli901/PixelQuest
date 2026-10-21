@@ -4,6 +4,7 @@ import com.pixelquest.app.study.domain.ReminderAudience
 import com.pixelquest.app.study.domain.ReminderKind
 import com.pixelquest.app.study.domain.ReminderRepeat
 import com.pixelquest.app.study.domain.ReminderScope
+import com.pixelquest.app.study.domain.StudyReminderDraft
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals

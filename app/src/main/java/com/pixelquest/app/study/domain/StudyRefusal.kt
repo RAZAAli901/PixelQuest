@@ -15,6 +15,9 @@ enum class StudyRefusal(val token: String) {
     BAD_WEEK("bad_week"),
     WEEK_NOT_OVER("week_not_over"),
 
+    /** A member keeps at most 100 reminders in a party (docs/study-reminders.md). */
+    TOO_MANY_REMINDERS("too_many_reminders"),
+
     /** Row-level security let nothing through: not the item's creator or leader, or past the 24 hours to undo. */
     NOT_ALLOWED("not_allowed"),
 

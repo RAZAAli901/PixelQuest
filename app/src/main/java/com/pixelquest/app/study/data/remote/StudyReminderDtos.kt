@@ -6,9 +6,9 @@ import com.pixelquest.app.study.domain.ReminderKind
 import com.pixelquest.app.study.domain.ReminderRepeat
 import com.pixelquest.app.study.domain.ReminderScope
 import com.pixelquest.app.study.domain.StudyReminder
+import com.pixelquest.app.study.domain.StudyReminderDraft
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.time.Instant
 import java.time.LocalDate
 
 // A study party's reminders as Supabase sends them (public.study_reminders), and their mappings.
@@ -31,7 +31,7 @@ data class StudyReminderDto(
     @SerialName("created_at") val createdAt: String
 )
 
-/** What a member sends to add a reminder: the server fills in who and when. */
+/** What a member sends to add a reminder: the server fills in who and when. [clientId] is the phone's own key for it. */
 @Serializable
 data class NewStudyReminderDto(
     @SerialName("party_id") val partyId: String,
@@ -43,7 +43,8 @@ data class NewStudyReminderDto(
     @SerialName("tz") val tz: String,
     @SerialName("repeat") val repeat: String,
     @SerialName("audience") val audience: String,
-    @SerialName("alert_offsets") val alertOffsets: List<Int>?
+    @SerialName("alert_offsets") val alertOffsets: List<Int>?,
+    @SerialName("client_id") val clientId: String? = null
 )
 
 /** What its creator (or the leader) may change: never its party, creator or audience. */
@@ -57,19 +58,6 @@ data class StudyReminderEditDto(
     @SerialName("tz") val tz: String,
     @SerialName("repeat") val repeat: String,
     @SerialName("alert_offsets") val alertOffsets: List<Int>?
-)
-
-/** A reminder as its creator fills it in, before the server has it. */
-data class StudyReminderDraft(
-    val title: String,
-    val kind: ReminderKind,
-    val scope: ReminderScope,
-    val dueAt: Instant?,
-    val weekStart: LocalDate?,
-    val tz: String,
-    val repeat: ReminderRepeat = ReminderRepeat.NONE,
-    val audience: ReminderAudience = ReminderAudience.PARTY,
-    val alertOffsets: List<Int>? = null
 )
 
 fun StudyReminderDto.toDomain(): StudyReminder = StudyReminder(
@@ -88,7 +76,7 @@ fun StudyReminderDto.toDomain(): StudyReminder = StudyReminder(
     createdAt = parseInstant(createdAt)
 )
 
-fun StudyReminderDraft.toNewDto(partyId: String): NewStudyReminderDto = NewStudyReminderDto(
+fun StudyReminderDraft.toNewDto(partyId: String, clientId: String? = null): NewStudyReminderDto = NewStudyReminderDto(
     partyId = partyId,
     title = title.trim(),
     kind = kind.wire,
@@ -98,7 +86,8 @@ fun StudyReminderDraft.toNewDto(partyId: String): NewStudyReminderDto = NewStudy
     tz = tz,
     repeat = repeat.wire,
     audience = audience.wire,
-    alertOffsets = alertOffsets
+    alertOffsets = alertOffsets,
+    clientId = clientId
 )
 
 fun StudyReminderDraft.toEditDto(): StudyReminderEditDto = StudyReminderEditDto(
