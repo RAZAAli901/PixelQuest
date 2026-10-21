@@ -64,6 +64,9 @@ class PixelQuestApplication : Application(), Configuration.Provider {
     lateinit var daroodCleanup: dagger.Lazy<com.pixelquest.app.darood.sync.DaroodAccountCleanup>
 
     @javax.inject.Inject
+    lateinit var pushRegistration: dagger.Lazy<com.pixelquest.app.push.PushRegistration>
+
+    @javax.inject.Inject
     lateinit var studyReminderAlarms: com.pixelquest.app.study.alarm.StudyReminderAlarmSync
 
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
@@ -80,6 +83,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         com.pixelquest.app.auth.AiSignOutCleanup.start(appScope, { aiAccess.get() }, encouragementPackStore)
         // Darood Party's data is the signed-in account's: cleared on sign-out or a switch of account.
         appScope.launch { daroodCleanup.get().start(this) }
+        // The phone's push token, registered for whoever's signed in (chess challenges).
+        appScope.launch { pushRegistration.get().start(this) }
         // Start connectivity observer for prompt sync retry on reconnection
         connectivitySyncObserver.startObserving()
         // The next 48 hours of prayer reminders, armed again whenever the tracker's settings change,

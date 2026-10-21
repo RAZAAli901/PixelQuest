@@ -346,6 +346,12 @@ abstract class RepositoryModule {
     abstract fun bindGoalNotifier(impl: com.pixelquest.app.darood.sync.AndroidGoalNotifier): com.pixelquest.app.darood.sync.GoalNotifier
 
     @Binds
+    abstract fun bindPushTokens(impl: com.pixelquest.app.push.FirebasePushTokens): com.pixelquest.app.push.PushTokens
+
+    @Binds
+    abstract fun bindPushTokenRemote(impl: com.pixelquest.app.push.SupabasePushTokenRemote): com.pixelquest.app.push.PushTokenRemote
+
+    @Binds
     abstract fun bindWeekResultNotifier(impl: com.pixelquest.app.darood.sync.AndroidWeekResultNotifier): com.pixelquest.app.darood.sync.WeekResultNotifier
 
     @Binds

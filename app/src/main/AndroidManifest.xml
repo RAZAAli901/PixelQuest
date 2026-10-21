@@ -43,6 +43,15 @@
             android:turnScreenOn="true"
             android:theme="@style/Theme.PixelQuest" />
 
+        <!-- Push for chess challenges (docs/chess-design.md): only Firebase delivers to it. -->
+        <service
+            android:name=".push.PushService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".scheduling.TaskAlarmReceiver"
             android:exported="false" />

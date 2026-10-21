@@ -25,6 +25,12 @@ fun buildSetting(name: String): String? =
 val supabaseUrlProp = buildSetting("SUPABASE_URL") ?: "https://placeholder-project.supabase.co"
 val supabaseAnonKeyProp = buildSetting("SUPABASE_ANON_KEY") ?: "placeholder-anon-key"
 val googleWebClientIdProp = buildSetting("GOOGLE_WEB_CLIENT_ID") ?: ""
+// Push for chess challenges (docs/chess-design.md): the Firebase project's public app settings.
+// Blank (the default) leaves push off; no google-services.json is kept in the repo.
+val fcmApiKeyProp = buildSetting("FCM_API_KEY") ?: ""
+val fcmAppIdProp = buildSetting("FCM_APP_ID") ?: ""
+val fcmProjectIdProp = buildSetting("FCM_PROJECT_ID") ?: ""
+val fcmSenderIdProp = buildSetting("FCM_SENDER_ID") ?: ""
 val geminiApiKeyProp = buildSetting("GEMINI_API_KEY") ?: "placeholder-gemini-key"
 // Debug builds call Gemini directly with the local key unless GEMINI_VIA_PROXY=true (to try the proxy).
 val geminiViaProxyProp = buildSetting("GEMINI_VIA_PROXY")?.trim()?.toBoolean() ?: false
@@ -60,6 +66,10 @@ android {
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrlProp\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKeyProp\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientIdProp\"")
+        buildConfigField("String", "FCM_API_KEY", "\"$fcmApiKeyProp\"")
+        buildConfigField("String", "FCM_APP_ID", "\"$fcmAppIdProp\"")
+        buildConfigField("String", "FCM_PROJECT_ID", "\"$fcmProjectIdProp\"")
+        buildConfigField("String", "FCM_SENDER_ID", "\"$fcmSenderIdProp\"")
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKeyProp\"")
         buildConfigField("boolean", "GEMINI_VIA_PROXY", "$geminiViaProxyProp")
         buildConfigField("boolean", "EMAIL_SIGN_IN", "$emailSignInProp")
@@ -166,6 +176,7 @@ dependencies {
 
     // Section B Step 9: WorkManager and Hilt Dependencies
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.firebase.messaging)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)

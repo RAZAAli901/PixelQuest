@@ -12,6 +12,7 @@ composeBom = "2024.02.01"
 navigationCompose = "2.7.7"
 room = "2.6.1"
 work = "2.9.0"
+firebaseMessaging = "24.1.0"
 hilt = "2.51"
 hiltNavigationCompose = "1.2.0"
 coil = "2.6.0"
@@ -31,6 +32,7 @@ datastore = "1.1.1"
 desugarJdkLibs = "2.1.5"
 
 [libraries]
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
