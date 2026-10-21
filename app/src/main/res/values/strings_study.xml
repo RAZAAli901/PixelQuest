@@ -214,6 +214,10 @@
     <string name="study_file_open_with">Open with</string>
     <string name="study_files_search">Search by name</string>
     <string name="study_files_all">All</string>
+    <string name="study_chat_reported">Reported. Thank you: it\'ll be looked at.</string>
+    <string name="study_chat_block">Block this person</string>
+    <string name="study_chat_unblock">Show</string>
+    <string name="study_chat_blocked_line">A message from someone you blocked</string>
     <string name="study_chat_mute">Mute this party\'s chat</string>
     <string name="study_chat_mute_body">No notifications for its new messages and files on this phone.</string>
     <string name="study_chat_notif_hidden">New study chat messages</string>

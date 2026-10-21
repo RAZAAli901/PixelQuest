@@ -51,6 +51,9 @@ sealed interface ChatNotice {
 
     /** No app on the phone opens that kind of file. */
     data object NoViewer : ChatNotice
+
+    /** A report was sent. */
+    data object Reported : ChatNotice
 }
 
 /**
@@ -117,16 +120,16 @@ class StudyChatViewModel @Inject constructor(
     private data class People(val leaderId: String?, val names: Map<String, String>, val active: Set<String>)
 
     val uiState: StateFlow<ChatUiState> = combine(
-        combine(messages, chat.observeFiles(partyId), ::Pair),
+        combine(messages, chat.observeFiles(partyId), chat.observeBlocked(), ::Triple),
         people,
         combine(draft, replyingTo, loadingOlder, ::Triple),
         combine(readAtOpening, combine(loaded, opening, confirmingOpen, ::Triple), chat.observeUnread(), ::Triple),
         combine(combine(notice, chat.observeItemFiles(partyId), ::Pair), attachment, uploads?.observe(partyId) ?: kotlinx.coroutines.flow.flowOf(emptyList()), ::Triple)
-    ) { (all, files), people, (text, replyId, older), (readAt, readyAndOpening, unread), (saidAndLinks, file, sharing) ->
+    ) { (all, files, blockedIds), people, (text, replyId, older), (readAt, readyAndOpening, unread), (saidAndLinks, file, sharing) ->
         val (said, links) = saidAndLinks
         val (ready, fetching, confirming) = readyAndOpening
         val me = study.myId()
-        val rows = rowsOf(all, files, me, people.names, study.zone())
+        val rows = rowsOf(all, files, me, people.names, study.zone()).map { if (it.message.senderId in blockedIds) it.copy(blocked = true) else it }
         ChatUiState(
             loaded = ready,
             rows = rows,
@@ -287,6 +290,21 @@ class StudyChatViewModel @Inject constructor(
     fun linkItemFile(itemId: String, fileId: String, linked: Boolean) {
         viewModelScope.launch {
             StudyRefusal.of(chat.linkItemFile(partyId, itemId, fileId, linked))?.let { notice.value = ChatNotice.Refused(it) }
+        }
+    }
+
+    /** Reports someone else's message (or its file). Said once it's sent. */
+    fun report(message: com.pixelquest.app.study.chat.domain.ChatMessage, reason: String) {
+        viewModelScope.launch {
+            val result = chat.report(message.id, reason)
+            notice.value = if (result is SupabaseResult.Success) ChatNotice.Reported else StudyRefusal.of(result)?.let { ChatNotice.Refused(it) } ?: ChatNotice.Offline
+        }
+    }
+
+    /** Blocks (or unblocks) a message's sender: their messages hide, for the player alone. */
+    fun setBlocked(userId: String, blocked: Boolean) {
+        viewModelScope.launch {
+            if (chat.setBlocked(userId, blocked) !is SupabaseResult.Success) notice.value = ChatNotice.Offline
         }
     }
 

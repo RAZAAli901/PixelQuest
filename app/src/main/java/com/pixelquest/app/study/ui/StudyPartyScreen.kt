@@ -177,6 +177,8 @@ fun StudyPartyScreen(
                 onOpenFile = vm::openFile,
                 onConfirmOpen = vm::confirmOpen,
                 onPinFile = vm::pinFile,
+                onReport = { vm.report(it, "inappropriate") },
+                onBlock = vm::setBlocked,
                 chatMuted = chatMuted,
                 onSetChatMuted = vm::setChatMuted,
                 onCancelOpen = vm::cancelOpen,

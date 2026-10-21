@@ -47,6 +47,13 @@ interface StudyChatRemoteDataSource {
     /** Its creator or the leader links a file to an item, or unlinks it (link_item_file). */
     suspend fun linkItemFile(itemId: String, fileId: String, linked: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 
+    /** Reports someone else's message (a file message reports its file): report_chat_message. */
+    suspend fun reportMessage(messageId: String, reason: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
+    /** The account's own block list, and changing it. */
+    suspend fun fetchBlocked(): SupabaseResult<Set<String>> = SupabaseResult.Success(emptySet())
+    suspend fun setBlocked(userId: String, blocked: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
     /** The party's leader pins or unpins a ready file (pin_chat_file). */
     suspend fun pinFile(fileId: String, pinned: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
@@ -131,6 +138,21 @@ class SupabaseStudyChatRemoteDataSource @Inject constructor(
         })
     }.map { }
 
+    override suspend fun reportMessage(messageId: String, reason: String): SupabaseResult<Unit> = signedIn {
+        postgrest.rpc("report_chat_message", buildJsonObject {
+            put("message_id", messageId)
+            put("reason", reason)
+        })
+    }.map { }
+
+    override suspend fun fetchBlocked(): SupabaseResult<Set<String>> = signedIn {
+        postgrest["member_blocks"].select(Columns.list("blocked_id")).decodeList<BlockDto>().map { it.blockedId }.toSet()
+    }
+
+    override suspend fun setBlocked(userId: String, blocked: Boolean): SupabaseResult<Unit> = signedIn {
+        postgrest.rpc(if (blocked) "block_member" else "unblock_member", buildJsonObject { put("user_id", userId) })
+    }.map { }
+
     override suspend fun pinFile(fileId: String, pinned: Boolean): SupabaseResult<Unit> = signedIn {
         postgrest.rpc("pin_chat_file", buildJsonObject {
             put("file_id", fileId)
@@ -155,3 +177,6 @@ data class ItemFileDto(
     @kotlinx.serialization.SerialName("item_id") val itemId: String,
     @kotlinx.serialization.SerialName("file_id") val fileId: String
 )
+
+@kotlinx.serialization.Serializable
+data class BlockDto(@kotlinx.serialization.SerialName("blocked_id") val blockedId: String)

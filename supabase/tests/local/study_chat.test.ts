@@ -244,3 +244,20 @@ localTest("chat files: only the leader pins a ready file", async () => {
   assert.equal((await rpc(leader, "pin_chat_file", { file_id: pending, pinned: true })).body.message, "not_allowed");
   forgetUploads(member);
 });
+
+localTest("chat: members report others' messages once, and block for themselves", async () => {
+  const { leader, member, outsider } = await cast();
+  const party = await studyParty(leader, [member]);
+  const theirs = (await send(member, party, { body: "Spam spam" })).body[0];
+  assert.equal((await rpc(leader, "report_chat_message", { message_id: theirs.id, reason: "spam" })).status, 204);
+  assert.equal((await rpc(leader, "report_chat_message", { message_id: theirs.id, reason: "spam" })).status, 204, "again is fine");
+  assert.equal(sql(`SELECT count(*) FROM public.chat_reports WHERE message_id = '${theirs.id}'`), "1");
+  assert.equal((await rpc(member, "report_chat_message", { message_id: theirs.id, reason: "spam" })).body.message, "not_allowed", "not one's own");
+  assert.equal((await rpc(outsider, "report_chat_message", { message_id: theirs.id, reason: "spam" })).body.message, "not_allowed");
+  assert.equal((await call("/rest/v1/chat_reports?select=id", { token: leader.accessToken })).status, 403, "reports aren't read back");
+
+  assert.equal((await rpc(leader, "block_member", { user_id: member.userId })).status, 204);
+  assert.deepEqual((await call("/rest/v1/member_blocks?select=blocked_id", { token: leader.accessToken })).body, [{ blocked_id: member.userId }]);
+  assert.deepEqual((await call("/rest/v1/member_blocks?select=blocked_id", { token: member.accessToken })).body, [], "the blocked don't see it");
+  assert.equal((await rpc(leader, "unblock_member", { user_id: member.userId })).status, 204);
+});

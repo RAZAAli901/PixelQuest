@@ -96,6 +96,13 @@ interface StudyChatRepository {
     /** Its creator or the leader links a file to an item, or unlinks it (the server checks). */
     suspend fun linkItemFile(partyId: String, itemId: String, fileId: String, linked: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 
+    /** Reports someone else's message, with a reason the server knows. */
+    suspend fun report(messageId: String, reason: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
+    /** The people the player has blocked: their messages are hidden for the player alone. */
+    fun observeBlocked(): Flow<Set<String>> = kotlinx.coroutines.flow.flowOf(emptySet())
+    suspend fun setBlocked(userId: String, blocked: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
     /** The leader pins or unpins a file (the server checks). */
     suspend fun pinFile(file: ChatFile, pinned: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 
@@ -125,6 +132,15 @@ class StudyChatRepositoryImpl(
 
     /** Each party's item materials, fetched with its chat (kept in memory: the server is the truth). */
     private val itemFiles = kotlinx.coroutines.flow.MutableStateFlow<Map<String, Map<String, List<String>>>>(emptyMap())
+
+    private val blocked = kotlinx.coroutines.flow.MutableStateFlow<Set<String>>(emptySet())
+
+    override fun observeBlocked(): Flow<Set<String>> = blocked
+
+    override suspend fun report(messageId: String, reason: String): SupabaseResult<Unit> = remote.reportMessage(messageId, reason)
+
+    override suspend fun setBlocked(userId: String, blocked: Boolean): SupabaseResult<Unit> =
+        remote.setBlocked(userId, blocked).also { if (it is SupabaseResult.Success) this.blocked.value = if (blocked) this.blocked.value + userId else this.blocked.value - userId }
 
     override fun observeItemFiles(partyId: String): Flow<Map<String, List<String>>> = itemFiles.map { it[partyId].orEmpty() }
 
@@ -164,6 +180,7 @@ class StudyChatRepositoryImpl(
         val files = remote.fetchFiles(partyId)
         if (files !is SupabaseResult.Success) return files.map { }
         dao.upsertFilesIfKept(partyId, files.data.map { it.toEntity() })
+        remote.fetchBlocked().let { if (it is SupabaseResult.Success) blocked.value = it.data }
         val links = remote.fetchItemFiles(partyId)
         if (links is SupabaseResult.Success) itemFiles.value = itemFiles.value + (partyId to links.data)
         return SupabaseResult.Success(Unit)

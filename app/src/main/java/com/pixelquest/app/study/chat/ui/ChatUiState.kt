@@ -14,7 +14,9 @@ data class ChatMessageRow(
     val replyToName: String? = null,
     /** Starts its sender's run (one sender's messages in a row): their name shows once, here. */
     val firstOfRun: Boolean = true,
-    val lastOfRun: Boolean = true
+    val lastOfRun: Boolean = true,
+    /** From someone the player blocked: collapsed, for the player alone. */
+    val blocked: Boolean = false
 )
 
 /** A file the player is sharing, on its way: how far it's got, or why it stopped. */

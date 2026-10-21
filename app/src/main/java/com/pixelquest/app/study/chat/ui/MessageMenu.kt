@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Reply
+import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Flag
@@ -66,7 +67,8 @@ fun MessageMenu(
     onReply: () -> Unit,
     onDelete: () -> Unit,
     onReport: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onBlock: (() -> Unit)? = null
 ) {
     val clipboard = LocalClipboardManager.current
     PqSheet(onDismiss) {
@@ -87,6 +89,7 @@ fun MessageMenu(
             if (items.reply) MenuLine(Icons.AutoMirrored.Rounded.Reply, R.string.study_chat_reply, StudyChatTags.MENU_REPLY) { onReply(); onDismiss() }
             if (items.delete) MenuLine(Icons.Rounded.Delete, R.string.study_chat_delete, StudyChatTags.MENU_DELETE, danger = true) { onDelete() }
             if (items.report) MenuLine(Icons.Rounded.Flag, R.string.study_chat_report, StudyChatTags.MENU_REPORT) { onReport(); onDismiss() }
+            if (onBlock != null && !row.mine) MenuLine(Icons.Rounded.Block, R.string.study_chat_block, StudyChatTags.MENU_BLOCK, danger = true) { onBlock(); onDismiss() }
         }
     }
 }

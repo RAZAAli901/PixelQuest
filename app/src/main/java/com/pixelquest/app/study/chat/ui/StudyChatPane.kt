@@ -52,6 +52,8 @@ data class ChatActions(
     /** Opens a shared file; null where files aren't opened. */
     val onOpenFile: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)? = null,
     val onConfirmOpen: () -> Unit = {},
+    /** Blocks or unblocks someone; null where blocking isn't offered. */
+    val onBlock: ((String, Boolean) -> Unit)? = null,
     /** This party's chat notifications on this phone: muted or not, and the switch; null without one. */
     val chatMuted: Boolean = false,
     val onSetChatMuted: ((Boolean) -> Unit)? = null,
@@ -131,7 +133,11 @@ fun StudyChatPane(
     // The message whose menu is open, and the one waiting for its delete to be confirmed.
     var menuFor by remember { mutableStateOf<ChatMessageRow?>(null) }
     var deleting by remember { mutableStateOf<ChatMessageRow?>(null) }
-    val line: @Composable (ChatMessageRow) -> Unit = message ?: { row ->
+    val line: @Composable (ChatMessageRow) -> Unit = message ?: line@{ row ->
+        if (row.blocked) {
+            BlockedLine(row, onUnblock = actions.onBlock?.let { block -> { row.message.senderId?.let { block(it, false) } } })
+            return@line
+        }
         MessageBubbleRow(
             row,
             onRetry = actions.onRetry,
@@ -151,6 +157,7 @@ fun StudyChatPane(
                 deleting = row
             },
             onReport = { actions.onReport?.invoke(row.message) },
+            onBlock = actions.onBlock?.takeIf { !row.mine && row.message.senderId != null }?.let { block -> { block(row.message.senderId!!, true) } },
             onDismiss = { menuFor = null }
         )
     }
@@ -205,6 +212,7 @@ private fun ChatNoticeLine(notice: ChatNotice, onDismiss: () -> Unit) {
         ChatNotice.FileNotAllowed -> R.string.study_file_not_allowed
         ChatNotice.FileCorrupted -> R.string.study_file_corrupted
         ChatNotice.NoViewer -> R.string.study_file_no_viewer
+        ChatNotice.Reported -> R.string.study_chat_reported
         is ChatNotice.FileProblem -> when (notice.problem) {
             com.pixelquest.app.study.chat.domain.UploadProblem.BAD_TYPE -> R.string.study_chat_file_bad_type
             com.pixelquest.app.study.chat.domain.UploadProblem.MACROS -> R.string.study_chat_file_macros
@@ -227,6 +235,24 @@ private fun ChatNoticeLine(notice: ChatNotice, onDismiss: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .testTag(StudyChatTags.NOTICE)
     )
+}
+
+/** A blocked person's message: collapsed, with a way to see them again. */
+@Composable
+private fun BlockedLine(row: ChatMessageRow, onUnblock: (() -> Unit)?) {
+    androidx.compose.foundation.layout.Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).testTag(StudyChatTags.BLOCKED)
+    ) {
+        Text(stringResource(R.string.study_chat_blocked_line), style = PqType.Meta, modifier = Modifier.weight(1f))
+        if (onUnblock != null) {
+            Text(
+                stringResource(R.string.study_chat_unblock).uppercase(),
+                style = PqType.Button.copy(color = com.pixelquest.app.ui.theme.PqColors.RedText),
+                modifier = Modifier.clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onUnblock).padding(horizontal = 8.dp, vertical = 12.dp)
+            )
+        }
+    }
 }
 
 /** "Unread messages", across the chat where they start. */
@@ -263,6 +289,8 @@ object StudyChatTags {
     const val INPUT = "study_chat_input"
     const val SEND = "study_chat_send"
     const val COUNTER = "study_chat_counter"
+    const val BLOCKED = "study_chat_blocked"
+    const val MENU_BLOCK = "study_chat_menu_block"
     const val FILES_SEARCH = "study_files_search"
     const val FILES_NEWEST = "study_files_newest"
     const val FILES_OLDEST = "study_files_oldest"
