@@ -58,6 +58,25 @@ export const isUuid = (v: unknown): v is string => typeof v === "string" && UUID
 export const UCI = /^([a-h][1-8])([a-h][1-8])([qrbn])?$/;
 
 /**
+ * A function that does one thing to one game (resign, a draw offer, a timeout claim): the game's
+ * id from the body, the database call, and its game (or refusal) back.
+ */
+export function gameAction(
+  req: Request,
+  getUserId: (token: string) => Promise<string | null>,
+  call: (user: string, game: string, body: Record<string, unknown>) => Promise<{ ok: true; data: { game?: unknown; error?: string } } | { ok: false; error: string }>,
+  log?: (event: Record<string, unknown>) => void,
+): Promise<Response> {
+  return chessRequest(req, getUserId, async (user, body) => {
+    if (!isUuid(body.game_id)) return refuse("bad_request");
+    const answer = await call(user, body.game_id.toLowerCase(), body);
+    if (!answer.ok) return refuse(answer.error);
+    if (answer.data.error) return refuse(answer.data.error, { game: answer.data.game });
+    return json(200, { game: answer.data.game });
+  }, log);
+}
+
+/**
  * Every POST function's frame: the method, the caller's sign-in and a JSON body, then [work].
  * A thrown error is logged and answered as a 500 that says nothing about it.
  */
