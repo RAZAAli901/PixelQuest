@@ -74,7 +74,8 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
             onNavigateBack = { navController.popBackStack() },
             onOpenInfo = { navController.navigate(Screen.PartiesInfo.createRoute(partyId)) { launchSingleTop = true } },
             onAddPeople = { navController.navigate(Screen.PartiesAddPeople.createRoute(partyId)) { launchSingleTop = true } },
-            onOpenItem = { itemId -> navController.navigate(Screen.PartiesItem.createRoute(partyId, itemId)) { launchSingleTop = true } }
+            onOpenItem = { itemId -> navController.navigate(Screen.PartiesItem.createRoute(partyId, itemId)) { launchSingleTop = true } },
+            remindersViewModel = hiltViewModel()
         )
     }
     composable(

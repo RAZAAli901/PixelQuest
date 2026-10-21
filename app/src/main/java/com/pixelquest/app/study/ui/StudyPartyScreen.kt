@@ -52,6 +52,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -88,10 +89,11 @@ fun StudyPartyScreen(
     onAddPeople: () -> Unit,
     onOpenItem: (String) -> Unit = {},
     viewModel: StudyPartyViewModel = hiltViewModel(),
-    remindersViewModel: StudyRemindersViewModel = hiltViewModel()
+    /** The party's reminders (docs/study-reminders.md); without one (a test), the screen has none. */
+    remindersViewModel: StudyRemindersViewModel? = null
 ) {
     val state by viewModel.uiState.collectAsState()
-    val reminderState by remindersViewModel.uiState.collectAsState()
+    val reminderState by (remindersViewModel?.uiState ?: remember { kotlinx.coroutines.flow.MutableStateFlow(ReminderUiState()) }).collectAsState()
     val dueReminders by viewModel.dueReminders.collectAsState()
     val weeklySummary by viewModel.weeklySummary.collectAsState()
     val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
@@ -133,13 +135,15 @@ fun StudyPartyScreen(
             { on -> if (on) askForNotifications(); viewModel.setWeeklySummary(on) }
         ),
         reminderState = reminderState,
-        reminderActions = ReminderActions(
-            onAdd = { askForNotifications(); remindersViewModel.openCreate() },
-            onChange = remindersViewModel::change,
-            onSave = remindersViewModel::save,
-            onClose = remindersViewModel::close,
-            onDismissNotice = remindersViewModel::dismissNotice
-        )
+        reminderActions = remindersViewModel?.let { vm ->
+            ReminderActions(
+                onAdd = { askForNotifications(); vm.openCreate() },
+                onChange = vm::change,
+                onSave = vm::save,
+                onClose = vm::close,
+                onDismissNotice = vm::dismissNotice
+            )
+        }
     )
 }
 
@@ -173,7 +177,8 @@ fun StudyPartyContent(
     onDismissWinners: () -> Unit = {},
     reminders: ReminderToggles = ReminderToggles(),
     reminderState: ReminderUiState = ReminderUiState(),
-    reminderActions: ReminderActions = ReminderActions()
+    /** Null when the screen has no reminders (a test without them): no Add reminder. */
+    reminderActions: ReminderActions? = null
 ) {
     CompositionLocalProvider(LocalStudySimpleMode provides state.simpleMode) {
         StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders, reminderState, reminderActions)
@@ -201,7 +206,7 @@ private fun StudyPartyScaffold(
     onDismissWinners: () -> Unit,
     reminders: ReminderToggles,
     reminderState: ReminderUiState,
-    reminderActions: ReminderActions
+    reminderActions: ReminderActions?
 ) {
     Scaffold(
         containerColor = PqColors.Ground,
@@ -268,15 +273,16 @@ private fun StudyPartyScaffold(
             ItemSheet(form = form, today = state.today, isLeader = state.isLeader, onChange = onFormChange, onSave = onSaveForm, onDismiss = onCloseForm)
         }
         reminderState.form?.let { form ->
+            val acts = reminderActions ?: ReminderActions()
             ReminderSheet(
-                form = form, today = reminderState.today, zone = reminderState.zone, onChange = reminderActions.onChange,
-                onSave = reminderActions.onSave, onDismiss = reminderActions.onClose
+                form = form, today = reminderState.today, zone = reminderState.zone, onChange = acts.onChange,
+                onSave = acts.onSave, onDismiss = acts.onClose
             )
         }
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             StudyTabRow(tabs = state.tabs, selected = state.tab, onSelect = onSelectTab)
             state.notice?.let { NoticeLine(it, onDismissNotice) }
-            reminderState.notice?.let { ReminderNoticeLine(it, reminderActions.onDismissNotice) }
+            reminderState.notice?.let { ReminderNoticeLine(it, reminderActions?.onDismissNotice ?: {}) }
             PartyRefreshBox(refreshing = state.refreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     // Room at the end for the Add item button over the last card.
@@ -294,7 +300,7 @@ private fun StudyPartyScaffold(
                                     if (state.pinned.isNotEmpty()) PinnedStrip(state.pinned, onOpen = onOpenItem)
                                     if (state.thisWeek.isNotEmpty()) WeekSummary(state)
                                     StudyTimerCard(state, timerActions)
-                                    AddReminderButton(reminderActions.onAdd)
+                                    if (reminderActions != null) AddReminderButton(reminderActions.onAdd)
                                 }
                             }
                             thisWeek(state, onOpenItem, actions)
