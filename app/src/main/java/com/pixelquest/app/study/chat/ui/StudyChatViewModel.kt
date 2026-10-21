@@ -80,9 +80,9 @@ class StudyChatViewModel @Inject constructor(
         combine(messages, chat.observeFiles(partyId), ::Pair),
         people,
         combine(draft, replyingTo, loadingOlder, ::Triple),
-        combine(readAtOpening, loaded, ::Pair),
+        combine(readAtOpening, loaded, chat.observeUnread(), ::Triple),
         notice
-    ) { (all, files), people, (text, replyId, older), (readAt, ready), said ->
+    ) { (all, files), people, (text, replyId, older), (readAt, ready, unread), said ->
         val me = study.myId()
         val rows = rowsOf(all, files, me, people.names, study.zone())
         ChatUiState(
@@ -96,7 +96,8 @@ class StudyChatViewModel @Inject constructor(
             lastReadAt = readAt,
             today = study.today(),
             loadingOlder = older,
-            notice = said
+            notice = said,
+            unread = unread[partyId] ?: 0
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, TabSharing, ChatUiState())
 

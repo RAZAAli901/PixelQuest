@@ -63,6 +63,9 @@ interface StudyChatRepository {
     /** The player's read mark in a party's chat. */
     fun observeLastRead(partyId: String): Flow<Instant?>
 
+    /** Others' messages the player hasn't read, by party: for the Chat tab and the party list. */
+    fun observeUnread(): Flow<Map<String, Int>>
+
     /** Sends what's waiting, then brings the party's newest messages and its files. */
     suspend fun refresh(partyId: String): SupabaseResult<Unit>
 
@@ -121,6 +124,11 @@ class StudyChatRepositoryImpl(
     override fun observeFiles(partyId: String): Flow<List<ChatFile>> = dao.observeFiles(partyId).map { rows -> rows.map { it.toDomain() } }
 
     override fun observeLastRead(partyId: String): Flow<Instant?> = dao.observeLastRead(partyId).map { it?.let(Instant::ofEpochMilli) }
+
+    override fun observeUnread(): Flow<Map<String, Int>> {
+        val me = account.id() ?: return kotlinx.coroutines.flow.flowOf(emptyMap())
+        return dao.observeUnread(me).map { counts -> counts.associate { it.partyId to it.unread } }
+    }
 
     override suspend fun refresh(partyId: String): SupabaseResult<Unit> {
         sendPending()

@@ -335,7 +335,7 @@ private fun StudyPartyScaffold(
             }
         }
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            StudyTabRow(tabs = state.tabs, selected = state.tab, onSelect = onSelectTab)
+            StudyTabRow(tabs = state.tabs, selected = state.tab, onSelect = onSelectTab, counts = mapOf(PartyTab.CHAT to (chatState?.unread ?: 0)))
             state.notice?.let { NoticeLine(it, onDismissNotice) }
             reminderState.notice?.let { ReminderNoticeLine(it, reminderActions?.onDismissNotice ?: {}) }
             // The chat is a messaging app's list, newest at the bottom, with its own input: not a pulled list.
@@ -404,7 +404,7 @@ private fun StudyPartyScaffold(
 
 /** The tabs, side by side in one inked bar (mock 4H), the chosen one filled. */
 @Composable
-private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (PartyTab) -> Unit) {
+private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (PartyTab) -> Unit, counts: Map<PartyTab, Int> = emptyMap()) {
     val shape = pqShape(12.dp)
     // Up to four share the bar; more, as a study party has, scroll along it, each its own width.
     val fits = tabs.size <= 4
@@ -432,12 +432,24 @@ private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (Par
                     .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab) })
                     .testTag(StudyTags.tabButton(tab))
             ) {
+                // A count (the chat's unread) goes with its tab's name, in the accent: "Chat 3".
+                val count = counts[tab] ?: 0
+                val label = stringResource(tabLabel(tab))
                 Text(
-                    text = stringResource(tabLabel(tab)),
-                    style = PqType.MetaStrong.copy(color = if (isSelected) PqColors.Paper else PqColors.Ink),
+                    text = if (count > 0) label + " " + (if (count > 99) "99+" else count.toString()) else label,
+                    style = PqType.MetaStrong.copy(color = if (isSelected) PqColors.Paper else if (count > 0) PqColors.RedText else PqColors.Ink),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
-                    modifier = Modifier.padding(horizontal = if (fits) 4.dp else 12.dp, vertical = 8.dp)
+                    modifier = Modifier
+                        .padding(horizontal = if (fits) 4.dp else 12.dp, vertical = 8.dp)
+                        .then(
+                            if (count > 0) {
+                                val said = pluralStringResource(R.plurals.study_chat_unread_tab, count, label, count)
+                                Modifier.semantics { contentDescription = said }
+                            } else {
+                                Modifier
+                            }
+                        )
                 )
             }
         }

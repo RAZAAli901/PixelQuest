@@ -34,7 +34,9 @@ data class ChatUiState(
     val loadingOlder: Boolean = false,
     val offline: Boolean = false,
     /** The last thing tried, said once: a send saved offline, or refused. */
-    val notice: ChatNotice? = null
+    val notice: ChatNotice? = null,
+    /** Others' messages not yet read, for the Chat tab's count. */
+    val unread: Int = 0
 ) {
     val canSend: Boolean get() = draft.isNotBlank() && draft.length <= com.pixelquest.app.study.chat.domain.StudyChatConfig.MESSAGE_MAX_CHARS
 }

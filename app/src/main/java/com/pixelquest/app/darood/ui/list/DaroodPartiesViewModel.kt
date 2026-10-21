@@ -53,7 +53,9 @@ data class DaroodPartiesUiState(
     val invites: List<Party> = emptyList(),
     val loading: Boolean = false,
     val problem: PartiesProblem? = null,
-    val answering: String? = null
+    val answering: String? = null,
+    /** Unread chat messages by party (study parties' chats). */
+    val unread: Map<String, Int> = emptyMap()
 ) {
     val isEmpty: Boolean get() = parties.isEmpty() && invites.isEmpty()
 }
@@ -65,7 +67,8 @@ class DaroodPartiesViewModel @Inject constructor(
     private val reminder: com.pixelquest.app.darood.data.DaroodReminderSettings? = null,
     savedStateHandle: SavedStateHandle = SavedStateHandle(),
     myUsername: com.pixelquest.app.darood.data.MyUsername? = null,
-    settings: com.pixelquest.app.domain.repository.SettingsRepository? = null
+    settings: com.pixelquest.app.domain.repository.SettingsRepository? = null,
+    chat: com.pixelquest.app.study.chat.data.StudyChatRepository? = null
 ) : ViewModel() {
 
     /** The kind of party this list shows, if its route names one; every kind without ([ARG_TYPE]). */
@@ -103,10 +106,12 @@ class DaroodPartiesViewModel @Inject constructor(
         signedIn,
         if (type != null) repository.observeMyParties(type) else repository.observeMyParties(),
         daroodAvailable,
-        status
-    ) { signedIn, all, darood, status ->
+        status,
+        chat?.observeUnread() ?: kotlinx.coroutines.flow.flowOf(emptyMap())
+    ) { signedIn, all, darood, status, unread ->
         val shown = all.filter { darood || it.type != PartyType.DAROOD }
         status.copy(
+            unread = if (signedIn) unread else emptyMap(),
             signedIn = signedIn,
             parties = if (signedIn) shown.filter { it.myStatus == MemberStatus.ACTIVE } else emptyList(),
             invites = if (signedIn) shown.filter { it.myStatus == MemberStatus.INVITED } else emptyList()

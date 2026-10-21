@@ -1,6 +1,8 @@
 package com.pixelquest.app.study.chat.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -56,16 +58,26 @@ internal sealed interface ChatLine {
     data class Message(val row: ChatMessageRow) : ChatLine {
         override val key get() = "message-" + (row.message.clientId ?: row.message.id)
     }
+
+    /** Where what the player hasn't read starts. */
+    data object Unread : ChatLine {
+        override val key get() = "unread"
+    }
 }
 
-/** The rows, each day headed once as its first message's time falls in [zone]. */
-internal fun linesOf(rows: List<ChatMessageRow>, zone: ZoneId): List<ChatLine> {
+/**
+ * The rows, each day headed once as its first message's time falls in [zone], and the unread line
+ * before the first of others' messages after [readAt] (none the first time the chat's opened).
+ */
+internal fun linesOf(rows: List<ChatMessageRow>, zone: ZoneId, readAt: java.time.Instant? = null): List<ChatLine> {
     val lines = mutableListOf<ChatLine>()
     var last: LocalDate? = null
+    val firstUnread = readAt?.let { mark -> rows.firstOrNull { !it.mine && !it.message.deleted && it.message.createdAt.isAfter(mark) } }
     for (row in rows) {
         val day = row.message.createdAt.atZone(zone).toLocalDate()
         if (day != last) lines += ChatLine.Day(day)
         last = day
+        if (row === firstUnread) lines += ChatLine.Unread
         lines += ChatLine.Message(row)
     }
     return lines
@@ -131,7 +143,7 @@ fun StudyChatPane(
                 EmptyChat()
             } else {
                 ChatTimeline(
-                    lines = linesOf(state.rows, zone),
+                    lines = linesOf(state.rows, zone, state.lastReadAt),
                     key = { it.key },
                     isMessage = { it is ChatLine.Message },
                     isMine = { (it as? ChatLine.Message)?.row?.mine == true },
@@ -143,6 +155,7 @@ fun StudyChatPane(
                     when (line) {
                         is ChatLine.Day -> DaySeparator(day = line.day, today = state.today, tag = StudyChatTags.day(line.day))
                         is ChatLine.Message -> line(line.row)
+                        ChatLine.Unread -> UnreadLine()
                     }
                 }
             }
@@ -174,6 +187,20 @@ private fun ChatNoticeLine(notice: ChatNotice, onDismiss: () -> Unit) {
     )
 }
 
+/** "Unread messages", across the chat where they start. */
+@Composable
+private fun UnreadLine() {
+    androidx.compose.foundation.layout.Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).testTag(StudyChatTags.UNREAD)
+    ) {
+        androidx.compose.foundation.layout.Box(Modifier.weight(1f).height(2.dp).background(com.pixelquest.app.ui.theme.PqColors.Red))
+        Text(text = stringResource(R.string.study_chat_unread), style = PqType.MetaStrong.copy(color = com.pixelquest.app.ui.theme.PqColors.RedText))
+        androidx.compose.foundation.layout.Box(Modifier.weight(1f).height(2.dp).background(com.pixelquest.app.ui.theme.PqColors.Red))
+    }
+}
+
 @Composable
 private fun BoxScope.EmptyChat() {
     Text(
@@ -194,6 +221,7 @@ object StudyChatTags {
     const val INPUT = "study_chat_input"
     const val SEND = "study_chat_send"
     const val COUNTER = "study_chat_counter"
+    const val UNREAD = "study_chat_unread"
     const val MENU = "study_chat_menu"
     const val MENU_COPY = "study_chat_menu_copy"
     const val MENU_REPLY = "study_chat_menu_reply"

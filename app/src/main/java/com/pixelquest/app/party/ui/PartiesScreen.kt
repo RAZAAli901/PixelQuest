@@ -2,6 +2,9 @@ package com.pixelquest.app.party.ui
 
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -224,7 +227,7 @@ fun PartiesContent(
                             )
                         }
                     }
-                    items(visible, key = { it.id }) { party -> PartyCard(party, onClick = { onOpenParty(party) }) }
+                    items(visible, key = { it.id }) { party -> PartyCard(party, onClick = { onOpenParty(party) }, unread = state.unread[party.id] ?: 0) }
                     // Once there's a Darood Party to add to: the weekly note, off unless turned on.
                     if (daroodAvailable && state.parties.any { it.type == PartyType.DAROOD }) {
                         item(key = "weekly") { WeeklyNoteRow(weeklyNote, onWeeklyNote) }
@@ -249,7 +252,7 @@ private fun PartiesProblem.message(): Int = when (this) {
 
 /** One party: its kind's icon and colour, its name, kind and members, and what its kind adds (Darood's total and milestone). */
 @Composable
-fun PartyCard(party: Party, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun PartyCard(party: Party, onClick: () -> Unit, modifier: Modifier = Modifier, unread: Int = 0) {
     val summary = PartyKinds.of(party.type).summary(party)
     PqCard(
         modifier.fillMaxWidth().testTag(DaroodTestTags.partyRow(party.id)),
@@ -267,12 +270,29 @@ fun PartyCard(party: Party, onClick: () -> Unit, modifier: Modifier = Modifier) 
                     )
                 }
                 if (party.isFinished) PqTag(stringResource(R.string.darood_finished))
+                if (unread > 0) UnreadBadge(unread)
                 Icon(Icons.Rounded.ChevronRight, null, tint = PqColors.Ink)
             }
             summary.progress?.let { PqProgressBar(it) }
             summary.detail?.let { Text(phraseText(it), style = PqType.MetaStrong) }
         }
     }
+}
+
+/** A party's unread chat messages, in a red pill; read out as "3 unread messages". */
+@Composable
+private fun UnreadBadge(count: Int) {
+    val said = pluralStringResource(R.plurals.study_chat_unread_count, count, count)
+    Text(
+        text = if (count > 99) "99+" else count.toString(),
+        style = PqType.MetaStrong.copy(color = PqColors.OnRed),
+        modifier = Modifier
+            .background(PqColors.Red, com.pixelquest.app.ui.theme.PqCircle)
+            .border(PqDimens.BorderThin, PqColors.Ink, com.pixelquest.app.ui.theme.PqCircle)
+            .padding(horizontal = 8.dp, vertical = 2.dp)
+            .semantics { contentDescription = said }
+            .testTag(PartiesTags.UNREAD)
+    )
 }
 
 /** Signed out: parties are shared, so they need an account. */
@@ -371,4 +391,5 @@ object PartiesTags {
     const val EMPTY = DaroodTestTags.EMPTY
     const val SIGNED_OUT = DaroodTestTags.SIGNED_OUT
     const val SIGN_IN = DaroodTestTags.SIGN_IN
+    const val UNREAD = "parties_unread"
 }
