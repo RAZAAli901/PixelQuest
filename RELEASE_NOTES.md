@@ -1,18 +1,22 @@
-# PixelQuest v1.4.1 — Android 7
+# PixelQuest v1.5.0 — The Islamic section, the Quran, and study parties
 
-Installs over 1.4.0 (or 1.3.0) and keeps everything. The full list is in [CHANGELOG.md](CHANGELOG.md).
+Installs over 1.4.1 (or 1.4.0, or 1.3.0) and keeps everything. The full list is in [CHANGELOG.md](CHANGELOG.md).
 
-### 🐛 Fixed
-- **PixelQuest now opens on Android 7.0 and 7.1.** Every earlier version closed as it started there, because Android 7 lacks the date classes the app uses. 1.4.1 brings its own copy.
-- Nothing changes on Android 8 and later.
+### 🌙 The Islamic section
+- The side menu's Islamic entry opens a hub of the Namaz Tracker, Darood Party and the Quran.
+- Settings can hide it, and sets the Quran's reading defaults and the reminders.
 
-### 📿 New in 1.4.0: Darood Party (for signed-in players)
-- Small groups (2 to 30) count Darood together, in a chat that takes only numbers. Open it from the side menu.
-- **Inviting:** choose a username, create a party, and invite friends by their exact username. Usernames aren't listed anywhere.
-- **Sending:** your number shows at once, then a tick when it's sent. It works offline too.
-- **Milestones:** the leader can set one. Reaching it finishes the party with a celebration card.
-- **My stats:** your total, share and place, how steady you are, a 30-day calendar, and everyone's part, kindly ranked.
-- **Opt-in extras:** a race board between parties (names and progress only), and a weekly note on Friday evenings.
-- Darood never adds XP, levels or streaks, and nothing of it reaches the leaderboard.
+### 📖 The Quran, offline
+- The Uthmani Arabic (Tanzil Project) and the Saheeh International translation, unchanged and checked on every build.
+- Search, juz, go to any ayah, bookmarks, copy and share, and carry on where you stopped.
+- Text size, spacing, a sepia page, and what each ayah shows: Arabic, translation, or both.
+
+### 👥 Study parties (for signed-in players)
+- Friends pin what's due, tick it off, log study time, and race on a friendly weekly scoreboard.
+- Reminders before things are due, a live feed, an optional Sunday summary, and a Home card.
+- Party points never touch XP, levels or streaks. Simple Mode shows only what's due.
+
+### 🛠️ Improved
+- TalkBack names every text field; signing out clears the parties but keeps the Quran and bookmarks; the app is smaller (7.4 MB).
 
 The release workflow publishes this version's notes from CHANGELOG.md.

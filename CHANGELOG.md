@@ -4,6 +4,43 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
+## [1.5.0] - 2026-10-21 — The Islamic section, the Quran, and study parties
+
+### ⬆️ Upgrading
+Install 1.5.0 over 1.4.1 (or 1.4.0, or 1.3.0): everything is kept. The app's data moves from version 12 to 18, to hold the Quran, your bookmarks and study parties, and a copy of the old data is kept on the phone first. After the update, the Quran loads from the app's own files in the background, once.
+
+### 🌙 The Islamic section (new)
+- **One place:** the side menu's Islamic entry opens a hub of the Namaz Tracker, Darood Party and the Quran, in place of their own entries. Darood's invitation dot is on it.
+- **Your choice:** Settings has an Islamic card: the Quran's reading defaults, the reminders, and a switch to hide the whole section (its menu entry and the Namaz card on Home). Nothing is deleted when it's hidden.
+- **Nothing of it changes your XP, level or streaks,** except prayers in the Namaz Tracker, as before.
+
+### 📖 The Quran (new, works offline)
+- **The text:** the Uthmani Arabic from the Tanzil Project, and the Saheeh International translation, bundled with the app, unchanged and checked on every build: 114 surahs, 6,236 ayahs.
+- **Reading:** every surah, with its Bismillah; Arabic, translation, or both; text size, spacing, a sepia page, and keeping the screen on.
+- **Finding:** search the translation or the Arabic, browse by juz, go to any surah and ayah, and carry on from where you stopped.
+- **Each ayah:** tap it to bookmark it, copy its Arabic or translation, or share it with its reference.
+- **Sources:** the Quran's own screen credits Tanzil and the translators, as their terms ask.
+
+### 👥 Study parties (new, for signed-in players)
+Friends keep each other going through a school or university week. Open them from the side menu's Parties.
+- **A party:** 2 to 30 members, invited by username, as Darood Parties are.
+- **What's due:** anyone adds an assignment or a quiz, with its subject, notes and due date; the leader pins what matters most.
+- **Doing it:** tick an item off (and undo it within 24 hours), or log study time with a timer or by hand. It works offline, and nothing counts twice.
+- **The week:** a scoreboard from Monday to Sunday, with medals; last week's winner is announced, and past weeks are kept.
+- **Keeping up:** a live activity feed, reminders a day and two hours before something's due, an opt-in Sunday summary, and a card on Home.
+- **Points are the party's own:** they never change your XP, level or streaks. In Simple Mode there are no points or scoreboard, only what's due.
+
+### 🛠️ Improved
+- **TalkBack** names every text field by its label, across the app; the new screens' buttons are full-size targets.
+- **Signing out** sends what's still waiting first, then clears every party from the phone; the Quran and your bookmarks stay.
+- **A smaller app:** 7.4 MB, as only the English of the app's libraries is packed.
+
+### 🔧 For developers
+- Room 18; Supabase migrations through 20261019000044 (the study tables, their rules, and Realtime).
+- CI checks the bundled Quran against Tanzil's files, the APK's size budget, and the parties' privacy with an outsider's reads of every party table.
+
+---
+
 ## [1.4.1] - 2026-10-20 — Android 7
 
 ### ⬆️ Upgrading
