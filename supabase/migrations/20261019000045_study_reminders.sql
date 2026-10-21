@@ -9,7 +9,7 @@
 --   * alert_offsets: the creator's own alert times, in minutes before the reminder's moment;
 --     null means the defaults.
 --   * Row-level security is on from the start, with no policy yet: nobody reads or writes a row
---     until the policies come (20261019000047 and after). The limits come in 20261019000046.
+--     until the policies come (20261019000047 and 20261019000048). The limits come in 20261019000046.
 -- Re-runnable: IF NOT EXISTS.
 -- Rollback: DROP TABLE IF EXISTS public.study_reminders;
 
