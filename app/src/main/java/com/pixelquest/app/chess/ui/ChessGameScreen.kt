@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.liveRegion
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.chess.domain.ChessColour
@@ -51,6 +52,7 @@ object ChessGameTags {
     const val NEXT = "chess_watch_next"
     const val FLIP = "chess_watch_flip"
     const val CONFIRM = "chess_confirm_move"
+    const val RECONNECTING = "chess_reconnecting"
     const val CONFIRM_YES = "chess_confirm_yes"
     fun captured(colour: ChessColour) = "chess_captured_${colour.name.lowercase()}"
 }
@@ -118,6 +120,19 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
             .padding(start = 10.dp, end = 10.dp, top = 4.dp, bottom = 12.dp)
     ) {
         GameTopBar(game, state, actions.onBack)
+        // The live connection dropped (J162): the game goes on, on the server; this comes back by itself.
+        if (state.phase == SessionPhase.DISCONNECTED) {
+            Text(
+                text = stringResource(R.string.chess_reconnecting),
+                style = PqType.MetaStrong,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(ChessGameTags.RECONNECTING)
+                    .semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite }
+                    .background(PqColors.Gold)
+                    .padding(horizontal = 12.dp, vertical = 8.dp)
+            )
+        }
         if (game == null) {
             Box(Modifier.fillMaxWidth().height(320.dp), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = PqColors.Ink, modifier = Modifier.testTag(ChessGameTags.LOADING))

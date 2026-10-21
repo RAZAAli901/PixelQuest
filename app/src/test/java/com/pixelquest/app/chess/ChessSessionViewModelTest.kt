@@ -123,4 +123,27 @@ class ChessSessionViewModelTest {
         assertEquals(com.pixelquest.app.chess.rules.Position.START, vm.state.value.boardFen)
         assertEquals(null, vm.state.value.pendingMove)
     }
+
+    @Test
+    fun aDrop_showsDisconnected_andTheGameResumes() {
+        var drops = 0
+        val flaky = ChessLiveSource { _, _ ->
+            kotlinx.coroutines.flow.flow {
+                emit(ChessSignal.Subscribed)
+                if (drops++ == 0) {
+                    kotlinx.coroutines.delay(50)
+                    throw java.io.IOException("dropped")
+                }
+                kotlinx.coroutines.awaitCancellation()
+            }
+        }
+        val repo = ChessRepositoryImpl(remote, db.chessDao(), { remote.me }, flaky, retryDelayMs = 300)
+        val game = remote.seedGame()
+        val seen = mutableListOf<SessionPhase>()
+        val vm = viewModels.keep(ChessSessionViewModel::class.java) {
+            ChessSessionViewModel(SavedStateHandle(mapOf(ChessSessionViewModel.ARG_GAME to game)), repo, repo, { "white" })
+        }
+        waitFor("disconnected") { vm.state.value.phase.also { seen += it } == SessionPhase.DISCONNECTED }
+        waitFor("back") { vm.state.value.phase == SessionPhase.ACTIVE }
+    }
 }

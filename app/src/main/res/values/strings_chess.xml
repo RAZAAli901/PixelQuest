@@ -144,4 +144,5 @@
     <string name="chess_settings_sounds_body">For moves, captures, checks and the end of a game.</string>
     <string name="chess_confirm_move">Play <xliff:g id="move" example="e2-e4">%1$s</xliff:g>?</string>
     <string name="chess_confirm">Confirm</string>
+    <string name="chess_reconnecting">Reconnecting… The game goes on: the clocks are the server\'s.</string>
 </resources>
