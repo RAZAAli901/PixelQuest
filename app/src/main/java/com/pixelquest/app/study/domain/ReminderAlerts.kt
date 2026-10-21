@@ -38,13 +38,32 @@ object ReminderAlerts {
         val times = if (!custom.isNullOrEmpty()) {
             custom.map { start.minusMinutes(it.toLong()).toInstant() }
         } else {
-            defaultTimes(occurrence)
+            defaultTimes(reminder.scope, occurrence)
         }
         return times.distinct().sorted()
     }
 
-    /** The defaults, until each scope has its own: the start itself. */
-    private fun defaultTimes(occurrence: ReminderOccurrence): List<Instant> = listOf(occurrence.start.toInstant())
+    /**
+     * The defaults, at the reminder's own local times: a week's on its Monday at 09:00 and the day
+     * before its last (Saturday) at 18:00; a day's the evening before at 18:00 and on the day at
+     * 07:00; a time's a day before and 30 minutes before.
+     */
+    private fun defaultTimes(scope: ReminderScope, occurrence: ReminderOccurrence): List<Instant> {
+        val start = occurrence.start
+        val times = when (scope) {
+            ReminderScope.WEEK -> listOf(start.at(WEEK_FIRST), start.plusDays(5).at(WEEK_LAST))
+            ReminderScope.DAY -> listOf(start.minusDays(1).at(DAY_BEFORE), start.at(DAY_OF))
+            ReminderScope.TIME -> listOf(start.minusDays(1), start.minusMinutes(30))
+        }
+        return times.map { it.toInstant() }
+    }
+
+    private fun java.time.ZonedDateTime.at(time: java.time.LocalTime) = toLocalDate().atTime(time).atZone(zone)
+
+    private val WEEK_FIRST: java.time.LocalTime = java.time.LocalTime.of(9, 0)
+    private val WEEK_LAST: java.time.LocalTime = java.time.LocalTime.of(18, 0)
+    private val DAY_BEFORE: java.time.LocalTime = java.time.LocalTime.of(18, 0)
+    private val DAY_OF: java.time.LocalTime = java.time.LocalTime.of(7, 0)
 
     /** Alert [index] of [reminder]'s occurrence starting at [occurrenceStart]; null if there's no such alert now. */
     fun alert(reminder: StudyReminder, occurrenceStart: Instant, index: Int): ReminderAlert? {
