@@ -268,5 +268,6 @@ class StudyPartyScreenTest {
 
         state = state.copy(isLeader = false)
         composeTestRule.onNodeWithTag(StudyTags.ADD_PEOPLE).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(StudyTags.REMINDERS_DUE).assertExists()
     }
 }

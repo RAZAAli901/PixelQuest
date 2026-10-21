@@ -269,4 +269,10 @@ abstract class RepositoryModule {
     abstract fun bindStudyLiveSource(
         impl: com.pixelquest.app.study.sync.SupabaseStudyLiveSource
     ): com.pixelquest.app.study.sync.StudyLiveSource
+
+    @Binds
+    @Singleton
+    abstract fun bindStudyReminderSettings(
+        impl: com.pixelquest.app.study.data.PrefsStudyReminderSettings
+    ): com.pixelquest.app.study.data.StudyReminderSettings
 }

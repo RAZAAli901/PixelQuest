@@ -58,6 +58,9 @@ class PixelQuestApplication : Application(), Configuration.Provider {
     lateinit var studySync: com.pixelquest.app.study.sync.StudySyncScheduler
 
     @javax.inject.Inject
+    lateinit var studyReminders: com.pixelquest.app.study.data.StudyReminderSettings
+
+    @javax.inject.Inject
     lateinit var daroodCleanup: dagger.Lazy<com.pixelquest.app.darood.sync.DaroodAccountCleanup>
 
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
@@ -100,6 +103,8 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         daroodSync.scheduleSend()
         // So do study party ticks and study time (docs/study-party.md).
         studySync.scheduleSend()
+        // Reminders of what's due, unless the player turned them off.
+        if (studyReminders.dueReminders.value) com.pixelquest.app.study.sync.StudyDueWorker.schedule(this)
         // The Quran reader's text, loaded from the app's own files on the first start (docs/quran-data.md).
         com.pixelquest.app.quran.data.QuranImportWorker.schedule(this)
         rearmReminders()

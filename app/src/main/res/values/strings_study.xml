@@ -113,6 +113,14 @@
     </plurals>
     <!-- When it happened ("Wed 21 Oct, 15:00"). -->
     <string name="study_activity_when"><xliff:g id="day" example="Wed 21 Oct">%1$s</xliff:g>, <xliff:g id="time" example="15:00">%2$s</xliff:g></string>
+    <!-- The player's study notifications, on the People tab. -->
+    <string name="study_reminders_title">Notifications on this phone</string>
+    <string name="study_reminders_due">Reminders of what\'s due</string>
+    <string name="study_reminders_due_body">A day before, and two hours before, anything you haven\'t finished.</string>
+    <!-- A reminder: what's due, then where ("Due tomorrow: Waves quiz" / "In Physics group"). -->
+    <string name="study_due_day_title">Due within a day: <xliff:g id="title" example="Waves quiz">%1$s</xliff:g></string>
+    <string name="study_due_soon_title">Due in under 2 hours: <xliff:g id="title" example="Waves quiz">%1$s</xliff:g></string>
+    <string name="study_due_text">In <xliff:g id="party" example="Physics group">%1$s</xliff:g>. Mark it done once you\'ve finished.</string>
     <!-- One item's own screen. -->
     <string name="study_item_notes">Notes</string>
     <!-- Who added it ("Added by @aria_k"). -->

@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +75,7 @@ fun StudyPartyScreen(
     viewModel: StudyPartyViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val dueReminders by viewModel.dueReminders.collectAsState()
     // Followed live only while the screen is visible.
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(lifecycle, viewModel) {
@@ -104,7 +106,8 @@ fun StudyPartyScreen(
         onConfirmDelete = viewModel::confirmDelete,
         onCancelDelete = viewModel::cancelDelete,
         timerActions = TimerActions(viewModel::startTimer, viewModel::stopTimer, viewModel::cancelTimer, viewModel::logStudy),
-        onDismissWinners = viewModel::dismissWinnerBanner
+        onDismissWinners = viewModel::dismissWinnerBanner,
+        reminders = ReminderToggles(dueReminders, viewModel::setDueReminders)
     )
 }
 
@@ -126,7 +129,8 @@ fun StudyPartyContent(
     onConfirmDelete: () -> Unit = {},
     onCancelDelete: () -> Unit = {},
     timerActions: TimerActions = TimerActions(),
-    onDismissWinners: () -> Unit = {}
+    onDismissWinners: () -> Unit = {},
+    reminders: ReminderToggles = ReminderToggles()
 ) {
     val colors = PixelTheme.colors
     Scaffold(
@@ -192,7 +196,10 @@ fun StudyPartyContent(
                             winnerBanner(state, onDismissWinners)
                             scoreboard(state)
                         }
-                        PartyTab.PEOPLE -> people(state, onAddPeople, onOpenInfo)
+                        PartyTab.PEOPLE -> {
+                            people(state, onAddPeople, onOpenInfo)
+                            reminderToggles(reminders)
+                        }
                         PartyTab.CHAT -> Unit
                     }
                 }
@@ -404,6 +411,44 @@ private fun LazyListScope.people(state: StudyPartyUiState, onAddPeople: () -> Un
     }
 }
 
+/** The player's study notifications on this phone, and turning each on or off. */
+data class ReminderToggles(val due: Boolean = false, val onDue: (Boolean) -> Unit = {})
+
+private fun LazyListScope.reminderToggles(reminders: ReminderToggles) {
+    item(key = "reminders_title") {
+        Text(
+            text = stringResource(R.string.study_reminders_title),
+            style = MaterialTheme.typography.titleSmall,
+            color = PixelTheme.colors.primaryText,
+            modifier = Modifier.padding(top = 8.dp).semantics { heading() }
+        )
+    }
+    item(key = "reminders_due") {
+        ToggleRow(stringResource(R.string.study_reminders_due), stringResource(R.string.study_reminders_due_body), reminders.due, reminders.onDue, StudyTags.REMINDERS_DUE)
+    }
+}
+
+/** A setting that's on or off: its name, a line about it, and a switch; the whole row toggles it. */
+@Composable
+fun ToggleRow(title: String, body: String, on: Boolean, onChange: (Boolean) -> Unit, tag: String) {
+    val colors = PixelTheme.colors
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
+            .testTag(tag)
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = title, style = MaterialTheme.typography.bodyLarge, color = colors.onSurface)
+            Text(text = body, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+        }
+        androidx.compose.material3.Switch(checked = on, onCheckedChange = null)
+    }
+}
+
 /** The study party screen's test tags. */
 object StudyTags {
     const val SCREEN = "study_screen"
@@ -445,6 +490,7 @@ object StudyTags {
     fun minutes(m: Int) = "study_minutes_$m"
     const val POINTS_RULES = "study_points_rules"
     const val ACTIVITY = "study_activity"
+    const val REMINDERS_DUE = "study_reminders_due"
     const val WINNER_BANNER = "study_winner_banner"
     const val WINNER_DISMISS = "study_winner_dismiss"
     fun pastWeek(weekStart: String) = "study_past_$weekStart"

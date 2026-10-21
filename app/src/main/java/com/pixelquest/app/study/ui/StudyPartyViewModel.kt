@@ -13,6 +13,7 @@ import com.pixelquest.app.study.data.StudyRepository
 import com.pixelquest.app.study.data.StudyTimerStore
 import com.pixelquest.app.study.data.MemoryWinnerSeenStore
 import com.pixelquest.app.study.data.WinnerSeenStore
+import com.pixelquest.app.study.data.StudyReminderSettings
 import com.pixelquest.app.study.domain.StudyRules
 import com.pixelquest.app.study.sync.StudyChange
 import com.pixelquest.app.study.domain.StudyRefusal
@@ -39,8 +40,16 @@ class StudyPartyViewModel @Inject constructor(
     private val study: StudyRepository,
     settings: SettingsRepository? = null,
     private val timer: StudyTimerStore = MemoryStudyTimerStore(),
-    private val winnerSeen: WinnerSeenStore = MemoryWinnerSeenStore()
+    private val winnerSeen: WinnerSeenStore = MemoryWinnerSeenStore(),
+    private val reminders: StudyReminderSettings? = null
 ) : ViewModel() {
+
+    /** Reminders of what's due, on this phone; off without settings (tests). */
+    val dueReminders: StateFlow<Boolean> = reminders?.dueReminders ?: MutableStateFlow(false)
+
+    fun setDueReminders(on: Boolean) {
+        reminders?.setDueReminders(on)
+    }
 
     val partyId: String = savedStateHandle[ARG_PARTY] ?: ""
 
