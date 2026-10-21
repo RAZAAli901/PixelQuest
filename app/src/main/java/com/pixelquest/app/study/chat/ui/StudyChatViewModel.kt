@@ -111,8 +111,9 @@ class StudyChatViewModel @Inject constructor(
         people,
         combine(draft, replyingTo, loadingOlder, ::Triple),
         combine(readAtOpening, combine(loaded, opening, confirmingOpen, ::Triple), chat.observeUnread(), ::Triple),
-        combine(notice, attachment, uploads?.observe(partyId) ?: kotlinx.coroutines.flow.flowOf(emptyList()), ::Triple)
-    ) { (all, files), people, (text, replyId, older), (readAt, readyAndOpening, unread), (said, file, sharing) ->
+        combine(combine(notice, chat.observeItemFiles(partyId), ::Pair), attachment, uploads?.observe(partyId) ?: kotlinx.coroutines.flow.flowOf(emptyList()), ::Triple)
+    ) { (all, files), people, (text, replyId, older), (readAt, readyAndOpening, unread), (saidAndLinks, file, sharing) ->
+        val (said, links) = saidAndLinks
         val (ready, fetching, confirming) = readyAndOpening
         val me = study.myId()
         val rows = rowsOf(all, files, me, people.names, study.zone())
@@ -132,7 +133,8 @@ class StudyChatViewModel @Inject constructor(
             attachment = file,
             uploads = sharing.map { ChatUploadRow(it.clientId, it.displayName, it.mime, it.sizeBytes, it.sentBytes, it.state, it.reason) },
             opening = fetching,
-            confirmingOpen = confirming
+            confirmingOpen = confirming,
+            itemFiles = links
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, TabSharing, ChatUiState())
 
@@ -268,6 +270,13 @@ class StudyChatViewModel @Inject constructor(
                 com.pixelquest.app.study.chat.data.OpenedFile.Corrupted -> notice.value = ChatNotice.FileCorrupted
             }
             opening.value = null
+        }
+    }
+
+    /** Links a file to an item as its material, or unlinks it (its creator or the leader). */
+    fun linkItemFile(itemId: String, fileId: String, linked: Boolean) {
+        viewModelScope.launch {
+            StudyRefusal.of(chat.linkItemFile(partyId, itemId, fileId, linked))?.let { notice.value = ChatNotice.Refused(it) }
         }
     }
 

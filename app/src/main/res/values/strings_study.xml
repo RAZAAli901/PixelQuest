@@ -214,6 +214,10 @@
     <string name="study_file_open_with">Open with</string>
     <string name="study_files_search">Search by name</string>
     <string name="study_files_all">All</string>
+    <string name="study_item_materials">Materials</string>
+    <string name="study_item_link_files">Link files from the chat</string>
+    <string name="study_item_linked">Linked to this item</string>
+    <string name="study_item_not_linked">Not linked</string>
     <string name="study_file_pin">Pin to the top</string>
     <string name="study_file_unpin">Unpin</string>
     <string name="study_files_pinned">Pinned files</string>

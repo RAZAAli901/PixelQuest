@@ -91,7 +91,8 @@ fun NavGraphBuilder.partiesScreens(navController: NavHostController) {
         StudyItemScreen(
             itemId = entry.arguments?.getString(StudyItemScreenArgs.ARG_ITEM).orEmpty(),
             onNavigateBack = { navController.popBackStack() },
-            viewModel = if (party != null) hiltViewModel(party) else hiltViewModel()
+            viewModel = if (party != null) hiltViewModel(party) else hiltViewModel(),
+            chatViewModel = if (party != null) hiltViewModel(party) else hiltViewModel()
         )
     }
     composable(

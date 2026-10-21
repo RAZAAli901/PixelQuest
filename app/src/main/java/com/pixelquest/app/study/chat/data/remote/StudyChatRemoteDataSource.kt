@@ -41,6 +41,12 @@ interface StudyChatRemoteDataSource {
     /** Moves the account's read mark on the server (mark_chat_read). */
     suspend fun markRead(partyId: String): SupabaseResult<Unit>
 
+    /** Which files are linked to which of a party's items: item id to file ids (study_item_files). */
+    suspend fun fetchItemFiles(partyId: String): SupabaseResult<Map<String, List<String>>> = SupabaseResult.Success(emptyMap())
+
+    /** Its creator or the leader links a file to an item, or unlinks it (link_item_file). */
+    suspend fun linkItemFile(itemId: String, fileId: String, linked: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
     /** The party's leader pins or unpins a ready file (pin_chat_file). */
     suspend fun pinFile(fileId: String, pinned: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
@@ -111,6 +117,20 @@ class SupabaseStudyChatRemoteDataSource @Inject constructor(
         postgrest.rpc("mark_chat_read", buildJsonObject { put("party_id", partyId) })
     }.map { }
 
+    override suspend fun fetchItemFiles(partyId: String): SupabaseResult<Map<String, List<String>>> = signedIn {
+        postgrest["study_item_files"].select(Columns.list("item_id", "file_id")) {
+            filter { eq("party_id", partyId) }
+        }.decodeList<ItemFileDto>().groupBy({ it.itemId }, { it.fileId })
+    }
+
+    override suspend fun linkItemFile(itemId: String, fileId: String, linked: Boolean): SupabaseResult<Unit> = signedIn {
+        postgrest.rpc("link_item_file", buildJsonObject {
+            put("item_id", itemId)
+            put("file_id", fileId)
+            put("linked", linked)
+        })
+    }.map { }
+
     override suspend fun pinFile(fileId: String, pinned: Boolean): SupabaseResult<Unit> = signedIn {
         postgrest.rpc("pin_chat_file", buildJsonObject {
             put("file_id", fileId)
@@ -129,3 +149,9 @@ class SupabaseStudyChatRemoteDataSource @Inject constructor(
         )
     }
 }
+
+@kotlinx.serialization.Serializable
+data class ItemFileDto(
+    @kotlinx.serialization.SerialName("item_id") val itemId: String,
+    @kotlinx.serialization.SerialName("file_id") val fileId: String
+)

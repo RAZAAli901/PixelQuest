@@ -817,6 +817,7 @@ object StudyTags {
     fun boardRow(userId: String) = "study_board_$userId"
     fun boardPlace(userId: String) = "study_board_place_$userId"
     fun boardPoints(userId: String) = "study_board_points_$userId"
+    const val ITEM_LINK = "study_item_link"
     fun itemDone(id: String) = "study_item_done_$id"
     fun itemUndo(id: String) = "study_item_undo_$id"
     fun itemRetry(id: String) = "study_item_retry_$id"

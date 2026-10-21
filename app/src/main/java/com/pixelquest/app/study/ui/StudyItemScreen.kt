@@ -53,9 +53,25 @@ object StudyItemScreenArgs {
  * state, so both always agree.
  */
 @Composable
-fun StudyItemScreen(itemId: String, onNavigateBack: () -> Unit, viewModel: StudyPartyViewModel = hiltViewModel()) {
+fun StudyItemScreen(
+    itemId: String,
+    onNavigateBack: () -> Unit,
+    viewModel: StudyPartyViewModel = hiltViewModel(),
+    chatViewModel: com.pixelquest.app.study.chat.ui.StudyChatViewModel? = null
+) {
     val state by viewModel.uiState.collectAsState()
+    val chat by (chatViewModel?.uiState ?: remember { kotlinx.coroutines.flow.MutableStateFlow(com.pixelquest.app.study.chat.ui.ChatUiState()) }).collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(chatViewModel) {
+        chatViewModel?.openRequests?.collect { if (!com.pixelquest.app.study.chat.ui.openInViewer(context, it)) chatViewModel.noViewer() }
+    }
     StudyItemContent(
+        materials = ItemMaterials(
+            linked = chat.itemFiles[itemId].orEmpty().mapNotNull { id -> chat.files.firstOrNull { it.id == id } },
+            all = chat.files,
+            onOpen = chatViewModel?.let { it::openFile },
+            onLink = chatViewModel?.let { vm -> { file, linked -> vm.linkItemFile(itemId, file.id, linked) } }
+        ),
         state = state,
         itemId = itemId,
         onNavigateBack = onNavigateBack,
@@ -87,12 +103,21 @@ fun StudyItemContent(
     onCloseForm: () -> Unit = {},
     onConfirmDelete: () -> Unit = {},
     onCancelDelete: () -> Unit = {},
-    zone: ZoneId = ZoneId.systemDefault()
+    zone: ZoneId = ZoneId.systemDefault(),
+    materials: ItemMaterials = ItemMaterials()
 ) {
     androidx.compose.runtime.CompositionLocalProvider(LocalStudySimpleMode provides state.simpleMode) {
-        StudyItemBody(state, itemId, onNavigateBack, actions, onFormChange, onSaveForm, onCloseForm, onConfirmDelete, onCancelDelete, zone)
+        StudyItemBody(state, itemId, onNavigateBack, actions, onFormChange, onSaveForm, onCloseForm, onConfirmDelete, onCancelDelete, zone, materials)
     }
 }
+
+/** An item's materials: files from the party's chat linked to it, and (for its creator or the leader) linking more. */
+data class ItemMaterials(
+    val linked: List<com.pixelquest.app.study.chat.domain.ChatFile> = emptyList(),
+    val all: List<com.pixelquest.app.study.chat.domain.ChatFile> = emptyList(),
+    val onOpen: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)? = null,
+    val onLink: ((com.pixelquest.app.study.chat.domain.ChatFile, Boolean) -> Unit)? = null
+)
 
 @Composable
 private fun StudyItemBody(
@@ -105,9 +130,11 @@ private fun StudyItemBody(
     onCloseForm: () -> Unit,
     onConfirmDelete: () -> Unit,
     onCancelDelete: () -> Unit,
-    zone: ZoneId
+    zone: ZoneId,
+    materials: ItemMaterials
 ) {
     val row = state.items.firstOrNull { it.item.id == itemId }
+    var linking by remember { mutableStateOf(false) }
     // Once shown, an item that goes (deleted here or by someone else) closes its screen.
     var seen by remember { mutableStateOf(false) }
     LaunchedEffect(row != null) {
@@ -194,6 +221,27 @@ private fun StudyItemBody(
                     Text(text = stringResource(R.string.study_item_nobody_done), style = PqType.Body.copy(color = PqColors.Muted))
                 } else {
                     done.sortedBy { it.completedAt }.forEach { tick -> DoneByLine(state, tick, zone) }
+                }
+            }
+        }
+        run {
+            val canLink = materials.onLink != null && (row.canEdit || state.isLeader)
+            if (materials.linked.isNotEmpty() || canLink) {
+                com.pixelquest.app.ui.components.PqGroupLabel(stringResource(R.string.study_item_materials))
+                materials.linked.forEach { com.pixelquest.app.study.chat.ui.FileCard(it, onOpen = materials.onOpen) }
+                if (canLink && materials.all.isNotEmpty()) {
+                    com.pixelquest.app.ui.components.PqButton(
+                        text = stringResource(R.string.study_item_link_files),
+                        onClick = { linking = !linking },
+                        style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary,
+                        modifier = Modifier.fillMaxWidth().testTag(StudyTags.ITEM_LINK)
+                    )
+                    if (linking) {
+                        materials.all.forEach { file ->
+                            val on = materials.linked.any { it.id == file.id }
+                            ToggleRow(file.displayName, stringResource(if (on) R.string.study_item_linked else R.string.study_item_not_linked), on, { materials.onLink!!(file, it) }, "study_item_link_" + file.id)
+                        }
+                    }
                 }
             }
         }

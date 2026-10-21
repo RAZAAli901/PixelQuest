@@ -90,6 +90,12 @@ interface StudyChatRepository {
     /** The player has read the chat up to now: here, and on the server when it can. */
     suspend fun markRead(partyId: String)
 
+    /** Which files are each item's materials, by item id, as last fetched with the chat. */
+    fun observeItemFiles(partyId: String): Flow<Map<String, List<String>>> = kotlinx.coroutines.flow.flowOf(emptyMap())
+
+    /** Its creator or the leader links a file to an item, or unlinks it (the server checks). */
+    suspend fun linkItemFile(partyId: String, itemId: String, fileId: String, linked: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
     /** The leader pins or unpins a file (the server checks). */
     suspend fun pinFile(file: ChatFile, pinned: Boolean): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 
@@ -116,6 +122,16 @@ class StudyChatRepositoryImpl(
 
     /** One send at a time: two at once would send the same message twice. */
     private val sending = Mutex()
+
+    /** Each party's item materials, fetched with its chat (kept in memory: the server is the truth). */
+    private val itemFiles = kotlinx.coroutines.flow.MutableStateFlow<Map<String, Map<String, List<String>>>>(emptyMap())
+
+    override fun observeItemFiles(partyId: String): Flow<Map<String, List<String>>> = itemFiles.map { it[partyId].orEmpty() }
+
+    override suspend fun linkItemFile(partyId: String, itemId: String, fileId: String, linked: Boolean): SupabaseResult<Unit> =
+        remote.linkItemFile(itemId, fileId, linked).also { result ->
+            if (result is SupabaseResult.Success) remote.fetchItemFiles(partyId).let { if (it is SupabaseResult.Success) itemFiles.value = itemFiles.value + (partyId to it.data) }
+        }
 
     override fun observeMessages(partyId: String, limit: Int): Flow<List<ChatMessage>> =
         combine(dao.observeMessages(partyId, limit), dao.observePending(partyId)) { stored, waiting ->
@@ -148,6 +164,8 @@ class StudyChatRepositoryImpl(
         val files = remote.fetchFiles(partyId)
         if (files !is SupabaseResult.Success) return files.map { }
         dao.upsertFilesIfKept(partyId, files.data.map { it.toEntity() })
+        val links = remote.fetchItemFiles(partyId)
+        if (links is SupabaseResult.Success) itemFiles.value = itemFiles.value + (partyId to links.data)
         return SupabaseResult.Success(Unit)
     }
 

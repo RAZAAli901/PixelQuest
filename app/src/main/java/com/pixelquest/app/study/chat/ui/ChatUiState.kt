@@ -58,7 +58,9 @@ data class ChatUiState(
     /** The shared file being fetched to open, while it is. */
     val opening: String? = null,
     /** The file waiting for the player to say yes to the first-open warning. */
-    val confirmingOpen: ChatFile? = null
+    val confirmingOpen: ChatFile? = null,
+    /** Each item's materials, by item id. */
+    val itemFiles: Map<String, List<String>> = emptyMap()
 ) {
     /** Something to send: text, a file, or both. */
     val canSendAnything: Boolean get() = canSend || (attachment != null && draft.length <= com.pixelquest.app.study.chat.domain.StudyChatConfig.MESSAGE_MAX_CHARS)
