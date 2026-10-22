@@ -108,7 +108,7 @@ class CreatePartyViewModel @Inject constructor(
     fun setType(type: PartyType) = _uiState.update { if (type in it.types) it.copy(type = type) else it }
 
     /** A little past the limit can still be typed, so the counter can say it's too long. */
-    fun onNameChange(name: String) = _uiState.update { it.copy(name = name.take(DaroodRules.NAME_MAX + 10)) }
+    fun onNameChange(name: String) = _uiState.update { it.copy(name = com.pixelquest.app.domain.validation.InputRules.typed(name, com.pixelquest.app.domain.validation.InputRules.Field.PARTY_NAME)) }
 
     fun setMaxMembers(count: Int) = _uiState.update { it.copy(maxMembers = count.coerceIn(DaroodRules.MEMBERS_MIN, DaroodRules.MEMBERS_MAX)) }
 

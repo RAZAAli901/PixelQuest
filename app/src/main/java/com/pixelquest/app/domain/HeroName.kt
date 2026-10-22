@@ -7,8 +7,8 @@ package com.pixelquest.app.domain
 object HeroName {
     const val MAX_LENGTH = 20
 
-    /** Keeps typing within the limit. */
-    fun clamp(input: String): String = input.take(MAX_LENGTH)
+    /** Keeps typing within the limit, without control characters (InputRules, S053). */
+    fun clamp(input: String): String = com.pixelquest.app.domain.validation.InputRules.typed(input, com.pixelquest.app.domain.validation.InputRules.Field.HERO_NAME)
 
     /** Why [name] can't be saved, or null if it can. */
     fun error(name: String): String? = when {

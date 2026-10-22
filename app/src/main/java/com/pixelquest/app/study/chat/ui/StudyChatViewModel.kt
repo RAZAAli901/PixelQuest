@@ -183,7 +183,7 @@ class StudyChatViewModel @Inject constructor(
     }
 
     fun changeDraft(text: String) {
-        draft.value = text.take(StudyChatConfig.MESSAGE_MAX_CHARS)
+        draft.value = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.CHAT_MESSAGE)
     }
 
     /**

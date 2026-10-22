@@ -481,3 +481,14 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
 - **Circuit breaker:** after 5 Gemini failures in a row (5xx, unreachable or timed out), a function instance stops calling Gemini for 60 s and answers 503 `ai_paused` straight away. Nothing is claimed for those calls, so they don't use up anyone's allowance. A 429 from Gemini is "busy", not a failure.
 - **Friendly fallback:** the app shows one plain sentence for each failure (`AiErrorCopy`; "ai_paused" gets "Gemini is having trouble right now. Try again in a few minutes."). The last insight stays on screen. "ai_paused" doesn't count toward the app's caps.
 - **Test:** handler.test.ts covers the time limit, the breaker opening, pausing and closing again, and a success resetting the count. `GeminiProxyClientTest.theProxysTimeoutAndPause_getFriendlyWords`. The local suite `gemini_proxy.test.ts` against the served function: 4 of 4.
+
+### S053: one input validation layer
+- **Done:** `domain/validation/InputRules` gives every text field its limit and the same cleaning while the player types or pastes:
+  - control characters are dropped;
+  - direction overrides and isolates, the zero-width space and the BOM are removed, so "admin" + RLO can't pose as another name;
+  - in a one-line field, line breaks become spaces;
+  - typing stops at the limit. Some fields go a little past it, so the form can say "too long".
+  - It also has `problem` (blank or too long), `saved` and `digits`. The joiners that emoji and Urdu need are kept.
+- **Used by:** the quest form, the hero name (onboarding and Settings), the display name, the username setup and invite search, party names and the delete confirmation, study items and reminders, the study chat, the email field, and the Quran, surah, city and file searches. Number fields already accept digits only, at fixed lengths.
+- **Limits:** the existing ones are unchanged. Quest names had none and now stop at 100 characters (safest reasonable option: longer than any real quest name, and saved quests are untouched). Name rules that belong to one kind of name stay with it (`Username.problemWith`, `HeroName.error`, `validateDisplayName`) and read their limits from here. The server checks again (migration 115).
+- **Test:** `InputRulesTest`: cleaning, the joiners kept, limits, the old limits unchanged, and every form going through it. The form suites (tasks, onboarding, parties, study, chat, account, username, auth, Quran, Namaz, Settings): 41 classes, 0 failures.

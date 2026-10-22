@@ -135,7 +135,7 @@ class AddPeopleViewModel @Inject constructor(
     }
 
     fun onQueryChange(raw: String) {
-        val query = raw.trim().lowercase(Locale.ROOT)
+        val query = com.pixelquest.app.domain.validation.InputRules.typed(raw, com.pixelquest.app.domain.validation.InputRules.Field.USERNAME).trim().lowercase(Locale.ROOT)
         _uiState.update { it.copy(query = query, lookup = Lookup.Idle) }
         typed.value = query
     }

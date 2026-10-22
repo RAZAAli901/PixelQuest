@@ -38,7 +38,7 @@ data class ReminderForm(
     /** The player tried to save it with a problem: now it shows. */
     val triedToSave: Boolean = false
 ) {
-    fun withTitle(text: String) = copy(title = text.take(ReminderRules.TITLE_MAX))
+    fun withTitle(text: String) = copy(title = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.REMINDER_TITLE))
 
     /** A week reminder can't repeat daily: choosing a week takes that back to once. */
     fun withScope(next: ReminderScope) =

@@ -36,7 +36,7 @@ fun FilesControls(query: FilesQuery, onChange: (FilesQuery) -> Unit, modifier: M
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier.fillMaxWidth()) {
         PixelTextField(
             value = query.search,
-            onValueChange = { onChange(query.copy(search = it.take(80))) },
+            onValueChange = { onChange(query.copy(search = com.pixelquest.app.domain.validation.InputRules.typed(it, com.pixelquest.app.domain.validation.InputRules.Field.SEARCH))) },
             label = stringResource(R.string.study_files_search),
             modifier = Modifier.fillMaxWidth().testTag(StudyChatTags.FILES_SEARCH)
         )

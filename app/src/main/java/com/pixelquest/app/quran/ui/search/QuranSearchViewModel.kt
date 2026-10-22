@@ -61,7 +61,7 @@ class QuranSearchViewModel @Inject constructor(private val repository: QuranRepo
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), QuranSearchUiState())
 
     fun search(text: String) {
-        _query.value = text
+        _query.value = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.SEARCH)
     }
 
     private suspend fun search(q: String, surahs: List<Surah>): QuranSearchUiState {

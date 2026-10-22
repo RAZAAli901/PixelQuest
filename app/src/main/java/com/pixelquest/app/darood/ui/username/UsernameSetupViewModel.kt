@@ -88,7 +88,7 @@ class UsernameSetupViewModel @Inject constructor(
     }
 
     fun onInputChange(raw: String) {
-        val input = raw.trim().lowercase(Locale.ROOT)
+        val input = com.pixelquest.app.domain.validation.InputRules.typed(raw, com.pixelquest.app.domain.validation.InputRules.Field.USERNAME).trim().lowercase(Locale.ROOT)
         _uiState.update {
             it.copy(
                 input = input,

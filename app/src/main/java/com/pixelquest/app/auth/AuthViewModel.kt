@@ -235,7 +235,8 @@ class AuthViewModel @Inject constructor(
         _emailState.value = EmailSignInState(resendInSeconds = state.resendInSeconds, countdownFor = state.countdownFor)
     }
 
-    fun onEmailChanged(email: String) {
+    fun onEmailChanged(raw: String) {
+        val email = com.pixelquest.app.domain.validation.InputRules.typed(raw, com.pixelquest.app.domain.validation.InputRules.Field.EMAIL)
         _emailState.value = _emailState.value.copy(email = email, error = null)
     }
 

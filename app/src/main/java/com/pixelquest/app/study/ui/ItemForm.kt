@@ -39,9 +39,9 @@ data class ItemForm(
             else -> null
         }
 
-    fun withTitle(text: String) = copy(title = text.take(StudyRules.TITLE_MAX))
-    fun withSubject(text: String) = copy(subject = text.take(StudyRules.SUBJECT_MAX))
-    fun withNotes(text: String) = copy(notes = text.take(StudyRules.NOTES_MAX))
+    fun withTitle(text: String) = copy(title = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.STUDY_TITLE))
+    fun withSubject(text: String) = copy(subject = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.STUDY_SUBJECT))
+    fun withNotes(text: String) = copy(notes = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.STUDY_NOTES))
 
     /** What's sent: its fields trimmed, the due moment in the player's [zone]. */
     fun draft(zone: ZoneId) = StudyItemDraft(

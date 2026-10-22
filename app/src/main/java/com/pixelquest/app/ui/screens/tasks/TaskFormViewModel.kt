@@ -76,7 +76,9 @@ class TaskFormViewModel @Inject constructor(
         }
     }
 
-    fun onNameChanged(name: String) {
+    fun onNameChanged(raw: String) {
+        // One line, no control characters, at most 100 characters (S053).
+        val name = com.pixelquest.app.domain.validation.InputRules.typed(raw, com.pixelquest.app.domain.validation.InputRules.Field.QUEST_NAME)
         _formState.update { state ->
             val error = if (name.isBlank()) "Quest title is required!" else null
             state.copy(name = name, nameError = error)

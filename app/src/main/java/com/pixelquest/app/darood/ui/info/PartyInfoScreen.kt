@@ -251,7 +251,7 @@ class PartyInfoViewModel @Inject constructor(
         _uiState.update { it.copy(newName = party.name, problem = null) }
     }
 
-    fun onNewNameChange(name: String) = _uiState.update { if (it.newName == null) it else it.copy(newName = name.take(DaroodRules.NAME_MAX + 10)) }
+    fun onNewNameChange(name: String) = _uiState.update { if (it.newName == null) it else it.copy(newName = com.pixelquest.app.domain.validation.InputRules.typed(name, com.pixelquest.app.domain.validation.InputRules.Field.PARTY_NAME)) }
 
     /** Saves the typed name, if it can be a party's (2 to 40 characters, as the server insists) and is new. */
     fun confirmRename() {
@@ -273,7 +273,7 @@ class PartyInfoViewModel @Inject constructor(
     }
 
     fun onDeleteConfirmationChange(text: String) =
-        _uiState.update { if (it.deleteConfirmation == null) it else it.copy(deleteConfirmation = text.take(DaroodRules.NAME_MAX + 10)) }
+        _uiState.update { if (it.deleteConfirmation == null) it else it.copy(deleteConfirmation = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.PARTY_NAME)) }
 
     /** Deletes the party, once its name is typed: it's gone for everyone, and the screen closes. */
     fun confirmDelete() {

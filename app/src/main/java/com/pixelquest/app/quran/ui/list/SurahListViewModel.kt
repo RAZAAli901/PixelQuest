@@ -62,7 +62,7 @@ class SurahListViewModel @Inject constructor(repository: QuranRepository, lastRe
     }.stateIn(viewModelScope, TabSharing, SurahListUiState())
 
     fun search(text: String) {
-        query.value = text
+        query.value = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.SEARCH)
     }
 }
 

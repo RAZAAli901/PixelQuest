@@ -103,7 +103,7 @@ fun ChatInputBar(
                     }
                     BasicTextField(
                         value = value,
-                        onValueChange = { onValueChange(it.take(StudyChatConfig.MESSAGE_MAX_CHARS)) },
+                        onValueChange = { onValueChange(com.pixelquest.app.domain.validation.InputRules.typed(it, com.pixelquest.app.domain.validation.InputRules.Field.CHAT_MESSAGE)) },
                         maxLines = 5,
                         textStyle = PqType.Body.copy(color = PqColors.Ink),
                         cursorBrush = SolidColor(PqColors.Ink),

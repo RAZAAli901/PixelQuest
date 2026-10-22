@@ -96,7 +96,8 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun onDisplayNameChanged(newName: String) {
+    fun onDisplayNameChanged(raw: String) {
+        val newName = com.pixelquest.app.domain.validation.InputRules.typed(raw, com.pixelquest.app.domain.validation.InputRules.Field.DISPLAY_NAME)
         val error = validateDisplayName(newName)
         _uiState.value = _uiState.value.copy(
             displayNameInput = newName,
@@ -433,7 +434,7 @@ class AccountViewModel @Inject constructor(
             return when {
                 trimmed.isBlank() -> "Display name cannot be blank."
                 trimmed.length < 3 -> "Name must be at least 3 characters."
-                trimmed.length > 20 -> "Name must not exceed 20 characters."
+                trimmed.length > com.pixelquest.app.domain.validation.InputRules.Field.DISPLAY_NAME.max -> "Name must not exceed ${com.pixelquest.app.domain.validation.InputRules.Field.DISPLAY_NAME.max} characters."
                 !trimmed.matches(Regex("^[a-zA-Z0-9_]+$")) -> "Only alphanumeric characters and underscores allowed."
                 else -> com.pixelquest.app.domain.DisplayNameModerator.validate(trimmed)
             }

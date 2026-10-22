@@ -94,7 +94,7 @@ fun NamazCityPicker(
             Text(text = stringResource(R.string.namaz_pick_city_title), style = PqType.CardTitle)
             PixelTextField(
                 value = query,
-                onValueChange = { query = it },
+                onValueChange = { query = com.pixelquest.app.domain.validation.InputRules.typed(it, com.pixelquest.app.domain.validation.InputRules.Field.SEARCH) },
                 label = stringResource(R.string.namaz_city_search),
                 modifier = Modifier.fillMaxWidth()
             )
