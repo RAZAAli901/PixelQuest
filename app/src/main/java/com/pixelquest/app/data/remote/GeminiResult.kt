@@ -8,45 +8,45 @@ import java.io.IOException
  * Sealed result type wrapping Gemini remote AI operations with typed error cases,
  * consistent with the Day 13 [SupabaseResult] architectural pattern.
  */
-sealed class GeminiResult<out T> {
+sealed class GeminiResult<out T> : PqResult<T> {
     data class Success<out T>(val data: T) : GeminiResult<T>()
 
     data class RateLimited(
         val retryAfterSeconds: Long? = null,
-        val message: String = "Gemini rate limit exceeded. Please wait before generating more insights."
+        val message: String = "Gemini rate limit exceeded. Please wait before generating more insights.",
     ) : GeminiResult<Nothing>()
 
     data class NetworkError(
         val cause: Throwable,
-        val message: String = "Network connection unavailable. Please check your internet connection."
+        val message: String = "Network connection unavailable. Please check your internet connection.",
     ) : GeminiResult<Nothing>()
 
     data class ApiError(
         val statusCode: Int? = null,
         val message: String = "Gemini API request failed.",
         /** False when the proxy failed before Gemini saw the request (see GeminiApiException). */
-        val reachedGemini: Boolean = true
+        val reachedGemini: Boolean = true,
     ) : GeminiResult<Nothing>()
 
     data class Disabled(
-        val message: String = "AI Habit Insights are currently disabled in Settings."
+        val message: String = "AI Habit Insights are currently disabled in Settings.",
     ) : GeminiResult<Nothing>()
 
     /** Nobody is signed in, so nothing was sent: the AI Coach is for signed-in players. */
     data class SignInRequired(
-        val message: String = AiErrorCopy.SIGN_IN_REQUIRED
+        val message: String = AiErrorCopy.SIGN_IN_REQUIRED,
     ) : GeminiResult<Nothing>()
 
     data class MalformedResponse(
         val cause: Throwable,
         val rawResponse: String? = null,
-        val message: String = "Failed to parse structured AI insight."
+        val message: String = "Failed to parse structured AI insight.",
     ) : GeminiResult<Nothing>()
 
-    val isSuccess: Boolean
+    override val isSuccess: Boolean
         get() = this is Success
 
-    fun getOrNull(): T? = when (this) {
+    override fun getOrNull(): T? = when (this) {
         is Success -> data
         else -> null
     }
@@ -74,38 +74,36 @@ fun GeminiResult<*>.reachedGemini(): Boolean = when (this) {
 
 suspend fun <T> safeGeminiCall(
     timeoutMs: Long = DEFAULT_GEMINI_TIMEOUT_MS,
-    block: suspend () -> T
-): GeminiResult<T> {
-    return try {
-        val data = kotlinx.coroutines.withTimeout(timeoutMs) {
-            block()
-        }
-        GeminiResult.Success(data)
-    } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
-        GeminiResult.NetworkError(e, AiErrorCopy.TIMEOUT)
-    } catch (e: HttpRequestTimeoutException) {
-        GeminiResult.NetworkError(e, AiErrorCopy.TIMEOUT)
-    } catch (e: IOException) {
-        GeminiResult.NetworkError(e, AiErrorCopy.OFFLINE)
-    } catch (e: GeminiRateLimitException) {
-        if (e.reason in PROXY_DAILY_LIMITS) {
-            // The gemini-proxy's per-account or project-wide limit: it resets at midnight UTC.
-            GeminiResult.ApiError(429, AiErrorCopy.DAILY_LIMIT)
-        } else {
-            // Google's own quota (HTTP 429), not PixelQuest's daily cap: the user can retry shortly.
-            GeminiResult.ApiError(429, AiErrorCopy.BUSY)
-        }
-    } catch (e: GeminiSignInRequiredException) {
-        GeminiResult.SignInRequired()
-    } catch (e: GeminiApiException) {
-        GeminiResult.ApiError(e.statusCode, AiErrorCopy.forStatus(e.statusCode), e.reachedGemini)
-    } catch (e: GeminiNetworkException) {
-        val cause = e.cause ?: e
-        val isTimeout = cause is HttpRequestTimeoutException || cause is java.net.SocketTimeoutException
-        GeminiResult.NetworkError(cause, if (isTimeout) AiErrorCopy.TIMEOUT else AiErrorCopy.OFFLINE)
-    } catch (e: kotlinx.coroutines.CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        GeminiResult.ApiError(null, AiErrorCopy.UNKNOWN)
+    block: suspend () -> T,
+): GeminiResult<T> = try {
+    val data = kotlinx.coroutines.withTimeout(timeoutMs) {
+        block()
     }
+    GeminiResult.Success(data)
+} catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+    GeminiResult.NetworkError(e, AiErrorCopy.TIMEOUT)
+} catch (e: HttpRequestTimeoutException) {
+    GeminiResult.NetworkError(e, AiErrorCopy.TIMEOUT)
+} catch (e: IOException) {
+    GeminiResult.NetworkError(e, AiErrorCopy.OFFLINE)
+} catch (e: GeminiRateLimitException) {
+    if (e.reason in PROXY_DAILY_LIMITS) {
+        // The gemini-proxy's per-account or project-wide limit: it resets at midnight UTC.
+        GeminiResult.ApiError(429, AiErrorCopy.DAILY_LIMIT)
+    } else {
+        // Google's own quota (HTTP 429), not PixelQuest's daily cap: the user can retry shortly.
+        GeminiResult.ApiError(429, AiErrorCopy.BUSY)
+    }
+} catch (e: GeminiSignInRequiredException) {
+    GeminiResult.SignInRequired()
+} catch (e: GeminiApiException) {
+    GeminiResult.ApiError(e.statusCode, AiErrorCopy.forStatus(e.statusCode), e.reachedGemini)
+} catch (e: GeminiNetworkException) {
+    val cause = e.cause ?: e
+    val isTimeout = cause is HttpRequestTimeoutException || cause is java.net.SocketTimeoutException
+    GeminiResult.NetworkError(cause, if (isTimeout) AiErrorCopy.TIMEOUT else AiErrorCopy.OFFLINE)
+} catch (e: kotlinx.coroutines.CancellationException) {
+    throw e
+} catch (e: Exception) {
+    GeminiResult.ApiError(null, AiErrorCopy.UNKNOWN)
 }
