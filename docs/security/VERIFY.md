@@ -433,3 +433,7 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - Used by TaskAlarmReceiver, TaskActionReceiver, the prompt queue, both study reminder receivers, and the Namaz and task date readers.
 - **Safest option chosen:** a bad extra is ignored (the alarm does nothing) instead of guessed at.
 - **Test:** `IntentExtrasTest` (ids, UUIDs, out-of-range dates, labels, the prompt and the notification route allowlist). The prompt, alarm and study reminder suites still pass.
+
+### S046: PendingIntents are immutable
+- **Checked:** all 27 PendingIntents (alarms, notification taps and actions) already pass `FLAG_IMMUTABLE`. None needs to be mutable: the app has no inline reply and no bubbles. Every intent inside names its own receiver or activity class.
+- **Test:** `PendingIntentFlagsTest` fails on any PendingIntent without `FLAG_IMMUTABLE`, on any use of `FLAG_MUTABLE`, and on an implicit intent in a file that builds PendingIntents.
