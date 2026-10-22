@@ -41,20 +41,20 @@ fun PixelTextField(
     singleLine: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardActions: KeyboardActions = KeyboardActions.Default
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
 ) {
-    val shape = pqShape(12.dp)
+    val shape = pqShape(PqDimens.Gap)
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         if (label != null) PqFieldLabel(label)
         Box(
             contentAlignment = Alignment.CenterStart,
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 48.dp)
+                .heightIn(min = PqDimens.TouchMin)
                 .clip(shape)
                 .background(PqColors.Paper)
                 .border(PqDimens.Border, if (errorText != null) PqColors.Error else PqColors.Ink, shape)
-                .padding(horizontal = 14.dp, vertical = 12.dp)
+                .padding(horizontal = PqDimens.Radius, vertical = PqDimens.Gap),
         ) {
             BasicTextField(
                 value = value,
@@ -72,11 +72,11 @@ fun PixelTextField(
                         Text(text = placeholder, style = PqType.Body.copy(color = PqColors.Muted), maxLines = 1)
                     }
                     innerTextField()
-                }
+                },
             )
         }
         if (errorText != null) {
-            Text(text = errorText, style = PqType.Meta.copy(color = PqColors.Error), modifier = Modifier.padding(start = 4.dp))
+            Text(text = errorText, style = PqType.Meta.copy(color = PqColors.Error), modifier = Modifier.padding(start = PqDimens.SpaceXs))
         }
     }
 }

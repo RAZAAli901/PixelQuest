@@ -218,6 +218,10 @@ object PqDimens {
 
     /** The smallest tap target: 48dp, Android's and the app's accessibility rule (the handoff had 44). */
     val TouchMin = 48.dp
+    val TopBarHeight = 56.dp
+    val IconSm = 18.dp
+    val IconMd = 22.dp
+    val IconLg = 24.dp
 }
 
 /** Unified source of truth for skin-aware shapes. */

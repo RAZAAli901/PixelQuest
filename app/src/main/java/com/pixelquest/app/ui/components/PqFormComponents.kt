@@ -81,7 +81,7 @@ fun PqSwitch(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, modifier: 
 @Composable
 fun PqRadio(selected: Boolean, modifier: Modifier = Modifier) {
     Box(
-        modifier.size(22.dp).clip(PqCircle).background(PqColors.Paper).border(PqDimens.Border, PqColors.Ink, PqCircle),
+        modifier.size(PqDimens.IconMd).clip(PqCircle).background(PqColors.Paper).border(PqDimens.Border, PqColors.Ink, PqCircle),
         contentAlignment = Alignment.Center,
     ) {
         if (selected) Box(Modifier.size(10.dp).clip(PqCircle).background(PqColors.Ink))
@@ -90,7 +90,7 @@ fun PqRadio(selected: Boolean, modifier: Modifier = Modifier) {
 
 @Composable
 fun PqFieldLabel(text: String, modifier: Modifier = Modifier, trailing: String? = null) {
-    Row(modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.Bottom) {
+    Row(modifier.fillMaxWidth().padding(top = PqDimens.SpaceXs), verticalAlignment = Alignment.Bottom) {
         Text(text.uppercase(), style = PqType.Label.copy(color = PqColors.Muted), modifier = Modifier.weight(1f))
         if (trailing != null) Text(trailing, style = PqType.Meta)
     }
@@ -103,15 +103,15 @@ fun PqTextField(
     placeholder: String,
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    height: Dp = 48.dp,
+    height: Dp = PqDimens.TouchMin,
     bg: Color = PqColors.Paper,
     maxLength: Int? = null,
 ) {
-    val shape = pqShape(12.dp)
+    val shape = pqShape(PqDimens.Gap)
     Box(
         modifier.fillMaxWidth().height(
             height,
-        ).clip(shape).background(bg).border(PqDimens.Border, PqColors.Ink, shape).padding(horizontal = 14.dp),
+        ).clip(shape).background(bg).border(PqDimens.Border, PqColors.Ink, shape).padding(horizontal = PqDimens.Radius),
         contentAlignment = Alignment.CenterStart,
     ) {
         if (value.isEmpty()) Text(placeholder, style = PqType.Body.copy(color = PqColors.Muted), maxLines = 1)
@@ -129,7 +129,7 @@ fun PqTextField(
 
 @Composable
 fun PqStepper(value: Int, onValueChange: (Int) -> Unit, range: IntRange, modifier: Modifier = Modifier) {
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(PqDimens.Radius)) {
         Box(Modifier.alpha(if (value > range.first) 1f else 0.45f)) {
             PqIconButton(Icons.Rounded.Remove, stringResource(R.string.pq_fewer), onClick = {
                 if (value >

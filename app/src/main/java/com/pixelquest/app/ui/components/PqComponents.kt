@@ -182,7 +182,7 @@ fun PqButton(
     icon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
     enabled: Boolean = true,
-    height: Dp = 48.dp,
+    height: Dp = PqDimens.TouchMin,
 ) {
     val bg = if (style == PqButtonStyle.Primary) PqColors.Red else PqColors.Paper
     val fg = if (style == PqButtonStyle.Primary) PqColors.OnRed else PqColors.Ink
@@ -190,17 +190,17 @@ fun PqButton(
         modifier
             .heightIn(min = height)
             .alpha(if (enabled) 1f else 0.5f)
-            .comicPressable(onClick, bg = bg, radius = 12.dp, enabled = enabled)
-            .padding(horizontal = 16.dp),
+            .comicPressable(onClick, bg = bg, radius = PqDimens.Gap, enabled = enabled)
+            .padding(horizontal = PqDimens.ScreenPad),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = if (trailingIcon != null) Arrangement.SpaceBetween else Arrangement.Center,
     ) {
         if (icon != null) {
-            Icon(icon, null, tint = fg, modifier = Modifier.size(22.dp))
+            Icon(icon, null, tint = fg, modifier = Modifier.size(PqDimens.IconMd))
             Spacer(Modifier.width(6.dp))
         }
         Text(text.uppercase(), style = PqType.Button.copy(color = fg))
-        if (trailingIcon != null) Icon(trailingIcon, null, tint = fg, modifier = Modifier.size(22.dp))
+        if (trailingIcon != null) Icon(trailingIcon, null, tint = fg, modifier = Modifier.size(PqDimens.IconMd))
     }
 }
 
@@ -210,9 +210,9 @@ fun PqQuietButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifi
         contentAlignment = Alignment.Center,
         modifier = modifier
             .heightIn(min = PqDimens.TouchMin)
-            .clip(pqShape(8.dp))
+            .clip(pqShape(PqDimens.SpaceSm))
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 6.dp),
+            .padding(horizontal = PqDimens.SpaceSm, vertical = 6.dp),
     ) {
         Text(
             text,
@@ -233,7 +233,7 @@ fun PqDangerButton(
     enabled: Boolean = true,
     icon: ImageVector = Icons.Rounded.Delete,
 ) {
-    val shape = pqShape(12.dp)
+    val shape = pqShape(PqDimens.Gap)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -243,7 +243,7 @@ fun PqDangerButton(
             .clip(shape)
             .border(PqDimens.Border, PqColors.RedText, shape)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .padding(horizontal = 14.dp),
+            .padding(horizontal = PqDimens.Radius),
     ) {
         Icon(icon, contentDescription = null, tint = PqColors.RedText, modifier = Modifier.size(20.dp))
         Text(text = text.uppercase(), style = PqType.Button.copy(color = PqColors.RedText))
@@ -261,9 +261,9 @@ fun PqIconButton(icon: ImageVector, contentDescription: String?, onClick: () -> 
         modifier
             .sizeIn(minWidth = PqDimens.TouchMin, minHeight = PqDimens.TouchMin)
             .size(44.dp)
-            .comicPressable(onClick, radius = 12.dp, shadow = 2.dp, onClickLabel = contentDescription, role = Role.Button),
+            .comicPressable(onClick, radius = PqDimens.Gap, shadow = 2.dp, onClickLabel = contentDescription, role = Role.Button),
         contentAlignment = Alignment.Center,
-    ) { Icon(icon, contentDescription, tint = PqColors.Ink, modifier = Modifier.size(22.dp)) }
+    ) { Icon(icon, contentDescription, tint = PqColors.Ink, modifier = Modifier.size(PqDimens.IconMd)) }
 }
 
 // ---------- Chips & tags ----------
@@ -427,12 +427,10 @@ fun PqTopBar(
     subtitle: String? = null,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
-    Row(modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-        if (onBack !=
-            null
-        ) {
+    Row(modifier.fillMaxWidth().heightIn(min = PqDimens.TopBarHeight), verticalAlignment = Alignment.CenterVertically) {
+        if (onBack != null) {
             PqIconButton(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.navigate_back), onBack)
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(PqDimens.Gap))
         }
         Column(Modifier.weight(1f)) {
             val style = when {
@@ -451,7 +449,7 @@ fun PqTopBar(
             )
             if (subtitle != null) Text(subtitle, style = PqType.Meta, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, content = actions)
+        Row(horizontalArrangement = Arrangement.spacedBy(PqDimens.SpaceSm), verticalAlignment = Alignment.CenterVertically, content = actions)
     }
 }
 
