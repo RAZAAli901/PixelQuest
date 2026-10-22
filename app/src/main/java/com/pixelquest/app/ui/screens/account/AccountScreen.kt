@@ -57,6 +57,8 @@ fun AccountScreen(
     viewModel: AuthViewModel = hiltViewModel(),
     accountViewModel: AccountViewModel = hiltViewModel()
 ) {
+    // The account: email, the cloud data controls (S043).
+    com.pixelquest.app.ui.components.SecureScreen()
     val authState by viewModel.uiState.collectAsState()
     val emailState by viewModel.emailState.collectAsState()
     val accountState by accountViewModel.uiState.collectAsState()

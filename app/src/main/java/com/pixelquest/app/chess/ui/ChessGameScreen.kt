@@ -116,6 +116,8 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
     // Confirm moves (J160): the move waits under the board for a yes.
     var confirming by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf<String?>(null) }
     val game = state.game
+    // A rated game being played: no screen sharing to a helper (S043). Watching and friendly games are open.
+    com.pixelquest.app.ui.components.SecureScreen(enabled = game?.rated == true && game.status.live && !state.spectating && state.myColour != null)
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier

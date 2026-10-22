@@ -408,3 +408,10 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
 - **Done:** `scripts/security/check_manifest.py` reads the merged release manifest (the app's and its libraries'). Every exported component must have a permission, or be in its allowed list with a reason; today the list is only `MainActivity`. A component with intent filters and no `android:exported` fails too. CI runs it after the release build (`build.yml`, "Exported components").
 - **Checked:** the real manifest passes (0 problems); with an exported receiver added, it reports "exported with no permission and no reason" and fails.
 - **Test:** `ManifestComponentsTest` checks the same for the app's own manifest in the unit tests.
+
+### S043: FLAG_SECURE on sensitive screens
+- **Done:** `ui/components/SecureScreen` sets `FLAG_SECURE` while it's on screen, which blocks screenshots, screen recording and the recent-apps preview. Nested screens count, so the flag stays until the last one leaves. It's used on:
+  - the account screen (email, the cloud data controls);
+  - a study party's chat (private messages and files);
+  - a rated chess game the player is playing (no screen sharing to a helper). Watching, friendly games and finished games stay open to screenshots.
+- **Test:** `SecureScreenTest`: the flag is set while shown, held by an outer screen when an inner one leaves, cleared when both have gone, and not set when disabled. The chess, chat and account suites still pass.

@@ -130,6 +130,8 @@ fun StudyChatPane(
     },
     message: (@Composable (ChatMessageRow) -> Unit)? = null
 ) {
+    // A party's private messages and files (S043).
+    com.pixelquest.app.ui.components.SecureScreen()
     // The message whose menu is open, and the one waiting for its delete to be confirmed.
     var menuFor by remember { mutableStateOf<ChatMessageRow?>(null) }
     var deleting by remember { mutableStateOf<ChatMessageRow?>(null) }
