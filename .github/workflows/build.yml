@@ -112,6 +112,10 @@ jobs:
       - name: Database layouts match the code
         run: git diff --exit-code -- app/schemas
 
+      # Q008: reject unformatted Kotlin before the other static-analysis gates.
+      - name: Spotless
+        run: ./gradlew :app:spotlessCheck
+
       # minSdk is 24. Lint's NewApi check fails the run on a call Android 7 doesn't have (java.time
       # comes from desugaring, which every release up to 1.4.0 shipped without).
       - name: Lint
