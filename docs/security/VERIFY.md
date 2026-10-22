@@ -551,8 +551,9 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   `usernames.test.ts` proves both.
 - **S063:** reports and blocks are server-enforced for study chat and chess challenges; the abuse
   suite exercises both paths.
-- **S064:** party leader actions are server-authorised and covered by party policy tests; staff-only
-  auditability remains an operational follow-up before adding staff tooling.
+- **S064:** `private.party_action_audit` is an immutable, staff-only record of member removals,
+  leadership transfers and party deletion. The client has neither table nor function grants; the
+  database triggers write the actor and subject from the authorised server-side mutation.
 - **S065:** `monitor.yml` runs the function-error spike monitor hourly. It is an error-signal alert,
   not a substitute for reviewing abuse limits in `ABUSE_REVIEW.md`.
 - **S066-S067:** CI runs secret scanning, manifest checks, lint, detekt, unit tests, function tests,

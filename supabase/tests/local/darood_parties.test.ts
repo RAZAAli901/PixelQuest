@@ -293,6 +293,24 @@ localTest("only the leader deletes a party, and then it's gone for everyone (202
   assert.equal((await asService(`/rest/v1/darood_entries?party_id=eq.${party}&select=amount`)).body.length, 1);
 });
 
+localTest("leader actions leave a staff-only audit trail (S064)", async () => {
+  const { leader, member } = await cast();
+  const party = await partyOf(leader, [member]);
+
+  assert.deepEqual((await rpc(leader, "remove_member", { party_id: party, user_id: member.userId })).body, { status: "removed" });
+  assert.deepEqual((await rpc(leader, "delete_party", { party_id: party })).body, { status: "deleted" });
+
+  const rows = sql(`SELECT action || ':' || coalesce(actor_id::text, '') || ':' || coalesce(subject_id::text, '')
+    FROM private.party_action_audit WHERE party_id = '${party}' ORDER BY id`)
+    .split("\n");
+  assert.deepEqual(rows, [
+    `member_removed:${leader.userId}:${member.userId}`,
+    `party_deleted:${leader.userId}:`,
+  ]);
+  const readable = await call("/rest/v1/party_action_audit?select=*", { token: leader.accessToken });
+  assert.equal(readable.status, 404, "the private audit schema is not exposed to clients");
+});
+
 localTest("a party's day: each poster's total for a day, for its members alone (20261019000029)", async () => {
   const { leader, member, invitee, outsider } = await cast();
   const party = await partyOf(leader, [member]);
