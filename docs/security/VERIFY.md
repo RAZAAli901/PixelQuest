@@ -227,3 +227,10 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - **files:** an uploader marking their own file ready (only `finalize-upload` does, after its checks);
   - **ids:** handing a push token to another account; moving a profile to another id.
 - **How:** these tables have no UPDATE grant for app roles, or column grants that leave the field out, or policies that pin the owner. Every change goes through a SECURITY DEFINER function that checks the caller.
+
+### S026: leaving the board is immediate
+- **Rule:** the SELECT policy shows other players only rows with `leaderboard_opt_in = true`, so the moment the flag is false the row is gone. There's no cache and no delay; rank counts use the same policy.
+- **Test:** `profiles_rls.test.ts`, "leaving the board hides the row from others but not from its owner":
+  - before, Dave sees Carol on the board and she counts (`/1`);
+  - right after her opt-out, the next read is empty and the count is `/0`;
+  - her stats are untouched, and she still sees her own row.

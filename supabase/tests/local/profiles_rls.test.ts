@@ -67,6 +67,14 @@ localTest("leaving the board hides the row from others but not from its owner", 
   const carol = await newPlayer("carol");
   const dave = await newPlayer("dave");
   assert.equal((await upsertOwn(carol)).status, 201);
+  // On the board: Dave sees Carol, and she counts towards ranks (S026).
+  const onBoard = `/rest/v1/profiles?leaderboard_opt_in=eq.true&id=eq.${carol.userId}&select=id`;
+  assert.equal((await call(onBoard, { token: dave.accessToken })).body.length, 1);
+  const count = async () => {
+    const res = await call(`/rest/v1/profiles?leaderboard_opt_in=eq.true&id=eq.${carol.userId}&select=id`, { method: "HEAD", token: dave.accessToken, headers: { Prefer: "count=exact" } });
+    return res.headers?.get?.("content-range") ?? "";
+  };
+  assert.ok((await count()).endsWith("/1"), `counted before: ${await count()}`);
 
   // optOutFromLeaderboard: only the flag, only on the existing row.
   const left = await call(`/rest/v1/profiles?id=eq.${carol.userId}`, {
@@ -79,7 +87,10 @@ localTest("leaving the board hides the row from others but not from its owner", 
   assert.equal(left.body[0].leaderboard_opt_in, false);
   assert.equal(left.body[0].total_xp, 300, "stats untouched");
 
+  // Gone at once: the very next read and count leave her out.
   assert.deepEqual((await call(`/rest/v1/profiles?id=eq.${carol.userId}`, { token: dave.accessToken })).body, []);
+  assert.deepEqual((await call(onBoard, { token: dave.accessToken })).body, []);
+  assert.ok((await count()).endsWith("/0"), `counted after: ${await count()}`);
   assert.equal((await call(`/rest/v1/profiles?id=eq.${carol.userId}`, { token: carol.accessToken })).body.length, 1);
 
   // A spectator who never joined: opting out patches nothing and creates no row.
