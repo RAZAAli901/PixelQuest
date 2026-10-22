@@ -205,3 +205,15 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - no bucket is public.
 - **API** (`supabase/tests/local/rls_matrix.test.ts`): every public table and view is found from the catalogue, and each refuses a signed-out read (401, no rows) and write. Every RPC refuses a signed-out call. A new table or function is covered automatically.
 - **Result 2026-10-22:** pgTAP PASS; API 2 of 2.
+
+### S024: no player reaches another's rows
+- **Test:** `rls_matrix.test.ts`, "a stranger reads, changes and deletes none of another player's rows, in any table".
+- **Setup:** player A gets a row in every table that can hold a player's data (seeded through the app's own calls where triggers stamp the owner):
+  - a study party with C and a Darood party;
+  - an entry, an item, a tick, study time, a reminder, a message, a file and its link to the item;
+  - chat reads, a weekly place and win, a goal;
+  - a finished game with a move, a rating and a record; a challenge;
+  - reports by and about A, a push token, a block, a watch and a profile report.
+- **What it tries:** for every column that references a user (found from the foreign keys) and every `party_id`, stranger B's SELECT, PATCH and DELETE filtered by A's id or A's parties.
+- **Result:** B never gets a row, and the row counts never change.
+- **Coverage:** every such table was seeded, except `profiles` and `profile_progress_marks`, because A isn't on the board. Their rules are in `profiles_rls.test.ts`.
