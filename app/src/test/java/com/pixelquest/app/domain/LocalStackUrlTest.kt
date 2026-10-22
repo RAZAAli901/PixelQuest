@@ -1,5 +1,6 @@
 package com.pixelquest.app.domain
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -33,13 +34,20 @@ class LocalStackUrlTest {
     @Test
     fun cleartext_isAllowedOnlyInTheDebugSourceSet_andOnlyForTheLocalStack() {
         val app = File("src").takeIf { it.isDirectory } ?: File("app/src")
+        // Since S037 every build has a network security config (the certificate pins), and the
+        // manifest says no to cleartext in so many words.
         val mainManifest = File(app, "main/AndroidManifest.xml").readText()
-        assertFalse(mainManifest.contains("usesCleartextTraffic"))
-        assertFalse(mainManifest.contains("networkSecurityConfig"))
+        assertTrue(mainManifest.contains("""android:usesCleartextTraffic="false""""))
+        assertTrue(mainManifest.contains("networkSecurityConfig"))
+        val main = File(app, "main/res/xml/network_security_config.xml").readText()
+        assertTrue(main.contains("""<base-config cleartextTrafficPermitted="false">"""))
+        assertFalse("release builds allow no cleartext anywhere", main.contains("""cleartextTrafficPermitted="true""""))
 
         val config = File(app, "debug/res/xml/network_security_config.xml").readText()
         assertTrue(config.contains("""<base-config cleartextTrafficPermitted="false" />"""))
-        val domains = Regex("<domain[^>]*>([^<]+)</domain>").findAll(config).map { it.groupValues[1] }.toSet()
-        assertTrue(domains == setOf("10.0.2.2", "127.0.0.1", "localhost"))
+        val cleartext = Regex("""<domain-config cleartextTrafficPermitted="true">([\s\S]*?)</domain-config>""").findAll(config).toList()
+        assertEquals(1, cleartext.size)
+        val domains = Regex("<domain[^>]*>([^<]+)</domain>").findAll(cleartext.single().groupValues[1]).map { it.groupValues[1] }.toSet()
+        assertEquals(setOf("10.0.2.2", "127.0.0.1", "localhost"), domains)
     }
 }

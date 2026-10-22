@@ -47,7 +47,8 @@ class NewServerColumnsTest {
             }
         }
 
-        val top = LeaderboardRepositoryImpl(supabase.postgrest, supabase.auth).getTopByStreak(limit = 20, offset = 0)
+        // No auth: a signed-out board asks the server nothing at all (it needs an account since S010).
+        val top = LeaderboardRepositoryImpl(supabase.postgrest, auth = null).getTopByStreak(limit = 20, offset = 0)
 
         assertTrue("$top", top is SupabaseResult.Success)
         assertEquals("Titan_Slayer", (top as SupabaseResult.Success).data.single().displayName)

@@ -50,7 +50,13 @@ class NoGameDataFromIslamicCodeTest {
         val migrations = repo("supabase/migrations").listFiles()!!.filter { it.name >= "20261019000000" && it.name.endsWith(".sql") }
         assertTrue(migrations.size >= 45)
         val writes = Regex("""(?i)(update\s+(public\.)?profiles|insert\s+into\s+(public\.)?profiles|alter\s+table\s+(public\.)?profiles|delete\s+from\s+(public\.)?profiles)""")
-        val found = migrations.mapNotNull { file -> writes.find(file.readText())?.let { "${file.name}: ${it.value}" } }
+        // S029 rewrote delete_user_account with an empty search_path: deleting an account deletes its
+        // profile, as it always has. That's the account's own deletion, not Islamic code.
+        val accountDeletion = "20261019000114_definer_search_paths.sql"
+        val found = migrations.filter { it.name != accountDeletion }
+            .mapNotNull { file -> writes.find(file.readText())?.let { "${file.name}: ${it.value}" } }
+        val deletion = Regex("""(?i)(update\s+(public\.)?profiles|insert\s+into\s+(public\.)?profiles|alter\s+table\s+(public\.)?profiles)""")
+        assertEquals("the rewrite only deletes", null, deletion.find(repo("supabase/migrations/$accountDeletion").readText())?.value)
         assertEquals(emptyList<String>(), found)
     }
 

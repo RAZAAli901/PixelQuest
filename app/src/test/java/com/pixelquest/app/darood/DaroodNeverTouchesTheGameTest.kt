@@ -77,8 +77,16 @@ class DaroodNeverTouchesTheGameTest {
 
     @Test
     fun darood_migrations_neverTouchTheProfilesOrTheBoard() {
-        val darood = migrations.listFiles()!!.filter { it.name >= "20261019000004" && it.name.endsWith(".sql") }
+        // The security plan's migrations (000109 to 000117) aren't Darood's: they tighten grants and
+        // policies on every table, profiles included, and write no game data (checked below).
+        val security = Regex("""^20261019000(109|11\d)_""")
+        val darood = migrations.listFiles()!!.filter { it.name >= "20261019000004" && it.name.endsWith(".sql") && !security.containsMatchIn(it.name) }
         assertTrue("Darood's migrations were found", darood.size >= 20)
+        val securityWrites = migrations.listFiles()!!.filter { security.containsMatchIn(it.name) }.flatMap { file ->
+            val sql = file.readLines().filterNot { it.trimStart().startsWith("--") }.joinToString("\n").lowercase()
+            Regex("(insert\\s+into|update)\\s+public\\.profiles|total_xp\\s*=|current_streak\\s*=").findAll(sql).map { "${file.name}: ${it.value}" }.toList()
+        }
+        assertEquals("the security migrations write no game data", emptyList<String>(), securityWrites)
         val found = darood.flatMap { file ->
             // Chess's own party ladder (chess_party_leaderboard) isn't the game's leaderboard.
             val sql = file.readLines().filterNot { it.trimStart().startsWith("--") }.joinToString("\n").lowercase().replace("chess_party_leaderboard", "")
