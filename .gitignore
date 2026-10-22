@@ -28,3 +28,24 @@ supabase/functions/.env*
 
 # The Edge Functions tests' Node dependencies (supabase/functions/package.json)
 node_modules/
+
+# Security plan S003: keys and local config never enter the repo (docs/security/INVENTORY.md).
+# Firebase: the app builds its setup from FCM_* settings, so google-services.json is never needed here.
+google-services.json
+GoogleService-Info.plist
+# Service account keys (e.g. the FCM key, which lives only in Supabase function secrets).
+*firebase-adminsdk*.json
+*service-account*.json
+*service_account*.json
+# Signing material and private keys.
+*.p12
+*.pfx
+*.pem
+*.key
+*.keystore.properties
+keystore.properties
+signing.properties
+# Supabase CLI's local link state (project ref, cached versions).
+supabase/.temp/
+# IDE state.
+.idea/
