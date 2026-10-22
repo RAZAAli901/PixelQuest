@@ -19,7 +19,7 @@
   - A day reminder's "2 hours before" means 07:00 on the day.
   - A repeating reminder arms its next occurrence once the current one's alerts have passed.
 
-## Phase B: Study chat (J021–J065): J021–J059 done
+## Phase B: Study chat (J021–J065): done
 
 **Docs:** `docs/study-chat.md` covers the limits and the threat model.
 
@@ -90,6 +90,49 @@
 
 **Full unit run:** 2,032 tests, 0 failures.
 
-## Phases D–F: not started
+## Phase D: Chess backend (J091–J135): done
 
-See the plan for each item. Phase D (chess backend) starts at J091.
+- **Design:** [docs/chess-design.md](../chess-design.md). The server referees: each move is checked with chess.js 1.4.0 in the `chess-move` function. The SQL `chess_commit_move` keeps turn, ply and clocks by the database's `now()`. `private.chess_finish` writes the result, the head-to-head and the ratings in one transaction.
+- **Migrations 075–101:** games, moves, ratings, head-to-head, challenges, constraints, RLS, challenge and answer, moves, resign, draws, timeouts, abort, finish, Elo (also in TS, `_shared/chess_rating.ts`), anti-farming, spectators (private Realtime channel `chess:game:<id>`), live games, rate limits, blocks, device tokens, the h2h, ladder and profile views.
+- **Functions:** `chess-create-challenge`, `chess-respond-challenge`, `chess-move`, `chess-resign`, `chess-draw`, `chess-claim-timeout`, `chess-sweep`, `chess-live-games`, `send-push`.
+- **Decisions:**
+  - Elo with K 40 for the first 10 games, then 32, and 16 above 1,600. The floor is 100 and the start 800.
+  - Anti-farming: 10 counted games a pair a day; fewer than 4 moves each counts only on checkmate.
+  - A game with no first move in 30 s is aborted.
+  - Push carries ids and a kind only.
+  - `ChessRules.kt` is the phone's own move generator, for hints only. It passes perft (start depth 3 = 8,902; Kiwipete depth 3 = 97,862).
+
+## Phase E: Chess UI (J136–J165): done
+
+- The owner's design is copied into `/chess-ui`; [docs/chess-ui-integration.md](../chess-ui-integration.md) maps it.
+- **Screens:** board (tap or drag, promotion picker), clocks, move list, game actions, end card, challenge sheet, incoming challenge, the Chess tab (live games, ladder, open challenges), head-to-head, tier badges, the Hero card, chat cards, settings, sounds and haptics, TalkBack, keep-screen-on, and resuming a game from Home.
+- **Elsewhere in the app:**
+  - The study party gained a `CHESS` tab, so there are 7 tabs (3 in Simple Mode). Tests scroll to PEOPLE.
+  - `chat_message.refId` (Room 23) links the chat's challenge and result lines to their challenge or game. Migrations 102–104 do the server side.
+
+## Phase F: Tests, abuse, release (J166–J180)
+
+| Item | What | Commit |
+|---|---|---|
+| J166 | A whole game on the fake backend, on screen | 02507f45 |
+| J167 | Challenge, answer and watching, on screen | eae256ae |
+| J168 | Screenshots in Comic, Pixel and Simple Mode | 85ecf5e1 |
+| J169 | End to end on three phones against the local stack (`LocalSupabaseChessTest`), as a JVM test; the two-emulator run is in the QA checklist | ffe45865 |
+| J170 | Security tests (`security.test.ts`); migration 105 | c9a60a0e |
+| J171 | Load test (`load.test.ts`, LOAD=1) | 69532db9 |
+| J172 | Abuse review ([docs/ABUSE_REVIEW.md](../ABUSE_REVIEW.md)); challenge reports (migration 107), Report and Block on the challenge screen | 53ffe7e5 |
+| J173 | Privacy review ([docs/PRIVACY_REVIEW.md](../PRIVACY_REVIEW.md)); `export_my_data()` and Export my cloud data; the watch log keeps a day (migration 108) | 54544222 |
+| J174 | Account deletion: games anonymised, files cleaned (migration 106) | c53fff95 |
+| J175 | Logs without personal data (`_shared/log.ts`); hourly error check (`monitor.yml`) | 201eea8e |
+| J176 | detekt (with a baseline), lint clean, APK size gate, R8 checked; CI given 4 GB | 2ecbc19c |
+| J177 | README, PRIVACY.md, chess docs | 975a12fc |
+| J178 | 1.7.0 (108), CHANGELOG | c5548582 |
+| J179 | [docs/QA_CHECKLIST.md](../QA_CHECKLIST.md) (the owner runs it) | 7a6ddd2e |
+| J180 | Signed release built (5.1 MB, release key checked); installed over 1.5.0 on the API 24 emulator with everything kept; **not tagged** | VERIFICATION.md Section S |
+
+**Found and fixed in Phase F:**
+- **Literal bidi characters in source** (UploadChecks.kt, study_files.ts, two tests) failed lint, so CI was red. They're now `\u` escapes.
+- **CI's Kotlin compiler ran out of memory** on some runs.
+- **"with 1 draws"** is now a plural.
+- **Hero showed a chess card while signed out.**
+- **A removed player could still move** (migration 105).

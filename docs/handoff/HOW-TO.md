@@ -30,7 +30,7 @@ node --test "supabase/functions/**/*.test.ts"
 - **Sign-ins are rate-limited** (30 per 5 minutes). Running every test file at once can hit it: wait a few minutes and run again.
 - **`sql(...)`** in `supabase/tests/local/stack.ts` runs psql in the `supabase_db_pixelquest` container.
 
-## Hosted Supabase (ask the owner first, every time)
+## Hosted Supabase (the owner approved 067 to 108; ask again for anything new)
 
 ```bash
 npx --yes supabase@2.120.0 db push --dry-run

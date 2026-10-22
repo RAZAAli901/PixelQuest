@@ -943,3 +943,36 @@ The release build from before it (main at 7ac38d0b) and after it, each installed
 ### Not verified
 - **Installing over 1.5.0 on Android 8 and later:** the API34 emulator holds a debug install, which a release build mustn't replace. 1.6.0 doesn't change the data, and the theme mapping is covered by unit tests.
 - **Signed-in features on a phone** (parties, the leaderboard, the AI Coach): they need accounts on the live project. Their screens are covered in tests.
+
+## Section S -- 1.7.0: study chat, the Darood weekly ranking, and chess
+
+The plan "Study Chat, Darood Weekly Ranking and Chess" (J001 to J180), on main as 1.7.0 (versionCode 108). **Not tagged yet:** the tag waits for the owner's run of [docs/QA_CHECKLIST.md](docs/QA_CHECKLIST.md) on real phones. Copy its results under "Real phones" below.
+
+### Builds and tests
+- **Unit tests:** 2,120, 0 failing; the 20 skipped need the local Supabase stack (they run in the Cloud Tests workflow). Up from 1.6.0's 1,826.
+- **Edge Function tests:** 84, 0 failing (`node --test "supabase/functions/**/*.test.ts"`). They cover the referee, ratings, push, the file checks, the log scrubber and the error monitor.
+- **Server tests against the local stack** (`supabase/tests/local/`):
+  - **Chess:** RLS, the referee, games, ratings and anti-farming.
+  - **Security:** another party's chat, files and games out of reach; tampered requests; replayed moves; a removed member.
+  - **Abuse:** the limits in force, and reporting and blocking a challenge.
+  - **Privacy:** the export, the watch log, and deletion leaving no row that names the account.
+  - **Load** (LOAD=1): 30 members, 5 games and 20 watchers, with every move heard.
+  - All pass. The Cloud Tests workflow runs them on every push.
+- **End to end:** `LocalSupabaseChessTest` plays a game on three phones' worth of the app's own data layer against the local stack: a study party, a challenge, an illegal move refused, the fool's mate. Each move is heard live by the opponent and a watcher, then the result, ladder and record are read on each phone.
+- **Lint:** `lintDebug` passes with no errors. CI had been failing on literal bidi characters, now escapes.
+- **Detekt:** passes against its baseline (524 findings from before; new ones fail CI).
+- **Release build:** `assembleRelease` with R8, signed with the release key (the same SHA-256 as 1.6.0's, checked with apksigner).
+  - The APK is 5,108,142 bytes, under the 8,000,000-byte budget.
+  - R8 keeps the chess, chat and party DTOs whole, and gave no missing-class warnings.
+- **Data:** Room 18 to 23, with each step's migration tested by `DatabaseUpgradeTest`. Supabase migrations through 20261019000108, all pushed to the hosted project with the owner's OK. The chess, file and push functions are deployed.
+
+### Installed over 1.5.0 on the Android 7.0 emulator (`PixelQuest_API24`, port 5556)
+- **Before:** 1.5.0 (versionCode 106), as left by Section R: "Upgrader", level 1, 50 XP, a 0-day streak, Bronze, Medium, in Comic. Three quests: Read 15 Pages (9:00 PM), 20 Push-ups (8:00 AM), Go to Gym (5:30 PM).
+- **1.7.0 (108) installed over it** with `pm install -r`. It opened on Home with no welcome steps and showed the same three quests with their times and categories. Hero showed level 1, 50 XP, the 0 streak, Bronze and Medium. The crash log was empty.
+- **Found there and fixed:** Hero showed the chess card to a signed-out player. Chess needs an account, so it's now shown only when signed in (bc526e9f, after this APK was built).
+- The emulator was shut down afterwards.
+
+### Not verified (for the owner's QA)
+- **Two real phones playing each other, push notifications, and the weekly notification on Sunday night.** These need two signed-in accounts on the live project and the Firebase settings. See docs/QA_CHECKLIST.md, sections 2 to 6.
+- **Installing over 1.6.0 on Android 8 and later:** the API34 emulator holds a debug install, which a release build mustn't replace. The database steps are covered by `DatabaseUpgradeTest`.
+- **The scheduled sweep and cleanup:** they need the service key stored in the hosted database, which is the owner's call. Until then, the phones claim timeouts themselves.
