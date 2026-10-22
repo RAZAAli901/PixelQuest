@@ -403,3 +403,8 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - locked: the quest's name appears nowhere, and Unlock asks to unlock;
   - unlocked: the quest shows as before. `PromptQueueAnswerTest` and `PromptQueueTest` still pass.
 - **To check on a phone:** set a screen lock, add a PROMPT-style quest due in a minute, lock the phone, and wait. The prompt says "A quest reminder", and the name shows after unlocking.
+
+### S042: no new exported component without a reason
+- **Done:** `scripts/security/check_manifest.py` reads the merged release manifest (the app's and its libraries'). Every exported component must have a permission, or be in its allowed list with a reason; today the list is only `MainActivity`. A component with intent filters and no `android:exported` fails too. CI runs it after the release build (`build.yml`, "Exported components").
+- **Checked:** the real manifest passes (0 problems); with an exported receiver added, it reports "exported with no permission and no reason" and fails.
+- **Test:** `ManifestComponentsTest` checks the same for the app's own manifest in the unit tests.

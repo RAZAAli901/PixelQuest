@@ -92,6 +92,10 @@ jobs:
         # stopped compiling without anyone noticing.
         run: ./gradlew compileDebugKotlin assembleDebug assembleRelease assembleDebugAndroidTest
 
+      # S042: every exported component has a permission or a written reason (docs/security/MANIFEST_AUDIT.md).
+      - name: Exported components
+        run: python3 scripts/security/check_manifest.py app/build/intermediates/merged_manifest/release/processReleaseMainManifest/AndroidManifest.xml
+
       # The size budget (docs/quran-data.md): the release APK at most 8 MB, and the Quran's two files in
       # it at most 700 KB, as the APK stores them.
       - name: Check the APK's size budget
