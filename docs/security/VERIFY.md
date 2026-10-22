@@ -535,3 +535,33 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - AI usage counters and rate events lingered. They now go with the account (S057), and pruning is follow-up F1 and F2.
   - No analytics, advertising id, contacts or precise location anywhere.
 - **Owner:** fill in the bracketed parts (name, contact, region, audience) before publishing.
+
+### S059: sessions are revoked deliberately
+- **Done:** local sign-out revokes only this phone; Account also offers "Sign out on every device",
+  which uses Supabase's global scope. If the server cannot be reached, it changes nothing locally
+  and tells the player why.
+- **Test:** `SignOutEverywhereTest` and `SUPABASE_LOCAL=1 node --test
+  supabase/tests/local/sessions.test.ts` (two independently signed-in phones).
+
+### S060-S067: account and release controls
+- **S060:** Google Credential Manager sends a SHA-256 nonce and Supabase verifies the resulting ID
+  token; `GoogleNonceTest` covers the raw nonce passed to the server exchange.
+- **S061:** Supabase Auth's configured OTP/rate limits protect email-code attempts.
+- **S062:** `set_username` enforces reserved names and a 30-day change interval server-side;
+  `usernames.test.ts` proves both.
+- **S063:** reports and blocks are server-enforced for study chat and chess challenges; the abuse
+  suite exercises both paths.
+- **S064:** party leader actions are server-authorised and covered by party policy tests; staff-only
+  auditability remains an operational follow-up before adding staff tooling.
+- **S065:** `monitor.yml` runs the function-error spike monitor hourly. It is an error-signal alert,
+  not a substitute for reviewing abuse limits in `ABUSE_REVIEW.md`.
+- **S066-S067:** CI runs secret scanning, manifest checks, lint, detekt, unit tests, function tests,
+  local cloud tests and pinned dependency installation. Dependency updates remain a scheduled owner
+  responsibility because no Dependabot configuration is present.
+
+### S068-S070: release gate
+- **Play policy:** `PLAY_POLICY.md` is the pre-submission checklist.
+- **Incident response:** `INCIDENT_RESPONSE.md` and `ROTATE.md` cover containment and key rotation.
+- **Final checks performed 2026-10-22:** focused Android S059 tests passed; the local two-session
+  Supabase tests passed; secret scanning ran in the commit hook. The full release CI and real-device
+  QA remain required for a new release.
