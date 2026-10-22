@@ -1,32 +1,28 @@
 package com.pixelquest.app.ui.screens.today
 
-import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
 import com.pixelquest.app.data.local.entity.StreakEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
-import com.pixelquest.app.domain.model.RecurrenceType
-import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.domain.FlavorTextCatalog
 import com.pixelquest.app.domain.TaskResultRecorder
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
+import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
+import com.pixelquest.app.domain.tasks.CompleteTaskUseCase
+import com.pixelquest.app.domain.tasks.SkipTaskUseCase
 import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import com.pixelquest.app.ui.components.TaskItemStatus
-import com.pixelquest.app.domain.repository.SettingsRepository
+import com.pixelquest.app.ui.navigation.TabSharing
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -44,11 +40,33 @@ class TodayViewModel @Inject constructor(
     private val streakRepository: StreakRepository,
     private val userProfileRepository: UserProfileRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
-    private val taskAlarmScheduler: TaskAlarmScheduler,
-    private val taskResultRecorder: TaskResultRecorder,
+    private val completeTaskUseCase: CompleteTaskUseCase,
+    private val skipTaskUseCase: SkipTaskUseCase,
     private val settingsRepository: SettingsRepository? = null,
-    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock()
+    private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock(),
 ) : ViewModel() {
+
+    constructor(
+        taskRepository: TaskRepository,
+        taskCompletionRepository: TaskCompletionRepository,
+        streakRepository: StreakRepository,
+        userProfileRepository: UserProfileRepository,
+        difficultySettingsRepository: DifficultySettingsRepository,
+        taskAlarmScheduler: TaskAlarmScheduler,
+        taskResultRecorder: TaskResultRecorder,
+        settingsRepository: SettingsRepository? = null,
+        appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock(),
+    ) : this(
+        taskRepository,
+        taskCompletionRepository,
+        streakRepository,
+        userProfileRepository,
+        difficultySettingsRepository,
+        CompleteTaskUseCase(taskResultRecorder, taskAlarmScheduler),
+        SkipTaskUseCase(taskResultRecorder, taskAlarmScheduler),
+        settingsRepository,
+        appClock,
+    )
 
     private val refreshRequests = MutableStateFlow(0)
 
@@ -68,7 +86,7 @@ class TodayViewModel @Inject constructor(
         combine(
             taskRepository.getTasksForDay(date),
             taskCompletionRepository.getLogsForDate(date),
-            streakRepository.getCurrentStreak()
+            streakRepository.getCurrentStreak(),
         ) { tasks, logs, streak -> DayData(date, tasks, logs, streak) }
     }
 
@@ -77,9 +95,9 @@ class TodayViewModel @Inject constructor(
         combine(
             userProfileRepository.getProfile(),
             difficultySettingsRepository.getCurrentDifficulty(),
-            settingsRepository?.simpleModeEnabled ?: flowOf(false)
+            settingsRepository?.simpleModeEnabled ?: flowOf(false),
         ) { profile, difficulty, simpleMode -> Triple(profile, difficulty, simpleMode) },
-        clock
+        clock,
     ) { (date, tasks, logs, streak), (profile, difficulty, isSimpleMode), now ->
         val logMap = logs.associateBy { it.taskId }
         val items = tasks.map { task ->
@@ -96,12 +114,12 @@ class TodayViewModel @Inject constructor(
                 task = task,
                 status = status,
                 scheduledTime = task.scheduledTime,
-                xp = if (log?.wasCompleted == true) log.pointsAwarded else 0
+                xp = if (log?.wasCompleted == true) log.pointsAwarded else 0,
             )
         }
         val sortedItems = items.sortedWith(
             compareBy<TodayTaskItem> { it.status == TaskItemStatus.DONE || it.status == TaskItemStatus.MISSED }
-                .thenBy { it.scheduledTime }
+                .thenBy { it.scheduledTime },
         )
 
         val completedCount = sortedItems.count { it.status == TaskItemStatus.DONE }
@@ -114,7 +132,7 @@ class TodayViewModel @Inject constructor(
             completedCount = completedCount,
             isPerfectDay = isPerfectDay,
             date = date,
-            isSimpleMode = isSimpleMode
+            isSimpleMode = isSimpleMode,
         )
 
         // Only a streak that existed can break: a new player with no streak yet sees no banner.
@@ -135,32 +153,17 @@ class TodayViewModel @Inject constructor(
             isSimpleMode = isSimpleMode,
             heroName = profile?.username.orEmpty(),
             avatarId = profile?.avatarId.orEmpty(),
-            xpToday = logs.filter { it.wasCompleted }.sumOf { it.pointsAwarded }
+            xpToday = logs.filter { it.wasCompleted }.sumOf { it.pointsAwarded },
         ) as TodayUiState
     }.stateIn(
         scope = viewModelScope,
         started = TabSharing,
-        initialValue = TodayUiState.Loading
+        initialValue = TodayUiState.Loading,
     )
 
     fun completeTask(task: TaskEntity) {
         viewModelScope.launch {
-            // 0 means it was already done (a double tap, or completed from the reminder).
-            if (taskResultRecorder.recordCompleted(task.id, currentDate) == 0) return@launch
-            rearmAfterToday(task)
-            taskAlarmScheduler.clearReminder(task.id)
-        }
-    }
-
-    /**
-     * Today's reminder is no longer needed, but a recurring task still needs tomorrow's.
-     * Re-arming replaces today's pending alarm (same request code); one-time tasks are cancelled.
-     */
-    private fun rearmAfterToday(task: TaskEntity) {
-        if (task.recurrenceType == RecurrenceType.ONE_TIME) {
-            taskAlarmScheduler.cancelAlarmForTask(task)
-        } else {
-            taskAlarmScheduler.scheduleNextOccurrence(task)
+            completeTaskUseCase(task, currentDate)
         }
     }
 
@@ -182,10 +185,7 @@ class TodayViewModel @Inject constructor(
 
     fun skipTask(task: TaskEntity) {
         viewModelScope.launch {
-            if (taskResultRecorder.recordNotDone(task.id, currentDate)) {
-                rearmAfterToday(task)
-                taskAlarmScheduler.clearReminder(task.id)
-            }
+            skipTaskUseCase(task, currentDate)
         }
     }
 }
@@ -194,5 +194,5 @@ private data class DayData(
     val date: LocalDate,
     val tasks: List<TaskEntity>,
     val logs: List<com.pixelquest.app.data.local.entity.TaskCompletionLogEntity>,
-    val streak: StreakEntity?
+    val streak: StreakEntity?,
 )
