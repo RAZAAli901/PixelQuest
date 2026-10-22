@@ -6,6 +6,7 @@
 import { authUserId, rpcCaller, storage } from "../_shared/study_files.ts";
 import { cleanUp } from "../_shared/cleanup.ts";
 import { handleRequestUpload } from "./handler.ts";
+import { errorText, logger } from "../_shared/log.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -15,7 +16,7 @@ const files = storage(fetch, supabaseUrl, serviceKey);
 /** Work the runtime keeps going after the answer has gone (Supabase's EdgeRuntime.waitUntil). */
 const afterwards = (work: Promise<unknown>) => {
   const runtime = (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime;
-  const settled = work.catch((e) => console.log(JSON.stringify({ event: "cleanup_failed", error: String(e) })));
+  const settled = work.catch((e) => logger("request-upload")({ event: "cleanup_failed", error: errorText(e) }));
   runtime?.waitUntil?.(settled);
 };
 
@@ -25,7 +26,7 @@ Deno.serve(async (req: Request) => {
     requestRow: (user, party, name, mime, size) =>
       rpc("chat_request_upload", { p_user: user, p_party: party, p_name: name, p_mime: mime, p_size: size }),
     signUpload: files.signUpload,
-    log: (event) => console.log(JSON.stringify(event)),
+    log: logger("request-upload"),
   });
   // A small round of cleanup each time, so expired uploads go even before a schedule is set up.
   afterwards(cleanUp({ rpc, remove: files.remove }, 20));

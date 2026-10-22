@@ -5,6 +5,7 @@
 
 import { Chess } from "chess.js";
 import { UUID, bearerToken, json } from "./study_files.ts";
+import { errorText } from "./log.ts";
 
 export { Chess, UUID, json };
 
@@ -107,7 +108,7 @@ export async function chessRequest(
   try {
     return await work(user, body);
   } catch (e) {
-    log?.({ event: "chess_failed", error: String(e) });
+    log?.({ event: "chess_failed", error: errorText(e) });
     return json(500, { error: "server_error" });
   }
 }

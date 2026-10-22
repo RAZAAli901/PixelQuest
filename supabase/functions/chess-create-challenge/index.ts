@@ -4,6 +4,7 @@
 import { authUserId, rpcCaller } from "../_shared/study_files.ts";
 import { pushFromEnv } from "../_shared/push.ts";
 import { handleCreateChallenge } from "./handler.ts";
+import { logger } from "../_shared/log.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -15,6 +16,6 @@ Deno.serve((req: Request) =>
     create: (user, party, to, timeControl, colour, rated) =>
       rpc("chess_create_challenge", { p_user: user, p_party: party, p_to: to, p_time_control: timeControl, p_colour: colour, p_rated: rated }),
     notify: pushFromEnv((name) => Deno.env.get(name), rpc),
-    log: (event) => console.log(JSON.stringify(event)),
+    log: logger("chess-create-challenge"),
   })
 );

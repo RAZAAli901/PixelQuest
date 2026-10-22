@@ -61,7 +61,7 @@ export function handleMove(req: Request, deps: MoveDeps): Promise<Response> {
     });
     if (!taken.ok) return refuse(taken.error);
     if (taken.data.flagged) return json(409, { error: "time_out", game: taken.data.game });
-    deps.log?.({ event: "chess_move", game: id, ply, ended: check.end?.reason ?? null });
+    deps.log?.({ event: "chess_move", ply, ended: check.end?.reason ?? null });
     return json(200, { game: taken.data.game, move: taken.data.move, repeated: taken.data.repeated ?? false });
   }, deps.log);
 }

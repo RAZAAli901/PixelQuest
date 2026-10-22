@@ -4,6 +4,7 @@
 // the lock screen. A token Firebase says is gone is deleted. Without the secret, nothing is sent.
 
 import type { Fetch, RpcResult } from "./study_files.ts";
+import { errorText, logger } from "./log.ts";
 
 export type PushKind = "challenge_received" | "challenge_accepted" | "draw_offered";
 
@@ -102,7 +103,7 @@ export type Notify = (kind: PushKind, users: string[], data: Record<string, stri
  */
 export function notifier(deps: PushDeps): Notify {
   return (kind, users, data) => {
-    const work = sendPush(deps, kind, users, data).catch((e) => deps.log?.({ event: "push_failed", error: String(e) }));
+    const work = sendPush(deps, kind, users, data).catch((e) => deps.log?.({ event: "push_failed", error: errorText(e) }));
     (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime?.waitUntil?.(work);
   };
 }
@@ -114,7 +115,7 @@ export function pushFromEnv(env: (name: string) => string | undefined, rpc: <T>(
     account: serviceAccountOf(env("FCM_SERVICE_ACCOUNT")),
     tokensFor: (users) => rpc("push_tokens_for", { p_users: users }),
     forget: (token) => rpc("push_forget_token", { p_token: token }),
-    log: (event) => console.log(JSON.stringify(event)),
+    log: logger("send-push"),
   });
 }
 

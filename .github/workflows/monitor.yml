@@ -1,0 +1,27 @@
+name: Edge Function error check
+
+# Hourly (J175, docs/MONITORING.md): fails when an Edge Function's server errors spike, so GitHub
+# emails the repository's owner. Reads counts by function and status only. Passes without doing
+# anything until the SUPABASE_ACCESS_TOKEN and SUPABASE_PROJECT_REF secrets are added.
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check the last hour
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: node supabase/functions/_monitor/function_errors.ts

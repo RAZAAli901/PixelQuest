@@ -3,6 +3,7 @@
 
 import { authUserId, rpcCaller } from "../_shared/study_files.ts";
 import { handleClaimTimeout } from "./handler.ts";
+import { logger } from "../_shared/log.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -13,6 +14,6 @@ Deno.serve((req: Request) =>
     getUserId: authUserId(fetch, supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY") || serviceKey),
     state: (user, game) => rpc("chess_game_state", { p_user: user, p_game: game }),
     claim: (user, game, result, reason) => rpc("chess_claim_timeout", { p_user: user, p_game: game, p_result: result, p_reason: reason }),
-    log: (event) => console.log(JSON.stringify(event)),
+    log: logger("chess-claim-timeout"),
   })
 );

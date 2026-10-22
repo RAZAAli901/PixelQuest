@@ -6,6 +6,7 @@
 import { rpcCaller } from "../_shared/study_files.ts";
 import { serviceAccountOf } from "../_shared/push.ts";
 import { handleSendPush } from "./handler.ts";
+import { logger } from "../_shared/log.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -17,6 +18,6 @@ Deno.serve((req: Request) =>
     account: serviceAccountOf(Deno.env.get("FCM_SERVICE_ACCOUNT")),
     tokensFor: (users) => rpc("push_tokens_for", { p_users: users }),
     forget: (token) => rpc("push_forget_token", { p_token: token }),
-    log: (event) => console.log(JSON.stringify(event)),
+    log: logger("send-push"),
   })
 );

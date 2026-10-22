@@ -3,6 +3,7 @@
 
 import { authUserId, rpcCaller } from "../_shared/study_files.ts";
 import { handleMove } from "./handler.ts";
+import { logger } from "../_shared/log.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -18,6 +19,6 @@ Deno.serve((req: Request) =>
         p_end_result: a.endResult, p_end_reason: a.endReason, p_flag_result: a.flagResult, p_flag_reason: a.flagReason,
       }),
     abortIfStalled: (game) => rpc("chess_abort_if_stalled", { p_game: game }),
-    log: (event) => console.log(JSON.stringify(event)),
+    log: logger("chess-move"),
   })
 );

@@ -4,6 +4,7 @@
 
 import { rpcCaller } from "../_shared/study_files.ts";
 import { handleSweep } from "./handler.ts";
+import { logger } from "../_shared/log.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -14,6 +15,6 @@ Deno.serve((req: Request) =>
     dueGames: () => rpc("chess_due_games", {}),
     endOnTime: (game, result, reason) => rpc("chess_claim_timeout", { p_user: null, p_game: game, p_result: result, p_reason: reason }),
     abortStalled: () => rpc("chess_abort_stalled", {}),
-    log: (event) => console.log(JSON.stringify(event)),
+    log: logger("chess-sweep"),
   })
 );

@@ -5,6 +5,7 @@
 
 import { authUserId, rpcCaller, storage } from "../_shared/study_files.ts";
 import { handleFinalize, type PendingUpload } from "./handler.ts";
+import { logger } from "../_shared/log.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -22,6 +23,6 @@ Deno.serve((req: Request) =>
     markRejected: async (file, reason) => {
       await rpc("chat_reject_upload", { p_file: file, p_reason: reason });
     },
-    log: (event) => console.log(JSON.stringify(event)),
+    log: logger("finalize-upload"),
   })
 );

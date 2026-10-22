@@ -11,6 +11,7 @@
 // Auth, and refuses anything that isn't a signed-in account. See docs/CLOUD_SETUP.md.
 
 import { authUserId, handleProxyRequest, rpcClaim } from "./handler.ts";
+import { logger } from "../_shared/log.ts";
 
 const limit = (name: string, fallback: number): number => {
   const value = Number(Deno.env.get(name));
@@ -37,6 +38,6 @@ Deno.serve((req: Request) =>
     claimCall,
     fetchGemini: fetch,
     model: Deno.env.get("GEMINI_MODEL"),
-    log: (event) => console.log(JSON.stringify(event)),
+    log: logger("gemini-proxy"),
   })
 );
