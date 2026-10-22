@@ -4,15 +4,9 @@
     <color name="pq_ink">#FF161412</color>
     <color name="pq_paper">#FFFFFDF8</color>
     <color name="pq_red">#FFFF5A4E</color>
-    <color name="pq_red_text">#FFC23A2F</color>
-    <color name="pq_sky">#FF8ECAE6</color>
     <color name="pq_gold">#FFFFC21A</color>
-    <color name="pq_amber">#FFF0A35E</color>
     <color name="pq_muted">#FF6B645C</color>
     <!-- Pixel skin -->
     <color name="pq_px_ink">#FF2B2622</color>
-    <color name="pq_px_paper">#FFFFFAF0</color>
-    <color name="pq_px_primary">#FFC25E00</color>
     <color name="pq_px_gold">#FFFDE7A0</color>
-    <color name="pq_px_progress">#FF2F9E4A</color>
 </resources>
