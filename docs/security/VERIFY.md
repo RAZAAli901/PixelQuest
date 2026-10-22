@@ -79,3 +79,14 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - posting as someone else, as an invitee, as an outsider and signed out are refused (403, 403, 403, 401);
   - a member's PATCH and DELETE and the leader's DELETE are refused (403), and the entry is unchanged.
 - **Result 2026-10-22:** 31 of 31 pass.
+
+### S015: study items, completions, sessions and reminders
+- **Reviewed.** Every policy requires an active member of a study party, writing as themselves (`created_by` or `user_id` = the caller):
+  - **items:** members add; the creator or the leader edits and deletes. Only `title`, `subject`, `notes`, `due_at`, `pinned` and `kind` are updatable; never `party_id` or `created_by`.
+  - **completions:** members tick for themselves, and undo their own within 24 hours. No edits.
+  - **sessions:** members log their own; no edits or deletes.
+  - **reminders:** a "just me" reminder is read only by its creator; the creator, or the leader for party reminders, edits and deletes.
+- **Found:** app roles held INSERT and UPDATE column grants on the views `study_chat_config`, `study_chat_types` and `study_chat_storage`.
+  - Tested as a signed-in user: writing through them fails ("cannot update view": they're computed), so the chat's limits couldn't be changed.
+  - The grants are removed in S017 anyway.
+- **Test:** `darood_parties.test.ts`, the study tests. A member can't edit or delete another's item, can't PATCH a completion, and can't undo another's tick.
