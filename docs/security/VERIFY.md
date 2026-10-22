@@ -515,3 +515,15 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
 - **Checked:** where errors reach the screen. The AI Coach uses `AiErrorCopy` (S052). Chess, Darood, study and email sign-in turn the server's short refusal tokens into their own strings, with a catch-all. `SupabaseResult` network errors are the app's own sentences.
 - **Fixed:** five places showed the error's own text: the Google sign-in exchange, Google sign-in failures (Android's text), account sync, the task list, and the leaderboard (network, sign-in and unknown errors). Each now shows a fixed sentence from `domain/SafeErrorCopy`. The task list logs the cause through AppLog instead.
 - **Test:** `SafeErrorMessagesTest` fails if any UI or sign-in code puts an error's `message` or `localizedMessage` into text (the debug-only AI trigger aside). The updated `LeaderboardErrorStateTest` and `GoogleSignInMessageTest` now require the fixed sentences and no raw text. The auth and screen suites still pass (72 classes).
+
+### S057: in-app account deletion and data export
+- **Checked:** both are in the app. Account > Delete account calls `delete_user_account`, which deletes the profile and the auth user, and refuses when signed out. Account > Export cloud data saves `export_my_data` as a JSON file: profile, username, parties, Darood entries and weeks, study work, chat messages and files sent, reports made, blocks, chess games, ratings, challenges and records, and the number of push phones (10 an hour, S020). The local backup export covers the phone's own data.
+- **Every key cascades or clears:** all 30-plus foreign keys to `auth.users` and `profiles` are `CASCADE` or `SET NULL`.
+- **Done:** migration 118 also clears the two places that named a player without a key: the AI call counters (`ai_proxy_usage`, "user:<id>") and the rate-limit events (`private.rate_events`). After a deletion, no row in any public or private table names the player.
+- **Kept on purpose, as before:**
+  - the opponent's head-to-head record, which is theirs to read;
+  - finished games, with the deleted side set to null;
+  - Darood counts in their party's total, with no name on them.
+  - The deleted id leads to no account, name or username.
+  - The player's chat files lose their rows, and `cleanup-uploads` deletes the bytes (it removes any object no row names).
+- **Test:** `account_deletion.test.ts` checks every key's delete rule, then deletes a player and scans every uuid column in public and private for their id: nothing left except the kept head-to-head record. With security.test.ts and reports_and_deletion.test.ts: 22 of 22. pgTAP: PASS.
