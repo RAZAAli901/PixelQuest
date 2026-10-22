@@ -43,6 +43,7 @@ import com.pixelquest.app.ui.components.PqDangerButton
 import com.pixelquest.app.ui.components.PqGroupLabel
 import com.pixelquest.app.ui.components.PqTopBar
 import com.pixelquest.app.ui.theme.PqColors
+import androidx.compose.ui.platform.testTag
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
 
@@ -60,6 +61,9 @@ fun AccountScreen(
     val emailState by viewModel.emailState.collectAsState()
     val accountState by accountViewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val exportCloud = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
+    ) { uri -> uri?.let { accountViewModel.exportCloudData(context, it) } }
 
     AccountContent(
         authState = authState,
@@ -88,6 +92,7 @@ fun AccountScreen(
         onDismissPrivacyPolicy = { accountViewModel.dismissPrivacyPolicy() },
         onSyncNow = { accountViewModel.syncNow() },
         onRequestDeleteCloudData = { accountViewModel.requestDeleteCloudAccount() },
+        onExportCloudData = { exportCloud.launch("pixelquest-cloud-data-${java.time.LocalDate.now()}.json") },
         onProceedDeleteDoubleConfirm = { accountViewModel.proceedToDeleteDoubleConfirm() },
         onConfirmDeleteCloudData = { accountViewModel.confirmDeleteCloudAccount(viewModel) },
         onDismissDeleteDialog = { accountViewModel.dismissDeleteDialog() },
@@ -121,6 +126,7 @@ fun AccountContent(
     onDismissPrivacyPolicy: () -> Unit = {},
     onSyncNow: () -> Unit = {},
     onRequestDeleteCloudData: () -> Unit = {},
+    onExportCloudData: () -> Unit = {},
     onProceedDeleteDoubleConfirm: () -> Unit = {},
     onConfirmDeleteCloudData: () -> Unit = {},
     onDismissDeleteDialog: () -> Unit = {},
@@ -287,6 +293,24 @@ fun AccountContent(
             }
 
             AccountSection("Cloud data & privacy") {
+                // Everything the cloud keeps about the account, to a file (J173).
+                if (authState is com.pixelquest.app.auth.AuthUiState.SignedIn) {
+                    Text(text = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.account_export_body), style = PqType.Meta)
+                    PqButton(
+                        androidx.compose.ui.res.stringResource(
+                            if (accountState.cloudExport == CloudExport.WORKING) com.pixelquest.app.R.string.account_export_working else com.pixelquest.app.R.string.account_export
+                        ),
+                        onExportCloudData,
+                        Modifier.fillMaxWidth().testTag("account_export_cloud"),
+                        style = PqButtonStyle.Secondary,
+                        enabled = accountState.cloudExport != CloudExport.WORKING
+                    )
+                    when (accountState.cloudExport) {
+                        CloudExport.SAVED -> Text(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.account_export_saved), style = PqType.MetaStrong.copy(color = PqColors.Live))
+                        CloudExport.FAILED -> Text(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.account_export_failed), style = PqType.MetaStrong.copy(color = PqColors.Error))
+                        else -> Unit
+                    }
+                }
                 Text(
                     text = "Permanently delete your public leaderboard profile and unlink your cloud account. Your quests and streak history on this phone stay as they are.",
                     style = PqType.Meta

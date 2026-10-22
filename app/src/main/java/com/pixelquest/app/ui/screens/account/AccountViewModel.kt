@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,8 +36,12 @@ data class AccountUiState(
     val isSimpleModeEnabled: Boolean = false,
     val isLeaderboardAllowedUnderSimpleMode: Boolean = true,
     /** Joining or leaving was chosen here and hasn't reached the server yet (PendingLeaderboardChoice). */
-    val choiceWaiting: Boolean = false
+    val choiceWaiting: Boolean = false,
+    /** Exporting the cloud data to a file (J173). */
+    val cloudExport: CloudExport = CloudExport.IDLE
 )
+
+enum class CloudExport { IDLE, WORKING, SAVED, FAILED }
 
 @HiltViewModel
 class AccountViewModel @Inject constructor(
@@ -334,6 +339,24 @@ class AccountViewModel @Inject constructor(
 
     fun dismissConfirmDialog() {
         _uiState.value = _uiState.value.copy(showConfirmDialog = false)
+    }
+
+    /** Saves everything the cloud keeps about the account to [uri], a file the player picked (J173). */
+    fun exportCloudData(context: android.content.Context, uri: android.net.Uri) {
+        val auth = authRepository ?: return
+        if (_uiState.value.cloudExport == CloudExport.WORKING) return
+        _uiState.update { it.copy(cloudExport = CloudExport.WORKING) }
+        viewModelScope.launch {
+            val saved = when (val data = auth.exportMyData()) {
+                is com.pixelquest.app.data.remote.SupabaseResult.Success -> runCatching {
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        context.contentResolver.openOutputStream(uri, "wt")!!.use { it.write(data.data.toByteArray()) }
+                    }
+                }.isSuccess
+                else -> false
+            }
+            _uiState.update { it.copy(cloudExport = if (saved) CloudExport.SAVED else CloudExport.FAILED) }
+        }
     }
 
     fun requestDeleteCloudAccount() {

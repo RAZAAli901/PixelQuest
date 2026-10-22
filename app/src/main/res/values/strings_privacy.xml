@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Exporting the cloud data (J173, docs/PRIVACY_REVIEW.md) -->
+    <string name="account_export_body">Save a copy of everything the cloud keeps about you: your parties, Darood entries, study progress, chat messages, the files you shared (names and sizes), chess games with every move, and your ratings.</string>
+    <string name="account_export">Export my cloud data</string>
+    <string name="account_export_working">Exporting…</string>
+    <string name="account_export_saved">Saved.</string>
+    <string name="account_export_failed">Couldn\'t export. Check your connection and try again.</string>
+</resources>

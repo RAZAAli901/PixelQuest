@@ -39,6 +39,10 @@ interface AuthRepository {
     suspend fun getInitialUser(): AuthUser?
     suspend fun deleteAccount(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 
+    /** Everything the cloud keeps about the account, as JSON (export_my_data; docs/PRIVACY_REVIEW.md). */
+    suspend fun exportMyData(): SupabaseResult<String> =
+        SupabaseResult.AuthError(UnsupportedOperationException("export"), "Sign in to export your cloud data.")
+
     /** Emails a one-time sign-in code to [email], making the account the first time (see EmailSignIn). */
     suspend fun sendEmailCode(email: String): SupabaseResult<Unit> =
         SupabaseResult.AuthError(UnsupportedOperationException("Email sign-in"), "Email sign-in isn't available.")
@@ -150,5 +154,9 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun deleteAccount(): SupabaseResult<Unit> = safeSupabaseCall {
         postgrest.rpc("delete_user_account")
         auth.signOut()
+    }
+
+    override suspend fun exportMyData(): SupabaseResult<String> = safeSupabaseCall {
+        postgrest.rpc("export_my_data").data
     }
 }
