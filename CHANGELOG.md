@@ -1,6 +1,44 @@
 # 📜 PixelQuest Changelog
 
 All notable changes to **PixelQuest** are documented in this file.
+PixelQuest follows [Semantic Versioning 2.0.0](https://semver.org/). See [docs/VERSIONING_POLICY.md](docs/VERSIONING_POLICY.md) for full versioning and release lifecycle policies.
+
+---
+
+## [1.8.0] - 2026-10-23 — Security Hardening and Senior Architecture Overhaul
+
+### ⬆️ Upgrading
+Install 1.8.0 over 1.7.2 (or any version from 1.2.0): 100% backward compatible. All existing quests, streaks, hero stats, and Deen data are preserved.
+
+### 🔒 Security Hardening (Phase S: S001–S070)
+- **Supabase Backend Protection**:
+  - Enforced strict default-deny Row Level Security (RLS) across all tables (`cloud_profiles`, `darood_counts`, `study_items`, `chess_games`, `reports`).
+  - Storage buckets default to private with short-lived, signed download tokens.
+  - Server-authoritative move validation and anti-tamper logic for chess games.
+- **Client Security & Manifest Hygiene**:
+  - Restricted component exposure: `BootReceiver` marked `exported=false`.
+  - Android backup rules configured (`allowBackup=false` / encrypted exclude descriptors).
+  - Explicit Network Security Configuration blocking cleartext traffic and disabling debug trust anchors.
+  - Zero hardcoded API keys or service tokens in repo, history, or client binary.
+
+### 🏗️ Senior Code Cleanup & Architecture (Phase Q: Q001–Q060)
+- **5-Tier Clean Architecture**:
+  - Full separation across UI, Presentation, Domain, Data, and Data Sources layers adhering to Unidirectional Data Flow (UDF).
+  - Use cases encapsulate core business rules (XP calculation, streak determination, leveling formulas, and difficulty policies).
+  - Dedicated model mappers translating Room entities (`*Entity`) and network DTOs (`*Dto`) into clean domain models (`*Model`).
+- **State & Lifecycle Resilience**:
+  - Integrated `SavedStateHandle` across ViewModels (`TaskFormViewModel`, `QuranSearchViewModel`, `LeaderboardViewModel`) enabling zero data loss across rotation and Android OS process death.
+  - Room DAOs verified with 100% indexed queries, transactions, and background dispatcher offloading.
+- **Centralized Design System**:
+  - Consolidated dimensions (`PqDimens`), colors (`PqColors`), typography (`PqType`), and skin definitions (`PqSkin`), deduplicating dp/sp values across components.
+  - Hardcoded strings extracted to localized string resources.
+- **Testing Pyramid & Quality Gates**:
+  - Domain rules and use cases covered with fast pure Kotlin JVM tests (Q053).
+  - In-memory repository fakes verifying offline persistence and error contracts (Q054).
+  - ViewModel reactive state transition tests powered by CashApp Turbine (Q055).
+  - Compose UI smoke tests under Robolectric validating all primary tabs and screens (Q056).
+  - ART Baseline Profile rules expanded for cold start optimization and startup benchmark harness added (Q057).
+  - Architecture Decision Records documented in `docs/adr/` (Q058).
 
 ---
 
