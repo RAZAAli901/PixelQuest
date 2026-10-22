@@ -190,3 +190,10 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - signed out, the check is refused (401);
   - the 61st check in an hour is refused;
   - `usernames.test.ts` still passes.
+
+### S022: database test harness
+- **Done:**
+  - pgTAP through `supabase test db` (`supabase/tests/database/*.test.sql`), for catalogue rules;
+  - the existing Node harness (`supabase/tests/local/*.test.ts`), for behaviour through the API with real players.
+  - [supabase/tests/README.md](../../supabase/tests/README.md) explains both.
+- **Check:** `npx supabase@2.120.0 test db` gives "All tests successful".
