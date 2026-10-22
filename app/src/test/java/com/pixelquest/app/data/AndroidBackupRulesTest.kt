@@ -64,4 +64,39 @@ class AndroidBackupRulesTest {
         assertTrue("android:fullBackupContent=\"@xml/backup_rules\"" in manifest)
         assertTrue("android:dataExtractionRules=\"@xml/data_extraction_rules\"" in manifest)
     }
+
+    /**
+     * S033: every preferences file the app opens has a decision. It's backed up (above), or it
+     * belongs to this device and stays out. A new file fails this test until it's put in one list.
+     */
+    @Test
+    fun everyPreferencesFile_isDecided() {
+        val deviceOnly = setOf(
+            "pixelquest_ai_usage", "pixelquest_chess", "pixelquest_darood", "pixelquest_darood_goals", "pixelquest_darood_week",
+            "pixelquest_encouragement_pack", "pixelquest_leaderboard_choice", "pixelquest_namaz_delivered", "pixelquest_namaz_reminders",
+            "pixelquest_permissions", "pixelquest_progress_reset", "pixelquest_quran", "pixelquest_reminders_handled",
+            "pixelquest_streak_nudge", "pixelquest_study", "pixelquest_study_chat", "pixelquest_study_reminder_mutes",
+            "pixelquest_study_reminders", "pixelquest_tips",
+        )
+        val backedUp = settings.map { it.removePrefix("sharedpref:").removeSuffix(".xml") }.toSet()
+        val sources = file("src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }.map { it.readText() }.toList()
+        val names = sources.flatMap { text ->
+            Regex("""getSharedPreferences\(\s*"([a-z0-9_]+)"""").findAll(text).map { it.groupValues[1] }.toList() +
+                Regex("""(?:PREFS_NAME|PREFS|HANDLED_PREFS|FILE_NAME)\s*=\s*"(pixelquest_[a-z0-9_]+)"""").findAll(text).map { it.groupValues[1] }.toList()
+        }.toSet()
+        assertTrue("found the app's preferences files", names.size >= 15)
+        val undecided = names - deviceOnly - backedUp
+        assertEquals("a new preferences file needs a backup decision (docs/security/STORAGE.md)", emptySet<String>(), undecided)
+        assertTrue("nothing is both", (deviceOnly intersect backedUp).isEmpty())
+    }
+
+    /** The sign-in session is supabase-kt's default preferences file: no rule may name it. */
+    @Test
+    fun theSession_isNeverBackedUp() {
+        for (path in listOf("src/main/res/xml/backup_rules.xml", "src/main/res/xml/data_extraction_rules.xml")) {
+            val text = file(path).readText()
+            assertTrue(path, "_preferences" !in text && "supabase" !in text.substringAfter("-->"))
+            assertTrue("no whole-domain include in $path", !Regex("""path="\.?/?"""").containsMatchIn(text))
+        }
+    }
 }

@@ -321,3 +321,10 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - The sign-in session is in neither, as before.
 - **Restoring:** a phone restored from the cloud opens with an empty game and offers the newest automatic backup ("Restore your game?", `LostProgress`).
 - **Test:** `AndroidBackupRulesTest`. Cloud gets exactly the automatic backups and the settings. Transfer gets those plus the database. No `exclude` rules are used (include-only), and the folder is the one `AutoBackups` writes. `LostProgressTest` covers the restore offer.
+
+### S033: include-only backups, decided file by file
+- **State:** both rule files list only `include` elements. A file not named is never copied, so a new store can't slip into a backup.
+- **Guard:** `AndroidBackupRulesTest`:
+  - "every preferences file is decided": each preferences file the code opens must be in the backed-up list or the device-only list, so a new one fails until someone decides.
+  - "the session is never backed up": no rule names supabase-kt's preferences file, and no rule includes a whole domain.
+- **Result 2026-10-22:** 7 of 7 pass.
