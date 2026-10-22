@@ -186,3 +186,16 @@ localTest("security: storage is closed to players; files go only through the ser
   assert.equal(sql(`SELECT public FROM storage.buckets WHERE id = 'study-files'`), "f", "the bucket is private");
   assert.equal(sql(`SELECT count(*) FROM storage.buckets WHERE public`), "0", "no public bucket");
 });
+
+localTest("security: what a phone sends is checked for form and length (S019)", async () => {
+  const { white } = await chessCast();
+  const made = await rpc(white, "create_party", { name: `Tz ${Date.now() % 100000}`, max_members: 5, milestone: 1000 });
+  assert.equal(made.status, 200, JSON.stringify(made.body));
+  const party = made.body;
+  const entry = (tz: string) => rpc(white, "add_darood_entry", { party_id: party, amount: 1, local_date: new Date().toISOString().slice(0, 10), tz, client_id: crypto.randomUUID() });
+  assert.equal((await entry("Asia/Karachi")).status, 200, "a real zone");
+  for (const bad of ["<script>alert(1)</script>", "Asia/Karachi; DROP TABLE x", "x".repeat(65)]) {
+    assert.ok((await entry(bad)).status >= 400, `refused: ${bad.slice(0, 20)}`);
+  }
+  assert.ok((await rpc(white, "set_party_week_tz", { party_id: party, tz: "a".repeat(200) })).status >= 400, "a party's week zone too");
+});

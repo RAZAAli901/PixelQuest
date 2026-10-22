@@ -141,3 +141,18 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
      AND position('auth.uid()' IN p.prosrc) = 0 AND p.proname NOT IN ('create_party', 'pin_chat_file');
   ```
 - **Test:** `reports_and_deletion.test.ts` and `privacy.test.ts` (account deletion): 14 of 14 pass.
+
+### S019: limits on what phones and requests send
+- **Audit:** every text, number and array column in `public` with no check constraint. The ones a phone or a request can fill now have limits (migration `20261019000115_input_constraints`):
+  - **time zones** (`darood_entries.tz`, `study_completions.tz`, `study_sessions.tz`, `parties.week_tz`): an IANA name or offset, at most 64 characters;
+  - **the AI counter's key** (`ai_proxy_usage.device_id`): at most 128;
+  - **a file's checksum** (`chat_files.sha256`): 64 hex digits;
+  - **chess positions:** at most 100 characters.
+- **Already limited:**
+  - usernames (3 to 20 characters, `[a-z0-9_]`, reserved words);
+  - display names; chat bodies (2,000); file names (120);
+  - item titles, subjects and notes; reminder titles and offsets;
+  - Darood amounts and the daily cap; study minutes; reasons in reports.
+- **Not needed:** server-computed columns (weekly places, points, the chess config).
+- **Safe on old data:** each limit is enforced for new rows at once. Existing rows are validated, and if one doesn't fit, the limit stays enforced for new rows with a notice. Locally all eight validated.
+- **Test:** `security.test.ts`, "what a phone sends is checked". A script tag, an SQL-looking string and a 65-character zone are refused for a Darood entry; a 200-character week zone for a party. The file, chess and AI proxy suites still pass (30 of 30).
