@@ -120,3 +120,24 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - all three are 0;
   - the server suite passes (164 tests, 0 failures);
   - the app's own repositories pass against the stack (`*LocalSupabase*`: 20 tests).
+
+### S018: SECURITY DEFINER functions
+- **Done:** migration `20261019000114_definer_search_paths` rewrites `delete_user_account`. It was the only definer function whose search path wasn't empty (`public, auth`); it now names every table with its schema. Behaviour is unchanged.
+- **Reviewed:** every definer function the app can call checks its caller inside:
+  - most read `auth.uid()` directly;
+  - `create_party` hands off to `private.start_party`;
+  - `pin_chat_file` uses `is_active_study_member` and `is_party_leader`.
+  - None takes the acting user's id from the client: service-role functions take it from the Edge Function, which takes it from the verified token.
+  - App roles can't create objects in `public`, so nothing can be planted for a function to find.
+- **Check** (`scripts/security/check_db.sql`, S029): both queries return no rows:
+  ```sql
+  -- definer functions without an empty search_path
+  SELECT n.nspname || '.' || p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+   WHERE p.prosecdef AND n.nspname IN ('public', 'private')
+     AND NOT ('search_path=""' = ANY (coalesce(p.proconfig, '{}')));
+  -- app-callable definer functions that never mention auth.uid() (each must be explained here)
+  SELECT p.proname FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+   WHERE p.prosecdef AND n.nspname = 'public' AND has_function_privilege('authenticated', p.oid, 'EXECUTE')
+     AND position('auth.uid()' IN p.prosrc) = 0 AND p.proname NOT IN ('create_party', 'pin_chat_file');
+  ```
+- **Test:** `reports_and_deletion.test.ts` and `privacy.test.ts` (account deletion): 14 of 14 pass.
