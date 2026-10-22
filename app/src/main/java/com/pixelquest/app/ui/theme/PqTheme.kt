@@ -208,8 +208,27 @@ object PqDimens {
     val ScreenPad = 16.dp
     val Gap = 12.dp
 
+    // Spacing scale
+    val SpaceXs = 4.dp
+    val SpaceSm = 8.dp
+    val SpaceMd = 12.dp
+    val SpaceLg = 16.dp
+    val SpaceXl = 24.dp
+    val SpaceXxl = 32.dp
+
     /** The smallest tap target: 48dp, Android's and the app's accessibility rule (the handoff had 44). */
     val TouchMin = 48.dp
+}
+
+/** Unified source of truth for skin-aware shapes. */
+object PqShapes {
+    val Base: Shape get() = pqShape(14.dp)
+    val Large: Shape get() = pqShape(16.dp)
+    val Small: Shape get() = pqShape(10.dp)
+    val Pill: Shape get() = pqShape(50.dp)
+    val Circle: Shape get() = PqCircle
+    val TopOnly: Shape get() = pqShapeTop(16.dp)
+    fun custom(radius: Dp): Shape = pqShape(radius)
 }
 
 /** Skin-aware shapes: rounded in Comic, square in Pixel. */
