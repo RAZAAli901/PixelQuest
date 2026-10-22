@@ -29,8 +29,12 @@ localTest("a report is filed in the reporter's own name, and nobody can read rep
   });
   assert.equal(forged.status, 403);
 
+  // Insert-only (S012): reading reports back is refused outright, not just empty.
   const readBack = await call(`/rest/v1/reports?reporter_id=eq.${reporter.userId}`, { token: reporter.accessToken });
-  assert.deepEqual(readBack.body, [], "only the project owner reads reports (dashboard / service role)");
+  assert.equal(readBack.status, 403, "only the project owner reads reports (dashboard / service role)");
+  assert.equal(readBack.body.code, "42501");
+  const signedOut = await call("/rest/v1/reports", { body: { reporter_id: reporter.userId, reported_profile_id: reported.userId, reason: "anon" } });
+  assert.equal(signedOut.status, 401);
 
   const stored = await asService(`/rest/v1/reports?reporter_id=eq.${reporter.userId}&select=reason`);
   assert.deepEqual(stored.body, [{ reason: "Flagged offensive display name: x" }]);

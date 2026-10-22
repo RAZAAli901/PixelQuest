@@ -44,3 +44,18 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
 - **Rules:** only opted-in rows are readable by other players (the SELECT policy on `profiles`); a row leaves the board the moment its owner opts out (S026). The fields are name, level, streaks, XP, the opt-in and when it changed, plus the row's id, which the app needs to mark "you" and to report a name.
 - **Decision:** column grants would break the app's `select *`, and every column is a board field, so the guard is a test instead: `profiles` must have exactly those columns. Anything private goes in a table only its owner can read.
 - **Test:** `profiles_rls.test.ts`, "the board exposes only leaderboard fields" and "leaving the board hides the row from others".
+
+### S012: reports are insert-only
+- **Done:** migration `20261019000112_reports_grants`. `reports`:
+  - signed-in players may only INSERT, in their own name (the policy pins `reporter_id` to `auth.uid()`);
+  - signed-out users get nothing;
+  - staff read reports with the service role, from the dashboard.
+- **Already closed:**
+  - `chat_reports` and `chess_reports` have no grants to app roles; they're written only by `report_chat_message` and `report_chess_challenge`.
+  - Profile reports are limited to one per player a day.
+- **Test:** `reports_and_deletion.test.ts`:
+  - a forged reporter is refused (403);
+  - reading back is refused (403);
+  - signed out is refused (401);
+  - the service role sees the report.
+- **Test:** `abuse.test.ts` and `study_chat.test.ts`: `chess_reports` and `chat_reports` aren't readable (403).
