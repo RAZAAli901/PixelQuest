@@ -17,7 +17,7 @@ S039, from the merged release manifest of 1.7.2 (the app's own `AndroidManifest.
 | `com.google.android.c2dm.permission.RECEIVE` | Firebase Messaging | Receiving push |
 | `com.pixelquest.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | AndroidX Core | Signature-level; protects receivers registered at run time |
 
-S049 checked each is used, and none is unused.
+S049 checked that each one is used, and none is unused. `scripts/security/check_manifest.py` (CI, "Exported components") fails the build when a new permission appears in the merged manifest, from the app or from a library, until it is added to its list with what needs it.
 
 ## Components
 

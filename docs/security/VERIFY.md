@@ -453,3 +453,7 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - `TaskAlarmReceiver` and `TaskActionReceiver` now take only their own actions: no action, which is how every version has armed a quest's alarm and its Yes and No buttons, or their snooze action. Anything else is ignored.
 - **Safest option chosen:** the no-action form stays accepted. Alarms armed before an update must still ring, and changing it would leave old alarms unmatched.
 - **Test:** `ReceiverActionsTest`: foreign actions are refused, and every receiver checks `intent.action` first.
+
+### S049: no unused permissions
+- **Checked:** each of the 11 permissions in the merged release manifest is used. The table in MANIFEST_AUDIT.md says what uses each one. Seven are the app's own; the others come from WorkManager, Firebase and AndroidX. None was removable: `FOREGROUND_SERVICE` is WorkManager's expedited sync on Android 11 and older.
+- **Guard:** `check_manifest.py` now also fails on any permission not on its list. Tried with an added `READ_CONTACTS`: exit 1. The real manifest: 0 problems.
