@@ -38,10 +38,10 @@ class UploadChecksTest {
 
     @Test
     fun aLongOrHostileName_isCutDownAndCleaned_asTheServerDoes() {
-        val name = UploadChecks.cleanName("in\u0000voice‮" + "a".repeat(300) + ".pdf")!!
+        val name = UploadChecks.cleanName("in\u0000voice\u202E" + "a".repeat(300) + ".pdf")!!
         assertEquals(120, name.length)
         assertTrue(name.endsWith(".pdf"))
-        assertTrue(!name.contains('‮'))
+        assertTrue(!name.contains('\u202E'))
         assertEquals("abcdefg.txt", UploadChecks.cleanName("a<b>c:d\"e|f?g*.txt"))
         assertEquals(null, UploadChecks.cleanName(".."))
     }

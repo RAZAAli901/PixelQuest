@@ -34,6 +34,13 @@ jobs:
       - name: Make Gradlew Executable
         run: chmod +x gradlew
 
+      # The runner has 16 GB. With gradle.properties' 2 GB, compiling debug and release together ran
+      # the Kotlin compiler out of memory on some runs (2026-10-22: "Java heap space" in IR lowering).
+      - name: Give the build more memory
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "kotlin.daemon.jvmargs=-Xmx4g" >> gradle.properties
+
       - name: Ensure Debug Keystore Exists
         run: |
           mkdir -p ~/.android
@@ -137,6 +144,16 @@ jobs:
             exit 1
           fi
           echo "Release APK signed with the PixelQuest release key ($EXPECTED)."
+
+      # The same size budget as the CI build (build.yml, docs/APK_SIZE_AUDIT.md), on the APK that ships.
+      - name: Check the APK's size
+        run: |
+          BYTES=$(stat -c %s app/build/outputs/apk/release/app-release.apk)
+          echo "Release APK: $BYTES bytes (budget 8,000,000)."
+          if [ "$BYTES" -gt 8000000 ]; then
+            echo "::error::The release APK is over its 8,000,000-byte budget. See docs/APK_SIZE_AUDIT.md."
+            exit 1
+          fi
 
       - name: Generate Release Notes
         run: |

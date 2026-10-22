@@ -50,7 +50,7 @@ object UploadChecks {
      */
     fun cleanName(raw: String): String? {
         var name = raw.split('/', '\\').last()
-            .filterNot { it.isISOControl() || it in "​‌‍‎‏‪‫‬‭‮⁦⁧⁨⁩﻿" }
+            .filterNot { it.isISOControl() || it in "\u200B\u200C\u200D\u200E\u200F\u202A\u202B\u202C\u202D\u202E\u2066\u2067\u2068\u2069\uFEFF" }
             .filterNot { it in ":*?\"<>|" }
             .replace(Regex("\\s+"), " ")
             .trim()

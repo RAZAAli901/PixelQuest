@@ -8,6 +8,17 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.detekt)
+}
+
+// Static checks (J176): detekt's defaults with config/detekt/detekt.yml; what was already there is
+// in its baseline, so only new findings fail. Run: ./gradlew :app:detekt
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    baseline = rootProject.file("config/detekt/baseline.xml")
+    source.setFrom("src/main/java", "src/test/java", "src/sharedTest/java", "src/androidTest/java")
+    parallel = true
 }
 
 val localProps = Properties()

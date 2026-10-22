@@ -1,0 +1,530 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ComplexCondition:ChessRules.kt$Position$long in castling &amp;&amp; board[home - 1] == '.' &amp;&amp; board[home - 2] == '.' &amp;&amp; board[home - 3] == '.' &amp;&amp; board[home - 4] == rook &amp;&amp; !attacked(home - 1, !white) &amp;&amp; !attacked(home - 2, !white)</ID>
+    <ID>ComplexCondition:ChessRules.kt$Position$short in castling &amp;&amp; board[home + 1] == '.' &amp;&amp; board[home + 2] == '.' &amp;&amp; board[home + 3] == rook &amp;&amp; !attacked(home + 1, !white) &amp;&amp; !attacked(home + 2, !white)</ID>
+    <ID>ComplexCondition:ChessSessionViewModel.kt$ChessSessionViewModel$game.drawOfferedBy != null &amp;&amp; game.drawOfferedBy != me &amp;&amp; before?.drawOfferedBy != game.drawOfferedBy &amp;&amp; game.colourOf(me) != null</ID>
+    <ID>ComplexCondition:CloudProfileRepository.kt$CloudProfileRepositoryImpl$pendingChoice != null &amp;&amp; pending == null &amp;&amp; remoteProfile != null &amp;&amp; remoteProfile.leaderboardOptIn != optIn</ID>
+    <ID>ComplexCondition:FakeChatServer.kt$FakeChatServer$message == null || !member(message.partyId) || !(message.senderId == me || leaders[message.partyId] == me)</ID>
+    <ID>ComplexCondition:GameOverCard.kt$colour != null &amp;&amp; game.rated &amp;&amp; game.status == GameStatus.FINISHED &amp;&amp; !state.simple</ID>
+    <ID>ComplexCondition:LastReadStore.kt$DataStoreLastReadStore$surah != null &amp;&amp; ayah != null &amp;&amp; surah in 1..QuranImporter.SURAHS &amp;&amp; ayah &gt;= 1</ID>
+    <ID>ComplexCondition:LeaderboardScreen.kt$shouldLoadMore.value &amp;&amp; uiState.canLoadMore &amp;&amp; !uiState.isLoading &amp;&amp; !uiState.isLoadingMore</ID>
+    <ID>ComplexCondition:MainActivity.kt$MainActivity$!askForUsername || !onboardingComplete || currentRoute == null || currentRoute == Screen.Splash.route || currentRoute == Screen.Onboarding.route</ID>
+    <ID>ComplexCondition:MainActivity.kt$MainActivity$!onboardingComplete || currentRoute == null || currentRoute == Screen.Splash.route || currentRoute == Screen.Onboarding.route</ID>
+    <ID>ComplexCondition:MainActivity.kt$MainActivity$onboardingComplete &amp;&amp; currentRoute != null &amp;&amp; currentRoute != Screen.Splash.route &amp;&amp; currentRoute != Screen.Onboarding.route</ID>
+    <ID>ComplexCondition:PartyChatScreen.kt$PartyChatViewModel$party == null || target == null || setAt == null || party.isFinished</ID>
+    <ID>ComplexCondition:PartyInfoScreen.kt$weekNotify != null &amp;&amp; kind.rules.raceBoard &amp;&amp; state.members.any { it.userId == state.myId &amp;&amp; it.status == com.pixelquest.app.party.domain.MemberStatus.ACTIVE }</ID>
+    <ID>ComplexCondition:PrayerTimeProvider.kt$DefaultPrayerTimeProvider.Companion$latitude != null &amp;&amp; longitude != null &amp;&amp; latitude in -90.0..90.0 &amp;&amp; longitude in -180.0..180.0</ID>
+    <ID>ComplexCondition:StudyReminderReceiver.kt$StudyReminderAlertHandler$reminder != null &amp;&amp; alert != null &amp;&amp; fresh &amp;&amp; !scheduler.wasFired(alert) &amp;&amp; !dao.isDone(reminderId, occurrenceAt)</ID>
+    <ID>ComplexCondition:SurahReaderScreen.kt$ayahIndex != null &amp;&amp; current.ayahs.isNotEmpty() &amp;&amp; current.hasMore &amp;&amp; ayahIndex &gt;= current.ayahs.size - LOAD_AHEAD</ID>
+    <ID>CyclomaticComplexMethod:AccountScreen.kt$@Composable fun AccountContent( authState: com.pixelquest.app.auth.AuthUiState, accountState: AccountUiState, onSignInWithGoogle: () -&gt; Unit = {}, emailState: com.pixelquest.app.auth.EmailSignInState = com.pixelquest.app.auth.EmailSignInState(), onOpenEmailSignIn: () -&gt; Unit = {}, onEmailChange: (String) -&gt; Unit = {}, onSendEmailCode: () -&gt; Unit = {}, onEmailCodeChange: (String) -&gt; Unit = {}, onVerifyEmailCode: () -&gt; Unit = {}, onUseDifferentEmail: () -&gt; Unit = {}, onCloseEmailSignIn: () -&gt; Unit = {}, onSignOut: () -&gt; Unit = {}, onDisplayNameChange: (String) -&gt; Unit = {}, onOptInToggle: (Boolean) -&gt; Unit = {}, onConfirmOptIn: () -&gt; Unit = {}, onDismissOptInDialog: () -&gt; Unit = {}, onConfirmOptOut: () -&gt; Unit = {}, onDismissOptOutDialog: () -&gt; Unit = {}, onDismissOptOutNotice: () -&gt; Unit = {}, onViewPrivacyPolicy: () -&gt; Unit = {}, onDismissPrivacyPolicy: () -&gt; Unit = {}, onSyncNow: () -&gt; Unit = {}, onRequestDeleteCloudData: () -&gt; Unit = {}, onExportCloudData: () -&gt; Unit = {}, onProceedDeleteDoubleConfirm: () -&gt; Unit = {}, onConfirmDeleteCloudData: () -&gt; Unit = {}, onDismissDeleteDialog: () -&gt; Unit = {}, onNavigateBack: () -&gt; Unit = {}, modifier: Modifier = Modifier, /** False in a build without a Supabase project: sign-in can't work there, so it isn't offered. */ cloudAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.inThisBuild, /** Sign in with Google also needs the Google web client id; email-code sign-in doesn't. */ googleAvailable: Boolean = com.pixelquest.app.domain.CloudAvailability.googleInThisBuild, /** * Email-code sign-in also needs an email service on the project, or the codes reach only its * team; a build made before one is set up turns it off (EMAIL_SIGN_IN=false, docs/CLOUD_SETUP.md). */ emailAvailable: Boolean = com.pixelquest.app.BuildConfig.EMAIL_SIGN_IN )</ID>
+    <ID>CyclomaticComplexMethod:AiInsightViewModel.kt$AiInsightViewModel$fun loadInsight(forceRefresh: Boolean = false)</ID>
+    <ID>CyclomaticComplexMethod:ChessChatCards.kt$@Composable fun ChessChatCard( token: String, refId: String, state: ChessPartyState, onAnswer: (String, Boolean) -&gt; Unit, onNeedGame: (String) -&gt; Unit = {}, onOpenGame: (String) -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:ChessRules.kt$Position$private fun pseudoMoves(): List&lt;Move&gt;</ID>
+    <ID>CyclomaticComplexMethod:DataExportImport.kt$DataExportImport$fun exportToJson(payload: BackupPayload): String</ID>
+    <ID>CyclomaticComplexMethod:DataExportImport.kt$DataExportImport$fun importFromJson(jsonString: String): BackupPayload</ID>
+    <ID>CyclomaticComplexMethod:LeaderboardScreen.kt$@Composable fun LeaderboardContent( uiState: LeaderboardUiState, onTabSelected: (LeaderboardTab) -&gt; Unit, onLoadMore: () -&gt; Unit, onRefresh: () -&gt; Unit, onReportProfile: (String, String) -&gt; Unit = { _, _ -&gt; }, onViewSelected: (LeaderboardView) -&gt; Unit = {}, onNavigateBack: (() -&gt; Unit)? = null, onNavigateToAccount: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>CyclomaticComplexMethod:PartyInfoScreen.kt$@Composable fun PartyInfoContent( state: PartyInfoUiState, onNavigateBack: () -&gt; Unit, onAddPeople: () -&gt; Unit = {}, onRemove: (PartyMember) -&gt; Unit = {}, onConfirmRemoval: () -&gt; Unit = {}, onLeave: () -&gt; Unit = {}, onConfirmLeave: () -&gt; Unit = {}, onRename: () -&gt; Unit = {}, onNewNameChange: (String) -&gt; Unit = {}, onConfirmRename: () -&gt; Unit = {}, onTransfer: (PartyMember) -&gt; Unit = {}, onConfirmTransfer: () -&gt; Unit = {}, onDelete: () -&gt; Unit = {}, onMilestone: () -&gt; Unit = {}, onRaceBoard: (Boolean) -&gt; Unit = {}, onMilestoneChange: (String) -&gt; Unit = {}, onConfirmMilestone: () -&gt; Unit = {}, onDeleteConfirmationChange: (String) -&gt; Unit = {}, onConfirmDelete: () -&gt; Unit = {}, onDismissDialog: () -&gt; Unit = {}, weekNotify: Boolean? = null, onWeekNotify: (Boolean) -&gt; Unit = {}, goals: List&lt;com.pixelquest.app.darood.domain.PartyGoal&gt; = emptyList() )</ID>
+    <ID>CyclomaticComplexMethod:PlayableBoard.kt$@Composable fun PlayableBoard( fen: String, myColour: ChessColour?, enabled: Boolean, lastMove: String?, onMove: (uci: String) -&gt; Unit, modifier: Modifier = Modifier, flipped: Boolean = myColour == ChessColour.BLACK, /** Promote to a queen without asking (a chess setting). */ autoQueen: Boolean = false, /** Fade the last move's highlight in (a chess setting). */ animate: Boolean = true )</ID>
+    <ID>CyclomaticComplexMethod:ProfileSyncWorker.kt$ProfileSyncWorker$override suspend fun doWork(): Result</ID>
+    <ID>CyclomaticComplexMethod:SettingsScreen.kt$@Composable fun SettingsScreen( viewModel: SettingsViewModel = hiltViewModel(), onNavigateToDifficulty: () -&gt; Unit = {}, onNavigateToAvatar: () -&gt; Unit = {}, onNavigateToAccount: () -&gt; Unit = {}, onNavigateBack: (() -&gt; Unit)? = null, onResetComplete: () -&gt; Unit = {} )</ID>
+    <ID>CyclomaticComplexMethod:StudyItemScreen.kt$@Composable private fun StudyItemBody( state: StudyPartyUiState, itemId: String, onNavigateBack: () -&gt; Unit, actions: ItemActions, onFormChange: (ItemForm) -&gt; Unit, onSaveForm: () -&gt; Unit, onCloseForm: () -&gt; Unit, onConfirmDelete: () -&gt; Unit, onCancelDelete: () -&gt; Unit, zone: ZoneId, materials: ItemMaterials )</ID>
+    <ID>CyclomaticComplexMethod:StudyPartyScreen.kt$@Composable private fun StudyPartyScaffold( state: StudyPartyUiState, onNavigateBack: () -&gt; Unit, onOpenInfo: () -&gt; Unit, onAddPeople: () -&gt; Unit, onSelectTab: (PartyTab) -&gt; Unit, onRefresh: () -&gt; Unit, onDismissNotice: () -&gt; Unit, onOpenItem: (String) -&gt; Unit, onAddItem: () -&gt; Unit, onFormChange: (ItemForm) -&gt; Unit, onSaveForm: () -&gt; Unit, onCloseForm: () -&gt; Unit, actions: ItemActions, onConfirmDelete: () -&gt; Unit, onCancelDelete: () -&gt; Unit, timerActions: TimerActions, onDismissWinners: () -&gt; Unit, reminders: ReminderToggles, reminderState: ReminderUiState, reminderActions: ReminderActions?, chatState: com.pixelquest.app.study.chat.ui.ChatUiState?, chatActions: com.pixelquest.app.study.chat.ui.ChatActions )</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:ChessAccessibilityTest.kt$ChessAccessibilityTest$val (ink, light, dark, highlight) = list</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:NamazViewModel.kt$NamazViewModel$(now, settings, selected, simple)</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:StatsViewModel.kt$StatsViewModel$(today, rate, dailyStatusMap, isSimpleMode)</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:StudyPartyViewModel.kt$StudyPartyViewModel$(party, members, rows, ticks)</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:StudyPartyViewModel.kt$StudyPartyViewModel$(weekScores, past, winners, studiedToday, running, pastWeeks, banner, sessions)</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:TodayViewModel.kt$TodayViewModel$(date, tasks, logs, streak)</ID>
+    <ID>EmptyCatchBlock:DataExportImport.kt$DataExportImport${ }</ID>
+    <ID>EmptyCatchBlock:LostProgressPrompt.kt$LostProgressViewModel${ }</ID>
+    <ID>EmptyCatchBlock:NamazMidnightWorker.kt$NamazMidnightWorker${ }</ID>
+    <ID>EmptyCatchBlock:StreakEvaluationWorker.kt$StreakEvaluationWorker${ }</ID>
+    <ID>EmptyClassBlock:IslamicItem.kt$IslamicIcon${ }</ID>
+    <ID>EmptyElseBlock:ChessRules.kt$Position$if (empty &gt; 0) append(empty)</ID>
+    <ID>EmptyElseBlock:ChessRules.kt$Position.Companion$if (i &gt;= 64) return null</ID>
+    <ID>EmptyElseBlock:StudyPartyScreen.kt$if (on) askForNotifications()</ID>
+    <ID>EmptyElseBlock:SurahListViewModel.kt$SurahSearch$if (out.lastOrNull() != c) out.append(c)</ID>
+    <ID>EmptyElseBlock:UndoRestoreSettingsTest.kt$UndoRestoreSettingsTest$if (viewModel.backupMessage.value == expected) return expected</ID>
+    <ID>EmptyFunctionBlock:AiInsightUserFlowIntegrationTest.kt$AiInsightUserFlowIntegrationTest.FakeSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:AiInsightViewModelTest.kt$AiInsightViewModelTest.FakeCompletionRepository${}</ID>
+    <ID>EmptyFunctionBlock:AiInsightViewModelTest.kt$AiInsightViewModelTest.FakeSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:AiInsightsOptInGatingTest.kt$AiInsightsOptInGatingTest.TestSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:AiInsightsPlaceholderIntegrationTest.kt$AiInsightsPlaceholderIntegrationTest.TestSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:AiRateLimitEnforcementTest.kt$AiRateLimitEnforcementTest.TestSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:AuthViewModelTest.kt$FakeUserProfileRepositoryForAuth${}</ID>
+    <ID>EmptyFunctionBlock:CloudSyncEdgeCasesTest.kt$FakeUserProfileRepoForEdgeCases${}</ID>
+    <ID>EmptyFunctionBlock:Day18SimpleModeManualQaTest.kt$Day18SimpleModeManualQaTest.TestSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:Day24MalformedResponseQaTest.kt$Day24MalformedResponseQaTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:Day24OfflineGracefulDegradationQaTest.kt$Day24OfflineGracefulDegradationQaTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:Day25RateLimitManualQaTest.kt$Day25RateLimitManualQaTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:DifficultyLockUnderSimpleModeTest.kt$DifficultyLockUnderSimpleModeTest.FakeSettingsRepo${}</ID>
+    <ID>EmptyFunctionBlock:FullLeaderboardFlowIntegrationTest.kt$FullLeaderboardFlowIntegrationTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:FullSignInOptInSyncIntegrationTest.kt$TestGoogleAuthManager${}</ID>
+    <ID>EmptyFunctionBlock:FullSignInOptInSyncIntegrationTest.kt$TestUserProfileRepository${}</ID>
+    <ID>EmptyFunctionBlock:HabitInsightPipelineIntegrationTest.kt$HabitInsightPipelineIntegrationTest.FakeSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:InsightCacheLogicTest.kt$InsightCacheLogicTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:InsightCacheRepository.kt$NoOpInsightCacheRepository${}</ID>
+    <ID>EmptyFunctionBlock:InsightReadyWorkerTest.kt$InsightReadyWorkerTest.FakeSettings${}</ID>
+    <ID>EmptyFunctionBlock:LeaderboardErrorStateTest.kt$FakeUserProfileRepoForErrorTest${}</ID>
+    <ID>EmptyFunctionBlock:LeaderboardOptInValidationTest.kt$FakeUserProfileRepositoryForOptIn${}</ID>
+    <ID>EmptyFunctionBlock:NotificationCopyIntegrationTest.kt$NotificationCopyIntegrationTest.TestSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:OfflineRetrySyncTest.kt$FakeOfflineUserProfileRepo${}</ID>
+    <ID>EmptyFunctionBlock:OfflineSignInTest.kt$FakeGoogleAuthManagerForOffline${}</ID>
+    <ID>EmptyFunctionBlock:OfflineSignInTest.kt$FakeUserProfileRepoForOffline${}</ID>
+    <ID>EmptyFunctionBlock:ProfileSyncWorkerTriggerTest.kt$FakeUserProfileRepoForWorker${}</ID>
+    <ID>EmptyFunctionBlock:SimpleModeDataIntegrityIntegrationTest.kt$SimpleModeDataIntegrityIntegrationTest.TestSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:SimpleModePersistenceTest.kt$SimpleModePersistenceTest.FakeSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:SimpleModeToggleIntegrationTest.kt$SimpleModeToggleIntegrationTest.TestSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:StatsPerformanceTest.kt$StatsPerformanceTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:StatsRepositoryTest.kt$StatsRepositoryTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:StatsScreenIntegrationTest.kt$StatsScreenIntegrationTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:StudyChatFlowTest.kt$StudyChatFlowTest.&lt;no name provided&gt;${}</ID>
+    <ID>EmptyFunctionBlock:SyncCancellationOnSignOutTest.kt$FakeUserProfileRepoForCancellation${}</ID>
+    <ID>EmptyFunctionBlock:ThemePreferencePersistenceTest.kt$ThemePreferencePersistenceTest.TestableSettingsRepository${}</ID>
+    <ID>EmptyFunctionBlock:TokenExchangeFailureTest.kt$FakeUserProfileRepoForFailure${}</ID>
+    <ID>ExplicitItLambdaParameter:GoogleAuthManager.kt$GoogleAuthManager${ str, it -&gt; str + "%02x".format(it) }</ID>
+    <ID>ForEachOnRange:AvatarAndLeaderboard.kt$1..5</ID>
+    <ID>FunctionOnlyReturningConstant:CompactCoachUiTest.kt$CompactCoachUiTest$private fun earlierLabel(@Suppress("UNUSED_PARAMETER") mode: ThemeMode)</ID>
+    <ID>FunctionOnlyReturningConstant:CompactCoachUiTest.kt$CompactCoachUiTest$private fun expandLabel(@Suppress("UNUSED_PARAMETER") mode: ThemeMode)</ID>
+    <ID>FunctionOnlyReturningConstant:LeaderboardSimpleModePolicy.kt$LeaderboardSimpleModePolicy$fun isCoexistenceSupported(isSimpleModeEnabled: Boolean, isLeaderboardOptedIn: Boolean): Boolean</ID>
+    <ID>FunctionOnlyReturningConstant:LeaderboardSimpleModePolicy.kt$LeaderboardSimpleModePolicy$fun isLeaderboardAllowed(isSimpleModeEnabled: Boolean): Boolean</ID>
+    <ID>FunctionOnlyReturningConstant:LevelCalculator.kt$LevelCalculator$fun getPostLevelUpProgress(): Int</ID>
+    <ID>LongMethod:DataExportImport.kt$DataExportImport$fun exportToJson(payload: BackupPayload): String</ID>
+    <ID>LongMethod:DataExportImport.kt$DataExportImport$fun importFromJson(jsonString: String): BackupPayload</ID>
+    <ID>LongMethod:PartiesNavigation.kt$fun NavGraphBuilder.partiesScreens(navController: NavHostController)</ID>
+    <ID>LongParameterList:NamazViewModel.kt$NamazViewModel$( private val repository: NamazRepository, private val provider: PrayerTimeProvider, private val nextPrayer: NextPrayerUseCase, private val autoMarkMissed: AutoMarkMissedUseCase, private val markPrayer: MarkPrayerUseCase, private val undoPrayer: UndoPrayerUseCase, private val placeResolver: NamazPlaceResolver, private val settingsRepository: SettingsRepository, private val reminderOptions: NamazReminderOptionsStore, private val alarms: NamazAlarms, private val clock: AppClock, private val zone: () -&gt; ZoneId, private val levelUps: com.pixelquest.app.domain.LevelUpSignalManager? = null )</ID>
+    <ID>LongParameterList:NamazViewModel.kt$NamazViewModel$( repository: NamazRepository, provider: PrayerTimeProvider, nextPrayer: NextPrayerUseCase, autoMarkMissed: AutoMarkMissedUseCase, markPrayer: MarkPrayerUseCase, undoPrayer: UndoPrayerUseCase, placeResolver: NamazPlaceResolver, settingsRepository: SettingsRepository, reminderOptions: NamazReminderOptionsStore, alarms: NamazAlarms, clock: AppClock, levelUps: com.pixelquest.app.domain.LevelUpSignalManager )</ID>
+    <ID>LoopWithTooManyJumpStatements:ChessSessionViewModel.kt$ChessSessionViewModel$while</ID>
+    <ID>LoopWithTooManyJumpStatements:GoalNotifyRun.kt$GoalNotifyRun$for</ID>
+    <ID>LoopWithTooManyJumpStatements:StudyChatNotifyWorker.kt$StudyChatNotifyWorker$for</ID>
+    <ID>LoopWithTooManyJumpStatements:WeekResultsRun.kt$WeekResultsRun$for</ID>
+    <ID>MagicNumber:AiErrorCopy.kt$AiErrorCopy$200</ID>
+    <ID>MagicNumber:AiErrorCopy.kt$AiErrorCopy$400</ID>
+    <ID>MagicNumber:AiErrorCopy.kt$AiErrorCopy$401</ID>
+    <ID>MagicNumber:AiErrorCopy.kt$AiErrorCopy$403</ID>
+    <ID>MagicNumber:AiErrorCopy.kt$AiErrorCopy$404</ID>
+    <ID>MagicNumber:AiErrorCopy.kt$AiErrorCopy$429</ID>
+    <ID>MagicNumber:AiErrorCopy.kt$AiErrorCopy$500</ID>
+    <ID>MagicNumber:AiErrorCopy.kt$AiErrorCopy$599</ID>
+    <ID>MagicNumber:AiRateLimitFormatter.kt$AiRateLimitFormatter$3599</ID>
+    <ID>MagicNumber:AiRateLimitFormatter.kt$AiRateLimitFormatter$3600</ID>
+    <ID>MagicNumber:AiRateLimitFormatter.kt$AiRateLimitFormatter$3600L</ID>
+    <ID>MagicNumber:AiRateLimitFormatter.kt$AiRateLimitFormatter$59</ID>
+    <ID>MagicNumber:AiRateLimitFormatter.kt$AiRateLimitFormatter$60</ID>
+    <ID>MagicNumber:AiRateLimitFormatter.kt$AiRateLimitFormatter$60L</ID>
+    <ID>MagicNumber:AiRateLimitFormatter.kt$AiRateLimitFormatter$7200L</ID>
+    <ID>MagicNumber:AndroidGoalNotifier.kt$AndroidGoalNotifier$0xFFFF</ID>
+    <ID>MagicNumber:AndroidGoalNotifier.kt$AndroidGoalNotifier$31</ID>
+    <ID>MagicNumber:AndroidGoalNotifier.kt$AndroidGoalNotifier$950_000</ID>
+    <ID>MagicNumber:AndroidWeekResultNotifier.kt$AndroidWeekResultNotifier.Companion$0xFFFF</ID>
+    <ID>MagicNumber:AndroidWeekResultNotifier.kt$AndroidWeekResultNotifier.Companion$940_000</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x0610</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x061A</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x0620</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x0640</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x064A</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x064B</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x065F</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x066E</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x0670</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x06D3</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x06D6</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x06ED</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x06FA</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x06FF</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x08D3</ID>
+    <ID>MagicNumber:ArabicSearch.kt$ArabicSearch$0x08FF</ID>
+    <ID>MagicNumber:AuthViewModel.kt$AuthViewModel$10</ID>
+    <ID>MagicNumber:AuthViewModel.kt$AuthViewModel$1_000</ID>
+    <ID>MagicNumber:AvatarTierCalculator.kt$AvatarTier.BRONZE$0xFFCD7F32</ID>
+    <ID>MagicNumber:AvatarTierCalculator.kt$AvatarTier.GOLD$0xFFFFD700</ID>
+    <ID>MagicNumber:AvatarTierCalculator.kt$AvatarTier.SILVER$0xFFC0C0C0</ID>
+    <ID>MagicNumber:AvatarTierCalculator.kt$AvatarTierCalculator$10</ID>
+    <ID>MagicNumber:AvatarTierCalculator.kt$AvatarTierCalculator$5</ID>
+    <ID>MagicNumber:ChatFileOpener.kt$HttpChatFileFetcher$1024</ID>
+    <ID>MagicNumber:ChatFileOpener.kt$HttpChatFileFetcher$20</ID>
+    <ID>MagicNumber:ChatFileOpener.kt$HttpChatFileFetcher$400</ID>
+    <ID>MagicNumber:ChatFileOpener.kt$HttpChatFileFetcher$403</ID>
+    <ID>MagicNumber:ChatFileOpener.kt$HttpChatFileFetcher$404</ID>
+    <ID>MagicNumber:ChatFileOpener.kt$HttpChatFileFetcher$60</ID>
+    <ID>MagicNumber:ChatFileOpener.kt$HttpChatFileFetcher$64</ID>
+    <ID>MagicNumber:ChatFilesRemote.kt$HttpChatFilesRemote$20</ID>
+    <ID>MagicNumber:ChatFilesRemote.kt$HttpChatFilesRemote$401</ID>
+    <ID>MagicNumber:ChatFilesRemote.kt$HttpChatFilesRemote$500</ID>
+    <ID>MagicNumber:ChatFilesRemote.kt$HttpChatFilesRemote$60</ID>
+    <ID>MagicNumber:ChatFilesRemote.kt$HttpChatFilesRemote.&lt;no name provided&gt;$1024</ID>
+    <ID>MagicNumber:ChatFilesRemote.kt$HttpChatFilesRemote.&lt;no name provided&gt;$64</ID>
+    <ID>MagicNumber:ChessClock.kt$ChessClock$100</ID>
+    <ID>MagicNumber:ChessClock.kt$ChessClock$1000</ID>
+    <ID>MagicNumber:ChessClock.kt$ChessClock$10_000</ID>
+    <ID>MagicNumber:ChessClock.kt$ChessClock$60_000</ID>
+    <ID>MagicNumber:ChessModels.kt$TimeControl.FIVE$300</ID>
+    <ID>MagicNumber:ChessModels.kt$TimeControl.ONE$60</ID>
+    <ID>MagicNumber:ChessModels.kt$TimeControl.TEN$600</ID>
+    <ID>MagicNumber:ChessModels.kt$TimeControl.THREE$180</ID>
+    <ID>MagicNumber:ChessPushNotifier.kt$ChessPushNotifier$0xFFFF</ID>
+    <ID>MagicNumber:ChessPushNotifier.kt$ChessPushNotifier$10</ID>
+    <ID>MagicNumber:ChessPushNotifier.kt$ChessPushNotifier$1000L</ID>
+    <ID>MagicNumber:ChessPushNotifier.kt$ChessPushNotifier$60</ID>
+    <ID>MagicNumber:ChessPushNotifier.kt$ChessPushNotifier$960_000</ID>
+    <ID>MagicNumber:ChessRemote.kt$SupabaseChessRemote$15</ID>
+    <ID>MagicNumber:ChessRemote.kt$SupabaseChessRemote$20</ID>
+    <ID>MagicNumber:ChessRemote.kt$SupabaseChessRemote$401</ID>
+    <ID>MagicNumber:ChessRemote.kt$SupabaseChessRemote$500</ID>
+    <ID>MagicNumber:ChessRepositoryImpl.kt$ChessRepositoryImpl$404</ID>
+    <ID>MagicNumber:ChessRepositoryImpl.kt$ChessRepositoryImpl$500</ID>
+    <ID>MagicNumber:ChessRules.kt$Move.Companion$4</ID>
+    <ID>MagicNumber:ChessRules.kt$Move.Companion$5</ID>
+    <ID>MagicNumber:ChessRules.kt$Move.Companion$7</ID>
+    <ID>MagicNumber:ChessRules.kt$Move.Companion$8</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$16</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$3</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$4</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$48</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$56</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$6</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$60</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$63</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$64</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$7</ID>
+    <ID>MagicNumber:ChessRules.kt$Position$8</ID>
+    <ID>MagicNumber:ChessRules.kt$Position.Companion$3</ID>
+    <ID>MagicNumber:ChessRules.kt$Position.Companion$4</ID>
+    <ID>MagicNumber:ChessRules.kt$Position.Companion$5</ID>
+    <ID>MagicNumber:ChessRules.kt$Position.Companion$64</ID>
+    <ID>MagicNumber:ChessRules.kt$Position.Companion$8</ID>
+    <ID>MagicNumber:DaroodPartyRemoteDataSource.kt$SupabaseDaroodPartyRemoteDataSource$403</ID>
+    <ID>MagicNumber:DaroodRefusal.kt$DaroodRefusal.Companion$400</ID>
+    <ID>MagicNumber:DaroodRefusal.kt$DaroodRefusal.Companion$499</ID>
+    <ID>MagicNumber:DaroodWeekResultsWorker.kt$DaroodWeekResultsWorker.Companion$3</ID>
+    <ID>MagicNumber:DaroodWeeklyWorker.kt$DaroodWeeklyWorker$6</ID>
+    <ID>MagicNumber:DaroodWeeklyWorker.kt$DaroodWeeklyWorker.Companion$7</ID>
+    <ID>MagicNumber:DataExportImport.kt$DataExportImport$0.7</ID>
+    <ID>MagicNumber:DataExportImport.kt$DataExportImport$120</ID>
+    <ID>MagicNumber:DataExportImport.kt$DataExportImport$180.0</ID>
+    <ID>MagicNumber:DataExportImport.kt$DataExportImport$5</ID>
+    <ID>MagicNumber:DataExportImport.kt$DataExportImport$7</ID>
+    <ID>MagicNumber:DataExportImport.kt$DataExportImport$86_400_000L</ID>
+    <ID>MagicNumber:DataExportImport.kt$DataExportImport$9</ID>
+    <ID>MagicNumber:DataExportImport.kt$DataExportImport$90.0</ID>
+    <ID>MagicNumber:DebugAiInsightTrigger.kt$DebugAiInsightTrigger$1000</ID>
+    <ID>MagicNumber:DifficultyMode.kt$DifficultyMode$0.50f</ID>
+    <ID>MagicNumber:DifficultyMode.kt$DifficultyMode$0.70f</ID>
+    <ID>MagicNumber:DifficultyMode.kt$DifficultyMode$0.90f</ID>
+    <ID>MagicNumber:DifficultyMode.kt$DifficultyMode$14</ID>
+    <ID>MagicNumber:DifficultyMode.kt$DifficultyMode$3</ID>
+    <ID>MagicNumber:DifficultyMode.kt$DifficultyMode$30</ID>
+    <ID>MagicNumber:DifficultyMode.kt$DifficultyMode$7</ID>
+    <ID>MagicNumber:EmailSignIn.kt$EmailSignIn$10</ID>
+    <ID>MagicNumber:EmailSignIn.kt$EmailSignIn$6</ID>
+    <ID>MagicNumber:EncouragementMessages.kt$StaticEncouragementBank$31</ID>
+    <ID>MagicNumber:EncouragementPackPrompt.kt$EncouragementPackPrompt$100</ID>
+    <ID>MagicNumber:EncouragementPackWorker.kt$EncouragementPackWorker$100</ID>
+    <ID>MagicNumber:EncouragementPackWorker.kt$EncouragementPackWorker$7L</ID>
+    <ID>MagicNumber:EncouragementSanitizer.kt$EncouragementSanitizer$8</ID>
+    <ID>MagicNumber:FakeChessBackend.kt$FakeChessBackend$3</ID>
+    <ID>MagicNumber:FakeChessBackend.kt$FakeChessBackend$4</ID>
+    <ID>MagicNumber:FakeChessBackend.kt$FakeChessBackend$404</ID>
+    <ID>MagicNumber:FakeChessBackend.kt$FakeChessBackend$409</ID>
+    <ID>MagicNumber:FakeChessBackend.kt$FakeChessBackend$422</ID>
+    <ID>MagicNumber:FakeChessBackend.kt$FakeChessBackend$600</ID>
+    <ID>MagicNumber:Fen.kt$7</ID>
+    <ID>MagicNumber:Fen.kt$8</ID>
+    <ID>MagicNumber:Fen.kt$BoardPosition.Companion$64</ID>
+    <ID>MagicNumber:Fen.kt$BoardPosition.Companion$8</ID>
+    <ID>MagicNumber:GeminiClient.kt$GeminiClientImpl$0.7</ID>
+    <ID>MagicNumber:GeminiClient.kt$GeminiClientImpl$401</ID>
+    <ID>MagicNumber:GeminiClient.kt$GeminiClientImpl$800</ID>
+    <ID>MagicNumber:GeminiClient.kt$GeminiResponseParser$200</ID>
+    <ID>MagicNumber:GeminiProxyClient.kt$GeminiProxyClient$401</ID>
+    <ID>MagicNumber:GeminiResult.kt$401</ID>
+    <ID>MagicNumber:GeminiResult.kt$429</ID>
+    <ID>MagicNumber:HabitInsightPromptBuilder.kt$HabitInsightPromptBuilder$100</ID>
+    <ID>MagicNumber:HabitInsightPromptBuilder.kt$HabitInsightPromptBuilder$6L</ID>
+    <ID>MagicNumber:HabitInsightRepositoryImpl.kt$HabitInsightRepositoryImpl$1000L</ID>
+    <ID>MagicNumber:NamazActionReceiver.kt$NamazAction$10</ID>
+    <ID>MagicNumber:NamazActionReceiver.kt$NamazAction$100L</ID>
+    <ID>MagicNumber:NamazActionReceiver.kt$NamazAction.DISMISS$770_000</ID>
+    <ID>MagicNumber:NamazActionReceiver.kt$NamazAction.PRAYED$750_000</ID>
+    <ID>MagicNumber:NamazActionReceiver.kt$NamazAction.SNOOZE$760_000</ID>
+    <ID>MagicNumber:NamazAlarm.kt$NamazAlarm.Companion$10</ID>
+    <ID>MagicNumber:NamazAlarm.kt$NamazAlarm.Companion$100L</ID>
+    <ID>MagicNumber:NamazAlarm.kt$NamazAlarm.Kind.NUDGE$710_000</ID>
+    <ID>MagicNumber:NamazAlarm.kt$NamazAlarm.Kind.REMINDER$700_000</ID>
+    <ID>MagicNumber:NamazAlarm.kt$NamazAlarm.Kind.SNOOZE$720_000</ID>
+    <ID>MagicNumber:NamazAlarm.kt$NamazAlarm.Kind.TEST$730_000</ID>
+    <ID>MagicNumber:NamazAlarmReceiver.kt$NamazAlarmHandler$59</ID>
+    <ID>MagicNumber:NamazAlarmReceiver.kt$NamazAlarmHandler$60</ID>
+    <ID>MagicNumber:NamazAlarmScheduler.kt$NamazAlarmScheduler$2L</ID>
+    <ID>MagicNumber:NamazAlarmScheduler.kt$NamazAlarmScheduler$3L</ID>
+    <ID>MagicNumber:NamazPlaceResolver.kt$NamazPlaceResolver.Companion$6371.0</ID>
+    <ID>MagicNumber:NamazReminders.kt$NamazReminders$2L</ID>
+    <ID>MagicNumber:NamazReminders.kt$NamazReminders$3L</ID>
+    <ID>MagicNumber:NotificationHelper.kt$NotificationHelper$34</ID>
+    <ID>MagicNumber:PixelQuestApplication.kt$PixelQuestApplication$30</ID>
+    <ID>MagicNumber:PqNotifications.kt$PqNotifications$100</ID>
+    <ID>MagicNumber:PrayerTimeProvider.kt$DefaultPrayerTimeProvider.Companion$180.0</ID>
+    <ID>MagicNumber:PrayerTimeProvider.kt$DefaultPrayerTimeProvider.Companion$90.0</ID>
+    <ID>MagicNumber:PreUpdateCopy.kt$PreUpdateCopy$100</ID>
+    <ID>MagicNumber:PreUpdateCopy.kt$PreUpdateCopy$12</ID>
+    <ID>MagicNumber:PreUpdateCopy.kt$PreUpdateCopy$16</ID>
+    <ID>MagicNumber:PreUpdateCopy.kt$PreUpdateCopy$20</ID>
+    <ID>MagicNumber:PreUpdateCopy.kt$PreUpdateCopy$4</ID>
+    <ID>MagicNumber:PreUpdateCopy.kt$PreUpdateCopy$512</ID>
+    <ID>MagicNumber:PreUpdateCopy.kt$PreUpdateCopy$65_536</ID>
+    <ID>MagicNumber:PreUpdateCopy.kt$PreUpdateCopy$8</ID>
+    <ID>MagicNumber:ReminderAlerts.kt$ReminderAlerts$30</ID>
+    <ID>MagicNumber:ReminderAlerts.kt$ReminderAlerts$5</ID>
+    <ID>MagicNumber:ReminderTime.kt$7</ID>
+    <ID>MagicNumber:SeedDataProvider.kt$SeedDataProvider$17</ID>
+    <ID>MagicNumber:SeedDataProvider.kt$SeedDataProvider$21</ID>
+    <ID>MagicNumber:SeedDataProvider.kt$SeedDataProvider$30</ID>
+    <ID>MagicNumber:SeedDataProvider.kt$SeedDataProvider$8</ID>
+    <ID>MagicNumber:SoundManager.kt$SoundManager$0.35f</ID>
+    <ID>MagicNumber:SoundManager.kt$SoundManager$0.60f</ID>
+    <ID>MagicNumber:SoundManager.kt$SoundManager$0.85f</ID>
+    <ID>MagicNumber:SoundManager.kt$SoundManager$1.25f</ID>
+    <ID>MagicNumber:SoundManager.kt$SoundManager$1.2f</ID>
+    <ID>MagicNumber:SoundManager.kt$SoundManager$4</ID>
+    <ID>MagicNumber:StatsRepositoryImpl.kt$StatsRepositoryImpl$14</ID>
+    <ID>MagicNumber:StudyChatNotifyWorker.kt$StudyChatNotifyWorker$0xFFFF</ID>
+    <ID>MagicNumber:StudyChatNotifyWorker.kt$StudyChatNotifyWorker$930_000</ID>
+    <ID>MagicNumber:StudyChatNotifyWorker.kt$StudyChatNotifyWorker.Companion$30</ID>
+    <ID>MagicNumber:StudyChatRemoteDataSource.kt$SupabaseStudyChatRemoteDataSource$409</ID>
+    <ID>MagicNumber:StudyDueWorker.kt$DueReminder.DAY$24</ID>
+    <ID>MagicNumber:StudyDueWorker.kt$StudyDueWorker$0xFFFF</ID>
+    <ID>MagicNumber:StudyRefusal.kt$StudyRefusal.Companion$400</ID>
+    <ID>MagicNumber:StudyRefusal.kt$StudyRefusal.Companion$401</ID>
+    <ID>MagicNumber:StudyRefusal.kt$StudyRefusal.Companion$403</ID>
+    <ID>MagicNumber:StudyRefusal.kt$StudyRefusal.Companion$499</ID>
+    <ID>MagicNumber:StudyReminder.kt$64</ID>
+    <ID>MagicNumber:StudyReminderNotifier.kt$AndroidStudyReminderNotifier.Companion$0xFFFF</ID>
+    <ID>MagicNumber:StudyReminderRemoteDataSource.kt$SupabaseStudyReminderRemoteDataSource$409</ID>
+    <ID>MagicNumber:StudyRemoteDataSource.kt$SupabaseStudyRemoteDataSource$409</ID>
+    <ID>MagicNumber:StudyRepository.kt$StudyRepositoryImpl$8</ID>
+    <ID>MagicNumber:StudyTimerStore.kt$RunningTimer$60_000L</ID>
+    <ID>MagicNumber:StudyWeeklyWorker.kt$StudyWeeklyWorker.Companion$7</ID>
+    <ID>MagicNumber:SupabaseResult.kt$1000</ID>
+    <ID>MagicNumber:TaskAlarmReceiver.kt$TaskAlarmReceiver$10</ID>
+    <ID>MagicNumber:TaskAlarmScheduler.kt$TaskAlarmScheduler$400</ID>
+    <ID>MagicNumber:TaskAlarmScheduler.kt$TaskAlarmScheduler$60_000L</ID>
+    <ID>MagicNumber:TaskAlarmScheduler.kt$TaskAlarmScheduler.Companion$10</ID>
+    <ID>MagicNumber:TaskAlarmScheduler.kt$TaskAlarmScheduler.Companion$4</ID>
+    <ID>MagicNumber:UploadChecks.kt$UploadChecks$10</ID>
+    <ID>MagicNumber:WeekRankingText.kt$WeekRankingText$10</ID>
+    <ID>MagicNumber:WeekRankingText.kt$WeekRankingText$100</ID>
+    <ID>MagicNumber:WeekRankingText.kt$WeekRankingText$11</ID>
+    <ID>MagicNumber:WeekRankingText.kt$WeekRankingText$13</ID>
+    <ID>MagicNumber:WeekRankingText.kt$WeekRankingText$3</ID>
+    <ID>MaxLineLength:AccountDeletionFlowTest.kt$AccountDeletionFlowTest$composeTestRule.onNodeWithText("This permanently erases your leaderboard rank, display name, and cloud profile, and signs you out.\n\nLocal quests and streak history on this device will remain safe.").assertIsDisplayed()</ID>
+    <ID>MaxLineLength:AccountScreen.kt$Text(text = "Cloud sync is unavailable right now. It keeps retrying in the background, and your progress is safe on this phone.", style = PqType.Meta.copy(color = PqColors.Error))</ID>
+    <ID>MaxLineLength:AccountScreen.kt$text = "By default, all your quests, schedule times, recurrence rules, completion logs, and streak history are stored strictly on your local device. We never run third-party advertising SDKs or tracking telemetry."</ID>
+    <ID>MaxLineLength:AccountScreen.kt$text = "Leaderboard participation defaults to OFF. You can sign in with Google or with a code sent to your email; signing in alone shares nothing. If you opt in, only your public display name, level, streak, and XP are synchronized. Your individual quest descriptions and email are NEVER shared. The AI Coach is for signed-in players."</ID>
+    <ID>MaxLineLength:AccountScreen.kt$text = "You can leave the leaderboard at any time, or permanently delete your cloud account and public record with one tap from this screen. Local progress remains safe on your device."</ID>
+    <ID>MaxLineLength:AddPeopleTest.kt$AddPeopleTest$com.pixelquest.app.party.domain.PartyMember(partyId, "aria-id", "aria_k", com.pixelquest.app.party.domain.PartyRole.LEADER, com.pixelquest.app.party.domain.MemberStatus.ACTIVE, null, null)</ID>
+    <ID>MaxLineLength:AddPeopleTest.kt$AddPeopleTest$com.pixelquest.app.party.domain.PartyMember(partyId, "cleo-id", "cleo_r", com.pixelquest.app.party.domain.PartyRole.MEMBER, com.pixelquest.app.party.domain.MemberStatus.DECLINED, null, null)</ID>
+    <ID>MaxLineLength:AiInsightScreen.kt$.</ID>
+    <ID>MaxLineLength:AiInsightUserFlowIntegrationTest.kt$AiInsightUserFlowIntegrationTest$TaskEntity(id = 1, name = "Morning Run", description = "", scheduledDay = LocalDate.of(2026, 9, 1), scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS)</ID>
+    <ID>MaxLineLength:AiInsightUserFlowIntegrationTest.kt$AiInsightUserFlowIntegrationTest$TaskEntity(id = 2, name = "Code Practice", description = "", scheduledDay = LocalDate.of(2026, 9, 1), scheduledTime = LocalTime.of(19, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `chat_file` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `uploaderId` TEXT, `displayName` TEXT NOT NULL, `mime` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `sha256` TEXT, `status` TEXT NOT NULL, `rejectReason` TEXT, `pinned` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `readyAt` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `chat_message_pending` (`clientId` TEXT NOT NULL, `partyId` TEXT NOT NULL, `body` TEXT NOT NULL, `replyTo` TEXT, `createdAt` INTEGER NOT NULL, `state` TEXT NOT NULL, `attempts` INTEGER NOT NULL DEFAULT 0, `refusal` TEXT, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `chat_message` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `senderId` TEXT, `kind` TEXT NOT NULL, `body` TEXT, `fileId` TEXT, `replyTo` TEXT, `clientId` TEXT, `createdAt` INTEGER NOT NULL, `deletedAt` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `chat_read` (`partyId` TEXT NOT NULL, `lastReadAt` INTEGER NOT NULL, PRIMARY KEY(`partyId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `chat_upload` (`clientId` TEXT NOT NULL, `partyId` TEXT NOT NULL, `uri` TEXT NOT NULL, `displayName` TEXT NOT NULL, `mime` TEXT NOT NULL, `sizeBytes` INTEGER NOT NULL, `fileId` TEXT, `state` TEXT NOT NULL, `sentBytes` INTEGER NOT NULL DEFAULT 0, `reason` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `chess_finished_game` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `whiteId` TEXT NOT NULL, `blackId` TEXT NOT NULL, `timeControl` INTEGER NOT NULL, `rated` INTEGER NOT NULL, `result` TEXT, `reason` TEXT, `fen` TEXT NOT NULL, `ply` INTEGER NOT NULL, `endedAt` INTEGER NOT NULL, `whiteChange` INTEGER, `blackChange` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `chess_head_to_head` (`me` TEXT NOT NULL, `them` TEXT NOT NULL, `timeControl` INTEGER NOT NULL, `myWins` INTEGER NOT NULL, `theirWins` INTEGER NOT NULL, `draws` INTEGER NOT NULL, PRIMARY KEY(`me`, `them`, `timeControl`))"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `chess_rating` (`userId` TEXT NOT NULL, `timeControl` INTEGER NOT NULL, `points` INTEGER NOT NULL, `games` INTEGER NOT NULL, `wins` INTEGER NOT NULL, `draws` INTEGER NOT NULL, `losses` INTEGER NOT NULL, `peak` INTEGER NOT NULL, PRIMARY KEY(`userId`, `timeControl`))"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `darood_week_notified` (`partyId` TEXT NOT NULL, `weekStart` TEXT NOT NULL, `notifiedAt` INTEGER NOT NULL, PRIMARY KEY(`partyId`, `weekStart`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `darood_week_result` (`partyId` TEXT NOT NULL, `weekStart` TEXT NOT NULL, `userId` TEXT NOT NULL, `position` INTEGER NOT NULL, `weekTotal` INTEGER NOT NULL, `activeDays` INTEGER NOT NULL, `closedAt` INTEGER NOT NULL, PRIMARY KEY(`partyId`, `weekStart`, `userId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `quran_ayah` (`id` INTEGER NOT NULL, `surah` INTEGER NOT NULL, `ayah` INTEGER NOT NULL, `arabic` TEXT NOT NULL, `translationId` TEXT NOT NULL, `translation` TEXT NOT NULL, PRIMARY KEY(`id`))"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `quran_surah` (`number` INTEGER NOT NULL, `arabicName` TEXT NOT NULL, `englishName` TEXT NOT NULL, `englishMeaning` TEXT NOT NULL, `revelation` TEXT NOT NULL, `revelationOrder` INTEGER NOT NULL, `ayahCount` INTEGER NOT NULL, `juz` INTEGER NOT NULL, `bismillah` TEXT, PRIMARY KEY(`number`))"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `quran_translation` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `translator` TEXT NOT NULL, `language` TEXT NOT NULL, `lastUpdate` TEXT NOT NULL, `licenceNote` TEXT NOT NULL, `notice` TEXT NOT NULL, `dataVersion` TEXT NOT NULL, PRIMARY KEY(`id`))"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `study_completion` (`id` INTEGER NOT NULL, `partyId` TEXT NOT NULL, `itemId` TEXT NOT NULL, `userId` TEXT, `completedAt` INTEGER NOT NULL, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `clientId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `study_item` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `kind` TEXT NOT NULL, `title` TEXT NOT NULL, `subject` TEXT, `notes` TEXT, `dueAt` INTEGER, `pinned` INTEGER NOT NULL, `createdBy` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `study_pending` (`clientId` TEXT NOT NULL, `kind` TEXT NOT NULL, `partyId` TEXT NOT NULL, `itemId` TEXT, `minutes` INTEGER, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `state` TEXT NOT NULL, `attempts` INTEGER NOT NULL DEFAULT 0, `refusal` TEXT, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `study_reminder_pending` (`clientId` TEXT NOT NULL, `op` TEXT NOT NULL, `partyId` TEXT NOT NULL, `reminderId` TEXT, `title` TEXT, `kind` TEXT, `scope` TEXT, `dueAt` INTEGER, `weekStart` TEXT, `tz` TEXT, `repeat` TEXT, `audience` TEXT, `alertOffsets` TEXT, `createdAt` INTEGER NOT NULL, `state` TEXT NOT NULL, `attempts` INTEGER NOT NULL DEFAULT 0, `refusal` TEXT, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `study_reminder` (`id` TEXT NOT NULL, `partyId` TEXT NOT NULL, `createdBy` TEXT, `title` TEXT NOT NULL, `kind` TEXT NOT NULL, `scope` TEXT NOT NULL, `dueAt` INTEGER, `weekStart` TEXT, `tz` TEXT NOT NULL, `repeat` TEXT NOT NULL, `audience` TEXT NOT NULL, `alertOffsets` TEXT, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `study_session` (`id` INTEGER NOT NULL, `partyId` TEXT NOT NULL, `userId` TEXT, `minutes` INTEGER NOT NULL, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `clientId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `study_week_score` (`partyId` TEXT NOT NULL, `userId` TEXT NOT NULL, `weekStart` TEXT NOT NULL, `points` INTEGER NOT NULL, `itemPoints` INTEGER NOT NULL, `bonusPoints` INTEGER NOT NULL, `studyPoints` INTEGER NOT NULL, `itemsCompleted` INTEGER NOT NULL, `studyMinutes` INTEGER NOT NULL, PRIMARY KEY(`partyId`, `userId`, `weekStart`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TABLE IF NOT EXISTS `study_week_winner` (`partyId` TEXT NOT NULL, `weekStart` TEXT NOT NULL, `userId` TEXT NOT NULL, `points` INTEGER NOT NULL, PRIMARY KEY(`partyId`, `weekStart`, `userId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_quran_ayah_fts_AFTER_INSERT AFTER INSERT ON `quran_ayah` BEGIN INSERT INTO `quran_ayah_fts`(`docid`, `translation`) VALUES (NEW.`rowid`, NEW.`translation`); END"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$"CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_quran_ayah_fts_AFTER_UPDATE AFTER UPDATE ON `quran_ayah` BEGIN INSERT INTO `quran_ayah_fts`(`docid`, `translation`) VALUES (NEW.`rowid`, NEW.`translation`); END"</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion$arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11, MIGRATION_11_12, MIGRATION_12_13, MIGRATION_13_14, MIGRATION_14_15, MIGRATION_15_16, MIGRATION_16_17, MIGRATION_17_18, MIGRATION_18_19, MIGRATION_19_20, MIGRATION_20_21, MIGRATION_21_22, MIGRATION_22_23)</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$db.execSQL("CREATE TABLE IF NOT EXISTS `darood_entry` (`id` INTEGER NOT NULL, `partyId` TEXT NOT NULL, `userId` TEXT, `amount` INTEGER NOT NULL, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `clientId` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$db.execSQL("CREATE TABLE IF NOT EXISTS `darood_party_member` (`partyId` TEXT NOT NULL, `userId` TEXT NOT NULL, `username` TEXT, `role` TEXT NOT NULL, `status` TEXT NOT NULL, `invitedAt` INTEGER, `joinedAt` INTEGER, `total` INTEGER NOT NULL DEFAULT 0, `activeDays` INTEGER NOT NULL DEFAULT 0, `lastEntryDate` TEXT, PRIMARY KEY(`partyId`, `userId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$db.execSQL("CREATE TABLE IF NOT EXISTS `darood_party` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `leaderId` TEXT, `maxMembers` INTEGER NOT NULL, `milestone` INTEGER, `milestoneSetAt` INTEGER, `completedAt` INTEGER, `createdAt` INTEGER NOT NULL, `total` INTEGER NOT NULL, `entryCount` INTEGER NOT NULL, `memberCount` INTEGER NOT NULL, `lastEntryDate` TEXT, `myRole` TEXT NOT NULL, `myStatus` TEXT NOT NULL, `syncedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))")</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$db.execSQL("CREATE TABLE IF NOT EXISTS `darood_pending_entry` (`clientId` TEXT NOT NULL, `partyId` TEXT NOT NULL, `amount` INTEGER NOT NULL, `localDate` TEXT NOT NULL, `tz` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `state` TEXT NOT NULL, `attempts` INTEGER NOT NULL DEFAULT 0, `refusal` TEXT, PRIMARY KEY(`clientId`), FOREIGN KEY(`partyId`) REFERENCES `darood_party`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$db.execSQL("CREATE TABLE IF NOT EXISTS `level_history` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `level` INTEGER NOT NULL, `achievedDate` INTEGER NOT NULL, `difficultyAtTimeOfLevelUp` TEXT NOT NULL)")</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$db.execSQL("CREATE TABLE IF NOT EXISTS `namaz_log` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `date` TEXT NOT NULL, `prayer` TEXT NOT NULL, `status` TEXT NOT NULL, `prayedAt` INTEGER, `xpAwarded` INTEGER NOT NULL)")</ID>
+    <ID>MaxLineLength:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$db.execSQL("CREATE TABLE IF NOT EXISTS `namaz_settings` (`id` INTEGER NOT NULL, `enabled` INTEGER NOT NULL, `method` TEXT NOT NULL, `asrMadhab` TEXT NOT NULL, `highLatitudeRule` TEXT, `latitude` REAL, `longitude` REAL, `city` TEXT, `reminderOffsetMin` INTEGER NOT NULL, `remindFajr` INTEGER NOT NULL, `remindDhuhr` INTEGER NOT NULL, `remindAsr` INTEGER NOT NULL, `remindMaghrib` INTEGER NOT NULL, `remindIsha` INTEGER NOT NULL, `adjustFajr` INTEGER NOT NULL, `adjustDhuhr` INTEGER NOT NULL, `adjustAsr` INTEGER NOT NULL, `adjustMaghrib` INTEGER NOT NULL, `adjustIsha` INTEGER NOT NULL, `xpEnabled` INTEGER NOT NULL, PRIMARY KEY(`id`))")</ID>
+    <ID>MaxLineLength:AppRestartPersistenceTest.kt$AppRestartPersistenceTest.&lt;no name provided&gt;$override suspend</ID>
+    <ID>MaxLineLength:BackupFormatVersionTest.kt$BackupFormatVersionTest$val message = restoreFile("""{"formatVersion": $newer, "aFutureSection": {"x": 1}, "userProfile": {"id": 1, "username": "Aria", "avatarId": "avatar_mage", "level": 2, "totalXp": 300}, "tasks": []}""")</ID>
+    <ID>MaxLineLength:BackupSettingsTest.kt$BackupSettingsTest$"""{"formatVersion": 4, "settings": {"haptics": false, "theme": "Holographic"}, "userProfile": {"id": 1, "username": "Aria", "avatarId": "avatar_mage", "level": 2, "totalXp": 300}, "tasks": []}"""</ID>
+    <ID>MaxLineLength:ChatFileFetcherTest.kt$ChatFileFetcherTest$private var link: FileCall&lt;DownloadReply&gt; = FileCall.Ok(DownloadReply("/storage/v1/object/sign/study-files/p1/x?token=t&amp;download=Past", 60, "Past paper.pdf", "application/pdf", bytes.size.toLong()))</ID>
+    <ID>MaxLineLength:ChessBoard.kt$Text(glyph, style = style.copy(color = PqColors.Ink, drawStyle = androidx.compose.ui.graphics.drawscope.Stroke(width = size.value * 0.09f, join = androidx.compose.ui.graphics.StrokeJoin.Round)))</ID>
+    <ID>MaxLineLength:ChessChatCardTest.kt$ChessChatCardTest$PixelQuestTheme { ChessChatCard("chess_open_challenge", "c1", ChessPartyState(me = "me", challenges = listOf(open), names = mapOf("sara" to "sara")), onAnswer = { id, a -&gt; answers += id to a }) }</ID>
+    <ID>MaxLineLength:ChessChatCards.kt$PqButton(stringResource(R.string.chess_accept), onClick = { onAnswer(refId, true) }, enabled = !state.sending, modifier = Modifier.fillMaxWidth().testTag(ChessChatTags.accept(refId)))</ID>
+    <ID>MaxLineLength:ChessChatCards.kt$PqButton(stringResource(R.string.chess_chat_cancel), onClick = { onAnswer(refId, false) }, style = PqButtonStyle.Secondary, enabled = !state.sending, modifier = Modifier.fillMaxWidth())</ID>
+    <ID>MaxLineLength:ChessChatCards.kt$PqButton(stringResource(R.string.chess_watch), onClick = { onOpenGame(refId) }, style = PqButtonStyle.Secondary, modifier = Modifier.fillMaxWidth().testTag(ChessChatTags.watch(refId)))</ID>
+    <ID>MaxLineLength:ChessChatCards.kt$Text(text = challenge?.let { stringResource(R.string.chess_chat_sent_body, from, to, stringResource(R.string.chess_minutes, it.timeControl.seconds / 60)) } ?: stringResource(R.string.chess_chat_open_gone), style = PqType.Body)</ID>
+    <ID>MaxLineLength:ChessGameScreen.kt$com.pixelquest.app.ui.components.PqButton(stringResource(R.string.chess_flip), onClick = onFlip, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary, icon = Icons.Rounded.SwapVert, modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp).testTag(ChessGameTags.FLIP))</ID>
+    <ID>MaxLineLength:ChessGameScreen.kt$com.pixelquest.app.ui.components.PqButton(stringResource(R.string.chess_leave), onClick = onLeave, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary, icon = Icons.AutoMirrored.Rounded.Logout, modifier = Modifier.weight(1f).testTag(ChessGameTags.LEAVE))</ID>
+    <ID>MaxLineLength:ChessGameScreen.kt$com.pixelquest.app.ui.components.PqButton(stringResource(R.string.chess_next_live), onClick = onNext, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary, icon = Icons.Rounded.SkipNext, modifier = Modifier.weight(1f).testTag(ChessGameTags.NEXT))</ID>
+    <ID>MaxLineLength:ChessGameScreenTest.kt$ChessGameScreenTest$show(ChessSessionState(SessionPhase.ACTIVE, game.copy(status = GameStatus.FINISHED, result = com.pixelquest.app.chess.domain.GameResult.WHITE), me = "me", myColour = ChessColour.WHITE, watchers = 4, names = mapOf("me" to "raza", "sara" to "sara"), points = mapOf("sara" to 1102)))</ID>
+    <ID>MaxLineLength:ChessGameScreenTest.kt$ChessGameScreenTest$val won = game.copy(status = GameStatus.FINISHED, result = com.pixelquest.app.chess.domain.GameResult.WHITE, reason = com.pixelquest.app.chess.domain.ResultReason.CHECKMATE, whiteChange = 14, blackChange = -14, ratingApplied = true)</ID>
+    <ID>MaxLineLength:ChessLookTest.kt$ChessLookTest$ChessGameScreen(ChessSessionState(SessionPhase.FINISHED, game, me = "me", myColour = ChessColour.WHITE, points = mapOf("me" to 900, "sara" to 1102), simple = true), ClockSync(), ChessGameActions())</ID>
+    <ID>MaxLineLength:ChessRepositoryTest.kt$ChessRepositoryTest$db.daroodDao().upsertParties(listOf(com.pixelquest.app.party.data.local.PartyEntity("party", "Physics", "white", 10, null, null, null, 0L, 0L, 0, 2, null, com.pixelquest.app.party.domain.PartyRole.LEADER, com.pixelquest.app.party.domain.MemberStatus.ACTIVE, 0L, partyType = com.pixelquest.app.party.domain.PartyType.STUDY)))</ID>
+    <ID>MaxLineLength:ChessScreenshotTest.kt$ChessScreenshotTest$ChessSessionState(SessionPhase.ACTIVE, game(GameStatus.ACTIVE), me = "me", myColour = ChessColour.WHITE, watchers = 4, names = mapOf("me" to "raza", "sara" to "sara"), points = mapOf("me" to 1046, "sara" to 1102), simple = look.simple)</ID>
+    <ID>MaxLineLength:ChessScreenshotTest.kt$ChessScreenshotTest$leaderboard = listOf(Rating("sara", TimeControl.THREE, 1102, 20, 12, 3, 5, 1110), Rating("me", TimeControl.THREE, 1060, 19, 9, 4, 6, 1070), Rating("ali", TimeControl.THREE, 998, 17, 6, 2, 9, 1010))</ID>
+    <ID>MaxLineLength:ChessSettingsSection.kt$ToggleRow(stringResource(R.string.chess_settings_animate), stringResource(R.string.chess_settings_animate_body), prefs.animate, { on -&gt; onChange { it.copy(animate = on) } }, ChessSettingsTags.ANIMATE)</ID>
+    <ID>MaxLineLength:ChessSettingsSection.kt$ToggleRow(stringResource(R.string.chess_settings_confirm), stringResource(R.string.chess_settings_confirm_body), prefs.confirmMoves, { on -&gt; onChange { it.copy(confirmMoves = on) } }, ChessSettingsTags.CONFIRM)</ID>
+    <ID>MaxLineLength:ChessSettingsSection.kt$ToggleRow(stringResource(R.string.chess_settings_queen), stringResource(R.string.chess_settings_queen_body), prefs.autoQueen, { on -&gt; onChange { it.copy(autoQueen = on) } }, ChessSettingsTags.AUTO_QUEEN)</ID>
+    <ID>MaxLineLength:ChessSettingsSection.kt$ToggleRow(stringResource(R.string.chess_settings_sounds), stringResource(R.string.chess_settings_sounds_body), prefs.sounds, { on -&gt; onChange { it.copy(sounds = on) } }, ChessSettingsTags.SOUNDS)</ID>
+    <ID>MaxLineLength:ChessTab.kt$PqButton(stringResource(R.string.chess_chat_cancel), onClick = { onAnswer(challenge.id, false) }, style = PqButtonStyle.Secondary, enabled = !state.sending, modifier = Modifier.weight(1f))</ID>
+    <ID>MaxLineLength:ChessTab.kt$if (challenge.toUser != null) PqButton(stringResource(R.string.chess_decline), onClick = { onAnswer(challenge.id, false) }, style = PqButtonStyle.Secondary, enabled = !state.sending, modifier = Modifier.weight(1f))</ID>
+    <ID>MaxLineLength:DataExportImportQaTest.kt$DataExportImportQaTest$val initialTask = TaskEntity(id = 1, name = "Original Task", description = "Desc", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.now(), recurrenceType = RecurrenceType.DAILY, category = com.pixelquest.app.domain.model.TaskCategory.FITNESS)</ID>
+    <ID>MaxLineLength:DataExportImportQaTest.kt$DataExportImportQaTest$var currentTasks = listOf(TaskEntity(id = 2, name = "Altered Task", description = "Desc", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.now(), recurrenceType = RecurrenceType.DAILY, category = com.pixelquest.app.domain.model.TaskCategory.CHORES))</ID>
+    <ID>MaxLineLength:DatabaseUpgradeTest.kt$DatabaseUpgradeTest$db.namazLogDao().upsert(com.pixelquest.app.data.local.entity.NamazLogEntity(date = day, prayer = com.pixelquest.app.domain.namaz.Prayer.FAJR, status = com.pixelquest.app.domain.namaz.PrayerStatus.PENDING))</ID>
+    <ID>MaxLineLength:DatabaseUpgradeTest.kt$DatabaseUpgradeTest$db.namazLogDao().upsert(com.pixelquest.app.data.local.entity.NamazLogEntity(date = day, prayer = com.pixelquest.app.domain.namaz.Prayer.FAJR, status = com.pixelquest.app.domain.namaz.PrayerStatus.PRAYED, prayedAt = 1L))</ID>
+    <ID>MaxLineLength:Day24LiveGeminiPipelineQaTest.kt$Day24LiveGeminiPipelineQaTest$TaskEntity(id = 1, name = "Morning Run", description = "Run 5k", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS)</ID>
+    <ID>MaxLineLength:Day24LiveGeminiPipelineQaTest.kt$Day24LiveGeminiPipelineQaTest$TaskEntity(id = 2, name = "Kotlin Study", description = "Read coroutines docs", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(14, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)</ID>
+    <ID>MaxLineLength:Day24LiveGeminiPipelineQaTest.kt$Day24LiveGeminiPipelineQaTest$TaskEntity(id = 3, name = "Hydrate", description = "Drink 2L water", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(20, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.HEALTH)</ID>
+    <ID>MaxLineLength:Day25InsightQualityManualQaTest.kt$Day25InsightQualityManualQaTest$TaskEntity(id = 1, name = "Gym Workout", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(8, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS)</ID>
+    <ID>MaxLineLength:Day25InsightQualityManualQaTest.kt$Day25InsightQualityManualQaTest$TaskEntity(id = 1, name = "Morning Yoga", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS)</ID>
+    <ID>MaxLineLength:Day25InsightQualityManualQaTest.kt$Day25InsightQualityManualQaTest$TaskEntity(id = 2, name = "Language Practice", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(18, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)</ID>
+    <ID>MaxLineLength:Day25InsightQualityManualQaTest.kt$Day25InsightQualityManualQaTest$TaskEntity(id = 2, name = "Read 30 Mins", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(21, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)</ID>
+    <ID>MaxLineLength:Day25InsightQualityManualQaTest.kt$Day25InsightQualityManualQaTest$TaskEntity(id = 3, name = "Evening Read", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(21, 30), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.HEALTH)</ID>
+    <ID>MaxLineLength:Day25InsightQualityManualQaTest.kt$Day25InsightQualityManualQaTest$assertTrue("Suggestion must lower the barrier to entry (micro-habits)", parsed.suggestion.contains("Shrink") || parsed.suggestion.contains("5 minutes") || parsed.suggestion.contains("single page"))</ID>
+    <ID>MaxLineLength:Day25InsightQualityManualQaTest.kt$Day25InsightQualityManualQaTest$logs.add(TaskCompletionLogEntity(id = (dayOffset * 2 + 2).toLong(), taskId = learningTask.id, completedDate = date, wasCompleted = learningDone, pointsAwarded = if (learningDone) 25 else 0))</ID>
+    <ID>MaxLineLength:Day25InsightQualityManualQaTest.kt$Day25InsightQualityManualQaTest$val fitnessTask = TaskEntity(id = 1, name = "Morning Jog", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(7, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS)</ID>
+    <ID>MaxLineLength:Day25InsightQualityManualQaTest.kt$Day25InsightQualityManualQaTest$val learningTask = TaskEntity(id = 2, name = "Study Japanese", description = "", scheduledDay = baseDate.minusDays(30), scheduledTime = LocalTime.of(20, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)</ID>
+    <ID>MaxLineLength:FakeChessRemote.kt$FakeChessRemote$games[id] = ChessGameDto(id, party, white, black, timeControlSec, true, status, fen = "start", whiteMs = timeControlSec * 1000L, blackMs = timeControlSec * 1000L, lastMoveAt = now.toString(), createdAt = now.toString())</ID>
+    <ID>MaxLineLength:FakeStudyServer.kt$FakeStudyServer$if (isMember(partyId, me)) scores(partyId).filter { !it.weekStart.isBefore(since) }.sortedWith(compareByDescending&lt;WeekScore&gt; { it.weekStart }.thenByDescending { it.points }) else emptyList()</ID>
+    <ID>MaxLineLength:GameActions.kt$PqButton(stringResource(R.string.chess_accept), onClick = { actions.onAnswerDraw(true) }, enabled = !state.sending, modifier = Modifier.weight(1f).testTag(GameActionTags.ACCEPT_DRAW))</ID>
+    <ID>MaxLineLength:GameActions.kt$PqButton(stringResource(R.string.chess_decline), onClick = { actions.onAnswerDraw(false) }, style = PqButtonStyle.Secondary, enabled = !state.sending, modifier = Modifier.weight(1f).testTag(GameActionTags.DECLINE_DRAW))</ID>
+    <ID>MaxLineLength:HabitInsightPromptBuilder.kt$HabitInsightPromptBuilder$sb.appendLine("Provide a thoughtful, calm habit coaching insight based on these metrics. Focus on steady routines, sustainable cadence, and practical adjustments. Omit all gaming, quest, battle, or fantasy references.")</ID>
+    <ID>MaxLineLength:HabitInsightPromptBuilder.kt$HabitInsightPromptBuilder$sb.appendLine("Respond strictly in valid JSON matching schema: {\"summary\": \"...\", \"suggestion\": \"...\", \"encouragement\": \"...\", \"highlightCategory\": \"...\", \"specificTaskCallout\": \"...\"}")</ID>
+    <ID>MaxLineLength:HabitInsightPromptBuilder.kt$HabitInsightPromptBuilder$val raw = "streak=${telemetry.currentStreak}|longest=${telemetry.longestStreak}|perfect=${telemetry.perfectDaysCount}|level=${telemetry.playerLevel}|rate=${telemetry.recent7DaysCompletionRate}|missed=${telemetry.recent7DaysMissedCount}|cats=$catSummary|tone=${tone.name}"</ID>
+    <ID>MaxLineLength:HabitInsightRepositoryImpl.kt$HabitInsightRepositoryImpl$"Monthly AI insight limit reached (${com.pixelquest.app.domain.ai.AiUsagePolicy.MAX_CALLS_PER_MONTH}/${com.pixelquest.app.domain.ai.AiUsagePolicy.MAX_CALLS_PER_MONTH} calls). Resets next month."</ID>
+    <ID>MaxLineLength:HabitInsightRepositoryImpl.kt$HabitInsightRepositoryImpl$"You've reached today's insight limit (${com.pixelquest.app.domain.ai.AiUsagePolicy.MAX_CALLS_PER_DAY}/${com.pixelquest.app.domain.ai.AiUsagePolicy.MAX_CALLS_PER_DAY} calls). Check back tomorrow!"</ID>
+    <ID>MaxLineLength:HeroShotTest.kt$HeroShotTest$StatsUiState</ID>
+    <ID>MaxLineLength:HomeScreenTest.kt$HomeScreenTest$assertEquals(0, composeTestRule.onAllNodes(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.Text, listOf(androidx.compose.ui.text.AnnotatedString("+20 XP today")))).fetchSemanticsNodes().size)</ID>
+    <ID>MaxLineLength:HomeScreenTest.kt$HomeScreenTest$assertEquals(0, composeTestRule.onAllNodes(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.Text, listOf(androidx.compose.ui.text.AnnotatedString("Skip quest?")))).fetchSemanticsNodes().size)</ID>
+    <ID>MaxLineLength:HomeShotTest.kt$HomeShotTest$com.pixelquest.app.study.ui.HomeStudy(listOf(com.pixelquest.app.study.ui.HomeDueLine("p", "Exam group", "i", "Chapter 4 notes", com.pixelquest.app.study.ui.DueState.TODAY, null)))</ID>
+    <ID>MaxLineLength:IncomingChallengeScreen.kt$PqButton(stringResource(R.string.chess_block, name), onClick = { asking = IncomingTags.BLOCK }, style = PqButtonStyle.Secondary, enabled = !state.answering, height = 40.dp, modifier = Modifier.weight(1f).testTag(IncomingTags.BLOCK))</ID>
+    <ID>MaxLineLength:IncomingChallengeScreen.kt$PqButton(stringResource(R.string.chess_decline), onClick = { onAnswer(false) }, style = PqButtonStyle.Secondary, enabled = open &amp;&amp; !state.answering, modifier = Modifier.weight(1f).testTag(IncomingTags.DECLINE))</ID>
+    <ID>MaxLineLength:IncomingChallengeScreen.kt$PqButton(stringResource(R.string.chess_report), onClick = { asking = IncomingTags.REPORT }, style = PqButtonStyle.Secondary, height = 40.dp, modifier = Modifier.weight(1f).testTag(IncomingTags.REPORT))</ID>
+    <ID>MaxLineLength:IslamicHubStoryTest.kt$IslamicHubStoryTest$items = listOf(com.pixelquest.app.quran.QuranIslamicItem { nav -&gt; composable(Screen.Quran.route) { com.pixelquest.app.quran.ui.QuranHomeScreen(onNavigateBack = { nav.popBackStack() }) } })</ID>
+    <ID>MaxLineLength:IslamicRoutesTest.kt$IslamicRoutesTest$islamicGraph</ID>
+    <ID>MaxLineLength:ItemRaceShotTest.kt$ItemRaceShotTest$private val lines = rankRace(listOf(line("Friday circle", 0.24f, mine = true), line("Early finish", 1f, finished = "2026-10-12T10:00:00Z"), line("Late finish", 1f, finished = "2026-10-15T10:00:00Z"), line("Halfway", 0.5f)))</ID>
+    <ID>MaxLineLength:ItemRaceShotTest.kt$ItemRaceShotTest$private val quiz = StudyItem("q", "p1", StudyItemKind.QUIZ, "Waves quiz", "Physics", "Pages 4 to 9, and the summary questions at the end.", Instant.parse("2026-10-23T09:00:00Z"), true, "aria", Instant.EPOCH)</ID>
+    <ID>MaxLineLength:LeaderboardOptOutUiTest.kt$LeaderboardOptOutUiTest$composeTestRule.onNodeWithText("Are you sure you want to leave the leaderboard? Your rank and public display name will no longer be visible to other players. You can rejoin at any time.").assertIsDisplayed()</ID>
+    <ID>MaxLineLength:LocalSupabaseStudyTest.kt$LocalSupabaseStudyTest$Player</ID>
+    <ID>MaxLineLength:MainActivity.kt$MainActivity.Companion$fun</ID>
+    <ID>MaxLineLength:NotificationMasterToggleTest.kt$NotificationMasterToggleTest$TaskEntity(id = 1, name = "Task 1", description = "Desc", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(9, 0), recurrenceType = RecurrenceType.DAILY, category = com.pixelquest.app.domain.model.TaskCategory.OTHER)</ID>
+    <ID>MaxLineLength:NotificationMasterToggleTest.kt$NotificationMasterToggleTest$TaskEntity(id = 2, name = "Task 2", description = "Desc", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(18, 0), recurrenceType = RecurrenceType.DAILY, category = com.pixelquest.app.domain.model.TaskCategory.OTHER)</ID>
+    <ID>MaxLineLength:OfflineRetrySyncTest.kt$FakeOfflineUserProfileRepo$override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?)</ID>
+    <ID>MaxLineLength:PartiesScreenTest.kt$PartiesScreenTest$show(DaroodPartiesUiState(signedIn = true, parties = listOf(party("s1", "Physics group", MemberStatus.ACTIVE)), invites = listOf(party("s2", "Exam group", MemberStatus.INVITED))), ThemeMode.Comic)</ID>
+    <ID>MaxLineLength:PartyDtoTest.kt$PartyDtoTest$private val row = """"id":"p","name":"Physics group","leader_id":"l","max_members":6,"milestone":null,"milestone_set_at":null,"completed_at":null,"created_at":"2026-10-21T09:00:00+00:00","is_public_race":false"""</ID>
+    <ID>MaxLineLength:PlayableBoard.kt$val names = mapOf('q' to com.pixelquest.app.R.string.chess_piece_queen, 'r' to com.pixelquest.app.R.string.chess_piece_rook, 'b' to com.pixelquest.app.R.string.chess_piece_bishop, 'n' to com.pixelquest.app.R.string.chess_piece_knight)</ID>
+    <ID>MaxLineLength:PqTheme.kt$PqType$val Label get() = cached("Label") { TextStyle(fontFamily = s.label, fontWeight = s.labelWeight, fontSize = 11.lsp, lineHeight = 15.lsp, letterSpacing = if (isPixelSkin) 0.sp else 1.3.sp, color = PqColors.Ink, fontFeatureSettings = features) }</ID>
+    <ID>MaxLineLength:QuickCompleteFlowTest.kt$QuickCompleteFlowTest$val task = TaskEntity(id = 1, description = "", name = "Daily Quest", scheduledTime = LocalTime.of(10, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:QuickCompleteFlowTest.kt$QuickCompleteFlowTest$val task = TaskEntity(id = 2, description = "", name = "Skipped Quest", scheduledTime = LocalTime.of(14, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:QuranSubShotTest.kt$QuranSubShotTest$options = listOf(BundledTranslation("en.sahih", "Saheeh International", "Saheeh International", "English", "f"), BundledTranslation("ur.jalandhry", "Jalandhry", "Fateh Muhammad Jalandhry", "Urdu", "g"))</ID>
+    <ID>MaxLineLength:ReadingSettingsStoreTest.kt$ReadingSettingsStoreTest$val chosen = ReadingSettings(arabicSize = 36f, translationSize = 20f, lineSpacing = 1.2f, displayMode = DisplayMode.ARABIC, paper = com.pixelquest.app.quran.ui.reader.ReaderPaper.SEPIA, keepScreenOn = true)</ID>
+    <ID>MaxLineLength:ReadmeShotTest.kt$ReadmeShotTest$NextPrayer(PrayerMoment(Prayer.MAGHRIB, evening.toLocalDate(), evening.minusHours(1)), PrayerMoment(Prayer.ISHA, evening.toLocalDate(), evening), Duration.ofMinutes(36), evening.toLocalDate())</ID>
+    <ID>MaxLineLength:ReadmeShotTest.kt$ReadmeShotTest$com.pixelquest.app.study.ui.HomeStudy(listOf(com.pixelquest.app.study.ui.HomeDueLine("p", "Exam group", "i", "Chapter 4 notes", com.pixelquest.app.study.ui.DueState.TODAY, null)))</ID>
+    <ID>MaxLineLength:ResetProgressDialogSequence.kt$message = "This will delete all your quests and their history, your streak, XP and level, and restart setup. If you're on the leaderboard, your numbers there start over too, under the same name. Your theme, sound and notification settings are kept. Proceed?"</ID>
+    <ID>MaxLineLength:ScratchShotTest.kt$ScratchShot$val out = File(System.getProperty("shotDir") ?: "C:/Users/tipto/AppData/Local/Temp/claude/C--Users-tipto-OneDrive-Desktop-PixelQuest/bc08e3cf-c4b1-4b32-bf0a-83df842dac72/scratchpad/shots", "$name-${skin.name.lowercase()}.png")</ID>
+    <ID>MaxLineLength:SimpleModeAiInsightInteractionUiTest.kt$SimpleModeAiInsightInteractionUiTest$TaskEntity(id = 1, name = "Reading", description = "", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(21, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.LEARNING)</ID>
+    <ID>MaxLineLength:SimpleModeGeneratedCopyVerificationTest.kt$SimpleModeGeneratedCopyVerificationTest$TaskEntity(id = 1, name = "Meditation", description = "", scheduledDay = LocalDate.now(), scheduledTime = LocalTime.of(8, 0), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.HEALTH)</ID>
+    <ID>MaxLineLength:StudyBoard.kt$else</ID>
+    <ID>MaxLineLength:StudyItemScreen.kt$ToggleRow(file.displayName, stringResource(if (on) R.string.study_item_linked else R.string.study_item_not_linked), on, { materials.onLink!!(file, it) }, "study_item_link_" + file.id)</ID>
+    <ID>MaxLineLength:StudyPartyScreen.kt$StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders, reminderState, reminderActions, chatState, chatActions)</ID>
+    <ID>MaxLineLength:StudyPartyScreen.kt$canEdit = { line -&gt; reminderActions != null &amp;&amp; (line.mine || (state.isLeader &amp;&amp; line.reminder.audience == com.pixelquest.app.study.domain.ReminderAudience.PARTY)) }</ID>
+    <ID>MaxLineLength:StudyPartyScreen.kt$restore = { s -&gt; s.split("\u0000").let { com.pixelquest.app.study.chat.ui.FilesQuery(it[0], it[1].takeIf { t -&gt; t.isNotEmpty() }?.let(com.pixelquest.app.study.chat.domain.ChatFileType::valueOf), it[2].toBoolean()) } }</ID>
+    <ID>MaxLineLength:StudyPartyScreenTest.kt$StudyPartyScreenTest$val state = StudyPartyUiState(party = party, myId = "aria", members = members, tab = PartyTab.SCOREBOARD, winnerBanner = winners, pastWeeks = listOf(PastWeek(last, winners, 40)), loaded = true)</ID>
+    <ID>MaxLineLength:StudyPartyStateTest.kt$StudyPartyStateTest$val rows = itemRowsOf(listOf(item("a", null), item("b", null)), listOf(tick("a", "aria", state = SyncState.FAILED), tick("b", "aria", state = SyncState.PENDING)), members, "aria", false, now, zone)</ID>
+    <ID>MaxLineLength:StudyPartyViewModel.kt$StudyPartyViewModel$private</ID>
+    <ID>MaxLineLength:StudyPartyViewModel.kt$StudyPartyViewModel$val</ID>
+    <ID>MaxLineLength:StudyPartyViewModelTest.kt$StudyPartyViewModelTest$assertEquals(listOf(com.pixelquest.app.party.domain.PartyTab.THIS_WEEK, com.pixelquest.app.party.domain.PartyTab.ALL_ITEMS, com.pixelquest.app.party.domain.PartyTab.CHESS, com.pixelquest.app.party.domain.PartyTab.CHAT, com.pixelquest.app.party.domain.PartyTab.FILES, com.pixelquest.app.party.domain.PartyTab.PEOPLE), vm.uiState.value.tabs)</ID>
+    <ID>MaxLineLength:StudyRemindersViewModelTest.kt$StudyRemindersViewModelTest$reminderServer.seed(party, "aria", week.copy(title = "Friday exam", kind = com.pixelquest.app.study.domain.ReminderKind.EXAM, scope = ReminderScope.DAY, weekStart = null, dueAt = Instant.parse("2026-10-22T19:00:00Z")))</ID>
+    <ID>MaxLineLength:TodayFullDayCycleQaTest.kt$TodayFullDayCycleQaTest$val task1 = TaskEntity(id = 1, description = "", name = "Morning Run", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:TodayFullDayCycleQaTest.kt$TodayFullDayCycleQaTest$val task2 = TaskEntity(id = 2, description = "", name = "Evening Study", scheduledTime = LocalTime.of(20, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:TodayViewModelTest.kt$TodayViewModelTest$val task1 = TaskEntity(id = 1, description = "", name = "Late Pending", scheduledTime = LocalTime.of(18, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:TodayViewModelTest.kt$TodayViewModelTest$val task1 = TaskEntity(id = 1, description = "", name = "Morning Workout", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:TodayViewModelTest.kt$TodayViewModelTest$val task1 = TaskEntity(id = 1, description = "", name = "Task 1", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.FITNESS, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:TodayViewModelTest.kt$TodayViewModelTest$val task2 = TaskEntity(id = 2, description = "", name = "Early Completed", scheduledTime = LocalTime.of(8, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:TodayViewModelTest.kt$TodayViewModelTest$val task2 = TaskEntity(id = 2, description = "", name = "Read Book", scheduledTime = LocalTime.of(12, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:TodayViewModelTest.kt$TodayViewModelTest$val task2 = TaskEntity(id = 2, description = "", name = "Task 2", scheduledTime = LocalTime.of(12, 0), scheduledDay = today, category = TaskCategory.LEARNING, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:TodayViewModelTest.kt$TodayViewModelTest$val task3 = TaskEntity(id = 3, description = "", name = "Clean Desk", scheduledTime = LocalTime.of(18, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MaxLineLength:TodayViewModelTest.kt$TodayViewModelTest$val task3 = TaskEntity(id = 3, description = "", name = "Early Pending", scheduledTime = LocalTime.of(9, 0), scheduledDay = today, category = TaskCategory.CHORES, recurrenceType = RecurrenceType.DAILY)</ID>
+    <ID>MayBeConst:AvatarCatalog.kt$AvatarCatalog$val DEFAULT_AVATAR_ID = "avatar_hero"</ID>
+    <ID>NestedBlockDepth:ChessRules.kt$Position$private fun pseudoMoves(): List&lt;Move&gt;</ID>
+    <ID>NestedBlockDepth:ChessRules.kt$Position.Companion$fun of(fen: String): Position?</ID>
+    <ID>NestedBlockDepth:DaroodPartyRepository.kt$DaroodPartyRepositoryImpl$override suspend fun sendPending(): SendReport</ID>
+    <ID>NestedBlockDepth:DataExportImport.kt$DataExportImport$fun importFromJson(jsonString: String): BackupPayload</ID>
+    <ID>NestedBlockDepth:PreUpdateCopy.kt$PreUpdateCopy$internal fun walVersionOf(wal: File): Int?</ID>
+    <ID>NestedBlockDepth:ProfileSyncWorker.kt$ProfileSyncWorker$override suspend fun doWork(): Result</ID>
+    <ID>ReturnCount:AccountViewModel.kt$AccountViewModel$private suspend fun heldBackByTheBoard(): String?</ID>
+    <ID>ReturnCount:ChatUploads.kt$ChatUploads$suspend fun run(clientId: String): UploadRun</ID>
+    <ID>ReturnCount:ChessRules.kt$Position$fun attacked(square: Int, byWhite: Boolean): Boolean</ID>
+    <ID>ReturnCount:ChessRules.kt$Position.Companion$fun of(fen: String): Position?</ID>
+    <ID>ReturnCount:ChessSessionViewModel.kt$ChessSessionViewModel$fun rematch()</ID>
+    <ID>ReturnCount:EncouragementPackWorker.kt$EncouragementPackWorker$override suspend fun doWork(): Result</ID>
+    <ID>ReturnCount:FakeChessBackend.kt$FakeChessBackend$override suspend fun makeMove(gameId: String, ply: Int, uci: String): SupabaseResult&lt;ChessGame&gt;</ID>
+    <ID>ReturnCount:FakeStudyReminderServer.kt$FakeStudyReminderServer$override suspend fun addReminder(partyId: String, draft: StudyReminderDraft, clientId: String): SupabaseResult&lt;StudyReminder&gt;</ID>
+    <ID>ReturnCount:Fen.kt$BoardPosition.Companion$fun of(fen: String): BoardPosition</ID>
+    <ID>ReturnCount:HabitInsightRepositoryImpl.kt$HabitInsightRepositoryImpl$override suspend fun generateHabitInsight(forceRefresh: Boolean): GeminiResult&lt;HabitInsightResponse&gt;</ID>
+    <ID>ReturnCount:LeaderboardRepository.kt$LeaderboardRepository$suspend fun getPlayersAroundYou( sortMode: LeaderboardSortMode, userId: String? = null, radius: Int = 3 ): SupabaseResult&lt;PlayersAroundYou?&gt;</ID>
+    <ID>ReturnCount:MarkPrayerUseCase.kt$MarkPrayerUseCase$private suspend fun mark(day: LocalDate, prayer: Prayer, now: ZonedDateTime): MarkPrayerResult</ID>
+    <ID>ReturnCount:PartyRepository.kt$PartyRepositoryImpl$override suspend fun refreshParty(partyId: String): SupabaseResult&lt;Unit&gt;</ID>
+    <ID>ReturnCount:PreUpdateCopy.kt$PreUpdateCopy$fun keepIfOlder(dbFile: File, dir: File, currentVersion: Int): Int?</ID>
+    <ID>ReturnCount:ProfileSyncWorker.kt$ProfileSyncWorker$override suspend fun doWork(): Result</ID>
+    <ID>ReturnCount:StreakAtRiskWorker.kt$StreakAtRiskWorker$override suspend fun doWork(): Result</ID>
+    <ID>ReturnCount:StudyReminder.kt$fun StudyReminderDraft.problem(): ReminderProblem?</ID>
+    <ID>ReturnCount:StudyRepository.kt$StudyRepositoryImpl$override suspend fun undo(itemId: String): SupabaseResult&lt;Unit&gt;</ID>
+    <ID>ReturnCount:StudyWeeklyWorker.kt$StudyWeeklyWorker$override suspend fun doWork(): Result</ID>
+    <ID>ReturnCount:SyncConflictResolver.kt$SyncConflictResolver$fun evaluate( localCurrentStreak: Int, localLongestStreak: Int, localLevel: Int, localTotalXp: Int, serverProfile: CloudProfileDto? ): SyncDecision</ID>
+    <ID>ReturnCount:TranslationSwitcher.kt$TranslationSwitcher$private fun describe(file: String): BundledTranslation?</ID>
+    <ID>ReturnCount:UploadChecks.kt$UploadChecks$fun check(name: String, mime: String, sizeBytes: Long): Result&lt;UploadCandidate&gt;</ID>
+    <ID>SpreadOperator:DatabaseModule.kt$DatabaseModule$(*AppDatabase.ALL_MIGRATIONS)</ID>
+    <ID>SpreadOperator:PartySummaryText.kt$(phrase.res, *phrase.args.toTypedArray())</ID>
+    <ID>SpreadOperator:PartySummaryText.kt$(phrase.res, phrase.count, *phrase.args.toTypedArray())</ID>
+    <ID>ThrowsCount:GeminiClient.kt$GeminiResponseParser$fun extractText(responseBody: String): String</ID>
+    <ID>TooManyFunctions:ChatDao.kt$ChatDao</ID>
+    <ID>TooManyFunctions:RepositoryModule.kt$RepositoryModule</ID>
+    <ID>TooManyFunctions:StudyDao.kt$StudyDao</ID>
+    <ID>UnusedParameter:AiInsightScreen.kt$onRefresh: () -&gt; Unit</ID>
+    <ID>UnusedParameter:AiUsagePolicy.kt$AiUsagePolicy$remaining: Int = 0</ID>
+    <ID>UnusedParameter:LeaderboardSimpleModePolicy.kt$LeaderboardSimpleModePolicy$isLeaderboardOptedIn: Boolean</ID>
+    <ID>UnusedParameter:LeaderboardSimpleModePolicy.kt$LeaderboardSimpleModePolicy$isSimpleModeEnabled: Boolean</ID>
+    <ID>UnusedParameter:NamazScreen.kt$onRefresh: () -&gt; Unit</ID>
+    <ID>UnusedParameter:NetworkModule.kt$NetworkModule$client: SupabaseClient</ID>
+    <ID>UnusedParameter:NotificationHelper.kt$NotificationHelper$taskId: Long</ID>
+    <ID>UnusedParameter:PartyChatScreen.kt$partyId: String</ID>
+    <ID>UnusedParameter:PointsCalculator.kt$PointsCalculator$task: TaskEntity? = null</ID>
+    <ID>UnusedParameter:StudyChatPane.kt$row: ChatMessageRow</ID>
+    <ID>UnusedParameter:SyncConflictResolver.kt$SyncConflictResolver$localCurrentStreak: Int</ID>
+    <ID>UnusedPrivateMember:ChatUploadsTest.kt$ChatUploadsTest$private fun only()</ID>
+    <ID>UnusedPrivateProperty:DaroodPartyRepositoryTest.kt$DaroodPartyRepositoryTest$val second = repository.addEntry(friday, 11)</ID>
+    <ID>UnusedPrivateProperty:DatabaseQueryPerformanceTest.kt$DatabaseQueryPerformanceTest$val task = TaskEntity( id = 1L, name = "Morning Stretch", description = "", scheduledDay = startDate, scheduledTime = LocalTime.of(8, 0), recurrenceType = RecurrenceType.DAILY, weeklyDays = setOf(DayOfWeek.MONDAY), category = TaskCategory.HEALTH )</ID>
+    <ID>UnusedPrivateProperty:NamazViewModelTest.kt$NamazViewModelTest$private val provider = DefaultPrayerTimeProvider(repository, calculator, clock) { lahoreZone }</ID>
+    <ID>UnusedPrivateProperty:OptOutLeaderboardIntegrationTest.kt$OptOutLeaderboardIntegrationTest$private lateinit var cloudProfileRepositoryUserA: CloudProfileRepository</ID>
+    <ID>UnusedPrivateProperty:OptOutLeaderboardIntegrationTest.kt$OptOutLeaderboardIntegrationTest$private val streakAFlow = MutableStateFlow( StreakEntity(id = 1, currentStreak = 15, longestStreak = 20) )</ID>
+    <ID>UnusedPrivateProperty:OptOutLeaderboardIntegrationTest.kt$OptOutLeaderboardIntegrationTest$private val streakBFlow = MutableStateFlow( StreakEntity(id = 1, currentStreak = 25, longestStreak = 30) )</ID>
+    <ID>UnusedPrivateProperty:OptOutLeaderboardIntegrationTest.kt$OptOutLeaderboardIntegrationTest$private val userProfileAFlow = MutableStateFlow( UserProfileEntity( id = 1, username = "PlayerAlpha", avatarId = "1", level = 8, totalXp = 3200, supabaseUserId = "user-alpha", leaderboardOptIn = true, leaderboardDisplayName = "Alpha_Knight" ) )</ID>
+    <ID>UnusedPrivateProperty:ProfileSyncWorkerTriggerTest.kt$ProfileSyncWorkerTriggerTest$i</ID>
+    <ID>UnusedPrivateProperty:StatsRepositoryImpl.kt$StatsRepositoryImpl$private val streakRepository: StreakRepository</ID>
+    <ID>UnusedPrivateProperty:StatsRepositoryImpl.kt$StatsRepositoryImpl$private val userProfileRepository: UserProfileRepository</ID>
+    <ID>UseCheckOrError:AuthRepository.kt$AuthRepositoryImpl$throw IllegalStateException("No session after the code was accepted")</ID>
+    <ID>UseCheckOrError:AuthRepository.kt$AuthRepositoryImpl$throw IllegalStateException("Supabase user session missing after token exchange")</ID>
+    <ID>UseCheckOrError:LeaderboardRepository.kt$LeaderboardRepositoryImpl$throw IllegalStateException("The leaderboard count was missing from the response")</ID>
+    <ID>UseCheckOrError:NightlyStreakAtomicityTest.kt$NightlyStreakAtomicityTest.StoppingStreaks$throw IllegalStateException("stopped")</ID>
+    <ID>UseRequire:HabitInsightResponse.kt$HabitInsightResponse.Companion$throw IllegalArgumentException("Missing required insight fields in JSON: $sanitized")</ID>
+    <ID>WildcardImport:PqComponents.kt$import com.pixelquest.app.ui.theme.*</ID>
+    <ID>WildcardImport:PqFormComponents.kt$import com.pixelquest.app.ui.theme.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

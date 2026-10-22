@@ -45,6 +45,13 @@ jobs:
       - name: Make Gradlew Executable
         run: chmod +x gradlew
 
+      # The runner has 16 GB. With gradle.properties' 2 GB, compiling debug and release together ran
+      # the Kotlin compiler out of memory on some runs (2026-10-22: "Java heap space" in IR lowering).
+      - name: Give the build more memory
+        run: |
+          echo "org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8" >> gradle.properties
+          echo "kotlin.daemon.jvmargs=-Xmx4g" >> gradle.properties
+
       - name: Ensure Debug Keystore Exists
         run: |
           mkdir -p ~/.android
@@ -96,6 +103,10 @@ jobs:
       # comes from desugaring, which every release up to 1.4.0 shipped without).
       - name: Lint
         run: ./gradlew lintDebug
+
+      # Kotlin static checks (config/detekt): only findings newer than its baseline fail.
+      - name: Detekt
+        run: ./gradlew :app:detekt
 
       - name: Upload Lint Report
         if: failure()

@@ -44,7 +44,7 @@ export function cleanName(raw: string): string | null {
   const last = raw.split(/[\\/]/).pop() ?? "";
   let name = last
     // deno-lint-ignore no-control-regex
-    .replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩﻿]/g, "")
+    .replace(/[\u0000-\u001f\u007f-\u009f\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, "")
     .replace(/[:*?"<>|]/g, "")
     .replace(/\s+/g, " ")
     .trim()

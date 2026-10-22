@@ -1,0 +1,56 @@
+# detekt for PixelQuest (J176): detekt's defaults, with what Compose and this codebase's style need.
+# Findings that were already there are in baseline.xml; a new one fails `./gradlew detekt`.
+# Regenerate the baseline only on purpose: ./gradlew :app:detektBaseline
+
+naming:
+  FunctionNaming:
+    # Composables are named like types.
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][A-Za-z0-9_]*'
+  MatchingDeclarationName:
+    active: false
+
+style:
+  MagicNumber:
+    # Sizes, colours and durations in UI code read better as numbers.
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreAnnotated: ['Composable', 'Preview']
+    excludes: ['**/test/**', '**/androidTest/**', '**/sharedTest/**', '**/ui/**']
+  MaxLineLength:
+    maxLineLength: 200
+  ReturnCount:
+    max: 4
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Preview']
+  WildcardImport:
+    active: true
+
+complexity:
+  LongParameterList:
+    # Screens take their state and every action as parameters.
+    functionThreshold: 10
+    constructorThreshold: 12
+    ignoreAnnotated: ['Composable']
+    ignoreDefaultParameters: true
+  LongMethod:
+    threshold: 120
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    thresholdInFiles: 40
+    thresholdInClasses: 40
+    thresholdInInterfaces: 30
+    thresholdInObjects: 30
+  CyclomaticComplexMethod:
+    threshold: 25
+    ignoreSimpleWhenEntries: true
+  LargeClass:
+    threshold: 800
+
+exceptions:
+  TooGenericExceptionCaught:
+    # Network calls catch everything and turn it into a result the screen can show.
+    active: false
+  SwallowedException:
+    active: false

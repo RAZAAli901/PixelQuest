@@ -139,10 +139,10 @@ test("empty, oversized, and text that isn't text", () => {
 });
 
 test("a long, hostile name is cut down and cleaned to its last part (request-upload refuses one over 1,000 characters)", () => {
-  const name = cleanName(`${"../".repeat(400)}${"‮".repeat(50)}${"a".repeat(5000)}.pdf`)!;
+  const name = cleanName(`${"../".repeat(400)}${"\u202E".repeat(50)}${"a".repeat(5000)}.pdf`)!;
   assert.equal(name.length, 120);
   assert.ok(name.endsWith(".pdf"));
-  assert.ok(!/[\\/‮]/.test(name));
+  assert.ok(!/[\\/\u202E]/.test(name));
 });
 
 test("its hash is the bytes' own", async () => {

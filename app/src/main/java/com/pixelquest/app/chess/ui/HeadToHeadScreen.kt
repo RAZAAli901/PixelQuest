@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -101,7 +102,7 @@ fun HeadToHeadScreen(state: HeadToHeadState, onNavigateBack: () -> Unit) {
                 total == null || total.games == 0 -> Text(stringResource(if (state.offline) R.string.chess_problem_offline else R.string.chess_h2h_none, name), style = PqType.Body)
                 else -> {
                     Text(
-                        text = stringResource(R.string.chess_h2h_line, total.myWins, total.theirWins, name, total.draws),
+                        text = pluralStringResource(R.plurals.chess_h2h_line, total.draws, total.myWins, total.theirWins, name, total.draws),
                         style = PqType.CardTitle,
                         modifier = Modifier.semantics { heading() }.testTag(HeadToHeadTags.TOTAL)
                     )
@@ -128,7 +129,7 @@ fun HeadToHeadScreen(state: HeadToHeadState, onNavigateBack: () -> Unit) {
 /** Wins, draws and losses as one bar, each part as wide as its share. */
 @Composable
 private fun SplitBar(record: HeadToHead, name: String) {
-    val said = stringResource(R.string.chess_h2h_line, record.myWins, record.theirWins, name, record.draws)
+    val said = pluralStringResource(R.plurals.chess_h2h_line, record.draws, record.myWins, record.theirWins, name, record.draws)
     Row(
         Modifier
             .fillMaxWidth()
