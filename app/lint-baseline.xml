@@ -1,0 +1,1322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.2" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.2)" variant="all" version="8.3.2">
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="        prefs.edit().putString(KEY, Base64.encodeToString(sealed, Base64.NO_WRAP)).commit()"
+        errorLine2="                                                                                   ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/auth/KeystoreSessionManager.kt"
+            line="101"
+            column="84"/>
+    </issue>
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="                prefs.edit().remove(KEY).commit()"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/auth/KeystoreSessionManager.kt"
+            line="111"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="ApplySharedPref"
+        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
+        errorLine1="        prefs.edit().remove(KEY).commit()"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/auth/KeystoreSessionManager.kt"
+            line="123"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="AndroidGradlePluginVersion"
+        message="A newer version of com.android.application than 8.3.2 is available: 9.4.1"
+        errorLine1="agp = &quot;8.3.2&quot;"
+        errorLine2="      ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="3"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="AndroidGradlePluginVersion"
+        message="A newer version of com.android.application than 8.3.2 is available: 9.4.1"
+        errorLine1="agp = &quot;8.3.2&quot;"
+        errorLine2="      ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="3"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="AndroidGradlePluginVersion"
+        message="A newer version of com.android.application than 8.3.2 is available: 9.4.1"
+        errorLine1="agp = &quot;8.3.2&quot;"
+        errorLine2="      ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="3"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.profileinstaller:profileinstaller than 1.3.1 is available: 1.4.1"
+        errorLine1="profileinstaller = &quot;1.3.1&quot;"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="2"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.profileinstaller:profileinstaller than 1.3.1 is available: 1.4.1"
+        errorLine1="profileinstaller = &quot;1.3.1&quot;"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="2"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.profileinstaller:profileinstaller than 1.3.1 is available: 1.4.1"
+        errorLine1="profileinstaller = &quot;1.3.1&quot;"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="2"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.core:core-ktx than 1.12.0 is available: 1.19.1"
+        errorLine1="coreKt = &quot;1.12.0&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="5"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.core:core-ktx than 1.12.0 is available: 1.19.1"
+        errorLine1="coreKt = &quot;1.12.0&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="5"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.core:core-ktx than 1.12.0 is available: 1.19.1"
+        errorLine1="coreKt = &quot;1.12.0&quot;"
+        errorLine2="         ~~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="5"
+            column="10"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test.ext:junit than 1.1.5 is available: 1.3.0"
+        errorLine1="junitVersion = &quot;1.1.5&quot;"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="7"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test.ext:junit than 1.1.5 is available: 1.3.0"
+        errorLine1="junitVersion = &quot;1.1.5&quot;"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="7"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test.ext:junit than 1.1.5 is available: 1.3.0"
+        errorLine1="junitVersion = &quot;1.1.5&quot;"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="7"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test.espresso:espresso-core than 3.5.1 is available: 3.7.0"
+        errorLine1="espressoCore = &quot;3.5.1&quot;"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="8"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test.espresso:espresso-core than 3.5.1 is available: 3.7.0"
+        errorLine1="espressoCore = &quot;3.5.1&quot;"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="8"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test.espresso:espresso-core than 3.5.1 is available: 3.7.0"
+        errorLine1="espressoCore = &quot;3.5.1&quot;"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="8"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.7.0 is available: 2.11.0"
+        errorLine1="lifecycleRuntimeKt = &quot;2.7.0&quot;"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="9"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.7.0 is available: 2.11.0"
+        errorLine1="lifecycleRuntimeKt = &quot;2.7.0&quot;"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="9"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.7.0 is available: 2.11.0"
+        errorLine1="lifecycleRuntimeKt = &quot;2.7.0&quot;"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="9"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.activity:activity-compose than 1.8.2 is available: 1.13.0"
+        errorLine1="activityCompose = &quot;1.8.2&quot;"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="10"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.activity:activity-compose than 1.8.2 is available: 1.13.0"
+        errorLine1="activityCompose = &quot;1.8.2&quot;"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="10"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.activity:activity-compose than 1.8.2 is available: 1.13.0"
+        errorLine1="activityCompose = &quot;1.8.2&quot;"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="10"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.compose:compose-bom than 2024.02.01 is available: 2026.09.00"
+        errorLine1="composeBom = &quot;2024.02.01&quot;"
+        errorLine2="             ~~~~~~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="11"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.compose:compose-bom than 2024.02.01 is available: 2026.09.00"
+        errorLine1="composeBom = &quot;2024.02.01&quot;"
+        errorLine2="             ~~~~~~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="11"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.compose:compose-bom than 2024.02.01 is available: 2026.09.00"
+        errorLine1="composeBom = &quot;2024.02.01&quot;"
+        errorLine2="             ~~~~~~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="11"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.navigation:navigation-compose than 2.7.7 is available: 2.10.2"
+        errorLine1="navigationCompose = &quot;2.7.7&quot;"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="12"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.navigation:navigation-compose than 2.7.7 is available: 2.10.2"
+        errorLine1="navigationCompose = &quot;2.7.7&quot;"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="12"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.navigation:navigation-compose than 2.7.7 is available: 2.10.2"
+        errorLine1="navigationCompose = &quot;2.7.7&quot;"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="12"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-compiler than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-compiler than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-compiler than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-ktx than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-ktx than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-ktx than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-runtime than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-runtime than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-runtime than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-testing than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-testing than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.room:room-testing than 2.6.1 is available: 2.8.5"
+        errorLine1="room = &quot;2.6.1&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="13"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.work:work-runtime-ktx than 2.9.0 is available: 2.12.0"
+        errorLine1="work = &quot;2.9.0&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="14"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.work:work-runtime-ktx than 2.9.0 is available: 2.12.0"
+        errorLine1="work = &quot;2.9.0&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="14"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.work:work-runtime-ktx than 2.9.0 is available: 2.12.0"
+        errorLine1="work = &quot;2.9.0&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="14"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.work:work-testing than 2.9.0 is available: 2.12.0"
+        errorLine1="work = &quot;2.9.0&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="14"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.work:work-testing than 2.9.0 is available: 2.12.0"
+        errorLine1="work = &quot;2.9.0&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="14"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.work:work-testing than 2.9.0 is available: 2.12.0"
+        errorLine1="work = &quot;2.9.0&quot;"
+        errorLine2="       ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="14"
+            column="8"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.firebase:firebase-messaging than 24.1.0 is available: 26.0.1"
+        errorLine1="firebaseMessaging = &quot;24.1.0&quot;"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="15"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.firebase:firebase-messaging than 24.1.0 is available: 26.0.1"
+        errorLine1="firebaseMessaging = &quot;24.1.0&quot;"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="15"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.firebase:firebase-messaging than 24.1.0 is available: 26.0.1"
+        errorLine1="firebaseMessaging = &quot;24.1.0&quot;"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="15"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-compiler than 1.2.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.2.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-compiler than 1.2.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.2.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-compiler than 1.2.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.2.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-navigation-compose than 1.2.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.2.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-navigation-compose than 1.2.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.2.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-navigation-compose than 1.2.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.2.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-work than 1.2.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.2.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-work than 1.2.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.2.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.hilt:hilt-work than 1.2.0 is available: 1.4.0"
+        errorLine1="hiltNavigationCompose = &quot;1.2.0&quot;"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="17"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.8.0 is available: 1.9.0"
+        errorLine1="coroutines = &quot;1.8.0&quot;"
+        errorLine2="             ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="19"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.8.0 is available: 1.9.0"
+        errorLine1="coroutines = &quot;1.8.0&quot;"
+        errorLine2="             ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="19"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of org.jetbrains.kotlinx:kotlinx-coroutines-android than 1.8.0 is available: 1.9.0"
+        errorLine1="coroutines = &quot;1.8.0&quot;"
+        errorLine2="             ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="19"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.credentials:credentials than 1.3.0 is available: 1.6.0"
+        errorLine1="credentials = &quot;1.3.0&quot;"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="20"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.credentials:credentials than 1.3.0 is available: 1.6.0"
+        errorLine1="credentials = &quot;1.3.0&quot;"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="20"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.credentials:credentials than 1.3.0 is available: 1.6.0"
+        errorLine1="credentials = &quot;1.3.0&quot;"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="20"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.credentials:credentials-play-services-auth than 1.3.0 is available: 1.6.0"
+        errorLine1="credentials = &quot;1.3.0&quot;"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="20"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.credentials:credentials-play-services-auth than 1.3.0 is available: 1.6.0"
+        errorLine1="credentials = &quot;1.3.0&quot;"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="20"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.credentials:credentials-play-services-auth than 1.3.0 is available: 1.6.0"
+        errorLine1="credentials = &quot;1.3.0&quot;"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="20"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.android.libraries.identity.googleid:googleid than 1.1.1 is available: 1.2.1"
+        errorLine1="googleid = &quot;1.1.1&quot;"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="21"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.android.libraries.identity.googleid:googleid than 1.1.1 is available: 1.2.1"
+        errorLine1="googleid = &quot;1.1.1&quot;"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="21"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.android.libraries.identity.googleid:googleid than 1.1.1 is available: 1.2.1"
+        errorLine1="googleid = &quot;1.1.1&quot;"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="21"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test:core than 1.5.0 is available: 1.7.0"
+        errorLine1="androidxTestCore = &quot;1.5.0&quot;"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="28"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test:core than 1.5.0 is available: 1.7.0"
+        errorLine1="androidxTestCore = &quot;1.5.0&quot;"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="28"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.test:core than 1.5.0 is available: 1.7.0"
+        errorLine1="androidxTestCore = &quot;1.5.0&quot;"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="28"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.datastore:datastore-preferences than 1.1.1 is available: 1.2.1"
+        errorLine1="datastore = &quot;1.1.1&quot;"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="30"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.datastore:datastore-preferences than 1.1.1 is available: 1.2.1"
+        errorLine1="datastore = &quot;1.1.1&quot;"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="30"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.datastore:datastore-preferences than 1.1.1 is available: 1.2.1"
+        errorLine1="datastore = &quot;1.1.1&quot;"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="$HOME/OneDrive/Desktop/PixelQuest/gradle/libs.versions.toml"
+            line="30"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions with a return type should start with a lowercase letter"
+        errorLine1="        fun Screen() = StudyPartyScreen(onNavigateBack = {}, onOpenInfo = {}, onAddPeople = {}, viewModel = vm, remindersViewModel = reminderVm)"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/test/java/com/pixelquest/app/study/ui/StudyReminderFlowTest.kt"
+            line="141"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    fun outlined(shape: Shape): Modifier = Modifier.border(outline, PqColors.Ink, shape)"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/chat/ChatLook.kt"
+            line="50"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ModifierFactoryExtensionFunction"
+        message="Modifier factory functions should be extensions on Modifier"
+        errorLine1="    fun shadowed(shape: Shape): Modifier ="
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/chat/ChatLook.kt"
+            line="57"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="    modifier: Modifier = Modifier,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/screens/account/AccountScreen.kt"
+            line="143"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="    modifier: Modifier = Modifier"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/prompt/DidYouDoItScreen.kt"
+            line="45"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="    modifier: Modifier = Modifier,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/screens/HeroScreen.kt"
+            line="246"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="    modifier: Modifier = Modifier"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/screens/leaderboard/LeaderboardScreen.kt"
+            line="55"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="    modifier: Modifier = Modifier"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/screens/leaderboard/LeaderboardScreen.kt"
+            line="86"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="    modifier: Modifier = Modifier,"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/screens/leveling/LevelHistoryScreen.kt"
+            line="41"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="fun PqTopBar(title: String, onBack: (() -> Unit)? = null, modifier: Modifier = Modifier, subtitle: String? = null, actions: @Composable RowScope.() -> Unit = {}) {"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/components/PqComponents.kt"
+            line="364"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="ModifierParameter"
+        message="Modifier parameter should be the first optional parameter"
+        errorLine1="fun CheckCircle(checked: Boolean, onClick: () -> Unit, size: Dp = 40.dp, modifier: Modifier = Modifier, label: String? = null) {"
+        errorLine2="                                                                         ~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/components/PqComponents.kt"
+            line="403"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;watching&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;chess_watching_said&quot;>&lt;xliff:g id=&quot;count&quot; example=&quot;4&quot;>%1$d&lt;/xliff:g> watching&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_chess.xml"
+            line="33"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;places&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;darood_add_is_full&quot;>This party is full: &lt;xliff:g id=&quot;taken&quot; example=&quot;10&quot;>%1$d&lt;/xliff:g> of &lt;xliff:g id=&quot;limit&quot; example=&quot;10&quot;>%2$d&lt;/xliff:g> places are taken, invitations included. Remove someone, or wait for an invitation to be declined, to make room.&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_darood.xml"
+            line="67"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;reached&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;darood_goal_reached_title&quot;>Goal &lt;xliff:g id=&quot;number&quot; example=&quot;1&quot;>%1$d&lt;/xliff:g> reached!&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_darood_weekly.xml"
+            line="31"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;reached&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;darood_goal_notif_reached&quot;>Goal &lt;xliff:g id=&quot;number&quot; example=&quot;1&quot;>%1$d&lt;/xliff:g> reached: &lt;xliff:g id=&quot;party&quot; example=&quot;Friday circle&quot;>%2$s&lt;/xliff:g>&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_darood_weekly.xml"
+            line="43"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;done&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;study_week_progress&quot;>&lt;xliff:g id=&quot;done&quot; example=&quot;2&quot;>%1$d&lt;/xliff:g> of &lt;xliff:g id=&quot;total&quot; example=&quot;5&quot;>%2$d&lt;/xliff:g> done this week&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_study.xml"
+            line="29"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;finished&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;study_item_done_count&quot;>&lt;xliff:g id=&quot;done&quot; example=&quot;3&quot;>%1$d&lt;/xliff:g> of &lt;xliff:g id=&quot;members&quot; example=&quot;5&quot;>%2$d&lt;/xliff:g> finished&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_study.xml"
+            line="47"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;bonus&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;study_board_breakdown&quot;>&lt;xliff:g id=&quot;items&quot; example=&quot;3 items&quot;>%1$s&lt;/xliff:g>, &lt;xliff:g id=&quot;bonus&quot; example=&quot;5&quot;>%2$d&lt;/xliff:g> bonus, &lt;xliff:g id=&quot;minutes&quot; example=&quot;65 minutes&quot;>%3$s&lt;/xliff:g>&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_study.xml"
+            line="153"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;more&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;study_points_early&quot;>Done a day or more early: &lt;xliff:g id=&quot;points&quot; example=&quot;5&quot;>%d&lt;/xliff:g> more&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_study.xml"
+            line="188"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;minutes&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;study_points_study&quot;>Study time: 1 for every &lt;xliff:g id=&quot;minutes&quot; example=&quot;10&quot;>%1$d&lt;/xliff:g> minutes, up to &lt;xliff:g id=&quot;max&quot; example=&quot;12&quot;>%2$d&lt;/xliff:g> a day&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_study.xml"
+            line="189"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;done&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;pq_home_progress_line&quot;>&lt;xliff:g id=&quot;done&quot; example=&quot;2&quot;>%1$d&lt;/xliff:g> of &lt;xliff:g id=&quot;total&quot; example=&quot;4&quot;>%2$d&lt;/xliff:g> done · target &lt;xliff:g id=&quot;target&quot; example=&quot;70&quot;>%3$d&lt;/xliff:g>%%&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_ui.xml"
+            line="99"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;left&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;pq_quests_group_left&quot;>&lt;xliff:g id=&quot;part&quot; example=&quot;Evening&quot;>%1$s&lt;/xliff:g> · &lt;xliff:g id=&quot;count&quot; example=&quot;2&quot;>%2$d&lt;/xliff:g> left&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_ui.xml"
+            line="137"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;done&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;pq_quests_group_done&quot;>&lt;xliff:g id=&quot;part&quot; example=&quot;Morning&quot;>%1$s&lt;/xliff:g> · &lt;xliff:g id=&quot;count&quot; example=&quot;2&quot;>%2$d&lt;/xliff:g> done&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_ui.xml"
+            line="138"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;this&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;pq_hero_namaz_xp&quot;>&lt;xliff:g id=&quot;total&quot; example=&quot;480&quot;>%1$d&lt;/xliff:g> XP from prayers · &lt;xliff:g id=&quot;week&quot; example=&quot;90&quot;>%2$d&lt;/xliff:g> this week&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings_ui.xml"
+            line="208"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (2523 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="    &lt;path android:fillColor=&quot;#33161412&quot; android:pathData=&quot;M69.40,25.40h4.40v4.40h-4.40zM73.80,25.40h4.40v4.40h-4.40zM78.20,25.40h4.40v4.40h-4.40zM82.60,25.40h4.40v4.40h-4.40zM65.00,29.80h4.40v4.40h-4.40zM69.40,29.80h4.40v4.40h-4.40zM73.80,29.80h4.40v4.40h-4.40zM78.20,29.80h4.40v4.40h-4.40zM82.60,29.80h4.40v4.40h-4.40zM60.60,34.20h4.40v4.40h-4.40zM65.00,34.20h4.40v4.40h-4.40zM69.40,34.20h4.40v4.40h-4.40zM73.80,34.20h4.40v4.40h-4.40zM78.20,34.20h4.40v4.40h-4.40zM82.60,34.20h4.40v4.40h-4.40zM56.20,38.60h4.40v4.40h-4.40zM60.60,38.60h4.40v4.40h-4.40zM65.00,38.60h4.40v4.40h-4.40zM69.40,38.60h4.40v4.40h-4.40zM73.80,38.60h4.40v4.40h-4.40zM78.20,38.60h4.40v4.40h-4.40zM34.20,43.00h4.40v4.40h-4.40zM38.60,43.00h4.40v4.40h-4.40zM43.00,43.00h4.40v4.40h-4.40zM47.40,43.00h4.40v4.40h-4.40zM51.80,43.00h4.40v4.40h-4.40zM56.20,43.00h4.40v4.40h-4.40zM60.60,43.00h4.40v4.40h-4.40zM65.00,43.00h4.40v4.40h-4.40zM69.40,43.00h4.40v4.40h-4.40zM73.80,43.00h4.40v4.40h-4.40zM34.20,47.40h4.40v4.40h-4.40zM38.60,47.40h4.40v4.40h-4.40zM43.00,47.40h4.40v4.40h-4.40zM47.40,47.40h4.40v4.40h-4.40zM51.80,47.40h4.40v4.40h-4.40zM56.20,47.40h4.40v4.40h-4.40zM60.60,47.40h4.40v4.40h-4.40zM65.00,47.40h4.40v4.40h-4.40zM69.40,47.40h4.40v4.40h-4.40zM34.20,51.80h4.40v4.40h-4.40zM38.60,51.80h4.40v4.40h-4.40zM43.00,51.80h4.40v4.40h-4.40zM47.40,51.80h4.40v4.40h-4.40zM51.80,51.80h4.40v4.40h-4.40zM56.20,51.80h4.40v4.40h-4.40zM60.60,51.80h4.40v4.40h-4.40zM65.00,51.80h4.40v4.40h-4.40zM38.60,56.20h4.40v4.40h-4.40zM43.00,56.20h4.40v4.40h-4.40zM47.40,56.20h4.40v4.40h-4.40zM51.80,56.20h4.40v4.40h-4.40zM56.20,56.20h4.40v4.40h-4.40zM60.60,56.20h4.40v4.40h-4.40zM34.20,60.60h4.40v4.40h-4.40zM38.60,60.60h4.40v4.40h-4.40zM43.00,60.60h4.40v4.40h-4.40zM47.40,60.60h4.40v4.40h-4.40zM51.80,60.60h4.40v4.40h-4.40zM56.20,60.60h4.40v4.40h-4.40zM60.60,60.60h4.40v4.40h-4.40zM65.00,60.60h4.40v4.40h-4.40zM29.80,65.00h4.40v4.40h-4.40zM34.20,65.00h4.40v4.40h-4.40zM38.60,65.00h4.40v4.40h-4.40zM43.00,65.00h4.40v4.40h-4.40zM47.40,65.00h4.40v4.40h-4.40zM51.80,65.00h4.40v4.40h-4.40zM56.20,65.00h4.40v4.40h-4.40zM60.60,65.00h4.40v4.40h-4.40zM65.00,65.00h4.40v4.40h-4.40zM29.80,69.40h4.40v4.40h-4.40zM34.20,69.40h4.40v4.40h-4.40zM38.60,69.40h4.40v4.40h-4.40zM43.00,69.40h4.40v4.40h-4.40zM51.80,69.40h4.40v4.40h-4.40zM56.20,69.40h4.40v4.40h-4.40zM60.60,69.40h4.40v4.40h-4.40zM65.00,69.40h4.40v4.40h-4.40zM29.80,73.80h4.40v4.40h-4.40zM34.20,73.80h4.40v4.40h-4.40zM38.60,73.80h4.40v4.40h-4.40zM43.00,73.80h4.40v4.40h-4.40zM29.80,78.20h4.40v4.40h-4.40zM34.20,78.20h4.40v4.40h-4.40zM38.60,78.20h4.40v4.40h-4.40zM43.00,78.20h4.40v4.40h-4.40z&quot;/>"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_launcher_foreground.xml"
+            line="5"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (1711 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="    &lt;path android:fillColor=&quot;#FF161412&quot; android:pathData=&quot;M67.20,23.20h4.40v4.40h-4.40zM71.60,23.20h4.40v4.40h-4.40zM76.00,23.20h4.40v4.40h-4.40zM80.40,23.20h4.40v4.40h-4.40zM62.80,27.60h4.40v4.40h-4.40zM67.20,27.60h4.40v4.40h-4.40zM80.40,27.60h4.40v4.40h-4.40zM58.40,32.00h4.40v4.40h-4.40zM62.80,32.00h4.40v4.40h-4.40zM76.00,32.00h4.40v4.40h-4.40zM80.40,32.00h4.40v4.40h-4.40zM54.00,36.40h4.40v4.40h-4.40zM58.40,36.40h4.40v4.40h-4.40zM71.60,36.40h4.40v4.40h-4.40zM76.00,36.40h4.40v4.40h-4.40zM32.00,40.80h4.40v4.40h-4.40zM36.40,40.80h4.40v4.40h-4.40zM40.80,40.80h4.40v4.40h-4.40zM45.20,40.80h4.40v4.40h-4.40zM49.60,40.80h4.40v4.40h-4.40zM54.00,40.80h4.40v4.40h-4.40zM67.20,40.80h4.40v4.40h-4.40zM71.60,40.80h4.40v4.40h-4.40zM32.00,45.20h4.40v4.40h-4.40zM45.20,45.20h4.40v4.40h-4.40zM49.60,45.20h4.40v4.40h-4.40zM62.80,45.20h4.40v4.40h-4.40zM67.20,45.20h4.40v4.40h-4.40zM32.00,49.60h4.40v4.40h-4.40zM36.40,49.60h4.40v4.40h-4.40zM58.40,49.60h4.40v4.40h-4.40zM62.80,49.60h4.40v4.40h-4.40zM36.40,54.00h4.40v4.40h-4.40zM40.80,54.00h4.40v4.40h-4.40zM54.00,54.00h4.40v4.40h-4.40zM58.40,54.00h4.40v4.40h-4.40zM32.00,58.40h4.40v4.40h-4.40zM36.40,58.40h4.40v4.40h-4.40zM45.20,58.40h4.40v4.40h-4.40zM58.40,58.40h4.40v4.40h-4.40zM62.80,58.40h4.40v4.40h-4.40zM27.60,62.80h4.40v4.40h-4.40zM32.00,62.80h4.40v4.40h-4.40zM40.80,62.80h4.40v4.40h-4.40zM45.20,62.80h4.40v4.40h-4.40zM49.60,62.80h4.40v4.40h-4.40zM62.80,62.80h4.40v4.40h-4.40zM27.60,67.20h4.40v4.40h-4.40zM40.80,67.20h4.40v4.40h-4.40zM49.60,67.20h4.40v4.40h-4.40zM54.00,67.20h4.40v4.40h-4.40zM58.40,67.20h4.40v4.40h-4.40zM62.80,67.20h4.40v4.40h-4.40zM27.60,71.60h4.40v4.40h-4.40zM40.80,71.60h4.40v4.40h-4.40zM27.60,76.00h4.40v4.40h-4.40zM32.00,76.00h4.40v4.40h-4.40zM36.40,76.00h4.40v4.40h-4.40zM40.80,76.00h4.40v4.40h-4.40z&quot;/>"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_launcher_foreground.xml"
+            line="6"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (2523 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="    &lt;path android:fillColor=&quot;#FF000000&quot; android:pathData=&quot;M67.20,23.20h4.40v4.40h-4.40zM71.60,23.20h4.40v4.40h-4.40zM76.00,23.20h4.40v4.40h-4.40zM80.40,23.20h4.40v4.40h-4.40zM62.80,27.60h4.40v4.40h-4.40zM67.20,27.60h4.40v4.40h-4.40zM71.60,27.60h4.40v4.40h-4.40zM76.00,27.60h4.40v4.40h-4.40zM80.40,27.60h4.40v4.40h-4.40zM58.40,32.00h4.40v4.40h-4.40zM62.80,32.00h4.40v4.40h-4.40zM67.20,32.00h4.40v4.40h-4.40zM71.60,32.00h4.40v4.40h-4.40zM76.00,32.00h4.40v4.40h-4.40zM80.40,32.00h4.40v4.40h-4.40zM54.00,36.40h4.40v4.40h-4.40zM58.40,36.40h4.40v4.40h-4.40zM62.80,36.40h4.40v4.40h-4.40zM67.20,36.40h4.40v4.40h-4.40zM71.60,36.40h4.40v4.40h-4.40zM76.00,36.40h4.40v4.40h-4.40zM32.00,40.80h4.40v4.40h-4.40zM36.40,40.80h4.40v4.40h-4.40zM40.80,40.80h4.40v4.40h-4.40zM45.20,40.80h4.40v4.40h-4.40zM49.60,40.80h4.40v4.40h-4.40zM54.00,40.80h4.40v4.40h-4.40zM58.40,40.80h4.40v4.40h-4.40zM62.80,40.80h4.40v4.40h-4.40zM67.20,40.80h4.40v4.40h-4.40zM71.60,40.80h4.40v4.40h-4.40zM32.00,45.20h4.40v4.40h-4.40zM36.40,45.20h4.40v4.40h-4.40zM40.80,45.20h4.40v4.40h-4.40zM45.20,45.20h4.40v4.40h-4.40zM49.60,45.20h4.40v4.40h-4.40zM54.00,45.20h4.40v4.40h-4.40zM58.40,45.20h4.40v4.40h-4.40zM62.80,45.20h4.40v4.40h-4.40zM67.20,45.20h4.40v4.40h-4.40zM32.00,49.60h4.40v4.40h-4.40zM36.40,49.60h4.40v4.40h-4.40zM40.80,49.60h4.40v4.40h-4.40zM45.20,49.60h4.40v4.40h-4.40zM49.60,49.60h4.40v4.40h-4.40zM54.00,49.60h4.40v4.40h-4.40zM58.40,49.60h4.40v4.40h-4.40zM62.80,49.60h4.40v4.40h-4.40zM36.40,54.00h4.40v4.40h-4.40zM40.80,54.00h4.40v4.40h-4.40zM45.20,54.00h4.40v4.40h-4.40zM49.60,54.00h4.40v4.40h-4.40zM54.00,54.00h4.40v4.40h-4.40zM58.40,54.00h4.40v4.40h-4.40zM32.00,58.40h4.40v4.40h-4.40zM36.40,58.40h4.40v4.40h-4.40zM40.80,58.40h4.40v4.40h-4.40zM45.20,58.40h4.40v4.40h-4.40zM49.60,58.40h4.40v4.40h-4.40zM54.00,58.40h4.40v4.40h-4.40zM58.40,58.40h4.40v4.40h-4.40zM62.80,58.40h4.40v4.40h-4.40zM27.60,62.80h4.40v4.40h-4.40zM32.00,62.80h4.40v4.40h-4.40zM36.40,62.80h4.40v4.40h-4.40zM40.80,62.80h4.40v4.40h-4.40zM45.20,62.80h4.40v4.40h-4.40zM49.60,62.80h4.40v4.40h-4.40zM54.00,62.80h4.40v4.40h-4.40zM58.40,62.80h4.40v4.40h-4.40zM62.80,62.80h4.40v4.40h-4.40zM27.60,67.20h4.40v4.40h-4.40zM32.00,67.20h4.40v4.40h-4.40zM36.40,67.20h4.40v4.40h-4.40zM40.80,67.20h4.40v4.40h-4.40zM49.60,67.20h4.40v4.40h-4.40zM54.00,67.20h4.40v4.40h-4.40zM58.40,67.20h4.40v4.40h-4.40zM62.80,67.20h4.40v4.40h-4.40zM27.60,71.60h4.40v4.40h-4.40zM32.00,71.60h4.40v4.40h-4.40zM36.40,71.60h4.40v4.40h-4.40zM40.80,71.60h4.40v4.40h-4.40zM27.60,76.00h4.40v4.40h-4.40zM32.00,76.00h4.40v4.40h-4.40zM36.40,76.00h4.40v4.40h-4.40zM40.80,76.00h4.40v4.40h-4.40z&quot;/>"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_launcher_monochrome.xml"
+            line="5"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="VectorPath"
+        message="Very long vector path (2383 characters), which is bad for performance. Considering reducing precision, removing minor details or rasterizing vector."
+        errorLine1="    &lt;path android:fillColor=&quot;#FFFFFFFF&quot; android:pathData=&quot;M10.00,0.00h1.00v1.00h-1.00zM11.00,0.00h1.00v1.00h-1.00zM12.00,0.00h1.00v1.00h-1.00zM13.00,0.00h1.00v1.00h-1.00zM9.00,1.00h1.00v1.00h-1.00zM10.00,1.00h1.00v1.00h-1.00zM11.00,1.00h1.00v1.00h-1.00zM12.00,1.00h1.00v1.00h-1.00zM13.00,1.00h1.00v1.00h-1.00zM8.00,2.00h1.00v1.00h-1.00zM9.00,2.00h1.00v1.00h-1.00zM10.00,2.00h1.00v1.00h-1.00zM11.00,2.00h1.00v1.00h-1.00zM12.00,2.00h1.00v1.00h-1.00zM13.00,2.00h1.00v1.00h-1.00zM7.00,3.00h1.00v1.00h-1.00zM8.00,3.00h1.00v1.00h-1.00zM9.00,3.00h1.00v1.00h-1.00zM10.00,3.00h1.00v1.00h-1.00zM11.00,3.00h1.00v1.00h-1.00zM12.00,3.00h1.00v1.00h-1.00zM2.00,4.00h1.00v1.00h-1.00zM3.00,4.00h1.00v1.00h-1.00zM4.00,4.00h1.00v1.00h-1.00zM5.00,4.00h1.00v1.00h-1.00zM6.00,4.00h1.00v1.00h-1.00zM7.00,4.00h1.00v1.00h-1.00zM8.00,4.00h1.00v1.00h-1.00zM9.00,4.00h1.00v1.00h-1.00zM10.00,4.00h1.00v1.00h-1.00zM11.00,4.00h1.00v1.00h-1.00zM2.00,5.00h1.00v1.00h-1.00zM3.00,5.00h1.00v1.00h-1.00zM4.00,5.00h1.00v1.00h-1.00zM5.00,5.00h1.00v1.00h-1.00zM6.00,5.00h1.00v1.00h-1.00zM7.00,5.00h1.00v1.00h-1.00zM8.00,5.00h1.00v1.00h-1.00zM9.00,5.00h1.00v1.00h-1.00zM10.00,5.00h1.00v1.00h-1.00zM2.00,6.00h1.00v1.00h-1.00zM3.00,6.00h1.00v1.00h-1.00zM4.00,6.00h1.00v1.00h-1.00zM5.00,6.00h1.00v1.00h-1.00zM6.00,6.00h1.00v1.00h-1.00zM7.00,6.00h1.00v1.00h-1.00zM8.00,6.00h1.00v1.00h-1.00zM9.00,6.00h1.00v1.00h-1.00zM3.00,7.00h1.00v1.00h-1.00zM4.00,7.00h1.00v1.00h-1.00zM5.00,7.00h1.00v1.00h-1.00zM6.00,7.00h1.00v1.00h-1.00zM7.00,7.00h1.00v1.00h-1.00zM8.00,7.00h1.00v1.00h-1.00zM2.00,8.00h1.00v1.00h-1.00zM3.00,8.00h1.00v1.00h-1.00zM4.00,8.00h1.00v1.00h-1.00zM5.00,8.00h1.00v1.00h-1.00zM6.00,8.00h1.00v1.00h-1.00zM7.00,8.00h1.00v1.00h-1.00zM8.00,8.00h1.00v1.00h-1.00zM9.00,8.00h1.00v1.00h-1.00zM1.00,9.00h1.00v1.00h-1.00zM2.00,9.00h1.00v1.00h-1.00zM3.00,9.00h1.00v1.00h-1.00zM4.00,9.00h1.00v1.00h-1.00zM5.00,9.00h1.00v1.00h-1.00zM6.00,9.00h1.00v1.00h-1.00zM7.00,9.00h1.00v1.00h-1.00zM8.00,9.00h1.00v1.00h-1.00zM9.00,9.00h1.00v1.00h-1.00zM1.00,10.00h1.00v1.00h-1.00zM2.00,10.00h1.00v1.00h-1.00zM3.00,10.00h1.00v1.00h-1.00zM4.00,10.00h1.00v1.00h-1.00zM6.00,10.00h1.00v1.00h-1.00zM7.00,10.00h1.00v1.00h-1.00zM8.00,10.00h1.00v1.00h-1.00zM9.00,10.00h1.00v1.00h-1.00zM1.00,11.00h1.00v1.00h-1.00zM2.00,11.00h1.00v1.00h-1.00zM3.00,11.00h1.00v1.00h-1.00zM4.00,11.00h1.00v1.00h-1.00zM1.00,12.00h1.00v1.00h-1.00zM2.00,12.00h1.00v1.00h-1.00zM3.00,12.00h1.00v1.00h-1.00zM4.00,12.00h1.00v1.00h-1.00z&quot;/>"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/drawable/ic_stat_pixelquest.xml"
+            line="5"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="KaptUsageInsteadOfKsp"
+        message="This library supports using KSP instead of kapt, which greatly improves performance. Learn more: https://developer.android.com/studio/build/migrate-to-ksp"
+        errorLine1="    kapt(libs.androidx.room.compiler)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="220"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var pullOffset by remember { mutableStateOf(0f) }"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/screens/leaderboard/LeaderboardScreen.kt"
+            line="89"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var last by remember { mutableStateOf(count) }"
+        errorLine2="                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/motion/PqChessMotion.kt"
+            line="145"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    var burst by remember { mutableStateOf(0) }"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/pixelquest/app/ui/motion/PqChessMotion.kt"
+            line="321"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.pq_red_text` appears to be unused"
+        errorLine1="    &lt;color name=&quot;pq_red_text&quot;>#FFC23A2F&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/pq_colors.xml"
+            line="7"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.pq_sky` appears to be unused"
+        errorLine1="    &lt;color name=&quot;pq_sky&quot;>#FF8ECAE6&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/pq_colors.xml"
+            line="8"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.pq_amber` appears to be unused"
+        errorLine1="    &lt;color name=&quot;pq_amber&quot;>#FFF0A35E&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/pq_colors.xml"
+            line="10"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.pq_px_paper` appears to be unused"
+        errorLine1="    &lt;color name=&quot;pq_px_paper&quot;>#FFFFFAF0&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/pq_colors.xml"
+            line="14"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.pq_px_primary` appears to be unused"
+        errorLine1="    &lt;color name=&quot;pq_px_primary&quot;>#FFC25E00&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/pq_colors.xml"
+            line="15"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.color.pq_px_progress` appears to be unused"
+        errorLine1="    &lt;color name=&quot;pq_px_progress&quot;>#FF2F9E4A&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/pq_colors.xml"
+            line="17"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/avatar_hero.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/avatar_hero.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/avatar_mage.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/avatar_mage.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/avatar_paladin.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/avatar_paladin.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/avatar_ranger.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/avatar_ranger.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/avatar_rogue.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/avatar_rogue.png"/>
+    </issue>
+
+    <issue
+        id="IconLocation"
+        message="Found bitmap drawable `res/drawable/avatar_warrior.png` in densityless folder">
+        <location
+            file="src/main/res/drawable/avatar_warrior.png"/>
+    </issue>
+
+</issues>

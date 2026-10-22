@@ -179,6 +179,13 @@ android {
         compose = true
         buildConfig = true
     }
+    lint {
+        // Q005: preserve known debt in a checked-in baseline; new warnings fail locally and in CI.
+        baseline = file("lint-baseline.xml")
+        abortOnError = true
+        warningsAsErrors = true
+        checkReleaseBuilds = true
+    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
