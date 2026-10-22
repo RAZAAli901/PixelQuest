@@ -445,3 +445,11 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - No notification is `VISIBILITY_PUBLIC`.
 - **Limit:** Android uses the public version only when the phone hides sensitive lock-screen content. A player who picks "show all content" in Android's settings chooses to see everything. The app can't override that without hiding its reminders completely (`VISIBILITY_SECRET`), and that would break the reminders.
 - **Test:** `LockScreenPrivacyTest`: a quest's title and text don't reach the public version. Any notification built outside `PqNotifications` must set its own public version. The notification, Namaz, chess and streak suites still pass.
+
+### S048: receivers check what sent them
+- **Sender:** none of the seven receivers or the push service is exported (S040, S042), so only Android and the app itself can send to them. Firebase delivers push through its own receiver, which holds the `c2dm SEND` permission. Android can't name the sender of an alarm or a notification button, so the export flag is the real check.
+- **Action:** each `onReceive` checks the action before it does anything.
+  - The Namaz, study and boot receivers match exact actions.
+  - `TaskAlarmReceiver` and `TaskActionReceiver` now take only their own actions: no action, which is how every version has armed a quest's alarm and its Yes and No buttons, or their snooze action. Anything else is ignored.
+- **Safest option chosen:** the no-action form stays accepted. Alarms armed before an update must still ring, and changing it would leave old alarms unmatched.
+- **Test:** `ReceiverActionsTest`: foreign actions are refused, and every receiver checks `intent.action` first.

@@ -23,6 +23,7 @@ class TaskActionReceiver : BroadcastReceiver() {
     lateinit var taskAlarmScheduler: TaskAlarmScheduler
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (!accepts(intent.action)) return
         val taskId = com.pixelquest.app.util.IntentExtras.rowId(intent, "EXTRA_TASK_ID") ?: return
         val wasCompleted = intent.getBooleanExtra("EXTRA_WAS_COMPLETED", false)
 
@@ -53,5 +54,12 @@ class TaskActionReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_SNOOZE = "com.pixelquest.app.action.SNOOZE_REMINDER"
+
+        /**
+         * The broadcasts this receiver is sent (S048): the reminder's Yes and No buttons (no action,
+         * as every version has sent them) and its Snooze button. It isn't exported, so only the app's
+         * own notifications reach it; anything else is ignored.
+         */
+        fun accepts(action: String?): Boolean = action == null || action == ACTION_SNOOZE
     }
 }

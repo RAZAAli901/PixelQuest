@@ -53,6 +53,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
     lateinit var encouragementPackStore: EncouragementPackStore
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (!accepts(intent.action)) return
         val taskId = com.pixelquest.app.util.IntentExtras.rowId(intent, "EXTRA_TASK_ID") ?: return
         val taskName = com.pixelquest.app.util.IntentExtras.label(intent, "EXTRA_TASK_NAME", "Quest Reminder")
 
@@ -219,5 +220,14 @@ class TaskAlarmReceiver : BroadcastReceiver() {
             doneToday = tasksToday.count { it.id in doneIds },
             totalToday = tasksToday.size
         )
+    }
+
+    companion object {
+        /**
+         * The broadcasts this receiver is sent (S048): a quest's alarm (no action, as every version
+         * has armed it, so alarms armed before an update still ring) and a snoozed reminder. It isn't
+         * exported, so only the app's own alarms reach it; anything else is ignored.
+         */
+        fun accepts(action: String?): Boolean = action == null || action == TaskAlarmScheduler.ACTION_SNOOZED_REMINDER
     }
 }
