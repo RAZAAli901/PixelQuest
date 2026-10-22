@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
@@ -205,11 +206,19 @@ fun PqButton(
 
 @Composable
 fun PqQuietButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Text(
-        text,
-        style = PqType.MetaStrong.copy(color = PqColors.RedText, fontSize = 13.bsp),
-        modifier = modifier.clip(pqShape(8.dp)).clickable(onClick = onClick).padding(horizontal = 6.dp, vertical = 6.dp),
-    )
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .heightIn(min = PqDimens.TouchMin)
+            .clip(pqShape(8.dp))
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text,
+            style = PqType.MetaStrong.copy(color = PqColors.RedText, fontSize = 13.bsp),
+        )
+    }
 }
 
 /**
@@ -229,7 +238,7 @@ fun PqDangerButton(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = modifier
-            .heightIn(min = 44.dp)
+            .heightIn(min = PqDimens.TouchMin)
             .alpha(if (enabled) 1f else 0.45f)
             .clip(shape)
             .border(PqDimens.Border, PqColors.RedText, shape)
@@ -249,7 +258,10 @@ fun PqBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) =
 @Composable
 fun PqIconButton(icon: ImageVector, contentDescription: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
-        modifier.size(40.dp).comicPressable(onClick, radius = 12.dp, shadow = 2.dp),
+        modifier
+            .sizeIn(minWidth = PqDimens.TouchMin, minHeight = PqDimens.TouchMin)
+            .size(44.dp)
+            .comicPressable(onClick, radius = 12.dp, shadow = 2.dp, onClickLabel = contentDescription, role = Role.Button),
         contentAlignment = Alignment.Center,
     ) { Icon(icon, contentDescription, tint = PqColors.Ink, modifier = Modifier.size(22.dp)) }
 }
@@ -292,7 +304,7 @@ fun PqSegmented(options: List<String>, selected: Int, onSelect: (Int) -> Unit, m
         options.forEachIndexed { i, label ->
             val on = i == selected
             Box(
-                Modifier.weight(1f).height(34.dp).clip(pqShape(9.dp))
+                Modifier.weight(1f).heightIn(min = 40.dp).clip(pqShape(9.dp))
                     .background(if (on) PqColors.Ink else Color.Transparent)
                     .selectable(selected = on, role = Role.Tab) { onSelect(i) },
                 contentAlignment = Alignment.Center,
@@ -446,14 +458,14 @@ fun PqTopBar(
 @Composable
 fun PqSectionHeader(title: String, modifier: Modifier = Modifier, action: String? = null, onAction: () -> Unit = {}) {
     Row(modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(title.uppercase(), style = PqType.Label.copy(fontSize = 13.lsp), modifier = Modifier.weight(1f))
+        Text(title.uppercase(), style = PqType.Label.copy(fontSize = 13.lsp), modifier = Modifier.weight(1f).semantics { heading() })
         if (action != null) PqQuietButton(action, onAction)
     }
 }
 
 @Composable
 fun PqGroupLabel(text: String, modifier: Modifier = Modifier) {
-    Text(text.uppercase(), style = PqType.Label.copy(fontSize = 12.lsp, color = PqColors.Muted), modifier = modifier.padding(top = 4.dp))
+    Text(text.uppercase(), style = PqType.Label.copy(fontSize = 12.lsp, color = PqColors.Muted), modifier = modifier.semantics { heading() }.padding(top = 4.dp))
 }
 
 @Composable
