@@ -66,6 +66,9 @@ fun TierBadge(points: Int, userId: String) {
 @HiltViewModel
 class ChessProfileViewModel @Inject constructor(private val ratings: ChessRatingRepository, account: DaroodAccount) : ViewModel() {
     private val me = account.id()
+
+    /** Chess needs an account (it's played in study parties): signed out, Hero has no chess card. */
+    val signedIn: Boolean = me != null
     val ratingsOf: StateFlow<List<Rating>> = (me?.let { ratings.observeRatings(it) } ?: flowOf(emptyList()))
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
@@ -76,6 +79,7 @@ class ChessProfileViewModel @Inject constructor(private val ratings: ChessRating
 
 @Composable
 fun ChessProfileRoute(viewModel: ChessProfileViewModel = hiltViewModel()) {
+    if (!viewModel.signedIn) return
     val ratings by viewModel.ratingsOf.collectAsState()
     ChessProfileCard(ratings)
 }
