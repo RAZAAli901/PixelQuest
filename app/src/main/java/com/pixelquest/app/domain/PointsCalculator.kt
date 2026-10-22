@@ -1,11 +1,12 @@
 package com.pixelquest.app.domain
 
+import com.pixelquest.app.config.GameConfig
 import com.pixelquest.app.data.local.entity.TaskEntity
 
 object PointsCalculator {
 
-    const val BASE_XP_PER_TASK = 50
-    const val BONUS_XP_PER_STREAK_DAY = 10
+    const val BASE_XP_PER_TASK = GameConfig.BASE_XP_PER_TASK
+    const val BONUS_XP_PER_STREAK_DAY = GameConfig.BONUS_XP_PER_STREAK_DAY
 
     /**
      * Calculates XP awarded for completing a task.

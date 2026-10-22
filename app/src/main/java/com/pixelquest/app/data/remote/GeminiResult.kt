@@ -52,7 +52,7 @@ sealed class GeminiResult<out T> : PqResult<T> {
     }
 }
 
-const val DEFAULT_GEMINI_TIMEOUT_MS = 25_000L
+const val DEFAULT_GEMINI_TIMEOUT_MS = com.pixelquest.app.config.NetworkConfig.GEMINI_TIMEOUT_MS
 
 /**
  * Executes a suspending Gemini API operation safely with a timeout,

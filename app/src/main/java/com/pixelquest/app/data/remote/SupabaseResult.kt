@@ -37,7 +37,7 @@ sealed class SupabaseResult<out T> : PqResult<T> {
     }
 }
 
-const val DEFAULT_SUPABASE_TIMEOUT_MS = 15_000L
+const val DEFAULT_SUPABASE_TIMEOUT_MS = com.pixelquest.app.config.NetworkConfig.DEFAULT_TIMEOUT_MS
 
 /**
  * Executes a suspending Supabase operation safely with a timeout,
