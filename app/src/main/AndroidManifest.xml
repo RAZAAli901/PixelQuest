@@ -58,9 +58,11 @@
             android:name=".scheduling.TaskAlarmReceiver"
             android:exported="false" />
 
+        <!-- Not exported (S040): only the system sends it these broadcasts, and system broadcasts reach
+             non-exported receivers. Another app can't make it re-arm alarms. -->
         <receiver
             android:name=".scheduling.BootReceiver"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <!-- An update: re-arm in case the new version's alarms differ (Namaz reminders, docs/namaz-design.md). -->

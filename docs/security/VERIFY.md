@@ -384,3 +384,10 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - `NetworkSecurityConfigTest`: both configs pin `supabase.co` with subdomains, include GTS Root R4, have at least 5 SHA-256 pins, and expire within two years.
   - `PinnedConnectionInstrumentedTest` (Android 14 emulator, the real hosted project): the TLS handshake succeeds with the pins in force.
 - **Result 2026-10-22:** 4 of 4, and 1 of 1 on the emulator (not skipped).
+
+### S040: BootReceiver isn't exported
+- **Done:** `scheduling.BootReceiver` is `exported="false"`. It still checks that the action is one of its re-arm actions (boot, package replaced, exact-alarm permission, time or time zone changed).
+- **Checked on the Android 14 emulator:**
+  - **another app can't send to it:** `am broadcast -n com.pixelquest.app/.scheduling.BootReceiver` from the shell gives "Permission Denial: not allowed to send broadcast";
+  - **the system still can:** after a reboot, Android queued and then delivered the boot broadcast to `com.pixelquest.app.scheduling.BootReceiver`, with none left pending. (An app that has never been opened gets no boot broadcasts at all; that's Android's "stopped" state.)
+- **Test:** `ManifestComponentsTest`: of the app's own components, only `MainActivity` is exported.
