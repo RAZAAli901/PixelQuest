@@ -527,3 +527,11 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - The deleted id leads to no account, name or username.
   - The player's chat files lose their rows, and `cleanup-uploads` deletes the bytes (it removes any object no row names).
 - **Test:** `account_deletion.test.ts` checks every key's delete rule, then deletes a player and scans every uuid column in public and private for their id: nothing left except the kept head-to-head record. With security.test.ts and reports_and_deletion.test.ts: 22 of 22. pgTAP: PASS.
+
+### S058: data minimisation review and privacy policy draft
+- **Done:** [DATA_MINIMISATION.md](DATA_MINIMISATION.md) covers every piece of data, on the phone, in the cloud and sent to other services, with why it's needed and how long it's kept. It adds to [PRIVACY_REVIEW.md](../PRIVACY_REVIEW.md) (J173, the party, chat and chess tables). [PRIVACY_POLICY_DRAFT.md](../PRIVACY_POLICY_DRAFT.md) lists every field collected, the services used, retention, export and deletion, and a table for the Play data safety form.
+- **Findings:**
+  - Google's name and picture claims are stored by Supabase Auth but never used. Left alone and disclosed.
+  - AI usage counters and rate events lingered. They now go with the account (S057), and pruning is follow-up F1 and F2.
+  - No analytics, advertising id, contacts or precise location anywhere.
+- **Owner:** fill in the bracketed parts (name, contact, region, audience) before publishing.
