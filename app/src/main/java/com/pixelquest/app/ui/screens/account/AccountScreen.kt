@@ -83,6 +83,11 @@ fun AccountScreen(
             accountViewModel.cancelActiveSync()
             viewModel.signOut()
         },
+        onSignOutEverywhere = {
+            accountViewModel.cancelActiveSync()
+            viewModel.signOut(everywhere = true)
+        },
+        signOutEverywhereFailed = viewModel.signOutEverywhereFailed.collectAsState().value,
         onDisplayNameChange = { accountViewModel.onDisplayNameChanged(it) },
         onOptInToggle = { accountViewModel.onOptInToggleClicked(it) },
         onConfirmOptIn = { accountViewModel.confirmOptIn() },
@@ -117,6 +122,8 @@ fun AccountContent(
     onUseDifferentEmail: () -> Unit = {},
     onCloseEmailSignIn: () -> Unit = {},
     onSignOut: () -> Unit = {},
+    onSignOutEverywhere: () -> Unit = {},
+    signOutEverywhereFailed: Boolean = false,
     onDisplayNameChange: (String) -> Unit = {},
     onOptInToggle: (Boolean) -> Unit = {},
     onConfirmOptIn: () -> Unit = {},
@@ -227,6 +234,15 @@ fun AccountContent(
                     Text(text = "Cloud ID ${user.id.take(8)}…${user.id.takeLast(4)}", style = PqType.Meta)
                 }
                 PqButton("Sign out", onSignOut, Modifier.fillMaxWidth(), style = PqButtonStyle.Secondary, icon = Icons.Rounded.Logout)
+                // Lost a phone, or signed in somewhere you shouldn't have (S059).
+                com.pixelquest.app.ui.screens.settings.SettingLink(Icons.Rounded.Logout, "Sign out on every device", onSignOutEverywhere)
+                if (signOutEverywhereFailed) {
+                    Text(
+                        text = "Couldn't reach the server, so nothing was signed out. Connect to the internet and try again.",
+                        style = PqType.Meta.copy(color = PqColors.Error),
+                        modifier = Modifier.testTag(AccountTags.SIGN_OUT_EVERYWHERE_FAILED)
+                    )
+                }
             }
 
             // The leaderboard: off until the player chooses it.
@@ -449,4 +465,8 @@ private fun AccountProblem(message: String, onRetry: () -> Unit) {
             PqButton("Try again", onRetry, Modifier.fillMaxWidth(), style = PqButtonStyle.Secondary)
         }
     }
+}
+
+object AccountTags {
+    const val SIGN_OUT_EVERYWHERE_FAILED = "account_sign_out_everywhere_failed"
 }

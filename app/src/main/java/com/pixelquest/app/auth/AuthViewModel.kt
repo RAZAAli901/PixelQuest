@@ -65,6 +65,10 @@ class AuthViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.SignedOut)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
+    /** "Sign out everywhere" couldn't reach the server: still signed in, here and elsewhere (S059). */
+    private val _signOutEverywhereFailed = MutableStateFlow(false)
+    val signOutEverywhereFailed: StateFlow<Boolean> = _signOutEverywhereFailed.asStateFlow()
+
     private val _emailState = MutableStateFlow(EmailSignInState())
     val emailState: StateFlow<EmailSignInState> = _emailState.asStateFlow()
     private var resendTicker: kotlinx.coroutines.Job? = null
@@ -181,8 +185,13 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun signOut(onSignedOut: (() -> Unit)? = null) {
+    /**
+     * Signs out of this phone, or with [everywhere] of every phone the account is on (S059). Either
+     * way the server revokes the session, so the old tokens stop working.
+     */
+    fun signOut(onSignedOut: (() -> Unit)? = null, everywhere: Boolean = false) {
         authJob?.cancel()
+        _signOutEverywhereFailed.value = false
         authJob = viewModelScope.launch {
             sendPendingLeave()
             // Darood entries still waiting go now, while there's a sign-in to send them with: signing
@@ -198,9 +207,24 @@ class AuthViewModel @Inject constructor(
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (_: Exception) {}
-            try {
-                authRepository.signOut()
-            } catch (_: Exception) {}
+            if (everywhere) {
+                val revoked = try {
+                    authRepository.signOutEverywhere()
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    null
+                }
+                if (revoked !is SupabaseResult.Success) {
+                    // Offline: the other phones can't be signed out, so this one stays signed in too.
+                    _signOutEverywhereFailed.value = true
+                    return@launch
+                }
+            } else {
+                try {
+                    authRepository.signOut()
+                } catch (_: Exception) {}
+            }
             try {
                 googleAuthManager.signOut()
             } catch (_: Exception) {}

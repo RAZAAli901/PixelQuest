@@ -36,6 +36,13 @@ interface AuthRepository {
     val serverUnreachable: Flow<Boolean> get() = flowOf(false)
     suspend fun exchangeGoogleIdToken(idToken: String, rawNonce: String? = null): SupabaseResult<AuthUser>
     suspend fun signOut(): SupabaseResult<Unit>
+
+    /**
+     * Signs the account out on every phone (S059): the server revokes all its sessions, so each
+     * other phone's next refresh fails and it is signed out. Fails, and changes nothing, offline.
+     */
+    suspend fun signOutEverywhere(): SupabaseResult<Unit> =
+        SupabaseResult.AuthError(UnsupportedOperationException("sign out everywhere"), "Sign in first.")
     suspend fun getInitialUser(): AuthUser?
     suspend fun deleteAccount(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 
@@ -143,6 +150,10 @@ class AuthRepositoryImpl @Inject constructor(
         }
         return result
     }
+
+    override suspend fun signOutEverywhere(): SupabaseResult<Unit> =
+        // Unlike signOut, nothing is forgotten here when it fails: the point is the other phones.
+        safeSupabaseCall { auth.signOut(io.github.jan.supabase.auth.SignOutScope.GLOBAL) }
 
     override suspend fun getInitialUser(): AuthUser? {
         // Asked as the screen opens, before the saved session has loaded, this said signed out.
