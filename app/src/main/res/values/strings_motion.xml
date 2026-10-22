@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- The micro-animations (ui/motion, the owner's animations handoff) -->
+    <string name="motion_xp_gain">+<xliff:g id="amount" example="20">%1$d</xliff:g> XP</string>
+    <string name="motion_level">LVL</string>
+    <string name="motion_perfect">PERFECT!</string>
+    <string name="motion_check">CHECK!</string>
+    <string name="motion_checkmate">CHECKMATE</string>
+    <string name="motion_vs">VS</string>
+</resources>
