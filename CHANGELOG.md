@@ -4,6 +4,32 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
+## [Unreleased] — Animations
+
+### ✨ New
+- **The app moves.** These are the micro-animations from the owner's animations handoff, in the Comic skin's springy style and the Pixel skin's hard steps:
+  - Buttons spring back after a press.
+  - A quest's check fills and draws its tick, its title is struck through, and "+N XP" floats up.
+  - Home's progress bar and ring sweep to their value, and today's XP rolls up with a "+N XP" chip.
+  - The streak flame flickers, and the chip pops when the streak grows.
+  - A day that turns perfect gets a "PERFECT!" stamp, a thud and confetti.
+  - Hero's level bar fills, and flashes gold on a level up. Hero's numbers roll.
+  - The bottom bar's gold pill slides between tabs, and each icon hops.
+  - The Deen tab's prayer pips pop in. All five prayed bursts.
+  - A short toast confirms a quest done or skipped.
+  - Slow lists shimmer while they load.
+- **Chess moves too:**
+  - Pieces glide, and the selected piece lifts with its legal moves popping in.
+  - Captures burst and fly to the captured tray.
+  - Check pulses the king's square and shakes the king. Checkmate topples the king and stamps CHECKMATE, and the result follows a moment later.
+  - A clock under 10 seconds flashes and shakes.
+  - The end card's Int change pops in, and the head-to-head cell rolls up.
+  - A challenge opens with the two players clashing and a draining expiry bar. A promoted pawn morphs.
+  - Animations never cost clock time.
+- **Reduce motion** (Settings, or Android's own Remove animations) turns all of it off: everything shows its end state.
+
+---
+
 ## [1.7.1] - 2026-10-22 — Chess challenges as notifications
 
 ### ⬆️ Upgrading
