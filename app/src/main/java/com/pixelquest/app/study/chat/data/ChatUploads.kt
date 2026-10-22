@@ -28,7 +28,7 @@ interface PickedDocuments {
 
 @Singleton
 class ContentResolverPickedDocuments @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
 ) : PickedDocuments {
     override fun open(uri: String): InputStream? {
         val parsed = Uri.parse(uri)
@@ -68,7 +68,7 @@ class ChatUploads(
     private val documents: PickedDocuments,
     private val chat: StudyChatRepository,
     private val scheduler: ChatUploadScheduler?,
-    private val clock: () -> Long
+    private val clock: () -> Long,
 ) {
     @Inject
     constructor(dao: ChatDao, remote: ChatFilesRemote, documents: PickedDocuments, chat: StudyChatRepository, scheduler: ChatUploadScheduler) :
@@ -79,8 +79,13 @@ class ChatUploads(
     /** Shares [file] in [partyId]'s chat: saved, then sent in the background. False for a party not on the phone. */
     suspend fun share(partyId: String, file: PickedFile): Boolean {
         val upload = ChatUploadEntity(
-            clientId = UUID.randomUUID().toString(), partyId = partyId, uri = file.uri, displayName = file.name,
-            mime = file.mime, sizeBytes = file.sizeBytes, createdAt = clock()
+            clientId = UUID.randomUUID().toString(),
+            partyId = partyId,
+            uri = file.uri,
+            displayName = file.name,
+            mime = file.mime,
+            sizeBytes = file.sizeBytes,
+            createdAt = clock(),
         )
         if (!dao.insertUploadIfKept(upload)) return false
         documents.keep(file.uri)
@@ -135,7 +140,9 @@ class ChatUploads(
                 // Saved now and then, not on every block: enough for the bar to move smoothly.
                 if (bytes - shown >= PROGRESS_STEP || bytes == upload.sizeBytes) {
                     shown = bytes
-                    dao.setSentBytes(clientId, bytes)
+                    kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+                        dao.setSentBytes(clientId, bytes)
+                    }
                 }
             }
             when (sent) {

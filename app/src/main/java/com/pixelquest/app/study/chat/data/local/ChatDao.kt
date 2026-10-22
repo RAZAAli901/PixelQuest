@@ -136,7 +136,7 @@ interface ChatDao {
 
     /** How many bytes have gone: called from the upload's own thread, as they go. */
     @Query("UPDATE chat_upload SET sentBytes = :bytes WHERE clientId = :clientId")
-    fun setSentBytes(clientId: String, bytes: Long)
+    suspend fun setSentBytes(clientId: String, bytes: Long)
 
     // How far it's read
 
@@ -163,7 +163,7 @@ interface ChatDao {
         LEFT JOIN chat_read r ON r.partyId = m.partyId
         WHERE m.deletedAt IS NULL AND (m.senderId IS NULL OR m.senderId != :me) AND m.kind != 'SYSTEM'
           AND m.createdAt > COALESCE(r.lastReadAt, 0)
-        GROUP BY m.partyId"""
+        GROUP BY m.partyId""",
     )
     fun observeUnread(me: String): Flow<List<UnreadCount>>
 }
