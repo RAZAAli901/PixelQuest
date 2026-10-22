@@ -71,8 +71,8 @@ android {
         applicationId = "com.pixelquest.app"
         minSdk = 24 // Minimum supported Android API 24 (Nougat)
         targetSdk = 34 // Latest stable targetSdk
-        versionCode = 108
-        versionName = "1.7.0"
+        versionCode = 109
+        versionName = "1.7.1"
 
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrlProp\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKeyProp\"")

@@ -976,3 +976,9 @@ The plan "Study Chat, Darood Weekly Ranking and Chess" (J001 to J180), on main a
 - **Two real phones playing each other, push notifications, and the weekly notification on Sunday night.** These need two signed-in accounts on the live project and the Firebase settings. See docs/QA_CHECKLIST.md, sections 2 to 6.
 - **Installing over 1.6.0 on Android 8 and later:** the API34 emulator holds a debug install, which a release build mustn't replace. The database steps are covered by `DatabaseUpgradeTest`.
 - **The scheduled sweep and cleanup:** they need the service key stored in the hosted database, which is the owner's call. Until then, the phones claim timeouts themselves.
+
+### 1.7.1 (versionCode 109): push turned on
+The 1.7.0 code with the Firebase settings (project `pixelqueat`), released 2026-10-22 at the owner's request.
+- **The server's key:** signed in to Google (200). FCM's dry run (`validate_only`) refused only the made-up device token (400 INVALID_ARGUMENT), so the key works and the FCM API is on. Nothing was sent.
+- **The build:** the four `FCM_*` settings reach BuildConfig, so `PushSetup.configured` is true. CI and release builds take them from repository secrets.
+- **Not verified:** a challenge reaching a real phone needs two signed-in phones (docs/QA_CHECKLIST.md 5.1).

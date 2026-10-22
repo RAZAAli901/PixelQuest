@@ -4,6 +4,21 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
+## [1.7.1] - 2026-10-22 — Chess challenges as notifications
+
+### ⬆️ Upgrading
+Install 1.7.1 over 1.7.0 (or any version from 1.2.0): everything is kept. Nothing in the app's data changes.
+
+### 🔔 New
+- **A chess challenge now arrives as a notification,** even with the app closed: "<name> challenges you". Tap it to open the challenge. The lock screen hides who sent it. 1.7.0 had everything for this but its Firebase settings, so challenges showed only in the chat and the Chess tab.
+- Notifications for chess have their own channel, so you can turn them off in Android's settings without losing the others.
+
+### 🔧 For developers
+- Push uses the Firebase project `pixelqueat`. CI and release builds take the four `FCM_*` settings from repository secrets, and the server's key is the `FCM_SERVICE_ACCOUNT` Supabase secret ([docs/PUSH_SETUP.md](docs/PUSH_SETUP.md)).
+- No database or server change: Room 23, migrations through `20261019000108`.
+
+---
+
 ## [1.7.0] - 2026-10-22 — Study chat, the Darood weekly ranking, and chess
 
 ### ⬆️ Upgrading
