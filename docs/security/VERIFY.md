@@ -197,3 +197,11 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - the existing Node harness (`supabase/tests/local/*.test.ts`), for behaviour through the API with real players.
   - [supabase/tests/README.md](../../supabase/tests/README.md) explains both.
 - **Check:** `npx supabase@2.120.0 test db` gives "All tests successful".
+
+### S023: signed out, nothing
+- **pgTAP** (`supabase/tests/database/010_anon.test.sql`):
+  - `anon` holds no table, column or sequence privilege in `public`;
+  - it can run no `public` or `private` function;
+  - no bucket is public.
+- **API** (`supabase/tests/local/rls_matrix.test.ts`): every public table and view is found from the catalogue, and each refuses a signed-out read (401, no rows) and write. Every RPC refuses a signed-out call. A new table or function is covered automatically.
+- **Result 2026-10-22:** pgTAP PASS; API 2 of 2.
