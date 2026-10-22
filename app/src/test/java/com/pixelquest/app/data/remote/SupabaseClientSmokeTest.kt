@@ -36,7 +36,7 @@ class SupabaseClientSmokeTest {
 
     @Test
     fun networkModule_providesDependencies() {
-        val client = NetworkModule.provideSupabaseClient()
+        val client = NetworkModule.provideSupabaseClient(androidx.test.core.app.ApplicationProvider.getApplicationContext())
         assertNotNull("NetworkModule should provide SupabaseClient", client)
 
         val postgrest = NetworkModule.providePostgrest(client)

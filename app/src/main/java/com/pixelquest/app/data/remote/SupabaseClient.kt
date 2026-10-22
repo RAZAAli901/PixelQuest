@@ -16,6 +16,13 @@ import io.ktor.client.engine.okhttp.OkHttp
  */
 object SupabaseClientProvider {
 
+    /**
+     * Where the sign-in session is kept: set by the app (NetworkModule) before the client is first
+     * built, to the Keystore-sealed store (S034). Null keeps supabase-kt's own default.
+     */
+    @Volatile
+    var sessionManager: io.github.jan.supabase.auth.SessionManager? = null
+
     val client: SupabaseClient by lazy {
         val url = BuildConfig.SUPABASE_URL.ifBlank { "https://placeholder-project.supabase.co" }
         val anonKey = BuildConfig.SUPABASE_ANON_KEY.ifBlank { "placeholder-anon-key" }
@@ -28,7 +35,9 @@ object SupabaseClientProvider {
             // WebSockets, which Ktor's Android engine doesn't have.
             httpEngine = OkHttp.create()
             install(Postgrest)
-            install(Auth)
+            install(Auth) {
+                SupabaseClientProvider.sessionManager?.let { sessionManager = it }
+            }
             // Darood Party's live updates (docs/darood-design.md). Nothing connects until a party is followed.
             install(Realtime)
         }

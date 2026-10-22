@@ -16,7 +16,11 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideSupabaseClient(): SupabaseClient {
+    fun provideSupabaseClient(@dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context): SupabaseClient {
+        // The session sealed with a Keystore key, before the client exists (S034).
+        if (SupabaseClientProvider.sessionManager == null) {
+            SupabaseClientProvider.sessionManager = com.pixelquest.app.auth.KeystoreSessionManager(context)
+        }
         return SupabaseClientProvider.client
     }
 

@@ -328,3 +328,16 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - "every preferences file is decided": each preferences file the code opens must be in the backed-up list or the device-only list, so a new one fails until someone decides.
   - "the session is never backed up": no rule names supabase-kt's preferences file, and no rule includes a whole domain.
 - **Result 2026-10-22:** 7 of 7 pass.
+
+### S034: the session sealed with the Android Keystore
+- **Before:** supabase-kt kept the access and refresh tokens as plain JSON in the default preferences. They were private to the app and never backed up, but readable on a rooted phone or in a device dump.
+- **Done:**
+  - `auth/KeystoreSessionManager` stores the session sealed with AES-256-GCM in `pixelquest_session`. The key lives in the Android Keystore and can't be exported (`KeystoreCipher`).
+  - On first load, a plain session from 1.7.2 or earlier is moved in and the plain copy deleted, so nobody is signed out by the update.
+  - A session that can't be opened (for example the key is gone after a restore onto another phone) is dropped: the player signs in again.
+  - `NetworkModule` gives it to the Supabase client before the client is built.
+- **Tests:**
+  - `KeystoreSessionManagerTest` (Robolectric, with a stand-in cipher): the stored value doesn't contain the tokens; it loads back; a plain session is moved in and the old copy deleted; an unopenable one is dropped; sign-out deletes both.
+  - `KeystoreCipherInstrumentedTest` (Android 14 emulator, the real Keystore): it seals and opens with a fresh IV each time, and the key's material can't be read out.
+  - `AndroidBackupRulesTest`: `pixelquest_session` is device-only.
+- **Result 2026-10-22:** 4 of 4, 2 of 2 on the emulator, and 7 of 7.

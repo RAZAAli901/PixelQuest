@@ -75,6 +75,8 @@ class AndroidBackupRulesTest {
             "pixelquest_ai_usage", "pixelquest_chess", "pixelquest_darood", "pixelquest_darood_goals", "pixelquest_darood_week",
             "pixelquest_encouragement_pack", "pixelquest_leaderboard_choice", "pixelquest_namaz_delivered", "pixelquest_namaz_reminders",
             "pixelquest_permissions", "pixelquest_progress_reset", "pixelquest_quran", "pixelquest_reminders_handled",
+            // The sign-in session, sealed with a Keystore key (S034): a key that can't leave this phone.
+            "pixelquest_session",
             "pixelquest_streak_nudge", "pixelquest_study", "pixelquest_study_chat", "pixelquest_study_reminder_mutes",
             "pixelquest_study_reminders", "pixelquest_tips",
         )
@@ -95,7 +97,7 @@ class AndroidBackupRulesTest {
     fun theSession_isNeverBackedUp() {
         for (path in listOf("src/main/res/xml/backup_rules.xml", "src/main/res/xml/data_extraction_rules.xml")) {
             val text = file(path).readText()
-            assertTrue(path, "_preferences" !in text && "supabase" !in text.substringAfter("-->"))
+            assertTrue(path, "_preferences" !in text && "supabase" !in text.substringAfter("-->") && "pixelquest_session" !in text)
             assertTrue("no whole-domain include in $path", !Regex("""path="\.?/?"""").containsMatchIn(text))
         }
     }
