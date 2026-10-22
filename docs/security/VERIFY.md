@@ -217,3 +217,13 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
 - **What it tries:** for every column that references a user (found from the foreign keys) and every `party_id`, stranger B's SELECT, PATCH and DELETE filtered by A's id or A's parties.
 - **Result:** B never gets a row, and the row counts never change.
 - **Coverage:** every such table was seeded, except `profiles` and `profile_progress_marks`, because A isn't on the board. Their rules are in `profiles_rls.test.ts`.
+
+### S025: ids, roles, the leader and counters stay the server's
+- **Test:** `rls_matrix.test.ts`, "nobody rewrites ids, roles, the leader or counters, even on their own rows". Each of these is refused, and the rows are unchanged afterwards:
+  - **memberships:** a member making themselves leader or editing their membership; the leader editing a member's membership directly (removal is `remove_member`);
+  - **the party:** a member taking it over; the leader resizing it;
+  - **chess:** a player raising their Int points, rewriting a game's result or editing a head-to-head record;
+  - **weekly results:** moving up a weekly ranking; adding win points;
+  - **files:** an uploader marking their own file ready (only `finalize-upload` does, after its checks);
+  - **ids:** handing a push token to another account; moving a profile to another id.
+- **How:** these tables have no UPDATE grant for app roles, or column grants that leave the field out, or policies that pin the owner. Every change goes through a SECURITY DEFINER function that checks the caller.

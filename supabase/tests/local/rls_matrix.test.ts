@@ -114,3 +114,49 @@ localTest("cross-user: a stranger reads, changes and deletes none of another pla
   endGames(a, c);
   await rpc(a, "unblock_member", { user_id: c.userId });
 });
+
+localTest("ownership: nobody rewrites ids, roles, the leader or counters, even on their own rows (S025)", async () => {
+  const { white: leader, black: member, outsider } = await chessCast();
+  endGames(leader, member);
+  sql(`DELETE FROM private.invite_log WHERE inviter = '${leader.userId}'`);
+  const party = await studyParty(leader, [member]);
+  const patch = (who: { accessToken: string }, path: string, body: unknown) =>
+    call(`/rest/v1/${path}`, { method: "PATCH", token: who.accessToken, body, headers: { Prefer: "return=representation" } });
+  const refused = (res: { status: number; body: unknown }) => res.status >= 400 || (Array.isArray(res.body) && res.body.length === 0);
+
+  const attempts: Array<[string, Promise<{ status: number; body: unknown }>]> = [
+    ["a member makes themselves leader", patch(member, `party_members?party_id=eq.${party}&user_id=eq.${member.userId}`, { role: "leader" })],
+    ["a member reactivates or edits their membership", patch(member, `party_members?party_id=eq.${party}&user_id=eq.${member.userId}`, { status: "active", invited_by: outsider.userId })],
+    ["the leader edits a member's membership", patch(leader, `party_members?party_id=eq.${party}&user_id=eq.${member.userId}`, { status: "removed" })],
+    ["a member takes over the party", patch(member, `parties?id=eq.${party}`, { leader_id: member.userId })],
+    ["the leader changes the party's size", patch(leader, `parties?id=eq.${party}`, { max_members: 500 })],
+  ];
+  // Counters and results the server keeps, on the player's own rows.
+  const game = gameRow(party, leader, member);
+  sql(`UPDATE public.chess_games SET ply = 20 WHERE id = '${game}'`);
+  sql(`SELECT private.chess_finish('${game}', 'white', 'resign')`);
+  sql(`INSERT INTO public.darood_week_results (party_id, week_start, user_id, position, week_total, members) VALUES ('${party}', '2026-01-12', '${member.userId}', 2, 5, 2) ON CONFLICT DO NOTHING`);
+  sql(`INSERT INTO public.study_week_winners (party_id, week_start, user_id, points) VALUES ('${party}', '2026-01-12', '${member.userId}', 3) ON CONFLICT DO NOTHING`);
+  const fileId = crypto.randomUUID();
+  sql(`INSERT INTO public.chat_files (id, party_id, uploader_id, storage_path, display_name, mime, size_bytes, status) VALUES ('${fileId}', '${party}', '${member.userId}', '${party}/${fileId}', 'x.pdf', 'application/pdf', 10, 'pending')`);
+  await rpc(member, "register_device_token", { token: `own-${member.userId}`, platform: "android" });
+  attempts.push(
+    ["a player raises their own Int points", patch(member, `chess_ratings?user_id=eq.${member.userId}`, { int_points: 3000 })],
+    ["a player rewrites a game's result", patch(member, `chess_games?id=eq.${game}`, { result: "black" })],
+    ["a player edits their head-to-head", patch(member, `chess_head_to_head?time_control_sec=eq.180`, { low_wins: 99 })],
+    ["a player moves up the weekly ranking", patch(member, `darood_week_results?party_id=eq.${party}&user_id=eq.${member.userId}`, { position: 1 })],
+    ["a player adds win points", patch(member, `study_week_winners?party_id=eq.${party}&user_id=eq.${member.userId}`, { points: 999 })],
+    ["an uploader marks their own file ready", patch(member, `chat_files?id=eq.${fileId}`, { status: "ready" })],
+    ["a player hands their push token to someone else", patch(member, `device_tokens?token=eq.own-${member.userId}`, { user_id: outsider.userId })],
+    ["a player moves their profile to another id", patch(member, `profiles?id=eq.${member.userId}`, { id: outsider.userId })],
+  );
+  const accepted: string[] = [];
+  for (const [what, attempt] of attempts) if (!refused(await attempt)) accepted.push(what);
+  assert.deepEqual(accepted, []);
+  // And nothing moved.
+  assert.equal(sql(`SELECT role || ' ' || status FROM public.party_members WHERE party_id = '${party}' AND user_id = '${member.userId}'`), "member active");
+  assert.equal(sql(`SELECT leader_id::text FROM public.parties WHERE id = '${party}'`), leader.userId);
+  assert.equal(sql(`SELECT status FROM public.chat_files WHERE id = '${fileId}'`), "pending");
+  assert.equal(sql(`SELECT user_id::text FROM public.device_tokens WHERE token = 'own-${member.userId}'`), member.userId);
+  endGames(leader, member);
+});
