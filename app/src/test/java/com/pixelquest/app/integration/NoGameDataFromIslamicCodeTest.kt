@@ -30,7 +30,7 @@ class NoGameDataFromIslamicCodeTest {
         "LevelHistoryDao", "levelHistoryDao()", "LevelHistoryEntity", "LevelHistoryRepository",
         "TaskCompletionLogDao", "taskCompletionLogDao()", "TaskCompletionLogEntity", "TaskCompletionRepository",
         "user_profile", "level_history", "task_completion_logs", "FROM streaks", "INTO streaks", "UPDATE streaks",
-        "LevelingUseCase", "XpCalculator"
+        "LevelingUseCase", "XpCalculator",
     )
 
     @Test
@@ -50,13 +50,18 @@ class NoGameDataFromIslamicCodeTest {
         val migrations = repo("supabase/migrations").listFiles()!!.filter { it.name >= "20261019000000" && it.name.endsWith(".sql") }
         assertTrue(migrations.size >= 45)
         val writes = Regex("""(?i)(update\s+(public\.)?profiles|insert\s+into\s+(public\.)?profiles|alter\s+table\s+(public\.)?profiles|delete\s+from\s+(public\.)?profiles)""")
-        // S029 rewrote delete_user_account with an empty search_path: deleting an account deletes its
+        // S029 and S057 rewrote delete_user_account: deleting an account deletes its
         // profile, as it always has. That's the account's own deletion, not Islamic code.
-        val accountDeletion = "20261019000114_definer_search_paths.sql"
-        val found = migrations.filter { it.name != accountDeletion }
+        val accountDeletions = setOf(
+            "20261019000114_definer_search_paths.sql",
+            "20261019000118_account_deletion_complete.sql",
+        )
+        val found = migrations.filter { it.name !in accountDeletions }
             .mapNotNull { file -> writes.find(file.readText())?.let { "${file.name}: ${it.value}" } }
         val deletion = Regex("""(?i)(update\s+(public\.)?profiles|insert\s+into\s+(public\.)?profiles|alter\s+table\s+(public\.)?profiles)""")
-        assertEquals("the rewrite only deletes", null, deletion.find(repo("supabase/migrations/$accountDeletion").readText())?.value)
+        for (file in accountDeletions) {
+            assertEquals("the rewrite only deletes", null, deletion.find(repo("supabase/migrations/$file").readText())?.value)
+        }
         assertEquals(emptyList<String>(), found)
     }
 

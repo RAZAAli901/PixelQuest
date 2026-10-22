@@ -45,8 +45,8 @@ class FakeUserProfileRepoForEdgeCases : UserProfileRepository {
             username = "EdgeHero",
             avatarId = "1",
             leaderboardOptIn = false,
-            leaderboardDisplayName = null
-        )
+            leaderboardDisplayName = null,
+        ),
     )
 
     override fun getProfile(): Flow<UserProfileEntity?> = flow
@@ -152,6 +152,9 @@ class CloudSyncEdgeCasesTest {
         assertFalse(accountViewModel.uiState.value.isSyncing)
         val msg = accountViewModel.uiState.value.syncMessage
         assertNotNull(msg)
-        assertTrue(msg!!.contains("Server error", ignoreCase = true))
+        assertTrue(
+            msg!!.contains("Server error", ignoreCase = true) ||
+                msg == com.pixelquest.app.domain.SafeErrorCopy.SYNC_SERVER,
+        )
     }
 }
