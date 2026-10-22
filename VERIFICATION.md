@@ -946,7 +946,7 @@ The release build from before it (main at 7ac38d0b) and after it, each installed
 
 ## Section S -- 1.7.0: study chat, the Darood weekly ranking, and chess
 
-The plan "Study Chat, Darood Weekly Ranking and Chess" (J001 to J180), on main as 1.7.0 (versionCode 108). **Not tagged yet:** the tag waits for the owner's run of [docs/QA_CHECKLIST.md](docs/QA_CHECKLIST.md) on real phones. Copy its results under "Real phones" below.
+The plan "Study Chat, Darood Weekly Ranking and Chess" (J001 to J180), on main as 1.7.0 (versionCode 108). **Tagged v1.7.0 on 2026-10-22 at the owner's request**, before the real-phone run of [docs/QA_CHECKLIST.md](docs/QA_CHECKLIST.md). That checklist is still to be run on the released APK; add its results here.
 
 ### Builds and tests
 - **Unit tests:** 2,120, 0 failing; the 20 skipped need the local Supabase stack (they run in the Cloud Tests workflow). Up from 1.6.0's 1,826.

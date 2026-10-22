@@ -25,15 +25,14 @@ The owner's plan is `C:\Users\tipto\Downloads\Study Chat, Darood Weekly Ranking 
 | C: Darood weekly ranking and goal extension | J066–J090 | Done |
 | D: Chess backend | J091–J135 | Done |
 | E: Chess UI (the owner's design, in `/chess-ui`) | J136–J165 | Done |
-| F: Tests, abuse protection and release | J166–J180 | Done to J179. J180's signed build and install-over check are done; **the v1.7.0 tag waits for the owner's real-device QA** |
+| F: Tests, abuse protection and release | J166–J180 | Done. **v1.7.0 tagged and released 2026-10-22** at the owner's request, before the real-phone QA run |
 
 The version is **1.7.0 (versionCode 108)**. The Room database is at **version 23**.
 
 ## What's left
 
-1. **The owner runs [docs/QA_CHECKLIST.md](../QA_CHECKLIST.md)** on real phones, and the results go into VERIFICATION.md (Section S).
-2. **Then tag `v1.7.0`**, but only with the owner's OK; the release workflow builds, signs and publishes it. After it's out, move the README's download links and badge from v1.6.0 to v1.7.0, and replace its "Coming in 1.7.0" heading.
-3. **Owner settings, none of which the code can do:**
+1. **The owner runs [docs/QA_CHECKLIST.md](../QA_CHECKLIST.md)** on the released 1.7.0, and the results go into VERIFICATION.md (Section S). Anything it finds goes into a 1.7.1.
+2. **Owner settings, none of which the code can do:**
    - **Push for challenges:** the Firebase project's `FCM_API_KEY`, `FCM_APP_ID`, `FCM_PROJECT_ID` and `FCM_SENDER_ID` in `local.properties` (and as GitHub secrets for CI builds), and the `FCM_SERVICE_ACCOUNT` function secret. Without them push is off; challenges still show in the chat and the Chess tab.
    - **Scheduled jobs:** `chess-sweep` (every minute: flags and stalled games) and `cleanup-uploads` need the service key stored in the hosted database for pg_cron. Until then, the phones claim timeouts themselves, and `request-upload` runs a small cleanup on each call.
    - **Monitoring:** the `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF` repository secrets turn on the hourly error check ([docs/MONITORING.md](../MONITORING.md)).

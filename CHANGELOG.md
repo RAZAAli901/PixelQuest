@@ -4,7 +4,7 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
-## [1.7.0] - unreleased — Study chat, the Darood weekly ranking, and chess
+## [1.7.0] - 2026-10-22 — Study chat, the Darood weekly ranking, and chess
 
 ### ⬆️ Upgrading
 Install 1.7.0 over 1.6.0 (or any version from 1.2.0): everything is kept. The app's database moves from version 18 to 23 on first open, adding the new features' tables; nothing you have changes.
