@@ -341,3 +341,15 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - `KeystoreCipherInstrumentedTest` (Android 14 emulator, the real Keystore): it seals and opens with a fresh IV each time, and the key's material can't be read out.
   - `AndroidBackupRulesTest`: `pixelquest_session` is device-only.
 - **Result 2026-10-22:** 4 of 4, 2 of 2 on the emulator, and 7 of 7.
+
+### S035: database encryption, decided
+- **Audit:** the Room database holds:
+  - the player's own progress;
+  - their parties' content: entries, items, chat messages and file names, games, members' usernames.
+  - It holds **no secrets**: tokens are sealed outside it (S034). File links are fetched, used once in memory and never stored (`ChatFileOpener`). Chat drafts aren't saved.
+- **Decision: no SQLCipher.**
+  - The database is private to the app and encrypted at rest by Android's file-based encryption, unlocked by the screen lock.
+  - Since S032 it never goes to a cloud backup, and since S036 sign-out clears the party caches and opened files.
+  - SQLCipher would add a native library per CPU type, several MB, past the 8,000,000-byte APK budget, and slow every query, for no protection beyond what a rooted phone's owner already has.
+  - Revisit if the app ever stores something secret, health data or payment data.
+- **Guard:** `NoSecretsAtRestTest` fails if any Room entity gains a field named like a token, password, secret, key or signed link.
