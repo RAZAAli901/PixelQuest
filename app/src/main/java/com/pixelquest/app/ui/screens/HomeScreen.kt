@@ -1,5 +1,15 @@
 package com.pixelquest.app.ui.screens
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import com.pixelquest.app.ui.motion.ConfettiFall
+import com.pixelquest.app.ui.motion.PerfectDayStamp
+import com.pixelquest.app.ui.motion.RollingNumber
+import com.pixelquest.app.ui.motion.StreakCounter
+import com.pixelquest.app.ui.motion.XpGainChip
+import com.pixelquest.app.ui.motion.thud
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -288,10 +298,17 @@ fun HomeContent(
         item(key = "header") { HomeHeader(state, greeting, onAvatarClick, onParties, partiesDot) }
         // One item, so a card that isn't there (the coach, prayers, study) leaves no gap.
         item(key = "cards") {
+            // A day that turns perfect while Home is open is celebrated (M08); one that already was isn't.
+            var wasPerfect by remember { mutableStateOf(state.isPerfectDay) }
+            var celebrate by remember { mutableIntStateOf(0) }
+            LaunchedEffect(state.isPerfectDay) {
+                if (state.isPerfectDay && !wasPerfect) celebrate++
+                wasPerfect = state.isPerfectDay
+            }
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 when {
                     state.totalCount == 0 -> EmptyDayCard(state.isSimpleMode, onNewQuest)
-                    state.isPerfectDay -> PerfectDayCard(state)
+                    state.isPerfectDay -> PerfectDayCard(state, celebrate)
                     else -> ProgressCard(state)
                 }
                 if (state.isStreakBroken && !state.isSimpleMode) {
@@ -388,10 +405,8 @@ private fun HomeHeader(state: HomeUiState, greeting: String, onAvatarClick: () -
         }
         if (!state.isSimpleMode) {
             val streak = pluralStringResource(R.plurals.pq_home_streak_days, state.streakDays, state.streakDays)
-            PqChip(
-                "${state.streakDays}", PqColors.Gold, icon = Icons.Rounded.LocalFireDepartment, iconTint = PqColors.Flame,
-                modifier = Modifier.semantics { contentDescription = streak },
-            )
+            // M05: the flame flickers, and the chip pops with a rolling number when the streak grows.
+            StreakCounter(state.streakDays, Modifier.height(30.dp).clearAndSetSemantics { contentDescription = streak })
         }
     }
 }
@@ -406,9 +421,21 @@ private fun ProgressCard(state: HomeUiState) {
                     stringResource(R.string.pq_home_progress_line, state.doneCount, state.totalCount, state.targetPercent),
                     style = PqType.Body.copy(fontSize = 13.bsp, color = PqColors.Ink2),
                 )
-                PqProgressBar(state.progress, target = state.targetPercent / 100f)
+                // M01: when XP comes in, "+N XP" pops by the bar and today's total rolls up.
+                var lastXp by remember { mutableIntStateOf(state.xpToday) }
+                var gained by remember { mutableIntStateOf(0) }
+                var gains by remember { mutableIntStateOf(0) }
+                LaunchedEffect(state.xpToday) {
+                    if (state.xpToday > lastXp) { gained = state.xpToday - lastXp; gains++ }
+                    lastXp = state.xpToday
+                }
+                Box {
+                    PqProgressBar(state.progress, target = state.targetPercent / 100f)
+                    if (!state.isSimpleMode) XpGainChip(gained, gains, Modifier.align(Alignment.CenterEnd))
+                }
                 if (!state.isSimpleMode) {
-                    Text(stringResource(R.string.pq_home_xp_today, state.xpToday), style = PqType.MetaStrong.copy(color = PqColors.RedText))
+                    val context = LocalContext.current
+                    RollingNumber(state.xpToday, PqType.MetaStrong.copy(color = PqColors.RedText), format = { context.getString(R.string.pq_home_xp_today, it) })
                 }
             }
             ProgressRing(state.progress, stringResource(R.string.pq_percent, (state.progress * 100).toInt()))
@@ -417,8 +444,13 @@ private fun ProgressCard(state: HomeUiState) {
 }
 
 @Composable
-private fun PerfectDayCard(state: HomeUiState) {
-    PqCard(Modifier.testTag(HomeTags.PERFECT), bg = PqColors.Gold, shadow = PqDimens.ShadowLg) {
+private fun PerfectDayCard(state: HomeUiState, celebrate: Int) {
+    // M08: "PERFECT!" stamps onto the card (after the XP chip, so the two don't overlap), the card
+    // thuds, and confetti falls. A day that was already perfect just shows the stamp.
+    var stamped by remember { mutableStateOf(celebrate == 0) }
+    LaunchedEffect(celebrate) { if (celebrate > 0) { stamped = false; kotlinx.coroutines.delay(700); stamped = true } }
+    Box {
+    PqCard(Modifier.testTag(HomeTags.PERFECT).thud(if (stamped) celebrate else 0), bg = PqColors.Gold, shadow = PqDimens.ShadowLg) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text(
                 if (state.doneCount == state.totalCount) {
@@ -446,6 +478,9 @@ private fun PerfectDayCard(state: HomeUiState) {
                 }
             }
         }
+    }
+    PerfectDayStamp(stamped, Modifier.align(Alignment.TopEnd).padding(top = 10.dp, end = 12.dp).clearAndSetSemantics { })
+    if (stamped) ConfettiFall(celebrate, Modifier.matchParentSize())
     }
 }
 

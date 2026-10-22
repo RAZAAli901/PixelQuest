@@ -1,5 +1,23 @@
 package com.pixelquest.app.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.graphicsLayer
+import com.pixelquest.app.ui.motion.FloatingReward
+import com.pixelquest.app.ui.motion.PqMotion
+import com.pixelquest.app.ui.motion.QuestTick
+import com.pixelquest.app.ui.motion.questRowDone
+import com.pixelquest.app.ui.motion.reducedMotion
+import com.pixelquest.app.ui.motion.strikeProgress
+import com.pixelquest.app.ui.motion.strikeThrough
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.draw.alpha
 import androidx.compose.material.icons.rounded.Delete
@@ -107,10 +125,20 @@ fun Modifier.comicPressable(
 ): Modifier {
     val src = remember { MutableInteractionSource() }
     val pressed by src.collectIsPressedAsState()
-    val shift = if (pressed) shadow - 1.dp else 0.dp
+    // M04: down with the press, and a spring back on release (steps in Pixel).
+    val reduced = reducedMotion()
+    val shift by animateDpAsState(
+        if (pressed) shadow - 1.dp else 0.dp,
+        when {
+            reduced -> snap()
+            pressed -> tween(PqMotion.Fast, easing = PqMotion.out())
+            else -> tween(PqMotion.Base, easing = PqMotion.snap())
+        },
+        label = "press"
+    )
     return this
         .offset(shift * PqSkinState.spec.shadowX, shift)
-        .comic(bg = bg, radius = radius, shadow = if (pressed) 1.dp else shadow, tappable = true)
+        .comic(bg = bg, radius = radius, shadow = (shadow - shift).coerceAtLeast(1.dp), tappable = true)
         .clickable(interactionSource = src, indication = null, enabled = enabled, onClickLabel = onClickLabel, role = role, onClick = onClick)
 }
 
@@ -255,12 +283,15 @@ fun PqSegmented(options: List<String>, selected: Int, onSelect: (Int) -> Unit, m
 /** Continuous bar with an optional ink target marker (e.g. the 70% difficulty threshold). */
 @Composable
 fun PqProgressBar(progress: Float, modifier: Modifier = Modifier, target: Float? = null, fill: Color = PqColors.Progress, height: Dp = 14.dp) {
+    // M01/M07: the fill sweeps to its value from the last one shown.
+    val reduced = reducedMotion()
+    val shown by animateFloatAsState(progress.coerceIn(0f, 1f), if (reduced) snap() else tween(600, easing = PqMotion.snap()), label = "bar")
     Box(modifier.fillMaxWidth().height(height + 12.dp), contentAlignment = Alignment.CenterStart) {
         Box(
             Modifier.fillMaxWidth().height(height).clip(pqShape(height / 2)).background(PqColors.Sunken)
                 .border(PqDimens.BorderThin, PqColors.Ink, pqShape(height / 2))
         ) {
-            Box(Modifier.fillMaxWidth(progress.coerceIn(0f, 1f)).height(height).background(fill))
+            Box(Modifier.fillMaxWidth(shown.coerceIn(0f, 1f)).height(height).background(fill))
             Box(Modifier.fillMaxSize().border(PqDimens.BorderThin, PqColors.Ink, pqShape(height / 2)))
         }
         if (target != null) {
@@ -275,11 +306,20 @@ fun PqProgressBar(progress: Float, modifier: Modifier = Modifier, target: Float?
 /** Pixel-style bar: one block per unit (prayers, perfect days). */
 @Composable
 fun PqSegmentBar(total: Int, filled: Int, modifier: Modifier = Modifier, fill: Color = PqColors.Gold, height: Dp = 12.dp) {
+    val reduced = reducedMotion()
     Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         repeat(total) { i ->
+            // A block that fills pops (M11's pip pop).
+            val on = i < filled
+            val pop = remember { Animatable(1f) }
+            var was by remember { mutableStateOf(on) }
+            LaunchedEffect(on) {
+                if (on && !was && !reduced) pop.animateTo(1f, keyframes { durationMillis = PqMotion.Base; 1.25f at 140 })
+                was = on
+            }
             Box(
-                Modifier.weight(1f).height(height).clip(pqShape(3.dp))
-                    .background(if (i < filled) fill else PqColors.Sunken)
+                Modifier.weight(1f).height(height).graphicsLayer { scaleX = pop.value; scaleY = pop.value }.clip(pqShape(3.dp))
+                    .background(if (on) fill else PqColors.Sunken)
                     .border(PqDimens.BorderThin, PqColors.Ink, pqShape(3.dp))
             )
         }
@@ -288,10 +328,18 @@ fun PqSegmentBar(total: Int, filled: Int, modifier: Modifier = Modifier, fill: C
 
 @Composable
 fun ProgressRing(progress: Float, label: String, diameter: Dp = 78.dp) {
+    // M07: the ring sweeps to its value; in Pixel the meter fills in ten steps.
+    val reduced = reducedMotion()
+    val target = progress.coerceIn(0f, 1f)
+    val swept by animateFloatAsState(
+        if (isPixelSkin) kotlin.math.floor(target * 10f) / 10f else target,
+        if (reduced) snap() else tween(700, easing = if (isPixelSkin) PqMotion.steps(10) else PqMotion.out()),
+        label = "ring"
+    )
     if (isPixelSkin) {
         // Pixel skin: a square "power meter" that fills from the bottom
         Box(Modifier.size(diameter).background(PqColors.Sunken).border(PqDimens.Border, PqColors.Ink), contentAlignment = Alignment.Center) {
-            Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(progress.coerceIn(0f, 1f)).background(PqColors.Progress))
+            Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(swept).background(PqColors.Progress))
             Text(label, style = PqType.number(22))
         }
         return
@@ -300,7 +348,7 @@ fun ProgressRing(progress: Float, label: String, diameter: Dp = 78.dp) {
         Canvas(Modifier.fillMaxSize()) {
             val b = PqDimens.Border.toPx()
             drawCircle(PqColors.Sunken)
-            drawArc(PqColors.Progress, -90f, 360f * progress.coerceIn(0f, 1f), useCenter = true)
+            drawArc(PqColors.Progress, -90f, 360f * swept, useCenter = true)
             drawCircle(PqColors.Ink, radius = size.minDimension / 2 - b / 2, style = Stroke(b))
             val inner = size.minDimension * 0.35f
             drawCircle(PqColors.Paper, radius = inner)
@@ -360,25 +408,48 @@ fun CheckCircle(checked: Boolean, onClick: () -> Unit, size: Dp = 40.dp, modifie
             .then(if (label != null) Modifier.semantics { contentDescription = label } else Modifier),
         contentAlignment = Alignment.Center,
     ) {
+        // M03: the circle fills with a pop, then its tick draws.
+        val reduced = reducedMotion()
+        val fill = remember { Animatable(if (checked) 1f else 0f) }
+        val draw = remember { Animatable(if (checked) 1f else 0f) }
+        LaunchedEffect(checked) {
+            when {
+                reduced -> { fill.snapTo(if (checked) 1f else 0f); draw.snapTo(if (checked) 1f else 0f) }
+                checked && fill.value < 1f -> {
+                    fill.animateTo(1f, keyframes { durationMillis = PqMotion.Base; 1.15f at 160 })
+                    draw.animateTo(1f, tween(200, easing = PqMotion.out()))
+                }
+                !checked -> { draw.snapTo(0f); fill.animateTo(0f, tween(PqMotion.Fast)) }
+            }
+        }
         Box(
-            Modifier.size(size).clip(PqCircle).background(if (checked) PqColors.Ink else PqColors.Paper)
+            Modifier.size(size).clip(PqCircle).background(PqColors.Paper)
                 .border(PqDimens.Border, PqColors.Ink, PqCircle),
             contentAlignment = Alignment.Center,
-        ) { if (checked) Icon(Icons.Rounded.Check, null, tint = PqColors.Paper, modifier = Modifier.size(size * 0.6f)) }
+        ) { QuestTick(fill.value, draw.value, dot = if (PqMotion.pixel) PqColors.Progress else PqColors.Ink, tick = PqColors.Paper) }
     }
 }
 
 @Composable
 fun QuestRow(quest: QuestUi, onToggle: () -> Unit, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val base = if (quest.done) modifier.comic(PqColors.Sunken, PqDimens.Radius, shadow = 0.dp) else modifier.comicPressable(onClick, radius = PqDimens.Radius)
-    Row(base.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    // M03: done just now, the row squashes, the title's strike slides across, and its XP floats up.
+    var rewards by remember(quest.id) { mutableIntStateOf(0) }
+    var wasDone by remember(quest.id) { mutableStateOf(quest.done) }
+    LaunchedEffect(quest.done) {
+        if (quest.done && !wasDone) rewards++
+        wasDone = quest.done
+    }
+    Row(
+        base.questRowDone(quest.done, dim = false).fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         CategoryTile(quest.category.icon, quest.category.color)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                quest.title, style = PqType.BodyStrong.copy(
-                    color = if (quest.done) PqColors.Muted else PqColors.Ink,
-                    textDecoration = if (quest.done) TextDecoration.LineThrough else null,
-                ), maxLines = 1, overflow = TextOverflow.Ellipsis,
+                quest.title, style = PqType.BodyStrong.copy(color = if (quest.done) PqColors.Muted else PqColors.Ink),
+                maxLines = 1, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.strikeThrough(strikeProgress(quest.done), PqColors.Muted),
             )
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (quest.missed) PqTag(stringResource(R.string.pq_missed), color = PqColors.Muted)
@@ -386,7 +457,10 @@ fun QuestRow(quest: QuestUi, onToggle: () -> Unit, onClick: () -> Unit, modifier
                 Text(listOfNotNull(quest.time, stringResource(quest.category.label), quest.repeatLabel).joinToString(" · "), style = PqType.Meta, maxLines = 1)
             }
         }
-        CheckCircle(quest.done, onToggle)
+        Box(contentAlignment = Alignment.TopCenter) {
+            CheckCircle(quest.done, onToggle)
+            if (quest.xp > 0) FloatingReward(stringResource(R.string.motion_xp_gain, quest.xp), rewards)
+        }
     }
 }
 

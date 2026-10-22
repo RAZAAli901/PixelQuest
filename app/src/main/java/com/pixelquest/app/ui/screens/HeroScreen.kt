@@ -1,5 +1,7 @@
 package com.pixelquest.app.ui.screens
 
+import com.pixelquest.app.ui.motion.RollingNumber
+import com.pixelquest.app.ui.motion.XpBar
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -342,21 +344,22 @@ private fun HeroCard(state: HeroUiState, onChangeAvatar: () -> Unit, onUsername:
                             style = PqType.Meta.copy(fontWeight = FontWeight.SemiBold),
                         )
                     }
-                    PqSegmentBar(state.perfectDaysNeeded, state.perfectDays, fill = if (isPixelSkin) PqColors.Progress else PqColors.Gold)
+                    // M01/M02: the bar fills from what it last showed; on a level up it fills, flashes gold and starts again.
+                    XpBar(state.perfectDays, state.perfectDaysNeeded, state.level, height = 14.dp)
                 }
             }
             InkRule()
             Row(Modifier.height(IntrinsicSize.Min)) {
                 if (simple) {
-                    StatCell("${state.questsDone}", stringResource(R.string.pq_hero_tasks_done), Modifier.weight(1f))
+                    StatCell(state.questsDone, stringResource(R.string.pq_hero_tasks_done), Modifier.weight(1f))
                     CellRule()
-                    StatCell("${state.activeQuests}", stringResource(R.string.pq_hero_active), Modifier.weight(1f))
+                    StatCell(state.activeQuests, stringResource(R.string.pq_hero_active), Modifier.weight(1f))
                 } else {
-                    StatCell("${state.totalXp}", stringResource(R.string.pq_hero_total_xp), Modifier.weight(1f))
+                    StatCell(state.totalXp, stringResource(R.string.pq_hero_total_xp), Modifier.weight(1f))
                     CellRule()
-                    StatCell("${state.streak}", stringResource(R.string.pq_hero_streak), Modifier.weight(1f))
+                    StatCell(state.streak, stringResource(R.string.pq_hero_streak), Modifier.weight(1f))
                     CellRule()
-                    StatCell("${state.questsDone}", stringResource(R.string.pq_hero_quests), Modifier.weight(1f))
+                    StatCell(state.questsDone, stringResource(R.string.pq_hero_quests), Modifier.weight(1f))
                 }
             }
         }
@@ -382,9 +385,10 @@ private fun SmallChip(text: String, bg: Color) {
 }
 
 @Composable
-private fun StatCell(value: String, label: String, modifier: Modifier) {
+private fun StatCell(value: Int, label: String, modifier: Modifier) {
     Column(modifier.padding(horizontal = 14.dp, vertical = 10.dp).semantics(mergeDescendants = true) {}) {
-        Text(value, style = PqType.Number)
+        // M01/M05: a number that changes rolls to its new value.
+        RollingNumber(value, PqType.Number, format = { it.toString() })
         Text(label, style = PqType.Meta.copy(fontSize = 11.bsp, fontWeight = FontWeight.Bold))
     }
 }

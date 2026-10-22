@@ -287,8 +287,8 @@ fun QuestTick(fill: Float, draw: Float, dot: Color, tick: Color, modifier: Modif
     }
 }
 
-/** On a quest row: a squash when it's done, then dimmed to half. */
-fun Modifier.questRowDone(done: Boolean): Modifier = composed {
+/** On a quest row: a squash when it's done, then dimmed to half ([dim]; rows with their own done look skip it). */
+fun Modifier.questRowDone(done: Boolean, dim: Boolean = true): Modifier = composed {
     val reduced = reducedMotion()
     val squash = remember { Animatable(1f) }
     var first by remember { mutableStateOf(true) }
@@ -296,7 +296,7 @@ fun Modifier.questRowDone(done: Boolean): Modifier = composed {
         if (first) { first = false; return@LaunchedEffect }
         if (done && !reduced) squash.animateTo(1f, keyframes { durationMillis = 300; 0.97f at 80; 1.02f at 200 })
     }
-    val a by animateFloatAsState(if (done) 0.5f else 1f, if (reduced) snap() else tween(PqMotion.Base), label = "dim")
+    val a by animateFloatAsState(if (done && dim) 0.5f else 1f, if (reduced) snap() else tween(PqMotion.Base), label = "dim")
     graphicsLayer { scaleX = squash.value; scaleY = squash.value; alpha = a }
 }
 
