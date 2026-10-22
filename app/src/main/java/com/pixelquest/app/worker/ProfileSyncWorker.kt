@@ -153,6 +153,13 @@ class ProfileSyncWorker @AssistedInject constructor(
             .setContentTitle("PixelQuest Sync")
             .setContentText("Syncing hero stats to leaderboard...")
             .setPriority(androidx.core.app.NotificationCompat.PRIORITY_LOW)
+            .setVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(
+                com.pixelquest.app.notification.PqNotifications.lockScreenVersion(
+                    applicationContext,
+                    com.pixelquest.app.notification.NotificationChannels.Spec.SYNC.id
+                )
+            )
             .build()
         return androidx.work.ForegroundInfo(SYNC_NOTIFICATION_ID, notification)
     }

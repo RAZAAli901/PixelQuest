@@ -437,3 +437,11 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
 ### S046: PendingIntents are immutable
 - **Checked:** all 27 PendingIntents (alarms, notification taps and actions) already pass `FLAG_IMMUTABLE`. None needs to be mutable: the app has no inline reply and no bubbles. Every intent inside names its own receiver or activity class.
 - **Test:** `PendingIntentFlagsTest` fails on any PendingIntent without `FLAG_IMMUTABLE`, on any use of `FLAG_MUTABLE`, and on an implicit intent in a file that builds PendingIntents.
+
+### S047: lock-screen notifications are private
+- **Done:** `PqNotifications.builder`, which every notification uses, now sets `VISIBILITY_PRIVATE`. Its public version has a generic title ("New in PixelQuest") and no text.
+  - Chat, chess, Darood and study reminders keep their own generic public versions, which they already had.
+  - The sync worker's notification sets the same public version.
+  - No notification is `VISIBILITY_PUBLIC`.
+- **Limit:** Android uses the public version only when the phone hides sensitive lock-screen content. A player who picks "show all content" in Android's settings chooses to see everything. The app can't override that without hiding its reminders completely (`VISIBILITY_SECRET`), and that would break the reminders.
+- **Test:** `LockScreenPrivacyTest`: a quest's title and text don't reach the public version. Any notification built outside `PqNotifications` must set its own public version. The notification, Namaz, chess and streak suites still pass.

@@ -29,9 +29,21 @@ object PqNotifications {
      */
     fun accent(context: Context): Int = palette(context).primaryText.toArgb()
 
-    /** A notification on [channelId] with PixelQuest's icon and accent. */
+    /**
+     * A notification on [channelId] with PixelQuest's icon and accent. It is private (S047): when the
+     * phone hides sensitive content on the lock screen, it shows only [lockScreenVersion], never a
+     * quest's name, a prayer or a message. A notifier with its own wording sets its own public version.
+     */
     fun builder(context: Context, channelId: String): NotificationCompat.Builder =
         NotificationCompat.Builder(context, channelId).setSmallIcon(SMALL_ICON).setColor(accent(context))
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(lockScreenVersion(context, channelId))
+
+    /** What a locked phone shows instead: a generic title, no text. */
+    fun lockScreenVersion(context: Context, channelId: String): android.app.Notification =
+        NotificationCompat.Builder(context, channelId).setSmallIcon(SMALL_ICON).setColor(accent(context))
+            .setContentTitle(context.getString(R.string.notif_hidden_title))
+            .build()
 
     /**
      * The comic card (mocks 1D and 1F), small and expanded, for [NotificationCompat.DecoratedCustomViewStyle]:
