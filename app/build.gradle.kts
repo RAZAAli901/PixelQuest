@@ -121,9 +121,6 @@ android {
         // languages would ship unused, and kept the release APK over its 8 MB budget (docs/quran-data.md).
         // A translation added later adds its language here.
         resourceConfigurations += listOf("en")
-        vectorDrawables {
-            useSupportLibrary = true
-        }
     }
 
     signingConfigs {
