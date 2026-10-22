@@ -89,3 +89,22 @@ localTest("abuse: reports, the export and push tokens are rate-limited (S020)", 
   assert.equal((await rpc(white, "export_my_data", {})).status, 200);
   sql(`DELETE FROM private.rate_events WHERE subject = '${white.userId}'`);
 });
+
+localTest("abuse: usernames can't be harvested (S021)", async () => {
+  const { white, black } = await chessCast();
+  const made = await rpc(white, "create_party", { name: `Enum ${Date.now() % 100000}`, max_members: 5, milestone: 1000 });
+  const party = made.body;
+  sql(`DELETE FROM private.invite_log WHERE inviter = '${white.userId}'`);
+  // An invitation answers the same whether the name exists or not.
+  const real = await rpc(white, "invite_member", { party_id: party, username: black.username });
+  const made_up = await rpc(white, "invite_member", { party_id: party, username: `nobody_${Date.now() % 100000}` });
+  assert.equal(real.status, made_up.status);
+  assert.deepEqual(real.body, made_up.body, "same answer");
+  // The availability check needs an account, and stops at 60 an hour.
+  assert.equal((await rpc(undefined, "is_username_available", { name: "aria" })).status, 401);
+  sql(`DELETE FROM private.rate_events WHERE subject = '${white.userId}' AND bucket = 'username_check'`);
+  sql(`INSERT INTO private.rate_events (bucket, subject) SELECT 'username_check', '${white.userId}' FROM generate_series(1, 60)`);
+  assert.equal((await rpc(white, "is_username_available", { name: "somebody" })).body.message, "rate_limited");
+  sql(`DELETE FROM private.rate_events WHERE subject = '${white.userId}'`);
+  assert.equal((await rpc(white, "is_username_available", { name: black.username })).body, false, "taken, under the limit");
+});

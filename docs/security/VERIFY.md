@@ -179,3 +179,14 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
 - **Test:** `abuse.test.ts`, "reports, the export and push tokens are rate-limited":
   - the 11th export in an hour, the 31st push token and the 31st report of each kind are refused;
   - an hour later, the export works again.
+
+### S021: no username harvesting
+- **State and fix:**
+  - Invitations give the same answer for a real username and a made-up one.
+  - Usernames are never listed or searchable; only party mates see them.
+  - The availability check, which must say whether a name is taken, needs a signed-in account and now stops at 60 an hour: migration `20261019000117_username_enumeration`.
+- **Test:** `abuse.test.ts`, "usernames can't be harvested":
+  - an invitation to a real name and to a made-up one get identical answers;
+  - signed out, the check is refused (401);
+  - the 61st check in an hour is refused;
+  - `usernames.test.ts` still passes.
