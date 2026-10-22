@@ -157,6 +157,9 @@ cd PixelQuest
 # On Linux or macOS, make the wrapper runnable once (on Windows, use gradlew.bat)
 chmod +x gradlew
 
+# Optional but recommended: reject staged secrets and unformatted Kotlin before each commit
+git config core.hooksPath scripts/hooks
+
 # Build debug APK
 ./gradlew assembleDebug
 

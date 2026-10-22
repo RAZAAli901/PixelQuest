@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# PixelQuest pre-commit hook (S005, Q010): no secrets in commits.
+# PixelQuest pre-commit hook (S005, Q010): formatting and secret checks before commits.
 # Install once per clone:  git config core.hooksPath scripts/hooks
 # It scans what's staged with scripts/security/scan_secrets.py, and with gitleaks too when it's installed.
 # PQ_PYTHON picks the interpreter; otherwise the first python3/python/py that really runs (on Windows,
@@ -19,5 +19,18 @@ else
 fi
 if command -v gitleaks >/dev/null 2>&1; then
   gitleaks git --staged --redact --no-banner || exit 1
+fi
+
+# Only start Gradle when a Kotlin or Gradle file is staged. Spotless checks formatting without
+# modifying the index, so a rejected commit never changes a developer's work unexpectedly.
+if git diff --cached --name-only | grep -Eq '\.(kt|kts)$'; then
+  if [ -x ./gradlew ]; then
+    ./gradlew :app:spotlessCheck || exit 1
+  elif [ -f ./gradlew.bat ]; then
+    ./gradlew.bat :app:spotlessCheck || exit 1
+  else
+    echo "pre-commit: Gradle wrapper missing; cannot run Spotless." >&2
+    exit 1
+  fi
 fi
 exit 0
