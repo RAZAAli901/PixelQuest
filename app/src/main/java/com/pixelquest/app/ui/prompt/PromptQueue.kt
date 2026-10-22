@@ -37,11 +37,10 @@ data class PromptQueue(val items: List<PromptRequest> = emptyList()) {
         private const val NO_DAY = Long.MIN_VALUE
 
         fun requestFrom(intent: Intent?): PromptRequest? {
-            val taskId = intent?.getLongExtra(EXTRA_TASK_ID, -1L) ?: return null
-            if (taskId < 0) return null
+            val taskId = com.pixelquest.app.util.IntentExtras.rowId(intent, EXTRA_TASK_ID) ?: return null
             return PromptRequest(
                 taskId,
-                intent.getStringExtra(EXTRA_TASK_NAME) ?: "Task",
+                com.pixelquest.app.util.IntentExtras.label(intent, EXTRA_TASK_NAME, "Task"),
                 com.pixelquest.app.scheduling.TaskAlarmScheduler.occurrenceDateFrom(intent)
             )
         }

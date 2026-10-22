@@ -53,9 +53,8 @@ class TaskAlarmReceiver : BroadcastReceiver() {
     lateinit var encouragementPackStore: EncouragementPackStore
 
     override fun onReceive(context: Context, intent: Intent) {
-        val taskId = intent.getLongExtra("EXTRA_TASK_ID", -1L)
-        val taskName = intent.getStringExtra("EXTRA_TASK_NAME") ?: "Quest Reminder"
-        if (taskId == -1L) return
+        val taskId = com.pixelquest.app.util.IntentExtras.rowId(intent, "EXTRA_TASK_ID") ?: return
+        val taskName = com.pixelquest.app.util.IntentExtras.label(intent, "EXTRA_TASK_NAME", "Quest Reminder")
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {

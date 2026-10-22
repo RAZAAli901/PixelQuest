@@ -421,3 +421,15 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - External links open in the phone's browser: only the Quran's sources page, with fixed https addresses.
   - Shared files open in a viewer app, through the FileProvider, read-only.
 - **Test:** `NoWebViewTest` fails if a WebView or a JavaScript bridge appears.
+
+### S045: intent extras are validated
+- **Deep links:** there are none (no `data` intent filters). MainActivity is the only exported component. The screen a notification opens is checked against an allowlist: fixed routes, or a party, Darood or chess route with a UUID id.
+- **Done:** `util/IntentExtras` reads every extra our alarms, notifications and prompts carry, and refuses anything of the wrong shape:
+  - task ids must be positive Room ids;
+  - study reminder ids must be UUIDs;
+  - occurrence times and indexes must not be negative;
+  - alarm dates must be epoch days within 1970 to 2243, so `LocalDate` can never throw;
+  - quest names lose control characters, are cut at 200 characters, and fall back when blank.
+  - Used by TaskAlarmReceiver, TaskActionReceiver, the prompt queue, both study reminder receivers, and the Namaz and task date readers.
+- **Safest option chosen:** a bad extra is ignored (the alarm does nothing) instead of guessed at.
+- **Test:** `IntentExtrasTest` (ids, UUIDs, out-of-range dates, labels, the prompt and the notification route allowlist). The prompt, alarm and study reminder suites still pass.

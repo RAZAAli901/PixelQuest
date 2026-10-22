@@ -112,7 +112,7 @@ class NamazAlarmScheduler @Inject constructor(
 
         /** The prayer day an alarm's intent is for. */
         fun dateFrom(intent: Intent): LocalDate? =
-            intent.takeIf { it.hasExtra(EXTRA_DATE) }?.let { LocalDate.ofEpochDay(it.getLongExtra(EXTRA_DATE, 0L)) }
+            com.pixelquest.app.util.IntentExtras.epochDay(intent, EXTRA_DATE)
 
         /** The prayer an alarm's intent is for. */
         fun prayerFrom(intent: Intent): Prayer? =

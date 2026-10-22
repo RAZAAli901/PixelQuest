@@ -71,9 +71,9 @@ class StudyReminderReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != AlarmManagerStudyReminderAlarms.ACTION_ALERT) return
-        val reminderId = intent.getStringExtra(AlarmManagerStudyReminderAlarms.EXTRA_REMINDER) ?: return
-        val occurrenceAt = intent.getLongExtra(AlarmManagerStudyReminderAlarms.EXTRA_OCCURRENCE, -1L).takeIf { it >= 0 } ?: return
-        val index = intent.getIntExtra(AlarmManagerStudyReminderAlarms.EXTRA_INDEX, -1).takeIf { it >= 0 } ?: return
+        val reminderId = com.pixelquest.app.util.IntentExtras.uuid(intent, AlarmManagerStudyReminderAlarms.EXTRA_REMINDER) ?: return
+        val occurrenceAt = com.pixelquest.app.util.IntentExtras.nonNegativeLong(intent, AlarmManagerStudyReminderAlarms.EXTRA_OCCURRENCE) ?: return
+        val index = com.pixelquest.app.util.IntentExtras.nonNegativeInt(intent, AlarmManagerStudyReminderAlarms.EXTRA_INDEX) ?: return
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {

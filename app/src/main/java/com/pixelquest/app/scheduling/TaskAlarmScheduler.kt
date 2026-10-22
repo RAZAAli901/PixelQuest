@@ -258,6 +258,6 @@ class TaskAlarmScheduler @Inject constructor(
         private const val HANDLED_PREFS = "pixelquest_reminders_handled"
 
         fun occurrenceDateFrom(intent: Intent?): LocalDate? =
-            intent?.takeIf { it.hasExtra(EXTRA_OCCURRENCE_DATE) }?.let { LocalDate.ofEpochDay(it.getLongExtra(EXTRA_OCCURRENCE_DATE, 0L)) }
+            com.pixelquest.app.util.IntentExtras.epochDay(intent, EXTRA_OCCURRENCE_DATE)
     }
 }
