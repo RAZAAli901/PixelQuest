@@ -14,6 +14,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.SavedStateHandle
@@ -155,7 +156,7 @@ class StudyEndToEndTest {
         var addingPeople = false
         screen = { StudyPartyScreen(onNavigateBack = {}, onOpenInfo = {}, onAddPeople = { addingPeople = true }, viewModel = ariaParty) }
         waitFor("her party, as its leader") { ariaParty.uiState.value.isLeader }
-        composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.PEOPLE)).performClick()
+        composeTestRule.onNodeWithTag(StudyTags.tabButton(PartyTab.PEOPLE)).performScrollTo().performClick()
         waitFor("Add people") { shown(StudyTags.ADD_PEOPLE) }
         composeTestRule.onNodeWithTag(StudyTags.ADD_PEOPLE).performSemanticsAction(SemanticsActions.OnClick)
         waitFor("adding people") { addingPeople }

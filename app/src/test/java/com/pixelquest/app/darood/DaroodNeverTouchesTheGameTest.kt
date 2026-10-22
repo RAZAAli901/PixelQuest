@@ -80,7 +80,8 @@ class DaroodNeverTouchesTheGameTest {
         val darood = migrations.listFiles()!!.filter { it.name >= "20261019000004" && it.name.endsWith(".sql") }
         assertTrue("Darood's migrations were found", darood.size >= 20)
         val found = darood.flatMap { file ->
-            val sql = file.readLines().filterNot { it.trimStart().startsWith("--") }.joinToString("\n").lowercase()
+            // Chess's own party ladder (chess_party_leaderboard) isn't the game's leaderboard.
+            val sql = file.readLines().filterNot { it.trimStart().startsWith("--") }.joinToString("\n").lowercase().replace("chess_party_leaderboard", "")
             listOf("public.profiles", "total_xp", "current_streak", "longest_streak", "leaderboard").filter { it in sql }.map { "${file.name}: $it" }
         }
         assertEquals(emptyList<String>(), found)
