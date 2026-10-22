@@ -1,5 +1,6 @@
 package com.pixelquest.app.quran.ui.search
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.quran.data.ArabicSearch
@@ -9,10 +10,8 @@ import com.pixelquest.app.quran.domain.Surah
 import com.pixelquest.app.quran.ui.list.SurahSearch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
@@ -36,7 +35,7 @@ data class QuranSearchUiState(
     val surahs: List<Surah> = emptyList(),
     val ayahs: List<AyahResult> = emptyList(),
     val capped: Boolean = false,
-    val arabic: Boolean = false
+    val arabic: Boolean = false,
 ) {
     val isEmpty: Boolean get() = surahs.isEmpty() && ayahs.isEmpty()
 }
@@ -48,12 +47,15 @@ data class QuranSearchUiState(
  * replaces one still running.
  */
 @HiltViewModel
-class QuranSearchViewModel @Inject constructor(private val repository: QuranRepository) : ViewModel() {
+class QuranSearchViewModel @Inject constructor(
+    private val repository: QuranRepository,
+    private val savedStateHandle: SavedStateHandle = SavedStateHandle(),
+) : ViewModel() {
 
-    private val _query = MutableStateFlow("")
+    private val _query = savedStateHandle.getStateFlow(KEY_QUERY, "")
 
     /** What's in the search field, at once: the results follow it. */
-    val query: StateFlow<String> = _query.asStateFlow()
+    val query: StateFlow<String> = _query
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val state: StateFlow<QuranSearchUiState> = combine(_query, repository.surahs()) { q, surahs -> q to surahs }
@@ -61,7 +63,7 @@ class QuranSearchViewModel @Inject constructor(private val repository: QuranRepo
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), QuranSearchUiState())
 
     fun search(text: String) {
-        _query.value = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.SEARCH)
+        savedStateHandle[KEY_QUERY] = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.SEARCH)
     }
 
     private suspend fun search(q: String, surahs: List<Surah>): QuranSearchUiState {
@@ -79,11 +81,12 @@ class QuranSearchViewModel @Inject constructor(private val repository: QuranRepo
             surahs = SurahSearch.filter(surahs, q),
             ayahs = ayahs.map { AyahResult(it, names[it.surah].orEmpty()) },
             capped = found.size >= QuranRepository.SEARCH_LIMIT,
-            arabic = arabic
+            arabic = arabic,
         )
     }
 
     companion object {
+        private const val KEY_QUERY = "quran_search_query"
         private val REFERENCE = Regex("""^\s*(\d{1,3})\s*[:.]\s*(\d{1,3})\s*$""")
 
         /** The surah and ayah [text] names as a reference ("2:255", "2.255"); null if it isn't one. */

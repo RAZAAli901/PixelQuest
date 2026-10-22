@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens.leaderboard
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.auth.AuthRepository
@@ -24,13 +25,13 @@ import javax.inject.Inject
 
 enum class LeaderboardTab {
     TOP_STREAKS,
-    TOP_LEVELS
+    TOP_LEVELS,
 }
 
 /** AROUND_YOU shows the heroes just above and below you; TOP shows the full ranked list. */
 enum class LeaderboardView {
     AROUND_YOU,
-    TOP
+    TOP,
 }
 
 sealed class LeaderboardAuthState {
@@ -53,17 +54,24 @@ data class LeaderboardUiState(
     val canLoadMore: Boolean = true,
     val errorMessage: String? = null,
     val lastUpdatedTimestamp: String? = null,
-    val reportMessage: String? = null
+    val reportMessage: String? = null,
 )
 
 @HiltViewModel
 class LeaderboardViewModel @Inject constructor(
     private val leaderboardRepository: LeaderboardRepository,
     private val authRepository: AuthRepository,
-    private val userProfileRepository: UserProfileRepository
+    private val userProfileRepository: UserProfileRepository,
+    private val savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(LeaderboardUiState())
+    private val _uiState = MutableStateFlow(
+        LeaderboardUiState(
+            selectedTab = savedStateHandle.get<String>(KEY_SELECTED_TAB)
+                ?.let { runCatching { LeaderboardTab.valueOf(it) }.getOrNull() }
+                ?: LeaderboardTab.TOP_STREAKS,
+        ),
+    )
     val uiState: StateFlow<LeaderboardUiState> = _uiState.asStateFlow()
 
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
@@ -86,13 +94,13 @@ class LeaderboardViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 authRepository.currentUser,
-                userProfileRepository.getProfile()
+                userProfileRepository.getProfile(),
             ) { user, profile ->
                 when {
                     user == null -> LeaderboardAuthState.NotSignedIn
                     profile?.leaderboardOptIn == true -> LeaderboardAuthState.SignedInAndOptedIn(
                         userId = user.id,
-                        displayName = profile.leaderboardDisplayName ?: profile.username
+                        displayName = profile.leaderboardDisplayName ?: profile.username,
                     )
                     else -> LeaderboardAuthState.SignedInReadOnly(userId = user.id)
                 }
@@ -111,7 +119,7 @@ class LeaderboardViewModel @Inject constructor(
                             streakEntries = emptyList(),
                             levelEntries = emptyList(),
                             currentUserRank = null,
-                            aroundYouEntries = emptyList()
+                            aroundYouEntries = emptyList(),
                         )
                     }
                     is LeaderboardAuthState.SignedInReadOnly -> {
@@ -140,7 +148,7 @@ class LeaderboardViewModel @Inject constructor(
                     if (profile?.leaderboardOptIn == true) {
                         LeaderboardAuthState.SignedInAndOptedIn(
                             userId = authUiState.user.id,
-                            displayName = profile.leaderboardDisplayName ?: profile.username
+                            displayName = profile.leaderboardDisplayName ?: profile.username,
                         )
                     } else {
                         LeaderboardAuthState.SignedInReadOnly(userId = authUiState.user.id)
@@ -166,16 +174,17 @@ class LeaderboardViewModel @Inject constructor(
     /** isLoading and canLoadMore always describe the selected tab. */
     private fun LeaderboardUiState.withSelectedTabFlags() = copy(
         isLoading = selectedTab in loadingTabs,
-        canLoadMore = canLoadMoreByTab[selectedTab] ?: true
+        canLoadMore = canLoadMoreByTab[selectedTab] ?: true,
     )
 
     fun selectTab(tab: LeaderboardTab) {
         if (_uiState.value.selectedTab == tab) return
+        savedStateHandle[KEY_SELECTED_TAB] = tab.name
         val targetList = entriesOf(_uiState.value, tab)
         _uiState.value = _uiState.value.copy(
             selectedTab = tab,
             aroundYouEntries = emptyList(),
-            errorMessage = null
+            errorMessage = null,
         ).withSelectedTabFlags()
         if (targetList.isEmpty()) {
             loadInitialData()
@@ -310,7 +319,7 @@ class LeaderboardViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(
                         currentUserRank = result.data?.you,
                         aroundYouEntries = result.data?.entries.orEmpty(),
-                        isLoadingAroundYou = false
+                        isLoadingAroundYou = false,
                     )
                 }
                 else -> _uiState.value = _uiState.value.copy(isLoadingAroundYou = false)
@@ -319,6 +328,8 @@ class LeaderboardViewModel @Inject constructor(
     }
 
     companion object {
+        private const val KEY_SELECTED_TAB = "leaderboard_selected_tab"
+
         /** Heroes shown above and below you in the AROUND YOU view. */
         const val AROUND_YOU_RADIUS = 3
         const val REPORT_ALREADY_FILED = "You've already reported this player today. Thanks, it's in."
@@ -333,12 +344,12 @@ class LeaderboardViewModel @Inject constructor(
             when (val result = leaderboardRepository.reportProfile(profileId, reason)) {
                 is SupabaseResult.Success -> {
                     _uiState.value = _uiState.value.copy(
-                        reportMessage = "Report submitted. Thank you for keeping PixelQuest safe."
+                        reportMessage = "Report submitted. Thank you for keeping PixelQuest safe.",
                     )
                 }
                 is SupabaseResult.AuthError -> {
                     _uiState.value = _uiState.value.copy(
-                        errorMessage = "Please sign in to report players."
+                        errorMessage = "Please sign in to report players.",
                     )
                 }
                 // The server takes one report per player a day (20261011000003_report_limits.sql).
@@ -350,7 +361,7 @@ class LeaderboardViewModel @Inject constructor(
                 }
                 else -> {
                     _uiState.value = _uiState.value.copy(
-                        errorMessage = "Could not submit report: check network connection."
+                        errorMessage = "Could not submit report: check network connection.",
                     )
                 }
             }
