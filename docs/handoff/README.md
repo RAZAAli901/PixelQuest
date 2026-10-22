@@ -33,7 +33,7 @@ The version is **1.7.0 (versionCode 108)**. The Room database is at **version 23
 
 1. **The owner runs [docs/QA_CHECKLIST.md](../QA_CHECKLIST.md)** on the released 1.7.0, and the results go into VERIFICATION.md (Section S). Anything it finds goes into a 1.7.1.
 2. **Owner settings, none of which the code can do:**
-   - **Push for challenges:** the Firebase project's `FCM_API_KEY`, `FCM_APP_ID`, `FCM_PROJECT_ID` and `FCM_SENDER_ID` in `local.properties` (and as GitHub secrets for CI builds), and the `FCM_SERVICE_ACCOUNT` function secret. Without them push is off; challenges still show in the chat and the Chess tab.
+   - **Push for challenges: set up 2026-10-22** (Firebase project `pixelqueat`, docs/PUSH_SETUP.md). The four `FCM_*` settings are in `local.properties` and GitHub secrets, and `FCM_SERVICE_ACCOUNT` is a Supabase secret; a dry run against FCM passed. The published 1.7.0 APK was built before this, so push reaches users from the next release.
    - **Scheduled jobs:** `chess-sweep` (every minute: flags and stalled games) and `cleanup-uploads` need the service key stored in the hosted database for pg_cron. Until then, the phones claim timeouts themselves, and `request-upload` runs a small cleanup on each call.
    - **Monitoring:** the `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF` repository secrets turn on the hourly error check ([docs/MONITORING.md](../MONITORING.md)).
 
