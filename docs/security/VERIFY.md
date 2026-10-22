@@ -244,3 +244,12 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - "another party's chat, files and chess are out of reach": an upload into another party is refused;
   - "another party's files can't be fetched, finalised, linked, pinned or deleted": a stranger, and a member of a different party, get no link; finalising, linking, pinning and deleting are refused, and nothing changes; the file's own member isn't refused.
 - **Tests:** `study_files.test.ts`: a removed member's link stops working, and links expire after 60 seconds.
+
+### S028: the database tests run in CI
+- **Done:** `.github/workflows/cloud-tests.yml` runs on every push and pull request to `main`. It starts the local stack and applies every migration, then:
+  - runs `supabase db lint`;
+  - runs the pgTAP rules (`supabase test db`, new);
+  - serves the Edge Functions;
+  - runs every Node test in `supabase/tests`;
+  - runs the app's own repositories against the stack (`*LocalSupabase*`).
+- **To block merges:** make "Cloud Tests (local Supabase)" a required check on `main` (GitHub → Settings → Branches). That's the owner's switch.

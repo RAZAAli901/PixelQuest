@@ -1,6 +1,6 @@
 name: Cloud Tests (local Supabase)
 
-# Runs the local Supabase test bench (docs/LOCAL_SUPABASE.md) on every push: the migrations and
+# Runs the local Supabase test bench (docs/LOCAL_SUPABASE.md) on every push and pull request (S028): the migrations and
 # row-level security on a real Postgres, email sign-in against real Supabase Auth, the gemini-proxy
 # Edge Function's sign-in check and per-account limit, and the app's own repositories against all of it.
 # Nothing touches a hosted project: everything runs in Docker on the runner.
@@ -36,6 +36,11 @@ jobs:
       # Every migration applied above; the linter fails the run on a schema error in any of them.
       - name: Lint the database
         run: npx --yes supabase@2.120.0 db lint --local --fail-on error
+
+      # The catalogue's rules (S022, S023, S029): RLS everywhere, nothing for anon, fixed search paths,
+      # no public bucket. pgTAP, in a transaction that rolls back.
+      - name: Database rules (pgTAP)
+        run: npx --yes supabase@2.120.0 test db
 
       # A fake key: calls that pass the proxy's checks reach Google, which refuses it, so no quota is used.
       - name: Serve gemini-proxy with a fake Gemini key
