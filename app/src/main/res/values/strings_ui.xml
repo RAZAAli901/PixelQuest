@@ -231,4 +231,43 @@
     <string name="prompt_locked_title">A quest reminder</string>
     <string name="prompt_locked_body">Unlock your phone to see it and answer.</string>
     <string name="prompt_unlock">Unlock</string>
+
+    <!-- Leaderboard active screen (Q050) -->
+    <string name="pq_lb_around_you">Around you</string>
+    <string name="pq_lb_top_heroes">Top heroes</string>
+    <string name="pq_lb_updated">Updated <xliff:g id="timestamp" example="10m ago">%s</xliff:g></string>
+    <string name="pq_lb_syncing">Syncing…</string>
+    <string name="pq_lb_online">Online</string>
+    <string name="pq_lb_retry">Retry</string>
+    <string name="pq_lb_empty">No heroes ranked yet. Join from Account to claim the top spot.</string>
+    <string name="pq_lb_load_more">Load more</string>
+    <string name="pq_lb_your_ranking">Your ranking</string>
+    <string name="pq_lb_report_title">Report this name?</string>
+    <string name="pq_lb_report_message">Report \'<xliff:g id="name" example="Hero">%s</xliff:g>\' for an offensive or inappropriate public display name?</string>
+    <string name="pq_lb_report_confirm">Report</string>
+    <string name="pq_lb_cancel">Cancel</string>
+    <string name="pq_lb_streak_stat">Day streak</string>
+    <string name="pq_lb_level_stat">Lvl <xliff:g id="level" example="5">%d</xliff:g></string>
+    <string name="pq_lb_xp_stat"><xliff:g id="xp" example="100">%d</xliff:g> XP</string>
+    <string name="pq_lb_around_empty">You\'re not on the board yet. Your rank appears after your profile syncs. Pull down to refresh.</string>
+    <string name="pq_lb_above_below">Above and below you</string>
+    <string name="pq_lb_spectator_title">You\'re watching</string>
+    <string name="pq_lb_spectator_body">You see the board, but you\'re not on it. Join from Account to appear on the leaderboard.</string>
+    <string name="pq_lb_join">Join the leaderboard</string>
+    <string name="pq_lb_error_title">Couldn\'t reach the leaderboard</string>
+    <string name="pq_lb_try_again">Try again</string>
+    <string name="pq_lb_error_footer">Your quests, streaks and XP keep counting on this phone meanwhile.</string>
+
+    <!-- Leveling & History (Q050) -->
+    <string name="pq_level_number">Level <xliff:g id="level" example="2">%d</xliff:g></string>
+    <string name="pq_level_number_upper">LEVEL <xliff:g id="level" example="2">%d</xliff:g></string>
+    <string name="pq_level_up_label">LEVEL UP!</string>
+    <string name="pq_level_up_congrats">Your hero grew stronger. Keep the quests coming.</string>
+    <string name="pq_level_up_continue">Continue</string>
+    <string name="pq_level_history_empty">No levels yet. Perfect days level your hero up.</string>
+
+    <!-- Quests & Settings (Q050) -->
+    <string name="pq_quest_starts_tomorrow">Today\'s time has passed, so this quest starts from tomorrow.</string>
+    <string name="pq_reminder_remind_me">Remind me</string>
+    <string name="pq_difficulty_intro">How much of each day\'s quests counts as a perfect day, and how many days a level takes.</string>
 </resources>

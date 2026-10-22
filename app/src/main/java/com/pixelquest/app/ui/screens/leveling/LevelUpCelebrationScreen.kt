@@ -30,9 +30,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.R
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqCard
 import com.pixelquest.app.ui.navigation.PixelTransitions
@@ -55,7 +57,7 @@ fun LevelUpCelebrationScreen(level: Int, onDismiss: () -> Unit) {
             initialValue = 1f,
             targetValue = 1.04f,
             animationSpec = infiniteRepeatable(animation = tween(durationMillis = 800), repeatMode = RepeatMode.Reverse),
-            label = "levelUpPulse"
+            label = "levelUpPulse",
         ).value
     }
     val soundManager = com.pixelquest.app.audio.LocalSoundManager.current
@@ -70,20 +72,20 @@ fun LevelUpCelebrationScreen(level: Int, onDismiss: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0x8C161412))
-            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = {})
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = {}),
     ) {
         AnimatedVisibility(visible = visible, enter = PixelTransitions.LevelUpEnter, exit = PixelTransitions.LevelUpExit) {
             PqCard(bg = PqColors.Gold, shadow = PqDimens.ShadowLg, radius = 22.dp, modifier = Modifier.padding(24.dp).scale(scale)) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.padding(24.dp)
+                    modifier = Modifier.padding(24.dp),
                 ) {
                     Icon(Icons.Rounded.EmojiEvents, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.size(48.dp))
-                    Text(text = "LEVEL UP!", style = PqType.Label, modifier = Modifier.semantics { heading() })
-                    Text(text = "LEVEL $level", style = PqType.Hero)
-                    Text(text = "Your hero grew stronger. Keep the quests coming.", style = PqType.Body)
-                    PqButton("Continue", onDismiss, Modifier.fillMaxWidth().padding(top = 6.dp), height = 52.dp)
+                    Text(text = stringResource(R.string.pq_level_up_label), style = PqType.Label, modifier = Modifier.semantics { heading() })
+                    Text(text = stringResource(R.string.pq_level_number_upper, level), style = PqType.Hero)
+                    Text(text = stringResource(R.string.pq_level_up_congrats), style = PqType.Body)
+                    PqButton(stringResource(R.string.pq_level_up_continue), onDismiss, Modifier.fillMaxWidth().padding(top = 6.dp), height = 52.dp)
                 }
             }
         }

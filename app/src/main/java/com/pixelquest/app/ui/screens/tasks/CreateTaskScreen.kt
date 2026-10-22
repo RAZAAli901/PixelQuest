@@ -3,12 +3,10 @@ package com.pixelquest.app.ui.screens.tasks
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -20,19 +18,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.R
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.ui.components.PixelCategorySelector
-import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PixelDaySelector
 import com.pixelquest.app.ui.components.PixelRecurrenceSelector
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTimePicker
 import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqIconButton
 import com.pixelquest.app.ui.components.PqTopBar
 import com.pixelquest.app.ui.theme.PqColors
@@ -42,7 +39,7 @@ import com.pixelquest.app.ui.theme.PqType
 @Composable
 fun CreateTaskScreen(
     viewModel: TaskFormViewModel,
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
 ) {
     val formState by viewModel.formState.collectAsState()
     var showDeleteConfirm by remember { mutableStateOf(false) }
@@ -78,7 +75,7 @@ fun CreateTaskScreen(
         },
         onNavigateBack = onNavigateBack,
         canScheduleExact = { viewModel.canScheduleExactAlarms() },
-        onAllowExact = { context.startActivity(viewModel.exactAlarmSettingsIntent()) }
+        onAllowExact = { context.startActivity(viewModel.exactAlarmSettingsIntent()) },
     )
 }
 
@@ -99,7 +96,7 @@ fun TaskFormContent(
     onDelete: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
     canScheduleExact: () -> Boolean = { true },
-    onAllowExact: () -> Unit = {}
+    onAllowExact: () -> Unit = {},
 ) {
     if (showDeleteConfirm) {
         PqConfirmDialog(
@@ -111,7 +108,7 @@ fun TaskFormContent(
                 onShowDeleteConfirm(false)
                 onDelete()
             },
-            onDismiss = { onShowDeleteConfirm(false) }
+            onDismiss = { onShowDeleteConfirm(false) },
         )
     }
 
@@ -122,7 +119,7 @@ fun TaskFormContent(
             .background(PqColors.Ground)
             .imePadding()
             .verticalScroll(rememberScrollState())
-            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 32.dp)
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 32.dp),
     ) {
         PqTopBar(if (formState.isEditMode) "Edit quest" else "New quest", onBack = onNavigateBack) {
             if (formState.isEditMode) PqIconButton(Icons.Rounded.Delete, "Delete quest", { onShowDeleteConfirm(true) })
@@ -133,19 +130,19 @@ fun TaskFormContent(
             label = "Quest name",
             placeholder = "Enter quest title...",
             errorText = formState.nameError,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         PixelRecurrenceSelector(
             selectedType = formState.recurrenceType,
             onTypeSelected = onRecurrenceSelected,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         if (formState.recurrenceType == RecurrenceType.WEEKLY) {
             PixelDaySelector(
                 selectedDays = formState.selectedDays,
                 onDayToggled = onDayToggled,
                 errorText = formState.daysError,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -153,16 +150,16 @@ fun TaskFormContent(
                 selectedTime = formState.scheduledTime,
                 onTimeSelected = onTimeSelected,
                 errorText = formState.timeError,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             if (formState.startsTomorrow) {
-                Text(text = "Today's time has passed, so this quest starts from tomorrow.", style = PqType.Meta)
+                Text(text = stringResource(R.string.pq_quest_starts_tomorrow), style = PqType.Meta)
             }
         }
         PixelCategorySelector(
             selectedCategory = formState.category,
             onCategorySelected = onCategorySelected,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
         ReminderSettingsSection(
             reminderEnabled = formState.reminderEnabled,
@@ -170,7 +167,7 @@ fun TaskFormContent(
             style = formState.reminderStyle,
             onReminderEnabledChanged = onReminderEnabledChanged,
             onLeadSelected = onReminderLeadSelected,
-            onStyleSelected = onReminderStyleSelected
+            onStyleSelected = onReminderStyleSelected,
         )
         // Where the reminder is set: without "Alarms & reminders" Android may ring it up to 10
         // minutes late (seen on the emulator), and the note was only in Settings.
@@ -182,7 +179,7 @@ fun TaskFormContent(
             onClick = onSave,
             enabled = !formState.isSubmitting && formState.isValid,
             height = 52.dp,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

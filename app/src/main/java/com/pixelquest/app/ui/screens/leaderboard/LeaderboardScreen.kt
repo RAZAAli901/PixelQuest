@@ -29,9 +29,11 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import com.pixelquest.app.R
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqCard
@@ -155,7 +157,7 @@ fun LeaderboardContent(
         val showAroundYou = isOnBoard && uiState.selectedView == LeaderboardView.AROUND_YOU
         if (isOnBoard) {
             PqSegmented(
-                options = listOf("Around you", "Top heroes"),
+                options = listOf(stringResource(R.string.pq_lb_around_you), stringResource(R.string.pq_lb_top_heroes)),
                 selected = if (uiState.selectedView == LeaderboardView.AROUND_YOU) 0 else 1,
                 onSelect = { onViewSelected(if (it == 0) LeaderboardView.AROUND_YOU else LeaderboardView.TOP) },
             )
@@ -163,8 +165,8 @@ fun LeaderboardContent(
 
         if (uiState.lastUpdatedTimestamp != null) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = "Updated ${uiState.lastUpdatedTimestamp}", style = PqType.Meta, modifier = Modifier.weight(1f))
-                Text(text = if (uiState.isLoading) "Syncing…" else "Online", style = PqType.MetaStrong.copy(color = if (uiState.isLoading) PqColors.RedText else PqColors.Live))
+                Text(text = stringResource(R.string.pq_lb_updated, uiState.lastUpdatedTimestamp), style = PqType.Meta, modifier = Modifier.weight(1f))
+                Text(text = if (uiState.isLoading) stringResource(R.string.pq_lb_syncing) else stringResource(R.string.pq_lb_online), style = PqType.MetaStrong.copy(color = if (uiState.isLoading) PqColors.RedText else PqColors.Live))
             }
         }
 
@@ -190,7 +192,7 @@ fun LeaderboardContent(
                     .padding(horizontal = 12.dp, vertical = 6.dp),
             ) {
                 Text(text = uiState.errorMessage, style = PqType.Meta.copy(color = PqColors.Error), modifier = Modifier.weight(1f))
-                PqQuietButton("Retry", onRefresh)
+                PqQuietButton(stringResource(R.string.pq_lb_retry), onRefresh)
             }
         }
         if (uiState.reportMessage != null) {
@@ -222,7 +224,7 @@ fun LeaderboardContent(
                     LeaderboardErrorState(errorMessage = uiState.errorMessage, onRetry = onRefresh, modifier = Modifier.fillMaxWidth())
                 } else if (currentEntries.isEmpty()) {
                     Text(
-                        text = "No heroes ranked yet. Join from Account to claim the top spot.",
+                        text = stringResource(R.string.pq_lb_empty),
                         style = PqType.Body.copy(color = PqColors.Ink2),
                         textAlign = TextAlign.Center,
                     )
@@ -266,7 +268,7 @@ fun LeaderboardContent(
                                     if (uiState.isLoadingMore) {
                                         CircularProgressIndicator(color = PqColors.Ink, modifier = Modifier.size(24.dp))
                                     } else {
-                                        PqButton("Load more", onLoadMore, style = PqButtonStyle.Secondary, height = 40.dp)
+                                        PqButton(stringResource(R.string.pq_lb_load_more), onLoadMore, style = PqButtonStyle.Secondary, height = 40.dp)
                                     }
                                 }
                             }
@@ -282,7 +284,7 @@ fun LeaderboardContent(
             is LeaderboardAuthState.SignedInAndOptedIn -> {
                 val userRank = uiState.currentUserRank
                 if (userRank != null && !showAroundYou) {
-                    PqGroupLabel("Your ranking")
+                    PqGroupLabel(stringResource(R.string.pq_lb_your_ranking))
                     BoardRow(rank = userRank.rank, profile = userRank.profile, tab = uiState.selectedTab, isCurrentUser = true, onReport = null)
                 }
             }
@@ -293,10 +295,10 @@ fun LeaderboardContent(
     if (reportingItem != null) {
         val (profileId, name) = reportingItem!!
         PqConfirmDialog(
-            title = "Report this name?",
-            message = "Report '$name' for an offensive or inappropriate public display name?",
-            confirm = "Report",
-            dismiss = "Cancel",
+            title = stringResource(R.string.pq_lb_report_title),
+            message = stringResource(R.string.pq_lb_report_message, name),
+            confirm = stringResource(R.string.pq_lb_report_confirm),
+            dismiss = stringResource(R.string.pq_lb_cancel),
             onConfirm = {
                 onReportProfile(profileId, name)
                 reportingItem = null
@@ -319,7 +321,7 @@ private fun BoardRow(
         LeaderboardTab.TOP_STREAKS -> PixelLeaderboardRow(
             rank = rank,
             displayName = profile.displayName,
-            statLabel = "Day streak",
+            statLabel = stringResource(R.string.pq_lb_streak_stat),
             statValue = profile.currentStreak.toString(),
             isCurrentUser = isCurrentUser,
             onReportClicked = onReport?.let { report -> { _ -> report() } },
@@ -327,8 +329,8 @@ private fun BoardRow(
         LeaderboardTab.TOP_LEVELS -> PixelLeaderboardRow(
             rank = rank,
             displayName = profile.displayName,
-            statLabel = "${profile.totalXp} XP",
-            statValue = "Lvl ${profile.level}",
+            statLabel = stringResource(R.string.pq_lb_xp_stat, profile.totalXp),
+            statValue = stringResource(R.string.pq_lb_level_stat, profile.level),
             isCurrentUser = isCurrentUser,
             onReportClicked = onReport?.let { report -> { _ -> report() } },
         )
@@ -352,7 +354,7 @@ fun AroundYouList(
         when {
             entries.isEmpty() && isLoading -> CircularProgressIndicator(color = PqColors.Ink, modifier = Modifier.size(36.dp))
             entries.isEmpty() -> Text(
-                text = "You're not on the board yet. Your rank appears after your profile syncs. Pull down to refresh.",
+                text = stringResource(R.string.pq_lb_around_empty),
                 style = PqType.Body.copy(color = PqColors.Ink2),
                 textAlign = TextAlign.Center,
             )
@@ -360,7 +362,7 @@ fun AroundYouList(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                item(key = "around_you_header") { PqGroupLabel("Above and below you") }
+                item(key = "around_you_header") { PqGroupLabel(stringResource(R.string.pq_lb_above_below)) }
                 items(count = entries.size, key = { index -> "around_" + entries[index].profile.id }) { index ->
                     val entry = entries[index]
                     val profile = entry.profile
@@ -387,9 +389,9 @@ fun AroundYouList(
 fun SpectatorModeBanner(onNavigateToAccount: () -> Unit, modifier: Modifier = Modifier) {
     PqCard(bg = PqColors.Sky, radius = PqDimens.Radius, shadow = 0.dp, modifier = modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(12.dp)) {
-            Text(text = "You're watching", style = PqType.BodyStrong)
-            Text(text = "You see the board, but you're not on it. Join from Account to appear on the leaderboard.", style = PqType.Meta.copy(color = PqColors.Ink))
-            PqButton("Join the leaderboard", onNavigateToAccount, Modifier.fillMaxWidth())
+            Text(text = stringResource(R.string.pq_lb_spectator_title), style = PqType.BodyStrong)
+            Text(text = stringResource(R.string.pq_lb_spectator_body), style = PqType.Meta.copy(color = PqColors.Ink))
+            PqButton(stringResource(R.string.pq_lb_join), onNavigateToAccount, Modifier.fillMaxWidth())
         }
     }
 }
@@ -403,11 +405,11 @@ fun LeaderboardErrorState(errorMessage: String, onRetry: () -> Unit, modifier: M
                 Box(Modifier.size(36.dp).clip(pqShape(10.dp)).background(PqColors.Rose), contentAlignment = Alignment.Center) {
                     Icon(Icons.Rounded.CloudOff, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.size(20.dp))
                 }
-                Text(text = "Couldn't reach the leaderboard", style = PqType.BodyStrong)
+                Text(text = stringResource(R.string.pq_lb_error_title), style = PqType.BodyStrong)
             }
             Text(text = errorMessage, style = PqType.Body.copy(color = PqColors.Ink2))
-            PqButton("Try again", onRetry, Modifier.fillMaxWidth())
-            Text(text = "Your quests, streaks and XP keep counting on this phone meanwhile.", style = PqType.Meta)
+            PqButton(stringResource(R.string.pq_lb_try_again), onRetry, Modifier.fillMaxWidth())
+            Text(text = stringResource(R.string.pq_lb_error_footer), style = PqType.Meta)
         }
     }
 }
