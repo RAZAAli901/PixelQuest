@@ -26,7 +26,8 @@ class GoogleSignInMessageTest {
     }
 
     @Test
-    fun anythingElse_keepsAndroidsMessage() {
-        assertEquals("Something odd", GoogleAuthManager.failureMessage(GetCredentialUnknownException("Something odd")))
+    fun anythingElse_getsAPlainSentence_notAndroidsText() {
+        // S056: Android's own text isn't shown.
+        assertEquals(com.pixelquest.app.domain.SafeErrorCopy.GOOGLE_FAILED, GoogleAuthManager.failureMessage(GetCredentialUnknownException("Something odd")))
     }
 }

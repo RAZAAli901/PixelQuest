@@ -104,7 +104,7 @@ open class GoogleAuthManager @Inject constructor(
         } catch (e: java.io.IOException) {
             GoogleAuthResult.Failure(e, "No internet connection detected. Please connect to the internet to sign in.")
         } catch (e: Exception) {
-            GoogleAuthResult.Failure(e, e.message ?: "An unexpected error occurred during Google Sign-In.")
+            GoogleAuthResult.Failure(e, com.pixelquest.app.domain.SafeErrorCopy.GOOGLE_FAILED)
         }
     }
 
@@ -125,7 +125,8 @@ open class GoogleAuthManager @Inject constructor(
             return if (isNetworkErr) {
                 "No internet connection detected. Please connect to the internet to sign in."
             } else {
-                e.message ?: "Google Sign-In failed."
+                // Android's own text isn't for players (S056).
+                com.pixelquest.app.domain.SafeErrorCopy.GOOGLE_FAILED
             }
         }
     }

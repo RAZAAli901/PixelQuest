@@ -134,17 +134,14 @@ class AuthViewModel @Inject constructor(
                             googleAuthManager.signOut()
                             authRepository.signOut()
                             userProfileRepository.updateSupabaseUserId(null)
-                            _uiState.value = AuthUiState.Error(
-                                "Google authentication succeeded, but cloud server error occurred: ${exchangeResult.message}"
-                            )
+                            // Never the server's own words (S056).
+                            _uiState.value = AuthUiState.Error(com.pixelquest.app.domain.SafeErrorCopy.GOOGLE_EXCHANGE_FAILED)
                         }
                         is SupabaseResult.UnknownError -> {
                             googleAuthManager.signOut()
                             authRepository.signOut()
                             userProfileRepository.updateSupabaseUserId(null)
-                            _uiState.value = AuthUiState.Error(
-                                "Google authentication succeeded, but cloud token exchange failed: ${exchangeResult.message}"
-                            )
+                            _uiState.value = AuthUiState.Error(com.pixelquest.app.domain.SafeErrorCopy.GOOGLE_EXCHANGE_FAILED)
                         }
                     }
                 }

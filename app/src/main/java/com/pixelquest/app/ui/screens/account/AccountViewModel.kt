@@ -305,14 +305,14 @@ class AccountViewModel @Inject constructor(
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isSyncFailed = true,
-                            syncMessage = "Server error: ${result.message}"
+                            syncMessage = com.pixelquest.app.domain.SafeErrorCopy.SYNC_SERVER
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.UnknownError -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isSyncFailed = true,
-                            syncMessage = "Sync failed: ${result.message}"
+                            syncMessage = com.pixelquest.app.domain.SafeErrorCopy.SYNC_FAILED
                         )
                     }
                 }

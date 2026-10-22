@@ -510,3 +510,8 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - debug still logs everything;
   - nothing calls `android.util.Log`, `printStackTrace()` or bypasses AppLog;
   - the R8 rule and the Supabase log level are in place.
+
+### S056: safe error messages
+- **Checked:** where errors reach the screen. The AI Coach uses `AiErrorCopy` (S052). Chess, Darood, study and email sign-in turn the server's short refusal tokens into their own strings, with a catch-all. `SupabaseResult` network errors are the app's own sentences.
+- **Fixed:** five places showed the error's own text: the Google sign-in exchange, Google sign-in failures (Android's text), account sync, the task list, and the leaderboard (network, sign-in and unknown errors). Each now shows a fixed sentence from `domain/SafeErrorCopy`. The task list logs the cause through AppLog instead.
+- **Test:** `SafeErrorMessagesTest` fails if any UI or sign-in code puts an error's `message` or `localizedMessage` into text (the debug-only AI trigger aside). The updated `LeaderboardErrorStateTest` and `GoogleSignInMessageTest` now require the fixed sentences and no raw text. The auth and screen suites still pass (72 classes).

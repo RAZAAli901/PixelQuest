@@ -62,7 +62,9 @@ class TaskViewModel @Inject constructor(
             isPerfectDay = isPerfect
         ) as TaskUiState
     }.catch { e ->
-        emit(TaskUiState.Error(e.localizedMessage ?: "Failed to load tasks"))
+        // Room's own text isn't for players (S056); the cause goes to the log.
+        com.pixelquest.app.util.AppLog.e("TaskViewModel", "Could not load tasks", e)
+        emit(TaskUiState.Error(com.pixelquest.app.domain.SafeErrorCopy.TASKS_FAILED))
     }.stateIn(
         scope = viewModelScope,
         started = TabSharing,

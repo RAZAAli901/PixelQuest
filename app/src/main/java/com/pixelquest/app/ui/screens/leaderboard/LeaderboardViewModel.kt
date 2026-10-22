@@ -220,10 +220,11 @@ class LeaderboardViewModel @Inject constructor(
                     // Ranks for the tab on screen only: the player may have switched while this loaded.
                     if (_uiState.value.selectedTab == currentTab) fetchCurrentUserRank()
                 }
-                is SupabaseResult.NetworkError -> showLoadError(currentTab, "Network error: ${result.message}")
+                // The app's own sentences, never the error's text (S056).
+                is SupabaseResult.NetworkError -> showLoadError(currentTab, com.pixelquest.app.domain.SafeErrorCopy.BOARD_OFFLINE)
                 is SupabaseResult.ServerError -> showLoadError(currentTab, "Leaderboard service unavailable (Code ${result.code}).")
-                is SupabaseResult.AuthError -> showLoadError(currentTab, "Authentication error: ${result.message}")
-                is SupabaseResult.UnknownError -> showLoadError(currentTab, "Failed to load leaderboard: ${result.message}")
+                is SupabaseResult.AuthError -> showLoadError(currentTab, com.pixelquest.app.domain.SafeErrorCopy.BOARD_SIGN_IN)
+                is SupabaseResult.UnknownError -> showLoadError(currentTab, com.pixelquest.app.domain.SafeErrorCopy.BOARD_FAILED)
             }
         }
     }

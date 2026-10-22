@@ -132,9 +132,10 @@ class LeaderboardErrorStateTest {
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertNotNull(state.errorMessage)
-        assertTrue(state.errorMessage!!.contains("Network error", ignoreCase = true))
+        // S056: the app's own sentence, not the exception's text.
+        assertEquals(com.pixelquest.app.domain.SafeErrorCopy.BOARD_OFFLINE, state.errorMessage)
+        assertFalse(state.errorMessage!!.contains("timed out"))
         // The user sees the result's friendly message, not the raw exception text.
-        assertTrue(state.errorMessage!!.contains("Network connection unavailable."))
         assertTrue(state.streakEntries.isEmpty())
     }
 
@@ -162,8 +163,8 @@ class LeaderboardErrorStateTest {
         val state = viewModel.uiState.value
         assertFalse(state.isLoading)
         assertNotNull(state.errorMessage)
-        assertTrue(state.errorMessage!!.contains("Authentication error", ignoreCase = true))
-        assertTrue(state.errorMessage!!.contains("Session token expired"))
+        assertEquals(com.pixelquest.app.domain.SafeErrorCopy.BOARD_SIGN_IN, state.errorMessage)
+        assertFalse("no token talk on screen", state.errorMessage!!.contains("token"))
     }
 
     @Test
