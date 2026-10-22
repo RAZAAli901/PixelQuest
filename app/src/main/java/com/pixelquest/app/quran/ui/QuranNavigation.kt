@@ -5,12 +5,9 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.pixelquest.app.quran.ui.about.QuranSourcesRoute
 import com.pixelquest.app.quran.ui.reader.SurahReaderRoute
-import com.pixelquest.app.quran.ui.reader.SurahReaderViewModel
 import com.pixelquest.app.quran.ui.search.QuranSearchRoute
 import com.pixelquest.app.quran.ui.translations.TranslationPickerRoute
 import com.pixelquest.app.ui.navigation.Screen
@@ -27,7 +24,7 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
             onOpenSurah = { surah -> navController.navigate(Screen.QuranSurah.createRoute(surah)) },
             onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) },
             onOpenSearch = { navController.navigate(Screen.QuranSearch.route) { launchSingleTop = true } },
-            onOpenSources = { navController.navigate(Screen.QuranSources.route) { launchSingleTop = true } }
+            onOpenSources = { navController.navigate(Screen.QuranSources.route) { launchSingleTop = true } },
         )
     }
     quranScreen(Screen.QuranSources.route) {
@@ -40,15 +37,12 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
         QuranSearchRoute(
             onNavigateBack = { navController.popBackStack() },
             onOpenSurah = { surah -> navController.navigate(Screen.QuranSurah.createRoute(surah)) },
-            onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) }
+            onOpenAyah = { surah, ayah -> navController.navigate(Screen.QuranSurah.createRoute(surah, ayah)) },
         )
     }
     quranScreen(
         route = Screen.QuranSurah.route,
-        arguments = listOf(
-            navArgument(SurahReaderViewModel.ARG_SURAH) { type = NavType.IntType },
-            navArgument(SurahReaderViewModel.ARG_AYAH) { type = NavType.IntType; defaultValue = 0 }
-        )
+        arguments = Screen.QuranSurah.arguments,
     ) {
         SurahReaderRoute(
             onNavigateBack = { navController.popBackStack() },
@@ -58,7 +52,7 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
                 navController.navigate(Screen.QuranSurah.createRoute(surah)) {
                     popUpTo(Screen.QuranSurah.route) { inclusive = true }
                 }
-            }
+            },
         )
     }
 }
@@ -67,7 +61,7 @@ fun NavGraphBuilder.quranScreens(navController: NavHostController) {
 private fun NavGraphBuilder.quranScreen(
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),
-    content: @Composable (NavBackStackEntry) -> Unit
+    content: @Composable (NavBackStackEntry) -> Unit,
 ) {
     composable(route = route, arguments = arguments) { entry -> QuranLook { content(entry) } }
 }

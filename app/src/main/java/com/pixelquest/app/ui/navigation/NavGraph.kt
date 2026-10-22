@@ -1,25 +1,22 @@
 package com.pixelquest.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.pixelquest.app.party.ui.partiesScreens
 import com.pixelquest.app.ui.screens.HomeScreen
 import com.pixelquest.app.ui.screens.SplashScreen
+import com.pixelquest.app.ui.screens.leveling.LevelHistoryScreen
 import com.pixelquest.app.ui.screens.tasks.CreateTaskScreen
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
-
-import com.pixelquest.app.ui.screens.leveling.LevelHistoryScreen
-import com.pixelquest.app.party.ui.partiesScreens
 
 @Composable
 fun PixelNavHost(
@@ -28,7 +25,7 @@ fun PixelNavHost(
     startDestination: String = Screen.Splash.route,
     onboardingComplete: Boolean = true,
     /** The Islamic hub's items (IslamicRegistry.providers), whose own screens join the Islamic section. */
-    islamicItems: List<com.pixelquest.app.islamic.IslamicItemProvider> = emptyList()
+    islamicItems: List<com.pixelquest.app.islamic.IslamicItemProvider> = emptyList(),
 ) {
     // The NavHost keeps the first composable lambdas it is given, so read the flag through
     // State; otherwise the splash timeout sees the initial value and skips onboarding.
@@ -51,7 +48,7 @@ fun PixelNavHost(
         enterTransition = { PixelTransitions.Enter },
         exitTransition = { PixelTransitions.Exit },
         popEnterTransition = { PixelTransitions.PopEnter },
-        popExitTransition = { PixelTransitions.PopExit }
+        popExitTransition = { PixelTransitions.PopExit },
     ) {
         composable(Screen.Splash.route) {
             SplashScreen(
@@ -60,7 +57,7 @@ fun PixelNavHost(
                     navController.navigate(target) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
-                }
+                },
             )
         }
         composable(Screen.Home.route) {
@@ -89,21 +86,21 @@ fun PixelNavHost(
                 },
                 onSeeAllQuests = { navController.navigateToTab(Screen.Tasks.route) },
                 onOpenStudyParty = { partyId -> navController.navigate(Screen.PartiesParty.createRoute(partyId)) { launchSingleTop = true } },
-                onOpenParties = { navController.navigate(Screen.Parties.route) { launchSingleTop = true } }
+                onOpenParties = { navController.navigate(Screen.Parties.route) { launchSingleTop = true } },
             )
         }
         composable(Screen.AiInsight.route) {
             com.pixelquest.app.ui.screens.insight.AiInsightScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) },
-                onNavigateToAccount = { navController.navigate(Screen.Account.route) }
+                onNavigateToAccount = { navController.navigate(Screen.Account.route) },
             )
         }
         composable(Screen.Tasks.route) {
             com.pixelquest.app.ui.screens.QuestsScreen(
                 onNewQuest = { navController.navigate(Screen.CreateTask.route) },
                 onEditQuest = { taskId -> navController.navigate(Screen.EditTask.createRoute(taskId)) },
-                onOpenHistoryQuest = { taskId -> navController.navigate(Screen.TaskAnalytics.createRoute(taskId)) }
+                onOpenHistoryQuest = { taskId -> navController.navigate(Screen.TaskAnalytics.createRoute(taskId)) },
             )
         }
         composable(
@@ -111,32 +108,32 @@ fun PixelNavHost(
             enterTransition = { PixelTransitions.ModalEnter },
             exitTransition = { PixelTransitions.ModalExit },
             popEnterTransition = { PixelTransitions.ModalPopEnter },
-            popExitTransition = { PixelTransitions.ModalPopExit }
+            popExitTransition = { PixelTransitions.ModalPopExit },
         ) {
             // A fresh ViewModel per visit starts empty; no reset here, which used to run again on
             // rotation and wipe what the player had typed.
             val formViewModel: TaskFormViewModel = hiltViewModel()
             CreateTaskScreen(
                 viewModel = formViewModel,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
             )
         }
         composable(
             route = Screen.EditTask.route,
-            arguments = listOf(navArgument("taskId") { type = NavType.LongType }),
+            arguments = Screen.EditTask.arguments,
             enterTransition = { PixelTransitions.ModalEnter },
             exitTransition = { PixelTransitions.ModalExit },
             popEnterTransition = { PixelTransitions.ModalPopEnter },
-            popExitTransition = { PixelTransitions.ModalPopExit }
+            popExitTransition = { PixelTransitions.ModalPopExit },
         ) { backStackEntry ->
-            val taskId = backStackEntry.arguments?.getLong("taskId") ?: 0L
+            val taskId = Screen.EditTask.getTaskId(backStackEntry)
             val formViewModel: TaskFormViewModel = hiltViewModel()
             LaunchedEffect(taskId) {
                 formViewModel.loadTask(taskId)
             }
             CreateTaskScreen(
                 viewModel = formViewModel,
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
             )
         }
         composable(Screen.Hero.route) {
@@ -149,7 +146,7 @@ fun PixelNavHost(
                 // The trophy's screen, so open it the way the trophy does.
                 onLeaderboard = { navController.navigateToTab(Screen.Leaderboard.route) },
                 onParties = { navController.navigate(Screen.Parties.route) { launchSingleTop = true } },
-                onUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } }
+                onUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } },
             )
         }
         composable(Screen.AvatarSelection.route) {
@@ -160,7 +157,7 @@ fun PixelNavHost(
         }
         composable(Screen.DifficultySelection.route) {
             com.pixelquest.app.ui.screens.difficulty.DifficultySelectionScreen(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
             )
         }
         // Hero's Quest history: Quests, open at its History, with a way back to Hero.
@@ -170,15 +167,15 @@ fun PixelNavHost(
                 onNavigateBack = { navController.popBackStack() },
                 onNewQuest = { navController.navigate(Screen.CreateTask.route) },
                 onEditQuest = { taskId -> navController.navigate(Screen.EditTask.createRoute(taskId)) },
-                onOpenHistoryQuest = { taskId -> navController.navigate(Screen.TaskAnalytics.createRoute(taskId)) }
+                onOpenHistoryQuest = { taskId -> navController.navigate(Screen.TaskAnalytics.createRoute(taskId)) },
             )
         }
         composable(
             route = Screen.TaskAnalytics.route,
-            arguments = listOf(navArgument("taskId") { type = NavType.LongType })
+            arguments = Screen.TaskAnalytics.arguments,
         ) {
             com.pixelquest.app.ui.screens.analytics.TaskAnalyticsScreen(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
             )
         }
         composable(Screen.Onboarding.route) {
@@ -187,7 +184,7 @@ fun PixelNavHost(
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Onboarding.route) { inclusive = true }
                     }
-                }
+                },
             )
         }
         composable(Screen.Settings.route) {
@@ -200,18 +197,18 @@ fun PixelNavHost(
                     navController.navigate(Screen.Onboarding.route) {
                         popUpTo(0) { inclusive = true }
                     }
-                }
+                },
             )
         }
         composable(Screen.Account.route) {
             com.pixelquest.app.ui.screens.account.AccountScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
             )
         }
         composable(Screen.UsernameSetup.route) {
             com.pixelquest.app.darood.ui.username.UsernameSetupScreen(
                 onDone = { navController.popBackStack() },
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
             )
         }
         islamicGraph(navController, islamicItems) {
@@ -229,7 +226,7 @@ fun PixelNavHost(
             val leaderboardViewModel: com.pixelquest.app.ui.screens.leaderboard.LeaderboardViewModel = hiltViewModel()
             com.pixelquest.app.ui.screens.leaderboard.LeaderboardScreen(
                 viewModel = leaderboardViewModel,
-                onNavigateToAccount = { navController.navigate(Screen.Account.route) }
+                onNavigateToAccount = { navController.navigate(Screen.Account.route) },
             )
         }
     }
