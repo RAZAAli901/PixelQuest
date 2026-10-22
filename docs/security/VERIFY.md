@@ -391,3 +391,15 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - **another app can't send to it:** `am broadcast -n com.pixelquest.app/.scheduling.BootReceiver` from the shell gives "Permission Denial: not allowed to send broadcast";
   - **the system still can:** after a reboot, Android queued and then delivered the boot broadcast to `com.pixelquest.app.scheduling.BootReceiver`, with none left pending. (An app that has never been opened gets no boot broadcasts at all; that's Android's "stopped" state.)
 - **Test:** `ManifestComponentsTest`: of the app's own components, only `MainActivity` is exported.
+
+### S041: no quest name on a locked phone
+- **Before:** the "did you do it?" prompt opens over the lock screen (`showWhenLocked`, `turnScreenOn`) with the quest's name, readable by anyone holding the phone.
+- **Done:** while the phone is locked (`KeyguardManager.isKeyguardLocked`, checked on every resume), the prompt shows only "A quest reminder" with an Unlock button.
+  - On Android 8 and later, the button asks Android to unlock (`requestDismissKeyguard`), and the quest appears once it's unlocked.
+  - On Android 7 the player unlocks the phone, and the prompt shows the quest when it comes back.
+  - The answer buttons are behind the unlock too.
+  - The notification that opens it is private on the lock screen (S047).
+- **Test:** `LockedPromptTest`:
+  - locked: the quest's name appears nowhere, and Unlock asks to unlock;
+  - unlocked: the quest shows as before. `PromptQueueAnswerTest` and `PromptQueueTest` still pass.
+- **To check on a phone:** set a screen lock, add a PROMPT-style quest due in a minute, lock the phone, and wait. The prompt says "A quest reminder", and the name shows after unlocking.

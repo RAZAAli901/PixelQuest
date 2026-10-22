@@ -227,4 +227,8 @@
     <string name="pq_lb_google">Continue with Google</string>
     <string name="pq_lb_signing_in">Signing in…</string>
     <string name="pq_lb_email">Email me a code</string>
+    <!-- The reminder prompt over a locked phone (S041): no quest name until it's unlocked. -->
+    <string name="prompt_locked_title">A quest reminder</string>
+    <string name="prompt_locked_body">Unlock your phone to see it and answer.</string>
+    <string name="prompt_unlock">Unlock</string>
 </resources>
