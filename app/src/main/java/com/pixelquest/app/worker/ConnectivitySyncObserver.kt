@@ -9,28 +9,24 @@ import com.pixelquest.app.domain.repository.UserProfileRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Monitors device network connectivity state transitions.
- * When network connectivity is restored on a signed-in device with something to send (on the
- * leaderboard, or a join, leave or reset still waiting), this observer immediately schedules a
- * profile sync rather than waiting for the next gameplay trigger event.
- */
 @Singleton
 class ConnectivitySyncObserver @Inject constructor(
     @ApplicationContext private val context: Context,
     private val syncScheduler: SyncScheduler,
     private val userProfileRepository: UserProfileRepository,
     private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null,
-    private val pendingProgressReset: com.pixelquest.app.data.repository.PendingProgressReset? = null
+    private val pendingProgressReset: com.pixelquest.app.data.repository.PendingProgressReset? = null,
 ) {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var isRegistered = false
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
@@ -73,6 +69,7 @@ class ConnectivitySyncObserver @Inject constructor(
         try {
             connectivityManager.unregisterNetworkCallback(networkCallback)
             isRegistered = false
+            scope.coroutineContext.cancelChildren()
         } catch (_: Exception) {
             // Guard against unregister errors
         }

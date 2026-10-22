@@ -22,7 +22,7 @@ import javax.inject.Singleton
 class DebugAiInsightTrigger @Inject constructor(
     private val habitInsightRepository: HabitInsightRepository,
     private val clock: () -> Long = { System.currentTimeMillis() },
-    private val isDebugProvider: () -> Boolean = { BuildConfig.DEBUG }
+    private val isDebugProvider: () -> Boolean = { BuildConfig.DEBUG },
 ) {
     companion object {
         /**
@@ -44,8 +44,8 @@ class DebugAiInsightTrigger @Inject constructor(
      * Strictly blocked when not running in debug builds.
      */
     fun triggerInsightGeneration(
-        scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
-        onComplete: ((GeminiResult<HabitInsightResponse>) -> Unit)? = null
+        scope: CoroutineScope = CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO),
+        onComplete: ((GeminiResult<HabitInsightResponse>) -> Unit)? = null,
     ) {
         if (!isDebugProvider()) {
             val disabled = GeminiResult.Disabled("AI debug trigger is restricted to debug builds only.")
@@ -61,7 +61,7 @@ class DebugAiInsightTrigger @Inject constructor(
             val remainingSeconds = (MIN_CALL_INTERVAL_MS - elapsed) / 1000
             val throttled = GeminiResult.RateLimited(
                 retryAfterSeconds = remainingSeconds,
-                message = "Rate limit throttle enforced: minimum 6-hour interval between calls. Please wait $remainingSeconds seconds."
+                message = "Rate limit throttle enforced: minimum 6-hour interval between calls. Please wait $remainingSeconds seconds.",
             )
             _lastResult.value = throttled
             _debugStatus.value = "THROTTLED: ${throttled.message}"
@@ -107,7 +107,7 @@ class DebugAiInsightTrigger @Inject constructor(
             val remainingSeconds = (MIN_CALL_INTERVAL_MS - elapsed) / 1000
             val throttled = GeminiResult.RateLimited(
                 retryAfterSeconds = remainingSeconds,
-                message = "Rate limit throttle enforced: minimum 6-hour interval between calls. Please wait $remainingSeconds seconds."
+                message = "Rate limit throttle enforced: minimum 6-hour interval between calls. Please wait $remainingSeconds seconds.",
             )
             _lastResult.value = throttled
             _debugStatus.value = "THROTTLED: ${throttled.message}"
