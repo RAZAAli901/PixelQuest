@@ -532,7 +532,8 @@ fun PartyInfoContent(
             )
         }
         if (goals.isNotEmpty() && kind.rules.raceBoard) GoalHistory(goals, party.total)
-        if (weekNotify != null && kind.rules.raceBoard &&
+        if (weekNotify != null &&
+            kind.rules.raceBoard &&
             state.members.any { it.userId == state.myId && it.status == com.pixelquest.app.party.domain.MemberStatus.ACTIVE }
         ) {
             WeekNotifySwitch(on = weekNotify, onChange = onWeekNotify)

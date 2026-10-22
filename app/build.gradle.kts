@@ -95,12 +95,21 @@ android {
         getByName("test").java.srcDir("src/sharedTest/java")
         getByName("androidTest").java.srcDir("src/sharedTest/java")
     }
-    compileSdk = 34 // Latest stable compileSdk
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
         applicationId = "com.pixelquest.app"
-        minSdk = 24 // Minimum supported Android API 24 (Nougat)
-        targetSdk = 34 // Latest stable targetSdk
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.targetSdk
+                .get()
+                .toInt()
         versionCode = 110
         versionName = "1.7.2"
 
@@ -169,11 +178,12 @@ android {
         // The app uses java.time throughout, which Android only ships from API 26; desugaring
         // bundles it into the APK for API 24-25 (desugar_jdk_libs below).
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        val jvmVersion = JavaVersion.toVersion(libs.versions.jvmTarget.get())
+        sourceCompatibility = jvmVersion
+        targetCompatibility = jvmVersion
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = libs.versions.jvmTarget.get()
     }
     testOptions {
         unitTests {
