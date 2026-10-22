@@ -372,3 +372,15 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - The manifest uses it and sets `usesCleartextTraffic="false"`.
   - Debug builds replace it with `src/debug/res/xml/network_security_config.xml`: plain http only to `10.0.2.2`, `127.0.0.1` and `localhost`, for the local stack.
 - **Test:** `NetworkSecurityConfigTest`: release is https-only with system CAs, has no cleartext domain and no debug overrides; the manifest uses the config; debug's cleartext covers exactly those three hosts.
+
+### S038: certificate pinning for Supabase
+- **Done:** `*.supabase.co` (database, Auth, Storage, Realtime and the Edge Functions, including the AI proxy) is pinned in both configs:
+  - to the Google Trust Services roots and today's intermediate (the live chain is `supabase.co` ← WE1 ← GTS Root R4);
+  - with backup pins for the other CAs Cloudflare issues from: Let's Encrypt (ISRG X1, X2), SSL.com and Sectigo.
+  - The pins expire on **2027-06-30**, after which Android falls back to normal checks.
+  - [PINNING.md](PINNING.md) explains how to check the chain and rotate.
+- **Not pinned:** Firebase and Google sign-in, whose certificates Google rotates; they carry no PixelQuest data beyond ids.
+- **Tests:**
+  - `NetworkSecurityConfigTest`: both configs pin `supabase.co` with subdomains, include GTS Root R4, have at least 5 SHA-256 pins, and expire within two years.
+  - `PinnedConnectionInstrumentedTest` (Android 14 emulator, the real hosted project): the TLS handshake succeeds with the pins in force.
+- **Result 2026-10-22:** 4 of 4, and 1 of 1 on the emulator (not skipped).
