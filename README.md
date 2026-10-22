@@ -29,6 +29,17 @@ Or see the release notes and files on the **[📦 v1.6.0 release page](https://g
 
 ---
 
+## ♟️ Coming in 1.7.0: study chat, the Darood weekly ranking, and chess
+
+- **Study parties** get a chat with files, and reminders for the party or just you.
+- **Chess** in study parties: challenge a mate to a 1 to 10 minute game, refereed by the server, rated in Int points, with a ladder and watching live games.
+- **Darood Party** ranks each week and tells everyone their place, and goals can be extended once they're reached.
+- **Export my cloud data**, and reporting and blocking across chat and chess.
+
+1.7.0 is in testing; the download above is 1.6.0 until it's released. Everything new: [CHANGELOG.md](CHANGELOG.md).
+
+---
+
 ## 🎨 New in 1.6.0: a new look, and smoother
 
 - **A bottom bar** replaces the side menu: Home, Quests, the trophy (the Leaderboard), Deen and Hero.
@@ -79,7 +90,7 @@ What moved where, and the building blocks: [docs/ui-v2.md](docs/ui-v2.md). Every
   - It never adds XP or touches the leaderboard. See [docs/darood-design.md](docs/darood-design.md).
 - **The Quran** (new in 1.5.0, offline): the Uthmani Arabic from the Tanzil Project and the Saheeh International translation, bundled unchanged and checked on every build. Search, juz, bookmarks, copy and share, text size, a sepia page, and carrying on where you stopped. See [docs/quran-data.md](docs/quran-data.md).
 - **Study parties** (new in 1.5.0, for signed-in players): friends pin assignments and quizzes, tick them off, log study time and race on a weekly scoreboard, with reminders before things are due. Their points never touch XP. See [docs/study-party.md](docs/study-party.md).
-  - **Reminders** (new in 1.7.0): for the party or just you, once or repeating, with alerts before they're due. See [docs/study-reminders.md](docs/study-reminders.md).
+  - **Reminders** (new in 1.7.0): for the party or just you, once, daily or weekly, with alerts before they're due. See [docs/study-reminders.md](docs/study-reminders.md).
   - **Chat and files** (new in 1.7.0): a chat for each party, live, with replies, and files up to 20 MB (PDFs, images, documents) that are checked before anyone can open them. Report or block from any message. See [docs/study-chat.md](docs/study-chat.md).
 - **Chess** (new in 1.7.0, in study parties): challenge a party mate to a 1, 3, 5 or 10 minute game, or open a challenge to the room.
   - The server referees every move and keeps the clocks, so a changed app can't cheat. Games are rated in Int points, with tiers from Pawn to King, a party ladder and your record against each mate.

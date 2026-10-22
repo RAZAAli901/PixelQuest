@@ -4,6 +4,43 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
+## [1.7.0] - unreleased — Study chat, the Darood weekly ranking, and chess
+
+### ⬆️ Upgrading
+Install 1.7.0 over 1.6.0 (or any version from 1.2.0): everything is kept. The app's database moves from version 18 to 23 on first open, adding the new features' tables; nothing you have changes.
+
+### 📚 Study parties
+- **Reminders:** for the whole party or just you, once, daily or weekly, with alerts before they're due. Members see the party's; only you see yours.
+- **Chat:** each study party has a chat, live for everyone in it, with replies, delete and copy. Long-press a message to report it or block its sender.
+- **Files:** share PDFs, images and documents up to 20 MB. Each file is checked on the server before anyone can open it, opens through a link that lasts a minute, and is pinned to the party's Files tab or to an item.
+
+### 📿 Darood Party
+- **A weekly ranking:** each week, Monday to Sunday in the party's time zone, ranks the members by Darood. On Sunday night everyone gets their place in a notification, which can be muted for each party, and the party keeps its past weeks.
+- **Goals that go on:** when the party reaches its goal, everyone sees it, and the leader can set the next one. The party keeps its goal history.
+
+### ♟️ Chess (new, in study parties)
+- **Challenge a party mate,** or open a challenge to the room: 1, 3, 5 or 10 minutes, rated or friendly, your colour or random. A challenge arrives as a notification and as a card in the chat, and expires after 10 minutes.
+- **The server referees:** every move is checked, and the clocks are the server's, so a changed app can't cheat and a dropped connection doesn't stop the clock.
+- **Int points:** a rating for each time control, with tiers from Pawn to King, a ladder for each party, and your record against each mate. Ten rated games a day per pair; very short games count only when they end in checkmate.
+- **Watch live games** from the party's Chess tab, with how many are watching.
+- **Made for everyone:** the board in both skins and Simple Mode, TalkBack reads the board and moves, tap-to-move (or drag), and settings for move sounds and haptics, auto-queen, confirming each move, and animation.
+- Like the rest of a study party, chess never touches XP, levels, streaks or the leaderboard.
+
+### 🔒 Privacy and safety
+- **Export my cloud data** (Settings > Cloud & leaderboard) saves everything the cloud keeps about you to a file: parties, Darood, study, your messages and files' names, chess games with every move, ratings and records.
+- **Deleting your cloud account** now removes your messages and files (from storage too). Your games stay for your opponents with your side left empty.
+- **Report a chess challenge,** or block its sender, from the challenge screen. Blocked members can't challenge each other.
+- Limits on the server for messages, uploads, challenges, moves and watching. Reviewed in [docs/ABUSE_REVIEW.md](docs/ABUSE_REVIEW.md) and [docs/PRIVACY_REVIEW.md](docs/PRIVACY_REVIEW.md).
+
+### 🔧 For developers
+- **Room 23** (18 to 23: study reminders, chat, files, Darood week results, chess cache, the chat's `refId`). Supabase migrations through `20261019000108`, all pushed to the hosted project.
+- **Edge Functions:** `request-upload`, `finalize-upload`, `get-download-url`, `cleanup-uploads`, `chess-create-challenge`, `chess-respond-challenge`, `chess-move`, `chess-resign`, `chess-draw`, `chess-claim-timeout`, `chess-sweep`, `chess-live-games` and `send-push`. The chess functions use chess.js 1.4.0 through each function's `deno.json`.
+- **Push** uses Firebase Cloud Messaging, set up from `FCM_*` build settings (no `google-services.json`); the server's key is the `FCM_SERVICE_ACCOUNT` function secret. With them blank, push is off and challenges still show in the chat and the Chess tab.
+- **Logs** carry no personal data (`_shared/log.ts`), and an hourly workflow alerts on error spikes once its secrets are added ([docs/MONITORING.md](docs/MONITORING.md)). Detekt runs in CI with a baseline; lint is clean.
+- Release APK: 5.1 MB.
+
+---
+
 ## [1.6.0] - 2026-10-21 — A new look: one app, two skins
 
 ### ⬆️ Upgrading
