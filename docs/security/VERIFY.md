@@ -59,3 +59,14 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - signed out is refused (401);
   - the service role sees the report.
 - **Test:** `abuse.test.ts` and `study_chat.test.ts`: `chess_reports` and `chat_reports` aren't readable (403).
+
+### S013: parties and members against chat and chess
+- **Reviewed:**
+  - Chat, files and chess read through `private.is_active_study_member`: the caller is an *active* member of a *study* party that isn't deleted. Invitees, members who left and removed members get nothing.
+  - `parties`: members and invitees read it.
+  - A leader may update only `name`, `milestone` and `is_public_race` (column grants). The policy pins `leader_id` to the leader, so leadership moves only through `transfer_leadership`.
+  - `party_members`: no direct writes. Invitations, joining, leaving and removal go through functions.
+- **Test:** `security.test.ts`, "only active members reach chat and chess; a leader can't retype or finish a party":
+  - an invitee and a member who left see no chat, chess or member list;
+  - the leader's PATCH of `party_type`, `completed_at`, `leader_id` or `max_members` is refused.
+- **Test:** "a removed member loses chat, files and chess at once" (J170).

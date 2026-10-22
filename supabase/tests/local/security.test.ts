@@ -134,3 +134,38 @@ localTest("deletion: the account's games stay for the opponent, anonymised; its 
   const { asService } = await import("./stack.ts");
   await asService(`/storage/v1/object/study-files`, { method: "DELETE", body: { prefixes: [`${party}/left-behind`] } });
 });
+
+localTest("security: only active members reach chat and chess; a leader can't retype or finish a party (S013)", async () => {
+  const { white, black, third, outsider } = await chessCast();
+  endGames(white, black, third);
+  const party = await studyParty(white, [black]);
+  const game = gameRow(party, white, black);
+  sql(`INSERT INTO public.chat_messages (party_id, sender_id, kind, body) VALUES ('${party}', '${white.userId}', 'text', 'members only')`);
+  sql(`DELETE FROM private.invite_log WHERE inviter = '${white.userId}'`);
+
+  // Invited, not yet a member: the party's name only, none of its chat or chess.
+  await rpc(white, "invite_member", { party_id: party, username: third.username });
+  assert.equal((await read(third, `parties?id=eq.${party}&select=id`)).length, 1, "an invitee sees the invitation");
+  assert.deepEqual(await read(third, `chat_messages?party_id=eq.${party}&select=id`), []);
+  assert.deepEqual(await read(third, `chess_games?id=eq.${game}&select=id`), []);
+  assert.deepEqual(await read(third, `party_members?party_id=eq.${party}&user_id=neq.${third.userId}&select=user_id`), [], "nor its members");
+
+  // A member who left: nothing.
+  const accepted = await rpc(third, "respond_invite", { party_id: party, accept: true });
+  const after = await read(third, `chat_messages?party_id=eq.${party}&select=id`);
+  // As a member they read it (with the line saying they joined).
+  assert.ok(Array.isArray(after) && after.length >= 1, JSON.stringify({ accepted: accepted.body, after }));
+  await rpc(third, "leave_party", { party_id: party });
+  assert.deepEqual(await read(third, `chat_messages?party_id=eq.${party}&select=id`), []);
+  assert.deepEqual(await read(third, `chess_games?id=eq.${game}&select=id`), []);
+
+  // The leader can rename, but not change what the party is, finish it, or hand it to an outsider.
+  const patch = (body: unknown) => call(`/rest/v1/parties?id=eq.${party}`, { method: "PATCH", token: white.accessToken, body });
+  assert.ok([200, 204].includes((await patch({ name: "Renamed" })).status));
+  for (const body of [{ party_type: "darood" }, { completed_at: new Date().toISOString() }, { leader_id: outsider.userId }, { max_members: 999 }]) {
+    const res = await patch(body);
+    assert.ok([401, 403].includes(res.status), `refused: ${Object.keys(body)[0]}`);
+  }
+  assert.equal(sql(`SELECT party_type || ' ' || (completed_at IS NULL) || ' ' || (leader_id = '${white.userId}') FROM public.parties WHERE id = '${party}'`), "study true true");
+  endGames(white, black);
+});
