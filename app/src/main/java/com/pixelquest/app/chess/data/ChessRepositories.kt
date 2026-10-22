@@ -59,6 +59,12 @@ interface ChessChallengeRepository {
     fun observeChallenges(partyId: String): Flow<List<Challenge>>
 
     suspend fun refreshChallenges(partyId: String): SupabaseResult<Unit>
+
+    /** Reports a challenge to the server ([reason]: spam, abuse or other). */
+    suspend fun report(challengeId: String, reason: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
+    /** Blocks a member: neither can challenge the other, and their chat is hidden for the player. */
+    suspend fun block(userId: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
 
 /** Int points, records and leaderboards. */

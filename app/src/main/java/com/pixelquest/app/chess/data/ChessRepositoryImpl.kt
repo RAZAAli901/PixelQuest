@@ -142,6 +142,12 @@ class ChessRepositoryImpl(
     override suspend fun refreshChallenges(partyId: String): SupabaseResult<Unit> =
         remote.openChallenges(partyId).mapData { rows -> challengesOf(partyId).value = rows.mapNotNull { it.toDomain() } }
 
+    override suspend fun report(challengeId: String, reason: String): SupabaseResult<Unit> =
+        if (account.id() == null) signedOut() else remote.reportChallenge(challengeId, reason)
+
+    override suspend fun block(userId: String): SupabaseResult<Unit> =
+        if (account.id() == null) signedOut() else remote.block(userId)
+
     // Ratings and records
 
     override fun observeRatings(userId: String): Flow<List<Rating>> = dao.observeRatings(userId).map { rows ->

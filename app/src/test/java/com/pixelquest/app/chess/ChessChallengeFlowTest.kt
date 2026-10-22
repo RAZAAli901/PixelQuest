@@ -5,6 +5,8 @@ import android.os.Looper
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -113,6 +115,32 @@ class ChessChallengeFlowTest {
         waitFor("a game") { vm.state.value.gameId != null }
         val started = runBlocking { (fake.fetchGame(vm.state.value.gameId!!) as com.pixelquest.app.data.remote.SupabaseResult.Success).data.first }
         assertEquals(GameStatus.WAITING, started.status)
+    }
+
+    @Test
+    fun aChallenge_isReported_thenItsSenderBlocked() {
+        val vm = viewModels.keep(IncomingChallengeViewModel::class.java) {
+            IncomingChallengeViewModel(SavedStateHandle(mapOf(IncomingChallengeViewModel.ARG to "fake-challenge-1")), fake, fake, parties)
+        }
+        var closed = false
+        composeTestRule.setContent {
+            val state by vm.state.collectAsState()
+            PixelQuestTheme { IncomingChallengeScreen(state, onAnswer = vm::answer, onNavigateBack = { closed = true }, onReport = vm::report, onBlock = vm::block) }
+        }
+        waitFor("loaded") { vm.state.value.challenge != null }
+        // Reporting asks first, then says it's done; the challenge can still be answered.
+        composeTestRule.onNodeWithTag(IncomingTags.REPORT).performScrollTo().performClick()
+        composeTestRule.onNodeWithText("Report this challenge?").assertExists()
+        composeTestRule.onAllNodesWithText("REPORT").onLast().performClick()
+        waitFor("reported") { vm.state.value.reported }
+        composeTestRule.onNodeWithTag(IncomingTags.REPORTED).assertExists()
+        assertEquals(listOf("fake-challenge-1" to "abuse"), fake.reported)
+        // Blocking asks first too, and declines the challenge.
+        composeTestRule.onNodeWithTag(IncomingTags.BLOCK).performScrollTo().performClick()
+        composeTestRule.onAllNodesWithText("BLOCK").onLast().performClick()
+        waitFor("declined") { vm.state.value.declined }
+        assertEquals(listOf(vm.state.value.challenge!!.fromUser), fake.blocked)
+        assertTrue(!closed || vm.state.value.declined)
     }
 
     @Test

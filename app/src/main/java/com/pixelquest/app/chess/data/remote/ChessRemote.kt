@@ -49,6 +49,12 @@ interface ChessRemote {
 
     /** Logs a watch, as the game's channel requires of a member who isn't playing. */
     suspend fun watch(gameId: String): SupabaseResult<Unit>
+
+    /** Reports a challenge (spam, abuse or other); only the server reads reports. */
+    suspend fun reportChallenge(challengeId: String, reason: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
+    /** Blocks a member (member_blocks): no challenges either way, their chat hidden. */
+    suspend fun block(userId: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 }
 
 @Serializable
@@ -206,6 +212,16 @@ class SupabaseChessRemote(
 
     override suspend fun watch(gameId: String) = safeSupabaseCall {
         postgrest.rpc("chess_watch", buildJsonObject { put("game_id", gameId) })
+        Unit
+    }
+
+    override suspend fun reportChallenge(challengeId: String, reason: String) = safeSupabaseCall {
+        postgrest.rpc("report_chess_challenge", buildJsonObject { put("challenge_id", challengeId); put("reason", reason) })
+        Unit
+    }
+
+    override suspend fun block(userId: String) = safeSupabaseCall {
+        postgrest.rpc("block_member", buildJsonObject { put("user_id", userId) })
         Unit
     }
 

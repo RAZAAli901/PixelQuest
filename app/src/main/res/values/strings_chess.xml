@@ -158,4 +158,12 @@
     <string name="chess_said_castle_long"><xliff:g id="side" example="White">%1$s</xliff:g> castles queen side</string>
     <string name="chess_said_check">check</string>
     <string name="chess_said_mate">checkmate</string>
+    <string name="chess_report">Report</string>
+    <string name="chess_report_title">Report this challenge?</string>
+    <string name="chess_report_message">It goes to the PixelQuest team to look at. The sender isn\'t told who reported it.</string>
+    <string name="chess_reported">Reported. Thank you: it\'ll be looked at.</string>
+    <string name="chess_block">Block @<xliff:g id="name" example="sara">%1$s</xliff:g></string>
+    <string name="chess_block_title">Block @<xliff:g id="name" example="sara">%1$s</xliff:g>?</string>
+    <string name="chess_block_message">Neither of you can challenge the other, and their chat messages are hidden for you. This challenge is declined. You can unblock them from the chat.</string>
+    <string name="chess_block_confirm">Block</string>
 </resources>

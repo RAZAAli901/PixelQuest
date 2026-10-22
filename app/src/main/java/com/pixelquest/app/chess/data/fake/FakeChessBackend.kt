@@ -179,6 +179,20 @@ class FakeChessBackend(
     override fun observeChallenges(partyId: String): Flow<List<Challenge>> = challenges
     override suspend fun refreshChallenges(partyId: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 
+    /** Reports and blocks made, for tests. */
+    val reported = mutableListOf<Pair<String, String>>()
+    val blocked = mutableListOf<String>()
+
+    override suspend fun report(challengeId: String, reason: String): SupabaseResult<Unit> {
+        reported += challengeId to reason
+        return SupabaseResult.Success(Unit)
+    }
+
+    override suspend fun block(userId: String): SupabaseResult<Unit> {
+        blocked += userId
+        return SupabaseResult.Success(Unit)
+    }
+
     private val ratings = listOf(
         Rating(ME, TimeControl.FIVE, 1180, 14, 8, 2, 4, 1210),
         Rating(ME, TimeControl.ONE, 960, 6, 3, 0, 3, 990),
