@@ -39,3 +39,8 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - a forged insert with another id is refused (403);
   - a patch of another's row changes nothing;
   - signed out, reading and writing are refused (401).
+
+### S011: the leaderboard
+- **Rules:** only opted-in rows are readable by other players (the SELECT policy on `profiles`); a row leaves the board the moment its owner opts out (S026). The fields are name, level, streaks, XP, the opt-in and when it changed, plus the row's id, which the app needs to mark "you" and to report a name.
+- **Decision:** column grants would break the app's `select *`, and every column is a board field, so the guard is a test instead: `profiles` must have exactly those columns. Anything private goes in a table only its owner can read.
+- **Test:** `profiles_rls.test.ts`, "the board exposes only leaderboard fields" and "leaving the board hides the row from others".

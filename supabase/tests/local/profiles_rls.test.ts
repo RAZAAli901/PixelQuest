@@ -1,7 +1,7 @@
 // Row-level security on public.profiles (the leaderboard), against a local Postgres.
 // The requests mirror CloudProfileRepository and LeaderboardRepository.
 import assert from "node:assert/strict";
-import { asService, call, localTest, newPlayer, stack, type Session } from "./stack.ts";
+import { asService, call, localTest, newPlayer, sql, stack, type Session } from "./stack.ts";
 
 const upsertHeaders = { Prefer: "resolution=merge-duplicates,return=minimal" };
 
@@ -128,4 +128,11 @@ localTest("stored stats can't be negative", async () => {
   const res = await upsertOwn(erin, { total_xp: -5 });
   assert.equal(res.status, 400);
   assert.equal(res.body.code, "23514");
+});
+
+localTest("the board exposes only leaderboard fields: profiles holds nothing private (S011)", () => {
+  // Opted-in rows are readable by every signed-in player, so every column must be one the board may
+  // show. A new column here needs a review: anything private belongs in a table only its owner reads.
+  const columns = sql(`SELECT string_agg(column_name, ',' ORDER BY column_name) FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'profiles'`);
+  assert.equal(columns, "current_streak,display_name,id,leaderboard_opt_in,level,longest_streak,total_xp,updated_at");
 });
