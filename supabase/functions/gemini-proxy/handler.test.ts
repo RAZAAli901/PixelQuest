@@ -149,6 +149,19 @@ test("an account is counted under one key, whatever the case of its id", () => {
   assert.ok(accountKey(USER).length <= 64, "fits claim_ai_proxy_call's 64-character limit");
 });
 
+test("the account counted is the token's, whatever the body claims (S050)", async () => {
+  const OTHER = "9d8c7b6a-5f4e-4d3c-8b2a-0f1e2d3c4b5a";
+  const { d, recorded } = deps();
+  const res = await handleProxyRequest(
+    request({ prompt: "hi", userId: OTHER, user_id: OTHER, accountKey: `user:${OTHER}`, device: "free-calls", p_device: "x" }),
+    d,
+  );
+  assert.equal(res.status, 200);
+  assert.deepEqual(recorded.claims, [`user:${USER}`]);
+  const sent = JSON.parse(recorded.geminiCalls[0].init.body as string);
+  assert.deepEqual(Object.keys(sent).sort(), ["contents", "generationConfig"], "nothing else from the body reaches Gemini");
+});
+
 test("daily limits answer 429 without calling Gemini", async () => {
   for (const [claim, error] of [["account_limit", "account_daily_limit"], ["global_limit", "global_daily_limit"]] as const) {
     const { d, recorded } = deps({ claim });

@@ -457,3 +457,10 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
 ### S049: no unused permissions
 - **Checked:** each of the 11 permissions in the merged release manifest is used. The table in MANIFEST_AUDIT.md says what uses each one. Seven are the app's own; the others come from WorkManager, Firebase and AndroidX. None was removable: `FOREGROUND_SERVICE` is WorkManager's expedited sync on Android 11 and older.
 - **Guard:** `check_manifest.py` now also fails on any permission not on its list. Tried with an added `READ_CONTACTS`: exit 1. The real manifest: 0 problems.
+
+### S050: AI proxy limits per user and per day
+- **Checked:** gemini-proxy (deployed, version 3) takes calls only from signed-in accounts. Supabase Auth checks the token; anonymous users, the anon key and made-up tokens get 401.
+  - Each call is claimed before Gemini is asked: 6 per account per UTC day (`AI_PROXY_ACCOUNT_DAILY_LIMIT`) and 200 per day for the whole project (`AI_PROXY_GLOBAL_DAILY_LIMIT`), through `claim_ai_proxy_call`.
+  - Only `service_role` can run that RPC, and its table is closed to `anon` and `authenticated`.
+  - The account counted is the one the token belongs to (`user:<id>`), never one the request names.
+- **Test:** handler.test.ts "the account counted is the token's, whatever the body claims" (a body naming another user, device or key is still counted on the caller, and none of it reaches Gemini). The local suite `gemini_proxy.test.ts` covers the limit (third call: 429) and that other accounts are counted separately.
