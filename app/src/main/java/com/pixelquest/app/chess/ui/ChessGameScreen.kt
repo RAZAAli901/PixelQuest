@@ -160,6 +160,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
             flipped = bottomColour == ChessColour.BLACK,
             autoQueen = prefs.autoQueen,
             animate = prefs.animate,
+            bullet = game.timeControl == com.pixelquest.app.chess.domain.TimeControl.ONE,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Player(game, state, bottomColour, now, sync)

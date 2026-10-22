@@ -50,8 +50,10 @@ fun PlayableBoard(
     flipped: Boolean = myColour == ChessColour.BLACK,
     /** Promote to a queen without asking (a chess setting). */
     autoQueen: Boolean = false,
-    /** Fade the last move's highlight in (a chess setting). */
-    animate: Boolean = true
+    /** Animate the pieces and highlights (a chess setting; the animations handoff). */
+    animate: Boolean = true,
+    /** A 1-minute game: moves animate faster (C01). */
+    bullet: Boolean = false
 ) {
     val position = remember(fen) { Position.of(fen) }
     var selected by remember(fen) { mutableStateOf<Int?>(null) }
@@ -93,6 +95,7 @@ fun PlayableBoard(
     }
 
     val check = position?.takeIf { it.inCheck() }?.kingSquare(position.whiteToMove)
+    val mated = check != null && position.legalMoves().isEmpty()
     val marks = BoardMarks(
         lastMove = lastMove?.let { Move.ofUci(it) }?.let { setOf(Move.name(it.from), Move.name(it.to)) }.orEmpty(),
         selected = (dragFrom ?: selected)?.let(Move::name),
@@ -106,6 +109,7 @@ fun PlayableBoard(
             marks = marks,
             flipped = flipped,
             animate = animate,
+            motion = BoardMotion(bullet = bullet, mine = myColour?.let { it == ChessColour.WHITE }, mated = mated),
             onSquareClick = if (enabled) ({ square -> tap(square) }) else null,
             modifier = Modifier
                 .onSizeChanged { size = it }
