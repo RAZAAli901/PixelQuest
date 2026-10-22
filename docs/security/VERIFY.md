@@ -261,3 +261,53 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
 - **Check:** the script returns no rows locally, and pgTAP passes.
 - **Proved it catches problems:** with a table created without RLS and a public bucket (in a rolled-back transaction), it reported `no RLS | zz_open` and `public bucket | zz-open`.
 - **Hosted:** paste `scripts/security/check_db.sql` into the project's SQL editor after each push; it should return no rows.
+
+### S030: RLS matrix
+Who may do what, directly through the API, as of 2026-10-22. It's generated from the grants and policies; to refresh it, run the query in this section's history (commit "docs(security): RLS matrix").
+- **`anon` (signed out):** nothing, on every table (S023).
+- **`service_role`** (the Edge Functions and the dashboard): everything, and it bypasses RLS.
+- **`authenticated`** (a signed-in player) is shown below. Each cell names the policy that decides which rows; "—" means no grant, so the action is refused outright.
+
+Writes that have rules beyond "your own row" don't appear here. They go through SECURITY DEFINER functions that check the caller:
+- **Party life:** `create_party`, `invite_member`, `respond_invite`, `leave_party`, `remove_member`, `transfer_leadership`, `delete_party`, `set_milestone`.
+- **Darood and usernames:** `add_darood_entry`, `set_username`.
+- **Chat and blocks:** `delete_chat_message`, `pin_chat_file`, `link_item_file`, `mark_chat_read`, `block_member`, `report_chat_message`.
+- **Chess and push:** `chess_watch`, `report_chess_challenge`, `register_device_token`.
+- **Export:** `export_my_data`.
+- **Through the Edge Functions:** the chess moves and challenges, and the file uploads.
+
+| Table | Read | Insert | Update | Delete |
+|---|---|---|---|---|
+| `ai_proxy_usage` | — | — | — | — |
+| `chat_files` | Members read ready files, uploaders their own | — | — | — |
+| `chat_messages` | Members read their study party's messages | Members send text as themselves | — | — |
+| `chat_reads` | Members read their own read state | — | — | — |
+| `chat_reports` | — | — | — | — |
+| `chess_challenges` | Members read their party's challenges | — | — | — |
+| `chess_config` | Anyone signed in reads the chess rules | — | — | — |
+| `chess_games` | Members read their party's games | — | — | — |
+| `chess_head_to_head` | Party mates read head-to-head | — | — | — |
+| `chess_moves` | Members read their party's moves | — | — | — |
+| `chess_ratings` | Party mates read ratings | — | — | — |
+| `chess_reports` | — | — | — | — |
+| `chess_time_controls` | Anyone signed in reads the time controls | — | — | — |
+| `chess_watch_log` | — | — | — | — |
+| `darood_entries` | Members read their party's entries | Active members post their own entries | — | — |
+| `darood_week_results` | Members read their party's weeks | — | — | — |
+| `device_tokens` | Owners read their tokens | — | — | Owners delete their tokens |
+| `member_blocks` | Members read their own blocks | — | — | — |
+| `parties` | Members read their party | — | The leader updates the party | — |
+| `party_members` | Members read their party's members | — | — | — |
+| `party_milestones` | Members read their party's goals | — | — | — |
+| `profile_progress_marks` | — | — | — | — |
+| `profiles` | Read opted-in profiles and your own | Insert your own profile | Update your own profile | Delete your own profile |
+| `reports` | — | allow_insert_authenticated_reports | — | — |
+| `study_completions` | Members read their study party's completions | Members complete items for themselves | — | Members undo their own completion within a day |
+| `study_item_files` | Members read their items' materials | — | — | — |
+| `study_items` | Members read their study party's items | Members add items to their study party | The creator or the leader edits an item | The creator or the leader deletes an item |
+| `study_reminders` | Members read their study party's reminders | Members add reminders | Creators and leaders change reminders | Creators and leaders delete reminders |
+| `study_sessions` | Members read their study party's sessions | Members log their own study time | — | — |
+| `study_week_winners` | Members read their study party's winners | — | — | — |
+| `usernames` | Read the usernames of people in a party with you; Read your own username | — | — | — |
+
+- **Tests:** `rls_matrix.test.ts` (S023 to S025) proves this for strangers and owners across every table. `profiles_rls.test.ts`, `darood_parties.test.ts`, `study_chat.test.ts`, `security.test.ts`, `chess_rls.test.ts` and `abuse.test.ts` prove each policy's own rule.
