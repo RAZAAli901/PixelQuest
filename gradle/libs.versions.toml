@@ -31,6 +31,8 @@ datastore = "1.1.1"
 # java.time and other Java 8+ APIs on API 24-25 (minSdk 24); 2.1.x needs AGP 8.0+.
 desugarJdkLibs = "2.1.5"
 spotless = "6.25.0"
+ktor = "3.0.1"
+serialization = "1.6.3"
 
 [libraries]
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
@@ -79,11 +81,11 @@ supabase-auth = { group = "io.github.jan-tennert.supabase", name = "auth-kt", ve
 supabase-realtime = { group = "io.github.jan-tennert.supabase", name = "realtime-kt", version.ref = "supabase" }
 adhan2 = { group = "com.batoulapps.adhan", name = "adhan2", version.ref = "adhan" }
 
-ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version = "3.0.1" }
-ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version = "3.0.1" }
-ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version = "3.0.1" }
-ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version = "3.0.1" }
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.3" }
+ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
+ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 [plugins]
