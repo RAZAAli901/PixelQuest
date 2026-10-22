@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    What Android's own backup may copy (Android 11 and lower; data_extraction_rules.xml is the same for
-    Android 12 and up). Only the player's progress and settings: the database and a few preferences.
-    Everything else stays out, above all the sign-in session (supabase-kt keeps its tokens in
-    preferences): restored onto another phone it would sign that phone in without the player. Also
-    out: AI usage counts and cached AI lines, reminder bookkeeping and pending leaderboard syncs, which
-    belong to this device. Day 34; before, android:allowBackup copied everything.
+    What Android's own backup may copy (Android 11 and lower; data_extraction_rules.xml's cloud-backup
+    is the same for Android 12 and up). Include-only: nothing new is ever backed up by accident.
 
-    The database also holds the Quran's tables (docs/quran-data.md, from version 13), a few MB, well
-    under Android's 25 MB. They can't be left out of the file, and needn't be: a restored copy is
-    checked against the app's own bundle, and loaded again if it differs. The game's own backup file
-    and the synced profile never hold them (QuranOutOfBackupsTest).
+    S032 (docs/security/STORAGE.md): the player's progress travels as the app's own daily automatic
+    backups (files/auto-backups: quests, logs, levels, Namaz, settings; no tokens, nobody else's data),
+    not as the database. The database also caches the player's parties, so a cloud copy of it carried
+    other people's chat messages and names to Google Drive. A phone restored from the cloud starts with
+    an empty game and offers the newest automatic backup ("Restore your game?", LostProgress).
+
+    Never copied: the sign-in session (supabase-kt keeps its tokens in preferences; restored onto
+    another phone it would sign that phone in without the player), AI usage counts and cached AI lines,
+    reminder bookkeeping, pending leaderboard syncs, and caches.
 -->
 <full-backup-content>
-    <include domain="database" path="pixelquest.db" />
-    <include domain="database" path="pixelquest.db-wal" />
-    <include domain="database" path="pixelquest.db-shm" />
+    <include domain="file" path="auto-backups/" />
     <include domain="sharedpref" path="pixelquest_settings.xml" />
     <include domain="sharedpref" path="pixelquest_level_up.xml" />
     <include domain="sharedpref" path="pixelquest_cloud_account.xml" />

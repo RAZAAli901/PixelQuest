@@ -16,10 +16,14 @@ class AndroidBackupRulesTest {
 
     private fun file(path: String) = listOf(File(path), File("app/$path")).first { it.exists() }
 
-    private val progressAndSettings = setOf(
-        "database:pixelquest.db", "database:pixelquest.db-wal", "database:pixelquest.db-shm",
-        "sharedpref:pixelquest_settings.xml", "sharedpref:pixelquest_level_up.xml", "sharedpref:pixelquest_cloud_account.xml"
-    )
+    private val settings = setOf("sharedpref:pixelquest_settings.xml", "sharedpref:pixelquest_level_up.xml", "sharedpref:pixelquest_cloud_account.xml")
+    private val database = setOf("database:pixelquest.db", "database:pixelquest.db-wal", "database:pixelquest.db-shm")
+
+    /** To the cloud (S032): the app's own automatic backups and the settings, never the database. */
+    private val cloud = settings + "file:auto-backups/"
+
+    /** Phone to phone: the whole game, the database included. */
+    private val transfer = cloud + database
 
     private fun includes(root: Element): Set<String> {
         val nodes = root.getElementsByTagName("include")
@@ -29,18 +33,23 @@ class AndroidBackupRulesTest {
     private fun parse(path: String) = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file(path)).documentElement
 
     @Test
-    fun androidUpTo11_backsUpOnlyProgressAndSettings() {
+    fun androidUpTo11_backsUpTheAutomaticBackupsAndSettings_notTheDatabase() {
         val rules = parse("src/main/res/xml/backup_rules.xml")
-        assertEquals(progressAndSettings, includes(rules))
+        assertEquals(cloud, includes(rules))
         assertEquals("nothing excluded by name: what isn't included stays out", 0, rules.getElementsByTagName("exclude").length)
     }
 
     @Test
-    fun android12AndUp_cloudBackupAndPhoneTransfer_theSame() {
+    fun android12AndUp_theCloudGetsNoDatabase_aPhoneTransferGetsIt() {
         val rules = parse("src/main/res/xml/data_extraction_rules.xml")
-        for (section in listOf("cloud-backup", "device-transfer")) {
-            assertEquals(section, progressAndSettings, includes(rules.getElementsByTagName(section).item(0) as Element))
-        }
+        assertEquals(cloud, includes(rules.getElementsByTagName("cloud-backup").item(0) as Element))
+        assertEquals(transfer, includes(rules.getElementsByTagName("device-transfer").item(0) as Element))
+    }
+
+    @Test
+    fun theAutomaticBackupsFolder_isTheOneAutoBackupsWrites() {
+        val autoBackups = file("src/main/java/com/pixelquest/app/data/backup/AutoBackups.kt").readText()
+        assertTrue("AutoBackups writes files/auto-backups", "DIR_NAME = \"auto-backups\"" in autoBackups)
     }
 
     @Test

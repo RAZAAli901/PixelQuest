@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    What Android's own backup and phone-to-phone transfer may copy (Android 12 and up; backup_rules.xml
-    is the same for older versions). Only the player's progress and settings; never the sign-in
-    session, AI data, reminder bookkeeping or pending leaderboard syncs. See backup_rules.xml.
+    What Android's own backup and phone-to-phone transfer may copy (Android 12 and up;
+    backup_rules.xml is the same as cloud-backup for older versions). Include-only.
 
-    The database also holds the Quran's tables (docs/quran-data.md, from version 13), a few MB, well
-    under Android's 25 MB. They can't be left out of the file, and needn't be: a restored copy is
-    checked against the app's own bundle, and loaded again if it differs. The game's own backup file
-    and the synced profile never hold them (QuranOutOfBackupsTest).
+    Cloud backup (S032, docs/security/STORAGE.md): the app's own automatic backups and the settings,
+    never the database, which caches other people's messages and names. A restored phone offers the
+    newest automatic backup.
+
+    Device transfer (phone to phone, the player holding both): the whole game as it is, the database
+    included, so nothing is lost and no restore is needed. Never the sign-in session: the new phone
+    signs in again.
+
+    The database holds the Quran's tables too (docs/quran-data.md), a few MB, under Android's 25 MB;
+    a transferred copy is checked against the app's own bundle and loaded again if it differs.
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <include domain="database" path="pixelquest.db" />
-        <include domain="database" path="pixelquest.db-wal" />
-        <include domain="database" path="pixelquest.db-shm" />
+        <include domain="file" path="auto-backups/" />
         <include domain="sharedpref" path="pixelquest_settings.xml" />
         <include domain="sharedpref" path="pixelquest_level_up.xml" />
         <include domain="sharedpref" path="pixelquest_cloud_account.xml" />
@@ -22,6 +25,7 @@
         <include domain="database" path="pixelquest.db" />
         <include domain="database" path="pixelquest.db-wal" />
         <include domain="database" path="pixelquest.db-shm" />
+        <include domain="file" path="auto-backups/" />
         <include domain="sharedpref" path="pixelquest_settings.xml" />
         <include domain="sharedpref" path="pixelquest_level_up.xml" />
         <include domain="sharedpref" path="pixelquest_cloud_account.xml" />

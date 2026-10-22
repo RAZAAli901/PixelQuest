@@ -311,3 +311,13 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
 | `usernames` | Read the usernames of people in a party with you; Read your own username | — | — | — |
 
 - **Tests:** `rls_matrix.test.ts` (S023 to S025) proves this for strangers and owners across every table. `profiles_rls.test.ts`, `darood_parties.test.ts`, `study_chat.test.ts`, `security.test.ts`, `chess_rls.test.ts` and `abuse.test.ts` prove each policy's own rule.
+
+## Phone
+
+### S032: no database or tokens in the cloud backup
+- **Done:**
+  - `backup_rules.xml` and the `cloud-backup` section of `data_extraction_rules.xml` copy the app's own automatic backups (`files/auto-backups/`) and three settings files. They no longer copy the database, which caches other members' messages and names.
+  - Phone-to-phone transfer (the player holding both phones) still moves the whole game.
+  - The sign-in session is in neither, as before.
+- **Restoring:** a phone restored from the cloud opens with an empty game and offers the newest automatic backup ("Restore your game?", `LostProgress`).
+- **Test:** `AndroidBackupRulesTest`. Cloud gets exactly the automatic backups and the settings. Transfer gets those plus the database. No `exclude` rules are used (include-only), and the folder is the one `AutoBackups` writes. `LostProgressTest` covers the restore offer.
