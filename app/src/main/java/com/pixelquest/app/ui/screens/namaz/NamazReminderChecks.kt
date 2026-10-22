@@ -1,25 +1,12 @@
 package com.pixelquest.app.ui.screens.namaz
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.WarningAmber
-import androidx.compose.material3.Icon
-import com.pixelquest.app.ui.components.PqButton
-import com.pixelquest.app.ui.components.PqButtonStyle
-import com.pixelquest.app.ui.components.PqCard
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.padding
-import com.pixelquest.app.ui.theme.PqColors
-import com.pixelquest.app.ui.theme.PqDimens
-import com.pixelquest.app.ui.theme.PqType
 import android.Manifest
-import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.PowerManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,6 +14,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -41,12 +33,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.pixelquest.app.R
 import com.pixelquest.app.namaz.NamazChannels
 import com.pixelquest.app.ui.components.DismissButton
+import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqType
 
 /**
  * What the phone might be doing to the prayer reminders, each with a way to fix it
@@ -58,7 +54,7 @@ import com.pixelquest.app.ui.components.DismissButton
 fun NamazReminderChecks(
     modifier: Modifier = Modifier,
     batteryTipDismissed: Boolean = false,
-    onDismissBatteryTip: () -> Unit = {}
+    onDismissBatteryTip: () -> Unit = {},
 ) {
     val context = LocalContext.current
     var exactAllowed by remember { mutableStateOf(canScheduleExactAlarms(context)) }
@@ -88,7 +84,7 @@ fun NamazReminderChecks(
                         context.startActivity(notificationSettingsIntent(context))
                     }
                 },
-                modifier = Modifier.testTag(NamazTestTags.NOTIFICATIONS_CARD)
+                modifier = Modifier.testTag(NamazTestTags.NOTIFICATIONS_CARD),
             )
         }
         if (!exactAllowed) {
@@ -96,7 +92,7 @@ fun NamazReminderChecks(
                 message = stringResource(R.string.namaz_exact_alarm_message),
                 action = stringResource(R.string.namaz_exact_alarm_allow),
                 onAction = { context.startActivity(exactAlarmSettingsIntent(context)) },
-                modifier = Modifier.testTag(NamazTestTags.EXACT_ALARM_CARD)
+                modifier = Modifier.testTag(NamazTestTags.EXACT_ALARM_CARD),
             )
         }
         if (!batteryUnlimited && !batteryTipDismissed) {
@@ -105,7 +101,7 @@ fun NamazReminderChecks(
                 action = stringResource(R.string.namaz_battery_open),
                 onAction = { context.startActivity(batteryOptimizationSettingsIntent()) },
                 onDismiss = onDismissBatteryTip,
-                modifier = Modifier.testTag(NamazTestTags.BATTERY_CARD)
+                modifier = Modifier.testTag(NamazTestTags.BATTERY_CARD),
             )
         }
     }
@@ -146,15 +142,11 @@ internal fun batteryOptimizationSettingsIntent(): Intent =
 
 /** Without "Alarms & reminders" (Android 12+), reminders come within a 10-minute window instead. */
 internal fun canScheduleExactAlarms(context: Context): Boolean =
-    Build.VERSION.SDK_INT < Build.VERSION_CODES.S || context.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
+    com.pixelquest.app.scheduling.AndroidAlarmScheduler(context).canScheduleExactAlarms()
 
 /** Android's "Alarms & reminders" page for this app. */
 internal fun exactAlarmSettingsIntent(context: Context): Intent =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.fromParts("package", context.packageName, null))
-    } else {
-        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
-    }.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    com.pixelquest.app.scheduling.AndroidAlarmScheduler(context).openExactAlarmSettingsIntent()
 
 /** Runs [block] each time the screen comes back to the front. */
 @Composable
@@ -174,7 +166,7 @@ internal fun NamazCheckCard(
     action: String,
     onAction: () -> Unit,
     modifier: Modifier = Modifier,
-    onDismiss: (() -> Unit)? = null
+    onDismiss: (() -> Unit)? = null,
 ) {
     PqCard(modifier.fillMaxWidth()) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -185,7 +177,7 @@ internal fun NamazCheckCard(
                     DismissButton(
                         contentDescription = stringResource(R.string.namaz_battery_dismiss),
                         onClick = onDismiss,
-                        color = PqColors.Muted
+                        color = PqColors.Muted,
                     )
                 }
             }

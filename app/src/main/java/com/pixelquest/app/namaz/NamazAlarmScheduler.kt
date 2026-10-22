@@ -1,6 +1,5 @@
 package com.pixelquest.app.namaz
 
-import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -33,30 +32,29 @@ interface NamazAlarms {
  */
 @Singleton
 class NamazAlarmScheduler @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val alarmScheduler: com.pixelquest.app.scheduling.AlarmScheduler,
 ) : NamazAlarms {
-    private val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java)
+    constructor(@ApplicationContext context: Context) : this(
+        context,
+        com.pixelquest.app.scheduling.AndroidAlarmScheduler(context),
+    )
 
-    override fun canScheduleExactAlarms(): Boolean = AlarmArming.canScheduleExact(alarmManager)
+    override fun canScheduleExactAlarms(): Boolean = alarmScheduler.canScheduleExactAlarms()
 
     override fun schedule(alarm: NamazAlarm) {
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             alarm.requestCode,
             intentFor(alarm.kind, alarm.date, alarm.prayer),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        val armed = try {
-            if (canScheduleExactAlarms() && alarm.alarmClock) {
-                // An alarm clock: exact, wakes the phone, and its time shows as the next alarm.
-                alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(alarm.atMillis, openNamaz()), pendingIntent)
-                true
-            } else {
-                AlarmArming.arm(alarmManager, alarm.atMillis, pendingIntent)
-            }
-        } catch (e: SecurityException) {
-            false
-        }
+        val armed = alarmScheduler.schedule(
+            atMillis = alarm.atMillis,
+            pendingIntent = pendingIntent,
+            isAlarmClock = alarm.alarmClock,
+            clockInfoIntent = if (alarm.alarmClock) openNamaz() else null,
+        )
         if (!armed) com.pixelquest.app.util.AppLog.w(TAG, "Could not arm the ${alarm.kind} for ${alarm.prayer} on ${alarm.date}")
     }
 
@@ -65,10 +63,9 @@ class NamazAlarmScheduler @Inject constructor(
             context,
             NamazAlarm.requestCode(kind, date, prayer),
             intentFor(kind, date, prayer),
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
         ) ?: return
-        alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()
+        alarmScheduler.cancel(pendingIntent)
     }
 
     /**
@@ -89,7 +86,7 @@ class NamazAlarmScheduler @Inject constructor(
         Intent(context, com.pixelquest.app.MainActivity::class.java)
             .putExtra(com.pixelquest.app.MainActivity.EXTRA_OPEN_ROUTE, com.pixelquest.app.ui.navigation.Screen.Namaz.route)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
 
     /** What an alarm delivers: its kind (the action), prayer day and prayer. */

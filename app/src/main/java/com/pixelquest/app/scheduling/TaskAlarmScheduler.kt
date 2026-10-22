@@ -1,12 +1,8 @@
 package com.pixelquest.app.scheduling
 
-import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.domain.TaskOccurrence
 import com.pixelquest.app.domain.model.RecurrenceType
@@ -19,32 +15,14 @@ import javax.inject.Singleton
 
 @Singleton
 class TaskAlarmScheduler @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val alarmScheduler: AlarmScheduler,
 ) {
-    private val alarmManager: AlarmManager =
-        context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    constructor(@ApplicationContext context: Context) : this(context, AndroidAlarmScheduler(context))
 
-    fun canScheduleExactAlarms(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            alarmManager.canScheduleExactAlarms()
-        } else {
-            true
-        }
-    }
+    fun canScheduleExactAlarms(): Boolean = alarmScheduler.canScheduleExactAlarms()
 
-    fun openExactAlarmSettingsIntent(): Intent {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                data = Uri.fromParts("package", context.packageName, null)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        } else {
-            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", context.packageName, null)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        }
-    }
+    fun openExactAlarmSettingsIntent(): Intent = alarmScheduler.openExactAlarmSettingsIntent()
 
     /**
      * Next reminder time for [task] in epoch millis, or null when it has no future occurrence.
@@ -62,14 +40,12 @@ class TaskAlarmScheduler @Inject constructor(
             now = LocalDateTime.now(),
             leadMinutes = task.reminderLeadMinutes,
             notBefore = notBefore,
-            weeklyDays = task.weeklyDays
+            weeklyDays = task.weeklyDays,
         )
 
-    fun calculateTriggerTimeMillis(task: TaskEntity): Long {
-        return nextTriggerTimeMillis(task)
-            ?: LocalDateTime.of(task.scheduledDay, task.scheduledTime)
-                .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-    }
+    fun calculateTriggerTimeMillis(task: TaskEntity): Long = nextTriggerTimeMillis(task)
+        ?: LocalDateTime.of(task.scheduledDay, task.scheduledTime)
+            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
     /**
      * The next date after [fromDate] on which [task] is due, using the same rule as the Today list
@@ -119,21 +95,12 @@ class TaskAlarmScheduler @Inject constructor(
             context,
             task.id.toInt(),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        try {
-            if (canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTimeMillis, pendingIntent)
-            } else {
-                // Android 12+ needs "Alarms & reminders" for exact alarms, and Android 14 starts with it off.
-                // Without it, still remind within a short window (an inexact alarm can otherwise drift ~1 hour).
-                alarmManager.setWindow(AlarmManager.RTC_WAKEUP, triggerTimeMillis, INEXACT_WINDOW_MS, pendingIntent)
-            }
-        } catch (e: SecurityException) {
-            com.pixelquest.app.util.AppLog.w("TaskAlarmScheduler", "Exact alarm permission revoked or unavailable, degrading gracefully", e)
-        } catch (e: Exception) {
-            com.pixelquest.app.util.AppLog.e("TaskAlarmScheduler", "Failed to schedule alarm for task ${task.id}", e)
+        val armed = alarmScheduler.schedule(triggerTimeMillis, pendingIntent)
+        if (!armed) {
+            com.pixelquest.app.util.AppLog.w("TaskAlarmScheduler", "Failed to schedule alarm for task ${task.id}")
         }
     }
 
@@ -179,17 +146,12 @@ class TaskAlarmScheduler @Inject constructor(
             context,
             snoozeRequestCode(taskId),
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val triggerAt = System.currentTimeMillis() + minutes * 60_000L
-        try {
-            if (canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
-            } else {
-                alarmManager.setWindow(AlarmManager.RTC_WAKEUP, triggerAt, INEXACT_WINDOW_MS, pendingIntent)
-            }
-        } catch (e: SecurityException) {
-            com.pixelquest.app.util.AppLog.w("TaskAlarmScheduler", "Could not schedule snooze for task $taskId", e)
+        val armed = alarmScheduler.schedule(triggerAt, pendingIntent)
+        if (!armed) {
+            com.pixelquest.app.util.AppLog.w("TaskAlarmScheduler", "Could not schedule snooze for task $taskId")
         }
     }
 
@@ -205,11 +167,10 @@ class TaskAlarmScheduler @Inject constructor(
             context,
             snoozeRequestCode(taskId),
             Intent(context, TaskAlarmReceiver::class.java).setAction(ACTION_SNOOZED_REMINDER),
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
         )
         if (snooze != null) {
-            alarmManager.cancel(snooze)
-            snooze.cancel()
+            alarmScheduler.cancel(snooze)
         }
     }
 
@@ -219,11 +180,10 @@ class TaskAlarmScheduler @Inject constructor(
             context,
             task.id.toInt(),
             intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
         )
         if (pendingIntent != null) {
-            alarmManager.cancel(pendingIntent)
-            pendingIntent.cancel()
+            alarmScheduler.cancel(pendingIntent)
         }
     }
 
@@ -237,6 +197,7 @@ class TaskAlarmScheduler @Inject constructor(
 
     companion object {
         const val SNOOZE_MINUTES = 10L
+
         /** Shortest window Android 12+ honours for inexact alarms. */
         const val INEXACT_WINDOW_MS = 10 * 60_000L
         fun snoozeRequestCode(taskId: Long): Int = (taskId * 10 + 4).toInt()

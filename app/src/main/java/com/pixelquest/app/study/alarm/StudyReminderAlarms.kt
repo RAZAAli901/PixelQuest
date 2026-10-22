@@ -1,6 +1,5 @@
 package com.pixelquest.app.study.alarm
 
-import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -27,9 +26,13 @@ interface StudyReminderAlarms {
  */
 @Singleton
 class AlarmManagerStudyReminderAlarms @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val alarmScheduler: com.pixelquest.app.scheduling.AlarmScheduler,
 ) : StudyReminderAlarms {
-    private val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java)
+    constructor(@ApplicationContext context: Context) : this(
+        context,
+        com.pixelquest.app.scheduling.AndroidAlarmScheduler(context),
+    )
 
     override fun schedule(alert: ReminderAlert) {
         val intent = intentFor(alert.slot)
@@ -37,15 +40,14 @@ class AlarmManagerStudyReminderAlarms @Inject constructor(
             .putExtra(EXTRA_OCCURRENCE, alert.occurrence.start.toInstant().toEpochMilli())
             .putExtra(EXTRA_INDEX, alert.index)
         val pending = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        if (!AlarmArming.arm(alarmManager, alert.at.toEpochMilli(), pending)) {
+        if (!alarmScheduler.schedule(alert.at.toEpochMilli(), pending)) {
             com.pixelquest.app.util.AppLog.w(TAG, "Could not arm a study reminder")
         }
     }
 
     override fun cancel(slot: String) {
         val pending = PendingIntent.getBroadcast(context, 0, intentFor(slot), PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE) ?: return
-        alarmManager.cancel(pending)
-        pending.cancel()
+        alarmScheduler.cancel(pending)
     }
 
     private fun intentFor(slot: String): Intent =
