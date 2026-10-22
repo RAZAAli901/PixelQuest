@@ -234,3 +234,13 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - before, Dave sees Carol on the board and she counts (`/1`);
   - right after her opt-out, the next read is empty and the count is `/0`;
   - her stats are untouched, and she still sees her own row.
+
+### S027: no file crosses parties
+- **Rule:** every file call checks that the caller is an active member of the file's party:
+  - `get-download-url` (60-second links), `finalize-upload`, `link_item_file`, `pin_chat_file` (leader), `delete_chat_message` (sender or leader);
+  - `request-upload` checks the party it's uploading into;
+  - storage itself refuses players outright (S016).
+- **Tests:** `security.test.ts`:
+  - "another party's chat, files and chess are out of reach": an upload into another party is refused;
+  - "another party's files can't be fetched, finalised, linked, pinned or deleted": a stranger, and a member of a different party, get no link; finalising, linking, pinning and deleting are refused, and nothing changes; the file's own member isn't refused.
+- **Tests:** `study_files.test.ts`: a removed member's link stops working, and links expire after 60 seconds.

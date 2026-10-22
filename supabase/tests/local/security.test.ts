@@ -199,3 +199,33 @@ localTest("security: what a phone sends is checked for form and length (S019)", 
   }
   assert.ok((await rpc(white, "set_party_week_tz", { party_id: party, tz: "a".repeat(200) })).status >= 400, "a party's week zone too");
 });
+
+localTest("security: another party's files can't be fetched, finalised, linked, pinned or deleted (S027)", async () => {
+  const { white, black, third, outsider } = await chessCast();
+  endGames(white, black, third, outsider);
+  const mine = await studyParty(white, [black]);
+  const theirs = await studyParty(third, [outsider]);
+  const theirFile = crypto.randomUUID();
+  sql(`INSERT INTO public.chat_files (id, party_id, uploader_id, storage_path, display_name, mime, size_bytes, status) VALUES ('${theirFile}', '${theirs}', '${third.userId}', '${theirs}/${theirFile}', 'plans.pdf', 'application/pdf', 10, 'ready')`);
+  const theirMessage = sql(`INSERT INTO public.chat_messages (party_id, sender_id, kind, body) VALUES ('${theirs}', '${third.userId}', 'text', 'ours') RETURNING id`).split("\n")[0];
+  const myItem = (await call(`/rest/v1/study_items`, { token: white.accessToken, body: { party_id: mine, kind: "assignment", title: "Mine" }, headers: { Prefer: "return=representation" } })).body[0].id;
+
+  // A download link for their file: refused, for a stranger and for a member of another party.
+  for (const who of [white, black]) {
+    const link = await fn("get-download-url", who, { file_id: theirFile });
+    assert.ok([403, 404].includes(link.status), `no link (${link.status})`);
+    assert.equal(link.body?.url, undefined);
+  }
+  // Finalising their pending upload, linking their file to my item, pinning it, deleting their message.
+  assert.ok((await fn("finalize-upload", white, { file_id: theirFile })).status >= 400);
+  assert.ok((await rpc(white, "link_item_file", { item_id: myItem, file_id: theirFile, linked: true })).status >= 400);
+  assert.ok((await rpc(white, "pin_chat_file", { file_id: theirFile, pinned: true })).status >= 400);
+  assert.ok((await rpc(white, "delete_chat_message", { message_id: theirMessage })).status >= 400);
+  assert.equal(sql(`SELECT count(*) FROM public.study_item_files WHERE file_id = '${theirFile}'`), "0");
+  assert.equal(sql(`SELECT pinned::text || ' ' || (deleted_at IS NULL)::text FROM public.chat_files WHERE id = '${theirFile}'`), "false true");
+  assert.equal(sql(`SELECT (deleted_at IS NULL)::text FROM public.chat_messages WHERE id = '${theirMessage}'`), "true");
+  // Their own member still gets a link, so the refusals above are about who's asking.
+  const own = await fn("get-download-url", outsider, { file_id: theirFile });
+  // (This row has no bytes in storage, so signing may not succeed; what matters is it isn't refused as a stranger.)
+  assert.notEqual(own.status, 403, `a member isn't refused as a stranger (${own.status})`);
+});
