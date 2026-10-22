@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
 
 plugins {
@@ -191,6 +192,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+// Q007: Kotlin warnings are build failures so new code cannot add warning debt. KAPT's generated
+// stub task is excluded because Kotlin 2.0 emits a toolchain-only language-version warning there.
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions.allWarningsAsErrors.set(!name.startsWith("kapt", ignoreCase = true))
 }
 
 dependencies {
