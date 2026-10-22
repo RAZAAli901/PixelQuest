@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Release builds (S037, docs/security/VERIFY.md): https only, and only the system's certificate
+  authorities, never user-installed ones, so a CA added to the phone can't read the app's traffic.
+  (These are also Android's defaults for this target; written out so they can't change by accident.)
+  Debug builds use src/debug/res/xml/network_security_config.xml, which adds plain http to a local
+  Supabase stack on this computer (10.0.2.2 from the emulator).
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

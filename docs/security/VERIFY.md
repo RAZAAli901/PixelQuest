@@ -363,3 +363,12 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - **opened files (new):** the chat files the player opened, other people's documents, are deleted from `cache/study-files` (`OpenedChatFiles`).
 - **The same account signing in again keeps its things;** a different account clears them first.
 - **Test:** `DaroodAccountCleanupTest`: 8 of 8, including "signing out deletes opened chat files; the same account keeps them".
+
+## Network and components
+
+### S037: https only, system CAs only
+- **Done:**
+  - `src/main/res/xml/network_security_config.xml`: cleartext is off, and the only trust anchors are the system's (no user-installed CAs).
+  - The manifest uses it and sets `usesCleartextTraffic="false"`.
+  - Debug builds replace it with `src/debug/res/xml/network_security_config.xml`: plain http only to `10.0.2.2`, `127.0.0.1` and `localhost`, for the local stack.
+- **Test:** `NetworkSecurityConfigTest`: release is https-only with system CAs, has no cleartext domain and no debug overrides; the manifest uses the config; debug's cleartext covers exactly those three hosts.
