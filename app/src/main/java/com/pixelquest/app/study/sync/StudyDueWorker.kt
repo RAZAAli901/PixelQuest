@@ -1,10 +1,8 @@
 package com.pixelquest.app.study.sync
 
-import com.pixelquest.app.notification.PqNotifications
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
@@ -16,7 +14,7 @@ import com.pixelquest.app.MainActivity
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.data.remote.DaroodAccount
 import com.pixelquest.app.notification.NotificationChannels
-import com.pixelquest.app.notification.NotificationHelper
+import com.pixelquest.app.notification.PqNotifications
 import com.pixelquest.app.party.data.PartyRepository
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyType
@@ -33,7 +31,8 @@ import java.util.concurrent.TimeUnit
 /** Which reminder an item gets: a day before it's due, or two hours before. */
 enum class DueReminder(val before: Duration) {
     DAY(Duration.ofHours(24)),
-    SOON(Duration.ofHours(2));
+    SOON(Duration.ofHours(2)),
+    ;
 
     fun key(itemId: String) = "$itemId:$name"
 }
@@ -70,7 +69,7 @@ class StudyDueWorker @AssistedInject constructor(
     private val study: StudyRepository,
     private val dao: StudyDao,
     private val account: DaroodAccount,
-    private val settings: StudyReminderSettings
+    private val settings: StudyReminderSettings,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -108,7 +107,7 @@ class StudyDueWorker @AssistedInject constructor(
             context,
             item.id.hashCode(),
             Intent(context, MainActivity::class.java).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = PqNotifications.builder(context, NotificationChannels.Spec.STUDY.id)
             .setContentTitle(title)
@@ -129,9 +128,14 @@ class StudyDueWorker @AssistedInject constructor(
         private const val KEY_SENT = "due_reminders_sent"
         private const val NOTIFICATION_BASE = 910_000
 
-        /** About every hour, as WorkManager allows; it needs no connection, using the phone's copy without one. */
         fun schedule(context: Context) {
-            val request = PeriodicWorkRequestBuilder<StudyDueWorker>(1, TimeUnit.HOURS).build()
+            val request = PeriodicWorkRequestBuilder<StudyDueWorker>(1, TimeUnit.HOURS)
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
+                .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
         }
 

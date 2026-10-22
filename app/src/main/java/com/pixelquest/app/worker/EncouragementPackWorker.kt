@@ -46,7 +46,7 @@ class EncouragementPackWorker @AssistedInject constructor(
     private val streakRepository: StreakRepository,
     private val taskRepository: TaskRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
-    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null
+    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null,
 ) : CoroutineWorker(appContext, workerParams) {
 
     /** The AI lines are for signed-in players (see AiAccess). */
@@ -68,7 +68,7 @@ class EncouragementPackWorker @AssistedInject constructor(
             currentStreak = streakRepository.getCurrentStreak().first()?.currentStreak ?: 0,
             completionRatePercent7d = completionRateLast7Days(today),
             activeTaskCount = taskRepository.getAllTasks().first().count { it.isActive },
-            tone = tone
+            tone = tone,
         )
 
         // Counted like the AI Coach: only a call Gemini answered uses up one of today's calls, so an
@@ -76,7 +76,7 @@ class EncouragementPackWorker @AssistedInject constructor(
         val call = com.pixelquest.app.data.remote.safeGeminiCall {
             geminiClient.generateContent(
                 prompt = EncouragementPackPrompt.prompt(input),
-                systemInstruction = EncouragementPackPrompt.systemInstruction(tone)
+                systemInstruction = EncouragementPackPrompt.systemInstruction(tone),
             )
         }
         if (call.reachedGemini()) aiUsageTracker.recordCall(today)
@@ -119,6 +119,11 @@ class EncouragementPackWorker @AssistedInject constructor(
         fun schedule(context: Context) {
             val request = PeriodicWorkRequestBuilder<EncouragementPackWorker>(1, TimeUnit.DAYS)
                 .setConstraints(constraints)
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
                 .build()
             WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(PERIODIC_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
@@ -128,6 +133,11 @@ class EncouragementPackWorker @AssistedInject constructor(
         fun runNow(context: Context) {
             val request = OneTimeWorkRequestBuilder<EncouragementPackWorker>()
                 .setConstraints(constraints)
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
                 .build()
             WorkManager.getInstance(context)
                 .enqueueUniqueWork(NOW_NAME, ExistingWorkPolicy.KEEP, request)

@@ -24,7 +24,7 @@ class NamazMissedWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val autoMarkMissed: AutoMarkMissedUseCase,
-    private val clock: AppClock
+    private val clock: AppClock,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = try {
@@ -38,7 +38,13 @@ class NamazMissedWorker @AssistedInject constructor(
         private const val WORK_NAME = "NamazMissedHourly"
 
         fun schedule(context: Context) {
-            val request = PeriodicWorkRequestBuilder<NamazMissedWorker>(1, TimeUnit.HOURS).build()
+            val request = PeriodicWorkRequestBuilder<NamazMissedWorker>(1, TimeUnit.HOURS)
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
+                .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
         }
     }

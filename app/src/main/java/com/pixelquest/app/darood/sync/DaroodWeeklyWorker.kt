@@ -1,6 +1,5 @@
 package com.pixelquest.app.darood.sync
 
-import com.pixelquest.app.notification.PqNotifications
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -16,12 +15,12 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.pixelquest.app.MainActivity
 import com.pixelquest.app.R
-import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.data.DaroodReminderSettings
-import com.pixelquest.app.party.domain.MemberStatus
+import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.notification.NotificationChannels
-import com.pixelquest.app.notification.NotificationHelper
+import com.pixelquest.app.notification.PqNotifications
+import com.pixelquest.app.party.domain.MemberStatus
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -43,7 +42,7 @@ class DaroodWeeklyWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val repository: DaroodPartyRepository,
-    private val reminder: DaroodReminderSettings
+    private val reminder: DaroodReminderSettings,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -68,7 +67,7 @@ class DaroodWeeklyWorker @AssistedInject constructor(
             Intent(applicationContext, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = PqNotifications.builder(applicationContext, NotificationChannels.Spec.DAROOD.id)
             .setContentTitle(title)
@@ -115,6 +114,11 @@ class DaroodWeeklyWorker @AssistedInject constructor(
             val request = PeriodicWorkRequestBuilder<DaroodWeeklyWorker>(7, TimeUnit.DAYS)
                 .setInitialDelay(delayUntilNextRun(LocalDateTime.now()), TimeUnit.MINUTES)
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
         }

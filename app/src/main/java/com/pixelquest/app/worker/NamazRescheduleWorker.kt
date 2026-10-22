@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 class NamazRescheduleWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val reminders: NamazReminders
+    private val reminders: NamazReminders,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = try {
@@ -36,7 +36,13 @@ class NamazRescheduleWorker @AssistedInject constructor(
         private const val WORK_NAME = "NamazRescheduleDaily"
 
         fun schedule(context: Context) {
-            val request = PeriodicWorkRequestBuilder<NamazRescheduleWorker>(1, TimeUnit.DAYS).build()
+            val request = PeriodicWorkRequestBuilder<NamazRescheduleWorker>(1, TimeUnit.DAYS)
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
+                .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
         }
     }

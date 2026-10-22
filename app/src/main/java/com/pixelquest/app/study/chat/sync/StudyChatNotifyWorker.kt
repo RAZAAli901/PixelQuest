@@ -70,7 +70,7 @@ class StudyChatNotifyWorker @AssistedInject constructor(
     private val dao: ChatDao,
     private val parties: PartyDao,
     private val mutes: ChatMutes,
-    private val settings: com.pixelquest.app.domain.repository.SettingsRepository
+    private val settings: com.pixelquest.app.domain.repository.SettingsRepository,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -95,11 +95,12 @@ class StudyChatNotifyWorker @AssistedInject constructor(
     private fun notify(partyId: String, partyName: String, count: Int) {
         val context = applicationContext
         val open = PendingIntent.getActivity(
-            context, partyId.hashCode(),
+            context,
+            partyId.hashCode(),
             Intent(context, MainActivity::class.java)
                 .putExtra(MainActivity.EXTRA_OPEN_ROUTE, Screen.PartiesParty.createRoute(partyId))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val channel = NotificationChannels.Spec.STUDY_CHAT.id
         val hidden = PqNotifications.builder(context, channel).setContentTitle(context.getString(R.string.study_chat_notif_hidden)).build()
@@ -125,6 +126,11 @@ class StudyChatNotifyWorker @AssistedInject constructor(
         fun schedule(context: Context) {
             val request = PeriodicWorkRequestBuilder<StudyChatNotifyWorker>(30, TimeUnit.MINUTES)
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK, ExistingPeriodicWorkPolicy.KEEP, request)
         }

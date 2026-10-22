@@ -1,6 +1,5 @@
 package com.pixelquest.app.worker
 
-import com.pixelquest.app.notification.PqNotifications
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -13,10 +12,9 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.pixelquest.app.MainActivity
-import com.pixelquest.app.R
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.notification.NotificationChannels
-import com.pixelquest.app.notification.NotificationHelper
+import com.pixelquest.app.notification.PqNotifications
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -31,7 +29,7 @@ class InsightReadyWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val settingsRepository: SettingsRepository,
-    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null
+    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -47,7 +45,7 @@ class InsightReadyWorker @AssistedInject constructor(
             Intent(applicationContext, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val (title, text) = copy(isSimpleMode)
         val notification = PqNotifications.builder(applicationContext, NotificationChannels.Spec.COACH.id)
@@ -79,6 +77,11 @@ class InsightReadyWorker @AssistedInject constructor(
         fun scheduleAfter(context: Context, delayMillis: Long) {
             val request = OneTimeWorkRequestBuilder<InsightReadyWorker>()
                 .setInitialDelay(delayMillis.coerceAtLeast(0L), TimeUnit.MILLISECONDS)
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
                 .build()
             WorkManager.getInstance(context).enqueueUniqueWork(WORK_NAME, ExistingWorkPolicy.REPLACE, request)
         }

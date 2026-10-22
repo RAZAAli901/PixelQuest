@@ -29,7 +29,7 @@ class AutoBackupWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val backupRestorer: BackupRestorer,
-    private val autoBackups: AutoBackups
+    private val autoBackups: AutoBackups,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = try {
@@ -49,6 +49,11 @@ class AutoBackupWorker @AssistedInject constructor(
         fun schedule(context: Context) {
             val request = PeriodicWorkRequestBuilder<AutoBackupWorker>(1, TimeUnit.DAYS)
                 .setConstraints(Constraints.Builder().setRequiresBatteryNotLow(true).build())
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
                 .build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request)
         }
@@ -60,7 +65,15 @@ class AutoBackupWorker @AssistedInject constructor(
          * doesn't push it back (KEEP); the day's file is replaced, so it's still the last 3 days.
          */
         fun scheduleAfterPlay(context: Context) {
-            val request = OneTimeWorkRequestBuilder<AutoBackupWorker>().setInitialDelay(1, TimeUnit.HOURS).build()
+            val request = OneTimeWorkRequestBuilder<AutoBackupWorker>()
+                .setInitialDelay(1, TimeUnit.HOURS)
+                .setConstraints(Constraints.Builder().setRequiresBatteryNotLow(true).build())
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                    TimeUnit.MILLISECONDS,
+                )
+                .build()
             WorkManager.getInstance(context).enqueueUniqueWork(AFTER_PLAY_WORK_NAME, ExistingWorkPolicy.KEEP, request)
         }
     }

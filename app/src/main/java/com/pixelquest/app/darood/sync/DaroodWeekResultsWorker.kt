@@ -31,7 +31,7 @@ class DaroodWeekResultsWorker @AssistedInject constructor(
     private val notifier: WeekResultNotifier,
     private val mutes: WeekRankingMutes,
     private val goalsTold: GoalToldStore,
-    private val goalNotifier: GoalNotifier
+    private val goalNotifier: GoalNotifier,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -51,12 +51,28 @@ class DaroodWeekResultsWorker @AssistedInject constructor(
         fun schedule(context: Context) {
             val work = WorkManager.getInstance(context)
             work.enqueueUniquePeriodicWork(
-                PERIODIC, ExistingPeriodicWorkPolicy.KEEP,
-                PeriodicWorkRequestBuilder<DaroodWeekResultsWorker>(3, TimeUnit.HOURS).setConstraints(online).build()
+                PERIODIC,
+                ExistingPeriodicWorkPolicy.KEEP,
+                PeriodicWorkRequestBuilder<DaroodWeekResultsWorker>(3, TimeUnit.HOURS)
+                    .setConstraints(online)
+                    .setBackoffCriteria(
+                        androidx.work.BackoffPolicy.EXPONENTIAL,
+                        androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                        TimeUnit.MILLISECONDS,
+                    )
+                    .build(),
             )
             work.enqueueUniqueWork(
-                ON_OPEN, ExistingWorkPolicy.KEEP,
-                OneTimeWorkRequestBuilder<DaroodWeekResultsWorker>().setConstraints(online).build()
+                ON_OPEN,
+                ExistingWorkPolicy.KEEP,
+                OneTimeWorkRequestBuilder<DaroodWeekResultsWorker>()
+                    .setConstraints(online)
+                    .setBackoffCriteria(
+                        androidx.work.BackoffPolicy.EXPONENTIAL,
+                        androidx.work.WorkRequest.MIN_BACKOFF_MILLIS,
+                        TimeUnit.MILLISECONDS,
+                    )
+                    .build(),
             )
         }
     }
