@@ -126,6 +126,8 @@ The Namaz Tracker (off unless you turn it on) works out prayer times on your pho
 - **Your numbers:** your total, share, place and how steady you are come from your party's entries. They're shown to you, and in "Everyone's part" to the party's members.
 - **The race board (off unless a party's leader turns it on):** other signed-in players see the party's name, how many are in it, its total, how far it is to its milestone and when it finished. Never a member's name, username or numbers.
 - **The weekly note (off unless you turn it on):** a notification on your phone on Friday evenings, worked out from your own days. Nothing about it is sent anywhere.
+- **The weekly ranking:** at the end of each week the server records each member's place, total and active days for that week. Only the party's members see them. A notification tells you your place; you can mute it for a party.
+- **Goals:** each goal a party sets is kept in its history, with who set it and when. If you delete your cloud account, the goals you set stay without your name.
 
 ## Study parties
 
@@ -136,6 +138,21 @@ The Namaz Tracker (off unless you turn it on) works out prayer times on your pho
   - A deleted party is gone for everyone, with everything in it.
 - **Points** are worked out on the server from those rows, for each member's own week. They never change your XP, level or streaks, and never reach the leaderboard.
 - **On your phone:** a copy of your parties, for offline use, cleared when you sign out. The study timer, reminders (on unless you turn them off) and the Sunday summary (off unless you turn it on) are worked out on the phone; nothing about them is sent anywhere.
+
+## Study chat and files
+
+- **Messages:** what you write, when, and what it replies to. Only the party's active members read them. You can delete your own; the leader can delete any. A deleted message keeps only that it was deleted.
+- **Files:** the name, type, size and a checksum, and the file itself in private storage. Members open a file through a link that works for 60 seconds, and the phone always asks before opening one. A file that isn't what its name says is refused. A deleted file is removed from storage.
+- **Reports and blocks:** a report goes to the PixelQuest team and is never shown to anyone in the party. Blocking someone hides their messages for you only, and stops chess challenges between you.
+- **Limits:** 30 messages a minute, 20 uploads a day, 20 MB a file and 500 MB a party, counted on the server.
+- **If you delete your cloud account,** your messages and files go with it, and the files are removed from storage.
+
+## Chess
+
+- **What's stored, with the study party:** each game's players, time control, result and every move with its time; your Int points and record in each time control; your record against each party mate; and the challenges you send and get. Only the party's active members read them.
+- **Watching:** who joined a game to watch is kept for one day, for the limits, and isn't shown to anyone.
+- **Notifications:** to tell you about a challenge, your phone's push token is stored with your account. A notification carries only ids; its words are put together on your phone, and it's hidden on the lock screen. Signing out removes the token.
+- **If you delete your cloud account,** your ratings, challenges and tokens go. Games you played stay for your opponents with your side left empty, and their record against you stays without your name.
 
 ## 4. How to Delete Your Data (Full Control)
 
@@ -159,7 +176,13 @@ PixelQuest provides transparent, immediate mechanisms to modify or erase your da
   3. Local cloud identifiers and credentials on your device are completely wiped, and you are signed out locally.
   4. Local quests, streaks, and levels remain safe on your device.
 
-### C. Complete Local Device Reset
+- **Parties, chat, files and chess:** your memberships, messages, files (from storage too), study ticks and time, ratings and challenges go. What stays is what your party mates need, without your name: your Darood entries in the party's total, items you added, and your games for your opponents.
+
+### C. Exporting Your Cloud Data
+- On the same screen, tap **"Export my cloud data"** and choose where to save the file.
+- **Result**: one JSON file with your profile and username, your parties, Darood entries and weekly places, study progress, the messages you sent, the files you shared (names and sizes), your chess games with every move, your ratings and records, and the reports and blocks you made. Nobody else's messages or details are in it.
+
+### D. Complete Local Device Reset
 - Go to **Settings > Danger Zone > Reset All Progress**.
 - **Result**: Wipes the local Room database, resetting all quests, streaks, and settings back to a fresh install.
 - **On the leaderboard**, your numbers start over too (sent with the next sync). Your name and your choice to be on the board are kept.

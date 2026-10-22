@@ -75,9 +75,16 @@ What moved where, and the building blocks: [docs/ui-v2.md](docs/ui-v2.md). Every
 - **Darood Party** (new in 1.4.0, for signed-in players): small groups count Darood together, in a chat that takes only numbers.
   - Invite friends by username. Each number shows at once and arrives live for everyone. A leader can set a milestone to reach together.
   - My stats shows your total, share, place and how steady you are. An opt-in race board ranks parties by progress, showing names and progress only.
+  - **Weekly ranking** (new in 1.7.0): each week, Monday to Sunday in the party's time zone, ranks the members. Everyone gets their place on Sunday night, and the party keeps its past weeks. A goal that's reached can be extended, and the party keeps its goal history. See [docs/darood-weekly.md](docs/darood-weekly.md).
   - It never adds XP or touches the leaderboard. See [docs/darood-design.md](docs/darood-design.md).
 - **The Quran** (new in 1.5.0, offline): the Uthmani Arabic from the Tanzil Project and the Saheeh International translation, bundled unchanged and checked on every build. Search, juz, bookmarks, copy and share, text size, a sepia page, and carrying on where you stopped. See [docs/quran-data.md](docs/quran-data.md).
 - **Study parties** (new in 1.5.0, for signed-in players): friends pin assignments and quizzes, tick them off, log study time and race on a weekly scoreboard, with reminders before things are due. Their points never touch XP. See [docs/study-party.md](docs/study-party.md).
+  - **Reminders** (new in 1.7.0): for the party or just you, once or repeating, with alerts before they're due. See [docs/study-reminders.md](docs/study-reminders.md).
+  - **Chat and files** (new in 1.7.0): a chat for each party, live, with replies, and files up to 20 MB (PDFs, images, documents) that are checked before anyone can open them. Report or block from any message. See [docs/study-chat.md](docs/study-chat.md).
+- **Chess** (new in 1.7.0, in study parties): challenge a party mate to a 1, 3, 5 or 10 minute game, or open a challenge to the room.
+  - The server referees every move and keeps the clocks, so a changed app can't cheat. Games are rated in Int points, with tiers from Pawn to King, a party ladder and your record against each mate.
+  - Party mates can watch live games. A challenge arrives as a notification and in the chat.
+  - Like the rest of a study party, it never touches XP, levels or streaks. See [docs/chess-design.md](docs/chess-design.md).
 - **Parties**: one screen lists your Darood and study parties, and any invitations. New party asks which kind first. It opens from Home's groups button, Deen's Darood Party tile, and Hero > Profile > Parties. See [docs/party-core.md](docs/party-core.md).
 - **AI Habit Coach**: Optional short debriefs and suggestions from Google Gemini, for signed-in players, in the Coach card on Home. Task names never leave the phone.
 - **Simple Mode**: A calm, un-gamified checklist whenever you want one. It hides XP, levels and streaks, and Quests becomes Tasks.
@@ -207,6 +214,13 @@ The cloud side (database rules, email sign-in, the AI server and the app's repos
 - **On the emulator**: backups, restoring after a reinstall, undo, and a lost database offering its automatic backup.
 - **Android 7**: lint fails the build on any call Android 7.0 doesn't have. On an Android 7.0 emulator, the 1.4.1 release build went through onboarding, the dashboard, the Namaz Tracker, History and Stats. 1.5.0 then installed over it with everything kept.
 
+- **Study chat, Darood weekly and chess** (1.7.0):
+  - The server's rules are tested on a real Postgres: another party's chat, files and games are out of reach; tampered and replayed requests are refused; a removed member loses access at once; account deletion keeps the opponent's games, anonymised.
+  - A whole game is played on three phones against the local stack through the app's own code, every move heard live by the opponent and a watcher.
+  - The chess rules engine passes the standard move-count (perft) tests. A load test runs 30 members, 5 live games and 20 watchers.
+  - Screenshot tests of the board, the end card and the Chess tab in both skins and Simple Mode.
+  - Reviews of abuse ([docs/ABUSE_REVIEW.md](docs/ABUSE_REVIEW.md)), privacy ([docs/PRIVACY_REVIEW.md](docs/PRIVACY_REVIEW.md)) and monitoring ([docs/MONITORING.md](docs/MONITORING.md)).
+
 Details for each release, including what hasn't been verified yet, are in [`VERIFICATION.md`](VERIFICATION.md) (1.6.0 is Section R).
 
 ---
@@ -221,10 +235,10 @@ PixelQuest is built with a **local-first, privacy-respecting philosophy**:
   - Only your chosen public pseudonym, player level, streak, and XP are synchronized when opted in.
   - Quest titles and schedules **never** leave the phone. Your email is used only by Supabase Auth to sign you in, and is never shown to other players.
   - The Namaz Tracker's place and prayer log never leave the phone. Prayer XP joins your XP total, and only that total is synced.
-  - **Parties** (signed in): Darood Parties and study parties share one system and one Parties screen ([docs/party-core.md](docs/party-core.md)). In a Darood Party, your username is seen only by your party's members, and your entries only by them; a study party's items, ticks, study time and scores, the same. A party's leader can put its name and progress on the opt-in race board, and never anyone's name or numbers. See [PRIVACY.md](PRIVACY.md).
+  - **Parties** (signed in): Darood Parties and study parties share one system and one Parties screen ([docs/party-core.md](docs/party-core.md)). In a Darood Party, your username is seen only by your party's members, and your entries only by them; a study party's items, ticks, study time and scores, the same. A party's leader can put its name and progress on the opt-in race board, and never anyone's name or numbers. A study party's chat, files and chess games are seen only by its members; files are private and open through links that last a minute. See [PRIVACY.md](PRIVACY.md).
   - **Fair play.** Public names are unique. The server keeps streaks and levels within what the game allows: a streak grows by at most one day a day, a level takes at least three perfect days, and both need the XP to match. Reports are limited to one per player a day.
 - **Optional AI Coach**: off until you turn it on, and only while signed in. It sends Google Gemini an anonymous summary (streak totals, category ratios, the last 7 days, your level) through the `gemini-proxy` Edge Function. Google never gets task names, emails or account IDs; the proxy checks that you're signed in and counts your calls per day for its limits (see PRIVACY.md).
-- **Full Erasure Control**: Players can opt out at any time to vanish from public rankings, or permanently delete their cloud account and data via **Settings > Cloud & leaderboard > Delete my cloud data** (Settings opens from Hero's gear). It asks twice before it deletes.
+- **Full Erasure Control**: Players can opt out at any time to vanish from public rankings, or permanently delete their cloud account and data via **Settings > Cloud & leaderboard > Delete my cloud data** (Settings opens from Hero's gear). It asks twice before it deletes. **Export my cloud data**, on the same screen, saves everything the cloud keeps about you to a file first.
 
 For complete technical and security details, see [`PRIVACY.md`](PRIVACY.md).
 

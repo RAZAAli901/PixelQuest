@@ -76,7 +76,14 @@ The values live in the server's `chess_config` and the app's `ChessConfig`, and 
 | Push notifications leaking content | Push carries only ids and a kind. The text is built on the phone and hidden on the lock screen. Tokens are written only by their owner. |
 | Leaked service credentials | The FCM service account lives only in the functions' secrets, never in the app or the repo. |
 
+## Elsewhere
+
+- **The screens:** [chess-ui-integration.md](chess-ui-integration.md), the owner's design in `/chess-ui` mapped to the app.
+- **Abuse:** limits, reporting a challenge and blocking, in [ABUSE_REVIEW.md](ABUSE_REVIEW.md).
+- **Privacy:** what's stored, export and deletion, in [PRIVACY_REVIEW.md](PRIVACY_REVIEW.md).
+- **Monitoring:** the functions' logs and the error alert, in [MONITORING.md](MONITORING.md).
+- **Tests:** `supabase/tests/local/chess_*.test.ts`, `security.test.ts`, `abuse.test.ts`, `privacy.test.ts` and `load.test.ts` (the server); `LocalSupabaseChessTest` (three phones against the local stack); `app/src/test/.../chess/` (the rules, clocks and screens).
+
 ## Not in this phase
 
-- **The board UI:** Phase E plugs in the owner's design from `/chess-ui`.
 - **Increments and correspondence chess:** the time-control table allows them later.
