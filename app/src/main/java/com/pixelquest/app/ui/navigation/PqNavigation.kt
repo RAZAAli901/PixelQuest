@@ -1,5 +1,23 @@
 package com.pixelquest.app.ui.navigation
 
+import com.pixelquest.app.ui.motion.PqToastState
+import com.pixelquest.app.ui.motion.PqToastHost
+import com.pixelquest.app.ui.motion.LocalPqToast
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import com.pixelquest.app.ui.motion.PqMotion
+import com.pixelquest.app.ui.motion.navHop
+import com.pixelquest.app.ui.motion.reducedMotion
+import kotlin.math.roundToInt
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -109,19 +127,27 @@ fun PqBottomBar(
 ) {
     val sound = LocalSoundManager.current
     val select: (PqTab) -> Unit = { sound?.playNavSound(); onSelect(it) }
+    // M10: the gold pill slides to the selected tab. The slots aren't all the same width (the
+    // trophy's gap, and Hero's double slot without Deen), so each tab says where its middle is.
+    val middles = remember { mutableStateMapOf<PqTab, Float>() }
+    var barX by remember { mutableFloatStateOf(0f) }
+    val place: (PqTab, Float) -> Unit = { tab, x -> middles[tab] = x - barX }
     Box(modifier.fillMaxWidth().testTag(PqNavTags.BAR)) {
         Column(Modifier.fillMaxWidth().background(PqColors.Paper)) {
             Box(Modifier.fillMaxWidth().height(PqDimens.Border).background(PqColors.Ink))
-            Row(
-                Modifier.fillMaxWidth().navigationBarsPadding().height(66.dp).padding(horizontal = 6.dp),
-                verticalAlignment = Alignment.Top,
-            ) {
-                NavItem(PqTab.Home, current, isSimpleMode, select, Modifier.weight(1f))
-                NavItem(PqTab.Quests, current, isSimpleMode, select, Modifier.weight(1f))
-                Spacer(Modifier.weight(1f))
-                if (showDeen) NavItem(PqTab.Deen, current, isSimpleMode, select, Modifier.weight(1f), dot = deenDot)
-                // Without Deen, Hero takes the right half, so the trophy stays in the middle.
-                NavItem(PqTab.Hero, current, isSimpleMode, select, Modifier.weight(if (showDeen) 1f else 2f))
+            Box(Modifier.fillMaxWidth().navigationBarsPadding().height(66.dp).onGloballyPositioned { barX = it.positionInRoot().x }) {
+                SlidingPill(current?.let { middles[it] })
+                Row(
+                    Modifier.fillMaxWidth().height(66.dp).padding(horizontal = 6.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    NavItem(PqTab.Home, current, isSimpleMode, select, Modifier.weight(1f), place = place)
+                    NavItem(PqTab.Quests, current, isSimpleMode, select, Modifier.weight(1f), place = place)
+                    Spacer(Modifier.weight(1f))
+                    if (showDeen) NavItem(PqTab.Deen, current, isSimpleMode, select, Modifier.weight(1f), dot = deenDot, place = place)
+                    // Without Deen, Hero takes the right half, so the trophy stays in the middle.
+                    NavItem(PqTab.Hero, current, isSimpleMode, select, Modifier.weight(if (showDeen) 1f else 2f), place = place)
+                }
             }
         }
         val trophy = stringResource(R.string.pq_nav_leaderboard)
@@ -135,6 +161,25 @@ fun PqBottomBar(
     }
 }
 
+/** The selected tab's gold pill, sliding to the tab whose middle is [middle] (px from the bar's left). */
+@Composable
+private fun SlidingPill(middle: Float?) {
+    if (middle == null) return
+    val reduced = reducedMotion()
+    val x = remember { Animatable(middle) }
+    LaunchedEffect(middle) {
+        if (reduced) x.snapTo(middle)
+        else x.animateTo(middle, tween(PqMotion.Slow, easing = if (PqMotion.pixel) PqMotion.steps(4) else CubicBezierEasing(0.3f, 1.3f, 0.5f, 1f)))
+    }
+    val density = LocalDensity.current
+    val half = with(density) { 26.dp.toPx() }
+    val top = with(density) { 8.dp.roundToPx() }
+    Box(
+        Modifier.offset { IntOffset((x.value - half).roundToInt(), top) }.width(52.dp).height(30.dp)
+            .clip(pqShape(15.dp)).background(PqColors.Gold).border(PqDimens.BorderThin, PqColors.Ink, pqShape(15.dp))
+    )
+}
+
 @Composable
 private fun NavItem(
     tab: PqTab,
@@ -143,11 +188,12 @@ private fun NavItem(
     onSelect: (PqTab) -> Unit,
     modifier: Modifier,
     dot: Boolean = false,
+    place: (PqTab, Float) -> Unit = { _, _ -> },
 ) {
     val selected = tab == current
     val label = stringResource(if (isSimpleMode) tab.simpleLabel else tab.label)
     val waiting = stringResource(R.string.pq_nav_something_waiting)
-    Box(modifier) {
+    Box(modifier.onGloballyPositioned { place(tab, it.positionInRoot().x + it.size.width / 2f) }) {
         Column(
             Modifier
                 .fillMaxWidth()
@@ -161,12 +207,9 @@ private fun NavItem(
                 .padding(top = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
-            val pill = Modifier.width(52.dp).height(30.dp)
-            Box(
-                if (selected) pill.clip(pqShape(15.dp)).background(PqColors.Gold).border(PqDimens.BorderThin, PqColors.Ink, pqShape(15.dp)) else pill,
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(if (selected) tab.icon else tab.iconOff, null, tint = if (selected) PqColors.Ink else PqColors.Muted, modifier = Modifier.size(22.dp))
+            // The gold pill behind the selected icon is the bar's sliding one; the icon hops (M10).
+            Box(Modifier.width(52.dp).height(30.dp), contentAlignment = Alignment.Center) {
+                Icon(if (selected) tab.icon else tab.iconOff, null, tint = if (selected) PqColors.Ink else PqColors.Muted, modifier = Modifier.size(22.dp).navHop(selected))
             }
             Text(label, style = PqType.NavLabel, maxLines = 1)
         }
@@ -196,14 +239,23 @@ fun PqRootScaffold(
     isSimpleMode: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    Scaffold(
-        containerColor = PqColors.Ground,
-        bottomBar = {
-            if (showBottomBar) {
-                PqBottomBar(currentTab, onTabSelect, onCenterClick, showDeen = showDeen, deenDot = deenDot, isSimpleMode = isSimpleMode)
+    // M09: one toast for the whole app, above the bottom bar; screens reach it through LocalPqToast.
+    val toast = remember { PqToastState() }
+    CompositionLocalProvider(LocalPqToast provides toast) {
+        Scaffold(
+            containerColor = PqColors.Ground,
+            bottomBar = {
+                if (showBottomBar) {
+                    PqBottomBar(currentTab, onTabSelect, onCenterClick, showDeen = showDeen, deenDot = deenDot, isSimpleMode = isSimpleMode)
+                }
+            },
+        ) { padding ->
+            Box(Modifier.fillMaxSize()) {
+                content(padding)
+                PqToastHost(toast, Modifier.align(Alignment.BottomCenter).padding(bottom = padding.calculateBottomPadding()))
             }
-        },
-    ) { padding -> Box(Modifier.fillMaxSize()) { content(padding) } }
+        }
+    }
 }
 
 /** The frame's state, for the screens inside it: Home's parties button wears the invitation dot. */

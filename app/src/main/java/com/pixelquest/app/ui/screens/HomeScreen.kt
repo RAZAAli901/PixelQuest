@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens
 
+import com.pixelquest.app.ui.motion.LocalPqToast
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.platform.LocalContext
@@ -215,7 +216,11 @@ fun HomeScreen(
         if (showsStreakBroken && todayViewModel.shouldPlayStreakBrokenSound()) sound?.playTaskMissedSound()
     }
 
+    val toast = LocalPqToast.current
+    val context = LocalContext.current
     Box(Modifier.fillMaxSize().background(PqColors.Ground)) {
+        // M12: a slow first load shows shimmering rows where the cards will be.
+        if (today is TodayUiState.Loading) com.pixelquest.app.ui.motion.PqSkeleton(Modifier.padding(16.dp))
         (today as? TodayUiState.Success)?.let { state ->
             val time = rememberPrayerTimeFormatter()
             val labels = repeatLabels()
@@ -227,6 +232,7 @@ fun HomeScreen(
                     state.tasks.firstOrNull { it.task.id == quest.id }?.let { item ->
                         completeFeedback(haptics, sound)
                         todayViewModel.completeTask(item.task)
+                        toast?.show(context.getString(R.string.motion_toast_done, item.task.name))
                     }
                 },
                 onSkipQuest = { quest ->
@@ -234,6 +240,7 @@ fun HomeScreen(
                         PixelHaptics.performWarning(haptics)
                         sound?.playTaskMissedSound()
                         todayViewModel.skipTask(item.task)
+                        toast?.show(context.getString(R.string.motion_toast_skipped, item.task.name))
                     }
                 },
                 onQuestClick = { onNavigateToEditTask(it.id) },

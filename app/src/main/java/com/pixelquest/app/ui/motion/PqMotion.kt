@@ -1,5 +1,8 @@
 package com.pixelquest.app.ui.motion
 
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.platform.testTag
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -655,6 +658,31 @@ fun Modifier.pqShimmer(): Modifier = composed {
         drawRect(Brush.linearGradient(listOf(base, base, hi, base, base), start = Offset(w * x - w, 0f), end = Offset(w * x + w, 0f)))
     }
 }
+
+/**
+ * Skeleton rows that shimmer while a list loads. They appear only after 250 ms, so a quick load
+ * never flashes them (M12). TalkBack hears "Loading".
+ */
+@Composable
+fun PqSkeleton(modifier: Modifier = Modifier, rows: Int = 4, rowHeight: Dp = 64.dp) {
+    var show by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { delay(250); show = true }
+    if (!show) return
+    val loading = stringResource(R.string.motion_loading)
+    Column(
+        modifier.fillMaxWidth().testTag(PqSkeletonTag).semantics { contentDescription = loading },
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        repeat(rows) {
+            Box(
+                Modifier.fillMaxWidth().height(rowHeight).clip(pqShape(PqDimens.Radius))
+                    .border(PqDimens.BorderThin, PqColors.Ink.copy(alpha = 0.2f), pqShape(PqDimens.Radius)).pqShimmer()
+            )
+        }
+    }
+}
+
+const val PqSkeletonTag = "pq_skeleton"
 
 // ============================ helpers ============================
 private fun Modifier.clickableNoRipple(onClick: () -> Unit) = composed {

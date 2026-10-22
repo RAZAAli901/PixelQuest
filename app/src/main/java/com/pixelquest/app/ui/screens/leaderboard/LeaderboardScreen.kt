@@ -214,7 +214,8 @@ fun LeaderboardContent(
         } else {
             Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
                 if (uiState.isLoading && currentEntries.isEmpty()) {
-                    CircularProgressIndicator(color = PqColors.Ink, modifier = Modifier.size(36.dp))
+                    // M12: shimmering rows where the board will be.
+                    com.pixelquest.app.ui.motion.PqSkeleton(Modifier.align(Alignment.TopCenter).padding(top = 8.dp), rows = 6, rowHeight = 56.dp)
                 } else if (uiState.errorMessage != null && currentEntries.isEmpty()) {
                     LeaderboardErrorState(errorMessage = uiState.errorMessage, onRetry = onRefresh, modifier = Modifier.fillMaxWidth())
                 } else if (currentEntries.isEmpty()) {

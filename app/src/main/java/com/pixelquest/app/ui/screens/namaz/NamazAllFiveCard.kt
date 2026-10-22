@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens.namaz
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -58,7 +59,10 @@ fun NamazAllFiveCard(allFive: NamazAllFive, showXp: Boolean, onDismiss: () -> Un
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    CategoryTile(Icons.Rounded.Mosque, PqColors.Sky, size = 56.dp, iconSize = 32.dp, radius = 14.dp)
+                    // M06: the reward icon pops with a shard burst.
+                    com.pixelquest.app.ui.motion.RewardBurst(trigger = 1, modifier = Modifier.size(96.dp)) {
+                        CategoryTile(Icons.Rounded.Mosque, PqColors.Sky, size = 56.dp, iconSize = 32.dp, radius = 14.dp)
+                    }
                     Text(text = stringResource(R.string.namaz_all_five_title), style = PqType.CardTitle, textAlign = TextAlign.Center)
                     Text(text = stringResource(R.string.namaz_all_five_body), style = PqType.Body.copy(color = PqColors.Ink2), textAlign = TextAlign.Center)
                     if (showXp && allFive.allFiveBonus > 0) PqChip(stringResource(R.string.namaz_all_five_bonus, allFive.allFiveBonus), PqColors.Gold)

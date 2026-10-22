@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens
 
+import com.pixelquest.app.ui.motion.LocalPqToast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -148,6 +149,8 @@ fun QuestsScreen(
     var tab by rememberSaveable { mutableStateOf(initialTab) }
     var query by rememberSaveable { mutableStateOf<String?>(null) }
     val haptics = LocalHapticFeedback.current
+    val toast = LocalPqToast.current
+    val context = androidx.compose.ui.platform.LocalContext.current
     val sound = LocalSoundManager.current
     val time = rememberPrayerTimeFormatter()
     val repeat = repeatLabels()
@@ -196,6 +199,7 @@ fun QuestsScreen(
                 PixelHaptics.performWarning(haptics)
                 sound?.playTaskMissedSound()
                 todayViewModel.skipTask(it.task)
+                toast?.show(context.getString(R.string.motion_toast_skipped, it.task.name))
             }
         }, onDismiss = { toSkip = null })
     }
@@ -221,6 +225,7 @@ fun QuestsScreen(
                     PixelHaptics.performSuccessPattern(haptics)
                     sound?.playTaskCompleteSound()
                     todayViewModel.completeTask(item.task)
+                    toast?.show(context.getString(R.string.motion_toast_done, item.task.name))
                 }
             }
         },

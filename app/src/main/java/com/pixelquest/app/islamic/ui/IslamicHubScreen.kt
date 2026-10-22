@@ -1,5 +1,6 @@
 package com.pixelquest.app.islamic.ui
 
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -225,19 +226,34 @@ private fun NextPrayerCard(item: IslamicItem, prayer: NamazSummary, isSimpleMode
     }
 }
 
-/** The day's five prayers: a ticked box once prayed, a dashed one until then. */
+/** The day's five prayers: a ticked box once prayed, a dashed one until then. A box pops in as it's ticked (M11). */
 @Composable
 private fun PrayerPips(prayed: Set<Prayer>) {
+    val reduced = com.pixelquest.app.ui.motion.reducedMotion()
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Prayer.entries.forEach { p ->
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 val box = Modifier.fillMaxWidth().height(36.dp)
-                if (p in prayed) {
-                    Box(box.clip(pqShape(9.dp)).background(PqColors.Paper).border(PqDimens.BorderThin, PqColors.Ink, pqShape(9.dp)), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Rounded.Check, null, tint = PqColors.Ink, modifier = Modifier.size(20.dp))
+                val on = p in prayed
+                val s by androidx.compose.animation.core.animateFloatAsState(
+                    if (on) 1f else 0f,
+                    when {
+                        reduced -> androidx.compose.animation.core.snap()
+                        on -> androidx.compose.animation.core.keyframes { durationMillis = com.pixelquest.app.ui.motion.PqMotion.Base; 1.25f at 140 }
+                        else -> androidx.compose.animation.core.tween(com.pixelquest.app.ui.motion.PqMotion.Fast)
+                    },
+                    label = "pip"
+                )
+                Box(box.dashedBorder(), contentAlignment = Alignment.Center) {
+                    if (s > 0.01f) {
+                        Box(
+                            Modifier.matchParentSize().graphicsLayer { scaleX = s; scaleY = s }
+                                .clip(pqShape(9.dp)).background(PqColors.Paper).border(PqDimens.BorderThin, PqColors.Ink, pqShape(9.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Rounded.Check, null, tint = PqColors.Ink, modifier = Modifier.size(20.dp))
+                        }
                     }
-                } else {
-                    Box(box.dashedBorder())
                 }
                 Text(stringResource(p.displayName), style = PqType.NavLabel, maxLines = 1)
             }
