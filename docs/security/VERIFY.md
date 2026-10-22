@@ -90,3 +90,13 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - Tested as a signed-in user: writing through them fails ("cannot update view": they're computed), so the chat's limits couldn't be changed.
   - The grants are removed in S017 anyway.
 - **Test:** `darood_parties.test.ts`, the study tests. A member can't edit or delete another's item, can't PATCH a completion, and can't undo another's tick.
+
+### S016: storage is private by default
+- **State:**
+  - One bucket, `study-files`: private, 20 MB, with a list of allowed types.
+  - `storage.objects` has RLS with no permissive policy, so app users can reach no object in any bucket, now or in a bucket added later. A restrictive policy also blocks `study-files` by name.
+  - `storage.buckets` has RLS with no policy, so players can't create a bucket.
+  - Files move only through `request-upload` / `finalize-upload` (the service role, with checks), and come back through `get-download-url` (a signed link valid 60 seconds, for an active member).
+- **Path rule:** objects are stored under `<party_id>/<file_id>`, and the functions check the caller's membership of that party before signing.
+- **Test:** `security.test.ts`, "storage is closed to players". A player can't create a bucket, upload, list or download directly. `study-files` is private, and no bucket is public.
+- **Test:** `study_files.test.ts`. A removed member's link stops working; a link expires.

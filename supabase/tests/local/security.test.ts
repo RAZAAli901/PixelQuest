@@ -169,3 +169,20 @@ localTest("security: only active members reach chat and chess; a leader can't re
   assert.equal(sql(`SELECT party_type || ' ' || (completed_at IS NULL) || ' ' || (leader_id = '${white.userId}') FROM public.parties WHERE id = '${party}'`), "study true true");
   endGames(white, black);
 });
+
+localTest("security: storage is closed to players; files go only through the server (S016)", async () => {
+  const { white } = await chessCast();
+  const storage = (path: string, init: { method?: string; body?: unknown; raw?: string } = {}) =>
+    call(`/storage/v1/${path}`, { method: init.method, token: white.accessToken, body: init.body });
+  // No bucket can be made, so nothing public can appear.
+  const bucket = await storage("bucket", { method: "POST", body: { id: `zz-${Date.now()}`, name: `zz-${Date.now()}`, public: true } });
+  assert.ok(bucket.status >= 400, `creating a bucket is refused (${bucket.status})`);
+  // study-files: no upload, no listing, no download, for a player even of their own party's path.
+  const party = sql(`SELECT id FROM public.parties LIMIT 1`).split("\n")[0] || "00000000-0000-0000-0000-000000000000";
+  const upload = await storage(`object/study-files/${party}/zz-direct.txt`, { method: "POST", body: "hello" });
+  assert.ok(upload.status >= 400, `a direct upload is refused (${upload.status})`);
+  const list = await storage("object/list/study-files", { method: "POST", body: { prefix: party } });
+  assert.ok(list.status >= 400 || (Array.isArray(list.body) && list.body.length === 0), "nothing is listed");
+  assert.equal(sql(`SELECT public FROM storage.buckets WHERE id = 'study-files'`), "f", "the bucket is private");
+  assert.equal(sql(`SELECT count(*) FROM storage.buckets WHERE public`), "0", "no public bucket");
+});
