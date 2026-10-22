@@ -151,7 +151,7 @@ The Namaz Tracker (off unless you turn it on) works out prayer times on your pho
 
 - **What's stored, with the study party:** each game's players, time control, result and every move with its time; your Int points and record in each time control; your record against each party mate; and the challenges you send and get. Only the party's active members read them.
 - **Watching:** who joined a game to watch is kept for one day, for the limits, and isn't shown to anyone.
-- **Notifications:** to tell you about a challenge, your phone's push token is stored with your account. A notification carries only ids; its words are put together on your phone, and it's hidden on the lock screen. Signing out removes the token.
+- **Notifications:** to tell you about a challenge, your phone's push token is stored with your account. A notification carries only ids; its words are put together on your phone, and it's hidden on the lock screen. Signing out ends the token on your phone, and the server forgets its copy the first time a notification to it fails.
 - **If you delete your cloud account,** your ratings, challenges and tokens go. Games you played stay for your opponents with your side left empty, and their record against you stays without your name.
 
 ## 4. How to Delete Your Data (Full Control)
