@@ -441,4 +441,10 @@ abstract class RepositoryModule {
     abstract fun bindTipsStore(
         impl: com.pixelquest.app.ui.tips.PrefsTipsStore,
     ): com.pixelquest.app.ui.tips.TipsStore
+
+    @Binds
+    @Singleton
+    abstract fun bindPreferencesDataStore(
+        impl: com.pixelquest.app.data.local.prefs.AppPreferencesDataStore,
+    ): com.pixelquest.app.data.local.prefs.PreferencesDataStore
 }
