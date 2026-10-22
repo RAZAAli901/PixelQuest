@@ -1,4 +1,3 @@
-import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
@@ -9,6 +8,21 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.spotless)
+}
+
+spotless {
+    // Q003: legacy code is adopted incrementally; every changed Kotlin file must be clean.
+    ratchetFrom("b6895a2a")
+    kotlin {
+        target("src/**/*.kt")
+        targetExclude("src/test/java/com/pixelquest/app/zz/**")
+        ktlint("1.3.1").editorConfigOverride(mapOf("ktlint_standard_filename" to "disabled"))
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint("1.3.1")
+    }
 }
 
 // Static checks (J176): detekt's defaults with config/detekt/detekt.yml; what was already there is
@@ -28,10 +42,10 @@ if (localPropertiesFile.exists()) {
         localProps.load(stream)
     }
 }
+
 // A PIXELQUEST_<NAME> environment variable overrides <NAME> from local.properties for one build, e.g.
 // to point a debug build at the local Supabase test bench without editing the file (docs/LOCAL_SUPABASE.md).
-fun buildSetting(name: String): String? =
-    System.getenv("PIXELQUEST_$name")?.takeIf { it.isNotBlank() } ?: localProps.getProperty(name)
+fun buildSetting(name: String): String? = System.getenv("PIXELQUEST_$name")?.takeIf { it.isNotBlank() } ?: localProps.getProperty(name)
 
 val supabaseUrlProp = buildSetting("SUPABASE_URL") ?: "https://placeholder-project.supabase.co"
 val supabaseAnonKeyProp = buildSetting("SUPABASE_ANON_KEY") ?: "placeholder-anon-key"
@@ -109,8 +123,7 @@ android {
             // Passwords come from the environment (CI secrets) or the gitignored local.properties,
             // never from this public file. Without a keystore and both passwords, release builds
             // are signed with the debug key.
-            fun secret(name: String): String? =
-                (System.getenv(name) ?: localProps.getProperty(name))?.takeIf { it.isNotBlank() }
+            fun secret(name: String): String? = (System.getenv(name) ?: localProps.getProperty(name))?.takeIf { it.isNotBlank() }
             val keystorePath = secret("KEYSTORE_FILE") ?: "pixelquest-release.jks"
             val storeFileObj = file(keystorePath)
             val storePasswordValue = secret("KEYSTORE_PASSWORD")
@@ -143,7 +156,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
