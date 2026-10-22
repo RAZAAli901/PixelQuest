@@ -8,16 +8,14 @@ enum class LeaderboardSortMode {
     LEVEL,
 }
 
-data class UserLeaderboardRank(
-    val rank: Int,
-    val profile: CloudProfileDto,
-)
-
 /** A profile with its 1-based position on the leaderboard. */
 data class RankedProfile(
     val rank: Int,
     val profile: CloudProfileDto,
 )
+
+/** The signed-in user's rank on the leaderboard (alias for [RankedProfile] to eliminate duplicate class). */
+typealias UserLeaderboardRank = RankedProfile
 
 /** The signed-in hero's rank plus the heroes just above and below them. */
 data class PlayersAroundYou(
