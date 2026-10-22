@@ -120,6 +120,8 @@ class ChessScreenshotTest(private val look: Look) {
         assertTrue("$look: b8 is the design's dark (${Integer.toHexString(pixelOf("b8"))})", near(pixelOf("b8"), look.dark))
 
         state = state.copy(phase = SessionPhase.FINISHED, game = game(GameStatus.FINISHED), headToHead = listOf(HeadToHead("me", "sara", null, 5, 1, 2)))
+        // Ended by checkmate on screen: the card comes after the board's stamp, and its animations settle.
+        composeTestRule.mainClock.advanceTimeBy(3_000)
         composeTestRule.onNodeWithTag(GameOverTags.CARD).assertExists()
         capture("over")
     }

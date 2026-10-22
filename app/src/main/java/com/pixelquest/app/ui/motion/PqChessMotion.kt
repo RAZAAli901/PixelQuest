@@ -295,7 +295,7 @@ fun IntDeltaChip(text: String, good: Boolean, modifier: Modifier = Modifier) {
         s.animateTo(1f, keyframes { durationMillis = PqMotion.Base; 1.2f at 150 })
     }
     Box(
-        modifier.graphicsLayer { scaleX = s.value; scaleY = s.value }.clip(PqCircle).background(if (good) PqColors.Progress else ChessMotion.Red)
+        modifier.graphicsLayer { scaleX = s.value; scaleY = s.value }.clip(PqCircle).background(if (good) PqColors.Live else ChessMotion.Red)
             .border(2.dp, PqColors.Ink, PqCircle).padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
         Text(text, style = PqType.Button.copy(color = PqColors.Paper))

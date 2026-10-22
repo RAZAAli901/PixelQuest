@@ -66,6 +66,8 @@ data class IncomingState(
     /** The game the accept made, to open. */
     val gameId: String? = null,
     val declined: Boolean = false,
+    /** The player's own username, for their side of the clash (C08). */
+    val myName: String? = null,
     /** Reported (J172): said so on the card. */
     val reported: Boolean = false
 )
@@ -76,7 +78,8 @@ class IncomingChallengeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val challenges: ChessChallengeRepository,
     private val ratings: ChessRatingRepository,
-    private val party: PartyRepository
+    private val party: PartyRepository,
+    private val account: com.pixelquest.app.darood.data.remote.DaroodAccount = com.pixelquest.app.darood.data.remote.DaroodAccount { null }
 ) : ViewModel() {
     private val id: String = savedStateHandle[ARG] ?: ""
     private val _state = MutableStateFlow(IncomingState())
@@ -92,7 +95,8 @@ class IncomingChallengeViewModel @Inject constructor(
             _state.update { it.copy(challenge = challenge) }
             launch {
                 party.observeMembers(challenge.partyId).collect { members ->
-                    _state.update { s -> s.copy(fromName = members.firstOrNull { it.userId == challenge.fromUser }?.username) }
+                    val me = account.id()
+                    _state.update { s -> s.copy(fromName = members.firstOrNull { it.userId == challenge.fromUser }?.username, myName = members.firstOrNull { it.userId == me }?.username) }
                 }
             }
             (ratings.headToHead(challenge.fromUser) as? SupabaseResult.Success)?.data?.firstOrNull { it.timeControl == null }?.let { r ->
@@ -205,7 +209,11 @@ fun IncomingChallengeScreen(
                 .comic(bg = PqColors.Paper, radius = PqDimens.RadiusLg, shadow = PqDimens.Shadow)
                 .padding(18.dp)
         ) {
-            InitialAvatar(name, 72.dp, ChessLook.avatar(0))
+            // The two players slide in and clash (C08).
+            com.pixelquest.app.ui.motion.ChallengeClash(
+                me = { InitialAvatar(state.myName ?: "?", 64.dp, ChessLook.avatar(2)) },
+                them = { InitialAvatar(name, 64.dp, ChessLook.avatar(0)) }
+            )
             Text(text = stringResource(R.string.chess_incoming_from, name).uppercase(), style = PqType.CardTitle, textAlign = TextAlign.Center, modifier = Modifier.semantics { heading() })
             val colour = when (challenge.colour) {
                 ColourChoice.WHITE -> stringResource(R.string.chess_you_play_black)
@@ -228,6 +236,9 @@ fun IncomingChallengeScreen(
                 style = PqType.BodyStrong,
                 modifier = Modifier.testTag(IncomingTags.COUNTDOWN)
             )
+            // How much of its 10 minutes is left, draining (C08).
+            val total = (challenge.expiresAt.toEpochMilli() - challenge.createdAt.toEpochMilli()).coerceAtLeast(1)
+            com.pixelquest.app.ui.motion.ExpiryBar(left / total.toFloat())
             state.problem?.let { Text(text = problemText(it), style = PqType.Meta.copy(color = PqColors.Error)) }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                 PqButton(stringResource(R.string.chess_decline), onClick = { onAnswer(false) }, style = PqButtonStyle.Secondary, enabled = open && !state.answering, modifier = Modifier.weight(1f).testTag(IncomingTags.DECLINE))

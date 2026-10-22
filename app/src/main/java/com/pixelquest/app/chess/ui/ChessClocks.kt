@@ -1,5 +1,6 @@
 package com.pixelquest.app.chess.ui
 
+import com.pixelquest.app.ui.motion.clockAlarm
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -91,7 +92,7 @@ fun PlayerRow(
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(text = name, style = PqType.BodyStrong, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
-                points?.let { Text(text = com.pixelquest.app.darood.ui.formatCount(it), style = PqType.Meta) }
+                points?.let { com.pixelquest.app.ui.motion.RollingNumber(it, PqType.Meta, format = { n -> com.pixelquest.app.darood.ui.formatCount(n) }) }
             }
             Box(Modifier.height(16.dp)) { captured() }
         }
@@ -101,6 +102,8 @@ fun PlayerRow(
                 .widthIn(min = 86.dp)
                 .height(40.dp)
                 .testTag(if (low) ChessClockTags.low(colour) else ChessClockTags.clock(colour))
+                // Under 10 seconds the side to move's clock flashes and shakes each second (C05).
+                .clockAlarm(left, low && active)
                 .semantics { contentDescription = said }
                 .comic(
                     bg = when {

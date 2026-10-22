@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pixelquest.app.ui.motion.trayBump
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.liveRegion
@@ -175,7 +176,20 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
         }
         if (!state.spectating && game.status.live) GameActions(state, actions)
         if (state.spectating) SpectatorActions(onLeave = actions.onBack, onNext = actions.onNextGame, onFlip = { watcherFlipped = !watcherFlipped })
-        if (!game.status.live) GameOverCard(game, state, actions.onRematch)
+        // A game that ends while it's on screen celebrates; after a checkmate the board's topple and
+        // stamp play first, and the card comes about 1.2 s later (C04, C07).
+        var sawLive by androidx.compose.runtime.remember(game.id) { androidx.compose.runtime.mutableStateOf(false) }
+        var reveal by androidx.compose.runtime.remember(game.id) { androidx.compose.runtime.mutableStateOf(false) }
+        androidx.compose.runtime.LaunchedEffect(game.id, game.status) {
+            if (game.status.live) {
+                sawLive = true
+                reveal = false
+            } else {
+                if (sawLive && prefs.animate && game.reason == com.pixelquest.app.chess.domain.ResultReason.CHECKMATE) kotlinx.coroutines.delay(1200)
+                reveal = true
+            }
+        }
+        if (!game.status.live && reveal) GameOverCard(game, state, actions.onRematch, celebrate = sawLive && prefs.animate)
     }
 }
 
@@ -200,6 +214,7 @@ internal fun Captured(pieces: List<Char>, lead: Int, colour: ChessColour) {
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier
             .testTag(ChessGameTags.captured(colour))
+            .trayBump(pieces.size)
             .semantics(mergeDescendants = true) { contentDescription = said }
     ) {
         Text(

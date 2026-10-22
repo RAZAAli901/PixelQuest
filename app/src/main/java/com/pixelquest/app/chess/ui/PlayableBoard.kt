@@ -95,7 +95,7 @@ fun PlayableBoard(
     }
 
     val check = position?.takeIf { it.inCheck() }?.kingSquare(position.whiteToMove)
-    val mated = check != null && position.legalMoves().isEmpty()
+    val mated = isMate(position, check)
     val marks = BoardMarks(
         lastMove = lastMove?.let { Move.ofUci(it) }?.let { setOf(Move.name(it.from), Move.name(it.to)) }.orEmpty(),
         selected = (dragFrom ?: selected)?.let(Move::name),
@@ -194,3 +194,6 @@ fun PromotionPicker(white: Boolean, onPick: (Char) -> Unit, onCancel: () -> Unit
         )
     }
 }
+
+/** Checkmate: in check, with no legal move (the board's topple and stamp, C04). */
+private fun isMate(position: Position?, check: Int?): Boolean = check != null && position?.legalMoves()?.isEmpty() == true

@@ -5,6 +5,7 @@ import android.os.Looper
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithTag
@@ -92,6 +93,8 @@ class ChessGameFlowTest {
             tap(move.first); tap(move.second)
         }
         waitFor("checkmate") { vm.state.value.game!!.status == GameStatus.FINISHED }
+        // The board's topple and stamp play first; the card follows about 1.2 s later.
+        waitFor("the end card") { composeTestRule.mainClock.advanceTimeBy(200); composeTestRule.onAllNodesWithTag(GameOverTags.CARD).fetchSemanticsNodes().isNotEmpty() }
         composeTestRule.onNodeWithTag(GameOverTags.CARD).performScrollTo()
         composeTestRule.onNodeWithText("YOU WON").assertExists()
         composeTestRule.onNodeWithText("By checkmate.").assertExists()

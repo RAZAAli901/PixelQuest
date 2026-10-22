@@ -1,5 +1,14 @@
 package com.pixelquest.app.chess.ui
 
+import com.pixelquest.app.ui.motion.IntDeltaChip
+import com.pixelquest.app.ui.motion.RewardBurst
+import com.pixelquest.app.ui.motion.RollingNumber
+import com.pixelquest.app.ui.motion.cellFlash
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,7 +78,7 @@ fun reasonText(reason: ResultReason?): String = stringResource(
  * marked +1, and Rematch as the one main action. Someone watching sees the result only.
  */
 @Composable
-fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Unit) {
+fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Unit, celebrate: Boolean = false) {
     val me = state.me
     val outcome = me?.let { game.outcomeFor(it) }
     val title = when {
@@ -90,7 +99,10 @@ fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Uni
             .comic(bg = if (outcome == Outcome.WIN) PqColors.Gold else PqColors.Paper, radius = PqDimens.RadiusLg, shadow = PqDimens.Shadow)
             .padding(14.dp)
     ) {
-        Text(text = title.uppercase(), style = PqType.CardTitle, modifier = Modifier.semantics { heading() })
+        // A win, just now: the title bursts (M06).
+        RewardBurst(trigger = if (celebrate && outcome == Outcome.WIN) 1 else 0) {
+            Text(text = title.uppercase(), style = PqType.CardTitle, modifier = Modifier.semantics { heading() })
+        }
         Text(text = reasonText(game.reason), style = PqType.Body)
         val colour = game.colourOf(me)
         val change = when (colour) {
@@ -100,12 +112,15 @@ fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Uni
         }
         // Simple Mode: the result, without Int points or tiers (J164).
         if (colour != null && game.rated && game.status == GameStatus.FINISHED && !state.simple) {
-            val text = when {
-                !game.ratingApplied -> stringResource(R.string.chess_over_not_counted)
-                change != null -> stringResource(R.string.chess_over_change, if (change >= 0) "+$change" else "\u2212${-change}")
-                else -> null
+            when {
+                !game.ratingApplied -> Text(text = stringResource(R.string.chess_over_not_counted), style = PqType.BodyStrong, modifier = Modifier.testTag(GameOverTags.CHANGE))
+                // The Int change pops in as a chip (C07).
+                change != null -> IntDeltaChip(
+                    stringResource(R.string.chess_over_change, if (change >= 0) "+$change" else "\u2212${-change}"),
+                    good = change >= 0,
+                    modifier = Modifier.testTag(GameOverTags.CHANGE)
+                )
             }
-            text?.let { Text(text = it, style = PqType.BodyStrong.copy(color = if ((change ?: 0) >= 0) PqColors.Live else PqColors.RedText), modifier = Modifier.testTag(GameOverTags.CHANGE)) }
             val now = state.points[me]
             if (now != null && change != null && change != 0) {
                 val before = ChessConfig.tierOf(now - change)
@@ -116,7 +131,7 @@ fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Uni
             }
         }
         val record = state.headToHead.firstOrNull { it.timeControl == null }
-        if (record != null && outcome != null) RecordCells(record, outcome, state.names[record.them])
+        if (record != null && outcome != null) RecordCells(record, outcome, state.names[record.them], celebrate)
         if (outcome != null) {
             PqButton(
                 text = stringResource(if (state.rematchSent) R.string.chess_rematch_sent else R.string.chess_rematch),
@@ -131,7 +146,7 @@ fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Uni
 
 /** YOU · DRAWS · THEM, the cell this game added to marked +1. */
 @Composable
-private fun RecordCells(record: HeadToHead, outcome: Outcome, them: String?) {
+private fun RecordCells(record: HeadToHead, outcome: Outcome, them: String?, celebrate: Boolean) {
     val cells = listOf(
         Triple(record.myWins, stringResource(R.string.chess_record_you), outcome == Outcome.WIN),
         Triple(record.draws, stringResource(R.string.chess_record_draws), outcome == Outcome.DRAW),
@@ -145,9 +160,12 @@ private fun RecordCells(record: HeadToHead, outcome: Outcome, them: String?) {
             .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
     ) {
         cells.forEachIndexed { i, (value, label, up) ->
-            Box(Modifier.weight(1f).background(if (i == 0) PqColors.Gold else PqColors.Paper).padding(10.dp)) {
+            // The cell this game added to rolls up from its old count and flashes (C07).
+            var shown by remember(value) { mutableIntStateOf(if (up && celebrate) value - 1 else value) }
+            LaunchedEffect(value) { if (shown != value) { kotlinx.coroutines.delay(700); shown = value } }
+            Box(Modifier.weight(1f).background(if (i == 0) PqColors.Gold else PqColors.Paper).cellFlash(up && celebrate).padding(10.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(text = value.toString(), style = PqType.display(34))
+                    RollingNumber(shown, PqType.display(34), format = { it.toString() })
                     Text(text = label, style = PqType.Label)
                 }
                 if (up) Text(text = "+1", style = PqType.Button.copy(color = PqColors.Live), modifier = Modifier.align(Alignment.TopEnd))

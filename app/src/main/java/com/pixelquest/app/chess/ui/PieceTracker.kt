@@ -26,39 +26,38 @@ class PieceTracker {
         val placed = arrayOfNulls<TrackedPiece>(64)
         val left = current.toMutableList()
         // 1. Still on its square.
-        for (square in 0 until 64) {
-            val piece = board.getOrNull(square) ?: continue
-            left.firstOrNull { it.square == square && it.piece == piece }?.let { old ->
-                placed[square] = old.copy(promoted = false)
-                left.remove(old)
-            }
-        }
-        // 2. Moved: the nearest of the same kind that left a square.
-        if (!first) for (square in 0 until 64) {
-            val piece = board.getOrNull(square) ?: continue
-            if (placed[square] != null) continue
-            left.filter { it.piece == piece }.minByOrNull { distance(it.square, square) }?.let { old ->
-                placed[square] = old.copy(square = square, promoted = false)
-                left.remove(old)
-            }
-        }
-        // 3. Promoted: a pawn of that colour that left becomes it.
-        if (!first) for (square in 0 until 64) {
-            val piece = board.getOrNull(square) ?: continue
-            if (placed[square] != null) continue
-            val pawn = if (piece.isUpperCase()) 'P' else 'p'
-            left.filter { it.piece == pawn }.minByOrNull { distance(it.square, square) }?.let { old ->
-                placed[square] = TrackedPiece(old.id, square, piece, promoted = true)
-                left.remove(old)
-            }
+        match(board, placed, left) { square, piece, old -> old.square == square && old.piece == piece }
+        if (!first) {
+            // 2. Moved: the nearest of the same kind that left a square.
+            match(board, placed, left) { _, piece, old -> old.piece == piece }
+            // 3. Promoted: a pawn of that colour that left becomes it.
+            match(board, placed, left, promoted = true) { _, piece, old -> old.piece == if (piece.isUpperCase()) 'P' else 'p' }
         }
         // 4. Anything else is new.
         for (square in 0 until 64) {
-            val piece = board.getOrNull(square) ?: continue
-            if (placed[square] == null) placed[square] = TrackedPiece(nextId++, square, piece)
+            val piece = board.getOrNull(square)
+            if (piece != null && placed[square] == null) placed[square] = TrackedPiece(nextId++, square, piece)
         }
         current = placed.filterNotNull()
         return TrackedFrame(serial, current, if (first) emptyList() else left)
+    }
+
+    /** Gives each square still without a piece the nearest piece from [left] that [fits]. */
+    private fun match(
+        board: List<Char?>,
+        placed: Array<TrackedPiece?>,
+        left: MutableList<TrackedPiece>,
+        promoted: Boolean = false,
+        fits: (square: Int, piece: Char, old: TrackedPiece) -> Boolean
+    ) {
+        for (square in 0 until 64) {
+            val piece = board.getOrNull(square)?.takeIf { placed[square] == null }
+            val old = piece?.let { p -> left.filter { fits(square, p, it) }.minByOrNull { distance(it.square, square) } }
+            if (piece != null && old != null) {
+                placed[square] = TrackedPiece(old.id, square, piece, promoted)
+                left.remove(old)
+            }
+        }
     }
 
     private fun distance(a: Int, b: Int) = abs(a / 8 - b / 8) + abs(a % 8 - b % 8)
