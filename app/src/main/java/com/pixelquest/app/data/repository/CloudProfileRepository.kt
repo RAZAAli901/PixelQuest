@@ -12,33 +12,9 @@ import kotlinx.coroutines.flow.first
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.pixelquest.app.domain.repository.CloudProfileRepository as DomainCloudProfileRepository
 
-interface CloudProfileRepository {
-    suspend fun updateOptInAndSync(optIn: Boolean, displayName: String): SupabaseResult<Unit>
-    suspend fun syncProfileToCloud(): SupabaseResult<Unit>
-
-    /**
-     * [syncProfileToCloud] that says whether anything was sent: Success(false) when the leaderboard
-     * already holds more progress for this account (from another device) and the push was skipped.
-     */
-    suspend fun pushProfileToCloud(): SupabaseResult<Boolean> = when (val result = syncProfileToCloud()) {
-        is SupabaseResult.Success -> SupabaseResult.Success(true)
-        is SupabaseResult.NetworkError -> result
-        is SupabaseResult.AuthError -> result
-        is SupabaseResult.ServerError -> result
-        is SupabaseResult.UnknownError -> result
-    }
-
-    suspend fun fetchCloudProfile(userId: String): SupabaseResult<CloudProfileDto?> = SupabaseResult.Success(null)
-
-    /**
-     * After RESET ALL PROGRESS: this phone's fresh numbers, sent even though the board holds higher
-     * ones (the usual push never sends lower numbers; see PendingProgressReset).
-     */
-    suspend fun sendProgressAfterReset(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
-    suspend fun optOutFromLeaderboard(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
-    suspend fun deleteCloudProfile(): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
-}
+typealias CloudProfileRepository = DomainCloudProfileRepository
 
 @Singleton
 open class CloudProfileRepositoryImpl @Inject constructor(
@@ -46,7 +22,7 @@ open class CloudProfileRepositoryImpl @Inject constructor(
     private val auth: Auth,
     private val userProfileRepository: UserProfileRepository,
     private val streakRepository: StreakRepository,
-    private val pendingChoice: PendingLeaderboardChoice? = null
+    private val pendingChoice: PendingLeaderboardChoice? = null,
 ) : CloudProfileRepository {
 
     /** The account the choice belongs to: signed in, or still linked while its session can't refresh. */
@@ -62,7 +38,7 @@ open class CloudProfileRepositoryImpl @Inject constructor(
         val user = auth.currentUserOrNull()
             ?: return SupabaseResult.AuthError(
                 IllegalStateException("No authenticated Supabase user"),
-                "Please sign in to update cloud leaderboard."
+                "Please sign in to update cloud leaderboard.",
             )
 
         val profile = userProfileRepository.getProfile().first()
@@ -74,7 +50,7 @@ open class CloudProfileRepositoryImpl @Inject constructor(
             optIn = optIn,
             profile = profile,
             currentStreak = streak?.currentStreak ?: 0,
-            longestStreak = streak?.longestStreak ?: 0
+            longestStreak = streak?.longestStreak ?: 0,
         )
 
         return when (val result = safeSupabaseCall<Unit> { postgrest["profiles"].upsert(dto) }) {
@@ -86,7 +62,9 @@ open class CloudProfileRepositoryImpl @Inject constructor(
                 pendingChoice?.confirmed(user.id, optIn)
                 userProfileRepository.updateLeaderboardSettings(optIn = false, displayName = displayName)
                 SupabaseResult.ServerError(NAME_TAKEN_STATUS, NAME_TAKEN)
-            } else result
+            } else {
+                result
+            }
             else -> result
         }
     }
@@ -103,7 +81,7 @@ open class CloudProfileRepositoryImpl @Inject constructor(
         val user = auth.currentUserOrNull()
             ?: return SupabaseResult.AuthError(
                 IllegalStateException("No authenticated user"),
-                "Sign in to synchronize profile."
+                "Sign in to synchronize profile.",
             )
 
         val profile = userProfileRepository.getProfile().first()
@@ -138,7 +116,7 @@ open class CloudProfileRepositoryImpl @Inject constructor(
                 optIn = optIn,
                 profile = profile,
                 currentStreak = streak?.currentStreak ?: 0,
-                longestStreak = streak?.longestStreak ?: 0
+                longestStreak = streak?.longestStreak ?: 0,
             )
 
             if (remoteProfile != null) {
@@ -147,7 +125,7 @@ open class CloudProfileRepositoryImpl @Inject constructor(
                     localLongestStreak = streak?.longestStreak ?: 0,
                     localLevel = profile?.level ?: 1,
                     localTotalXp = profile?.totalXp ?: 0,
-                    serverProfile = remoteProfile
+                    serverProfile = remoteProfile,
                 )
                 if (decision is com.pixelquest.app.domain.SyncDecision.SkipServerHigherProgress) {
                     return@safeSupabaseCall false
@@ -172,7 +150,7 @@ open class CloudProfileRepositoryImpl @Inject constructor(
             optIn = name != null && profile?.leaderboardOptIn == true,
             profile = profile,
             currentStreak = streak?.currentStreak ?: 0,
-            longestStreak = streak?.longestStreak ?: 0
+            longestStreak = streak?.longestStreak ?: 0,
         )
         return safeSupabaseCall<Unit> { postgrest["profiles"].upsert(dto) }
     }
@@ -194,21 +172,19 @@ open class CloudProfileRepositoryImpl @Inject constructor(
         }.also { if (it is SupabaseResult.Success) pendingChoice?.confirmed(user.id, optIn = false) }
     }
 
-    override suspend fun fetchCloudProfile(userId: String): SupabaseResult<CloudProfileDto?> {
-        return safeSupabaseCall {
-            postgrest["profiles"].select {
-                filter {
-                    eq("id", userId)
-                }
-            }.decodeList<CloudProfileDto>().firstOrNull()
-        }
+    override suspend fun fetchCloudProfile(userId: String): SupabaseResult<CloudProfileDto?> = safeSupabaseCall {
+        postgrest["profiles"].select {
+            filter {
+                eq("id", userId)
+            }
+        }.decodeList<CloudProfileDto>().firstOrNull()
     }
 
     override suspend fun deleteCloudProfile(): SupabaseResult<Unit> {
         val user = auth.currentUserOrNull()
             ?: return SupabaseResult.AuthError(
                 IllegalStateException("No authenticated Supabase user"),
-                "Please sign in to delete cloud data."
+                "Please sign in to delete cloud data.",
             )
 
         return safeSupabaseCall {
@@ -232,18 +208,16 @@ open class CloudProfileRepositoryImpl @Inject constructor(
             profile: UserProfileEntity?,
             currentStreak: Int,
             longestStreak: Int,
-            timestamp: String = Instant.now().toString()
-        ): CloudProfileDto {
-            return CloudProfileDto(
-                id = userId,
-                displayName = displayName,
-                currentStreak = currentStreak,
-                longestStreak = longestStreak,
-                level = profile?.level ?: 1,
-                totalXp = profile?.totalXp ?: 0,
-                leaderboardOptIn = optIn,
-                updatedAt = timestamp
-            )
-        }
+            timestamp: String = Instant.now().toString(),
+        ): CloudProfileDto = CloudProfileDto(
+            id = userId,
+            displayName = displayName,
+            currentStreak = currentStreak,
+            longestStreak = longestStreak,
+            level = profile?.level ?: 1,
+            totalXp = profile?.totalXp ?: 0,
+            leaderboardOptIn = optIn,
+            updatedAt = timestamp,
+        )
     }
 }
