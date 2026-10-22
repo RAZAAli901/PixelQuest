@@ -1,6 +1,5 @@
 package com.pixelquest.app.ui.screens.account
 
-import com.pixelquest.app.ui.components.PqDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,14 +8,13 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material.icons.rounded.Logout
 import androidx.compose.material.icons.rounded.Policy
 import androidx.compose.material.icons.rounded.Sync
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,21 +27,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.auth.AuthViewModel
-import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqDangerButton
+import com.pixelquest.app.ui.components.PqDialog
 import com.pixelquest.app.ui.components.PqGroupLabel
 import com.pixelquest.app.ui.components.PqTopBar
 import com.pixelquest.app.ui.theme.PqColors
-import androidx.compose.ui.platform.testTag
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
 
@@ -55,7 +54,7 @@ fun AccountScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = hiltViewModel(),
-    accountViewModel: AccountViewModel = hiltViewModel()
+    accountViewModel: AccountViewModel = hiltViewModel(),
 ) {
     // The account: email, the cloud data controls (S043).
     com.pixelquest.app.ui.components.SecureScreen()
@@ -64,7 +63,7 @@ fun AccountScreen(
     val accountState by accountViewModel.uiState.collectAsState()
     val context = LocalContext.current
     val exportCloud = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
+        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json"),
     ) { uri -> uri?.let { accountViewModel.exportCloudData(context, it) } }
 
     AccountContent(
@@ -104,7 +103,7 @@ fun AccountScreen(
         onConfirmDeleteCloudData = { accountViewModel.confirmDeleteCloudAccount(viewModel) },
         onDismissDeleteDialog = { accountViewModel.dismissDeleteDialog() },
         onNavigateBack = onNavigateBack,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -149,7 +148,7 @@ fun AccountContent(
      * Email-code sign-in also needs an email service on the project, or the codes reach only its
      * team; a build made before one is set up turns it off (EMAIL_SIGN_IN=false, docs/CLOUD_SETUP.md).
      */
-    emailAvailable: Boolean = com.pixelquest.app.BuildConfig.EMAIL_SIGN_IN
+    emailAvailable: Boolean = com.pixelquest.app.BuildConfig.EMAIL_SIGN_IN,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -157,7 +156,7 @@ fun AccountContent(
             .fillMaxSize()
             .background(PqColors.Ground)
             .verticalScroll(rememberScrollState())
-            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp)
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp),
     ) {
         PqTopBar("Cloud & leaderboard", onBack = onNavigateBack)
         Text(
@@ -171,7 +170,7 @@ fun AccountContent(
                     "You're signed in. Join the leaderboard below to compare streaks with other players."
                 else -> "Sign in with Google or your email to join the community quest leaderboard, sync your stats and use the AI Coach."
             },
-            style = PqType.Body.copy(color = PqColors.Ink2)
+            style = PqType.Body.copy(color = PqColors.Ink2),
         )
 
         // A failed sign-in (say, Google with no Google account on the phone) shows its error
@@ -185,7 +184,7 @@ fun AccountContent(
                 if (cloudAvailable && (googleAvailable || emailAvailable)) {
                     Text(
                         text = "Sign in to join the leaderboard and use the AI Coach. By default, your stats remain private until you explicitly choose to opt in.",
-                        style = PqType.Body.copy(color = PqColors.Ink2)
+                        style = PqType.Body.copy(color = PqColors.Ink2),
                     )
                     if (googleAvailable && !emailState.isOpen) {
                         PqButton("Sign in with Google", onSignInWithGoogle, Modifier.fillMaxWidth())
@@ -199,11 +198,14 @@ fun AccountContent(
                             onCodeChange = onEmailCodeChange,
                             onVerifyCode = onVerifyEmailCode,
                             onUseDifferentEmail = onUseDifferentEmail,
-                            onClose = onCloseEmailSignIn
+                            onClose = onCloseEmailSignIn,
                         )
                     }
                 } else {
-                    Text(text = com.pixelquest.app.domain.CloudAvailability.NOT_IN_THIS_BUILD, style = PqType.Body.copy(color = PqColors.Ink2))
+                    Text(
+                        text = com.pixelquest.app.domain.CloudAvailability.NOT_IN_THIS_BUILD,
+                        style = PqType.Body.copy(color = PqColors.Ink2),
+                    )
                 }
                 com.pixelquest.app.ui.screens.settings.SettingLink(Icons.Rounded.Policy, "Privacy policy", onViewPrivacyPolicy)
             }
@@ -211,7 +213,11 @@ fun AccountContent(
 
         if (authState is com.pixelquest.app.auth.AuthUiState.SigningIn) {
             PqCard(radius = PqDimens.RadiusLg) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth().padding(14.dp),
+                ) {
                     CircularProgressIndicator(color = PqColors.Ink, strokeWidth = 3.dp, modifier = Modifier.size(28.dp))
                     Text(text = "Signing you in…", style = PqType.BodyStrong)
                 }
@@ -225,7 +231,7 @@ fun AccountContent(
                 if (signedIn.serverUnreachable) {
                     Text(
                         text = "Can't reach the server right now. You're still signed in: sync, the leaderboard and the AI Coach come back with the connection.",
-                        style = PqType.Meta.copy(color = PqColors.Ink)
+                        style = PqType.Meta.copy(color = PqColors.Ink),
                     )
                 }
                 Column {
@@ -233,14 +239,24 @@ fun AccountContent(
                     Text(text = user.email ?: user.displayName ?: "Hero", style = PqType.BodyStrong)
                     Text(text = "Cloud ID ${user.id.take(8)}…${user.id.takeLast(4)}", style = PqType.Meta)
                 }
-                PqButton("Sign out", onSignOut, Modifier.fillMaxWidth(), style = PqButtonStyle.Secondary, icon = Icons.Rounded.Logout)
+                PqButton(
+                    "Sign out",
+                    onSignOut,
+                    Modifier.fillMaxWidth(),
+                    style = PqButtonStyle.Secondary,
+                    icon = Icons.AutoMirrored.Rounded.Logout,
+                )
                 // Lost a phone, or signed in somewhere you shouldn't have (S059).
-                com.pixelquest.app.ui.screens.settings.SettingLink(Icons.Rounded.Logout, "Sign out on every device", onSignOutEverywhere)
+                com.pixelquest.app.ui.screens.settings.SettingLink(
+                    Icons.AutoMirrored.Rounded.Logout,
+                    "Sign out on every device",
+                    onSignOutEverywhere,
+                )
                 if (signOutEverywhereFailed) {
                     Text(
                         text = "Couldn't reach the server, so nothing was signed out. Connect to the internet and try again.",
                         style = PqType.Meta.copy(color = PqColors.Error),
-                        modifier = Modifier.testTag(AccountTags.SIGN_OUT_EVERYWHERE_FAILED)
+                        modifier = Modifier.testTag(AccountTags.SIGN_OUT_EVERYWHERE_FAILED),
                     )
                 }
             }
@@ -250,15 +266,18 @@ fun AccountContent(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Box(
                         Modifier.size(12.dp).clip(com.pixelquest.app.ui.theme.PqCircle)
-                            .background(if (accountState.isOptedIn) PqColors.Live else PqColors.Muted)
+                            .background(if (accountState.isOptedIn) PqColors.Live else PqColors.Muted),
                     )
                     Text(
                         text = if (accountState.isOptedIn) "You're on the leaderboard" else "You're not on the leaderboard",
-                        style = PqType.BodyStrong
+                        style = PqType.BodyStrong,
                     )
                 }
                 if (accountState.choiceWaiting) {
-                    Text(text = "Waiting to reach the server: it's sent as soon as you're online.", style = PqType.Meta.copy(color = PqColors.Ink))
+                    Text(
+                        text = "Waiting to reach the server: it's sent as soon as you're online.",
+                        style = PqType.Meta.copy(color = PqColors.Ink),
+                    )
                 }
                 PixelTextField(
                     value = accountState.displayNameInput,
@@ -266,15 +285,15 @@ fun AccountContent(
                     label = "Public leaderboard name",
                     placeholder = "Enter public pseudonym",
                     errorText = accountState.displayNameError,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Text(
                     text = "Shown publicly on the leaderboard. Separate from your hero name, and never your email or real name. Names are unique: nobody else can use yours while your account has it.",
-                    style = PqType.Meta
+                    style = PqType.Meta,
                 )
                 Text(
                     text = "In Simple Mode, your completions, streaks and XP are still counted in the background and shown on the leaderboard.",
-                    style = PqType.Meta
+                    style = PqType.Meta,
                 )
                 if (accountState.isOptedIn) {
                     PqButton("Leave the leaderboard", { onOptInToggle(false) }, Modifier.fillMaxWidth(), style = PqButtonStyle.Secondary)
@@ -286,16 +305,32 @@ fun AccountContent(
             if (accountState.isOptedIn) {
                 AccountSection("Cloud sync") {
                     if (accountState.lastSyncTime != null) {
-                        val formattedTime = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(accountState.lastSyncTime))
+                        val formattedTime = java.text.SimpleDateFormat(
+                            "HH:mm:ss",
+                            java.util.Locale.getDefault(),
+                        ).format(java.util.Date(accountState.lastSyncTime))
                         Text(text = "Last synced $formattedTime", style = PqType.Meta)
                     }
                     if (accountState.isSyncFailed) {
-                        Text(text = "Cloud sync is unavailable right now. It keeps retrying in the background, and your progress is safe on this phone.", style = PqType.Meta.copy(color = PqColors.Error))
+                        Text(
+                            text = "Cloud sync is unavailable right now. It keeps retrying in the background, and your progress is safe on this phone.",
+                            style = PqType.Meta.copy(color = PqColors.Error),
+                        )
                     }
                     if (accountState.syncMessage != null) {
                         Text(
                             text = accountState.syncMessage,
-                            style = PqType.MetaStrong.copy(color = if (accountState.syncMessage.contains("successful", ignoreCase = true)) PqColors.Live else PqColors.Error)
+                            style = PqType.MetaStrong.copy(
+                                color = if (accountState.syncMessage.contains(
+                                        "successful",
+                                        ignoreCase = true,
+                                    )
+                                ) {
+                                    PqColors.Live
+                                } else {
+                                    PqColors.Error
+                                },
+                            ),
                         )
                     }
                     Text(text = "Sync runs by itself when you finish a quest or level up.", style = PqType.Meta)
@@ -305,33 +340,43 @@ fun AccountContent(
                         Modifier.fillMaxWidth(),
                         style = PqButtonStyle.Secondary,
                         icon = Icons.Rounded.Sync,
-                        enabled = !accountState.isSyncing
+                        enabled = !accountState.isSyncing,
                     )
                 }
             }
 
             AccountSection("Cloud data & privacy") {
                 // Everything the cloud keeps about the account, to a file (J173).
-                if (authState is com.pixelquest.app.auth.AuthUiState.SignedIn) {
-                    Text(text = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.account_export_body), style = PqType.Meta)
-                    PqButton(
-                        androidx.compose.ui.res.stringResource(
-                            if (accountState.cloudExport == CloudExport.WORKING) com.pixelquest.app.R.string.account_export_working else com.pixelquest.app.R.string.account_export
-                        ),
-                        onExportCloudData,
-                        Modifier.fillMaxWidth().testTag("account_export_cloud"),
-                        style = PqButtonStyle.Secondary,
-                        enabled = accountState.cloudExport != CloudExport.WORKING
+                Text(text = androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.account_export_body), style = PqType.Meta)
+                PqButton(
+                    androidx.compose.ui.res.stringResource(
+                        if (accountState.cloudExport ==
+                            CloudExport.WORKING
+                        ) {
+                            com.pixelquest.app.R.string.account_export_working
+                        } else {
+                            com.pixelquest.app.R.string.account_export
+                        },
+                    ),
+                    onExportCloudData,
+                    Modifier.fillMaxWidth().testTag("account_export_cloud"),
+                    style = PqButtonStyle.Secondary,
+                    enabled = accountState.cloudExport != CloudExport.WORKING,
+                )
+                when (accountState.cloudExport) {
+                    CloudExport.SAVED -> Text(
+                        androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.account_export_saved),
+                        style = PqType.MetaStrong.copy(color = PqColors.Live),
                     )
-                    when (accountState.cloudExport) {
-                        CloudExport.SAVED -> Text(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.account_export_saved), style = PqType.MetaStrong.copy(color = PqColors.Live))
-                        CloudExport.FAILED -> Text(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.account_export_failed), style = PqType.MetaStrong.copy(color = PqColors.Error))
-                        else -> Unit
-                    }
+                    CloudExport.FAILED -> Text(
+                        androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.account_export_failed),
+                        style = PqType.MetaStrong.copy(color = PqColors.Error),
+                    )
+                    else -> Unit
                 }
                 Text(
                     text = "Permanently delete your public leaderboard profile and unlink your cloud account. Your quests and streak history on this phone stay as they are.",
-                    style = PqType.Meta
+                    style = PqType.Meta,
                 )
                 PqDangerButton("Delete my cloud data", onRequestDeleteCloudData)
             }
@@ -342,7 +387,7 @@ fun AccountContent(
         LeaderboardPrivacyConfirmDialog(
             displayName = accountState.displayNameInput.trim().ifBlank { "Hero" },
             onConfirm = onConfirmOptIn,
-            onDismiss = onDismissOptInDialog
+            onDismiss = onDismissOptInDialog,
         )
     }
 
@@ -354,7 +399,7 @@ fun AccountContent(
             confirm = "LEAVE",
             dismiss = "STAY",
             onConfirm = onConfirmOptOut,
-            onDismiss = onDismissOptOutDialog
+            onDismiss = onDismissOptOutDialog,
         )
     }
 
@@ -365,11 +410,11 @@ fun AccountContent(
             onDismissRequest = onDismissOptOutNotice,
             confirm = "OK",
             onConfirm = onDismissOptOutNotice,
-            dismiss = null
+            dismiss = null,
         ) {
             Text(
                 text = "You've left the leaderboard. Your rank and display name have been removed from public rankings.",
-                style = PqType.Body.copy(color = PqColors.Ink2)
+                style = PqType.Body.copy(color = PqColors.Ink2),
             )
         }
     }
@@ -382,7 +427,7 @@ fun AccountContent(
             confirm = "CONTINUE",
             dismiss = "CANCEL",
             onConfirm = onProceedDeleteDoubleConfirm,
-            onDismiss = onDismissDeleteDialog
+            onDismiss = onDismissDeleteDialog,
         )
     }
 
@@ -394,48 +439,46 @@ fun AccountContent(
             confirm = "PURGE CLOUD",
             dismiss = "KEEP ACCOUNT",
             onConfirm = onConfirmDeleteCloudData,
-            onDismiss = onDismissDeleteDialog
+            onDismiss = onDismissDeleteDialog,
         )
     }
 
     // Informed Consent: In-App Privacy Information Dialog
     if (accountState.showPrivacyDialog) {
         PrivacyPolicyDialog(
-            onDismiss = onDismissPrivacyPolicy
+            onDismiss = onDismissPrivacyPolicy,
         )
     }
 }
 
 @Composable
-fun PrivacyPolicyDialog(
-    onDismiss: () -> Unit
-) {
+fun PrivacyPolicyDialog(onDismiss: () -> Unit) {
     PqDialog(
         title = "Privacy policy",
         onDismissRequest = onDismiss,
         confirm = "I UNDERSTAND",
         onConfirm = onDismiss,
-        dismiss = null
+        dismiss = null,
     ) {
         // The dialog scrolls a long policy itself.
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             PqGroupLabel("Local first")
             Text(
                 text = "By default, all your quests, schedule times, recurrence rules, completion logs, and streak history are stored strictly on your local device. We never run third-party advertising SDKs or tracking telemetry.",
-                style = PqType.Meta.copy(color = PqColors.Ink2)
+                style = PqType.Meta.copy(color = PqColors.Ink2),
             )
             PqGroupLabel("The leaderboard is optional")
             Text(
                 text = "Leaderboard participation defaults to OFF. You can sign in with Google or with a code sent to your email; signing in alone shares nothing. If you opt in, only your public display name, level, streak, and XP are synchronized. Your individual quest descriptions and email are NEVER shared. The AI Coach is for signed-in players.",
-                style = PqType.Meta.copy(color = PqColors.Ink2)
+                style = PqType.Meta.copy(color = PqColors.Ink2),
             )
             PqGroupLabel("Your right to erase")
             Text(
                 text = "You can leave the leaderboard at any time, or permanently delete your cloud account and public record with one tap from this screen. Local progress remains safe on your device.",
-                style = PqType.Meta.copy(color = PqColors.Ink2)
+                style = PqType.Meta.copy(color = PqColors.Ink2),
             )
         }
     }
@@ -456,7 +499,10 @@ private fun AccountProblem(message: String, onRetry: () -> Unit) {
     PqCard(radius = PqDimens.RadiusLg) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth().padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                Box(Modifier.size(36.dp).clip(com.pixelquest.app.ui.theme.pqShape(10.dp)).background(PqColors.Rose), contentAlignment = Alignment.Center) {
+                Box(
+                    Modifier.size(36.dp).clip(com.pixelquest.app.ui.theme.pqShape(10.dp)).background(PqColors.Rose),
+                    contentAlignment = Alignment.Center,
+                ) {
                     Icon(Icons.Rounded.ErrorOutline, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.size(20.dp))
                 }
                 Text(text = "Couldn't sign in", style = PqType.BodyStrong)

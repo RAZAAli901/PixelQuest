@@ -1,6 +1,5 @@
 package com.pixelquest.app.study.ui
 
-import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.MenuBook
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,13 +35,13 @@ import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.study.data.StudyRepository
 import com.pixelquest.app.ui.components.CategoryTile
 import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.navigation.TabSharing
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
 import com.pixelquest.app.ui.theme.pqShape
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -52,7 +51,14 @@ import java.time.ZoneId
 import javax.inject.Inject
 
 /** One item on the Home card: what, where, and how close. */
-data class HomeDueLine(val partyId: String, val partyName: String, val itemId: String, val title: String, val due: DueState, val dueAt: java.time.Instant?)
+data class HomeDueLine(
+    val partyId: String,
+    val partyName: String,
+    val itemId: String,
+    val title: String,
+    val due: DueState,
+    val dueAt: java.time.Instant?,
+)
 
 /**
  * The Home card's content: shown while the player is in a study party. [due] is what they haven't
@@ -63,10 +69,7 @@ data class HomeStudy(val due: List<HomeDueLine>)
 /** The study parties' Home card, from the phone's own copy: no call to the server of its own. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class HomeStudyViewModel @Inject constructor(
-    parties: PartyRepository,
-    private val study: StudyRepository
-) : ViewModel() {
+class HomeStudyViewModel @Inject constructor(parties: PartyRepository, private val study: StudyRepository) : ViewModel() {
     val home: StateFlow<HomeStudy?> = parties.observeMyParties(PartyType.STUDY).flatMapLatest { all ->
         val mine = all.filter { it.myStatus == MemberStatus.ACTIVE }.associateBy { it.id }
         study.observeDueSoon(study.now().plus(Duration.ofDays(7)), LIMIT).map { items ->
@@ -76,8 +79,15 @@ class HomeStudyViewModel @Inject constructor(
                 val now = study.now()
                 HomeStudy(
                     items.filter { it.partyId in mine }.map {
-                        HomeDueLine(it.partyId, mine.getValue(it.partyId).name, it.id, it.title, dueStateOf(it.dueAt, now, study.zone()), it.dueAt)
-                    }
+                        HomeDueLine(
+                            it.partyId,
+                            mine.getValue(it.partyId).name,
+                            it.id,
+                            it.title,
+                            dueStateOf(it.dueAt, now, study.zone()),
+                            it.dueAt,
+                        )
+                    },
                 )
             }
         }
@@ -105,9 +115,9 @@ fun HomeStudyCard(home: HomeStudy, onOpenParty: (String) -> Unit, onOpenParties:
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 48.dp)
-                    .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_home_open), onClick = onOpenParties)
+                    .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_home_open), onClick = onOpenParties),
             ) {
-                CategoryTile(Icons.Rounded.MenuBook, PqColors.Paper)
+                CategoryTile(Icons.AutoMirrored.Rounded.MenuBook, PqColors.Paper)
                 Text(text = stringResource(R.string.study_home_title).uppercase(), style = PqType.Label, modifier = Modifier.weight(1f))
                 Icon(Icons.Rounded.ChevronRight, null, tint = PqColors.Ink)
             }
@@ -122,14 +132,16 @@ fun HomeStudyCard(home: HomeStudy, onOpenParty: (String) -> Unit, onOpenParties:
                         .clip(pqShape(12.dp))
                         .background(PqColors.Paper)
                         .border(PqDimens.BorderThin, PqColors.Ink, pqShape(12.dp))
-                        .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_home_open_party)) { onOpenParty(line.partyId) }
+                        .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_home_open_party)) {
+                            onOpenParty(line.partyId)
+                        }
                         .padding(horizontal = 12.dp, vertical = 8.dp)
-                        .testTag(StudyTags.homeLine(line.itemId))
+                        .testTag(StudyTags.homeLine(line.itemId)),
                 ) {
                     Text(text = line.title, style = PqType.BodyStrong, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(
                         text = stringResource(R.string.study_home_where, line.partyName, dueText(line.due, line.dueAt, zone)),
-                        style = if (line.due == DueState.OVERDUE) PqType.MetaStrong.copy(color = PqColors.RedText) else PqType.Meta
+                        style = if (line.due == DueState.OVERDUE) PqType.MetaStrong.copy(color = PqColors.RedText) else PqType.Meta,
                     )
                 }
             }

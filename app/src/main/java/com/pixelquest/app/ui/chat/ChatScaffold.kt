@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,7 +42,7 @@ fun ChatScaffold(
     inputBar: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     backgroundTag: String = "chat_background",
-    body: @Composable BoxScope.() -> Unit
+    body: @Composable BoxScope.() -> Unit,
 ) {
     Scaffold(containerColor = PqColors.Ground, topBar = topBar, bottomBar = inputBar, modifier = modifier) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
@@ -69,22 +69,26 @@ fun ChatTopBar(
     titleTag: String = "chat_title",
     avatar: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    below: @Composable ColumnScope.() -> Unit = {}
+    below: @Composable ColumnScope.() -> Unit = {},
 ) {
     Column(modifier = modifier.fillMaxWidth().background(PqColors.Ground)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.fillMaxWidth().padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp).heightIn(min = 52.dp)
+            modifier = Modifier.fillMaxWidth().padding(
+                start = PqDimens.ScreenPad,
+                end = PqDimens.ScreenPad,
+                top = 8.dp,
+            ).heightIn(min = 52.dp),
         ) {
-            PqIconButton(Icons.Rounded.ArrowBack, stringResource(R.string.navigate_back), onNavigateBack)
+            PqIconButton(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.navigate_back), onNavigateBack)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier
                     .weight(1f)
                     .testTag(titleTag)
-                    .clickable(role = Role.Button, onClickLabel = openTitleLabel, onClick = onOpenTitle)
+                    .clickable(role = Role.Button, onClickLabel = openTitleLabel, onClick = onOpenTitle),
             ) {
                 avatar()
                 Column {

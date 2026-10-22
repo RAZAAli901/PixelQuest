@@ -14,10 +14,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Brightness3
 import androidx.compose.material.icons.rounded.Groups
-import androidx.compose.material.icons.rounded.MenuBook
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +47,7 @@ import com.pixelquest.app.ui.theme.pqShape
 
 /** An item's icon on Deen, by its id: the book, the group, the moon; a sparkle for one to come. */
 fun deenIcon(id: String): ImageVector = when (id) {
-    "quran" -> Icons.Rounded.MenuBook
+    "quran" -> Icons.AutoMirrored.Rounded.MenuBook
     "darood" -> Icons.Rounded.Groups
     "namaz" -> Icons.Rounded.Brightness3
     else -> Icons.Rounded.AutoAwesome
@@ -83,7 +83,10 @@ fun IslamicItemCard(
     PqCard(
         modifier
             .heightIn(min = if (isSimpleMode) 0.dp else 150.dp)
-            .semantics(mergeDescendants = true) { contentDescription = spoken; role = Role.Button }
+            .semantics(mergeDescendants = true) {
+                contentDescription = spoken
+                role = Role.Button
+            }
             .testTag(IslamicTestTags.card(item.id)),
         bg = deenColor(item.id),
         onClick = onClick,
@@ -99,7 +102,11 @@ fun IslamicItemCard(
             Text(body ?: stringResource(item.descriptionRes), style = PqType.Meta.copy(color = PqColors.Ink))
             if (progress != null) {
                 Spacer(Modifier.height(2.dp))
-                Box(Modifier.fillMaxWidth().height(10.dp).clip(pqShape(5.dp)).background(PqColors.Paper).border(PqDimens.BorderThin, PqColors.Ink, pqShape(5.dp))) {
+                Box(
+                    Modifier.fillMaxWidth().height(
+                        10.dp,
+                    ).clip(pqShape(5.dp)).background(PqColors.Paper).border(PqDimens.BorderThin, PqColors.Ink, pqShape(5.dp)),
+                ) {
                     Box(Modifier.fillMaxWidth(progress.coerceIn(0f, 1f)).height(10.dp).background(PqColors.Ink))
                 }
             }
@@ -130,7 +137,7 @@ internal fun IslamicBadge(count: Int) {
             .padding(horizontal = 6.dp)
             .testTag(IslamicTestTags.BADGE)
             // The tile says what it counts; the number alone would be read out of context.
-            .clearAndSetSemantics {}
+            .clearAndSetSemantics {},
     ) {
         Text(badgeText(count), style = PqType.Button.copy(color = PqColors.OnRed))
     }

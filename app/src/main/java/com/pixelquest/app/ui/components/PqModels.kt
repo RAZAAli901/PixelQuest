@@ -3,12 +3,12 @@ package com.pixelquest.app.ui.components
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.rounded.Bedtime
 import androidx.compose.material.icons.rounded.CleaningServices
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.LightMode
-import androidx.compose.material.icons.rounded.MenuBook
 import androidx.compose.material.icons.rounded.NightsStay
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.WbCloudy
@@ -24,10 +24,11 @@ import com.pixelquest.app.ui.theme.PqColors
 /** A quest's category as UI v2 draws it: its name, icon and colour. The app's own five categories. */
 enum class QuestCategory(@StringRes val label: Int, val icon: ImageVector, private val tint: () -> Color) {
     Fitness(R.string.pq_category_fitness, Icons.Rounded.FitnessCenter, { PqColors.Amber }),
-    Learning(R.string.pq_category_learning, Icons.Rounded.MenuBook, { PqColors.Lilac }),
+    Learning(R.string.pq_category_learning, Icons.AutoMirrored.Rounded.MenuBook, { PqColors.Lilac }),
     Health(R.string.pq_category_health, Icons.Rounded.Favorite, { PqColors.Rose }),
     Chores(R.string.pq_category_chores, Icons.Rounded.CleaningServices, { PqColors.Sky }),
-    Other(R.string.pq_category_other, Icons.Rounded.Star, { PqColors.Gold });
+    Other(R.string.pq_category_other, Icons.Rounded.Star, { PqColors.Gold }),
+    ;
 
     val color: Color get() = tint()
 
@@ -88,7 +89,8 @@ enum class DayStatus(private val tint: () -> Color) {
     Perfect({ PqColors.StatusPerfect }),
     Partial({ PqColors.StatusPartial }),
     Missed({ PqColors.StatusMissed }),
-    None({ PqColors.Sunken });
+    None({ PqColors.Sunken }),
+    ;
 
     val color: Color get() = tint()
 }
@@ -100,7 +102,8 @@ enum class AvatarClass(val id: String, @StringRes val label: Int, @DrawableRes v
     Rogue("avatar_rogue", R.string.pq_avatar_rogue, R.drawable.avatar_rogue),
     Warrior("avatar_warrior", R.string.pq_avatar_warrior, R.drawable.avatar_warrior),
     Paladin("avatar_paladin", R.string.pq_avatar_paladin, R.drawable.avatar_paladin),
-    Ranger("avatar_ranger", R.string.pq_avatar_ranger, R.drawable.avatar_ranger);
+    Ranger("avatar_ranger", R.string.pq_avatar_ranger, R.drawable.avatar_ranger),
+    ;
 
     companion object {
         /** The class for a stored avatar id; the Hero for anything else. */

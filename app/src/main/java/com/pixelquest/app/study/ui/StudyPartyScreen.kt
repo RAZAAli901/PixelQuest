@@ -1,10 +1,8 @@
 package com.pixelquest.app.study.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,20 +16,23 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.PersonAdd
+import androidx.compose.material.icons.rounded.PushPin
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +40,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,10 +58,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.remember
-import androidx.compose.material.icons.outlined.PushPin
-import androidx.compose.material.icons.rounded.PushPin
-import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
@@ -68,15 +67,14 @@ import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyTab
 import com.pixelquest.app.party.ui.components.MemberList
 import com.pixelquest.app.study.domain.StudyRefusal
-import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqGroupLabel
 import com.pixelquest.app.ui.components.PqIconButton
 import com.pixelquest.app.ui.components.PqSwitch
 import com.pixelquest.app.ui.components.comic
 import com.pixelquest.app.ui.components.comicPressable
-import com.pixelquest.app.ui.theme.PixelTheme
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
@@ -102,10 +100,14 @@ fun StudyPartyScreen(
     /** The party's chess; without one (a test), chess lines in the chat stay plain. */
     chessViewModel: com.pixelquest.app.chess.ui.ChessPartyViewModel? = null,
     onOpenChessGame: (String) -> Unit = {},
-    onOpenRival: (userId: String, name: String?) -> Unit = { _, _ -> }
+    onOpenRival: (userId: String, name: String?) -> Unit = { _, _ -> },
 ) {
     val state by viewModel.uiState.collectAsState()
-    val reminderState by (remindersViewModel?.uiState ?: remember { kotlinx.coroutines.flow.MutableStateFlow(ReminderUiState()) }).collectAsState()
+    val reminderState by (
+        remindersViewModel?.uiState ?: remember {
+            kotlinx.coroutines.flow.MutableStateFlow(ReminderUiState())
+        }
+        ).collectAsState()
     val dueReminders by viewModel.dueReminders.collectAsState()
     val weeklySummary by viewModel.weeklySummary.collectAsState()
     val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
@@ -115,7 +117,10 @@ fun StudyPartyScreen(
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { viewModel.followWhileVisible() }
     }
     val chatMuted by (chatViewModel?.chatMuted ?: remember { kotlinx.coroutines.flow.MutableStateFlow(false) }).collectAsState()
-    val chatState by (chatViewModel?.uiState ?: remember { kotlinx.coroutines.flow.MutableStateFlow(com.pixelquest.app.study.chat.ui.ChatUiState()) }).collectAsState()
+    val chatState by (
+        chatViewModel?.uiState
+            ?: remember { kotlinx.coroutines.flow.MutableStateFlow(com.pixelquest.app.study.chat.ui.ChatUiState()) }
+        ).collectAsState()
     // The chat is followed live, and read, only while its tab is on screen.
     val chatShown = state.tab == PartyTab.CHAT
     LaunchedEffect(lifecycle, chatViewModel, chatShown) {
@@ -131,7 +136,10 @@ fun StudyPartyScreen(
             if (!com.pixelquest.app.study.chat.ui.openInViewer(context, saved)) chatViewModel.noViewer()
         }
     }
-    val chessState by (chessViewModel?.state ?: remember { kotlinx.coroutines.flow.MutableStateFlow(com.pixelquest.app.chess.ui.ChessPartyState()) }).collectAsState()
+    val chessState by (
+        chessViewModel?.state
+            ?: remember { kotlinx.coroutines.flow.MutableStateFlow(com.pixelquest.app.chess.ui.ChessPartyState()) }
+        ).collectAsState()
     LaunchedEffect(chessViewModel) {
         chessViewModel?.events?.collect { event ->
             if (event is com.pixelquest.app.chess.ui.ChessPartyEvent.GameStarted) onOpenChessGame(event.gameId)
@@ -150,8 +158,8 @@ fun StudyPartyScreen(
                     onAnswer = chess::answer,
                     onWatch = onOpenChessGame,
                     onBoardTime = chess::loadBoard,
-                    onOpenRival = { id -> onOpenRival(id, chessState.names[id]) }
-                )
+                    onOpenRival = { id -> onOpenRival(id, chessState.names[id]) },
+                ),
             )
         }
     }
@@ -162,84 +170,99 @@ fun StudyPartyScreen(
     androidx.compose.runtime.CompositionLocalProvider(
         com.pixelquest.app.chess.ui.LocalChessChatCards provides chessCards,
         com.pixelquest.app.chess.ui.LocalChessTab provides chessTab,
-        com.pixelquest.app.chess.ui.LocalChessBadge provides chessBadge
+        com.pixelquest.app.chess.ui.LocalChessBadge provides chessBadge,
     ) {
-    StudyPartyContent(
-        state = state,
-        onNavigateBack = onNavigateBack,
-        onOpenInfo = onOpenInfo,
-        onAddPeople = onAddPeople,
-        onSelectTab = viewModel::selectTab,
-        onRefresh = { viewModel.refresh(); remindersViewModel?.refresh() },
-        onDismissNotice = viewModel::dismissNotice,
-        onAddItem = viewModel::openAddItem,
-        onFormChange = viewModel::updateForm,
-        onSaveForm = viewModel::saveForm,
-        onCloseForm = viewModel::closeForm,
-        onOpenItem = onOpenItem,
-        actions = ItemActions(
-            onEdit = viewModel::editItem,
-            onTogglePin = viewModel::togglePin,
-            onDelete = viewModel::askDelete,
-            onDone = viewModel::complete,
-            onUndo = viewModel::undo,
-            onRetry = viewModel::retry,
-            onDiscard = viewModel::discard
-        ),
-        onConfirmDelete = viewModel::confirmDelete,
-        onCancelDelete = viewModel::cancelDelete,
-        timerActions = TimerActions(viewModel::startTimer, viewModel::stopTimer, viewModel::cancelTimer, viewModel::logStudy),
-        onDismissWinners = viewModel::dismissWinnerBanner,
-        reminders = ReminderToggles(
-            dueReminders,
-            { on -> if (on) askForNotifications(); viewModel.setDueReminders(on) },
-            weeklySummary,
-            { on -> if (on) askForNotifications(); viewModel.setWeeklySummary(on) }
-        ),
-        chatState = chatViewModel?.let { chatState },
-        chatActions = chatViewModel?.let { vm ->
-            com.pixelquest.app.study.chat.ui.ChatActions(
-                onDraftChange = vm::changeDraft,
-                onSend = vm::send,
-                onReply = vm::replyTo,
-                onCancelReply = vm::cancelReply,
-                onDelete = { vm.delete(it.id) },
-                onRetry = vm::retry,
-                onDiscard = vm::discard,
-                onReachOldest = vm::loadOlder,
-                onDismissNotice = vm::dismissNotice,
-                onAttach = vm::attach,
-                onRemoveAttachment = vm::removeAttachment,
-                onCancelUpload = vm::cancelUpload,
-                onOpenFile = vm::openFile,
-                onConfirmOpen = vm::confirmOpen,
-                onPinFile = vm::pinFile,
-                onReport = { vm.report(it, "inappropriate") },
-                onBlock = vm::setBlocked,
-                chatMuted = chatMuted,
-                onSetChatMuted = vm::setChatMuted,
-                onCancelOpen = vm::cancelOpen,
-                onRetryUpload = vm::retryUpload,
-                onDismissUpload = vm::dismissUpload
-            )
-        } ?: com.pixelquest.app.study.chat.ui.ChatActions(),
-        reminderState = reminderState,
-        reminderActions = remindersViewModel?.let { vm ->
-            ReminderActions(
-                onAdd = { askForNotifications(); vm.openCreate() },
-                onOpen = vm::openEdit,
-                onChange = vm::change,
-                onSave = vm::save,
-                onClose = vm::close,
-                onDismissNotice = vm::dismissNotice,
-                onDelete = vm::askDelete,
-                onConfirmDelete = vm::confirmDelete,
-                onCancelDelete = vm::cancelDelete,
-                onSetAlertsOn = { on -> if (on) askForNotifications(); vm.setAlertsOn(on) },
-                onSetMuted = vm::setPartyMuted
-            )
-        }
-    )
+        StudyPartyContent(
+            state = state,
+            onNavigateBack = onNavigateBack,
+            onOpenInfo = onOpenInfo,
+            onAddPeople = onAddPeople,
+            onSelectTab = viewModel::selectTab,
+            onRefresh = {
+                viewModel.refresh()
+                remindersViewModel?.refresh()
+            },
+            onDismissNotice = viewModel::dismissNotice,
+            onAddItem = viewModel::openAddItem,
+            onFormChange = viewModel::updateForm,
+            onSaveForm = viewModel::saveForm,
+            onCloseForm = viewModel::closeForm,
+            onOpenItem = onOpenItem,
+            actions = ItemActions(
+                onEdit = viewModel::editItem,
+                onTogglePin = viewModel::togglePin,
+                onDelete = viewModel::askDelete,
+                onDone = viewModel::complete,
+                onUndo = viewModel::undo,
+                onRetry = viewModel::retry,
+                onDiscard = viewModel::discard,
+            ),
+            onConfirmDelete = viewModel::confirmDelete,
+            onCancelDelete = viewModel::cancelDelete,
+            timerActions = TimerActions(viewModel::startTimer, viewModel::stopTimer, viewModel::cancelTimer, viewModel::logStudy),
+            onDismissWinners = viewModel::dismissWinnerBanner,
+            reminders = ReminderToggles(
+                dueReminders,
+                { on ->
+                    if (on) askForNotifications()
+                    viewModel.setDueReminders(on)
+                },
+                weeklySummary,
+                { on ->
+                    if (on) askForNotifications()
+                    viewModel.setWeeklySummary(on)
+                },
+            ),
+            chatState = chatViewModel?.let { chatState },
+            chatActions = chatViewModel?.let { vm ->
+                com.pixelquest.app.study.chat.ui.ChatActions(
+                    onDraftChange = vm::changeDraft,
+                    onSend = vm::send,
+                    onReply = vm::replyTo,
+                    onCancelReply = vm::cancelReply,
+                    onDelete = { vm.delete(it.id) },
+                    onRetry = vm::retry,
+                    onDiscard = vm::discard,
+                    onReachOldest = vm::loadOlder,
+                    onDismissNotice = vm::dismissNotice,
+                    onAttach = vm::attach,
+                    onRemoveAttachment = vm::removeAttachment,
+                    onCancelUpload = vm::cancelUpload,
+                    onOpenFile = vm::openFile,
+                    onConfirmOpen = vm::confirmOpen,
+                    onPinFile = vm::pinFile,
+                    onReport = { vm.report(it, "inappropriate") },
+                    onBlock = vm::setBlocked,
+                    chatMuted = chatMuted,
+                    onSetChatMuted = vm::setChatMuted,
+                    onCancelOpen = vm::cancelOpen,
+                    onRetryUpload = vm::retryUpload,
+                    onDismissUpload = vm::dismissUpload,
+                )
+            } ?: com.pixelquest.app.study.chat.ui.ChatActions(),
+            reminderState = reminderState,
+            reminderActions = remindersViewModel?.let { vm ->
+                ReminderActions(
+                    onAdd = {
+                        askForNotifications()
+                        vm.openCreate()
+                    },
+                    onOpen = vm::openEdit,
+                    onChange = vm::change,
+                    onSave = vm::save,
+                    onClose = vm::close,
+                    onDismissNotice = vm::dismissNotice,
+                    onDelete = vm::askDelete,
+                    onConfirmDelete = vm::confirmDelete,
+                    onCancelDelete = vm::cancelDelete,
+                    onSetAlertsOn = { on ->
+                        if (on) askForNotifications()
+                        vm.setAlertsOn(on)
+                    },
+                    onSetMuted = vm::setPartyMuted,
+                )
+            },
+        )
     }
 }
 
@@ -255,7 +278,7 @@ data class ReminderActions(
     val onConfirmDelete: () -> Unit = {},
     val onCancelDelete: () -> Unit = {},
     val onSetAlertsOn: (Boolean) -> Unit = {},
-    val onSetMuted: (Boolean) -> Unit = {}
+    val onSetMuted: (Boolean) -> Unit = {},
 )
 
 @Composable
@@ -283,9 +306,12 @@ fun StudyPartyContent(
     reminderActions: ReminderActions? = null,
     /** Null when the screen has no chat (a test without one). */
     chatState: com.pixelquest.app.study.chat.ui.ChatUiState? = null,
-    chatActions: com.pixelquest.app.study.chat.ui.ChatActions = com.pixelquest.app.study.chat.ui.ChatActions()
+    chatActions: com.pixelquest.app.study.chat.ui.ChatActions = com.pixelquest.app.study.chat.ui.ChatActions(),
 ) {
-    CompositionLocalProvider(LocalStudySimpleMode provides state.simpleMode, com.pixelquest.app.ui.chat.LocalChatSimpleMode provides state.simpleMode) {
+    CompositionLocalProvider(
+        LocalStudySimpleMode provides state.simpleMode,
+        com.pixelquest.app.ui.chat.LocalChatSimpleMode provides state.simpleMode,
+    ) {
         StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders, reminderState, reminderActions, chatState, chatActions)
     }
 }
@@ -313,37 +339,55 @@ private fun StudyPartyScaffold(
     reminderState: ReminderUiState,
     reminderActions: ReminderActions?,
     chatState: com.pixelquest.app.study.chat.ui.ChatUiState?,
-    chatActions: com.pixelquest.app.study.chat.ui.ChatActions
+    chatActions: com.pixelquest.app.study.chat.ui.ChatActions,
 ) {
-    var filesQuery by androidx.compose.runtime.saveable.rememberSaveable(stateSaver = androidx.compose.runtime.saveable.Saver<com.pixelquest.app.study.chat.ui.FilesQuery, String>(
-        save = { it.search + "\u0000" + (it.type?.name ?: "") + "\u0000" + it.newestFirst },
-        restore = { s -> s.split("\u0000").let { com.pixelquest.app.study.chat.ui.FilesQuery(it[0], it[1].takeIf { t -> t.isNotEmpty() }?.let(com.pixelquest.app.study.chat.domain.ChatFileType::valueOf), it[2].toBoolean()) } }
-    )) { androidx.compose.runtime.mutableStateOf(com.pixelquest.app.study.chat.ui.FilesQuery()) }
+    var filesQuery by androidx.compose.runtime.saveable.rememberSaveable(
+        stateSaver = androidx.compose.runtime.saveable.Saver<com.pixelquest.app.study.chat.ui.FilesQuery, String>(
+            save = { it.search + "\u0000" + (it.type?.name ?: "") + "\u0000" + it.newestFirst },
+            restore = { s ->
+                s.split("\u0000").let {
+                    com.pixelquest.app.study.chat.ui.FilesQuery(
+                        it[0],
+                        it[1].takeIf { t ->
+                            t.isNotEmpty()
+                        }?.let(com.pixelquest.app.study.chat.domain.ChatFileType::valueOf),
+                        it[2].toBoolean(),
+                    )
+                }
+            },
+        ),
+    ) { androidx.compose.runtime.mutableStateOf(com.pixelquest.app.study.chat.ui.FilesQuery()) }
     Scaffold(
         containerColor = PqColors.Ground,
         topBar = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth().background(PqColors.Ground).padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp).heightIn(min = 56.dp)
+                modifier = Modifier.fillMaxWidth().background(
+                    PqColors.Ground,
+                ).padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp).heightIn(min = 56.dp),
             ) {
-                PqIconButton(Icons.Rounded.ArrowBack, stringResource(R.string.navigate_back), onNavigateBack)
+                PqIconButton(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.navigate_back), onNavigateBack)
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = (state.party?.name ?: stringResource(R.string.party_study_title)).uppercase(),
                         style = PqType.Title.copy(color = PqColors.Title),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.semantics { heading() }
+                        modifier = Modifier.semantics { heading() },
                     )
                     Text(
                         text = if (state.memberCount > 0) {
-                            stringResource(R.string.pq_party_card_line, stringResource(R.string.party_study_title), pluralStringResource(R.plurals.party_members, state.memberCount, state.memberCount))
+                            stringResource(
+                                R.string.pq_party_card_line,
+                                stringResource(R.string.party_study_title),
+                                pluralStringResource(R.plurals.party_members, state.memberCount, state.memberCount),
+                            )
                         } else {
                             stringResource(R.string.party_study_title)
                         },
                         style = PqType.Meta,
-                        maxLines = 1
+                        maxLines = 1,
                     )
                 }
                 PqIconButton(Icons.Rounded.Info, stringResource(R.string.study_open_info), onOpenInfo, Modifier.testTag(StudyTags.INFO))
@@ -360,15 +404,20 @@ private fun StudyPartyScaffold(
                         .testTag(StudyTags.ADD_ITEM)
                         .height(52.dp)
                         .comicPressable(onAddItem, bg = PqColors.Red, radius = 16.dp, shadow = PqDimens.ShadowLg, role = Role.Button)
-                        .padding(start = 14.dp, end = 18.dp)
+                        .padding(start = 14.dp, end = 18.dp),
                 ) {
                     Icon(Icons.Rounded.Add, contentDescription = null, tint = PqColors.OnRed, modifier = Modifier.size(24.dp))
                     Spacer(Modifier.width(6.dp))
-                    Text(text = label.uppercase(), style = PqType.Button.copy(color = PqColors.OnRed), modifier = Modifier.clearAndSetSemantics { })
+                    Text(
+                        text = label.uppercase(),
+                        style = PqType.Button.copy(color = PqColors.OnRed),
+                        modifier = Modifier.clearAndSetSemantics {
+                        },
+                    )
                 }
             }
         },
-        modifier = Modifier.testTag(StudyTags.SCREEN)
+        modifier = Modifier.testTag(StudyTags.SCREEN),
     ) { innerPadding ->
         state.confirmingDelete?.let { row ->
             PqConfirmDialog(
@@ -377,17 +426,29 @@ private fun StudyPartyScaffold(
                 confirm = stringResource(R.string.study_delete),
                 dismiss = stringResource(R.string.study_keep),
                 onConfirm = onConfirmDelete,
-                onDismiss = onCancelDelete
+                onDismiss = onCancelDelete,
             )
         }
         state.form?.let { form ->
-            ItemSheet(form = form, today = state.today, isLeader = state.isLeader, onChange = onFormChange, onSave = onSaveForm, onDismiss = onCloseForm)
+            ItemSheet(
+                form = form,
+                today = state.today,
+                isLeader = state.isLeader,
+                onChange = onFormChange,
+                onSave = onSaveForm,
+                onDismiss = onCloseForm,
+            )
         }
         reminderState.form?.let { form ->
             val acts = reminderActions ?: ReminderActions()
             ReminderSheet(
-                form = form, today = reminderState.today, zone = reminderState.zone, onChange = acts.onChange,
-                onSave = acts.onSave, onDismiss = acts.onClose, onDelete = acts.onDelete
+                form = form,
+                today = reminderState.today,
+                zone = reminderState.zone,
+                onChange = acts.onChange,
+                onSave = acts.onSave,
+                onDismiss = acts.onClose,
+                onDelete = acts.onDelete,
             )
             if (reminderState.confirmingDelete) {
                 PqConfirmDialog(
@@ -396,12 +457,19 @@ private fun StudyPartyScaffold(
                     confirm = stringResource(R.string.study_reminder_delete_confirm),
                     dismiss = stringResource(R.string.study_reminder_keep),
                     onConfirm = acts.onConfirmDelete,
-                    onDismiss = acts.onCancelDelete
+                    onDismiss = acts.onCancelDelete,
                 )
             }
         }
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            StudyTabRow(tabs = state.tabs, selected = state.tab, onSelect = onSelectTab, counts = mapOf(PartyTab.CHAT to (chatState?.unread ?: 0)))
+            StudyTabRow(
+                tabs = state.tabs,
+                selected = state.tab,
+                onSelect = onSelectTab,
+                counts = mapOf(
+                    PartyTab.CHAT to (chatState?.unread ?: 0),
+                ),
+            )
             state.notice?.let { NoticeLine(it, onDismissNotice) }
             reminderState.notice?.let { ReminderNoticeLine(it, reminderActions?.onDismissNotice ?: {}) }
             // The chat is a messaging app's list, newest at the bottom, with its own input: not a pulled list.
@@ -410,7 +478,7 @@ private fun StudyPartyScaffold(
                     com.pixelquest.app.study.chat.ui.StudyChatPane(
                         state = chatState ?: com.pixelquest.app.study.chat.ui.ChatUiState(loaded = true),
                         zone = java.time.ZoneId.systemDefault(),
-                        actions = chatActions
+                        actions = chatActions,
                     )
                 }
                 return@Column
@@ -427,7 +495,7 @@ private fun StudyPartyScaffold(
                     // Room at the end for the Add item button over the last card.
                     contentPadding = PaddingValues(start = PqDimens.ScreenPad, top = 12.dp, end = PqDimens.ScreenPad, bottom = 96.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab))
+                    modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab)),
                 ) {
                     when (state.tab) {
                         PartyTab.THIS_WEEK -> {
@@ -439,15 +507,27 @@ private fun StudyPartyScaffold(
                                         lines = reminderState.thisWeek,
                                         today = reminderState.today,
                                         zone = reminderState.zone,
-                                        canEdit = { line -> reminderActions != null && (line.mine || (state.isLeader && line.reminder.audience == com.pixelquest.app.study.domain.ReminderAudience.PARTY)) },
-                                        onOpen = { line -> reminderActions?.onOpen?.invoke(line.reminder) }
+                                        canEdit = { line ->
+                                            reminderActions != null &&
+                                                (
+                                                    line.mine ||
+                                                        (
+                                                            state.isLeader &&
+                                                                line.reminder.audience ==
+                                                                com.pixelquest.app.study.domain.ReminderAudience.PARTY
+                                                            )
+                                                    )
+                                        },
+                                        onOpen = { line -> reminderActions?.onOpen?.invoke(line.reminder) },
                                     )
                                     WinnerBannerIfAny(state, onDismissWinners)
                                     if (state.pinned.isNotEmpty()) PinnedStrip(state.pinned, onOpen = onOpenItem)
                                     if (state.thisWeek.isNotEmpty()) WeekSummary(state)
                                     chatState?.files?.filter { it.pinned }?.takeIf { it.isNotEmpty() }?.let { pinnedFiles ->
                                         PqGroupLabel(stringResource(R.string.study_files_pinned))
-                                        pinnedFiles.forEach { com.pixelquest.app.study.chat.ui.FileCard(it, onOpen = chatActions.onOpenFile) }
+                                        pinnedFiles.forEach {
+                                            com.pixelquest.app.study.chat.ui.FileCard(it, onOpen = chatActions.onOpenFile)
+                                        }
                                     }
                                     StudyTimerCard(state, timerActions)
                                     if (reminderActions != null) AddReminderButton(reminderActions.onAdd)
@@ -471,11 +551,19 @@ private fun StudyPartyScaffold(
                             if (reminderActions != null) reminderMutes(reminderState, reminderActions)
                             chatActions.onSetChatMuted?.let { onMute ->
                                 item(key = "chat_mute") {
-                                    ToggleRow(stringResource(R.string.study_chat_mute), stringResource(R.string.study_chat_mute_body), chatActions.chatMuted, onMute, "study_chat_mute")
+                                    ToggleRow(
+                                        stringResource(R.string.study_chat_mute),
+                                        stringResource(R.string.study_chat_mute_body),
+                                        chatActions.chatMuted,
+                                        onMute,
+                                        "study_chat_mute",
+                                    )
                                 }
                             }
                         }
-                        PartyTab.FILES -> sharedFiles(chatState?.files.orEmpty(), filesQuery, { filesQuery = it }, chatActions.onOpenFile, chatActions.onPinFile.takeIf { state.isLeader })
+                        PartyTab.FILES -> sharedFiles(chatState?.files.orEmpty(), filesQuery, {
+                            filesQuery = it
+                        }, chatActions.onOpenFile, chatActions.onPinFile.takeIf { state.isLeader })
                         PartyTab.CHAT, PartyTab.CHESS -> Unit
                     }
                 }
@@ -500,7 +588,7 @@ private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (Par
             .border(PqDimens.Border, PqColors.Ink, shape)
             .then(if (fits) Modifier else Modifier.horizontalScroll(rememberScrollState()))
             .padding(3.dp)
-            .selectableGroup()
+            .selectableGroup(),
     ) {
         tabs.forEach { tab ->
             val isSelected = tab == selected
@@ -512,14 +600,24 @@ private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (Par
                     .clip(pqShape(9.dp))
                     .background(if (isSelected) PqColors.Ink else PqColors.Paper)
                     .selectable(selected = isSelected, role = Role.Tab, onClick = { onSelect(tab) })
-                    .testTag(StudyTags.tabButton(tab))
+                    .testTag(StudyTags.tabButton(tab)),
             ) {
                 // A count (the chat's unread) goes with its tab's name, in the accent: "Chat 3".
                 val count = counts[tab] ?: 0
                 val label = stringResource(tabLabel(tab))
                 Text(
                     text = if (count > 0) label + " " + (if (count > 99) "99+" else count.toString()) else label,
-                    style = PqType.MetaStrong.copy(color = if (isSelected) PqColors.Paper else if (count > 0) PqColors.RedText else PqColors.Ink),
+                    style = PqType.MetaStrong.copy(
+                        color = if (isSelected) {
+                            PqColors.Paper
+                        } else if (count >
+                            0
+                        ) {
+                            PqColors.RedText
+                        } else {
+                            PqColors.Ink
+                        },
+                    ),
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     modifier = Modifier
@@ -530,8 +628,8 @@ private fun StudyTabRow(tabs: List<PartyTab>, selected: PartyTab, onSelect: (Par
                                 Modifier.semantics { contentDescription = said }
                             } else {
                                 Modifier
-                            }
-                        )
+                            },
+                        ),
                 )
             }
         }
@@ -557,7 +655,7 @@ private fun NoticeLine(notice: StudyNotice, onDismiss: () -> Unit) {
             .fillMaxWidth()
             .selectable(selected = false, role = Role.Button, onClick = onDismiss)
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .testTag(StudyTags.NOTICE)
+            .testTag(StudyTags.NOTICE),
     )
 }
 
@@ -565,7 +663,13 @@ private fun NoticeLine(notice: StudyNotice, onDismiss: () -> Unit) {
 private fun ReminderNoticeLine(notice: ReminderNotice, onDismiss: () -> Unit) {
     val text = when (notice) {
         ReminderNotice.SavedOffline -> R.string.study_reminder_saved_offline
-        is ReminderNotice.Refused -> if (notice.refusal == StudyRefusal.TOO_MANY_REMINDERS) R.string.study_reminder_too_many else noticeText(StudyNotice.Refused(notice.refusal))
+        is ReminderNotice.Refused -> if (notice.refusal ==
+            StudyRefusal.TOO_MANY_REMINDERS
+        ) {
+            R.string.study_reminder_too_many
+        } else {
+            noticeText(StudyNotice.Refused(notice.refusal))
+        }
     }
     Text(
         text = stringResource(text),
@@ -574,7 +678,7 @@ private fun ReminderNoticeLine(notice: ReminderNotice, onDismiss: () -> Unit) {
             .fillMaxWidth()
             .selectable(selected = false, role = Role.Button, onClick = onDismiss)
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .testTag(ReminderTags.NOTICE)
+            .testTag(ReminderTags.NOTICE),
     )
 }
 
@@ -586,7 +690,7 @@ private fun AddReminderButton(onAdd: () -> Unit) {
         onClick = onAdd,
         style = PqButtonStyle.Secondary,
         icon = Icons.Rounded.NotificationsActive,
-        modifier = Modifier.fillMaxWidth().testTag(ReminderTags.ADD)
+        modifier = Modifier.fillMaxWidth().testTag(ReminderTags.ADD),
     )
 }
 
@@ -607,7 +711,7 @@ private fun LazyListScope.emptyLine(text: Int, loaded: Boolean) {
         Text(
             text = stringResource(if (loaded) text else R.string.study_loading),
             style = PqType.Body.copy(color = PqColors.Ink2),
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).testTag(StudyTags.EMPTY)
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).testTag(StudyTags.EMPTY),
         )
     }
 }
@@ -640,7 +744,7 @@ data class ItemActions(
     val onUndo: (String) -> Unit = {},
     /** A refused tick's own key: tried again, or dropped. */
     val onRetry: (String) -> Unit = {},
-    val onDiscard: (String) -> Unit = {}
+    val onDiscard: (String) -> Unit = {},
 )
 
 /** An item's card, with the menu its creator or the leader may use. */
@@ -656,7 +760,7 @@ private fun CardFor(state: StudyPartyUiState, row: ItemRow, onOpenItem: (String)
         onDone = { actions.onDone(id) },
         onUndo = { actions.onUndo(id) },
         onRetry = row.mine?.clientId?.let { key -> { actions.onRetry(key) } },
-        onDiscard = row.mine?.clientId?.let { key -> { actions.onDiscard(key) } }
+        onDiscard = row.mine?.clientId?.let { key -> { actions.onDiscard(key) } },
     )
 }
 
@@ -665,7 +769,7 @@ private fun CardFor(state: StudyPartyUiState, row: ItemRow, onOpenItem: (String)
 private fun WeekSummary(state: StudyPartyUiState) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth().testTag(StudyTags.WEEK_SUMMARY).semantics(mergeDescendants = true) { }
+        modifier = Modifier.fillMaxWidth().testTag(StudyTags.WEEK_SUMMARY).semantics(mergeDescendants = true) { },
     ) {
         PqGroupLabel(stringResource(R.string.study_week_progress, state.weekProgress.done, state.weekProgress.total), Modifier.weight(1f))
         if (!state.simpleMode) {
@@ -673,7 +777,7 @@ private fun WeekSummary(state: StudyPartyUiState) {
             Text(
                 text = stringResource(R.string.study_week_points, pluralStringResource(R.plurals.study_points, points, points)),
                 style = PqType.MetaStrong,
-                modifier = Modifier.testTag(StudyTags.WEEK_POINTS)
+                modifier = Modifier.testTag(StudyTags.WEEK_POINTS),
             )
         }
     }
@@ -702,7 +806,13 @@ fun sectionLabel(section: WeekSection, today: LocalDate): String = when (section
     }
 }
 
-private fun LazyListScope.itemCards(state: StudyPartyUiState, rows: List<ItemRow>, empty: Int, onOpenItem: (String) -> Unit, actions: ItemActions) {
+private fun LazyListScope.itemCards(
+    state: StudyPartyUiState,
+    rows: List<ItemRow>,
+    empty: Int,
+    onOpenItem: (String) -> Unit,
+    actions: ItemActions,
+) {
     if (rows.isEmpty()) return emptyLine(empty, state.loaded)
     items(rows, key = { it.item.id }) { row -> CardFor(state, row, onOpenItem, actions) }
 }
@@ -717,17 +827,28 @@ private fun LazyListScope.people(state: StudyPartyUiState, onAddPeople: () -> Un
                 enabled = false,
                 onRemove = {},
                 onTransfer = {},
-                badge = { member -> com.pixelquest.app.chess.ui.LocalChessBadge.current?.invoke(member.userId) }
+                badge = { member -> com.pixelquest.app.chess.ui.LocalChessBadge.current?.invoke(member.userId) },
             )
         }
     }
     if (state.isLeader) {
         item(key = "add") {
-            PqButton(text = stringResource(R.string.study_add_people), onClick = onAddPeople, icon = Icons.Rounded.PersonAdd, modifier = Modifier.fillMaxWidth().testTag(StudyTags.ADD_PEOPLE))
+            PqButton(
+                text = stringResource(R.string.study_add_people),
+                onClick = onAddPeople,
+                icon = Icons.Rounded.PersonAdd,
+                modifier = Modifier.fillMaxWidth().testTag(StudyTags.ADD_PEOPLE),
+            )
         }
     }
     item(key = "info") {
-        PqButton(text = stringResource(R.string.study_open_info), onClick = onOpenInfo, style = PqButtonStyle.Secondary, icon = Icons.Rounded.Info, modifier = Modifier.fillMaxWidth())
+        PqButton(
+            text = stringResource(R.string.study_open_info),
+            onClick = onOpenInfo,
+            style = PqButtonStyle.Secondary,
+            icon = Icons.Rounded.Info,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
@@ -736,7 +857,7 @@ data class ReminderToggles(
     val due: Boolean = false,
     val onDue: (Boolean) -> Unit = {},
     val weekly: Boolean = false,
-    val onWeekly: (Boolean) -> Unit = {}
+    val onWeekly: (Boolean) -> Unit = {},
 )
 
 private fun LazyListScope.reminderToggles(reminders: ReminderToggles, simpleMode: Boolean) {
@@ -744,11 +865,25 @@ private fun LazyListScope.reminderToggles(reminders: ReminderToggles, simpleMode
         PqGroupLabel(stringResource(R.string.study_reminders_title), Modifier.padding(top = 8.dp).semantics { heading() })
     }
     item(key = "reminders_due") {
-        ToggleRow(stringResource(R.string.study_reminders_due), stringResource(R.string.study_reminders_due_body), reminders.due, reminders.onDue, StudyTags.REMINDERS_DUE)
+        ToggleRow(
+            stringResource(R.string.study_reminders_due),
+            stringResource(R.string.study_reminders_due_body),
+            reminders.due,
+            reminders.onDue,
+            StudyTags.REMINDERS_DUE,
+        )
     }
     // The summary is points and places: Simple Mode has none.
-    if (!simpleMode) item(key = "reminders_weekly") {
-        ToggleRow(stringResource(R.string.study_reminders_weekly), stringResource(R.string.study_reminders_weekly_body), reminders.weekly, reminders.onWeekly, StudyTags.REMINDERS_WEEKLY)
+    if (!simpleMode) {
+        item(key = "reminders_weekly") {
+            ToggleRow(
+                stringResource(R.string.study_reminders_weekly),
+                stringResource(R.string.study_reminders_weekly_body),
+                reminders.weekly,
+                reminders.onWeekly,
+                StudyTags.REMINDERS_WEEKLY,
+            )
+        }
     }
 }
 
@@ -759,7 +894,7 @@ private fun LazyListScope.sharedFiles(
     query: com.pixelquest.app.study.chat.ui.FilesQuery,
     onQuery: (com.pixelquest.app.study.chat.ui.FilesQuery) -> Unit,
     onOpen: ((com.pixelquest.app.study.chat.domain.ChatFile) -> Unit)?,
-    onPin: ((com.pixelquest.app.study.chat.domain.ChatFile, Boolean) -> Unit)?
+    onPin: ((com.pixelquest.app.study.chat.domain.ChatFile, Boolean) -> Unit)?,
 ) {
     if (files.isEmpty()) {
         emptyLine(R.string.study_files_empty, loaded = true)
@@ -776,7 +911,7 @@ private fun LazyListScope.sharedFiles(
                     if (file.pinned) Icons.Rounded.PushPin else Icons.Outlined.PushPin,
                     stringResource(if (file.pinned) R.string.study_file_unpin else R.string.study_file_pin),
                     { onPin(file, !file.pinned) },
-                    Modifier.testTag("study_file_pin_" + file.id)
+                    Modifier.testTag("study_file_pin_" + file.id),
                 )
             }
         }
@@ -787,15 +922,21 @@ private fun LazyListScope.sharedFiles(
 private fun LazyListScope.reminderMutes(state: ReminderUiState, actions: ReminderActions) {
     item(key = "reminder_alerts") {
         ToggleRow(
-            stringResource(R.string.study_reminder_alerts_on), stringResource(R.string.study_reminder_alerts_on_body),
-            state.alertsOn, actions.onSetAlertsOn, ReminderTags.ALERTS_ON
+            stringResource(R.string.study_reminder_alerts_on),
+            stringResource(R.string.study_reminder_alerts_on_body),
+            state.alertsOn,
+            actions.onSetAlertsOn,
+            ReminderTags.ALERTS_ON,
         )
     }
     if (state.alertsOn) {
         item(key = "reminder_mute") {
             ToggleRow(
-                stringResource(R.string.study_reminder_mute), stringResource(R.string.study_reminder_mute_body),
-                state.partyMuted, actions.onSetMuted, ReminderTags.MUTE
+                stringResource(R.string.study_reminder_mute),
+                stringResource(R.string.study_reminder_mute_body),
+                state.partyMuted,
+                actions.onSetMuted,
+                ReminderTags.MUTE,
             )
         }
     }
@@ -812,7 +953,7 @@ fun ToggleRow(title: String, body: String, on: Boolean, onChange: (Boolean) -> U
             .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
             .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
             .padding(horizontal = 14.dp, vertical = 12.dp)
-            .heightIn(min = 48.dp)
+            .heightIn(min = 48.dp),
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = title, style = PqType.BodyStrong)

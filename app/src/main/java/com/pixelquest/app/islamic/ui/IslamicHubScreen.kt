@@ -1,6 +1,5 @@
 package com.pixelquest.app.islamic.ui
 
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowForward
+import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.LocalFireDepartment
@@ -30,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
@@ -192,9 +192,15 @@ private fun NextPrayerCard(item: IslamicItem, prayer: NamazSummary, isSimpleMode
         pluralStringResource(R.plurals.namaz_progress, prayer.prayed, prayer.prayed, NamazUiState.PRAYERS_PER_DAY)
     PqCard(
         Modifier.fillMaxWidth()
-            .semantics(mergeDescendants = true) { contentDescription = spoken; role = Role.Button }
+            .semantics(mergeDescendants = true) {
+                contentDescription = spoken
+                role = Role.Button
+            }
             .testTag(IslamicTestTags.card(item.id)),
-        bg = PqColors.Sky, shadow = PqDimens.ShadowLg, radius = 18.dp, onClick = onOpen,
+        bg = PqColors.Sky,
+        shadow = PqDimens.ShadowLg,
+        radius = 18.dp,
+        onClick = onOpen,
         onClickLabel = stringResource(R.string.islamic_card_open),
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -203,7 +209,10 @@ private fun NextPrayerCard(item: IslamicItem, prayer: NamazSummary, isSimpleMode
                 // Simple Mode shows no streaks.
                 if (!isSimpleMode && prayer.allFiveStreak > 0) {
                     Icon(Icons.Rounded.LocalFireDepartment, null, tint = PqColors.Flame, modifier = Modifier.size(16.dp))
-                    Text(pluralStringResource(R.plurals.pq_deen_all_five, prayer.allFiveStreak, prayer.allFiveStreak), style = PqType.MetaStrong)
+                    Text(
+                        pluralStringResource(R.plurals.pq_deen_all_five, prayer.allFiveStreak, prayer.allFiveStreak),
+                        style = PqType.MetaStrong,
+                    )
                 }
                 if (item.hasBadge) {
                     Spacer(Modifier.size(8.dp))
@@ -219,8 +228,12 @@ private fun NextPrayerCard(item: IslamicItem, prayer: NamazSummary, isSimpleMode
             }
             PrayerPips(prayer.prayedPrayers)
             PqButton(
-                stringResource(R.string.pq_deen_open_tracker), onOpen, Modifier.fillMaxWidth(),
-                style = PqButtonStyle.Secondary, trailingIcon = Icons.Rounded.ArrowForward, height = 44.dp,
+                stringResource(R.string.pq_deen_open_tracker),
+                onOpen,
+                Modifier.fillMaxWidth(),
+                style = PqButtonStyle.Secondary,
+                trailingIcon = Icons.AutoMirrored.Rounded.ArrowForward,
+                height = 44.dp,
             )
         }
     }
@@ -232,24 +245,35 @@ private fun PrayerPips(prayed: Set<Prayer>) {
     val reduced = com.pixelquest.app.ui.motion.reducedMotion()
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Prayer.entries.forEach { p ->
-            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(
+                Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 val box = Modifier.fillMaxWidth().height(36.dp)
                 val on = p in prayed
                 val s by androidx.compose.animation.core.animateFloatAsState(
                     if (on) 1f else 0f,
                     when {
                         reduced -> androidx.compose.animation.core.snap()
-                        on -> androidx.compose.animation.core.keyframes { durationMillis = com.pixelquest.app.ui.motion.PqMotion.Base; 1.25f at 140 }
+                        on -> androidx.compose.animation.core.keyframes {
+                            durationMillis = com.pixelquest.app.ui.motion.PqMotion.Base
+                            1.25f at
+                                140
+                        }
                         else -> androidx.compose.animation.core.tween(com.pixelquest.app.ui.motion.PqMotion.Fast)
                     },
-                    label = "pip"
+                    label = "pip",
                 )
                 Box(box.dashedBorder(), contentAlignment = Alignment.Center) {
                     if (s > 0.01f) {
                         Box(
-                            Modifier.matchParentSize().graphicsLayer { scaleX = s; scaleY = s }
+                            Modifier.matchParentSize().graphicsLayer {
+                                scaleX = s
+                                scaleY = s
+                            }
                                 .clip(pqShape(9.dp)).background(PqColors.Paper).border(PqDimens.BorderThin, PqColors.Ink, pqShape(9.dp)),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center,
                         ) {
                             Icon(Icons.Rounded.Check, null, tint = PqColors.Ink, modifier = Modifier.size(20.dp))
                         }

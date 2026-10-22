@@ -6,31 +6,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.graphicsLayer
-import com.pixelquest.app.ui.motion.FloatingReward
-import com.pixelquest.app.ui.motion.PqMotion
-import com.pixelquest.app.ui.motion.QuestTick
-import com.pixelquest.app.ui.motion.questRowDone
-import com.pixelquest.app.ui.motion.reducedMotion
-import com.pixelquest.app.ui.motion.strikeProgress
-import com.pixelquest.app.ui.motion.strikeThrough
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.draw.alpha
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.contentDescription
-import com.pixelquest.app.ui.theme.*
-
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -48,19 +27,26 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
@@ -71,15 +57,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.stringResource
 import com.pixelquest.app.R
+import com.pixelquest.app.ui.motion.FloatingReward
+import com.pixelquest.app.ui.motion.PqMotion
+import com.pixelquest.app.ui.motion.QuestTick
+import com.pixelquest.app.ui.motion.questRowDone
+import com.pixelquest.app.ui.motion.reducedMotion
+import com.pixelquest.app.ui.motion.strikeProgress
+import com.pixelquest.app.ui.motion.strikeThrough
+import com.pixelquest.app.ui.theme.*
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
@@ -134,12 +132,19 @@ fun Modifier.comicPressable(
             pressed -> tween(PqMotion.Fast, easing = PqMotion.out())
             else -> tween(PqMotion.Base, easing = PqMotion.snap())
         },
-        label = "press"
+        label = "press",
     )
     return this
         .offset(shift * PqSkinState.spec.shadowX, shift)
         .comic(bg = bg, radius = radius, shadow = (shadow - shift).coerceAtLeast(1.dp), tappable = true)
-        .clickable(interactionSource = src, indication = null, enabled = enabled, onClickLabel = onClickLabel, role = role, onClick = onClick)
+        .clickable(
+            interactionSource = src,
+            indication = null,
+            enabled = enabled,
+            onClickLabel = onClickLabel,
+            role = role,
+            onClick = onClick,
+        )
 }
 
 @Composable
@@ -153,7 +158,13 @@ fun PqCard(
     onClickLabel: String? = null,
     content: @Composable () -> Unit,
 ) {
-    val m = if (onClick != null) modifier.comicPressable(onClick, bg, radius, shadow, onClickLabel = onClickLabel, role = Role.Button) else modifier.comic(bg, radius, shadow = shadow)
+    val m = if (onClick !=
+        null
+    ) {
+        modifier.comicPressable(onClick, bg, radius, shadow, onClickLabel = onClickLabel, role = Role.Button)
+    } else {
+        modifier.comic(bg, radius, shadow = shadow)
+    }
     Box(m) { content() }
 }
 
@@ -184,7 +195,8 @@ fun PqButton(
         horizontalArrangement = if (trailingIcon != null) Arrangement.SpaceBetween else Arrangement.Center,
     ) {
         if (icon != null) {
-            Icon(icon, null, tint = fg, modifier = Modifier.size(22.dp)); Spacer(Modifier.width(6.dp))
+            Icon(icon, null, tint = fg, modifier = Modifier.size(22.dp))
+            Spacer(Modifier.width(6.dp))
         }
         Text(text.uppercase(), style = PqType.Button.copy(color = fg))
         if (trailingIcon != null) Icon(trailingIcon, null, tint = fg, modifier = Modifier.size(22.dp))
@@ -194,7 +206,8 @@ fun PqButton(
 @Composable
 fun PqQuietButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Text(
-        text, style = PqType.MetaStrong.copy(color = PqColors.RedText, fontSize = 13.bsp),
+        text,
+        style = PqType.MetaStrong.copy(color = PqColors.RedText, fontSize = 13.bsp),
         modifier = modifier.clip(pqShape(8.dp)).clickable(onClick = onClick).padding(horizontal = 6.dp, vertical = 6.dp),
     )
 }
@@ -204,7 +217,13 @@ fun PqQuietButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifi
  * outline, never filled, so it never looks like the screen's one red action.
  */
 @Composable
-fun PqDangerButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, icon: ImageVector = Icons.Rounded.Delete) {
+fun PqDangerButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: ImageVector = Icons.Rounded.Delete,
+) {
     val shape = pqShape(12.dp)
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -215,7 +234,7 @@ fun PqDangerButton(text: String, onClick: () -> Unit, modifier: Modifier = Modif
             .clip(shape)
             .border(PqDimens.Border, PqColors.RedText, shape)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .padding(horizontal = 14.dp)
+            .padding(horizontal = 14.dp),
     ) {
         Icon(icon, contentDescription = null, tint = PqColors.RedText, modifier = Modifier.size(20.dp))
         Text(text = text.uppercase(), style = PqType.Button.copy(color = PqColors.RedText))
@@ -225,7 +244,7 @@ fun PqDangerButton(text: String, onClick: () -> Unit, modifier: Modifier = Modif
 /** Back, as every v2 top bar has it: an inked square with an arrow. */
 @Composable
 fun PqBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) =
-    PqIconButton(Icons.Rounded.ArrowBack, stringResource(R.string.navigate_back), onClick, modifier)
+    PqIconButton(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.navigate_back), onClick, modifier)
 
 @Composable
 fun PqIconButton(icon: ImageVector, contentDescription: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -244,7 +263,10 @@ fun PqChip(text: String, bg: Color, modifier: Modifier = Modifier, icon: ImageVe
             .padding(start = if (icon != null) 6.dp else 10.dp, end = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (icon != null) { Icon(icon, null, tint = iconTint, modifier = Modifier.size(18.dp)); Spacer(Modifier.width(3.dp)) }
+        if (icon != null) {
+            Icon(icon, null, tint = iconTint, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(3.dp))
+        }
         Text(text, style = PqType.Button)
     }
 }
@@ -252,7 +274,8 @@ fun PqChip(text: String, bg: Color, modifier: Modifier = Modifier, icon: ImageVe
 @Composable
 fun PqTag(text: String, color: Color = PqColors.RedText) {
     Text(
-        text.uppercase(), style = PqType.Label.copy(fontSize = 10.lsp, letterSpacing = 0.6.sp, color = color),
+        text.uppercase(),
+        style = PqType.Label.copy(fontSize = 10.lsp, letterSpacing = 0.6.sp, color = color),
         modifier = Modifier.border(1.5.dp, color, pqShape(6.dp)).padding(horizontal = 5.dp, vertical = 2.dp),
     )
 }
@@ -282,14 +305,24 @@ fun PqSegmented(options: List<String>, selected: Int, onSelect: (Int) -> Unit, m
 
 /** Continuous bar with an optional ink target marker (e.g. the 70% difficulty threshold). */
 @Composable
-fun PqProgressBar(progress: Float, modifier: Modifier = Modifier, target: Float? = null, fill: Color = PqColors.Progress, height: Dp = 14.dp) {
+fun PqProgressBar(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    target: Float? = null,
+    fill: Color = PqColors.Progress,
+    height: Dp = 14.dp,
+) {
     // M01/M07: the fill sweeps to its value from the last one shown.
     val reduced = reducedMotion()
-    val shown by animateFloatAsState(progress.coerceIn(0f, 1f), if (reduced) snap() else tween(600, easing = PqMotion.snap()), label = "bar")
+    val shown by animateFloatAsState(
+        progress.coerceIn(0f, 1f),
+        if (reduced) snap() else tween(600, easing = PqMotion.snap()),
+        label = "bar",
+    )
     Box(modifier.fillMaxWidth().height(height + 12.dp), contentAlignment = Alignment.CenterStart) {
         Box(
             Modifier.fillMaxWidth().height(height).clip(pqShape(height / 2)).background(PqColors.Sunken)
-                .border(PqDimens.BorderThin, PqColors.Ink, pqShape(height / 2))
+                .border(PqDimens.BorderThin, PqColors.Ink, pqShape(height / 2)),
         ) {
             Box(Modifier.fillMaxWidth(shown.coerceIn(0f, 1f)).height(height).background(fill))
             Box(Modifier.fillMaxSize().border(PqDimens.BorderThin, PqColors.Ink, pqShape(height / 2)))
@@ -314,13 +347,24 @@ fun PqSegmentBar(total: Int, filled: Int, modifier: Modifier = Modifier, fill: C
             val pop = remember { Animatable(1f) }
             var was by remember { mutableStateOf(on) }
             LaunchedEffect(on) {
-                if (on && !was && !reduced) pop.animateTo(1f, keyframes { durationMillis = PqMotion.Base; 1.25f at 140 })
+                if (on && !was && !reduced) {
+                    pop.animateTo(
+                        1f,
+                        keyframes {
+                            durationMillis = PqMotion.Base
+                            1.25f at 140
+                        },
+                    )
+                }
                 was = on
             }
             Box(
-                Modifier.weight(1f).height(height).graphicsLayer { scaleX = pop.value; scaleY = pop.value }.clip(pqShape(3.dp))
+                Modifier.weight(1f).height(height).graphicsLayer {
+                    scaleX = pop.value
+                    scaleY = pop.value
+                }.clip(pqShape(3.dp))
                     .background(if (on) fill else PqColors.Sunken)
-                    .border(PqDimens.BorderThin, PqColors.Ink, pqShape(3.dp))
+                    .border(PqDimens.BorderThin, PqColors.Ink, pqShape(3.dp)),
             )
         }
     }
@@ -334,11 +378,14 @@ fun ProgressRing(progress: Float, label: String, diameter: Dp = 78.dp) {
     val swept by animateFloatAsState(
         if (isPixelSkin) kotlin.math.floor(target * 10f) / 10f else target,
         if (reduced) snap() else tween(700, easing = if (isPixelSkin) PqMotion.steps(10) else PqMotion.out()),
-        label = "ring"
+        label = "ring",
     )
     if (isPixelSkin) {
         // Pixel skin: a square "power meter" that fills from the bottom
-        Box(Modifier.size(diameter).background(PqColors.Sunken).border(PqDimens.Border, PqColors.Ink), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier.size(diameter).background(PqColors.Sunken).border(PqDimens.Border, PqColors.Ink),
+            contentAlignment = Alignment.Center,
+        ) {
             Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth().fillMaxHeight(swept).background(PqColors.Progress))
             Text(label, style = PqType.number(22))
         }
@@ -361,16 +408,35 @@ fun ProgressRing(progress: Float, label: String, diameter: Dp = 78.dp) {
 // ---------- Structure ----------
 
 @Composable
-fun PqTopBar(title: String, onBack: (() -> Unit)? = null, modifier: Modifier = Modifier, subtitle: String? = null, actions: @Composable RowScope.() -> Unit = {}) {
+fun PqTopBar(
+    title: String,
+    onBack: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+) {
     Row(modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
-        if (onBack != null) { PqIconButton(Icons.Rounded.ArrowBack, stringResource(R.string.navigate_back), onBack); Spacer(Modifier.width(12.dp)) }
+        if (onBack !=
+            null
+        ) {
+            PqIconButton(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.navigate_back), onBack)
+            Spacer(Modifier.width(12.dp))
+        }
         Column(Modifier.weight(1f)) {
             val style = when {
                 subtitle != null -> PqType.CardTitle
                 onBack != null -> PqType.Title
                 else -> PqType.Display
             }
-            Text(title.uppercase(), style = style.copy(color = PqColors.Title), maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.semantics { heading() })
+            Text(
+                title.uppercase(),
+                style = style.copy(color = PqColors.Title),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.semantics {
+                    heading()
+                },
+            )
             if (subtitle != null) Text(subtitle, style = PqType.Meta, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, content = actions)
@@ -414,12 +480,24 @@ fun CheckCircle(checked: Boolean, onClick: () -> Unit, size: Dp = 40.dp, modifie
         val draw = remember { Animatable(if (checked) 1f else 0f) }
         LaunchedEffect(checked) {
             when {
-                reduced -> { fill.snapTo(if (checked) 1f else 0f); draw.snapTo(if (checked) 1f else 0f) }
+                reduced -> {
+                    fill.snapTo(if (checked) 1f else 0f)
+                    draw.snapTo(if (checked) 1f else 0f)
+                }
                 checked && fill.value < 1f -> {
-                    fill.animateTo(1f, keyframes { durationMillis = PqMotion.Base; 1.15f at 160 })
+                    fill.animateTo(
+                        1f,
+                        keyframes {
+                            durationMillis = PqMotion.Base
+                            1.15f at 160
+                        },
+                    )
                     draw.animateTo(1f, tween(200, easing = PqMotion.out()))
                 }
-                !checked -> { draw.snapTo(0f); fill.animateTo(0f, tween(PqMotion.Fast)) }
+                !checked -> {
+                    draw.snapTo(0f)
+                    fill.animateTo(0f, tween(PqMotion.Fast))
+                }
             }
         }
         Box(
@@ -432,7 +510,15 @@ fun CheckCircle(checked: Boolean, onClick: () -> Unit, size: Dp = 40.dp, modifie
 
 @Composable
 fun QuestRow(quest: QuestUi, onToggle: () -> Unit, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val base = if (quest.done) modifier.comic(PqColors.Sunken, PqDimens.Radius, shadow = 0.dp) else modifier.comicPressable(onClick, radius = PqDimens.Radius)
+    val base = if (quest.done) {
+        modifier.comic(
+            PqColors.Sunken,
+            PqDimens.Radius,
+            shadow = 0.dp,
+        )
+    } else {
+        modifier.comicPressable(onClick, radius = PqDimens.Radius)
+    }
     // M03: done just now, the row squashes, the title's strike slides across, and its XP floats up.
     var rewards by remember(quest.id) { mutableIntStateOf(0) }
     var wasDone by remember(quest.id) { mutableStateOf(quest.done) }
@@ -442,19 +528,29 @@ fun QuestRow(quest: QuestUi, onToggle: () -> Unit, onClick: () -> Unit, modifier
     }
     Row(
         base.questRowDone(quest.done, dim = false).fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         CategoryTile(quest.category.icon, quest.category.color)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                quest.title, style = PqType.BodyStrong.copy(color = if (quest.done) PqColors.Muted else PqColors.Ink),
-                maxLines = 1, overflow = TextOverflow.Ellipsis,
+                quest.title,
+                style = PqType.BodyStrong.copy(color = if (quest.done) PqColors.Muted else PqColors.Ink),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.strikeThrough(strikeProgress(quest.done), PqColors.Muted),
             )
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                if (quest.missed) PqTag(stringResource(R.string.pq_missed), color = PqColors.Muted)
-                else if (quest.overdue && !quest.done) PqTag(stringResource(R.string.pq_overdue))
-                Text(listOfNotNull(quest.time, stringResource(quest.category.label), quest.repeatLabel).joinToString(" · "), style = PqType.Meta, maxLines = 1)
+                if (quest.missed) {
+                    PqTag(stringResource(R.string.pq_missed), color = PqColors.Muted)
+                } else if (quest.overdue && !quest.done) {
+                    PqTag(stringResource(R.string.pq_overdue))
+                }
+                Text(
+                    listOfNotNull(quest.time, stringResource(quest.category.label), quest.repeatLabel).joinToString(" · "),
+                    style = PqType.Meta,
+                    maxLines = 1,
+                )
             }
         }
         Box(contentAlignment = Alignment.TopCenter) {
@@ -470,10 +566,16 @@ fun QuestRowCompact(quest: QuestUi, modifier: Modifier = Modifier) {
     Row(
         modifier.fillMaxWidth().clip(pqShape(12.dp)).background(PqColors.Sunken)
             .border(PqDimens.BorderThin, PqColors.Ink, pqShape(12.dp)).padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         CategoryTile(quest.category.icon, quest.category.color, size = 32.dp, iconSize = 18.dp, radius = 8.dp)
-        Text(quest.title, style = PqType.Body.copy(fontSize = 14.bsp, color = PqColors.Muted, textDecoration = TextDecoration.LineThrough), modifier = Modifier.weight(1f), maxLines = 1)
+        Text(
+            quest.title,
+            style = PqType.Body.copy(fontSize = 14.bsp, color = PqColors.Muted, textDecoration = TextDecoration.LineThrough),
+            modifier = Modifier.weight(1f),
+            maxLines = 1,
+        )
         if (quest.xp > 0) Text(stringResource(R.string.pq_xp_plus, quest.xp), style = PqType.MetaStrong.copy(color = PqColors.Muted))
         Box(Modifier.size(28.dp).clip(PqCircle).background(PqColors.Ink), contentAlignment = Alignment.Center) {
             Icon(Icons.Rounded.Check, null, tint = PqColors.Paper, modifier = Modifier.size(18.dp))
@@ -486,10 +588,15 @@ fun PqListRow(icon: ImageVector, label: String, onClick: () -> Unit, value: Stri
     Column {
         Row(
             Modifier.fillMaxWidth().heightIn(min = 48.dp).clickable(onClick = onClick).padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Icon(icon, null, tint = PqColors.Ink, modifier = Modifier.size(22.dp))
-            Text(label, style = PqType.Body.copy(fontSize = 15.bsp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold), modifier = Modifier.weight(1f))
+            Text(
+                label,
+                style = PqType.Body.copy(fontSize = 15.bsp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                modifier = Modifier.weight(1f),
+            )
             if (value != null) Text(value, style = PqType.Meta.copy(fontSize = 13.bsp))
             Icon(Icons.Rounded.ChevronRight, null, tint = PqColors.Muted, modifier = Modifier.size(22.dp))
         }
@@ -501,8 +608,11 @@ fun PqListRow(icon: ImageVector, label: String, onClick: () -> Unit, value: Stri
 fun Modifier.dashedBorder(color: Color = PqColors.Ink, width: Dp = 2.dp, radius: Dp = 9.dp) = drawBehind {
     val w = width.toPx()
     drawRoundRect(
-        color, topLeft = Offset(w / 2, w / 2), size = size.copy(size.width - w, size.height - w),
-        cornerRadius = CornerRadius((radius * PqSkinState.spec.radiusScale).toPx()), style = Stroke(w, pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f))),
+        color,
+        topLeft = Offset(w / 2, w / 2),
+        size = size.copy(size.width - w, size.height - w),
+        cornerRadius = CornerRadius((radius * PqSkinState.spec.radiusScale).toPx()),
+        style = Stroke(w, pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 8f))),
     )
 }
 
@@ -532,7 +642,13 @@ fun Modifier.pqRuledRow(first: Boolean, last: Boolean): Modifier {
             // The whole card's outline, reaching past this row where it goes on; the clip keeps this row's part.
             val top = if (first) w / 2 else -(2 * r + w)
             val bottom = if (last) size.height - w / 2 else size.height + 2 * r + w
-            drawRoundRect(ink, topLeft = Offset(w / 2, top), size = Size(size.width - w, bottom - top), cornerRadius = CornerRadius(r), style = Stroke(w))
+            drawRoundRect(
+                ink,
+                topLeft = Offset(w / 2, top),
+                size = Size(size.width - w, bottom - top),
+                cornerRadius = CornerRadius(r),
+                style = Stroke(w),
+            )
             if (!last) {
                 val y = size.height - 1.dp.toPx()
                 drawLine(rule, Offset(w, y), Offset(size.width - w, y), strokeWidth = 2.dp.toPx())

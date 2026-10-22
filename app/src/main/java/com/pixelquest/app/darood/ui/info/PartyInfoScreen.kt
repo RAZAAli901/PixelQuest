@@ -18,9 +18,10 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Flag
+import androidx.compose.material.icons.rounded.Logout
 import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -30,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
@@ -66,14 +66,13 @@ import com.pixelquest.app.party.domain.PartyRole
 import com.pixelquest.app.party.ui.components.MemberList
 import com.pixelquest.app.party.ui.components.displayName
 import com.pixelquest.app.party.ui.shortName
-import com.pixelquest.app.ui.components.PqConfirmDialog
-import com.pixelquest.app.ui.components.PqDialog
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqDangerButton
-import androidx.compose.material.icons.rounded.Logout
+import com.pixelquest.app.ui.components.PqDialog
 import com.pixelquest.app.ui.components.PqGroupLabel
 import com.pixelquest.app.ui.components.PqSwitch
 import com.pixelquest.app.ui.components.PqTopBar
@@ -84,17 +83,17 @@ import com.pixelquest.app.ui.theme.PqType
 import com.pixelquest.app.ui.theme.bsp
 import com.pixelquest.app.ui.theme.pqShape
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.time.Instant
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Instant
+import javax.inject.Inject
 
 /** Why the last change didn't happen. */
 sealed interface InfoProblem {
@@ -125,7 +124,7 @@ data class PartyInfoUiState(
     val newMilestone: String? = null,
     val busy: Boolean = false,
     val problem: InfoProblem? = null,
-    val left: Boolean = false
+    val left: Boolean = false,
 ) {
     val isLeader: Boolean get() = party?.leaderId != null && party.leaderId == myId
 
@@ -159,7 +158,7 @@ class PartyInfoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: DaroodPartyRepository,
     private val weekMutes: com.pixelquest.app.darood.sync.WeekRankingMutes? = null,
-    account: DaroodAccount? = null
+    account: DaroodAccount? = null,
 ) : ViewModel() {
 
     val partyId: String = savedStateHandle["partyId"] ?: ""
@@ -196,7 +195,7 @@ class PartyInfoViewModel @Inject constructor(
                 _uiState.update { state ->
                     state.copy(
                         members = members.filter { it.status == MemberStatus.ACTIVE }
-                            .sortedWith(compareBy({ it.role != PartyRole.LEADER }, { it.joinedAt ?: Instant.MAX }))
+                            .sortedWith(compareBy({ it.role != PartyRole.LEADER }, { it.joinedAt ?: Instant.MAX })),
                     )
                 }
             }
@@ -210,7 +209,16 @@ class PartyInfoViewModel @Inject constructor(
         _uiState.update { it.copy(confirmingRemoval = member, problem = null) }
     }
 
-    fun dismissDialog() = _uiState.update { it.copy(confirmingRemoval = null, confirmingLeave = false, newName = null, confirmingTransfer = null, deleteConfirmation = null, newMilestone = null) }
+    fun dismissDialog() = _uiState.update {
+        it.copy(
+            confirmingRemoval = null,
+            confirmingLeave = false,
+            newName = null,
+            confirmingTransfer = null,
+            deleteConfirmation = null,
+            newMilestone = null,
+        )
+    }
 
     /** The leader puts the party on the race board, or takes it off. */
     fun setRaceBoard(on: Boolean) {
@@ -251,7 +259,20 @@ class PartyInfoViewModel @Inject constructor(
         _uiState.update { it.copy(newName = party.name, problem = null) }
     }
 
-    fun onNewNameChange(name: String) = _uiState.update { if (it.newName == null) it else it.copy(newName = com.pixelquest.app.domain.validation.InputRules.typed(name, com.pixelquest.app.domain.validation.InputRules.Field.PARTY_NAME)) }
+    fun onNewNameChange(name: String) = _uiState.update {
+        if (it.newName ==
+            null
+        ) {
+            it
+        } else {
+            it.copy(
+                newName = com.pixelquest.app.domain.validation.InputRules.typed(
+                    name,
+                    com.pixelquest.app.domain.validation.InputRules.Field.PARTY_NAME,
+                ),
+            )
+        }
+    }
 
     /** Saves the typed name, if it can be a party's (2 to 40 characters, as the server insists) and is new. */
     fun confirmRename() {
@@ -272,8 +293,20 @@ class PartyInfoViewModel @Inject constructor(
         _uiState.update { it.copy(deleteConfirmation = "", problem = null) }
     }
 
-    fun onDeleteConfirmationChange(text: String) =
-        _uiState.update { if (it.deleteConfirmation == null) it else it.copy(deleteConfirmation = com.pixelquest.app.domain.validation.InputRules.typed(text, com.pixelquest.app.domain.validation.InputRules.Field.PARTY_NAME)) }
+    fun onDeleteConfirmationChange(text: String) = _uiState.update {
+        if (it.deleteConfirmation ==
+            null
+        ) {
+            it
+        } else {
+            it.copy(
+                deleteConfirmation = com.pixelquest.app.domain.validation.InputRules.typed(
+                    text,
+                    com.pixelquest.app.domain.validation.InputRules.Field.PARTY_NAME,
+                ),
+            )
+        }
+    }
 
     /** Deletes the party, once its name is typed: it's gone for everyone, and the screen closes. */
     fun confirmDelete() {
@@ -342,7 +375,7 @@ fun PartyInfoScreen(
     onNavigateBack: () -> Unit,
     onAddPeople: () -> Unit,
     onLeft: () -> Unit = onNavigateBack,
-    viewModel: PartyInfoViewModel = hiltViewModel()
+    viewModel: PartyInfoViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     val weekNotify by viewModel.weekNotify.collectAsState()
@@ -371,7 +404,7 @@ fun PartyInfoScreen(
         onConfirmMilestone = viewModel::confirmMilestone,
         onDeleteConfirmationChange = viewModel::onDeleteConfirmationChange,
         onConfirmDelete = viewModel::confirmDelete,
-        onDismissDialog = viewModel::dismissDialog
+        onDismissDialog = viewModel::dismissDialog,
     )
 }
 
@@ -399,7 +432,7 @@ fun PartyInfoContent(
     onDismissDialog: () -> Unit = {},
     weekNotify: Boolean? = null,
     onWeekNotify: (Boolean) -> Unit = {},
-    goals: List<com.pixelquest.app.darood.domain.PartyGoal> = emptyList()
+    goals: List<com.pixelquest.app.darood.domain.PartyGoal> = emptyList(),
 ) {
     Column(
         modifier = Modifier
@@ -408,7 +441,7 @@ fun PartyInfoContent(
             .verticalScroll(rememberScrollState())
             .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 40.dp)
             .testTag(DaroodTestTags.INFO_SCREEN),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         PqTopBar(stringResource(R.string.darood_party_info), onBack = onNavigateBack)
         val party = state.party ?: return@Column
@@ -419,7 +452,7 @@ fun PartyInfoContent(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.padding(14.dp)
+                    modifier = Modifier.padding(14.dp),
                 ) {
                     PartyAvatar(party.name, size = 52.dp)
                     Column {
@@ -428,9 +461,9 @@ fun PartyInfoContent(
                             text = stringResource(
                                 R.string.pq_party_card_line,
                                 stringResource(party.type.shortName()),
-                                pluralStringResource(R.plurals.darood_info_size, state.members.size, state.members.size, party.maxMembers)
+                                pluralStringResource(R.plurals.darood_info_size, state.members.size, state.members.size, party.maxMembers),
                             ),
-                            style = PqType.Meta
+                            style = PqType.Meta,
                         )
                     }
                 }
@@ -439,22 +472,30 @@ fun PartyInfoContent(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp).heightIn(min = 40.dp)
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp).heightIn(min = 40.dp),
                     ) {
                         Icon(Icons.Rounded.Flag, contentDescription = null, tint = PqColors.Ink)
                         Text(
                             text = party.milestone?.let { stringResource(R.string.darood_info_milestone, formatCount(it)) }
                                 ?: stringResource(R.string.darood_info_no_milestone),
                             style = PqType.BodyStrong,
-                            modifier = Modifier.weight(1f).testTag(DaroodTestTags.INFO_MILESTONE)
+                            modifier = Modifier.weight(1f).testTag(DaroodTestTags.INFO_MILESTONE),
                         )
                         // A finish is final: the milestone stays as it was reached.
                         if (state.isLeader && !party.isFinished) {
                             QuietAction(
-                                text = stringResource(if (party.milestone == null) R.string.darood_info_set_milestone else R.string.darood_info_change_milestone),
+                                text = stringResource(
+                                    if (party.milestone ==
+                                        null
+                                    ) {
+                                        R.string.darood_info_set_milestone
+                                    } else {
+                                        R.string.darood_info_change_milestone
+                                    },
+                                ),
                                 enabled = !state.busy,
                                 onClick = onMilestone,
-                                modifier = Modifier.testTag(DaroodTestTags.INFO_SET_MILESTONE)
+                                modifier = Modifier.testTag(DaroodTestTags.INFO_SET_MILESTONE),
                             )
                         }
                     }
@@ -468,7 +509,7 @@ fun PartyInfoContent(
                         text = stringResource(R.string.darood_add_title),
                         onClick = onAddPeople,
                         icon = Icons.Rounded.PersonAdd,
-                        modifier = Modifier.weight(1.3f).testTag(DaroodTestTags.INFO_ADD_PEOPLE)
+                        modifier = Modifier.weight(1.3f).testTag(DaroodTestTags.INFO_ADD_PEOPLE),
                     )
                 }
                 PqButton(
@@ -477,7 +518,7 @@ fun PartyInfoContent(
                     style = PqButtonStyle.Secondary,
                     icon = Icons.Rounded.Edit,
                     enabled = !state.busy,
-                    modifier = Modifier.weight(1f).testTag(DaroodTestTags.INFO_RENAME)
+                    modifier = Modifier.weight(1f).testTag(DaroodTestTags.INFO_RENAME),
                 )
             }
         }
@@ -487,16 +528,18 @@ fun PartyInfoContent(
             Text(
                 text = stringResource(R.string.darood_race_on_board),
                 style = PqType.Meta,
-                modifier = Modifier.testTag(DaroodTestTags.INFO_RACE_NOTE)
+                modifier = Modifier.testTag(DaroodTestTags.INFO_RACE_NOTE),
             )
         }
         if (goals.isNotEmpty() && kind.rules.raceBoard) GoalHistory(goals, party.total)
-        if (weekNotify != null && kind.rules.raceBoard && state.members.any { it.userId == state.myId && it.status == com.pixelquest.app.party.domain.MemberStatus.ACTIVE }) {
+        if (weekNotify != null && kind.rules.raceBoard &&
+            state.members.any { it.userId == state.myId && it.status == com.pixelquest.app.party.domain.MemberStatus.ACTIVE }
+        ) {
             WeekNotifySwitch(on = weekNotify, onChange = onWeekNotify)
         }
         PqGroupLabel(
             stringResource(R.string.darood_info_members) + " · " + state.members.size,
-            Modifier.semantics { heading() }
+            Modifier.semantics { heading() },
         )
         state.problem?.let { ProblemLine(it) }
         MemberList(
@@ -505,17 +548,28 @@ fun PartyInfoContent(
             isLeader = state.isLeader,
             enabled = !state.busy,
             onRemove = onRemove,
-            onTransfer = onTransfer
+            onTransfer = onTransfer,
         )
         if (state.isLeader) {
             Text(
                 text = stringResource(R.string.darood_info_leader_leave_hint),
                 style = PqType.Meta,
-                modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE_HINT)
+                modifier = Modifier.testTag(DaroodTestTags.INFO_LEAVE_HINT),
             )
-            PqDangerButton(stringResource(R.string.darood_info_delete), onDelete, Modifier.testTag(DaroodTestTags.INFO_DELETE), enabled = !state.busy)
+            PqDangerButton(
+                stringResource(R.string.darood_info_delete),
+                onDelete,
+                Modifier.testTag(DaroodTestTags.INFO_DELETE),
+                enabled = !state.busy,
+            )
         } else {
-            PqDangerButton(stringResource(R.string.darood_info_leave), onLeave, Modifier.testTag(DaroodTestTags.INFO_LEAVE), enabled = !state.busy, icon = Icons.Rounded.Logout)
+            PqDangerButton(
+                stringResource(R.string.darood_info_leave),
+                onLeave,
+                Modifier.testTag(DaroodTestTags.INFO_LEAVE),
+                enabled = !state.busy,
+                icon = Icons.AutoMirrored.Rounded.Logout,
+            )
         }
     }
 
@@ -527,7 +581,7 @@ fun PartyInfoContent(
             confirm = stringResource(R.string.darood_info_remove),
             dismiss = stringResource(R.string.darood_cancel),
             onConfirm = onConfirmRemoval,
-            onDismiss = onDismissDialog
+            onDismiss = onDismissDialog,
         )
     }
     if (state.confirmingLeave) {
@@ -537,7 +591,7 @@ fun PartyInfoContent(
             confirm = stringResource(R.string.darood_info_leave),
             dismiss = stringResource(R.string.darood_cancel),
             onConfirm = onConfirmLeave,
-            onDismiss = onDismissDialog
+            onDismiss = onDismissDialog,
         )
     }
     state.confirmingTransfer?.let { member ->
@@ -547,7 +601,7 @@ fun PartyInfoContent(
             confirm = stringResource(R.string.darood_info_make_leader),
             dismiss = stringResource(R.string.darood_cancel),
             onConfirm = onConfirmTransfer,
-            onDismiss = onDismissDialog
+            onDismiss = onDismissDialog,
         )
     }
     state.deleteConfirmation?.let { typed ->
@@ -558,9 +612,14 @@ fun PartyInfoContent(
             confirm = stringResource(R.string.darood_info_delete_confirm),
             onConfirm = onConfirmDelete,
             dismiss = stringResource(R.string.darood_cancel),
-            onDismiss = onDismissDialog
+            onDismiss = onDismissDialog,
         ) {
-            DeleteConfirmation(typed = typed, partyName = partyName, confirmed = state.deleteConfirmed, onTypedChange = onDeleteConfirmationChange)
+            DeleteConfirmation(
+                typed = typed,
+                partyName = partyName,
+                confirmed = state.deleteConfirmed,
+                onTypedChange = onDeleteConfirmationChange,
+            )
         }
     }
     state.newMilestone?.let { typed ->
@@ -570,7 +629,7 @@ fun PartyInfoContent(
             confirm = stringResource(R.string.darood_info_rename_save),
             onConfirm = onConfirmMilestone,
             dismiss = stringResource(R.string.darood_cancel),
-            onDismiss = onDismissDialog
+            onDismiss = onDismissDialog,
         ) {
             MilestoneField(typed = typed, total = state.party?.total ?: 0, onTypedChange = onMilestoneChange)
         }
@@ -582,7 +641,7 @@ fun PartyInfoContent(
             confirm = stringResource(R.string.darood_info_rename_save),
             onConfirm = onConfirmRename,
             dismiss = stringResource(R.string.darood_cancel),
-            onDismiss = onDismissDialog
+            onDismiss = onDismissDialog,
         ) {
             RenameField(name = name, problem = state.newNameProblem, onNameChange = onNewNameChange)
         }
@@ -605,7 +664,7 @@ internal fun RaceBoardSwitch(on: Boolean, hasMilestone: Boolean, enabled: Boolea
             .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
             .toggleable(value = on, enabled = enabled, role = Role.Switch, onValueChange = onChange)
             .padding(horizontal = 14.dp, vertical = 12.dp)
-            .heightIn(min = 48.dp)
+            .heightIn(min = 48.dp),
     ) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(text = stringResource(R.string.darood_race_join), style = PqType.BodyStrong)
@@ -629,12 +688,22 @@ internal fun GoalHistory(goals: List<com.pixelquest.app.darood.domain.PartyGoal>
             val reachedAt = goal.reachedAt
             Text(
                 text = if (reachedAt != null) {
-                    stringResource(R.string.darood_goal_history_reached, goal.sequence, formatCount(goal.target), reachedAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate().format(dates))
+                    stringResource(
+                        R.string.darood_goal_history_reached,
+                        goal.sequence,
+                        formatCount(goal.target),
+                        reachedAt.atZone(java.time.ZoneId.systemDefault()).toLocalDate().format(dates),
+                    )
                 } else {
-                    stringResource(R.string.darood_goal_history_open, goal.sequence, formatCount(minOf(total, goal.target)), formatCount(goal.target))
+                    stringResource(
+                        R.string.darood_goal_history_open,
+                        goal.sequence,
+                        formatCount(minOf(total, goal.target)),
+                        formatCount(goal.target),
+                    )
                 },
                 style = if (reachedAt != null) PqType.Body else PqType.BodyStrong,
-                modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.infoGoal(goal.sequence))
+                modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.infoGoal(goal.sequence)),
             )
         }
     }
@@ -652,7 +721,7 @@ internal fun WeekNotifySwitch(on: Boolean, onChange: (Boolean) -> Unit) {
             .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
             .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
             .padding(horizontal = 14.dp, vertical = 12.dp)
-            .heightIn(min = 48.dp)
+            .heightIn(min = 48.dp),
     ) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(text = stringResource(R.string.darood_week_switch), style = PqType.BodyStrong)
@@ -671,7 +740,7 @@ private fun QuietAction(text: String, enabled: Boolean, onClick: () -> Unit, mod
         modifier = modifier
             .clip(pqShape(8.dp))
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .padding(horizontal = 6.dp, vertical = 6.dp)
+            .padding(horizontal = 6.dp, vertical = 6.dp),
     )
 }
 
@@ -689,7 +758,7 @@ internal fun MilestoneField(typed: String, total: Long, onTypedChange: (String) 
         placeholder = stringResource(R.string.darood_create_milestone_placeholder),
         errorText = if (tooLow) stringResource(R.string.darood_info_milestone_too_low, formatCount(total)) else null,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_MILESTONE_FIELD)
+        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_MILESTONE_FIELD),
     )
 }
 
@@ -716,7 +785,7 @@ internal fun RenameField(name: String, problem: com.pixelquest.app.darood.ui.cre
             null -> null
         },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
-        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_RENAME_FIELD)
+        modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_RENAME_FIELD),
     )
 }
 
@@ -732,8 +801,12 @@ internal fun DeleteConfirmation(typed: String, partyName: String, confirmed: Boo
             label = stringResource(R.string.darood_info_delete_field),
             placeholder = partyName,
             errorText = if (typed.isNotBlank() && !confirmed) stringResource(R.string.darood_info_delete_mismatch) else null,
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.None, autoCorrect = false, imeAction = ImeAction.Done),
-            modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_DELETE_FIELD)
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                autoCorrect = false,
+                imeAction = ImeAction.Done,
+            ),
+            modifier = Modifier.fillMaxWidth().testTag(DaroodTestTags.INFO_DELETE_FIELD),
         )
     }
 }
@@ -753,10 +826,10 @@ private fun ProblemLine(problem: InfoProblem) {
                     DaroodRefusal.PARTY_CLOSED -> R.string.darood_info_refused_finished
                     else -> R.string.darood_info_failed
                 }
-            }
+            },
         ),
         style = PqType.Body.copy(color = PqColors.Error),
-        modifier = Modifier.testTag(DaroodTestTags.INFO_PROBLEM).semantics { liveRegion = LiveRegionMode.Polite }
+        modifier = Modifier.testTag(DaroodTestTags.INFO_PROBLEM).semantics { liveRegion = LiveRegionMode.Polite },
     )
 }
 

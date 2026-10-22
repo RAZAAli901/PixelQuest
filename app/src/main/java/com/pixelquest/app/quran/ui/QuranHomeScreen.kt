@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.rounded.MenuBook
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Tag
 import androidx.compose.material3.Icon
@@ -60,7 +60,7 @@ fun QuranRoute(
     onOpenSources: () -> Unit = {},
     viewModel: QuranViewModel = hiltViewModel(),
     listViewModel: SurahListViewModel = hiltViewModel(),
-    saved: @Composable () -> Unit = { com.pixelquest.app.quran.ui.bookmarks.SavedBookmarks(onOpenAyah = onOpenAyah) }
+    saved: @Composable () -> Unit = { com.pixelquest.app.quran.ui.bookmarks.SavedBookmarks(onOpenAyah = onOpenAyah) },
 ) {
     val preparing by viewModel.preparing.collectAsState()
     val list by listViewModel.state.collectAsState()
@@ -73,7 +73,7 @@ fun QuranRoute(
         onOpenAyah = onOpenAyah,
         onOpenSearch = onOpenSearch,
         onOpenSources = onOpenSources,
-        saved = saved
+        saved = saved,
     )
 }
 
@@ -95,45 +95,69 @@ fun QuranHomeScreen(
     onOpenAyah: (surah: Int, ayah: Int) -> Unit = { surah, _ -> onOpenSurah(surah) },
     onOpenSearch: () -> Unit = {},
     onOpenSources: () -> Unit = {},
-    saved: @Composable () -> Unit = {}
+    saved: @Composable () -> Unit = {},
 ) {
     var goingTo by rememberSaveable { mutableStateOf(false) }
     if (goingTo) {
         GoToAyahDialog(
             ayahCounts = list.ayahCounts,
-            onGo = { surah, ayah -> goingTo = false; onOpenAyah(surah, ayah) },
-            onDismiss = { goingTo = false }
+            onGo = { surah, ayah ->
+                goingTo = false
+                onOpenAyah(surah, ayah)
+            },
+            onDismiss = { goingTo = false },
         )
     }
     Column(Modifier.fillMaxSize().background(PqColors.Ground).testTag(QURAN_HOME)) {
-        PqTopBar(stringResource(R.string.quran_title), onBack = onNavigateBack, modifier = Modifier.padding(horizontal = PqDimens.ScreenPad)) {
+        PqTopBar(
+            stringResource(R.string.quran_title),
+            onBack = onNavigateBack,
+            modifier = Modifier.padding(horizontal = PqDimens.ScreenPad),
+        ) {
             if (preparing == null && list.loaded) {
-                PqIconButton(Icons.Rounded.Search, stringResource(R.string.quran_search_title), onOpenSearch, Modifier.testTag(SearchTags.ACTION))
-                PqIconButton(Icons.Rounded.Tag, stringResource(R.string.quran_go_title), { goingTo = true }, Modifier.testTag(GoToTags.ACTION))
-                PqIconButton(Icons.Outlined.Info, stringResource(R.string.quran_sources_title), onOpenSources, Modifier.testTag(SourcesTags.ACTION))
+                PqIconButton(
+                    Icons.Rounded.Search,
+                    stringResource(R.string.quran_search_title),
+                    onOpenSearch,
+                    Modifier.testTag(SearchTags.ACTION),
+                )
+                PqIconButton(Icons.Rounded.Tag, stringResource(R.string.quran_go_title), {
+                    goingTo = true
+                }, Modifier.testTag(GoToTags.ACTION))
+                PqIconButton(
+                    Icons.Outlined.Info,
+                    stringResource(R.string.quran_sources_title),
+                    onOpenSources,
+                    Modifier.testTag(SourcesTags.ACTION),
+                )
             }
         }
         if (preparing != null) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-                modifier = Modifier.fillMaxSize().padding(24.dp)
+                modifier = Modifier.fillMaxSize().padding(24.dp),
             ) {
-                Icon(Icons.Rounded.MenuBook, null, tint = PqColors.Ink, modifier = Modifier.size(48.dp))
+                Icon(Icons.AutoMirrored.Rounded.MenuBook, null, tint = PqColors.Ink, modifier = Modifier.size(48.dp))
                 Preparing(preparing)
             }
         } else {
             var tab by rememberSaveable { mutableStateOf(QuranTab.SURAHS) }
             Column(modifier = Modifier.fillMaxSize()) {
-                com.pixelquest.app.ui.tips.FirstRunTip(com.pixelquest.app.ui.tips.Tip.QURAN, Modifier.padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp))
+                com.pixelquest.app.ui.tips.FirstRunTip(
+                    com.pixelquest.app.ui.tips.Tip.QURAN,
+                    Modifier.padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp),
+                )
                 list.continueReading?.let { place ->
                     ContinueReadingCard(
                         place = place,
                         onOpen = { onOpenAyah(place.surah.number, place.ayah) },
-                        modifier = Modifier.padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp)
+                        modifier = Modifier.padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp),
                     )
                 }
-                QuranTabs(selected = tab, onSelect = { tab = it }, modifier = Modifier.padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 12.dp, bottom = 4.dp))
+                QuranTabs(selected = tab, onSelect = {
+                    tab = it
+                }, modifier = Modifier.padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 12.dp, bottom = 4.dp))
                 when (tab) {
                     QuranTab.SURAHS -> SurahList(state = list, onSearch = onSearch, onOpenSurah = onOpenSurah)
                     QuranTab.JUZ -> JuzList(juzs = list.juzs, onOpenAyah = onOpenAyah)
@@ -154,12 +178,12 @@ private fun Preparing(preparing: QuranPreparing) {
         text = stringResource(if (preparing.failed) R.string.quran_preparing_failed_title else R.string.quran_preparing_title),
         style = PqType.CardTitle,
         textAlign = TextAlign.Center,
-        modifier = Modifier.semantics { heading() }.testTag(QURAN_PREPARING)
+        modifier = Modifier.semantics { heading() }.testTag(QURAN_PREPARING),
     )
     Text(
         text = stringResource(if (preparing.failed) R.string.quran_preparing_failed_body else R.string.quran_preparing_body),
         style = PqType.Body.copy(color = PqColors.Ink2),
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
     )
     if (!preparing.failed) {
         val progress = preparing.progress ?: 0f
@@ -168,7 +192,7 @@ private fun Preparing(preparing: QuranPreparing) {
             height = 10.dp,
             modifier = Modifier
                 .fillMaxWidth(0.7f)
-                .semantics { progressBarRangeInfo = ProgressBarRangeInfo(progress, 0f..1f) }
+                .semantics { progressBarRangeInfo = ProgressBarRangeInfo(progress, 0f..1f) },
         )
     }
 }

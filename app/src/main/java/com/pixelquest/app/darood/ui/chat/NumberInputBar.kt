@@ -1,6 +1,5 @@
 package com.pixelquest.app.darood.ui.chat
 
-import com.pixelquest.app.ui.chat.chatLook
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -20,7 +19,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Send
+import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
 import com.pixelquest.app.darood.domain.DaroodRules
 import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.ui.chat.chatLook
 import com.pixelquest.app.ui.components.comicPressable
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
@@ -69,7 +69,8 @@ enum class DraftCheck {
     EMPTY,
     ZERO,
     TOO_MANY,
-    OK;
+    OK,
+    ;
 
     val canSend: Boolean get() = this == OK
 }
@@ -104,7 +105,7 @@ fun NumberInputBar(
     error: String? = null,
     onSend: () -> Unit = {},
     quickAdd: Boolean = false,
-    trailing: @Composable RowScope.() -> Unit = {}
+    trailing: @Composable RowScope.() -> Unit = {},
 ) {
     val look = chatLook()
     val label = stringResource(R.string.darood_input_label)
@@ -112,7 +113,7 @@ fun NumberInputBar(
         Box(Modifier.fillMaxWidth().height(PqDimens.BorderThin).background(PqColors.Ink))
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.padding(horizontal = PqDimens.ScreenPad, vertical = 10.dp)
+            modifier = Modifier.padding(horizontal = PqDimens.ScreenPad, vertical = 10.dp),
         ) {
             if (quickAdd) QuickAddChips(onPick = { onValueChange(it.toString()) })
             if (error != null) {
@@ -121,13 +122,13 @@ fun NumberInputBar(
                     style = PqType.Meta.copy(color = PqColors.Error),
                     modifier = Modifier
                         .semantics { liveRegion = LiveRegionMode.Polite }
-                        .testTag(DaroodTestTags.CHAT_INPUT_ERROR)
+                        .testTag(DaroodTestTags.CHAT_INPUT_ERROR),
                 )
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Box(
                     contentAlignment = Alignment.CenterStart,
@@ -137,10 +138,14 @@ fun NumberInputBar(
                         .clip(look.fieldShape)
                         .background(PqColors.Ground)
                         .border(PqDimens.Border, PqColors.Ink, look.fieldShape)
-                        .padding(horizontal = 14.dp)
+                        .padding(horizontal = 14.dp),
                 ) {
                     if (value.isEmpty()) {
-                        Text(text = stringResource(R.string.darood_input_placeholder), style = PqType.Body.copy(color = PqColors.Muted), maxLines = 1)
+                        Text(
+                            text = stringResource(R.string.darood_input_placeholder),
+                            style = PqType.Body.copy(color = PqColors.Muted),
+                            maxLines = 1,
+                        )
                     }
                     BasicTextField(
                         value = value,
@@ -148,12 +153,16 @@ fun NumberInputBar(
                         singleLine = true,
                         textStyle = PqType.BodyStrong,
                         cursorBrush = SolidColor(PqColors.Ink),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false, imeAction = ImeAction.Send),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            autoCorrect = false,
+                            imeAction = ImeAction.Send,
+                        ),
                         keyboardActions = KeyboardActions(onSend = { if (checkDraft(value).canSend) onSend() }),
                         modifier = Modifier
                             .fillMaxWidth()
                             .semantics { contentDescription = label }
-                            .testTag(DaroodTestTags.CHAT_INPUT)
+                            .testTag(DaroodTestTags.CHAT_INPUT),
                     )
                 }
                 trailing()
@@ -180,11 +189,11 @@ fun SendButton(enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modif
                 shadow = if (enabled) 2.dp else 0.dp,
                 enabled = enabled,
                 onClickLabel = stringResource(R.string.darood_send),
-                role = Role.Button
+                role = Role.Button,
             )
-            .semantics { contentDescription = "" }
+            .semantics { contentDescription = "" },
     ) {
-        Icon(Icons.Rounded.Send, contentDescription = null, tint = if (enabled) PqColors.OnRed else PqColors.Muted)
+        Icon(Icons.AutoMirrored.Rounded.Send, contentDescription = null, tint = if (enabled) PqColors.OnRed else PqColors.Muted)
     }
 }
 
@@ -199,6 +208,7 @@ val QUICK_AMOUNTS = listOf(11, 33, 100, 313)
 @Composable
 fun QuickAddChips(onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
     val large = LocalDensity.current.fontScale >= LARGE_TEXT
+
     @Composable
     fun Chip(amount: Int, chipModifier: Modifier) {
         Box(
@@ -206,18 +216,23 @@ fun QuickAddChips(onPick: (Int) -> Unit, modifier: Modifier = Modifier) {
             modifier = chipModifier
                 .heightIn(min = 36.dp)
                 .testTag(DaroodTestTags.quickAdd(amount))
-                .comicPressable({ onPick(amount) }, radius = 18.dp, shadow = 2.dp, onClickLabel = stringResource(R.string.darood_quick_fill, amount), role = Role.Button)
-                .padding(horizontal = 12.dp)
+                .comicPressable({
+                    onPick(amount)
+                }, radius = 18.dp, shadow = 2.dp, onClickLabel = stringResource(R.string.darood_quick_fill, amount), role = Role.Button)
+                .padding(horizontal = 12.dp),
         ) {
             Text(
                 text = stringResource(R.string.darood_bubble_amount, com.pixelquest.app.darood.ui.formatCount(amount)),
                 style = PqType.Button,
-                maxLines = 1
+                maxLines = 1,
             )
         }
     }
     if (large) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = modifier.horizontalScroll(rememberScrollState()).padding(end = 4.dp, bottom = 2.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = modifier.horizontalScroll(rememberScrollState()).padding(end = 4.dp, bottom = 2.dp),
+        ) {
             QUICK_AMOUNTS.forEach { Chip(it, Modifier) }
         }
     } else {

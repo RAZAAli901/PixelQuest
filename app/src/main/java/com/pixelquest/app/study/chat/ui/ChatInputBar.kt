@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Send
+import androidx.compose.material.icons.automirrored.rounded.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,7 +60,7 @@ fun ChatInputBar(
     /** Whether there's something to send; text alone by default (a picked file counts too). */
     canSend: Boolean = value.isNotBlank() && value.length <= StudyChatConfig.MESSAGE_MAX_CHARS,
     above: @Composable ColumnScope.() -> Unit = {},
-    leading: @Composable RowScope.() -> Unit = {}
+    leading: @Composable RowScope.() -> Unit = {},
 ) {
     val look = chatLook()
     val label = stringResource(R.string.study_chat_input_label)
@@ -68,24 +68,36 @@ fun ChatInputBar(
         Box(Modifier.fillMaxWidth().height(PqDimens.BorderThin).background(PqColors.Ink))
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = PqDimens.ScreenPad, vertical = 10.dp)
+            modifier = Modifier.padding(horizontal = PqDimens.ScreenPad, vertical = 10.dp),
         ) {
             above()
             if (value.length >= StudyChatConfig.COUNTER_FROM) {
                 val numbers = NumberFormat.getIntegerInstance()
                 Text(
-                    text = stringResource(R.string.study_chat_counter, numbers.format(value.length), numbers.format(StudyChatConfig.MESSAGE_MAX_CHARS)),
-                    style = PqType.Meta.copy(color = if (value.length >= StudyChatConfig.MESSAGE_MAX_CHARS) PqColors.Error else PqColors.Ink2),
+                    text = stringResource(
+                        R.string.study_chat_counter,
+                        numbers.format(value.length),
+                        numbers.format(StudyChatConfig.MESSAGE_MAX_CHARS),
+                    ),
+                    style = PqType.Meta.copy(
+                        color = if (value.length >=
+                            StudyChatConfig.MESSAGE_MAX_CHARS
+                        ) {
+                            PqColors.Error
+                        } else {
+                            PqColors.Ink2
+                        },
+                    ),
                     modifier = Modifier
                         .align(Alignment.End)
                         .semantics { liveRegion = LiveRegionMode.Polite }
-                        .testTag(StudyChatTags.COUNTER)
+                        .testTag(StudyChatTags.COUNTER),
                 )
             }
             Row(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 leading()
                 Box(
@@ -96,14 +108,25 @@ fun ChatInputBar(
                         .clip(look.fieldShape)
                         .background(PqColors.Ground)
                         .border(PqDimens.Border, PqColors.Ink, look.fieldShape)
-                        .padding(horizontal = 14.dp, vertical = 12.dp)
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
                 ) {
                     if (value.isEmpty()) {
-                        Text(text = stringResource(R.string.study_chat_input_placeholder), style = PqType.Body.copy(color = PqColors.Muted), maxLines = 1)
+                        Text(
+                            text = stringResource(R.string.study_chat_input_placeholder),
+                            style = PqType.Body.copy(color = PqColors.Muted),
+                            maxLines = 1,
+                        )
                     }
                     BasicTextField(
                         value = value,
-                        onValueChange = { onValueChange(com.pixelquest.app.domain.validation.InputRules.typed(it, com.pixelquest.app.domain.validation.InputRules.Field.CHAT_MESSAGE)) },
+                        onValueChange = {
+                            onValueChange(
+                                com.pixelquest.app.domain.validation.InputRules.typed(
+                                    it,
+                                    com.pixelquest.app.domain.validation.InputRules.Field.CHAT_MESSAGE,
+                                ),
+                            )
+                        },
                         maxLines = 5,
                         textStyle = PqType.Body.copy(color = PqColors.Ink),
                         cursorBrush = SolidColor(PqColors.Ink),
@@ -111,7 +134,7 @@ fun ChatInputBar(
                         modifier = Modifier
                             .fillMaxWidth()
                             .semantics { contentDescription = label }
-                            .testTag(StudyChatTags.INPUT)
+                            .testTag(StudyChatTags.INPUT),
                     )
                 }
                 ChatSendButton(enabled = canSend, onClick = onSend)
@@ -135,9 +158,13 @@ fun ChatSendButton(enabled: Boolean, onClick: () -> Unit, modifier: Modifier = M
                 shadow = if (enabled) 2.dp else 0.dp,
                 enabled = enabled,
                 onClickLabel = stringResource(R.string.study_chat_send),
-                role = Role.Button
-            )
+                role = Role.Button,
+            ),
     ) {
-        Icon(Icons.Rounded.Send, contentDescription = stringResource(R.string.study_chat_send), tint = if (enabled) PqColors.OnRed else PqColors.Muted)
+        Icon(
+            Icons.AutoMirrored.Rounded.Send,
+            contentDescription = stringResource(R.string.study_chat_send),
+            tint = if (enabled) PqColors.OnRed else PqColors.Muted,
+        )
     }
 }

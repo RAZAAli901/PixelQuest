@@ -38,11 +38,12 @@ data class AccountUiState(
     /** Joining or leaving was chosen here and hasn't reached the server yet (PendingLeaderboardChoice). */
     val choiceWaiting: Boolean = false,
     /** Exporting the cloud data to a file (J173). */
-    val cloudExport: CloudExport = CloudExport.IDLE
+    val cloudExport: CloudExport = CloudExport.IDLE,
 )
 
 enum class CloudExport { IDLE, WORKING, SAVED, FAILED }
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
@@ -51,7 +52,7 @@ class AccountViewModel @Inject constructor(
     private val settingsRepository: com.pixelquest.app.domain.repository.SettingsRepository? = null,
     private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
     private val streakRepository: com.pixelquest.app.domain.repository.StreakRepository? = null,
-    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null
+    private val pendingChoice: com.pixelquest.app.data.repository.PendingLeaderboardChoice? = null,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AccountUiState())
@@ -71,37 +72,44 @@ class AccountViewModel @Inject constructor(
                     isOptedIn = profile?.leaderboardOptIn ?: false,
                     displayNameInput = if (otherAccount || _uiState.value.displayNameInput.isBlank()) {
                         profile?.leaderboardDisplayName ?: ""
-                    } else _uiState.value.displayNameInput,
-                    displayNameError = if (otherAccount) null else _uiState.value.displayNameError
+                    } else {
+                        _uiState.value.displayNameInput
+                    },
+                    displayNameError = if (otherAccount) null else _uiState.value.displayNameError,
                 )
             }
         }
-        if (pendingChoice != null) viewModelScope.launch {
-            // Says on Account when a join or leave hasn't reached the server yet, and clears when
-            // the background sync gets it there.
-            userProfileRepository.getProfile()
-                .map { it?.supabaseUserId }
-                .distinctUntilChanged()
-                .flatMapLatest { account -> if (account == null) flowOf(null) else pendingChoice.pendingChanges(account) }
-                .collect { waiting -> _uiState.value = _uiState.value.copy(choiceWaiting = waiting != null) }
+        if (pendingChoice != null) {
+            viewModelScope.launch {
+                // Says on Account when a join or leave hasn't reached the server yet, and clears when
+                // the background sync gets it there.
+                userProfileRepository.getProfile()
+                    .map { it?.supabaseUserId }
+                    .distinctUntilChanged()
+                    .flatMapLatest { account -> if (account == null) flowOf(null) else pendingChoice.pendingChanges(account) }
+                    .collect { waiting -> _uiState.value = _uiState.value.copy(choiceWaiting = waiting != null) }
+            }
         }
         viewModelScope.launch {
             settingsRepository?.simpleModeEnabled?.collect { simpleMode ->
                 val allowed = com.pixelquest.app.domain.policy.LeaderboardSimpleModePolicy.isLeaderboardAllowed(simpleMode)
                 _uiState.value = _uiState.value.copy(
                     isSimpleModeEnabled = simpleMode,
-                    isLeaderboardAllowedUnderSimpleMode = allowed
+                    isLeaderboardAllowedUnderSimpleMode = allowed,
                 )
             }
         }
     }
 
     fun onDisplayNameChanged(raw: String) {
-        val newName = com.pixelquest.app.domain.validation.InputRules.typed(raw, com.pixelquest.app.domain.validation.InputRules.Field.DISPLAY_NAME)
+        val newName = com.pixelquest.app.domain.validation.InputRules.typed(
+            raw,
+            com.pixelquest.app.domain.validation.InputRules.Field.DISPLAY_NAME,
+        )
         val error = validateDisplayName(newName)
         _uiState.value = _uiState.value.copy(
             displayNameInput = newName,
-            displayNameError = error
+            displayNameError = error,
         )
     }
 
@@ -139,7 +147,7 @@ class AccountViewModel @Inject constructor(
         syncJob = null
         _uiState.value = _uiState.value.copy(
             isSyncing = false,
-            syncMessage = "Sync cancelled."
+            syncMessage = "Sync cancelled.",
         )
     }
 
@@ -157,7 +165,7 @@ class AccountViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     isSyncing = true,
                     showConfirmDialog = false,
-                    displayNameError = null
+                    displayNameError = null,
                 )
                 when (val result = cloudProfileRepository.updateOptInAndSync(optIn = true, displayName = name)) {
                     is com.pixelquest.app.data.remote.SupabaseResult.Success -> {
@@ -165,7 +173,7 @@ class AccountViewModel @Inject constructor(
                             isSyncing = false,
                             isOptedIn = true,
                             lastSyncTime = System.currentTimeMillis(),
-                            syncMessage = "Opt-in complete! Profile synced to cloud."
+                            syncMessage = "Opt-in complete! Profile synced to cloud.",
                         )
                     }
                     else -> if (result is com.pixelquest.app.data.remote.SupabaseResult.ServerError &&
@@ -175,7 +183,7 @@ class AccountViewModel @Inject constructor(
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isOptedIn = false,
-                            displayNameError = com.pixelquest.app.data.repository.CloudProfileRepositoryImpl.NAME_TAKEN
+                            displayNameError = com.pixelquest.app.data.repository.CloudProfileRepositoryImpl.NAME_TAKEN,
                         )
                     } else {
                         // The join stays pending (PendingLeaderboardChoice) and the sync worker sends
@@ -184,7 +192,7 @@ class AccountViewModel @Inject constructor(
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isOptedIn = true,
-                            syncMessage = "Opt-in saved locally. Cloud sync will retry."
+                            syncMessage = "Opt-in saved locally. Cloud sync will retry.",
                         )
                     }
                 }
@@ -218,7 +226,7 @@ class AccountViewModel @Inject constructor(
                             isOptedIn = false,
                             showOptOutSuccessNotice = true,
                             lastSyncTime = System.currentTimeMillis(),
-                            syncMessage = "You've left the leaderboard. Your rank and display name are now private."
+                            syncMessage = "You've left the leaderboard. Your rank and display name are now private.",
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.NetworkError -> {
@@ -229,18 +237,19 @@ class AccountViewModel @Inject constructor(
                             isSyncing = false,
                             isOptedIn = false,
                             showOptOutSuccessNotice = true,
-                            syncMessage = "You've left the leaderboard. Server sync queued when online."
+                            syncMessage = "You've left the leaderboard. Server sync queued when online.",
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.ServerError,
-                    is com.pixelquest.app.data.remote.SupabaseResult.UnknownError -> {
+                    is com.pixelquest.app.data.remote.SupabaseResult.UnknownError,
+                    -> {
                         // Retried in the background until the server confirms.
                         syncScheduler?.scheduleProfileSync(debounceMs = 0L)
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isOptedIn = false,
                             showOptOutSuccessNotice = true,
-                            syncMessage = "You've left the leaderboard. The server will be updated shortly."
+                            syncMessage = "You've left the leaderboard. The server will be updated shortly.",
                         )
                     }
                     else -> {
@@ -248,7 +257,7 @@ class AccountViewModel @Inject constructor(
                             isSyncing = false,
                             isOptedIn = false,
                             showOptOutSuccessNotice = true,
-                            syncMessage = "You've left the leaderboard."
+                            syncMessage = "You've left the leaderboard.",
                         )
                     }
                 }
@@ -278,11 +287,16 @@ class AccountViewModel @Inject constructor(
                                 isSyncing = false,
                                 isSyncFailed = false,
                                 lastSyncTime = System.currentTimeMillis(),
-                                syncMessage = heldBack ?: SYNC_SUCCESSFUL
+                                syncMessage = heldBack ?: SYNC_SUCCESSFUL,
                             )
                         } else if (userProfileRepository.getProfile().first()?.leaderboardOptIn == false) {
                             // The account left the board on another phone, and this one followed.
-                            _uiState.value.copy(isSyncing = false, isSyncFailed = false, isOptedIn = false, syncMessage = SYNC_LEFT_ELSEWHERE)
+                            _uiState.value.copy(
+                                isSyncing = false,
+                                isSyncFailed = false,
+                                isOptedIn = false,
+                                syncMessage = SYNC_LEFT_ELSEWHERE,
+                            )
                         } else {
                             _uiState.value.copy(isSyncing = false, isSyncFailed = false, syncMessage = SYNC_SKIPPED_SERVER_AHEAD)
                         }
@@ -291,28 +305,28 @@ class AccountViewModel @Inject constructor(
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isSyncFailed = true,
-                            syncMessage = "Network error: check connection."
+                            syncMessage = "Network error: check connection.",
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.AuthError -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isSyncFailed = true,
-                            syncMessage = "Auth error: please sign in again."
+                            syncMessage = "Auth error: please sign in again.",
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.ServerError -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isSyncFailed = true,
-                            syncMessage = com.pixelquest.app.domain.SafeErrorCopy.SYNC_SERVER
+                            syncMessage = com.pixelquest.app.domain.SafeErrorCopy.SYNC_SERVER,
                         )
                     }
                     is com.pixelquest.app.data.remote.SupabaseResult.UnknownError -> {
                         _uiState.value = _uiState.value.copy(
                             isSyncing = false,
                             isSyncFailed = true,
-                            syncMessage = com.pixelquest.app.domain.SafeErrorCopy.SYNC_FAILED
+                            syncMessage = com.pixelquest.app.domain.SafeErrorCopy.SYNC_FAILED,
                         )
                     }
                 }
@@ -367,14 +381,14 @@ class AccountViewModel @Inject constructor(
     fun proceedToDeleteDoubleConfirm() {
         _uiState.value = _uiState.value.copy(
             showDeleteConfirmDialog = false,
-            showDeleteDoubleConfirmDialog = true
+            showDeleteDoubleConfirmDialog = true,
         )
     }
 
     fun dismissDeleteDialog() {
         _uiState.value = _uiState.value.copy(
             showDeleteConfirmDialog = false,
-            showDeleteDoubleConfirmDialog = false
+            showDeleteDoubleConfirmDialog = false,
         )
     }
 
@@ -384,7 +398,7 @@ class AccountViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isDeletingCloudData = true,
-                syncMessage = null
+                syncMessage = null,
             )
 
             // 1. Delete profiles row in Supabase. If that fails (e.g. offline), stop: nothing was
@@ -392,7 +406,7 @@ class AccountViewModel @Inject constructor(
             if (cloudProfileRepository.deleteCloudProfile() !is com.pixelquest.app.data.remote.SupabaseResult.Success) {
                 _uiState.value = _uiState.value.copy(
                     isDeletingCloudData = false,
-                    syncMessage = "Couldn't reach the cloud, so nothing was deleted. Check your connection and try again."
+                    syncMessage = "Couldn't reach the cloud, so nothing was deleted. Check your connection and try again.",
                 )
                 return@launch
             }
@@ -402,7 +416,7 @@ class AccountViewModel @Inject constructor(
             if (accountResult != null && accountResult !is com.pixelquest.app.data.remote.SupabaseResult.Success) {
                 _uiState.value = _uiState.value.copy(
                     isDeletingCloudData = false,
-                    syncMessage = "Your leaderboard entry was deleted, but the account couldn't be. Try again when you're online."
+                    syncMessage = "Your leaderboard entry was deleted, but the account couldn't be. Try again when you're online.",
                 )
                 return@launch
             }
@@ -418,7 +432,7 @@ class AccountViewModel @Inject constructor(
                 isOptedIn = false,
                 displayNameInput = "",
                 displayNameError = null,
-                syncMessage = "Cloud data and account deleted successfully."
+                syncMessage = "Cloud data and account deleted successfully.",
             )
         }
     }

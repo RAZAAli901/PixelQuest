@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Download
@@ -13,7 +14,6 @@ import androidx.compose.material.icons.rounded.Policy
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Tune
-import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +43,7 @@ fun SettingsScreen(
     onNavigateToAvatar: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
     onNavigateBack: (() -> Unit)? = null,
-    onResetComplete: () -> Unit = {}
+    onResetComplete: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -51,13 +51,13 @@ fun SettingsScreen(
     val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
 
     val exportLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
+        contract = androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json"),
     ) { uri ->
         uri?.let { viewModel.exportBackupToUri(context, it) }
     }
 
     val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+        contract = androidx.activity.result.contract.ActivityResultContracts.OpenDocument(),
     ) { uri ->
         uri?.let { viewModel.onImportFileSelected(context, it) }
     }
@@ -75,13 +75,16 @@ fun SettingsScreen(
                 label = "Hero name",
                 placeholder = "Enter username",
                 errorText = nameError,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
             if (nameDraft != null && nameDraft != savedName) {
                 PqButton("Save name", { viewModel.saveName() }, Modifier.fillMaxWidth(), enabled = nameError == null)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                com.pixelquest.app.ui.components.PixelAvatar(com.pixelquest.app.ui.components.AvatarClass.from(state.profile?.avatarId), 56.dp)
+                com.pixelquest.app.ui.components.PixelAvatar(
+                    com.pixelquest.app.ui.components.AvatarClass.from(state.profile?.avatarId),
+                    56.dp,
+                )
                 Column(Modifier.weight(1f)) {
                     Text(text = "Avatar", style = PqType.BodyStrong)
                     Text(text = "Level ${state.profile?.level ?: 1}", style = PqType.Meta)
@@ -90,28 +93,34 @@ fun SettingsScreen(
             }
             val diffLevel = state.difficulty?.difficultyLevel ?: com.pixelquest.app.domain.model.DifficultyLevel.MEDIUM
             SettingLink(
-                Icons.Rounded.Tune, "Difficulty", onNavigateToDifficulty,
+                Icons.Rounded.Tune,
+                "Difficulty",
+                onNavigateToDifficulty,
                 value = com.pixelquest.app.domain.DifficultyMode.getDisplayName(diffLevel),
-                enabled = !state.isSimpleModeEnabled
+                enabled = !state.isSimpleModeEnabled,
             )
             if (state.isSimpleModeEnabled) SettingNote(DIFFICULTY_LOCKED_IN_SIMPLE_MODE)
             SettingLink(Icons.Rounded.Cloud, "Cloud & leaderboard", onNavigateToAccount)
         },
         notificationsSection = {
             SettingSwitch(
-                "Notifications", "Reminders and nudges from PixelQuest", state.isNotificationsEnabled,
+                "Notifications",
+                "Reminders and nudges from PixelQuest",
+                state.isNotificationsEnabled,
                 { on ->
                     if (on) askForNotifications()
                     viewModel.toggleNotifications(on)
-                }
+                },
             )
             if (state.isNotificationsEnabled) {
                 ExactAlarmPrompt(
                     canScheduleExact = { viewModel.canScheduleExactAlarms() },
-                    onAllow = { context.startActivity(viewModel.exactAlarmSettingsIntent()) }
+                    onAllow = { context.startActivity(viewModel.exactAlarmSettingsIntent()) },
                 )
                 val reminderSoundOn by viewModel.isReminderSoundEnabled.collectAsState()
-                SettingSwitch("Reminder sound", "Off, reminders arrive silently", reminderSoundOn, { viewModel.setReminderSoundEnabled(it) })
+                SettingSwitch("Reminder sound", "Off, reminders arrive silently", reminderSoundOn, {
+                    viewModel.setReminderSoundEnabled(it)
+                })
             }
             SettingLink(Icons.Rounded.Settings, "Android's notification settings", {
                 val intent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -124,15 +133,27 @@ fun SettingsScreen(
         },
         appearanceSection = {
             // Settings > Look: UI v2's two skins (docs/ui-v2.md). The choice is kept and re-skins every screen.
-            com.pixelquest.app.ui.components.PqFieldLabel(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_settings_look))
+            com.pixelquest.app.ui.components.PqFieldLabel(
+                androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_settings_look),
+            )
             com.pixelquest.app.ui.components.PqSegmented(
                 options = listOf(
                     androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_look_comic),
-                    androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_look_pixel)
+                    androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.pq_look_pixel),
                 ),
                 selected = if (state.themeMode.skin == com.pixelquest.app.ui.theme.PqSkin.Pixel) 1 else 0,
-                onSelect = { viewModel.setThemeMode(if (it == 1) com.pixelquest.app.ui.theme.ThemeMode.Pixel else com.pixelquest.app.ui.theme.ThemeMode.Comic) },
-                modifier = Modifier.testTag(SETTINGS_LOOK_TAG)
+                onSelect = {
+                    viewModel.setThemeMode(
+                        if (it ==
+                            1
+                        ) {
+                            com.pixelquest.app.ui.theme.ThemeMode.Pixel
+                        } else {
+                            com.pixelquest.app.ui.theme.ThemeMode.Comic
+                        },
+                    )
+                },
+                modifier = Modifier.testTag(SETTINGS_LOOK_TAG),
             )
             SettingSwitch("Sound effects", null, state.isSoundEnabled, { viewModel.toggleSound(it) })
             SettingSwitch("Haptics", null, state.isHapticsEnabled, { viewModel.toggleHaptics(it) })
@@ -141,16 +162,22 @@ fun SettingsScreen(
                 SettingSwitch("CRT filter", "Old-screen scanlines over the Pixel look", state.isCrtEnabled, { viewModel.toggleCrt(it) })
             }
             val reduceMotionOn by viewModel.isReduceMotionEnabled.collectAsState()
-            SettingSwitch("Reduce motion", "Pulses, spinners and bounces hold still", reduceMotionOn, { viewModel.setReduceMotionEnabled(it) })
+            SettingSwitch("Reduce motion", "Pulses, spinners and bounces hold still", reduceMotionOn, {
+                viewModel.setReduceMotionEnabled(it)
+            })
             if (!reduceMotionOn && com.pixelquest.app.ui.theme.rememberReduceMotion(appSetting = false)) {
                 SettingNote("Android's \"Remove animations\" is on, so motion is reduced anyway.")
             }
         },
         aiSection = {
             val signedIn by viewModel.isSignedIn.collectAsState()
-            SettingNote("Personalized coaching debriefs and actionable habit suggestions generated by Google Gemini. Anonymized streak trends with zero PII.")
+            SettingNote(
+                "Personalized coaching debriefs and actionable habit suggestions generated by Google Gemini. Anonymized streak trends with zero PII.",
+            )
             val aiSetting = com.pixelquest.app.domain.ai.AiCoachSetting.of(
-                state.isAiInsightsEnabled, com.pixelquest.app.domain.ai.AiAvailability.inThisBuild, signedIn
+                state.isAiInsightsEnabled,
+                com.pixelquest.app.domain.ai.AiAvailability.inThisBuild,
+                signedIn,
             )
             if (com.pixelquest.app.domain.ai.AiAvailability.inThisBuild && !signedIn) {
                 SettingNote(com.pixelquest.app.domain.ai.AiErrorCopy.SIGN_IN_REQUIRED)
@@ -159,9 +186,15 @@ fun SettingsScreen(
                 // On asks first, with the privacy disclosure.
                 SettingSwitch(
                     "AI coach",
-                    if (aiSetting == com.pixelquest.app.domain.ai.AiCoachSetting.ENABLED) "Daily debriefs are on" else "Off until you opt in",
+                    if (aiSetting ==
+                        com.pixelquest.app.domain.ai.AiCoachSetting.ENABLED
+                    ) {
+                        "Daily debriefs are on"
+                    } else {
+                        "Off until you opt in"
+                    },
                     state.isAiInsightsEnabled,
-                    { on -> if (on) viewModel.requestEnableAiInsights() else viewModel.disableAiInsights() }
+                    { on -> if (on) viewModel.requestEnableAiInsights() else viewModel.disableAiInsights() },
                 )
                 if (state.isAiInsightsEnabled) {
                     SettingLink(Icons.Rounded.Policy, "Privacy disclosure", { viewModel.requestEnableAiInsights() })
@@ -173,11 +206,13 @@ fun SettingsScreen(
                         { on ->
                             viewModel.setAiReminderMessagesEnabled(on)
                             if (on) com.pixelquest.app.worker.EncouragementPackWorker.runNow(context)
-                        }
+                        },
                     )
                 }
             } else {
-                SettingNote("This build of PixelQuest has no AI service or sign-in set up, so AI Coach can't be turned on. Everything else works as usual.")
+                SettingNote(
+                    "This build of PixelQuest has no AI service or sign-in set up, so AI Coach can't be turned on. Everything else works as usual.",
+                )
             }
         },
         islamicSection = { com.pixelquest.app.islamic.ui.IslamicSettingsSection() },
@@ -190,16 +225,19 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .comic(bg = PqColors.Sky, radius = PqDimens.RadiusSm, border = PqDimens.BorderThin, shadow = 0.dp)
-                        .padding(10.dp)
+                        .padding(10.dp),
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(text = "New: try Simple Mode", style = PqType.BodyStrong)
-                        Text(text = "Looking for a calm, distraction-free checklist? Switch off gamification anytime.", style = PqType.Meta.copy(color = PqColors.Ink))
+                        Text(
+                            text = "Looking for a calm, distraction-free checklist? Switch off gamification anytime.",
+                            style = PqType.Meta.copy(color = PqColors.Ink),
+                        )
                     }
                     com.pixelquest.app.ui.components.DismissButton(
                         contentDescription = "Dismiss the Simple Mode tip",
                         onClick = { viewModel.dismissSimpleModeHighlight() },
-                        color = PqColors.Ink
+                        color = PqColors.Ink,
                     )
                 }
             }
@@ -211,7 +249,7 @@ fun SettingsScreen(
                     "Minimalist, un-gamified task tracking. Hides XP, streaks, levels, and celebration modals while preserving all background progress."
                 },
                 state.isSimpleModeEnabled,
-                { on -> if (on) viewModel.requestEnableSimpleMode() else viewModel.toggleSimpleMode(false) }
+                { on -> if (on) viewModel.requestEnableSimpleMode() else viewModel.toggleSimpleMode(false) },
             )
         },
         dataSection = {
@@ -221,7 +259,7 @@ fun SettingsScreen(
                 { exportLauncher.launch("pixelquest-backup-${java.time.LocalDate.now()}.json") },
                 Modifier.fillMaxWidth(),
                 style = PqButtonStyle.Secondary,
-                icon = Icons.Rounded.Upload
+                icon = Icons.Rounded.Upload,
             )
             val lastBackup by viewModel.lastBackupText.collectAsState()
             if (lastBackup.isNotEmpty()) SettingNote(lastBackup)
@@ -233,21 +271,21 @@ fun SettingsScreen(
                     SettingLink(
                         Icons.Rounded.Restore,
                         "Restore " + day.format(java.time.format.DateTimeFormatter.ofPattern("d MMM", java.util.Locale.ENGLISH)),
-                        { viewModel.onAutoBackupSelected(day) }
+                        { viewModel.onAutoBackupSelected(day) },
                     )
                 }
             }
             val canUndoRestore by viewModel.canUndoRestore.collectAsState()
             if (canUndoRestore) {
                 // What the phone had before the last restore is kept until it's used or replaced.
-                SettingLink(Icons.Rounded.Undo, "Undo last restore", { viewModel.undoLastRestore() })
+                SettingLink(Icons.AutoMirrored.Rounded.Undo, "Undo last restore", { viewModel.undoLastRestore() })
             }
             PqButton(
                 "Import quest data",
                 { importLauncher.launch(arrayOf("application/json", "*/*")) },
                 Modifier.fillMaxWidth(),
                 style = PqButtonStyle.Secondary,
-                icon = Icons.Rounded.Download
+                icon = Icons.Rounded.Download,
             )
             val backupMessage by viewModel.backupMessage.collectAsState()
             backupMessage?.let { SettingNote(it) }
@@ -255,14 +293,14 @@ fun SettingsScreen(
         dangerZoneSection = {
             SettingNote("Wipes every quest, your XP, level and streaks on this phone. It asks twice first.")
             PqDangerButton("Reset all progress", { viewModel.onResetProgressClicked() }, icon = Icons.Rounded.DeleteForever)
-        }
+        },
     )
 
     val showSimpleModeDialog by viewModel.showSimpleModeDialog.collectAsState()
     if (showSimpleModeDialog) {
         SimpleModeEnableDialog(
             onConfirm = { viewModel.confirmEnableSimpleMode() },
-            onDismiss = { viewModel.dismissSimpleModeDialog() }
+            onDismiss = { viewModel.dismissSimpleModeDialog() },
         )
     }
 
@@ -272,7 +310,7 @@ fun SettingsScreen(
         RestoreDataConfirmDialog(
             onConfirm = { viewModel.confirmImport() },
             onDismiss = { viewModel.dismissImportDialog() },
-            summary = restoreSummary
+            summary = restoreSummary,
         )
     }
 
@@ -282,7 +320,7 @@ fun SettingsScreen(
             step = resetStepState,
             onNextStep = { viewModel.advanceResetStep() },
             onConfirmWipe = { viewModel.performFullReset(onResetComplete) },
-            onDismiss = { viewModel.cancelReset() }
+            onDismiss = { viewModel.cancelReset() },
         )
     }
 
@@ -290,7 +328,7 @@ fun SettingsScreen(
     if (showAiPrivacyDialog) {
         AiInsightsPrivacyConfirmDialog(
             onConfirm = { viewModel.confirmEnableAiInsights() },
-            onDismiss = { viewModel.dismissAiInsightsPrivacyDialog() }
+            onDismiss = { viewModel.dismissAiInsightsPrivacyDialog() },
         )
     }
 }

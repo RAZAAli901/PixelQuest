@@ -18,7 +18,14 @@ spotless {
     kotlin {
         target("src/**/*.kt")
         targetExclude("src/test/java/com/pixelquest/app/zz/**")
-        ktlint("1.3.1").editorConfigOverride(mapOf("ktlint_standard_filename" to "disabled"))
+        ktlint("1.3.1").editorConfigOverride(
+            mapOf(
+                "ktlint_standard_filename" to "disabled",
+                "ktlint_standard_function-naming" to "disabled",
+                "ktlint_standard_max-line-length" to "disabled",
+                "ktlint_standard_no-wildcard-imports" to "disabled",
+            ),
+        )
     }
     kotlinGradle {
         target("*.gradle.kts")

@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Article
+import androidx.compose.material.icons.automirrored.rounded.Article
 import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.PictureAsPdf
@@ -44,7 +44,7 @@ fun ChatFileType.icon(): ImageVector = when (this) {
     ChatFileType.WORD -> Icons.Rounded.Description
     ChatFileType.EXCEL -> Icons.Rounded.TableChart
     ChatFileType.POWERPOINT -> Icons.Rounded.Slideshow
-    ChatFileType.TEXT -> Icons.Rounded.Article
+    ChatFileType.TEXT -> Icons.AutoMirrored.Rounded.Article
     ChatFileType.IMAGE -> Icons.Rounded.Image
 }
 
@@ -69,7 +69,7 @@ fun FileCard(
     modifier: Modifier = Modifier,
     content: Color = PqColors.Ink,
     secondary: Color = PqColors.Ink2,
-    uploader: String? = null
+    uploader: String? = null,
 ) {
     val look = chatLook()
     val ready = file.status == ChatFileStatus.READY
@@ -84,21 +84,35 @@ fun FileCard(
                     Modifier.clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_file_open)) { onOpen(file) }
                 } else {
                     Modifier
-                }
+                },
             )
             .padding(10.dp)
-            .testTag(StudyChatTags.file(file.id))
+            .testTag(StudyChatTags.file(file.id)),
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(40.dp).background(PqColors.Paper, look.fieldShape).border(PqDimens.BorderThin, PqColors.Ink, look.fieldShape)
+            modifier = Modifier.size(
+                40.dp,
+            ).background(PqColors.Paper, look.fieldShape).border(PqDimens.BorderThin, PqColors.Ink, look.fieldShape),
         ) {
             Icon(file.type.icon(), contentDescription = null, tint = PqColors.Ink)
         }
         Column(modifier = Modifier.weight(1f)) {
             Text(text = file.displayName, style = PqType.BodyStrong.copy(color = content), maxLines = 2, overflow = TextOverflow.Ellipsis)
-            val parts = listOfNotNull(stringResource(file.type.label()), sizeText(file.sizeBytes), uploader?.let { stringResource(R.string.study_file_by, it) })
-            Text(text = parts.joinToString(" · "), style = PqType.Meta.copy(color = secondary), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            val parts =
+                listOfNotNull(
+                    stringResource(file.type.label()),
+                    sizeText(file.sizeBytes),
+                    uploader?.let {
+                        stringResource(R.string.study_file_by, it)
+                    },
+                )
+            Text(
+                text = parts.joinToString(" · "),
+                style = PqType.Meta.copy(color = secondary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
             if (!ready) {
                 Text(
                     text = when (file.status) {
@@ -106,7 +120,7 @@ fun FileCard(
                         else -> stringResource(R.string.study_chat_upload_rejected, stringResource(rejectionText(file.rejectReason)))
                     },
                     style = PqType.Meta.copy(color = if (file.status == ChatFileStatus.REJECTED) PqColors.Error else secondary),
-                    modifier = Modifier.testTag(StudyChatTags.FILE_STATUS)
+                    modifier = Modifier.testTag(StudyChatTags.FILE_STATUS),
                 )
             }
         }
