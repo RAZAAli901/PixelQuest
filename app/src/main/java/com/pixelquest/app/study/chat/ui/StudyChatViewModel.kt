@@ -199,8 +199,9 @@ class StudyChatViewModel @Inject constructor(
             }
             com.pixelquest.app.study.chat.domain.UploadChecks.check(file.name, file.mime, file.sizeBytes)
                 .onSuccess { ok ->
-                    attachment.value = file.copy(name = ok.name, mime = ok.mime)
+                    // The last file's problem goes first, so the screen never shows it with the new file.
                     if (notice.value is ChatNotice.FileProblem) notice.value = null
+                    attachment.value = file.copy(name = ok.name, mime = ok.mime)
                 }
                 .onFailure { e ->
                     attachment.value = null

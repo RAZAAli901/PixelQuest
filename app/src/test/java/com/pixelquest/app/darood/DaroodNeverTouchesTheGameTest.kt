@@ -82,7 +82,12 @@ class DaroodNeverTouchesTheGameTest {
         val found = darood.flatMap { file ->
             // Chess's own party ladder (chess_party_leaderboard) isn't the game's leaderboard.
             val sql = file.readLines().filterNot { it.trimStart().startsWith("--") }.joinToString("\n").lowercase().replace("chess_party_leaderboard", "")
-            listOf("public.profiles", "total_xp", "current_streak", "longest_streak", "leaderboard").filter { it in sql }.map { "${file.name}: $it" }
+            if (file.name.endsWith("_export_my_data.sql")) {
+                // The cloud export (J173) reads the player's own profile to hand it to them, and writes nothing there.
+                Regex("(insert\\s+into|update|delete\\s+from)\\s+public\\.profiles").findAll(sql).map { "${file.name}: ${it.value}" }.toList()
+            } else {
+                listOf("public.profiles", "total_xp", "current_streak", "longest_streak", "leaderboard").filter { it in sql }.map { "${file.name}: $it" }
+            }
         }
         assertEquals(emptyList<String>(), found)
     }
