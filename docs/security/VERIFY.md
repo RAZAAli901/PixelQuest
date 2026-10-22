@@ -156,3 +156,26 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
 - **Not needed:** server-computed columns (weekly places, points, the chess config).
 - **Safe on old data:** each limit is enforced for new rows at once. Existing rows are validated, and if one doesn't fit, the limit stays enforced for new rows with a notice. Locally all eight validated.
 - **Test:** `security.test.ts`, "what a phone sends is checked". A script tag, an SQL-looking string and a 65-character zone are refused for a Darood entry; a 200-character week zone for a party. The file, chess and AI proxy suites still pass (30 of 30).
+
+### S020: rate limits
+- **Done:** migration `20261019000116_rate_limits`:
+  - `private.rate_events` and `private.rate_limit(bucket, max, per)`: they count the caller's events and raise `rate_limited` past the limit;
+  - message reports and challenge reports: 30 an hour each;
+  - the cloud export: 10 an hour;
+  - push-token registration: 30 an hour.
+- **Limits that already existed** (each tested in its own suite):
+
+  | Action | Limit | Where |
+  |---|---|---|
+  | Invitations | 20 an hour per inviter | `invite_member`, `private.invite_log` |
+  | Chat messages | 30 a minute | trigger on `chat_messages` |
+  | Uploads | 20 a day; 20 MB a file; 500 MB a party | trigger on `chat_files`, `request-upload` |
+  | Challenges | 10 an hour | `chess_create_challenge` |
+  | Moves | 5 a second per game | trigger on `chess_moves` |
+  | Watching | 20 joins an hour | `chess_watch` |
+  | Profile reports | 1 a day | `reports` trigger |
+  | AI | per account per day, and a global daily cap | `gemini-proxy` (S050) |
+  | Sign-in emails, code checks | GoTrue's limits | `supabase/config.toml` `[auth.rate_limit]` (S061) |
+- **Test:** `abuse.test.ts`, "reports, the export and push tokens are rate-limited":
+  - the 11th export in an hour, the 31st push token and the 31st report of each kind are refused;
+  - an hour later, the export works again.

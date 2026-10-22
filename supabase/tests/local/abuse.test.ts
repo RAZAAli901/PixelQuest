@@ -63,3 +63,29 @@ localTest("abuse: a chess challenge is reported by a party mate, and its sender 
   assert.equal((await rpc(black, "unblock_member", { user_id: white.userId })).status, 204);
   sql(`DELETE FROM public.chess_challenges WHERE from_user IN ('${white.userId}', '${black.userId}')`);
 });
+
+localTest("abuse: reports, the export and push tokens are rate-limited (S020)", async () => {
+  const { white } = await chessCast();
+  const fill = (bucket: string, n: number) => {
+    sql(`DELETE FROM private.rate_events WHERE subject = '${white.userId}' AND bucket = '${bucket}'`);
+    sql(`INSERT INTO private.rate_events (bucket, subject) SELECT '${bucket}', '${white.userId}' FROM generate_series(1, ${n})`);
+  };
+  const message = (res: { body: { message?: string } }) => res.body?.message;
+
+  fill("export_my_data", 9);
+  assert.equal((await rpc(white, "export_my_data", {})).status, 200, "the 10th export in an hour is fine");
+  assert.equal(message(await rpc(white, "export_my_data", {})), "rate_limited", "the 11th isn't");
+
+  fill("device_token", 30);
+  assert.equal(message(await rpc(white, "register_device_token", { token: `zz-${Date.now()}`, platform: "android" })), "rate_limited");
+
+  fill("report_chat", 30);
+  assert.equal(message(await rpc(white, "report_chat_message", { message_id: crypto.randomUUID(), reason: "spam" })), "rate_limited", "limited before it even looks");
+  fill("report_chess", 30);
+  assert.equal(message(await rpc(white, "report_chess_challenge", { challenge_id: crypto.randomUUID(), reason: "spam" })), "rate_limited");
+
+  // An hour on, it's allowed again.
+  sql(`UPDATE private.rate_events SET at = now() - interval '61 minutes' WHERE subject = '${white.userId}'`);
+  assert.equal((await rpc(white, "export_my_data", {})).status, 200);
+  sql(`DELETE FROM private.rate_events WHERE subject = '${white.userId}'`);
+});
