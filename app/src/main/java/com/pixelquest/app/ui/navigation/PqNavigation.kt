@@ -1,24 +1,8 @@
 package com.pixelquest.app.ui.navigation
 
-import com.pixelquest.app.ui.motion.PqToastState
-import com.pixelquest.app.ui.motion.PqToastHost
-import com.pixelquest.app.ui.motion.LocalPqToast
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
-import com.pixelquest.app.ui.motion.PqMotion
-import com.pixelquest.app.ui.motion.navHop
-import com.pixelquest.app.ui.motion.reducedMotion
-import kotlin.math.roundToInt
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,15 +35,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -67,15 +56,25 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.pixelquest.app.R
 import com.pixelquest.app.audio.LocalSoundManager
 import com.pixelquest.app.ui.components.comicPressable
+import com.pixelquest.app.ui.motion.LocalPqToast
+import com.pixelquest.app.ui.motion.PqMotion
+import com.pixelquest.app.ui.motion.PqToastHost
+import com.pixelquest.app.ui.motion.PqToastState
+import com.pixelquest.app.ui.motion.navHop
+import com.pixelquest.app.ui.motion.reducedMotion
 import com.pixelquest.app.ui.theme.PqCircle
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
 import com.pixelquest.app.ui.theme.pqShape
+import kotlin.math.roundToInt
 
 /**
  * UI v2's bottom bar (docs/ui-v2.md): Home, Quests, the trophy, Deen and Hero. The side menu is gone;
@@ -93,7 +92,8 @@ enum class PqTab(
     Home(Screen.Home.route, R.string.pq_tab_home, Icons.Rounded.Home, Icons.Outlined.Home),
     Quests(Screen.Tasks.route, R.string.pq_tab_quests, Icons.Rounded.Checklist, Icons.Rounded.Checklist, R.string.pq_tab_quests_simple),
     Deen(Routes.ISLAMIC, R.string.pq_tab_deen, Icons.Rounded.Brightness3, Icons.Outlined.Brightness3),
-    Hero(Screen.Hero.route, R.string.pq_tab_hero, Icons.Rounded.Person, Icons.Outlined.Person);
+    Hero(Screen.Hero.route, R.string.pq_tab_hero, Icons.Rounded.Person, Icons.Outlined.Person),
+    ;
 
     companion object {
         /** The tab whose back stack starts at [route], or null (the Leaderboard has the trophy, not a tab). */
@@ -126,7 +126,10 @@ fun PqBottomBar(
     isSimpleMode: Boolean = false,
 ) {
     val sound = LocalSoundManager.current
-    val select: (PqTab) -> Unit = { sound?.playNavSound(); onSelect(it) }
+    val select: (PqTab) -> Unit = {
+        sound?.playNavSound()
+        onSelect(it)
+    }
     // M10: the gold pill slides to the selected tab. The slots aren't all the same width (the
     // trophy's gap, and Hero's double slot without Deen), so each tab says where its middle is.
     val middles = remember { mutableStateMapOf<PqTab, Float>() }
@@ -154,8 +157,15 @@ fun PqBottomBar(
         Box(
             Modifier.align(Alignment.TopCenter).offset(y = (-26).dp).size(58.dp)
                 .testTag(PqNavTags.TROPHY)
-                .comicPressable({ sound?.playNavSound(); onCenterClick() }, bg = PqColors.Trophy, radius = 29.dp)
-                .clearAndSetSemantics { contentDescription = trophy; role = Role.Tab; selected = current == null },
+                .comicPressable({
+                    sound?.playNavSound()
+                    onCenterClick()
+                }, bg = PqColors.Trophy, radius = 29.dp)
+                .clearAndSetSemantics {
+                    contentDescription = trophy
+                    role = Role.Tab
+                    selected = current == null
+                },
             contentAlignment = Alignment.Center,
         ) { Icon(Icons.Rounded.EmojiEvents, null, tint = PqColors.OnTrophy, modifier = Modifier.size(30.dp)) }
     }
@@ -168,15 +178,18 @@ private fun SlidingPill(middle: Float?) {
     val reduced = reducedMotion()
     val x = remember { Animatable(middle) }
     LaunchedEffect(middle) {
-        if (reduced) x.snapTo(middle)
-        else x.animateTo(middle, tween(PqMotion.Slow, easing = if (PqMotion.pixel) PqMotion.steps(4) else CubicBezierEasing(0.3f, 1.3f, 0.5f, 1f)))
+        if (reduced) {
+            x.snapTo(middle)
+        } else {
+            x.animateTo(middle, tween(PqMotion.Slow, easing = PqMotion.nav()))
+        }
     }
     val density = LocalDensity.current
     val half = with(density) { 26.dp.toPx() }
     val top = with(density) { 8.dp.roundToPx() }
     Box(
         Modifier.offset { IntOffset((x.value - half).roundToInt(), top) }.width(52.dp).height(30.dp)
-            .clip(pqShape(15.dp)).background(PqColors.Gold).border(PqDimens.BorderThin, PqColors.Ink, pqShape(15.dp))
+            .clip(pqShape(15.dp)).background(PqColors.Gold).border(PqDimens.BorderThin, PqColors.Ink, pqShape(15.dp)),
     )
 }
 
@@ -205,7 +218,8 @@ private fun NavItem(
                     this.selected = selected
                 }
                 .padding(top = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(3.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
             // The gold pill behind the selected icon is the bar's sliding one; the icon hops (M10).
             Box(Modifier.width(52.dp).height(30.dp), contentAlignment = Alignment.Center) {
@@ -218,7 +232,7 @@ private fun NavItem(
             Box(
                 Modifier.align(Alignment.TopCenter).offset(x = 20.dp, y = 8.dp).size(10.dp).clip(PqCircle)
                     .background(PqColors.Red).border(PqDimens.BorderThin, PqColors.Ink, PqCircle)
-                    .testTag(PqNavTags.dot(tab))
+                    .testTag(PqNavTags.dot(tab)),
             )
         }
     }
