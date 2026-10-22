@@ -105,3 +105,32 @@ localTest("security: a removed member loses chat, files and chess at once", asyn
 // loses messages and files at once, and a download link expires"), run with this file in J170.
 
 const rpc = (who: Session | Player, name: string, body: unknown) => call(`/rest/v1/rpc/${name}`, { token: who.accessToken, body });
+
+localTest("deletion: the account's games stay for the opponent, anonymised; its files are cleaned from storage", async () => {
+  const { newPlayer } = await import("./stack.ts");
+  const { white } = await chessCast();
+  endGames(white);
+  const leaving = await newPlayer("chess_leaving");
+  const name = `lv_${Math.random().toString(36).slice(2, 8)}`;
+  assert.equal((await rpc(leaving, "set_username", { name })).body?.status, "ok");
+  const party = await studyParty(white, [{ ...leaving, username: name }]);
+  const done = gameRow(party, white, leaving);
+  sql(`UPDATE public.chess_games SET ply = 20 WHERE id = '${done}'`);
+  sql(`SELECT private.chess_finish('${done}', 'white', 'resign')`);
+  const live = gameRow(party, white, leaving);
+
+  assert.equal((await rpc(leaving, "delete_user_account", {})).status, 204);
+  assert.equal(sql(`SELECT coalesce(black_id::text, 'gone') || ' ' || result FROM public.chess_games WHERE id = '${done}'`), "gone white");
+  assert.equal(sql(`SELECT status FROM public.chess_games WHERE id = '${live}'`), "aborted", "a live game ends first");
+  const low = [white.userId, leaving.userId].sort();
+  assert.equal(sql(`SELECT count(*) FROM public.chess_head_to_head WHERE user_low = '${low[0]}' AND user_high = '${low[1]}'`), "1", "the opponent's record stays");
+  assert.equal((await read(white, `chess_head_to_head?user_low=eq.${low[0]}&user_high=eq.${low[1]}&select=time_control_sec`)).length, 1, "and they can read it");
+  assert.equal(sql(`SELECT count(*) FROM public.chess_ratings WHERE user_id = '${leaving.userId}'`), "0", "their own ratings go");
+
+  // Their file bytes are orphans now: cleanup-uploads lists them for deleting.
+  sql(`INSERT INTO storage.objects (bucket_id, name, owner, created_at) VALUES ('study-files', '${party}/left-behind', NULL, now() - interval '2 hours') ON CONFLICT DO NOTHING`);
+  assert.ok(sql(`SELECT array_to_string(public.chat_expire_uploads(1000), ',')`).includes(`${party}/left-behind`));
+  // Storage refuses direct deletes: through its API, as cleanup-uploads does.
+  const { asService } = await import("./stack.ts");
+  await asService(`/storage/v1/object/study-files`, { method: "DELETE", body: { prefixes: [`${party}/left-behind`] } });
+});
