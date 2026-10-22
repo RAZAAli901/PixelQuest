@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+# PixelQuest pre-commit hook (S005, Q010): no secrets in commits.
+# Install once per clone:  git config core.hooksPath scripts/hooks
+# It scans what's staged with scripts/security/scan_secrets.py, and with gitleaks too when it's installed.
+# PQ_PYTHON picks the interpreter; otherwise the first python3/python/py that really runs (on Windows,
+# "python3" can be the Store's placeholder).
+PY=""
+for c in "$PQ_PYTHON" python3 python py; do
+  [ -n "$c" ] || continue
+  if "$c" -c "import sys" >/dev/null 2>&1; then PY="$c"; break; fi
+done
+if [ -n "$PY" ]; then
+  "$PY" scripts/security/scan_secrets.py --staged || {
+    echo "pre-commit: a secret is staged (above). Unstage it, move it to local.properties or a secret store, and try again." >&2
+    exit 1
+  }
+else
+  echo "pre-commit: no Python found, so the secret scan was skipped (CI still runs it). Set PQ_PYTHON to fix." >&2
+fi
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --staged --redact --no-banner || exit 1
+fi
+exit 0
