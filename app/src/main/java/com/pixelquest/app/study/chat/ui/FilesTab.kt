@@ -38,11 +38,11 @@ fun FilesControls(query: FilesQuery, onChange: (FilesQuery) -> Unit, modifier: M
             value = query.search,
             onValueChange = { onChange(query.copy(search = com.pixelquest.app.domain.validation.InputRules.typed(it, com.pixelquest.app.domain.validation.InputRules.Field.SEARCH))) },
             label = stringResource(R.string.study_files_search),
-            modifier = Modifier.fillMaxWidth().testTag(StudyChatTags.FILES_SEARCH)
+            modifier = Modifier.fillMaxWidth().testTag(StudyChatTags.FILES_SEARCH),
         )
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.selectableGroup()) {
             item { ChoiceChip(stringResource(R.string.study_files_all), query.type == null, Modifier.testTag(StudyChatTags.filesType(null))) { onChange(query.copy(type = null)) } }
-            items(ChatFileType.entries) { type ->
+            items(ChatFileType.entries, key = { it.name }) { type ->
                 ChoiceChip(stringResource(type.label()), query.type == type, Modifier.testTag(StudyChatTags.filesType(type))) { onChange(query.copy(type = type)) }
             }
         }

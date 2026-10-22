@@ -116,8 +116,11 @@ fun AvatarPickerScreen(
                     Text(stringResource(R.string.pq_avatar_preview), style = PqType.Label)
                     Text(stringResource(selected.label).uppercase(), style = PqType.display(40))
                     Text(
-                        if (selected == equipped) stringResource(R.string.pq_avatar_equipped)
-                        else stringResource(R.string.pq_avatar_current, stringResource(equipped.label)),
+                        if (selected == equipped) {
+                            stringResource(R.string.pq_avatar_equipped)
+                        } else {
+                            stringResource(R.string.pq_avatar_current, stringResource(equipped.label))
+                        },
                         style = PqType.Body.copy(fontSize = 13.bsp),
                     )
                 }
@@ -127,7 +130,9 @@ fun AvatarPickerScreen(
         PqButton(
             if (selected == equipped) stringResource(R.string.pq_avatar_equipped) else stringResource(R.string.pq_avatar_equip, stringResource(selected.label)),
             { onEquip(selected) },
-            Modifier.fillMaxWidth().testTag(AvatarTags.EQUIP), enabled = selected != equipped, height = 54.dp,
+            Modifier.fillMaxWidth().testTag(AvatarTags.EQUIP),
+            enabled = selected != equipped,
+            height = 54.dp,
         )
     }
 }
@@ -167,7 +172,7 @@ fun LeaderboardLockedScreen(
 ) {
     Box(
         modifier.fillMaxSize().background(PqColors.Ground).testTag(LockedBoardTags.SCREEN)
-            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp)
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             PqTopBar(stringResource(R.string.pq_lb_title), onBack = onBack)
@@ -176,7 +181,8 @@ fun LeaderboardLockedScreen(
                 (1..5).forEach { r ->
                     Row(
                         Modifier.fillMaxWidth().comic(radius = 12.dp, border = PqDimens.BorderThin, shadow = 0.dp).padding(horizontal = 12.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Text("$r", style = PqType.number(22), modifier = Modifier.width(22.dp))
                         Box(Modifier.size(34.dp).clip(pqShape(8.dp)).background(PqColors.Ink))
@@ -200,12 +206,18 @@ fun LeaderboardLockedScreen(
                 if (cloudAvailable) {
                     Spacer(Modifier.height(2.dp))
                     PqButton(
-                        stringResource(if (signingIn) R.string.pq_lb_signing_in else R.string.pq_lb_google), onGoogleSignIn,
-                        Modifier.fillMaxWidth().testTag(LockedBoardTags.GOOGLE), enabled = !signingIn, height = 50.dp,
+                        stringResource(if (signingIn) R.string.pq_lb_signing_in else R.string.pq_lb_google),
+                        onGoogleSignIn,
+                        Modifier.fillMaxWidth().testTag(LockedBoardTags.GOOGLE),
+                        enabled = !signingIn,
+                        height = 50.dp,
                     )
                     PqButton(
-                        stringResource(R.string.pq_lb_email), onEmailCode,
-                        Modifier.fillMaxWidth().testTag(LockedBoardTags.EMAIL), style = PqButtonStyle.Secondary, height = 46.dp,
+                        stringResource(R.string.pq_lb_email),
+                        onEmailCode,
+                        Modifier.fillMaxWidth().testTag(LockedBoardTags.EMAIL),
+                        style = PqButtonStyle.Secondary,
+                        height = 46.dp,
                     )
                     error?.let { Text(it, style = PqType.MetaStrong.copy(color = PqColors.RedText), modifier = Modifier.testTag(LockedBoardTags.ERROR)) }
                 }
@@ -221,11 +233,13 @@ fun LeaderboardLockedScreen(
 @Composable
 fun AvatarChoiceGrid(selected: AvatarClass, onSelect: (AvatarClass) -> Unit, modifier: Modifier = Modifier, equipped: AvatarClass? = null) {
     LazyVerticalGrid(
-        GridCells.Fixed(3), modifier,
-        horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp),
+        GridCells.Fixed(3),
+        modifier,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         contentPadding = PaddingValues(top = 8.dp, end = 4.dp, bottom = 4.dp),
     ) {
-        items(AvatarClass.entries) { a ->
+        items(AvatarClass.entries, key = { it.id }) { a ->
             val sel = a == selected
             Box {
                 Column(
@@ -234,19 +248,25 @@ fun AvatarChoiceGrid(selected: AvatarClass, onSelect: (AvatarClass) -> Unit, mod
                         .selectable(selected = sel, role = Role.RadioButton) { onSelect(a) }
                         .testTag(AvatarTags.tile(a))
                         .padding(top = 12.dp, bottom = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     PixelAvatar(a, 60.dp, Modifier.clearAndSetSemantics {})
                     Text(stringResource(a.label).uppercase(), style = PqType.Button.copy(fontSize = 12.lsp))
                 }
-                if (sel) Box(
-                    Modifier.align(Alignment.TopEnd).offset(8.dp, (-8).dp).size(26.dp).clip(PqCircle).background(PqColors.Ink),
-                    contentAlignment = Alignment.Center,
-                ) { Icon(Icons.Rounded.Check, null, tint = PqColors.Gold, modifier = Modifier.size(18.dp)) }
-                if (a == equipped) Text(
-                    stringResource(R.string.pq_avatar_on), style = PqType.Label.copy(fontSize = 8.lsp, color = PqColors.Paper),
-                    modifier = Modifier.padding(6.dp).clip(pqShape(4.dp)).background(PqColors.Ink).padding(horizontal = 4.dp, vertical = 2.dp),
-                )
+                if (sel) {
+                    Box(
+                        Modifier.align(Alignment.TopEnd).offset(8.dp, (-8).dp).size(26.dp).clip(PqCircle).background(PqColors.Ink),
+                        contentAlignment = Alignment.Center,
+                    ) { Icon(Icons.Rounded.Check, null, tint = PqColors.Gold, modifier = Modifier.size(18.dp)) }
+                }
+                if (a == equipped) {
+                    Text(
+                        stringResource(R.string.pq_avatar_on),
+                        style = PqType.Label.copy(fontSize = 8.lsp, color = PqColors.Paper),
+                        modifier = Modifier.padding(6.dp).clip(pqShape(4.dp)).background(PqColors.Ink).padding(horizontal = 4.dp, vertical = 2.dp),
+                    )
+                }
             }
         }
     }

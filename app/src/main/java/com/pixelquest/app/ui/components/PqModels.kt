@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.NightsStay
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.WbCloudy
 import androidx.compose.material.icons.rounded.WbTwilight
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.pixelquest.app.R
@@ -46,6 +47,7 @@ enum class QuestCategory(@StringRes val label: Int, val icon: ImageVector, priva
  * @param overdue past its time today and not done yet.
  * @param missed a day gone by without it (Quests > History).
  */
+@Immutable
 data class QuestUi(
     val id: Long,
     val title: String,
@@ -58,11 +60,13 @@ data class QuestUi(
     val missed: Boolean = false,
 )
 
+@Immutable
 data class QuestGroupUi(val title: String, val quests: List<QuestUi>)
 
 enum class PrayerStatus { Prayed, Next, Upcoming, Missed }
 
 /** A prayer as UI v2 lists it. [name] is already in the player's language. */
+@Immutable
 data class PrayerUi(val name: String, val time: String, val status: PrayerStatus, val countdown: String? = null, val key: String = name)
 
 /** The icon for a prayer, by its key (fajr, dhuhr, asr, maghrib, isha). */
@@ -83,6 +87,7 @@ fun prayerColor(key: String): Color = when (key.lowercase()) {
     else -> PqColors.Lilac
 }
 
+@Immutable
 data class NextPrayerUi(val name: String, val time: String, val countdown: String)
 
 enum class DayStatus(private val tint: () -> Color) {

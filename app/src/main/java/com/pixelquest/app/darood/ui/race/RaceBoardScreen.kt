@@ -31,13 +31,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.R
-import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.DaroodPartyRepository
 import com.pixelquest.app.darood.domain.RaceLine
 import com.pixelquest.app.darood.domain.rankRace
 import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.ui.chat.dayDate
 import com.pixelquest.app.darood.ui.formatCount
+import com.pixelquest.app.data.remote.SupabaseResult
+import com.pixelquest.app.ui.chat.dayDate
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqCard
 import com.pixelquest.app.ui.components.PqProgressBar
@@ -66,7 +66,7 @@ enum class RaceProblem { OFFLINE, FAILED }
 data class RaceBoardUiState(
     val lines: List<RaceLine>? = null,
     val loading: Boolean = false,
-    val problem: RaceProblem? = null
+    val problem: RaceProblem? = null,
 )
 
 /**
@@ -76,7 +76,7 @@ data class RaceBoardUiState(
  */
 @HiltViewModel
 class RaceBoardViewModel @Inject constructor(
-    private val repository: DaroodPartyRepository
+    private val repository: DaroodPartyRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RaceBoardUiState())
@@ -114,7 +114,7 @@ fun RaceBoardContent(state: RaceBoardUiState, onNavigateBack: () -> Unit, onRetr
         modifier = Modifier
             .fillMaxSize()
             .background(PqColors.Ground)
-            .testTag(DaroodTestTags.RACE_SCREEN)
+            .testTag(DaroodTestTags.RACE_SCREEN),
     ) {
         PqTopBar(stringResource(R.string.darood_race_title), onBack = onNavigateBack, modifier = Modifier.padding(horizontal = PqDimens.ScreenPad).padding(top = 8.dp))
         val lines = state.lines
@@ -122,13 +122,13 @@ fun RaceBoardContent(state: RaceBoardUiState, onNavigateBack: () -> Unit, onRetr
             state.problem != null && lines == null -> Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-                modifier = Modifier.fillMaxSize().padding(24.dp)
+                modifier = Modifier.fillMaxSize().padding(24.dp),
             ) {
                 Text(
                     text = stringResource(if (state.problem == RaceProblem.OFFLINE) R.string.darood_race_offline else R.string.darood_race_failed),
                     style = PqType.Body,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.testTag(DaroodTestTags.RACE_PROBLEM)
+                    modifier = Modifier.testTag(DaroodTestTags.RACE_PROBLEM),
                 )
                 PqButton(text = stringResource(R.string.darood_race_retry), onClick = onRetry)
             }
@@ -139,15 +139,15 @@ fun RaceBoardContent(state: RaceBoardUiState, onNavigateBack: () -> Unit, onRetr
                 text = stringResource(R.string.darood_race_empty),
                 style = PqType.Body,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(24.dp).testTag(DaroodTestTags.RACE_EMPTY)
+                modifier = Modifier.fillMaxWidth().padding(24.dp).testTag(DaroodTestTags.RACE_EMPTY),
             )
             else -> LazyColumn(
                 contentPadding = PaddingValues(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 4.dp, bottom = 40.dp),
                 verticalArrangement = Arrangement.spacedBy(PqDimens.Gap),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 item { Text(text = stringResource(R.string.darood_race_intro), style = PqType.Meta) }
-                itemsIndexed(lines) { index, line -> RaceRow(place = index + 1, line = line) }
+                itemsIndexed(lines, key = { _, line -> line.name }) { index, line -> RaceRow(place = index + 1, line = line) }
             }
         }
     }
@@ -168,26 +168,30 @@ private fun RaceRow(place: Int, line: RaceLine) {
         line.name,
         if (line.mine) stringResource(R.string.darood_race_yours) else null,
         members,
-        progressText
+        progressText,
     ).joinToString(", ")
-    val medal = if (line.completedAt == null) null else when (place) {
-        1 -> PqColors.Gold
-        2 -> PqColors.Sunken
-        3 -> PqColors.Amber
-        else -> null
+    val medal = if (line.completedAt == null) {
+        null
+    } else {
+        when (place) {
+            1 -> PqColors.Gold
+            2 -> PqColors.Sunken
+            3 -> PqColors.Amber
+            else -> null
+        }
     }
     PqCard(
         bg = if (line.mine) PqColors.Sky else PqColors.Paper,
         modifier = Modifier
             .fillMaxWidth()
             .testTag(DaroodTestTags.raceRow(place, line.mine))
-            .clearAndSetSemantics { contentDescription = said }
+            .clearAndSetSemantics { contentDescription = said },
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(30.dp).comic(bg = medal ?: PqColors.Paper, radius = 15.dp, border = PqDimens.BorderThin, shadow = 0.dp)
+                    modifier = Modifier.size(30.dp).comic(bg = medal ?: PqColors.Paper, radius = 15.dp, border = PqDimens.BorderThin, shadow = 0.dp),
                 ) {
                     Text(text = place.toString(), style = PqType.Button)
                 }
