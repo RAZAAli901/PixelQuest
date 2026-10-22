@@ -168,13 +168,16 @@ fun HomeScreen(
     val haptics = LocalHapticFeedback.current
     val sound = LocalSoundManager.current
     // The streak-broken sting plays once, not each time the notice scrolls back into view.
-    val showsStreakBroken = (today as? TodayUiState.Success)?.let { it.isStreakBroken && !it.isSimpleMode } == true
+    val showsStreakBroken = remember(today) {
+        (today as? TodayUiState.Success)?.let { it.isStreakBroken && !it.isSimpleMode } == true
+    }
     androidx.compose.runtime.LaunchedEffect(showsStreakBroken) {
         if (showsStreakBroken && todayViewModel.shouldPlayStreakBrokenSound()) sound?.playTaskMissedSound()
     }
 
     val toast = LocalPqToast.current
     val context = LocalContext.current
+    val greetingRes = remember { greetingFor(LocalTime.now()) }
     Box(Modifier.fillMaxSize().background(PqColors.Ground)) {
         // M12: a slow first load shows shimmering rows where the cards will be.
         if (today is TodayUiState.Loading) com.pixelquest.app.ui.motion.PqSkeleton(Modifier.padding(16.dp))
@@ -184,7 +187,7 @@ fun HomeScreen(
             val home = remember(state, time, labels) { state.toHomeUi(time) { labels[it] } }
             HomeContent(
                 state = home,
-                greeting = stringResource(greetingFor(LocalTime.now())),
+                greeting = stringResource(greetingRes),
                 onCompleteQuest = { quest ->
                     state.tasks.firstOrNull { it.task.id == quest.id }?.let { item ->
                         completeFeedback(haptics, sound)

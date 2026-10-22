@@ -32,10 +32,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqCard
+import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqGroupLabel
 import com.pixelquest.app.ui.components.PqIconButton
 import com.pixelquest.app.ui.components.PqQuietButton
@@ -52,7 +52,7 @@ fun LeaderboardScreen(
     viewModel: LeaderboardViewModel,
     onNavigateBack: (() -> Unit)? = null,
     onNavigateToAccount: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     // Signed out: UI v2's locked board (mock 2J), which signs in with Google right there.
@@ -69,7 +69,7 @@ fun LeaderboardScreen(
         onViewSelected = { viewModel.selectView(it) },
         onNavigateBack = onNavigateBack,
         onNavigateToAccount = onNavigateToAccount,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -83,7 +83,7 @@ fun LeaderboardContent(
     onViewSelected: (LeaderboardView) -> Unit = {},
     onNavigateBack: (() -> Unit)? = null,
     onNavigateToAccount: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var reportingItem by remember { mutableStateOf<Pair<String, String>?>(null) }
     var pullOffset by remember { mutableStateOf(0f) }
@@ -125,7 +125,7 @@ fun LeaderboardContent(
             .fillMaxSize()
             .background(PqColors.Ground)
             .nestedScroll(nestedScrollConnection)
-            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 12.dp)
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 12.dp),
     ) {
         PqTopBar("Leaderboard", onBack = onNavigateBack) {
             PqIconButton(Icons.Rounded.Refresh, "Refresh the leaderboard", onRefresh)
@@ -141,14 +141,14 @@ fun LeaderboardContent(
                 },
                 style = PqType.MetaStrong,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().background(PqColors.Sunken, pqShape(8.dp)).padding(vertical = 6.dp)
+                modifier = Modifier.fillMaxWidth().background(PqColors.Sunken, pqShape(8.dp)).padding(vertical = 6.dp),
             )
         }
 
         PqSegmented(
             options = listOf("Top streaks", "Top levels"),
             selected = if (uiState.selectedTab == LeaderboardTab.TOP_STREAKS) 0 else 1,
-            onSelect = { onTabSelected(if (it == 0) LeaderboardTab.TOP_STREAKS else LeaderboardTab.TOP_LEVELS) }
+            onSelect = { onTabSelected(if (it == 0) LeaderboardTab.TOP_STREAKS else LeaderboardTab.TOP_LEVELS) },
         )
 
         val isOnBoard = uiState.authState is LeaderboardAuthState.SignedInAndOptedIn
@@ -157,7 +157,7 @@ fun LeaderboardContent(
             PqSegmented(
                 options = listOf("Around you", "Top heroes"),
                 selected = if (uiState.selectedView == LeaderboardView.AROUND_YOU) 0 else 1,
-                onSelect = { onViewSelected(if (it == 0) LeaderboardView.AROUND_YOU else LeaderboardView.TOP) }
+                onSelect = { onViewSelected(if (it == 0) LeaderboardView.AROUND_YOU else LeaderboardView.TOP) },
             )
         }
 
@@ -173,9 +173,11 @@ fun LeaderboardContent(
             is LeaderboardAuthState.SignedInReadOnly -> auth.userId
             LeaderboardAuthState.NotSignedIn -> null
         }
-        val currentEntries = when (uiState.selectedTab) {
-            LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
-            LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
+        val currentEntries = remember(uiState.selectedTab, uiState.streakEntries, uiState.levelEntries) {
+            when (uiState.selectedTab) {
+                LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
+                LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
+            }
         }
 
         // A refresh or a page that failed while the cached board still shows.
@@ -185,7 +187,7 @@ fun LeaderboardContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .comic(bg = PqColors.Paper, radius = PqDimens.RadiusSm, border = PqDimens.BorderThin, shadow = 0.dp)
-                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
             ) {
                 Text(text = uiState.errorMessage, style = PqType.Meta.copy(color = PqColors.Error), modifier = Modifier.weight(1f))
                 PqQuietButton("Retry", onRefresh)
@@ -198,7 +200,7 @@ fun LeaderboardContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .comic(bg = PqColors.Sky, radius = PqDimens.RadiusSm, border = PqDimens.BorderThin, shadow = 0.dp)
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
             )
         }
 
@@ -209,7 +211,7 @@ fun LeaderboardContent(
                 currentUserId = currentUserId,
                 isLoading = uiState.isLoadingAroundYou || uiState.isLoading,
                 onReport = { id, name -> reportingItem = id to name },
-                modifier = Modifier.fillMaxWidth().weight(1f)
+                modifier = Modifier.fillMaxWidth().weight(1f),
             )
         } else {
             Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
@@ -222,7 +224,7 @@ fun LeaderboardContent(
                     Text(
                         text = "No heroes ranked yet. Join from Account to claim the top spot.",
                         style = PqType.Body.copy(color = PqColors.Ink2),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 } else {
                     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
@@ -241,7 +243,7 @@ fun LeaderboardContent(
                     androidx.compose.foundation.lazy.LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         items(count = currentEntries.size, key = { index -> currentEntries[index].id }) { index ->
                             val item = currentEntries[index]
@@ -251,7 +253,11 @@ fun LeaderboardContent(
                                 profile = item,
                                 tab = uiState.selectedTab,
                                 isCurrentUser = isCurrentUser,
-                                onReport = if (!isCurrentUser) { { reportingItem = item.id to item.displayName } } else null
+                                onReport = if (!isCurrentUser) {
+                                    { reportingItem = item.id to item.displayName }
+                                } else {
+                                    null
+                                },
                             )
                         }
                         if (uiState.canLoadMore) {
@@ -295,7 +301,7 @@ fun LeaderboardContent(
                 onReportProfile(profileId, name)
                 reportingItem = null
             },
-            onDismiss = { reportingItem = null }
+            onDismiss = { reportingItem = null },
         )
     }
 }
@@ -307,7 +313,7 @@ private fun BoardRow(
     profile: com.pixelquest.app.data.remote.model.CloudProfileDto,
     tab: LeaderboardTab,
     isCurrentUser: Boolean,
-    onReport: (() -> Unit)?
+    onReport: (() -> Unit)?,
 ) {
     when (tab) {
         LeaderboardTab.TOP_STREAKS -> PixelLeaderboardRow(
@@ -316,7 +322,7 @@ private fun BoardRow(
             statLabel = "Day streak",
             statValue = profile.currentStreak.toString(),
             isCurrentUser = isCurrentUser,
-            onReportClicked = onReport?.let { report -> { _ -> report() } }
+            onReportClicked = onReport?.let { report -> { _ -> report() } },
         )
         LeaderboardTab.TOP_LEVELS -> PixelLeaderboardRow(
             rank = rank,
@@ -324,7 +330,7 @@ private fun BoardRow(
             statLabel = "${profile.totalXp} XP",
             statValue = "Lvl ${profile.level}",
             isCurrentUser = isCurrentUser,
-            onReportClicked = onReport?.let { report -> { _ -> report() } }
+            onReportClicked = onReport?.let { report -> { _ -> report() } },
         )
     }
 }
@@ -340,7 +346,7 @@ fun AroundYouList(
     currentUserId: String?,
     isLoading: Boolean,
     onReport: (String, String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         when {
@@ -348,11 +354,11 @@ fun AroundYouList(
             entries.isEmpty() -> Text(
                 text = "You're not on the board yet. Your rank appears after your profile syncs. Pull down to refresh.",
                 style = PqType.Body.copy(color = PqColors.Ink2),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             else -> androidx.compose.foundation.lazy.LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 item(key = "around_you_header") { PqGroupLabel("Above and below you") }
                 items(count = entries.size, key = { index -> "around_" + entries[index].profile.id }) { index ->
@@ -364,7 +370,11 @@ fun AroundYouList(
                         profile = profile,
                         tab = selectedTab,
                         isCurrentUser = isCurrentUser,
-                        onReport = if (isCurrentUser) null else { { onReport(profile.id, profile.displayName) } }
+                        onReport = if (isCurrentUser) {
+                            null
+                        } else {
+                            { onReport(profile.id, profile.displayName) }
+                        },
                     )
                 }
             }

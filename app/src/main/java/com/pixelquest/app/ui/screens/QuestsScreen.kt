@@ -1,6 +1,5 @@
 package com.pixelquest.app.ui.screens
 
-import com.pixelquest.app.ui.motion.LocalPqToast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +54,7 @@ import com.pixelquest.app.ui.components.QuestUi
 import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.components.comicPressable
 import com.pixelquest.app.ui.haptics.PixelHaptics
+import com.pixelquest.app.ui.motion.LocalPqToast
 import com.pixelquest.app.ui.screens.history.HistoryFilter
 import com.pixelquest.app.ui.screens.history.TaskHistoryItem
 import com.pixelquest.app.ui.screens.history.TaskHistoryViewModel
@@ -83,6 +83,7 @@ object QuestsTags {
     const val MORE = "quests_history_more"
     const val EMPTY = "quests_empty"
     fun quest(id: Long) = "quests_quest_$id"
+
     /** A quest's row in the history. */
     fun history(taskId: Long) = "quests_history_$taskId"
 }
@@ -91,7 +92,8 @@ object QuestsTags {
 enum class DayPart(@StringRes val label: Int) {
     Morning(R.string.pq_quests_morning),
     Afternoon(R.string.pq_quests_afternoon),
-    Evening(R.string.pq_quests_evening);
+    Evening(R.string.pq_quests_evening),
+    ;
 
     companion object {
         fun of(hour: Int): DayPart = when {
@@ -157,37 +159,49 @@ fun QuestsScreen(
 
     val todayItems = (today as? TodayUiState.Success)?.tasks.orEmpty()
     val todayById = remember(todayItems) { todayItems.associateBy { it.task.id } }
-    // Grouping and mapping every quest is done once per change of the lists, not on every
-    // recomposition (a keystroke in search, a dialog opening): only the group titles are rebuilt.
-    val groups: List<QuestGroup> = when (tab) {
-        QuestTab.Today -> remember(todayItems, time, repeat) {
-            todayParts(todayItems).map { (part, items) -> part to items.map { it.toQuestUi(time) { t -> repeat[t] } } }
-        }.map { (part, quests) ->
+    val todayGroups = remember(todayItems, time, repeat, context) {
+        val res = context.resources
+        todayParts(todayItems).map { (part, items) ->
+            val quests = items.map { it.toQuestUi(time) { t -> repeat[t] } }
             val left = quests.count { !it.done }
-            val name = stringResource(part.label)
+            val name = res.getString(part.label)
             QuestGroup(
                 part.name,
-                if (left > 0) stringResource(R.string.pq_quests_group_left, name, left) else stringResource(R.string.pq_quests_group_done, name, quests.size),
+                if (left > 0) res.getString(R.string.pq_quests_group_left, name, left) else res.getString(R.string.pq_quests_group_done, name, quests.size),
                 quests,
             )
         }
-        QuestTab.All -> {
-            val tasks = (all as? TaskUiState.Success)?.tasks.orEmpty()
-            remember(tasks, time, repeat) {
-                recurrenceGroups(tasks).map { (type, list) -> type to list.map { it.toQuestUi(time) { t -> repeat[t] } } }
-            }.map { (type, quests) ->
-                QuestGroup(
-                    type.name,
-                    stringResource(R.string.pq_quests_group_count, repeat[type] ?: stringResource(R.string.pq_repeat_once), quests.size),
-                    quests,
-                )
+    }
+    val allTasks = (all as? TaskUiState.Success)?.tasks.orEmpty()
+    val allGroups = remember(allTasks, time, repeat, context) {
+        val res = context.resources
+        val repeatOnce = res.getString(R.string.pq_repeat_once)
+        recurrenceGroups(allTasks).map { (type, list) ->
+            val quests = list.map { it.toQuestUi(time) { t -> repeat[t] } }
+            QuestGroup(
+                type.name,
+                res.getString(R.string.pq_quests_group_count, repeat[type] ?: repeatOnce, quests.size),
+                quests,
+            )
+        }
+    }
+    val historyGroups = remember(history.items, context) {
+        val res = context.resources
+        val today = LocalDate.now()
+        historyDays(history.items).map { (date, items) ->
+            val quests = items.map { it.toQuestUi() }
+            val title = when (date) {
+                today -> res.getString(R.string.pq_history_today)
+                today.minusDays(1) -> res.getString(R.string.pq_history_yesterday)
+                else -> date.format(DayFormatter)
             }
+            QuestGroup(date.toString(), title, quests)
         }
-        QuestTab.History -> remember(history.items) {
-            historyDays(history.items).map { (date, items) -> date to items.map { it.toQuestUi() } }
-        }.map { (date, quests) ->
-            QuestGroup(date.toString(), dayTitle(date), quests)
-        }
+    }
+    val groups = when (tab) {
+        QuestTab.Today -> todayGroups
+        QuestTab.All -> allGroups
+        QuestTab.History -> historyGroups
     }
     val shown = remember(groups, query) { groups.matching(query.orEmpty()) }
 
@@ -320,7 +334,8 @@ fun QuestsContent(
             if (query != null) {
                 item(key = "search") {
                     PqTextField(
-                        query, { onQueryChange(it) },
+                        query,
+                        { onQueryChange(it) },
                         placeholder = stringResource(if (isSimpleMode) R.string.pq_quests_search_hint_simple else R.string.pq_quests_search_hint),
                         modifier = Modifier.testTag(QuestsTags.SEARCH_FIELD),
                     )

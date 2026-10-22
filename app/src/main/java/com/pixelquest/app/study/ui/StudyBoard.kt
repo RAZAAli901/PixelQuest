@@ -22,6 +22,7 @@ import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,7 +59,7 @@ fun LazyListScope.scoreboard(state: StudyPartyUiState) {
             Text(
                 text = stringResource(R.string.study_board_week, state.weekStart.format(format), state.weekStart.plusDays(6).format(format)).uppercase(),
                 style = PqType.Label,
-                modifier = Modifier.weight(1f).semantics { heading() }
+                modifier = Modifier.weight(1f).semantics { heading() },
             )
             Text(text = stringResource(R.string.study_board_resets), style = PqType.Meta)
         }
@@ -68,7 +69,7 @@ fun LazyListScope.scoreboard(state: StudyPartyUiState) {
             Text(
                 text = stringResource(if (state.loaded) R.string.study_board_empty else R.string.study_loading),
                 style = PqType.Body.copy(color = PqColors.Ink2),
-                modifier = Modifier.fillMaxWidth().testTag(StudyTags.EMPTY)
+                modifier = Modifier.fillMaxWidth().testTag(StudyTags.EMPTY),
             )
         }
     } else {
@@ -102,8 +103,15 @@ fun WinnerBannerIfAny(state: StudyPartyUiState, onDismiss: () -> Unit) {
 @Composable
 private fun WinnerBanner(state: StudyPartyUiState, onDismiss: () -> Unit) {
     val winners = state.winnerBanner
-    val names = winners.map { winnerName(it, state) }.joinToString(", ")
-    val iWon = winners.any { it.userId == state.myId }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val names = remember(winners, state.members, context) {
+        val res = context.resources
+        winners.joinToString(", ") { winner ->
+            val name = winner.username ?: state.members.firstOrNull { it.userId == winner.userId }?.username
+            name?.let { res.getString(R.string.darood_username_handle, it) } ?: res.getString(R.string.darood_someone)
+        }
+    }
+    val iWon = remember(winners, state.myId) { winners.any { it.userId == state.myId } }
     PqCard(bg = PqColors.Gold, modifier = Modifier.fillMaxWidth().testTag(StudyTags.WINNER_BANNER)) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -111,12 +119,12 @@ private fun WinnerBanner(state: StudyPartyUiState, onDismiss: () -> Unit) {
                 Text(
                     text = stringResource(if (iWon) R.string.study_winner_you else R.string.study_winner_title),
                     style = PqType.CardTitle,
-                    modifier = Modifier.semantics { heading() }
+                    modifier = Modifier.semantics { heading() },
                 )
             }
             Text(
                 text = pluralStringResource(R.plurals.study_winner_line, winners.size, names, pluralStringResource(R.plurals.study_points, winners.first().points, winners.first().points)),
-                style = PqType.Body
+                style = PqType.Body,
             )
             Text(
                 text = stringResource(R.string.study_winner_dismiss),
@@ -125,16 +133,10 @@ private fun WinnerBanner(state: StudyPartyUiState, onDismiss: () -> Unit) {
                     .testTag(StudyTags.WINNER_DISMISS)
                     .clickable(role = Role.Button, onClick = onDismiss)
                     .heightIn(min = 48.dp)
-                    .padding(vertical = 14.dp)
+                    .padding(vertical = 14.dp),
             )
         }
     }
-}
-
-@Composable
-private fun winnerName(winner: com.pixelquest.app.study.domain.WeekWinner, state: StudyPartyUiState): String {
-    val name = winner.username ?: state.members.firstOrNull { it.userId == winner.userId }?.username
-    return name?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone)
 }
 
 /** A week gone by: its dates, who won, and the player's points. */
@@ -147,16 +149,19 @@ private fun PastWeekRow(week: PastWeek, members: List<com.pixelquest.app.party.d
             .fillMaxWidth()
             .testTag(StudyTags.pastWeek(week.weekStart.toString()))
             .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Text(text = stringResource(R.string.study_board_week, week.weekStart.format(format), week.weekStart.plusDays(6).format(format)), style = PqType.BodyStrong)
         val names = week.winners.map { w ->
             (w.username ?: members.firstOrNull { it.userId == w.userId }?.username)?.let { stringResource(R.string.darood_username_handle, it) } ?: stringResource(R.string.darood_someone)
         }
         Text(
-            text = if (names.isEmpty()) stringResource(R.string.study_past_no_winner)
-            else pluralStringResource(R.plurals.study_past_winner, names.size, names.joinToString(", "), pluralStringResource(R.plurals.study_points, week.winners.first().points, week.winners.first().points)),
-            style = PqType.Meta.copy(color = PqColors.Ink2)
+            text = if (names.isEmpty()) {
+                stringResource(R.string.study_past_no_winner)
+            } else {
+                pluralStringResource(R.plurals.study_past_winner, names.size, names.joinToString(", "), pluralStringResource(R.plurals.study_points, week.winners.first().points, week.winners.first().points))
+            },
+            style = PqType.Meta.copy(color = PqColors.Ink2),
         )
         Text(text = stringResource(R.string.study_past_mine, pluralStringResource(R.plurals.study_points, week.myPoints, week.myPoints)), style = PqType.Meta)
     }
@@ -183,11 +188,11 @@ fun BoardRow(line: BoardLine) {
             .testTag(StudyTags.boardRow(line.userId))
             .clearAndSetSemantics { contentDescription = said }
             .background(if (line.isMe) PqColors.Sky else Color.Transparent)
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(30.dp).comic(bg = medal, radius = 15.dp, border = PqDimens.BorderThin, shadow = 0.dp).testTag(StudyTags.boardPlace(line.userId))
+            modifier = Modifier.size(30.dp).comic(bg = medal, radius = 15.dp, border = PqDimens.BorderThin, shadow = 0.dp).testTag(StudyTags.boardPlace(line.userId)),
         ) {
             Text(text = line.place.toString(), style = PqType.Button)
         }
@@ -210,7 +215,7 @@ private fun breakdownText(line: BoardLine): String {
         R.string.study_board_breakdown,
         pluralStringResource(R.plurals.study_items_done, score.itemsCompleted, score.itemsCompleted),
         score.bonusPoints,
-        pluralStringResource(R.plurals.study_minutes, score.studyMinutes, score.studyMinutes)
+        pluralStringResource(R.plurals.study_minutes, score.studyMinutes, score.studyMinutes),
     )
 }
 
@@ -225,12 +230,12 @@ private fun PointsRules() {
                     Icons.Rounded.Description to stringResource(R.string.study_points_assignment, StudyPointsConfig.ASSIGNMENT),
                     Icons.Rounded.Quiz to stringResource(R.string.study_points_quiz, StudyPointsConfig.QUIZ),
                     Icons.Rounded.Bolt to stringResource(R.string.study_points_early, StudyPointsConfig.EARLY_BONUS),
-                    Icons.Rounded.Timer to stringResource(R.string.study_points_study, StudyPointsConfig.MINUTES_PER_POINT, StudyPointsConfig.DAILY_STUDY_MAX)
+                    Icons.Rounded.Timer to stringResource(R.string.study_points_study, StudyPointsConfig.MINUTES_PER_POINT, StudyPointsConfig.DAILY_STUDY_MAX),
                 ).forEach { (icon, rule) ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
                     ) {
                         Icon(icon, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.size(20.dp))
                         Text(text = rule, style = PqType.Body, modifier = Modifier.weight(1f))

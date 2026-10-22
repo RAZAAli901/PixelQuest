@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,7 +62,7 @@ fun SurahList(
     onSearch: (String) -> Unit,
     onOpenSurah: (surah: Int) -> Unit,
     modifier: Modifier = Modifier,
-    listState: LazyListState = rememberLazyListState()
+    listState: LazyListState = rememberLazyListState(),
 ) {
     Column(modifier = modifier.fillMaxSize()) {
         SurahSearchField(state.query, onSearch, Modifier.padding(horizontal = PqDimens.ScreenPad, vertical = 8.dp))
@@ -70,32 +71,33 @@ fun SurahList(
                 text = stringResource(R.string.quran_surah_none),
                 style = PqType.Body.copy(color = PqColors.Ink2),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(24.dp)
+                modifier = Modifier.fillMaxWidth().padding(24.dp),
             )
         }
         // The fast-scroll index beside the whole list; not while a search narrows it.
         val indexed = state.query.isBlank() && state.surahs.size > FAST_SCROLL_MARKS.size
         val current = state.continueReading?.surah?.number
+        val surahNumbers = remember(state.surahs) { state.surahs.map { it.number } }
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 state = listState,
                 contentPadding = PaddingValues(start = PqDimens.ScreenPad, end = if (indexed) 44.dp else PqDimens.ScreenPad, bottom = 40.dp),
-                modifier = Modifier.fillMaxSize().testTag(QuranListTags.LIST)
+                modifier = Modifier.fillMaxSize().testTag(QuranListTags.LIST),
             ) {
                 itemsIndexed(state.surahs, key = { _, surah -> surah.number }) { i, surah ->
                     SurahRow(
                         surah = surah,
                         onClick = { onOpenSurah(surah.number) },
                         current = surah.number == current,
-                        modifier = Modifier.pqRuledRow(first = i == 0, last = i == state.surahs.lastIndex)
+                        modifier = Modifier.pqRuledRow(first = i == 0, last = i == state.surahs.lastIndex),
                     )
                 }
             }
             if (indexed) {
                 FastScrollIndex(
                     listState = listState,
-                    surahs = state.surahs.map { it.number },
-                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 4.dp, bottom = 16.dp)
+                    surahs = surahNumbers,
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 4.dp, bottom = 16.dp),
                 )
             }
         }
@@ -114,8 +116,12 @@ private fun SurahSearchField(query: String, onSearch: (String) -> Unit, modifier
         Box(Modifier.weight(1f).padding(start = 8.dp)) {
             if (query.isEmpty()) Text(stringResource(R.string.quran_surah_search), style = PqType.Body.copy(color = PqColors.Muted))
             BasicTextField(
-                query, onSearch, singleLine = true, textStyle = PqType.Body, cursorBrush = SolidColor(PqColors.Ink),
-                modifier = Modifier.fillMaxWidth().testTag(QuranListTags.SEARCH)
+                query,
+                onSearch,
+                singleLine = true,
+                textStyle = PqType.Body,
+                cursorBrush = SolidColor(PqColors.Ink),
+                modifier = Modifier.fillMaxWidth().testTag(QuranListTags.SEARCH),
             )
         }
     }
@@ -143,7 +149,7 @@ fun SurahRow(surah: Surah, onClick: () -> Unit, modifier: Modifier = Modifier, c
             // The tag before the clearing: anything after it is cleared too.
             .testTag(QuranListTags.row(surah.number))
             .clearAndSetSemantics { contentDescription = spoken }
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Box(
             Modifier.padding(4.dp).size(30.dp).rotate(45f).clip(pqShape(8.dp))
@@ -154,13 +160,15 @@ fun SurahRow(surah: Surah, onClick: () -> Unit, modifier: Modifier = Modifier, c
             Text(text = surah.englishName, style = PqType.BodyStrong)
             Text(
                 text = stringResource(R.string.quran_surah_line, surah.englishMeaning, place, count),
-                style = PqType.Meta, maxLines = 1, overflow = TextOverflow.Ellipsis
+                style = PqType.Meta,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
         Text(
             text = surah.arabicName,
             style = QuranTypography.of(arabicSize = QuranTypography.ARABIC_MIN, color = PqColors.Ink).arabic,
-            maxLines = 1
+            maxLines = 1,
         )
     }
 }
