@@ -253,3 +253,11 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - runs every Node test in `supabase/tests`;
   - runs the app's own repositories against the stack (`*LocalSupabase*`).
 - **To block merges:** make "Cloud Tests (local Supabase)" a required check on `main` (GitHub → Settings → Branches). That's the owner's switch.
+
+### S029: a check that fails the build on an open table or bucket
+- **Done:**
+  - `scripts/security/check_db.sql`: seven queries that must return nothing. They catch tables without RLS, public buckets, anything granted to `anon`, TRUNCATE, TRIGGER or REFERENCES grants, definer functions without an empty search path, owner-run views beyond the reviewed four, and writes through views.
+  - `supabase/tests/database/020_rules.test.sql` runs the same rules in CI (S028), so a breach fails the build.
+- **Check:** the script returns no rows locally, and pgTAP passes.
+- **Proved it catches problems:** with a table created without RLS and a public bucket (in a rolled-back transaction), it reported `no RLS | zz_open` and `public bucket | zz-open`.
+- **Hosted:** paste `scripts/security/check_db.sql` into the project's SQL editor after each push; it should return no rows.
