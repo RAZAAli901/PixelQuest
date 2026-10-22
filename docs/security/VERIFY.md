@@ -415,3 +415,9 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - a study party's chat (private messages and files);
   - a rated chess game the player is playing (no screen sharing to a helper). Watching, friendly games and finished games stay open to screenshots.
 - **Test:** `SecureScreenTest`: the flag is set while shown, held by an outer screen when an inner one leaves, cleared when both have gone, and not set when disabled. The chess, chat and account suites still pass.
+
+### S044: no WebView
+- **Checked:** no WebView, JavaScript setting or JavaScript interface anywhere in the app's code or layouts. Library manifests add none either (MANIFEST_AUDIT.md).
+  - External links open in the phone's browser: only the Quran's sources page, with fixed https addresses.
+  - Shared files open in a viewer app, through the FileProvider, read-only.
+- **Test:** `NoWebViewTest` fails if a WebView or a JavaScript bridge appears.
