@@ -91,9 +91,10 @@ class GeminiProxyClient(
     companion object {
         /**
          * The proxy's errors for calls that never got to Gemini (see gemini-proxy/handler.ts). They
-         * don't count toward the app's daily caps: four of them used to use up the day.
+         * don't count toward the app's daily caps: four of them used to use up the day. "ai_paused" is
+         * the proxy's circuit breaker, after Gemini failed several times in a row (S052).
          */
-        private val NOT_SENT_TO_GEMINI = setOf("not_configured", "auth_unavailable", "usage_unavailable", "upstream_unreachable")
+        internal val NOT_SENT_TO_GEMINI = setOf("not_configured", "auth_unavailable", "usage_unavailable", "upstream_unreachable", "ai_paused")
 
         /** The proxy needs only the project URL (the function doesn't check the anon key). */
         fun isConfigured(supabaseUrl: String): Boolean = com.pixelquest.app.domain.CloudAvailability.isRealProjectUrl(supabaseUrl)

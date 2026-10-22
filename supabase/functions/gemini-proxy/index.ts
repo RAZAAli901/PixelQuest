@@ -10,7 +10,7 @@
 // Deploy with --no-verify-jwt: the handler checks the caller's access token itself, with Supabase
 // Auth, and refuses anything that isn't a signed-in account. See docs/CLOUD_SETUP.md.
 
-import { authUserId, handleProxyRequest, rpcClaim } from "./handler.ts";
+import { CircuitBreaker, authUserId, handleProxyRequest, rpcClaim } from "./handler.ts";
 import { logger } from "../_shared/log.ts";
 
 const limit = (name: string, fallback: number): number => {
@@ -31,6 +31,9 @@ const claimCall = rpcClaim(
   limit("AI_PROXY_GLOBAL_DAILY_LIMIT", 200),
 );
 
+// One per instance: the requests it serves share it (S052).
+const breaker = new CircuitBreaker();
+
 Deno.serve((req: Request) =>
   handleProxyRequest(req, {
     geminiApiKey: Deno.env.get("GEMINI_API_KEY"),
@@ -38,6 +41,7 @@ Deno.serve((req: Request) =>
     claimCall,
     fetchGemini: fetch,
     model: Deno.env.get("GEMINI_MODEL"),
+    breaker,
     log: logger("gemini-proxy"),
   })
 );

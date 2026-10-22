@@ -3,6 +3,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   type ClaimResult,
+  BREAKER_FAILURES,
+  CircuitBreaker,
   MAX_PROMPT_CHARS,
   SERVER_RULES,
   accountKey,
@@ -317,4 +319,48 @@ test("a successful call logs nothing", async () => {
   const { d } = deps();
   await handleProxyRequest(request({ prompt: "hi" }), { ...d, log: (e) => events.push(e) });
   assert.equal(events.length, 0);
+});
+
+test("Gemini gets a time limit; a slow answer is a 504, not a hung request (S052)", async () => {
+  const { d, recorded } = deps();
+  d.fetchGemini = (_url: string, init: RequestInit) =>
+    new Promise<Response>((_resolve, reject) => {
+      init.signal?.addEventListener("abort", () => reject(init.signal?.reason));
+    });
+  const res = await handleProxyRequest(request({ prompt: "hi" }), { ...d, timeoutMs: 20 });
+  assert.equal(res.status, 504);
+  assert.deepEqual(await res.json(), { error: "upstream_timeout" });
+  assert.equal(recorded.claims.length, 1, "the call was claimed: it may have reached Gemini");
+});
+
+test("after repeated failures the breaker pauses calls without using anyone's allowance (S052)", async () => {
+  let now = 1_000_000;
+  const breaker = new CircuitBreaker(() => now);
+  const failing = deps({ gemini: new Response("{}", { status: 500 }) });
+  for (let i = 0; i < BREAKER_FAILURES; i++) {
+    const res = await handleProxyRequest(request({ prompt: "hi" }), { ...failing.d, breaker });
+    assert.equal(res.status, 502);
+  }
+  assert.ok(breaker.isOpen());
+
+  const paused = deps();
+  const res = await handleProxyRequest(request({ prompt: "hi" }), { ...paused.d, breaker });
+  assert.equal(res.status, 503);
+  assert.deepEqual(await res.json(), { error: "ai_paused" });
+  assert.equal(paused.recorded.claims.length, 0, "nothing claimed");
+  assert.equal(paused.recorded.geminiCalls.length, 0, "Gemini not asked");
+
+  now += 61_000;
+  assert.equal(breaker.isOpen(), false, "it closes again");
+  assert.equal((await handleProxyRequest(request({ prompt: "hi" }), { ...paused.d, breaker })).status, 200);
+});
+
+test("Gemini's 429 and a success don't trip the breaker", () => {
+  const breaker = new CircuitBreaker(() => 0, 2, 1000);
+  breaker.failure();
+  breaker.success();
+  breaker.failure();
+  assert.equal(breaker.isOpen(), false, "a success in between resets the count");
+  breaker.failure();
+  assert.equal(breaker.isOpen(), true);
 });

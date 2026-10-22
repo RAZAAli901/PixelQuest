@@ -167,7 +167,8 @@ class GeminiProxyClientTest {
             HttpStatusCode.ServiceUnavailable to "usage_unavailable",
             HttpStatusCode.ServiceUnavailable to "auth_unavailable",
             HttpStatusCode.ServiceUnavailable to "not_configured",
-            HttpStatusCode.BadGateway to "upstream_unreachable"
+            HttpStatusCode.BadGateway to "upstream_unreachable",
+            HttpStatusCode.ServiceUnavailable to "ai_paused"
         )
         for ((status, code) in notReached) {
             val result = safeGeminiCall { client(status, """{"error":"$code"}""").generateContent("hi") }
@@ -177,5 +178,15 @@ class GeminiProxyClientTest {
         // Gemini answered with an error: that one counts.
         val geminiError = safeGeminiCall { client(HttpStatusCode.BadGateway, """{"error":"upstream_error","status":500}""").generateContent("hi") }
         assertTrue(geminiError.reachedGemini())
+    }
+
+    @Test
+    fun theProxysTimeoutAndPause_getFriendlyWords() = runBlocking {
+        // S052: Gemini too slow (the proxy's 20 s limit), or paused by its circuit breaker.
+        val slow = safeGeminiCall { client(HttpStatusCode.GatewayTimeout, """{"error":"upstream_timeout"}""").generateContent("hi") }
+        assertEquals(com.pixelquest.app.domain.ai.AiErrorCopy.TIMEOUT, (slow as GeminiResult.ApiError).message)
+        assertTrue("it may have reached Gemini", slow.reachedGemini())
+        val paused = safeGeminiCall { client(HttpStatusCode.ServiceUnavailable, """{"error":"ai_paused"}""").generateContent("hi") }
+        assertEquals(com.pixelquest.app.domain.ai.AiErrorCopy.SERVER_TROUBLE, (paused as GeminiResult.ApiError).message)
     }
 }

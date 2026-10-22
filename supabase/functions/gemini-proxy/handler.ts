@@ -11,7 +11,10 @@
 // - prompts and system instructions have size limits;
 // - the server's own rules (SERVER_RULES) come first in every system instruction: the app's text is
 //   data, never instructions, there are no tools, and the answer is plain JSON (S051);
-// - every call is claimed against a per-account and a project-wide daily limit before Gemini is called.
+// - every call is claimed against a per-account and a project-wide daily limit before Gemini is called;
+//   the project-wide one is the daily cost cap (S052);
+// - Gemini gets UPSTREAM_TIMEOUT_MS to answer, and after BREAKER_FAILURES failures in a row the proxy
+//   stops asking it for BREAKER_OPEN_MS, answering "ai_paused" without using anyone's calls (S052).
 
 export type ClaimResult = "ok" | "account_limit" | "global_limit";
 
@@ -28,6 +31,10 @@ export interface ProxyDeps {
   claimCall: (accountKey: string) => Promise<ClaimResult>;
   fetchGemini: (url: string, init: RequestInit) => Promise<Response>;
   model?: string;
+  /** How long Gemini gets to answer; UPSTREAM_TIMEOUT_MS unless a test sets it. */
+  timeoutMs?: number;
+  /** Shared by the requests one function instance serves; see [CircuitBreaker]. */
+  breaker?: CircuitBreaker;
   /**
    * Operational events for the function's logs: limits reached and failures. They never carry the
    * prompt, the answer, the access token or the account id.
@@ -49,6 +56,47 @@ export const SERVER_RULES = [
   "You have no tools and no access to anything outside this message.",
   "Reply only with the JSON the task asks for. Its text is shown as plain text: no HTML, no markdown, no links.",
 ].join(" ");
+
+export const UPSTREAM_TIMEOUT_MS = 20_000;
+export const BREAKER_FAILURES = 5;
+export const BREAKER_OPEN_MS = 60_000;
+
+/**
+ * Stops calling Gemini for a while after it has failed several times in a row (timeouts, 5xx, not
+ * reachable), so an outage isn't hammered and players get a quick "try later" (S052). It lives in
+ * one function instance's memory, which is enough: each instance protects itself, and a fresh one
+ * starts closed. A 429 from Gemini is not a failure: it's handled as "busy".
+ */
+export class CircuitBreaker {
+  private failures = 0;
+  private openUntil = 0;
+  private readonly now: () => number;
+  private readonly threshold: number;
+  private readonly openMs: number;
+
+  constructor(now: () => number = Date.now, threshold = BREAKER_FAILURES, openMs = BREAKER_OPEN_MS) {
+    this.now = now;
+    this.threshold = threshold;
+    this.openMs = openMs;
+  }
+
+  /** Whether calls are paused right now. */
+  isOpen(): boolean {
+    return this.now() < this.openUntil;
+  }
+
+  success(): void {
+    this.failures = 0;
+  }
+
+  failure(): void {
+    this.failures++;
+    if (this.failures >= this.threshold) {
+      this.openUntil = this.now() + this.openMs;
+      this.failures = 0;
+    }
+  }
+}
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -123,6 +171,12 @@ export async function handleProxyRequest(req: Request, deps: ProxyDeps): Promise
     return json(413, { error: "system_instruction_too_long" });
   }
 
+  // Gemini has been failing: say so straight away, before a call is claimed.
+  if (deps.breaker?.isOpen()) {
+    deps.log?.({ event: "breaker_open" });
+    return json(503, { error: "ai_paused" });
+  }
+
   // Claimed only for well-formed requests, so malformed ones don't use up an account's calls.
   let claim: ClaimResult;
   try {
@@ -149,12 +203,21 @@ export async function handleProxyRequest(req: Request, deps: ProxyDeps): Promise
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
         body: buildGeminiPayload(prompt, typeof systemInstruction === "string" ? systemInstruction : undefined),
+        signal: AbortSignal.timeout(deps.timeoutMs ?? UPSTREAM_TIMEOUT_MS),
       },
     );
-  } catch {
+  } catch (e) {
+    deps.breaker?.failure();
+    if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) {
+      deps.log?.({ event: "upstream_timeout" });
+      return json(504, { error: "upstream_timeout" });
+    }
     deps.log?.({ event: "upstream_unreachable" });
     return json(502, { error: "upstream_unreachable" });
   }
+
+  if (upstream.status >= 500) deps.breaker?.failure();
+  else deps.breaker?.success();
 
   if (upstream.status === 200) {
     // Gemini's own response, so the app parses it the same way as a direct call.

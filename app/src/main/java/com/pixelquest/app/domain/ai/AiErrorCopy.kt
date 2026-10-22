@@ -27,6 +27,8 @@ object AiErrorCopy {
         401 -> NOT_CONFIGURED
         400, 403, 404 -> UNAVAILABLE
         429 -> BUSY
+        // The proxy gave up waiting for Gemini (S052).
+        504 -> TIMEOUT
         in 500..599 -> SERVER_TROUBLE
         200 -> UNREADABLE
         else -> UNKNOWN
