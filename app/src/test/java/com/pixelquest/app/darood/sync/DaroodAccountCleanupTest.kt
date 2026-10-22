@@ -180,4 +180,21 @@ class DaroodAccountCleanupTest {
 
         assertEquals(com.pixelquest.app.party.domain.MemberStatus.INVITED, repository.observeMyParties().first().single().myStatus)
     }
+
+    /** S036: opened chat files (other people's documents) leave with the account. */
+    @Test
+    fun signingOut_deletesOpenedChatFiles_aSameAccountKeepsThem() = runBlocking {
+        val folder = java.io.File(System.getProperty("java.io.tmpdir"), "opened-${System.nanoTime()}")
+        val opened = java.io.File(folder, "file-1/notes.pdf").apply { parentFile!!.mkdirs(); writeText("pdf") }
+        val withFiles = DaroodAccountCleanup(auth, db.daroodDao(), owner, openedFiles = com.pixelquest.app.study.chat.data.OpenedChatFiles(folder))
+        withFiles.onAccount("aria")
+        // Aria opens a file while signed in.
+        opened.parentFile!!.mkdirs()
+        opened.writeText("pdf")
+        withFiles.onAccount("aria")
+        org.junit.Assert.assertTrue("the same account keeps what it opened", opened.exists())
+        withFiles.onAccount(null)
+        org.junit.Assert.assertFalse("signed out: gone", opened.exists())
+        org.junit.Assert.assertFalse(folder.exists())
+    }
 }

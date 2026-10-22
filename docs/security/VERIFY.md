@@ -353,3 +353,13 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
   - SQLCipher would add a native library per CPU type, several MB, past the 8,000,000-byte APK budget, and slow every query, for no protection beyond what a rooted phone's owner already has.
   - Revisit if the app ever stores something secret, health data or payment data.
 - **Guard:** `NoSecretsAtRestTest` fails if any Room entity gains a field named like a token, password, secret, key or signed link.
+
+### S036: sign-out and deletion wipe the account's traces
+- **On sign-out, and on account deletion (which signs out):**
+  - **the session:** deleted in both its sealed and old stores (S034);
+  - **party caches:** every party with its members, entries, items, ticks, study time, chat messages, file rows and chess games, through `DaroodAccountCleanup` (chat and chess cascade from parties). The study state kept outside the database goes too;
+  - **the push token** ends on the phone (`PushRegistration`);
+  - **AI lines:** cached AI-written lines are dropped (`AiSignOutCleanup`);
+  - **opened files (new):** the chat files the player opened, other people's documents, are deleted from `cache/study-files` (`OpenedChatFiles`).
+- **The same account signing in again keeps its things;** a different account clears them first.
+- **Test:** `DaroodAccountCleanupTest`: 8 of 8, including "signing out deletes opened chat files; the same account keeps them".

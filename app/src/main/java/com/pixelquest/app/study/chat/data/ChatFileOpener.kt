@@ -66,7 +66,7 @@ class HttpChatFileFetcher(
         }
         // Only the project's own storage, at a signed path: never anywhere else.
         if (!link.path.startsWith("/storage/v1/object/sign/study-files/")) return@withContext OpenedFile.NotAllowed
-        val folder = File(context.cacheDir, "study-files/${file.id.filter { it.isLetterOrDigit() || it == '-' }}").apply { mkdirs() }
+        val folder = File(context.cacheDir, "${OpenedChatFiles.FOLDER}/${file.id.filter { it.isLetterOrDigit() || it == '-' }}").apply { mkdirs() }
         val name = UploadChecks.cleanName(link.name) ?: "file"
         val target = File(folder, name)
         // The name can't lead out of its folder, whatever it says.
