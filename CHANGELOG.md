@@ -4,7 +4,10 @@ All notable changes to **PixelQuest** are documented in this file.
 
 ---
 
-## [Unreleased] — Animations
+## [1.7.2] - 2026-10-22 — The app moves
+
+### ⬆️ Upgrading
+Install 1.7.2 over 1.7.1 (or any version from 1.2.0): everything is kept. Nothing in the app's data changes.
 
 ### ✨ New
 - **The app moves.** These are the micro-animations from the owner's animations handoff, in the Comic skin's springy style and the Pixel skin's hard steps:

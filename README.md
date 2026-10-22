@@ -1,8 +1,8 @@
-# ⚔️ PixelQuest v1.7.1 — Level Up Your Life
+# ⚔️ PixelQuest v1.7.2 — Level Up Your Life
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
 [![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
-[![Version](https://img.shields.io/badge/Release-v1.7.1-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.7.1)
+[![Version](https://img.shields.io/badge/Release-v1.7.2-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.7.2)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 ![PixelQuest banner: Home and Deen in the Comic skin, Quests and Hero in the Pixel skin](docs/screenshots/banner.png)
@@ -15,17 +15,17 @@
 
 Click the button below to download the latest signed release APK onto your Android device:
 
-👉 **[📥 Direct Download app-release.apk (v1.7.1)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.7.1/app-release.apk)** 👈
+👉 **[📥 Direct Download app-release.apk (v1.7.2)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.7.2/app-release.apk)** 👈
 
-Or see the release notes and files on the **[📦 v1.7.1 release page](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.7.1)**.
+Or see the release notes and files on the **[📦 v1.7.2 release page](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.7.2)**.
 
-> **Upgrading from 1.7.0, 1.6.0 or 1.5.0?** Install v1.7.1 over it: everything is kept. (From 1.5.0, a Clean Light or Follow System choice opens in Comic.)
+> **Upgrading from 1.7.x, 1.6.0 or 1.5.0?** Install v1.7.2 over it: everything is kept. (From 1.5.0, a Clean Light or Follow System choice opens in Comic.)
 >
-> **Upgrading from 1.4.1, 1.4.0, 1.3.0 or 1.2.0?** Install v1.7.1 over it: everything is kept, and the Quran loads once in the background.
+> **Upgrading from 1.4.1, 1.4.0, 1.3.0 or 1.2.0?** Install v1.7.2 over it: everything is kept, and the Quran loads once in the background.
 >
 > **On Android 7.0 or 7.1?** PixelQuest needs Android 7.0 or later. Versions before 1.4.1 closed as soon as they opened on 7.x. 1.4.1 and later run.
 >
-> **Upgrading from 1.1.0?** From 1.2.0 on, PixelQuest is signed with a new, permanent key, so Android won't install it over 1.1.0. In the old app, open Settings → **EXPORT QUEST DATA** and save the file. Then uninstall it, install v1.7.1, and tap **I have a backup** on the welcome screen. Details: [docs/UPDATES_AND_BACKUPS.md](docs/UPDATES_AND_BACKUPS.md).
+> **Upgrading from 1.1.0?** From 1.2.0 on, PixelQuest is signed with a new, permanent key, so Android won't install it over 1.1.0. In the old app, open Settings → **EXPORT QUEST DATA** and save the file. Then uninstall it, install v1.7.2, and tap **I have a backup** on the welcome screen. Details: [docs/UPDATES_AND_BACKUPS.md](docs/UPDATES_AND_BACKUPS.md).
 
 ---
 
@@ -35,6 +35,7 @@ Or see the release notes and files on the **[📦 v1.7.1 release page](https://g
 - **Chess** in study parties: challenge a mate to a 1 to 10 minute game, refereed by the server, rated in Int points, with a ladder and watching live games.
 - **Darood Party** ranks each week and tells everyone their place, and goals can be extended once they're reached.
 - **Export my cloud data**, and reporting and blocking across chat and chess.
+- **Animations** (1.7.2): quests, XP, streaks, the bottom bar and chess move, in each skin's style. Reduce motion turns them off.
 
 Everything new: [CHANGELOG.md](CHANGELOG.md).
 
@@ -56,13 +57,13 @@ What moved where, and the building blocks: [docs/ui-v2.md](docs/ui-v2.md). Every
 
 ### Option 1: Direct Download (Recommended)
 1. Open this repository on your Android phone or tablet.
-2. Tap **[Download app-release.apk (v1.7.1)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.7.1/app-release.apk)** to download the file directly.
+2. Tap **[Download app-release.apk (v1.7.2)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.7.2/app-release.apk)** to download the file directly.
 3. Open your device's **Downloads** folder and tap `app-release.apk`.
 4. If prompted, select **Allow from this source** to allow installing unknown apps. On Android 7, turn on **Unknown sources** in Settings > Security instead.
 5. Tap **Install**, open **PixelQuest**, and begin your journey!
 
 ### Option 2: Via GitHub Releases Page
-1. Visit the **[PixelQuest v1.7.1 release](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.7.1)** page.
+1. Visit the **[PixelQuest v1.7.2 release](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.7.2)** page.
 2. Under **Assets**, click on **`app-release.apk`**.
 3. Install and launch the application on your Android device.
 

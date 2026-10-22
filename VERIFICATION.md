@@ -982,3 +982,11 @@ The 1.7.0 code with the Firebase settings (project `pixelqueat`), released 2026-
 - **The server's key:** signed in to Google (200). FCM's dry run (`validate_only`) refused only the made-up device token (400 INVALID_ARGUMENT), so the key works and the FCM API is on. Nothing was sent.
 - **The build:** the four `FCM_*` settings reach BuildConfig, so `PushSetup.configured` is true. CI and release builds take them from repository secrets.
 - **Not verified:** a challenge reaching a real phone needs two signed-in phones (docs/QA_CHECKLIST.md 5.1).
+
+### 1.7.2 (versionCode 110): the animations
+The owner's animations handoff (M01 to M12, C01 to C09), released 2026-10-22 at the owner's request.
+- **Tests:** 2,124 unit tests, 0 failing (20 skipped need the local stack), including `PieceTrackerTest` (which piece moved, captures, castling, promotion) and the chess flow and screenshot tests, which now wait for the end card after a live checkmate.
+- **Lint and detekt** pass. CI is green on the animations' last commit.
+- **Screenshots** of the board, the end card and Home's Perfect Day card (stamp, streak counter, nav pill) were looked over in Comic and Pixel.
+- **Reduce motion:** every animation reads the app's setting together with Android's Remove animations, and shows its end state.
+- **Not verified on a phone:** smoothness on a mid-range device (the handoff's JankStats check), and how the animations feel in hand.
