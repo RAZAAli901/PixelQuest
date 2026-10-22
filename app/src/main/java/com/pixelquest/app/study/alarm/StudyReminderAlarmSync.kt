@@ -33,7 +33,7 @@ class StudyReminderAlarmSync @Inject constructor(
                     try {
                         scheduler.rescheduleAll()
                     } catch (e: Exception) {
-                        android.util.Log.e("StudyReminderAlarmSync", "Could not arm study reminders", e)
+                        com.pixelquest.app.util.AppLog.e("StudyReminderAlarmSync", "Could not arm study reminders", e)
                     }
                 }
         }

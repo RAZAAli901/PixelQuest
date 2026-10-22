@@ -97,7 +97,7 @@ class NamazAlarmReceiver : BroadcastReceiver() {
                 handler.handle(kind, date, prayer)
                 if (kind == NamazAlarm.Kind.REMINDER || kind == NamazAlarm.Kind.NUDGE) reminders.reschedule()
             } catch (e: Exception) {
-                android.util.Log.e("NamazAlarmReceiver", "Could not show the $kind for $prayer on $date", e)
+                com.pixelquest.app.util.AppLog.e("NamazAlarmReceiver", "Could not show the $kind for $prayer on $date", e)
             } finally {
                 pendingResult.finish()
             }

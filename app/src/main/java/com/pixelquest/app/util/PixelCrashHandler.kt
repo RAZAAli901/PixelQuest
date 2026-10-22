@@ -1,7 +1,7 @@
 package com.pixelquest.app.util
 
 import android.content.Context
-import android.util.Log
+import com.pixelquest.app.util.AppLog
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
@@ -20,7 +20,7 @@ object PixelCrashHandler {
             try {
                 logCrashLocally(context, thread, throwable)
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to log crash details locally", e)
+                AppLog.e(TAG, "Failed to log crash details locally", e)
             } finally {
                 defaultHandler?.uncaughtException(thread, throwable)
             }
@@ -40,7 +40,7 @@ object PixelCrashHandler {
                 pw.println("=================================\n")
             }
         }
-        Log.e(TAG, "Uncaught exception in thread ${thread.name} written to ${crashFile.absolutePath}", throwable)
+        AppLog.e(TAG, "Uncaught exception in thread ${thread.name} written to ${crashFile.absolutePath}", throwable)
     }
 
     fun getLatestCrashLog(context: Context): String? {

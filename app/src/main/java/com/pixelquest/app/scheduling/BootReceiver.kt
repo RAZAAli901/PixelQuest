@@ -40,14 +40,14 @@ class BootReceiver : BroadcastReceiver() {
                     try {
                         namazReminders.reschedule()
                     } catch (e: Exception) {
-                        android.util.Log.e("BootReceiver", "Could not re-arm the prayer reminders", e)
+                        com.pixelquest.app.util.AppLog.e("BootReceiver", "Could not re-arm the prayer reminders", e)
                     }
                     // Study reminders (docs/study-reminders.md): after a reboot, one missed while the
                     // phone was off in the last hour still comes.
                     try {
                         studyReminders.rescheduleAll(catchUp = intent.action == Intent.ACTION_BOOT_COMPLETED)
                     } catch (e: Exception) {
-                        android.util.Log.e("BootReceiver", "Could not re-arm the study reminders", e)
+                        com.pixelquest.app.util.AppLog.e("BootReceiver", "Could not re-arm the study reminders", e)
                     }
                     // Turning notifications off cancels every alarm; don't bring them back on reboot.
                     if (!settingsRepository.isNotificationsEnabled.first()) return@launch
@@ -57,7 +57,7 @@ class BootReceiver : BroadcastReceiver() {
                     }
                 } catch (e: Exception) {
                     // An uncaught exception here crashed the app on every boot.
-                    android.util.Log.e("BootReceiver", "Could not re-arm reminders after boot", e)
+                    com.pixelquest.app.util.AppLog.e("BootReceiver", "Could not re-arm reminders after boot", e)
                 } finally {
                     pendingResult.finish()
                 }

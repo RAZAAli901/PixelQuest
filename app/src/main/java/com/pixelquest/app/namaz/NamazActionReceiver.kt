@@ -81,7 +81,7 @@ class NamazActionReceiver : BroadcastReceiver() {
             try {
                 handler.handle(action, date, prayer)
             } catch (e: Exception) {
-                android.util.Log.e("NamazActionReceiver", "Could not handle $action for $prayer on $date", e)
+                com.pixelquest.app.util.AppLog.e("NamazActionReceiver", "Could not handle $action for $prayer on $date", e)
             } finally {
                 pendingResult.finish()
             }

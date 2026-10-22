@@ -411,7 +411,7 @@ object DataExportImport {
                 )
             )
         } catch (e: Exception) {
-            android.util.Log.e("DataExportImport", "Failed to parse backup JSON, returning empty payload", e)
+            com.pixelquest.app.util.AppLog.e("DataExportImport", "Failed to parse backup JSON, returning empty payload", e)
             BackupPayload(null, null, null, emptyList())
         }
     }

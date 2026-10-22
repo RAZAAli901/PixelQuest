@@ -142,7 +142,7 @@ class PixelQuestApplication : Application(), Configuration.Provider {
                 if (!settingsRepository.isNotificationsEnabled.first()) return@launch
                 taskAlarmScheduler.rescheduleAllAlarms(taskRepository.getAllTasks().first().filter { it.isActive })
             } catch (e: Exception) {
-                android.util.Log.w("PixelQuestApplication", "Could not re-arm reminders on launch", e)
+                com.pixelquest.app.util.AppLog.w("PixelQuestApplication", "Could not re-arm reminders on launch", e)
             }
         }
     }

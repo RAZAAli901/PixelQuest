@@ -34,6 +34,8 @@ object SupabaseClientProvider {
             // OkHttp, chosen rather than left to whichever engine is found first: Realtime needs
             // WebSockets, which Ktor's Android engine doesn't have.
             httpEngine = OkHttp.create()
+            // supabase-kt's own log lines can quote requests and sessions: none in a release build (S055).
+            defaultLogLevel = if (BuildConfig.DEBUG) io.github.jan.supabase.logging.LogLevel.INFO else io.github.jan.supabase.logging.LogLevel.NONE
             install(Postgrest)
             install(Auth) {
                 SupabaseClientProvider.sessionManager?.let { sessionManager = it }

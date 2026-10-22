@@ -87,7 +87,7 @@ class StudyReminderActionReceiver : BroadcastReceiver() {
             try {
                 handler.handle(action, reminderId, occurrenceAt)
             } catch (e: Exception) {
-                android.util.Log.e("StudyReminderActions", "Could not do $action", e)
+                com.pixelquest.app.util.AppLog.e("StudyReminderActions", "Could not do $action", e)
             } finally {
                 pending.finish()
             }

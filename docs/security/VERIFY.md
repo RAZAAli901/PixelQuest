@@ -497,3 +497,16 @@ Writes that have rules beyond "your own row" don't appear here. They go through 
 - **Checked:** no screen renders HTML or markdown, or makes text tappable. There's no `fromHtml`, `Linkify`, `LinkAnnotation`, `ClickableText`, `autoLink`, WebView (S044) or markdown library. Compose `Text` shows every character as it is, so a `<b>` or a `[link](url)` stays inert text.
 - **Done:** text that another player wrote now goes through `InputRules.shown` as it arrives from the server, before it is cached or shown. Control characters and direction overrides are removed, and it is cut at its field's limit. That covers chat messages and file names, Darood and study party names, study items (title, subject, notes) and study reminder titles. Usernames and display names were already letters, digits and `_` only on the server (`username_form`, display-name checks).
 - **Test:** `PlainTextRenderingTest`: no renderer anywhere, a chat message with an override, a NUL and a tag arrives cleaned, and every server mapper cleans. The study, Darood and party suites still pass (107 classes).
+
+### S055: release builds log nothing sensitive
+- **Policy:** [LOGGING.md](LOGGING.md).
+- **Done:**
+  - `util/AppLog` is now the only way the app writes to Logcat; all 24 call sites moved to it. In a release build it writes no debug lines, and for warnings and errors only the message and the exception's class name: no exception text, no stack trace.
+  - R8 removes `Log.v`, `Log.d` and `Log.i` calls from the app and its libraries.
+  - supabase-kt's own logger is off in release builds (`LogLevel.NONE`).
+  - Checked: the messages carry ids, prayers, dates and actions, never names, text, emails or tokens.
+- **Test:** `AppLogTest`:
+  - in release, a token and an email in an exception never reach Logcat;
+  - debug still logs everything;
+  - nothing calls `android.util.Log`, `printStackTrace()` or bypasses AppLog;
+  - the R8 rule and the Supabase log level are in place.

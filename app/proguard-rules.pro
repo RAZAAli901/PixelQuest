@@ -61,3 +61,12 @@
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+
+# Release builds log nothing sensitive (S055, docs/security/LOGGING.md): verbose, debug and info
+# lines are removed from the app and every library compiled into it. The app's own warnings and
+# errors go through AppLog, which writes no exception messages in a release build.
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+}

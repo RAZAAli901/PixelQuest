@@ -57,7 +57,7 @@ class NamazAlarmScheduler @Inject constructor(
         } catch (e: SecurityException) {
             false
         }
-        if (!armed) android.util.Log.w(TAG, "Could not arm the ${alarm.kind} for ${alarm.prayer} on ${alarm.date}")
+        if (!armed) com.pixelquest.app.util.AppLog.w(TAG, "Could not arm the ${alarm.kind} for ${alarm.prayer} on ${alarm.date}")
     }
 
     override fun cancel(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {

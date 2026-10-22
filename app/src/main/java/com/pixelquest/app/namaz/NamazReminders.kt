@@ -99,7 +99,7 @@ class NamazReminders(
                     try {
                         reschedule()
                     } catch (e: Exception) {
-                        android.util.Log.w("NamazReminders", "Could not reschedule the prayer reminders", e)
+                        com.pixelquest.app.util.AppLog.w("NamazReminders", "Could not reschedule the prayer reminders", e)
                     }
                 }
         }

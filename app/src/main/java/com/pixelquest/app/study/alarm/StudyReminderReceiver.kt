@@ -79,7 +79,7 @@ class StudyReminderReceiver : BroadcastReceiver() {
             try {
                 handler.handle(reminderId, occurrenceAt, index)
             } catch (e: Exception) {
-                android.util.Log.e("StudyReminderReceiver", "Could not show a study reminder", e)
+                com.pixelquest.app.util.AppLog.e("StudyReminderReceiver", "Could not show a study reminder", e)
             } finally {
                 pending.finish()
             }

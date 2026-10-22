@@ -1,7 +1,7 @@
 package com.pixelquest.app.di
 
 import android.content.Context
-import android.util.Log
+import com.pixelquest.app.util.AppLog
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -39,7 +39,7 @@ object DatabaseModule {
                 AppDatabase.ALL_MIGRATIONS.maxOf { it.endVersion }
             )
         } catch (e: Exception) {
-            Log.w("PixelQuestDb", "No copy kept before the update", e)
+            AppLog.w("PixelQuestDb", "No copy kept before the update", e)
         }
         return Room.databaseBuilder(
             context,
@@ -66,7 +66,7 @@ object DatabaseModule {
                         SeedDataProvider.initialTasks().forEach { task ->
                             appDb.taskDao().insertTaskIfAbsent(task)
                         }
-                        Log.d("PixelQuestSeed", "Database seeded successfully with initial profile, settings, streak, and tasks.")
+                        AppLog.d("PixelQuestSeed", "Database seeded successfully with initial profile, settings, streak, and tasks.")
                     }
                 }
             })

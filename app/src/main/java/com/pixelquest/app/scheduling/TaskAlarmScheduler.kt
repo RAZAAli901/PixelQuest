@@ -103,10 +103,10 @@ class TaskAlarmScheduler @Inject constructor(
         val next = try {
             nextReminder(task, firstAllowed)?.let { it to it.at.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() }
         } catch (e: ArithmeticException) {
-            android.util.Log.w("TaskAlarmScheduler", "Task ${task.id} has an unrepresentable date; no reminder armed", e)
+            com.pixelquest.app.util.AppLog.w("TaskAlarmScheduler", "Task ${task.id} has an unrepresentable date; no reminder armed", e)
             null
         } catch (e: java.time.DateTimeException) {
-            android.util.Log.w("TaskAlarmScheduler", "Task ${task.id} has an unrepresentable date; no reminder armed", e)
+            com.pixelquest.app.util.AppLog.w("TaskAlarmScheduler", "Task ${task.id} has an unrepresentable date; no reminder armed", e)
             null
         } ?: return
         val (reminder, triggerTimeMillis) = next
@@ -131,9 +131,9 @@ class TaskAlarmScheduler @Inject constructor(
                 alarmManager.setWindow(AlarmManager.RTC_WAKEUP, triggerTimeMillis, INEXACT_WINDOW_MS, pendingIntent)
             }
         } catch (e: SecurityException) {
-            android.util.Log.w("TaskAlarmScheduler", "Exact alarm permission revoked or unavailable, degrading gracefully", e)
+            com.pixelquest.app.util.AppLog.w("TaskAlarmScheduler", "Exact alarm permission revoked or unavailable, degrading gracefully", e)
         } catch (e: Exception) {
-            android.util.Log.e("TaskAlarmScheduler", "Failed to schedule alarm for task ${task.id}", e)
+            com.pixelquest.app.util.AppLog.e("TaskAlarmScheduler", "Failed to schedule alarm for task ${task.id}", e)
         }
     }
 
@@ -189,7 +189,7 @@ class TaskAlarmScheduler @Inject constructor(
                 alarmManager.setWindow(AlarmManager.RTC_WAKEUP, triggerAt, INEXACT_WINDOW_MS, pendingIntent)
             }
         } catch (e: SecurityException) {
-            android.util.Log.w("TaskAlarmScheduler", "Could not schedule snooze for task $taskId", e)
+            com.pixelquest.app.util.AppLog.w("TaskAlarmScheduler", "Could not schedule snooze for task $taskId", e)
         }
     }
 

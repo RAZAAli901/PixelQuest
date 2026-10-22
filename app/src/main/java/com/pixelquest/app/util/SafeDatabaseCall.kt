@@ -1,6 +1,6 @@
 package com.pixelquest.app.util
 
-import android.util.Log
+import com.pixelquest.app.util.AppLog
 
 suspend inline fun <T> safeDatabaseCall(
     fallback: T,
@@ -9,7 +9,7 @@ suspend inline fun <T> safeDatabaseCall(
     return try {
         block()
     } catch (e: Exception) {
-        Log.e("SafeDatabaseCall", "Database operation failed, using graceful fallback", e)
+        AppLog.e("SafeDatabaseCall", "Database operation failed, using graceful fallback", e)
         fallback
     }
 }

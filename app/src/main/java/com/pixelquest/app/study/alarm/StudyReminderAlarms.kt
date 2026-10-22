@@ -38,7 +38,7 @@ class AlarmManagerStudyReminderAlarms @Inject constructor(
             .putExtra(EXTRA_INDEX, alert.index)
         val pending = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         if (!AlarmArming.arm(alarmManager, alert.at.toEpochMilli(), pending)) {
-            android.util.Log.w(TAG, "Could not arm a study reminder")
+            com.pixelquest.app.util.AppLog.w(TAG, "Could not arm a study reminder")
         }
     }
 

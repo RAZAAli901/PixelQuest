@@ -19,7 +19,7 @@ object AiSignOutCleanup {
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
         } catch (e: Exception) {
-            android.util.Log.w("AiSignOutCleanup", "Couldn't watch the sign-in state", e)
+            com.pixelquest.app.util.AppLog.w("AiSignOutCleanup", "Couldn't watch the sign-in state", e)
         }
     }
 }
