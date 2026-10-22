@@ -127,9 +127,10 @@ fun StudyItemDto.toDomain(): StudyItem = StudyItem(
     id = id,
     partyId = partyId,
     kind = StudyItemKind.fromWire(kind),
-    title = title,
-    subject = subject,
-    notes = notes,
+    // A party member's words: plain, clean text (S054).
+    title = com.pixelquest.app.domain.validation.InputRules.shown(title, com.pixelquest.app.domain.validation.InputRules.Field.STUDY_TITLE),
+    subject = com.pixelquest.app.domain.validation.InputRules.shownOrNull(subject, com.pixelquest.app.domain.validation.InputRules.Field.STUDY_SUBJECT),
+    notes = com.pixelquest.app.domain.validation.InputRules.shownOrNull(notes, com.pixelquest.app.domain.validation.InputRules.Field.STUDY_NOTES),
     dueAt = dueAt?.let(::parseInstant),
     pinned = pinned,
     createdBy = createdBy,

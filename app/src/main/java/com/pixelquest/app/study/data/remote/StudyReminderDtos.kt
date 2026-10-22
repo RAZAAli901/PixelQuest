@@ -64,7 +64,8 @@ fun StudyReminderDto.toDomain(): StudyReminder = StudyReminder(
     id = id,
     partyId = partyId,
     createdBy = createdBy,
-    title = title,
+    // A party member's words: plain, clean text (S054).
+    title = com.pixelquest.app.domain.validation.InputRules.shown(title, com.pixelquest.app.domain.validation.InputRules.Field.REMINDER_TITLE),
     kind = ReminderKind.fromWire(kind),
     scope = ReminderScope.fromWire(scope),
     dueAt = dueAt?.let(::parseInstant),

@@ -99,7 +99,8 @@ data class MilestoneReply(
 
 fun PartyDto.toDomain(stats: PartyStatsDto? = null, myStatus: MemberStatus? = null): Party = Party(
     id = id,
-    name = name,
+    // A leader's words: plain, clean text (S054).
+    name = com.pixelquest.app.domain.validation.InputRules.shown(name, com.pixelquest.app.domain.validation.InputRules.Field.PARTY_NAME),
     leaderId = leaderId,
     maxMembers = maxMembers,
     milestone = milestone,

@@ -32,6 +32,7 @@ object InputRules {
         STUDY_NOTES(StudyRules.NOTES_MAX, multiline = true),
         REMINDER_TITLE(ReminderRules.TITLE_MAX),
         CHAT_MESSAGE(StudyChatConfig.MESSAGE_MAX_CHARS, multiline = true),
+        FILE_NAME(StudyChatConfig.FILE_NAME_MAX_CHARS),
         EMAIL(254),
         SEARCH(80),
     }
@@ -68,6 +69,15 @@ object InputRules {
             else -> null
         }
     }
+
+    /**
+     * Text another player wrote, as it arrives from the server (S054): cleaned the same way and cut
+     * at the field's limit before anything shows it. It is always shown as plain text: no screen
+     * renders HTML, markdown or links (PlainTextRenderingTest).
+     */
+    fun shown(raw: String, field: Field): String = typed(raw, field).take(field.max)
+
+    fun shownOrNull(raw: String?, field: Field): String? = raw?.let { shown(it, field) }
 
     /** The value to save: cleaned and trimmed. */
     fun saved(raw: String, field: Field): String = typed(raw, field).trim().take(field.max)

@@ -183,7 +183,7 @@ private fun <T> SupabaseResult<*>.failure(): SupabaseResult<T> = this as Supabas
 
 internal fun RemoteParty.toEntity(stats: PartyStats?, syncedAt: Long) = PartyEntity(
     id = party.id,
-    name = party.name,
+    name = com.pixelquest.app.domain.validation.InputRules.shown(party.name, com.pixelquest.app.domain.validation.InputRules.Field.PARTY_NAME),
     leaderId = party.leaderId,
     maxMembers = party.maxMembers,
     milestone = party.milestone,
