@@ -64,10 +64,19 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
+          FCM_API_KEY: ${{ secrets.FCM_API_KEY }}
+          FCM_APP_ID: ${{ secrets.FCM_APP_ID }}
+          FCM_PROJECT_ID: ${{ secrets.FCM_PROJECT_ID }}
+          FCM_SENDER_ID: ${{ secrets.FCM_SENDER_ID }}
         run: |
           echo "SUPABASE_URL=${SUPABASE_URL:-https://placeholder-project.supabase.co}" >> local.properties
           echo "SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-placeholder-anon-key}" >> local.properties
           echo "GOOGLE_WEB_CLIENT_ID=${GOOGLE_WEB_CLIENT_ID:-}" >> local.properties
+          # Push for chess challenges (docs/PUSH_SETUP.md): the Firebase app's public settings. Blank: push off.
+          echo "FCM_API_KEY=${FCM_API_KEY:-}" >> local.properties
+          echo "FCM_APP_ID=${FCM_APP_ID:-}" >> local.properties
+          echo "FCM_PROJECT_ID=${FCM_PROJECT_ID:-}" >> local.properties
+          echo "FCM_SENDER_ID=${FCM_SENDER_ID:-}" >> local.properties
           # APKs built here are public, so even the debug one reaches Gemini only through the
           # gemini-proxy Edge Function. The Gemini key is never given to a build.
           echo "GEMINI_VIA_PROXY=true" >> local.properties
