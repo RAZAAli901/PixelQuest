@@ -70,3 +70,12 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
   - an invitee and a member who left see no chat, chess or member list;
   - the leader's PATCH of `party_type`, `completed_at`, `leader_id` or `max_members` is refused.
 - **Test:** "a removed member loses chat, files and chess at once" (J170).
+
+### S014: Darood entries are insert-only
+- **State:** `darood_entries` grants app users SELECT, plus INSERT through the policy "Active members post their own entries" (`user_id` = the caller, an active member). No UPDATE or DELETE grant exists, for anyone.
+  - The daily cap and the amount range are constraints and triggers on the server.
+  - A deleted account's entries stay in the total without a name (SET NULL).
+- **Test:** `darood_parties.test.ts`:
+  - posting as someone else, as an invitee, as an outsider and signed out are refused (403, 403, 403, 401);
+  - a member's PATCH and DELETE and the leader's DELETE are refused (403), and the entry is unchanged.
+- **Result 2026-10-22:** 31 of 31 pass.
