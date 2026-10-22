@@ -1,6 +1,42 @@
-# PixelQuest's baseline profile. ART compiles what's listed here when the app is installed, instead
-# of interpreting it until the JIT warms up, so the first launch and the first visit to each screen
-# are smooth. The app is small enough to list whole: every class and method in com.pixelquest.app.
-# Compose, navigation and the other libraries bring their own profiles.
+# PixelQuest Baseline Profile
+# ART pre-compiles these classes and methods upon installation, preventing
+# JIT compilation overhead during cold startup and primary user journeys.
+
+# 1. Application Initialization & Dependency Injection
+HSPLcom/pixelquest/app/PixelQuestApplication;->onCreate()V
+HSPLcom/pixelquest/app/PixelQuestApplication;-><init>()V
+HSPLcom/pixelquest/app/MainActivity;->onCreate(Landroid/os/Bundle;)V
+HSPLcom/pixelquest/app/MainActivity;-><init>()V
+Lcom/pixelquest/app/PixelQuestApplication;
+Lcom/pixelquest/app/MainActivity;
+
+# 2. Design System, Theme Tokens & Styling
+HSPLcom/pixelquest/app/ui/theme/PqThemeKt;->PixelQuestTheme(ZZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/pixelquest/app/ui/theme/PqColors;-><clinit>()V
+HSPLcom/pixelquest/app/ui/theme/PqType;-><clinit>()V
+HSPLcom/pixelquest/app/ui/theme/PqDimens;-><clinit>()V
+Lcom/pixelquest/app/ui/theme/**;
+Lcom/pixelquest/app/ui/components/**;
+
+# 3. Navigation Graph & Core Screen Routing
+HSPLcom/pixelquest/app/ui/navigation/PqNavGraphKt;->PqNavGraph(Landroidx/navigation/NavHostController;Landroidx/compose/ui/Modifier;Lcom/pixelquest/app/ui/navigation/Screen;Landroidx/compose/runtime/Composer;II)V
+Lcom/pixelquest/app/ui/navigation/**;
+
+# 4. Primary Screen Entry Points (Cold Start -> Home -> Main Tabs)
+HSPLcom/pixelquest/app/ui/screens/HomeScreenKt;->HomeScreen(Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/pixelquest/app/ui/screens/today/TodayViewModel;Lcom/pixelquest/app/ui/screens/profile/ProfileViewModel;Lcom/pixelquest/app/ui/screens/stats/StatsViewModel;Lcom/pixelquest/app/ui/screens/namaz/NamazViewModel;Lcom/pixelquest/app/study/ui/StudyViewModel;Landroidx/compose/runtime/Composer;III)V
+HSPLcom/pixelquest/app/ui/screens/QuestsScreenKt;->QuestsScreen(Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lcom/pixelquest/app/ui/screens/QuestTab;Lkotlin/jvm/functions/Function0;Lcom/pixelquest/app/ui/screens/today/TodayViewModel;Lcom/pixelquest/app/ui/screens/tasks/TaskViewModel;Lcom/pixelquest/app/ui/screens/history/TaskHistoryViewModel;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/pixelquest/app/ui/screens/HeroScreenKt;->HeroScreen(Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lcom/pixelquest/app/ui/screens/profile/ProfileViewModel;Lcom/pixelquest/app/ui/screens/stats/StatsViewModel;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/pixelquest/app/ui/screens/namaz/NamazScreenKt;->NamazScreen(Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lcom/pixelquest/app/ui/screens/namaz/NamazViewModel;Landroidx/compose/runtime/Composer;II)V
+HSPLcom/pixelquest/app/ui/screens/leaderboard/LeaderboardScreenKt;->LeaderboardScreen(Lcom/pixelquest/app/ui/screens/leaderboard/LeaderboardViewModel;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+Lcom/pixelquest/app/ui/screens/**;
+
+# 5. Database, Repositories & State Layer
+HSPLcom/pixelquest/app/data/local/PixelQuestDatabase;-><init>()V
+Lcom/pixelquest/app/data/local/PixelQuestDatabase;
+Lcom/pixelquest/app/data/local/dao/**;
+Lcom/pixelquest/app/data/repository/**;
+Lcom/pixelquest/app/domain/repository/**;
+
+# 6. Wildcard Catch-All for App Package
 HSPLcom/pixelquest/app/**->**(**)**
 Lcom/pixelquest/app/**;
