@@ -26,13 +26,16 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun providePostgrest(client: SupabaseClient): Postgrest {
-        return SupabaseClientProvider.postgrest
-    }
+    fun providePostgrest(client: SupabaseClient): Postgrest = SupabaseClientProvider.postgrest
 
     @Provides
     @Singleton
-    fun provideAuth(client: SupabaseClient): Auth {
-        return SupabaseClientProvider.auth
-    }
+    fun provideAuth(client: SupabaseClient): Auth = SupabaseClientProvider.auth
+
+    @Provides
+    @Singleton
+    fun provideSupabaseClientWrapper(
+        client: SupabaseClient,
+    ): com.pixelquest.app.data.remote.SupabaseClientWrapper =
+        com.pixelquest.app.data.remote.DefaultSupabaseClientWrapper(client)
 }
