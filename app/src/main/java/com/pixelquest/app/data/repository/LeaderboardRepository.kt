@@ -99,7 +99,14 @@ open class LeaderboardRepositoryImpl @Inject constructor(
     private val auth: Auth? = null
 ) : LeaderboardRepository {
 
+    /**
+     * The board is for signed-in players: signed out, the server refuses the table (S010), so the
+     * board is simply empty, as it always looked, without asking.
+     */
+    private fun signedOut(): Boolean = auth?.sessionStatus?.value is io.github.jan.supabase.auth.status.SessionStatus.NotAuthenticated
+
     override suspend fun getProfiles(): SupabaseResult<List<CloudProfileDto>> {
+        if (signedOut()) return SupabaseResult.Success(emptyList())
         return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
             postgrest["profiles"].select {
                 filter {
@@ -110,6 +117,7 @@ open class LeaderboardRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTopByStreak(limit: Long, offset: Long): SupabaseResult<List<CloudProfileDto>> {
+        if (signedOut()) return SupabaseResult.Success(emptyList())
         return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
             postgrest["profiles"].select {
                 filter {
@@ -128,6 +136,7 @@ open class LeaderboardRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTopByLevel(limit: Long, offset: Long): SupabaseResult<List<CloudProfileDto>> {
+        if (signedOut()) return SupabaseResult.Success(emptyList())
         return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
             postgrest["profiles"].select {
                 filter {

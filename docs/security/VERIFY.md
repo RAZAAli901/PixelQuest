@@ -25,3 +25,17 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
          has_function_privilege('authenticated','private.zz_probe_fn2()','execute'), has_function_privilege('service_role','public.zz_probe_fn()','execute');
   ROLLBACK;
   ```
+
+### S010: profiles
+- **Policies** (unchanged, already right):
+  - a player inserts, updates and deletes only the row whose `id` is their own;
+  - they read opted-in rows and their own.
+  - Every column is a leaderboard field (name, level, streaks, XP, the opt-in, when it changed). Emails live only in `auth.users`.
+- **Done:** migration `20261019000111_profiles_grants`:
+  - `anon` loses every privilege (it had all of them, though RLS gave it no rows);
+  - `authenticated` keeps only SELECT, INSERT, UPDATE and DELETE (no TRUNCATE, which ignores RLS).
+  - The app no longer queries the board while signed out; it shows the same empty board as before.
+- **Test:** `supabase/tests/local/profiles_rls.test.ts`:
+  - a forged insert with another id is refused (403);
+  - a patch of another's row changes nothing;
+  - signed out, reading and writing are refused (401).

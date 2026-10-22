@@ -55,9 +55,12 @@ localTest("players can write only their own row, and nobody signed out can read 
   const aliceSeenByBob = await call(`/rest/v1/profiles?id=eq.${alice.userId}&select=total_xp,display_name`, { token: bob.accessToken });
   assert.deepEqual(aliceSeenByBob.body, [{ total_xp: 450, display_name: `Hero_${alice.userId.slice(0, 6)}` }]);
 
+  // Signed out: no access to the table at all (S010), not just no rows.
   const signedOut = await call(`/rest/v1/profiles?id=eq.${alice.userId}`);
-  assert.equal(signedOut.status, 200);
-  assert.deepEqual(signedOut.body, [], "the leaderboard is for signed-in players");
+  assert.equal(signedOut.status, 401, "the leaderboard is for signed-in players");
+  assert.ok(!Array.isArray(signedOut.body) || signedOut.body.length === 0);
+  const signedOutWrite = await call("/rest/v1/profiles", { body: row(alice, { display_name: "Anon_Write" }) });
+  assert.equal(signedOutWrite.status, 401);
 });
 
 localTest("leaving the board hides the row from others but not from its owner", async () => {
