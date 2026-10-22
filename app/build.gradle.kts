@@ -35,6 +35,14 @@ fun buildSetting(name: String): String? =
 
 val supabaseUrlProp = buildSetting("SUPABASE_URL") ?: "https://placeholder-project.supabase.co"
 val supabaseAnonKeyProp = buildSetting("SUPABASE_ANON_KEY") ?: "placeholder-anon-key"
+// S006 (docs/security/ENVIRONMENTS.md): debug builds talk to the development project when one is set
+// (SUPABASE_DEV_URL and SUPABASE_DEV_ANON_KEY), so trying things never touches production data.
+// Release builds always use SUPABASE_URL and SUPABASE_ANON_KEY.
+val supabaseDevUrlProp = buildSetting("SUPABASE_DEV_URL")
+val supabaseDevAnonKeyProp = buildSetting("SUPABASE_DEV_ANON_KEY")
+if (supabaseDevUrlProp == null || supabaseDevAnonKeyProp == null) {
+    logger.info("PixelQuest: no SUPABASE_DEV_URL/SUPABASE_DEV_ANON_KEY set; debug builds use SUPABASE_URL (docs/security/ENVIRONMENTS.md).")
+}
 val googleWebClientIdProp = buildSetting("GOOGLE_WEB_CLIENT_ID") ?: ""
 // Push for chess challenges (docs/chess-design.md): the Firebase project's public app settings.
 // Blank (the default) leaves push off; no google-services.json is kept in the repo.
@@ -119,6 +127,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (supabaseDevUrlProp != null && supabaseDevAnonKeyProp != null) {
+                buildConfigField("String", "SUPABASE_URL", "\"$supabaseDevUrlProp\"")
+                buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseDevAnonKeyProp\"")
+            }
+        }
         release {
             // Release APKs are public and the key would be readable in them, so they never contain
             // the Gemini key and always go through the gemini-proxy Edge Function, which holds it.
