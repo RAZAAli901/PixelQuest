@@ -3,6 +3,7 @@ package com.pixelquest.app.util
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.time.Clock
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -15,9 +16,18 @@ import javax.inject.Inject
  * app left open) shows the new day. Tests substitute a fixed clock: the real flows never complete,
  * which would keep a test's virtual time running forever.
  */
-open class AppClock @Inject constructor() {
+open class AppClock @Inject constructor(
+    private val clock: Clock,
+) {
+    constructor() : this(Clock.systemDefaultZone())
 
-    open fun now(): LocalDateTime = LocalDateTime.now()
+    open fun now(): LocalDateTime = LocalDateTime.now(clock)
+
+    open fun todayDate(): LocalDate = LocalDate.now(clock)
+
+    open fun millis(): Long = clock.millis()
+
+    open fun clock(): Clock = clock
 
     /** Emits now, then at the start of every minute. */
     open fun minuteTicks(): Flow<LocalDateTime> = flow {
