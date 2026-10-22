@@ -47,17 +47,18 @@ data class HabitInsightResponse(
                 throw IllegalArgumentException("Malformed JSON payload: ${e.message}", e)
             }
 
-            val summary = jsonObject["summary"]?.jsonPrimitive?.content?.trim()
-            val suggestion = jsonObject["suggestion"]?.jsonPrimitive?.content?.trim()
-            val encouragement = jsonObject["encouragement"]?.jsonPrimitive?.content?.trim()
+            // Shown as plain text only (S051).
+            val summary = jsonObject["summary"]?.jsonPrimitive?.content?.let(AiText::plain)
+            val suggestion = jsonObject["suggestion"]?.jsonPrimitive?.content?.let(AiText::plain)
+            val encouragement = jsonObject["encouragement"]?.jsonPrimitive?.content?.let(AiText::plain)
 
             if (summary.isNullOrBlank() || suggestion.isNullOrBlank() || encouragement.isNullOrBlank()) {
                 throw IllegalArgumentException("Missing required insight fields in JSON: $sanitized")
             }
 
-            val highlightCategory = jsonObject["highlightCategory"]?.jsonPrimitive?.content?.trim()
+            val highlightCategory = jsonObject["highlightCategory"]?.jsonPrimitive?.content?.let(AiText::plain)
                 ?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
-            val specificTaskCallout = jsonObject["specificTaskCallout"]?.jsonPrimitive?.content?.trim()
+            val specificTaskCallout = jsonObject["specificTaskCallout"]?.jsonPrimitive?.content?.let(AiText::plain)
                 ?.takeIf { it.isNotBlank() && !it.equals("null", ignoreCase = true) }
 
             return HabitInsightResponse(
