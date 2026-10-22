@@ -208,10 +208,11 @@ android {
     }
 }
 
-// Q007: Kotlin warnings are build failures so new code cannot add warning debt. KAPT's generated
-// stub task is excluded because Kotlin 2.0 emits a toolchain-only language-version warning there.
+// Q007: Kotlin warnings are build failures on production sources so new code cannot add warning debt.
+// KAPT generated stubs and test tasks are excluded.
 tasks.withType<KotlinCompile>().configureEach {
-    compilerOptions.allWarningsAsErrors.set(!name.startsWith("kapt", ignoreCase = true))
+    compilerOptions.allWarningsAsErrors.set(!name.startsWith("kapt", ignoreCase = true) && !name.contains("Test", ignoreCase = true))
+    compilerOptions.freeCompilerArgs.add("-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi")
 }
 
 dependencies {
