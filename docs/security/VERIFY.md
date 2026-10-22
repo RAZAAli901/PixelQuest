@@ -100,3 +100,23 @@ Every security fix in the plan (S001 to S070) has a test or a written check here
 - **Path rule:** objects are stored under `<party_id>/<file_id>`, and the functions check the caller's membership of that party before signing.
 - **Test:** `security.test.ts`, "storage is closed to players". A player can't create a bucket, upload, list or download directly. `study-files` is private, and no bucket is public.
 - **Test:** `study_files.test.ts`. A removed member's link stops working; a link expires.
+
+### S017: minimum grants
+- **Done:** migration `20261019000113_minimum_grants`:
+  - `anon` holds nothing on any public table, view, sequence or function.
+  - `authenticated` has no TRUNCATE, REFERENCES or TRIGGER anywhere, and no write on any view.
+  - Trigger functions aren't callable as RPCs.
+  - No public function is executable by PUBLIC.
+  - Every RPC kept its grant: the list of functions `authenticated` may run lost exactly the four triggers.
+- **Check:** each result is 0:
+  ```sql
+  SELECT count(*) FROM information_schema.role_table_grants WHERE table_schema = 'public' AND grantee = 'anon';
+  SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+   WHERE n.nspname = 'public' AND has_function_privilege('anon', p.oid, 'EXECUTE');
+  SELECT count(*) FROM information_schema.role_table_grants WHERE table_schema = 'public'
+   AND grantee = 'authenticated' AND privilege_type IN ('TRUNCATE', 'REFERENCES', 'TRIGGER');
+  ```
+- **Result 2026-10-22:**
+  - all three are 0;
+  - the server suite passes (164 tests, 0 failures);
+  - the app's own repositories pass against the stack (`*LocalSupabase*`: 20 tests).
