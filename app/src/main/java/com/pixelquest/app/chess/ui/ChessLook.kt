@@ -3,8 +3,8 @@ package com.pixelquest.app.chess.ui
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqSkinState
 import com.pixelquest.app.ui.theme.PqType
-import com.pixelquest.app.ui.theme.isPixelSkin
 
 /**
  * The owner's chess design (chess-ui/PQChess.dc.html) in the app's theme: its board, highlight
@@ -16,10 +16,10 @@ object ChessLook {
     val light: Color get() = PqColors.Paper
 
     /** Dark squares: Comic's sky (#8ecae6), Pixel's amber (#e8a33d). */
-    val dark: Color get() = if (isPixelSkin) Color(0xFFE8A33D) else Color(0xFF8ECAE6)
+    val dark: Color get() = PqSkinState.spec.chessDark
 
     /** The last move and the selected square: #ffd95a / #fde7a0. */
-    val highlight: Color get() = if (isPixelSkin) Color(0xFFFDE7A0) else Color(0xFFFFD95A)
+    val highlight: Color get() = PqSkinState.spec.chessHighlight
 
     /** A king in check: the skin's primary colour. */
     val check: Color get() = PqColors.Red

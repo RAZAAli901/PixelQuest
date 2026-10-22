@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
-import com.pixelquest.app.ui.theme.isPixelSkin
+import com.pixelquest.app.ui.theme.PqSkinState
 
 /**
  * How a party's chat draws its pieces (mock 4E), the Darood chat's and the study chat's alike: ink round every bubble, pill and field, and a small
@@ -33,7 +33,7 @@ data class ChatLook(
     val corner: Dp,
     val tailCorner: Dp,
     val outline: Dp,
-    val shadow: Dp
+    val shadow: Dp,
 ) {
     fun bubbleShape(mine: Boolean, tail: Boolean): Shape {
         val near = if (tail) tailCorner else corner
@@ -58,7 +58,7 @@ data class ChatLook(
         if (shadow > 0.dp) {
             Modifier.drawBehind {
                 val offset = shadow.toPx()
-                translate(left = if (isPixelSkin) 0f else offset, top = offset) {
+                translate(left = offset * PqSkinState.spec.shadowX, top = offset) {
                     drawOutline(shape.createOutline(size, layoutDirection, this), PqColors.Ink)
                 }
             }
@@ -73,11 +73,11 @@ val LocalChatSimpleMode = staticCompositionLocalOf { false }
 /** The chat's look in the active skin; Simple Mode keeps the ink and drops the shadows. */
 @Composable
 fun chatLook(): ChatLook {
-    val pixel = isPixelSkin
+    val radiusScale = PqSkinState.spec.radiusScale
     return ChatLook(
-        corner = if (pixel) 0.dp else 16.dp,
-        tailCorner = if (pixel) 0.dp else 4.dp,
+        corner = 16.dp * radiusScale,
+        tailCorner = 4.dp * radiusScale,
         outline = PqDimens.BorderThin,
-        shadow = if (LocalChatSimpleMode.current) 0.dp else 2.dp
+        shadow = if (LocalChatSimpleMode.current) 0.dp else 2.dp,
     )
 }

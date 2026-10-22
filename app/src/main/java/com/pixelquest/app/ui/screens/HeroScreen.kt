@@ -1,12 +1,5 @@
 package com.pixelquest.app.ui.screens
 
-import com.pixelquest.app.ui.motion.RollingNumber
-import com.pixelquest.app.ui.motion.XpBar
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawOutline
-import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,12 +34,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -72,10 +70,11 @@ import com.pixelquest.app.ui.components.PixelAvatar
 import com.pixelquest.app.ui.components.PqCard
 import com.pixelquest.app.ui.components.PqIconButton
 import com.pixelquest.app.ui.components.PqListRow
-import com.pixelquest.app.ui.components.PqSegmentBar
 import com.pixelquest.app.ui.components.PqSegmented
 import com.pixelquest.app.ui.components.PqTopBar
 import com.pixelquest.app.ui.components.comicPressable
+import com.pixelquest.app.ui.motion.RollingNumber
+import com.pixelquest.app.ui.motion.XpBar
 import com.pixelquest.app.ui.screens.profile.ProfileUiState
 import com.pixelquest.app.ui.screens.profile.ProfileViewModel
 import com.pixelquest.app.ui.screens.stats.NamazStats
@@ -86,7 +85,6 @@ import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
 import com.pixelquest.app.ui.theme.bsp
-import com.pixelquest.app.ui.theme.isPixelSkin
 import com.pixelquest.app.ui.theme.lsp
 import com.pixelquest.app.ui.theme.pqShape
 import com.pixelquest.app.ui.theme.pqShapeTop
@@ -261,7 +259,8 @@ fun HeroContent(
         item(key = "segments") {
             PqSegmented(
                 listOf(stringResource(R.string.pq_hero_profile), stringResource(R.string.pq_hero_stats)),
-                segment.ordinal, { onSegmentChange(HeroSegment.entries[it]) },
+                segment.ordinal,
+                { onSegmentChange(HeroSegment.entries[it]) },
             )
         }
         if (segment == HeroSegment.Profile) {
@@ -274,7 +273,8 @@ fun HeroContent(
                         PqListRow(Icons.Rounded.Face, stringResource(R.string.pq_hero_change_avatar), onChangeAvatar, stringResource(state.avatar.label))
                         // Simple Mode keeps the difficulty it has (DifficultyLockUnderSimpleMode).
                         PqListRow(
-                            Icons.Rounded.Tune, stringResource(R.string.pq_hero_difficulty),
+                            Icons.Rounded.Tune,
+                            stringResource(R.string.pq_hero_difficulty),
                             if (simple) ({}) else onDifficulty,
                             if (simple) stringResource(R.string.pq_hero_locked) else DifficultyMode.getDisplayName(state.difficulty),
                         )
@@ -282,8 +282,11 @@ fun HeroContent(
                         if (!simple) PqListRow(Icons.Rounded.Timeline, stringResource(R.string.pq_hero_level_history), onLevelHistory)
                         PqListRow(Icons.Rounded.Groups, stringResource(R.string.pq_hero_parties), onParties)
                         PqListRow(
-                            Icons.Rounded.Leaderboard, stringResource(R.string.pq_hero_leaderboard), onLeaderboard,
-                            if (state.leaderboardLocked) stringResource(R.string.pq_hero_locked) else null, showDivider = false,
+                            Icons.Rounded.Leaderboard,
+                            stringResource(R.string.pq_hero_leaderboard),
+                            onLeaderboard,
+                            if (state.leaderboardLocked) stringResource(R.string.pq_hero_locked) else null,
+                            showDivider = false,
                         )
                     }
                 }
@@ -304,7 +307,12 @@ private fun HeroCard(state: HeroUiState, onChangeAvatar: () -> Unit, onUsername:
         Column {
             Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                 val change = stringResource(R.string.pq_hero_change_avatar)
-                Box(Modifier.comicPressable(onChangeAvatar, radius = 13.dp, shadow = 0.dp).clearAndSetSemantics { contentDescription = change; role = Role.Button }) {
+                Box(
+                    Modifier.comicPressable(onChangeAvatar, radius = 13.dp, shadow = 0.dp).clearAndSetSemantics {
+                        contentDescription = change
+                        role = Role.Button
+                    },
+                ) {
                     PixelAvatar(state.avatar, 80.dp)
                     Box(
                         Modifier.align(Alignment.BottomEnd).offset(6.dp, 6.dp).size(28.dp).clip(PqCircle).background(PqColors.Gold).border(PqDimens.BorderThin, PqColors.Ink, PqCircle),
@@ -379,7 +387,8 @@ private fun tierLabel(tier: AvatarTier): Int = when (tier) {
 @Composable
 private fun SmallChip(text: String, bg: Color) {
     Text(
-        text.uppercase(), style = PqType.Label.copy(letterSpacing = 0.4.sp),
+        text.uppercase(),
+        style = PqType.Label.copy(letterSpacing = 0.4.sp),
         modifier = Modifier.clip(PqCircle).background(bg).border(PqDimens.BorderThin, PqColors.Ink, PqCircle).padding(horizontal = 8.dp, vertical = 4.dp),
     )
 }
@@ -478,14 +487,15 @@ private fun WeeklyTrend(s: StatsUi) {
                     val label = if (i == s.weekly.lastIndex) stringResource(R.string.pq_hero_week_now) else stringResource(R.string.pq_hero_week_ago, s.weekly.lastIndex - i)
                     Column(
                         Modifier.weight(1f).semantics(mergeDescendants = true) {},
-                        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(stringResource(R.string.pq_percent, pct), style = PqType.Button.copy(fontSize = 11.lsp), textAlign = TextAlign.Center)
                         val h = (pct / s.targetPercent.coerceAtLeast(1).toFloat() * 56f).coerceIn(4f, 56f).dp
                         Box(
                             Modifier.fillMaxWidth().height(h).clip(pqShapeTop(5.dp))
                                 .background(if (i == s.weekly.lastIndex) PqColors.Progress else PqColors.Lilac)
-                                .border(PqDimens.BorderThin, PqColors.Ink, pqShapeTop(5.dp))
+                                .border(PqDimens.BorderThin, PqColors.Ink, pqShapeTop(5.dp)),
                         )
                         Text(label, style = PqType.Meta.copy(fontSize = 11.bsp, fontWeight = FontWeight.Bold))
                     }

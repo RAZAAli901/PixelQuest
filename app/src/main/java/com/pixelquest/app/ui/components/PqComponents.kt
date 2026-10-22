@@ -374,10 +374,10 @@ fun PqSegmentBar(total: Int, filled: Int, modifier: Modifier = Modifier, fill: C
 fun ProgressRing(progress: Float, label: String, diameter: Dp = 78.dp) {
     // M07: the ring sweeps to its value; in Pixel the meter fills in ten steps.
     val reduced = reducedMotion()
-    val target = progress.coerceIn(0f, 1f)
+    val target = PqMotion.quantizeProgress(progress.coerceIn(0f, 1f))
     val swept by animateFloatAsState(
-        if (isPixelSkin) kotlin.math.floor(target * 10f) / 10f else target,
-        if (reduced) snap() else tween(700, easing = if (isPixelSkin) PqMotion.steps(10) else PqMotion.out()),
+        target,
+        if (reduced) snap() else tween(700, easing = PqMotion.progressEasing()),
         label = "ring",
     )
     if (isPixelSkin) {

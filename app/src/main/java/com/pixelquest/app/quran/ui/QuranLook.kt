@@ -1,13 +1,5 @@
 package com.pixelquest.app.quran.ui
 
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.drawscope.translate
-import com.pixelquest.app.ui.theme.pqShape
-import com.pixelquest.app.ui.components.PqCard
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,18 +13,26 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.domain.repository.SettingsRepository
+import com.pixelquest.app.ui.components.PqCard
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
-import com.pixelquest.app.ui.theme.isPixelSkin
-import androidx.compose.ui.graphics.RectangleShape
+import com.pixelquest.app.ui.theme.PqSkinState
+import com.pixelquest.app.ui.theme.pqShape
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -67,14 +67,14 @@ fun quranFrame(): QuranFrame {
         shape = pqShape(10.dp),
         fill = PqColors.Paper,
         border = BorderStroke(PqDimens.BorderThin, PqColors.Ink),
-        shadow = 2.dp
+        shadow = 2.dp,
     )
 }
 
 /** The shape of a small choice or badge: square in the Pixel skin, round elsewhere and in Simple Mode. */
 @Composable
 fun quranChipShape(round: Shape = RoundedCornerShape(50)): Shape =
-    if (!LocalQuranSimpleMode.current && isPixelSkin) RectangleShape else round
+    if (!LocalQuranSimpleMode.current && PqSkinState.spec.radiusScale == 0f) RectangleShape else round
 
 /**
  * A panel on the Quran's screens (the sources, a translation's terms, Go to): v2's card, or in
@@ -84,7 +84,7 @@ fun quranChipShape(round: Shape = RoundedCornerShape(50)): Shape =
 fun QuranPanel(
     modifier: Modifier = Modifier,
     contentPadding: Dp = 16.dp,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     if (LocalQuranSimpleMode.current) {
         Box(modifier = modifier.background(PqColors.Paper, PLAIN).padding(contentPadding)) { content() }
@@ -122,7 +122,7 @@ fun Modifier.framed(frame: QuranFrame): Modifier {
  * down), in [shape]: a copy of the shape, not a blur.
  */
 private fun Modifier.flatShadow(offset: Dp, shape: Shape): Modifier = drawBehind {
-    val dx = if (isPixelSkin) 0f else offset.toPx()
+    val dx = offset.toPx() * PqSkinState.spec.shadowX
     val dy = offset.toPx()
     val ink = PqColors.Ink
     when (val outline = shape.createOutline(size, layoutDirection, this)) {
@@ -133,7 +133,7 @@ private fun Modifier.flatShadow(offset: Dp, shape: Shape): Modifier = drawBehind
                 color = ink,
                 topLeft = Offset(dx, dy),
                 size = Size(rr.width, rr.height),
-                cornerRadius = CornerRadius(rr.topLeftCornerRadius.x, rr.topLeftCornerRadius.y)
+                cornerRadius = CornerRadius(rr.topLeftCornerRadius.x, rr.topLeftCornerRadius.y),
             )
         }
         is Outline.Generic -> translate(dx, dy) { drawPath(path = outline.path, color = ink) }

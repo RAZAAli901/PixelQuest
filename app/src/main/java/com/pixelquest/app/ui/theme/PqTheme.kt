@@ -42,31 +42,57 @@ object PqSkinState {
 
 @Immutable
 data class PqPalette(
-    val ink: Color, val ink2: Color, val muted: Color,
-    val paper: Color, val ground: Color, val sunken: Color, val divider: Color,
-    val primary: Color, val onPrimary: Color, val primaryText: Color, val flame: Color,
-    val sky: Color, val gold: Color, val amber: Color, val lilac: Color, val rose: Color,
-    val progress: Color, val title: Color, val trophy: Color, val onTrophy: Color,
-    val statusPerfect: Color, val statusPartial: Color, val statusMissed: Color,
+    val ink: Color,
+    val ink2: Color,
+    val muted: Color,
+    val paper: Color,
+    val ground: Color,
+    val sunken: Color,
+    val divider: Color,
+    val primary: Color,
+    val onPrimary: Color,
+    val primaryText: Color,
+    val flame: Color,
+    val sky: Color,
+    val gold: Color,
+    val amber: Color,
+    val lilac: Color,
+    val rose: Color,
+    val progress: Color,
+    val title: Color,
+    val trophy: Color,
+    val onTrophy: Color,
+    val statusPerfect: Color,
+    val statusPartial: Color,
+    val statusMissed: Color,
     val avatarBg: Color,
+    val error: Color,
 )
 
 @Immutable
 data class PqSkinSpec(
     val palette: PqPalette,
-    val radiusScale: Float,       // 1 = comic rounded, 0 = pixel square
+    val radiusScale: Float, // 1 = comic rounded, 0 = pixel square
     val border: Dp,
     val borderThin: Dp,
-    val shadowX: Float,           // 1 = diagonal comic shadow, 0 = straight-down pixel step
+    val shadowX: Float, // 1 = diagonal comic shadow, 0 = straight-down pixel step
     val shadowOnlyTappable: Boolean,
-    val display: FontFamily,      // titles, numbers
-    val label: FontFamily,        // buttons, small caps labels
+    val display: FontFamily, // titles, numbers
+    val label: FontFamily, // buttons, small caps labels
     val body: FontFamily,
-    val displayScale: Float,      // Press Start 2P is ~2x wider than Bangers
+    val displayScale: Float, // Press Start 2P is ~2x wider than Bangers
     val displayLine: Float,
     val labelScale: Float,
     val bodyScale: Float,
     val labelWeight: FontWeight,
+    val fontFeatures: String?,
+    val displayLetterSpacing: TextUnit,
+    val labelLetterSpacing: TextUnit,
+    val buttonLetterSpacing: TextUnit,
+    val bodyStrongWeight: FontWeight,
+    val navLabelWeight: FontWeight,
+    val chessDark: Color,
+    val chessHighlight: Color,
 )
 
 // res/font: bangers_regular, rubik_medium, rubik_semibold, rubik_bold, rubik_extrabold,
@@ -96,10 +122,19 @@ val ComicSpec = PqSkinSpec(
         progress = Color(0xFFFF5A4E), title = Color(0xFF161412), trophy = Color(0xFFFFC21A), onTrophy = Color(0xFF161412),
         statusPerfect = Color(0xFF8ECAE6), statusPartial = Color(0xFFF0A35E), statusMissed = Color(0xFFFF5A4E),
         avatarBg = Color(0xFF2A2840),
+        error = Color(0xFFC23A2F),
     ),
     radiusScale = 1f, border = 2.5.dp, borderThin = 2.dp, shadowX = 1f, shadowOnlyTappable = false,
     display = Bangers, label = Rubik, body = Rubik,
     displayScale = 1f, displayLine = 1f, labelScale = 1f, bodyScale = 1f, labelWeight = FontWeight.ExtraBold,
+    fontFeatures = null,
+    displayLetterSpacing = 1.sp,
+    labelLetterSpacing = 1.3.sp,
+    buttonLetterSpacing = 0.5.sp,
+    bodyStrongWeight = FontWeight.ExtraBold,
+    navLabelWeight = FontWeight.Bold,
+    chessDark = Color(0xFF8ECAE6),
+    chessHighlight = Color(0xFFFFD95A),
 )
 
 val PixelSpec = PqSkinSpec(
@@ -111,10 +146,19 @@ val PixelSpec = PqSkinSpec(
         progress = Color(0xFF2F9E4A), title = Color(0xFFC25E00), trophy = Color(0xFFC25E00), onTrophy = Color(0xFFFFFAF0),
         statusPerfect = Color(0xFF1D6FA5), statusPartial = Color(0xFFE8A33D), statusMissed = Color(0xFFD1342A),
         avatarBg = Color(0xFF2A2840),
+        error = Color(0xFFD1342A),
     ),
     radiusScale = 0f, border = 2.dp, borderThin = 2.dp, shadowX = 0f, shadowOnlyTappable = true,
     display = PressStart, label = PressStart, body = Pixelify,
     displayScale = 0.5f, displayLine = 1.35f, labelScale = 0.7f, bodyScale = 1.12f, labelWeight = FontWeight.Normal,
+    fontFeatures = "liga 0, clig 0",
+    displayLetterSpacing = 0.sp,
+    labelLetterSpacing = 0.sp,
+    buttonLetterSpacing = 0.sp,
+    bodyStrongWeight = FontWeight.SemiBold,
+    navLabelWeight = FontWeight.Normal,
+    chessDark = Color(0xFFE8A33D),
+    chessHighlight = Color(0xFFFDE7A0),
 )
 
 private val s get() = PqSkinState.spec
@@ -124,19 +168,19 @@ object PqColors {
     val Ink get() = p.ink
     val Ink2 get() = p.ink2
     val Muted get() = p.muted
-    val Paper get() = p.paper             // card surface
-    val Ground get() = p.ground           // screen background
-    val Sunken get() = p.sunken           // done rows, empty tracks
+    val Paper get() = p.paper // card surface
+    val Ground get() = p.ground // screen background
+    val Sunken get() = p.sunken // done rows, empty tracks
     val Divider get() = p.divider
-    val Red get() = p.primary             // primary action (comic red / pixel orange)
+    val Red get() = p.primary // primary action (comic red / pixel orange)
     val OnRed get() = p.onPrimary
-    val RedText get() = p.primaryText     // primary-coloured text on light (passes contrast)
+    val RedText get() = p.primaryText // primary-coloured text on light (passes contrast)
     val Flame get() = p.flame
-    val Sky get() = p.sky                 // prayer / info
-    val Gold get() = p.gold               // level, celebration, active nav
-    val Amber get() = p.amber             // fitness, AI
-    val Lilac get() = p.lilac             // learning, Quran
-    val Rose get() = p.rose               // health, Maghrib
+    val Sky get() = p.sky // prayer / info
+    val Gold get() = p.gold // level, celebration, active nav
+    val Amber get() = p.amber // fitness, AI
+    val Lilac get() = p.lilac // learning, Quran
+    val Rose get() = p.rose // health, Maghrib
     val Progress get() = p.progress
     val Title get() = p.title
     val Trophy get() = p.trophy
@@ -145,10 +189,12 @@ object PqColors {
     val StatusPartial get() = p.statusPartial
     val StatusMissed get() = p.statusMissed
     val AvatarBg get() = p.avatarBg
+
     /** The coach's Live tag; also "done" and "saved" on the screens from before UI v2. */
     val Live get() = Color(0xFF1F7A3A)
+
     /** Error text and outlines: red ink that passes contrast on paper in both skins. */
-    val Error get() = if (isPixelSkin) p.statusMissed else p.primaryText
+    val Error get() = p.error
 }
 
 object PqDimens {
@@ -161,6 +207,7 @@ object PqDimens {
     val RadiusSm get() = 10.dp * s.radiusScale
     val ScreenPad = 16.dp
     val Gap = 12.dp
+
     /** The smallest tap target: 48dp, Android's and the app's accessibility rule (the handoff had 44). */
     val TouchMin = 48.dp
 }
@@ -172,14 +219,14 @@ val PqCircle: Shape get() = if (s.radiusScale == 0f) RectangleShape else CircleS
 val isPixelSkin: Boolean get() = PqSkinState.skin == PqSkin.Pixel
 
 /** Size helpers so one number works in both skins. */
-val Number.bsp: TextUnit get() = (toFloat() * s.bodyScale).sp      // body text
-val Number.lsp: TextUnit get() = (toFloat() * s.labelScale).sp     // buttons / labels
+val Number.bsp: TextUnit get() = (toFloat() * s.bodyScale).sp // body text
+val Number.lsp: TextUnit get() = (toFloat() * s.labelScale).sp // buttons / labels
 
 /**
  * Pixelify Sans joins f and i (and f and l) into one pixel glyph that reads as an A at text sizes
  * ("all five" read "all Ave"), so the Pixel skin's text keeps its letters apart.
  */
-private val features: String? get() = if (isPixelSkin) "liga 0, clig 0" else null
+private val features: String? get() = s.fontFeatures
 
 /**
  * Each style, built once per skin. Every Text on every screen reads these, so building them anew on
@@ -194,9 +241,12 @@ private inline fun cached(key: Any, crossinline build: () -> TextStyle): TextSty
 object PqType {
     fun display(size: Int, line: Int? = null): TextStyle = cached("display" to (size to line)) {
         TextStyle(
-            fontFamily = s.display, fontSize = (size * s.displayScale).sp,
+            fontFamily = s.display,
+            fontSize = (size * s.displayScale).sp,
             lineHeight = ((line ?: size) * s.displayScale * s.displayLine).sp,
-            letterSpacing = if (isPixelSkin) 0.sp else 1.sp, color = PqColors.Ink, fontFeatureSettings = features,
+            letterSpacing = s.displayLetterSpacing,
+            color = PqColors.Ink,
+            fontFeatureSettings = features,
         )
     }
     fun number(size: Int): TextStyle = cached("number" to size) { display(size).copy(letterSpacing = 0.sp) }
@@ -208,12 +258,12 @@ object PqType {
     val Number get() = number(24)
 
     val Body get() = cached("Body") { TextStyle(fontFamily = s.body, fontWeight = FontWeight.Medium, fontSize = 14.bsp, lineHeight = 20.bsp, color = PqColors.Ink, fontFeatureSettings = features) }
-    val BodyStrong get() = cached("BodyStrong") { Body.copy(fontWeight = if (isPixelSkin) FontWeight.SemiBold else FontWeight.ExtraBold, fontSize = 15.bsp) }
+    val BodyStrong get() = cached("BodyStrong") { Body.copy(fontWeight = s.bodyStrongWeight, fontSize = 15.bsp) }
     val Meta get() = cached("Meta") { Body.copy(fontSize = 12.bsp, lineHeight = 16.bsp, color = PqColors.Muted) }
     val MetaStrong get() = cached("MetaStrong") { Meta.copy(fontWeight = FontWeight.Bold, color = PqColors.Ink) }
-    val Label get() = cached("Label") { TextStyle(fontFamily = s.label, fontWeight = s.labelWeight, fontSize = 11.lsp, lineHeight = 15.lsp, letterSpacing = if (isPixelSkin) 0.sp else 1.3.sp, color = PqColors.Ink, fontFeatureSettings = features) }
-    val Button get() = cached("Button") { Label.copy(fontSize = 13.lsp, lineHeight = 18.lsp, letterSpacing = if (isPixelSkin) 0.sp else 0.5.sp) }
-    val NavLabel get() = cached("NavLabel") { Label.copy(fontSize = 11.lsp, letterSpacing = 0.sp, fontWeight = if (isPixelSkin) FontWeight.Normal else FontWeight.Bold) }
+    val Label get() = cached("Label") { TextStyle(fontFamily = s.label, fontWeight = s.labelWeight, fontSize = 11.lsp, lineHeight = 15.lsp, letterSpacing = s.labelLetterSpacing, color = PqColors.Ink, fontFeatureSettings = features) }
+    val Button get() = cached("Button") { Label.copy(fontSize = 13.lsp, lineHeight = 18.lsp, letterSpacing = s.buttonLetterSpacing) }
+    val NavLabel get() = cached("NavLabel") { Label.copy(fontSize = 11.lsp, letterSpacing = 0.sp, fontWeight = s.navLabelWeight) }
     val Arabic get() = cached("Arabic") { TextStyle(fontFamily = Amiri, fontSize = 24.sp, lineHeight = 30.sp, color = PqColors.Ink) }
 }
 

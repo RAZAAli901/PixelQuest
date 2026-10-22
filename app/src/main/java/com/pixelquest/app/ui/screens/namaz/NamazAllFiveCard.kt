@@ -1,6 +1,5 @@
 package com.pixelquest.app.ui.screens.namaz
 
-import androidx.compose.foundation.layout.size
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Mosque
 import androidx.compose.material3.Text
@@ -35,8 +35,8 @@ import com.pixelquest.app.ui.components.PqChip
 import com.pixelquest.app.ui.theme.LocalReduceMotion
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqSkinState
 import com.pixelquest.app.ui.theme.PqType
-import com.pixelquest.app.ui.theme.isPixelSkin
 import com.pixelquest.app.ui.theme.rememberReduceMotion
 import kotlin.math.cos
 import kotlin.math.sin
@@ -57,7 +57,7 @@ fun NamazAllFiveCard(allFive: NamazAllFive, showXp: Boolean, onDismiss: () -> Un
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(18.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     // M06: the reward icon pops with a shard burst.
                     com.pixelquest.app.ui.motion.RewardBurst(trigger = 1, modifier = Modifier.size(96.dp)) {
@@ -81,7 +81,7 @@ fun NamazAllFiveCard(allFive: NamazAllFive, showXp: Boolean, onDismiss: () -> Un
 @Composable
 private fun Burst(modifier: Modifier) {
     if (rememberReduceMotion(LocalReduceMotion.current)) return
-    val pixel = isPixelSkin
+    val pixel = PqSkinState.spec.radiusScale == 0f
     val palette = listOf(PqColors.Red, PqColors.Sky, PqColors.Gold, PqColors.Lilac)
     val ink = PqColors.Ink
     val progress = remember { Animatable(0f) }

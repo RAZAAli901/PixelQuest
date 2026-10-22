@@ -124,6 +124,8 @@ object PqMotion {
     fun snap(): Easing = if (pixel) steps(4) else Snap
     fun out(): Easing = if (pixel) steps(4) else Out
     fun nav(): Easing = if (pixel) steps(4) else Nav
+    fun progressEasing(steps: Int = 10): Easing = if (pixel) steps(steps) else Out
+    fun quantizeProgress(target: Float, steps: Int = 10): Float = if (pixel) floor(target * steps) / steps else target
 }
 
 /** True when motion is reduced: the app's Reduce motion switch, or Android's Remove animations. */
