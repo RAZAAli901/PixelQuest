@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.chess.data.ChessRepository
 import com.pixelquest.app.chess.data.SpectateRepository
+import com.pixelquest.app.chess.domain.Challenge
+import com.pixelquest.app.chess.domain.ChallengeStatus
 import com.pixelquest.app.chess.domain.ChessClock
 import com.pixelquest.app.chess.domain.ChessColour
 import com.pixelquest.app.chess.domain.ChessGame
@@ -54,8 +56,9 @@ data class ChessSessionState(
     /** The player's record against this opponent, read again when the game ends. */
     val headToHead: List<com.pixelquest.app.chess.domain.HeadToHead> = emptyList(),
     val rematchSent: Boolean = false,
+    val incomingRematchChallenge: Challenge? = null,
     /** The app's Simple Mode (J164): no Int points or tiers anywhere. */
-    val simple: Boolean = false
+    val simple: Boolean = false,
 ) {
     /** What the board shows: the player's move straight away, then the server's position. */
     val boardFen: String? get() = pendingFen ?: game?.fen
@@ -65,6 +68,7 @@ data class ChessSessionState(
 
     val myTurn: Boolean get() = game?.isTurnOf(me) == true && !sending
     val spectating: Boolean get() = game != null && myColour == null
+
     /** The other player has offered a draw. */
     val drawOffered: Boolean get() = game?.drawOfferedBy?.let { it != me && myColour != null } == true
     val iOfferedDraw: Boolean get() = game?.drawOfferedBy == me && me != null
@@ -75,6 +79,7 @@ sealed interface ChessSessionEvent {
     data class Moved(val move: ChessMove, val mine: Boolean) : ChessSessionEvent
     data class Refused(val token: String) : ChessSessionEvent
     data class Ended(val game: ChessGame) : ChessSessionEvent
+    data class NextGame(val gameId: String) : ChessSessionEvent
     data object DrawOffered : ChessSessionEvent
 }
 
@@ -94,7 +99,7 @@ class ChessSessionViewModel @Inject constructor(
     private val ratings: com.pixelquest.app.chess.data.ChessRatingRepository? = null,
     private val challenges: com.pixelquest.app.chess.data.ChessChallengeRepository? = null,
     settings: com.pixelquest.app.chess.data.ChessSettings? = null,
-    appSettings: com.pixelquest.app.domain.repository.SettingsRepository? = null
+    appSettings: com.pixelquest.app.domain.repository.SettingsRepository? = null,
 ) : ViewModel() {
 
     /** The player's chess settings (J160). */
@@ -147,8 +152,10 @@ class ChessSessionViewModel @Inject constructor(
     /** The players' names and Int points, for the rows beside the board. */
     private fun loadPlayers(game: ChessGame) {
         val party = party
-        if (party != null) viewModelScope.launch {
-            party.observeMembers(game.partyId).collect { members -> _state.update { s -> s.copy(names = members.associate { it.userId to it.username }) } }
+        if (party != null) {
+            viewModelScope.launch {
+                party.observeMembers(game.partyId).collect { members -> _state.update { s -> s.copy(names = members.associate { it.userId to it.username }) } }
+            }
         }
         val ratings = ratings ?: return
         for (player in listOf(game.whiteId, game.blackId)) {
@@ -173,7 +180,10 @@ class ChessSessionViewModel @Inject constructor(
                         apply(event.game, if (event.game.ply == moves.size) moves else refreshMoves(moves, event.game))
                         event.move?.let { _events.tryEmit(ChessSessionEvent.Moved(it, mine = event.game.colourOf(me) == colourOfPly(it.ply))) }
                     }
-                    is GameEvent.Watchers -> _state.update { it.copy(watchers = event.count) }
+                    is GameEvent.Watchers -> {
+                        val spectatorCount = maxOf(0, event.count - 2)
+                        _state.update { it.copy(watchers = spectatorCount) }
+                    }
                     GameEvent.Disconnected -> _state.update { it.copy(phase = SessionPhase.DISCONNECTED) }
                 }
             }
@@ -218,13 +228,41 @@ class ChessSessionViewModel @Inject constructor(
         send { chess.makeMove(game.id, game.ply + 1, uci) }
     }
 
+    private var rematchJob: Job? = null
+
     /** The record against the opponent, as the end card shows it (both, not watchers). */
     private fun loadRecord(game: ChessGame) {
         val other = me?.let(game::opponentOf) ?: return
-        val ratings = ratings ?: return
-        viewModelScope.launch {
-            (ratings.headToHead(other) as? SupabaseResult.Success)?.data?.let { record -> _state.update { it.copy(headToHead = record) } }
-            ratings.refreshRatings(me)
+        val ratings = ratings
+        if (ratings != null) {
+            viewModelScope.launch {
+                (ratings.headToHead(other) as? SupabaseResult.Success)?.data?.let { record -> _state.update { it.copy(headToHead = record) } }
+                ratings.refreshRatings(me)
+            }
+        }
+        val challengesRepo = challenges
+        if (challengesRepo != null) {
+            rematchJob?.cancel()
+            rematchJob = viewModelScope.launch {
+                challengesRepo.observeChallenges(game.partyId).collect { list ->
+                    val incoming = list.firstOrNull {
+                        it.status == ChallengeStatus.OPEN &&
+                            it.fromUser.equals(other, ignoreCase = true) &&
+                            it.toUser?.equals(me, ignoreCase = true) == true
+                    }
+                    _state.update { it.copy(incomingRematchChallenge = incoming) }
+
+                    val myAccepted = list.firstOrNull {
+                        it.fromUser.equals(me, ignoreCase = true) &&
+                            it.toUser?.equals(other, ignoreCase = true) == true &&
+                            it.status == ChallengeStatus.ACCEPTED &&
+                            it.gameId != null
+                    }
+                    if (myAccepted?.gameId != null) {
+                        _events.tryEmit(ChessSessionEvent.NextGame(myAccepted.gameId))
+                    }
+                }
+            }
         }
     }
 
@@ -240,6 +278,21 @@ class ChessSessionViewModel @Inject constructor(
             when (val sent = challenges.challenge(game.partyId, other, game.timeControl, colour, game.rated)) {
                 is SupabaseResult.Success -> _state.update { it.copy(rematchSent = true) }
                 is SupabaseResult.ServerError -> _events.tryEmit(ChessSessionEvent.Refused(sent.message))
+                else -> _events.tryEmit(ChessSessionEvent.Refused(OFFLINE))
+            }
+        }
+    }
+
+    /** Accepts an incoming rematch challenge and navigates to the new game. */
+    fun acceptRematch() {
+        val challenge = _state.value.incomingRematchChallenge ?: return
+        val challengesRepo = challenges ?: return
+        viewModelScope.launch {
+            when (val answer = challengesRepo.respond(challenge.id, accept = true)) {
+                is SupabaseResult.Success -> {
+                    answer.data?.let { _events.tryEmit(ChessSessionEvent.NextGame(it.id)) }
+                }
+                is SupabaseResult.ServerError -> _events.tryEmit(ChessSessionEvent.Refused(answer.message))
                 else -> _events.tryEmit(ChessSessionEvent.Refused(OFFLINE))
             }
         }

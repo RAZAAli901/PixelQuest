@@ -34,6 +34,8 @@ object LiveGameTags {
 fun LiveGameCard(game: ChessGame, state: ChessPartyState, onWatch: () -> Unit) {
     val white = state.names[game.whiteId]?.let { "@$it" } ?: stringResource(R.string.chess_white)
     val black = state.names[game.blackId]?.let { "@$it" } ?: stringResource(R.string.chess_black)
+    val isPlayer = state.me != null && (game.whiteId.equals(state.me, ignoreCase = true) || game.blackId.equals(state.me, ignoreCase = true))
+    val buttonText = if (isPlayer) stringResource(R.string.chess_play) else stringResource(R.string.chess_watch)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -41,7 +43,7 @@ fun LiveGameCard(game: ChessGame, state: ChessPartyState, onWatch: () -> Unit) {
             .fillMaxWidth()
             .testTag(LiveGameTags.card(game.id))
             .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
     ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(text = stringResource(R.string.chess_live_players, white, black), style = PqType.BodyStrong)
@@ -49,12 +51,12 @@ fun LiveGameCard(game: ChessGame, state: ChessPartyState, onWatch: () -> Unit) {
                 text = listOf(
                     stringResource(R.string.chess_minutes, game.timeControl.seconds / 60),
                     androidx.compose.ui.res.pluralStringResource(R.plurals.chess_live_moves, (game.ply + 1) / 2, (game.ply + 1) / 2),
-                    androidx.compose.ui.res.pluralStringResource(R.plurals.chess_live_watching, game.watchers, game.watchers)
+                    androidx.compose.ui.res.pluralStringResource(R.plurals.chess_live_watching, game.watchers, game.watchers),
                 ).joinToString(" · "),
                 style = PqType.Meta,
-                modifier = Modifier.testTag(LiveGameTags.meta(game.id))
+                modifier = Modifier.testTag(LiveGameTags.meta(game.id)),
             )
         }
-        PqButton(stringResource(R.string.chess_watch), onClick = onWatch, style = PqButtonStyle.Secondary, modifier = Modifier.testTag(LiveGameTags.watch(game.id)))
+        PqButton(buttonText, onClick = onWatch, style = PqButtonStyle.Secondary, modifier = Modifier.testTag(LiveGameTags.watch(game.id)))
     }
 }

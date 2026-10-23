@@ -1,33 +1,33 @@
 package com.pixelquest.app.darood.ui.chat
 
-import com.pixelquest.app.ui.theme.PqType
-import com.pixelquest.app.ui.theme.PqDimens
-import com.pixelquest.app.ui.theme.PqColors
-import com.pixelquest.app.ui.components.comic
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.rounded.EmojiEvents
-import androidx.compose.material.icons.rounded.Flag
-import androidx.compose.material.icons.Icons
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.EmojiEvents
+import androidx.compose.material.icons.rounded.Flag
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.R
+import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.darood.ui.formatCount
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyMember
-import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.darood.ui.formatCount
+import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.theme.PqColors
+import com.pixelquest.app.ui.theme.PqDimens
+import com.pixelquest.app.ui.theme.PqType
 import java.time.Instant
 
 /** Something that happened to a party, told in its chat between the entries. */
@@ -61,7 +61,7 @@ sealed interface PartyEvent {
     data class WeekClosed(
         val week: com.pixelquest.app.darood.domain.WeekResult,
         val names: Map<String, String?>,
-        val me: String?
+        val me: String?,
     ) : PartyEvent {
         override val at: Instant get() = week.closedAt
         override val key: String get() = "week-${week.weekStart}"
@@ -77,11 +77,11 @@ fun partyEventsOf(
     party: Party?,
     members: List<PartyMember>,
     weeks: List<com.pixelquest.app.darood.domain.WeekResult> = emptyList(),
-    me: String? = null
+    me: String? = null,
 ): List<PartyEvent> {
     val events = mutableListOf<PartyEvent>()
     val names = members.associate { it.userId to it.username }
-    weeks.forEach { events += PartyEvent.WeekClosed(it, names, me) }
+    weeks.filter { it.places.any { p -> p.weekTotal > 0 } }.forEach { events += PartyEvent.WeekClosed(it, names, me) }
     for (member in members) {
         member.joinedAt?.let { events += PartyEvent.Joined(member.userId, member.username, it) }
         val changed = member.statusChangedAt ?: continue
@@ -121,7 +121,7 @@ fun EventPill(event: PartyEvent, modifier: Modifier = Modifier) {
                 .testTag(DaroodTestTags.event(event.key))
                 .semantics(mergeDescendants = true) { }
                 .comic(bg = PqColors.Gold, radius = PqDimens.Radius, shadow = 0.dp)
-                .padding(12.dp)
+                .padding(12.dp),
         ) {
             Icon(Icons.Rounded.Flag, contentDescription = null, tint = PqColors.Ink)
             Text(text = text, style = PqType.BodyStrong)
@@ -132,7 +132,7 @@ fun EventPill(event: PartyEvent, modifier: Modifier = Modifier) {
                 text = text,
                 style = PqType.Meta.copy(color = PqColors.Ink2),
                 textAlign = TextAlign.Center,
-                modifier = Modifier.testTag(DaroodTestTags.event(event.key))
+                modifier = Modifier.testTag(DaroodTestTags.event(event.key)),
             )
         }
     }
@@ -167,7 +167,7 @@ private fun WeekCard(event: PartyEvent.WeekClosed, modifier: Modifier = Modifier
             .testTag(DaroodTestTags.event(event.key))
             .semantics(mergeDescendants = true) { }
             .comic(bg = PqColors.Paper, radius = PqDimens.Radius, shadow = 0.dp)
-            .padding(12.dp)
+            .padding(12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(Icons.Rounded.EmojiEvents, contentDescription = null, tint = PqColors.Ink)
@@ -175,20 +175,22 @@ private fun WeekCard(event: PartyEvent.WeekClosed, modifier: Modifier = Modifier
         }
         Text(
             text = stringResource(R.string.darood_week_dates, week.weekStart.format(dates), week.weekStart.plusDays(6).format(dates)),
-            style = PqType.Meta
+            style = PqType.Meta,
         )
         event.me?.let { me ->
             com.pixelquest.app.darood.sync.WeekRankingText.line(context, week, me)?.let { Text(text = it, style = PqType.Body) }
             com.pixelquest.app.darood.sync.WeekRankingText.tone(context, week, me)?.let { Text(text = it, style = PqType.Meta) }
         }
         week.places.take(3).forEach { place ->
-            val name = if (place.userId == event.me) stringResource(R.string.darood_week_you) else event.names[place.userId] ?: stringResource(R.string.darood_someone)
+            val name = if (place.userId.equals(event.me, ignoreCase = true)) stringResource(R.string.darood_week_you) else event.names[place.userId] ?: event.names.entries.firstOrNull { it.key.equals(place.userId, ignoreCase = true) }?.value ?: stringResource(R.string.darood_someone)
             Text(
                 text = stringResource(
                     R.string.darood_week_notif_row,
-                    com.pixelquest.app.darood.sync.WeekRankingText.ordinal(context, place.position), name, formatCount(place.weekTotal)
+                    com.pixelquest.app.darood.sync.WeekRankingText.ordinal(context, place.position),
+                    name,
+                    formatCount(place.weekTotal),
                 ),
-                style = PqType.Body
+                style = PqType.Body,
             )
         }
     }

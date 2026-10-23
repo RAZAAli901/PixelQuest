@@ -1,24 +1,24 @@
 package com.pixelquest.app.testing
 
-import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.remote.DaroodEntryDto
 import com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource
-import com.pixelquest.app.party.data.remote.InviteOutcome
-import com.pixelquest.app.party.data.remote.PartyDto
-import com.pixelquest.app.party.data.remote.PartyMemberDto
-import com.pixelquest.app.party.data.remote.RemoteParty
 import com.pixelquest.app.darood.data.remote.toDomain
 import com.pixelquest.app.darood.domain.DaroodEntry
 import com.pixelquest.app.darood.domain.DaroodRules
 import com.pixelquest.app.darood.domain.MemberStats
+import com.pixelquest.app.darood.domain.PartyStats
+import com.pixelquest.app.data.remote.SupabaseResult
+import com.pixelquest.app.party.data.remote.InviteOutcome
+import com.pixelquest.app.party.data.remote.PartyDto
+import com.pixelquest.app.party.data.remote.PartyMemberDto
+import com.pixelquest.app.party.data.remote.RemoteParty
+import com.pixelquest.app.party.data.remote.toDomain
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.PartyMember
-import com.pixelquest.app.darood.domain.PartyStats
+import com.pixelquest.app.party.domain.PartyType
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDate
-import com.pixelquest.app.party.data.remote.toDomain
-import com.pixelquest.app.party.domain.PartyType
 
 /**
  * Darood Party's server in memory, keeping its main rules (supabase/schema.md, Darood Parties):
@@ -89,7 +89,7 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
     override suspend fun fetchMyParties(): SupabaseResult<List<RemoteParty>> = answer("fetchMyParties") { account ->
         SupabaseResult.Success(
             members.filter { it.userId == account && it.status in setOf("active", "invited") }
-                .mapNotNull { m -> parties[m.partyId]?.let { RemoteParty(it, m) } }
+                .mapNotNull { m -> parties[m.partyId]?.let { RemoteParty(it, m) } },
         )
     }
 
@@ -206,7 +206,7 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         SupabaseResult.Success(
             entries.filter { it.partyId == partyId && it.localDate == day.toString() }
                 .groupBy { it.userId }
-                .map { (user, theirs) -> com.pixelquest.app.darood.domain.DayTotal(user, theirs.sumOf { it.amount.toLong() }) }
+                .map { (user, theirs) -> com.pixelquest.app.darood.domain.DayTotal(user, theirs.sumOf { it.amount.toLong() }) },
         )
     }
 
@@ -221,9 +221,9 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
                     milestone = party.milestone!!,
                     progress = minOf(1f, total.toFloat() / party.milestone),
                     completedAt = party.completedAt?.let(Instant::parse),
-                    mine = isActive(party.id, account)
+                    mine = isActive(party.id, account),
                 )
-            }
+            },
         )
     }
 
@@ -232,7 +232,7 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         SupabaseResult.Success(
             entries.filter { it.partyId == partyId && it.userId == account }
                 .groupBy { LocalDate.parse(it.localDate) }
-                .mapValues { (_, theirs) -> theirs.sumOf { it.amount.toLong() } }
+                .mapValues { (_, theirs) -> theirs.sumOf { it.amount.toLong() } },
         )
     }
 
@@ -294,7 +294,7 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         if (!isActive(partyId, account)) return@answer SupabaseResult.Success(emptyList())
         SupabaseResult.Success(
             entries.filter { it.partyId == partyId && (beforeId == null || it.id < beforeId) }
-                .sortedByDescending { it.id }.take(limit).map { it.toDomain() }
+                .sortedByDescending { it.id }.take(limit).map { it.toDomain() },
         )
     }
 
@@ -303,7 +303,7 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
             partyIds.filter { isActive(it, account) }.map { id ->
                 val own = entries.filter { it.partyId == id }
                 PartyStats(id, total(id), own.size, members.count { it.partyId == id && it.status == "active" }, own.maxOfOrNull { LocalDate.parse(it.localDate) })
-            }
+            },
         )
     }
 
@@ -320,7 +320,8 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
                 Triple(member.userId, theirs.sumOf { it.amount.toLong() }, theirs.map { it.localDate }.distinct().size)
             }
             val places = ranked.map { (user, total, days) ->
-                com.pixelquest.app.darood.domain.WeekPlace(user, 1 + ranked.count { it.second > total }, total, days)
+                val pos = if (total == 0L) ranked.size else 1 + ranked.count { it.second > total }
+                com.pixelquest.app.darood.domain.WeekPlace(user, pos, total, days)
             }.sortedWith(compareBy({ it.position }, { -it.activeDays }, { usernames[it.userId] ?: it.userId }))
             com.pixelquest.app.darood.domain.WeekResult(partyId, weekStart, places, now)
         }
@@ -342,7 +343,7 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         SupabaseResult.Success(
             entries.filter { it.partyId == partyId }.groupBy { it.userId }.map { (user, posted) ->
                 MemberStats(partyId, user, user?.let(usernames::get), posted.sumOf { it.amount.toLong() }, posted.map { it.localDate }.distinct().size, posted.maxOf { LocalDate.parse(it.localDate) })
-            }.sortedByDescending { it.total }
+            }.sortedByDescending { it.total },
         )
     }
 }

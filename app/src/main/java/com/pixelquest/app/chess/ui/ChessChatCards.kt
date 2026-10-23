@@ -53,7 +53,7 @@ fun ChessChatCard(
     state: ChessPartyState,
     onAnswer: (String, Boolean) -> Unit,
     onNeedGame: (String) -> Unit = {},
-    onOpenGame: (String) -> Unit = {}
+    onOpenGame: (String) -> Unit = {},
 ) {
     if (token == "chess_game_started" || token == "chess_game_result") {
         androidx.compose.runtime.LaunchedEffect(refId) { onNeedGame(refId) }
@@ -66,7 +66,7 @@ fun ChessChatCard(
             .testTag(ChessChatTags.card(refId))
             .semantics(mergeDescendants = false) { }
             .comic(bg = PqColors.Paper, radius = PqDimens.Radius, shadow = 0.dp)
-            .padding(12.dp)
+            .padding(12.dp),
     ) {
         when (token) {
             "chess_open_challenge" -> {
@@ -82,11 +82,12 @@ fun ChessChatCard(
                 val from = state.names[challenge.fromUser]?.let { "@$it" } ?: stringResource(R.string.darood_someone)
                 Text(
                     text = stringResource(
-                        R.string.chess_chat_open_body, from,
+                        R.string.chess_chat_open_body,
+                        from,
                         stringResource(R.string.chess_minutes, challenge.timeControl.seconds / 60),
-                        stringResource(if (challenge.rated) R.string.chess_rated else R.string.chess_friendly)
+                        stringResource(if (challenge.rated) R.string.chess_rated else R.string.chess_friendly),
                     ),
-                    style = PqType.Body
+                    style = PqType.Body,
                 )
                 if (challenge.fromUser == state.me) {
                     PqButton(stringResource(R.string.chess_chat_cancel), onClick = { onAnswer(refId, false) }, style = PqButtonStyle.Secondary, enabled = !state.sending, modifier = Modifier.fillMaxWidth())
@@ -101,6 +102,16 @@ fun ChessChatCard(
                 val to = challenge?.toUser?.let { id -> state.names[id]?.let { "@$it" } } ?: stringResource(R.string.darood_someone)
                 CardTitle(stringResource(R.string.chess_chat_sent_title))
                 Text(text = challenge?.let { stringResource(R.string.chess_chat_sent_body, from, to, stringResource(R.string.chess_minutes, it.timeControl.seconds / 60)) } ?: stringResource(R.string.chess_chat_open_gone), style = PqType.Body)
+                if (challenge != null && challenge.status == ChallengeStatus.OPEN) {
+                    if (challenge.fromUser.equals(state.me, ignoreCase = true)) {
+                        PqButton(stringResource(R.string.chess_chat_cancel), onClick = { onAnswer(refId, false) }, style = PqButtonStyle.Secondary, enabled = !state.sending, modifier = Modifier.fillMaxWidth())
+                    } else if (challenge.toUser?.equals(state.me, ignoreCase = true) == true) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                            PqButton(stringResource(R.string.chess_decline), onClick = { onAnswer(refId, false) }, style = PqButtonStyle.Secondary, enabled = !state.sending, modifier = Modifier.weight(1f))
+                            PqButton(stringResource(R.string.chess_accept), onClick = { onAnswer(refId, true) }, enabled = !state.sending, modifier = Modifier.weight(1f).testTag(ChessChatTags.accept(refId)))
+                        }
+                    }
+                }
             }
             "chess_game_started", "chess_game_result" -> {
                 val game = state.games[refId] ?: state.liveGames.firstOrNull { it.id == refId }
@@ -110,7 +121,9 @@ fun ChessChatCard(
                     CardTitle(stringResource(R.string.chess_chat_started_title))
                     Text(text = stringResource(R.string.chess_live_players, white, black), style = PqType.Body)
                     if (game == null || game.status.live) {
-                        PqButton(stringResource(R.string.chess_watch), onClick = { onOpenGame(refId) }, style = PqButtonStyle.Secondary, modifier = Modifier.fillMaxWidth().testTag(ChessChatTags.watch(refId)))
+                        val isPlayer = state.me != null && game != null && (game.whiteId.equals(state.me, ignoreCase = true) || game.blackId.equals(state.me, ignoreCase = true))
+                        val btnText = if (isPlayer) stringResource(R.string.chess_play) else stringResource(R.string.chess_watch)
+                        PqButton(btnText, onClick = { onOpenGame(refId) }, style = PqButtonStyle.Secondary, modifier = Modifier.fillMaxWidth().testTag(ChessChatTags.watch(refId)))
                     }
                 } else {
                     CardTitle(stringResource(R.string.chess_chat_result_title))
@@ -121,7 +134,7 @@ fun ChessChatCard(
                             com.pixelquest.app.chess.domain.GameResult.DRAW -> stringResource(R.string.chess_chat_drew, white, black)
                             null -> stringResource(R.string.chess_live_players, white, black)
                         },
-                        style = PqType.BodyStrong
+                        style = PqType.BodyStrong,
                     )
                     game?.reason?.let { Text(text = reasonText(it), style = PqType.Meta) }
                 }

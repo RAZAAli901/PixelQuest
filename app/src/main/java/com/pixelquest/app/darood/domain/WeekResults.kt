@@ -16,7 +16,7 @@ data class WeekPlace(val userId: String, val position: Int, val weekTotal: Long,
 data class WeekResult(val partyId: String, val weekStart: LocalDate, val places: List<WeekPlace>, val closedAt: Instant) {
     val members: Int get() = places.size
 
-    fun placeOf(userId: String?): WeekPlace? = places.firstOrNull { it.userId == userId }
+    fun placeOf(userId: String?): WeekPlace? = places.firstOrNull { it.userId.equals(userId, ignoreCase = true) }
 
     /** The lowest place anyone holds that week: everyone on it is "last" (ties included). */
     val lastPosition: Int get() = places.maxOfOrNull { it.position } ?: 0
@@ -41,10 +41,14 @@ object DaroodWeeks {
 enum class WeekTone {
     /** First (alone or tied) with Darood to show for it. */
     TOP,
+
     /** Last place, or no Darood that week: an encouraging line. */
     ENCOURAGE,
+
     /** Anywhere between: no extra line. */
-    NONE;
+    NONE,
+
+    ;
 
     companion object {
         fun of(week: WeekResult, userId: String): WeekTone? {

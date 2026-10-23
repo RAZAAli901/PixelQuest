@@ -1,14 +1,6 @@
 package com.pixelquest.app.chess.ui
 
-import com.pixelquest.app.ui.motion.IntDeltaChip
-import com.pixelquest.app.ui.motion.RewardBurst
-import com.pixelquest.app.ui.motion.RollingNumber
-import com.pixelquest.app.ui.motion.cellFlash
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,11 +11,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Replay
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -42,6 +38,10 @@ import com.pixelquest.app.chess.domain.ResultReason
 import com.pixelquest.app.chess.domain.outcomeFor
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.comic
+import com.pixelquest.app.ui.motion.IntDeltaChip
+import com.pixelquest.app.ui.motion.RewardBurst
+import com.pixelquest.app.ui.motion.RollingNumber
+import com.pixelquest.app.ui.motion.cellFlash
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
@@ -69,7 +69,7 @@ fun reasonText(reason: ResultReason?): String = stringResource(
         ResultReason.ABORTED -> R.string.chess_reason_aborted
         ResultReason.TIMEOUT_VS_INSUFFICIENT -> R.string.chess_reason_timeout_draw
         null -> R.string.chess_reason_aborted
-    }
+    },
 )
 
 /**
@@ -78,7 +78,13 @@ fun reasonText(reason: ResultReason?): String = stringResource(
  * marked +1, and Rematch as the one main action. Someone watching sees the result only.
  */
 @Composable
-fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Unit, celebrate: Boolean = false) {
+fun GameOverCard(
+    game: ChessGame,
+    state: ChessSessionState,
+    onRematch: () -> Unit,
+    onAcceptRematch: () -> Unit = {},
+    celebrate: Boolean = false,
+) {
     val me = state.me
     val outcome = me?.let { game.outcomeFor(it) }
     val title = when {
@@ -97,7 +103,7 @@ fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Uni
             .padding(horizontal = 6.dp)
             .testTag(GameOverTags.CARD)
             .comic(bg = if (outcome == Outcome.WIN) PqColors.Gold else PqColors.Paper, radius = PqDimens.RadiusLg, shadow = PqDimens.Shadow)
-            .padding(14.dp)
+            .padding(14.dp),
     ) {
         // A win, just now: the title bursts (M06).
         RewardBurst(trigger = if (celebrate && outcome == Outcome.WIN) 1 else 0) {
@@ -118,7 +124,7 @@ fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Uni
                 change != null -> IntDeltaChip(
                     stringResource(R.string.chess_over_change, if (change >= 0) "+$change" else "\u2212${-change}"),
                     good = change >= 0,
-                    modifier = Modifier.testTag(GameOverTags.CHANGE)
+                    modifier = Modifier.testTag(GameOverTags.CHANGE),
                 )
             }
             val now = state.points[me]
@@ -133,13 +139,22 @@ fun GameOverCard(game: ChessGame, state: ChessSessionState, onRematch: () -> Uni
         val record = state.headToHead.firstOrNull { it.timeControl == null }
         if (record != null && outcome != null) RecordCells(record, outcome, state.names[record.them], celebrate)
         if (outcome != null) {
-            PqButton(
-                text = stringResource(if (state.rematchSent) R.string.chess_rematch_sent else R.string.chess_rematch),
-                onClick = onRematch,
-                icon = Icons.Rounded.Replay,
-                enabled = !state.rematchSent,
-                modifier = Modifier.fillMaxWidth().testTag(GameOverTags.REMATCH)
-            )
+            if (state.incomingRematchChallenge != null) {
+                PqButton(
+                    text = stringResource(R.string.chess_accept_rematch),
+                    onClick = onAcceptRematch,
+                    icon = Icons.Rounded.Replay,
+                    modifier = Modifier.fillMaxWidth().testTag(GameOverTags.REMATCH),
+                )
+            } else {
+                PqButton(
+                    text = stringResource(if (state.rematchSent) R.string.chess_rematch_sent else R.string.chess_rematch),
+                    onClick = onRematch,
+                    icon = Icons.Rounded.Replay,
+                    enabled = !state.rematchSent,
+                    modifier = Modifier.fillMaxWidth().testTag(GameOverTags.REMATCH),
+                )
+            }
         }
     }
 }
@@ -150,19 +165,24 @@ private fun RecordCells(record: HeadToHead, outcome: Outcome, them: String?, cel
     val cells = listOf(
         Triple(record.myWins, stringResource(R.string.chess_record_you), outcome == Outcome.WIN),
         Triple(record.draws, stringResource(R.string.chess_record_draws), outcome == Outcome.DRAW),
-        Triple(record.theirWins, (them ?: stringResource(R.string.chess_record_them)).uppercase(), outcome == Outcome.LOSS)
+        Triple(record.theirWins, (them ?: stringResource(R.string.chess_record_them)).uppercase(), outcome == Outcome.LOSS),
     )
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .testTag(GameOverTags.RECORD)
-            .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
+            .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp),
     ) {
         cells.forEachIndexed { i, (value, label, up) ->
             // The cell this game added to rolls up from its old count and flashes (C07).
             var shown by remember(value) { mutableIntStateOf(if (up && celebrate) value - 1 else value) }
-            LaunchedEffect(value) { if (shown != value) { kotlinx.coroutines.delay(700); shown = value } }
+            LaunchedEffect(value) {
+                if (shown != value) {
+                    kotlinx.coroutines.delay(700)
+                    shown = value
+                }
+            }
             Box(Modifier.weight(1f).background(if (i == 0) PqColors.Gold else PqColors.Paper).cellFlash(up && celebrate).padding(10.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     RollingNumber(shown, PqType.display(34), format = { it.toString() })

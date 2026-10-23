@@ -50,7 +50,13 @@ AS $$
         WHERE m.party_id = party AND m.status = 'active'
         GROUP BY m.user_id
     )
-    SELECT t.user_id, (rank() OVER (ORDER BY t.week_total DESC))::INTEGER, t.week_total, t.active_days
+    SELECT t.user_id,
+           CASE
+               WHEN t.week_total = 0 THEN (SELECT count(*)::INTEGER FROM totals)
+               ELSE (rank() OVER (PARTITION BY (t.week_total > 0) ORDER BY t.week_total DESC))::INTEGER
+           END AS "position",
+           t.week_total,
+           t.active_days
     FROM totals t
     ORDER BY 2, t.active_days DESC;
 $$;

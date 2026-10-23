@@ -54,7 +54,7 @@ data class MyStats(val total: Long, val share: Double?, val place: Int?, val pos
 
 /** The player's numbers from the party's members' totals ([MemberStats]) and its total. */
 fun myStatsOf(stats: List<MemberStats>, partyTotal: Long, me: String?): MyStats {
-    val mine = stats.firstOrNull { me != null && it.userId == me }?.total ?: 0
+    val mine = stats.firstOrNull { me != null && it.userId.equals(me, ignoreCase = true) }?.total ?: 0
     val posters = stats.count { it.total > 0 }
     // Competition ranking: one more than how many have more (1, 2, 2, 4).
     val place = if (mine > 0) stats.count { it.total > mine } + 1 else null
@@ -80,7 +80,7 @@ fun MyStatsSheet(
     stats: MyStats,
     consistency: com.pixelquest.app.darood.domain.Consistency? = null,
     board: PartyBoard? = null,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     PqSheet(onDismiss) {
         Column(
@@ -88,12 +88,12 @@ fun MyStatsSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .testTag(DaroodTestTags.CHAT_MY_STATS)
+                .testTag(DaroodTestTags.CHAT_MY_STATS),
         ) {
             Text(
                 text = stringResource(R.string.darood_stats_title).uppercase(),
                 style = PqType.Title.copy(color = PqColors.Title),
-                modifier = Modifier.semantics { heading() }
+                modifier = Modifier.semantics { heading() },
             )
             if (stats.total == 0L) {
                 Text(text = stringResource(R.string.darood_stats_none), style = PqType.Body)
@@ -113,7 +113,7 @@ fun MyStatsSheet(
                         stringResource(R.string.darood_stats_active_value, steady.activeLast30),
                         stringResource(R.string.darood_stats_active_days),
                         PqColors.Sky,
-                        Modifier.weight(1f)
+                        Modifier.weight(1f),
                     )
                     SteadyTile(steady.currentStreak.toString(), stringResource(R.string.darood_stats_current_streak), PqColors.Gold, Modifier.weight(1f))
                     SteadyTile(steady.bestStreak.toString(), stringResource(R.string.darood_stats_best_streak), PqColors.Paper, Modifier.weight(1f))
@@ -138,7 +138,7 @@ private fun StatGrid(cells: List<Pair<String, String>>) {
                         Column(
                             Modifier
                                 .padding(horizontal = 12.dp, vertical = 10.dp)
-                                .semantics(mergeDescendants = true) { }
+                                .semantics(mergeDescendants = true) { },
                         ) {
                             Text(text = value, style = PqType.Number)
                             Text(text = label, style = PqType.Meta)
@@ -160,7 +160,7 @@ private fun SteadyTile(value: String, label: String, bg: Color, modifier: Modifi
         modifier
             .comic(bg = bg, radius = 10.dp, border = PqDimens.BorderThin, shadow = 0.dp)
             .padding(horizontal = 10.dp, vertical = 8.dp)
-            .semantics(mergeDescendants = true) { }
+            .semantics(mergeDescendants = true) { },
     ) {
         Text(text = value, style = PqType.Number)
         Text(text = label, style = PqType.Meta.copy(color = PqColors.Ink))
@@ -180,7 +180,7 @@ fun ConsistencyCalendar(consistency: com.pixelquest.app.darood.domain.Consistenc
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier
             .testTag(DaroodTestTags.CHAT_CALENDAR)
-            .clearAndSetSemantics { contentDescription = said }
+            .clearAndSetSemantics { contentDescription = said },
     ) {
         days.chunked(CALENDAR_ROW).forEach { week ->
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -193,7 +193,7 @@ fun ConsistencyCalendar(consistency: com.pixelquest.app.darood.domain.Consistenc
                             .aspectRatio(1f)
                             .clip(shape)
                             .background(if (posted) PqColors.Red else PqColors.Sunken)
-                            .then(if (posted) Modifier.border(2.dp, PqColors.Ink, shape) else Modifier)
+                            .then(if (posted) Modifier.border(2.dp, PqColors.Ink, shape) else Modifier),
                     )
                 }
             }

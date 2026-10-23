@@ -67,6 +67,8 @@
     <string name="chess_record_them">THEM</string>
     <string name="chess_rematch">Rematch</string>
     <string name="chess_rematch_sent">Rematch sent</string>
+    <string name="chess_accept_rematch">Accept Rematch</string>
+    <string name="chess_play">Play</string>
     <string name="chess_challenge_title">Challenge</string>
     <string name="chess_challenge_who">Who</string>
     <string name="chess_challenge_room">Anyone</string>

@@ -1,25 +1,30 @@
 package com.pixelquest.app.darood.data
 
-import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.data.local.DaroodDao
 import com.pixelquest.app.darood.data.local.DaroodEntryEntity
-import com.pixelquest.app.party.data.local.PartyEntity
+import com.pixelquest.app.darood.data.local.DaroodWeekResultEntity
 import com.pixelquest.app.darood.data.local.PendingEntryEntity
 import com.pixelquest.app.darood.data.remote.DaroodAccount
 import com.pixelquest.app.darood.data.remote.DaroodPartyRemoteDataSource
+import com.pixelquest.app.darood.data.remote.map
 import com.pixelquest.app.darood.domain.DaroodEntry
 import com.pixelquest.app.darood.domain.DaroodRefusal
 import com.pixelquest.app.darood.domain.DaroodRules
+import com.pixelquest.app.darood.domain.DaroodWeeks
+import com.pixelquest.app.darood.domain.DayTotals
 import com.pixelquest.app.darood.domain.EntryState
 import com.pixelquest.app.darood.domain.MemberStats
-import com.pixelquest.app.darood.domain.DaroodWeeks
-import com.pixelquest.app.darood.domain.WeekResult
 import com.pixelquest.app.darood.domain.WeekPlace
-import com.pixelquest.app.darood.data.local.DaroodWeekResultEntity
-import com.pixelquest.app.party.domain.Party
+import com.pixelquest.app.darood.domain.WeekResult
 import com.pixelquest.app.darood.sync.DaroodLiveSource
 import com.pixelquest.app.darood.sync.DaroodSyncScheduler
 import com.pixelquest.app.darood.sync.PartyChange
+import com.pixelquest.app.data.remote.SupabaseResult
+import com.pixelquest.app.party.data.PartyRepository
+import com.pixelquest.app.party.data.PartyRepositoryImpl
+import com.pixelquest.app.party.data.local.PartyEntity
+import com.pixelquest.app.party.domain.PartyType
+import com.pixelquest.app.party.sync.PartyLiveSource
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -31,23 +36,19 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.Instant
-import com.pixelquest.app.darood.data.remote.map
 import java.time.LocalDate
-import com.pixelquest.app.darood.domain.DayTotals
 import java.time.ZoneId
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.pixelquest.app.party.domain.PartyType
-import com.pixelquest.app.party.data.PartyRepository
-import com.pixelquest.app.party.data.PartyRepositoryImpl
-import com.pixelquest.app.party.sync.PartyLiveSource
 
 /**
  * Darood Parties for the screens (docs/darood-design.md): every party's calls ([PartyRepository]),
  * and Darood's own ([DaroodRepository]), as one.
  */
-interface DaroodPartyRepository : PartyRepository, DaroodRepository
+interface DaroodPartyRepository :
+    PartyRepository,
+    DaroodRepository
 
 /**
  * What a [DaroodPartyRepository.sendPending] did: [sent] reached the server, [refused] were turned
@@ -69,8 +70,9 @@ class DaroodPartyRepositoryImpl(
     private val live: DaroodLiveSource? = null,
     private val numbersDelayMs: Long = NUMBERS_DELAY_MS,
     private val catchUpDelayMs: Long = CATCH_UP_DELAY_MS,
-    partyLive: PartyLiveSource? = null
-) : PartyRepositoryImpl(remote, dao, now, partyLive, account::id), DaroodPartyRepository {
+    partyLive: PartyLiveSource? = null,
+) : PartyRepositoryImpl(remote, dao, now, partyLive, account::id),
+    DaroodPartyRepository {
 
     @Inject
     constructor(
@@ -79,7 +81,7 @@ class DaroodPartyRepositoryImpl(
         account: DaroodAccount,
         syncScheduler: DaroodSyncScheduler,
         live: DaroodLiveSource,
-        partyLive: PartyLiveSource
+        partyLive: PartyLiveSource,
     ) : this(remote, dao, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler, live, partyLive = partyLive)
 
     override fun observeMemberStats(partyId: String): Flow<List<MemberStats>> =
@@ -138,9 +140,12 @@ class DaroodPartyRepositoryImpl(
     /** Closed weeks never change on the server, so what's read is kept as it is. */
     private suspend fun cached(partyId: String, read: SupabaseResult<List<WeekResult>>): SupabaseResult<List<WeekResult>> {
         if (read is SupabaseResult.Success) {
-            dao.upsertWeekResultsIfKept(partyId, read.data.flatMap { week ->
-                week.places.map { DaroodWeekResultEntity(partyId, week.weekStart, it.userId, it.position, it.weekTotal, it.activeDays, week.closedAt.toEpochMilli()) }
-            })
+            dao.upsertWeekResultsIfKept(
+                partyId,
+                read.data.flatMap { week ->
+                    week.places.map { DaroodWeekResultEntity(partyId, week.weekStart, it.userId, it.position, it.weekTotal, it.activeDays, week.closedAt.toEpochMilli()) }
+                },
+            )
         }
         return read
     }
@@ -155,7 +160,7 @@ class DaroodPartyRepositoryImpl(
             amount = amount,
             localDate = Instant.ofEpochMilli(at).atZone(here).toLocalDate(),
             tz = here.id,
-            createdAt = at
+            createdAt = at,
         )
         dao.insertPending(pending)
         // Couldn't go now: the sync worker sends it once there's a connection.
@@ -169,6 +174,7 @@ class DaroodPartyRepositoryImpl(
         var sent = 0
         var refused = 0
         val waiting = dao.pendingToSend()
+        val affectedParties = mutableSetOf<String>()
         for ((index, entry) in waiting.withIndex()) {
             dao.countAttempt(entry.clientId)
             // Sent with its own key: if a send arrived but its answer didn't, this one gets it back.
@@ -176,12 +182,16 @@ class DaroodPartyRepositoryImpl(
                 is SupabaseResult.Success -> {
                     dao.confirmSent(entry.clientId, result.data.toEntity().copy(clientId = entry.clientId))
                     sent++
+                    affectedParties.add(entry.partyId)
                 }
                 else -> {
                     val refusal = DaroodRefusal.of(result)
                     if (refusal == null) {
                         // No connection, or signed out: this one and the rest wait, in order.
-                        if (sent > 0) refreshParties()
+                        if (sent > 0) {
+                            refreshParties()
+                            affectedParties.forEach { refreshParty(it) }
+                        }
                         return SendReport(sent, refused, waiting.size - index)
                     }
                     dao.setPendingState(entry.clientId, EntryState.FAILED, refusal.token.ifEmpty { (result as SupabaseResult.ServerError).message })
@@ -189,7 +199,10 @@ class DaroodPartyRepositoryImpl(
                 }
             }
         }
-        if (sent > 0) refreshParties()
+        if (sent > 0) {
+            refreshParties()
+            affectedParties.forEach { refreshParty(it) }
+        }
         return SendReport(sent, refused, 0)
     }
 
@@ -216,7 +229,12 @@ class DaroodPartyRepositoryImpl(
         val source = live ?: return@channelFlow
         // A busy party posts often: its numbers refresh once the entries pause, not after each.
         val numbersChanged = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-        launch { numbersChanged.debounce(numbersDelayMs).collect { refreshParties() } }
+        launch {
+            numbersChanged.debounce(numbersDelayMs).collect {
+                refreshParties()
+                refreshParty(partyId)
+            }
+        }
         source.changes(partyId).collect { change ->
             when (change) {
                 is PartyChange.EntryAdded -> {
@@ -264,7 +282,6 @@ class DaroodPartyRepositoryImpl(
         return this
     }
 
-
     /** A Darood Party refreshing brings its newest entries too, once its members are in. */
     override suspend fun refreshOwn(party: PartyEntity): SupabaseResult<Unit> {
         if (party.partyType != PartyType.DAROOD) return SupabaseResult.Success(Unit)
@@ -300,7 +317,7 @@ internal fun DaroodEntry.toEntity() = DaroodEntryEntity(
     localDate = localDate,
     tz = tz,
     createdAt = createdAt.toEpochMilli(),
-    clientId = clientId
+    clientId = clientId,
 )
 
 internal fun DaroodEntryEntity.toDomain() = DaroodEntry(
@@ -312,7 +329,7 @@ internal fun DaroodEntryEntity.toDomain() = DaroodEntry(
     localDate = localDate,
     tz = tz,
     createdAt = Instant.ofEpochMilli(createdAt),
-    state = EntryState.SYNCED
+    state = EntryState.SYNCED,
 )
 
 internal fun PendingEntryEntity.toDomain(me: String?) = DaroodEntry(
@@ -325,6 +342,5 @@ internal fun PendingEntryEntity.toDomain(me: String?) = DaroodEntry(
     tz = tz,
     createdAt = Instant.ofEpochMilli(createdAt),
     state = state,
-    refusal = refusal
+    refusal = refusal,
 )
-

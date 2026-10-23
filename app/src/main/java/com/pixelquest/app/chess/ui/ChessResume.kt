@@ -28,13 +28,19 @@ import javax.inject.Inject
  * it opens again, once. The game was the server's all along, clocks included.
  */
 @HiltViewModel
-class ChessResumeViewModel @Inject constructor(chess: ChessRepository) : ViewModel() {
+class ChessResumeViewModel @Inject constructor(private val chess: ChessRepository) : ViewModel() {
     private val _game = MutableStateFlow<String?>(null)
     val game: StateFlow<String?> = _game
 
     init {
+        checkLiveGame()
+    }
+
+    fun checkLiveGame() {
         viewModelScope.launch {
-            (chess.myLiveGame() as? SupabaseResult.Success)?.data?.let { _game.value = it.id }
+            (chess.myLiveGame() as? SupabaseResult.Success)?.data?.let {
+                if (it.status.live) _game.value = it.id
+            }
         }
     }
 
@@ -59,19 +65,32 @@ fun KeepScreenOn(on: Boolean) {
  * the server, so the game can be opened again from the party.
  */
 @Composable
-fun LeaveGameGuard(playing: Boolean, onLeave: () -> Unit) {
-    var asking by rememberSaveable { mutableStateOf(false) }
-    BackHandler(enabled = playing) { asking = true }
-    if (asking) {
+fun LeaveGameGuard(
+    playing: Boolean,
+    asking: Boolean = false,
+    onAskingChange: (Boolean) -> Unit = {},
+    onLeave: () -> Unit,
+) {
+    var localAsking by rememberSaveable { mutableStateOf(false) }
+    val show = asking || localAsking
+    BackHandler(enabled = playing) {
+        localAsking = true
+        onAskingChange(true)
+    }
+    if (show) {
         PqConfirmDialog(
             title = stringResource(R.string.chess_leave_title),
             message = stringResource(R.string.chess_leave_message),
             confirm = stringResource(R.string.chess_leave),
             onConfirm = {
-                asking = false
+                localAsking = false
+                onAskingChange(false)
                 onLeave()
             },
-            onDismiss = { asking = false }
+            onDismiss = {
+                localAsking = false
+                onAskingChange(false)
+            },
         )
     }
 }

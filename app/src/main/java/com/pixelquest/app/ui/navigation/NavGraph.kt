@@ -36,7 +36,8 @@ fun PixelNavHost(
     val current by navController.currentBackStackEntryAsState()
     LaunchedEffect(resumeGame, current?.destination?.route) {
         val game = resumeGame ?: return@LaunchedEffect
-        if (current?.destination?.route == Screen.Home.route) {
+        val dest = current?.destination?.route
+        if (dest != null && !dest.startsWith("chess/game/") && dest != Screen.Splash.route && dest != Screen.Onboarding.route) {
             resume.opened()
             navController.navigate(Screen.ChessGame.createRoute(game)) { launchSingleTop = true }
         }

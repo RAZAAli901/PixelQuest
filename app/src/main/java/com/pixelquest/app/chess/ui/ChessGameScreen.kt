@@ -13,6 +13,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -21,25 +24,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.material.icons.automirrored.rounded.Logout
-import androidx.compose.material.icons.rounded.SkipNext
-import androidx.compose.material.icons.rounded.SwapVert
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pixelquest.app.ui.motion.trayBump
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.liveRegion
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.chess.domain.ChessColour
 import com.pixelquest.app.chess.domain.ChessGame
 import com.pixelquest.app.chess.domain.ClockSync
 import com.pixelquest.app.ui.components.PqIconButton
+import com.pixelquest.app.ui.motion.trayBump
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqType
 
@@ -67,7 +67,8 @@ data class ChessGameActions(
     val onOfferDraw: () -> Unit = {},
     val onAnswerDraw: (Boolean) -> Unit = {},
     val onRematch: () -> Unit = {},
-    val onNextGame: () -> Unit = {}
+    val onAcceptRematch: () -> Unit = {},
+    val onNextGame: () -> Unit = {},
 )
 
 @Composable
@@ -76,8 +77,9 @@ fun ChessGameRoute(onNavigateBack: () -> Unit, onOpenGame: (String) -> Unit = {}
     val prefs by viewModel.prefs.collectAsState()
     // A player's live game: the screen stays on, and Back asks first (J163).
     val playing = state.game?.status?.live == true && state.myColour != null
+    var askingLeave by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     KeepScreenOn(playing)
-    LeaveGameGuard(playing, onLeave = onNavigateBack)
+    LeaveGameGuard(playing, asking = askingLeave, onAskingChange = { askingLeave = it }, onLeave = onNavigateBack)
     // Sounds and haptics for each move and the end (J161).
     val view = androidx.compose.ui.platform.LocalView.current
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
@@ -86,6 +88,7 @@ fun ChessGameRoute(onNavigateBack: () -> Unit, onOpenGame: (String) -> Unit = {}
             when (event) {
                 is ChessSessionEvent.Moved -> ChessFeedback.play(ChessFeedback.cueOf(event.move), view, haptic, viewModel.prefs.value.sounds)
                 is ChessSessionEvent.Ended -> ChessFeedback.play(ChessCue.END, view, haptic, viewModel.prefs.value.sounds)
+                is ChessSessionEvent.NextGame -> onOpenGame(event.gameId)
                 else -> Unit
             }
         }
@@ -95,14 +98,15 @@ fun ChessGameRoute(onNavigateBack: () -> Unit, onOpenGame: (String) -> Unit = {}
         sync = viewModel.clockSync,
         prefs = prefs,
         actions = ChessGameActions(
-            onBack = onNavigateBack,
+            onBack = { if (playing) askingLeave = true else onNavigateBack() },
             onMove = viewModel::move,
             onResign = { viewModel.resign() },
             onOfferDraw = { viewModel.offerDraw() },
             onAnswerDraw = { viewModel.answerDraw(it) },
             onRematch = viewModel::rematch,
-            onNextGame = { viewModel.nextLiveGame()?.let(onOpenGame) }
-        )
+            onAcceptRematch = viewModel::acceptRematch,
+            onNextGame = { viewModel.nextLiveGame()?.let(onOpenGame) },
+        ),
     )
 }
 
@@ -125,7 +129,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
             .background(PqColors.Ground)
             .testTag(ChessGameTags.SCREEN)
             .verticalScroll(rememberScrollState())
-            .padding(start = 10.dp, end = 10.dp, top = 4.dp, bottom = 12.dp)
+            .padding(start = 10.dp, end = 10.dp, top = 4.dp, bottom = 12.dp),
     ) {
         GameTopBar(game, state, actions.onBack)
         // The live connection dropped (J162): the game goes on, on the server; this comes back by itself.
@@ -138,7 +142,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
                     .testTag(ChessGameTags.RECONNECTING)
                     .semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite }
                     .background(PqColors.Gold)
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
             )
         }
         if (game == null) {
@@ -164,17 +168,25 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
             autoQueen = prefs.autoQueen,
             animate = prefs.animate,
             bullet = game.timeControl == com.pixelquest.app.chess.domain.TimeControl.ONE,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
         Player(game, state, bottomColour, now, sync)
         confirming?.let { uci ->
-            ConfirmMove(uci, onConfirm = { confirming = null; actions.onMove(uci) }, onCancel = { confirming = null })
+            ConfirmMove(uci, onConfirm = {
+                confirming = null
+                actions.onMove(uci)
+            }, onCancel = { confirming = null })
         }
         MoveList(state.moves)
         // The last move, said by TalkBack as it comes (J165): "White knight to f3".
         state.moves.lastOrNull()?.let { last ->
             val said = moveSaid(last)
-            Box(Modifier.testTag(ChessGameTags.SAID).semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite; contentDescription = said }) {}
+            Box(
+                Modifier.testTag(ChessGameTags.SAID).semantics {
+                    liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
+                    contentDescription = said
+                },
+            ) {}
         }
         if (!state.spectating && game.status.live) GameActions(state, actions)
         if (state.spectating) SpectatorActions(onLeave = actions.onBack, onNext = actions.onNextGame, onFlip = { watcherFlipped = !watcherFlipped })
@@ -191,7 +203,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
                 reveal = true
             }
         }
-        if (!game.status.live && reveal) GameOverCard(game, state, actions.onRematch, celebrate = sawLive && prefs.animate)
+        if (!game.status.live && reveal) GameOverCard(game, state, actions.onRematch, actions.onAcceptRematch, celebrate = sawLive && prefs.animate)
     }
 }
 
@@ -217,11 +229,11 @@ internal fun Captured(pieces: List<Char>, lead: Int, colour: ChessColour) {
         modifier = Modifier
             .testTag(ChessGameTags.captured(colour))
             .trayBump(pieces.size)
-            .semantics(mergeDescendants = true) { contentDescription = said }
+            .semantics(mergeDescendants = true) { contentDescription = said },
     ) {
         Text(
             text = pieces.joinToString("") { ChessLook.glyph(it) },
-            style = androidx.compose.ui.text.TextStyle(fontSize = 15.sp, lineHeight = 16.sp, color = PqColors.Ink2)
+            style = androidx.compose.ui.text.TextStyle(fontSize = 15.sp, lineHeight = 16.sp, color = PqColors.Ink2),
         )
         if (lead > 0) Text(text = "+$lead", style = PqType.MetaStrong)
     }
@@ -232,7 +244,7 @@ private fun GameTopBar(game: ChessGame?, state: ChessSessionState, onBack: () ->
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 6.dp)
+        modifier = Modifier.fillMaxWidth().height(40.dp).padding(horizontal = 6.dp),
     ) {
         PqIconButton(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.chess_back), onBack)
         if (state.spectating) {
@@ -242,13 +254,13 @@ private fun GameTopBar(game: ChessGame?, state: ChessSessionState, onBack: () ->
                 modifier = Modifier
                     .testTag(ChessGameTags.SPECTATING)
                     .background(PqColors.Red)
-                    .padding(horizontal = 8.dp, vertical = 5.dp)
+                    .padding(horizontal = 8.dp, vertical = 5.dp),
             )
         }
         Text(
             text = game?.let { kickerOf(it) }.orEmpty(),
             style = PqType.MetaStrong,
-            modifier = Modifier.weight(1f).testTag(ChessGameTags.KICKER)
+            modifier = Modifier.weight(1f).testTag(ChessGameTags.KICKER),
         )
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp), modifier = Modifier.testTag(ChessGameTags.WATCHERS)) {
             Icon(Icons.Rounded.Visibility, contentDescription = stringResource(R.string.chess_watching_said, state.watchers), tint = PqColors.Ink)
@@ -262,7 +274,7 @@ private fun GameTopBar(game: ChessGame?, state: ChessSessionState, onBack: () ->
 fun kickerOf(game: ChessGame): String = stringResource(
     R.string.chess_game_kicker,
     game.timeControl.seconds / 60,
-    stringResource(if (game.rated) R.string.chess_rated else R.string.chess_friendly)
+    stringResource(if (game.rated) R.string.chess_rated else R.string.chess_friendly),
 ).uppercase()
 
 /** Watching (J155), as the design's spectate screen: Leave, Next live game, and Flip board. */
@@ -281,7 +293,7 @@ private fun ConfirmMove(uci: String, onConfirm: () -> Unit, onCancel: () -> Unit
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp).testTag(ChessGameTags.CONFIRM)
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp).testTag(ChessGameTags.CONFIRM),
     ) {
         Text(text = stringResource(R.string.chess_confirm_move, uci.substring(0, 2) + "-" + uci.substring(2)), style = PqType.BodyStrong, modifier = Modifier.weight(1f))
         com.pixelquest.app.ui.components.PqButton(stringResource(R.string.pq_cancel), onClick = onCancel, style = com.pixelquest.app.ui.components.PqButtonStyle.Secondary)

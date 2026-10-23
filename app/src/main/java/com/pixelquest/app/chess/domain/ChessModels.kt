@@ -7,7 +7,11 @@ import java.time.Instant
 
 /** The time controls the server allows (chess_config): minutes a side, no increment. */
 enum class TimeControl(val seconds: Int) {
-    ONE(60), THREE(180), FIVE(300), TEN(600);
+    ONE(60),
+    THREE(180),
+    FIVE(300),
+    TEN(600),
+    ;
 
     val millis: Long get() = seconds * 1_000L
 
@@ -20,7 +24,10 @@ enum class ChessColour { WHITE, BLACK }
 
 /** The colour a challenger asks for. */
 enum class ColourChoice(val wire: String) {
-    WHITE("white"), BLACK("black"), RANDOM("random");
+    WHITE("white"),
+    BLACK("black"),
+    RANDOM("random"),
+    ;
 
     companion object {
         fun of(wire: String?): ColourChoice = entries.firstOrNull { it.wire == wire } ?: RANDOM
@@ -32,7 +39,8 @@ enum class GameStatus(val wire: String) {
     WAITING("waiting"),
     ACTIVE("active"),
     FINISHED("finished"),
-    ABORTED("aborted");
+    ABORTED("aborted"),
+    ;
 
     val live: Boolean get() = this == WAITING || this == ACTIVE
 
@@ -42,7 +50,10 @@ enum class GameStatus(val wire: String) {
 }
 
 enum class GameResult(val wire: String) {
-    WHITE("white"), BLACK("black"), DRAW("draw");
+    WHITE("white"),
+    BLACK("black"),
+    DRAW("draw"),
+    ;
 
     companion object {
         fun of(wire: String?): GameResult? = entries.firstOrNull { it.wire == wire }
@@ -59,7 +70,8 @@ enum class ResultReason(val wire: String) {
     FIFTY_MOVES("fifty_moves"),
     DRAW_AGREED("draw_agreed"),
     ABORTED("aborted"),
-    TIMEOUT_VS_INSUFFICIENT("timeout_vs_insufficient");
+    TIMEOUT_VS_INSUFFICIENT("timeout_vs_insufficient"),
+    ;
 
     companion object {
         fun of(wire: String?): ResultReason? = entries.firstOrNull { it.wire == wire }
@@ -94,17 +106,18 @@ data class ChessGame(
     /** Whether it counted for ratings (rated, and not farmed). */
     val ratingApplied: Boolean = false,
     /** How many members asked to watch it lately (the live games list's count). */
-    val watchers: Int = 0
+    val watchers: Int = 0,
 ) {
-    fun colourOf(userId: String?): ChessColour? = when (userId) {
-        whiteId -> ChessColour.WHITE
-        blackId -> ChessColour.BLACK
+    fun colourOf(userId: String?): ChessColour? = when {
+        userId == null -> null
+        userId.equals(whiteId, ignoreCase = true) -> ChessColour.WHITE
+        userId.equals(blackId, ignoreCase = true) -> ChessColour.BLACK
         else -> null
     }
 
-    fun opponentOf(userId: String): String? = when (userId) {
-        whiteId -> blackId
-        blackId -> whiteId
+    fun opponentOf(userId: String): String? = when {
+        userId.equals(whiteId, ignoreCase = true) -> blackId
+        userId.equals(blackId, ignoreCase = true) -> whiteId
         else -> null
     }
 }
@@ -118,11 +131,16 @@ data class ChessMove(
     val fenAfter: String,
     val whiteMsAfter: Long,
     val blackMsAfter: Long,
-    val createdAt: Instant
+    val createdAt: Instant,
 )
 
 enum class ChallengeStatus(val wire: String) {
-    OPEN("open"), ACCEPTED("accepted"), DECLINED("declined"), CANCELLED("cancelled"), EXPIRED("expired");
+    OPEN("open"),
+    ACCEPTED("accepted"),
+    DECLINED("declined"),
+    CANCELLED("cancelled"),
+    EXPIRED("expired"),
+    ;
 
     companion object {
         fun of(wire: String?): ChallengeStatus = entries.firstOrNull { it.wire == wire } ?: EXPIRED
@@ -142,7 +160,7 @@ data class Challenge(
     val expiresAt: Instant,
     val createdAt: Instant,
     /** The game it became, once accepted. */
-    val gameId: String? = null
+    val gameId: String? = null,
 )
 
 /** A player's Int points for one time control, and their record in it. */
@@ -154,7 +172,7 @@ data class Rating(
     val wins: Int,
     val draws: Int,
     val losses: Int,
-    val peak: Int
+    val peak: Int,
 )
 
 /** Two players' record against each other: [timeControl] null for all time controls together. */
@@ -164,7 +182,7 @@ data class HeadToHead(
     val timeControl: TimeControl?,
     val myWins: Int,
     val theirWins: Int,
-    val draws: Int
+    val draws: Int,
 ) {
     val games: Int get() = myWins + theirWins + draws
 }
@@ -205,7 +223,8 @@ fun ChessGame.millisOf(colour: ChessColour): Long = if (colour == ChessColour.WH
 fun Challenge.isAnswerable(now: java.time.Instant): Boolean = status == ChallengeStatus.OPEN && now.isBefore(expiresAt)
 
 /** Whether [userId] may take this challenge: theirs by name, or an open one that isn't their own. */
-fun Challenge.isFor(userId: String): Boolean = toUser == userId || (toUser == null && fromUser != userId)
+fun Challenge.isFor(userId: String): Boolean =
+    toUser?.equals(userId, ignoreCase = true) == true || (toUser == null && !fromUser.equals(userId, ignoreCase = true))
 
 /** The rating's tier. */
 val Rating.tier: Tier get() = ChessConfig.tierOf(points)

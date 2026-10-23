@@ -33,7 +33,7 @@ object WeekRankingText {
     /** Every ranked member, in order: "2nd  bram  3,200". The player's own is marked as theirs. */
     fun lines(context: Context, week: WeekResult, me: String, names: Map<String, String?>): List<String> =
         week.places.map { place ->
-            val who = if (place.userId == me) context.getString(R.string.darood_week_you) else names[place.userId] ?: context.getString(R.string.darood_someone)
+            val who = if (place.userId.equals(me, ignoreCase = true)) context.getString(R.string.darood_week_you) else names[place.userId] ?: names.entries.firstOrNull { it.key.equals(place.userId, ignoreCase = true) }?.value ?: context.getString(R.string.darood_someone)
             context.getString(R.string.darood_week_notif_row, ordinal(context, place.position), who, formatCount(place.weekTotal))
         }
 

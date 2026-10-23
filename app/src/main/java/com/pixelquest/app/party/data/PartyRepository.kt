@@ -1,5 +1,6 @@
 package com.pixelquest.app.party.data
 
+import com.pixelquest.app.darood.data.remote.DaroodAccount
 import com.pixelquest.app.darood.domain.MemberStats
 import com.pixelquest.app.darood.domain.PartyStats
 import com.pixelquest.app.data.remote.SupabaseResult
@@ -16,14 +17,13 @@ import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyMember
 import com.pixelquest.app.party.domain.PartyType
+import com.pixelquest.app.party.sync.PartyLiveSource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.pixelquest.app.darood.data.remote.DaroodAccount
-import com.pixelquest.app.party.sync.PartyLiveSource
-import kotlinx.coroutines.flow.channelFlow
 
 /**
  * Every party, of any kind, for the screens (docs/party-core.md): the parties the account is in or
@@ -84,7 +84,7 @@ open class PartyRepositoryImpl(
     private val dao: PartyDao,
     private val now: () -> Long,
     private val live: PartyLiveSource? = null,
-    private val accountId: () -> String? = { null }
+    private val accountId: () -> String? = { null },
 ) : PartyRepository {
 
     @Inject
@@ -135,11 +135,11 @@ open class PartyRepositoryImpl(
             else -> return result.failure()
         }
         val memberStats = when (val result = remote.fetchMemberStats(partyId)) {
-            is SupabaseResult.Success -> result.data.filter { it.userId != null }.associateBy { it.userId }
+            is SupabaseResult.Success -> result.data.filter { it.userId != null }.associateBy { it.userId?.lowercase() }
             else -> return result.failure()
         }
         // The party may have gone while these were on their way (its leader deleted it): then they're dropped.
-        if (!dao.replaceMembersIfKept(partyId, members.map { it.toEntity(memberStats[it.userId]) })) return SupabaseResult.Success(Unit)
+        if (!dao.replaceMembersIfKept(partyId, members.map { it.toEntity(memberStats[it.userId.lowercase()]) })) return SupabaseResult.Success(Unit)
         return refreshOwn(party)
     }
 
@@ -198,7 +198,7 @@ internal fun RemoteParty.toEntity(stats: PartyStats?, syncedAt: Long) = PartyEnt
     myStatus = statusOf(membership.status),
     syncedAt = syncedAt,
     isPublicRace = party.isPublicRace,
-    partyType = PartyType.fromWire(party.partyType)
+    partyType = PartyType.fromWire(party.partyType),
 )
 
 internal fun PartyEntity.toDomain() = Party(
@@ -214,7 +214,7 @@ internal fun PartyEntity.toDomain() = Party(
     memberCount = memberCount,
     myStatus = myStatus,
     isPublicRace = isPublicRace,
-    type = partyType
+    type = partyType,
 )
 
 internal fun PartyMember.toEntity(stats: MemberStats?) = PartyMemberEntity(
@@ -228,7 +228,7 @@ internal fun PartyMember.toEntity(stats: MemberStats?) = PartyMemberEntity(
     total = stats?.total ?: 0,
     activeDays = stats?.activeDays ?: 0,
     lastEntryDate = stats?.lastEntryDate,
-    statusChangedAt = statusChangedAt?.toEpochMilli()
+    statusChangedAt = statusChangedAt?.toEpochMilli(),
 )
 
 internal fun PartyMemberEntity.toDomain() = PartyMember(
@@ -239,5 +239,5 @@ internal fun PartyMemberEntity.toDomain() = PartyMember(
     status = status,
     invitedAt = invitedAt?.let(Instant::ofEpochMilli),
     joinedAt = joinedAt?.let(Instant::ofEpochMilli),
-    statusChangedAt = statusChangedAt?.let(Instant::ofEpochMilli)
+    statusChangedAt = statusChangedAt?.let(Instant::ofEpochMilli),
 )

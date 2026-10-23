@@ -53,19 +53,19 @@ fun WeeklyRankingSheet(state: WeeklyRankingState, onDismiss: () -> Unit, onSeeAl
     PqSheet(onDismiss) {
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).testTag(WeeklyRankingTags.SHEET)
+            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).testTag(WeeklyRankingTags.SHEET),
         ) {
             Text(
                 text = stringResource(R.string.darood_week_title).uppercase(),
                 style = PqType.Title.copy(color = PqColors.Title),
-                modifier = Modifier.semantics { heading() }
+                modifier = Modifier.semantics { heading() },
             )
             val week = state.latest
-            if (week == null) {
+            if (week == null || week.places.all { it.weekTotal == 0L }) {
                 Text(
                     text = stringResource(if (state.offline) R.string.darood_week_offline else R.string.darood_week_none),
                     style = PqType.Body,
-                    modifier = Modifier.testTag(WeeklyRankingTags.EMPTY)
+                    modifier = Modifier.testTag(WeeklyRankingTags.EMPTY),
                 )
             } else {
                 WeekPlaces(week, state.me, state.names)
@@ -75,7 +75,7 @@ fun WeeklyRankingSheet(state: WeeklyRankingState, onDismiss: () -> Unit, onSeeAl
                     text = stringResource(R.string.darood_week_all),
                     onClick = onSeeAll,
                     style = PqButtonStyle.Secondary,
-                    modifier = Modifier.fillMaxWidth().testTag(WeeklyRankingTags.ALL_WEEKS)
+                    modifier = Modifier.fillMaxWidth().testTag(WeeklyRankingTags.ALL_WEEKS),
                 )
             }
         }
@@ -90,15 +90,15 @@ fun WeekPlaces(week: WeekResult, me: String?, names: Map<String, String?>) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
         Text(
             text = stringResource(R.string.darood_week_dates, week.weekStart.format(dates), week.weekStart.plusDays(6).format(dates)),
-            style = PqType.Meta
+            style = PqType.Meta,
         )
         if (me != null) {
             WeekRankingText.line(context, week, me)?.let { Text(text = it, style = PqType.BodyStrong) }
             WeekRankingText.tone(context, week, me)?.let { Text(text = it, style = PqType.Body) }
         }
         week.places.forEach { place ->
-            val mine = place.userId == me
-            val name = if (mine) stringResource(R.string.darood_week_you) else names[place.userId] ?: stringResource(R.string.darood_someone)
+            val mine = place.userId.equals(me, ignoreCase = true)
+            val name = if (mine) stringResource(R.string.darood_week_you) else names[place.userId] ?: names.entries.firstOrNull { it.key.equals(place.userId, ignoreCase = true) }?.value ?: stringResource(R.string.darood_someone)
             val ordinal = WeekRankingText.ordinal(context, place.position)
             val said = stringResource(R.string.darood_week_row_said, ordinal, name, formatCount(place.weekTotal))
             Row(
@@ -109,7 +109,7 @@ fun WeekPlaces(week: WeekResult, me: String?, names: Map<String, String?>) {
                     .testTag(WeeklyRankingTags.row(place.userId))
                     .clearAndSetSemantics { contentDescription = said }
                     .comic(bg = if (mine) PqColors.Gold else PqColors.Paper, radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
-                    .padding(horizontal = 12.dp, vertical = 10.dp)
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
             ) {
                 Text(text = ordinal, style = PqType.Number)
                 InitialAvatar(name, 30.dp)

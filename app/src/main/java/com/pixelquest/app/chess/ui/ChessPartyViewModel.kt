@@ -48,7 +48,7 @@ data class ChessPartyState(
     /** Each member's best Int points, for their badge (J158). */
     val best: Map<String, Int> = emptyMap(),
     /** The app's Simple Mode (J164): no Int points, ladder or tiers. */
-    val simple: Boolean = false
+    val simple: Boolean = false,
 )
 
 /** What a challenge became, for the screen to open. */
@@ -70,7 +70,7 @@ class ChessPartyViewModel @Inject constructor(
     private val party: PartyRepository,
     account: DaroodAccount,
     private val chess: com.pixelquest.app.chess.data.ChessRepository? = null,
-    appSettings: com.pixelquest.app.domain.repository.SettingsRepository? = null
+    appSettings: com.pixelquest.app.domain.repository.SettingsRepository? = null,
 ) : ViewModel() {
     val partyId: String = savedStateHandle[ARG_PARTY] ?: ""
     private val me = account.id()
@@ -87,19 +87,41 @@ class ChessPartyViewModel @Inject constructor(
                 _state.update { s ->
                     s.copy(
                         members = active.filter { it.userId != me }.map { ChessMember(it.userId, it.username ?: it.userId.take(6)) },
-                        names = members.associate { it.userId to it.username }
+                        names = members.associate { it.userId to it.username },
                     )
                 }
             }
         }
-        viewModelScope.launch { challengesRepo.observeChallenges(partyId).collect { list -> _state.update { it.copy(challenges = list) } } }
+        viewModelScope.launch {
+            challengesRepo.observeChallenges(partyId).collect { list ->
+                _state.update { it.copy(challenges = list) }
+                val myAccepted = list.firstOrNull {
+                    it.fromUser.equals(me, ignoreCase = true) &&
+                        it.status == com.pixelquest.app.chess.domain.ChallengeStatus.ACCEPTED &&
+                        it.gameId != null
+                }
+                if (myAccepted?.gameId != null) {
+                    _events.tryEmit(ChessPartyEvent.GameStarted(myAccepted.gameId))
+                }
+            }
+        }
         refresh()
     }
 
     /** The challenges, live games and board from the server. */
     fun refresh() {
         viewModelScope.launch { challengesRepo.refreshChallenges(partyId) }
-        viewModelScope.launch { (spectate.liveGames(partyId) as? SupabaseResult.Success)?.data?.let { games -> _state.update { it.copy(liveGames = games) } } }
+        viewModelScope.launch {
+            (spectate.liveGames(partyId) as? SupabaseResult.Success)?.data?.let { games ->
+                _state.update { it.copy(liveGames = games) }
+                val myLive = games.firstOrNull { g ->
+                    (g.whiteId.equals(me, ignoreCase = true) || g.blackId.equals(me, ignoreCase = true)) && g.status.live
+                }
+                if (myLive != null) {
+                    _events.tryEmit(ChessPartyEvent.GameStarted(myLive.id))
+                }
+            }
+        }
         loadBoard(_state.value.boardTimeControl)
         viewModelScope.launch {
             (ratings.leaderboard(partyId, null) as? SupabaseResult.Success)?.data?.let { rows -> _state.update { it.copy(best = rows.associate { r -> r.userId to r.points }) } }

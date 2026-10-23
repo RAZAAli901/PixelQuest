@@ -21,6 +21,7 @@ BEGIN
             to_jsonb(g) || jsonb_build_object('watchers', (
                 SELECT count(DISTINCT w.user_id) FROM public.chess_watch_log w
                 WHERE w.game_id = g.id AND w.joined_at > now() - INTERVAL '30 minutes'
+                  AND w.user_id <> g.white_id AND w.user_id <> g.black_id
             ))
             ORDER BY g.created_at DESC
         )
