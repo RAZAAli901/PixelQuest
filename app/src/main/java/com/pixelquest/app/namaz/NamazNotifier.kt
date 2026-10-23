@@ -88,14 +88,6 @@ class AndroidNamazNotifier @Inject constructor(
         } else {
             context.getString(R.string.namaz_notification_title, name)
         }
-        val (small, big) = PqNotifications.card(
-            context,
-            kicker = if (early) "NAMAZ SOON" else "TIME FOR PRAYER",
-            title = title,
-            body = text,
-            mood = com.pixelquest.app.mascot.PixMood.Praying,
-            bg = PqNotifications.CardBg.Gold,
-        )
         val builder = PqNotifications.builder(
             context,
             NamazChannels.reminderChannel(reminder.sound, reminder.asAlarm),
@@ -103,9 +95,7 @@ class AndroidNamazNotifier @Inject constructor(
         )
             .setContentTitle(title)
             .setContentText(text)
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(small)
-            .setCustomBigContentView(big)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setContentIntent(openNamaz())
         if (!early) builder.addAction(0, context.getString(R.string.namaz_action_prayed), action(NamazAction.PRAYED, reminder))
         return builder
@@ -127,20 +117,10 @@ class AndroidNamazNotifier @Inject constructor(
         val name = context.getString(reminder.prayer.displayName)
         val text = reminder.next?.let { context.getString(R.string.namaz_nudge_text, context.getString(it.prayer.displayName), it.time.format(timeFormat)) }
         val title = context.getString(R.string.namaz_nudge_title, name)
-        val (small, big) = PqNotifications.card(
-            context,
-            kicker = "PRAYER NUDGE",
-            title = title,
-            body = text ?: "",
-            mood = com.pixelquest.app.mascot.PixMood.Praying,
-            bg = PqNotifications.CardBg.Paper,
-        )
         return PqNotifications.builder(context, NamazChannels.NUDGE, mood = com.pixelquest.app.mascot.PixMood.Praying)
             .setContentTitle(title)
             .setContentText(text)
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(small)
-            .setCustomBigContentView(big)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text ?: ""))
             .setContentIntent(openNamaz())
             .addAction(0, context.getString(R.string.namaz_action_prayed), action(NamazAction.PRAYED, reminder))
             .addAction(0, context.getString(R.string.namaz_action_dismiss), action(NamazAction.DISMISS, reminder))

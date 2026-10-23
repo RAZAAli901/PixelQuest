@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Rubik:wght@400;500;600;700;800&family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
+</helmet>
+<div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:{{ t.ground }}; box-shadow:{{ t.frameSh }}; display:flex; flex-direction:column; color:{{ t.ink }};">
+  <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative; color:#161412;"><span>8:50</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+  <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; position:relative;">
+
+    <sc-if value="{{ is.homeCoach }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:52px;">
+          <dc-import name="PQIcon" variant="avatar" square="{{ t.sq }}" hair="#ffc21a" shirt="#4a90d9" size="46" hint-size="46px,46px"></dc-import>
+          <div style="flex:1; display:flex; flex-direction:column; gap:3px;"><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Good morning</div><div style="font:{{ t.fStrong }};">Raza · LVL 1</div></div>
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">groups</span></div>
+          <div style="display:flex; align-items:center; gap:4px; height:34px; padding:0 10px 0 6px; box-sizing:border-box; background:{{ t.gold }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1; font-variation-settings:'FILL' 1; color:{{ t.flame }};">local_fire_department</span>4</div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; padding:14px; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;"><div style="font:{{ t.fH }}; letter-spacing:{{ t.ls }};">QUEST PROGRESS</div><div style="font:{{ t.fMetaB }};">1 / 4</div></div>
+          <div style="position:relative; height:14px; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.sunken }}; overflow:hidden;"><div style="width:25%; height:100%; background:{{ t.progress }};"></div></div>
+          <div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Target 100% on Hard · 1120 XP total</div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.sh }}; display:flex; flex-direction:column;">
+          <div style="padding:14px 14px 12px; display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:36px; height:36px; flex:none; border-radius:{{ t.rs }}; background:{{ t.ink }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1; font-variation-settings:'FILL' 1; color:{{ t.gold }};">auto_awesome</span></div>
+              <div style="flex:1; font:{{ t.fH }}; letter-spacing:{{ t.ls }};">COACH INTEL</div>
+              <div style="display:flex; align-items:center; gap:4px; font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.progressText }}; border:{{ t.bwT }} solid {{ t.progressText }}; border-radius:{{ t.rxs }}; padding:3px 6px;"><div style="width:6px; height:6px; border-radius:{{ t.circle }}; background:{{ t.progressText }};"></div>LIVE</div>
+            </div>
+            <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">THE SITUATION</div>
+            <div style="font:{{ t.fBody }}; text-wrap:pretty;">4-day streak, matching your best. Two quests left tonight. Finish <b>Read 15 Pages</b> before 21:00 to set a new record.</div>
+            <div style="font:{{ t.fMetaB }}; color:{{ t.primaryText }};">Show full brief</div>
+          </div>
+          <div style="border-top:{{ t.bwT }} solid {{ t.ink }}; padding:10px 14px; display:flex; align-items:center; gap:10px;">
+            <div style="flex:1; font:{{ t.fMeta }}; color:{{ t.muted }};">8:48 AM · next brief in ~6h</div>
+            <div style="height:38px; padding:0 12px; box-sizing:border-box; display:flex; align-items:center; gap:4px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.shS }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};">OPEN COACH<span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1;">arrow_forward</span></div>
+          </div>
+        </div>
+        <div style="background:{{ t.sky }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.sh }}; padding:12px; display:flex; align-items:center; gap:12px;">
+          <div style="width:42px; height:42px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">light_mode</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">NEXT PRAYER · 1/5</div><div style="font:{{ t.fStrong }};">Dhuhr · 11:48 AM</div></div>
+          <span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">chevron_right</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; box-shadow:{{ t.sh }};">
+          <div style="width:42px; height:42px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.lilac }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">menu_book</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">Read 15 Pages</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">21:00 · Learning</div></div>
+          <div style="width:38px; height:38px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.paper }};"></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.parties }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">PARTIES</div>
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.primary }}; color:{{ t.onPrimary }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">add</span></div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <div style="height:34px; border-radius:{{ t.rxs }}; background:{{ t.ink }}; color:{{ t.paper }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">All · 2</div>
+          <div style="height:34px; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">Darood</div>
+          <div style="height:34px; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">Study</div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.sh }}; padding:14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.amber }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">volunteer_activism</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">Raza</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Darood · 1 member</div></div>
+            <span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">chevron_right</span>
+          </div>
+          <div style="height:14px; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.sunken }}; overflow:hidden;"><div style="width:7%; height:100%; background:{{ t.progress }};"></div></div>
+          <div style="display:flex; justify-content:space-between; font:{{ t.fMetaB }};"><span>726 of 10,000</span><span style="color:{{ t.primaryText }};">You today +313</span></div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.sh }}; padding:14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.lilac }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">school</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">Bros</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Study · 3 members</div></div>
+            <span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">chevron_right</span>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <div style="height:28px; padding:0 10px; display:flex; align-items:center; box-sizing:border-box; background:{{ t.gold }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fMetaB }};">2 due this week</div>
+            <div style="height:28px; padding:0 10px; display:flex; align-items:center; box-sizing:border-box; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fMetaB }};">You: 33 pts · 2nd</div>
+          </div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.r }}; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+          <span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">bedtime</span>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">Friday note</div><div style="font:{{ t.fMeta }}; color:{{ t.ink2 }}; text-wrap:pretty;">A quiet Friday-evening summary of the days you added Darood.</div></div>
+          <div style="width:48px; height:28px; flex:none; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.sunken }}; position:relative;"><div style="position:absolute; left:3px; top:3px; width:17px; height:17px; border-radius:{{ t.circle }}; background:{{ t.ink }};"></div></div>
+        </div>
+        <div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Invites from friends show up here. Your username is <b>@raza</b>.</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.partiesEmpty }}">
+      <div style="display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">PARTIES</div>
+        </div>
+        <div style="background:{{ t.gold }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; padding:18px; display:flex; flex-direction:column; gap:12px;">
+          <div style="width:56px; height:56px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; background:{{ t.paper }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:30px; line-height:1; font-variation-settings:'FILL' 1;">groups</span></div>
+          <div style="font:{{ t.fBig }}; letter-spacing:{{ t.ls }};">NO PARTIES YET</div>
+          <div style="font:{{ t.fBody }}; text-wrap:pretty;">Team up with 2 to 30 friends. Count Darood toward a shared goal, or share study deadlines and earn party points.</div>
+          <div style="height:50px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:6px; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">add</span>CREATE A PARTY</div>
+          <div style="height:46px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:6px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">share</span>SHARE @RAZA</div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }}; margin-top:4px;">TWO KINDS OF PARTY</div>
+        <div style="background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.r }}; display:flex; flex-direction:column;">
+          <div style="display:flex; align-items:center; gap:12px; padding:12px;"><div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.amber }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">volunteer_activism</span></div><div style="display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">Darood</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Post your daily count and reach a milestone together.</div></div></div>
+          <div style="height:2px; background:{{ t.divider }};"></div>
+          <div style="display:flex; align-items:center; gap:12px; padding:12px;"><div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.lilac }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">school</span></div><div style="display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">Study</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Share assignments and quizzes, log study time, top the weekly board.</div></div></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.newParty }}">
+      <div style="display:flex; flex-direction:column; gap:10px; padding:4px 16px 16px; height:100%; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">close</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">NEW PARTY</div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">TYPE</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="position:relative; background:{{ t.amber }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; box-shadow:{{ t.sh }}; padding:10px 12px; display:flex; align-items:center; gap:8px;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">volunteer_activism</span><div style="font:{{ t.fStrong }};">Darood</div><div style="position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:{{ t.circle }}; background:{{ t.ink }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; color:{{ t.paper }};">check</span></div></div>
+          <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; padding:10px 12px; display:flex; align-items:center; gap:8px;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">school</span><div style="font:{{ t.fStrong }};">Study</div></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:4px;"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">PARTY NAME</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">13 / 40</div></div>
+        <div style="height:48px; box-sizing:border-box; padding:0 14px; display:flex; align-items:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBody }};">Friday circle<div style="width:2px; height:20px; background:{{ t.ink }}; margin-left:1px;"></div></div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }}; margin-top:4px;">PARTY SIZE</div>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div style="width:44px; height:44px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">remove</span></div>
+          <div style="font:{{ t.fH }}; min-width:28px; text-align:center;">10</div>
+          <div style="width:44px; height:44px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">add</span></div>
+          <div style="flex:1; font:{{ t.fMeta }}; color:{{ t.muted }}; text-wrap:pretty;">2–30, you included. Pending invites count.</div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }}; margin-top:4px;">MILESTONE · OPTIONAL</div>
+        <div style="height:48px; box-sizing:border-box; padding:0 14px; display:flex; align-items:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBody }}; color:{{ t.muted }};">e.g. 100,000</div>
+        <div style="display:flex; gap:8px;">
+          <div style="height:32px; padding:0 12px; display:flex; align-items:center; box-sizing:border-box; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fMetaB }};">10,000</div>
+          <div style="height:32px; padding:0 12px; display:flex; align-items:center; box-sizing:border-box; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fMetaB }};">50,000</div>
+          <div style="height:32px; padding:0 12px; display:flex; align-items:center; box-sizing:border-box; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fMetaB }};">100,000</div>
+        </div>
+        <div style="margin-top:auto; height:52px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};">CREATE PARTY</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.room }}">
+      <div style="display:flex; flex-direction:column; height:100%;">
+        <div style="padding:4px 16px 10px; display:flex; flex-direction:column; gap:10px; background:{{ t.ground }}; border-bottom:{{ t.bwT }} solid {{ t.ink }};">
+          <div style="display:flex; align-items:center; gap:10px; height:48px;">
+            <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+            <div style="width:36px; height:36px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.sky }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">R</div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fH }}; letter-spacing:{{ t.ls }};">RAZA</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Darood · 1 member</div></div>
+            <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">bar_chart</span></div>
+            <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">info</span></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline;"><div style="font:{{ t.fStrong }};">726 <span style="font:{{ t.fMeta }}; color:{{ t.muted }};">of 10,000</span></div><div style="font:{{ t.fMetaB }}; color:{{ t.primaryText }};">7%</div></div>
+          <div style="height:14px; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.sunken }}; overflow:hidden;"><div style="width:7%; height:100%; background:{{ t.progress }};"></div></div>
+          <div style="display:flex; gap:8px;"><div style="flex:1; font:{{ t.fMetaB }};">You today <span style="color:{{ t.primaryText }};">726</span></div><div style="font:{{ t.fMetaB }};">Party today 726</div></div>
+        </div>
+        <div style="flex:1; min-height:0; padding:12px 16px; display:flex; flex-direction:column; justify-content:flex-end; gap:8px; background-color:{{ t.ground }}; background-image:radial-gradient(circle, {{ t.dot }} 1.2px, transparent 1.4px); background-size:14px 14px;">
+          <div style="align-self:center; font:{{ t.fMetaB }}; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; padding:3px 10px;">Today</div>
+          <div style="align-self:center; font:{{ t.fMeta }}; color:{{ t.ink2 }};">@raza joined · milestone set to 10,000</div>
+          <sc-for list="{{ bubbles }}" as="b" hint-placeholder-count="3">
+            <div style="align-self:flex-end; display:flex; align-items:flex-end; gap:8px; padding:8px 12px; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.bubbleR }}; box-shadow:{{ t.shS }};"><div style="font:{{ t.fBubble }}; letter-spacing:{{ t.ls }};">{{ b.n }}</div><div style="font:{{ t.fMeta }};">{{ b.t }} ✓</div></div>
+          </sc-for>
+        </div>
+        <div style="padding:10px 16px 14px; display:flex; flex-direction:column; gap:10px; background:{{ t.paper }}; border-top:{{ t.bwT }} solid {{ t.ink }};">
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
+            <sc-for list="{{ quickAdds }}" as="q" hint-placeholder-count="4"><div style="height:36px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; box-shadow:{{ t.shS }}; font:{{ t.fBtn }};">{{ q }}</div></sc-for>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <div style="flex:1; height:48px; box-sizing:border-box; padding:0 14px; display:flex; align-items:center; background:{{ t.ground }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBody }}; color:{{ t.muted }};">Add your count</div>
+            <div style="width:48px; height:48px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; background:{{ t.primary }}; color:{{ t.onPrimary }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">send</span></div>
+          </div>
+          <div style="align-self:center; width:120px; height:4px; border-radius:2px; background:#161412;"></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.roomStats }}">
+      <div style="position:absolute; inset:0; background:{{ t.ground }};">
+        <div style="padding:4px 16px; display:flex; align-items:center; gap:10px; height:56px; box-sizing:border-box;"><div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }};"></div><div style="font:{{ t.fH }};">RAZA</div></div>
+      </div>
+      <div style="position:absolute; inset:0; background:rgba(22,20,18,.45);"></div>
+      <div style="position:absolute; left:0; right:0; top:70px; bottom:0; background:{{ t.paper }}; border-top:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.sheetR }}; padding:10px 16px 16px; display:flex; flex-direction:column; gap:12px;">
+        <div style="align-self:center; width:44px; height:5px; border-radius:{{ t.pill }}; background:{{ t.ink }}; opacity:.3;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">MY STATS</div><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">close</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; overflow:hidden;">
+          <sc-for list="{{ myStats }}" as="m" hint-placeholder-count="4">
+            <div style="padding:10px 12px; display:flex; flex-direction:column; gap:4px; border-right:{{ m.br }}; border-bottom:{{ m.bb }};"><div style="font:{{ t.fNum }}; letter-spacing:{{ t.ls }};">{{ m.v }}</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">{{ m.l }}</div></div>
+          </sc-for>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">HOW STEADY · LAST 30 DAYS</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+          <div style="background:{{ t.sky }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; padding:8px 10px; display:flex; flex-direction:column; gap:3px;"><div style="font:{{ t.fNum }};">1/30</div><div style="font:{{ t.fMeta }};">Active days</div></div>
+          <div style="background:{{ t.gold }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; padding:8px 10px; display:flex; flex-direction:column; gap:3px;"><div style="font:{{ t.fNum }};">1</div><div style="font:{{ t.fMeta }};">In a row</div></div>
+          <div style="background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; padding:8px 10px; display:flex; flex-direction:column; gap:3px;"><div style="font:{{ t.fNum }};">1</div><div style="font:{{ t.fMeta }};">Best run</div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(15,1fr); gap:4px;">
+          <sc-for list="{{ dots30 }}" as="d" hint-placeholder-count="30"><div style="aspect-ratio:1; box-sizing:border-box; border:2px solid {{ d.b }}; border-radius:{{ t.dotR }}; background:{{ d.c }};"></div></sc-for>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">EVERYONE'S PART</div>
+        <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:{{ t.gold }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.r }};">
+          <div style="font:{{ t.fNum }};">1</div><div style="width:30px; height:30px; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.sky }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">R</div>
+          <div style="flex:1; font:{{ t.fStrong }};">@raza (you)</div><div style="font:{{ t.fNum }};">726</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.info }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">PARTY INFO</div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; display:flex; flex-direction:column;">
+          <div style="display:flex; align-items:center; gap:12px; padding:14px;">
+            <div style="width:52px; height:52px; flex:none; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.sky }}; display:flex; align-items:center; justify-content:center; font:{{ t.fH }};">R</div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:3px;"><div style="font:{{ t.fTitle }}; letter-spacing:{{ t.ls }};">RAZA</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Darood · 1 of 10 members</div></div>
+          </div>
+          <div style="border-top:{{ t.bwT }} solid {{ t.ink }}; padding:10px 14px; display:flex; align-items:center; gap:10px;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">flag</span><div style="flex:1; font:{{ t.fStrong }};">Milestone 10,000</div><div style="font:{{ t.fMetaB }}; color:{{ t.primaryText }};">Change</div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:10px;">
+          <div style="height:48px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:6px; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">person_add</span>ADD PEOPLE</div>
+          <div style="height:48px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:6px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">edit</span>RENAME</div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.r }}; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+          <div style="flex:1; display:flex; flex-direction:column; gap:3px;"><div style="font:{{ t.fStrong }};">Join the race board</div><div style="font:{{ t.fMeta }}; color:{{ t.ink2 }}; text-wrap:pretty;">Others see the party name, size, total and progress. Never names or personal counts.</div></div>
+          <div style="width:48px; height:28px; flex:none; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.sunken }}; position:relative;"><div style="position:absolute; left:3px; top:3px; width:17px; height:17px; border-radius:{{ t.circle }}; background:{{ t.ink }};"></div></div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }}; margin-top:4px;">MEMBERS · 1</div>
+        <div style="background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.r }}; padding:10px 12px; display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.sky }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">R</div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">@raza (you)</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Joined Oct 21, 2026</div></div>
+          <div style="height:24px; padding:0 8px; display:flex; align-items:center; box-sizing:border-box; background:{{ t.gold }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fLabel }};">LEADER</div>
+        </div>
+        <div style="font:{{ t.fMeta }}; color:{{ t.muted }}; text-wrap:pretty;">To leave, hand leadership to another member first.</div>
+        <div style="align-self:flex-start; height:42px; padding:0 14px; box-sizing:border-box; display:flex; align-items:center; gap:6px; border:{{ t.bw }} solid {{ t.primaryText }}; border-radius:{{ t.rb }}; color:{{ t.primaryText }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">delete</span>DELETE PARTY</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.studyTop }}">
+      <div style="padding:4px 16px 0; display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">BROS</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Study party · 3 members</div></div>
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">info</span></div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <sc-for list="{{ studyTabs }}" as="tb" hint-placeholder-count="4"><div style="height:34px; border-radius:{{ t.rxs }}; background:{{ tb.bg }}; color:{{ tb.fg }}; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">{{ tb.l }}</div></sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.studyWeekBody }}">
+      <div style="padding:12px 16px 16px; display:flex; flex-direction:column; gap:12px;">
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; padding:14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;"><div style="font:{{ t.fH }}; letter-spacing:{{ t.ls }};">STUDY TIME</div><div style="font:{{ t.fMetaB }};">30 min today</div></div>
+          <div style="height:50px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:6px; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">play_arrow</span>START TIMER</div>
+          <div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Or log minutes you already studied</div>
+          <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:6px;">
+            <sc-for list="{{ mins }}" as="m" hint-placeholder-count="5"><div style="height:36px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fMetaB }};">{{ m }}</div></sc-for>
+          </div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }}; margin-top:2px;">DUE THIS WEEK · 2</div>
+        <sc-for list="{{ studyItems }}" as="it" hint-placeholder-count="2">
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; box-shadow:{{ t.sh }};">
+            <div style="width:42px; height:42px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ it.tile }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">{{ it.icon }}</span></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:3px;"><div style="display:flex; align-items:center; gap:4px; font:{{ t.fStrong }};">{{ it.title }}<sc-if value="{{ it.pin }}"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1; color:{{ t.primaryText }};">push_pin</span></sc-if></div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">{{ it.meta }}</div></div>
+            <div style="width:38px; height:38px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.paper }};"></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="position:absolute; right:16px; bottom:16px; height:50px; padding:0 16px 0 12px; box-sizing:border-box; display:flex; align-items:center; gap:6px; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shL }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">add</span>ADD ITEM</div>
+    </sc-if>
+
+    <sc-if value="{{ is.studyAdd }}">
+      <div style="position:absolute; inset:0; background:rgba(22,20,18,.45);"></div>
+      <div style="position:absolute; left:0; right:0; top:60px; bottom:0; background:{{ t.paper }}; border-top:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.sheetR }}; padding:10px 16px 16px; display:flex; flex-direction:column; gap:10px;">
+        <div style="align-self:center; width:44px; height:5px; border-radius:{{ t.pill }}; background:{{ t.ink }}; opacity:.3;"></div>
+        <div style="font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">ADD ITEM</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; background:{{ t.ground }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <div style="height:34px; border-radius:{{ t.rxs }}; background:{{ t.ink }}; color:{{ t.paper }}; display:flex; align-items:center; justify-content:center; gap:4px; font:{{ t.fMetaB }};"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1;">description</span>Assignment</div>
+          <div style="height:34px; display:flex; align-items:center; justify-content:center; gap:4px; font:{{ t.fMetaB }};"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1;">quiz</span>Quiz</div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">TITLE</div>
+        <div style="height:46px; box-sizing:border-box; padding:0 14px; display:flex; align-items:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBody }};">Physics lab report</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div style="height:46px; box-sizing:border-box; padding:0 12px; display:flex; align-items:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBody }};">Physics</div>
+          <div style="height:46px; box-sizing:border-box; padding:0 12px; display:flex; align-items:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBody }}; color:{{ t.muted }};">Notes (optional)</div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }}; margin-top:2px;">DUE</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <sc-for list="{{ dueChips }}" as="c" hint-placeholder-count="5"><div style="height:34px; padding:0 12px; display:flex; align-items:center; gap:4px; box-sizing:border-box; background:{{ c.bg }}; color:{{ c.fg }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fMetaB }};">{{ c.l }}</div></sc-for>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding:10px 0;">
+          <span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">push_pin</span>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">Pin for the party</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Stays at the top of everyone's week</div></div>
+          <div style="width:48px; height:28px; flex:none; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.progress }}; position:relative;"><div style="position:absolute; right:3px; top:3px; width:17px; height:17px; border-radius:{{ t.circle }}; background:{{ t.paper }};"></div></div>
+        </div>
+        <div style="margin-top:auto; height:52px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};">ADD IT</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.studyScores }}">
+      <div style="padding:12px 16px 16px; display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline;"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">MON 19 – SUN 25 OCT</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Resets Monday</div></div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; overflow:hidden; display:flex; flex-direction:column;">
+          <sc-for list="{{ scores }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:{{ s.bg }}; border-bottom:{{ s.bb }};">
+              <div style="width:30px; height:30px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ s.medal }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">{{ s.rank }}</div>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">{{ s.name }}</div><div style="font:{{ t.fMeta }}; color:{{ t.ink2 }};">{{ s.meta }}</div></div>
+              <div style="display:flex; flex-direction:column; align-items:flex-end;"><div style="font:{{ t.fNum }}; letter-spacing:{{ t.ls }};">{{ s.pts }}</div><div style="font:{{ t.fMeta }}; color:{{ t.ink2 }};">pts</div></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }}; margin-top:4px;">HOW POINTS WORK</div>
+        <div style="background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.r }}; display:flex; flex-direction:column;">
+          <sc-for list="{{ pointRules }}" as="p" hint-placeholder-count="4">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 12px; border-bottom:2px solid {{ t.divider }};"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">{{ p.icon }}</span><div style="flex:1; font:{{ t.fBody }};">{{ p.l }}</div><div style="font:{{ t.fMetaB }}; color:{{ t.primaryText }};">{{ p.v }}</div></div>
+          </sc-for>
+          <div style="padding:9px 12px; font:{{ t.fMeta }}; color:{{ t.muted }}; text-wrap:pretty;">Party points stay in this party. They never change your XP, level or streak.</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.deen }}">
+      <div style="display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; height:48px; padding-top:10px; box-sizing:border-box;"><div style="font:{{ t.fDisplay }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">DEEN</div><div style="font:{{ t.fMetaB }}; color:{{ t.muted }};">Tue, 20 Oct</div></div>
+        <div style="background:{{ t.sky }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; padding:16px; display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">NEXT PRAYER</div><div style="display:flex; align-items:center; gap:3px; font:{{ t.fMetaB }};"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1; color:{{ t.flame }};">local_fire_department</span>2 days all five</div></div>
+          <div style="display:flex; align-items:flex-end; justify-content:space-between;"><div style="font:{{ t.fHuge }}; letter-spacing:{{ t.ls }};">ISHA</div><div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;"><div style="font:{{ t.fStrong }};">6:46 PM</div><div style="font:{{ t.fMetaB }};">in 36 min</div></div></div>
+          <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:6px;">
+            <sc-for list="{{ pips }}" as="p" hint-placeholder-count="5"><div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:100%; height:34px; box-sizing:border-box; border:2px {{ p.style }} {{ t.ink }}; border-radius:{{ t.rxs }}; background:{{ p.bg }}; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ p.done }}"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">check</span></sc-if></div><div style="font:{{ t.fMeta }};">{{ p.n }}</div></div></sc-for>
+          </div>
+          <div style="height:44px; box-sizing:border-box; display:flex; align-items:center; justify-content:space-between; padding:0 14px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.shS }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};">OPEN NAMAZ TRACKER<span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_forward</span></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="background:{{ t.lilac }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.sh }}; padding:14px; display:flex; flex-direction:column; gap:8px; min-height:150px; box-sizing:border-box;"><span style="font-family:'Material Symbols Rounded'; font-size:30px; line-height:1; font-variation-settings:'FILL' 1;">menu_book</span><div style="font:{{ t.fStrong }};">Quran</div><div style="font:{{ t.fMeta }};">Continue Al-Baqara · ayah 142</div><div style="margin-top:auto; height:10px; box-sizing:border-box; border:2px solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.paper }}; overflow:hidden;"><div style="width:50%; height:100%; background:{{ t.ink }};"></div></div></div>
+          <div style="background:{{ t.amber }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.sh }}; padding:14px; display:flex; flex-direction:column; gap:8px; min-height:150px; box-sizing:border-box;"><span style="font-family:'Material Symbols Rounded'; font-size:30px; line-height:1; font-variation-settings:'FILL' 1;">volunteer_activism</span><div style="font:{{ t.fStrong }};">Darood Party</div><div style="font:{{ t.fMeta }};">Raza · 726 of 10,000</div><div style="margin-top:auto; height:10px; box-sizing:border-box; border:2px solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.paper }}; overflow:hidden;"><div style="width:7%; height:100%; background:{{ t.ink }};"></div></div></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.quran }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">QURAN</div>
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">text_fields</span></div>
+        </div>
+        <div style="background:{{ t.lilac }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.sh }}; padding:14px; display:flex; flex-direction:column; gap:8px;">
+          <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">CONTINUE READING</div>
+          <div style="display:flex; align-items:center; justify-content:space-between;"><div style="font:{{ t.fTitle }}; letter-spacing:{{ t.ls }};">AL-BAQARA</div><div style="font:700 28px/1 Amiri;">البقرة</div></div>
+          <div style="display:flex; align-items:center; gap:10px;"><div style="flex:1; height:10px; box-sizing:border-box; border:2px solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.paper }}; overflow:hidden;"><div style="width:50%; height:100%; background:{{ t.ink }};"></div></div><div style="font:{{ t.fMetaB }};">142 / 286</div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <div style="height:32px; border-radius:{{ t.rxs }}; background:{{ t.ink }}; color:{{ t.paper }}; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">Surahs</div>
+          <div style="height:32px; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">Juz</div>
+          <div style="height:32px; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">Saved</div>
+        </div>
+        <div style="height:44px; box-sizing:border-box; display:flex; align-items:center; gap:8px; padding:0 12px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }};"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; color:{{ t.muted }};">search</span><div style="font:{{ t.fBody }}; color:{{ t.muted }};">Surah name or number</div></div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; display:flex; flex-direction:column;">
+          <sc-for list="{{ surahs }}" as="s" hint-placeholder-count="5">
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-bottom:2px solid {{ t.divider }};">
+              <div style="width:32px; height:32px; flex:none; box-sizing:border-box; border:2px solid {{ t.ink }}; border-radius:{{ t.rxs }}; transform:rotate(45deg); display:flex; align-items:center; justify-content:center; background:{{ s.tile }};"><div style="transform:rotate(-45deg); font:{{ t.fMetaB }};">{{ s.n }}</div></div>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">{{ s.name }}</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">{{ s.meta }}</div></div>
+              <div style="font:400 24px/1 Amiri;">{{ s.ar }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.stats }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; height:48px;"><div style="font:{{ t.fDisplay }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">HERO</div><div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">settings</span></div></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <div style="height:32px; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">Profile</div>
+          <div style="height:32px; border-radius:{{ t.rxs }}; background:{{ t.ink }}; color:{{ t.paper }}; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">Stats</div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="background:{{ t.sky }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; padding:12px; display:flex; flex-direction:column; gap:6px;"><div style="font:{{ t.fBig }};">60 XP</div><div style="font:{{ t.fMetaB }};">Last 7 days</div></div>
+          <div style="background:{{ t.gold }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; padding:12px; display:flex; flex-direction:column; gap:6px;"><div style="font:{{ t.fBig }};">5</div><div style="font:{{ t.fMetaB }};">Perfect days</div></div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">QUEST ACTIVITY</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Jul – Oct</div></div>
+          <div style="display:grid; grid-template-rows:repeat(7,13px); grid-auto-flow:column; grid-auto-columns:13px; gap:3px;">
+            <sc-for list="{{ heat }}" as="h" hint-placeholder-count="91"><div style="box-sizing:border-box; border:1.5px solid {{ t.ink }}; border-radius:{{ t.dotR }}; background:{{ h }};"></div></sc-for>
+          </div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap; font:{{ t.fMeta }}; color:{{ t.ink2 }};">
+            <sc-for list="{{ legend }}" as="l" hint-placeholder-count="4"><div style="display:flex; align-items:center; gap:4px;"><div style="width:10px; height:10px; border:1.5px solid {{ t.ink }}; background:{{ l.c }};"></div>{{ l.l }}</div></sc-for>
+          </div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">WEEKLY COMPLETION</div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; align-items:end; height:92px;">
+            <sc-for list="{{ trend }}" as="tr" hint-placeholder-count="4"><div style="display:flex; flex-direction:column; justify-content:flex-end; gap:4px; height:100%;"><div style="font:{{ t.fMetaB }}; text-align:center;">{{ tr.v }}</div><div style="height:{{ tr.h }}; box-sizing:border-box; border:2px solid {{ t.ink }}; border-radius:{{ t.barR }}; background:{{ tr.bg }};"></div><div style="font:{{ t.fMeta }}; color:{{ t.muted }}; text-align:center;">{{ tr.l }}</div></div></sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.avatar }}">
+      <div style="display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px; height:100%; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">CHOOSE AVATAR</div>
+        </div>
+        <div style="background:{{ t.gold }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; padding:16px; display:flex; align-items:center; gap:16px;">
+          <dc-import name="PQIcon" variant="avatar" square="{{ t.sq }}" hair="#8e5cc4" shirt="#8e5cc4" size="96" hint-size="96px,96px"></dc-import>
+          <div style="display:flex; flex-direction:column; gap:6px;"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">PREVIEW</div><div style="font:{{ t.fBig }}; letter-spacing:{{ t.ls }};">MAGE</div><div style="font:{{ t.fMeta }};">Equipped: Hero</div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
+          <sc-for list="{{ avatars }}" as="a" hint-placeholder-count="6">
+            <div style="position:relative; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; background:{{ a.bg }}; box-shadow:{{ a.sh }}; padding:12px 6px 10px; display:flex; flex-direction:column; align-items:center; gap:8px;">
+              <dc-import name="PQIcon" variant="avatar" square="{{ t.sq }}" hair="{{ a.hair }}" shirt="{{ a.shirt }}" size="56" hint-size="56px,56px"></dc-import>
+              <div style="font:{{ t.fBtn }};">{{ a.name }}</div>
+              <sc-if value="{{ a.sel }}"><div style="position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:{{ t.circle }}; background:{{ t.ink }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; color:{{ t.gold }};">check</span></div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:auto; height:52px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};">EQUIP MAGE</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.leaderboard }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">LEADERBOARD</div>
+        </div>
+        <div style="opacity:.35; display:flex; flex-direction:column; gap:8px;">
+          <sc-for list="{{ ghosts }}" as="g" hint-placeholder-count="5"><div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:{{ t.paper }}; border:2px solid {{ t.ink }}; border-radius:{{ t.rs }};"><div style="width:22px; font:{{ t.fNum }};">{{ g.r }}</div><div style="width:32px; height:32px; border-radius:{{ t.rxs }}; background:{{ t.ink }};"></div><div style="flex:1; height:10px; max-width:{{ g.w }}; background:{{ t.ink }}; border-radius:{{ t.pill }};"></div><div style="font:{{ t.fMetaB }};">{{ g.xp }}</div></div></sc-for>
+        </div>
+      </div>
+      <div style="position:absolute; left:16px; right:16px; top:170px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shL }}; padding:18px; display:flex; flex-direction:column; gap:12px;">
+        <div style="width:52px; height:52px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; background:{{ t.gold }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:28px; line-height:1; font-variation-settings:'FILL' 1;">lock</span></div>
+        <div style="font:{{ t.fBig }}; letter-spacing:{{ t.ls }};">HALL OF FAME LOCKED</div>
+        <div style="font:{{ t.fBody }}; color:{{ t.ink2 }}; text-wrap:pretty;">Sign in to see global rankings and streaks, and climb the board.</div>
+        <div style="height:50px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};">CONTINUE WITH GOOGLE</div>
+        <div style="height:46px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};">EMAIL ME A CODE</div>
+      </div>
+    </sc-if>
+  </div>
+  <sc-if value="{{ navComic }}"><dc-import name="PQNav" active="{{ navActive }}" hint-size="100%,76px"></dc-import></sc-if>
+  <sc-if value="{{ navPixel }}"><dc-import name="PQNavPixel" active="{{ navActive }}" hint-size="100%,76px"></dc-import></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:380,&quot;height&quot;:780},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;homeCoach&quot;,&quot;parties&quot;,&quot;partiesEmpty&quot;,&quot;newParty&quot;,&quot;room&quot;,&quot;roomStats&quot;,&quot;info&quot;,&quot;studyWeek&quot;,&quot;studyAdd&quot;,&quot;studyScores&quot;,&quot;deen&quot;,&quot;quran&quot;,&quot;stats&quot;,&quot;avatar&quot;,&quot;leaderboard&quot;],&quot;default&quot;:&quot;homeCoach&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;skin&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;comic&quot;,&quot;pixel&quot;],&quot;default&quot;:&quot;comic&quot;,&quot;tsType&quot;:&quot;'comic'|'pixel'&quot;}}">
+class Component extends DCLogic {
+  static COMIC = {
+    ink: '#161412', ink2: '#4a4540', muted: '#6b645c', paper: '#fffdf8', ground: '#f6f3ec', sunken: '#efe9dd', divider: '#ebe4d7',
+    primary: '#ff5a4e', onPrimary: '#161412', primaryText: '#c23a2f', flame: '#d63a2f',
+    sky: '#8ecae6', gold: '#ffc21a', amber: '#f0a35e', lilac: '#b39ddb', progress: '#ff5a4e', progressText: '#1f7a3a', title: '#161412',
+    perfect: '#8ecae6', partial: '#f0a35e', missed: '#ff5a4e', dot: 'rgba(22,20,18,.12)',
+    r: '14px', rs: '10px', rl: '16px', rb: '12px', rxs: '9px', pill: '999px', circle: '50%', dotR: '3px', barR: '5px 5px 0 0', bubbleR: '16px 16px 4px 16px', sheetR: '22px 22px 0 0',
+    bw: '2.5px', bwT: '2px', sh: '3px 3px 0 #161412', shS: '2px 2px 0 #161412', shL: '4px 4px 0 #161412', shCard: '4px 4px 0 #161412', frameSh: '8px 8px 0 #161412',
+    fDisplay: '36px/1 Bangers', fTitle: '30px/1 Bangers', fH: '24px/1 Bangers', fBig: '34px/1 Bangers', fHuge: '56px/0.9 Bangers', fNum: '24px/1 Bangers', fBubble: '28px/1 Bangers',
+    fLabel: '800 11px/1.3 Rubik', fBtn: '800 13px/1 Rubik', fBody: '500 14px/1.45 Rubik', fStrong: '800 15px/1.3 Rubik', fMeta: '500 12px/1.35 Rubik', fMetaB: '700 12px/1.35 Rubik',
+    ls: '.03em', lsLabel: '.1em', lsBtn: '.04em', sq: false
+  };
+  static PIXEL = {
+    ink: '#2b2622', ink2: '#4a4540', muted: '#6e655a', paper: '#fffaf0', ground: '#f5efe2', sunken: '#ece4d2', divider: '#ece4d2',
+    primary: '#c25e00', onPrimary: '#fffaf0', primaryText: '#a34e00', flame: '#c25e00',
+    sky: '#dbeefa', gold: '#fde7a0', amber: '#fbd5ae', lilac: '#e4daf6', progress: '#2f9e4a', progressText: '#1f7a3a', title: '#c25e00',
+    perfect: '#1d6fa5', partial: '#e8a33d', missed: '#d1342a', dot: 'rgba(43,38,34,.14)',
+    r: '0', rs: '0', rl: '0', rb: '0', rxs: '0', pill: '0', circle: '0', dotR: '0', barR: '0', bubbleR: '0', sheetR: '0',
+    bw: '2px', bwT: '2px', sh: '0 3px 0 #2b2622', shS: '0 3px 0 #2b2622', shL: '0 4px 0 #2b2622', shCard: 'none', frameSh: '0 8px 0 #2b2622',
+    fDisplay: "18px/1.3 'Press Start 2P'", fTitle: "15px/1.3 'Press Start 2P'", fH: "12px/1.4 'Press Start 2P'", fBig: "16px/1.35 'Press Start 2P'", fHuge: "26px/1.2 'Press Start 2P'", fNum: "12px/1.3 'Press Start 2P'", fBubble: "14px/1.2 'Press Start 2P'",
+    fLabel: "8px/1.5 'Press Start 2P'", fBtn: "9px/1.3 'Press Start 2P'", fBody: "500 16px/1.4 'Pixelify Sans'", fStrong: "600 17px/1.3 'Pixelify Sans'", fMeta: "500 14px/1.35 'Pixelify Sans'", fMetaB: "600 14px/1.35 'Pixelify Sans'",
+    ls: '0', lsLabel: '0', lsBtn: '0', sq: true
+  };
+  static NAV = { homeCoach: 'home', parties: 'home', partiesEmpty: 'home', newParty: 'home', room: null, roomStats: null, info: 'home', studyWeek: 'home', studyAdd: null, studyScores: 'home', deen: 'deen', quran: 'deen', stats: 'hero', avatar: 'hero', leaderboard: 'hero' };
+  renderVals() {
+    const scr = this.props.screen ?? 'homeCoach';
+    const px = (this.props.skin ?? 'comic') === 'pixel';
+    const t = px ? Component.PIXEL : Component.COMIC;
+    const is = { [scr]: true };
+    if (scr === 'studyWeek' || scr === 'studyAdd' || scr === 'studyScores') is.studyTop = true;
+    if (scr === 'studyWeek' || scr === 'studyAdd') is.studyWeekBody = true;
+    const nav = Component.NAV[scr];
+    const tab = scr === 'studyScores' ? 2 : 0;
+    const heat = [];
+    const rec = 'mpfmmpmfmpmmfpfmffpff'.split('');
+    for (let i = 0; i < 91; i++) { const ch = i < 63 ? 'n' : (rec[i - 63] || 'n'); heat.push({ f: t.perfect, p: t.partial, m: t.missed, n: t.sunken }[ch]); }
+    const tv = [0, 6, 28, 14];
+    return {
+      t, is, navActive: nav ?? 'home', navComic: !!nav && !px, navPixel: !!nav && px,
+      bubbles: [{ n: '+313', t: '8:50 AM' }, { n: '+313', t: '8:50 AM' }, { n: '+100', t: '8:51 AM' }],
+      quickAdds: ['+11', '+33', '+100', '+313'],
+      myStats: [{ v: '726', l: 'My total' }, { v: '100%', l: 'Share of party' }, { v: '1 of 1', l: 'My place' }, { v: '726', l: 'On a day I add' }]
+        .map((m, i) => ({ ...m, br: i % 2 === 0 ? `${t.bwT} solid ${t.ink}` : 'none', bb: i < 2 ? `${t.bwT} solid ${t.ink}` : 'none' })),
+      dots30: Array.from({ length: 30 }, (_, i) => i === 29 ? { c: t.primary, b: t.ink } : { c: t.sunken, b: t.sunken }),
+      studyTabs: ['Week', 'Items', 'Scores', 'People'].map((l, i) => ({ l, bg: i === tab ? t.ink : 'transparent', fg: i === tab ? t.paper : t.ink })),
+      mins: ['15', '25', '30', '45', '60'].map(m => m + 'm'),
+      studyItems: [
+        { title: 'Physics lab report', meta: 'Assignment · Due Fri 23 Oct', icon: 'description', tile: t.amber, pin: true },
+        { title: 'Calc quiz 3', meta: 'Quiz · Due tomorrow', icon: 'quiz', tile: t.lilac, pin: false }
+      ],
+      dueChips: ['No date', 'Today', 'Tomorrow', 'Fri 23', 'Pick…'].map((l, i) => ({ l, bg: i === 3 ? t.ink : t.paper, fg: i === 3 ? t.paper : t.ink })),
+      scores: [
+        { rank: 1, name: '@sara', meta: '3 items · 1 early · 90 min', pts: 48, medal: t.gold },
+        { rank: 2, name: '@raza (you)', meta: '2 items · 30 min', pts: 33, medal: '#d9d4cc' },
+        { rank: 3, name: '@ali', meta: '1 item · 60 min', pts: 21, medal: t.amber }
+      ].map((s, i) => ({ ...s, bg: i === 1 ? t.sky : t.paper, bb: i < 2 ? `${t.bwT} solid ${t.ink}` : 'none' })),
+      pointRules: [
+        { icon: 'description', l: 'Assignment done', v: '+10' }, { icon: 'quiz', l: 'Quiz done', v: '+15' },
+        { icon: 'bolt', l: 'Done a day or more early', v: '+5' }, { icon: 'timer', l: 'Every 10 min studied', v: '+1 · max 12/day' }
+      ],
+      pips: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map((n, i) => ({ n: n.slice(0, 5), done: i < 4, bg: i < 4 ? t.paper : 'transparent', style: i < 4 ? 'solid' : 'dashed' })),
+      surahs: [
+        { n: 1, name: 'Al-Faatiha', meta: 'The Opening · 7', ar: 'الفاتحة', tile: t.paper },
+        { n: 2, name: 'Al-Baqara', meta: 'The Cow · 286', ar: 'البقرة', tile: t.lilac },
+        { n: 3, name: 'Aal-i-Imraan', meta: 'Family of Imraan · 200', ar: 'آل عمران', tile: t.paper },
+        { n: 4, name: 'An-Nisaa', meta: 'The Women · 176', ar: 'النساء', tile: t.paper }
+      ],
+      heat,
+      legend: [{ l: 'Perfect', c: t.perfect }, { l: 'Partial', c: t.partial }, { l: 'Missed', c: t.missed }, { l: 'None', c: t.sunken }],
+      trend: ['W-3', 'W-2', 'W-1', 'Now'].map((l, i) => ({ l, v: tv[i] + '%', h: Math.max(4, tv[i] / 70 * 60) + 'px', bg: i === 3 ? t.progress : t.lilac })),
+      avatars: [
+        { name: 'HERO', hair: '#ffc21a', shirt: '#4a90d9' }, { name: 'MAGE', hair: '#8e5cc4', shirt: '#8e5cc4', sel: true },
+        { name: 'ROGUE', hair: '#3fa55b', shirt: '#3fa55b' }, { name: 'WARRIOR', hair: '#8a8a8a', shirt: '#c0392b' },
+        { name: 'PALADIN', hair: '#ffc21a', shirt: '#f2f2f2' }, { name: 'RANGER', hair: '#e0701f', shirt: '#e0701f' }
+      ].map(a => ({ ...a, sel: !!a.sel, bg: a.sel ? t.gold : t.paper, sh: a.sel ? t.sh : 'none' })),
+      ghosts: [1, 2, 3, 4, 5].map(r => ({ r, w: (150 - r * 18) + 'px', xp: (2400 - r * 310) + ' XP' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

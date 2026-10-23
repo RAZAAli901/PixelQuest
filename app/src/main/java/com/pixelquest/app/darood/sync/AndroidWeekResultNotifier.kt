@@ -29,22 +29,12 @@ class AndroidWeekResultNotifier @Inject constructor(@ApplicationContext private 
         )
         val title = context.getString(R.string.darood_week_notif_title, party.name)
         val line = WeekRankingText.line(context, week, me) ?: return
-        val (small, big) = PqNotifications.card(
-            context,
-            kicker = "WEEKLY RANKING · DAROOD",
-            title = party.name,
-            body = line,
-            mood = com.pixelquest.app.mascot.PixMood.Celebrate,
-            bg = PqNotifications.CardBg.Sky,
-        )
         // On the lock screen, only that the week's in: the places are the party's.
         val hidden = PqNotifications.builder(context, NotificationChannels.Spec.DAROOD.id, mood = com.pixelquest.app.mascot.PixMood.Celebrate).setContentTitle(title).build()
         val notification = PqNotifications.builder(context, NotificationChannels.Spec.DAROOD.id, mood = com.pixelquest.app.mascot.PixMood.Celebrate)
             .setContentTitle(title)
             .setContentText(line)
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(small)
-            .setCustomBigContentView(big)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(line))
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setPublicVersion(hidden)
             .setContentIntent(open)

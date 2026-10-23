@@ -8,8 +8,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.view.View
-import android.widget.RemoteViews
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -100,7 +98,7 @@ object PqNotify {
 
         val largePx = ctx.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
         val b = NotificationCompat.Builder(ctx, s.ch.id)
-            .setSmallIcon(R.drawable.ic_stat_pixelquest)
+            .setSmallIcon(PqNotifications.SMALL_ICON)
             .setColor(accent)
             .setContentTitle(s.title)
             .setContentText(s.body)
@@ -113,17 +111,13 @@ object PqNotify {
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setPublicVersion(
                 NotificationCompat.Builder(ctx, s.ch.id)
-                    .setSmallIcon(R.drawable.ic_stat_pixelquest)
+                    .setSmallIcon(PqNotifications.SMALL_ICON)
                     .setColor(accent)
                     .setContentTitle(ctx.getString(R.string.notif_hidden_title))
                     .build(),
             )
 
         when {
-            s.card != null -> {
-                val (small, big) = card(ctx, s)
-                b.setStyle(NotificationCompat.DecoratedCustomViewStyle()).setCustomContentView(small).setCustomBigContentView(big)
-            }
             s.lines != null -> b.setStyle(NotificationCompat.InboxStyle().also { st -> s.lines.forEach(st::addLine) }.setSummaryText(s.body))
             else -> b.setStyle(NotificationCompat.BigTextStyle().bigText(s.body))
         }
@@ -140,12 +134,12 @@ object PqNotify {
             NotificationManagerCompat.from(ctx).notify(
                 g.hashCode(),
                 NotificationCompat.Builder(ctx, s.ch.id)
-                    .setSmallIcon(R.drawable.ic_stat_pixelquest).setColor(accent)
+                    .setSmallIcon(PqNotifications.SMALL_ICON).setColor(accent)
                     .setStyle(NotificationCompat.InboxStyle()).setGroup(g).setGroupSummary(true).setAutoCancel(true)
                     .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                     .setPublicVersion(
                         NotificationCompat.Builder(ctx, s.ch.id)
-                            .setSmallIcon(R.drawable.ic_stat_pixelquest)
+                            .setSmallIcon(PqNotifications.SMALL_ICON)
                             .setColor(accent)
                             .setContentTitle(ctx.getString(R.string.notif_hidden_title))
                             .build(),
@@ -156,36 +150,6 @@ object PqNotify {
     }
 
     fun cancel(ctx: Context, id: Int) = NotificationManagerCompat.from(ctx).cancel(id)
-
-    private fun card(ctx: Context, s: Spec): Pair<RemoteViews, RemoteViews> {
-        val c = s.card!!
-        val px = pixel
-        val bg = when (c.bg) {
-            CardBg.Gold -> if (px) R.drawable.pix_card_gold_pixel else R.drawable.pix_card_gold
-            CardBg.Paper -> if (px) R.drawable.pix_card_paper_pixel else R.drawable.pix_card_paper
-            CardBg.Sky -> if (px) R.drawable.pix_card_sky_pixel else R.drawable.pix_card_sky
-        }
-        fun views() = RemoteViews(ctx.packageName, R.layout.notif_pix_card).apply {
-            setInt(R.id.pix_card, "setBackgroundResource", bg)
-            setTextViewText(R.id.pix_kicker, c.kicker)
-            setTextViewText(R.id.pix_title, c.title)
-            setTextViewText(R.id.pix_body, c.body)
-            // Pixel skin / non-gold cards: plain ink title (no red + shadow)
-            if (px || c.bg != CardBg.Gold) {
-                setTextColor(R.id.pix_title, if (px) 0xFF2B2622.toInt() else 0xFF161412.toInt())
-            }
-            setImageViewBitmap(R.id.pix_mascot, PqMascotBitmap.render(s.mood, (72 * ctx.resources.displayMetrics.density).toInt(), px))
-            c.progress?.let {
-                setViewVisibility(R.id.pix_progress, View.VISIBLE)
-                setProgressBar(R.id.pix_progress, 100, it, false)
-            }
-        }
-        val small = views().apply {
-            setViewVisibility(R.id.pix_body, View.GONE)
-            setViewVisibility(R.id.pix_progress, View.GONE)
-        }
-        return small to views()
-    }
 
     private fun inQuietHours(now: LocalTime = LocalTime.now()) = now >= LocalTime.of(23, 30) || now < LocalTime.of(6, 0)
 

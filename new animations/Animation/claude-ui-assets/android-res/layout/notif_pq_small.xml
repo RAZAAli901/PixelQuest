@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Collapsed custom content: one-line comic title + body. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/pq_title"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textSize="20sp" android:textColor="@color/pq_ink"
+        android:fontFamily="@font/bangers_regular" android:maxLines="1"/>
+    <TextView
+        android:id="@+id/pq_body"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textSize="13sp" android:textColor="@color/pq_muted"
+        android:fontFamily="@font/rubik_medium" android:maxLines="1" android:ellipsize="end"/>
+</LinearLayout>

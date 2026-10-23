@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Rubik:wght@400;500;600;700;800&family=Amiri:wght@400;700&family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#f6f3ec;color:#161412;font-family:Rubik,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#c23a2f}a:hover{color:#161412}
+</style>
+</helmet>
+<section style="padding:64px; display:flex; flex-direction:column; gap:36px; background:#f6f3ec; border-bottom:3px solid #161412;">
+  <div style="display:flex; flex-direction:column; gap:8px; max-width:1000px;">
+    <div style="font:56px/1 Bangers; letter-spacing:.03em;">TURN 4 — PARTIES, STUDY, COACH + FULL PIXEL SKIN</div>
+    <div style="font:500 15px/1.5 Rubik; color:#4a4540; text-wrap:pretty;">"Parties" was in the drawer. It now opens from the <b>groups button on Home</b>, the <b>Darood Party tile in Deen</b>, and a row in Hero. One Parties hub lists both kinds. The chat room hides the bottom bar so the composer has room. Coach Intel and the "Open AI Coach" button merge into one card with a single next step. Every screen below is shown in Comic, then in Pixel.</div>
+  </div>
+  <div style="font:30px Bangers; letter-spacing:.04em; color:#ff5a4e;">COMIC</div>
+  <div style="display:flex; flex-wrap:wrap; gap:48px 40px; align-items:flex-start;">
+    <sc-for list="{{ t4comic }}" as="s" hint-placeholder-count="10">
+      <div id="{{ s.id }}" style="display:flex; flex-direction:column; gap:12px; width:360px;">
+        <dc-import name="PQScreens2" screen="{{ s.screen }}" skin="comic" hint-size="360px,760px"></dc-import>
+        <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">{{ s.badge }}</div><div style="font:24px Bangers; letter-spacing:.03em;">{{ s.title }}</div></div>
+        <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">{{ s.note }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="font:20px/1.4 'Press Start 2P'; color:#c25e00; margin-top:24px;">PIXEL</div>
+  <div style="display:flex; flex-wrap:wrap; gap:48px 40px; align-items:flex-start; background:#f5efe2; padding:32px; border:3px solid #2b2622;">
+    <sc-for list="{{ t4pixel }}" as="s" hint-placeholder-count="15">
+      <div id="{{ s.id }}" style="display:flex; flex-direction:column; gap:12px; width:360px;">
+        <dc-import name="PQScreens2" screen="{{ s.screen }}" skin="pixel" hint-size="360px,760px"></dc-import>
+        <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#c25e00; color:#fffaf0; border:2px solid #2b2622; font:11px 'Press Start 2P';">{{ s.badge }}</div><div style="font:11px/1.4 'Press Start 2P'; color:#2b2622;">{{ s.title }}</div></div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+<section style="padding:64px; display:flex; flex-direction:column; gap:36px; background:#f5efe2; border-bottom:3px solid #161412;">
+  <div style="display:flex; flex-direction:column; gap:10px; max-width:980px;">
+    <div style="font:28px/1.3 'Press Start 2P'; color:#c25e00;">PIXEL SKIN</div>
+    <div style="font:500 17px/1.45 'Pixelify Sans'; color:#2b2622; text-wrap:pretty;">The same screens and navigation as v2, with your pixel look: square corners, 2px ink borders, Press Start 2P headings, Pixelify body text, and green progress. The comic offset shadow becomes a straight-down 3px "step" that only appears on things you can tap. Orange is kept for the one primary action. In code, both skins come from the same screen files. <b>PqSkinState.skin = PqSkin.Pixel</b> switches every token.</div>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:48px 40px; align-items:flex-start;">
+
+    <div id="3a" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f5efe2; box-shadow:0 8px 0 #2b2622; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>21:40</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; gap:12px; height:52px;">
+            <dc-import name="PQIcon" variant="avatar" square="{{ true }}" hair="#ffc21a" shirt="#4a90d9" size="44" hint-size="44px,44px"></dc-import>
+            <div style="flex:1; display:flex; flex-direction:column; gap:5px;"><div style="font:500 14px 'Pixelify Sans'; color:#6e655a;">Good evening</div><div style="font:11px 'Press Start 2P'; color:#2b2622;">CBF · LVL 1</div></div>
+            <div style="display:flex; align-items:center; gap:4px; height:32px; padding:0 10px 0 6px; box-sizing:border-box; background:#fde7a0; border:2px solid #2b2622; font:11px 'Press Start 2P'; color:#2b2622;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; font-variation-settings:'FILL' 1; color:#c25e00;">local_fire_department</span>4</div>
+          </div>
+          <div style="background:#fde7a0; border:2px solid #2b2622; padding:16px; display:flex; flex-direction:column; gap:10px;">
+            <div style="font:9px/1.4 'Press Start 2P'; color:#2b2622;">ALL 4 QUESTS DONE</div>
+            <div style="font:22px/1.25 'Press Start 2P'; color:#c25e00; text-shadow:2px 2px 0 #2b2622;">PERFECT DAY!</div>
+            <div style="font:500 16px/1.35 'Pixelify Sans'; color:#2b2622;">Streak protected. 2 of 7 perfect days toward LVL 2.</div>
+            <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;"><div style="height:12px; background:#2f9e4a; border:2px solid #2b2622;"></div><div style="height:12px; background:#2f9e4a; border:2px solid #2b2622;"></div><div style="height:12px; background:#fffaf0; border:2px solid #2b2622;"></div><div style="height:12px; background:#fffaf0; border:2px solid #2b2622;"></div><div style="height:12px; background:#fffaf0; border:2px solid #2b2622;"></div><div style="height:12px; background:#fffaf0; border:2px solid #2b2622;"></div><div style="height:12px; background:#fffaf0; border:2px solid #2b2622;"></div></div>
+            <div style="display:flex; gap:8px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; box-sizing:border-box; background:#fffaf0; border:2px solid #2b2622; font:9px 'Press Start 2P';">+80 XP</div><div style="height:28px; padding:0 8px 0 4px; display:flex; align-items:center; gap:3px; box-sizing:border-box; background:#fffaf0; border:2px solid #2b2622; font:9px 'Press Start 2P';"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1; color:#c25e00;">local_fire_department</span>4 DAYS</div></div>
+          </div>
+          <div style="background:#dbeefa; border:2px solid #2b2622; box-shadow:0 3px 0 #2b2622; padding:12px; display:flex; align-items:center; gap:12px;">
+            <div style="width:42px; height:42px; flex:none; box-sizing:border-box; border:2px solid #2b2622; background:#fffaf0; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1; color:#1d6fa5;">bedtime</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:5px;"><div style="font:8px 'Press Start 2P'; color:#2b2622;">PRAYERS · 5/5</div><div style="font:600 17px 'Pixelify Sans'; color:#2b2622;">All five prayed</div><div style="font:500 14px 'Pixelify Sans'; color:#2b2622;">Next: Fajr 4:49 AM</div></div>
+            <span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">chevron_right</span>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px;"><div style="font:10px 'Press Start 2P';">DONE TODAY · 4</div><div style="font:600 15px 'Pixelify Sans'; color:#a34e00;">Hide</div></div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <sc-for list="{{ pxDone }}" as="q" hint-placeholder-count="4">
+              <div style="display:flex; align-items:center; gap:12px; padding:7px 10px; background:#ece4d2; border:2px solid #2b2622;"><div style="width:30px; height:30px; flex:none; box-sizing:border-box; border:2px solid #2b2622; background:{{ q.tile }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; font-variation-settings:'FILL' 1;">{{ q.icon }}</span></div><div style="flex:1; font:500 16px 'Pixelify Sans'; color:#6e655a; text-decoration:line-through;">{{ q.title }}</div><div style="font:8px 'Press Start 2P'; color:#6e655a;">+20</div><div style="width:24px; height:24px; background:#2b2622; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; color:#fffaf0;">check</span></div></div>
+            </sc-for>
+          </div>
+        </div>
+        <dc-import name="PQNavPixel" active="home" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#c25e00; color:#fffaf0; border:2px solid #2b2622; font:12px 'Press Start 2P';">3A</div><div style="font:13px 'Press Start 2P';">HOME · PERFECT DAY</div></div>
+      <div style="font:500 15px/1.45 'Pixelify Sans'; color:#4a4540; text-wrap:pretty;">Your current pixel home has six stacked boxes. Here they become one celebration card with a level-progress block bar, then the prayer card, then the completed list.</div>
+    </div>
+
+    <div id="3b" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f5efe2; box-shadow:0 8px 0 #2b2622; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; height:52px;"><div style="font:18px 'Press Start 2P'; color:#c25e00;">QUESTS</div><div style="width:40px; height:40px; box-sizing:border-box; border:2px solid #2b2622; background:#fffaf0; box-shadow:0 3px 0 #2b2622; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">search</span></div></div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); background:#fffaf0; border:2px solid #2b2622; padding:3px; gap:3px;">
+            <div style="height:34px; background:#2b2622; color:#fffaf0; display:flex; align-items:center; justify-content:center; font:9px 'Press Start 2P';">TODAY·4</div>
+            <div style="height:34px; display:flex; align-items:center; justify-content:center; font:600 15px 'Pixelify Sans';">All quests</div>
+            <div style="height:34px; display:flex; align-items:center; justify-content:center; font:600 15px 'Pixelify Sans';">History</div>
+          </div>
+          <div style="font:8px 'Press Start 2P'; color:#6e655a; margin-top:4px;">MORNING · 2 DONE</div>
+          <sc-for list="{{ pxQuests }}" as="q" hint-placeholder-count="4">
+            <sc-if value="{{ q.group }}"><div style="font:8px 'Press Start 2P'; color:#6e655a; margin-top:6px;">EVENING · 2 LEFT</div></sc-if>
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:{{ q.bg }}; border:2px solid #2b2622; box-shadow:{{ q.sh }};">
+              <div style="width:42px; height:42px; flex:none; box-sizing:border-box; border:2px solid #2b2622; background:{{ q.tile }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">{{ q.icon }}</span></div>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;"><div style="font:600 17px 'Pixelify Sans'; color:{{ q.fg }}; text-decoration:{{ q.dec }};">{{ q.title }}</div><div style="display:flex; align-items:center; gap:6px; font:500 14px 'Pixelify Sans'; color:#6e655a;"><sc-if value="{{ q.overdue }}"><span style="font:7px 'Press Start 2P'; color:#a34e00; border:2px solid #a34e00; padding:2px 4px;">LATE</span></sc-if>{{ q.meta }}</div></div>
+              <div style="width:34px; height:34px; flex:none; box-sizing:border-box; border:2px solid #2b2622; background:{{ q.chk }}; display:flex; align-items:center; justify-content:center;"><sc-if value="{{ q.done }}"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; color:#fffaf0;">check</span></sc-if></div>
+            </div>
+          </sc-for>
+          <div style="font:500 14px 'Pixelify Sans'; color:#6e655a;">Swipe a quest left to edit or delete.</div>
+        </div>
+        <div style="position:absolute; right:16px; bottom:94px; height:50px; padding:0 16px 0 12px; box-sizing:border-box; display:flex; align-items:center; gap:6px; background:#c25e00; color:#fffaf0; border:2px solid #2b2622; box-shadow:0 4px 0 #2b2622; font:10px 'Press Start 2P'; cursor:pointer;" style-active="transform:translateY(3px); box-shadow:0 1px 0 #2b2622;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">add</span>NEW QUEST</div>
+        <dc-import name="PQNavPixel" active="quests" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#c25e00; color:#fffaf0; border:2px solid #2b2622; font:12px 'Press Start 2P';">3B</div><div style="font:13px 'Press Start 2P';">QUESTS</div></div>
+      <div style="font:500 15px/1.45 'Pixelify Sans'; color:#4a4540; text-wrap:pretty;">The faded "✓ DONE" outline buttons become a solid check square. Done rows sit flat and sunken, and open quests stand on the 3px step.</div>
+    </div>
+
+    <div id="3c" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f5efe2; box-shadow:0 8px 0 #2b2622; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:10px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; gap:12px; height:52px;">
+            <div style="width:40px; height:40px; box-sizing:border-box; border:2px solid #2b2622; background:#fffaf0; box-shadow:0 3px 0 #2b2622; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+            <div style="flex:1; font:16px 'Press Start 2P'; color:#c25e00;">NAMAZ</div>
+            <div style="width:40px; height:40px; box-sizing:border-box; border:2px solid #2b2622; background:#fffaf0; box-shadow:0 3px 0 #2b2622; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">tune</span></div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;">
+            <sc-for list="{{ pxWeek }}" as="d" hint-placeholder-count="7">
+              <div style="height:60px; box-sizing:border-box; border:2px solid #2b2622; background:{{ d.bg }}; color:{{ d.fg }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;">
+                <div style="font:500 13px 'Pixelify Sans';">{{ d.l }}</div><div style="font:10px 'Press Start 2P';">{{ d.n }}</div><div style="width:8px; height:8px; background:{{ d.dot }};"></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#fffaf0; border:2px solid #2b2622; padding:12px; display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font:10px 'Press Start 2P';">4/5 PRAYED</div><div style="font:9px 'Press Start 2P'; color:#a34e00;">+48 XP</div></div>
+            <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:4px;"><div style="height:12px; background:#2f9e4a; border:2px solid #2b2622;"></div><div style="height:12px; background:#2f9e4a; border:2px solid #2b2622;"></div><div style="height:12px; background:#2f9e4a; border:2px solid #2b2622;"></div><div style="height:12px; background:#2f9e4a; border:2px solid #2b2622;"></div><div style="height:12px; background:#ece4d2; border:2px solid #2b2622;"></div></div>
+          </div>
+          <sc-for list="{{ pxPrayers }}" as="p" hint-placeholder-count="5">
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; background:#fffaf0; border:2px solid #2b2622; box-shadow:{{ p.sh }};">
+              <div style="width:38px; height:38px; flex:none; box-sizing:border-box; border:2px solid #2b2622; background:{{ p.tile }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">{{ p.icon }}</span></div>
+              <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:600 17px 'Pixelify Sans';">{{ p.name }}</div><div style="font:500 14px 'Pixelify Sans'; color:{{ p.tc }};">{{ p.time }}</div></div>
+              <sc-if value="{{ p.done }}"><div style="height:28px; padding:0 8px 0 4px; display:flex; align-items:center; gap:3px; background:#2b2622; color:#fffaf0; font:7px 'Press Start 2P';"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1;">check</span>PRAYED</div></sc-if>
+              <sc-if value="{{ p.next }}"><div style="height:34px; padding:0 10px; display:flex; align-items:center; box-sizing:border-box; background:#c25e00; color:#fffaf0; border:2px solid #2b2622; box-shadow:0 3px 0 #2b2622; font:8px 'Press Start 2P';">MARK</div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <dc-import name="PQNavPixel" active="deen" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#c25e00; color:#fffaf0; border:2px solid #2b2622; font:12px 'Press Start 2P';">3C</div><div style="font:13px 'Press Start 2P';">NAMAZ TRACKER</div></div>
+      <div style="font:500 15px/1.45 'Pixelify Sans'; color:#4a4540; text-wrap:pretty;">Square day tiles with status dots, plus a five-block prayer bar in pixel green. Only the next prayer is raised, and it gets the orange Mark button.</div>
+    </div>
+
+    <div id="3d" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f5efe2; box-shadow:0 8px 0 #2b2622; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; height:52px;"><div style="font:18px 'Press Start 2P'; color:#c25e00;">HERO</div><div style="width:40px; height:40px; box-sizing:border-box; border:2px solid #2b2622; background:#fffaf0; box-shadow:0 3px 0 #2b2622; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">settings</span></div></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; background:#fffaf0; border:2px solid #2b2622; padding:3px; gap:3px;">
+            <div style="height:32px; background:#2b2622; color:#fffaf0; display:flex; align-items:center; justify-content:center; font:9px 'Press Start 2P';">PROFILE</div>
+            <div style="height:32px; display:flex; align-items:center; justify-content:center; font:600 15px 'Pixelify Sans';">Stats</div>
+          </div>
+          <div style="background:#fffaf0; border:2px solid #2b2622; display:flex; flex-direction:column;">
+            <div style="display:flex; align-items:center; gap:14px; padding:14px;">
+              <div style="position:relative; flex:none;"><dc-import name="PQIcon" variant="avatar" square="{{ true }}" hair="#ffc21a" shirt="#4a90d9" size="76" hint-size="76px,76px"></dc-import><div style="position:absolute; right:-6px; bottom:-6px; width:26px; height:26px; box-sizing:border-box; background:#fde7a0; border:2px solid #2b2622; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:15px; line-height:1;">edit</span></div></div>
+              <div style="display:flex; flex-direction:column; gap:10px;"><div style="font:18px 'Press Start 2P';">CBF</div><div style="display:flex; gap:6px;"><div style="height:22px; padding:0 6px; display:flex; align-items:center; box-sizing:border-box; background:#fbd5ae; border:2px solid #2b2622; font:7px 'Press Start 2P';">BRONZE</div><div style="height:22px; padding:0 6px; display:flex; align-items:center; box-sizing:border-box; background:#dbeefa; border:2px solid #2b2622; font:7px 'Press Start 2P';">MEDIUM</div></div></div>
+            </div>
+            <div style="border-top:2px solid #2b2622; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font:9px 'Press Start 2P';">LVL 1 → 2</div><div style="font:500 14px 'Pixelify Sans'; color:#6e655a;">2 / 7 perfect days</div></div>
+              <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;"><div style="height:12px; background:#2f9e4a; border:2px solid #2b2622;"></div><div style="height:12px; background:#2f9e4a; border:2px solid #2b2622;"></div><div style="height:12px; background:#ece4d2; border:2px solid #2b2622;"></div><div style="height:12px; background:#ece4d2; border:2px solid #2b2622;"></div><div style="height:12px; background:#ece4d2; border:2px solid #2b2622;"></div><div style="height:12px; background:#ece4d2; border:2px solid #2b2622;"></div><div style="height:12px; background:#ece4d2; border:2px solid #2b2622;"></div></div>
+            </div>
+            <div style="border-top:2px solid #2b2622; display:grid; grid-template-columns:repeat(3,1fr);">
+              <div style="padding:10px 12px; display:flex; flex-direction:column; gap:6px;"><div style="font:13px 'Press Start 2P';">410</div><div style="font:500 13px 'Pixelify Sans'; color:#6e655a;">Total XP</div></div>
+              <div style="padding:10px 12px; border-left:2px solid #2b2622; display:flex; flex-direction:column; gap:6px;"><div style="font:13px 'Press Start 2P';">0</div><div style="font:500 13px 'Pixelify Sans'; color:#6e655a;">Streak</div></div>
+              <div style="padding:10px 12px; border-left:2px solid #2b2622; display:flex; flex-direction:column; gap:6px;"><div style="font:13px 'Press Start 2P';">12</div><div style="font:500 13px 'Pixelify Sans'; color:#6e655a;">Quests</div></div>
+            </div>
+          </div>
+          <div style="background:#fffaf0; border:2px solid #2b2622; display:flex; flex-direction:column;">
+            <sc-for list="{{ heroRows }}" as="r" hint-placeholder-count="5">
+              <div style="display:flex; align-items:center; gap:12px; height:48px; padding:0 12px; border-bottom:2px solid #ece4d2;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; color:#c25e00;">{{ r.icon }}</span><div style="flex:1; font:600 16px 'Pixelify Sans';">{{ r.label }}</div><div style="font:500 14px 'Pixelify Sans'; color:#6e655a;">{{ r.value }}</div><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; color:#6e655a;">chevron_right</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <dc-import name="PQNavPixel" active="hero" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#c25e00; color:#fffaf0; border:2px solid #2b2622; font:12px 'Press Start 2P';">3D</div><div style="font:13px 'Press Start 2P';">HERO · PROFILE</div></div>
+      <div style="font:500 15px/1.45 'Pixelify Sans'; color:#4a4540; text-wrap:pretty;">The same structure as <a href="#2g">2g</a>. Icons pick up the orange so the plain list still reads as pixel UI, and numbers use the pixel display font.</div>
+    </div>
+
+    <div id="3e" style="display:flex; flex-direction:column; gap:14px; width:760px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; border:3px solid #161412; background:#fffdf8;">
+        <div style="padding:24px; display:flex; flex-direction:column; gap:16px; border-right:3px solid #161412;">
+          <div style="font:28px Bangers; letter-spacing:.03em;">COMIC · PqSkin.Comic</div>
+          <div style="display:flex; gap:10px;"><div style="height:44px; padding:0 16px; display:flex; align-items:center; box-sizing:border-box; background:#ff5a4e; border:2.5px solid #161412; border-radius:12px; box-shadow:3px 3px 0 #161412; font:800 13px Rubik; letter-spacing:.04em;">EQUIP</div><div style="height:44px; padding:0 16px; display:flex; align-items:center; box-sizing:border-box; background:#fffdf8; border:2.5px solid #161412; border-radius:12px; box-shadow:3px 3px 0 #161412; font:800 13px Rubik; letter-spacing:.04em;">EMAIL CODE</div></div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412;"><div style="width:40px; height:40px; box-sizing:border-box; border:2px solid #161412; border-radius:10px; background:#b39ddb; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">menu_book</span></div><div style="flex:1; font:800 15px Rubik;">Read 15 Pages</div><div style="width:34px; height:34px; box-sizing:border-box; border:2.5px solid #161412; border-radius:50%;"></div></div>
+          <div style="position:relative; height:14px; box-sizing:border-box; border:2px solid #161412; border-radius:7px; background:#efe9dd;"><div style="width:60%; height:100%; background:#ff5a4e; border-radius:5px 0 0 5px;"></div></div>
+          <div style="font:500 13px/1.6 Rubik; color:#4a4540;">radius 10–16 · border 2.5 · shadow (3,3) · primary #FF5A4E on ink text · progress red · Bangers + Rubik</div>
+        </div>
+        <div style="padding:24px; display:flex; flex-direction:column; gap:16px; background:#f5efe2;">
+          <div style="font:14px/1.6 'Press Start 2P'; color:#c25e00;">PIXEL · PqSkin.Pixel</div>
+          <div style="display:flex; gap:10px;"><div style="height:44px; padding:0 14px; display:flex; align-items:center; box-sizing:border-box; background:#c25e00; color:#fffaf0; border:2px solid #2b2622; box-shadow:0 3px 0 #2b2622; font:9px 'Press Start 2P';">EQUIP</div><div style="height:44px; padding:0 14px; display:flex; align-items:center; box-sizing:border-box; background:#fffaf0; border:2px solid #2b2622; box-shadow:0 3px 0 #2b2622; font:9px 'Press Start 2P';">EMAIL CODE</div></div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#fffaf0; border:2px solid #2b2622; box-shadow:0 3px 0 #2b2622;"><div style="width:40px; height:40px; box-sizing:border-box; border:2px solid #2b2622; background:#e4daf6; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">menu_book</span></div><div style="flex:1; font:600 17px 'Pixelify Sans';">Read 15 Pages</div><div style="width:32px; height:32px; box-sizing:border-box; border:2px solid #2b2622;"></div></div>
+          <div style="height:14px; box-sizing:border-box; border:2px solid #2b2622; background:#ece4d2;"><div style="width:60%; height:100%; background:#2f9e4a;"></div></div>
+          <div style="font:500 15px/1.5 'Pixelify Sans'; color:#4a4540;">radius 0 · border 2 · shadow (0,3) · primary #C25E00 on cream text · progress green · Press Start 2P + Pixelify Sans</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#c25e00; color:#fffaf0; border:2px solid #2b2622; font:12px 'Press Start 2P';">3E</div><div style="font:13px 'Press Start 2P';">ONE CODEBASE, TWO SKINS</div></div>
+      <div style="font:500 15px/1.45 'Pixelify Sans'; color:#4a4540; text-wrap:pretty;">Every component reads its shape, border, shadow direction, palette and fonts from the active skin. Deen, Quran, Stats, Avatar and Leaderboard switch the same way, with no extra screen files.</div>
+    </div>
+  </div>
+</section>
+<section style="padding:64px; display:flex; flex-direction:column; gap:36px; background:#f6f3ec;">
+  <div style="display:flex; flex-direction:column; gap:8px; max-width:980px;">
+    <div style="font:56px/1 Bangers; letter-spacing:.03em;">PIXELQUEST — APP UI V2</div>
+    <div style="font:500 15px/1.5 Rubik; color:#4a4540; text-wrap:pretty;">New navigation: <b>Home · Quests · Trophy · Deen · Hero</b>. The drawer is gone. Islamic gets its own tab, Stats and Profile merge into Hero, and Settings moves to Hero's top bar. Red is kept for the one primary action on each screen. Cards are paper by default, and colour marks a category or a state. Each screen maps to a file in <b>handoff/</b>.</div>
+  </div>
+
+  <div style="display:flex; flex-wrap:wrap; gap:48px 40px; align-items:flex-start;">
+
+    <!-- 2a HOME -->
+    <div id="2a" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; gap:12px; height:52px;">
+            <dc-import name="PQIcon" variant="avatar" hair="#ffc21a" shirt="#4a90d9" size="46" hint-size="46px,46px"></dc-import>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:600 12px Rubik; color:#6b645c;">Good evening</div><div style="font:800 16px Rubik;">CBF · LVL 1</div></div>
+            <div style="display:flex; align-items:center; gap:4px; height:34px; padding:0 12px 0 8px; box-sizing:border-box; background:#ffc21a; border:2px solid #161412; border-radius:17px; font:800 14px Rubik;"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1; font-variation-settings:'FILL' 1; color:#d63a2f;">local_fire_department</span>3</div>
+          </div>
+          <div style="background:#fffdf8; border:2.5px solid #161412; border-radius:16px; box-shadow:4px 4px 0 #161412; padding:16px; display:flex; align-items:center; gap:14px;">
+            <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+              <div style="font:24px/1 Bangers; letter-spacing:.03em;">QUEST PROGRESS</div>
+              <div style="font:600 13px Rubik; color:#4a4540;">2 of 4 done · target 70%</div>
+              <div style="position:relative; height:14px; box-sizing:border-box; border:2px solid #161412; border-radius:7px; background:#efe9dd; margin-top:4px;"><div style="width:50%; height:100%; background:#ff5a4e; border-radius:5px 0 0 5px;"></div><div style="position:absolute; left:70%; top:-6px; width:3px; height:22px; background:#161412;"></div></div>
+              <div style="font:800 12px Rubik; color:#c23a2f;">+40 XP today</div>
+            </div>
+            <div style="width:78px; height:78px; flex:none; box-sizing:border-box; border-radius:50%; border:2.5px solid #161412; background:conic-gradient(#ff5a4e 0 50%, #efe9dd 50% 100%); display:flex; align-items:center; justify-content:center;"><div style="width:54px; height:54px; box-sizing:border-box; border-radius:50%; border:2.5px solid #161412; background:#fffdf8; display:flex; align-items:center; justify-content:center; font:22px Bangers;">50%</div></div>
+          </div>
+          <div style="background:#8ecae6; border:2.5px solid #161412; border-radius:16px; box-shadow:3px 3px 0 #161412; padding:12px; display:flex; align-items:center; gap:12px;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#fffdf8; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">bedtime</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:800 11px Rubik; letter-spacing:.1em;">NEXT PRAYER · 4/5 TODAY</div><div style="font:800 16px Rubik;">Isha · 6:46 PM</div><div style="font:600 12px Rubik;">in 36 min</div></div>
+            <span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">chevron_right</span>
+          </div>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:4px;"><div style="font:800 13px Rubik; letter-spacing:.1em;">UP NEXT</div><div style="font:700 13px Rubik; color:#c23a2f;">See all</div></div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#f0a35e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">fitness_center</span></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;"><div style="font:800 15px Rubik;">Go to Gym</div><div style="display:flex; align-items:center; gap:6px; font:500 12px Rubik; color:#6b645c;"><span style="font:800 10px Rubik; letter-spacing:.06em; color:#c23a2f; border:1.5px solid #c23a2f; border-radius:6px; padding:1px 5px;">OVERDUE</span>17:30 · Fitness</div></div>
+            <div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:2.5px solid #161412; border-radius:50%; background:#fffdf8;"></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#b39ddb; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">menu_book</span></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;"><div style="font:800 15px Rubik;">Read 15 Pages</div><div style="font:500 12px Rubik; color:#6b645c;">21:00 · Learning · Daily</div></div>
+            <div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:2.5px solid #161412; border-radius:50%; background:#fffdf8;"></div>
+          </div>
+          <div style="background:#f0a35e; border:2.5px solid #161412; border-radius:14px; padding:10px 12px; display:flex; align-items:center; gap:12px;">
+            <div style="width:40px; height:40px; flex:none; border-radius:10px; background:#161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1; color:#ffc21a;">auto_awesome</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:800 14px Rubik;">AI Questmaster</div><div style="font:500 12px Rubik;">Sign in for daily debriefs</div></div>
+            <div style="height:34px; padding:0 12px; display:flex; align-items:center; box-sizing:border-box; background:#ff5a4e; border:2px solid #161412; border-radius:10px; box-shadow:2px 2px 0 #161412; font:800 12px Rubik;">UNLOCK</div>
+          </div>
+        </div>
+        <dc-import name="PQNav" active="home" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2A</div><div style="font:26px Bangers; letter-spacing:.03em;">HOME · IN PROGRESS</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">One progress card with the 70% target marked on the bar. Quests complete with a tap on the circle. The AI card shrinks to one row, and Exit Comic/Refresh move to pull-to-refresh and Settings.</div>
+    </div>
+
+    <!-- 2b HOME PERFECT -->
+    <div id="2b" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>21:40</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; gap:12px; height:52px;">
+            <dc-import name="PQIcon" variant="avatar" hair="#ffc21a" shirt="#4a90d9" size="46" hint-size="46px,46px"></dc-import>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:600 12px Rubik; color:#6b645c;">Good evening</div><div style="font:800 16px Rubik;">CBF · LVL 1</div></div>
+            <div style="display:flex; align-items:center; gap:4px; height:34px; padding:0 12px 0 8px; box-sizing:border-box; background:#ffc21a; border:2px solid #161412; border-radius:17px; font:800 14px Rubik;"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1; font-variation-settings:'FILL' 1; color:#d63a2f;">local_fire_department</span>4</div>
+          </div>
+          <div style="background:#ffc21a; border:2.5px solid #161412; border-radius:16px; box-shadow:4px 4px 0 #161412; padding:18px 16px; display:flex; flex-direction:column; gap:10px;">
+            <div style="font:800 11px Rubik; letter-spacing:.12em;">ALL 4 QUESTS DONE</div>
+            <div style="font:48px/0.95 Bangers; letter-spacing:.03em; color:#ff5a4e; -webkit-text-stroke:1.5px #161412; text-shadow:3px 3px 0 #161412;">PERFECT DAY!</div>
+            <div style="font:500 14px/1.4 Rubik;">Streak protected. One more perfect day this week moves you toward LVL 2.</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <div style="height:30px; padding:0 10px; display:flex; align-items:center; box-sizing:border-box; background:#fffdf8; border:2px solid #161412; border-radius:15px; font:800 13px Rubik;">+80 XP</div>
+              <div style="height:30px; padding:0 10px; display:flex; align-items:center; gap:4px; box-sizing:border-box; background:#fffdf8; border:2px solid #161412; border-radius:15px; font:800 13px Rubik;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; font-variation-settings:'FILL' 1; color:#d63a2f;">local_fire_department</span>4 day streak</div>
+            </div>
+          </div>
+          <div style="background:#8ecae6; border:2.5px solid #161412; border-radius:16px; box-shadow:3px 3px 0 #161412; padding:12px; display:flex; align-items:center; gap:12px;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#fffdf8; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">bedtime</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:800 11px Rubik; letter-spacing:.1em;">PRAYERS · 5/5 TODAY</div><div style="font:800 16px Rubik;">All five prayed</div><div style="font:600 12px Rubik;">Next: Fajr 4:49 AM</div></div>
+            <span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">chevron_right</span>
+          </div>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:4px;"><div style="font:800 13px Rubik; letter-spacing:.1em;">DONE TODAY · 4</div><div style="font:700 13px Rubik; color:#c23a2f;">Hide</div></div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; background:#efe9dd; border:2px solid #161412; border-radius:12px;"><div style="width:32px; height:32px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:8px; background:#f0a35e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; font-variation-settings:'FILL' 1;">fitness_center</span></div><div style="flex:1; font:700 14px Rubik; color:#6b645c; text-decoration:line-through;">20 Push-ups</div><div style="font:800 12px Rubik; color:#6b645c;">+20</div><div style="width:28px; height:28px; border-radius:50%; background:#161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; color:#fffdf8;">check</span></div></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; background:#efe9dd; border:2px solid #161412; border-radius:12px;"><div style="width:32px; height:32px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:8px; background:#f0a35e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; font-variation-settings:'FILL' 1;">fitness_center</span></div><div style="flex:1; font:700 14px Rubik; color:#6b645c; text-decoration:line-through;">Ring_Test</div><div style="font:800 12px Rubik; color:#6b645c;">+20</div><div style="width:28px; height:28px; border-radius:50%; background:#161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; color:#fffdf8;">check</span></div></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; background:#efe9dd; border:2px solid #161412; border-radius:12px;"><div style="width:32px; height:32px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:8px; background:#f0a35e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; font-variation-settings:'FILL' 1;">fitness_center</span></div><div style="flex:1; font:700 14px Rubik; color:#6b645c; text-decoration:line-through;">Go to Gym</div><div style="font:800 12px Rubik; color:#6b645c;">+20</div><div style="width:28px; height:28px; border-radius:50%; background:#161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; color:#fffdf8;">check</span></div></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; background:#efe9dd; border:2px solid #161412; border-radius:12px;"><div style="width:32px; height:32px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:8px; background:#b39ddb; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; font-variation-settings:'FILL' 1;">menu_book</span></div><div style="flex:1; font:700 14px Rubik; color:#6b645c; text-decoration:line-through;">Read 15 Pages</div><div style="font:800 12px Rubik; color:#6b645c;">+20</div><div style="width:28px; height:28px; border-radius:50%; background:#161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; color:#fffdf8;">check</span></div></div>
+          </div>
+        </div>
+        <dc-import name="PQNav" active="home" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2B</div><div style="font:26px Bangers; letter-spacing:.03em;">HOME · PERFECT DAY</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">The two separate orange banners become one celebration card. Finished quests collapse into short rows, and the prayer card switches to its all-prayed state.</div>
+    </div>
+
+    <!-- 2c QUESTS -->
+    <div id="2c" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; height:48px;"><div style="font:36px/1 Bangers; letter-spacing:.03em;">QUESTS</div><div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">search</span></div></div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); background:#fffdf8; border:2.5px solid #161412; border-radius:12px; padding:3px; gap:3px;">
+            <div style="height:34px; border-radius:9px; background:#161412; color:#fffdf8; display:flex; align-items:center; justify-content:center; font:800 13px Rubik;">Today · 4</div>
+            <div style="height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font:700 13px Rubik;">All quests</div>
+            <div style="height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font:700 13px Rubik;">History</div>
+          </div>
+          <div style="font:800 12px Rubik; letter-spacing:.12em; color:#6b645c;">MORNING · 2 DONE</div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#efe9dd; border:2.5px solid #161412; border-radius:14px;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#f0a35e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">fitness_center</span></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;"><div style="font:800 15px Rubik; color:#6b645c; text-decoration:line-through;">20 Push-ups</div><div style="font:500 12px Rubik; color:#6b645c;">08:00 · Fitness · Daily</div></div>
+            <div style="width:40px; height:40px; flex:none; border-radius:50%; background:#161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; color:#fffdf8;">check</span></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#efe9dd; border:2.5px solid #161412; border-radius:14px;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#f0a35e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">fitness_center</span></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;"><div style="font:800 15px Rubik; color:#6b645c; text-decoration:line-through;">Ring_Test</div><div style="font:500 12px Rubik; color:#6b645c;">11:18 · Fitness · Daily</div></div>
+            <div style="width:40px; height:40px; flex:none; border-radius:50%; background:#161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; color:#fffdf8;">check</span></div>
+          </div>
+          <div style="font:800 12px Rubik; letter-spacing:.12em; color:#6b645c; margin-top:4px;">EVENING · 2 LEFT</div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#f0a35e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">fitness_center</span></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;"><div style="font:800 15px Rubik;">Go to Gym</div><div style="display:flex; align-items:center; gap:6px; font:500 12px Rubik; color:#6b645c;"><span style="font:800 10px Rubik; letter-spacing:.06em; color:#c23a2f; border:1.5px solid #c23a2f; border-radius:6px; padding:1px 5px;">OVERDUE</span>17:30 · Daily</div></div>
+            <div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:2.5px solid #161412; border-radius:50%; background:#fffdf8;"></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412;">
+            <div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#b39ddb; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">menu_book</span></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;"><div style="font:800 15px Rubik;">Read 15 Pages</div><div style="font:500 12px Rubik; color:#6b645c;">21:00 · Learning · Daily</div></div>
+            <div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:2.5px solid #161412; border-radius:50%; background:#fffdf8;"></div>
+          </div>
+          <div style="font:500 12px Rubik; color:#6b645c;">Swipe a quest left to edit or delete.</div>
+        </div>
+        <div style="position:absolute; right:16px; bottom:94px; height:52px; padding:0 18px 0 14px; box-sizing:border-box; display:flex; align-items:center; gap:6px; background:#ff5a4e; border:2.5px solid #161412; border-radius:16px; box-shadow:4px 4px 0 #161412; font:800 14px Rubik; letter-spacing:.04em; cursor:pointer;" style-active="transform:translate(2px,2px); box-shadow:2px 2px 0 #161412;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1;">add</span>NEW QUEST</div>
+        <dc-import name="PQNav" active="quests" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2C</div><div style="font:26px Bangers; letter-spacing:.03em;">QUESTS</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Grouped by time of day, with done and overdue states you can see at a glance (the tiny [DONE] tag is gone). History moves here from the drawer. The FAB now says what it does.</div>
+    </div>
+
+    <!-- 2d DEEN -->
+    <div id="2d" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; height:48px; padding-top:8px; box-sizing:border-box;"><div style="font:36px/1 Bangers; letter-spacing:.03em;">DEEN</div><div style="font:700 13px Rubik; color:#6b645c;">Tue, 20 Oct</div></div>
+          <div style="background:#8ecae6; border:2.5px solid #161412; border-radius:18px; box-shadow:4px 4px 0 #161412; padding:16px; display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font:800 11px Rubik; letter-spacing:.12em;">NEXT PRAYER</div><div style="display:flex; align-items:center; gap:3px; font:800 12px Rubik;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1; color:#d63a2f;">local_fire_department</span>2 days all five</div></div>
+            <div style="display:flex; align-items:flex-end; justify-content:space-between;"><div style="font:56px/0.9 Bangers; letter-spacing:.03em;">ISHA</div><div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;"><div style="font:800 18px Rubik;">6:46 PM</div><div style="font:600 13px Rubik;">in 36 min</div></div></div>
+            <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:6px;">
+              <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:100%; height:36px; box-sizing:border-box; border:2px solid #161412; border-radius:9px; background:#fffdf8; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">check</span></div><div style="font:700 11px Rubik;">Fajr</div></div>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:100%; height:36px; box-sizing:border-box; border:2px solid #161412; border-radius:9px; background:#fffdf8; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">check</span></div><div style="font:700 11px Rubik;">Dhuhr</div></div>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:100%; height:36px; box-sizing:border-box; border:2px solid #161412; border-radius:9px; background:#fffdf8; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">check</span></div><div style="font:700 11px Rubik;">Asr</div></div>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:100%; height:36px; box-sizing:border-box; border:2px solid #161412; border-radius:9px; background:#fffdf8; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">check</span></div><div style="font:700 11px Rubik;">Maghrib</div></div>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:100%; height:36px; box-sizing:border-box; border:2px dashed #161412; border-radius:9px;"></div><div style="font:800 11px Rubik;">Isha</div></div>
+            </div>
+            <div style="height:44px; box-sizing:border-box; display:flex; align-items:center; justify-content:space-between; padding:0 14px; background:#fffdf8; border:2.5px solid #161412; border-radius:12px; box-shadow:3px 3px 0 #161412; font:800 13px Rubik; letter-spacing:.04em;">OPEN NAMAZ TRACKER<span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_forward</span></div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="background:#b39ddb; border:2.5px solid #161412; border-radius:16px; box-shadow:3px 3px 0 #161412; padding:14px; display:flex; flex-direction:column; gap:8px; min-height:150px; box-sizing:border-box;">
+              <span style="font-family:'Material Symbols Rounded'; font-size:30px; line-height:1; font-variation-settings:'FILL' 1;">menu_book</span>
+              <div style="font:800 16px Rubik;">Quran</div>
+              <div style="font:500 12px/1.35 Rubik;">Continue Al-Baqara · ayah 142</div>
+              <div style="margin-top:auto; height:10px; box-sizing:border-box; border:2px solid #161412; border-radius:5px; background:#fffdf8;"><div style="width:50%; height:100%; background:#161412;"></div></div>
+            </div>
+            <div style="background:#f0a35e; border:2.5px solid #161412; border-radius:16px; box-shadow:3px 3px 0 #161412; padding:14px; display:flex; flex-direction:column; gap:8px; min-height:150px; box-sizing:border-box;">
+              <span style="font-family:'Material Symbols Rounded'; font-size:30px; line-height:1; font-variation-settings:'FILL' 1;">groups</span>
+              <div style="font:800 16px Rubik;">Darood Party</div>
+              <div style="font:500 12px/1.35 Rubik;">Count Darood together with friends</div>
+            </div>
+          </div>
+        </div>
+        <dc-import name="PQNav" active="deen" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2D</div><div style="font:26px Bangers; letter-spacing:.03em;">DEEN TAB</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Islamic moves out of the drawer and becomes a tab. It opens on the next prayer and today's five, and Quran picks up where you left off. The "More coming soon" tile is removed.</div>
+    </div>
+
+    <!-- 2e NAMAZ -->
+    <div id="2e" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; gap:12px; height:48px;">
+            <div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+            <div style="flex:1; font:30px/1 Bangers; letter-spacing:.03em;">NAMAZ</div>
+            <div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">tune</span></div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;">
+            <sc-for list="{{ week }}" as="d" hint-placeholder-count="7">
+              <div style="height:62px; box-sizing:border-box; border-radius:12px; border:2px solid {{ d.border }}; background:{{ d.bg }}; color:{{ d.fg }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;">
+                <div style="font:700 11px Rubik;">{{ d.l }}</div><div style="font:800 16px Rubik;">{{ d.n }}</div><div style="width:8px; height:8px; border-radius:50%; background:{{ d.dot }};"></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font:800 16px Rubik;">4 / 5 prayed today</div><div style="font:800 12px Rubik; color:#c23a2f;">+48 XP</div></div>
+            <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:4px;"><div style="height:10px; background:#ff5a4e; border:2px solid #161412; border-radius:4px;"></div><div style="height:10px; background:#ff5a4e; border:2px solid #161412; border-radius:4px;"></div><div style="height:10px; background:#ff5a4e; border:2px solid #161412; border-radius:4px;"></div><div style="height:10px; background:#ff5a4e; border:2px solid #161412; border-radius:4px;"></div><div style="height:10px; background:#efe9dd; border:2px solid #161412; border-radius:4px;"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; background:#fffdf8; border:2px solid #161412; border-radius:14px;">
+            <div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:50%; background:#8ecae6; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">wb_twilight</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:1px;"><div style="font:800 15px Rubik;">Fajr</div><div style="font:500 12px Rubik; color:#6b645c;">4:48 AM</div></div>
+            <div style="height:30px; padding:0 10px 0 6px; display:flex; align-items:center; gap:3px; box-sizing:border-box; background:#161412; color:#fffdf8; border-radius:15px; font:800 12px Rubik;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1;">check</span>Prayed</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; background:#fffdf8; border:2px solid #161412; border-radius:14px;">
+            <div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:50%; background:#ffc21a; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">light_mode</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:1px;"><div style="font:800 15px Rubik;">Dhuhr</div><div style="font:500 12px Rubik; color:#6b645c;">11:48 AM</div></div>
+            <div style="height:30px; padding:0 10px 0 6px; display:flex; align-items:center; gap:3px; box-sizing:border-box; background:#161412; color:#fffdf8; border-radius:15px; font:800 12px Rubik;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1;">check</span>Prayed</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; background:#fffdf8; border:2px solid #161412; border-radius:14px;">
+            <div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:50%; background:#f0a35e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">wb_cloudy</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:1px;"><div style="font:800 15px Rubik;">Asr</div><div style="font:500 12px Rubik; color:#6b645c;">3:47 PM</div></div>
+            <div style="height:30px; padding:0 10px 0 6px; display:flex; align-items:center; gap:3px; box-sizing:border-box; background:#161412; color:#fffdf8; border-radius:15px; font:800 12px Rubik;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1;">check</span>Prayed</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; background:#fffdf8; border:2px solid #161412; border-radius:14px;">
+            <div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:50%; background:#ff5a4e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">nights_stay</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:1px;"><div style="font:800 15px Rubik;">Maghrib</div><div style="font:500 12px Rubik; color:#6b645c;">5:25 PM</div></div>
+            <div style="height:30px; padding:0 10px 0 6px; display:flex; align-items:center; gap:3px; box-sizing:border-box; background:#161412; color:#fffdf8; border-radius:15px; font:800 12px Rubik;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1;">check</span>Prayed</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #ff5a4e;">
+            <div style="width:40px; height:40px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:50%; background:#b39ddb; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; font-variation-settings:'FILL' 1;">bedtime</span></div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:1px;"><div style="font:800 15px Rubik;">Isha</div><div style="font:600 12px Rubik; color:#c23a2f;">6:46 PM · in 36 min</div></div>
+            <div style="height:34px; padding:0 12px; display:flex; align-items:center; box-sizing:border-box; background:#fffdf8; border:2.5px solid #161412; border-radius:10px; box-shadow:2px 2px 0 #161412; font:800 12px Rubik;">MARK</div>
+          </div>
+        </div>
+        <dc-import name="PQNav" active="deen" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2E</div><div style="font:26px Bangers; letter-spacing:.03em;">NAMAZ TRACKER</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">A 7-day strip with a status dot per day and a five-segment bar for today. Prayed rows sit flat, and the next prayer is lifted with a time-left label. Tapping Mark logs it.</div>
+    </div>
+
+    <!-- 2f QURAN -->
+    <div id="2f" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; gap:12px; height:48px;">
+            <div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+            <div style="flex:1; font:30px/1 Bangers; letter-spacing:.03em;">QURAN</div>
+            <div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">text_fields</span></div>
+          </div>
+          <div style="background:#b39ddb; border:2.5px solid #161412; border-radius:16px; box-shadow:3px 3px 0 #161412; padding:14px; display:flex; flex-direction:column; gap:8px;">
+            <div style="font:800 11px Rubik; letter-spacing:.12em;">CONTINUE READING</div>
+            <div style="display:flex; align-items:center; justify-content:space-between;"><div style="font:30px/1 Bangers; letter-spacing:.03em;">AL-BAQARA</div><div style="font:700 28px/1 Amiri;">البقرة</div></div>
+            <div style="display:flex; align-items:center; gap:10px;"><div style="flex:1; height:10px; box-sizing:border-box; border:2px solid #161412; border-radius:5px; background:#fffdf8;"><div style="width:50%; height:100%; background:#161412;"></div></div><div style="font:700 12px Rubik;">Ayah 142 / 286</div></div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); background:#fffdf8; border:2.5px solid #161412; border-radius:12px; padding:3px; gap:3px;">
+            <div style="height:32px; border-radius:9px; background:#161412; color:#fffdf8; display:flex; align-items:center; justify-content:center; font:800 13px Rubik;">Surahs</div>
+            <div style="height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font:700 13px Rubik;">Juz</div>
+            <div style="height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font:700 13px Rubik;">Saved</div>
+          </div>
+          <div style="height:44px; box-sizing:border-box; display:flex; align-items:center; gap:8px; padding:0 12px; background:#fffdf8; border:2.5px solid #161412; border-radius:12px;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; color:#6b645c;">search</span><div style="font:500 14px Rubik; color:#6b645c;">Surah name or number</div></div>
+          <div style="background:#fffdf8; border:2.5px solid #161412; border-radius:14px; display:flex; flex-direction:column;">
+            <sc-for list="{{ surahs }}" as="s" hint-placeholder-count="5">
+              <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; border-bottom:2px solid #ebe4d7;">
+                <div style="width:34px; height:34px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:10px; transform:rotate(45deg); display:flex; align-items:center; justify-content:center; background:{{ s.tile }};"><div style="transform:rotate(-45deg); font:800 13px Rubik;">{{ s.n }}</div></div>
+                <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;"><div style="font:800 15px Rubik;">{{ s.name }}</div><div style="font:500 12px Rubik; color:#6b645c;">{{ s.meta }}</div></div>
+                <div style="font:400 24px/1 Amiri;">{{ s.ar }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <dc-import name="PQNav" active="deen" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2F</div><div style="font:26px Bangers; letter-spacing:.03em;">QURAN</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Continue Reading sits at the top. The surahs are one ruled list with larger Arabic, the surah you're reading is highlighted, and the loose ayah-number scrubber is removed. A Saved tab holds bookmarks.</div>
+    </div>
+
+    <!-- 2g HERO -->
+    <div id="2g" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; height:48px;"><div style="font:36px/1 Bangers; letter-spacing:.03em;">HERO</div><div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">settings</span></div></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; background:#fffdf8; border:2.5px solid #161412; border-radius:12px; padding:3px; gap:3px;">
+            <div style="height:32px; border-radius:9px; background:#161412; color:#fffdf8; display:flex; align-items:center; justify-content:center; font:800 13px Rubik;">Profile</div>
+            <div style="height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font:700 13px Rubik;">Stats</div>
+          </div>
+          <div style="background:#fffdf8; border:2.5px solid #161412; border-radius:16px; box-shadow:4px 4px 0 #161412; display:flex; flex-direction:column;">
+            <div style="display:flex; align-items:center; gap:14px; padding:14px;">
+              <div style="position:relative; flex:none;"><dc-import name="PQIcon" variant="avatar" hair="#ffc21a" shirt="#4a90d9" size="80" hint-size="80px,80px"></dc-import><div style="position:absolute; right:-6px; bottom:-6px; width:28px; height:28px; box-sizing:border-box; border-radius:50%; background:#ffc21a; border:2px solid #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1;">edit</span></div></div>
+              <div style="display:flex; flex-direction:column; gap:6px;"><div style="font:34px/1 Bangers; letter-spacing:.03em;">CBF</div><div style="display:flex; gap:6px;"><div style="height:24px; padding:0 8px; display:flex; align-items:center; box-sizing:border-box; background:#f0a35e; border:2px solid #161412; border-radius:12px; font:800 11px Rubik;">BRONZE</div><div style="height:24px; padding:0 8px; display:flex; align-items:center; box-sizing:border-box; background:#8ecae6; border:2px solid #161412; border-radius:12px; font:800 11px Rubik;">MEDIUM</div></div></div>
+            </div>
+            <div style="border-top:2.5px solid #161412; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font:800 13px Rubik;">LVL 1 → 2</div><div style="font:600 12px Rubik; color:#6b645c;">2 / 7 perfect days</div></div>
+              <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;"><div style="height:12px; background:#ffc21a; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#ffc21a; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#efe9dd; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#efe9dd; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#efe9dd; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#efe9dd; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#efe9dd; border:2px solid #161412; border-radius:3px;"></div></div>
+            </div>
+            <div style="border-top:2.5px solid #161412; display:grid; grid-template-columns:repeat(3,1fr);">
+              <div style="padding:10px 14px; display:flex; flex-direction:column; gap:2px;"><div style="font:24px/1 Bangers;">410</div><div style="font:700 11px Rubik; color:#6b645c;">TOTAL XP</div></div>
+              <div style="padding:10px 14px; border-left:2.5px solid #161412; display:flex; flex-direction:column; gap:2px;"><div style="font:24px/1 Bangers;">0</div><div style="font:700 11px Rubik; color:#6b645c;">STREAK</div></div>
+              <div style="padding:10px 14px; border-left:2.5px solid #161412; display:flex; flex-direction:column; gap:2px;"><div style="font:24px/1 Bangers;">12</div><div style="font:700 11px Rubik; color:#6b645c;">QUESTS</div></div>
+            </div>
+          </div>
+          <div style="background:#fffdf8; border:2.5px solid #161412; border-radius:14px; display:flex; flex-direction:column;">
+            <sc-for list="{{ heroRows }}" as="r" hint-placeholder-count="5">
+              <div style="display:flex; align-items:center; gap:12px; height:48px; padding:0 12px; border-bottom:2px solid #ebe4d7;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">{{ r.icon }}</span><div style="flex:1; font:700 15px Rubik;">{{ r.label }}</div><div style="font:600 13px Rubik; color:#6b645c;">{{ r.value }}</div><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1; color:#6b645c;">chevron_right</span></div>
+            </sc-for>
+          </div>
+        </div>
+        <dc-import name="PQNav" active="hero" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2G</div><div style="font:26px Bangers; letter-spacing:.03em;">HERO · PROFILE</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Profile and the old drawer merge here. Level progress is a pixel bar with one block per perfect day. The three big red buttons become one tidy list.</div>
+    </div>
+
+    <!-- 2h STATS -->
+    <div id="2h" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; height:48px;"><div style="font:36px/1 Bangers; letter-spacing:.03em;">HERO</div><div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">settings</span></div></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; background:#fffdf8; border:2.5px solid #161412; border-radius:12px; padding:3px; gap:3px;">
+            <div style="height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font:700 13px Rubik;">Profile</div>
+            <div style="height:32px; border-radius:9px; background:#161412; color:#fffdf8; display:flex; align-items:center; justify-content:center; font:800 13px Rubik;">Stats</div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div style="background:#8ecae6; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412; padding:12px; display:flex; flex-direction:column; gap:4px;"><div style="font:34px/1 Bangers;">60 XP</div><div style="font:700 12px Rubik;">Last 7 days</div></div>
+            <div style="background:#ffc21a; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412; padding:12px; display:flex; flex-direction:column; gap:4px;"><div style="font:34px/1 Bangers;">5</div><div style="font:700 12px Rubik;">Perfect days</div></div>
+          </div>
+          <div style="background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;"><div style="font:800 13px Rubik; letter-spacing:.08em;">QUEST ACTIVITY</div><div style="font:600 11px Rubik; color:#6b645c;">Jul – Oct</div></div>
+            <div style="display:flex; gap:6px;">
+              <div style="display:grid; grid-template-rows:repeat(7,13px); row-gap:3px; font:700 9px/13px Rubik; color:#6b645c;"><div>M</div><div></div><div>W</div><div></div><div>F</div><div></div><div>S</div></div>
+              <div style="display:grid; grid-template-rows:repeat(7,13px); grid-auto-flow:column; grid-auto-columns:13px; gap:3px;">
+                <sc-for list="{{ heat }}" as="h" hint-placeholder-count="91"><div style="box-sizing:border-box; border:1.5px solid #161412; border-radius:3px; background:{{ h }};"></div></sc-for>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; font:600 11px Rubik; color:#4a4540;">
+              <div style="display:flex; align-items:center; gap:4px;"><div style="width:10px; height:10px; border:1.5px solid #161412; border-radius:2px; background:#8ecae6;"></div>Perfect</div>
+              <div style="display:flex; align-items:center; gap:4px;"><div style="width:10px; height:10px; border:1.5px solid #161412; border-radius:2px; background:#f0a35e;"></div>Partial</div>
+              <div style="display:flex; align-items:center; gap:4px;"><div style="width:10px; height:10px; border:1.5px solid #161412; border-radius:2px; background:#ff5a4e;"></div>Missed</div>
+              <div style="display:flex; align-items:center; gap:4px;"><div style="width:10px; height:10px; border:1.5px solid #161412; border-radius:2px; background:#efe9dd;"></div>None</div>
+            </div>
+          </div>
+          <div style="background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+            <div style="font:800 13px Rubik; letter-spacing:.08em;">WEEKLY COMPLETION</div>
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; align-items:end; height:92px;">
+              <sc-for list="{{ trend }}" as="t" hint-placeholder-count="4">
+                <div style="display:flex; flex-direction:column; align-items:stretch; justify-content:flex-end; gap:4px; height:100%;"><div style="font:800 11px Rubik; text-align:center;">{{ t.v }}</div><div style="height:{{ t.h }}; min-height:4px; box-sizing:border-box; border:2px solid #161412; border-radius:5px 5px 0 0; background:{{ t.bg }};"></div><div style="font:700 11px Rubik; color:#6b645c; text-align:center;">{{ t.l }}</div></div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <dc-import name="PQNav" active="hero" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2H</div><div style="font:26px Bangers; letter-spacing:.03em;">HERO · STATS</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Stats is a segment inside Hero. The heatmap and trend sit on paper cards so the colours stand out, and the trend uses the 70% target. The leaderboard and history buttons move to the Profile list.</div>
+    </div>
+
+    <!-- 2i AVATAR -->
+    <div id="2i" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px;">
+          <div style="display:flex; align-items:center; gap:12px; height:48px;">
+            <div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+            <div style="flex:1; font:30px/1 Bangers; letter-spacing:.03em;">CHOOSE AVATAR</div>
+          </div>
+          <div style="background:#ffc21a; border:2.5px solid #161412; border-radius:18px; box-shadow:4px 4px 0 #161412; padding:16px; display:flex; align-items:center; gap:16px;">
+            <dc-import name="PQIcon" variant="avatar" hair="#8e5cc4" shirt="#8e5cc4" size="104" hint-size="104px,104px"></dc-import>
+            <div style="display:flex; flex-direction:column; gap:4px;"><div style="font:800 11px Rubik; letter-spacing:.12em;">PREVIEW</div><div style="font:40px/1 Bangers; letter-spacing:.03em;">MAGE</div><div style="font:500 13px Rubik;">Currently equipped: Hero</div></div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
+            <sc-for list="{{ avatars }}" as="a" hint-placeholder-count="6">
+              <div style="position:relative; box-sizing:border-box; border:2.5px solid #161412; border-radius:14px; background:{{ a.bg }}; box-shadow:{{ a.sh }}; padding:12px 6px 10px; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
+                <dc-import name="PQIcon" variant="avatar" hair="{{ a.hair }}" shirt="{{ a.shirt }}" size="60" hint-size="60px,60px"></dc-import>
+                <div style="font:800 12px Rubik; letter-spacing:.06em;">{{ a.name }}</div>
+                <sc-if value="{{ a.sel }}"><div style="position:absolute; top:-8px; right:-8px; width:26px; height:26px; border-radius:50%; background:#161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1; color:#ffc21a;">check</span></div></sc-if>
+                <sc-if value="{{ a.eq }}"><div style="position:absolute; top:6px; left:6px; font:800 8px Rubik; letter-spacing:.06em; background:#161412; color:#fffdf8; border-radius:4px; padding:2px 4px;">ON</div></sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:auto; height:54px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:14px; box-shadow:4px 4px 0 #161412; font:800 15px Rubik; letter-spacing:.05em; cursor:pointer;" style-active="transform:translate(2px,2px); box-shadow:2px 2px 0 #161412;">EQUIP MAGE</div>
+        </div>
+        <dc-import name="PQNav" active="hero" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2I</div><div style="font:26px Bangers; letter-spacing:.03em;">CHOOSE AVATAR</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">A large preview, a 3-column grid that fits on one screen, and a separate Equip button so a tap just previews. The red-outline-on-orange selection becomes a clear check badge.</div>
+    </div>
+
+    <!-- 2j LEADERBOARD -->
+    <div id="2j" style="display:flex; flex-direction:column; gap:14px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative;"><span>18:10</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+        <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px; position:relative;">
+          <div style="display:flex; align-items:center; gap:12px; height:48px;">
+            <div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+            <div style="flex:1; font:30px/1 Bangers; letter-spacing:.03em;">LEADERBOARD</div>
+          </div>
+          <div style="opacity:.4; display:flex; flex-direction:column; gap:8px;">
+            <sc-for list="{{ ghosts }}" as="g" hint-placeholder-count="5">
+              <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#fffdf8; border:2px solid #161412; border-radius:12px;"><div style="width:22px; font:22px Bangers;">{{ g.r }}</div><div style="width:34px; height:34px; border-radius:8px; background:#161412;"></div><div style="flex:1; display:flex; flex-direction:column; gap:5px;"><div style="height:10px; width:{{ g.w }}; background:#161412; border-radius:5px;"></div><div style="height:8px; width:40%; background:#b8b0a4; border-radius:4px;"></div></div><div style="font:800 13px Rubik;">{{ g.xp }}</div></div>
+            </sc-for>
+          </div>
+          <div style="position:absolute; left:16px; right:16px; top:210px; background:#fffdf8; border:2.5px solid #161412; border-radius:18px; box-shadow:5px 5px 0 #161412; padding:18px; display:flex; flex-direction:column; gap:12px;">
+            <div style="width:52px; height:52px; box-sizing:border-box; border:2.5px solid #161412; border-radius:14px; background:#ffc21a; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:28px; line-height:1; font-variation-settings:'FILL' 1;">lock</span></div>
+            <div style="font:32px/1 Bangers; letter-spacing:.03em;">HALL OF FAME LOCKED</div>
+            <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Sign in to see global rankings and streaks, and to climb the board against heroes across the realm.</div>
+            <div style="height:50px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; background:#ff5a4e; border:2.5px solid #161412; border-radius:12px; box-shadow:3px 3px 0 #161412; font:800 14px Rubik; letter-spacing:.04em;">CONTINUE WITH GOOGLE</div>
+            <div style="height:46px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:#fffdf8; border:2.5px solid #161412; border-radius:12px; font:800 13px Rubik; letter-spacing:.04em;">EMAIL ME A CODE</div>
+          </div>
+        </div>
+        <dc-import name="PQNav" active="hero" hint-size="100%,76px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2J</div><div style="font:26px Bangers; letter-spacing:.03em;">LEADERBOARD · LOCKED</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">A faded preview of the rankings shows what you're unlocking. Both sign-in paths are offered (Google or an emailed code), the same as the AI unlock.</div>
+    </div>
+
+    <!-- 2k COMPONENTS -->
+    <div id="2k" style="display:flex; flex-direction:column; gap:14px; width:760px;">
+      <div style="background:#fffdf8; border:2.5px solid #161412; border-radius:18px; box-shadow:6px 6px 0 #161412; padding:28px; display:grid; grid-template-columns:1fr 1fr; gap:28px 32px;">
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="font:700 12px Rubik; color:#6b645c;">PqButton · Primary / Secondary / Quiet</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <div style="height:46px; padding:0 18px; display:flex; align-items:center; box-sizing:border-box; background:#ff5a4e; border:2.5px solid #161412; border-radius:12px; box-shadow:3px 3px 0 #161412; font:800 13px Rubik; letter-spacing:.04em;">EQUIP</div>
+            <div style="height:46px; padding:0 18px; display:flex; align-items:center; box-sizing:border-box; background:#fffdf8; border:2.5px solid #161412; border-radius:12px; box-shadow:3px 3px 0 #161412; font:800 13px Rubik; letter-spacing:.04em;">EMAIL CODE</div>
+            <div style="height:46px; padding:0 12px; display:flex; align-items:center; font:700 13px Rubik; color:#c23a2f;">See all</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="font:700 12px Rubik; color:#6b645c;">PqIconButton · PqChip</div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:12px; background:#fffdf8; box-shadow:2px 2px 0 #161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+            <div style="height:30px; padding:0 10px; display:flex; align-items:center; box-sizing:border-box; background:#ffc21a; border:2px solid #161412; border-radius:15px; font:800 13px Rubik;">LVL 1</div>
+            <div style="height:30px; padding:0 10px; display:flex; align-items:center; box-sizing:border-box; background:#8ecae6; border:2px solid #161412; border-radius:15px; font:800 13px Rubik;">MEDIUM</div>
+            <span style="font:800 10px Rubik; letter-spacing:.06em; color:#c23a2f; border:1.5px solid #c23a2f; border-radius:6px; padding:1px 5px;">OVERDUE</span>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="font:700 12px Rubik; color:#6b645c;">QuestRow · todo / done</div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#fffdf8; border:2.5px solid #161412; border-radius:14px; box-shadow:3px 3px 0 #161412;"><div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#b39ddb; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">menu_book</span></div><div style="flex:1; display:flex; flex-direction:column; gap:4px;"><div style="font:800 15px Rubik;">Read 15 Pages</div><div style="font:500 12px Rubik; color:#6b645c;">21:00 · Learning</div></div><div style="width:40px; height:40px; box-sizing:border-box; border:2.5px solid #161412; border-radius:50%;"></div></div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 12px; background:#efe9dd; border:2.5px solid #161412; border-radius:14px;"><div style="width:44px; height:44px; flex:none; box-sizing:border-box; border:2px solid #161412; border-radius:11px; background:#f0a35e; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; font-variation-settings:'FILL' 1;">fitness_center</span></div><div style="flex:1; display:flex; flex-direction:column; gap:4px;"><div style="font:800 15px Rubik; color:#6b645c; text-decoration:line-through;">20 Push-ups</div><div style="font:500 12px Rubik; color:#6b645c;">08:00 · Fitness</div></div><div style="width:40px; height:40px; border-radius:50%; background:#161412; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:24px; line-height:1; color:#fffdf8;">check</span></div></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="font:700 12px Rubik; color:#6b645c;">PqSegmented · PqProgressBar(target) · PqSegmentBar</div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); background:#fffdf8; border:2.5px solid #161412; border-radius:12px; padding:3px; gap:3px;"><div style="height:32px; border-radius:9px; background:#161412; color:#fffdf8; display:flex; align-items:center; justify-content:center; font:800 13px Rubik;">Today</div><div style="height:32px; display:flex; align-items:center; justify-content:center; font:700 13px Rubik;">All</div><div style="height:32px; display:flex; align-items:center; justify-content:center; font:700 13px Rubik;">History</div></div>
+          <div style="position:relative; height:14px; box-sizing:border-box; border:2px solid #161412; border-radius:7px; background:#efe9dd; margin:6px 0;"><div style="width:50%; height:100%; background:#ff5a4e; border-radius:5px 0 0 5px;"></div><div style="position:absolute; left:70%; top:-6px; width:3px; height:22px; background:#161412;"></div></div>
+          <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;"><div style="height:12px; background:#ffc21a; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#ffc21a; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#ffc21a; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#efe9dd; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#efe9dd; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#efe9dd; border:2px solid #161412; border-radius:3px;"></div><div style="height:12px; background:#efe9dd; border:2px solid #161412; border-radius:3px;"></div></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; grid-column:1 / -1;">
+          <div style="font:700 12px Rubik; color:#6b645c;">Tokens · PqColors</div>
+          <div style="display:grid; grid-template-columns:repeat(8,1fr); gap:10px;">
+            <sc-for list="{{ swatches }}" as="c" hint-placeholder-count="8"><div style="display:flex; flex-direction:column; gap:6px;"><div style="height:44px; border:2.5px solid #161412; border-radius:10px; background:{{ c.hex }};"></div><div style="font:700 11px Rubik;">{{ c.name }}</div><div style="font:500 10px Rubik; color:#6b645c;">{{ c.hex }}</div></div></sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="height:28px; padding:0 8px; display:flex; align-items:center; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">2K</div><div style="font:26px Bangers; letter-spacing:.03em;">COMPONENT LIBRARY</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Each piece is a composable in <b>handoff/ui/components/PqComponents.kt</b>. Rules: a 2.5dp ink border, a 3dp hard shadow on things you can tap, and red only for the primary action.</div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const dots = { full: '#8ecae6', part: '#f0a35e', miss: '#ff5a4e', none: 'transparent' };
+    const wk = [['W', 14, 'part'], ['T', 15, 'full'], ['F', 16, 'miss'], ['S', 17, 'part'], ['S', 18, 'full'], ['M', 19, 'full'], ['T', 20, 'today']];
+    const week = wk.map(([l, n, s]) => s === 'today'
+      ? { l, n, bg: '#161412', fg: '#fffdf8', border: '#161412', dot: '#ffc21a' }
+      : { l, n, bg: '#fffdf8', fg: '#161412', border: '#161412', dot: dots[s] });
+    const heat = [];
+    const recent = ['#ff5a4e', '#f0a35e', '#8ecae6', '#ff5a4e', '#ff5a4e', '#f0a35e', '#ff5a4e', '#8ecae6', '#ff5a4e', '#f0a35e', '#ff5a4e', '#ff5a4e', '#8ecae6', '#f0a35e', '#8ecae6', '#ff5a4e', '#8ecae6', '#8ecae6', '#f0a35e', '#8ecae6', '#8ecae6', '#efe9dd', '#efe9dd', '#efe9dd', '#efe9dd', '#efe9dd', '#efe9dd', '#efe9dd'];
+    for (let i = 0; i < 91; i++) heat.push(i < 63 ? '#efe9dd' : recent[i - 63]);
+    const tv = [0, 6, 28, 14];
+    const trend = ['W-3', 'W-2', 'W-1', 'Now'].map((l, i) => ({ l, v: tv[i] + '%', h: Math.max(4, tv[i] / 70 * 64) + 'px', bg: i === 3 ? '#ff5a4e' : '#b39ddb' }));
+    const pxDot = { full: '#1d6fa5', part: '#c25e00', miss: '#d1342a', none: 'transparent' };
+    const pxWeek = wk.map(([l, n, s]) => s === 'today'
+      ? { l, n, bg: '#2b2622', fg: '#fffaf0', dot: '#fde7a0' }
+      : { l, n, bg: '#fffaf0', fg: '#2b2622', dot: pxDot[s] });
+    const pxDone = [['20 Push-ups', 'fitness_center', '#fbd5ae'], ['Ring_Test', 'fitness_center', '#fbd5ae'], ['Go to Gym', 'fitness_center', '#fbd5ae'], ['Read 15 Pages', 'menu_book', '#e4daf6']]
+      .map(([title, icon, tile]) => ({ title, icon, tile }));
+    const pxQuests = [
+      { title: '20 Push-ups', meta: '08:00 · Fitness', icon: 'fitness_center', tile: '#fbd5ae', done: true },
+      { title: 'Ring_Test', meta: '11:18 · Fitness', icon: 'fitness_center', tile: '#fbd5ae', done: true },
+      { title: 'Go to Gym', meta: '17:30 · Daily', icon: 'fitness_center', tile: '#fbd5ae', overdue: true, group: true },
+      { title: 'Read 15 Pages', meta: '21:00 · Learning', icon: 'menu_book', tile: '#e4daf6' }
+    ].map(q => ({ ...q, done: !!q.done, overdue: !!q.overdue, group: !!q.group,
+      bg: q.done ? '#ece4d2' : '#fffaf0', sh: q.done ? 'none' : '0 3px 0 #2b2622', fg: q.done ? '#6e655a' : '#2b2622',
+      dec: q.done ? 'line-through' : 'none', chk: q.done ? '#2b2622' : '#fffaf0' }));
+    const pxPrayers = [
+      ['Fajr', '4:48 AM', 'wb_twilight', '#dbeefa'], ['Dhuhr', '11:48 AM', 'light_mode', '#fde7a0'], ['Asr', '3:47 PM', 'wb_cloudy', '#fbd5ae'],
+      ['Maghrib', '5:25 PM', 'nights_stay', '#f7c6bd'], ['Isha', '6:46 PM · in 36 min', 'bedtime', '#e4daf6']
+    ].map(([name, time, icon, tile], i) => ({ name, time, icon, tile, done: i < 4, next: i === 4,
+      sh: i === 4 ? '0 3px 0 #c25e00' : 'none', tc: i === 4 ? '#a34e00' : '#6e655a' }));
+    const T4 = [
+      ['homeCoach', 'HOME · COACH INTEL', 'One card: the brief, a "show full" link, when the next brief arrives, and one "Open coach" step. The disabled COOLDOWN button is gone. Parties get a shortcut in the header.'],
+      ['parties', 'PARTIES HUB', 'Darood and Study parties in one list, each with the one number that matters. The Friday note toggle sits here because it covers every party.'],
+      ['partiesEmpty', 'PARTIES · EMPTY', 'Explains both kinds of party. "Share @raza" covers the case where you wait for a friend to invite you.'],
+      ['newParty', 'NEW PARTY', 'Pick the type first. The size stepper uses paper buttons, so red stays on Create. Milestone presets save typing.'],
+      ['room', 'DAROOD ROOM', 'The bottom bar is hidden so the counter has room. Progress is pinned at the top, system events are one quiet line, and quick-add chips sit above the input.'],
+      ['roomStats', 'MY STATS SHEET', 'The stat list becomes a 2×2 grid plus three "steady" tiles and a 30-day dot strip.'],
+      ['info', 'PARTY INFO', 'Identity and milestone in one card, then Add/Rename, privacy, members. Delete is an outline, not a primary.'],
+      ['studyWeek', 'STUDY · THIS WEEK', 'Timer first, with one-tap minute logging. Due items show type, date and pin. "Add item" is a labelled FAB.'],
+      ['studyAdd', 'STUDY · ADD ITEM', 'Subject and notes share a row. Due date is a chip row with a date picker at the end. Pin is one toggle.'],
+      ['studyScores', 'STUDY · SCOREBOARD', 'A ranked list with your row highlighted. Point rules are a ruled table, and the "never affects XP" note stays.']
+    ];
+    const t4comic = T4.map(([screen, title, note], i) => ({ screen, title, note, id: '4' + String.fromCharCode(97 + i), badge: '4' + String.fromCharCode(65 + i) }));
+    const PX = [...T4.map(([s, ti]) => [s, ti]), ['deen', 'DEEN'], ['quran', 'QURAN'], ['stats', 'HERO · STATS'], ['avatar', 'CHOOSE AVATAR'], ['leaderboard', 'LEADERBOARD']];
+    const t4pixel = PX.map(([screen, title], i) => ({ screen, title, id: '4' + String.fromCharCode(107 + i), badge: '4' + String.fromCharCode(75 + i) }));
+    return {
+      t4comic, t4pixel,
+      week, heat, trend, pxWeek, pxDone, pxQuests, pxPrayers,
+      surahs: [
+        { n: 1, name: 'Al-Faatiha', meta: 'The Opening · Meccan · 7', ar: 'الفاتحة', tile: '#fffdf8' },
+        { n: 2, name: 'Al-Baqara', meta: 'The Cow · Medinan · 286', ar: 'البقرة', tile: '#b39ddb' },
+        { n: 3, name: 'Aal-i-Imraan', meta: 'Family of Imraan · Medinan · 200', ar: 'آل عمران', tile: '#fffdf8' },
+        { n: 4, name: 'An-Nisaa', meta: 'The Women · Medinan · 176', ar: 'النساء', tile: '#fffdf8' },
+        { n: 5, name: 'Al-Maaida', meta: 'The Table · Medinan · 120', ar: 'المائدة', tile: '#fffdf8' }
+      ],
+      heroRows: [
+        { icon: 'face', label: 'Change avatar', value: 'Hero' },
+        { icon: 'tune', label: 'Difficulty', value: 'Medium' },
+        { icon: 'history', label: 'Quest history', value: '' },
+        { icon: 'timeline', label: 'Level history', value: '' },
+        { icon: 'leaderboard', label: 'Leaderboard', value: 'Locked' }
+      ],
+      avatars: [
+        { name: 'HERO', hair: '#ffc21a', shirt: '#4a90d9', eq: true },
+        { name: 'MAGE', hair: '#8e5cc4', shirt: '#8e5cc4', sel: true },
+        { name: 'ROGUE', hair: '#3fa55b', shirt: '#3fa55b' },
+        { name: 'WARRIOR', hair: '#8a8a8a', shirt: '#c0392b' },
+        { name: 'PALADIN', hair: '#ffc21a', shirt: '#f2f2f2' },
+        { name: 'RANGER', hair: '#e0701f', shirt: '#e0701f' }
+      ].map(a => ({ ...a, sel: !!a.sel, eq: !!a.eq, bg: a.sel ? '#ffc21a' : '#fffdf8', sh: a.sel ? '3px 3px 0 #161412' : 'none' })),
+      ghosts: [1, 2, 3, 4, 5].map(r => ({ r, w: (80 - r * 9) + '%', xp: (2400 - r * 310) + ' XP' })),
+      swatches: [
+        { name: 'Ink', hex: '#161412' }, { name: 'Paper', hex: '#fffdf8' }, { name: 'Ground', hex: '#f6f3ec' }, { name: 'Action red', hex: '#ff5a4e' },
+        { name: 'Sky', hex: '#8ecae6' }, { name: 'Gold', hex: '#ffc21a' }, { name: 'Amber', hex: '#f0a35e' }, { name: 'Lilac', hex: '#b39ddb' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

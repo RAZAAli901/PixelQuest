@@ -24,7 +24,7 @@ enum class PixMood(val key: String) {
 }
 
 internal class PixShape(val outline: Boolean, val cells: List<Pair<String, List<IntArray>>>, val anim: String? = null)
-internal class PixMoodDef(val eyes: String, val mouth: String, val acc: List<String>, val motion: String, val blink: Boolean = false, val sword: String = "normal")
+internal class PixMoodDef(val eyes: String, val mouth: String, val acc: List<String>, val motion: String, val blink: Boolean = false)
 
 private fun pts(vararg v: Int): List<IntArray> = v.toList().chunked(2).map { intArrayOf(it[0], it[1]) }
 private fun shape(outline: Boolean, vararg c: Pair<String, List<IntArray>>) = PixShape(outline, c.toList())
@@ -196,7 +196,7 @@ internal object PixData {
         "onfire" to PixMoodDef("determined", "grin", listOf("flame"), "bob"),
         "worried" to PixMoodDef("sad", "wobble", listOf("sweat"), "shake"),
         "sad" to PixMoodDef("sad", "frown", listOf("tear"), "droop"),
-        "lost" to PixMoodDef("squeeze", "o", listOf("tears"), "sob", sword = "broken"),
+        "lost" to PixMoodDef("squeeze", "o", listOf("tears"), "sob"),
         "sleepy" to PixMoodDef("closed", "flat", listOf("zzz"), "breathe"),
         "praying" to PixMoodDef("closed", "small", listOf("cheeks", "moon"), "breathe"),
         "focus" to PixMoodDef("determined", "flat", listOf("book"), "lean", blink = true),
@@ -251,14 +251,7 @@ object PixFrames {
         }
         val sx = if (px) 0 else 1
         out += MascotLayer("shadow", null, body.map { MascotCell(it[0] + sx, it[1] + 1, ink) })
-        if (m.sword != "none") {
-            val blade = ArrayList<MascotCell>()
-            for (i in (if (m.sword == "broken") 3 else 0)..5) {
-                blade += MascotCell(21 - i, 1 + i, c.getValue("w"))
-                blade += MascotCell(22 - i, 1 + i, c.getValue("g2"))
-            }
-            out += MascotLayer("sword", null, outlineOf(blade) + blade)
-        }
+
         out += MascotLayer(
             "body",
             null,

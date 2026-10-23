@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PixelQuest notification status-bar icon: Pix mascot silhouette (no sword). Pure white on transparent. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M5,4h14v1h1v13h-1v1h-14v-1h-1v-13h1z M7,8h2v3h-2z M15,8h2v3h-2z M9,13h1v1h-1z M14,13h1v1h-1z M10,14h4v1h-4z" />
+</vector>

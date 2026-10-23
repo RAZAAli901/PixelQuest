@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f6f3ec;color:#161412;font-family:Rubik,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#d63a2f}a:hover{color:#161412}
+</style>
+</helmet>
+<section style="padding:64px; display:flex; flex-direction:column; gap:40px; background:#f6f3ec;">
+  <div style="display:flex; flex-direction:column; gap:6px;">
+    <div style="font:56px/1 Bangers; letter-spacing:.03em; color:#161412;">PIXELQUEST — LOGO + NOTIFICATIONS</div>
+    <div style="font:600 15px Rubik; color:#5b5650;">Turn 1 · three logo directions and three notification surfaces, drawn in the app's comic style.</div>
+  </div>
+
+  <div style="font:30px Bangers; letter-spacing:.04em; color:#ff5a4e;">⚔️ LOGO</div>
+  <div style="display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start;">
+
+    <div id="1a" style="width:440px; box-sizing:border-box; background:#fffdf8; border:3px solid #161412; border-radius:18px; box-shadow:6px 6px 0 #161412; padding:28px; display:flex; flex-direction:column; gap:24px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="display:flex; align-items:center; justify-content:center; height:32px; padding:0 10px; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:24px Bangers;">1A</div>
+        <div style="font:30px Bangers; letter-spacing:.03em;">SWORD BADGE</div>
+      </div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">The ⚔️ that leads every section, rebuilt as a pixel sprite on the app's red action color.</div>
+      <div style="height:260px; border:3px solid #161412; border-radius:14px; background-color:#f6f3ec; background-image:radial-gradient(circle, rgba(22,20,18,.12) 1.4px, transparent 1.6px); background-size:12px 12px; display:flex; align-items:center; justify-content:center;">
+        <dc-import name="PQIcon" variant="sword" size="200" hint-size="200px,200px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <dc-import name="PQIcon" variant="sword" size="68" hint-size="68px,68px"></dc-import>
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="font:50px/1 Bangers; letter-spacing:.03em; color:#161412;">PIXEL<span style="color:#ff5a4e; -webkit-text-stroke:1.5px #161412; text-shadow:3px 3px 0 #161412;">QUEST</span></div>
+          <div style="font:800 11px Rubik; letter-spacing:.16em; color:#5b5650;">LEVEL UP YOUR DAY</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:flex-end; gap:20px; border-top:3px solid #161412; padding-top:20px;">
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:center;"><dc-import name="PQIcon" variant="sword" size="48" hint-size="48px,48px"></dc-import><div style="font:700 11px Rubik; color:#5b5650;">48</div></div>
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:center;"><dc-import name="PQIcon" variant="sword" size="32" hint-size="32px,32px"></dc-import><div style="font:700 11px Rubik; color:#5b5650;">32</div></div>
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:center;"><div style="width:48px; height:48px; border-radius:10px; background:#161412; color:#fffdf8; display:flex; align-items:center; justify-content:center;"><dc-import name="PQIcon" variant="sword" mono="{{ true }}" size="24" hint-size="24px,24px"></dc-import></div><div style="font:700 11px Rubik; color:#5b5650;">Status bar</div></div>
+      </div>
+    </div>
+
+    <div id="1b" style="width:440px; box-sizing:border-box; background:#fffdf8; border:3px solid #161412; border-radius:18px; box-shadow:6px 6px 0 #161412; padding:28px; display:flex; flex-direction:column; gap:24px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="display:flex; align-items:center; justify-content:center; height:32px; padding:0 10px; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:24px Bangers;">1B</div>
+        <div style="font:30px Bangers; letter-spacing:.03em;">PIXEL P</div>
+      </div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">A chunky 8-bit monogram with a level-up spark, on the stats-bar blue. The simplest shape at tiny sizes.</div>
+      <div style="height:260px; border:3px solid #161412; border-radius:14px; background-color:#f6f3ec; background-image:radial-gradient(circle, rgba(22,20,18,.12) 1.4px, transparent 1.6px); background-size:12px 12px; display:flex; align-items:center; justify-content:center;">
+        <dc-import name="PQIcon" variant="p" size="200" hint-size="200px,200px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <dc-import name="PQIcon" variant="p" size="68" hint-size="68px,68px"></dc-import>
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="font:50px/1 Bangers; letter-spacing:.03em; color:#161412;">PIXEL<span style="color:#ff5a4e; -webkit-text-stroke:1.5px #161412; text-shadow:3px 3px 0 #161412;">QUEST</span></div>
+          <div style="font:800 11px Rubik; letter-spacing:.16em; color:#5b5650;">LEVEL UP YOUR DAY</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:flex-end; gap:20px; border-top:3px solid #161412; padding-top:20px;">
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:center;"><dc-import name="PQIcon" variant="p" size="48" hint-size="48px,48px"></dc-import><div style="font:700 11px Rubik; color:#5b5650;">48</div></div>
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:center;"><dc-import name="PQIcon" variant="p" size="32" hint-size="32px,32px"></dc-import><div style="font:700 11px Rubik; color:#5b5650;">32</div></div>
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:center;"><div style="width:48px; height:48px; border-radius:10px; background:#161412; color:#fffdf8; display:flex; align-items:center; justify-content:center;"><dc-import name="PQIcon" variant="p" mono="{{ true }}" size="24" hint-size="24px,24px"></dc-import></div><div style="font:700 11px Rubik; color:#5b5650;">Status bar</div></div>
+      </div>
+    </div>
+
+    <div id="1c" style="width:440px; box-sizing:border-box; background:#fffdf8; border:3px solid #161412; border-radius:18px; box-shadow:6px 6px 0 #161412; padding:28px; display:flex; flex-direction:column; gap:24px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="display:flex; align-items:center; justify-content:center; height:32px; padding:0 10px; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:24px Bangers;">1C</div>
+        <div style="font:30px Bangers; letter-spacing:.03em;">QUEST RING</div>
+      </div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">The progress ring and the trophy tab merged. The red arc stops at the 70% daily target.</div>
+      <div style="height:260px; border:3px solid #161412; border-radius:14px; background-color:#f6f3ec; background-image:radial-gradient(circle, rgba(22,20,18,.12) 1.4px, transparent 1.6px); background-size:12px 12px; display:flex; align-items:center; justify-content:center;">
+        <dc-import name="PQIcon" variant="ring" size="200" hint-size="200px,200px"></dc-import>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <dc-import name="PQIcon" variant="ring" size="68" hint-size="68px,68px"></dc-import>
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="font:50px/1 Bangers; letter-spacing:.03em; color:#161412;">PIXEL<span style="color:#ff5a4e; -webkit-text-stroke:1.5px #161412; text-shadow:3px 3px 0 #161412;">QUEST</span></div>
+          <div style="font:800 11px Rubik; letter-spacing:.16em; color:#5b5650;">LEVEL UP YOUR DAY</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:flex-end; gap:20px; border-top:3px solid #161412; padding-top:20px;">
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:center;"><dc-import name="PQIcon" variant="ring" size="48" hint-size="48px,48px"></dc-import><div style="font:700 11px Rubik; color:#5b5650;">48</div></div>
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:center;"><dc-import name="PQIcon" variant="ring" size="32" hint-size="32px,32px"></dc-import><div style="font:700 11px Rubik; color:#5b5650;">32</div></div>
+        <div style="display:flex; flex-direction:column; gap:6px; align-items:center;"><div style="width:48px; height:48px; border-radius:10px; background:#161412; color:#fffdf8; display:flex; align-items:center; justify-content:center;"><dc-import name="PQIcon" variant="ring" mono="{{ true }}" size="24" hint-size="24px,24px"></dc-import></div><div style="font:700 11px Rubik; color:#5b5650;">Status bar</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font:30px Bangers; letter-spacing:.04em; color:#ff5a4e; margin-top:24px;">🔔 NOTIFICATIONS</div>
+  <div style="display:flex; flex-wrap:wrap; gap:48px; align-items:flex-start;">
+
+    <div id="1d" style="display:flex; flex-direction:column; gap:16px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background-color:#ff5a4e; background-image:radial-gradient(circle, rgba(22,20,18,.2) 1.5px, transparent 1.8px); background-size:10px 10px; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="position:absolute; top:10px; left:50%; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div>
+        <div style="height:36px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; color:#161412;">
+          <div style="display:flex; align-items:center; gap:8px;"><span>9:54</span><dc-import name="PQIcon" variant="{{ icon }}" mono="{{ true }}" size="13" hint-size="13px,13px"></dc-import></div>
+          <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; background:#161412; clip-path:polygon(100% 0,100% 100%,0 100%);"></div><div style="width:18px; height:10px; box-sizing:border-box; border:1.5px solid #161412; border-radius:2px; padding:1px;"><div style="width:70%; height:100%; background:#161412;"></div></div></div>
+        </div>
+        <div style="padding:34px 22px 0; display:flex; flex-direction:column; gap:4px;">
+          <div style="font:112px/0.9 Bangers; letter-spacing:.02em; color:#fffdf8; -webkit-text-stroke:3px #161412; text-shadow:6px 6px 0 #161412;">9:54</div>
+          <div style="font:800 14px Rubik; letter-spacing:.08em; color:#161412; margin-top:8px;">TUE, OCT 20 · 🔥 3 DAY STREAK</div>
+        </div>
+        <div style="padding:26px 14px 0; display:flex; flex-direction:column; gap:12px;">
+          <div style="background:#fffdf8; border:3px solid #161412; border-radius:16px; box-shadow:4px 4px 0 #161412; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;"><dc-import name="PQIcon" variant="{{ icon }}" size="18" hint-size="18px,18px"></dc-import><div style="font:600 12px Rubik; color:#5b5650;">PixelQuest · Prayer · now</div></div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:42px; height:42px; flex:none; border:2.5px solid #161412; border-radius:10px; background:#8ecae6; display:flex; align-items:center; justify-content:center; font-size:22px;">🕌</div>
+              <div style="display:flex; flex-direction:column; gap:2px;"><div style="font:800 15px Rubik;">Fajr in 15 minutes</div><div style="font:500 13px Rubik; color:#4a4540;">4:48 AM · 0 / 5 prayed today</div></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button style="flex:1; height:38px; background:#8ecae6; border:2.5px solid #161412; border-radius:10px; box-shadow:3px 3px 0 #161412; font:800 12px Rubik; letter-spacing:.04em; color:#161412; cursor:pointer;" style-active="transform:translate(2px,2px); box-shadow:1px 1px 0 #161412;">✓ PRAYED</button>
+              <button style="flex:1; height:38px; background:#fffdf8; border:2.5px solid #161412; border-radius:10px; box-shadow:3px 3px 0 #161412; font:800 12px Rubik; letter-spacing:.04em; color:#161412; cursor:pointer;" style-active="transform:translate(2px,2px); box-shadow:1px 1px 0 #161412;">REMIND IN 5</button>
+            </div>
+          </div>
+          <div style="background:#ffc21a; border:3px solid #161412; border-radius:16px; box-shadow:4px 4px 0 #161412; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><dc-import name="PQIcon" variant="{{ icon }}" size="18" hint-size="18px,18px"></dc-import><div style="font:600 12px Rubik; color:#161412;">PixelQuest · Streak · 2h</div></div>
+            <div style="font:24px/1 Bangers; letter-spacing:.03em;">🔥 STREAK AT RISK!</div>
+            <div style="font:500 13px/1.4 Rubik; color:#161412; text-wrap:pretty;">3 days strong. Finish one quest before midnight to keep it alive.</div>
+          </div>
+          <div style="background:#fffdf8; border:3px solid #161412; border-radius:16px; box-shadow:4px 4px 0 #161412; padding:10px 14px; display:flex; align-items:center; gap:8px;">
+            <dc-import name="PQIcon" variant="{{ icon }}" size="18" hint-size="18px,18px"></dc-import>
+            <div style="font:600 12px Rubik; color:#5b5650; flex:1;">+2 more · Quest complete, Daily debrief</div>
+            <div style="font:800 12px Rubik;">⌄</div>
+          </div>
+        </div>
+        <div style="margin-top:auto; padding-bottom:14px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+          <div style="font:800 11px Rubik; letter-spacing:.14em; color:#161412;">SWIPE UP TO START YOUR QUEST</div>
+          <div style="width:120px; height:5px; border-radius:3px; background:#161412;"></div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="display:flex; align-items:center; justify-content:center; height:28px; padding:0 8px; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">1D</div><div style="font:26px Bangers; letter-spacing:.03em;">LOCK SCREEN</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Prayer reminder with one-tap actions, streak warning, and a collapsed group for the rest.</div>
+    </div>
+
+    <div id="1e" style="display:flex; flex-direction:column; gap:16px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#f6f3ec; box-shadow:8px 8px 0 #161412; display:flex; flex-direction:column;">
+        <div style="position:absolute; top:10px; left:50%; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412; z-index:3;"></div>
+        <div style="height:36px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; color:#161412;">
+          <div style="display:flex; align-items:center; gap:8px;"><span>20:59</span><dc-import name="PQIcon" variant="{{ icon }}" mono="{{ true }}" size="13" hint-size="13px,13px"></dc-import></div>
+          <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; background:#161412; clip-path:polygon(100% 0,100% 100%,0 100%);"></div><div style="width:18px; height:10px; box-sizing:border-box; border:1.5px solid #161412; border-radius:2px; padding:1px;"><div style="width:55%; height:100%; background:#161412;"></div></div></div>
+        </div>
+        <div style="padding:14px 14px 0; display:flex; flex-direction:column; gap:14px;">
+          <div style="display:flex; align-items:center; gap:10px; padding:4px 4px 0;"><div style="font:800 20px Rubik;">☰</div><div style="font:22px Bangers; letter-spacing:.03em; color:#ff5a4e;">⚔️ TODAY'S DASHBOARD</div></div>
+          <div style="background:#fffdf8; border:3px solid #161412; border-radius:14px; box-shadow:4px 4px 0 #161412; padding:14px; display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; flex-direction:column; gap:6px;"><div style="font:22px Bangers; letter-spacing:.03em;">QUEST PROGRESS</div><div style="font:700 11px Rubik;">DAILY HABIT COMPLETION</div><div style="font:800 12px Rubik;">TARGET: 33% / 70%</div></div>
+            <div style="width:64px; height:64px; border-radius:50%; border:4px solid #161412; background:conic-gradient(#ff5a4e 0 33%, #fffdf8 33% 100%); display:flex; align-items:center; justify-content:center;"><div style="width:44px; height:44px; border-radius:50%; background:#fffdf8; border:3px solid #161412; display:flex; align-items:center; justify-content:center; font:18px Bangers;">33%</div></div>
+          </div>
+          <div style="background:#8ecae6; border:3px solid #161412; border-radius:12px; box-shadow:4px 4px 0 #161412; padding:10px 14px; display:flex; justify-content:space-between; font:800 13px Rubik;"><span>🔥 3 DAYS</span><span>✨ 150 XP</span><span>⭐ LVL 1</span></div>
+          <div style="background:#f0a35e; border:3px solid #161412; border-radius:14px; box-shadow:4px 4px 0 #161412; padding:14px; display:flex; align-items:center; gap:12px;">
+            <div style="width:40px; height:40px; flex:none; border:2.5px solid #161412; border-radius:8px; background:#b39ddb; display:flex; align-items:center; justify-content:center; font-size:20px;">📖</div>
+            <div style="display:flex; flex-direction:column; gap:2px; flex:1;"><div style="font:800 15px Rubik;">Read 15 Pages</div><div style="font:500 12px Rubik;">⏰ 21:00 · Learning</div></div>
+          </div>
+        </div>
+        <div style="position:absolute; inset:0; background:rgba(22,20,18,.42); z-index:1;"></div>
+        <div style="position:absolute; top:42px; left:12px; right:12px; z-index:2; background:#fffdf8; border:3px solid #161412; border-radius:18px; box-shadow:5px 5px 0 #161412; padding:14px; display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; align-items:center; gap:8px;"><dc-import name="PQIcon" variant="{{ icon }}" size="18" hint-size="18px,18px"></dc-import><div style="font:600 12px Rubik; color:#5b5650; flex:1;">PixelQuest · Up next · now</div><div style="font:800 10px Rubik; letter-spacing:.06em; color:#d63a2f; border:2px solid #d63a2f; border-radius:8px; padding:3px 7px;">TIME'S UP!</div></div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:46px; height:46px; flex:none; border:2.5px solid #161412; border-radius:10px; background:#b39ddb; display:flex; align-items:center; justify-content:center; font-size:24px;">📖</div>
+            <div style="display:flex; flex-direction:column; gap:3px;"><div style="font:24px/1 Bangers; letter-spacing:.03em;">READ 15 PAGES</div><div style="font:500 13px Rubik; color:#4a4540;">21:00 · Learning · +20 XP on the line</div></div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button style="flex:1.2; height:42px; background:#ff5a4e; border:2.5px solid #161412; border-radius:10px; box-shadow:3px 3px 0 #161412; font:800 13px Rubik; letter-spacing:.04em; color:#161412; cursor:pointer;" style-active="transform:translate(2px,2px); box-shadow:1px 1px 0 #161412;">✓ DONE</button>
+            <button style="flex:1; height:42px; background:#8ecae6; border:2.5px solid #161412; border-radius:10px; box-shadow:3px 3px 0 #161412; font:800 13px Rubik; letter-spacing:.04em; color:#161412; cursor:pointer;" style-active="transform:translate(2px,2px); box-shadow:1px 1px 0 #161412;">SNOOZE 10M</button>
+          </div>
+        </div>
+        <div style="position:absolute; bottom:14px; left:50%; margin-left:-60px; width:120px; height:5px; border-radius:3px; background:#fffdf8; z-index:2;"></div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="display:flex; align-items:center; justify-content:center; height:28px; padding:0 8px; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">1E</div><div style="font:26px Bangers; letter-spacing:.03em;">HEADS-UP · TASK DUE</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Drops over any screen when a quest's time hits. Done awards XP without opening the app.</div>
+    </div>
+
+    <div id="1f" style="display:flex; flex-direction:column; gap:16px; width:360px;">
+      <div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:#161412; box-shadow:8px 8px 0 #ff5a4e; display:flex; flex-direction:column;">
+        <div style="position:absolute; top:10px; left:50%; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#000;"></div>
+        <div style="height:36px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; color:#fffdf8;">
+          <div style="display:flex; align-items:center; gap:8px;"><span>21:04</span><dc-import name="PQIcon" variant="{{ icon }}" mono="{{ true }}" size="13" hint-size="13px,13px"></dc-import></div>
+          <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; background:#fffdf8; clip-path:polygon(100% 0,100% 100%,0 100%);"></div><div style="width:18px; height:10px; box-sizing:border-box; border:1.5px solid #fffdf8; border-radius:2px; padding:1px;"><div style="width:55%; height:100%; background:#fffdf8;"></div></div></div>
+        </div>
+        <div style="padding:6px 14px 0; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div style="height:46px; border-radius:14px; background:#8ecae6; color:#161412; padding:0 14px; display:flex; flex-direction:column; justify-content:center; font:800 12px Rubik;">Wi-Fi<span style="font-weight:500;">Home</span></div>
+          <div style="height:46px; border-radius:14px; background:#ff5a4e; color:#161412; padding:0 14px; display:flex; flex-direction:column; justify-content:center; font:800 12px Rubik;">Quest mode<span style="font-weight:500;">On until 22:00</span></div>
+        </div>
+        <div style="padding:14px 14px 0; display:flex; flex-direction:column; gap:12px;">
+          <div style="background:#ffc21a; border:3px solid #fffdf8; border-radius:16px; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;"><dc-import name="PQIcon" variant="{{ icon }}" size="18" hint-size="18px,18px"></dc-import><div style="font:600 12px Rubik; color:#161412; flex:1;">PixelQuest · Level · now</div><div style="font:800 11px Rubik; background:#161412; color:#ffc21a; border-radius:6px; padding:3px 7px;">LVL 2</div></div>
+            <div style="font:40px/0.95 Bangers; letter-spacing:.03em; color:#ff5a4e; -webkit-text-stroke:1.5px #161412; text-shadow:3px 3px 0 #161412;">LEVEL UP!</div>
+            <div style="font:500 13px/1.4 Rubik; color:#161412; text-wrap:pretty;">300 XP banked. New title unlocked: Apprentice Adventurer.</div>
+            <div style="height:16px; box-sizing:border-box; border:2.5px solid #161412; border-radius:8px; background:repeating-linear-gradient(-45deg, #ff5a4e 0 6px, #e6463b 6px 12px); "></div>
+            <div style="display:flex; gap:10px;">
+              <button style="flex:1; height:38px; background:#ff5a4e; border:2.5px solid #161412; border-radius:10px; box-shadow:3px 3px 0 #161412; font:800 12px Rubik; letter-spacing:.04em; color:#161412; cursor:pointer;" style-active="transform:translate(2px,2px); box-shadow:1px 1px 0 #161412;">CLAIM REWARD</button>
+              <button style="flex:0.7; height:38px; background:#fffdf8; border:2.5px solid #161412; border-radius:10px; box-shadow:3px 3px 0 #161412; font:800 12px Rubik; letter-spacing:.04em; color:#161412; cursor:pointer;" style-active="transform:translate(2px,2px); box-shadow:1px 1px 0 #161412;">SHARE</button>
+            </div>
+          </div>
+          <div style="background:#8ecae6; border:3px solid #fffdf8; border-radius:16px; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;"><dc-import name="PQIcon" variant="{{ icon }}" size="18" hint-size="18px,18px"></dc-import><div style="font:600 12px Rubik; color:#161412;">PixelQuest · Prayer · 1h</div></div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline;"><div style="font:800 15px Rubik;">2 / 5 prayed today</div><div style="font:500 12px Rubik;">Next: Asr 3:41 PM</div></div>
+            <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:6px;">
+              <div style="height:34px; border:2.5px solid #161412; border-radius:8px; background:#fffdf8; display:flex; align-items:center; justify-content:center; font:800 11px Rubik;">✓ Fajr</div>
+              <div style="height:34px; border:2.5px solid #161412; border-radius:8px; background:#fffdf8; display:flex; align-items:center; justify-content:center; font:800 11px Rubik;">✓ Dhuhr</div>
+              <div style="height:34px; border:2.5px dashed #161412; border-radius:8px; display:flex; align-items:center; justify-content:center; font:700 11px Rubik;">Asr</div>
+              <div style="height:34px; border:2.5px dashed #161412; border-radius:8px; display:flex; align-items:center; justify-content:center; font:700 11px Rubik;">Magh.</div>
+              <div style="height:34px; border:2.5px dashed #161412; border-radius:8px; display:flex; align-items:center; justify-content:center; font:700 11px Rubik;">Isha</div>
+            </div>
+          </div>
+          <div style="background:#f0a35e; border:3px solid #fffdf8; border-radius:16px; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px;"><dc-import name="PQIcon" variant="{{ icon }}" size="18" hint-size="18px,18px"></dc-import><div style="font:600 12px Rubik; color:#161412;">PixelQuest · AI Questmaster · 3h</div></div>
+            <div style="font:22px/1 Bangers; letter-spacing:.03em;">💥 DAILY DEBRIEF READY</div>
+            <div style="font:500 13px/1.4 Rubik; color:#161412; text-wrap:pretty;">3 wins, 1 slip. Your Questmaster has tonight's power-up.</div>
+          </div>
+        </div>
+        <div style="margin-top:auto; padding:0 14px 14px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+          <div style="align-self:flex-end; font:800 12px Rubik; color:#161412; background:#fffdf8; border-radius:14px; padding:6px 14px;">Clear all</div>
+          <div style="width:120px; height:5px; border-radius:3px; background:#fffdf8;"></div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;"><div style="display:flex; align-items:center; justify-content:center; height:28px; padding:0 8px; background:#ff5a4e; border:2.5px solid #161412; border-radius:8px; box-shadow:2px 2px 0 #161412; font:22px Bangers;">1F</div><div style="font:26px Bangers; letter-spacing:.03em;">NOTIFICATION SHADE</div></div>
+      <div style="font:500 14px/1.45 Rubik; color:#4a4540; text-wrap:pretty;">Expanded rich cards: level-up celebration, prayer tracker, and the AI debrief.</div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;notifIcon&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sword&quot;,&quot;p&quot;,&quot;ring&quot;],&quot;default&quot;:&quot;sword&quot;,&quot;tsType&quot;:&quot;'sword'|'p'|'ring'&quot;,&quot;section&quot;:&quot;Notifications&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return { icon: this.props.notifIcon ?? 'sword' };
+  }
+}
+</script>
+</body>
+</html>

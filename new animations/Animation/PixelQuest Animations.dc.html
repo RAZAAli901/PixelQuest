@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-2f83b9fd-f749-4049-9f62-e87cdf944d1a/styles.css">
+<script src="_ds/modernist-2f83b9fd-f749-4049-9f62-e87cdf944d1a/_ds_bundle.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>body{margin:0;background:var(--color-bg);} a{color:var(--color-accent-700);} a:hover{color:var(--color-accent);}</style>
+</helmet>
+<div style="min-height:100vh; background:var(--color-bg); color:var(--color-text); font-family:var(--font-body);">
+  <div style="display:flex; align-items:center; gap:var(--space-4); padding:var(--space-4) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:800 18px/1 var(--font-heading);">PixelQuest</div>
+    <div style="width:2px; height:20px; background:var(--color-text);"></div>
+    <div style="font:500 15px/1 var(--font-body);">Micro-animations · spec for implementation</div>
+    <div style="flex:1;"></div>
+    <div style="font:500 13px/1 var(--font-body); color:var(--color-neutral-700);">v1 · 21 Oct 2026</div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 420px), 1fr)); border-bottom:2px solid var(--color-text);">
+    <div style="padding:var(--space-8); display:flex; flex-direction:column; gap:var(--space-4); border-right:2px solid var(--color-text);">
+      <div style="font:700 13px/1 var(--font-body); letter-spacing:.12em; color:var(--color-accent-700);">MOTION SYSTEM</div>
+      <div style="font:900 clamp(48px, 7vw, 92px)/0.92 var(--font-heading); letter-spacing:-.03em;">Every win should feel physical.</div>
+    </div>
+    <div style="padding:var(--space-8); display:flex; flex-direction:column; gap:var(--space-4); justify-content:flex-end;">
+      <div style="font:400 18px/1.5 var(--font-body); text-wrap:pretty; max-width:560px;">Twelve small animations for the moments that matter: XP landing in the bar, a quest ticking off, a streak going up, a perfect day. Comic motion is springy and overshoots. Pixel motion moves in hard steps, like an old console.</div>
+      <div style="font:400 15px/1.5 var(--font-body); color:var(--color-neutral-700); text-wrap:pretty; max-width:560px;">Each demo loops. The left stage is Comic and the right is Pixel. The Compose versions are in <b>PqMotion.kt</b>.</div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">01</div>
+    <div style="font:800 28px/1 var(--font-heading);">Motion tokens</div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 420px), 1fr)); border-bottom:2px solid var(--color-text);">
+    <div style="padding:var(--space-6) var(--space-8); border-right:2px solid var(--color-text);">
+      <table class="table" style="width:100%; border-collapse:collapse; font:400 15px/1.4 var(--font-body);">
+        <thead><tr style="text-align:left; border-bottom:2px solid var(--color-text);"><th style="padding:var(--space-2) 0;">Token</th><th style="padding:var(--space-2) 0;">Value</th><th style="padding:var(--space-2) 0;">Use</th></tr></thead>
+        <tbody><sc-for list="{{ tokens }}" as="r" hint-placeholder-count="7"><tr style="border-bottom:1px solid var(--color-divider);"><td style="padding:var(--space-2) var(--space-3) var(--space-2) 0; font-family:ui-monospace, monospace; font-size:13px;">{{ r.k }}</td><td style="padding:var(--space-2) var(--space-3) var(--space-2) 0; font-weight:700;">{{ r.v }}</td><td style="padding:var(--space-2) 0; color:var(--color-neutral-800);">{{ r.u }}</td></tr></sc-for></tbody>
+      </table>
+    </div>
+    <div style="padding:var(--space-6) var(--space-8); display:flex; flex-direction:column; gap:var(--space-3);">
+      <div style="font:700 13px/1 var(--font-body); letter-spacing:.12em; color:var(--color-accent-700);">RULES</div>
+      <div style="display:flex; flex-direction:column; border-top:2px solid var(--color-text);">
+        <sc-for list="{{ rules }}" as="r" hint-placeholder-count="6"><div style="padding:var(--space-2) 0; border-bottom:1px solid var(--color-divider); font:400 14px/1.45 var(--font-body); text-wrap:pretty;">{{ r }}</div></sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">02</div>
+    <div style="font:800 28px/1 var(--font-heading);">The animations</div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 660px), 1fr)); border-bottom:2px solid var(--color-text);">
+    <sc-for list="{{ anims }}" as="a" hint-placeholder-count="12">
+      <div id="{{ a.id }}" style="padding:var(--space-6) var(--space-8) var(--space-8); display:flex; flex-direction:column; gap:var(--space-4); border-right:2px solid var(--color-divider); border-bottom:2px solid var(--color-divider);">
+        <div style="display:flex; align-items:center; gap:var(--space-3);">
+          <div style="height:24px; padding:0 7px; display:flex; align-items:center; background:var(--color-accent); color:#fff; font:800 13px/1 var(--font-heading);">{{ a.id }}</div>
+          <div style="font:800 22px/1.1 var(--font-heading);">{{ a.name }}</div>
+        </div>
+        <div style="display:flex; gap:var(--space-4); flex-wrap:wrap;">
+          <div style="border:2px solid var(--color-text);"><dc-import name="PQAnim" kind="{{ a.kind }}" skin="comic" hint-size="300px,180px"></dc-import></div>
+          <div style="border:2px solid var(--color-text);"><dc-import name="PQAnim" kind="{{ a.kind }}" skin="pixel" hint-size="300px,180px"></dc-import></div>
+        </div>
+        <div style="display:grid; grid-template-columns:96px 1fr; gap:6px var(--space-4); font:400 14px/1.45 var(--font-body);">
+          <div style="color:var(--color-neutral-700);">Trigger</div><div style="text-wrap:pretty;">{{ a.trig }}</div>
+          <div style="color:var(--color-neutral-700);">Sequence</div><div style="text-wrap:pretty;">{{ a.seq }}</div>
+          <div style="color:var(--color-neutral-700);">Haptic</div><div>{{ a.hap }}</div>
+          <div style="color:var(--color-neutral-700);">Compose</div><div style="font-family:ui-monospace, monospace; font-size:13px; word-break:break-word;">{{ a.api }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">03</div>
+    <div style="font:800 28px/1 var(--font-heading);">Chess animations</div>
+    <div style="font:400 15px/1.4 var(--font-body); color:var(--color-neutral-700);">Fast enough for 1-minute bullet. Piece moves never take longer than 200 ms.</div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 660px), 1fr)); border-bottom:2px solid var(--color-text);">
+    <sc-for list="{{ chessAnims }}" as="a" hint-placeholder-count="9">
+      <div id="{{ a.id }}" style="padding:var(--space-6) var(--space-8) var(--space-8); display:flex; flex-direction:column; gap:var(--space-4); border-right:2px solid var(--color-divider); border-bottom:2px solid var(--color-divider);">
+        <div style="display:flex; align-items:center; gap:var(--space-3);">
+          <div style="height:24px; padding:0 7px; display:flex; align-items:center; background:var(--color-text); color:var(--color-bg); font:800 13px/1 var(--font-heading);">{{ a.id }}</div>
+          <div style="font:800 22px/1.1 var(--font-heading);">{{ a.name }}</div>
+        </div>
+        <div style="display:flex; gap:var(--space-4); flex-wrap:wrap;">
+          <div style="border:2px solid var(--color-text);"><dc-import name="PQAnim" kind="{{ a.kind }}" skin="comic" hint-size="300px,180px"></dc-import></div>
+          <div style="border:2px solid var(--color-text);"><dc-import name="PQAnim" kind="{{ a.kind }}" skin="pixel" hint-size="300px,180px"></dc-import></div>
+        </div>
+        <div style="display:grid; grid-template-columns:96px 1fr; gap:6px var(--space-4); font:400 14px/1.45 var(--font-body);">
+          <div style="color:var(--color-neutral-700);">Trigger</div><div style="text-wrap:pretty;">{{ a.trig }}</div>
+          <div style="color:var(--color-neutral-700);">Sequence</div><div style="text-wrap:pretty;">{{ a.seq }}</div>
+          <div style="color:var(--color-neutral-700);">Haptic</div><div>{{ a.hap }}</div>
+          <div style="color:var(--color-neutral-700);">Compose</div><div style="font-family:ui-monospace, monospace; font-size:13px; word-break:break-word;">{{ a.api }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">04</div>
+    <div style="font:800 28px/1 var(--font-heading);">Where each one goes</div>
+  </div>
+  <div style="padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <table class="table" style="width:100%; border-collapse:collapse; font:400 15px/1.4 var(--font-body);">
+      <thead><tr style="text-align:left; border-bottom:2px solid var(--color-text);"><th style="padding:var(--space-2) 0;">Screen</th><th style="padding:var(--space-2) 0;">Animations</th></tr></thead>
+      <tbody><sc-for list="{{ placement }}" as="p" hint-placeholder-count="8"><tr style="border-bottom:1px solid var(--color-divider);"><td style="padding:var(--space-2) var(--space-4) var(--space-2) 0; font-weight:700; white-space:nowrap;">{{ p.s }}</td><td style="padding:var(--space-2) 0; text-wrap:pretty;">{{ p.a }}</td></tr></sc-for></tbody>
+    </table>
+  </div>
+  <div style="padding:var(--space-6) var(--space-8); font:400 13px/1.5 var(--font-body); color:var(--color-neutral-700);">PixelQuest · Micro-animations · the demos render <b>PQAnim.dc.html</b> with kind + skin props.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const A = [
+      ['xp', 'XP gain', 'XP is awarded: quest done, prayer logged, chess win.', 'The "+20 XP" chip pops in (120ms, overshoot) and flies into the bar (500ms). The bar fills with a slight overshoot (600ms), the number rolls up, and a shine sweeps the fill (400ms).', 'Light tick when the chip lands', 'XpBar(xp, max, level) + XpGainChip(amount, trigger)'],
+      ['levelup', 'Level up', 'XP crosses the level threshold.', 'The bar fills to 100%, flashes gold twice, snaps to 0, and fills the leftover XP. The badge rolls LVL 4 → 5 with a pop and 8 rays, and LEVEL UP! fades in.', 'Heavy click on the snap', 'XpBar handles it when level changes · LevelBadge(level)'],
+      ['check', 'Quest complete', 'Tap the circle on a quest row.', 'The card squashes, the circle fills (scale 0 → 1.15 → 1), the tick draws in (stroke, 200ms), the title strikes through, the row dims to 50%, and "+20 XP" floats up.', 'Confirm (medium) on fill', 'QuestCheck(checked, onToggle) + Modifier.questRowDone(done)'],
+      ['press', 'Button press', 'Every tappable comic/pixel surface.', 'Comic: moves 3px down-right while the shadow collapses, then springs back slightly past rest. Pixel: drops 3px straight down. A tap ripple uses an ink circle (a square in Pixel).', 'None (system click sound only)', 'Modifier.pqPress(interactionSource) — used by comicPressable'],
+      ['streak', 'Streak up', 'The first quest of the day extends the streak.', 'The flame flickers continuously. On increase the number rolls 4 → 5 and the chip pops (scale 1.25, slight tilt), then the "Streak extended" caption fades in.', 'Light tick', 'StreakCounter(days)'],
+      ['burst', 'Reward burst', 'Big rewards: avatar unlock, chess win, all five prayers.', 'A gold star pops with a spin, 10 pixel shards fly out radially and fade, and the amount floats up.', 'Medium', 'RewardBurst(trigger) { Icon(...) }'],
+      ['ring', 'Daily progress', 'Home screen opens, or the completion ratio changes.', 'Comic: the ring sweeps from its previous value to the new one (700ms) with the percent rolling. Pixel: 10 blocks fill one by one, 160ms apart.', 'None', 'ProgressRingAnimated(progress) / PixelMeter(progress)'],
+      ['stamp', 'Perfect day', 'The last quest of the day completes.', 'The gold card slides in. PERFECT! slams down (scale 2.6 → 1, rotated −12°), the card shakes on impact, and confetti falls for 2s.', 'Heavy, on impact', 'PerfectDayStamp(visible) + ConfettiFall()'],
+      ['toast', 'Toast · undo', 'Any action that can be undone.', 'Slides up from the bottom with an overshoot (Comic) or in 4 steps (Pixel). Stays 4s, then drops away. The Undo action is gold.', 'None', 'PqToastHost(state) · state.show("Quest done · +20 XP", "Undo")'],
+      ['nav', 'Tab switch', 'Bottom nav selection changes.', 'The gold indicator slides to the new tab (spring) and the new icon hops 8px up with a small scale, then lands.', 'Light tick', 'Modifier.navHop(selected) · NavIndicator(index)'],
+      ['pips', 'Prayer logged', '✓ Prayed, in the app or from a notification.', 'The pip pops in with a tick (scale 1.25 → 1). When the fifth pip fills, "All 5 · +25 XP" fades in.', 'Light, per pip', 'PrayerPips(done = n)'],
+      ['shimmer', 'Loading', 'Lists waiting for data for more than 250ms.', 'A soft highlight sweeps across the skeleton blocks every 1.4s. In Pixel it moves in 8 hard steps.', 'None', 'Modifier.pqShimmer()']
+    ];
+    const CH = [
+      ['c-move', 'Piece move', 'Any move, yours or the opponent\'s (live or spectating).', 'The piece lifts (scale 1.14 plus a shadow) and glides to the target in 150 ms. It lands with a small squash, and both squares highlight as the last move. Bullet: 80 ms, no squash.', 'Light tick on your own moves', 'AnimatedPiece(square, piece) · LastMoveHighlight(from, to)'],
+      ['c-capture', 'Capture', 'A move takes a piece.', 'The attacker lands, the captured piece pops (scale 1.35, tilt) with 8 shards and spins into the captured tray. The tray bumps and the material count updates.', 'Medium', 'CaptureEffect(square, piece, trayOffset) · CapturedTray(pieces)'],
+      ['c-check', 'Check', 'A king is put in check.', 'The king\'s square pulses red (1s loop while in check) and the king shakes. A CHECK! tag pops for 1.2s.', 'Double tick', 'Modifier.checkPulse(inCheck) · CheckTag(visible)'],
+      ['c-mate', 'Checkmate', 'Game ends by mate.', 'The king wobbles, then topples 90° onto its side. The board dims to 40% and CHECKMATE slams in, then the Result sheet (M06 burst for the winner) opens.', 'Heavy', 'KingTopple(square) · BoardDim() · ResultStamp("CHECKMATE")'],
+      ['c-clock', 'Low time', 'Your clock goes under 10 seconds.', 'Each second the clock flashes red, the digits tick with a roll, and the box shakes slightly. Under 5s the shake is stronger.', 'Tick every second (if enabled)', 'ChessClock(millis, active, lowTimeMs = 10_000)'],
+      ['c-dots', 'Select & legal moves', 'Tap one of your pieces.', 'The square turns gold, the piece lifts 6px, and legal-move dots pop in 60 ms apart (scale 1.35 → 1). Capture targets get a ring instead of a dot.', 'Light', 'Modifier.pieceLift(selected) · LegalMoveDots(targets)'],
+      ['c-int', 'Int & head-to-head', 'The result sheet opens after a rated game.', 'The "+14 INT" chip pops, Int rolls 1,046 → 1,060, then the head-to-head cell flashes and rolls 4 → 5 with a green +1.', 'Light', 'RollingNumber(int) · IntDeltaChip(delta) · H2HCounter(w, d, l, changed)'],
+      ['c-vs', 'Challenge · VS', 'The incoming challenge screen opens.', 'Both avatars slide in from the sides and clash in the middle. VS slams in with rays, everything shakes once, and the expiry bar drains over 60s.', 'Heavy on the clash', 'ChallengeClash(me, them) · ExpiryBar(secondsLeft, total = 60)'],
+      ['c-promo', 'Promotion', 'A pawn reaches the last rank.', 'The pawn steps up, the square flashes white, the pawn shrinks away and the queen spins in (scale 1.35 → 1) with gold rays. If the user picks under-promotion, the chosen piece spins in instead.', 'Medium', 'PromotionMorph(square, to = Piece.Queen)']
+    ];
+    return {
+      chessAnims: CH.map(([kind, name, trig, seq, hap, api], i) => ({ kind, name, trig, seq, hap, api, id: 'C' + String(i + 1).padStart(2, '0') })),
+      anims: A.map(([kind, name, trig, seq, hap, api], i) => ({ kind, name, trig, seq, hap, api, id: 'M' + String(i + 1).padStart(2, '0') })),
+      tokens: [
+        { k: 'Fast', v: '120 ms', u: 'Press, pops, toggles' },
+        { k: 'Base', v: '240 ms', u: 'Checks, tab switch, chips' },
+        { k: 'Slow', v: '420 ms', u: 'Toasts, sheets, ring and bar fills' },
+        { k: 'Celebrate', v: '900 ms', u: 'Level up, perfect day, bursts' },
+        { k: 'Snap (Comic)', v: 'cubic(.2,.9,.3,1.3)', u: 'Overshoot for pops and fills' },
+        { k: 'Out (Comic)', v: 'cubic(.2,.8,.2,1)', u: 'Everything else' },
+        { k: 'Steps (Pixel)', v: 'steps(4)', u: 'Replaces both easings in the Pixel skin' }
+      ],
+      rules: [
+        'Respect "Remove animations": if the system animator scale is 0, every animation jumps to its end state and nothing loops.',
+        'Only one celebration at a time. Queue them: XP → level up → perfect day.',
+        'Never block input. Animations play while the user keeps tapping.',
+        'Loops (flame, shimmer) pause off-screen and in the background.',
+        'Haptics follow the user\'s system setting. Use the system haptic constants only.',
+        'Numbers always roll to their new value. They never jump.'
+      ],
+      placement: [
+        { s: 'Home', a: 'M01 XP gain, M02 level up, M05 streak up, M07 daily ring, M08 perfect day, M12 loading' },
+        { s: 'Quests', a: 'M03 quest complete, M09 undo toast, M04 press' },
+        { s: 'Deen / Namaz', a: 'M11 prayer pips, M06 burst on all five, M01 XP gain' },
+        { s: 'Hero / Avatar', a: 'M06 burst on unlock, M02 level badge' },
+        { s: 'Parties', a: 'M01 bar nudge on new Darood count, M09 toast, M12 loading' },
+        { s: 'Chess · game', a: 'C01 move, C02 capture, C03 check, C04 checkmate, C05 low time, C06 select, C09 promotion' },
+        { s: 'Chess · around the game', a: 'C08 challenge VS, C07 Int and head-to-head, M06 burst on win, M04 press' },
+        { s: 'Bottom nav', a: 'M10 tab switch' },
+        { s: 'Everywhere', a: 'M04 press on every comic surface, M12 shimmer while loading' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

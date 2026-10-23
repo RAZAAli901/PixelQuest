@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Rubik:wght@400;500;600;700;800&family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet">
+</helmet>
+<div style="width:360px; height:760px; box-sizing:border-box; border:10px solid #161412; border-radius:46px; overflow:hidden; position:relative; background:{{ t.ground }}; box-shadow:{{ t.frameSh }}; display:flex; flex-direction:column; color:{{ t.ink }};">
+  <div style="height:34px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font:600 13px Rubik; position:relative; color:#161412; z-index:2;"><span>8:52</span><div style="position:absolute; left:50%; top:9px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:#161412;"></div><div style="display:flex; gap:3px; align-items:center;"><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">wifi</span><span style="font-family:'Material Symbols Rounded'; font-size:16px; line-height:1; font-variation-settings:'FILL' 1;">battery_full</span></div></div>
+  <div style="flex:1; min-height:0; overflow:hidden; display:flex; flex-direction:column; position:relative;">
+
+    <sc-if value="{{ is.hub }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">CHESS</div>
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">monitoring</span></div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; overflow:hidden; display:flex; flex-direction:column;">
+          <div style="display:grid; grid-template-columns:repeat(3,1fr);">
+            <sc-for list="{{ pools }}" as="p" hint-placeholder-count="3">
+              <div style="padding:10px 12px; display:flex; flex-direction:column; gap:4px; background:{{ p.bg }}; border-right:{{ p.br }};"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">{{ p.l }}</div><div style="font:{{ t.fNum }}; letter-spacing:{{ t.ls }};">{{ p.v }}</div></div>
+            </sc-for>
+          </div>
+          <div style="border-top:{{ t.bwT }} solid {{ t.ink }}; padding:8px 12px; display:flex; justify-content:space-between; font:{{ t.fMetaB }};"><span>INT · your chess rating</span><span style="color:{{ t.muted }};">23W · 6D · 14L</span></div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">QUICK PLAY · RANDOM OPPONENT</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <sc-for list="{{ tcs }}" as="c" hint-placeholder-count="4">
+            <div style="height:62px; box-sizing:border-box; padding:8px 12px; background:{{ c.bg }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; box-shadow:{{ t.sh }}; display:flex; align-items:center; gap:10px;">
+              <div style="font:{{ t.fBig }}; letter-spacing:{{ t.ls }};">{{ c.m }}</div>
+              <div style="display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fBtn }};">MIN</div><div style="font:{{ t.fMeta }}; color:{{ t.ink2 }};">{{ c.pool }}</div></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="height:50px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">swords</span>CHALLENGE A FRIEND</div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">LIVE NOW · 2</div>
+        <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }};">
+          <div style="display:flex;"><div style="width:30px; height:30px; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.lilac }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">A</div><div style="width:30px; height:30px; margin-left:-8px; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.amber }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">S</div></div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">@ali vs @sara</div><div style="display:flex; align-items:center; gap:4px; font:{{ t.fMeta }}; color:{{ t.muted }};">5 min · Bros · <span style="font-family:'Material Symbols Rounded'; font-size:14px; line-height:1;">visibility</span>5</div></div>
+          <div style="height:34px; padding:0 12px; box-sizing:border-box; display:flex; align-items:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.shS }}; font:{{ t.fBtn }};">WATCH</div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">RIVALS · YOU vs THEM</div>
+        <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }};">
+          <div style="width:34px; height:34px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.amber }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">S</div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">@sara</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Blitz 1,102</div></div>
+          <div style="display:flex; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rxs }}; overflow:hidden;">
+            <sc-for list="{{ wdlSmall }}" as="w" hint-placeholder-count="3"><div style="width:32px; padding:3px 0; display:flex; flex-direction:column; align-items:center; background:{{ w.bg }}; border-right:{{ w.br }};"><div style="font:{{ t.fNum }};">{{ w.v }}</div><div style="font:{{ t.fLabel }};">{{ w.l }}</div></div></sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.challenge }}">
+      <div style="position:absolute; inset:0; background:{{ t.ground }}; padding:4px 16px;"><div style="height:48px; display:flex; align-items:center; font:{{ t.fTitle }}; color:{{ t.title }};">CHESS</div></div>
+      <div style="position:absolute; inset:0; background:rgba(22,20,18,.45);"></div>
+      <div style="position:absolute; left:0; right:0; top:40px; bottom:0; background:{{ t.paper }}; border-top:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.sheetR }}; padding:10px 16px 16px; display:flex; flex-direction:column; gap:10px;">
+        <div style="align-self:center; width:44px; height:5px; border-radius:{{ t.pill }}; background:{{ t.ink }}; opacity:.3;"></div>
+        <div style="font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">CHALLENGE</div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">OPPONENT · BROS + FRIENDS</div>
+        <div style="display:flex; gap:10px;">
+          <sc-for list="{{ opps }}" as="o" hint-placeholder-count="4">
+            <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; width:60px;">
+              <div style="width:46px; height:46px; box-sizing:border-box; border:{{ o.bw }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ o.bg }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }}; box-shadow:{{ o.sh }};">{{ o.i }}</div>
+              <div style="font:{{ t.fMetaB }};">{{ o.n }}</div>
+              <sc-if value="{{ o.sel }}"><div style="position:absolute; top:-4px; right:2px; width:20px; height:20px; border-radius:{{ t.circle }}; background:{{ t.ink }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:14px; line-height:1; color:{{ t.paper }};">check</span></div></sc-if>
+            </div>
+          </sc-for>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:4px; width:60px;"><div style="width:46px; height:46px; box-sizing:border-box; border:{{ t.bwT }} dashed {{ t.ink }}; border-radius:{{ t.circle }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">search</span></div><div style="font:{{ t.fMetaB }};">Find</div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:{{ t.ground }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }};">
+          <div style="flex:1; font:{{ t.fMetaB }};">You vs @sara · all games</div>
+          <div style="display:flex; gap:10px; font:{{ t.fMetaB }};"><span>4W</span><span>2D</span><span>1L</span></div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">TIME</div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); background:{{ t.ground }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <sc-for list="{{ tcSeg }}" as="s" hint-placeholder-count="4"><div style="height:36px; border-radius:{{ t.rxs }}; background:{{ s.bg }}; color:{{ s.fg }}; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">{{ s.l }}</div></sc-for>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">PLAY AS</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); background:{{ t.ground }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <sc-for list="{{ sides }}" as="s" hint-placeholder-count="3"><div style="height:36px; border-radius:{{ t.rxs }}; background:{{ s.bg }}; color:{{ s.fg }}; display:flex; align-items:center; justify-content:center; gap:4px; font:{{ t.fMetaB }};"><span style="font:400 18px/1 'Noto Sans Symbols 2';">{{ s.g }}</span>{{ s.l }}</div></sc-for>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; padding-top:4px;">
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">Rated</div><div style="font:{{ t.fMeta }}; color:{{ t.ink2 }};">Blitz Int · win +14 · draw +2 · loss −10</div></div>
+          <div style="width:48px; height:28px; flex:none; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.progress }}; position:relative;"><div style="position:absolute; right:3px; top:3px; width:17px; height:17px; border-radius:{{ t.circle }}; background:{{ t.paper }};"></div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">Allow spectators</div><div style="font:{{ t.fMeta }}; color:{{ t.ink2 }};">Party members can watch live</div></div>
+          <div style="width:48px; height:28px; flex:none; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.pill }}; background:{{ t.progress }}; position:relative;"><div style="position:absolute; right:3px; top:3px; width:17px; height:17px; border-radius:{{ t.circle }}; background:{{ t.paper }};"></div></div>
+        </div>
+        <div style="margin-top:auto; height:52px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">send</span>SEND CHALLENGE</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.incoming }}">
+      <div style="display:flex; flex-direction:column; gap:14px; padding:4px 16px 16px; height:100%; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">close</span></div>
+          <div style="flex:1;"></div>
+          <div style="display:flex; align-items:center; gap:4px; height:32px; padding:0 10px; box-sizing:border-box; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fMetaB }};"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1;">timer</span>Expires 0:42</div>
+        </div>
+        <div style="background:{{ t.gold }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; padding:16px; display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:56px; height:56px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ t.amber }}; display:flex; align-items:center; justify-content:center; font:{{ t.fH }};">S</div>
+            <div style="font:{{ t.fH }};">VS</div>
+            <dc-import name="PQIcon" variant="avatar" square="{{ t.sq }}" hair="#ffc21a" shirt="#4a90d9" size="56" hint-size="56px,56px"></dc-import>
+          </div>
+          <div style="font:{{ t.fBig }}; letter-spacing:{{ t.ls }};">@SARA WANTS A GAME</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <sc-for list="{{ incTags }}" as="g" hint-placeholder-count="3"><div style="height:28px; padding:0 10px; display:flex; align-items:center; box-sizing:border-box; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fMetaB }};">{{ g }}</div></sc-for>
+          </div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">HEAD TO HEAD</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; overflow:hidden;">
+          <sc-for list="{{ h2hBig }}" as="w" hint-placeholder-count="3"><div style="padding:10px 12px; display:flex; flex-direction:column; gap:4px; background:{{ w.bg }}; border-right:{{ w.br }};"><div style="font:{{ t.fBig }};">{{ w.v }}</div><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">{{ w.l }}</div></div></sc-for>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">AT STAKE · BLITZ INT 1,046 vs 1,102</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+          <sc-for list="{{ stakes }}" as="s" hint-placeholder-count="3"><div style="padding:8px 10px; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }}; display:flex; flex-direction:column; gap:3px;"><div style="font:{{ t.fNum }}; color:{{ s.c }};">{{ s.v }}</div><div style="font:{{ t.fMeta }};">{{ s.l }}</div></div></sc-for>
+        </div>
+        <div style="margin-top:auto; display:grid; grid-template-columns:1fr 1.4fr; gap:10px;">
+          <div style="height:52px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};">DECLINE</div>
+          <div style="height:52px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};">ACCEPT · PLAY</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.board }}">
+      <div style="display:flex; flex-direction:column; gap:8px; padding:4px 10px 12px; height:100%; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; gap:8px; height:40px; padding:0 6px;">
+          <div style="width:36px; height:36px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">{{ bv.backIcon }}</span></div>
+          <sc-if value="{{ bv.spec }}"><div style="height:26px; padding:0 8px; display:flex; align-items:center; box-sizing:border-box; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rxs }}; font:{{ t.fLabel }};">SPECTATING</div></sc-if>
+          <div style="flex:1; font:{{ t.fMetaB }};">{{ bv.kicker }}</div>
+          <div style="display:flex; align-items:center; gap:3px; font:{{ t.fMetaB }};"><span style="font-family:'Material Symbols Rounded'; font-size:18px; line-height:1;">visibility</span>{{ bv.eye }}</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:0 6px;">
+          <div style="width:36px; height:36px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ bv.top.av }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">{{ bv.top.i }}</div>
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:1px;"><div style="font:{{ t.fStrong }};">{{ bv.top.n }} <span style="font:{{ t.fMeta }}; color:{{ t.muted }};">{{ bv.top.int }}</span></div><div style="font:400 15px/1 'Noto Sans Symbols 2'; color:{{ t.ink2 }}; height:16px;">{{ bv.top.cap }}</div></div>
+          <div style="min-width:86px; height:40px; box-sizing:border-box; padding:0 10px; display:flex; align-items:center; justify-content:flex-end; background:{{ bv.top.cbg }}; color:{{ bv.top.cfg }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; font:{{ t.fClock }};">{{ bv.top.clock }}</div>
+        </div>
+        <div style="position:relative; align-self:center; width:328px; height:328px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; overflow:hidden; box-shadow:{{ t.shS }}; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);">
+          <sc-for list="{{ bv.sq }}" as="q" hint-placeholder-count="64">
+            <div style="position:relative; background:{{ q.bg }}; display:flex; align-items:center; justify-content:center; font:400 31px/1 'Noto Sans Symbols 2'; color:{{ q.pc }}; text-shadow:{{ q.ts }};">{{ q.g }}<sc-if value="{{ q.dot }}"><div style="position:absolute; width:12px; height:12px; border-radius:{{ t.circle }}; background:rgba(22,20,18,.35);"></div></sc-if><div style="position:absolute; left:2px; top:2px; font:700 9px/1 Rubik; color:{{ t.ink2 }}; text-shadow:none;">{{ q.rk }}</div><div style="position:absolute; right:2px; bottom:2px; font:700 9px/1 Rubik; color:{{ t.ink2 }}; text-shadow:none;">{{ q.fl }}</div></div>
+          </sc-for>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:0 6px;">
+          <div style="width:36px; height:36px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ bv.bot.av }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">{{ bv.bot.i }}</div>
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:1px;"><div style="font:{{ t.fStrong }};">{{ bv.bot.n }} <span style="font:{{ t.fMeta }}; color:{{ t.muted }};">{{ bv.bot.int }}</span></div><div style="font:400 15px/1 'Noto Sans Symbols 2'; color:{{ t.ink2 }}; height:16px;">{{ bv.bot.cap }}</div></div>
+          <div style="min-width:86px; height:40px; box-sizing:border-box; padding:0 10px; display:flex; align-items:center; justify-content:flex-end; background:{{ bv.bot.cbg }}; color:{{ bv.bot.cfg }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; box-shadow:{{ t.shS }}; font:{{ t.fClock }};">{{ bv.bot.clock }}</div>
+        </div>
+        <div style="display:flex; gap:6px; padding:0 6px; overflow:hidden;">
+          <sc-for list="{{ bv.moves }}" as="m" hint-placeholder-count="6"><div style="flex:none; height:28px; padding:0 8px; display:flex; align-items:center; gap:4px; box-sizing:border-box; background:{{ m.bg }}; color:{{ m.fg }}; border:{{ m.bd }}; border-radius:{{ t.rxs }}; font:{{ t.fMetaB }};"><span style="color:{{ m.nc }};">{{ m.n }}</span>{{ m.m }}</div></sc-for>
+        </div>
+        <div style="margin-top:auto; display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 6px;">
+          <div style="height:46px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:6px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.shS }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">{{ bv.a1i }}</span>{{ bv.a1 }}</div>
+          <div style="height:46px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:6px; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.shS }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">{{ bv.a2i }}</span>{{ bv.a2 }}</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.over }}">
+      <div style="position:absolute; inset:0; background:rgba(22,20,18,.45);"></div>
+      <div style="position:absolute; left:0; right:0; bottom:0; background:{{ t.paper }}; border-top:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.sheetR }}; padding:10px 16px 16px; display:flex; flex-direction:column; gap:12px;">
+        <div style="align-self:center; width:44px; height:5px; border-radius:{{ t.pill }}; background:{{ t.ink }}; opacity:.3;"></div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">CHECKMATE · 3 MIN BLITZ · RATED</div>
+        <div style="font:{{ t.fHuge }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">YOU WIN!</div>
+        <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:{{ t.ground }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }};">
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">BLITZ INT</div><div style="font:{{ t.fNum }};">1,046 → 1,060</div></div>
+          <div style="height:32px; padding:0 10px; display:flex; align-items:center; box-sizing:border-box; background:{{ t.progress }}; color:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.pill }}; font:{{ t.fBtn }};">+14 INT</div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">YOU vs @SARA · UPDATED</div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; overflow:hidden;">
+          <sc-for list="{{ h2hAfter }}" as="w" hint-placeholder-count="3"><div style="position:relative; padding:10px 12px; display:flex; flex-direction:column; gap:4px; background:{{ w.bg }}; border-right:{{ w.br }};"><div style="font:{{ t.fBig }};">{{ w.v }}</div><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">{{ w.l }}</div><sc-if value="{{ w.up }}"><div style="position:absolute; right:8px; top:8px; font:{{ t.fBtn }}; color:{{ t.progressText }};">+1</div></sc-if></div></sc-for>
+        </div>
+        <div style="height:52px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">replay</span>REMATCH</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="height:44px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBtn }};">REVIEW GAME</div>
+          <div style="height:44px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; font:{{ t.fBtn }};">BACK TO BROS</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.h2h }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">YOU vs @SARA</div>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:repeat(3,1fr);">
+            <sc-for list="{{ h2hAfter }}" as="w" hint-placeholder-count="3"><div style="padding:12px; display:flex; flex-direction:column; gap:4px; background:{{ w.bg }}; border-right:{{ w.br }};"><div style="font:{{ t.fBig }};">{{ w.v }}</div><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">{{ w.l }}</div></div></sc-for>
+          </div>
+          <div style="display:flex; height:12px; border-top:{{ t.bwT }} solid {{ t.ink }};"><div style="width:62.5%; background:{{ t.primary }};"></div><div style="width:25%; background:{{ t.sunken }}; border-left:2px solid {{ t.ink }}; border-right:2px solid {{ t.ink }};"></div><div style="flex:1; background:{{ t.ink }};"></div></div>
+          <div style="padding:8px 12px; font:{{ t.fMeta }}; color:{{ t.ink2 }}; border-top:{{ t.bwT }} solid {{ t.ink }};">8 games since Sep · counts rated and casual</div>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">BY TIME CONTROL · W–D–L</div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.r }}; overflow:hidden;">
+          <sc-for list="{{ byTc }}" as="b" hint-placeholder-count="4"><div style="padding:8px 10px; display:flex; flex-direction:column; gap:3px; border-right:{{ b.br }};"><div style="font:{{ t.fLabel }};">{{ b.l }}</div><div style="font:{{ t.fStrong }};">{{ b.v }}</div></div></sc-for>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">RECENT</div>
+        <div style="background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.r }}; display:flex; flex-direction:column;">
+          <sc-for list="{{ recent }}" as="g" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 12px; border-bottom:{{ g.bb }};">
+              <div style="width:28px; height:28px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rxs }}; background:{{ g.bg }}; color:{{ g.fg }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">{{ g.r }}</div>
+              <div style="flex:1; display:flex; flex-direction:column; gap:1px;"><div style="font:{{ t.fStrong }};">{{ g.how }}</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">{{ g.meta }}</div></div>
+              <div style="font:{{ t.fMetaB }}; color:{{ g.dc }};">{{ g.d }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="height:50px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; gap:8px; background:{{ t.primary }}; color:{{ t.onPrimary }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.sh }}; font:{{ t.fBtn }}; letter-spacing:{{ t.lsBtn }};"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">swords</span>CHALLENGE @SARA</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.party }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">BROS</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Study party · 3 members</div></div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <sc-for list="{{ partyTabs }}" as="s" hint-placeholder-count="5"><div style="height:34px; border-radius:{{ t.rxs }}; background:{{ s.bg }}; color:{{ s.fg }}; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">{{ s.l }}</div></sc-for>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:{{ t.sky }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; box-shadow:{{ t.sh }};">
+          <div style="width:10px; height:10px; flex:none; border-radius:{{ t.circle }}; background:{{ t.primary }}; border:2px solid {{ t.ink }};"></div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:2px;"><div style="font:{{ t.fStrong }};">@ali vs @sara · live</div><div style="font:{{ t.fMeta }};">5 min · move 9 · 5 watching</div></div>
+          <div style="height:34px; padding:0 12px; box-sizing:border-box; display:flex; align-items:center; background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; box-shadow:{{ t.shS }}; font:{{ t.fBtn }};">WATCH</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline;"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">PARTY LADDER · INT</div><div style="font:{{ t.fMeta }}; color:{{ t.muted }};">Blitz</div></div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <sc-for list="{{ poolSeg }}" as="s" hint-placeholder-count="3"><div style="height:32px; border-radius:{{ t.rxs }}; background:{{ s.bg }}; color:{{ s.fg }}; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">{{ s.l }}</div></sc-for>
+        </div>
+        <div style="background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; overflow:hidden; display:flex; flex-direction:column;">
+          <sc-for list="{{ ladder }}" as="l" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:{{ l.bg }}; border-bottom:{{ l.bb }};">
+              <div style="width:28px; height:28px; flex:none; box-sizing:border-box; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.circle }}; background:{{ l.medal }}; display:flex; align-items:center; justify-content:center; font:{{ t.fBtn }};">{{ l.rank }}</div>
+              <div style="flex:1; display:flex; flex-direction:column; gap:1px;"><div style="font:{{ t.fStrong }};">{{ l.n }}</div><div style="font:{{ t.fMeta }}; color:{{ t.ink2 }};">{{ l.rec }}</div></div>
+              <div style="font:{{ t.fNum }};">{{ l.int }}</div>
+              <sc-if value="{{ l.canChallenge }}"><div style="width:36px; height:36px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:20px; line-height:1;">swords</span></div></sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font:{{ t.fMeta }}; color:{{ t.muted }}; text-wrap:pretty;">Chess Int is separate from party points. It never changes your XP, level or streak.</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.rating }}">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:4px 16px 16px;">
+        <div style="display:flex; align-items:center; gap:12px; height:48px;">
+          <div style="width:40px; height:40px; box-sizing:border-box; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rs }}; background:{{ t.paper }}; box-shadow:{{ t.shS }}; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Rounded'; font-size:22px; line-height:1;">arrow_back</span></div>
+          <div style="flex:1; font:{{ t.fTitle }}; letter-spacing:{{ t.ls }}; color:{{ t.title }};">CHESS INT</div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rb }}; padding:3px; gap:3px;">
+          <sc-for list="{{ poolSeg }}" as="s" hint-placeholder-count="3"><div style="height:32px; border-radius:{{ t.rxs }}; background:{{ s.bg }}; color:{{ s.fg }}; display:flex; align-items:center; justify-content:center; font:{{ t.fMetaB }};">{{ s.l }}</div></sc-for>
+        </div>
+        <div style="background:{{ t.gold }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.rl }}; box-shadow:{{ t.shCard }}; padding:14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div style="display:flex; flex-direction:column; gap:6px;"><div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }};">BLITZ INT · 3 + 5 MIN</div><div style="font:{{ t.fHuge }}; letter-spacing:{{ t.ls }};">1,060</div></div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;"><div style="font:{{ t.fBtn }}; color:{{ t.progressText }};">+14 today</div><div style="font:{{ t.fMeta }};">Best 1,071</div></div>
+          </div>
+          <div style="display:flex; align-items:flex-end; gap:3px; height:64px; padding:6px; box-sizing:border-box; background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.rs }};">
+            <sc-for list="{{ spark }}" as="b" hint-placeholder-count="20"><div style="flex:1; height:{{ b.h }}; background:{{ b.c }}; border-radius:{{ t.dotR }};"></div></sc-for>
+          </div>
+          <div style="font:{{ t.fMeta }};">Last 20 rated blitz games</div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); background:{{ t.paper }}; border:{{ t.bw }} solid {{ t.ink }}; border-radius:{{ t.r }}; overflow:hidden;">
+          <sc-for list="{{ record }}" as="w" hint-placeholder-count="3"><div style="padding:8px 12px; display:flex; flex-direction:column; gap:3px; border-right:{{ w.br }};"><div style="font:{{ t.fNum }};">{{ w.v }}</div><div style="font:{{ t.fMeta }};">{{ w.l }}</div></div></sc-for>
+        </div>
+        <div style="font:{{ t.fLabel }}; letter-spacing:{{ t.lsLabel }}; color:{{ t.muted }};">HOW INT MOVES</div>
+        <div style="background:{{ t.paper }}; border:{{ t.bwT }} solid {{ t.ink }}; border-radius:{{ t.r }}; display:flex; flex-direction:column;">
+          <sc-for list="{{ intRules }}" as="r" hint-placeholder-count="4"><div style="display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:2px solid {{ t.divider }};"><div style="flex:1; font:{{ t.fBody }};">{{ r.l }}</div><div style="font:{{ t.fMetaB }}; color:{{ r.c }};">{{ r.v }}</div></div></sc-for>
+          <div style="padding:8px 12px; font:{{ t.fMeta }}; color:{{ t.muted }};">Your first 20 games move faster while Int settles.</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ is.notifs }}">
+      <div style="position:absolute; left:0; right:0; bottom:0; top:-34px; background-color:{{ t.sky }}; background-image:radial-gradient(circle, rgba(22,20,18,.16) 1.4px, transparent 1.6px); background-size:12px 12px; padding:60px 12px 16px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font:500 15px/1 Rubik; color:#161412; padding-left:6px;">Wednesday, 21 October</div>
+        <div style="font:88px/0.9 Bangers; color:#161412; padding-left:4px; margin-bottom:12px;">8:52</div>
+        <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="3">
+          <div style="background:#fffdf8; border-radius:24px; padding:12px 14px; display:flex; flex-direction:column; gap:6px; box-shadow:0 2px 6px rgba(22,20,18,.18);">
+            <div style="display:flex; align-items:center; gap:6px; font:500 11px/1 Rubik; color:#6b645c;"><div style="width:18px; height:18px; border-radius:50%; background:#ff5a4e; display:flex; align-items:center; justify-content:center; font:400 12px/1 'Noto Sans Symbols 2'; color:#fffdf8;">♞︎</div>PixelQuest · {{ n.when }}</div>
+            <div style="font:700 15px/1.3 Rubik; color:#161412;">{{ n.title }}</div>
+            <div style="font:400 13px/1.4 Rubik; color:#4a4540;">{{ n.body }}</div>
+            <div style="display:flex; gap:18px; padding-top:4px;"><sc-for list="{{ n.acts }}" as="a" hint-placeholder-count="2"><div style="font:700 13px/1 Rubik; color:#c23a2f; letter-spacing:.04em;">{{ a }}</div></sc-for></div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+  <sc-if value="{{ navComic }}"><dc-import name="PQNav" active="{{ navActive }}" hint-size="100%,76px"></dc-import></sc-if>
+  <sc-if value="{{ navPixel }}"><dc-import name="PQNavPixel" active="{{ navActive }}" hint-size="100%,76px"></dc-import></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:380,&quot;height&quot;:780},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;hub&quot;,&quot;challenge&quot;,&quot;incoming&quot;,&quot;game&quot;,&quot;over&quot;,&quot;spectate&quot;,&quot;h2h&quot;,&quot;party&quot;,&quot;rating&quot;,&quot;notifs&quot;],&quot;default&quot;:&quot;hub&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;skin&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;comic&quot;,&quot;pixel&quot;],&quot;default&quot;:&quot;comic&quot;,&quot;tsType&quot;:&quot;'comic'|'pixel'&quot;}}">
+class Component extends DCLogic {
+  static COMIC = {
+    ink: '#161412', ink2: '#4a4540', muted: '#6b645c', paper: '#fffdf8', ground: '#f6f3ec', sunken: '#efe9dd', divider: '#ebe4d7',
+    primary: '#ff5a4e', onPrimary: '#161412', primaryText: '#c23a2f', sky: '#8ecae6', gold: '#ffc21a', amber: '#f0a35e', lilac: '#b39ddb',
+    progress: '#1f7a3a', progressText: '#1f7a3a', title: '#161412', boardL: '#fffdf8', boardD: '#8ecae6', hl: '#ffd95a',
+    r: '14px', rs: '10px', rl: '16px', rb: '12px', rxs: '9px', pill: '999px', circle: '50%', dotR: '3px', sheetR: '22px 22px 0 0',
+    bw: '2.5px', bwT: '2px', sh: '3px 3px 0 #161412', shS: '2px 2px 0 #161412', shCard: '4px 4px 0 #161412', frameSh: '8px 8px 0 #161412',
+    fTitle: '30px/1 Bangers', fH: '24px/1 Bangers', fBig: '34px/1 Bangers', fHuge: '56px/0.9 Bangers', fNum: '24px/1 Bangers', fClock: '30px/1 Bangers',
+    fLabel: '800 11px/1.3 Rubik', fBtn: '800 13px/1 Rubik', fBody: '500 14px/1.45 Rubik', fStrong: '800 15px/1.3 Rubik', fMeta: '500 12px/1.35 Rubik', fMetaB: '700 12px/1.35 Rubik',
+    ls: '.03em', lsLabel: '.1em', lsBtn: '.04em', sq: false
+  };
+  static PIXEL = {
+    ink: '#2b2622', ink2: '#4a4540', muted: '#6e655a', paper: '#fffaf0', ground: '#f5efe2', sunken: '#ece4d2', divider: '#ece4d2',
+    primary: '#c25e00', onPrimary: '#fffaf0', primaryText: '#a34e00', sky: '#dbeefa', gold: '#fde7a0', amber: '#fbd5ae', lilac: '#e4daf6',
+    progress: '#2f9e4a', progressText: '#1f7a3a', title: '#c25e00', boardL: '#fffaf0', boardD: '#e8a33d', hl: '#fde7a0',
+    r: '0', rs: '0', rl: '0', rb: '0', rxs: '0', pill: '0', circle: '0', dotR: '0', sheetR: '0',
+    bw: '2px', bwT: '2px', sh: '0 3px 0 #2b2622', shS: '0 3px 0 #2b2622', shCard: 'none', frameSh: '0 8px 0 #2b2622',
+    fTitle: "15px/1.3 'Press Start 2P'", fH: "12px/1.4 'Press Start 2P'", fBig: "16px/1.35 'Press Start 2P'", fHuge: "26px/1.2 'Press Start 2P'", fNum: "12px/1.3 'Press Start 2P'", fClock: "15px/1 'Press Start 2P'",
+    fLabel: "8px/1.5 'Press Start 2P'", fBtn: "9px/1.3 'Press Start 2P'", fBody: "500 16px/1.4 'Pixelify Sans'", fStrong: "600 17px/1.3 'Pixelify Sans'", fMeta: "500 14px/1.35 'Pixelify Sans'", fMetaB: "600 14px/1.35 'Pixelify Sans'",
+    ls: '0', lsLabel: '0', lsBtn: '0', sq: true
+  };
+  static G = { k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟' };
+  static NAV = { hub: 'hero', h2h: 'hero', rating: 'hero', party: 'home' };
+  board(fen, t, o) {
+    const out = [], rows = fen.split('/');
+    const ink = t.ink, outl = `-1px -1px 0 ${ink}, 1px -1px 0 ${ink}, -1px 1px 0 ${ink}, 1px 1px 0 ${ink}, 0 0 2px ${ink}`;
+    const push = (r, c, ch) => {
+      const name = 'abcdefgh'[c] + (8 - r), light = (r + c) % 2 === 0;
+      const white = ch && ch === ch.toUpperCase();
+      const bg = o.check === name ? t.primary : (o.last || []).includes(name) || o.sel === name ? t.hl : light ? t.boardL : t.boardD;
+      out.push({ g: ch ? Component.G[ch.toLowerCase()] + '\uFE0E' : '', bg, pc: white ? t.paper : ink, ts: white ? outl : 'none',
+        dot: (o.dots || []).includes(name), rk: c === 0 ? String(8 - r) : '', fl: r === 7 ? 'abcdefgh'[c] : '' });
+    };
+    rows.forEach((row, r) => { let c = 0; for (const ch of row) { if (/\d/.test(ch)) { for (let k = 0; k < +ch; k++) push(r, c++, null); } else push(r, c++, ch); } });
+    return out;
+  }
+  renderVals() {
+    const scr = this.props.screen ?? 'hub';
+    const px = (this.props.skin ?? 'comic') === 'pixel';
+    const t = px ? Component.PIXEL : Component.COMIC;
+    const is = { [scr]: true };
+    if (['game', 'over', 'spectate'].includes(scr)) is.board = true;
+    const nav = Component.NAV[scr];
+    const B = `${t.bwT} solid ${t.ink}`;
+    const seg = (ls, sel) => ls.map((l, i) => ({ l, bg: i === sel ? t.ink : 'transparent', fg: i === sel ? t.paper : t.ink }));
+    const cells = (arr) => arr.map((x, i) => ({ ...x, br: i < arr.length - 1 ? B : 'none' }));
+    const mv = (list, cur) => list.map((m, i) => ({ n: m[0], m: m[1], bg: i === cur ? t.ink : t.paper, fg: i === cur ? t.paper : t.ink, nc: i === cur ? t.gold : t.muted, bd: B }));
+    const player = (n, i, av, int, clock, active, cap) => ({ n, i, av, int, clock, cap, cbg: active ? t.ink : t.paper, cfg: active ? t.paper : t.ink });
+    let bv = null;
+    if (scr === 'game' || scr === 'over') {
+      const over = scr === 'over';
+      bv = {
+        backIcon: 'more_horiz', spec: false, kicker: '3 MIN · BLITZ · RATED · H2H 4–2–1', eye: '4',
+        top: player('@sara', 'S', t.amber, '1,102', over ? '2:07' : '2:41', false, over ? '♙♙♘' : '♙'),
+        bot: player('@raza (you)', 'R', t.sky, '1,046', over ? '1:58' : '2:12', !over, over ? '♟♟' : '♟'),
+        sq: this.board(over ? 'r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR' : 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R', t,
+          over ? { last: ['h5', 'f7'], check: 'e8' } : { last: ['g8', 'f6'], sel: 'c4', dots: ['b5', 'a6', 'b3', 'd5', 'e6'] }),
+        moves: mv([['3.', 'Bc4'], ['', 'Bc5'], ['4.', 'd3'], ['', 'Nf6'], ['5.', '…']], 3),
+        a1: 'OFFER DRAW', a1i: 'handshake', a2: 'RESIGN', a2i: 'flag'
+      };
+    } else if (scr === 'spectate') {
+      bv = {
+        backIcon: 'arrow_back', spec: true, kicker: 'Bros · 5 min', eye: '5',
+        top: player('@ali', 'A', t.lilac, '998', '3:58', false, '♙'),
+        bot: player('@sara', 'S', t.amber, '1,102', '4:12', true, '♟'),
+        sq: this.board('r2q1rk1/pp2bppp/2n1pn2/3p4/3P1B2/2NBPN2/PP3PPP/R2QK2R', t, { last: ['e8', 'g8'] }),
+        moves: mv([['7.', 'Bd3'], ['', 'Be7'], ['8.', 'Nf3'], ['', 'Nc6'], ['9.', '…']], 3),
+        a1: 'LEAVE', a1i: 'logout', a2: 'NEXT LIVE GAME', a2i: 'skip_next'
+      };
+    }
+    const spark = [1001, 1010, 998, 1006, 1019, 1012, 1024, 1031, 1022, 1035, 1047, 1040, 1052, 1071, 1060, 1049, 1038, 1046, 1032, 1046].concat([]).slice(0, 19).concat([1060]);
+    const lo = 990, hi = 1075;
+    return {
+      t, is, bv, navActive: nav ?? 'home', navComic: !!nav && !px, navPixel: !!nav && px,
+      pools: cells([{ l: 'BULLET', v: '980' }, { l: 'BLITZ', v: '1,046' }, { l: 'RAPID', v: '1,120' }]).map((p, i) => ({ ...p, bg: i === 1 ? t.gold : t.paper })),
+      tcs: [{ m: '1', pool: 'Bullet · 980' }, { m: '3', pool: 'Blitz · 1,046' }, { m: '5', pool: 'Blitz · 1,046' }, { m: '10', pool: 'Rapid · 1,120' }].map(c => ({ ...c, bg: t.paper })),
+      wdlSmall: cells([{ v: 4, l: 'W' }, { v: 2, l: 'D' }, { v: 1, l: 'L' }]).map((w, i) => ({ ...w, bg: i === 0 ? t.gold : t.paper })),
+      opps: [{ n: '@sara', i: 'S', sel: true }, { n: '@ali', i: 'A' }, { n: '@omar', i: 'O' }].map((o, i) => ({ ...o, sel: !!o.sel, bg: [t.amber, t.lilac, t.sky][i], bw: o.sel ? '3px' : t.bwT, sh: o.sel ? t.shS : 'none' })),
+      tcSeg: seg(['1 min', '3 min', '5 min', '10 min'], 1),
+      sides: [{ g: '♔', l: 'White' }, { g: '½', l: 'Random' }, { g: '♚', l: 'Black' }].map((s, i) => ({ ...s, bg: i === 1 ? t.ink : 'transparent', fg: i === 1 ? t.paper : t.ink })),
+      incTags: ['3 min', 'Blitz', 'Rated', 'You play black'],
+      h2hBig: cells([{ v: '4', l: 'YOU' }, { v: '2', l: 'DRAWS' }, { v: '1', l: 'SARA' }]).map((w, i) => ({ ...w, bg: i === 0 ? t.gold : t.paper })),
+      h2hAfter: cells([{ v: '5', l: 'YOU', up: true }, { v: '2', l: 'DRAWS' }, { v: '1', l: 'SARA' }]).map((w, i) => ({ ...w, up: !!w.up, bg: i === 0 ? t.gold : t.paper })),
+      stakes: [{ v: '+14', l: 'Win', c: t.progressText }, { v: '+2', l: 'Draw', c: t.ink }, { v: '−10', l: 'Loss', c: t.primaryText }],
+      byTc: cells([{ l: '1 MIN', v: '1–0–0' }, { l: '3 MIN', v: '3–1–1' }, { l: '5 MIN', v: '1–1–0' }, { l: '10 MIN', v: '0–0–0' }]),
+      recent: [
+        { r: 'W', how: 'Checkmate · 3 min', meta: 'Today · rated', d: '+14', bg: t.gold, fg: t.ink, dc: t.progressText },
+        { r: 'D', how: 'Repetition · 5 min', meta: 'Mon · rated', d: '+2', bg: t.paper, fg: t.ink, dc: t.ink },
+        { r: 'L', how: 'Resigned · 3 min', meta: 'Oct 14 · rated', d: '−10', bg: t.ink, fg: t.paper, dc: t.primaryText }
+      ].map((g, i) => ({ ...g, bb: i < 2 ? `2px solid ${t.divider}` : 'none' })),
+      partyTabs: seg(['Week', 'Items', 'Chess', 'Scores', 'People'], 2),
+      poolSeg: seg(['Bullet', 'Blitz', 'Rapid'], 1),
+      ladder: [
+        { rank: 1, n: '@sara', rec: '12W · 3D · 5L', int: '1,102', medal: t.gold, canChallenge: true },
+        { rank: 2, n: '@raza (you)', rec: '9W · 4D · 6L', int: '1,060', medal: '#d9d4cc', canChallenge: false, you: true },
+        { rank: 3, n: '@ali', rec: '6W · 2D · 9L', int: '998', medal: t.amber, canChallenge: true }
+      ].map((l, i) => ({ ...l, bg: l.you ? t.sky : t.paper, bb: i < 2 ? B : 'none' })),
+      spark: spark.map((v, i) => ({ h: Math.round(8 + (v - lo) / (hi - lo) * 40) + 'px', c: i === spark.length - 1 ? t.primary : t.ink })),
+      record: cells([{ v: '23', l: 'Wins' }, { v: '6', l: 'Draws' }, { v: '14', l: 'Losses' }]),
+      intRules: [
+        { l: 'Beat a stronger player', v: '+15 to +20', c: t.progressText },
+        { l: 'Beat an equal', v: '+12', c: t.progressText },
+        { l: 'Draw', v: '−6 to +6', c: t.ink },
+        { l: 'Lose to an equal', v: '−12', c: t.primaryText }
+      ],
+      notifs: [
+        { when: 'now', title: '@sara challenged you', body: '3 min · Blitz · Rated. You lead 4–2–1. Expires in 60s.', acts: ['ACCEPT', 'DECLINE'] },
+        { when: '2m', title: '@ali vs @sara is live', body: 'Bros · 5 min · 5 watching', acts: ['WATCH'] },
+        { when: '18m', title: 'You beat @sara · +14 Int', body: 'Blitz Int 1,060 · head to head now 5–2–1', acts: ['REMATCH', 'REVIEW'] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

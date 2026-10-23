@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="width:{{ px }}; height:{{ px }}; font-size:{{ fs }}; position:relative; flex:none;">
+  <sc-if value="{{ isSword }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute; left:0; top:0; width:94em; height:94em; box-sizing:border-box; background:#ff5a4e; border:3.5em solid #161412; border-radius:24em; box-shadow:5em 5em 0 #161412; overflow:hidden;">
+      <div style="position:absolute; inset:0; background-image:radial-gradient(circle, rgba(22,20,18,.16) 1.1em, transparent 1.3em); background-size:7em 7em;"></div>
+      <div style="position:absolute; left:5em; top:5em; width:5.5em; height:5.5em; box-shadow:{{ swordSh }};"></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isP }}">
+    <div style="position:absolute; left:0; top:0; width:94em; height:94em; box-sizing:border-box; background:#8ecae6; border:3.5em solid #161412; border-radius:24em; box-shadow:5em 5em 0 #161412; overflow:hidden;">
+      <div style="position:absolute; inset:0; background-image:radial-gradient(circle, rgba(22,20,18,.14) 1.1em, transparent 1.3em); background-size:7em 7em;"></div>
+      <div style="position:absolute; left:8em; top:14em; width:4.5em; height:4.5em; box-shadow:{{ pSh }};"></div>
+      <div style="position:absolute; left:55em; top:6em; width:4em; height:4em; box-shadow:{{ starSh }};"></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isRing }}">
+    <div style="position:absolute; left:0; top:0; width:94em; height:94em; box-sizing:border-box; background:#161412; border:3.5em solid #161412; border-radius:24em; box-shadow:5em 5em 0 #ff5a4e; overflow:hidden;">
+      <div style="position:absolute; left:8em; top:8em; width:71em; height:71em; box-sizing:border-box; border-radius:50%; border:3em solid #fffdf8; background:conic-gradient(#ff5a4e 0 70%, #fffdf8 70% 100%);">
+        <div style="position:absolute; left:9.5em; top:9.5em; width:46em; height:46em; box-sizing:border-box; border-radius:50%; border:3em solid #161412; background:#fffdf8;">
+          <div style="position:absolute; left:4.25em; top:4.25em; width:2.25em; height:2.25em; box-shadow:{{ trophySh }};"></div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isAvatar }}">
+    <div style="position:absolute; inset:0; box-sizing:border-box; background:#2a2840; border:4em solid #161412; border-radius:16em; overflow:hidden;">
+      <div style="position:absolute; left:6em; top:8em; width:8em; height:8em; box-shadow:{{ avatarSh }};"></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isAvatarSq }}">
+    <div style="position:absolute; inset:0; box-sizing:border-box; background:#2a2840; border:4em solid #2b2622;">
+      <div style="position:absolute; left:6em; top:8em; width:8em; height:8em; box-shadow:{{ avatarSh }};"></div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isMono }}">
+    <div style="position:absolute; left:1em; top:1em; width:7em; height:7em; box-shadow:{{ monoSh }};"></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:220,&quot;height&quot;:220},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sword&quot;,&quot;p&quot;,&quot;ring&quot;],&quot;default&quot;:&quot;sword&quot;,&quot;tsType&quot;:&quot;'sword'|'p'|'ring'&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:200,&quot;min&quot;:12,&quot;max&quot;:512,&quot;tsType&quot;:&quot;number&quot;},&quot;mono&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  static SPR = {
+    sword: ["..............","...........wg.","..........wg..",".........wg...","........wg....","...yy..wg.....","....yywg......",".....yy.......","....h.yy......","...h...yy.....","..yy..........","..yy..........","..............",".............."],
+    p: ["............",".rrrrrrrr...",".rwwrrrrrr..",".rwr...rrrr.",".rwr....rrr.",".rrr...rrrr.",".rrrrrrrrr..",".rrrrrrrr...",".rrr........",".rrr........",".rrr........",".rrr........","............"],
+    star: [".......","...y...","..ywy..",".yyyyy.","..yyy..","...y...","......."],
+    avatar: ["..........","..hhhhhh..",".hhhhhhhh.",".hssssssh.",".sesssses.",".ssssssss.","..ssmmss..","..tttttt..",".tttttttt.",".tttttttt."],
+    trophy: ["..............","...yyyyyyyy...",".y.ywyyyyyy.y.",".y.ywyyyyyy.y.","..yywyyyyyyy..","....yyyyyy....",".....yyyy.....","......yy......","......yy......",".....rrrr.....","....rrrrrr....",".............."]
+  };
+  static COL = { w: '#fffaf0', g: '#cfc6b8', y: '#ffc21a', r: '#ff5a4e', h: '#8a5a34' };
+  shadow(name, n, unit, mono, outline = true, pal = Component.COL) {
+    const key = name + n + unit + mono + outline + JSON.stringify(pal);
+    Component.cache = Component.cache || {};
+    if (Component.cache[key]) return Component.cache[key];
+    const src = Component.SPR[name];
+    const h = src.length, w = src[0].length;
+    const top = Math.floor((n - h) / 2), left = Math.floor((n - w) / 2);
+    const at = (r, c) => { const sr = r - top, sc = c - left; return sr >= 0 && sr < h && sc >= 0 && sc < w ? src[sr][sc] : '.'; };
+    const parts = [];
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+      const ch = at(r, c);
+      let col = null;
+      if (ch !== '.') col = mono ? 'currentColor' : pal[ch];
+      else if (!mono && outline) {
+        let edge = false;
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) if (at(r + dr, c + dc) !== '.') edge = true;
+        if (edge) col = '#161412';
+      }
+      if (col) parts.push(`${c * unit}em ${r * unit}em 0 0 ${col}`);
+    }
+    return (Component.cache[key] = parts.join(','));
+  }
+  renderVals() {
+    const v = this.props.variant ?? 'sword';
+    const size = Number(this.props.size ?? 120);
+    const mono = !!this.props.mono;
+    const glyph = v === 'p' ? 'p' : v === 'ring' ? 'trophy' : 'sword';
+    return {
+      px: size + 'px', fs: size / 100 + 'px',
+      isSword: !mono && v === 'sword', isP: !mono && v === 'p', isRing: !mono && v === 'ring', isMono: mono, isAvatar: v === 'avatar' && !this.props.square, isAvatarSq: v === 'avatar' && !!this.props.square,
+      avatarSh: v === 'avatar' ? this.shadow('avatar', 10, 8, false, false, { h: this.props.hair ?? '#ffc21a', t: this.props.shirt ?? '#4a90d9', s: '#f2c29b', e: '#161412', m: '#c0675a' }) : 'none',
+      swordSh: !mono && v === 'sword' ? this.shadow('sword', 14, 5.5, false) : 'none',
+      pSh: !mono && v === 'p' ? this.shadow('p', 14, 4.5, false) : 'none',
+      starSh: !mono && v === 'p' ? this.shadow('star', 7, 4, false) : 'none',
+      trophySh: !mono && v === 'ring' ? this.shadow('trophy', 14, 2.25, false) : 'none',
+      monoSh: mono ? this.shadow(glyph, 14, 7, true) : 'none'
+    };
+  }
+}
+</script>
+</body>
+</html>

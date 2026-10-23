@@ -12,7 +12,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.pixelquest.app.MainActivity
-import com.pixelquest.app.R
 import com.pixelquest.app.domain.DifficultyMode
 import com.pixelquest.app.domain.StreakAtRisk
 import com.pixelquest.app.domain.repository.DifficultySettingsRepository
@@ -75,20 +74,9 @@ class StreakAtRiskWorker @AssistedInject constructor(
         val notification = PqNotifications.builder(applicationContext, NotificationChannels.Spec.PROGRESS.id, mood = com.pixelquest.app.mascot.PixMood.Worried)
             .setContentTitle(title)
             .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setContentIntent(openApp)
             .setAutoCancel(true)
-            .apply {
-                val simple = settingsRepository.simpleModeEnabled.first()
-                val (small, big) = PqNotifications.card(
-                    applicationContext,
-                    kicker = applicationContext.resources.getQuantityString(R.plurals.pq_notif_streak_kicker, streak, streak),
-                    title = applicationContext.getString(if (simple) R.string.pq_notif_streak_title_simple else R.string.pq_notif_streak_title),
-                    body = text,
-                    mood = com.pixelquest.app.mascot.PixMood.Worried,
-                    bg = PqNotifications.CardBg.Paper,
-                )
-                setStyle(NotificationCompat.DecoratedCustomViewStyle()).setCustomContentView(small).setCustomBigContentView(big)
-            }
             .build()
         try {
             NotificationManagerCompat.from(applicationContext).notify(NOTIFICATION_ID, notification)

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-2f83b9fd-f749-4049-9f62-e87cdf944d1a/styles.css">
+<script src="_ds/modernist-2f83b9fd-f749-4049-9f62-e87cdf944d1a/_ds_bundle.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>body{margin:0;background:var(--color-bg);} a{color:var(--color-accent-700);} a:hover{color:var(--color-accent);}</style>
+</helmet>
+<div style="min-height:100vh; background:var(--color-bg); color:var(--color-text); font-family:var(--font-body);">
+  <div style="display:flex; align-items:center; gap:var(--space-4); padding:var(--space-4) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:800 18px/1 var(--font-heading); letter-spacing:-.01em;">PixelQuest</div>
+    <div style="width:2px; height:20px; background:var(--color-text);"></div>
+    <div style="font:500 15px/1 var(--font-body);">Chess · design document</div>
+    <div style="flex:1;"></div>
+    <div style="font:500 13px/1 var(--font-body); color:var(--color-neutral-700);">v1 · 21 Oct 2026</div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 420px), 1fr)); border-bottom:2px solid var(--color-text);">
+    <div style="padding:var(--space-8); display:flex; flex-direction:column; gap:var(--space-4); border-right:2px solid var(--color-text);">
+      <div style="font:700 13px/1 var(--font-body); letter-spacing:.12em; color:var(--color-accent-700);">NEW FEATURE</div>
+      <div style="font:900 clamp(48px, 7vw, 96px)/0.92 var(--font-heading); letter-spacing:-.03em;">Chess, inside the party.</div>
+    </div>
+    <div style="padding:var(--space-8); display:flex; flex-direction:column; gap:var(--space-4); justify-content:flex-end;">
+      <div style="font:400 19px/1.5 var(--font-body); text-wrap:pretty; max-width:560px;">Challenge a friend or a party member to a game of chess at 1, 3, 5 or 10 minutes. Each pair keeps a running head-to-head score of wins, draws and losses. Winning earns <b>Int</b>, PixelQuest's chess rating, and party members can watch any live game.</div>
+      <div style="font:400 15px/1.5 var(--font-body); color:var(--color-neutral-700); text-wrap:pretty; max-width:560px;">The phone screens use the app's own Comic and Pixel looks, so they drop straight into the existing UI. This document is the spec around them.</div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">01</div>
+    <div style="font:800 28px/1 var(--font-heading); letter-spacing:-.01em;">Time controls</div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); border-bottom:2px solid var(--color-text);">
+    <sc-for list="{{ tcs }}" as="c" hint-placeholder-count="4">
+      <div style="padding:var(--space-6) var(--space-8); display:flex; flex-direction:column; gap:var(--space-2); border-right:2px solid var(--color-divider);">
+        <div style="font:900 64px/1 var(--font-heading); letter-spacing:-.03em;">{{ c.m }}<span style="font-size:20px; letter-spacing:0;"> min</span></div>
+        <div style="font:700 13px/1 var(--font-body); letter-spacing:.12em; color:var(--color-accent-700);">{{ c.pool }}</div>
+        <div style="font:400 15px/1.5 var(--font-body); color:var(--color-neutral-800); text-wrap:pretty;">{{ c.note }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">02</div>
+    <div style="font:800 28px/1 var(--font-heading); letter-spacing:-.01em;">Rules of the system</div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); border-bottom:2px solid var(--color-text);">
+    <sc-for list="{{ systems }}" as="s" hint-placeholder-count="3">
+      <div style="padding:var(--space-6) var(--space-8) var(--space-8); display:flex; flex-direction:column; gap:var(--space-3); border-right:2px solid var(--color-divider);">
+        <div style="font:800 22px/1.1 var(--font-heading);">{{ s.title }}</div>
+        <div style="font:400 15px/1.5 var(--font-body); color:var(--color-neutral-800); text-wrap:pretty;">{{ s.lead }}</div>
+        <div style="display:flex; flex-direction:column; border-top:2px solid var(--color-text);">
+          <sc-for list="{{ s.rules }}" as="r" hint-placeholder-count="4"><div style="padding:var(--space-2) 0; border-bottom:1px solid var(--color-divider); font:400 14px/1.45 var(--font-body); text-wrap:pretty;">{{ r }}</div></sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 420px), 1fr)); border-bottom:2px solid var(--color-text);">
+    <div style="padding:var(--space-6) var(--space-8); display:flex; flex-direction:column; gap:var(--space-3); border-right:2px solid var(--color-text);">
+      <div style="font:700 13px/1 var(--font-body); letter-spacing:.12em; color:var(--color-accent-700);">INT CHANGE PER GAME · AFTER 20 GAMES</div>
+      <table class="table" style="width:100%; border-collapse:collapse; font:400 15px/1.4 var(--font-body);">
+        <thead><tr style="text-align:left; border-bottom:2px solid var(--color-text);"><th style="padding:var(--space-2) 0; font-weight:700;">Opponent is</th><th style="padding:var(--space-2) 0; font-weight:700;">Win</th><th style="padding:var(--space-2) 0; font-weight:700;">Draw</th><th style="padding:var(--space-2) 0; font-weight:700;">Loss</th></tr></thead>
+        <tbody>
+          <sc-for list="{{ intTable }}" as="r" hint-placeholder-count="5"><tr style="border-bottom:1px solid var(--color-divider);"><td style="padding:var(--space-2) 0;">{{ r.d }}</td><td style="padding:var(--space-2) 0; font-weight:700;">{{ r.w }}</td><td style="padding:var(--space-2) 0;">{{ r.x }}</td><td style="padding:var(--space-2) 0; color:var(--color-accent-700); font-weight:700;">{{ r.l }}</td></tr></sc-for>
+        </tbody>
+      </table>
+    </div>
+    <div style="padding:var(--space-6) var(--space-8); display:flex; flex-direction:column; gap:var(--space-3);">
+      <div style="font:700 13px/1 var(--font-body); letter-spacing:.12em; color:var(--color-accent-700);">THE MATHS</div>
+      <div style="font:400 15px/1.55 var(--font-body); text-wrap:pretty; max-width:560px;">Int is an Elo rating. Expected score <b>E = 1 / (1 + 10^((opp − you) / 400))</b>, and after each game <b>Int += K × (result − E)</b>, where a win counts 1, a draw ½ and a loss 0. K is <b>40</b> for your first 20 games in a pool, then <b>24</b>. Everyone starts at <b>800</b> in each pool and can't drop below 100. Results round to whole points, and both players' changes are worked out on the server.</div>
+      <div style="font:400 15px/1.55 var(--font-body); color:var(--color-neutral-700); text-wrap:pretty; max-width:560px;">Example from the mocks: you (1,046) beat @sara (1,102). E = 0.42, so you gain 24 × 0.58 ≈ <b>+14</b> and she loses 14.</div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">03</div>
+    <div style="font:800 28px/1 var(--font-heading); letter-spacing:-.01em;">Flow</div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); border-bottom:2px solid var(--color-text);">
+    <sc-for list="{{ flow }}" as="f" hint-placeholder-count="6">
+      <div style="padding:var(--space-4) var(--space-6); display:flex; flex-direction:column; gap:var(--space-2); border-right:2px solid var(--color-divider);">
+        <div style="font:700 13px/1 var(--font-body); color:var(--color-accent-700);">{{ f.n }}</div>
+        <div style="font:800 18px/1.15 var(--font-heading);">{{ f.t }}</div>
+        <div style="font:400 14px/1.45 var(--font-body); color:var(--color-neutral-800); text-wrap:pretty;">{{ f.d }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">04</div>
+    <div style="font:800 28px/1 var(--font-heading); letter-spacing:-.01em;">Screens · Comic</div>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:var(--space-8) 40px; padding:var(--space-8); border-bottom:2px solid var(--color-text); align-items:flex-start;">
+    <sc-for list="{{ comic }}" as="s" hint-placeholder-count="10">
+      <div id="{{ s.id }}" style="width:368px; display:flex; flex-direction:column; gap:var(--space-3);">
+        <dc-import name="PQChess" screen="{{ s.screen }}" skin="comic" hint-size="360px,760px"></dc-import>
+        <div style="display:flex; align-items:center; gap:var(--space-3); border-top:2px solid var(--color-text); padding-top:var(--space-3);">
+          <div style="height:26px; padding:0 8px; display:flex; align-items:center; background:var(--color-accent); color:#fff; font:800 13px/1 var(--font-heading);">{{ s.badge }}</div>
+          <div style="font:800 17px/1.15 var(--font-heading);">{{ s.title }}</div>
+        </div>
+        <div style="font:400 14px/1.5 var(--font-body); color:var(--color-neutral-800); text-wrap:pretty;">{{ s.note }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">05</div>
+    <div style="font:800 28px/1 var(--font-heading); letter-spacing:-.01em;">Screens · Pixel</div>
+    <div style="font:400 15px/1.4 var(--font-body); color:var(--color-neutral-700);">Same screens, with the Pixel skin switched on.</div>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:var(--space-8) 40px; padding:var(--space-8); border-bottom:2px solid var(--color-text); align-items:flex-start;">
+    <sc-for list="{{ pixel }}" as="s" hint-placeholder-count="9">
+      <div id="{{ s.id }}" style="width:368px; display:flex; flex-direction:column; gap:var(--space-3);">
+        <dc-import name="PQChess" screen="{{ s.screen }}" skin="pixel" hint-size="360px,760px"></dc-import>
+        <div style="display:flex; align-items:center; gap:var(--space-3); border-top:2px solid var(--color-text); padding-top:var(--space-3);">
+          <div style="height:26px; padding:0 8px; display:flex; align-items:center; background:var(--color-text); color:var(--color-bg); font:800 13px/1 var(--font-heading);">{{ s.badge }}</div>
+          <div style="font:800 17px/1.15 var(--font-heading);">{{ s.title }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; align-items:baseline; gap:var(--space-4); padding:var(--space-6) var(--space-8); border-bottom:2px solid var(--color-text);">
+    <div style="font:900 28px/1 var(--font-heading); color:var(--color-accent);">06</div>
+    <div style="font:800 28px/1 var(--font-heading); letter-spacing:-.01em;">Edge cases and data</div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); border-bottom:2px solid var(--color-text);">
+    <sc-for list="{{ edges }}" as="s" hint-placeholder-count="3">
+      <div style="padding:var(--space-6) var(--space-8) var(--space-8); display:flex; flex-direction:column; gap:var(--space-3); border-right:2px solid var(--color-divider);">
+        <div style="font:800 20px/1.1 var(--font-heading);">{{ s.title }}</div>
+        <div style="display:flex; flex-direction:column; border-top:2px solid var(--color-text);">
+          <sc-for list="{{ s.rules }}" as="r" hint-placeholder-count="5"><div style="padding:var(--space-2) 0; border-bottom:1px solid var(--color-divider); font:400 14px/1.45 var(--font-body); text-wrap:pretty;">{{ r }}</div></sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:var(--space-6) var(--space-8); font:400 13px/1.5 var(--font-body); color:var(--color-neutral-700);">PixelQuest · Chess design document · the mock phones render <b>PQChess.dc.html</b> with screen + skin props.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const C = [
+      ['hub', 'Chess hub', 'Opened from Hero > Chess and the party Chess tab. Shows your three Int pools, one-tap quick play per time control, the main Challenge button, live games to watch, and your rivals with their W·D·L.'],
+      ['challenge', 'Challenge sheet', 'Pick an opponent from your party or friends. Your record against them shows straight away. Then set time, colour, Rated and spectators. "Rated" shows the exact Int at stake before you send.'],
+      ['incoming', 'Incoming challenge', 'A full-screen card with a 60-second timer. It shows the head-to-head and what you can win or lose before you accept.'],
+      ['game', 'Live game', 'Both clocks sit next to their player and the active clock turns ink. The last move and the selected piece are highlighted, with legal-move dots. The top bar shows speed, rated, head-to-head and the spectator count.'],
+      ['over', 'Result', 'Result, the Int change, then the updated head-to-head counter, which highlights the cell that just went up. Rematch is the one primary action.'],
+      ['spectate', 'Spectating', 'The same board, read-only. The SPECTATING tag replaces the draw and resign buttons with Leave and Next live game. Spectators can\'t message players.'],
+      ['h2h', 'Head to head', 'The full rivalry between two players: a W·D·L counter and split bar, the record by time control, recent games with their Int change, and Challenge again.'],
+      ['party', 'Study party · Chess tab', 'A new tab in Study parties: the live game banner and a party ladder by Int for each pool, with a challenge button on every member.'],
+      ['rating', 'Chess Int', 'Each pool has its own Int, its trend over the last 20 games, the overall record, and a plain-language table of how Int moves.'],
+      ['notifs', 'Notifications', 'Challenge (Accept / Decline right from the lock screen), a party game going live (Watch), and the result (Rematch).']
+    ];
+    const L = 'ABCDEFGHIJ';
+    const comic = C.map(([screen, title, note], i) => ({ screen, title, note, id: 'c' + (i + 1), badge: 'C' + String(i + 1).padStart(2, '0') }));
+    const pixel = C.filter(c => c[0] !== 'notifs').map(([screen, title], i) => ({ screen, title, id: 'p' + (i + 1), badge: 'P' + String(i + 1).padStart(2, '0') }));
+    return {
+      comic, pixel,
+      tcs: [
+        { m: '1', pool: 'BULLET INT', note: '60 seconds each, no increment. Quick play only pairs you within ±150 Int.' },
+        { m: '3', pool: 'BLITZ INT', note: 'The default speed, and the one most challenges use.' },
+        { m: '5', pool: 'BLITZ INT', note: 'Shares the Blitz pool with 3 min, so both speeds count toward one number.' },
+        { m: '10', pool: 'RAPID INT', note: 'Slower games. Good for study parties and for learning.' }
+      ],
+      systems: [
+        { title: 'Int rating', lead: 'Int stands for intelligence points. Each player has one Int per pool: Bullet, Blitz and Rapid. Only rated games move it.', rules: [
+          'Everyone starts at 800 in every pool.',
+          'Beating a stronger player earns more than beating a weaker one.',
+          'A draw against a stronger player still gains a little.',
+          'Casual (unrated) games never change Int.',
+          'Int is separate from XP, level, streak and party points.'
+        ] },
+        { title: 'Head-to-head counter', lead: 'Every pair of players shares one running score. You see it as YOU · DRAWS · THEM, and they see the mirror.', rules: [
+          'Counts every finished game between the two players, rated or casual.',
+          'Shown on the challenge sheet, the incoming card, the game bar, the result and the rival page.',
+          'Broken down by time control on the Head to head screen.',
+          'Aborted games are not counted.'
+        ] },
+        { title: 'Spectating', lead: 'Party members can watch any live game in their party. Friends can watch if the challenger allowed spectators.', rules: [
+          'Spectators see the board, clocks, moves and both players\' Int.',
+          'Players see a spectator count, never names.',
+          'Spectators can\'t chat or send anything to players during a game.',
+          'A live game shows on the hub, the party Chess tab and as an optional notification.'
+        ] }
+      ],
+      intTable: [
+        { d: '200 Int stronger', w: '+18', x: '+6', l: '−6' },
+        { d: '100 Int stronger', w: '+15', x: '+3', l: '−9' },
+        { d: 'Equal', w: '+12', x: '0', l: '−12' },
+        { d: '100 Int weaker', w: '+9', x: '−3', l: '−15' },
+        { d: '200 Int weaker', w: '+6', x: '−6', l: '−18' }
+      ],
+      flow: [
+        { n: '1', t: 'Challenge', d: 'From the hub, a rival, a party ladder row, or Rematch.' },
+        { n: '2', t: 'Notify', d: 'The opponent gets a push notification and an in-app card. Both expire after 60s.' },
+        { n: '3', t: 'Accept', d: 'Colours are assigned and the board opens for both players. White\'s clock starts after White\'s first move.' },
+        { n: '4', t: 'Play', d: 'Moves are checked on the server. Offer a draw or resign at any time.' },
+        { n: '5', t: 'Result', d: 'Int and the head-to-head update together, then a result notification goes out.' },
+        { n: '6', t: 'Rematch', d: 'Same settings, colours swapped. It goes back to step 2 for the other player.' }
+      ],
+      edges: [
+        { title: 'Game end cases', rules: [
+          'Checkmate, resign or flag (clock reaches zero): win or loss.',
+          'Flag against a player who can\'t mate (insufficient material): draw.',
+          'Stalemate, threefold repetition, the 50-move rule or an agreed draw: draw.',
+          'No first move within 20s: aborted, with no Int or head-to-head change.',
+          'Disconnected for 30s: the opponent can claim the win.'
+        ] },
+        { title: 'Fair play', rules: [
+          'Only one live game per player at a time.',
+          'You can offer a draw once every 10 moves, so it can\'t be spammed.',
+          'Rated games against the same opponent only move Int in the first 10 games of each day.',
+          'The server is the source of truth for clocks, and the client shows the server time.'
+        ] },
+        { title: 'Data to store', rules: [
+          'ChessGame: id, white, black, timeControl, rated, spectators, partyId?, pgn, result, endReason, startedAt.',
+          'ChessRating: userId, pool, int, games, peak.',
+          'HeadToHead: userA, userB (sorted), winsA, draws, winsB, plus a breakdown by time control.',
+          'Challenge: from, to, settings, expiresAt, status.',
+          'Live updates: one realtime channel per game, shared by both players and the spectators.'
+        ] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
