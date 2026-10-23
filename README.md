@@ -87,6 +87,8 @@ For detailed design rationale, see the [Architecture Decision Records (ADRs)](#-
 | **Cloud & Backend** | Supabase (PostgreSQL with RLS, Auth, Realtime, Storage) |
 | **AI Integration** | Gemini API via server-side secure proxy |
 | **AOT & Startup Performance**| Android Baseline Profiles (`androidx.profileinstaller`), R8 full-mode shrinking |
+| **Vector Mascot & Animations** | Custom 24×24 layered vector grid, Compose infinite transitions, micro-animations |
+| **Custom Notifications** | RemoteViews DecoratedCustomViewStyle comic cards, 10 categorized channels |
 | **Testing** | JUnit 4, Robolectric, Compose Test Rule, CashApp Turbine, MockK |
 | **Code Hygiene** | Spotless (ktlint), Detekt, Android Lint |
 
@@ -101,16 +103,61 @@ For detailed design rationale, see the [Architecture Decision Records (ADRs)](#-
 - **Deen Hub (Spiritual Lifestyle)**:
   - **Offline Namaz Tracker**: Accurate prayer timetable calculated completely offline on-device based on astronomical coordinates, with start-of-prayer notifications and optional XP rewards.
   - **Tanzil Holy Quran**: Embedded Uthmani Arabic scripture and Saheeh International translation, featuring instant search, juz navigation, bookmarks, and sepia reader themes.
-  - **Darood Counting Parties**: Real-time collaborative counting rooms for friends with live progress sync, individual share breakdowns, goal milestones, and weekly ranking summaries.
+  - **Darood Counting Parties**: Real-time collaborative counting rooms for friends with live progress sync, individual share breakdowns, goal milestones, and weekly ranking summaries with accurate top-contributor tallies.
 - **Study Parties & Real-time Chess**:
   - Collaborative group checklists, study timers, file attachments (up to 20 MB), and group reminders.
   - **Server-Refereed Live Chess**: 1 to 10 minute blitz clocks, ELO-inspired ratings, ladder ranks, direct board routing on challenge and rematch acceptance, match exit protection guard (`LeaveGameGuard`), clean Accept/Decline challenge sheets, and live spectator presence tracking.
 - **Custom Comic Notification Design & Notification Channels (`PqNotify`)**: RemoteViews comic cards with kickers, headers, skin-adaptive backings (Gold, Paper, Sky), dynamic progress bars, lock-screen privacy guards, quiet-hours filtering, and 10 categorized notification channels (Prayer, Quests due, Streaks, Rewards, AI Coach, Daily plans, Darood parties, Study parties, Chess, and Live timers).
 - **Animated Pix Mascot & Moody App Icons (`PqMascot`)**:
-  - **Animated Mascot Logo**: Responsive 24×24 vector mascot featuring 13 distinct moods (Happy, Celebrate, LevelUp, OnFire, Worried, Sad, Sleepy, Focus, Challenge, etc.) with real-time micro-animations (bobs, jumps, binks, flame flickers) showcased on the splash screen, Home header, empty day cards, and level-up celebrations.
+  - **Animated Mascot Logo**: Responsive 24×24 vector mascot featuring 13 distinct moods (Happy, Celebrate, LevelUp, OnFire, Worried, Sad, Sleepy, Focus, Challenge, etc.) with real-time micro-animations (bobs, jumps, blinks, flame flickers) showcased on the splash screen, Home header, empty day cards, and level-up celebrations.
   - **Moody Launcher App Icons**: Dynamic launcher activity-aliases (`.LauncherPixHappy`, `.LauncherPixOnFire`, `.LauncherPixWorried`, `.LauncherPixSad`, `.LauncherPixSleepy`) that adapt your device's home screen icon to your current streak and habits.
 - **Simple Mode**: One-tap toggle that strips away game mechanics (XP, levels, ranks) for a minimalist habit checklist experience.
 - **Versioned Backup & Restore**: Export and import complete encrypted JSON backups across devices.
+
+---
+
+## 👾 Pix Mascot & Notification Engine
+
+PixelQuest features **Pix**, an animated companion mascot integrated seamlessly across app states, notifications, and launcher icons.
+
+### 1. Animated Vector Mascot (`PqMascot`)
+- **Grid Architecture**: Drawn dynamically on a 24×24 vector grid with multi-layered canvas drawing. Supports both smooth vector aesthetic (`Comic` skin) and sharp pixelated edges (`Pixel` skin).
+- **13 Reactive Moods**:
+  - `Happy`: Default cheerful state for standard navigation and daily questing.
+  - `Celebrate`: Victory jump with confetti for perfect day completion.
+  - `LevelUp`: Royal crown animation for rank and level promotions.
+  - `OnFire`: Flame flicker and energetic bob for active streaks ≥ 7 days.
+  - `Worried`: Sweat drop and fidgeting motion when streak is at risk late in the day.
+  - `Sad`: Gentle droop when a streak was broken within the last 24 hours.
+  - `Sleepy`: Floating Zzz micro-animation for empty days or late-night check-ins.
+  - `Focus`: Sharp, determined gaze for study sessions and timed quests.
+  - `Praying`, `Challenge`, `Wow`, `Wise`, and `Lost` for specialized contexts.
+- **App Integrations**:
+  - **Animated Logo**: Animated `PqMascot` featured prominently on the Splash Screen within a styled comic badge.
+  - **Home Screen Header**: Positioned beside the player avatar and level tag, reacting live to daily progress.
+  - **Celebration Cards**: Displayed on `PerfectDayCard` and `LevelUpCelebrationScreen`.
+  - **Empty States**: Displayed with sleepy idle motion on `EmptyDayCard`.
+
+### 2. Moody Launcher App Icon (`MoodyIcon`)
+- Uses Android activity-aliases (`.LauncherPixHappy`, `.LauncherPixOnFire`, `.LauncherPixWorried`, `.LauncherPixSad`, `.LauncherPixSleepy`) to switch the device home screen icon dynamically.
+- Evaluates streak count, time of day, and habit completion state during process background transitions to ensure smooth transitions without launcher flicker.
+
+### 3. Custom Comic Card Notifications (`PqNotify`)
+- **RemoteViews Custom Layouts**: Uses `notif_pix_card.xml` styled with Bangers and Rubik typography, kickers, progress bars, and high-contrast skin palettes (`Gold`, `Paper`, `Sky`).
+- **Bitmap Mascot Rendering**: Uses `PqMascotBitmap` to generate crisp, high-DPI static mood renders for notification large icons.
+- **10 Categorized Notification Channels**:
+  - `pq_prayer` (High Importance, Essential)
+  - `pq_quest` (High Importance, Quests due)
+  - `pq_streak` (Default Importance, Streak evaluations)
+  - `pq_level` (Default Importance, Level rewards)
+  - `pq_coach` (Low Importance, AI Coach insights)
+  - `pq_daily` (Low Importance, Morning plans & evening recaps)
+  - `pq_party` (Default Importance, Darood counting parties)
+  - `pq_study` (Default Importance, Study parties & due tasks)
+  - `pq_chess` (High Importance, Essential challenge notifications)
+  - `pq_ongoing` (Low Importance, Silent timer & ongoing matches)
+- **Lock-Screen Privacy Guard**: Fully enforces `NotificationCompat.VISIBILITY_PRIVATE` with generic public placeholders to protect private user habits.
+- **Action Broadcast Receiver**: Handles inline actions (Done, Skip, Snooze, Prayed) via `PqNotifyActions` without requiring full app launch.
 
 ---
 
@@ -129,15 +176,19 @@ PixelQuest/
 │   │   │   │   ├── data/               # Room entities, DAOs, repositories, DTO mappers
 │   │   │   │   ├── di/                 # Dagger Hilt dependency injection modules
 │   │   │   │   ├── domain/             # Pure business models, use cases, repository contracts
+│   │   │   │   ├── islamic/            # Islamic feature registry and hub UI
+│   │   │   │   ├── mascot/             # Animated Pix mascot, mood engine & dynamic launcher icon switcher
 │   │   │   │   ├── namaz/              # Offline astronomical prayer timing engine
+│   │   │   │   ├── notification/       # RemoteViews comic card notifications, channels & action receivers
 │   │   │   │   ├── party/              # Collaborative party base architecture and sync
+│   │   │   │   ├── push/               # FCM push messaging service and challenge notifications
 │   │   │   │   ├── quran/              # Scripture reader, Tanzil text engine & search
 │   │   │   │   ├── study/              # Study parties, shared task lists & timer rooms
 │   │   │   │   ├── ui/                 # Jetpack Compose screens, components, themes & navigation
 │   │   │   │   └── worker/             # WorkManager sync and notification tasks
 │   │   │   ├── baseline-prof.txt       # ART ahead-of-time pre-compilation rules
 │   │   │   └── res/                    # Vector drawables, fonts, strings, layouts
-│   │   ├── test/                       # Fast JVM unit, ViewModel, domain, and Robolectric tests
+│   │   ├── test/                       # Fast JVM unit, ViewModel, domain, and Robolectric tests (2,260+ tests)
 │   │   └── androidTest/                # On-device integration and instrumentation tests
 │   └── build.gradle.kts                # App module build configuration and dependencies
 ├── docs/                               # Engineering documentation, audits, and checklists
