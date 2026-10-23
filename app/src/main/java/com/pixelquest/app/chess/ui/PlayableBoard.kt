@@ -1,9 +1,12 @@
 package com.pixelquest.app.chess.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,22 +17,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import com.pixelquest.app.chess.domain.ChessColour
+import com.pixelquest.app.chess.rules.Move
+import com.pixelquest.app.chess.rules.Position
 import com.pixelquest.app.ui.components.comic
 import com.pixelquest.app.ui.theme.PqColors
 import com.pixelquest.app.ui.theme.PqDimens
 import com.pixelquest.app.ui.theme.PqType
-import com.pixelquest.app.chess.domain.ChessColour
-import com.pixelquest.app.chess.rules.Move
-import com.pixelquest.app.chess.rules.Position
 import kotlin.math.roundToInt
 
 /**
@@ -53,7 +53,7 @@ fun PlayableBoard(
     /** Animate the pieces and highlights (a chess setting; the animations handoff). */
     animate: Boolean = true,
     /** A 1-minute game: moves animate faster (C01). */
-    bullet: Boolean = false
+    bullet: Boolean = false,
 ) {
     val position = remember(fen) { Position.of(fen) }
     var selected by remember(fen) { mutableStateOf<Int?>(null) }
@@ -100,7 +100,7 @@ fun PlayableBoard(
         lastMove = lastMove?.let { Move.ofUci(it) }?.let { setOf(Move.name(it.from), Move.name(it.to)) }.orEmpty(),
         selected = (dragFrom ?: selected)?.let(Move::name),
         dots = targets.map(Move::name).toSet(),
-        check = check?.let(Move::name)
+        check = check?.let(Move::name),
     )
 
     Box(modifier) {
@@ -121,18 +121,26 @@ fun PlayableBoard(
                     if (!enabled) return@pointerInput
                     detectDragGestures(
                         onDragStart = { offset ->
-                            squareAt(offset)?.takeIf(::isMine)?.let { dragFrom = it; dragAt = offset }
+                            squareAt(offset)?.takeIf(::isMine)?.let {
+                                dragFrom = it
+                                dragAt = offset
+                            }
                         },
-                        onDrag = { change, amount -> if (dragFrom != null) { change.consume(); dragAt += amount } },
+                        onDrag = { change, amount ->
+                            if (dragFrom != null) {
+                                change.consume()
+                                dragAt += amount
+                            }
+                        },
                         onDragEnd = {
                             val from = dragFrom
                             dragFrom = null
                             val to = squareAt(dragAt)
                             if (from != null && to != null && !tryMove(from, to)) selected = from
                         },
-                        onDragCancel = { dragFrom = null }
+                        onDragCancel = { dragFrom = null },
                     )
-                }
+                },
         )
         // The piece under the finger while it's dragged.
         val dragging = dragFrom
@@ -147,9 +155,12 @@ fun PlayableBoard(
         promoting?.let { (from, to) ->
             PromotionPicker(
                 white = myColour == ChessColour.WHITE,
-                onPick = { promoting = null; onMove(Move(from, to, it).uci) },
+                onPick = {
+                    promoting = null
+                    onMove(Move(from, to, it).uci)
+                },
                 onCancel = { promoting = null },
-                modifier = Modifier.align(androidx.compose.ui.Alignment.Center)
+                modifier = Modifier.align(androidx.compose.ui.Alignment.Center),
             )
         }
     }
@@ -170,7 +181,7 @@ fun PromotionPicker(white: Boolean, onPick: (Char) -> Unit, onCancel: () -> Unit
         modifier = modifier
             .testTag(PromotionTags.PICKER)
             .then(Modifier.comic(radius = PqDimens.Radius, shadow = PqDimens.Shadow))
-            .padding(12.dp)
+            .padding(12.dp),
     ) {
         androidx.compose.material3.Text(androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.chess_promote_title), style = PqType.BodyStrong)
         androidx.compose.foundation.layout.Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
@@ -183,14 +194,14 @@ fun PromotionPicker(white: Boolean, onPick: (Char) -> Unit, onCancel: () -> Unit
                         .comic(bg = ChessLook.light, radius = PqDimens.RadiusSm, border = PqDimens.BorderThin, shadow = 0.dp)
                         .clickable(onClickLabel = label, role = androidx.compose.ui.semantics.Role.Button) { onPick(kind) }
                         .semantics { contentDescription = label }
-                        .testTag(PromotionTags.piece(kind))
+                        .testTag(PromotionTags.piece(kind)),
                 ) { PieceGlyph(if (white) kind.uppercaseChar() else kind, size = 52.dp) }
             }
         }
         androidx.compose.material3.Text(
             androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.chess_promote_cancel),
             style = PqType.MetaStrong.copy(color = PqColors.RedText),
-            modifier = Modifier.clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onCancel).padding(8.dp)
+            modifier = Modifier.clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onCancel).padding(8.dp),
         )
     }
 }

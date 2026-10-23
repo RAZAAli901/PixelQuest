@@ -27,7 +27,7 @@ class ChessModelsTest {
     private val t0 = Instant.parse("2026-10-22T10:00:00Z")
     private val game = ChessGame(
         "g", "p", "white", "black", TimeControl.THREE, rated = true, status = GameStatus.ACTIVE, result = null, reason = null,
-        fen = "start", turn = ChessColour.BLACK, whiteMs = 1, blackMs = 2, ply = 1, lastMoveAt = t0, createdAt = t0, startedAt = t0, endedAt = null
+        fen = "start", turn = ChessColour.BLACK, whiteMs = 1, blackMs = 2, ply = 1, lastMoveAt = t0, createdAt = t0, startedAt = t0, endedAt = null,
     )
 
     @Test
@@ -58,9 +58,9 @@ class ChessModelsTest {
     }
 
     @Test
-    fun aNewPlayer_startsAt800_asAPawn() {
+    fun aNewPlayer_startsAt200_asAPawn() {
         val start = startingRating("aria", TimeControl.FIVE)
-        assertEquals(800, start.points)
+        assertEquals(200, start.points)
         assertEquals(Tier.PAWN, start.tier)
         assertEquals(Tier.QUEEN, start.copy(points = 1650).tier)
         assertEquals(TimeControl.TEN, TimeControl.of(600))

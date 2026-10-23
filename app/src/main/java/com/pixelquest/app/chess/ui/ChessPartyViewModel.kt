@@ -191,6 +191,12 @@ class ChessPartyViewModel @Inject constructor(
         }
     }
 
+    /** Starts an immediate offline practice game against the bot (Pix AI). */
+    fun playBot(timeControl: TimeControl = TimeControl.THREE) {
+        val botGameId = "bot_${timeControl.seconds}_${System.currentTimeMillis()}"
+        _events.tryEmit(ChessPartyEvent.GameStarted(botGameId))
+    }
+
     companion object {
         const val ARG_PARTY = "partyId"
     }

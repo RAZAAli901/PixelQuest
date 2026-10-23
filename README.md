@@ -106,7 +106,12 @@ For detailed design rationale, see the [Architecture Decision Records (ADRs)](#-
   - **Darood Counting Parties**: Real-time collaborative counting rooms for friends with live progress sync, individual share breakdowns, goal milestones, and weekly ranking summaries with accurate top-contributor tallies.
 - **Study Parties & Real-time Chess**:
   - Collaborative group checklists, study timers, file attachments (up to 20 MB), and group reminders.
-  - **Server-Refereed Live Chess**: 1 to 10 minute blitz clocks, ELO-inspired ratings, ladder ranks, direct board routing on challenge and rematch acceptance, match exit protection guard (`LeaveGameGuard`), clean Accept/Decline challenge sheets, and live spectator presence tracking.
+  - **Server-Refereed Live Chess**: 1 to 10 minute blitz clocks, starting at 200 Int rating (Pawn tier), ELO-inspired ratings, party ladder ranks, direct board routing on challenge and rematch acceptance, match exit protection guard (`LeaveGameGuard`), clean Accept/Decline challenge sheets, and live spectator presence tracking.
+  - **Offline Chess Bot ("Pix AI")**: Practice offline anytime against Pix AI with fast heuristic piece evaluations, checkmate detection, hanging piece protection, simulated human-like thinking delay (~400ms), and full local game lifecycle (rematch, resign, draw).
+  - **Zero-Latency Chess & Touch Optimization**:
+    - Smooth piece interactions with optimized touch and drag detection.
+    - Eliminated redundant network roundtrips on move dispatch for instant optimistic moves.
+    - Clock ticking state updates scoped strictly to clock components, eliminating unnecessary 10 Hz board recompositions.
 - **Custom Comic Notification Design & Notification Channels (`PqNotify`)**: RemoteViews comic cards with kickers, headers, skin-adaptive backings (Gold, Paper, Sky), dynamic progress bars, lock-screen privacy guards, quiet-hours filtering, and 10 categorized notification channels (Prayer, Quests due, Streaks, Rewards, AI Coach, Daily plans, Darood parties, Study parties, Chess, and Live timers).
 - **Animated Pix Mascot & Moody App Icons (`PqMascot`)**:
   - **Animated Mascot Logo**: Responsive 24×24 vector mascot featuring 13 distinct moods (Happy, Celebrate, LevelUp, OnFire, Worried, Sad, Sleepy, Focus, Challenge, etc.) with real-time micro-animations (bobs, jumps, blinks, flame flickers) showcased on the splash screen, Home header, empty day cards, and level-up celebrations.

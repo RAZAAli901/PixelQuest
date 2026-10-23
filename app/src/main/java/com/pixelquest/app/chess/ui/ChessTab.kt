@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.SportsEsports
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,6 +63,7 @@ data class ChessTabActions(
     val onBoardTime: (TimeControl?) -> Unit = {},
     /** A ladder row's player: the record against them (J157). */
     val onOpenRival: (String) -> Unit = {},
+    val onPlayBot: (TimeControl) -> Unit = {},
 )
 
 /**
@@ -79,15 +81,24 @@ fun ChessTab(state: ChessPartyState, actions: ChessTabActions) {
         modifier = Modifier.fillMaxSize().testTag(ChessTabTags.TAB),
     ) {
         item(key = "challenge") {
-            PqButton(
-                text = stringResource(R.string.chess_challenge_title),
-                onClick = {
-                    sheetFor = null
-                    sheetOpen = true
-                },
-                icon = Icons.Rounded.SportsEsports,
-                modifier = Modifier.fillMaxWidth().testTag(ChessTabTags.CHALLENGE),
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                PqButton(
+                    text = stringResource(R.string.chess_challenge_title),
+                    onClick = {
+                        sheetFor = null
+                        sheetOpen = true
+                    },
+                    icon = Icons.Rounded.SportsEsports,
+                    modifier = Modifier.weight(1f).testTag(ChessTabTags.CHALLENGE),
+                )
+                PqButton(
+                    text = "Play vs Bot",
+                    onClick = { actions.onPlayBot(TimeControl.THREE) },
+                    icon = Icons.Rounded.AutoAwesome,
+                    style = PqButtonStyle.Secondary,
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
         val waiting = state.challenges.filter { it.toUser == state.me || it.fromUser == state.me || it.toUser == null }
         if (waiting.isNotEmpty()) {

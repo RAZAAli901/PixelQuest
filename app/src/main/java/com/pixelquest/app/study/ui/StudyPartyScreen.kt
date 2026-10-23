@@ -159,6 +159,7 @@ fun StudyPartyScreen(
                     onWatch = onOpenChessGame,
                     onBoardTime = chess::loadBoard,
                     onOpenRival = { id -> onOpenRival(id, chessState.names[id]) },
+                    onPlayBot = chess::playBot,
                 ),
             )
         }

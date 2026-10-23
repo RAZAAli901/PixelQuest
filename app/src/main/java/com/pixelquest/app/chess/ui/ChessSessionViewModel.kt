@@ -13,7 +13,9 @@ import com.pixelquest.app.chess.domain.ChessGame
 import com.pixelquest.app.chess.domain.ChessMove
 import com.pixelquest.app.chess.domain.ClockSync
 import com.pixelquest.app.chess.domain.GameEvent
+import com.pixelquest.app.chess.domain.GameResult
 import com.pixelquest.app.chess.domain.GameStatus
+import com.pixelquest.app.chess.domain.ResultReason
 import com.pixelquest.app.chess.domain.isTurnOf
 import com.pixelquest.app.darood.data.remote.DaroodAccount
 import com.pixelquest.app.data.remote.SupabaseResult
@@ -125,11 +127,17 @@ class ChessSessionViewModel @Inject constructor(
     private var following: Job? = null
     private var claimedAtPly = -1
 
+    val isBotGame = gameId.startsWith("bot")
+
     init {
         viewModelScope.launch { load() }
     }
 
     private suspend fun load() {
+        if (isBotGame) {
+            loadBotGame()
+            return
+        }
         when (val read = chess.fetchGame(gameId)) {
             is SupabaseResult.Success -> {
                 val (game, moves) = read.data
@@ -146,6 +154,42 @@ class ChessSessionViewModel @Inject constructor(
                 delay(RETRY_MS)
                 load()
             }
+        }
+    }
+
+    private fun loadBotGame() {
+        val tc = com.pixelquest.app.chess.domain.TimeControl.THREE
+        val myId = me ?: "player"
+        val botGame = com.pixelquest.app.chess.domain.ChessGame(
+            id = gameId,
+            partyId = "local",
+            whiteId = myId,
+            blackId = com.pixelquest.app.chess.domain.ChessBot.BOT_ID,
+            timeControl = tc,
+            rated = false,
+            status = com.pixelquest.app.chess.domain.GameStatus.ACTIVE,
+            result = null,
+            reason = null,
+            fen = com.pixelquest.app.chess.rules.Position.START,
+            turn = com.pixelquest.app.chess.domain.ChessColour.WHITE,
+            whiteMs = tc.millis,
+            blackMs = tc.millis,
+            ply = 0,
+            lastMoveAt = java.time.Instant.now(),
+            createdAt = java.time.Instant.now(),
+            startedAt = java.time.Instant.now(),
+            endedAt = null,
+            drawOfferedBy = null,
+        )
+        _state.update {
+            it.copy(
+                phase = SessionPhase.ACTIVE,
+                game = botGame,
+                myColour = com.pixelquest.app.chess.domain.ChessColour.WHITE,
+                names = mapOf(myId to "You", com.pixelquest.app.chess.domain.ChessBot.BOT_ID to com.pixelquest.app.chess.domain.ChessBot.BOT_NAME),
+                points = mapOf(myId to com.pixelquest.app.chess.domain.ChessConfig.START_RATING, com.pixelquest.app.chess.domain.ChessBot.BOT_ID to com.pixelquest.app.chess.domain.ChessBot.BOT_RATING),
+                sending = false,
+            )
         }
     }
 
@@ -217,12 +261,120 @@ class ChessSessionViewModel @Inject constructor(
         val current = _state.value
         val game = current.game ?: return
         if (!current.myTurn) return
+
+        if (isBotGame) {
+            playBotTurn(uci)
+            return
+        }
+
         // Shown at once; the server's answer replaces it, or takes it back (send's refusal path).
         val after = com.pixelquest.app.chess.rules.Position.of(game.fen)?.let { position ->
             com.pixelquest.app.chess.rules.Move.ofUci(uci)?.takeIf { it in position.legalMoves() }?.let { position.apply(it).fen() }
         }
         _state.update { it.copy(pendingFen = after, pendingMove = after?.let { uci }) }
         send { chess.makeMove(game.id, game.ply + 1, uci) }
+    }
+
+    private fun playBotTurn(uci: String) {
+        val current = _state.value
+        val game = current.game ?: return
+        val pos = com.pixelquest.app.chess.rules.Position.of(game.fen) ?: return
+        val mv = com.pixelquest.app.chess.rules.Move.ofUci(uci)?.takeIf { it in pos.legalMoves() } ?: return
+
+        val nextPos = pos.apply(mv)
+        val ply1 = game.ply + 1
+        val moveObj = ChessMove(
+            gameId = game.id,
+            ply = ply1,
+            san = uci,
+            uci = uci,
+            fenAfter = nextPos.fen(),
+            whiteMsAfter = game.whiteMs,
+            blackMsAfter = game.blackMs,
+            createdAt = java.time.Instant.now(),
+        )
+        val movesAfterHuman = current.moves + moveObj
+
+        val isOverAfterHuman = nextPos.isCheckmate() || nextPos.legalMoves().isEmpty()
+        val resultAfterHuman = if (nextPos.isCheckmate()) {
+            GameResult.WHITE
+        } else if (isOverAfterHuman) {
+            GameResult.DRAW
+        } else {
+            null
+        }
+        val reasonAfterHuman = if (nextPos.isCheckmate()) {
+            ResultReason.CHECKMATE
+        } else if (isOverAfterHuman) {
+            ResultReason.STALEMATE
+        } else {
+            null
+        }
+        val statusAfterHuman = if (isOverAfterHuman) GameStatus.FINISHED else GameStatus.ACTIVE
+
+        val gameAfterHuman = game.copy(
+            fen = nextPos.fen(),
+            turn = ChessColour.BLACK,
+            ply = ply1,
+            status = statusAfterHuman,
+            result = resultAfterHuman,
+            reason = reasonAfterHuman,
+            lastMoveAt = java.time.Instant.now(),
+        )
+
+        apply(gameAfterHuman, movesAfterHuman)
+        _events.tryEmit(ChessSessionEvent.Moved(moveObj, mine = true))
+
+        if (isOverAfterHuman) return
+
+        viewModelScope.launch {
+            _state.update { it.copy(sending = true) }
+            delay(400)
+            val botMove = com.pixelquest.app.chess.domain.ChessBot.chooseMove(nextPos) ?: return@launch
+            val posAfterBot = nextPos.apply(botMove)
+            val ply2 = ply1 + 1
+            val botMoveObj = ChessMove(
+                gameId = game.id,
+                ply = ply2,
+                san = botMove.uci,
+                uci = botMove.uci,
+                fenAfter = posAfterBot.fen(),
+                whiteMsAfter = game.whiteMs,
+                blackMsAfter = game.blackMs,
+                createdAt = java.time.Instant.now(),
+            )
+            val movesAfterBot = _state.value.moves + botMoveObj
+
+            val isOverAfterBot = posAfterBot.isCheckmate() || posAfterBot.legalMoves().isEmpty()
+            val resultAfterBot = if (posAfterBot.isCheckmate()) {
+                GameResult.BLACK
+            } else if (isOverAfterBot) {
+                GameResult.DRAW
+            } else {
+                null
+            }
+            val reasonAfterBot = if (posAfterBot.isCheckmate()) {
+                ResultReason.CHECKMATE
+            } else if (isOverAfterBot) {
+                ResultReason.STALEMATE
+            } else {
+                null
+            }
+            val statusAfterBot = if (isOverAfterBot) GameStatus.FINISHED else GameStatus.ACTIVE
+
+            val gameAfterBot = gameAfterHuman.copy(
+                fen = posAfterBot.fen(),
+                turn = ChessColour.WHITE,
+                ply = ply2,
+                status = statusAfterBot,
+                result = resultAfterBot,
+                reason = reasonAfterBot,
+                lastMoveAt = java.time.Instant.now(),
+            )
+
+            apply(gameAfterBot, movesAfterBot)
+            _events.tryEmit(ChessSessionEvent.Moved(botMoveObj, mine = false))
+        }
     }
 
     private var rematchJob: Job? = null
@@ -265,6 +417,11 @@ class ChessSessionViewModel @Inject constructor(
 
     /** The same game again, colours swapped (the design's Rematch). */
     fun rematch() {
+        if (isBotGame) {
+            val nextBotId = "bot_${_state.value.game?.timeControl?.seconds ?: 180}_${System.currentTimeMillis()}"
+            _events.tryEmit(ChessSessionEvent.NextGame(nextBotId))
+            return
+        }
         val game = _state.value.game ?: return
         val other = me?.let(game::opponentOf) ?: return
         val mine = game.colourOf(me) ?: return
@@ -306,16 +463,53 @@ class ChessSessionViewModel @Inject constructor(
         return others.firstOrNull()
     }
 
-    fun resign() = _state.value.game?.let { game -> send { chess.resign(game.id) } }
-    fun offerDraw() = _state.value.game?.let { game -> send { chess.offerDraw(game.id) } }
+    fun resign() {
+        if (isBotGame) {
+            val game = _state.value.game ?: return
+            val ended = game.copy(status = GameStatus.FINISHED, result = GameResult.BLACK, reason = ResultReason.RESIGN)
+            apply(ended, _state.value.moves)
+            return
+        }
+        _state.value.game?.let { game -> send { chess.resign(game.id) } }
+    }
+
+    fun offerDraw() {
+        if (isBotGame) {
+            val game = _state.value.game ?: return
+            val ended = game.copy(status = GameStatus.FINISHED, result = GameResult.DRAW, reason = ResultReason.DRAW_AGREED)
+            apply(ended, _state.value.moves)
+            return
+        }
+        _state.value.game?.let { game -> send { chess.offerDraw(game.id) } }
+    }
+
     fun answerDraw(accept: Boolean) = _state.value.game?.let { game -> send { chess.answerDraw(game.id, accept) } }
 
     private fun send(call: suspend () -> SupabaseResult<ChessGame>) {
         if (_state.value.sending) return
+        val pendingMv = _state.value.pendingMove
         _state.update { it.copy(sending = true, problem = null) }
         viewModelScope.launch {
             when (val result = call()) {
-                is SupabaseResult.Success -> apply(result.data, (chess.fetchGame(result.data.id) as? SupabaseResult.Success)?.data?.second ?: _state.value.moves)
+                is SupabaseResult.Success -> {
+                    val game = result.data
+                    val currentMoves = _state.value.moves
+                    val newMoves = if (pendingMv != null && game.ply > currentMoves.size) {
+                        currentMoves + ChessMove(
+                            gameId = game.id,
+                            ply = game.ply,
+                            san = pendingMv,
+                            uci = pendingMv,
+                            fenAfter = game.fen,
+                            whiteMsAfter = game.whiteMs,
+                            blackMsAfter = game.blackMs,
+                            createdAt = game.lastMoveAt ?: java.time.Instant.now(),
+                        )
+                    } else {
+                        currentMoves
+                    }
+                    apply(game, newMoves)
+                }
                 is SupabaseResult.ServerError -> {
                     _state.update { it.copy(sending = false, problem = result.message, pendingFen = null, pendingMove = null) }
                     _events.tryEmit(ChessSessionEvent.Refused(result.message))
@@ -332,6 +526,7 @@ class ChessSessionViewModel @Inject constructor(
 
     /** When the other side's clock shows zero, the server is asked to end the game on time, once per ply. */
     private suspend fun watchTheFlag() {
+        if (isBotGame) return
         while (true) {
             delay(TICK_MS)
             val s = _state.value

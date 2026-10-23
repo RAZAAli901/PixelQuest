@@ -155,8 +155,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
         var watcherFlipped by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
         val bottomColour = state.myColour ?: if (watcherFlipped) ChessColour.BLACK else ChessColour.WHITE
         val topColour = if (bottomColour == ChessColour.WHITE) ChessColour.BLACK else ChessColour.WHITE
-        val now = rememberTicking(running = game.status.live)
-        Player(game, state, topColour, now, sync)
+        Player(game, state, topColour, sync)
         PlayableBoard(
             fen = state.boardFen ?: game.fen,
             myColour = state.myColour,
@@ -170,7 +169,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
             bullet = game.timeControl == com.pixelquest.app.chess.domain.TimeControl.ONE,
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
-        Player(game, state, bottomColour, now, sync)
+        Player(game, state, bottomColour, sync)
         confirming?.let { uci ->
             ConfirmMove(uci, onConfirm = {
                 confirming = null
@@ -208,7 +207,7 @@ fun ChessGameScreen(state: ChessSessionState, sync: ClockSync, actions: ChessGam
 }
 
 @Composable
-internal fun Player(game: ChessGame, state: ChessSessionState, colour: ChessColour, now: Long, sync: ClockSync) {
+internal fun Player(game: ChessGame, state: ChessSessionState, colour: ChessColour, sync: ClockSync) {
     val id = if (colour == ChessColour.WHITE) game.whiteId else game.blackId
     val raw = state.names[id]?.let { "@$it" } ?: stringResource(if (colour == ChessColour.WHITE) R.string.chess_white else R.string.chess_black)
     val name = if (id == state.me) stringResource(R.string.chess_you_named, raw) else raw
@@ -216,6 +215,7 @@ internal fun Player(game: ChessGame, state: ChessSessionState, colour: ChessColo
     val white = colour == ChessColour.WHITE
     val taken = if (white) material.byWhite else material.byBlack
     val lead = if (white) material.advantage else -material.advantage
+    val now = rememberTicking(running = game.status.live)
     PlayerRow(game, colour, name, state.points[id].takeUnless { state.simple }, if (white) 2 else 0, now, sync) { Captured(taken, lead, colour) }
 }
 

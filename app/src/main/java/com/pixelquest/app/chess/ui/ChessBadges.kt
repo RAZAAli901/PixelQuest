@@ -86,7 +86,7 @@ fun ChessProfileRoute(viewModel: ChessProfileViewModel = hiltViewModel()) {
 
 /**
  * The profile's chess (J158), as the design's hub card: Int points in each time control, the
- * best one's tier, and the record over all of them. 800 where nothing's been played.
+ * best one's tier, and the record over all of them. 200 where nothing's been played.
  */
 @Composable
 fun ChessProfileCard(ratings: List<Rating>) {
@@ -97,7 +97,7 @@ fun ChessProfileCard(ratings: List<Rating>) {
                 val r = ratings.firstOrNull { it.timeControl == tc }
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.weight(1f).background(if (r != null && r.points == best) PqColors.Gold else PqColors.Paper).padding(horizontal = 8.dp, vertical = 10.dp)
+                    modifier = Modifier.weight(1f).background(if (r != null && r.points == best) PqColors.Gold else PqColors.Paper).padding(horizontal = 8.dp, vertical = 10.dp),
                 ) {
                     Text(text = stringResource(R.string.chess_minutes, tc.seconds / 60).uppercase(), style = PqType.Label)
                     Text(text = formatCount(r?.points ?: ChessConfig.START_RATING), style = PqType.Number)
@@ -110,7 +110,7 @@ fun ChessProfileCard(ratings: List<Rating>) {
             Text(text = stringResource(R.string.chess_profile_line, stringResource(tierName(ChessConfig.tierOf(best)))), style = PqType.MetaStrong)
             Text(
                 text = stringResource(R.string.chess_record_line, ratings.sumOf { it.wins }, ratings.sumOf { it.draws }, ratings.sumOf { it.losses }),
-                style = PqType.Meta
+                style = PqType.Meta,
             )
         }
     }

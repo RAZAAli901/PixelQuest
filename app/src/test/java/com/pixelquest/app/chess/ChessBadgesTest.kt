@@ -1,11 +1,11 @@
 package com.pixelquest.app.chess
 
 import android.app.Application
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithText
 import com.pixelquest.app.chess.domain.Rating
 import com.pixelquest.app.chess.domain.TimeControl
 import com.pixelquest.app.chess.ui.ChessProfileCard
@@ -37,6 +37,6 @@ class ChessBadgesTest {
         composeTestRule.onNodeWithContentDescription("Chess: 1,180 Int, Bishop").assertExists()
         composeTestRule.onNodeWithText("Chess Int · best tier Bishop").assertExists()
         composeTestRule.onNodeWithText("11W · 2D · 7L").assertExists()
-        composeTestRule.onAllNodesWithText("800").assertCountEquals(2) // 3 and 10 minutes, not yet played
+        composeTestRule.onAllNodesWithText("200").assertCountEquals(2) // 3 and 10 minutes, not yet played
     }
 }

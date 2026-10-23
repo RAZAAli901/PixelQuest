@@ -6,7 +6,7 @@ package com.pixelquest.app.chess.domain
  * lasts), never to referee.
  */
 object ChessConfig {
-    const val START_RATING = 800
+    const val START_RATING = 200
     const val RATING_FLOOR = 100
     const val K_NEW = 40
     const val K_NEW_GAMES = 10
@@ -30,7 +30,7 @@ object ChessConfig {
         Tier.BISHOP to 1100,
         Tier.ROOK to 1300,
         Tier.QUEEN to 1500,
-        Tier.KING to 1800
+        Tier.KING to 1800,
     )
 
     /** The tier [points] fall in. */
