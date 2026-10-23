@@ -11,8 +11,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- The feature's home screen, and its card on the Islamic hub. -->
     <string name="darood_title">Darood Circle</string>
-    <string name="darood_empty_title">No parties yet</string>
-    <string name="darood_empty_body">Start a party with 2 to 30 friends, post how many Darood you read each day, and reach a goal together. Or wait for a friend to invite you by your username.</string>
+    <string name="darood_empty_title">No circles yet</string>
+    <string name="darood_empty_body">Start a circle with 2 to 30 friends, post how many Darood you read each day, and reach a goal together. Or wait for a friend to invite you by your username.</string>
     <!-- Signed out: parties need an account. The button opens the usual sign-in (the Account screen). -->
     <string name="darood_signed_out_body">Darood Circles are shared with friends, so they need an account. Sign in with Google or an emailed code.</string>
     <string name="darood_sign_in">Sign in</string>
@@ -25,10 +25,10 @@
     <string name="darood_progress"><xliff:g id="total" example="2,450">%1$s</xliff:g> of <xliff:g id="milestone" example="10,000">%2$s</xliff:g></string>
     <string name="darood_no_milestone">No milestone yet</string>
     <string name="darood_finished">Finished</string>
-    <string name="darood_open_party">Open the party</string>
+    <string name="darood_open_party">Open the circle</string>
     <!-- Creating a party. -->
-    <string name="darood_create_title">New party</string>
-    <string name="darood_create_name">Party name</string>
+    <string name="darood_create_title">New circle</string>
+    <string name="darood_create_name">Circle name</string>
     <string name="darood_create_name_placeholder">e.g. Friday circle</string>
     <string name="darood_create_name_counter"><xliff:g id="used" example="12">%1$d</xliff:g>/<xliff:g id="max" example="40">%2$d</xliff:g></string>
     <string name="darood_create_name_too_short">At least 2 characters.</string>
@@ -36,15 +36,15 @@
     <string name="darood_create_limit">How many can join</string>
     <string name="darood_create_milestone">Milestone (optional)</string>
     <string name="darood_create_milestone_placeholder">e.g. 100000</string>
-    <string name="darood_create_milestone_hint">The total the party aims for. You can set it later.</string>
-    <string name="darood_create_milestone_read">The party aims for <xliff:g id="milestone" example="100,000">%1$s</xliff:g> together.</string>
+    <string name="darood_create_milestone_hint">The total the circle aims for. You can set it later.</string>
+    <string name="darood_create_milestone_read">The circle aims for <xliff:g id="milestone" example="100,000">%1$s</xliff:g> together.</string>
     <string name="darood_create_milestone_zero">The milestone must be above 0, or left empty.</string>
-    <string name="darood_create_button">Create party</string>
+    <string name="darood_create_button">Create circle</string>
     <string name="darood_create_creating">Creating…</string>
-    <string name="darood_create_needs_username">Choose a username first: party members see each other, and invite each other, by username.</string>
+    <string name="darood_create_needs_username">Choose a username first: circle members see each other, and invite each other, by username.</string>
     <string name="darood_create_choose_username">Choose a username</string>
     <string name="darood_create_offline">Couldn\'t reach the server, so nothing was created. Check your connection and try again.</string>
-    <string name="darood_create_failed">Couldn\'t create the party. Try again.</string>
+    <string name="darood_create_failed">Couldn\'t create the circle. Try again.</string>
     <string name="darood_create_fewer">Fewer people</string>
     <string name="darood_create_more">More people</string>
     <string name="darood_create_limit_hint">2 to 30 people, you included. Invitations count until they\'re answered.</string>
@@ -61,12 +61,12 @@
     <string name="darood_add_not_found_reserved">Nobody can use that name.</string>
     <string name="darood_add_yours">That\'s you.</string>
     <string name="darood_add_sent">Invitation sent to @<xliff:g id="name" example="bram">%1$s</xliff:g>.</string>
-    <string name="darood_add_already_in">@<xliff:g id="name" example="bram">%1$s</xliff:g> is already in this party.</string>
+    <string name="darood_add_already_in">@<xliff:g id="name" example="bram">%1$s</xliff:g> is already in this circle.</string>
     <string name="darood_add_offline">Couldn\'t send the invitation. Check your connection and try again.</string>
-    <string name="darood_add_full">This party is full, invitations included.</string>
-    <string name="darood_add_is_full">This party is full: <xliff:g id="taken" example="10">%1$d</xliff:g> of <xliff:g id="limit" example="10">%2$d</xliff:g> places are taken, invitations included. Remove someone, or wait for an invitation to be declined, to make room.</string>
-    <string name="darood_add_not_leader">Only the party\'s leader can invite.</string>
-    <string name="darood_add_closed">This party is finished, so it takes nobody new.</string>
+    <string name="darood_add_full">This circle is full, invitations included.</string>
+    <string name="darood_add_is_full">This circle is full: <xliff:g id="taken" example="10">%1$d</xliff:g> of <xliff:g id="limit" example="10">%2$d</xliff:g> places are taken, invitations included. Remove someone, or wait for an invitation to be declined, to make room.</string>
+    <string name="darood_add_not_leader">Only the circle\'s leader can invite.</string>
+    <string name="darood_add_closed">This circle is finished, so it takes nobody new.</string>
     <string name="darood_add_too_many">That\'s 20 invitations in the last hour, the most there can be. Try again a little later.</string>
     <string name="darood_add_failed">Couldn\'t send the invitation. Try again.</string>
     <string name="darood_add_people_title">People</string>
@@ -89,18 +89,18 @@
     <string name="darood_info_remove">Remove</string>
     <string name="darood_info_remove_label">Remove <xliff:g id="name" example="\@bram">%1$s</xliff:g></string>
     <string name="darood_info_remove_title">Remove <xliff:g id="name" example="\@bram">%1$s</xliff:g>?</string>
-    <string name="darood_info_remove_message">They\'ll leave the party, and won\'t see it or post in it any more. What they\'ve already posted stays in the party\'s total.</string>
+    <string name="darood_info_remove_message">They\'ll leave the circle, and won\'t see it or post in it any more. What they\'ve already posted stays in the circle\'s total.</string>
     <string name="darood_info_offline">Couldn\'t reach the server, so nothing changed. Check your connection and try again.</string>
-    <string name="darood_info_not_leader">Only the party\'s leader can do that.</string>
-    <string name="darood_info_not_member">They\'re not in the party any more.</string>
+    <string name="darood_info_not_leader">Only the circle\'s leader can do that.</string>
+    <string name="darood_info_not_member">They\'re not in the circle any more.</string>
     <string name="darood_info_failed">That didn\'t go through. Try again.</string>
-    <string name="darood_info_leave">Leave party</string>
+    <string name="darood_info_leave">Leave circle</string>
     <string name="darood_info_leave_title">Leave <xliff:g id="party" example="Friday circle">%1$s</xliff:g>?</string>
-    <string name="darood_info_leave_message">You won\'t see the party or post in it any more. What you\'ve posted stays in its total. To come back, you\'d need a new invitation.</string>
-    <string name="darood_info_leader_leave_hint">You lead this party. To leave it, hand the leadership to another member first.</string>
-    <string name="darood_info_must_hand_over">Hand the leadership to another member first, or delete the party.</string>
+    <string name="darood_info_leave_message">You won\'t see the circle or post in it any more. What you\'ve posted stays in its total. To come back, you\'d need a new invitation.</string>
+    <string name="darood_info_leader_leave_hint">You lead this circle. To leave it, hand the leadership to another member first.</string>
+    <string name="darood_info_must_hand_over">Hand the leadership to another member first, or delete the circle.</string>
     <string name="darood_info_rename">Rename</string>
-    <string name="darood_info_rename_title">Rename the party</string>
+    <string name="darood_info_rename_title">Rename the circle</string>
     <string name="darood_info_rename_save">Save</string>
     <string name="darood_info_make_leader">Make leader</string>
     <string name="darood_info_make_leader_label">Make <xliff:g id="name" example="\@bram">%1$s</xliff:g> the leader</string>
@@ -109,23 +109,23 @@
     <string name="darood_info_no_milestone">No milestone yet</string>
     <string name="darood_info_set_milestone">Set milestone</string>
     <string name="darood_info_change_milestone">Change milestone</string>
-    <string name="darood_info_milestone_title">The party\'s milestone</string>
+    <string name="darood_info_milestone_title">The circle\'s milestone</string>
     <string name="darood_info_milestone_field">Milestone</string>
-    <string name="darood_info_milestone_too_low">It has to be above the party\'s total, <xliff:g id="total" example="2,450">%1$s</xliff:g>.</string>
-    <string name="darood_info_refused_too_low">That\'s not above the party\'s total any more. Try a bigger number.</string>
-    <string name="darood_info_refused_finished">The party is finished, so its milestone stays as it was.</string>
+    <string name="darood_info_milestone_too_low">It has to be above the circle\'s total, <xliff:g id="total" example="2,450">%1$s</xliff:g>.</string>
+    <string name="darood_info_refused_too_low">That\'s not above the circle\'s total any more. Try a bigger number.</string>
+    <string name="darood_info_refused_finished">The circle is finished, so its milestone stays as it was.</string>
     <!-- The weekly note (opt-in). -->
     <string name="darood_weekly_title">Your Darood this week</string>
     <plurals name="darood_weekly_days">
         <item quantity="one">You added Darood on <xliff:g id="days" example="1">%1$d</xliff:g> of the last 7 days. Every one counts.</item>
         <item quantity="other">You added Darood on <xliff:g id="days" example="4">%1$d</xliff:g> of the last 7 days. Every one counts.</item>
     </plurals>
-    <string name="darood_weekly_none">Your parties would love your Darood this week, whenever you\'re ready.</string>
+    <string name="darood_weekly_none">Your circles would love your Darood this week, whenever you\'re ready.</string>
     <string name="darood_weekly_switch">Weekly note</string>
-    <string name="darood_weekly_explained">Each Friday evening, a quiet note of the days you added Darood, across your parties. Off unless you turn it on.</string>
+    <string name="darood_weekly_explained">Each Friday evening, a quiet note of the days you added Darood, across your circles. Off unless you turn it on.</string>
     <string name="darood_race_title">Race board</string>
-    <string name="darood_race_intro">Parties whose leaders put them on the board, by when they finished, then by how far they are. Only names and progress: never anyone\'s name or numbers.</string>
-    <string name="darood_race_empty">No parties are racing yet. A leader can put theirs on the board from Party info.</string>
+    <string name="darood_race_intro">Circles whose leaders put them on the board, by when they finished, then by how far they are. Only names and progress: never anyone\'s name or numbers.</string>
+    <string name="darood_race_empty">No circles are racing yet. A leader can put theirs on the board from Circle info.</string>
     <string name="darood_race_offline">Couldn\'t reach the server to see the race. Check your connection and try again.</string>
     <string name="darood_race_failed">Couldn\'t load the race. Try again.</string>
     <string name="darood_race_retry">Try again</string>
@@ -134,25 +134,25 @@
     <string name="darood_race_progress"><xliff:g id="total" example="2,450">%1$s</xliff:g> of <xliff:g id="milestone" example="10,000">%2$s</xliff:g> (<xliff:g id="percent" example="24">%3$d</xliff:g>%%)</string>
     <string name="darood_race_finished">Finished <xliff:g id="date" example="Oct 19, 2026">%1$s</xliff:g></string>
     <string name="darood_race_join">Join the race board</string>
-    <string name="darood_race_explained">Other players would see this party\'s name, how many are in it, its total, how far it is to its milestone, and when it finished. Never anyone\'s name or their numbers.</string>
-    <string name="darood_race_needs_milestone">It shows on the board once the party has a milestone.</string>
-    <string name="darood_race_on_board">This party is on the race board: its name and progress, nothing more.</string>
-    <string name="darood_info_delete">Delete party</string>
+    <string name="darood_race_explained">Other players would see this circle\'s name, how many are in it, its total, how far it is to its milestone, and when it finished. Never anyone\'s name or their numbers.</string>
+    <string name="darood_race_needs_milestone">It shows on the board once the circle has a milestone.</string>
+    <string name="darood_race_on_board">This circle is on the race board: its name and progress, nothing more.</string>
+    <string name="darood_info_delete">Delete circle</string>
     <string name="darood_info_delete_title">Delete <xliff:g id="party" example="Friday circle">%1$s</xliff:g>?</string>
-    <string name="darood_info_delete_message">The party goes for everyone: its chat, its members and its total. This can\'t be undone. To be sure, type the party\'s name.</string>
-    <string name="darood_info_delete_field">The party\'s name</string>
+    <string name="darood_info_delete_message">The circle goes for everyone: its chat, its members and its total. This can\'t be undone. To be sure, type the circle\'s name.</string>
+    <string name="darood_info_delete_field">The circle\'s name</string>
     <string name="darood_info_delete_confirm">Delete</string>
-    <string name="darood_info_delete_mismatch">That\'s not the party\'s name.</string>
-    <string name="darood_info_transfer_message">From now on, they\'ll invite, remove, rename and set the milestone. You\'ll stay in the party as a member, and can leave it then if you like.</string>
+    <string name="darood_info_delete_mismatch">That\'s not the circle\'s name.</string>
+    <string name="darood_info_transfer_message">From now on, they\'ll invite, remove, rename and set the milestone. You\'ll stay in the circle as a member, and can leave it then if you like.</string>
     <!-- Invitations, at the top of the list. -->
     <string name="darood_invites_title">Invitations</string>
     <string name="darood_invite_accept">Accept</string>
     <string name="darood_invite_decline">Decline</string>
-    <string name="darood_invite_gone">That invitation isn\'t there any more: it may have been withdrawn, or the party is full or finished.</string>
+    <string name="darood_invite_gone">That invitation isn\'t there any more: it may have been withdrawn, or the circle is full or finished.</string>
     <string name="darood_list_failed">Something went wrong. Pull down to try again.</string>
     <string name="darood_list_offline">Couldn\'t reach the server. Showing what this phone has.</string>
     <!-- A party's own screen; the chat comes to it later. -->
-    <string name="darood_party_info">Party info</string>
+    <string name="darood_party_info">Circle info</string>
     <!-- The chat: each entry is a bubble. -->
     <string name="darood_bubble_said_theirs"><xliff:g id="name" example="bram">%1$s</xliff:g> added <xliff:g id="amount" example="300">%2$s</xliff:g> at <xliff:g id="time" example="2:01 PM">%3$s</xliff:g></string>
     <string name="darood_bubble_said_mine">You added <xliff:g id="amount" example="313">%1$s</xliff:g> at <xliff:g id="time" example="2:07 PM">%2$s</xliff:g>.</string>
@@ -166,7 +166,7 @@
     <string name="darood_event_removed"><xliff:g id="name" example="\@bram">%1$s</xliff:g> was removed</string>
     <string name="darood_event_milestone_set">Milestone set: <xliff:g id="target" example="10,000">%1$s</xliff:g></string>
     <string name="darood_event_milestone_reached">Milestone reached: <xliff:g id="target" example="10,000">%1$s</xliff:g>!</string>
-    <string name="darood_event_finished">The party is finished</string>
+    <string name="darood_event_finished">The circle is finished</string>
     <!-- The chat's input: a number, nothing else. -->
     <string name="darood_input_label">How many to add</string>
     <string name="darood_input_placeholder">How many?</string>
@@ -180,8 +180,8 @@
     <string name="darood_entry_retry">Retry</string>
     <string name="darood_entry_refused">Not sent: the server refused it.</string>
     <string name="darood_entry_refused_daily">Not sent: 500,000 is the most for one day.</string>
-    <string name="darood_entry_refused_closed">Not sent: the party is finished.</string>
-    <string name="darood_entry_refused_not_member">Not sent: you\'re no longer in this party.</string>
+    <string name="darood_entry_refused_closed">Not sent: the circle is finished.</string>
+    <string name="darood_entry_refused_not_member">Not sent: you\'re no longer in this circle.</string>
     <string name="darood_entry_refused_bad_day">Not sent: it\'s too long ago to count (a week at most).</string>
     <string name="darood_entry_refused_time_zone">Not sent: the phone\'s time zone wasn\'t recognised.</string>
     <string name="darood_quick_fill">put <xliff:g id="amount" example="313">%1$d</xliff:g> in the field</string>
@@ -199,10 +199,10 @@
         <item quantity="other">Together, <xliff:g id="posters" example="5">%1$d</xliff:g> of you added <xliff:g id="total" example="10,240">%2$s</xliff:g>.</item>
     </plurals>
     <string name="darood_done_when">Reached <xliff:g id="date" example="Oct 19, 2026">%1$s</xliff:g> at <xliff:g id="time" example="3:05 PM">%2$s</xliff:g>,</string>
-    <string name="darood_done_same_day">the same day the party began.</string>
+    <string name="darood_done_same_day">the same day the circle began.</string>
     <plurals name="darood_done_days">
-        <item quantity="one"><xliff:g id="days" example="1">%1$d</xliff:g> day after the party began.</item>
-        <item quantity="other"><xliff:g id="days" example="12">%1$d</xliff:g> days after the party began.</item>
+        <item quantity="one"><xliff:g id="days" example="1">%1$d</xliff:g> day after the circle began.</item>
+        <item quantity="other"><xliff:g id="days" example="12">%1$d</xliff:g> days after the circle began.</item>
     </plurals>
     <string name="darood_banner_milestone">🎯 New milestone: <xliff:g id="milestone" example="10,000">%1$s</xliff:g>. Let\'s reach it together!</string>
     <string name="darood_banner_dismiss">dismiss</string>
@@ -213,7 +213,7 @@
     <!-- My stats, in a sheet over the chat. -->
     <string name="darood_stats_title">My stats</string>
     <string name="darood_stats_total">My total</string>
-    <string name="darood_stats_share">Share of party</string>
+    <string name="darood_stats_share">Share of circle</string>
     <string name="darood_stats_place">My place</string>
     <string name="darood_stats_place_value"><xliff:g id="place" example="2">%1$d</xliff:g> of <xliff:g id="posters" example="5">%2$d</xliff:g></string>
     <string name="darood_stats_percent"><xliff:g id="percent" example="34">%1$d</xliff:g>%%</string>
@@ -232,10 +232,10 @@
     <string name="darood_board_title">Everyone\'s part</string>
     <string name="darood_board_said"><xliff:g id="name" example="bram">%1$s</xliff:g>, <xliff:g id="total" example="2,450">%2$s</xliff:g></string>
     <string name="darood_board_yet">Still to add their first: <xliff:g id="names" example="dara, eli">%1$s</xliff:g></string>
-    <string name="darood_stats_none">Nothing from you yet. Your first number puts you in the party\'s count.</string>
+    <string name="darood_stats_none">Nothing from you yet. Your first number puts you in the circle\'s count.</string>
     <string name="darood_today_mine">You today: <xliff:g id="total" example="300">%1$s</xliff:g></string>
-    <string name="darood_today_party">Party today: <xliff:g id="total" example="2,450">%1$s</xliff:g></string>
-    <string name="darood_chat_empty">Nothing posted yet. The first number sent here starts the party\'s chat.</string>
+    <string name="darood_today_party">Circle today: <xliff:g id="total" example="2,450">%1$s</xliff:g></string>
+    <string name="darood_chat_empty">Nothing posted yet. The first number sent here starts the circle\'s chat.</string>
     <!-- A username as shown on Hero's profile. -->
     <string name="darood_username_handle">@<xliff:g id="name" example="aria_k">%1$s</xliff:g></string>
     <string name="darood_username_profile_label">Darood Circle username</string>

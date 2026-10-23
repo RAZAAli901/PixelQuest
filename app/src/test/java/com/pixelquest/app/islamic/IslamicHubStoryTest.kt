@@ -2,9 +2,9 @@ package com.pixelquest.app.islamic
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.Modifier
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -60,7 +60,7 @@ class IslamicHubStoryTest {
     private val cards = listOf(
         IslamicItem("namaz", R.string.namaz_title, R.string.islamic_namaz_description, IslamicIcon("🕌"), Screen.Namaz.route),
         IslamicItem("darood", R.string.darood_title, R.string.islamic_darood_description, IslamicIcon("📿"), Screen.Parties.route),
-        IslamicItem("quran", R.string.quran_title, R.string.quran_description, IslamicIcon("📖"), Screen.Quran.route)
+        IslamicItem("quran", R.string.quran_title, R.string.quran_description, IslamicIcon("📖"), Screen.Quran.route),
     )
 
     private fun showApp(mode: ThemeMode = ThemeMode.Pixel) {
@@ -74,12 +74,12 @@ class IslamicHubStoryTest {
                         islamicGraph(
                             nav,
                             items = listOf(com.pixelquest.app.quran.QuranIslamicItem { nav -> composable(Screen.Quran.route) { com.pixelquest.app.quran.ui.QuranHomeScreen(onNavigateBack = { nav.popBackStack() }) } }),
-                            hub = { onOpen -> IslamicHubContent(IslamicHubUiState(cards, loaded = true), onOpen) }
+                            hub = { onOpen -> IslamicHubContent(IslamicHubUiState(cards, loaded = true), onOpen) },
                         ) {
                             composable(Screen.Namaz.route) { NamazScreen(onNavigateBack = { nav.popBackStack() }, viewModel = namazViewModel()) }
                         }
                         // Deen's Darood tile opens the parties, outside the Islamic section.
-                        composable(Screen.Parties.route) { Text("DAROOD PARTIES") }
+                        composable(Screen.Parties.route) { Text("DAROOD CIRCLES") }
                         redirect(Routes.LEGACY_NAMAZ, Screen.Namaz.route, nav)
                         redirect(Routes.LEGACY_DAROOD, Screen.Parties.route, nav)
                     }
@@ -132,7 +132,7 @@ class IslamicHubStoryTest {
 
         openCard("darood")
 
-        composeTestRule.onNodeWithText("DAROOD PARTIES").assertIsDisplayed()
+        composeTestRule.onNodeWithText("DAROOD CIRCLES").assertIsDisplayed()
         back()
         assertEquals(Screen.IslamicHub.route, current())
     }

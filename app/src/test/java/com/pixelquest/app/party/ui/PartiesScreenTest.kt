@@ -64,10 +64,10 @@ class PartiesScreenTest {
     fun withNone_itSaysWhatPartiesAre_andOffersToStartOne() {
         show(DaroodPartiesUiState(signedIn = true), ThemeMode.Comic)
 
-        composeTestRule.onNodeWithText("PARTIES").assertIsDisplayed()
+        composeTestRule.onNodeWithText("CIRCLES").assertIsDisplayed()
         composeTestRule.onNodeWithTag(PartiesTags.EMPTY).assertIsDisplayed()
-        composeTestRule.onNodeWithText("NO PARTIES YET").assertIsDisplayed()
-        composeTestRule.onNodeWithText("TWO KINDS OF PARTY").assertIsDisplayed()
+        composeTestRule.onNodeWithText("NO CIRCLES YET").assertIsDisplayed()
+        composeTestRule.onNodeWithText("TWO KINDS OF CIRCLE").assertIsDisplayed()
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE).performClick()
         assertEquals(listOf("create"), opened)
     }
@@ -83,7 +83,7 @@ class PartiesScreenTest {
         }
 
         composeTestRule.onNodeWithText("You're invited to a Darood Circle", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("You're invited to a Study party", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("You're invited to a Study Circle", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test

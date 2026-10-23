@@ -44,7 +44,7 @@ class IslamicItemCardTest {
         show(darood)
 
         composeTestRule.onNodeWithText("Darood Circle", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("No parties yet", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("No circles yet", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithTag(IslamicTestTags.card("darood")).performClick()
         assertEquals(1, clicks)
     }

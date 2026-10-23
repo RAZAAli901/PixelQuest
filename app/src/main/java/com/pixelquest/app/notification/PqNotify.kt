@@ -36,7 +36,7 @@ object PqNotify {
         Level("pq_level", "Rewards", NotificationManager.IMPORTANCE_DEFAULT, "daily"),
         Coach("pq_coach", "AI Coach", NotificationManager.IMPORTANCE_LOW, "daily"),
         Party("pq_party", "Darood circles", NotificationManager.IMPORTANCE_DEFAULT, "social"),
-        Study("pq_study", "Study parties", NotificationManager.IMPORTANCE_DEFAULT, "social"),
+        Study("pq_study", "Study circles", NotificationManager.IMPORTANCE_DEFAULT, "social"),
         Chess("pq_chess", "Chess", NotificationManager.IMPORTANCE_HIGH, "social", essential = true),
         Ongoing("pq_ongoing", "Live timer & games", NotificationManager.IMPORTANCE_LOW, "social", essential = true, silent = true),
     }
@@ -45,7 +45,7 @@ object PqNotify {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val nm = ctx.getSystemService(NotificationManager::class.java)
         nm.createNotificationChannelGroup(NotificationChannelGroup("daily", "Daily"))
-        nm.createNotificationChannelGroup(NotificationChannelGroup("social", "Parties & chess"))
+        nm.createNotificationChannelGroup(NotificationChannelGroup("social", "Circles & chess"))
         Ch.entries.forEach { c ->
             nm.createNotificationChannel(
                 NotificationChannel(c.id, c.label, c.importance).apply {

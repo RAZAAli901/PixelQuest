@@ -83,7 +83,7 @@ object NotificationChannels {
         ),
         STUDY(
             id = "pq_study",
-            displayName = "Study party",
+            displayName = "Study Circle",
             description = "Reminders of assignments and quizzes due, and the weekly summary if you turn it on",
             importance = Importance.DEFAULT,
             sound = true,
@@ -92,7 +92,7 @@ object NotificationChannels {
         STUDY_REMINDERS(
             id = "pq_study_reminders",
             displayName = "Study reminders",
-            description = "Quizzes, exams and other reminders made in your study parties, at the times they set",
+            description = "Quizzes, exams and other reminders made in your study circles, at the times they set",
             importance = Importance.HIGH,
             sound = true,
             vibration = true,
@@ -100,7 +100,7 @@ object NotificationChannels {
         STUDY_CHAT(
             id = "pq_study_chat",
             displayName = "Study chat",
-            description = "New messages and files in your study parties' chats",
+            description = "New messages and files in your study circles' chats",
             importance = Importance.DEFAULT,
             sound = true,
             vibration = true,
@@ -108,7 +108,7 @@ object NotificationChannels {
         CHESS(
             id = "pq_chess",
             displayName = "Chess",
-            description = "Challenges, accepted challenges and draw offers in your study parties",
+            description = "Challenges, accepted challenges and draw offers in your study circles",
             importance = Importance.HIGH,
             sound = true,
             vibration = true,

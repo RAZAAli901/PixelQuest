@@ -69,7 +69,10 @@ class HeroScreenTest {
         composeTestRule.setContent {
             var s by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(start) }
             HeroContent(
-                state = state, segment = s, onSegmentChange = { s = it; segment = it },
+                state = state, segment = s, onSegmentChange = {
+                    s = it
+                    segment = it
+                },
                 onSettings = { opened += "settings" }, onChangeAvatar = { opened += "avatar" }, onDifficulty = { opened += "difficulty" },
                 onQuestHistory = { opened += "history" }, onLevelHistory = { opened += "levels" }, onLeaderboard = { opened += "leaderboard" },
                 onParties = { opened += "parties" },
@@ -119,7 +122,7 @@ class HeroScreenTest {
         composeTestRule.onNodeWithTag(HeroTags.SCREEN).performScrollToNode(hasText("Leaderboard"))
         composeTestRule.onNodeWithText("Locked").assertIsDisplayed()
         composeTestRule.onNodeWithText("Leaderboard").performClick()
-        composeTestRule.onNodeWithText("Parties").performClick()
+        composeTestRule.onNodeWithText("Circles").performClick()
         assertEquals(listOf("settings", "history", "leaderboard", "parties"), opened)
     }
 

@@ -3,7 +3,6 @@ package com.pixelquest.app.darood.ui.create
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
@@ -11,6 +10,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import com.pixelquest.app.darood.ui.DaroodTestTags
@@ -36,11 +36,15 @@ class CreatePartyTest {
 
     private val db = androidx.room.Room.inMemoryDatabaseBuilder(
         androidx.test.core.app.ApplicationProvider.getApplicationContext<Application>(),
-        com.pixelquest.app.data.local.AppDatabase::class.java
+        com.pixelquest.app.data.local.AppDatabase::class.java,
     ).allowMainThreadQueries().build()
     private val server = com.pixelquest.app.testing.FakeDaroodServer(me = "me").apply { usernames["me"] = "aria_k" }
     private val repository = com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl(
-        server, db.daroodDao(), { server.me }, now = { 1_000L }, zone = { java.time.ZoneId.of("UTC") }
+        server,
+        db.daroodDao(),
+        { server.me },
+        now = { 1_000L },
+        zone = { java.time.ZoneId.of("UTC") },
     )
 
     private fun viewModel() = CreatePartyViewModel(repository)
@@ -147,9 +151,9 @@ class CreatePartyTest {
         composeTestRule.setContent {
             PixelQuestTheme(themeMode = ThemeMode.Comic) { CreatePartyScreen(onNavigateBack = {}, viewModel = viewModel) }
         }
-        composeTestRule.onNodeWithText("The total the party aims for. You can set it later.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("The total the circle aims for. You can set it later.").assertIsDisplayed()
         composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_MILESTONE))).performTextInput("100000")
-        composeTestRule.onNodeWithText("The party aims for 100,000 together.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("The circle aims for 100,000 together.").assertIsDisplayed()
         composeTestRule.onNode(hasSetTextAction() and hasAnyAncestor(hasTestTag(DaroodTestTags.CREATE_MILESTONE))).performTextReplacement("0")
         composeTestRule.onNodeWithText("The milestone must be above 0, or left empty.").assertIsDisplayed()
     }
@@ -187,7 +191,7 @@ class CreatePartyTest {
         composeTestRule.onNodeWithTag(DaroodTestTags.CREATE_BUTTON).performClick()
         waitFor { viewModel.uiState.value.error != null }
 
-        composeTestRule.onNodeWithText("Choose a username first: party members see each other, and invite each other, by username.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Choose a username first: circle members see each other, and invite each other, by username.").assertIsDisplayed()
         composeTestRule.onNodeWithText("CHOOSE A USERNAME").performClick()
         assertEquals(1, choose)
         assertNull(viewModel.uiState.value.created)

@@ -31,7 +31,7 @@
 
     <string name="study_reminder_field_who">Who</string>
     <string name="study_reminder_who_me">Just me</string>
-    <string name="study_reminder_who_party">Whole party</string>
+    <string name="study_reminder_who_party">Whole circle</string>
     <string name="study_reminder_who_fixed">Who it\'s for can\'t change once it\'s made.</string>
 
     <string name="study_reminder_field_alerts">Alerts</string>
@@ -60,7 +60,7 @@
     <string name="study_reminder_problem_when">Pick when it is.</string>
     <string name="study_reminder_problem_repeat">A week reminder can\'t repeat every day.</string>
     <string name="study_reminder_problem_alerts">Pick up to 4 alert times, each at most 14 days before.</string>
-    <string name="study_reminder_problem_zone">Your phone\'s time zone isn\'t one the party knows.</string>
+    <string name="study_reminder_problem_zone">Your phone\'s time zone isn\'t one the circle knows.</string>
 
     <string name="study_reminder_banner_title">Reminders this week</string>
     <string name="study_reminder_banner_line"><xliff:g id="value1" example="x">%1$s</xliff:g>: <xliff:g id="value2" example="x">%2$s</xliff:g></string>
@@ -68,7 +68,7 @@
     <string name="study_reminder_day_time"><xliff:g id="value1" example="x">%1$s</xliff:g>, <xliff:g id="value2" example="x">%2$s</xliff:g></string>
     <string name="study_reminder_just_you">Just you</string>
     <string name="study_reminder_waiting">Waiting to send</string>
-    <string name="study_reminder_refused">Not saved by the party</string>
+    <string name="study_reminder_refused">Not saved by the circle</string>
 
     <string name="study_reminder_delete">Delete reminder</string>
     <string name="study_reminder_delete_title">Delete this reminder?</string>
@@ -83,10 +83,10 @@
     <string name="study_reminder_action_open">Open</string>
 
     <string name="study_reminder_alerts_on">Study reminders</string>
-    <string name="study_reminder_alerts_on_body">Alerts for the reminders made in your study parties, on this phone.</string>
-    <string name="study_reminder_mute">Mute this party\'s reminders</string>
+    <string name="study_reminder_alerts_on_body">Alerts for the reminders made in your study circles, on this phone.</string>
+    <string name="study_reminder_mute">Mute this circle\'s reminders</string>
     <string name="study_reminder_mute_body">They still show on This week, without alerts.</string>
 
-    <string name="study_reminder_saved_offline">Saved on this phone. It goes to the party when you\'re back online.</string>
-    <string name="study_reminder_too_many">You have 100 reminders in this party already. Delete one to add another.</string>
+    <string name="study_reminder_saved_offline">Saved on this phone. It goes to the circle when you\'re back online.</string>
+    <string name="study_reminder_too_many">You have 100 reminders in this circle already. Delete one to add another.</string>
 </resources>

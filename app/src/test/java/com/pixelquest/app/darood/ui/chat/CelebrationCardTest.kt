@@ -1,6 +1,5 @@
 package com.pixelquest.app.darood.ui.chat
 
-import com.pixelquest.app.ui.chat.bubbleTime
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -8,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import com.pixelquest.app.darood.domain.MemberStats
 import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.ui.chat.bubbleTime
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import org.junit.Rule
@@ -44,7 +44,7 @@ class CelebrationCardTest {
             composeTestRule.onNodeWithText("🎉 Milestone reached!").assertIsDisplayed()
             composeTestRule.onNodeWithText("Together, 5 of you added 10,240. The aim was 10,000.").assertIsDisplayed()
             val time = bubbleTime(finished, ZoneId.of("UTC"))
-            composeTestRule.onNodeWithText("Reached Oct 19, 2026 at $time, 12 days after the party began.").assertIsDisplayed()
+            composeTestRule.onNodeWithText("Reached Oct 19, 2026 at $time, 12 days after the circle began.").assertIsDisplayed()
         } finally {
             Locale.setDefault(default)
         }
@@ -61,7 +61,7 @@ class CelebrationCardTest {
                 }
             }
             composeTestRule.onNodeWithText("Together, 1 of you added 313. The aim was 300.").assertIsDisplayed()
-            composeTestRule.onNodeWithText("the same day the party began.", substring = true).assertIsDisplayed()
+            composeTestRule.onNodeWithText("the same day the circle began.", substring = true).assertIsDisplayed()
         } finally {
             Locale.setDefault(default)
         }
@@ -74,7 +74,7 @@ class CelebrationCardTest {
                 PartyChatScreen(
                     partyName = "Friday circle", onNavigateBack = {}, onOpenInfo = {}, canPost = false,
                     milestone = 10_000, total = 10_240, finished = true, completedAt = finished, startedAt = started,
-                    myStats = myStatsOf(listOf(MemberStats("p1", "aria-id", "aria_k", 10_240, 3, LocalDate.of(2026, 10, 19))), 10_240, "aria-id")
+                    myStats = myStatsOf(listOf(MemberStats("p1", "aria-id", "aria_k", 10_240, 3, LocalDate.of(2026, 10, 19))), 10_240, "aria-id"),
                 )
             }
         }

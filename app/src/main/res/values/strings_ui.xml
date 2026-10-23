@@ -88,7 +88,7 @@
     <string name="pq_home_greeting_evening">Good evening</string>
     <!-- The player's name and level, under the greeting ("Aria · LVL 3"). -->
     <string name="pq_home_name_level"><xliff:g id="name" example="Aria">%1$s</xliff:g> · LVL <xliff:g id="level" example="3">%2$d</xliff:g></string>
-    <string name="pq_home_parties">Parties</string>
+    <string name="pq_home_parties">Circles</string>
     <plurals name="pq_home_streak_days">
         <item quantity="one"><xliff:g id="days" example="1">%d</xliff:g> day streak</item>
         <item quantity="other"><xliff:g id="days" example="3">%d</xliff:g> day streak</item>
@@ -164,7 +164,7 @@
     <string name="pq_hero_quest_history">Quest history</string>
     <string name="pq_hero_quest_history_simple">Task history</string>
     <string name="pq_hero_level_history">Level history</string>
-    <string name="pq_hero_parties">Parties</string>
+    <string name="pq_hero_parties">Circles</string>
     <string name="pq_hero_leaderboard">Leaderboard</string>
     <!-- The rank chip, by level: under 5, under 10, then 10 and up. -->
     <string name="pq_tier_bronze">Bronze</string>

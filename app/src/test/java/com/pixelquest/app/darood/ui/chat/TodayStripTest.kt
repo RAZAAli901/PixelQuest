@@ -1,6 +1,5 @@
 package com.pixelquest.app.darood.ui.chat
 
-import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -12,11 +11,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
 import com.pixelquest.app.darood.domain.DayTotals
 import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.testing.FakeDaroodServer
+import com.pixelquest.app.testing.closeAfterWrites
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import kotlinx.coroutines.CoroutineScope
@@ -53,7 +53,7 @@ class TodayStripTest {
             }
         }
         composeTestRule.onNodeWithText("You today: 300", useUnmergedTree = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Party today: 2,450", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Circle today: 2,450", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test

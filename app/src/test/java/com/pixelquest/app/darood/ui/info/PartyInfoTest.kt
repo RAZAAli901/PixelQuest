@@ -1,6 +1,5 @@
 package com.pixelquest.app.darood.ui.info
 
-import com.pixelquest.app.testing.closeAfterWrites
 import android.app.Application
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
@@ -14,14 +13,15 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.SavedStateHandle
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
+import com.pixelquest.app.darood.ui.DaroodTestTags
+import com.pixelquest.app.darood.ui.chat.PartyChatScreen
 import com.pixelquest.app.party.data.remote.PartyMemberDto
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyMember
 import com.pixelquest.app.party.domain.PartyRole
-import com.pixelquest.app.darood.ui.DaroodTestTags
-import com.pixelquest.app.darood.ui.chat.PartyChatScreen
 import com.pixelquest.app.testing.FakeDaroodServer
+import com.pixelquest.app.testing.closeAfterWrites
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import com.pixelquest.app.ui.theme.ThemeMode
 import kotlinx.coroutines.Dispatchers
@@ -77,7 +77,7 @@ class PartyInfoTest {
 
     private val db = androidx.room.Room.inMemoryDatabaseBuilder(
         androidx.test.core.app.ApplicationProvider.getApplicationContext<Application>(),
-        com.pixelquest.app.data.local.AppDatabase::class.java
+        com.pixelquest.app.data.local.AppDatabase::class.java,
     ).allowMainThreadQueries().build()
     private val server = FakeDaroodServer(me = "aria-id").apply {
         usernames += mapOf("aria-id" to "aria_k", "bram-id" to "bram", "cleo-id" to "cleo_r", "dara-id" to "dara")
@@ -220,7 +220,7 @@ class PartyInfoTest {
                     state = shown.value,
                     onNavigateBack = {},
                     onRemove = { asked = it },
-                    onConfirmRemoval = { confirmed = true }
+                    onConfirmRemoval = { confirmed = true },
                 )
             }
         }
@@ -230,7 +230,7 @@ class PartyInfoTest {
 
         shown.value = shown.value.copy(confirmingRemoval = asked)
         composeTestRule.onNodeWithText("Remove @bram?").assertIsDisplayed()
-        composeTestRule.onNodeWithText("stays in the party's total", substring = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("stays in the circle's total", substring = true).assertIsDisplayed()
         composeTestRule.onNode(hasText("REMOVE") and hasAnyAncestor(isDialog())).performClick()
         assertTrue(confirmed)
     }
@@ -295,7 +295,7 @@ class PartyInfoTest {
         shown.value = shown.value.copy(confirmingLeave = true)
         composeTestRule.onNodeWithText("Leave Friday circle?", ignoreCase = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("stays in its total", substring = true).assertIsDisplayed()
-        composeTestRule.onNode(hasText("Leave party", ignoreCase = true) and hasAnyAncestor(isDialog())).performClick()
+        composeTestRule.onNode(hasText("Leave circle", ignoreCase = true) and hasAnyAncestor(isDialog())).performClick()
         assertTrue(confirmed)
     }
 
@@ -305,13 +305,13 @@ class PartyInfoTest {
             PixelQuestTheme(themeMode = ThemeMode.Pixel) {
                 PartyInfoContent(
                     state = state(myId = "aria-id").copy(problem = InfoProblem.Refused(com.pixelquest.app.darood.domain.DaroodRefusal.LEADER_MUST_HAND_OVER)),
-                    onNavigateBack = {}
+                    onNavigateBack = {},
                 )
             }
         }
         composeTestRule.onNodeWithTag(DaroodTestTags.INFO_LEAVE).assertDoesNotExist()
         composeTestRule.onNodeWithTag(DaroodTestTags.INFO_LEAVE_HINT).assertIsDisplayed()
-        composeTestRule.onNodeWithText("Hand the leadership to another member first, or delete the party.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Hand the leadership to another member first, or delete the circle.").assertIsDisplayed()
     }
 
     @Test
@@ -384,7 +384,7 @@ class PartyInfoTest {
 
         shown.value = shown.value.copy(confirmingTransfer = handingTo)
         composeTestRule.onNodeWithText("Make @bram the leader?").assertIsDisplayed()
-        composeTestRule.onNodeWithText("stay in the party as a member", substring = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("stay in the circle as a member", substring = true).assertIsDisplayed()
     }
 
     // The dialogs' fields are checked on their own: Robolectric can't settle a dialog window holding a
@@ -397,7 +397,7 @@ class PartyInfoTest {
                 RenameField(name = "x", problem = com.pixelquest.app.darood.ui.create.PartyNameProblem.TOO_SHORT, onNameChange = {})
             }
         }
-        composeTestRule.onNodeWithText("PARTY NAME").assertIsDisplayed()
+        composeTestRule.onNodeWithText("CIRCLE NAME").assertIsDisplayed()
         composeTestRule.onNodeWithText("At least 2 characters.").assertIsDisplayed()
     }
 
@@ -467,9 +467,9 @@ class PartyInfoTest {
             }
         }
         composeTestRule.onNodeWithText("can't be undone", substring = true).assertIsDisplayed()
-        composeTestRule.onNodeWithText("That's not the party's name.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("That's not the circle's name.").assertIsDisplayed()
         typed.value = "Friday circle"
-        composeTestRule.onNodeWithText("That's not the party's name.").assertDoesNotExist()
+        composeTestRule.onNodeWithText("That's not the circle's name.").assertDoesNotExist()
     }
 
     @Test
@@ -535,9 +535,9 @@ class PartyInfoTest {
                 MilestoneField(typed = typed.value, total = 2_450, onTypedChange = {})
             }
         }
-        composeTestRule.onNodeWithText("It has to be above the party's total, 2,450.").assertExists()
+        composeTestRule.onNodeWithText("It has to be above the circle's total, 2,450.").assertExists()
         typed.value = "2451"
-        composeTestRule.onNodeWithText("It has to be above the party's total, 2,450.").assertDoesNotExist()
+        composeTestRule.onNodeWithText("It has to be above the circle's total, 2,450.").assertDoesNotExist()
         assertEquals("10000", milestoneDigits("10,000 Darood"))
         assertEquals("313", milestoneDigits("\u06F3\u06F1\u06F3"))
         assertEquals("1234567890", milestoneDigits("123456789012345"))
@@ -575,7 +575,7 @@ class PartyInfoTest {
         }
         composeTestRule.onNodeWithText("Join the race board").assertExists()
         composeTestRule.onNodeWithText("Never anyone's name or their numbers.", substring = true).assertExists()
-        composeTestRule.onNodeWithText("once the party has a milestone", substring = true).assertExists()
+        composeTestRule.onNodeWithText("once the circle has a milestone", substring = true).assertExists()
         composeTestRule.onNodeWithTag(DaroodTestTags.INFO_RACE_SWITCH).performScrollTo().performClick()
         assertEquals(true, turned)
 
@@ -588,9 +588,9 @@ class PartyInfoTest {
         party = Party(partyId, "Friday circle", "aria-id", 5, null, null, null, Instant.parse("2026-10-01T12:00:00Z")),
         members = listOf(
             PartyMember(partyId, "aria-id", "aria_k", PartyRole.LEADER, MemberStatus.ACTIVE, null, Instant.parse("2026-10-01T12:00:00Z")),
-            PartyMember(partyId, "bram-id", "bram", PartyRole.MEMBER, MemberStatus.ACTIVE, null, Instant.parse("2026-10-02T12:00:00Z"))
+            PartyMember(partyId, "bram-id", "bram", PartyRole.MEMBER, MemberStatus.ACTIVE, null, Instant.parse("2026-10-02T12:00:00Z")),
         ),
-        myId = myId
+        myId = myId,
     )
 
     /** Room answers on its own threads: real time, a little at a time. */

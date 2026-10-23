@@ -181,7 +181,7 @@ class HomeScreenTest {
     @Test
     fun aWaitingInvitation_dotsThePartiesButton() {
         show(state(), partiesDot = true)
-        composeTestRule.onNode(hasContentDescription("Parties, something waits for you here")).assertIsDisplayed()
+        composeTestRule.onNode(hasContentDescription("Circles, something waits for you here")).assertIsDisplayed()
     }
 
     @Test
@@ -196,7 +196,12 @@ class HomeScreenTest {
                 TodayTaskItem(task(3, "Push-ups", LocalTime.of(8, 0)), TaskItemStatus.DONE, xp = 20),
                 TodayTaskItem(task(4, "Stretch", LocalTime.of(9, 0)), TaskItemStatus.MISSED),
             ),
-            currentStreak = 5, level = 3, targetThreshold = 0.7f, heroName = "Aria", avatarId = "avatar_mage", xpToday = 20,
+            currentStreak = 5,
+            level = 3,
+            targetThreshold = 0.7f,
+            heroName = "Aria",
+            avatarId = "avatar_mage",
+            xpToday = 20,
         )
 
         val home = success.toHomeUi(DateTimeFormatter.ofPattern("HH:mm")) { if (it == RecurrenceType.DAILY) "Daily" else null }

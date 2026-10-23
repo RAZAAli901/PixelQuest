@@ -13,11 +13,11 @@
     <string name="study_tab_scoreboard">Scores</string>
     <string name="study_tab_people">People</string>
     <!-- The top bar's button that opens the party's info (members, leader actions). -->
-    <string name="study_open_info">Party info</string>
+    <string name="study_open_info">Circle info</string>
     <string name="study_add_people">Add people</string>
     <!-- Nothing to show on a tab. -->
-    <string name="study_week_empty">Nothing due this week. Add an assignment or quiz so the party can see it.</string>
-    <string name="study_items_empty">No items yet. Add what\'s due, and everyone in the party will see it.</string>
+    <string name="study_week_empty">Nothing due this week. Add an assignment or quiz so the circle can see it.</string>
+    <string name="study_items_empty">No items yet. Add what\'s due, and everyone in the circle will see it.</string>
     <string name="study_board_empty">No points yet this week. Finish an item or log study time to get on the board.</string>
     <!-- A line on the scoreboard: place, member, their points ("1. @aria_k, 25 points"). -->
     <string name="study_board_line"><xliff:g id="place" example="1">%1$d</xliff:g>. <xliff:g id="member" example="\@aria_k">%2$s</xliff:g>, <xliff:g id="points" example="25 points">%3$s</xliff:g></string>
@@ -59,7 +59,7 @@
     <string name="study_field_subject">Subject (optional)</string>
     <string name="study_field_notes">Notes (optional)</string>
     <string name="study_field_due">Due</string>
-    <string name="study_field_pin">Pin it for the party</string>
+    <string name="study_field_pin">Pin it for the circle</string>
     <!-- Under "Pin for the party" in the Add item sheet (mock 4I). -->
     <string name="study_field_pin_body">Stays at the top of everyone\'s week</string>
     <string name="study_title_short">A title needs at least 2 characters.</string>
@@ -74,13 +74,13 @@
     <!-- An item's ⋯ menu, for its creator or the leader. -->
     <string name="study_item_actions">Item actions</string>
     <string name="study_edit">Edit</string>
-    <string name="study_pin">Pin for the party</string>
+    <string name="study_pin">Pin for the circle</string>
     <string name="study_unpin">Unpin</string>
     <string name="study_delete">Delete</string>
     <string name="study_keep">Keep it</string>
     <!-- Asking to be sure before an item goes ("Delete Waves quiz?"). -->
     <string name="study_delete_title">Delete this item?</string>
-    <string name="study_delete_message"><xliff:g id="title" example="Waves quiz">%1$s</xliff:g> will go for everyone in the party, with everyone\'s ticks on it.</string>
+    <string name="study_delete_message"><xliff:g id="title" example="Waves quiz">%1$s</xliff:g> will go for everyone in the circle, with everyone\'s ticks on it.</string>
     <!-- The study timer, and minutes added by hand. -->
     <string name="study_timer_title">Study time</string>
     <!-- The player's minutes today in this party ("65 minutes today"). -->
@@ -93,7 +93,7 @@
     <string name="study_timer_cancel">Cancel</string>
     <!-- The timer running: how long so far ("Studying: 25:03"). -->
     <string name="study_timer_running">Studying: <xliff:g id="elapsed" example="25:03">%1$s</xliff:g></string>
-    <string name="study_timer_elsewhere">A timer is running in another party. Stop it there first.</string>
+    <string name="study_timer_elsewhere">A timer is running in another circle. Stop it there first.</string>
     <string name="study_timer_too_short">Under 5 minutes, so nothing was logged.</string>
     <string name="study_add_minutes">Or add minutes you studied:</string>
     <!-- A choice of minutes to add ("25 min"). -->
@@ -120,7 +120,7 @@
     <string name="study_reminders_due">Reminders of what\'s due</string>
     <string name="study_reminders_due_body">A day before, and two hours before, anything you haven\'t finished.</string>
     <string name="study_reminders_weekly">Sunday summary</string>
-    <string name="study_reminders_weekly_body">On Sunday evening, your points and place this week in each study party.</string>
+    <string name="study_reminders_weekly_body">On Sunday evening, your points and place this week in each study circle.</string>
     <!-- The Sunday summary: its title, and a line per party ("Physics group: 45 points, place 2 of 5"). -->
     <string name="study_weekly_title">Your study week</string>
     <string name="study_weekly_line"><xliff:g id="party" example="Physics group">%1$s</xliff:g>: <xliff:g id="points" example="45 points">%2$s</xliff:g>, place <xliff:g id="place" example="2">%3$d</xliff:g> of <xliff:g id="members" example="5">%4$d</xliff:g></string>
@@ -129,10 +129,10 @@
     <string name="study_due_soon_title">Due in under 2 hours: <xliff:g id="title" example="Waves quiz">%1$s</xliff:g></string>
     <string name="study_due_text">In <xliff:g id="party" example="Physics group">%1$s</xliff:g>. Mark it done once you\'ve finished.</string>
     <!-- The study parties' card on Home. -->
-    <string name="study_home_title">Due soon in your study parties</string>
+    <string name="study_home_title">Due soon in your study circles</string>
     <string name="study_home_nothing">Nothing due in the next week.</string>
-    <string name="study_home_open">Open Parties</string>
-    <string name="study_home_open_party">Open its party</string>
+    <string name="study_home_open">Open Circles</string>
+    <string name="study_home_open_party">Open its circle</string>
     <!-- Where an item is, and when it's due ("Physics group · Due Fri 23 Oct, 09:00"). -->
     <string name="study_home_where"><xliff:g id="party" example="Physics group">%1$s</xliff:g> · <xliff:g id="due" example="Due Fri 23 Oct, 09:00">%2$s</xliff:g></string>
     <!-- One item's own screen. -->
@@ -187,13 +187,13 @@
     <string name="study_points_quiz">A quiz done: <xliff:g id="points" example="15">%d</xliff:g></string>
     <string name="study_points_early">Done a day or more early: <xliff:g id="points" example="5">%d</xliff:g> more</string>
     <string name="study_points_study">Study time: 1 for every <xliff:g id="minutes" example="10">%1$d</xliff:g> minutes, up to <xliff:g id="max" example="12">%2$d</xliff:g> a day</string>
-    <string name="study_points_not_xp">These points are this party\'s own. They never change your XP, level or streak.</string>
+    <string name="study_points_not_xp">These points are this circle\'s own. They never change your XP, level or streak.</string>
     <!-- While the party is loading for the first time. -->
-    <string name="study_loading">Loading the party…</string>
+    <string name="study_loading">Loading the circle…</string>
     <!-- What happened to something the player just tried. -->
     <string name="study_offline">No connection. Ticks and study time are saved on this phone and sent when it\'s back.</string>
-    <string name="study_refused_not_allowed">Only the person who added it, or the party leader, can do that. A tick can be undone for 24 hours only.</string>
-    <string name="study_refused_not_leader">Only the party leader can pin items.</string>
+    <string name="study_refused_not_allowed">Only the person who added it, or the circle leader, can do that. A tick can be undone for 24 hours only.</string>
+    <string name="study_refused_not_leader">Only the circle leader can pin items.</string>
     <string name="study_refused_bad_day">That day is too far back to count.</string>
     <string name="study_refused_no_item">That item was deleted.</string>
     <string name="study_tab_chat">Chat</string>
@@ -222,7 +222,7 @@
     <string name="study_chat_block">Block this person</string>
     <string name="study_chat_unblock">Show</string>
     <string name="study_chat_blocked_line">A message from someone you blocked</string>
-    <string name="study_chat_mute">Mute this party\'s chat</string>
+    <string name="study_chat_mute">Mute this circle\'s chat</string>
     <string name="study_chat_mute_body">No notifications for its new messages and files on this phone.</string>
     <string name="study_chat_notif_hidden">New study chat messages</string>
     <plurals name="study_chat_notif_new">
@@ -240,9 +240,9 @@
     <string name="study_files_oldest">Oldest first</string>
     <string name="study_files_none_found">No files match.</string>
     <string name="study_file_warning_title">Files come from other people</string>
-    <string name="study_file_warning_message">\"<xliff:g id="value1" example="x">%1$s</xliff:g>\" was shared by someone in the party. PixelQuest checks that each file is the kind it says, with no macros or programs inside, but it can\'t check what the file says. Only open files you expected.</string>
+    <string name="study_file_warning_message">\"<xliff:g id="value1" example="x">%1$s</xliff:g>\" was shared by someone in the circle. PixelQuest checks that each file is the kind it says, with no macros or programs inside, but it can\'t check what the file says. Only open files you expected.</string>
     <string name="study_file_warning_open">Open it</string>
-    <string name="study_file_not_allowed">That file can\'t be opened: it was deleted, or you\'re no longer in the party.</string>
+    <string name="study_file_not_allowed">That file can\'t be opened: it was deleted, or you\'re no longer in the circle.</string>
     <string name="study_file_corrupted">That file didn\'t arrive whole. Try opening it again.</string>
     <string name="study_file_no_viewer">No app on this phone opens that kind of file.</string>
     <string name="study_file_loading">A file, on its way</string>
@@ -260,10 +260,10 @@
     <string name="study_chat_reject_embedded">it has a program or packaged object inside</string>
     <string name="study_chat_reject_too_large">it\'s over 20 MB</string>
     <string name="study_chat_reject_empty">it\'s empty</string>
-    <string name="study_chat_reject_full">the party has 500 MB of files already</string>
+    <string name="study_chat_reject_full">the circle has 500 MB of files already</string>
     <string name="study_chat_reject_too_many">you\'ve shared 20 files today</string>
     <string name="study_chat_reject_late">it took too long to arrive</string>
-    <string name="study_chat_reject_other">the party couldn\'t keep it</string>
+    <string name="study_chat_reject_other">the circle couldn\'t keep it</string>
     <string name="study_chat_file_bad_type">That kind of file can\'t be shared. Share a PDF, Word, Excel, PowerPoint, text, CSV, PNG or JPG file.</string>
     <string name="study_chat_file_macros">Files with macros can\'t be shared. Save it as an ordinary document (docx, xlsx, pptx) or a PDF first.</string>
     <string name="study_chat_file_archive">Zip and other archives can\'t be shared. Share the files inside them instead.</string>
@@ -286,7 +286,7 @@
     <string name="study_chat_delete">Delete</string>
     <string name="study_chat_report">Report</string>
     <string name="study_chat_delete_title">Delete this message?</string>
-    <string name="study_chat_delete_message">It goes for everyone in the party.</string>
+    <string name="study_chat_delete_message">It goes for everyone in the circle.</string>
     <string name="study_chat_replying_to">Replying to</string>
     <string name="study_chat_reply_cancel">Don\'t reply</string>
     <string name="study_chat_retry">Retry</string>
@@ -296,10 +296,10 @@
     <string name="study_chat_input_placeholder">Write a message</string>
     <string name="study_chat_send">Send</string>
     <string name="study_chat_counter"><xliff:g id="value1" example="x">%1$s</xliff:g> of <xliff:g id="value2" example="x">%2$s</xliff:g></string>
-    <string name="study_chat_saved_offline">Saved on this phone. It goes to the party when you\'re back online.</string>
+    <string name="study_chat_saved_offline">Saved on this phone. It goes to the circle when you\'re back online.</string>
     <string name="study_chat_offline">You\'re offline: showing the messages on this phone.</string>
     <string name="study_chat_too_many">That\'s a lot of messages at once. Wait a minute, then send again.</string>
     <string name="study_files_empty">No files shared yet. Share study material from the Chat tab.</string>
-    <string name="study_refused_other">The party couldn\'t save that. Check it and try again.</string>
+    <string name="study_refused_other">The circle couldn\'t save that. Check it and try again.</string>
     <string name="study_tab_chess">Chess</string>
 </resources>

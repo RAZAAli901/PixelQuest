@@ -37,7 +37,7 @@ class PartyListUiTest {
     private fun party(id: String, name: String, members: Int, total: Long, milestone: Long?, finished: Boolean = false, type: PartyType = PartyType.DAROOD) = Party(
         id = id, name = name, leaderId = "me", maxMembers = 10, milestone = milestone, milestoneSetAt = null,
         completedAt = if (finished) Instant.EPOCH else null, createdAt = Instant.EPOCH, total = total, memberCount = members,
-        myStatus = MemberStatus.ACTIVE, type = type
+        myStatus = MemberStatus.ACTIVE, type = type,
     )
 
     @Test
@@ -48,8 +48,8 @@ class PartyListUiTest {
             parties = listOf(
                 party("p1", "Friday circle", members = 12, total = 2450, milestone = 10_000),
                 party("p2", "Family", members = 1, total = 0, milestone = null),
-                party("p3", "Ramadan", members = 5, total = 5000, milestone = 5000, finished = true)
-            )
+                party("p3", "Ramadan", members = 5, total = 5000, milestone = 5000, finished = true),
+            ),
         )
         composeTestRule.setContent {
             PartiesContent(state = state, onSignIn = {}, onNavigateBack = {}, onOpenParty = { opened = it.id }, onCreateParty = {})
@@ -70,7 +70,7 @@ class PartyListUiTest {
     fun bothKinds_canBeFiltered() {
         val state = DaroodPartiesUiState(
             signedIn = true,
-            parties = listOf(party("p1", "Friday circle", 3, 10, null), party("s1", "Exam group", 4, 0, null, type = PartyType.STUDY))
+            parties = listOf(party("p1", "Friday circle", 3, 10, null), party("s1", "Exam group", 4, 0, null, type = PartyType.STUDY)),
         )
         composeTestRule.setContent { PartiesContent(state = state, onSignIn = {}, onOpenParty = {}, onCreateParty = {}) }
 
@@ -86,7 +86,9 @@ class PartyListUiTest {
         composeTestRule.setContent {
             PartiesContent(
                 state = DaroodPartiesUiState(signedIn = true, parties = listOf(party("p1", "Friday circle", 2, 10, null)), problem = PartiesProblem.OFFLINE),
-                onSignIn = {}, onOpenParty = {}, onCreateParty = {}
+                onSignIn = {},
+                onOpenParty = {},
+                onCreateParty = {},
             )
         }
         composeTestRule.onNodeWithText("Couldn't reach the server. Showing what this phone has.").assertIsDisplayed()
@@ -99,7 +101,7 @@ class PartyListUiTest {
             PartiesContent(state = DaroodPartiesUiState(signedIn = true), onSignIn = {}, onOpenParty = {}, onCreateParty = { created++ }, username = "raza")
         }
 
-        composeTestRule.onNodeWithText("NO PARTIES YET").assertIsDisplayed()
+        composeTestRule.onNodeWithText("NO CIRCLES YET").assertIsDisplayed()
         composeTestRule.onNodeWithText("SHARE @RAZA").assertIsDisplayed()
         // The empty hub's own button is the one red button: none in the top bar.
         assertEquals(0, composeTestRule.onAllNodes(hasTestTag(DaroodTestTags.CREATE_ACTION)).fetchSemanticsNodes().size)
@@ -125,9 +127,11 @@ class PartyListUiTest {
         composeTestRule.setContent {
             PartiesContent(
                 state = DaroodPartiesUiState(signedIn = true, invites = listOf(invite), parties = listOf(party("p1", "Friday circle", 2, 10, null))),
-                onSignIn = {}, onOpenParty = {}, onCreateParty = {},
+                onSignIn = {},
+                onOpenParty = {},
+                onCreateParty = {},
                 onAccept = { accepted += it },
-                onDecline = { declined += it }
+                onDecline = { declined += it },
             )
         }
 
@@ -144,11 +148,13 @@ class PartyListUiTest {
         composeTestRule.setContent {
             PartiesContent(
                 state = DaroodPartiesUiState(signedIn = true, invites = listOf(invite), answering = "p9", problem = PartiesProblem.INVITE_GONE),
-                onSignIn = {}, onOpenParty = {}, onCreateParty = {}
+                onSignIn = {},
+                onOpenParty = {},
+                onCreateParty = {},
             )
         }
         composeTestRule.onNodeWithTag(DaroodTestTags.inviteAccept("p9")).assertIsNotEnabled()
-        composeTestRule.onNodeWithText("That invitation isn't there any more: it may have been withdrawn, or the party is full or finished.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("That invitation isn't there any more: it may have been withdrawn, or the circle is full or finished.").assertIsDisplayed()
     }
 
     @Test
@@ -157,8 +163,11 @@ class PartyListUiTest {
         composeTestRule.setContent {
             PartiesContent(
                 state = DaroodPartiesUiState(signedIn = true, parties = listOf(party("p1", "Friday circle", 2, 10, null))),
-                onSignIn = {}, onOpenParty = {}, onCreateParty = {},
-                weeklyNote = false, onWeeklyNote = { turned = it }
+                onSignIn = {},
+                onOpenParty = {},
+                onCreateParty = {},
+                weeklyNote = false,
+                onWeeklyNote = { turned = it },
             )
         }
         composeTestRule.onNodeWithTag(DaroodTestTags.WEEKLY_SWITCH).performScrollTo().assertIsOff()
@@ -172,7 +181,10 @@ class PartyListUiTest {
         composeTestRule.setContent {
             PartiesContent(
                 state = DaroodPartiesUiState(signedIn = true, parties = listOf(party("s1", "Exam group", 4, 0, null, type = PartyType.STUDY))),
-                onSignIn = {}, onOpenParty = {}, onCreateParty = {}, daroodAvailable = false
+                onSignIn = {},
+                onOpenParty = {},
+                onCreateParty = {},
+                daroodAvailable = false,
             )
         }
         assertEquals(0, composeTestRule.onAllNodes(hasTestTag(DaroodTestTags.WEEKLY_SWITCH)).fetchSemanticsNodes().size)

@@ -8,18 +8,18 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- One study party, its kind's name. -->
-    <string name="party_study_title">Study party</string>
+    <string name="party_study_title">Study Circle</string>
     <!-- The Parties screen (Home's groups button, Hero > Parties): the main app's study parties. -->
-    <string name="parties_title">Parties</string>
-    <string name="parties_signed_out_title">Sign in to join a party</string>
-    <!-- Over an invitation: the kind of party it's to ("Darood Party", "Study party"). -->
-    <string name="party_invite_to">You\'re invited to a <xliff:g id="kind" example="Study party">%1$s</xliff:g></string>
+    <string name="parties_title">Circles</string>
+    <string name="parties_signed_out_title">Sign in to join a circle</string>
+    <!-- Over an invitation: the kind of party it's to ("Darood Circle", "Study Circle"). -->
+    <string name="party_invite_to">You\'re invited to a <xliff:g id="kind" example="Study Circle">%1$s</xliff:g></string>
     <!-- The Study parties' screen, listing them. -->
-    <string name="party_study_list_title">Study parties</string>
-    <string name="party_study_empty_body">Start a party with 2 to 30 classmates or friends, pin what\'s due this week, and keep each other going. Or wait for a friend to invite you by your username.</string>
-    <string name="party_signed_out_body">Parties are shared with friends, so they need an account. Sign in with Google or an emailed code.</string>
+    <string name="party_study_list_title">Study Circles</string>
+    <string name="party_study_empty_body">Start a circle with 2 to 30 classmates or friends, pin what\'s due this week, and keep each other going. Or wait for a friend to invite you by your username.</string>
+    <string name="party_signed_out_body">Circles are shared with friends, so they need an account. Sign in with Google or an emailed code.</string>
     <!-- Handing a party's leadership over: what the new leader does. -->
-    <string name="party_hand_over">From now on, they\'ll invite, remove and rename. You\'ll stay in the party as a member, and can leave it then if you like.</string>
+    <string name="party_hand_over">From now on, they\'ll invite, remove and rename. You\'ll stay in the circle as a member, and can leave it then if you like.</string>
     <plurals name="party_members">
         <item quantity="one"><xliff:g id="count" example="1">%d</xliff:g> member</item>
         <item quantity="other"><xliff:g id="count" example="4">%d</xliff:g> members</item>
@@ -28,22 +28,22 @@
     <!-- The Parties hub (UI v2, mocks 4B and 4C): every party, of both kinds. -->
     <string name="pq_party_darood">Darood</string>
     <string name="pq_party_study">Study</string>
-    <string name="pq_parties_new">New party</string>
+    <string name="pq_parties_new">New circle</string>
     <string name="pq_parties_filter_all">All · <xliff:g id="count" example="2">%d</xliff:g></string>
     <!-- Under a party's name: its kind and members ("Darood · 3 members"). -->
     <string name="pq_party_card_line"><xliff:g id="kind" example="Darood">%1$s</xliff:g> · <xliff:g id="members" example="3 members">%2$s</xliff:g></string>
     <string name="pq_parties_footer">Invites from friends show up here. Your username is @<xliff:g id="username" example="raza">%s</xliff:g>.</string>
     <string name="pq_parties_footer_no_username">Invites from friends show up here, once you have a username they can find you by.</string>
-    <string name="pq_parties_empty_title">NO PARTIES YET</string>
-    <string name="pq_parties_empty_body">Team up with 2 to 30 friends. Count Darood toward a shared goal, or share study deadlines and earn party points.</string>
-    <string name="pq_parties_empty_body_study">Team up with 2 to 30 friends. Share study deadlines, log study time and earn party points.</string>
-    <string name="pq_parties_create">Create a party</string>
+    <string name="pq_parties_empty_title">NO CIRCLES YET</string>
+    <string name="pq_parties_empty_body">Team up with 2 to 30 friends. Count Darood toward a shared goal, or share study deadlines and earn circle points.</string>
+    <string name="pq_parties_empty_body_study">Team up with 2 to 30 friends. Share study deadlines, log study time and earn circle points.</string>
+    <string name="pq_parties_create">Create a circle</string>
     <string name="pq_parties_share">Share @<xliff:g id="username" example="raza">%s</xliff:g></string>
     <string name="pq_parties_choose_username">Choose a username</string>
     <!-- What sharing the username sends, so a friend can invite the player. -->
-    <string name="pq_parties_share_text">Invite me to a party on PixelQuest: my username is @<xliff:g id="username" example="raza">%s</xliff:g></string>
-    <string name="pq_parties_kinds">Two kinds of party</string>
-    <string name="pq_parties_kind_one">What a party is</string>
+    <string name="pq_parties_share_text">Invite me to a circle on PixelQuest: my username is @<xliff:g id="username" example="raza">%s</xliff:g></string>
+    <string name="pq_parties_kinds">Two kinds of circle</string>
+    <string name="pq_parties_kind_one">What a circle is</string>
     <string name="pq_party_darood_about">Post your daily count and reach a milestone together.</string>
     <string name="pq_party_study_about">Share assignments and quizzes, log study time, top the weekly board.</string>
     <!-- The New party form (mock 4D): which kind to start. -->
