@@ -9,9 +9,12 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,27 +22,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.pixelquest.app.audio.LocalSoundManager
+import com.pixelquest.app.audio.SoundManager
+import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.TaskRepository
-import com.pixelquest.app.ui.notifications.NotificationsOffBanner
+import com.pixelquest.app.ui.components.PixelCrtOverlay
 import com.pixelquest.app.ui.navigation.PixelNavHost
 import com.pixelquest.app.ui.navigation.PqAppFrame
 import com.pixelquest.app.ui.navigation.Routes
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.navigation.navigateInIslamic
+import com.pixelquest.app.ui.notifications.NotificationsOffBanner
 import com.pixelquest.app.ui.theme.PixelQuestTheme
-import kotlinx.coroutines.flow.first
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-
-import androidx.compose.runtime.CompositionLocalProvider
-import com.pixelquest.app.audio.LocalSoundManager
-import com.pixelquest.app.audio.SoundManager
-
-import androidx.compose.runtime.collectAsState
-import com.pixelquest.app.domain.repository.SettingsRepository
-import com.pixelquest.app.ui.components.PixelCrtOverlay
-
-import androidx.activity.viewModels
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -61,7 +57,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var tips: com.pixelquest.app.ui.tips.TipsStore
-
 
     private val lostProgressViewModel: com.pixelquest.app.ui.screens.settings.LostProgressViewModel by viewModels()
 
@@ -96,7 +91,7 @@ class MainActivity : ComponentActivity() {
             }
             val isReduceMotionEnabled by settingsRepository.isReduceMotionEnabled.collectAsState(initial = false)
             PixelQuestTheme(
-                isReduceMotion = com.pixelquest.app.ui.theme.rememberReduceMotion(isReduceMotionEnabled)
+                isReduceMotion = com.pixelquest.app.ui.theme.rememberReduceMotion(isReduceMotionEnabled),
             ) {
                 CompositionLocalProvider(LocalSoundManager provides soundManager, com.pixelquest.app.ui.tips.LocalTipsStore provides tips) {
                     val isCrtEnabled by settingsRepository.isCrtEnabled.collectAsState(initial = false)
@@ -105,18 +100,21 @@ class MainActivity : ComponentActivity() {
                     val onboardingFlow = androidx.compose.runtime.remember {
                         kotlinx.coroutines.flow.combine(
                             settingsRepository.onboardingComplete,
-                            userProfileRepository.getProfile()
+                            userProfileRepository.getProfile(),
                         ) { flag, profile -> com.pixelquest.app.domain.OnboardingGate.isDone(flag, profile) }
                     }
                     val onboardingComplete by onboardingFlow.collectAsState(initial = true)
                     // CRT overlay is restricted to the Pixel skin, and forced OFF in Simple Mode.
                     val effectiveTheme =
-                        if (com.pixelquest.app.ui.theme.isPixelSkin) com.pixelquest.app.ui.theme.ThemeMode.Pixel
-                        else com.pixelquest.app.ui.theme.ThemeMode.Comic
+                        if (com.pixelquest.app.ui.theme.isPixelSkin) {
+                            com.pixelquest.app.ui.theme.ThemeMode.Pixel
+                        } else {
+                            com.pixelquest.app.ui.theme.ThemeMode.Comic
+                        }
                     val shouldApplyCrt = com.pixelquest.app.domain.model.CrtFilterPolicy.shouldApplyCrt(
                         isCrtSettingEnabled = isCrtEnabled,
                         effectiveThemeMode = effectiveTheme,
-                        isSimpleModeEnabled = isSimpleModeEnabled
+                        isSimpleModeEnabled = isSimpleModeEnabled,
                     )
                     PixelCrtOverlay(enabled = shouldApplyCrt) {
                         val navController = rememberNavController()
@@ -146,8 +144,11 @@ class MainActivity : ComponentActivity() {
                             androidx.hilt.navigation.compose.hiltViewModel()
                         val askForUsername by usernamePrompt.prompt.collectAsState()
                         androidx.compose.runtime.LaunchedEffect(askForUsername, currentRoute, onboardingComplete) {
-                            if (!askForUsername || !onboardingComplete || currentRoute == null ||
-                                currentRoute == Screen.Splash.route || currentRoute == Screen.Onboarding.route
+                            if (!askForUsername ||
+                                !onboardingComplete ||
+                                currentRoute == null ||
+                                currentRoute == Screen.Splash.route ||
+                                currentRoute == Screen.Onboarding.route
                             ) {
                                 return@LaunchedEffect
                             }
@@ -161,7 +162,7 @@ class MainActivity : ComponentActivity() {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(innerPadding)
+                                    .padding(innerPadding),
                             ) {
                                 if (!isNotificationPermissionGranted && currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {
                                     NotificationsOffBanner(
@@ -175,14 +176,14 @@ class MainActivity : ComponentActivity() {
                                                 startActivity(intent)
                                             }
                                         },
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                                     )
                                 }
                                 PixelNavHost(
                                     navController = navController,
                                     modifier = Modifier.weight(1f),
                                     onboardingComplete = onboardingComplete,
-                                    islamicItems = islamicRegistry.providers
+                                    islamicItems = islamicRegistry.providers,
                                 )
                                 // An empty game while the phone kept an automatic backup: a lost database.
                                 if (onboardingComplete && currentRoute != null && currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {

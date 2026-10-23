@@ -78,7 +78,7 @@ class AndroidBackupRulesTest {
             // The sign-in session, sealed with a Keystore key (S034): a key that can't leave this phone.
             "pixelquest_session",
             "pixelquest_streak_nudge", "pixelquest_study", "pixelquest_study_chat", "pixelquest_study_reminder_mutes",
-            "pixelquest_study_reminders", "pixelquest_tips",
+            "pixelquest_study_reminders", "pixelquest_tips", "pq_notify_limits", "pq_moody_icon",
         )
         val backedUp = settings.map { it.removePrefix("sharedpref:").removeSuffix(".xml") }.toSet()
         val sources = file("src/main/java").walkTopDown().filter { it.isFile && it.extension == "kt" }.map { it.readText() }.toList()

@@ -2,7 +2,6 @@ package com.pixelquest.app.ui.screens
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,9 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.pixelquest.app.R
 import com.pixelquest.app.ui.components.PqProgressBar
 import com.pixelquest.app.ui.components.comic
 import com.pixelquest.app.ui.theme.PqColors
@@ -44,7 +41,7 @@ fun SplashScreen(onSplashTimeout: () -> Unit = {}) {
     Box(modifier = Modifier.fillMaxSize().background(PqColors.Ground), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(32.dp)) {
             Box(Modifier.size(132.dp).comic(bg = PqColors.Red, radius = 32.dp, shadow = PqDimens.ShadowLg), contentAlignment = Alignment.Center) {
-                Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = null, modifier = Modifier.size(132.dp))
+                com.pixelquest.app.mascot.PqMascot(com.pixelquest.app.mascot.PixMood.Happy, size = 108.dp)
             }
             Text(text = "PIXELQUEST", style = PqType.Hero)
             Text(text = "Your day, as quests", style = PqType.Meta.copy(color = PqColors.Ink2))

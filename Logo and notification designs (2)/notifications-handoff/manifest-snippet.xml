@@ -1,0 +1,38 @@
+<!--
+  Moody app icon. Merge into AndroidManifest.xml inside <application>.
+  1. REMOVE the LAUNCHER intent-filter from your MainActivity (keep the activity itself).
+  2. Add these 5 aliases. Exactly one is enabled at a time (Happy by default).
+  3. Replace .MainActivity with your real launcher activity.
+-->
+<activity-alias android:name=".LauncherPixHappy" android:targetActivity=".MainActivity"
+    android:icon="@mipmap/ic_launcher_pix_happy" android:roundIcon="@mipmap/ic_launcher_pix_happy"
+    android:enabled="true" android:exported="true">
+    <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+</activity-alias>
+<activity-alias android:name=".LauncherPixOnFire" android:targetActivity=".MainActivity"
+    android:icon="@mipmap/ic_launcher_pix_onfire" android:roundIcon="@mipmap/ic_launcher_pix_onfire"
+    android:enabled="false" android:exported="true">
+    <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+</activity-alias>
+<activity-alias android:name=".LauncherPixWorried" android:targetActivity=".MainActivity"
+    android:icon="@mipmap/ic_launcher_pix_worried" android:roundIcon="@mipmap/ic_launcher_pix_worried"
+    android:enabled="false" android:exported="true">
+    <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+</activity-alias>
+<activity-alias android:name=".LauncherPixSad" android:targetActivity=".MainActivity"
+    android:icon="@mipmap/ic_launcher_pix_sad" android:roundIcon="@mipmap/ic_launcher_pix_sad"
+    android:enabled="false" android:exported="true">
+    <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+</activity-alias>
+<activity-alias android:name=".LauncherPixSleepy" android:targetActivity=".MainActivity"
+    android:icon="@mipmap/ic_launcher_pix_sleepy" android:roundIcon="@mipmap/ic_launcher_pix_sleepy"
+    android:enabled="false" android:exported="true">
+    <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+</activity-alias>
+
+<!-- Notification action receiver -->
+<receiver android:name="com.pixelquest.notifications.PqNotifyActions" android:exported="false"/>
+
+<!-- Needed for C01 chess challenge full-screen intent on lock screen (Android 14 requires user grant) -->
+<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>

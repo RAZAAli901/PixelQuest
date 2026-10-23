@@ -51,7 +51,7 @@ class ReceiverActionsTest {
     fun everyReceiver_checksTheActionFirst() {
         val main = listOf(File("src/main/java"), File("app/src/main/java")).first { it.exists() }
         val receivers = main.walkTopDown().filter { it.isFile && it.extension == "kt" && ": BroadcastReceiver()" in it.readText() }.toList()
-        assertEquals(7, receivers.size)
+        assertEquals(8, receivers.size)
         val unchecked = receivers.filterNot { file ->
             val body = file.readText().substringAfter("override fun onReceive(").lines().drop(1).take(2).joinToString("\n")
             "intent.action" in body

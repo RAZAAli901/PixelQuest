@@ -15,7 +15,9 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @HiltAndroidApp
-class PixelQuestApplication : Application(), Configuration.Provider {
+class PixelQuestApplication :
+    Application(),
+    Configuration.Provider {
 
     // Without this factory WorkManager can't build @HiltWorker classes (they need injected repositories),
     // and every background worker failed with NoSuchMethodException.
@@ -77,6 +79,30 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         com.pixelquest.app.util.PixelCrashHandler.init(this)
         // Fast cold-start: lightweight notification channel creation
         NotificationHelper.createNotificationChannel(this)
+        com.pixelquest.app.notification.PqNotify.createChannels(this)
+        com.pixelquest.app.notification.PqNotify.deepLink = { ctx, route ->
+            val intent = android.content.Intent(ctx, MainActivity::class.java).apply {
+                flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra(MainActivity.EXTRA_OPEN_ROUTE, route)
+            }
+            android.app.PendingIntent.getActivity(
+                ctx,
+                route.hashCode(),
+                intent,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
+        com.pixelquest.app.mascot.MoodyIcon.install(this) {
+            com.pixelquest.app.mascot.MoodyIcon.Inputs(
+                enabled = true,
+                streakDays = 0,
+                doneToday = false,
+                hourOfDay = java.time.LocalTime.now().hour,
+                streakBrokeWithin24h = false,
+                daysSinceLastOpen = 0,
+                gameOrTimerRunning = false,
+            )
+        }
         // SFX and haptics settings apply everywhere, including the full-screen prompt.
         com.pixelquest.app.audio.FeedbackSettingsSync.start(appScope, settingsRepository, soundManager)
         // Signed out, saved AI-written reminder lines are dropped (the AI Coach is for signed-in players).
@@ -159,8 +185,7 @@ class PixelQuestApplication : Application(), Configuration.Provider {
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "MissedTaskWorkerPeriodic",
             ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
+            workRequest,
         )
     }
 }
-

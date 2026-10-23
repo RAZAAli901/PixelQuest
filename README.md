@@ -105,6 +105,10 @@ For detailed design rationale, see the [Architecture Decision Records (ADRs)](#-
 - **Study Parties & Real-time Chess**:
   - Collaborative group checklists, study timers, file attachments (up to 20 MB), and group reminders.
   - **Server-Refereed Live Chess**: 1 to 10 minute blitz clocks, ELO-inspired ratings, ladder ranks, direct board routing on challenge and rematch acceptance, match exit protection guard (`LeaveGameGuard`), clean Accept/Decline challenge sheets, and live spectator presence tracking.
+- **Custom Comic Notification Design & Notification Channels (`PqNotify`)**: RemoteViews comic cards with kickers, headers, skin-adaptive backings (Gold, Paper, Sky), dynamic progress bars, lock-screen privacy guards, quiet-hours filtering, and 10 categorized notification channels (Prayer, Quests due, Streaks, Rewards, AI Coach, Daily plans, Darood parties, Study parties, Chess, and Live timers).
+- **Animated Pix Mascot & Moody App Icons (`PqMascot`)**:
+  - **Animated Mascot Logo**: Responsive 24×24 vector mascot featuring 13 distinct moods (Happy, Celebrate, LevelUp, OnFire, Worried, Sad, Sleepy, Focus, Challenge, etc.) with real-time micro-animations (bobs, jumps, binks, flame flickers) showcased on the splash screen, Home header, empty day cards, and level-up celebrations.
+  - **Moody Launcher App Icons**: Dynamic launcher activity-aliases (`.LauncherPixHappy`, `.LauncherPixOnFire`, `.LauncherPixWorried`, `.LauncherPixSad`, `.LauncherPixSleepy`) that adapt your device's home screen icon to your current streak and habits.
 - **Simple Mode**: One-tap toggle that strips away game mechanics (XP, levels, ranks) for a minimalist habit checklist experience.
 - **Versioned Backup & Restore**: Export and import complete encrypted JSON backups across devices.
 

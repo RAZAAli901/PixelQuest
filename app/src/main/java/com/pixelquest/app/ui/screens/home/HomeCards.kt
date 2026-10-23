@@ -118,7 +118,14 @@ internal fun SkippableQuestRow(quest: QuestUi, tag: String, onComplete: () -> Un
 
 @Composable
 internal fun HomeHeader(state: HomeUiState, greeting: String, onAvatarClick: () -> Unit, onParties: () -> Unit, partiesDot: Boolean) {
-    Row(Modifier.fillMaxWidth().height(52.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    val mascotMood = when {
+        state.isPerfectDay -> com.pixelquest.app.mascot.PixMood.Celebrate
+        state.isStreakBroken -> com.pixelquest.app.mascot.PixMood.Sad
+        state.streakDays >= 7 -> com.pixelquest.app.mascot.PixMood.OnFire
+        state.progress >= 0.5f -> com.pixelquest.app.mascot.PixMood.Happy
+        else -> com.pixelquest.app.mascot.PixMood.Focus
+    }
+    Row(Modifier.fillMaxWidth().height(52.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         PixelAvatar(state.avatar, 46.dp, Modifier.comicPressable(onAvatarClick, radius = 8.dp, shadow = 0.dp).testTag(HomeTags.AVATAR))
         Column(Modifier.weight(1f)) {
             Text(greeting, style = PqType.Meta.copy(fontSize = 12.bsp))
@@ -128,6 +135,7 @@ internal fun HomeHeader(state: HomeUiState, greeting: String, onAvatarClick: () 
                 maxLines = 1,
             )
         }
+        com.pixelquest.app.mascot.PqMascot(mascotMood, size = 44.dp)
         Box {
             val parties = stringResource(R.string.pq_home_parties)
             val waiting = stringResource(R.string.pq_nav_something_waiting)
@@ -196,34 +204,41 @@ internal fun PerfectDayCard(state: HomeUiState, celebrate: Int) {
     }
     Box {
         PqCard(Modifier.testTag(HomeTags.PERFECT).thud(if (stamped) celebrate else 0), bg = PqColors.Gold, shadow = PqDimens.ShadowLg) {
-            Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text(
-                    if (state.doneCount == state.totalCount) {
-                        pluralStringResource(if (state.isSimpleMode) R.plurals.pq_home_all_done_simple else R.plurals.pq_home_all_done, state.totalCount, state.totalCount)
-                    } else {
-                        stringResource(R.string.pq_home_some_done, state.doneCount, state.totalCount)
-                    },
-                    style = PqType.Label,
-                )
-                Text(
-                    stringResource(R.string.pq_home_perfect_day),
-                    style = PqType.Hero.copy(color = PqColors.Red, shadow = Shadow(PqColors.Ink, Offset(6f, 6f), 0f)),
-                )
-                Text(
-                    if (state.isSimpleMode) stringResource(R.string.pq_home_perfect_body_simple) else stringResource(R.string.pq_home_perfect_body, state.level + 1),
-                    style = PqType.Body,
-                )
-                if (!state.isSimpleMode) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        PqChip(stringResource(R.string.pq_xp_earned, state.xpToday), PqColors.Paper)
-                        PqChip(
-                            pluralStringResource(R.plurals.pq_home_streak_days, state.streakDays, state.streakDays),
-                            PqColors.Paper,
-                            icon = Icons.Rounded.LocalFireDepartment,
-                            iconTint = PqColors.Flame,
-                        )
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 18.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        if (state.doneCount == state.totalCount) {
+                            pluralStringResource(if (state.isSimpleMode) R.plurals.pq_home_all_done_simple else R.plurals.pq_home_all_done, state.totalCount, state.totalCount)
+                        } else {
+                            stringResource(R.string.pq_home_some_done, state.doneCount, state.totalCount)
+                        },
+                        style = PqType.Label,
+                    )
+                    Text(
+                        stringResource(R.string.pq_home_perfect_day),
+                        style = PqType.Hero.copy(color = PqColors.Red, shadow = Shadow(PqColors.Ink, Offset(6f, 6f), 0f)),
+                    )
+                    Text(
+                        if (state.isSimpleMode) stringResource(R.string.pq_home_perfect_body_simple) else stringResource(R.string.pq_home_perfect_body, state.level + 1),
+                        style = PqType.Body,
+                    )
+                    if (!state.isSimpleMode) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            PqChip(stringResource(R.string.pq_xp_earned, state.xpToday), PqColors.Paper)
+                            PqChip(
+                                pluralStringResource(R.plurals.pq_home_streak_days, state.streakDays, state.streakDays),
+                                PqColors.Paper,
+                                icon = Icons.Rounded.LocalFireDepartment,
+                                iconTint = PqColors.Flame,
+                            )
+                        }
                     }
                 }
+                com.pixelquest.app.mascot.PqMascot(com.pixelquest.app.mascot.PixMood.Celebrate, size = 76.dp)
             }
         }
         PerfectDayStamp(stamped, Modifier.align(Alignment.TopEnd).padding(top = 10.dp, end = 12.dp).clearAndSetSemantics { })
@@ -235,11 +250,18 @@ internal fun PerfectDayCard(state: HomeUiState, celebrate: Int) {
 @Composable
 internal fun EmptyDayCard(isSimpleMode: Boolean, onNewQuest: () -> Unit) {
     PqCard(Modifier.testTag(HomeTags.EMPTY), shadow = PqDimens.ShadowLg) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(stringResource(if (isSimpleMode) R.string.pq_home_empty_title_simple else R.string.pq_home_empty_title), style = PqType.CardTitle)
-            Text(stringResource(R.string.pq_home_empty_body), style = PqType.Body.copy(color = PqColors.Ink2))
-            Spacer(Modifier.height(2.dp))
-            PqButton(stringResource(if (isSimpleMode) R.string.pq_new_task else R.string.pq_new_quest), onNewQuest, Modifier.fillMaxWidth())
+        Row(
+            Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            com.pixelquest.app.mascot.PqMascot(com.pixelquest.app.mascot.PixMood.Sleepy, size = 64.dp)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(stringResource(if (isSimpleMode) R.string.pq_home_empty_title_simple else R.string.pq_home_empty_title), style = PqType.CardTitle)
+                Text(stringResource(R.string.pq_home_empty_body), style = PqType.Body.copy(color = PqColors.Ink2))
+                Spacer(Modifier.height(2.dp))
+                PqButton(stringResource(if (isSimpleMode) R.string.pq_new_task else R.string.pq_new_quest), onNewQuest, Modifier.fillMaxWidth())
+            }
         }
     }
 }

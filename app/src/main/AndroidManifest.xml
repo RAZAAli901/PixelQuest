@@ -30,12 +30,76 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.PixelQuest">
+            android:theme="@style/Theme.PixelQuest" />
+
+        <activity-alias
+            android:name=".LauncherPixHappy"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_pix_happy"
+            android:roundIcon="@mipmap/ic_launcher_pix_happy"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".LauncherPixOnFire"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_pix_onfire"
+            android:roundIcon="@mipmap/ic_launcher_pix_onfire"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".LauncherPixWorried"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_pix_worried"
+            android:roundIcon="@mipmap/ic_launcher_pix_worried"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".LauncherPixSad"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_pix_sad"
+            android:roundIcon="@mipmap/ic_launcher_pix_sad"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".LauncherPixSleepy"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher_pix_sleepy"
+            android:roundIcon="@mipmap/ic_launcher_pix_sleepy"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <receiver
+            android:name=".notification.PqNotifyActions"
+            android:exported="false" />
 
         <activity
             android:name=".ui.prompt.TaskPromptActivity"

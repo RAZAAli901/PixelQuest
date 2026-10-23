@@ -16,9 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.EmojiEvents
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -81,7 +78,7 @@ fun LevelUpCelebrationScreen(level: Int, onDismiss: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.padding(24.dp),
                 ) {
-                    Icon(Icons.Rounded.EmojiEvents, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.size(48.dp))
+                    com.pixelquest.app.mascot.PqMascot(com.pixelquest.app.mascot.PixMood.LevelUp, size = 80.dp)
                     Text(text = stringResource(R.string.pq_level_up_label), style = PqType.Label, modifier = Modifier.semantics { heading() })
                     Text(text = stringResource(R.string.pq_level_number_upper, level), style = PqType.Hero)
                     Text(text = stringResource(R.string.pq_level_up_congrats), style = PqType.Body)

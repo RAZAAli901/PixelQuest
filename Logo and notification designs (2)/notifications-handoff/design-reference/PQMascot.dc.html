@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@keyframes pqm-pop{0%{transform:scale(.55)}55%{transform:scale(1.12)}80%{transform:scale(.96)}100%{transform:scale(1)}}
+@keyframes pqm-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3%)}}
+@keyframes pqm-jump{0%,45%,100%{transform:translateY(0) scale(1,1)}10%{transform:translateY(0) scale(1.08,.92)}22%{transform:translateY(-14%) scale(.95,1.06)}36%{transform:translateY(0) scale(1.06,.94)}}
+@keyframes pqm-bounce{0%,100%{transform:translateY(0)}30%{transform:translateY(-8%)}50%{transform:translateY(0) scale(1.04,.96)}65%{transform:translateY(-3%)}}
+@keyframes pqm-shake{0%,40%,100%{transform:translateX(0)}5%,15%,25%{transform:translateX(-3%) rotate(-2deg)}10%,20%,30%{transform:translateX(3%) rotate(2deg)}}
+@keyframes pqm-droop{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(4%) rotate(-3deg)}}
+@keyframes pqm-breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.03,.97) translateY(1.5%)}}
+@keyframes pqm-lean{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg) translateX(-2%)}}
+@keyframes pqm-wiggle{0%,50%,100%{transform:rotate(0)}10%,30%{transform:rotate(-7deg)}20%,40%{transform:rotate(7deg)}}
+@keyframes pqm-sob{0%{transform:translateY(0)}100%{transform:translateY(2%)}}
+@keyframes pqm-blink{0%,91%,97%,100%{transform:scaleY(1)}94%{transform:scaleY(.12)}}
+@keyframes pqm-flicker{0%,100%{transform:scale(1,1)}25%{transform:scale(.92,1.14) skewX(-4deg)}50%{transform:scale(1.05,.94)}75%{transform:scale(.96,1.1) skewX(4deg)}}
+@keyframes pqm-drip{0%{transform:translateY(0);opacity:0}15%{opacity:1}80%{opacity:1}100%{transform:translateY(3px);opacity:0}}
+@keyframes pqm-float{0%{transform:translate(0,1px);opacity:0}30%{opacity:1}100%{transform:translate(1px,-2px);opacity:0}}
+@keyframes pqm-twinkle{0%{opacity:1}100%{opacity:.15}}
+@keyframes pqm-glow{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes pqm-shine{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px)}}
+</style>
+</helmet>
+<div style="display:flex; flex-direction:column; align-items:flex-start; gap:10px;">
+  <div style="width:{{ px }}; height:{{ px }}; flex:none; position:relative;">{{ art }}</div>
+  <sc-if value="{{ showLabel }}"><div style="font:800 15px/1 Rubik; letter-spacing:.06em; color:#161412; text-transform:uppercase;">{{ label }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:220,&quot;height&quot;:220},&quot;mood&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;happy&quot;,&quot;celebrate&quot;,&quot;levelup&quot;,&quot;onfire&quot;,&quot;worried&quot;,&quot;sad&quot;,&quot;lost&quot;,&quot;sleepy&quot;,&quot;praying&quot;,&quot;focus&quot;,&quot;challenge&quot;,&quot;wow&quot;,&quot;wise&quot;],&quot;default&quot;:&quot;happy&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;skin&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;comic&quot;,&quot;pixel&quot;],&quot;default&quot;:&quot;comic&quot;,&quot;tsType&quot;:&quot;'comic'|'pixel'&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:160,&quot;min&quot;:16,&quot;max&quot;:512,&quot;tsType&quot;:&quot;number&quot;},&quot;animate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  /*DATA*/static DATA = {
+    "colors": {"k":"#161412","w":"#fffdf8","g":"#ffc21a","g2":"#cfc6b8","t":"#ffb3a8","c":"#ff9d92","s":"#8ecae6","o":"#f0a35e","l":"#b39ddb","d":"#7a1d17","body":"#ff5a4e"},
+    "pixel": {"k":"#2b2622","w":"#fffaf0","c":"#e8a33d","d":"#5a2a00","body":"#c25e00"},
+    "eyes": {
+      "open": {"k":[[0,0],[1,0],[0,1],[1,1],[0,2],[1,2]],"w":[[0,0]]},
+      "happy": {"k":[[-1,2],[0,1],[1,1],[2,2]]},
+      "closed": {"k":[[-1,1],[0,2],[1,2],[2,1]]},
+      "sad": {"k":[[0,1],[1,1],[0,2],[1,2],[-1,0],[0,-1]],"w":[[0,1]]},
+      "determined": {"k":[[0,1],[1,1],[0,2],[1,2],[-1,-1],[0,0],[1,0]],"w":[[0,1]]},
+      "squeeze": {"k":[[-1,0],[0,1],[1,1],[-1,2]]},
+      "x": {"k":[[-1,0],[1,0],[0,1],[-1,2],[1,2]]},
+      "star": {"g":[[0,0],[-1,1],[0,1],[1,1],[0,2]],"outline":true},
+      "wide": {"w":[[0,0],[1,0],[0,1],[1,1],[0,2],[1,2]],"k":[[1,1],[1,2]],"outline":true}
+    },
+    "mouths": {
+      "smile": {"k":[[8,15],[9,16],[10,16],[11,16],[12,16],[13,15]]},
+      "grin": {"k":[[8,15],[13,15],[9,16],[12,16],[10,17],[11,17]],"w":[[9,15],[10,15],[11,15],[12,15]],"t":[[10,16],[11,16]]},
+      "frown": {"k":[[9,16],[10,16],[11,16],[12,16],[8,17],[13,17]]},
+      "flat": {"k":[[9,16],[10,16],[11,16],[12,16]]},
+      "small": {"k":[[9,15],[10,16],[11,16],[12,15]]},
+      "wobble": {"k":[[8,16],[9,15],[10,16],[11,15],[12,16],[13,15]]},
+      "o": {"k":[[10,15],[11,15],[9,16],[12,16],[9,17],[12,17],[10,18],[11,18]],"d":[[10,16],[11,16],[10,17],[11,17]]}
+    },
+    "acc": {
+      "cheeks": {"cells":{"c":[[5,14],[16,14]]}},
+      "tear": {"cells":{"s":[[6,13],[6,14]]},"anim":"drip"},
+      "tears": {"cells":{"s":[[5,13],[5,14],[5,15],[4,16],[16,13],[16,14],[16,15],[17,16]]},"anim":"drip"},
+      "sweat": {"cells":{"s":[[20,7],[20,8],[21,8],[20,9],[21,9]]},"outline":true,"anim":"drip"},
+      "zzz": {"cells":{"k":[[1,1],[2,1],[3,1],[4,1],[3,2],[2,3],[1,4],[2,4],[3,4],[4,4],[6,0],[7,0],[8,0],[7,1],[6,2],[7,2],[8,2]]},"anim":"float"},
+      "flame": {"cells":{"o":[[11,1],[10,2],[11,2],[9,3],[10,3],[11,3],[12,3],[9,4],[10,4],[11,4],[12,4],[9,5],[10,5],[11,5],[12,5]],"g":[[11,3],[10,4],[11,4],[10,5],[11,5]]},"outline":true,"anim":"flicker"},
+      "crown": {"cells":{"g":[[7,3],[10,3],[11,3],[14,3],[7,4],[8,4],[10,4],[11,4],[13,4],[14,4],[7,5],[8,5],[9,5],[12,5],[13,5],[14,5]],"s":[[10,5],[11,5]]},"outline":true,"anim":"shine"},
+      "confetti": {"cells":{"g":[[1,3],[21,11],[13,1]],"s":[[2,9],[22,16],[6,2]],"l":[[0,15],[20,21],[9,1]]},"anim":"twinkle"},
+      "moon": {"cells":{"g":[[2,1],[3,1],[1,2],[2,2],[1,3],[2,3],[2,4],[3,4]]},"outline":true,"anim":"glow"},
+      "book": {"cells":{"w":[[7,18],[8,18],[9,18],[12,18],[13,18],[14,18],[7,19],[8,19],[9,19],[12,19],[13,19],[14,19]],"k":[[10,18],[11,18],[10,19],[11,19]],"l":[[7,20],[8,20],[9,20],[10,20],[11,20],[12,20],[13,20],[14,20]]},"outline":true},
+      "pawn": {"cells":{"w":[[20,12],[19,13],[20,13],[21,13],[20,14],[20,15],[19,16],[20,16],[21,16],[18,17],[19,17],[20,17],[21,17],[22,17]]},"outline":true},
+      "glasses": {"cells":{"k":[[5,9],[6,9],[7,9],[8,9],[13,9],[14,9],[15,9],[16,9],[5,13],[6,13],[7,13],[8,13],[13,13],[14,13],[15,13],[16,13],[5,10],[5,11],[5,12],[8,10],[8,11],[8,12],[13,10],[13,11],[13,12],[16,10],[16,11],[16,12],[9,10],[10,10],[11,10],[12,10]]}},
+      "sparkle": {"cells":{"g":[[20,9],[19,10],[20,10],[21,10],[20,11]]},"anim":"twinkle"}
+    },
+    "moods": {
+      "happy": {"eyes":"open","mouth":"smile","acc":["cheeks"],"anim":"bob","blink":true},
+      "celebrate": {"eyes":"star","mouth":"grin","acc":["cheeks","confetti"],"anim":"jump"},
+      "levelup": {"eyes":"happy","mouth":"grin","acc":["cheeks","crown"],"anim":"bounce"},
+      "onfire": {"eyes":"determined","mouth":"grin","acc":["flame"],"anim":"bob"},
+      "worried": {"eyes":"sad","mouth":"wobble","acc":["sweat"],"anim":"shake"},
+      "sad": {"eyes":"sad","mouth":"frown","acc":["tear"],"anim":"droop"},
+      "lost": {"eyes":"squeeze","mouth":"o","acc":["tears"],"anim":"sob","sword":"broken"},
+      "sleepy": {"eyes":"closed","mouth":"flat","acc":["zzz"],"anim":"breathe"},
+      "praying": {"eyes":"closed","mouth":"small","acc":["cheeks","moon"],"anim":"breathe"},
+      "focus": {"eyes":"determined","mouth":"flat","acc":["book"],"anim":"lean","blink":true},
+      "challenge": {"eyes":"determined","mouth":"smile","acc":["pawn"],"anim":"wiggle"},
+      "wow": {"eyes":"wide","mouth":"o","acc":["confetti"],"anim":"jump"},
+      "wise": {"eyes":"open","mouth":"smile","acc":["glasses","sparkle"],"anim":"bob","blink":true}
+    }
+  };/*END*/
+  static ANIM = {
+    bob: 'pqm-bob 2.4s ease-in-out infinite', jump: 'pqm-jump 1.6s ease-in-out infinite', bounce: 'pqm-bounce 1.1s ease-in-out infinite',
+    shake: 'pqm-shake 2.2s ease-in-out infinite', droop: 'pqm-droop 3s ease-in-out infinite', breathe: 'pqm-breathe 3.2s ease-in-out infinite',
+    lean: 'pqm-lean 2.8s ease-in-out infinite', wiggle: 'pqm-wiggle 2s ease-in-out infinite', sob: 'pqm-sob .3s steps(2) infinite alternate',
+    blink: 'pqm-blink 4s infinite', flicker: 'pqm-flicker .7s ease-in-out infinite', drip: 'pqm-drip 1.6s ease-in infinite',
+    float: 'pqm-float 2.4s ease-out infinite', twinkle: 'pqm-twinkle .9s steps(2) infinite alternate', glow: 'pqm-glow 2.4s ease-in-out infinite', shine: 'pqm-shine 1.6s ease-in-out infinite'
+  };
+  static layers(mood, skin) {
+    const D = Component.DATA, m = D.moods[mood] || D.moods.happy, px = skin === 'pixel';
+    const C = Object.assign({}, D.colors, px ? D.pixel : {}), ink = C.k;
+    const dedupe = cells => { const mp = new Map(); for (const c of cells) mp.set(c[0] + ',' + c[1], c); return [...mp.values()]; };
+    const outlineOf = cells => {
+      const own = new Set(cells.map(c => c[0] + ',' + c[1])), seen = new Set(), res = [];
+      for (const [x, y] of cells) for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+        const k = (x + dx) + ',' + (y + dy); if (!own.has(k) && !seen.has(k)) { seen.add(k); res.push([x + dx, y + dy, ink]); }
+      }
+      return res;
+    };
+    const fromMap = (map, ox = 0, oy = 0, mirror = false) => {
+      const cells = [];
+      for (const key of Object.keys(map)) { if (key === 'outline') continue; for (const [x, y] of map[key]) cells.push([ox + (mirror ? 1 - x : x), oy + y, C[key]]); }
+      return cells;
+    };
+    const out = [], shape = [];
+    for (let y = 6; y <= 20; y++) for (let x = 3; x <= 18; x++) { if (!px && (x === 3 || x === 18) && (y === 6 || y === 20)) continue; shape.push([x, y]); }
+    const so = px ? [0, 1] : [1, 1];
+    out.push({ id: 'shadow', cells: shape.map(([x, y]) => [x + so[0], y + so[1], ink]) });
+    if (m.sword !== 'none') {
+      const blade = [];
+      for (let i = m.sword === 'broken' ? 3 : 0; i <= 5; i++) { blade.push([21 - i, 1 + i, C.w]); blade.push([22 - i, 1 + i, C.g2]); }
+      out.push({ id: 'sword', cells: [...outlineOf(blade), ...blade] });
+    }
+    out.push({ id: 'body', cells: shape.map(([x, y]) => {
+      const edge = x === 3 || x === 18 || y === 6 || y === 20, corner = !px && (x === 4 || x === 17) && (y === 7 || y === 19);
+      return [x, y, edge || corner ? ink : C.body];
+    }) });
+    const E = D.eyes[m.eyes];
+    let eyes = dedupe([...fromMap(E, 6, 10), ...fromMap(E, 14, 10, true)]);
+    if (E.outline) eyes = [...outlineOf(eyes), ...eyes];
+    out.push({ id: 'eyes', anim: m.blink ? 'blink' : null, cells: eyes });
+    out.push({ id: 'mouth', cells: dedupe(fromMap(D.mouths[m.mouth])) });
+    for (const a of m.acc) {
+      const A = D.acc[a]; let cells = dedupe(fromMap(A.cells));
+      if (A.outline) cells = [...outlineOf(cells), ...cells];
+      out.push({ id: a, anim: A.anim || null, cells });
+    }
+    return { layers: out, motion: m.anim };
+  }
+  static LABELS = { happy: 'Happy', celebrate: 'Celebrate', levelup: 'Level up', onfire: 'On fire', worried: 'Worried', sad: 'Sad', lost: 'Heartbroken', sleepy: 'Sleepy', praying: 'Calm', focus: 'Focus', challenge: 'Challenge', wow: 'Wow', wise: 'Coach' };
+  state = { i: 0 };
+  componentDidMount() { if (this.props.cycle) this.timer = setInterval(() => this.setState(s => ({ i: s.i + 1 })), Number(this.props.interval ?? 2400)); }
+  componentWillUnmount() { clearInterval(this.timer); }
+  static art(mood, skin, animate) {
+    const key = mood + skin + animate;
+    Component.cache = Component.cache || {};
+    if (Component.cache[key]) return Component.cache[key];
+    const h = React.createElement;
+    const { layers, motion } = Component.layers(mood, skin);
+    const A = Component.ANIM;
+    const svg = h('svg', { viewBox: '0 0 24 24', width: '100%', height: '100%', shapeRendering: 'crispEdges', style: { display: 'block', overflow: 'visible' } },
+      layers.map(L => h('g', { key: L.id, style: L.anim && animate ? { animation: A[L.anim], transformBox: 'fill-box', transformOrigin: L.anim === 'flicker' ? '50% 100%' : '50% 50%' } : undefined },
+        (() => { const by = {}; for (const [x, y, c] of L.cells) by[c] = (by[c] || '') + 'M' + x + ',' + y + 'h1v1h-1z'; return Object.keys(by).map(c => h('path', { key: c, d: by[c], fill: c })); })())));
+    const inner = h('div', { style: { width: '100%', height: '100%', animation: animate ? A[motion] : 'none', transformOrigin: '50% 90%' } }, svg);
+    return (Component.cache[key] = h('div', { key: mood + skin, style: { width: '100%', height: '100%', animation: animate ? 'pqm-pop .45s ease-out' : 'none' } }, inner));
+  }
+  renderVals() {
+    const list = this.props.cycle ? String(this.props.cycle).split(',').map(s => s.trim()) : null;
+    const mood = list ? list[this.state.i % list.length] : (this.props.mood ?? 'happy');
+    const skin = this.props.skin ?? 'comic', animate = this.props.animate ?? true;
+    return { px: Number(this.props.size ?? 160) + 'px', art: Component.art(mood, skin, animate), label: Component.LABELS[mood] || mood, showLabel: !!this.props.caption };
+  }
+}
+</script>
+</body>
+</html>
