@@ -13,16 +13,21 @@ Built with an offline-first **Clean Architecture** (MVI/MVVM + UDF), it integrat
 
 ---
 
-## ⚡ Direct Download
+## ⚡ Direct Download — Version `v1.8.0`
 
-Download the latest signed release APK onto your Android device:
-
-👉 **[📥 Direct Download app-release.apk (v1.8.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.0/app-release.apk)** 👈
-
-Or browse releases and checksums on the **[📦 GitHub Releases Page](https://github.com/RAZAAli901/PixelQuest/releases)**.
-
+> **Version**: **`v1.8.0` (Pix Mascot & Offline Chess Bot Update)**  
+> **Release Date**: October 23, 2026  
 > **Compatibility**: Android 7.0 (API level 24) through Android 15 (API level 35).  
-> **Upgrades**: Backward compatible across all versions. Safe in-place upgrades keep your local database, streaks, and preferences intact.
+> **Upgrades**: 100% backward compatible across all versions. In-place upgrades preserve all your local quests, streaks, hero stats, and Deen data.
+
+Download the signed release APK onto your Android device:
+
+| Package | Download Link | Description |
+|---|---|---|
+| **Release APK** | [📥 **app-release.apk (v1.8.0)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.0/app-release.apk) | Optimized, shrunk & signed production build (~5 MB) |
+| **Debug APK** | [🛠️ **app-debug.apk (v1.8.0)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.0/app-debug.apk) | Full debug build with extended logcat diagnostics |
+| **GitHub Release** | [📦 **Release v1.8.0 Notes & Checksums**](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.0) | Complete changelog, source code & SHA-256 hashes |
+| **Latest Release Tag**| [🔗 **Latest GitHub Release**](https://github.com/RAZAAli901/PixelQuest/releases/latest) | Automatic redirect to the newest published release |
 
 ---
 

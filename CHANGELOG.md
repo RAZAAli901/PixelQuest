@@ -5,10 +5,31 @@ PixelQuest follows [Semantic Versioning 2.0.0](https://semver.org/). See [docs/V
 
 ---
 
-## [1.8.0] - 2026-10-23 — Security Hardening and Senior Architecture Overhaul
+## [1.8.0] - 2026-10-23 — Pix Mascot, Custom Notifications, Offline Chess Bot & Security Hardening
 
 ### ⬆️ Upgrading
 Install 1.8.0 over 1.7.2 (or any version from 1.2.0): 100% backward compatible. All existing quests, streaks, hero stats, and Deen data are preserved.
+
+### ♟️ Offline Chess Bot & Performance Optimizations
+- **Offline Practice Bot ("Pix AI")**:
+  - Play offline chess solo anytime against Pix AI via the new "Play vs Bot" button in the Study Party Chess Tab.
+  - Fast heuristic evaluation, checkmate detection, hanging piece protection, and a realistic ~400ms thinking delay.
+  - Complete local game lifecycle: instant optimistic piece moves, draw offers, resignations, and rematches.
+- **200 Starting Rating (Pawn Tier)**:
+  - Standardized chess ladder starting points to 200 Int rating with integer-based delta calculations.
+- **Zero-Latency Chess & Touch Optimization**:
+  - Eliminated redundant network roundtrips on move dispatch for instant optimistic moves.
+  - Clock ticking state updates scoped strictly to clock components, eliminating unnecessary 10 Hz board recompositions.
+
+### 👾 Animated Pix Mascot & Notification Engine
+- **Animated Pix Mascot (`PqMascot`)**:
+  - 24×24 layered vector grid mascot supporting both `Comic` and `Pixel` aesthetics.
+  - 13 reactive moods (`Happy`, `Celebrate`, `LevelUp`, `OnFire`, `Worried`, `Sad`, `Sleepy`, `Focus`, etc.) with real-time micro-animations across the Splash screen, Home header, empty day cards, and level-up celebrations.
+- **Moody Launcher App Icons (`MoodyIcon`)**:
+  - Android activity-aliases dynamically switching the device home screen icon based on player streak and habit states.
+- **Custom Comic Card Notifications (`PqNotify`)**:
+  - RemoteViews comic cards with kickers, headers, skin-adaptive backings (`Gold`, `Paper`, `Sky`), and high-DPI mood bitmaps.
+  - 10 categorized notification channels, lock-screen privacy guards, and inline action receivers.
 
 ### 🔒 Security Hardening (Phase S: S001–S070)
 - **Supabase Backend Protection**:
