@@ -180,10 +180,7 @@ class ChessSessionViewModel @Inject constructor(
                         apply(event.game, if (event.game.ply == moves.size) moves else refreshMoves(moves, event.game))
                         event.move?.let { _events.tryEmit(ChessSessionEvent.Moved(it, mine = event.game.colourOf(me) == colourOfPly(it.ply))) }
                     }
-                    is GameEvent.Watchers -> {
-                        val spectatorCount = maxOf(0, event.count - 2)
-                        _state.update { it.copy(watchers = spectatorCount) }
-                    }
+                    is GameEvent.Watchers -> _state.update { it.copy(watchers = event.count) }
                     GameEvent.Disconnected -> _state.update { it.copy(phase = SessionPhase.DISCONNECTED) }
                 }
             }

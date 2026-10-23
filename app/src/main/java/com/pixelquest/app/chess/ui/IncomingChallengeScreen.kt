@@ -1,21 +1,19 @@
 package com.pixelquest.app.chess.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +39,6 @@ import com.pixelquest.app.party.data.PartyRepository
 import com.pixelquest.app.ui.components.InitialAvatar
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
-import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqTopBar
 import com.pixelquest.app.ui.components.comic
 import com.pixelquest.app.ui.theme.PqColors
@@ -69,7 +66,7 @@ data class IncomingState(
     /** The player's own username, for their side of the clash (C08). */
     val myName: String? = null,
     /** Reported (J172): said so on the card. */
-    val reported: Boolean = false
+    val reported: Boolean = false,
 )
 
 /** A challenge to the player (J151), loaded by its id, answered once. */
@@ -79,7 +76,7 @@ class IncomingChallengeViewModel @Inject constructor(
     private val challenges: ChessChallengeRepository,
     private val ratings: ChessRatingRepository,
     private val party: PartyRepository,
-    private val account: com.pixelquest.app.darood.data.remote.DaroodAccount = com.pixelquest.app.darood.data.remote.DaroodAccount { null }
+    private val account: com.pixelquest.app.darood.data.remote.DaroodAccount = com.pixelquest.app.darood.data.remote.DaroodAccount { null },
 ) : ViewModel() {
     private val id: String = savedStateHandle[ARG] ?: ""
     private val _state = MutableStateFlow(IncomingState())
@@ -185,9 +182,8 @@ fun IncomingChallengeScreen(
     onNavigateBack: () -> Unit,
     clock: () -> Instant = Instant::now,
     onReport: () -> Unit = {},
-    onBlock: () -> Unit = {}
+    onBlock: () -> Unit = {},
 ) {
-    var asking by remember { mutableStateOf<String?>(null) }
     // Scrolls, for small phones and large text.
     Column(Modifier.fillMaxSize().background(PqColors.Ground).verticalScroll(rememberScrollState()).testTag(IncomingTags.SCREEN)) {
         PqTopBar(stringResource(R.string.chess_incoming_title), onBack = onNavigateBack, modifier = Modifier.padding(horizontal = PqDimens.ScreenPad).padding(top = 8.dp))
@@ -207,12 +203,12 @@ fun IncomingChallengeScreen(
                 .padding(PqDimens.ScreenPad)
                 .fillMaxWidth()
                 .comic(bg = PqColors.Paper, radius = PqDimens.RadiusLg, shadow = PqDimens.Shadow)
-                .padding(18.dp)
+                .padding(18.dp),
         ) {
             // The two players slide in and clash (C08).
             com.pixelquest.app.ui.motion.ChallengeClash(
                 me = { InitialAvatar(state.myName ?: "?", 64.dp, ChessLook.avatar(2)) },
-                them = { InitialAvatar(name, 64.dp, ChessLook.avatar(0)) }
+                them = { InitialAvatar(name, 64.dp, ChessLook.avatar(0)) },
             )
             Text(text = stringResource(R.string.chess_incoming_from, name).uppercase(), style = PqType.CardTitle, textAlign = TextAlign.Center, modifier = Modifier.semantics { heading() })
             val colour = when (challenge.colour) {
@@ -224,9 +220,9 @@ fun IncomingChallengeScreen(
                 text = listOf(
                     stringResource(R.string.chess_minutes, challenge.timeControl.seconds / 60),
                     stringResource(if (challenge.rated) R.string.chess_rated else R.string.chess_friendly),
-                    colour
+                    colour,
                 ).joinToString(" · "),
-                style = PqType.MetaStrong
+                style = PqType.MetaStrong,
             )
             state.record?.let {
                 Text(text = stringResource(R.string.chess_challenge_record, it.myWins, it.draws, it.theirWins), style = PqType.Body)
@@ -234,7 +230,7 @@ fun IncomingChallengeScreen(
             Text(
                 text = if (open) stringResource(R.string.chess_incoming_left, com.pixelquest.app.chess.domain.ChessClock.format(left)) else stringResource(R.string.chess_problem_expired),
                 style = PqType.BodyStrong,
-                modifier = Modifier.testTag(IncomingTags.COUNTDOWN)
+                modifier = Modifier.testTag(IncomingTags.COUNTDOWN),
             )
             // How much of its 10 minutes is left, draining (C08).
             val total = (challenge.expiresAt.toEpochMilli() - challenge.createdAt.toEpochMilli()).coerceAtLeast(1)
@@ -244,32 +240,6 @@ fun IncomingChallengeScreen(
                 PqButton(stringResource(R.string.chess_decline), onClick = { onAnswer(false) }, style = PqButtonStyle.Secondary, enabled = open && !state.answering, modifier = Modifier.weight(1f).testTag(IncomingTags.DECLINE))
                 PqButton(stringResource(R.string.chess_accept), onClick = { onAnswer(true) }, enabled = open && !state.answering, modifier = Modifier.weight(1f).testTag(IncomingTags.ACCEPT))
             }
-            // Report or block the sender (J172), each asked first.
-            if (state.reported) {
-                Text(stringResource(R.string.chess_reported), style = PqType.Meta, textAlign = TextAlign.Center, modifier = Modifier.testTag(IncomingTags.REPORTED))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                if (!state.reported) {
-                    PqButton(stringResource(R.string.chess_report), onClick = { asking = IncomingTags.REPORT }, style = PqButtonStyle.Secondary, height = 40.dp, modifier = Modifier.weight(1f).testTag(IncomingTags.REPORT))
-                }
-                PqButton(stringResource(R.string.chess_block, name), onClick = { asking = IncomingTags.BLOCK }, style = PqButtonStyle.Secondary, enabled = !state.answering, height = 40.dp, modifier = Modifier.weight(1f).testTag(IncomingTags.BLOCK))
-            }
-        }
-        when (asking) {
-            IncomingTags.REPORT -> PqConfirmDialog(
-                title = stringResource(R.string.chess_report_title),
-                message = stringResource(R.string.chess_report_message),
-                confirm = stringResource(R.string.chess_report),
-                onConfirm = { asking = null; onReport() },
-                onDismiss = { asking = null }
-            )
-            IncomingTags.BLOCK -> PqConfirmDialog(
-                title = stringResource(R.string.chess_block_title, name),
-                message = stringResource(R.string.chess_block_message),
-                confirm = stringResource(R.string.chess_block_confirm),
-                onConfirm = { asking = null; onBlock() },
-                onDismiss = { asking = null }
-            )
         }
     }
 }

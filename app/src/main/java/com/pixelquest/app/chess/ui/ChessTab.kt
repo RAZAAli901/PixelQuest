@@ -61,7 +61,7 @@ data class ChessTabActions(
     val onWatch: (String) -> Unit = {},
     val onBoardTime: (TimeControl?) -> Unit = {},
     /** A ladder row's player: the record against them (J157). */
-    val onOpenRival: (String) -> Unit = {}
+    val onOpenRival: (String) -> Unit = {},
 )
 
 /**
@@ -76,14 +76,17 @@ fun ChessTab(state: ChessPartyState, actions: ChessTabActions) {
     LazyColumn(
         contentPadding = PaddingValues(start = PqDimens.ScreenPad, top = 12.dp, end = PqDimens.ScreenPad, bottom = 40.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxSize().testTag(ChessTabTags.TAB)
+        modifier = Modifier.fillMaxSize().testTag(ChessTabTags.TAB),
     ) {
         item(key = "challenge") {
             PqButton(
                 text = stringResource(R.string.chess_challenge_title),
-                onClick = { sheetFor = null; sheetOpen = true },
+                onClick = {
+                    sheetFor = null
+                    sheetOpen = true
+                },
                 icon = Icons.Rounded.SportsEsports,
-                modifier = Modifier.fillMaxWidth().testTag(ChessTabTags.CHALLENGE)
+                modifier = Modifier.fillMaxWidth().testTag(ChessTabTags.CHALLENGE),
             )
         }
         val waiting = state.challenges.filter { it.toUser == state.me || it.fromUser == state.me || it.toUser == null }
@@ -108,11 +111,15 @@ fun ChessTab(state: ChessPartyState, actions: ChessTabActions) {
                 selected = state.boardTimeControl,
                 label = { tc -> if (tc == null) stringResource(R.string.chess_board_best) else stringResource(R.string.chess_minutes, tc.seconds / 60) },
                 tag = { tc -> ChessTabTags.filter(tc) },
-                onSelect = actions.onBoardTime
+                onSelect = actions.onBoardTime,
             )
         }
         item(key = "board") {
-            Ladder(state.leaderboard, state, onChallenge = { sheetFor = it; sheetOpen = true; actions.onPick(it) }, onOpen = actions.onOpenRival)
+            Ladder(state.leaderboard, state, onChallenge = {
+                sheetFor = it
+                sheetOpen = true
+                actions.onPick(it)
+            }, onOpen = actions.onOpenRival)
         }
     }
     if (sheetOpen) {
@@ -124,14 +131,14 @@ fun ChessTab(state: ChessPartyState, actions: ChessTabActions) {
                 actions.onChallenge(to, tc, colour, rated)
             },
             onDismiss = { sheetOpen = false },
-            initialOpponent = sheetFor
+            initialOpponent = sheetFor,
         )
     }
 }
 
 @Composable
 private fun ChallengeRow(challenge: Challenge, state: ChessPartyState, onAnswer: (String, Boolean) -> Unit) {
-    val mine = challenge.fromUser == state.me
+    val mine = challenge.fromUser.equals(state.me, ignoreCase = true)
     val from = state.names[challenge.fromUser]?.let { "@$it" } ?: stringResource(R.string.darood_someone)
     val to = challenge.toUser?.let { id -> state.names[id]?.let { "@$it" } } ?: stringResource(R.string.chess_challenge_room)
     Column(
@@ -140,16 +147,16 @@ private fun ChallengeRow(challenge: Challenge, state: ChessPartyState, onAnswer:
             .fillMaxWidth()
             .testTag(ChessTabTags.challenge(challenge.id))
             .comic(radius = PqDimens.Radius, border = PqDimens.BorderThin, shadow = 0.dp)
-            .padding(12.dp)
+            .padding(12.dp),
     ) {
         Text(
             text = if (mine) stringResource(R.string.chess_tab_mine, to) else stringResource(R.string.chess_tab_theirs, from),
-            style = PqType.BodyStrong
+            style = PqType.BodyStrong,
         )
         Text(
             text = stringResource(R.string.chess_minutes, challenge.timeControl.seconds / 60) + " · " +
                 stringResource(if (challenge.rated) R.string.chess_rated else R.string.chess_friendly),
-            style = PqType.Meta
+            style = PqType.Meta,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             if (mine) {
@@ -184,7 +191,7 @@ private fun Ladder(rows: List<Rating>, state: ChessPartyState, onChallenge: (Str
                     .testTag(ChessTabTags.row(row.userId))
                     .then(if (me) Modifier.comic(bg = PqColors.Sky, radius = 0.dp, border = 0.dp, shadow = 0.dp) else Modifier)
                     .then(if (me) Modifier else Modifier.clickable(onClickLabel = stringResource(R.string.chess_h2h_title)) { onOpen(row.userId) })
-                    .padding(horizontal = 12.dp, vertical = 10.dp)
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
             ) {
                 Text(text = place.toString(), style = PqType.Number)
                 InitialAvatar(name.removePrefix("@"), 32.dp, ChessLook.avatar(i))

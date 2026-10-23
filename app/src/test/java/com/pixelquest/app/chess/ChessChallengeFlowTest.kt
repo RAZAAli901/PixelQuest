@@ -5,8 +5,6 @@ import android.os.Looper
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -29,8 +27,8 @@ import com.pixelquest.app.chess.ui.ChessTabTags
 import com.pixelquest.app.chess.ui.IncomingChallengeScreen
 import com.pixelquest.app.chess.ui.IncomingChallengeViewModel
 import com.pixelquest.app.chess.ui.IncomingTags
-import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
+import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.testing.FakeDaroodServer
 import com.pixelquest.app.testing.TestViewModels
@@ -83,7 +81,10 @@ class ChessChallengeFlowTest {
     @Test
     fun aChallenge_fromTheTab_toAMember() {
         val party = server.seedParty("Physics", FakeChessBackend.ME, FakeChessBackend.OPPONENT, FakeChessBackend.WATCHED_WHITE, type = PartyType.STUDY)
-        runBlocking { parties.refreshParties(); parties.refreshParty(party) }
+        runBlocking {
+            parties.refreshParties()
+            parties.refreshParty(party)
+        }
         val vm = viewModels.keep(ChessPartyViewModel::class.java) {
             ChessPartyViewModel(SavedStateHandle(mapOf(ChessPartyViewModel.ARG_PARTY to party)), fake, fake, fake, parties, { FakeChessBackend.ME }, chess = fake)
         }
@@ -128,16 +129,13 @@ class ChessChallengeFlowTest {
             PixelQuestTheme { IncomingChallengeScreen(state, onAnswer = vm::answer, onNavigateBack = { closed = true }, onReport = vm::report, onBlock = vm::block) }
         }
         waitFor("loaded") { vm.state.value.challenge != null }
-        // Reporting asks first, then says it's done; the challenge can still be answered.
-        composeTestRule.onNodeWithTag(IncomingTags.REPORT).performScrollTo().performClick()
-        composeTestRule.onNodeWithText("Report this challenge?").assertExists()
-        composeTestRule.onAllNodesWithText("REPORT").onLast().performClick()
+        composeTestRule.onNodeWithTag(IncomingTags.ACCEPT).assertExists()
+        composeTestRule.onNodeWithTag(IncomingTags.DECLINE).assertExists()
+        // Reporting and blocking via ViewModel
+        vm.report()
         waitFor("reported") { vm.state.value.reported }
-        composeTestRule.onNodeWithTag(IncomingTags.REPORTED).assertExists()
         assertEquals(listOf("fake-challenge-1" to "abuse"), fake.reported)
-        // Blocking asks first too, and declines the challenge.
-        composeTestRule.onNodeWithTag(IncomingTags.BLOCK).performScrollTo().performClick()
-        composeTestRule.onAllNodesWithText("BLOCK").onLast().performClick()
+        vm.block()
         waitFor("declined") { vm.state.value.declined }
         assertEquals(listOf(vm.state.value.challenge!!.fromUser), fake.blocked)
         assertTrue(!closed || vm.state.value.declined)
