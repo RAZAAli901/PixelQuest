@@ -2,7 +2,7 @@
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
 [![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
-[![Version](https://img.shields.io/badge/Release-v1.7.2-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.7.2)
+[![Version](https://img.shields.io/badge/Release-v1.8.0-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.0)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 ![PixelQuest banner: Home and Deen in the Comic skin, Quests and Hero in the Pixel skin](docs/screenshots/banner.png)
@@ -17,7 +17,7 @@ Built with an offline-first **Clean Architecture** (MVI/MVVM + UDF), it integrat
 
 Download the latest signed release APK onto your Android device:
 
-👉 **[📥 Direct Download app-release.apk (v1.7.2)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.7.2/app-release.apk)** 👈
+👉 **[📥 Direct Download app-release.apk (v1.8.0)](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.0/app-release.apk)** 👈
 
 Or browse releases and checksums on the **[📦 GitHub Releases Page](https://github.com/RAZAAli901/PixelQuest/releases)**.
 
@@ -101,10 +101,10 @@ For detailed design rationale, see the [Architecture Decision Records (ADRs)](#-
 - **Deen Hub (Spiritual Lifestyle)**:
   - **Offline Namaz Tracker**: Accurate prayer timetable calculated completely offline on-device based on astronomical coordinates, with start-of-prayer notifications and optional XP rewards.
   - **Tanzil Holy Quran**: Embedded Uthmani Arabic scripture and Saheeh International translation, featuring instant search, juz navigation, bookmarks, and sepia reader themes.
-  - **Darood Counting Parties**: Real-time collaborative counting rooms for friends with live progress sync and weekly milestone leaderboards.
+  - **Darood Counting Parties**: Real-time collaborative counting rooms for friends with live progress sync, individual share breakdowns, goal milestones, and weekly ranking summaries.
 - **Study Parties & Real-time Chess**:
   - Collaborative group checklists, study timers, file attachments (up to 20 MB), and group reminders.
-  - Server-refereed live chess with 1 to 10 minute blitz clocks, ELO-inspired ratings, ladder ranks, and spectator mode.
+  - **Server-Refereed Live Chess**: 1 to 10 minute blitz clocks, ELO-inspired ratings, ladder ranks, direct board routing on challenge and rematch acceptance, match exit protection guard (`LeaveGameGuard`), clean Accept/Decline challenge sheets, and live spectator presence tracking.
 - **Simple Mode**: One-tap toggle that strips away game mechanics (XP, levels, ranks) for a minimalist habit checklist experience.
 - **Versioned Backup & Restore**: Export and import complete encrypted JSON backups across devices.
 
@@ -118,11 +118,18 @@ PixelQuest/
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/com/pixelquest/app/
-│   │   │   │   ├── audio/              # Sound effects and feedback manager
+│   │   │   │   ├── audio/              # Sound effects and haptic feedback manager
+│   │   │   │   ├── auth/               # Account authentication and cloud profiles
+│   │   │   │   ├── chess/              # Real-time chess engine, game session, rules & UI
+│   │   │   │   ├── darood/             # Darood counting parties, goals & weekly rankings
 │   │   │   │   ├── data/               # Room entities, DAOs, repositories, DTO mappers
 │   │   │   │   ├── di/                 # Dagger Hilt dependency injection modules
 │   │   │   │   ├── domain/             # Pure business models, use cases, repository contracts
-│   │   │   │   ├── ui/                 # Jetpack Compose screens, components, themes, navigation
+│   │   │   │   ├── namaz/              # Offline astronomical prayer timing engine
+│   │   │   │   ├── party/              # Collaborative party base architecture and sync
+│   │   │   │   ├── quran/              # Scripture reader, Tanzil text engine & search
+│   │   │   │   ├── study/              # Study parties, shared task lists & timer rooms
+│   │   │   │   ├── ui/                 # Jetpack Compose screens, components, themes & navigation
 │   │   │   │   └── worker/             # WorkManager sync and notification tasks
 │   │   │   ├── baseline-prof.txt       # ART ahead-of-time pre-compilation rules
 │   │   │   └── res/                    # Vector drawables, fonts, strings, layouts
