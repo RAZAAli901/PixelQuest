@@ -98,7 +98,7 @@ fun DeenScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 DeenTile(Icons.Rounded.MenuBook, "Quran", state.quran?.let { "Continue ${it.surahName} · ayah ${it.ayah}" } ?: "Read in Arabic and English",
                     PqColors.Lilac, state.quran?.progress, onOpenQuran, Modifier.weight(1f))
-                DeenTile(Icons.Rounded.Groups, "Darood Party", "Count Darood together with friends", PqColors.Amber, null, onOpenDarood, Modifier.weight(1f))
+                DeenTile(Icons.Rounded.Groups, "Darood Circle", "Count Darood together with friends", PqColors.Amber, null, onOpenDarood, Modifier.weight(1f))
             }
         }
     }

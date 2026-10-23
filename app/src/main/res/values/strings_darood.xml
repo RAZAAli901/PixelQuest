@@ -10,11 +10,11 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- The feature's home screen, and its card on the Islamic hub. -->
-    <string name="darood_title">Darood Party</string>
+    <string name="darood_title">Darood Circle</string>
     <string name="darood_empty_title">No parties yet</string>
     <string name="darood_empty_body">Start a party with 2 to 30 friends, post how many Darood you read each day, and reach a goal together. Or wait for a friend to invite you by your username.</string>
     <!-- Signed out: parties need an account. The button opens the usual sign-in (the Account screen). -->
-    <string name="darood_signed_out_body">Darood Parties are shared with friends, so they need an account. Sign in with Google or an emailed code.</string>
+    <string name="darood_signed_out_body">Darood Circles are shared with friends, so they need an account. Sign in with Google or an emailed code.</string>
     <string name="darood_sign_in">Sign in</string>
     <!-- The party list: one row per party. -->
     <plurals name="darood_members">
@@ -238,11 +238,11 @@
     <string name="darood_chat_empty">Nothing posted yet. The first number sent here starts the party\'s chat.</string>
     <!-- A username as shown on Hero's profile. -->
     <string name="darood_username_handle">@<xliff:g id="name" example="aria_k">%1$s</xliff:g></string>
-    <string name="darood_username_profile_label">Darood Party username</string>
+    <string name="darood_username_profile_label">Darood Circle username</string>
     <string name="darood_username_profile_change">Change your username</string>
     <!-- The username screen: claiming or changing the name others invite you by. -->
     <string name="darood_username_title">Your username</string>
-    <string name="darood_username_intro">Friends invite you to a Darood Party by your username. It isn\'t listed anywhere: share it with the people you want to read with.</string>
+    <string name="darood_username_intro">Friends invite you to a Darood Circle by your username. It isn\'t listed anywhere: share it with the people you want to read with.</string>
     <string name="darood_username_label">Username</string>
     <string name="darood_username_placeholder">e.g. aria_k</string>
     <string name="darood_username_rules">3 to 20 letters, numbers or _. You can change it once every 30 days.</string>

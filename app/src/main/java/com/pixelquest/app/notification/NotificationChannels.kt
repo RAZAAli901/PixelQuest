@@ -31,7 +31,7 @@ object NotificationChannels {
         val description: String,
         val importance: Importance,
         val sound: Boolean,
-        val vibration: Boolean
+        val vibration: Boolean,
     ) {
         REMINDERS(
             id = "pq_reminders",
@@ -39,7 +39,7 @@ object NotificationChannels {
             description = "Alerts at the time you set for each task",
             importance = Importance.HIGH,
             sound = true,
-            vibration = true
+            vibration = true,
         ),
         REMINDERS_SILENT(
             id = "pq_reminders_silent",
@@ -47,7 +47,7 @@ object NotificationChannels {
             description = "Task reminders that appear without sound or vibration",
             importance = Importance.LOW,
             sound = false,
-            vibration = false
+            vibration = false,
         ),
         MISSED(
             id = "pq_missed",
@@ -55,7 +55,7 @@ object NotificationChannels {
             description = "Tasks still open two hours after their time",
             importance = Importance.DEFAULT,
             sound = false,
-            vibration = true
+            vibration = true,
         ),
         PROGRESS(
             id = "pq_progress",
@@ -63,7 +63,7 @@ object NotificationChannels {
             description = "Streak-at-risk nudges and progress updates",
             importance = Importance.DEFAULT,
             sound = false,
-            vibration = false
+            vibration = false,
         ),
         COACH(
             id = "pq_coach",
@@ -71,15 +71,15 @@ object NotificationChannels {
             description = "Lets you know when a new AI Coach insight is ready (only if AI Coach is on)",
             importance = Importance.LOW,
             sound = false,
-            vibration = false
+            vibration = false,
         ),
         DAROOD(
             id = "pq_darood",
-            displayName = "Darood Party",
+            displayName = "Darood Circle",
             description = "A weekly note of the days you added Darood (only if you turn it on)",
             importance = Importance.LOW,
             sound = false,
-            vibration = false
+            vibration = false,
         ),
         STUDY(
             id = "pq_study",
@@ -87,7 +87,7 @@ object NotificationChannels {
             description = "Reminders of assignments and quizzes due, and the weekly summary if you turn it on",
             importance = Importance.DEFAULT,
             sound = true,
-            vibration = false
+            vibration = false,
         ),
         STUDY_REMINDERS(
             id = "pq_study_reminders",
@@ -95,7 +95,7 @@ object NotificationChannels {
             description = "Quizzes, exams and other reminders made in your study parties, at the times they set",
             importance = Importance.HIGH,
             sound = true,
-            vibration = true
+            vibration = true,
         ),
         STUDY_CHAT(
             id = "pq_study_chat",
@@ -103,7 +103,7 @@ object NotificationChannels {
             description = "New messages and files in your study parties' chats",
             importance = Importance.DEFAULT,
             sound = true,
-            vibration = true
+            vibration = true,
         ),
         CHESS(
             id = "pq_chess",
@@ -111,7 +111,7 @@ object NotificationChannels {
             description = "Challenges, accepted challenges and draw offers in your study parties",
             importance = Importance.HIGH,
             sound = true,
-            vibration = true
+            vibration = true,
         ),
         SYNC(
             id = "pq_sync",
@@ -119,8 +119,8 @@ object NotificationChannels {
             description = "Shown briefly while your stats sync to the leaderboard",
             importance = Importance.LOW,
             sound = false,
-            vibration = false
-        );
+            vibration = false,
+        ),
     }
 
     /** Reminder channel for the user's sound preference. */

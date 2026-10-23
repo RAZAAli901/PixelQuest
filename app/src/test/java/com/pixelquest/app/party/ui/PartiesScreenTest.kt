@@ -41,7 +41,7 @@ class PartiesScreenTest {
                     onSignIn = { opened += "sign in" },
                     onOpenParty = { opened += it.id },
                     onCreateParty = { opened += "create" },
-                    onAccept = { opened += "accept $it" }
+                    onAccept = { opened += "accept $it" },
                 )
             }
         }
@@ -82,7 +82,7 @@ class PartiesScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithText("You're invited to a Darood Party", useUnmergedTree = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("You're invited to a Darood Circle", useUnmergedTree = true).assertIsDisplayed()
         composeTestRule.onNodeWithText("You're invited to a Study party", useUnmergedTree = true).assertIsDisplayed()
     }
 

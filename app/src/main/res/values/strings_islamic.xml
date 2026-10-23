@@ -24,9 +24,9 @@
     <string name="pq_deen_quran_continue">Continue <xliff:g id="surah" example="Al-Baqara">%1$s</xliff:g> · ayah <xliff:g id="ayah" example="142">%2$d</xliff:g></string>
 
     <!-- What TalkBack says for a card, which is one button: its title, then its description. -->
-    <string name="islamic_card_spoken"><xliff:g id="title" example="Darood Party">%1$s</xliff:g>. <xliff:g id="description" example="Count Darood together with friends">%2$s</xliff:g></string>
+    <string name="islamic_card_spoken"><xliff:g id="title" example="Darood Circle">%1$s</xliff:g>. <xliff:g id="description" example="Count Darood together with friends">%2$s</xliff:g></string>
     <!-- The same with its badge, in words (islamic_namaz_badge, islamic_darood_badge). -->
-    <string name="islamic_card_spoken_badge"><xliff:g id="title" example="Darood Party">%1$s</xliff:g>. <xliff:g id="description" example="Count Darood together with friends">%2$s</xliff:g>. <xliff:g id="badge" example="1 invitation waiting">%3$s</xliff:g></string>
+    <string name="islamic_card_spoken_badge"><xliff:g id="title" example="Darood Circle">%1$s</xliff:g>. <xliff:g id="description" example="Count Darood together with friends">%2$s</xliff:g>. <xliff:g id="badge" example="1 invitation waiting">%3$s</xliff:g></string>
 
     <!-- A card after the items in debug builds only, where a new item will appear. -->
     <string name="islamic_coming_soon_title">More coming soon</string>

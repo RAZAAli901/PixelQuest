@@ -36,14 +36,24 @@ class IslamicHubAccessibilityTest {
 
     private val items = listOf(
         IslamicItem(
-            "namaz", R.string.namaz_title, R.string.islamic_namaz_description, IslamicIcon("🕌"), "islamic/namaz",
-            badgeCount = 2, badgeLabel = R.plurals.islamic_namaz_badge
+            "namaz",
+            R.string.namaz_title,
+            R.string.islamic_namaz_description,
+            IslamicIcon("🕌"),
+            "islamic/namaz",
+            badgeCount = 2,
+            badgeLabel = R.plurals.islamic_namaz_badge,
         ),
         IslamicItem(
-            "darood", R.string.darood_title, R.string.islamic_darood_description, IslamicIcon("📿"), "islamic/darood",
-            badgeCount = 1, badgeLabel = R.plurals.islamic_darood_badge
+            "darood",
+            R.string.darood_title,
+            R.string.islamic_darood_description,
+            IslamicIcon("📿"),
+            "islamic/darood",
+            badgeCount = 1,
+            badgeLabel = R.plurals.islamic_darood_badge,
         ),
-        IslamicItem("quran", R.string.quran_title, R.string.quran_description, IslamicIcon("📖"), "islamic/quran")
+        IslamicItem("quran", R.string.quran_title, R.string.quran_description, IslamicIcon("📖"), "islamic/quran"),
     )
 
     private fun show(fontScale: Float = 1f, simpleMode: Boolean = false) {
@@ -66,7 +76,7 @@ class IslamicHubAccessibilityTest {
         show()
 
         assertEquals("Namaz Tracker. Prayer times, reminders and your week. 2 prayers to mark", spoken("namaz"))
-        assertEquals("Darood Party. Count Darood together with friends. 1 invitation waiting", spoken("darood"))
+        assertEquals("Darood Circle. Count Darood together with friends. 1 invitation waiting", spoken("darood"))
         assertEquals("Quran. Read the Quran in Arabic and English", spoken("quran"))
 
         val darood = composeTestRule.onNodeWithTag(IslamicTestTags.card("darood")).fetchSemanticsNode()
