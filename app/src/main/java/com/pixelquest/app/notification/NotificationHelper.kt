@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.pixelquest.app.R
 
 object NotificationHelper {
 
@@ -22,13 +21,9 @@ object NotificationHelper {
         NotificationChannels.createAll(context)
     }
 
-    fun getReminderTitle(taskName: String, isSimpleMode: Boolean): String {
-        return if (isSimpleMode) "Time to do: $taskName" else "⚔️ Quest Time: $taskName"
-    }
+    fun getReminderTitle(taskName: String, isSimpleMode: Boolean): String = if (isSimpleMode) "Time to do: $taskName" else "⚔️ Quest Time: $taskName"
 
-    fun getReminderText(taskName: String, isSimpleMode: Boolean): String {
-        return if (isSimpleMode) "Time to complete: $taskName" else "Did you complete this quest today? Keep your streak!"
-    }
+    fun getReminderText(taskName: String, isSimpleMode: Boolean): String = if (isSimpleMode) "Time to complete: $taskName" else "Did you complete this quest today? Keep your streak!"
 
     fun buildTaskReminderNotification(
         context: Context,
@@ -42,9 +37,9 @@ object NotificationHelper {
         soundEnabled: Boolean = true,
         vibrationEnabled: Boolean = true,
         isSimpleMode: Boolean = false,
-        copy: NotificationCopy? = null
+        copy: NotificationCopy? = null,
     ): Notification {
-        val builder = PqNotifications.builder(context, NotificationChannels.reminderChannel(soundEnabled).id)
+        val builder = PqNotifications.builder(context, NotificationChannels.reminderChannel(soundEnabled).id, mood = com.pixelquest.app.mascot.PixMood.Focus)
             .setContentTitle(copy?.title ?: getReminderTitle(taskName, isSimpleMode))
             .setContentText(copy?.text ?: getReminderText(taskName, isSimpleMode))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -89,18 +84,14 @@ object NotificationHelper {
         return system.canUseFullScreenIntent()
     }
 
-    fun getMissedTaskTitle(taskName: String, isSimpleMode: Boolean): String {
-        return if (isSimpleMode) "Task Missed: $taskName" else "💔 Quest Missed: $taskName"
-    }
+    fun getMissedTaskTitle(taskName: String, isSimpleMode: Boolean): String = if (isSimpleMode) "Task Missed: $taskName" else "💔 Quest Missed: $taskName"
 
     // Missing one task doesn't always break the streak (perfect days use a percentage),
     // so the copy doesn't claim it did.
-    fun getMissedTaskText(taskName: String, isSimpleMode: Boolean): String {
-        return if (isSimpleMode) {
-            "$taskName was due earlier today. You can still log it in the app."
-        } else {
-            "$taskName slipped past its time. Log it now or start fresh tomorrow."
-        }
+    fun getMissedTaskText(taskName: String, isSimpleMode: Boolean): String = if (isSimpleMode) {
+        "$taskName was due earlier today. You can still log it in the app."
+    } else {
+        "$taskName slipped past its time. Log it now or start fresh tomorrow."
     }
 
     fun buildMissedTaskNotification(
@@ -111,9 +102,9 @@ object NotificationHelper {
         soundEnabled: Boolean = true,
         vibrationEnabled: Boolean = true,
         isSimpleMode: Boolean = false,
-        silent: Boolean = false
+        silent: Boolean = false,
     ): Notification {
-        val builder = PqNotifications.builder(context, NotificationChannels.Spec.MISSED.id)
+        val builder = PqNotifications.builder(context, NotificationChannels.Spec.MISSED.id, mood = com.pixelquest.app.mascot.PixMood.Worried)
             .setContentTitle(getMissedTaskTitle(taskName, isSimpleMode))
             .setContentText(getMissedTaskText(taskName, isSimpleMode))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Undo
+import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Download
@@ -122,6 +123,9 @@ fun SettingsScreen(
                     viewModel.setReminderSoundEnabled(it)
                 })
             }
+            SettingLink(Icons.Rounded.AutoAwesome, "Preview Pix notification", {
+                com.pixelquest.app.notification.PqNotifications.previewTestNotification(context)
+            })
             SettingLink(Icons.Rounded.Settings, "Android's notification settings", {
                 val intent = android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = android.net.Uri.fromParts("package", context.packageName, null)

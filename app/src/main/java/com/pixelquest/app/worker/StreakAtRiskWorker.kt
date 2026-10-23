@@ -1,6 +1,5 @@
 package com.pixelquest.app.worker
 
-import com.pixelquest.app.notification.PqNotifications
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -22,7 +21,7 @@ import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.notification.NotificationChannels
-import com.pixelquest.app.notification.NotificationHelper
+import com.pixelquest.app.notification.PqNotifications
 import com.pixelquest.app.util.AppClock
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -45,7 +44,7 @@ class StreakAtRiskWorker @AssistedInject constructor(
     private val taskRepository: TaskRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
     private val difficultySettingsRepository: DifficultySettingsRepository,
-    private val appClock: AppClock
+    private val appClock: AppClock,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -71,9 +70,9 @@ class StreakAtRiskWorker @AssistedInject constructor(
             Intent(applicationContext, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        val notification = PqNotifications.builder(applicationContext, NotificationChannels.Spec.PROGRESS.id)
+        val notification = PqNotifications.builder(applicationContext, NotificationChannels.Spec.PROGRESS.id, mood = com.pixelquest.app.mascot.PixMood.Worried)
             .setContentTitle(title)
             .setContentText(text)
             .setContentIntent(openApp)
@@ -84,7 +83,9 @@ class StreakAtRiskWorker @AssistedInject constructor(
                     applicationContext,
                     kicker = applicationContext.resources.getQuantityString(R.plurals.pq_notif_streak_kicker, streak, streak),
                     title = applicationContext.getString(if (simple) R.string.pq_notif_streak_title_simple else R.string.pq_notif_streak_title),
-                    body = text
+                    body = text,
+                    mood = com.pixelquest.app.mascot.PixMood.Worried,
+                    bg = PqNotifications.CardBg.Paper,
                 )
                 setStyle(NotificationCompat.DecoratedCustomViewStyle()).setCustomContentView(small).setCustomBigContentView(big)
             }

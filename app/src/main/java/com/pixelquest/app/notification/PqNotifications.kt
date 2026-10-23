@@ -1,24 +1,28 @@
 package com.pixelquest.app.notification
 
 import android.content.Context
-import android.widget.RemoteViews
 import android.view.View
+import android.widget.RemoteViews
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.pixelquest.app.R
 import com.pixelquest.app.data.repository.SettingsRepositoryImpl
+import com.pixelquest.app.mascot.PixMood
+import com.pixelquest.app.mascot.PqMascotBitmap
 import com.pixelquest.app.ui.theme.ComicSpec
 import com.pixelquest.app.ui.theme.PixelSpec
 import com.pixelquest.app.ui.theme.PqPalette
 import com.pixelquest.app.ui.theme.PqSkin
 
 /**
- * How every PixelQuest notification looks (UI v2, mocks 1D to 1F; docs/ui-v2.md): the PixelQuest
- * mark as its small icon, the player's skin's red as its accent, and for a moment worth a card (a
- * streak at risk) the comic card the design draws, in that skin. The channels stay
- * [NotificationChannels] and NamazChannels, so each player's settings for them are kept.
+ * How every PixelQuest notification looks: the PixelQuest mark as small icon, the player's skin's
+ * accent, the expressive Pix mascot in the appropriate mood (praying, focus, worried, celebrate, onfire),
+ * and rich comic cards with custom views.
  */
 object PqNotifications {
+
+    enum class CardBg { Gold, Paper, Sky }
 
     /** The PixelQuest mark, in white: Android tints it with [accent]. */
     val SMALL_ICON = R.drawable.ic_stat_pixelquest
@@ -30,14 +34,30 @@ object PqNotifications {
     fun accent(context: Context): Int = palette(context).primaryText.toArgb()
 
     /**
-     * A notification on [channelId] with PixelQuest's icon and accent. It is private (S047): when the
-     * phone hides sensitive content on the lock screen, it shows only [lockScreenVersion], never a
-     * quest's name, a prayer or a message. A notifier with its own wording sets its own public version.
+     * A notification on [channelId] with PixelQuest's icon, accent, and expressive Pix mascot [mood].
+     * It is private (S047): when the phone hides sensitive content on the lock screen, it shows only
+     * [lockScreenVersion], never a quest's name, a prayer or a message.
      */
-    fun builder(context: Context, channelId: String): NotificationCompat.Builder =
-        NotificationCompat.Builder(context, channelId).setSmallIcon(SMALL_ICON).setColor(accent(context))
+    fun builder(
+        context: Context,
+        channelId: String,
+        mood: PixMood = PixMood.Happy,
+    ): NotificationCompat.Builder {
+        val pixel = skin(context) == PqSkin.Pixel
+        val largePx = try {
+            context.resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
+        } catch (_: Exception) {
+            96
+        }
+        val mascotBitmap = PqMascotBitmap.largeIcon(mood, largePx, pixel)
+
+        return NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(SMALL_ICON)
+            .setColor(accent(context))
+            .setLargeIcon(mascotBitmap)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setPublicVersion(lockScreenVersion(context, channelId))
+    }
 
     /** What a locked phone shows instead: a generic title, no text. */
     fun lockScreenVersion(context: Context, channelId: String): android.app.Notification =
@@ -46,30 +66,77 @@ object PqNotifications {
             .build()
 
     /**
-     * The comic card (mocks 1D and 1F), small and expanded, for [NotificationCompat.DecoratedCustomViewStyle]:
-     * a [kicker] over a big [title], then [body], and a bar at [progress] percent if there is one.
+     * The rich comic card with the Pix mascot, small and expanded, for [NotificationCompat.DecoratedCustomViewStyle]:
+     * a [kicker] over a big [title], then [body], the [mood] mascot graphic, and an optional [progress] bar.
      */
-    fun card(context: Context, kicker: String, title: String, body: String, progress: Int? = null): Pair<RemoteViews, RemoteViews> {
+    fun card(
+        context: Context,
+        kicker: String,
+        title: String,
+        body: String,
+        progress: Int? = null,
+        mood: PixMood = PixMood.Celebrate,
+        bg: CardBg = CardBg.Gold,
+    ): Pair<RemoteViews, RemoteViews> {
         val pixel = skin(context) == PqSkin.Pixel
-        val primary = palette(context).primary.toArgb()
-        val big = RemoteViews(context.packageName, R.layout.notif_pq_big).apply {
-            setTextViewText(R.id.pq_kicker, kicker)
-            setTextViewText(R.id.pq_title, title)
-            setTextViewText(R.id.pq_body, body)
-            if (pixel) {
-                setInt(R.id.pq_card, "setBackgroundResource", R.drawable.notif_card_bg_pixel)
-                setTextColor(R.id.pq_title, primary)
+        val bgRes = when (bg) {
+            CardBg.Gold -> if (pixel) R.drawable.pix_card_gold_pixel else R.drawable.pix_card_gold
+            CardBg.Paper -> if (pixel) R.drawable.pix_card_paper_pixel else R.drawable.pix_card_paper
+            CardBg.Sky -> if (pixel) R.drawable.pix_card_sky_pixel else R.drawable.pix_card_sky
+        }
+        val density = try {
+            context.resources.displayMetrics.density
+        } catch (_: Exception) {
+            2.5f
+        }
+        val mascotBitmap = PqMascotBitmap.render(mood, (72 * density).toInt(), pixel)
+
+        fun views() = RemoteViews(context.packageName, R.layout.notif_pix_card).apply {
+            setInt(R.id.pix_card, "setBackgroundResource", bgRes)
+            setTextViewText(R.id.pix_kicker, kicker)
+            setTextViewText(R.id.pix_title, title)
+            setTextViewText(R.id.pix_body, body)
+            if (pixel || bg != CardBg.Gold) {
+                setTextColor(R.id.pix_title, if (pixel) 0xFF2B2622.toInt() else 0xFF161412.toInt())
             }
+            setImageViewBitmap(R.id.pix_mascot, mascotBitmap)
             if (progress != null) {
-                setViewVisibility(R.id.pq_progress, View.VISIBLE)
-                setProgressBar(R.id.pq_progress, 100, progress, false)
+                setViewVisibility(R.id.pix_progress, View.VISIBLE)
+                setProgressBar(R.id.pix_progress, 100, progress, false)
+            } else {
+                setViewVisibility(R.id.pix_progress, View.GONE)
             }
         }
-        val small = RemoteViews(context.packageName, R.layout.notif_pq_small).apply {
-            setTextViewText(R.id.pq_title, title)
-            setTextViewText(R.id.pq_body, body)
+        val small = views().apply {
+            setViewVisibility(R.id.pix_body, View.GONE)
+            setViewVisibility(R.id.pix_progress, View.GONE)
         }
-        return small to big
+        return small to views()
+    }
+
+    /** Triggers an immediate test notification with Pix mascot and rich comic card for previewing. */
+    fun previewTestNotification(context: Context) {
+        val (small, big) = card(
+            context,
+            kicker = "PIX MASCOT · DUOLINGO STYLE",
+            title = "STREAK ON FIRE!",
+            body = "Pix is celebrating your 7-day streak! Keep it going today.",
+            mood = PixMood.OnFire,
+            bg = CardBg.Gold,
+            progress = 70,
+        )
+        val notif = builder(context, NotificationChannels.Spec.PROGRESS.id, mood = PixMood.OnFire)
+            .setContentTitle("Streak on fire! 7 days")
+            .setContentText("Pix is celebrating your 7-day streak!")
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(small)
+            .setCustomBigContentView(big)
+            .setAutoCancel(true)
+            .build()
+        try {
+            NotificationManagerCompat.from(context).notify(999_888, notif)
+        } catch (_: SecurityException) {
+        }
     }
 
     /** Settings > Look, as stored: a notification is often built when no screen is open. */

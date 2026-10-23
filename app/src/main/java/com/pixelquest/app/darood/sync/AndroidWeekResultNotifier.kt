@@ -20,20 +20,31 @@ class AndroidWeekResultNotifier @Inject constructor(@ApplicationContext private 
 
     override fun post(party: Party, week: WeekResult, me: String, names: Map<String, String?>) {
         val open = PendingIntent.getActivity(
-            context, party.id.hashCode(),
+            context,
+            party.id.hashCode(),
             Intent(context, MainActivity::class.java)
                 .putExtra(MainActivity.EXTRA_OPEN_ROUTE, Screen.DaroodWeek.createRoute(party.id))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val title = context.getString(R.string.darood_week_notif_title, party.name)
         val line = WeekRankingText.line(context, week, me) ?: return
+        val (small, big) = PqNotifications.card(
+            context,
+            kicker = "WEEKLY RANKING · DAROOD",
+            title = party.name,
+            body = line,
+            mood = com.pixelquest.app.mascot.PixMood.Celebrate,
+            bg = PqNotifications.CardBg.Sky,
+        )
         // On the lock screen, only that the week's in: the places are the party's.
-        val hidden = PqNotifications.builder(context, NotificationChannels.Spec.DAROOD.id).setContentTitle(title).build()
-        val notification = PqNotifications.builder(context, NotificationChannels.Spec.DAROOD.id)
+        val hidden = PqNotifications.builder(context, NotificationChannels.Spec.DAROOD.id, mood = com.pixelquest.app.mascot.PixMood.Celebrate).setContentTitle(title).build()
+        val notification = PqNotifications.builder(context, NotificationChannels.Spec.DAROOD.id, mood = com.pixelquest.app.mascot.PixMood.Celebrate)
             .setContentTitle(title)
             .setContentText(line)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(WeekRankingText.expanded(context, week, me, names)))
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(small)
+            .setCustomBigContentView(big)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setPublicVersion(hidden)
             .setContentIntent(open)

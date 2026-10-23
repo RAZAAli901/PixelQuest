@@ -1,6 +1,5 @@
 package com.pixelquest.app.namaz
 
-import com.pixelquest.app.notification.PqNotifications
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
@@ -11,10 +10,10 @@ import androidx.core.app.NotificationManagerCompat
 import com.pixelquest.app.MainActivity
 import com.pixelquest.app.R
 import com.pixelquest.app.domain.namaz.NamazAlarm
+import com.pixelquest.app.domain.namaz.NamazSound
 import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerMoment
-import com.pixelquest.app.domain.namaz.NamazSound
-import com.pixelquest.app.notification.NotificationHelper
+import com.pixelquest.app.notification.PqNotifications
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.screens.namaz.prayerTimeFormatter
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -40,7 +39,7 @@ data class NamazReminder(
     val minutesToStart: Int = 0,
     val next: PrayerMoment? = null,
     val sound: NamazSound = NamazSound.SYSTEM,
-    val asAlarm: Boolean = false
+    val asAlarm: Boolean = false,
 ) {
     /** One notification per prayer and day: a snooze, a nudge or a second alarm replaces it, not stacks. */
     val notificationId: Int get() = NamazAlarm.requestCode(NamazAlarm.Kind.REMINDER, date, prayer)
@@ -59,7 +58,7 @@ interface NamazNotifier {
 
 @Singleton
 class AndroidNamazNotifier @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
 ) : NamazNotifier {
 
     /**
@@ -89,9 +88,24 @@ class AndroidNamazNotifier @Inject constructor(
         } else {
             context.getString(R.string.namaz_notification_title, name)
         }
-        val builder = PqNotifications.builder(context, NamazChannels.reminderChannel(reminder.sound, reminder.asAlarm))
+        val (small, big) = PqNotifications.card(
+            context,
+            kicker = if (early) "NAMAZ SOON" else "TIME FOR PRAYER",
+            title = title,
+            body = text,
+            mood = com.pixelquest.app.mascot.PixMood.Praying,
+            bg = PqNotifications.CardBg.Gold,
+        )
+        val builder = PqNotifications.builder(
+            context,
+            NamazChannels.reminderChannel(reminder.sound, reminder.asAlarm),
+            mood = com.pixelquest.app.mascot.PixMood.Praying,
+        )
             .setContentTitle(title)
             .setContentText(text)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(small)
+            .setCustomBigContentView(big)
             .setContentIntent(openNamaz())
         if (!early) builder.addAction(0, context.getString(R.string.namaz_action_prayed), action(NamazAction.PRAYED, reminder))
         return builder
@@ -112,9 +126,21 @@ class AndroidNamazNotifier @Inject constructor(
     private fun nudge(reminder: NamazReminder): Notification {
         val name = context.getString(reminder.prayer.displayName)
         val text = reminder.next?.let { context.getString(R.string.namaz_nudge_text, context.getString(it.prayer.displayName), it.time.format(timeFormat)) }
-        return PqNotifications.builder(context, NamazChannels.NUDGE)
-            .setContentTitle(context.getString(R.string.namaz_nudge_title, name))
+        val title = context.getString(R.string.namaz_nudge_title, name)
+        val (small, big) = PqNotifications.card(
+            context,
+            kicker = "PRAYER NUDGE",
+            title = title,
+            body = text ?: "",
+            mood = com.pixelquest.app.mascot.PixMood.Praying,
+            bg = PqNotifications.CardBg.Paper,
+        )
+        return PqNotifications.builder(context, NamazChannels.NUDGE, mood = com.pixelquest.app.mascot.PixMood.Praying)
+            .setContentTitle(title)
             .setContentText(text)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(small)
+            .setCustomBigContentView(big)
             .setContentIntent(openNamaz())
             .addAction(0, context.getString(R.string.namaz_action_prayed), action(NamazAction.PRAYED, reminder))
             .addAction(0, context.getString(R.string.namaz_action_dismiss), action(NamazAction.DISMISS, reminder))
@@ -147,7 +173,7 @@ class AndroidNamazNotifier @Inject constructor(
             .setAction(action.action)
             .putExtra(NamazAlarmScheduler.EXTRA_DATE, reminder.date.toEpochDay())
             .putExtra(NamazAlarmScheduler.EXTRA_PRAYER, reminder.prayer.name),
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
 
     /** Opens the app on the Namaz screen (MainActivity.EXTRA_OPEN_ROUTE). */
@@ -157,7 +183,7 @@ class AndroidNamazNotifier @Inject constructor(
         Intent(context, MainActivity::class.java)
             .putExtra(MainActivity.EXTRA_OPEN_ROUTE, Screen.Namaz.route)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
 
     private companion object {
