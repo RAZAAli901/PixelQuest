@@ -20,6 +20,8 @@ object NotificationAsk {
     private const val PREFS = "pixelquest_permissions"
     private const val KEY_ASKED = "asked_post_notifications"
 
+    private const val KEY_BANNER_DISMISSED = "notifications_banner_dismissed"
+
     /** Android 13 and up still need the player's yes to post notifications. */
     fun needed(context: Context): Boolean =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -29,6 +31,13 @@ object NotificationAsk {
 
     fun markAsked(context: Context) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_ASKED, true).apply()
+    }
+
+    fun isBannerDismissed(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_BANNER_DISMISSED, false)
+
+    fun setBannerDismissed(context: Context, dismissed: Boolean) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_BANNER_DISMISSED, dismissed).apply()
     }
 }
 

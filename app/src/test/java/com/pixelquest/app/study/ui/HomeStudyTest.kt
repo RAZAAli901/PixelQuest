@@ -8,8 +8,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
+import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.study.data.StudyRepositoryImpl
 import com.pixelquest.app.testing.FakeDaroodServer
@@ -89,13 +89,13 @@ class HomeStudyTest {
 
     @Test
     fun aLine_opensItsParty() {
-        var opened: String? = null
+        var opened = false
         val line = HomeDueLine("p1", "Physics group", "q", "Waves quiz", DueState.TODAY, now.plus(Duration.ofHours(3)))
         composeTestRule.setContent {
-            PixelQuestTheme { HomeStudyCard(HomeStudy(listOf(line)), onOpenParty = { opened = it }, onOpenParties = {}, zone = ZoneId.of("UTC")) }
+            PixelQuestTheme { HomeStudyCard(HomeStudy(listOf(line)), onOpenParty = {}, onOpenParties = { opened = true }, zone = ZoneId.of("UTC")) }
         }
         composeTestRule.onNodeWithText("Physics group · Due today, ", substring = true, useUnmergedTree = true).assertExists()
         composeTestRule.onNodeWithTag(StudyTags.homeLine("q")).performClick()
-        assertEquals("p1", opened)
+        org.junit.Assert.assertTrue(opened)
     }
 }

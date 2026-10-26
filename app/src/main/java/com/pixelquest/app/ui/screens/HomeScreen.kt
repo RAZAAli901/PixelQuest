@@ -34,7 +34,6 @@ import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.ui.components.AvatarClass
 import com.pixelquest.app.ui.components.PqSectionHeader
 import com.pixelquest.app.ui.components.QuestCategory
-import com.pixelquest.app.ui.components.QuestRowCompact
 import com.pixelquest.app.ui.components.QuestUi
 import com.pixelquest.app.ui.components.TaskItemStatus
 import com.pixelquest.app.ui.haptics.PixelHaptics
@@ -217,7 +216,7 @@ fun HomeScreen(
                     )
                 },
                 prayerSection = { com.pixelquest.app.ui.screens.namaz.HomeNamazSection(onOpen = onNavigateToNamaz) },
-                studySection = { com.pixelquest.app.study.ui.HomeStudySection(onOpenParty = onOpenStudyParty, onOpenParties = onOpenParties) },
+                studySection = { com.pixelquest.app.study.ui.HomeStudySection(onOpenParty = { onOpenParties() }, onOpenParties = onOpenParties) },
             )
         }
 
@@ -290,9 +289,9 @@ fun HomeContent(
                         modifier = Modifier.testTag(HomeTags.STREAK_BROKEN),
                     )
                 }
-                coachSection()
                 prayerSection()
                 studySection()
+                coachSection()
             }
         }
         if (state.upNext.isNotEmpty()) {
@@ -301,12 +300,6 @@ fun HomeContent(
             }
             items(state.upNext, key = { it.id }) { quest ->
                 SkippableQuestRow(quest, HomeTags.quest(quest.id), onComplete = { onCompleteQuest(quest) }, onSkip = { toSkip = quest }, onClick = { onQuestClick(quest) })
-            }
-        }
-        if (state.doneToday.isNotEmpty()) {
-            item(key = "done_today") { PqSectionHeader(stringResource(R.string.pq_home_done_today, state.doneToday.size)) }
-            items(state.doneToday, key = { it.id }) { quest ->
-                QuestRowCompact(if (state.isSimpleMode) quest.copy(xp = 0) else quest, Modifier.testTag(HomeTags.quest(quest.id)))
             }
         }
     }

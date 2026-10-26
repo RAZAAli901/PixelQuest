@@ -2,6 +2,7 @@ package com.pixelquest.app
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,6 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.pixelquest.app.audio.LocalSoundManager
@@ -32,6 +35,7 @@ import com.pixelquest.app.ui.navigation.PqAppFrame
 import com.pixelquest.app.ui.navigation.Routes
 import com.pixelquest.app.ui.navigation.Screen
 import com.pixelquest.app.ui.navigation.navigateInIslamic
+import com.pixelquest.app.ui.notifications.NotificationAsk
 import com.pixelquest.app.ui.notifications.NotificationsOffBanner
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -63,6 +67,9 @@ class MainActivity : ComponentActivity() {
     var isNotificationPermissionGranted by mutableStateOf(true)
         private set
 
+    var isNotificationBannerDismissed by mutableStateOf(false)
+        private set
+
     /** A screen a notification asked to open (the Namaz reminder), until the app can show it. */
     private var pendingRoute by mutableStateOf<String?>(null)
 
@@ -74,6 +81,10 @@ class MainActivity : ComponentActivity() {
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             isNotificationPermissionGranted = isGranted
+            if (isGranted) {
+                isNotificationBannerDismissed = false
+                NotificationAsk.setBannerDismissed(this, false)
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,17 +175,12 @@ class MainActivity : ComponentActivity() {
                                     .fillMaxSize()
                                     .padding(innerPadding),
                             ) {
-                                if (!isNotificationPermissionGranted && currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {
+                                if (!isNotificationPermissionGranted && !isNotificationBannerDismissed && currentRoute != Screen.Splash.route && currentRoute != Screen.Onboarding.route) {
                                     NotificationsOffBanner(
-                                        onAllow = {
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                            } else {
-                                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                                    data = Uri.fromParts("package", packageName, null)
-                                                }
-                                                startActivity(intent)
-                                            }
+                                        onAllow = { requestOrOpenNotificationSettings() },
+                                        onDismiss = {
+                                            NotificationAsk.setBannerDismissed(this@MainActivity, true)
+                                            isNotificationBannerDismissed = true
                                         },
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                                     )
@@ -227,8 +233,62 @@ class MainActivity : ComponentActivity() {
      * (rememberAskForNotifications). The banner offering them shows only once they've said no.
      */
     private fun checkNotificationPermission() {
-        val ask = com.pixelquest.app.ui.notifications.NotificationAsk
-        isNotificationPermissionGranted = !ask.needed(this) || !ask.asked(this)
+        val notificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled() && !NotificationAsk.needed(this)
+        isNotificationPermissionGranted = notificationsEnabled || !NotificationAsk.asked(this)
+        isNotificationBannerDismissed = NotificationAsk.isBannerDismissed(this)
+        if (notificationsEnabled) {
+            NotificationAsk.setBannerDismissed(this, false)
+            isNotificationBannerDismissed = false
+        }
+    }
+
+    /**
+     * Tapping Allow on the banner: ask via Android's prompt if the system will show it,
+     * or open notification settings directly so the button is always responsive.
+     */
+    private fun requestOrOpenNotificationSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val notificationsEnabled = NotificationManagerCompat.from(this).areNotificationsEnabled()
+            val hasPermission = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED
+            if (notificationsEnabled && !hasPermission) {
+                val canAsk = shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) ||
+                    !NotificationAsk.asked(this)
+                if (canAsk) {
+                    NotificationAsk.markAsked(this)
+                    requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    return
+                }
+            }
+        }
+        openNotificationSettings()
+    }
+
+    /** Android's notification settings page for this app, with fallback to application details. */
+    private fun openNotificationSettings() {
+        try {
+            val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                }
+            } else {
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }
+            }
+            startActivity(intent)
+        } catch (_: Exception) {
+            try {
+                val fallback = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                }
+                startActivity(fallback)
+            } catch (_: Exception) {
+                // Ignore if neither settings intent can be resolved
+            }
+        }
     }
 
     override fun onResume() {

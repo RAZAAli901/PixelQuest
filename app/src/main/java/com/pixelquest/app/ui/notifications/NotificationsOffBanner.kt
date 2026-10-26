@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pixelquest.app.ui.components.CategoryTile
+import com.pixelquest.app.ui.components.DismissButton
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqCard
@@ -24,12 +25,18 @@ import com.pixelquest.app.ui.theme.PqType
  * reminders can't reach them, and Allow, to ask again or open the settings.
  */
 @Composable
-fun NotificationsOffBanner(onAllow: () -> Unit, modifier: Modifier = Modifier) {
+fun NotificationsOffBanner(
+    onAllow: () -> Unit,
+    modifier: Modifier = Modifier,
+    onDismiss: (() -> Unit)? = null,
+) {
     PqCard(modifier.fillMaxWidth()) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth().padding(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, top = 8.dp, bottom = 8.dp, end = if (onDismiss != null) 4.dp else 12.dp),
         ) {
             CategoryTile(Icons.Rounded.NotificationsOff, PqColors.Rose, size = 40.dp, iconSize = 22.dp, radius = 10.dp)
             Column(modifier = Modifier.weight(1f)) {
@@ -37,6 +44,13 @@ fun NotificationsOffBanner(onAllow: () -> Unit, modifier: Modifier = Modifier) {
                 Text(text = "Allow notifications so quest reminders can reach you.", style = PqType.Meta)
             }
             PqButton(text = "Allow", onClick = onAllow, style = PqButtonStyle.Secondary)
+            if (onDismiss != null) {
+                DismissButton(
+                    contentDescription = "Dismiss notification reminder",
+                    onClick = onDismiss,
+                    color = PqColors.Muted,
+                )
+            }
         }
     }
 }

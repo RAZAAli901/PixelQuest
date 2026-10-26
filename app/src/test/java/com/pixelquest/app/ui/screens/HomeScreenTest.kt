@@ -140,14 +140,13 @@ class HomeScreenTest {
     }
 
     @Test
-    fun aPerfectDay_celebrates_andListsWhatsDone() {
+    fun aPerfectDay_celebrates_completedQuestsAreGoneFromHome() {
         show(state(upNext = emptyList(), done = listOf(pushUps, pushUps.copy(id = 4, title = "Stretch")), perfect = true))
 
         composeTestRule.onNodeWithTag(HomeTags.PERFECT).assertIsDisplayed()
         composeTestRule.onNodeWithText("ALL 2 QUESTS DONE").assertIsDisplayed()
         composeTestRule.onNodeWithText("PERFECT DAY!").assertIsDisplayed()
-        scrollTo(HomeTags.quest(4))
-        composeTestRule.onNodeWithText("DONE TODAY · 2").assertExists()
+        composeTestRule.onNodeWithText("DONE TODAY · 2").assertDoesNotExist()
     }
 
     @Test

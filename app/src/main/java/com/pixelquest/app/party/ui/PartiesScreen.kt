@@ -3,8 +3,6 @@ package com.pixelquest.app.party.ui
 import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,6 +45,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -59,8 +59,8 @@ import com.pixelquest.app.darood.ui.list.DaroodPartiesUiState
 import com.pixelquest.app.darood.ui.list.DaroodPartiesViewModel
 import com.pixelquest.app.darood.ui.list.InviteRow
 import com.pixelquest.app.darood.ui.list.PartiesProblem
-import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.PartyKinds
+import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.ui.components.CategoryTile
 import com.pixelquest.app.ui.components.PqButton
@@ -113,7 +113,7 @@ fun PartiesScreen(
     onNavigateBack: (() -> Unit)? = null,
     onOpenRaceBoard: () -> Unit = {},
     onChooseUsername: () -> Unit = {},
-    viewModel: DaroodPartiesViewModel = hiltViewModel()
+    viewModel: DaroodPartiesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     val weekly by viewModel.weeklyReminder.collectAsState()
@@ -151,7 +151,7 @@ fun PartiesScreen(
                 val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, shareText)
                 context.startActivity(Intent.createChooser(send, null))
             }
-        }
+        },
     )
 }
 
@@ -174,9 +174,19 @@ fun PartiesContent(
     username: String? = null,
     daroodAvailable: Boolean = true,
     onOpenRaceBoard: () -> Unit = {},
-    onShareUsername: () -> Unit = {}
+    onShareUsername: () -> Unit = {},
 ) {
-    var filter by rememberSaveable { mutableStateOf<PartyType?>(null) }
+    val defaultType = remember(state.parties, daroodAvailable) {
+        if (!daroodAvailable) {
+            PartyType.STUDY
+        } else if (state.parties.none { it.type == PartyType.DAROOD } && state.parties.any { it.type == PartyType.STUDY }) {
+            PartyType.STUDY
+        } else {
+            PartyType.DAROOD
+        }
+    }
+    var userSelectedFilter by rememberSaveable { mutableStateOf<PartyType?>(null) }
+    val filter = userSelectedFilter ?: defaultType
     Column(Modifier.fillMaxSize().background(PqColors.Ground).testTag(PartiesTags.SCREEN)) {
         PqTopBar(stringResource(R.string.parties_title), onBack = onNavigateBack, modifier = Modifier.padding(horizontal = PqDimens.ScreenPad)) {
             if (state.signedIn == true && daroodAvailable) {
@@ -187,7 +197,7 @@ fun PartiesContent(
                 Box(
                     Modifier.size(40.dp).comicPressable(onCreateParty, bg = PqColors.Red, radius = 12.dp, shadow = 2.dp, role = Role.Button)
                         .testTag(PartiesTags.CREATE),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) { Icon(Icons.Rounded.Add, stringResource(R.string.pq_parties_new), tint = PqColors.OnRed) }
             }
         }
@@ -195,11 +205,11 @@ fun PartiesContent(
             null -> Unit
             false -> SignedOut(onSignIn, Modifier.padding(PqDimens.ScreenPad))
             true -> PartyRefreshBox(refreshing = state.loading, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
-                val visible = state.parties.filter { filter == null || it.type == filter }
+                val visible = if (daroodAvailable) state.parties.filter { it.type == filter } else state.parties
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().testTag(PartiesTags.LIST),
                     contentPadding = PaddingValues(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 4.dp, bottom = 40.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     state.problem?.let { problem ->
                         item(key = "problem") { Text(stringResource(problem.message()), style = PqType.MetaStrong.copy(color = PqColors.RedText)) }
@@ -214,28 +224,29 @@ fun PartiesContent(
                         item(key = "empty") { PartiesEmpty(username, daroodAvailable, onCreateParty, onShareUsername) }
                         return@LazyColumn
                     }
-                    if (daroodAvailable && state.parties.map { it.type }.distinct().size > 1 || filter != null) {
+                    if (daroodAvailable) {
                         item(key = "filter") {
-                            val options = listOf(null, PartyType.DAROOD, PartyType.STUDY)
+                            val options = listOf(PartyType.DAROOD, PartyType.STUDY)
+                            val labels = listOf(
+                                stringResource(R.string.pq_party_darood),
+                                stringResource(R.string.party_study_list_title),
+                            )
                             PqSegmented(
-                                listOf(
-                                    stringResource(R.string.pq_parties_filter_all, state.parties.size),
-                                    stringResource(R.string.pq_party_darood),
-                                    stringResource(R.string.pq_party_study)
-                                ),
-                                options.indexOf(filter), { filter = options[it] }
+                                labels,
+                                if (filter == PartyType.STUDY) 1 else 0,
+                                { userSelectedFilter = options[it] },
                             )
                         }
                     }
                     items(visible, key = { it.id }) { party -> PartyCard(party, onClick = { onOpenParty(party) }, unread = state.unread[party.id] ?: 0) }
                     // Once there's a Darood Party to add to: the weekly note, off unless turned on.
-                    if (daroodAvailable && state.parties.any { it.type == PartyType.DAROOD }) {
+                    if (daroodAvailable && filter == PartyType.DAROOD && state.parties.any { it.type == PartyType.DAROOD }) {
                         item(key = "weekly") { WeeklyNoteRow(weeklyNote, onWeeklyNote) }
                     }
                     item(key = "footer") {
                         Text(
                             username?.let { stringResource(R.string.pq_parties_footer, it) } ?: stringResource(R.string.pq_parties_footer_no_username),
-                            style = PqType.Meta
+                            style = PqType.Meta,
                         )
                     }
                 }
@@ -257,7 +268,7 @@ fun PartyCard(party: Party, onClick: () -> Unit, modifier: Modifier = Modifier, 
     PqCard(
         modifier.fillMaxWidth().testTag(DaroodTestTags.partyRow(party.id)),
         onClick = onClick,
-        onClickLabel = stringResource(R.string.darood_open_party)
+        onClickLabel = stringResource(R.string.darood_open_party),
     ) {
         Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -266,7 +277,7 @@ fun PartyCard(party: Party, onClick: () -> Unit, modifier: Modifier = Modifier, 
                     Text(party.name, style = PqType.BodyStrong, maxLines = 1)
                     Text(
                         stringResource(R.string.pq_party_card_line, stringResource(party.type.shortName()), pluralStringResource(R.plurals.party_members, party.memberCount, party.memberCount)),
-                        style = PqType.Meta
+                        style = PqType.Meta,
                     )
                 }
                 if (party.isFinished) PqTag(stringResource(R.string.darood_finished))
@@ -291,7 +302,7 @@ private fun UnreadBadge(count: Int) {
             .border(PqDimens.BorderThin, PqColors.Ink, com.pixelquest.app.ui.theme.PqCircle)
             .padding(horizontal = 8.dp, vertical = 2.dp)
             .semantics { contentDescription = said }
-            .testTag(PartiesTags.UNREAD)
+            .testTag(PartiesTags.UNREAD),
     )
 }
 
@@ -318,12 +329,19 @@ private fun PartiesEmpty(username: String?, daroodAvailable: Boolean, onCreate: 
                 Text(stringResource(R.string.pq_parties_empty_title), style = PqType.display(34))
                 Text(stringResource(if (daroodAvailable) R.string.pq_parties_empty_body else R.string.pq_parties_empty_body_study), style = PqType.Body)
                 PqButton(
-                    stringResource(R.string.pq_parties_create), onCreate, Modifier.fillMaxWidth().testTag(DaroodTestTags.CREATE),
-                    icon = Icons.Rounded.Add, height = 50.dp
+                    stringResource(R.string.pq_parties_create),
+                    onCreate,
+                    Modifier.fillMaxWidth().testTag(DaroodTestTags.CREATE),
+                    icon = Icons.Rounded.Add,
+                    height = 50.dp,
                 )
                 PqButton(
-                    username?.let { stringResource(R.string.pq_parties_share, it) } ?: stringResource(R.string.pq_parties_choose_username), onShare,
-                    Modifier.fillMaxWidth(), style = PqButtonStyle.Secondary, icon = Icons.Rounded.Share, height = 46.dp
+                    username?.let { stringResource(R.string.pq_parties_share, it) } ?: stringResource(R.string.pq_parties_choose_username),
+                    onShare,
+                    Modifier.fillMaxWidth(),
+                    style = PqButtonStyle.Secondary,
+                    icon = Icons.Rounded.Share,
+                    height = 46.dp,
                 )
             }
         }
@@ -363,7 +381,8 @@ internal fun WeeklyNoteRow(on: Boolean, onChange: (Boolean) -> Unit, modifier: M
             .toggleable(value = on, role = Role.Switch, onValueChange = onChange)
             .testTag(DaroodTestTags.WEEKLY_SWITCH)
             .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Icon(Icons.Rounded.Bedtime, null, tint = PqColors.Ink)
         Column(Modifier.weight(1f)) {

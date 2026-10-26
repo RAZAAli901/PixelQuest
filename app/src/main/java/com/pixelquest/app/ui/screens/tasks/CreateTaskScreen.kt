@@ -29,6 +29,7 @@ import com.pixelquest.app.ui.components.PixelRecurrenceSelector
 import com.pixelquest.app.ui.components.PixelTextField
 import com.pixelquest.app.ui.components.PixelTimePicker
 import com.pixelquest.app.ui.components.PqButton
+import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqConfirmDialog
 import com.pixelquest.app.ui.components.PqIconButton
 import com.pixelquest.app.ui.components.PqTopBar
@@ -181,5 +182,14 @@ fun TaskFormContent(
             height = 52.dp,
             modifier = Modifier.fillMaxWidth(),
         )
+        if (formState.isEditMode) {
+            PqButton(
+                text = "Delete quest",
+                onClick = { onShowDeleteConfirm(true) },
+                style = PqButtonStyle.Secondary,
+                height = 52.dp,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }

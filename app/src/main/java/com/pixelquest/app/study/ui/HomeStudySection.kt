@@ -107,7 +107,13 @@ fun HomeStudySection(onOpenParty: (String) -> Unit, onOpenParties: () -> Unit, v
 
 @Composable
 fun HomeStudyCard(home: HomeStudy, onOpenParty: (String) -> Unit, onOpenParties: () -> Unit, zone: ZoneId = ZoneId.systemDefault()) {
-    PqCard(Modifier.fillMaxWidth().testTag(StudyTags.HOME_CARD), bg = PqColors.Lilac) {
+    PqCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(StudyTags.HOME_CARD)
+            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_home_open), onClick = onOpenParties),
+        bg = PqColors.Lilac,
+    ) {
         Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -133,7 +139,7 @@ fun HomeStudyCard(home: HomeStudy, onOpenParty: (String) -> Unit, onOpenParties:
                         .background(PqColors.Paper)
                         .border(PqDimens.BorderThin, PqColors.Ink, pqShape(12.dp))
                         .clickable(role = Role.Button, onClickLabel = stringResource(R.string.study_home_open_party)) {
-                            onOpenParty(line.partyId)
+                            onOpenParties()
                         }
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                         .testTag(StudyTags.homeLine(line.itemId)),
