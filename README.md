@@ -265,3 +265,5 @@ cd PixelQuest
 ## 📄 License
 
 PixelQuest is open-source software licensed under the [MIT License](LICENSE).
+
+Your boy will be working on it as well from now on.
