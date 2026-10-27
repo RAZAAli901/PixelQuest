@@ -111,8 +111,8 @@ android {
             libs.versions.targetSdk
                 .get()
                 .toInt()
-        versionCode = 113
-        versionName = "1.8.2"
+        versionCode = 114
+        versionName = "1.8.3"
 
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrlProp\"")
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKeyProp\"")

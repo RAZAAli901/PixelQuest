@@ -3,6 +3,36 @@
 All notable changes to **PixelQuest** are documented in this file.
 PixelQuest follows [Semantic Versioning 2.0.0](https://semver.org/). See [docs/VERSIONING_POLICY.md](docs/VERSIONING_POLICY.md) for full versioning and release lifecycle policies.
 
+## [1.8.3] - 2026-10-27 — Quest Tap Architecture, 3 Touch Zones & Zero-XP Rules (B01-B14)
+
+### ⬆️ Upgrading
+Install 1.8.3 over 1.8.2 (or any earlier version): 100% backward compatible. All existing quests, streaks, hero stats, and Deen data are preserved.
+
+### 🎯 3 Distinct Quest Touch Zones & Accessibility (B09 - B14)
+- **3 Non-Conflicting Touch Zones**:
+  - **Category Icon Zone** (`QuestIconZone`): Minimum 48dp touch target (`sizeIn(minWidth = 48.dp, minHeight = 48.dp)`), `Role.Button` with label "Edit", dedicated to editing quest details on tap.
+  - **Card Body Zone** (`QuestCardBody`): Minimum 48dp height target (`defaultMinSize(minHeight = 48.dp)`), `Role.Button` with label "Open", supporting short tap (open/edit details) and long-press gestures via `combinedClickable`.
+  - **Complete Zone** (`QuestCompleteZone`): Minimum 48dp touch target (`sizeIn(minWidth = 48.dp, minHeight = 48.dp)`), `Role.Checkbox` with label "Complete", toggling completion across the entire target area.
+- **TalkBack Custom Accessibility Actions**:
+  - `QuestRow` exposes distinct TalkBack custom actions: "Complete", "Edit", and "Open", cleanly merged with container actions like swipe-to-skip.
+- **Automated Verification**:
+  - Added `QuestTouchZonesTest` testing 48dp bounds, touch target isolation, long-press gestures, and TalkBack semantics.
+
+### 🛡️ Newly Created Quest Tap Reliability (B01 - B04)
+- **Lifecycle & Cache Synchronization**:
+  - Added `ON_RESUME` observer to `QuestsScreen` ensuring `TodayViewModel` refreshes immediately upon returning from quest creation.
+  - Added fallback lookup to `allTasks` for quests completed on the All tab before today's scheduled items cache syncs.
+- **Pointer Input & Gesture Disambiguation**:
+  - Removed container-level touch interception in `SkippableQuestRow` by attaching click semantics directly to interactive row elements.
+  - Verified immediate tap responsiveness after quest creation, screen rotation, and app restart (`QuestTapAfterCreationTest`).
+
+### 💎 Zero-XP Creation & First-Completion Rules (B05 - B08)
+- **Creation Audit**: Guaranteed 0 XP across all quest creation and editing paths.
+- **First Completion XP**: Introduced `GameConfig.FIRST_COMPLETION_XP = 0` on a quest's first completion, while awarding normal streak XP on subsequent completions.
+- **Zero-XP Motion Suppression**: Suppressed floating XP gain chips, popups, and celebration animations when 0 XP is awarded (`ZeroXpSuppressionUiTest`).
+
+---
+
 ## [1.8.2] - 2026-10-27 — Completed Quest Deletion & Instant Home Tab Appearance
  
 ### ⬆️ Upgrading
