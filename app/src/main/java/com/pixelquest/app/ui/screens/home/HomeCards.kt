@@ -86,7 +86,15 @@ internal fun SkipQuestDialog(quest: QuestUi, isSimpleMode: Boolean, onSkip: () -
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun SkippableQuestRow(quest: QuestUi, tag: String, onComplete: () -> Unit, onSkip: () -> Unit, onClick: () -> Unit) {
+internal fun SkippableQuestRow(
+    quest: QuestUi,
+    tag: String,
+    onComplete: () -> Unit,
+    onSkip: () -> Unit,
+    onClick: () -> Unit,
+    onIconClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
+) {
     val skipLabel = stringResource(R.string.pq_skip_action)
     val swipe = rememberSwipeToDismissBoxState(confirmValueChange = { value ->
         if (value == SwipeToDismissBoxValue.EndToStart) onSkip()
@@ -107,6 +115,8 @@ internal fun SkippableQuestRow(quest: QuestUi, tag: String, onComplete: () -> Un
             quest = quest,
             onToggle = { if (!quest.done) onComplete() },
             onClick = onClick,
+            onIconClick = onIconClick,
+            onLongClick = onLongClick,
             modifier = Modifier
                 .testTag(tag)
                 .semantics {

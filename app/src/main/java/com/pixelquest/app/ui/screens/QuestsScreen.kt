@@ -389,9 +389,24 @@ fun QuestsContent(
                 items(g.quests, key = { "${tab}_${g.key}_${it.id}" }) { q ->
                     val tag = if (tab == QuestTab.History) QuestsTags.history(q.id) else QuestsTags.quest(q.id)
                     if (canSkip(q)) {
-                        SkippableQuestRow(q, tag, onComplete = { onToggleQuest(q) }, onSkip = { onSkipQuest(q) }, onClick = { onQuestClick(q) })
+                        SkippableQuestRow(
+                            q,
+                            tag,
+                            onComplete = { onToggleQuest(q) },
+                            onSkip = { onSkipQuest(q) },
+                            onClick = { onQuestClick(q) },
+                            onIconClick = { onQuestClick(q) },
+                            onLongClick = { onQuestClick(q) },
+                        )
                     } else {
-                        QuestRow(q, onToggle = { onToggleQuest(q) }, onClick = { onQuestClick(q) }, modifier = Modifier.testTag(tag))
+                        QuestRow(
+                            q,
+                            onToggle = { onToggleQuest(q) },
+                            onClick = { onQuestClick(q) },
+                            onIconClick = { onQuestClick(q) },
+                            onLongClick = { onQuestClick(q) },
+                            modifier = Modifier.testTag(tag),
+                        )
                     }
                 }
             }

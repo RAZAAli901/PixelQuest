@@ -270,4 +270,8 @@
     <string name="pq_quest_starts_tomorrow">Today\'s time has passed, so this quest starts from tomorrow.</string>
     <string name="pq_reminder_remind_me">Remind me</string>
     <string name="pq_difficulty_intro">How much of each day\'s quests counts as a perfect day, and how many days a level takes.</string>
+    <!-- Quest touch zone actions (B09 - B14) -->
+    <string name="pq_action_complete">Complete</string>
+    <string name="pq_action_edit">Edit</string>
+    <string name="pq_action_open">Open</string>
 </resources>

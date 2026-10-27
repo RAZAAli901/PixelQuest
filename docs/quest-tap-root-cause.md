@@ -58,4 +58,9 @@ When a quest is created in PixelQuest, players expect to immediately interact wi
 ## Summary of Fix Strategy (B02 to B15)
 1. **B02 / B04**: Add tests ensuring that creating a quest produces an immediately interactive, tappable row before and after rotation/restart.
 2. **B03**: Ensure `insertTask` row ID is immediately bound, ensure `HomeScreen` and `QuestsScreen` bind test tags and click semantics directly to the interactive card elements, and eliminate stale map lookup fallbacks.
-3. **B09 - B14**: Refactor the quest card into three distinct, non-conflicting touch zones (Category Icon for Edit, Card Body with long-press for Open, and Check Circle for Complete) with minimum 48dp touch targets and TalkBack accessibility actions.
+3. **B09 - B14**: Refactor the quest card into three distinct, non-conflicting touch zones (Category Icon for Edit, Card Body with long-press for Open, and Check Circle for Complete) with minimum 48dp touch targets and TalkBack accessibility actions:
+   - **Zone 1: QuestIconZone**: Minimum 48dp touch target (`sizeIn(minWidth = 48.dp, minHeight = 48.dp)`), `Role.Button`, label `R.string.pq_action_edit`, executing `onIconClick`.
+   - **Zone 2: QuestCardBody**: Minimum 48dp height target (`defaultMinSize(minHeight = 48.dp)`), `Role.Button`, label `R.string.pq_action_open`, executing `onClick` on tap and `onLongClick` on long press.
+   - **Zone 3: QuestCompleteZone**: Minimum 48dp touch target (`sizeIn(minWidth = 48.dp, minHeight = 48.dp)`), `Role.Checkbox`, label `R.string.pq_action_complete`, executing `onToggle` across the full zone.
+   - **TalkBack Custom Actions**: `QuestRow` exposes `pq_action_complete`, `pq_action_edit`, and optional `pq_action_open` custom accessibility actions.
+   - **Verification**: `QuestTouchZonesTest` verifies all 3 touch zones, their >=48dp bounds, non-conflicting isolated touch handling, long-press gestures, and TalkBack custom accessibility actions.

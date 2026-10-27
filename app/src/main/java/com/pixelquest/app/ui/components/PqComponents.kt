@@ -7,9 +7,11 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -60,9 +63,12 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
@@ -518,8 +524,132 @@ fun CheckCircle(checked: Boolean, onClick: () -> Unit, size: Dp = 40.dp, modifie
     }
 }
 
+/** Touch zone tags for quest card testing (B09 - B14). */
+object QuestTags {
+    fun icon(id: Long) = "quest_${id}_icon"
+    fun body(id: Long) = "quest_${id}_body"
+    fun complete(id: Long) = "quest_${id}_complete"
+}
+
+/** Touch zone 1: The quest category icon tile. */
 @Composable
-fun QuestRow(quest: QuestUi, onToggle: () -> Unit, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun QuestIconZone(
+    category: QuestCategory,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+) {
+    val editLabel = stringResource(R.string.pq_action_edit)
+    Box(
+        modifier = modifier
+            .sizeIn(minWidth = PqDimens.TouchMin, minHeight = PqDimens.TouchMin)
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable(
+                        role = Role.Button,
+                        onClickLabel = editLabel,
+                        onClick = onClick,
+                    )
+                } else {
+                    Modifier
+                },
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        CategoryTile(category.icon, category.color)
+    }
+}
+
+/** Touch zone 2: The card body containing title, tags, and recurrence/time meta. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun QuestCardBody(
+    quest: QuestUi,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
+) {
+    val openLabel = stringResource(R.string.pq_action_open)
+    val clickModifier = if (onClick != null || onLongClick != null) {
+        Modifier.combinedClickable(
+            role = Role.Button,
+            onClickLabel = openLabel,
+            onClick = { onClick?.invoke() },
+            onLongClick = onLongClick,
+        )
+    } else {
+        Modifier
+    }
+
+    Column(
+        modifier = modifier
+            .defaultMinSize(minHeight = PqDimens.TouchMin)
+            .then(clickModifier),
+        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+    ) {
+        Text(
+            quest.title,
+            style = PqType.BodyStrong.copy(color = if (quest.done) PqColors.Muted else PqColors.Ink),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.strikeThrough(strikeProgress(quest.done), PqColors.Muted),
+        )
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (quest.missed) {
+                PqTag(stringResource(R.string.pq_missed), color = PqColors.Muted)
+            } else if (quest.overdue && !quest.done) {
+                PqTag(stringResource(R.string.pq_overdue))
+            }
+            Text(
+                listOfNotNull(quest.time, stringResource(quest.category.label), quest.repeatLabel).joinToString(" · "),
+                style = PqType.Meta,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+/** Touch zone 3: The complete circle and floating reward popup. */
+@Composable
+fun QuestCompleteZone(
+    done: Boolean,
+    xp: Int = 0,
+    rewards: Int = 0,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val completeLabel = stringResource(R.string.pq_action_complete)
+    Box(
+        modifier = modifier
+            .sizeIn(minWidth = PqDimens.TouchMin, minHeight = PqDimens.TouchMin)
+            .clickable(
+                role = Role.Checkbox,
+                onClickLabel = completeLabel,
+                onClick = onToggle,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        CheckCircle(
+            checked = done,
+            onClick = onToggle,
+            label = completeLabel,
+        )
+        if (xp > 0) FloatingReward(stringResource(R.string.motion_xp_gain, xp), rewards)
+    }
+}
+
+@Composable
+fun QuestRow(
+    quest: QuestUi,
+    onToggle: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onIconClick: (() -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
+) {
+    val actionComplete = stringResource(R.string.pq_action_complete)
+    val actionEdit = stringResource(R.string.pq_action_edit)
+    val actionOpen = stringResource(R.string.pq_action_open)
+
     val base = if (quest.done) {
         modifier.comicPressable(
             onClick = onClick,
@@ -538,36 +668,53 @@ fun QuestRow(quest: QuestUi, onToggle: () -> Unit, onClick: () -> Unit, modifier
         wasDone = quest.done
     }
     Row(
-        base.questRowDone(quest.done, dim = false).fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+        base
+            .semantics {
+                customActions = listOfNotNull(
+                    CustomAccessibilityAction(actionComplete) {
+                        onToggle()
+                        true
+                    },
+                    CustomAccessibilityAction(actionEdit) {
+                        (onIconClick ?: onClick)()
+                        true
+                    },
+                    if (onLongClick != null) {
+                        CustomAccessibilityAction(actionOpen) {
+                            onLongClick()
+                            true
+                        }
+                    } else {
+                        null
+                    },
+                )
+            }
+            .questRowDone(quest.done, dim = false)
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        CategoryTile(quest.category.icon, quest.category.color)
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(
-                quest.title,
-                style = PqType.BodyStrong.copy(color = if (quest.done) PqColors.Muted else PqColors.Ink),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.strikeThrough(strikeProgress(quest.done), PqColors.Muted),
-            )
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                if (quest.missed) {
-                    PqTag(stringResource(R.string.pq_missed), color = PqColors.Muted)
-                } else if (quest.overdue && !quest.done) {
-                    PqTag(stringResource(R.string.pq_overdue))
-                }
-                Text(
-                    listOfNotNull(quest.time, stringResource(quest.category.label), quest.repeatLabel).joinToString(" · "),
-                    style = PqType.Meta,
-                    maxLines = 1,
-                )
-            }
-        }
-        Box(contentAlignment = Alignment.TopCenter) {
-            CheckCircle(quest.done, onToggle)
-            if (quest.xp > 0) FloatingReward(stringResource(R.string.motion_xp_gain, quest.xp), rewards)
-        }
+        QuestIconZone(
+            category = quest.category,
+            modifier = Modifier.testTag(QuestTags.icon(quest.id)),
+            onClick = onIconClick ?: onClick,
+        )
+        QuestCardBody(
+            quest = quest,
+            modifier = Modifier
+                .weight(1f)
+                .testTag(QuestTags.body(quest.id)),
+            onClick = onClick,
+            onLongClick = onLongClick,
+        )
+        QuestCompleteZone(
+            done = quest.done,
+            xp = quest.xp,
+            rewards = rewards,
+            onToggle = onToggle,
+            modifier = Modifier.testTag(QuestTags.complete(quest.id)),
+        )
     }
 }
 
