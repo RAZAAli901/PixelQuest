@@ -101,18 +101,23 @@ internal fun SkippableQuestRow(quest: QuestUi, tag: String, onComplete: () -> Un
                 contentAlignment = Alignment.CenterEnd,
             ) { Text(skipLabel.uppercase(), style = PqType.Button) }
         },
-        modifier = Modifier
-            .testTag(tag)
-            .semantics {
-                customActions = listOf(
-                    CustomAccessibilityAction(skipLabel) {
-                        onSkip()
-                        true
-                    },
-                )
-            },
+        modifier = Modifier,
     ) {
-        QuestRow(quest, onToggle = { if (!quest.done) onComplete() }, onClick = onClick, modifier = Modifier.testTag(tag))
+        QuestRow(
+            quest = quest,
+            onToggle = { if (!quest.done) onComplete() },
+            onClick = onClick,
+            modifier = Modifier
+                .testTag(tag)
+                .semantics {
+                    customActions = listOf(
+                        CustomAccessibilityAction(skipLabel) {
+                            onSkip()
+                            true
+                        },
+                    )
+                },
+        )
     }
 }
 
