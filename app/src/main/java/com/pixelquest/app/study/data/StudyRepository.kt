@@ -78,6 +78,8 @@ interface StudyRepository {
 
     fun observeItem(itemId: String): Flow<StudyItem?>
 
+    suspend fun getItem(id: String): StudyItem?
+
     /** What the player hasn't finished that's due before [until], overdue too, soonest first, across their study parties. */
     fun observeDueSoon(until: Instant, limit: Int): Flow<List<StudyItem>>
 
@@ -189,6 +191,7 @@ class StudyRepositoryImpl(
     }
 
     override fun observeItem(itemId: String): Flow<StudyItem?> = dao.observeItem(itemId).map { it?.toDomain() }
+    override suspend fun getItem(id: String): StudyItem? = dao.getItem(id)?.toDomain()
 
     override fun observeDueSoon(until: Instant, limit: Int): Flow<List<StudyItem>> {
         val me = account.id() ?: return kotlinx.coroutines.flow.flowOf(emptyList())

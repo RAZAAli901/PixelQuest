@@ -109,6 +109,18 @@
             android:turnScreenOn="true"
             android:theme="@style/Theme.PixelQuest" />
 
+        <activity
+            android:name=".study.alarm.StudyPromptActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:theme="@style/Theme.PixelQuest" />
+
+        <receiver
+            android:name=".study.alarm.StudyDueAlarmReceiver"
+            android:exported="false" />
+
         <!-- Push for chess challenges (docs/chess-design.md): only Firebase delivers to it. -->
         <service
             android:name=".push.PushService"

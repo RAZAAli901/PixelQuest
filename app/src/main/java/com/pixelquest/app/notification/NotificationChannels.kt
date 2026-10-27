@@ -121,6 +121,14 @@ object NotificationChannels {
             sound = false,
             vibration = false,
         ),
+        STUDY_DUE_ALARMS(
+            id = "pq_study_due_alarms",
+            displayName = "Study due alarms",
+            description = "Alarm-style alerts 24 hours before study items are due",
+            importance = Importance.HIGH,
+            sound = true,
+            vibration = true,
+        ),
     }
 
     /** Reminder channel for the user's sound preference. */
@@ -128,7 +136,7 @@ object NotificationChannels {
         if (soundEnabled) Spec.REMINDERS else Spec.REMINDERS_SILENT
 
     /** Channels the user can tune from Settings (the sync channel is too minor to list). */
-    val userFacing: List<Spec> = listOf(Spec.REMINDERS, Spec.REMINDERS_SILENT, Spec.MISSED, Spec.PROGRESS, Spec.COACH, Spec.DAROOD, Spec.STUDY, Spec.STUDY_REMINDERS, Spec.STUDY_CHAT, Spec.CHESS)
+    val userFacing: List<Spec> = listOf(Spec.REMINDERS, Spec.REMINDERS_SILENT, Spec.MISSED, Spec.PROGRESS, Spec.COACH, Spec.DAROOD, Spec.STUDY, Spec.STUDY_REMINDERS, Spec.STUDY_CHAT, Spec.CHESS, Spec.STUDY_DUE_ALARMS)
 
     /** Opens the system page for one channel; before Android 8 there are no channels, so open the app page. */
     fun systemSettingsIntent(context: Context, spec: Spec): Intent {
@@ -164,7 +172,18 @@ object NotificationChannels {
             description = this@toChannel.description
             group = GROUP_ID
             enableVibration(this@toChannel.vibration)
-            if (!this@toChannel.sound) setSound(null, null)
+            if (this@toChannel == Spec.STUDY_DUE_ALARMS) {
+                val audioAttributes = android.media.AudioAttributes.Builder()
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                    .build()
+                val soundUri = android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM)
+                    ?: android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+                setSound(soundUri, audioAttributes)
+                setBypassDnd(true)
+            } else if (!this@toChannel.sound) {
+                setSound(null, null)
+            }
         }
     }
 }

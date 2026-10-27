@@ -307,4 +307,11 @@
     <string name="study_files_empty">No files shared yet. Share study material from the Chat tab.</string>
     <string name="study_refused_other">The circle couldn\'t save that. Check it and try again.</string>
     <string name="study_tab_chess">Chess</string>
+    <!-- Study 24-hour due alerts (A03, A04) -->
+    <string name="study_due_alert_prompt_body">This item is due tomorrow. Complete it now or snooze.</string>
+    <string name="action_done">Done</string>
+    <string name="action_snooze_1h">Snooze 1 hour</string>
+    <string name="action_open">Open</string>
+    <string name="study_due_alert_title_quiz">Quiz due tomorrow at <xliff:g id="time" example="10:00">%1$s</xliff:g>: <xliff:g id="title" example="Physics Quiz">%2$s</xliff:g></string>
+    <string name="study_due_alert_title_assignment">Assignment due tomorrow at <xliff:g id="time" example="17:30">%1$s</xliff:g>: <xliff:g id="title" example="Lab Report">%2$s</xliff:g></string>
 </resources>
