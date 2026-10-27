@@ -334,6 +334,147 @@ class StudyDueAlarmSchedulerTest {
         assertEquals(1, fakeAlarms.scheduled.size)
     }
 
+    @Test
+    fun daylightSaving_triggerMomentRemains24HoursBeforeDueInstant() = runBlocking {
+        val dueAt = Instant.parse("2026-10-25T14:00:00Z")
+        now = Instant.parse("2026-10-23T10:00:00Z")
+        val item = StudyItem(
+            id = "item_dst",
+            partyId = "party_1",
+            kind = StudyItemKind.QUIZ,
+            title = "DST Quiz",
+            subject = null,
+            notes = null,
+            dueAt = dueAt,
+            pinned = false,
+            createdBy = "aria",
+            createdAt = now,
+        )
+
+        scheduler.schedule(item)
+        assertEquals(1, fakeAlarms.scheduled.size)
+        val expectedTrigger = dueAt.minus(Duration.ofHours(24)).toEpochMilli()
+        assertEquals(expectedTrigger, fakeAlarms.scheduled.first().first)
+        assertEquals(24 * 3600 * 1000L, dueAt.toEpochMilli() - fakeAlarms.scheduled.first().first)
+    }
+
+    @Test
+    fun editDueDate_reschedulesAlarmToNewTriggerMoment() = runBlocking {
+        val dueAtOriginal = now.plus(Duration.ofHours(48))
+        val itemOriginal = StudyItem(
+            id = "item_edit",
+            partyId = "party_1",
+            kind = StudyItemKind.ASSIGNMENT,
+            title = "Assignment Edit",
+            subject = null,
+            notes = null,
+            dueAt = dueAtOriginal,
+            pinned = false,
+            createdBy = "aria",
+            createdAt = now,
+        )
+        scheduler.schedule(itemOriginal)
+        assertEquals(1, fakeAlarms.scheduled.size)
+        assertEquals(dueAtOriginal.toEpochMilli() - Duration.ofHours(24).toMillis(), fakeAlarms.scheduled[0].first)
+
+        val dueAtEdited = now.plus(Duration.ofHours(72))
+        val itemEdited = itemOriginal.copy(dueAt = dueAtEdited)
+        scheduler.cancel("item_edit")
+        scheduler.schedule(itemEdited)
+
+        assertEquals(1, fakeAlarms.cancelled.size)
+        assertEquals(2, fakeAlarms.scheduled.size)
+        assertEquals(dueAtEdited.toEpochMilli() - Duration.ofHours(24).toMillis(), fakeAlarms.scheduled[1].first)
+    }
+
+    @Test
+    fun editDueDate_toUnder24Hours_cancelsAndDoesNotReschedule() = runBlocking {
+        val dueAtOriginal = now.plus(Duration.ofHours(48))
+        val itemOriginal = StudyItem(
+            id = "item_edit_under24",
+            partyId = "party_1",
+            kind = StudyItemKind.ASSIGNMENT,
+            title = "Assignment Shortened",
+            subject = null,
+            notes = null,
+            dueAt = dueAtOriginal,
+            pinned = false,
+            createdBy = "aria",
+            createdAt = now,
+        )
+        scheduler.schedule(itemOriginal)
+        assertEquals(1, fakeAlarms.scheduled.size)
+
+        val dueAtShort = now.plus(Duration.ofHours(10))
+        val itemShort = itemOriginal.copy(dueAt = dueAtShort)
+        scheduler.cancel("item_edit_under24")
+        val scheduledAgain = scheduler.schedule(itemShort)
+
+        assertFalse(scheduledAgain)
+        assertEquals(1, fakeAlarms.cancelled.size)
+        assertEquals(1, fakeAlarms.scheduled.size)
+    }
+
+    @Test
+    fun markDone_cancelsAlarmAndPreventsRescheduling() = runBlocking {
+        val dueAt = now.plus(Duration.ofHours(48))
+        val item = StudyItem(
+            id = "item_done",
+            partyId = "party_1",
+            kind = StudyItemKind.QUIZ,
+            title = "Done Quiz",
+            subject = null,
+            notes = null,
+            dueAt = dueAt,
+            pinned = false,
+            createdBy = "aria",
+            createdAt = now,
+        )
+        scheduler.schedule(item)
+        assertEquals(1, fakeAlarms.scheduled.size)
+
+        scheduler.cancel("item_done")
+        assertEquals(1, fakeAlarms.cancelled.size)
+
+        db.studyDao().upsertCompletions(
+            listOf(
+                StudyCompletionEntity(
+                    id = 100L,
+                    partyId = "party_1",
+                    itemId = "item_done",
+                    userId = "aria",
+                    completedAt = now.toEpochMilli(),
+                    localDate = LocalDate.parse("2026-10-21"),
+                    tz = "UTC",
+                ),
+            ),
+        )
+        val rescheduled = scheduler.schedule(item)
+        assertFalse(rescheduled)
+    }
+
+    @Test
+    fun deleteItem_cancelsAlarm() = runBlocking {
+        val dueAt = now.plus(Duration.ofHours(48))
+        val item = StudyItem(
+            id = "item_delete",
+            partyId = "party_1",
+            kind = StudyItemKind.ASSIGNMENT,
+            title = "Delete Me",
+            subject = null,
+            notes = null,
+            dueAt = dueAt,
+            pinned = false,
+            createdBy = "aria",
+            createdAt = now,
+        )
+        scheduler.schedule(item)
+        assertEquals(1, fakeAlarms.scheduled.size)
+
+        scheduler.cancel("item_delete")
+        assertEquals(1, fakeAlarms.cancelled.size)
+    }
+
     class FakeAlarmScheduler : AlarmScheduler {
         val scheduled = mutableListOf<Pair<Long, PendingIntent>>()
         val cancelled = mutableListOf<PendingIntent>()
