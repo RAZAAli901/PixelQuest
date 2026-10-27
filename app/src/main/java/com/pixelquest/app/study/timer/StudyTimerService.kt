@@ -190,7 +190,7 @@ class StudyTimerService : Service() {
         }
     }
 
-    private fun buildForegroundNotification(timer: RunningTimer): Notification {
+    internal fun buildForegroundNotification(timer: RunningTimer): Notification {
         val partyName = timer.partyName
         val title = if (!partyName.isNullOrBlank()) {
             getString(R.string.study_timer_notif_title, partyName)
@@ -242,6 +242,7 @@ class StudyTimerService : Service() {
         } else {
             val base = timer.chronometerBase(SystemClock.elapsedRealtime(), System.currentTimeMillis())
             builder.setUsesChronometer(true)
+            builder.setChronometerCountDown(false)
             builder.setWhen(base)
 
             val pauseIntent = Intent(this, StudyTimerService::class.java).apply { action = ACTION_PAUSE }
