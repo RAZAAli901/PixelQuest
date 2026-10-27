@@ -5,6 +5,31 @@ PixelQuest follows [Semantic Versioning 2.0.0](https://semver.org/). See [docs/V
 
 ---
 
+## [1.8.1] - 2026-10-27 — Notification Banner Dismissal, Circles Tabs & Home Polish
+
+### ⬆️ Upgrading
+Install 1.8.1 over 1.8.0 (or any earlier version): 100% backward compatible. All existing quests, streaks, hero stats, and Deen data are preserved.
+
+### 🔔 Notification Banner & Permission Fixes
+- **Dismissible Notifications Banner**:
+  - Added close/dismiss (`✕`) action to `NotificationsOffBanner`.
+  - Dismissal choice is remembered across sessions and screens so the banner does not linger.
+  - Automatically resets banner dismissal if notifications are subsequently enabled in settings.
+- **Responsive "Allow" Action**:
+  - Before requesting `POST_NOTIFICATIONS`, verifies if Android can present the system rationale prompt.
+  - If suppressed by Android OS or notifications are disabled in system settings, opens Android's Notification Settings directly so clicking Allow is always responsive.
+
+### 👥 Circles & Home Quest Polish
+- **Circles Tabs**:
+  - Removed "All" tab in Circles; now dedicated to "Darood" and "Study Circles".
+- **Home Screen & Quest Flow**:
+  - Reordered cards: AI Coach positioned below Next Prayer and Due Soon items.
+  - Clicking "Due in study circle" navigates directly to circle/party pages.
+  - Completed quests vanish from the Home checklist.
+  - Default quests can now be deleted in edit mode.
+
+---
+
 ## [1.8.0] - 2026-10-23 — Pix Mascot, Custom Notifications, Offline Chess Bot & Security Hardening
 
 ### ⬆️ Upgrading
