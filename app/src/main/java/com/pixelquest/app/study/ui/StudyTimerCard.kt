@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectableGroup
@@ -44,11 +43,13 @@ data class TimerActions(
     val onStart: () -> Unit = {},
     val onStop: () -> Unit = {},
     val onCancel: () -> Unit = {},
-    val onLogMinutes: (Int) -> Unit = {}
+    val onLogMinutes: (Int) -> Unit = {},
+    val onPause: () -> Unit = {},
+    val onResume: () -> Unit = {},
 )
 
 /**
- * Study time on This week: the player's minutes today, the timer (start, then stop and log, or
+ * Study time on This week: the player's minutes today, the timer (start, pause, resume, stop and log, or
  * cancel), and minutes added by hand, picked and then logged, since study time can't be changed
  * once logged.
  */
@@ -63,7 +64,7 @@ fun StudyTimerCard(state: StudyPartyUiState, actions: TimerActions, clock: () ->
                 Text(
                     text = pluralStringResource(R.plurals.study_minutes_today, state.studiedToday, state.studiedToday),
                     style = PqType.MetaStrong,
-                    modifier = Modifier.testTag(StudyTags.TIMER_TODAY)
+                    modifier = Modifier.testTag(StudyTags.TIMER_TODAY),
                 )
             }
             when {
@@ -72,27 +73,51 @@ fun StudyTimerCard(state: StudyPartyUiState, actions: TimerActions, clock: () ->
                     onClick = actions.onStart,
                     icon = Icons.Rounded.PlayArrow,
                     height = 50.dp,
-                    modifier = Modifier.fillMaxWidth().testTag(StudyTags.TIMER_START)
+                    modifier = Modifier.fillMaxWidth().testTag(StudyTags.TIMER_START),
                 )
                 running.partyId == partyId -> {
-                    val elapsed by produceState(clock() - running.startedAt, running) {
+                    val isPaused = running.isPaused
+                    val elapsed by produceState(running.elapsedMillisAt(clock()), running) {
                         while (true) {
-                            value = clock() - running.startedAt
+                            value = running.elapsedMillisAt(clock())
+                            if (running.isPaused) break
                             delay(1_000)
                         }
                     }
+                    val displayText = if (isPaused) {
+                        stringResource(R.string.study_timer_notif_paused, elapsedText(elapsed))
+                    } else {
+                        stringResource(R.string.study_timer_running, elapsedText(elapsed))
+                    }
                     Text(
-                        text = stringResource(R.string.study_timer_running, elapsedText(elapsed)),
+                        text = displayText,
                         style = PqType.number(28),
-                        modifier = Modifier.testTag(StudyTags.TIMER_RUNNING)
+                        modifier = Modifier.testTag(StudyTags.TIMER_RUNNING),
                     )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                        if (isPaused) {
+                            PqButton(
+                                text = stringResource(R.string.study_timer_action_resume),
+                                onClick = actions.onResume,
+                                icon = Icons.Rounded.PlayArrow,
+                                height = 50.dp,
+                                modifier = Modifier.weight(1f).testTag(StudyTags.TIMER_RESUME),
+                            )
+                        } else {
+                            PqButton(
+                                text = stringResource(R.string.study_timer_action_pause),
+                                onClick = actions.onPause,
+                                icon = Icons.Rounded.Pause,
+                                height = 50.dp,
+                                modifier = Modifier.weight(1f).testTag(StudyTags.TIMER_PAUSE),
+                            )
+                        }
                         PqButton(
                             text = stringResource(R.string.study_timer_stop),
                             onClick = actions.onStop,
-                            icon = Icons.Rounded.Pause,
+                            style = PqButtonStyle.Secondary,
                             height = 50.dp,
-                            modifier = Modifier.weight(1f).testTag(StudyTags.TIMER_STOP)
+                            modifier = Modifier.weight(1f).testTag(StudyTags.TIMER_STOP),
                         )
                         Text(
                             text = stringResource(R.string.study_timer_cancel),
@@ -101,7 +126,7 @@ fun StudyTimerCard(state: StudyPartyUiState, actions: TimerActions, clock: () ->
                                 .testTag(StudyTags.TIMER_CANCEL)
                                 .clickable(role = Role.Button, onClick = actions.onCancel)
                                 .heightIn(min = 48.dp)
-                                .padding(horizontal = 8.dp, vertical = 14.dp)
+                                .padding(horizontal = 8.dp, vertical = 14.dp),
                         )
                     }
                 }
@@ -124,7 +149,7 @@ fun StudyTimerCard(state: StudyPartyUiState, actions: TimerActions, clock: () ->
                         chosen = null
                     },
                     style = PqButtonStyle.Secondary,
-                    modifier = Modifier.fillMaxWidth().testTag(StudyTags.LOG_MINUTES)
+                    modifier = Modifier.fillMaxWidth().testTag(StudyTags.LOG_MINUTES),
                 )
             }
         }

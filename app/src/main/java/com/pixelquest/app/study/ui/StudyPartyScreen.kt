@@ -202,9 +202,29 @@ fun StudyPartyScreen(
                 onDiscard = viewModel::discard,
             ),
             onConfirmDelete = viewModel::confirmDelete,
-            onCancelDelete = viewModel::cancelDelete,
-            timerActions = TimerActions(viewModel::startTimer, viewModel::stopTimer, viewModel::cancelTimer, viewModel::logStudy),
-            onDismissWinners = viewModel::dismissWinnerBanner,
+            timerActions = TimerActions(
+                onStart = {
+                    viewModel.startTimer()
+                    com.pixelquest.app.study.timer.StudyTimerService.start(context, viewModel.partyId, state.party?.name)
+                },
+                onStop = {
+                    viewModel.stopTimer()
+                    com.pixelquest.app.study.timer.StudyTimerService.stop(context)
+                },
+                onCancel = {
+                    viewModel.cancelTimer()
+                    com.pixelquest.app.study.timer.StudyTimerService.cancel(context)
+                },
+                onLogMinutes = viewModel::logStudy,
+                onPause = {
+                    viewModel.pauseTimer()
+                    com.pixelquest.app.study.timer.StudyTimerService.pause(context)
+                },
+                onResume = {
+                    viewModel.resumeTimer()
+                    com.pixelquest.app.study.timer.StudyTimerService.resume(context)
+                },
+            ),
             reminders = ReminderToggles(
                 dueReminders,
                 { on ->
@@ -1112,6 +1132,8 @@ object StudyTags {
     const val TIMER_TODAY = "study_timer_today"
     const val TIMER_START = "study_timer_start"
     const val TIMER_RUNNING = "study_timer_running"
+    const val TIMER_PAUSE = "study_timer_pause"
+    const val TIMER_RESUME = "study_timer_resume"
     const val TIMER_STOP = "study_timer_stop"
     const val TIMER_CANCEL = "study_timer_cancel"
     const val LOG_MINUTES = "study_log_minutes"

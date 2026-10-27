@@ -232,6 +232,32 @@ class StudyPartyViewModelTest {
     }
 
     @Test
+    fun theTimer_pausesAndResumes_syncingWithUiState() {
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.loaded }
+
+        vm.startTimer()
+        waitFor("running") { vm.uiState.value.timer?.partyId == party }
+        assertFalse(vm.uiState.value.timer?.isPaused == true)
+
+        server.now = server.now.plusSeconds(300) // 5 mins
+        vm.pauseTimer()
+        waitFor("paused") { vm.uiState.value.timer?.isPaused == true }
+        assertEquals(300_000L, vm.uiState.value.timer?.elapsedMillisAt(server.now.toEpochMilli()))
+
+        server.now = server.now.plusSeconds(120) // 2 mins paused
+        // elapsed time should remain frozen at 300_000L
+        assertEquals(300_000L, vm.uiState.value.timer?.elapsedMillisAt(server.now.toEpochMilli()))
+
+        vm.resumeTimer()
+        waitFor("resumed") { vm.uiState.value.timer?.isPaused == false }
+        assertEquals(120_000L, vm.uiState.value.timer?.accumulatedPauseMs)
+
+        vm.stopTimer()
+        waitFor("stopped") { vm.uiState.value.timer == null }
+    }
+
+    @Test
     fun aTimerRunningElsewhere_isntThisPartysToStop() {
         timer.start("another-party", server.now.toEpochMilli())
         val vm = viewModel()

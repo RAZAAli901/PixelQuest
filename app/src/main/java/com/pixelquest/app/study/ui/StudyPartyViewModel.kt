@@ -264,7 +264,17 @@ class StudyPartyViewModel @Inject constructor(
 
     /** Starts the study timer for this party, unless one is running already. */
     fun startTimer() {
-        if (timer.running.value == null) timer.start(partyId, study.now().toEpochMilli())
+        if (timer.running.value == null) timer.start(partyId, study.now().toEpochMilli(), uiState.value.party?.name)
+    }
+
+    /** Pauses this party's timer if running. */
+    fun pauseTimer() {
+        if (timer.running.value?.partyId == partyId) timer.pause(study.now().toEpochMilli())
+    }
+
+    /** Resumes this party's timer if paused. */
+    fun resumeTimer() {
+        if (timer.running.value?.partyId == partyId) timer.resume(study.now().toEpochMilli())
     }
 
     /** Stops this party's timer and logs its minutes (up to 240); under 5 it's too short to count. */
