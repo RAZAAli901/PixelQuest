@@ -40,6 +40,8 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -318,10 +320,12 @@ class StudyRepositoryImpl(
         }
     }
 
-    override suspend fun complete(item: StudyItem): StudyCompletion {
+    private val completingMutex = Mutex()
+
+    override suspend fun complete(item: StudyItem): StudyCompletion = completingMutex.withLock {
         val me = account.id()
-        dao.pendingCompletionOf(item.id)?.let { return it.toCompletion(me) }
-        if (me != null) dao.completionOf(item.id, me)?.let { return it.toDomain() }
+        dao.pendingCompletionOf(item.id)?.let { return@withLock it.toCompletion(me) }
+        if (me != null) dao.completionOf(item.id, me)?.let { return@withLock it.toDomain() }
         val at = clock()
         val here = zone()
         val pending = PendingStudyEntity(
@@ -336,7 +340,7 @@ class StudyRepositoryImpl(
         dao.insertPending(pending)
         // Couldn't go now: the sync worker sends it once there's a connection.
         if (sendPending().needsRetry) syncScheduler?.scheduleSend()
-        return dao.pendingCompletionOf(item.id)?.toCompletion(me)
+        return@withLock dao.pendingCompletionOf(item.id)?.toCompletion(me)
             ?: me?.let { dao.completionOf(item.id, it) }?.toDomain()
             ?: pending.toCompletion(me)
     }

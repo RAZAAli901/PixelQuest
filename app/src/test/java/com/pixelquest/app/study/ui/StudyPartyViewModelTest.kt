@@ -182,6 +182,28 @@ class StudyPartyViewModelTest {
     }
 
     @Test
+    fun rapidDoubleTaps_neverDoubleCountPointsOnScoreboard() {
+        val item = study.seedItem(party, "aria", "Physics Homework", kind = StudyItemKind.ASSIGNMENT)
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.items.any { it.item.id == item.id } }
+
+        // Rapid double tap on complete
+        vm.complete(item.id)
+        vm.complete(item.id)
+        waitFor("completed on server") { study.completions.any { it.itemId == item.id } }
+        // Verify only 1 completion exists on server
+        assertEquals(1, study.completions.count { it.itemId == item.id })
+
+        // Refresh scores to update scoreboard
+        vm.refresh()
+        waitFor("board updated") { vm.uiState.value.board.any { it.isMe && it.points > 0 } }
+
+        val myLine = vm.uiState.value.board.first { it.isMe }
+        // Assignment is 10 points. Never double counted (which would be 20).
+        assertEquals(10, myLine.points)
+    }
+
+    @Test
     fun theTimer_logsItsMinutes_upTo240_andNothingUnder5() {
         val vm = viewModel()
         waitFor("loaded") { vm.uiState.value.loaded }

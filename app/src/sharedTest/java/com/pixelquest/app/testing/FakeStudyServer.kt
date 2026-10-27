@@ -85,7 +85,7 @@ class FakeStudyServer(val parties: FakeDaroodServer) : StudyRemoteDataSource {
             else -> {
                 val item = StudyItem(
                     "item-${nextItem++}", partyId, draft.kind, draft.title.trim(), draft.subject?.trim()?.ifEmpty { null },
-                    draft.notes?.trim()?.ifEmpty { null }, draft.dueAt, pinned, me, parties.now
+                    draft.notes?.trim()?.ifEmpty { null }, draft.dueAt, pinned, me, parties.now,
                 )
                 items[item.id] = item
                 SupabaseResult.Success(item)
@@ -101,8 +101,13 @@ class FakeStudyServer(val parties: FakeDaroodServer) : StudyRemoteDataSource {
             !mayChange(item, me) -> refuse(StudyRefusal.NOT_ALLOWED, 403)
             draft.kind == StudyItemKind.QUIZ && draft.dueAt == null -> refuse(StudyRefusal.INVALID)
             else -> {
-                val edited = item!!.copy(kind = draft.kind, title = draft.title.trim(), subject = draft.subject?.trim()?.ifEmpty { null },
-                    notes = draft.notes?.trim()?.ifEmpty { null }, dueAt = draft.dueAt)
+                val edited = item!!.copy(
+                    kind = draft.kind,
+                    title = draft.title.trim(),
+                    subject = draft.subject?.trim()?.ifEmpty { null },
+                    notes = draft.notes?.trim()?.ifEmpty { null },
+                    dueAt = draft.dueAt,
+                )
                 items[itemId] = edited
                 SupabaseResult.Success(edited)
             }
@@ -158,7 +163,7 @@ class FakeStudyServer(val parties: FakeDaroodServer) : StudyRemoteDataSource {
 
     override suspend fun fetchSessions(partyId: String, since: LocalDate) = answer("fetchSessions") { me ->
         SupabaseResult.Success(
-            if (isMember(partyId, me)) sessions.filter { it.partyId == partyId && !it.localDate.isBefore(since) }.sortedByDescending { it.createdAt } else emptyList()
+            if (isMember(partyId, me)) sessions.filter { it.partyId == partyId && !it.localDate.isBefore(since) }.sortedByDescending { it.createdAt } else emptyList(),
         )
     }
 
@@ -187,7 +192,7 @@ class FakeStudyServer(val parties: FakeDaroodServer) : StudyRemoteDataSource {
         val ticks = completions.filter { it.partyId == partyId }.groupBy { Key(it.userId!!, weekStartOf(it.localDate)) }
         val studied = sessions.filter { it.partyId == partyId }.groupBy { Key(it.userId!!, weekStartOf(it.localDate)) }
         return (ticks.keys + studied.keys).map { key ->
-            val done = ticks[key].orEmpty()
+            val done = ticks[key].orEmpty().distinctBy { it.itemId }
             val itemPoints = done.sumOf { StudyPointsConfig.pointsFor(items[it.itemId]?.kind ?: StudyItemKind.ASSIGNMENT) }
             val bonus = done.sumOf { StudyPointsConfig.earlyBonus(items[it.itemId]?.dueAt, it.completedAt) }
             val days = studied[key].orEmpty().groupBy { it.localDate }.values.map { day -> day.sumOf { it.minutes } }
@@ -198,7 +203,7 @@ class FakeStudyServer(val parties: FakeDaroodServer) : StudyRemoteDataSource {
 
     override suspend fun fetchScores(partyId: String, since: LocalDate) = answer("fetchScores") { me ->
         SupabaseResult.Success(
-            if (isMember(partyId, me)) scores(partyId).filter { !it.weekStart.isBefore(since) }.sortedWith(compareByDescending<WeekScore> { it.weekStart }.thenByDescending { it.points }) else emptyList()
+            if (isMember(partyId, me)) scores(partyId).filter { !it.weekStart.isBefore(since) }.sortedWith(compareByDescending<WeekScore> { it.weekStart }.thenByDescending { it.points }) else emptyList(),
         )
     }
 
