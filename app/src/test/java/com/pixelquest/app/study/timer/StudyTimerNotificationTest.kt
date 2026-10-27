@@ -149,4 +149,70 @@ class StudyTimerNotificationTest {
         assertEquals(com.pixelquest.app.ui.navigation.Screen.PartiesParty.createRoute("party_math"), intent.getStringExtra(com.pixelquest.app.MainActivity.EXTRA_OPEN_ROUTE))
         assertEquals("WEEK", intent.getStringExtra("FOCUS_TAB"))
     }
+
+    @Test
+    fun stop_under5Minutes_discardsSessionAndPostsNotSavedNotification() = kotlinx.coroutines.test.runTest {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+        val t0 = 1_000_000L
+        store.start("party_math", t0, "Math Circle")
+
+        // Stopped after 4 minutes (< 5 mins)
+        val logged = service.performStop(t0 + 4 * 60_000L)
+        assertNull(logged)
+        assertNull(store.running.value)
+
+        io.mockk.coVerify(exactly = 0) { service.studyRepository.logStudy(any(), any()) }
+
+        val nm = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val shadowNm = org.robolectric.Shadows.shadowOf(nm)
+        val notif = shadowNm.getNotification(StudyTimerService.COMPLETION_NOTIFICATION_ID)
+        assertNotNull(notif)
+        val text = notif.extras.getString(NotificationCompat.EXTRA_TEXT).orEmpty()
+        assertTrue(text.contains("under 5 minutes"))
+    }
+
+    @Test
+    fun stop_validDuration_logsToRepositoryAndPostsSavedNotification() = kotlinx.coroutines.test.runTest {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+        val t0 = 1_000_000L
+        store.start("party_math", t0, "Math Circle")
+
+        // Stopped after 45 minutes
+        val logged = service.performStop(t0 + 45 * 60_000L)
+        assertEquals(45, logged)
+        assertNull(store.running.value)
+
+        io.mockk.coVerify(exactly = 1) { service.studyRepository.logStudy("party_math", 45) }
+
+        val nm = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val shadowNm = org.robolectric.Shadows.shadowOf(nm)
+        val notif = shadowNm.getNotification(StudyTimerService.COMPLETION_NOTIFICATION_ID)
+        assertNotNull(notif)
+        val text = notif.extras.getString(NotificationCompat.EXTRA_TEXT).orEmpty()
+        assertTrue(text.contains("45 mins"))
+    }
+
+    @Test
+    fun stop_over4Hours_capsAt240Minutes() = kotlinx.coroutines.test.runTest {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+        val t0 = 1_000_000L
+        store.start("party_math", t0, "Math Circle")
+
+        // Stopped after 300 minutes (5 hours) -> capped at 240 mins (4 hours)
+        val logged = service.performStop(t0 + 300 * 60_000L)
+        assertEquals(240, logged)
+        assertNull(store.running.value)
+
+        io.mockk.coVerify(exactly = 1) { service.studyRepository.logStudy("party_math", 240) }
+
+        val nm = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val shadowNm = org.robolectric.Shadows.shadowOf(nm)
+        val notif = shadowNm.getNotification(StudyTimerService.COMPLETION_NOTIFICATION_ID)
+        assertNotNull(notif)
+        val text = notif.extras.getString(NotificationCompat.EXTRA_TEXT).orEmpty()
+        assertTrue(text.contains("240 mins"))
+    }
 }

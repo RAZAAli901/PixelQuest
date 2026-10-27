@@ -117,26 +117,27 @@ class StudyTimerService : Service() {
         timerStore.resume(System.currentTimeMillis())
     }
 
+    internal suspend fun performStop(now: Long = System.currentTimeMillis()): Int? {
+        val current = timerStore.running.value ?: return null
+        val loggedMinutes = current.loggedAt(now)
+
+        if (loggedMinutes != null) {
+            studyRepository.logStudy(current.partyId, loggedMinutes)
+            showCompletionNotification(
+                getString(R.string.study_timer_saved_notif, loggedMinutes),
+            )
+        } else {
+            showCompletionNotification(
+                getString(R.string.study_timer_not_saved),
+            )
+        }
+        timerStore.clear()
+        return loggedMinutes
+    }
+
     private fun handleStop() {
         serviceScope.launch(Dispatchers.IO) {
-            val current = timerStore.running.value
-            if (current != null) {
-                val now = System.currentTimeMillis()
-                val minutes = current.minutesAt(now)
-                val loggedMinutes = current.loggedAt(now)
-
-                if (loggedMinutes != null) {
-                    studyRepository.logStudy(current.partyId, loggedMinutes)
-                    showCompletionNotification(
-                        getString(R.string.study_timer_saved_notif, loggedMinutes),
-                    )
-                } else {
-                    showCompletionNotification(
-                        getString(R.string.study_timer_not_saved),
-                    )
-                }
-            }
-            timerStore.clear()
+            performStop()
         }
     }
 
