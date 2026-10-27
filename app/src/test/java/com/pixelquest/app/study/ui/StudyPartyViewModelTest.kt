@@ -5,8 +5,8 @@ import android.os.Looper
 import androidx.lifecycle.SavedStateHandle
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
+import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.study.data.StudyRepositoryImpl
 import com.pixelquest.app.study.domain.StudyItemKind
@@ -15,12 +15,13 @@ import com.pixelquest.app.testing.FakeStudyServer
 import com.pixelquest.app.testing.TestViewModels
 import com.pixelquest.app.testing.closeAfterWrites
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.MainScope
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -153,6 +154,31 @@ class StudyPartyViewModelTest {
         vm.undo(item.id)
         waitFor("taken back") { !vm.uiState.value.items.single().done }
         assertTrue(study.completions.isEmpty())
+    }
+
+    @Test
+    fun done_isSafeToRepeat_andRollsBackWhenServerRefuses() {
+        val item1 = study.seedItem(party, "bram", "Chemistry Assignment")
+        val item2 = study.seedItem(party, "bram", "Restricted Quiz")
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.items.size >= 2 }
+
+        // 1. Tapping Done updates local cache at once (optimistic), safe to repeat
+        vm.complete(item1.id)
+        vm.complete(item1.id) // Rapid second tap must be safely ignored without error
+        waitFor("done on server") { study.completions.any { it.itemId == item1.id } }
+
+        // 2. Server refusal: optimistic completion is rolled back with an explanatory message
+        study.items.remove(item2.id)
+        vm.complete(item2.id)
+
+        waitFor("refusal notice shown") {
+            vm.uiState.value.notice == StudyNotice.Refused(com.pixelquest.app.study.domain.StudyRefusal.NO_SUCH_ITEM)
+        }
+        // Rolled back from local cache: item2 is not marked done
+        val row2 = vm.uiState.value.items.first { it.item.id == item2.id }
+        assertFalse("Refused completion must be rolled back", row2.done)
+        assertEquals(com.pixelquest.app.study.domain.SyncState.FAILED, row2.mine?.state)
     }
 
     @Test

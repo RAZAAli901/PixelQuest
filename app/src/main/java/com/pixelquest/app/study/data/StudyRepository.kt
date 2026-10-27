@@ -491,7 +491,7 @@ private fun StudyWeekScoreEntity.toDomain(username: String?) = WeekScore(
 )
 
 private fun PendingStudyEntity.toCompletion(me: String?) = StudyCompletion(
-    null, clientId, itemId.orEmpty(), partyId, me, Instant.ofEpochMilli(createdAt), localDate, tz, state,
+    null, clientId, itemId.orEmpty(), partyId, me, Instant.ofEpochMilli(createdAt), localDate, tz, state, refusal,
 )
 
 private fun PendingStudyEntity.toSession(me: String?) = StudySession(

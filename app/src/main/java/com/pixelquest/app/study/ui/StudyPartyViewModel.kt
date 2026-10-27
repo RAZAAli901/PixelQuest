@@ -8,16 +8,16 @@ import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.party.data.PartyRepository
 import com.pixelquest.app.party.domain.PartyTab
 import com.pixelquest.app.study.data.MemoryStudyTimerStore
+import com.pixelquest.app.study.data.MemoryWinnerSeenStore
 import com.pixelquest.app.study.data.RunningTimer
+import com.pixelquest.app.study.data.StudyReminderSettings
 import com.pixelquest.app.study.data.StudyRepository
 import com.pixelquest.app.study.data.StudyTimerStore
-import com.pixelquest.app.study.data.MemoryWinnerSeenStore
 import com.pixelquest.app.study.data.WinnerSeenStore
-import com.pixelquest.app.study.data.StudyReminderSettings
-import com.pixelquest.app.study.domain.StudyRules
-import com.pixelquest.app.study.sync.StudyChange
 import com.pixelquest.app.study.domain.StudyRefusal
+import com.pixelquest.app.study.domain.StudyRules
 import com.pixelquest.app.study.domain.SyncState
+import com.pixelquest.app.study.sync.StudyChange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,7 +42,7 @@ class StudyPartyViewModel @Inject constructor(
     settings: SettingsRepository? = null,
     private val timer: StudyTimerStore = MemoryStudyTimerStore(),
     private val winnerSeen: WinnerSeenStore = MemoryWinnerSeenStore(),
-    private val reminders: StudyReminderSettings? = null
+    private val reminders: StudyReminderSettings? = null,
 ) : ViewModel() {
 
     /** Reminders of what's due, on this phone; off without settings (tests). */
@@ -62,6 +62,7 @@ class StudyPartyViewModel @Inject constructor(
     val partyId: String = savedStateHandle[ARG_PARTY] ?: ""
 
     private val tab = MutableStateFlow(PartyTab.THIS_WEEK)
+
     /** A refresh the player pulled for: the only kind that shows the circle. */
     private val refreshing = MutableStateFlow(false)
     private var sync: Job? = null
@@ -85,7 +86,7 @@ class StudyPartyViewModel @Inject constructor(
         val party: com.pixelquest.app.party.domain.Party?,
         val members: List<com.pixelquest.app.party.domain.PartyMember>,
         val rows: List<ItemRow>,
-        val ticks: Map<String, List<com.pixelquest.app.study.domain.StudyCompletion>>
+        val ticks: Map<String, List<com.pixelquest.app.study.domain.StudyCompletion>>,
     )
 
     private val scores = combine(
@@ -93,13 +94,19 @@ class StudyPartyViewModel @Inject constructor(
         study.observeAllScores(partyId),
         study.observeWinners(partyId),
         study.observeSessions(partyId, study.today().minusDays(ACTIVITY_DAYS - 1)),
-        combine(timer.running, seenWinners, ::Pair)
+        combine(timer.running, seenWinners, ::Pair),
     ) { week, all, winners, today, (running, seen) ->
         val me = study.myId()
         val past = all.filter { it.weekStart.isBefore(weekStart) }
         Scores(
-            week, past, winners, today.filter { it.userId == me && it.state != SyncState.FAILED && it.localDate == study.today() }.sumOf { it.minutes }, running,
-            pastWeeksOf(past, winners, me), winnerBannerOf(winners, weekStart, seen), today
+            week,
+            past,
+            winners,
+            today.filter { it.userId == me && it.state != SyncState.FAILED && it.localDate == study.today() }.sumOf { it.minutes },
+            running,
+            pastWeeksOf(past, winners, me),
+            winnerBannerOf(winners, weekStart, seen),
+            today,
         )
     }
 
@@ -111,7 +118,7 @@ class StudyPartyViewModel @Inject constructor(
         val timer: RunningTimer?,
         val pastWeeks: List<PastWeek>,
         val banner: List<com.pixelquest.app.study.domain.WeekWinner>,
-        val sessions: List<com.pixelquest.app.study.domain.StudySession>
+        val sessions: List<com.pixelquest.app.study.domain.StudySession>,
     )
 
     private val flags = combine(tab, refreshing, loaded, combine(notice, form, confirmingDelete, ::Triple), settings?.simpleModeEnabled ?: flowOf(false)) { tab, refreshing, loaded, (notice, form, deleting), simple ->
@@ -155,7 +162,7 @@ class StudyPartyViewModel @Inject constructor(
             simpleMode = flags.simple,
             notice = flags.notice,
             form = flags.form,
-            confirmingDelete = flags.deleting?.let { id -> rows.firstOrNull { it.item.id == id } }
+            confirmingDelete = flags.deleting?.let { id -> rows.firstOrNull { it.item.id == id } },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StudyPartyUiState(weekStart = weekStart))
 
@@ -205,13 +212,29 @@ class StudyPartyViewModel @Inject constructor(
         }
     }
 
-    /** Ticks an item off for the player: saved at once, sent when it can be. */
+    private val completingIds = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+
+    /** Ticks an item off for the player: saved at once, sent when it can be. Safe to repeat, rolled back if refused. */
     fun complete(itemId: String) {
-        val row = uiState.value.items.firstOrNull { it.item.id == itemId } ?: return
+        val row = uiState.value.items.firstOrNull { it.item.id == itemId }
+            ?: uiState.value.thisWeek.firstOrNull { it.item.id == itemId }
+            ?: return
         if (row.done) return
+        if (!completingIds.add(itemId)) return
         viewModelScope.launch {
-            val done = study.complete(row.item)
-            if (done.state == SyncState.PENDING) notice.value = StudyNotice.Offline
+            try {
+                val done = study.complete(row.item)
+                if (done.state == SyncState.PENDING) {
+                    notice.value = StudyNotice.Offline
+                } else if (done.state == SyncState.FAILED) {
+                    val token = done.refusal.orEmpty()
+                    val refusal = StudyRefusal.entries.firstOrNull { it.token.isNotEmpty() && it.token == token }
+                        ?: StudyRefusal.NOT_ALLOWED
+                    notice.value = StudyNotice.Refused(refusal)
+                }
+            } finally {
+                completingIds.remove(itemId)
+            }
         }
     }
 

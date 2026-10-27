@@ -9,7 +9,8 @@ import java.time.temporal.TemporalAdjusters
 /** What a study item is, as the server names it (study_items.kind). */
 enum class StudyItemKind(val wire: String) {
     ASSIGNMENT("assignment"),
-    QUIZ("quiz");
+    QUIZ("quiz"),
+    ;
 
     companion object {
         fun fromWire(wire: String?): StudyItemKind = entries.firstOrNull { it.wire == wire } ?: ASSIGNMENT
@@ -25,7 +26,7 @@ enum class SyncState {
     SYNCED,
 
     /** The server refused it (a rule, not the connection): it won't be sent again as it is. */
-    FAILED
+    FAILED,
 }
 
 /** The limits the server enforces on a study party's data (docs/study-party.md), for the app to mirror. */
@@ -86,7 +87,7 @@ data class StudyItem(
     val dueAt: Instant?,
     val pinned: Boolean,
     val createdBy: String?,
-    val createdAt: Instant
+    val createdAt: Instant,
 )
 
 /**
@@ -103,7 +104,8 @@ data class StudyCompletion(
     val completedAt: Instant,
     val localDate: LocalDate,
     val tz: String,
-    val state: SyncState = SyncState.SYNCED
+    val state: SyncState = SyncState.SYNCED,
+    val refusal: String? = null,
 ) {
     /** Its owner may still undo it at [now]: within 24 hours of finishing. */
     fun canUndoAt(now: Instant): Boolean = now.isBefore(completedAt.plus(StudyRules.UNDO_WINDOW))
@@ -119,7 +121,7 @@ data class StudySession(
     val localDate: LocalDate,
     val tz: String,
     val createdAt: Instant,
-    val state: SyncState = SyncState.SYNCED
+    val state: SyncState = SyncState.SYNCED,
 )
 
 /**
@@ -136,7 +138,7 @@ data class WeekScore(
     val bonusPoints: Int,
     val studyPoints: Int,
     val itemsCompleted: Int,
-    val studyMinutes: Int
+    val studyMinutes: Int,
 )
 
 /** A closed week's winner, as the board records it (ties all win). */
