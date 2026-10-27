@@ -112,7 +112,7 @@ internal fun SkippableQuestRow(quest: QuestUi, tag: String, onComplete: () -> Un
                 )
             },
     ) {
-        QuestRow(quest, onToggle = { if (!quest.done) onComplete() }, onClick = onClick)
+        QuestRow(quest, onToggle = { if (!quest.done) onComplete() }, onClick = onClick, modifier = Modifier.testTag(tag))
     }
 }
 

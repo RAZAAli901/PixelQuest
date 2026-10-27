@@ -218,6 +218,15 @@ fun QuestsScreen(
         }, onDismiss = { toSkip = null })
     }
 
+    val lifecycleOwner = androidx.compose.ui.platform.LocalLifecycleOwner.current
+    androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) todayViewModel.refresh()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     QuestsContent(
         tab = tab,
         onTabChange = { tab = it },
@@ -229,17 +238,18 @@ fun QuestsScreen(
         onNewQuest = onNewQuest,
         onNavigateBack = onNavigateBack,
         onQuestClick = { quest -> if (tab == QuestTab.History) onOpenHistoryQuest(quest.id) else onEditQuest(quest.id) },
-        // Only today's quests can be done or skipped; another day's opens instead.
+        // Complete today's quests or any quest from All tab
         onToggleQuest = { quest ->
-            val item = todayById[quest.id]
+            if (tab == QuestTab.History) return@QuestsContent
+            val task = todayById[quest.id]?.task ?: allTasks.firstOrNull { it.task.id == quest.id }?.task
+            val isDone = todayById[quest.id]?.status == TaskItemStatus.DONE || allTasks.firstOrNull { it.task.id == quest.id }?.status == TaskItemStatus.COMPLETED
             when {
-                tab == QuestTab.History -> Unit
-                item == null -> onEditQuest(quest.id)
-                item.status != TaskItemStatus.DONE -> {
+                task == null -> onEditQuest(quest.id)
+                !isDone -> {
                     PixelHaptics.performSuccessPattern(haptics)
                     sound?.playTaskCompleteSound()
-                    todayViewModel.completeTask(item.task)
-                    toast?.show(context.getString(R.string.motion_toast_done, item.task.name))
+                    todayViewModel.completeTask(task)
+                    toast?.show(context.getString(R.string.motion_toast_done, task.name))
                 }
             }
         },
