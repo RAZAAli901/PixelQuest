@@ -3,6 +3,22 @@
 All notable changes to **PixelQuest** are documented in this file.
 PixelQuest follows [Semantic Versioning 2.0.0](https://semver.org/). See [docs/VERSIONING_POLICY.md](docs/VERSIONING_POLICY.md) for full versioning and release lifecycle policies.
 
+## [1.8.2] - 2026-10-27 — Completed Quest Deletion & Instant Home Tab Appearance
+ 
+### ⬆️ Upgrading
+Install 1.8.2 over 1.8.1 (or any earlier version): 100% backward compatible. All existing quests, streaks, hero stats, and Deen data are preserved.
+
+### ⚔️ Quest Management & Deletion
+- **Delete Completed Quests**:
+  - Completed quests in the Quests screen (Today/All tabs) are now pressable. Clicking any completed quest opens its edit screen where users can delete it or modify its settings.
+  - Deleting a quest completely removes it from recurring schedules so it does not reappear on subsequent days.
+- **Home Tab "Manage quests" Shortcut**:
+  - When all daily quests are done, a convenient "Manage quests" shortcut appears below the celebratory banner to easily manage or delete quests without needing to leave the tab.
+- **Instant Home Tab Appearance**:
+  - Newly created quests now start immediately on the current day, displaying right away on the Home tab checklist until completed, regardless of the creation time.
+- **Missed Task Worker Safeguard**:
+  - Prevented newly created quests whose time of day has already passed from being erroneously recorded as missed on their first day.
+
 ---
 
 ## [1.8.1] - 2026-10-27 — Notification Banner Dismissal, Circles Tabs & Home Polish

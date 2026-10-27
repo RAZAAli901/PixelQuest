@@ -2,7 +2,7 @@
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
 [![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
-[![Version](https://img.shields.io/badge/Release-v1.8.1-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.1)
+[![Version](https://img.shields.io/badge/Release-v1.8.2-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.2)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 ![PixelQuest banner: Home and Deen in the Comic skin, Quests and Hero in the Pixel skin](docs/screenshots/banner.png)
@@ -13,9 +13,9 @@ Built with an offline-first **Clean Architecture** (MVI/MVVM + UDF), it integrat
 
 ---
 
-## ⚡ Direct Download — Version `v1.8.1`
+## ⚡ Direct Download — Version `v1.8.2`
 
-> **Version**: **`v1.8.1` (Notification Banner Fix, Circles Tabs & Home Quest Polish)**  
+> **Version**: **`v1.8.2` (Completed Quest Deletion & Instant Home Tab Appearance)**  
 > **Release Date**: October 27, 2026  
 > **Compatibility**: Android 7.0 (API level 24) through Android 15 (API level 35).  
 > **Upgrades**: 100% backward compatible across all versions. In-place upgrades preserve all your local quests, streaks, hero stats, and Deen data.
@@ -24,9 +24,9 @@ Download the signed release APK onto your Android device:
 
 | Package | Download Link | Description |
 |---|---|---|
-| **Release APK** | [📥 **app-release.apk (v1.8.1)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.1/app-release.apk) | Optimized, shrunk & signed production build (~5 MB) |
-| **Debug APK** | [🛠️ **app-debug.apk (v1.8.1)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.1/app-debug.apk) | Full debug build with extended logcat diagnostics |
-| **GitHub Release** | [📦 **Release v1.8.1 Notes & Checksums**](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.1) | Complete changelog, source code & SHA-256 hashes |
+| **Release APK** | [📥 **app-release.apk (v1.8.2)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.2/app-release.apk) | Optimized, shrunk & signed production build (~5 MB) |
+| **Debug APK** | [🛠️ **app-debug.apk (v1.8.2)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.2/app-debug.apk) | Full debug build with extended logcat diagnostics |
+| **GitHub Release** | [📦 **Release v1.8.2 Notes & Checksums**](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.2) | Complete changelog, source code & SHA-256 hashes |
 | **Latest Release Tag**| [🔗 **Latest GitHub Release**](https://github.com/RAZAAli901/PixelQuest/releases/latest) | Automatic redirect to the newest published release |
 
 ---

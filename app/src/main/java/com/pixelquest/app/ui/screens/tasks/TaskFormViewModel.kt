@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.local.entity.TaskEntity
-import com.pixelquest.app.domain.QuestStart
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.ReminderStyle
 import com.pixelquest.app.domain.model.TaskCategory
@@ -89,12 +88,8 @@ class TaskFormViewModel @Inject constructor(
 
     fun exactAlarmSettingsIntent(): android.content.Intent = taskAlarmScheduler.openExactAlarmSettingsIntent()
 
-    /** Refreshes [TaskFormState.startsTomorrow] for a new quest; edited quests keep their start day. */
-    private fun withStart(state: TaskFormState): TaskFormState {
-        val time = state.scheduledTime
-        val startsTomorrow = !state.isEditMode && time != null && QuestStart.startsTomorrow(appClock.now(), time)
-        return state.copy(startsTomorrow = startsTomorrow)
-    }
+    /** New quests start today so they show up on the Home tab until completed; edited quests keep their start day. */
+    private fun withStart(state: TaskFormState): TaskFormState = state.copy(startsTomorrow = false)
     val formState: StateFlow<TaskFormState> = _formState.asStateFlow()
 
     private var loadedTaskId: Long? = savedStateHandle.get<Long>(KEY_TASK_ID)
@@ -241,8 +236,8 @@ class TaskFormViewModel @Inject constructor(
                 id = state.taskId ?: 0,
                 name = state.name.trim(),
                 description = state.description,
-                // A new quest whose time has passed today starts tomorrow; an edit keeps its start day.
-                scheduledDay = if (state.isEditMode) state.scheduledDay else QuestStart.firstDay(appClock.now(), time),
+                // A new quest starts today so it shows up on the Home tab until completed; an edit keeps its start day.
+                scheduledDay = if (state.isEditMode) state.scheduledDay else appClock.now().toLocalDate(),
                 scheduledTime = time,
                 recurrenceType = state.recurrenceType,
                 category = state.category,

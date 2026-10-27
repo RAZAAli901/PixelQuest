@@ -28,7 +28,7 @@ class MissedTaskWorker @AssistedInject constructor(
     private val taskRepository: TaskRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
     private val settingsRepository: SettingsRepository,
-    private val taskResultRecorder: TaskResultRecorder
+    private val taskResultRecorder: TaskResultRecorder,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -50,9 +50,12 @@ class MissedTaskWorker @AssistedInject constructor(
     /** Records [day]'s quests still without a result 2 hours after their time, and returns them. */
     private suspend fun recordMissed(day: LocalDate, now: LocalDateTime): List<TaskEntity> {
         val loggedTaskIds = taskCompletionRepository.getLogsForDate(day).first().map { it.taskId }.toSet()
+        val zone = java.time.ZoneId.systemDefault()
         return taskRepository.getTasksForDay(day).first()
             .filter { task ->
-                task.id !in loggedTaskIds && now.isAfter(LocalDateTime.of(day, task.scheduledTime).plusHours(2))
+                val due = LocalDateTime.of(day, task.scheduledTime)
+                val createdAfterDue = task.scheduledDay == day && task.createdAt > due.atZone(zone).toInstant().toEpochMilli()
+                task.id !in loggedTaskIds && !createdAfterDue && now.isAfter(due.plusHours(2))
             }
             // Recorded only if still without a result: a task completed a moment ago is left alone.
             .filter { task -> taskResultRecorder.recordNotDone(task.id, day) }
@@ -68,7 +71,7 @@ class MissedTaskWorker @AssistedInject constructor(
             Intent(applicationContext, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val manager = NotificationManagerCompat.from(applicationContext)
         // A quest with its reminders switched off gets no missed notice either (the miss is still
@@ -84,7 +87,7 @@ class MissedTaskWorker @AssistedInject constructor(
                 soundEnabled = soundEnabled,
                 vibrationEnabled = vibrationEnabled,
                 isSimpleMode = isSimpleMode,
-                silent = task.reminderStyle == ReminderStyle.SILENT
+                silent = task.reminderStyle == ReminderStyle.SILENT,
             )
             try {
                 manager.notify(MISSED_TAG, task.id.toInt(), notification)

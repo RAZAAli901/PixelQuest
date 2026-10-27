@@ -521,9 +521,10 @@ fun CheckCircle(checked: Boolean, onClick: () -> Unit, size: Dp = 40.dp, modifie
 @Composable
 fun QuestRow(quest: QuestUi, onToggle: () -> Unit, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val base = if (quest.done) {
-        modifier.comic(
-            PqColors.Sunken,
-            PqDimens.Radius,
+        modifier.comicPressable(
+            onClick = onClick,
+            bg = PqColors.Sunken,
+            radius = PqDimens.Radius,
             shadow = 0.dp,
         )
     } else {

@@ -17,6 +17,11 @@ A = "{http://schemas.android.com/apk/res/android}"
 # Exported on purpose, without a permission of its own.
 ALLOWED = {
     "com.pixelquest.app.MainActivity": "the launcher: the home-screen icon starts it",
+    "com.pixelquest.app.LauncherPixHappy": "dynamic launcher icon alias for Happy mascot state",
+    "com.pixelquest.app.LauncherPixOnFire": "dynamic launcher icon alias for OnFire mascot state",
+    "com.pixelquest.app.LauncherPixWorried": "dynamic launcher icon alias for Worried mascot state",
+    "com.pixelquest.app.LauncherPixSad": "dynamic launcher icon alias for Sad mascot state",
+    "com.pixelquest.app.LauncherPixSleepy": "dynamic launcher icon alias for Sleepy mascot state",
 }
 
 # Every permission in the merged manifest, and what needs it (docs/security/MANIFEST_AUDIT.md).

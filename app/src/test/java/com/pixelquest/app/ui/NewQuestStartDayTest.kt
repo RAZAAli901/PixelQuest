@@ -10,7 +10,6 @@ import com.pixelquest.app.testing.FixedClock
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -45,17 +44,17 @@ class NewQuestStartDayTest {
     private fun idle() = shadowOf(Looper.getMainLooper()).idle()
 
     @Test
-    fun aNewQuestWhoseTimeHasPassed_isSavedFromTomorrow_andTheFormSaysSo() {
+    fun aNewQuestWhoseTimeHasPassed_startsToday_andAppearsOnHomeTab() {
         val repository = FakeTaskRepository()
         val viewModel = form(repository)
         viewModel.onNameChanged("Morning Run")
         viewModel.onTimeSelected(LocalTime.of(9, 0))
 
-        assertTrue(viewModel.formState.value.startsTomorrow)
+        assertFalse(viewModel.formState.value.startsTomorrow)
         viewModel.saveTask {}
         idle()
 
-        assertEquals(today.plusDays(1), repository.tasks.value.single().scheduledDay)
+        assertEquals(today, repository.tasks.value.single().scheduledDay)
     }
 
     @Test
@@ -78,11 +77,15 @@ class NewQuestStartDayTest {
         val repository = FakeTaskRepository(
             listOf(
                 com.pixelquest.app.data.local.entity.TaskEntity(
-                    id = 3, name = "Stretch", description = "", scheduledDay = started, scheduledTime = LocalTime.of(8, 0),
+                    id = 3,
+                    name = "Stretch",
+                    description = "",
+                    scheduledDay = started,
+                    scheduledTime = LocalTime.of(8, 0),
                     recurrenceType = com.pixelquest.app.domain.model.RecurrenceType.DAILY,
-                    category = com.pixelquest.app.domain.model.TaskCategory.HEALTH
-                )
-            )
+                    category = com.pixelquest.app.domain.model.TaskCategory.HEALTH,
+                ),
+            ),
         )
         val viewModel = form(repository)
         viewModel.loadTask(3)

@@ -301,6 +301,14 @@ fun HomeContent(
             items(state.upNext, key = { it.id }) { quest ->
                 SkippableQuestRow(quest, HomeTags.quest(quest.id), onComplete = { onCompleteQuest(quest) }, onSkip = { toSkip = quest }, onClick = { onQuestClick(quest) })
             }
+        } else if (state.doneToday.isNotEmpty()) {
+            item(key = "done_today_manage") {
+                PqSectionHeader(
+                    stringResource(R.string.pq_home_done_today),
+                    action = stringResource(R.string.pq_home_see_all),
+                    onAction = onSeeAllQuests,
+                )
+            }
         }
     }
 }
