@@ -533,8 +533,8 @@ fun QuestRow(quest: QuestUi, onToggle: () -> Unit, onClick: () -> Unit, modifier
     // M03: done just now, the row squashes, the title's strike slides across, and its XP floats up.
     var rewards by remember(quest.id) { mutableIntStateOf(0) }
     var wasDone by remember(quest.id) { mutableStateOf(quest.done) }
-    LaunchedEffect(quest.done) {
-        if (quest.done && !wasDone) rewards++
+    LaunchedEffect(quest.done, quest.xp) {
+        if (quest.done && !wasDone && quest.xp > 0) rewards++
         wasDone = quest.done
     }
     Row(

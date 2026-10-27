@@ -183,7 +183,7 @@ internal fun ProgressCard(state: HomeUiState) {
                 }
                 Box {
                     PqProgressBar(state.progress, target = state.targetPercent / 100f)
-                    if (!state.isSimpleMode) XpGainChip(gained, gains, Modifier.align(Alignment.CenterEnd))
+                    if (!state.isSimpleMode && gained > 0) XpGainChip(gained, gains, Modifier.align(Alignment.CenterEnd))
                 }
                 if (!state.isSimpleMode) {
                     val context = LocalContext.current

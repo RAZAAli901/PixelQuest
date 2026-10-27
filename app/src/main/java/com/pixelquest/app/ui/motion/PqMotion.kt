@@ -216,7 +216,7 @@ fun RollingNumber(value: Int, style: TextStyle, modifier: Modifier = Modifier, f
 /** "+20 XP" chip that pops, then flies by [flyTo] and fades. Increment [trigger] to replay. */
 @Composable
 fun XpGainChip(amount: Int, trigger: Int, modifier: Modifier = Modifier, flyTo: IntOffset = IntOffset(64, 58)) {
-    if (trigger == 0 || reducedMotion()) return
+    if (amount <= 0 || trigger == 0 || reducedMotion()) return
     val scale = remember(trigger) { Animatable(0f) }
     val t = remember(trigger) { Animatable(0f) }
     LaunchedEffect(trigger) {
@@ -397,7 +397,7 @@ fun Modifier.strikeThrough(progress: Float, color: Color = PqColors.Ink): Modifi
 /** "+20 XP" floating up and fading from where it's placed. */
 @Composable
 fun FloatingReward(text: String, trigger: Int, modifier: Modifier = Modifier, color: Color = Color(0xFF1F7A3A)) {
-    if (trigger == 0) return
+    if (trigger == 0 || text.isBlank() || text.contains("+0 XP") || text.startsWith("+0")) return
     val reduced = reducedMotion()
     val t = remember(trigger) { Animatable(if (reduced) 1f else 0f) }
     LaunchedEffect(trigger) { if (!reduced) t.animateTo(1f, tween(900, easing = LinearEasing)) }
