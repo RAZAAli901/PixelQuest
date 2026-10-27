@@ -899,6 +899,7 @@ private fun DoneSectionHeader(
         modifier = modifier
             .fillMaxWidth()
             .testTag(StudyTags.DONE_SECTION_HEADER)
+            .heightIn(min = PqDimens.TouchMin)
             .clickable(role = Role.Button, onClickLabel = stringResource(if (expanded) R.string.study_done_hide else R.string.study_done_show), onClick = onToggle)
             .padding(vertical = 10.dp),
     ) {

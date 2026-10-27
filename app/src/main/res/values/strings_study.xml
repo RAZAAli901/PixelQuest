@@ -6,7 +6,7 @@
     For translators: <xliff:g> marks a value filled in by the app; keep it, move it where your
     grammar needs it, and leave what's inside unchanged. Its example shows what the app puts there.
 -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- The party screen's tabs. -->
     <string name="study_tab_this_week">Week</string>
     <string name="study_tab_all_items">Items</string>
@@ -49,7 +49,7 @@
     <string name="study_due_today">Due today, <xliff:g id="time" example="17:00">%1$s</xliff:g></string>
     <string name="study_due_overdue">Overdue: due <xliff:g id="day" example="Mon 19 Oct">%1$s</xliff:g>, <xliff:g id="time" example="09:00">%2$s</xliff:g></string>
     <!-- How many in the party have finished it, of its members ("3 of 5 done"). -->
-    <string name="study_item_done_count"><xliff:g id="done" example="3">%1$d</xliff:g> of <xliff:g id="members" example="5">%2$d</xliff:g> done</string>
+    <string name="study_item_done_count" tools:ignore="PluralsCandidate"><xliff:g id="done" example="3">%1$d</xliff:g> of <xliff:g id="members" example="5">%2$d</xliff:g> done</string>
     <!-- The player's own tick on it. -->
     <string name="study_item_done">✓ Done</string>
     <string name="study_item_waiting">✓ Waiting to send</string>
@@ -331,7 +331,7 @@
     <string name="study_timer_action_pause">Pause</string>
     <string name="study_timer_action_resume">Resume</string>
     <string name="study_timer_action_stop">Stop</string>
-    <string name="study_timer_saved_notif">Study session saved (<xliff:g id="minutes" example="25">%1$d</xliff:g> mins)</string>
+    <string name="study_timer_saved_notif" tools:ignore="PluralsCandidate">Study session saved (<xliff:g id="minutes" example="25">%1$d</xliff:g> mins)</string>
     <string name="study_timer_not_saved">Study session under 5 minutes was not saved.</string>
     <string name="study_timer_max_limit_reached">Study timer ended (max 4 hours saved).</string>
     <!-- Single active study timer switch dialog (T08) -->

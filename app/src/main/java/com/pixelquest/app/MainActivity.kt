@@ -222,8 +222,8 @@ class MainActivity : ComponentActivity() {
         // The Namaz Tracker's, and its route before the Islamic hub, which 1.4's reminders carry.
         private val OPENABLE_ROUTES = setOf(Screen.Namaz.route, com.pixelquest.app.ui.navigation.Routes.LEGACY_NAMAZ)
 
-        /** A study party's screen, for its reminders: a party id, nothing else. */
-        private val STUDY_PARTY_ROUTE = Regex("^" + Regex.escape(Screen.PartiesParty.createRoute("")) + "[0-9a-zA-Z_-]+$")
+        /** A study party's screen, for its reminders: only a party id (a UUID), nothing else. */
+        private val STUDY_PARTY_ROUTE = Regex("^" + Regex.escape(Screen.PartiesParty.createRoute("")) + "[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$")
 
         /** A Darood Party's room, or its weekly ranking, for their notifications: only a party id (a UUID). */
         private val DAROOD_WEEK_ROUTE = Regex("^" + Regex.escape(Screen.DaroodWeek.createRoute("@")).replace("@", "\\E[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\\Q") + "$")

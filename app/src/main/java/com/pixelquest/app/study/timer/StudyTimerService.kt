@@ -189,7 +189,7 @@ class StudyTimerService : Service() {
     private fun updateNotification(timer: RunningTimer) {
         val notification = buildForegroundNotification(timer)
         try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 startForeground(
                     NOTIFICATION_ID,
                     notification,

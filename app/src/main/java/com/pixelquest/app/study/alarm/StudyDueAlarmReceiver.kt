@@ -59,6 +59,7 @@ class StudyDueAlarmReceiver : BroadcastReceiver() {
     var ioDispatcher: kotlinx.coroutines.CoroutineDispatcher = Dispatchers.IO
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == null) return
         handleReceive(context, intent, goAsync())
     }
 
@@ -94,7 +95,7 @@ class StudyDueAlarmReceiver : BroadcastReceiver() {
                     }
                 }
             } catch (t: Throwable) {
-                t.printStackTrace()
+                com.pixelquest.app.util.AppLog.e("StudyDueAlarmReceiver", "Failed handling study alarm broadcast", t)
             } finally {
                 pendingResult?.finish()
             }

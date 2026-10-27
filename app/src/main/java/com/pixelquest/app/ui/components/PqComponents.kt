@@ -612,10 +612,10 @@ fun QuestCardBody(
 @Composable
 fun QuestCompleteZone(
     done: Boolean,
-    xp: Int = 0,
-    rewards: Int = 0,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
+    xp: Int = 0,
+    rewards: Int = 0,
 ) {
     val completeLabel = stringResource(R.string.pq_action_complete)
     Box(
