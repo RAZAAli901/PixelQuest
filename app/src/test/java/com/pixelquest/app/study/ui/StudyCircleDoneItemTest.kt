@@ -17,7 +17,9 @@ import com.pixelquest.app.testing.FakeDaroodServer
 import com.pixelquest.app.testing.FakeStudyServer
 import com.pixelquest.app.testing.TestViewModels
 import com.pixelquest.app.testing.closeAfterWrites
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -66,7 +68,11 @@ class StudyCircleDoneItemTest {
     } as T
 
     /** Represents a player's device with its own local Room database and ViewModel. */
-    private inner class Phone(userId: String) {
+    private inner class Phone(
+        userId: String,
+        liveSource: com.pixelquest.app.study.sync.StudyLiveSource? = null,
+        quietMs: Long = 1_000L,
+    ) {
         val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Application>(), AppDatabase::class.java)
             .allowMainThreadQueries().build().also { databases += it }
         val parties = DaroodPartyRepositoryImpl(
@@ -83,6 +89,8 @@ class StudyCircleDoneItemTest {
             { userId },
             clock = { server.now.toEpochMilli() },
             timeZone = { zone },
+            live = liveSource,
+            quietMs = quietMs,
         )
         val vm: StudyPartyViewModel = viewModels.keep(StudyPartyViewModel::class.java) {
             StudyPartyViewModel(
@@ -160,5 +168,76 @@ class StudyCircleDoneItemTest {
         assertEquals(1, bramItemAfter.doneCount)
         assertEquals(2, bramItemAfter.memberCount)
         assertFalse("Item must still not be marked done for User B", bramItemAfter.done)
+    }
+
+    @Test
+    fun twoUsers_undo_offlineCompletionSyncsLater_andRealtimeUpdate() {
+        val quiz = study.seedItem(
+            party = party,
+            by = "aria",
+            title = "Mechanics Quiz",
+            kind = StudyItemKind.QUIZ,
+            dueAt = Instant.parse("2026-10-23T04:00:00Z"),
+        )
+
+        val aria = Phone("aria")
+
+        // Bram's device has live updates configured
+        val bramChanges = kotlinx.coroutines.channels.Channel<com.pixelquest.app.study.sync.StudyChange>(kotlinx.coroutines.channels.Channel.UNLIMITED)
+        val bramLive = com.pixelquest.app.study.sync.StudyLiveSource { kotlinx.coroutines.flow.flow { for (c in bramChanges) emit(c) } }
+        val bram = Phone("bram", liveSource = bramLive, quietMs = 50)
+
+        // Wait for both to load
+        waitFor("Aria loaded") { aria.vm.uiState.value.loaded && aria.vm.uiState.value.thisWeek.any { it.item.id == quiz.id } }
+        waitFor("Bram loaded") { bram.vm.uiState.value.loaded && bram.vm.uiState.value.thisWeek.any { it.item.id == quiz.id } }
+
+        val bramFollowJob = kotlinx.coroutines.MainScope().launch { bram.vm.followWhileVisible() }
+
+        // 1. Offline completion: Server goes offline
+        server.offline = true
+        aria.vm.complete(quiz.id)
+
+        // Local cache updates at once: item is removed from active thisWeek and moves to completedThisWeek
+        waitFor("Aria offline completion recorded") {
+            aria.vm.uiState.value.completedThisWeek.any { it.item.id == quiz.id } &&
+                aria.vm.uiState.value.thisWeek.none { it.item.id == quiz.id }
+        }
+        val ariaCompletedRow = aria.vm.uiState.value.completedThisWeek.first { it.item.id == quiz.id }
+        assertEquals(com.pixelquest.app.study.domain.SyncState.PENDING, ariaCompletedRow.mine?.state)
+
+        // 2. Server comes back online and syncs pending completion
+        server.offline = false
+        kotlinx.coroutines.runBlocking { aria.repo.sendPending() }
+        waitFor("Synced to server") {
+            study.completions.any { it.itemId == quiz.id && it.userId == "aria" }
+        }
+
+        // 3. Realtime update arriving while Bram's screen is open
+        bramChanges.trySend(com.pixelquest.app.study.sync.StudyChange.Activity)
+        waitFor("Bram receives realtime update") {
+            val bramRow = bram.vm.uiState.value.thisWeek.firstOrNull { it.item.id == quiz.id }
+            bramRow != null && bramRow.doneCount == 1 && "aria_k" in bramRow.doneUsers
+        }
+        // Item still shows for Bram because Bram has not completed it
+        assertTrue(bram.vm.uiState.value.thisWeek.any { it.item.id == quiz.id })
+
+        // 4. Undo: User A (Aria) takes the completion back within 24h
+        aria.vm.undo(quiz.id)
+        waitFor("Undo reflected on Aria phone") {
+            aria.vm.uiState.value.thisWeek.any { it.item.id == quiz.id } &&
+                aria.vm.uiState.value.completedThisWeek.none { it.item.id == quiz.id }
+        }
+        waitFor("Undo reflected on server") {
+            study.completions.none { it.itemId == quiz.id && it.userId == "aria" }
+        }
+
+        // Realtime update of undo arrives on Bram's open screen
+        bramChanges.trySend(com.pixelquest.app.study.sync.StudyChange.Activity)
+        waitFor("Bram receives realtime update after undo") {
+            val bramRow = bram.vm.uiState.value.thisWeek.firstOrNull { it.item.id == quiz.id }
+            bramRow != null && bramRow.doneCount == 0 && bramRow.doneUsers.isEmpty()
+        }
+
+        bramFollowJob.cancel()
     }
 }
