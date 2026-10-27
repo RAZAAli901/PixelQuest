@@ -89,14 +89,17 @@ The due list only, with no points, ranks or scoreboard text, as Simple Mode has 
 
 **Routes:** `parties/party/{partyId}` and `parties/party/{partyId}/item/{itemId}`; the party's info stays at `parties/party/{partyId}/info`.
 
-**Since, in Phase F:**
+**Since, in Phase F, Phase A, and Phase T:**
 - End to end: `StudyEndToEndTest`, a party created, joined, pinned, finished and won on two phones; and `StudyPartyFlowTest`.
 - A TalkBack and large-text pass on every screen (`NewScreensAccessibilityTest`).
 - Settings' Islamic card has the due reminders' and Sunday summary's switches too, and Parties has a first-run tip.
 - Signing out sends waiting ticks and study time first, then clears the party, its rows, the timer and what was seen.
+- **24-Hour Due Alarms (Phase A)**: Exact alarm alerts 24 hours before due dates with full-screen intent, alarm channel sound/vibration, and actions Done, Snooze, Open. See [study-alarms.md](study-alarms.md).
+- **Ongoing Study Timer (Phase T)**: Background foreground service with system chronometer notification, actions Pause/Resume/Stop, session saving (5-240m), single active timer across circles, and reboot restore. See [study-timer.md](study-timer.md).
 
 **Simplest choices made:**
 - Items, edits and undoing a tick already sent need a connection; ticks and study time don't.
 - A due date is picked from the next four weeks, and a time from the hours of the day.
 - Realtime brings new and changed rows; what's taken away shows at the next refresh.
-- Tapping a notification opens the app.
+- Tapping a notification opens the app and directly navigates to the active study circle.
+

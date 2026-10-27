@@ -2,7 +2,7 @@
 
 [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/RAZAAli901/PixelQuest/releases/latest/download/app-release.apk)
 [![GitHub Release](https://img.shields.io/badge/GitHub-Releases-blue?style=for-the-badge&logo=github)](https://github.com/RAZAAli901/PixelQuest/releases)
-[![Version](https://img.shields.io/badge/Release-v1.8.3-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.3)
+[![Version](https://img.shields.io/badge/Release-v1.8.4-orange?style=for-the-badge)](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.4)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
 ![PixelQuest banner: Home and Deen in the Comic skin, Quests and Hero in the Pixel skin](docs/screenshots/banner.png)
@@ -13,10 +13,10 @@ Built with an offline-first **Clean Architecture** (MVI/MVVM + UDF), it integrat
 
 ---
 
-## ⚡ Direct Download — Version `v1.8.3`
+## ⚡ Direct Download — Version `v1.8.4`
 
-> **Version**: **`v1.8.3` (Quest Tap Architecture, 3 Touch Zones & Zero-XP Rules)**  
-> **Release Date**: October 27, 2026  
+> **Version**: **`v1.8.4` (Ongoing Notification Study Timer, 24h Due Alarms & Circle Done Fixes)**  
+> **Release Date**: October 28, 2026  
 > **Compatibility**: Android 7.0 (API level 24) through Android 15 (API level 35).  
 > **Upgrades**: 100% backward compatible across all versions. In-place upgrades preserve all your local quests, streaks, hero stats, and Deen data.
 
@@ -24,9 +24,9 @@ Download the signed release APK onto your Android device:
 
 | Package | Download Link | Description |
 |---|---|---|
-| **Release APK** | [📥 **app-release.apk (v1.8.3)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.3/app-release.apk) | Optimized, shrunk & signed production build (~5 MB) |
-| **Debug APK** | [🛠️ **app-debug.apk (v1.8.3)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.3/app-debug.apk) | Full debug build with extended logcat diagnostics |
-| **GitHub Release** | [📦 **Release v1.8.3 Notes & Checksums**](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.3) | Complete changelog, source code & SHA-256 hashes |
+| **Release APK** | [📥 **app-release.apk (v1.8.4)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.4/app-release.apk) | Optimized, shrunk & signed production build (~5 MB) |
+| **Debug APK** | [🛠️ **app-debug.apk (v1.8.4)**](https://github.com/RAZAAli901/PixelQuest/releases/download/v1.8.4/app-debug.apk) | Full debug build with extended logcat diagnostics |
+| **GitHub Release** | [📦 **Release v1.8.4 Notes & Checksums**](https://github.com/RAZAAli901/PixelQuest/releases/tag/v1.8.4) | Complete changelog, source code & SHA-256 hashes |
 | **Latest Release Tag**| [🔗 **Latest GitHub Release**](https://github.com/RAZAAli901/PixelQuest/releases/latest) | Automatic redirect to the newest published release |
 
 ---
@@ -109,8 +109,10 @@ For detailed design rationale, see the [Architecture Decision Records (ADRs)](#-
   - **Offline Namaz Tracker**: Accurate prayer timetable calculated completely offline on-device based on astronomical coordinates, with start-of-prayer notifications and optional XP rewards.
   - **Tanzil Holy Quran**: Embedded Uthmani Arabic scripture and Saheeh International translation, featuring instant search, juz navigation, bookmarks, and sepia reader themes.
   - **Darood Counting Parties**: Real-time collaborative counting rooms for friends with live progress sync, individual share breakdowns, goal milestones, and weekly ranking summaries with accurate top-contributor tallies.
-- **Study Parties & Real-time Chess**:
-  - Collaborative group checklists, study timers, file attachments (up to 20 MB), and group reminders.
+- **Study Circles & Real-time Chess**:
+  - **Ongoing Notification Study Timer**: Foreground service with system chronometer notification, direct Pause/Resume/Stop actions, session auto-saving (5-240 minutes), 4-hour safety cap, single active circle timer enforcement, and persistence across app restart/reboot.
+  - **24-Hour Due Alarms**: Exact AlarmManager scheduling 24 hours prior to assignment/quiz due dates with custom alarm sound, vibration, full-screen intent, and actions Done, Snooze 1 hour, and Open.
+  - **Collaborative Group Checklists**: Per-user item completion filtering, progress avatars (`3 of 5 done`), collapsed Done section with 24-hour Undo window, file attachments (up to 20 MB), and weekly friendly scoreboard with double-tap protection.
   - **Server-Refereed Live Chess**: 1 to 10 minute blitz clocks, starting at 200 Int rating (Pawn tier), ELO-inspired ratings, party ladder ranks, direct board routing on challenge and rematch acceptance, match exit protection guard (`LeaveGameGuard`), clean Accept/Decline challenge sheets, and live spectator presence tracking.
   - **Offline Chess Bot ("Pix AI")**: Practice offline anytime against Pix AI with fast heuristic piece evaluations, checkmate detection, hanging piece protection, simulated human-like thinking delay (~400ms), and full local game lifecycle (rematch, resign, draw).
   - **Zero-Latency Chess & Touch Optimization**:
