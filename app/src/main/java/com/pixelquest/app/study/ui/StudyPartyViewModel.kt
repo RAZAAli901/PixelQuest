@@ -267,6 +267,17 @@ class StudyPartyViewModel @Inject constructor(
         if (timer.running.value == null) timer.start(partyId, study.now().toEpochMilli(), uiState.value.party?.name)
     }
 
+    /** Confirmed switch: stops and logs the running timer for another party, then starts this party's timer. */
+    fun stopOtherAndStartTimer() {
+        val current = timer.running.value ?: return
+        if (current.partyId == partyId) return
+        val minutes = current.loggedAt(study.now().toEpochMilli())
+        if (minutes != null) {
+            viewModelScope.launch { study.logStudy(current.partyId, minutes) }
+        }
+        timer.start(partyId, study.now().toEpochMilli(), uiState.value.party?.name)
+    }
+
     /** Pauses this party's timer if running. */
     fun pauseTimer() {
         if (timer.running.value?.partyId == partyId) timer.pause(study.now().toEpochMilli())

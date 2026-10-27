@@ -224,6 +224,10 @@ fun StudyPartyScreen(
                     viewModel.resumeTimer()
                     com.pixelquest.app.study.timer.StudyTimerService.resume(context)
                 },
+                onSwitchTimer = {
+                    viewModel.stopOtherAndStartTimer()
+                    com.pixelquest.app.study.timer.StudyTimerService.start(context, viewModel.partyId, state.party?.name)
+                },
             ),
             reminders = ReminderToggles(
                 dueReminders,
@@ -1136,6 +1140,7 @@ object StudyTags {
     const val TIMER_RESUME = "study_timer_resume"
     const val TIMER_STOP = "study_timer_stop"
     const val TIMER_CANCEL = "study_timer_cancel"
+    const val TIMER_ELSEWHERE = "study_timer_elsewhere"
     const val LOG_MINUTES = "study_log_minutes"
     fun minutes(m: Int) = "study_minutes_$m"
     const val POINTS_RULES = "study_points_rules"

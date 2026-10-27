@@ -334,4 +334,9 @@
     <string name="study_timer_saved_notif">Study session saved (<xliff:g id="minutes" example="25">%1$d</xliff:g> mins)</string>
     <string name="study_timer_not_saved">Study session under 5 minutes was not saved.</string>
     <string name="study_timer_max_limit_reached">Study timer ended (max 4 hours saved).</string>
+    <!-- Single active study timer switch dialog (T08) -->
+    <string name="study_timer_switch_dialog_title">Stop running timer?</string>
+    <string name="study_timer_switch_dialog_message">A study timer is already running for <xliff:g id="party" example="Physics Circle">%1$s</xliff:g>. Stop and save it to start a timer here?</string>
+    <string name="study_timer_switch_dialog_message_solo">A study timer is already running in another circle. Stop and save it to start a timer here?</string>
+    <string name="study_timer_switch_action">Stop and switch</string>
 </resources>

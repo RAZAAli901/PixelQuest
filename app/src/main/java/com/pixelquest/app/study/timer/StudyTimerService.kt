@@ -104,6 +104,10 @@ class StudyTimerService : Service() {
 
     private fun handleStart(partyId: String, partyName: String?, startedAt: Long) {
         serviceScope.launch(Dispatchers.IO) {
+            val current = timerStore.running.value
+            if (current != null && current.partyId != partyId) {
+                performStop()
+            }
             val resolvedName = partyName ?: partyDao.getParty(partyId)?.name
             timerStore.start(partyId, startedAt, resolvedName)
         }

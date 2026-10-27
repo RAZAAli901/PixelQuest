@@ -46,6 +46,7 @@ data class TimerActions(
     val onLogMinutes: (Int) -> Unit = {},
     val onPause: () -> Unit = {},
     val onResume: () -> Unit = {},
+    val onSwitchTimer: () -> Unit = {},
 )
 
 /**
@@ -130,7 +131,40 @@ fun StudyTimerCard(state: StudyPartyUiState, actions: TimerActions, clock: () ->
                         )
                     }
                 }
-                else -> Text(text = stringResource(R.string.study_timer_elsewhere), style = PqType.Meta)
+                else -> {
+                    var showSwitchDialog by rememberSaveable { mutableStateOf(false) }
+                    if (showSwitchDialog) {
+                        val otherName = running.partyName
+                        val message = if (!otherName.isNullOrBlank()) {
+                            stringResource(R.string.study_timer_switch_dialog_message, otherName)
+                        } else {
+                            stringResource(R.string.study_timer_switch_dialog_message_solo)
+                        }
+                        com.pixelquest.app.ui.components.PqConfirmDialog(
+                            title = stringResource(R.string.study_timer_switch_dialog_title),
+                            message = message,
+                            confirm = stringResource(R.string.study_timer_switch_action),
+                            dismiss = stringResource(R.string.study_timer_cancel),
+                            onConfirm = {
+                                showSwitchDialog = false
+                                actions.onSwitchTimer()
+                            },
+                            onDismiss = { showSwitchDialog = false },
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.study_timer_elsewhere),
+                        style = PqType.Meta,
+                        modifier = Modifier.testTag(StudyTags.TIMER_ELSEWHERE),
+                    )
+                    PqButton(
+                        text = stringResource(R.string.study_timer_start),
+                        onClick = { showSwitchDialog = true },
+                        icon = Icons.Rounded.PlayArrow,
+                        height = 50.dp,
+                        modifier = Modifier.fillMaxWidth().testTag(StudyTags.TIMER_START),
+                    )
+                }
             }
             var chosen by rememberSaveable { mutableStateOf<Int?>(null) }
             Text(text = stringResource(R.string.study_add_minutes), style = PqType.Meta)

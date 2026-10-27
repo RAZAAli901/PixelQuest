@@ -181,6 +181,26 @@ class StudyPartyScreenTest {
     }
 
     @Test
+    fun theTimerCard_runningElsewhere_showsSwitchDialogOnStart() {
+        val did = mutableListOf<String>()
+        val actions = TimerActions(onSwitchTimer = { did += "switch" })
+        val timerElsewhere = com.pixelquest.app.study.data.RunningTimer("party_other", 1_000_000L, partyName = "Math Circle")
+        val state = StudyPartyUiState(party = party, timer = timerElsewhere, loaded = true)
+
+        composeTestRule.setContent {
+            PixelQuestTheme { StudyTimerCard(state, actions) }
+        }
+
+        composeTestRule.onNodeWithTag(StudyTags.TIMER_ELSEWHERE).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.TIMER_START).performClick()
+
+        composeTestRule.onNodeWithText("Stop running timer?", ignoreCase = true).assertExists()
+        composeTestRule.onNodeWithText("Stop and switch", ignoreCase = true).performClick()
+
+        assertEquals(listOf("switch"), did)
+    }
+
+    @Test
     fun theScoreboard_ranksEveryone_withTheirBreakdown_andHowPointsWork() {
         val week = java.time.LocalDate.of(2026, 10, 19)
         val brams = com.pixelquest.app.study.domain.WeekScore("p1", "bram", "bram", week, 26, 15, 5, 6, 1, 65)

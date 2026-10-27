@@ -270,6 +270,22 @@ class StudyPartyViewModelTest {
     }
 
     @Test
+    fun aTimerRunningElsewhere_canBeSwitchedAfterConfirmation() {
+        val otherParty = server.seedParty("Math Circle", "aria", "bram", type = PartyType.STUDY)
+        timer.start(otherParty, server.now.toEpochMilli())
+        server.now = server.now.plusSeconds(15 * 60) // 15 mins
+        val vm = viewModel()
+        waitFor("loaded") { vm.uiState.value.loaded }
+
+        vm.stopOtherAndStartTimer()
+        waitFor("switched to this party") { timer.running.value?.partyId == party }
+        assertEquals(party, vm.uiState.value.timer?.partyId)
+        waitFor("logged to other party") { study.sessions.any { it.partyId == otherParty } }
+        val logged = study.sessions.firstOrNull { it.partyId == otherParty }
+        assertEquals(15, logged?.minutes)
+    }
+
+    @Test
     fun lastWeeksWinner_isAnnounced_untilDismissed() {
         val item = study.seedItem(party, "aria", "Lab report")
         study.seedCompletion(item.id, "bram", LocalDate.of(2026, 10, 21))
