@@ -56,6 +56,7 @@ data class ItemRow(
     val due: DueState,
     val canUndo: Boolean,
     val canEdit: Boolean,
+    val doneUsers: List<String> = emptyList(),
 ) {
     val done: Boolean get() = mine != null && mine.state != SyncState.FAILED
 }
@@ -148,12 +149,14 @@ fun itemRowsOf(
     zone: ZoneId,
 ): List<ItemRow> {
     val active = members.filter { it.status == MemberStatus.ACTIVE }.map { it.userId }.toSet()
+    val memberUsernames = members.associate { it.userId to (it.username ?: it.userId) }
     val byItem = completions.groupBy { it.itemId }
     return items.map { item ->
         val ticks = byItem[item.id].orEmpty()
         val mine = ticks.firstOrNull { it.state != SyncState.SYNCED } ?: ticks.firstOrNull { myId != null && it.userId == myId }
         val doneBy = ticks.filter { it.state != SyncState.FAILED }.mapNotNull { it.userId }.toSet()
         val due = dueStateOf(item.dueAt, now, zone).let { if (it == DueState.OVERDUE && mine != null) DueState.LATER else it }
+        val doneUserList = doneBy.filter { it in active }.map { memberUsernames[it] ?: it }
         ItemRow(
             item = item,
             mine = mine,
@@ -162,6 +165,7 @@ fun itemRowsOf(
             due = due,
             canUndo = mine != null && (mine.state != SyncState.SYNCED || mine.canUndoAt(now)),
             canEdit = isLeader || (myId != null && item.createdBy == myId),
+            doneUsers = doneUserList,
         )
     }
 }

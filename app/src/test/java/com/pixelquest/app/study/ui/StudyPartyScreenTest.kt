@@ -58,13 +58,14 @@ class StudyPartyScreenTest {
         var opened = false
         composeTestRule.setContent {
             PixelQuestTheme {
-                ItemCard(ItemRow(quiz, waiting, 2, 5, DueState.OVERDUE, canUndo = true, canEdit = true), onOpen = { opened = true }, zone = zone)
+                ItemCard(ItemRow(quiz, waiting, 2, 5, DueState.OVERDUE, canUndo = true, canEdit = true, doneUsers = listOf("bram", "cleo")), onOpen = { opened = true }, zone = zone)
             }
         }
         composeTestRule.onNodeWithText("Quiz · Physics", useUnmergedTree = true).assertExists()
         composeTestRule.onNodeWithContentDescription("Pinned by the leader", useUnmergedTree = true).assertExists()
         composeTestRule.onNodeWithTag(StudyTags.itemDue("q"), useUnmergedTree = true).assertTextContains("Overdue: due Mon 19 Oct", substring = true)
-        composeTestRule.onNodeWithText("2 of 5 finished", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithText("2 of 5 done", useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.itemAvatars("q"), useUnmergedTree = true).assertExists()
         composeTestRule.onNodeWithTag(StudyTags.itemMine("q"), useUnmergedTree = true).assertTextEquals("✓ Waiting to send")
         composeTestRule.onNodeWithTag(StudyTags.item("q")).performClick()
         assertEquals(true, opened)

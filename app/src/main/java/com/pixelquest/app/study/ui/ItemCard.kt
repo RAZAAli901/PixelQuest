@@ -42,6 +42,7 @@ import com.pixelquest.app.study.domain.StudyItemKind
 import com.pixelquest.app.study.domain.SyncState
 import com.pixelquest.app.ui.components.CategoryTile
 import com.pixelquest.app.ui.components.CheckCircle
+import com.pixelquest.app.ui.components.InitialAvatar
 import com.pixelquest.app.ui.components.PqButton
 import com.pixelquest.app.ui.components.PqTag
 import com.pixelquest.app.ui.components.comic
@@ -74,7 +75,7 @@ fun ItemCard(
     onDone: (() -> Unit)? = null,
     onUndo: (() -> Unit)? = null,
     onRetry: (() -> Unit)? = null,
-    onDiscard: (() -> Unit)? = null
+    onDiscard: (() -> Unit)? = null,
 ) {
     val item = row.item
     val surface = if (row.done) {
@@ -89,7 +90,7 @@ fun ItemCard(
             .fillMaxWidth()
             .testTag(StudyTags.item(item.id))
             .then(surface)
-            .padding(start = 12.dp, end = 6.dp, top = 10.dp, bottom = 10.dp)
+            .padding(start = 12.dp, end = 6.dp, top = 10.dp, bottom = 10.dp),
     ) {
         CategoryTile(kindIcon(item.kind), kindTint(item.kind))
         Column(verticalArrangement = Arrangement.spacedBy(3.dp), modifier = Modifier.weight(1f)) {
@@ -99,7 +100,7 @@ fun ItemCard(
                     style = PqType.BodyStrong.copy(color = if (row.done) PqColors.Muted else PqColors.Ink),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, fill = false)
+                    modifier = Modifier.weight(1f, fill = false),
                 )
                 if (item.pinned) Icon(Icons.Rounded.PushPin, stringResource(R.string.study_pinned), tint = PqColors.RedText, modifier = Modifier.size(16.dp))
             }
@@ -109,16 +110,31 @@ fun ItemCard(
                     text = listOfNotNull(kindLabel(item.kind), item.subject).joinToString(" · "),
                     style = PqType.Meta,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
                 text = dueText(row.due, item.dueAt, zone),
                 style = PqType.Meta.copy(color = if (row.due == DueState.OVERDUE) PqColors.Error else PqColors.Muted),
-                modifier = Modifier.testTag(StudyTags.itemDue(item.id))
+                modifier = Modifier.testTag(StudyTags.itemDue(item.id)),
             )
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(text = stringResource(R.string.study_item_done_count, row.doneCount, row.memberCount), style = PqType.Meta)
+                if (row.doneUsers.isNotEmpty()) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy((-6).dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.testTag(StudyTags.itemAvatars(item.id)),
+                    ) {
+                        row.doneUsers.take(4).forEach { name ->
+                            InitialAvatar(name = name, size = 18.dp, bg = PqColors.Sky)
+                        }
+                    }
+                }
+                Text(
+                    text = stringResource(R.string.study_item_done_count, row.doneCount, row.memberCount),
+                    style = PqType.Meta,
+                    modifier = Modifier.testTag(StudyTags.itemDoneCount(item.id)),
+                )
                 row.mine?.let { mine ->
                     Text(
                         text = stringResource(
@@ -126,10 +142,10 @@ fun ItemCard(
                                 SyncState.SYNCED -> R.string.study_item_done
                                 SyncState.PENDING -> R.string.study_item_waiting
                                 SyncState.FAILED -> R.string.study_item_refused
-                            }
+                            },
                         ),
                         style = PqType.MetaStrong.copy(color = if (mine.state == SyncState.FAILED) PqColors.Error else PqColors.RedText),
-                        modifier = Modifier.testTag(StudyTags.itemMine(item.id))
+                        modifier = Modifier.testTag(StudyTags.itemMine(item.id)),
                     )
                 }
             }
@@ -196,7 +212,7 @@ private fun CardTextButton(text: String, tag: String, onClick: () -> Unit) {
             .testTag(tag)
             .clickable(role = Role.Button, onClick = onClick)
             .heightIn(min = 40.dp)
-            .padding(horizontal = 6.dp, vertical = 10.dp)
+            .padding(horizontal = 6.dp, vertical = 10.dp),
     )
 }
 
@@ -221,11 +237,24 @@ internal fun ItemMenu(itemId: String, pinned: Boolean, onEdit: (() -> Unit)?, on
             Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.study_item_actions), tint = PqColors.Ink)
         }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }, modifier = Modifier.background(PqColors.Paper)) {
-            onEdit?.let { DropdownMenuItem(text = { Text(stringResource(R.string.study_edit)) }, onClick = { open = false; it() }) }
-            onTogglePin?.let {
-                DropdownMenuItem(text = { Text(stringResource(if (pinned) R.string.study_unpin else R.string.study_pin)) }, onClick = { open = false; it() })
+            onEdit?.let {
+                DropdownMenuItem(text = { Text(stringResource(R.string.study_edit)) }, onClick = {
+                    open = false
+                    it()
+                })
             }
-            onDelete?.let { DropdownMenuItem(text = { Text(stringResource(R.string.study_delete)) }, onClick = { open = false; it() }) }
+            onTogglePin?.let {
+                DropdownMenuItem(text = { Text(stringResource(if (pinned) R.string.study_unpin else R.string.study_pin)) }, onClick = {
+                    open = false
+                    it()
+                })
+            }
+            onDelete?.let {
+                DropdownMenuItem(text = { Text(stringResource(R.string.study_delete)) }, onClick = {
+                    open = false
+                    it()
+                })
+            }
         }
     }
 }
@@ -235,7 +264,7 @@ fun kindLabel(kind: StudyItemKind): String = stringResource(
     when (kind) {
         StudyItemKind.ASSIGNMENT -> R.string.study_kind_assignment
         StudyItemKind.QUIZ -> R.string.study_kind_quiz
-    }
+    },
 )
 
 /** "Due Fri 23 Oct, 17:00", "Due today, 17:00", "Overdue: due Mon 19 Oct, 09:00" or "No due date". */

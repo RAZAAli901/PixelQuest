@@ -48,8 +48,8 @@
     <string name="study_due_at">Due <xliff:g id="day" example="Fri 23 Oct">%1$s</xliff:g>, <xliff:g id="time" example="17:00">%2$s</xliff:g></string>
     <string name="study_due_today">Due today, <xliff:g id="time" example="17:00">%1$s</xliff:g></string>
     <string name="study_due_overdue">Overdue: due <xliff:g id="day" example="Mon 19 Oct">%1$s</xliff:g>, <xliff:g id="time" example="09:00">%2$s</xliff:g></string>
-    <!-- How many in the party have finished it, of its members ("3 of 5 finished"). -->
-    <string name="study_item_done_count"><xliff:g id="done" example="3">%1$d</xliff:g> of <xliff:g id="members" example="5">%2$d</xliff:g> finished</string>
+    <!-- How many in the party have finished it, of its members ("3 of 5 done"). -->
+    <string name="study_item_done_count"><xliff:g id="done" example="3">%1$d</xliff:g> of <xliff:g id="members" example="5">%2$d</xliff:g> done</string>
     <!-- The player's own tick on it. -->
     <string name="study_item_done">✓ Done</string>
     <string name="study_item_waiting">✓ Waiting to send</string>

@@ -1125,4 +1125,6 @@ object StudyTags {
     fun itemUndo(id: String) = "study_item_undo_$id"
     fun itemRetry(id: String) = "study_item_retry_$id"
     fun itemDiscard(id: String) = "study_item_discard_$id"
+    fun itemAvatars(id: String) = "study_item_avatars_$id"
+    fun itemDoneCount(id: String) = "study_item_done_count_$id"
 }
