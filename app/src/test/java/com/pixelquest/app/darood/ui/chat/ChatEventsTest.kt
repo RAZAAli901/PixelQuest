@@ -7,9 +7,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
 import com.pixelquest.app.darood.domain.DaroodEntry
+import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.party.domain.MemberStatus
 import com.pixelquest.app.party.domain.Party
 import com.pixelquest.app.party.domain.PartyMember
@@ -52,7 +52,7 @@ class ChatEventsTest {
         // Asked, not yet in: nothing to tell.
         member("dara-id", "dara", MemberStatus.INVITED, joined = null),
         // Removed before the phone knew when rows changed: only the joining is told.
-        member("eli-id", null, MemberStatus.REMOVED, joined = 2)
+        member("eli-id", null, MemberStatus.REMOVED, joined = 2),
     )
 
     private fun describe(event: PartyEvent) = when (event) {
@@ -68,7 +68,7 @@ class ChatEventsTest {
     fun theEvents_areWhatTheCacheKnows_oldestFirst() {
         assertEquals(
             listOf("aria-id joined", "bram-id joined", "eli-id joined", "cleo-id joined", "milestone 1000", "bram-id left", "cleo-id removed", "reached 1000"),
-            partyEventsOf(party, members).map(::describe)
+            partyEventsOf(party, members).map(::describe),
         )
         assertEquals(listOf("aria-id joined"), partyEventsOf(null, members.take(1)).map(::describe))
     }
@@ -82,22 +82,28 @@ class ChatEventsTest {
             entry("bram-id", at(2).plusSeconds(120)),
             entry("bram-id", at(4).plusSeconds(60)),
             // The entry that finished it, at the same moment as the finish: the entry comes first.
-            entry("aria-id", at(7))
+            entry("aria-id", at(7)),
         )
         val events = partyEventsOf(party, members)
         val lines = chatItemsOf(entries, me = "aria-id", zone = ZoneId.of("UTC"), events = events).map {
             when (it) {
                 is DayItem -> "day"
                 is EventItem -> describe(it.event)
-                is EntryItem -> if (it.bubble.showName) "named ${it.bubble.entry.userId}" else if (it.bubble.mine) "mine" else "bubble"
+                is EntryItem -> if (it.bubble.showName) {
+                    "named ${it.bubble.entry.userId}"
+                } else if (it.bubble.mine) {
+                    "mine"
+                } else {
+                    "bubble"
+                }
             }
         }
         assertEquals(
             listOf(
                 "day", "aria-id joined", "bram-id joined", "eli-id joined", "named bram-id", "bubble", "cleo-id joined",
-                "milestone 1000", "named bram-id", "bram-id left", "cleo-id removed", "mine", "reached 1000"
+                "milestone 1000", "named bram-id", "bram-id left", "cleo-id removed", "mine", "reached 1000",
             ),
-            lines
+            lines,
         )
     }
 
@@ -136,7 +142,7 @@ class ChatEventsTest {
                     }
                 }
             }
-            for (text in listOf("@aria_k joined", "@bram left", "@cleo_r was removed", "Someone joined", "Milestone set: 1,000", "Milestone reached: 1,000!", "The party is finished")) {
+            for (text in listOf("@aria_k joined", "@bram left", "@cleo_r was removed", "Someone joined", "Milestone set: 1,000", "Milestone reached: 1,000!", "The circle is finished")) {
                 composeTestRule.onNodeWithText(text).assertIsDisplayed()
             }
         } finally {

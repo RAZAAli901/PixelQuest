@@ -54,7 +54,8 @@ class MissedNoticeReminderSettingsTest {
 
     private fun overdue(id: Long, reminderEnabled: Boolean = true, style: ReminderStyle = ReminderStyle.STANDARD) = TaskEntity(
         id = id, name = "Quest $id", description = "", scheduledDay = dueAt.toLocalDate(), scheduledTime = dueAt.toLocalTime(),
-        recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS, reminderEnabled = reminderEnabled, reminderStyle = style
+        recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS, reminderEnabled = reminderEnabled, reminderStyle = style,
+        createdAt = dueAt.minusHours(1).atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli(),
     )
 
     private fun runWorker() = runBlocking {

@@ -9,9 +9,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
 import com.pixelquest.app.darood.data.DaroodReminderSettings
+import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.notification.NotificationChannels
 import com.pixelquest.app.testing.FakeDaroodServer
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,6 +45,7 @@ class DaroodWeeklyWorkerTest {
     }
 
     private val db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).allowMainThreadQueries().build()
+
     // The phone's clock reads 1970-01-01 here: that's its today.
     private val today = LocalDate.of(1970, 1, 1)
     private val server = FakeDaroodServer(me = "aria-id").apply { usernames += mapOf("aria-id" to "aria_k", "bram-id" to "bram") }
@@ -94,7 +95,7 @@ class DaroodWeeklyWorkerTest {
         server.seedParty("Friday circle", "aria-id")
         run(Reminder(on = true))
         val text = notifications.single().extras.getString(NotificationCompat.EXTRA_TEXT)!!
-        assertTrue(text, text.startsWith("Your parties would love your Darood this week"))
+        assertTrue(text, text.startsWith("Your circles would love your Darood this week"))
     }
 
     @Test

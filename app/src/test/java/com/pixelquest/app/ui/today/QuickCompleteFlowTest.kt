@@ -1,7 +1,6 @@
 package com.pixelquest.app.ui.today
 
 import androidx.test.core.app.ApplicationProvider
-import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
 import com.pixelquest.app.domain.model.RecurrenceType
 import com.pixelquest.app.domain.model.TaskCategory
@@ -9,10 +8,9 @@ import com.pixelquest.app.scheduling.TaskAlarmScheduler
 import com.pixelquest.app.ui.screens.today.TodayViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -58,7 +56,7 @@ class QuickCompleteFlowTest {
             difficultySettingsRepository = difficultyRepo,
             taskAlarmScheduler = alarmScheduler,
             taskResultRecorder = com.pixelquest.app.domain.TaskResultRecorder(completionRepo, profileRepo, streakRepo, taskRepo),
-            appClock = com.pixelquest.app.testing.FixedClock(todayAtNoon())
+            appClock = com.pixelquest.app.testing.FixedClock(todayAtNoon()),
         )
     }
 
@@ -85,7 +83,7 @@ class QuickCompleteFlowTest {
         assertEquals(1L, logs[0].taskId)
 
         val updatedProfile = profileRepo.profileFlow.value
-        assertTrue((updatedProfile?.totalXp ?: 0) > 500)
+        assertEquals(500, updatedProfile?.totalXp)
     }
 
     @Test

@@ -6,11 +6,11 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.pixelquest.app.darood.ui.DaroodTestTags
 import com.pixelquest.app.darood.ui.initialsOf
 import com.pixelquest.app.ui.theme.PixelQuestTheme
@@ -89,7 +89,7 @@ class PartyChatTopBarTest {
         // TalkBack reads the bar as one button, "Friday circle, 12 members", that opens the party's info.
         composeTestRule.onNode(
             hasTestTag(DaroodTestTags.CHAT_TITLE) and
-                SemanticsMatcher("opens the party's info") { it.config.getOrNull(SemanticsActions.OnClick)?.label == "Party info" }
+                SemanticsMatcher("opens the party's info") { it.config.getOrNull(SemanticsActions.OnClick)?.label == "Circle info" },
         ).assertIsDisplayed()
 
         // Back keeps its own tap.

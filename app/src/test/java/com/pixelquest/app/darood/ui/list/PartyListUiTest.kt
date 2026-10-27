@@ -74,11 +74,13 @@ class PartyListUiTest {
         )
         composeTestRule.setContent { PartiesContent(state = state, onSignIn = {}, onOpenParty = {}, onCreateParty = {}) }
 
-        composeTestRule.onNodeWithText("All · 2").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Study · 4 members").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Study").performClick()
+        composeTestRule.onNodeWithText("Darood").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Study Circles").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Friday circle").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Study Circles").performClick()
         assertEquals(0, composeTestRule.onAllNodes(hasTestTag(DaroodTestTags.partyRow("p1"))).fetchSemanticsNodes().size)
         composeTestRule.onNodeWithTag(DaroodTestTags.partyRow("s1")).assertIsDisplayed()
+        composeTestRule.onNodeWithText("Study · 4 members").assertIsDisplayed()
     }
 
     @Test

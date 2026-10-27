@@ -40,8 +40,14 @@ class MissedTaskWorkerTest {
     private val dueDay: LocalDate = dueAt.toLocalDate()
 
     private fun overdueQuest(id: Long) = TaskEntity(
-        id = id, name = "Missed Quest", description = "", scheduledDay = dueDay,
-        scheduledTime = dueAt.toLocalTime(), recurrenceType = RecurrenceType.DAILY, category = TaskCategory.FITNESS
+        id = id,
+        name = "Missed Quest",
+        description = "",
+        scheduledDay = dueDay,
+        scheduledTime = dueAt.toLocalTime(),
+        recurrenceType = RecurrenceType.DAILY,
+        category = TaskCategory.FITNESS,
+        createdAt = dueAt.minusHours(1).atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli(),
     )
 
     private fun runWorker(): ListenableWorker.Result = runBlocking {
