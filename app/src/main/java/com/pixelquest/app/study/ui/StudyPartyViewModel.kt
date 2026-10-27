@@ -43,7 +43,13 @@ class StudyPartyViewModel @Inject constructor(
     private val timer: StudyTimerStore = MemoryStudyTimerStore(),
     private val winnerSeen: WinnerSeenStore = MemoryWinnerSeenStore(),
     private val reminders: StudyReminderSettings? = null,
+    private val dueAlarmScheduler: com.pixelquest.app.study.alarm.StudyDueAlarmScheduler? = null,
 ) : ViewModel() {
+
+    fun canScheduleExactAlarms(): Boolean = dueAlarmScheduler?.canScheduleExactAlarms() ?: true
+
+    fun exactAlarmSettingsIntent(): android.content.Intent =
+        dueAlarmScheduler?.openExactAlarmSettingsIntent() ?: android.content.Intent()
 
     /** Reminders of what's due, on this phone; off without settings (tests). */
     val dueReminders: StateFlow<Boolean> = reminders?.dueReminders ?: MutableStateFlow(false)

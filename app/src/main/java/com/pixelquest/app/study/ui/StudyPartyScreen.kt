@@ -266,6 +266,8 @@ fun StudyPartyScreen(
                     onSetMuted = vm::setPartyMuted,
                 )
             },
+            canScheduleExact = { viewModel.canScheduleExactAlarms() },
+            onAllowExact = { context.startActivity(viewModel.exactAlarmSettingsIntent()) },
         )
     }
 }
@@ -311,12 +313,14 @@ fun StudyPartyContent(
     /** Null when the screen has no chat (a test without one). */
     chatState: com.pixelquest.app.study.chat.ui.ChatUiState? = null,
     chatActions: com.pixelquest.app.study.chat.ui.ChatActions = com.pixelquest.app.study.chat.ui.ChatActions(),
+    canScheduleExact: (() -> Boolean)? = null,
+    onAllowExact: (() -> Unit)? = null,
 ) {
     CompositionLocalProvider(
         LocalStudySimpleMode provides state.simpleMode,
         com.pixelquest.app.ui.chat.LocalChatSimpleMode provides state.simpleMode,
     ) {
-        StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders, reminderState, reminderActions, chatState, chatActions)
+        StudyPartyScaffold(state, onNavigateBack, onOpenInfo, onAddPeople, onSelectTab, onRefresh, onDismissNotice, onOpenItem, onAddItem, onFormChange, onSaveForm, onCloseForm, actions, onConfirmDelete, onCancelDelete, timerActions, onDismissWinners, reminders, reminderState, reminderActions, chatState, chatActions, canScheduleExact, onAllowExact)
     }
 }
 
@@ -344,6 +348,8 @@ private fun StudyPartyScaffold(
     reminderActions: ReminderActions?,
     chatState: com.pixelquest.app.study.chat.ui.ChatUiState?,
     chatActions: com.pixelquest.app.study.chat.ui.ChatActions,
+    canScheduleExact: (() -> Boolean)? = null,
+    onAllowExact: (() -> Unit)? = null,
 ) {
     var filesQuery by androidx.compose.runtime.saveable.rememberSaveable(
         stateSaver = androidx.compose.runtime.saveable.Saver<com.pixelquest.app.study.chat.ui.FilesQuery, String>(
@@ -478,6 +484,12 @@ private fun StudyPartyScaffold(
             )
             state.notice?.let { NoticeLine(it, onDismissNotice) }
             reminderState.notice?.let { ReminderNoticeLine(it, reminderActions?.onDismissNotice ?: {}) }
+            if (canScheduleExact != null && onAllowExact != null) {
+                com.pixelquest.app.ui.screens.settings.ExactAlarmPrompt(
+                    canScheduleExact = canScheduleExact,
+                    onAllow = onAllowExact,
+                )
+            }
             // The chat is a messaging app's list, newest at the bottom, with its own input: not a pulled list.
             if (state.tab == PartyTab.CHAT) {
                 Box(modifier = Modifier.fillMaxSize().testTag(StudyTags.tab(state.tab))) {

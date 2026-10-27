@@ -310,11 +310,36 @@ class StudyDueAlarmSchedulerTest {
         assertEquals(2, fakeAlarms.cancelled.size)
     }
 
+    @Test
+    fun exactAlarmsDenied_fallsBackToArming() = runBlocking {
+        fakeAlarms.exactAllowed = false
+        assertFalse(scheduler.canScheduleExactAlarms())
+
+        val dueAt = now.plus(Duration.ofHours(48))
+        val item = StudyItem(
+            id = "item_fallback",
+            partyId = "party_1",
+            kind = StudyItemKind.ASSIGNMENT,
+            title = "Inexact Alert Set",
+            subject = null,
+            notes = null,
+            dueAt = dueAt,
+            pinned = false,
+            createdBy = "aria",
+            createdAt = now,
+        )
+
+        val scheduled = scheduler.schedule(item)
+        assertTrue(scheduled)
+        assertEquals(1, fakeAlarms.scheduled.size)
+    }
+
     class FakeAlarmScheduler : AlarmScheduler {
         val scheduled = mutableListOf<Pair<Long, PendingIntent>>()
         val cancelled = mutableListOf<PendingIntent>()
+        var exactAllowed: Boolean = true
 
-        override fun canScheduleExactAlarms(): Boolean = true
+        override fun canScheduleExactAlarms(): Boolean = exactAllowed
 
         override fun schedule(
             atMillis: Long,
