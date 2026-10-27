@@ -1,8 +1,8 @@
 package com.pixelquest.app.data.repository
 
-import com.pixelquest.app.darood.domain.DaroodFeatureFlag
 import android.content.Context
 import android.content.SharedPreferences
+import com.pixelquest.app.darood.domain.DaroodFeatureFlag
 import com.pixelquest.app.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @Singleton
 class SettingsRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
 ) : SettingsRepository {
 
     private val prefs: SharedPreferences by lazy {
@@ -297,7 +297,39 @@ class SettingsRepositoryImpl @Inject constructor(
         prefs.edit().putLong(KEY_LAST_AI_INSIGHT_TIMESTAMP, timestamp).apply()
     }
 
+    override val isStudyAlarmStyleEnabled: Flow<Boolean> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_STUDY_ALARM_STYLE_ENABLED) {
+                trySend(prefs.getBoolean(KEY_STUDY_ALARM_STYLE_ENABLED, true))
+            }
+        }
+        trySend(prefs.getBoolean(KEY_STUDY_ALARM_STYLE_ENABLED, true))
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setStudyAlarmStyleEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_STUDY_ALARM_STYLE_ENABLED, enabled).apply()
+    }
+
+    override val studyAlarmSound: Flow<String> = callbackFlow {
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == KEY_STUDY_ALARM_SOUND) {
+                trySend(prefs.getString(KEY_STUDY_ALARM_SOUND, "alarm") ?: "alarm")
+            }
+        }
+        trySend(prefs.getString(KEY_STUDY_ALARM_SOUND, "alarm") ?: "alarm")
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    override suspend fun setStudyAlarmSound(sound: String) {
+        prefs.edit().putString(KEY_STUDY_ALARM_SOUND, sound).apply()
+    }
+
     companion object {
+        private const val KEY_STUDY_ALARM_STYLE_ENABLED = "key_study_alarm_style_enabled"
+        private const val KEY_STUDY_ALARM_SOUND = "key_study_alarm_sound"
         private const val KEY_SOUND_ENABLED = "key_sound_enabled"
         private const val KEY_CRT_ENABLED = "key_crt_enabled"
         private const val KEY_HAPTICS_ENABLED = "key_haptics_enabled"
@@ -317,7 +349,7 @@ class SettingsRepositoryImpl @Inject constructor(
         /** Settings > Look as stored, read without the repository: for a notification built in the background. */
         fun storedThemeMode(context: Context): com.pixelquest.app.ui.theme.ThemeMode = com.pixelquest.app.ui.theme.ThemeMode.fromId(
             context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-                .getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.DEFAULT.id)
+                .getString(KEY_THEME_MODE, com.pixelquest.app.ui.theme.ThemeMode.DEFAULT.id),
         )
 
         /** Reduce motion as stored, read at once: for a screen's first frame. */

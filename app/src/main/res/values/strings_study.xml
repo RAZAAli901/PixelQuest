@@ -315,4 +315,13 @@
     <string name="action_open">Open</string>
     <string name="study_due_alert_title_quiz">Quiz due tomorrow at <xliff:g id="time" example="10:00">%1$s</xliff:g>: <xliff:g id="title" example="Physics Quiz">%2$s</xliff:g></string>
     <string name="study_due_alert_title_assignment">Assignment due tomorrow at <xliff:g id="time" example="17:30">%1$s</xliff:g>: <xliff:g id="title" example="Lab Report">%2$s</xliff:g></string>
+    <!-- Study due alarm settings (A09) -->
+    <string name="study_setting_alarm_style">Study due alarms</string>
+    <string name="study_setting_alarm_style_desc">Full-screen alarm alerts 24 hours before study items are due</string>
+    <string name="study_setting_alarm_sound">Due alarm sound</string>
+    <string name="study_setting_alarm_sound_alarm">Alarm tone</string>
+    <string name="study_setting_alarm_sound_chime">Gentle chime</string>
+    <string name="study_setting_alarm_sound_system">System default</string>
+    <string name="study_setting_party_mutes">Muted study circles</string>
+    <string name="study_setting_party_mutes_desc">Manage study circles where due alerts are muted</string>
 </resources>

@@ -13,6 +13,7 @@ interface SettingsRepository {
     val isNotificationVibrationEnabled: Flow<Boolean>
     val themeMode: Flow<com.pixelquest.app.ui.theme.ThemeMode>
         get() = kotlinx.coroutines.flow.flowOf(com.pixelquest.app.ui.theme.ThemeMode.Pixel)
+
     /**
      * Hot reactive flow representing whether Simple Mode is enabled.
      * Emits immediately to all active data-layer consumers upon modification via [setSimpleModeEnabled],
@@ -100,4 +101,21 @@ interface SettingsRepository {
         get() = kotlinx.coroutines.flow.flowOf(false)
 
     suspend fun setAiReminderMessagesEnabled(enabled: Boolean) {}
+
+    /**
+     * Study due alert style: true for alarm-style (full-screen, alarm sound, high importance),
+     * false for standard notification. Defaults to true.
+     */
+    val isStudyAlarmStyleEnabled: Flow<Boolean>
+        get() = kotlinx.coroutines.flow.flowOf(true)
+
+    suspend fun setStudyAlarmStyleEnabled(enabled: Boolean) {}
+
+    /**
+     * Sound choice for study due alarms ("alarm", "chime", "system"). Defaults to "alarm".
+     */
+    val studyAlarmSound: Flow<String>
+        get() = kotlinx.coroutines.flow.flowOf("alarm")
+
+    suspend fun setStudyAlarmSound(sound: String) {}
 }

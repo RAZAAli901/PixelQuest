@@ -20,6 +20,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -187,21 +188,41 @@ class StudyDueAlarmReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
+        val isAlarmStyle = settingsRepository.isStudyAlarmStyleEnabled.firstOrNull() ?: true
+        val alarmSound = settingsRepository.studyAlarmSound.firstOrNull() ?: "alarm"
+        val channelId = if (isAlarmStyle) {
+            NotificationChannels.Spec.STUDY_DUE_ALARMS.id
+        } else {
+            NotificationChannels.Spec.STUDY.id
+        }
+
         val builder = PqNotifications.builder(
             context,
-            NotificationChannels.Spec.STUDY_DUE_ALARMS.id,
+            channelId,
             mood = com.pixelquest.app.mascot.PixMood.Focus,
         )
             .setContentTitle(notificationTitle)
             .setContentText(notificationText)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setPriority(if (isAlarmStyle) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .setContentIntent(openPendingIntent)
             .addAction(0, context.getString(R.string.action_done), donePendingIntent)
             .addAction(0, context.getString(R.string.action_snooze_1h), snoozePendingIntent)
             .addAction(0, context.getString(R.string.action_open), openPendingIntent)
-            .setFullScreenIntent(promptPendingIntent, true)
+
+        if (isAlarmStyle) {
+            builder.setCategory(NotificationCompat.CATEGORY_ALARM)
+            builder.setFullScreenIntent(promptPendingIntent, true)
+            val soundUri = when (alarmSound) {
+                "chime" -> android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+                "system" -> android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_RINGTONE)
+                else -> android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM)
+                    ?: android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+            }
+            if (soundUri != null) {
+                builder.setSound(soundUri)
+            }
+        }
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         try {

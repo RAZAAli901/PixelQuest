@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Undo
+import androidx.compose.material.icons.rounded.Alarm
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.DeleteForever
@@ -122,6 +123,34 @@ fun SettingsScreen(
                 SettingSwitch("Reminder sound", "Off, reminders arrive silently", reminderSoundOn, {
                     viewModel.setReminderSoundEnabled(it)
                 })
+                val studyAlarmStyleOn by viewModel.isStudyAlarmStyleEnabled.collectAsState()
+                SettingSwitch(
+                    androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.study_setting_alarm_style),
+                    androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.study_setting_alarm_style_desc),
+                    studyAlarmStyleOn,
+                    { viewModel.setStudyAlarmStyleEnabled(it) },
+                )
+                if (studyAlarmStyleOn) {
+                    val studySound by viewModel.studyAlarmSound.collectAsState()
+                    val soundLabel = when (studySound) {
+                        "chime" -> androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.study_setting_alarm_sound_chime)
+                        "system" -> androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.study_setting_alarm_sound_system)
+                        else -> androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.study_setting_alarm_sound_alarm)
+                    }
+                    SettingLink(
+                        Icons.Rounded.Alarm,
+                        androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.study_setting_alarm_sound),
+                        onClick = {
+                            val next = when (studySound) {
+                                "alarm" -> "chime"
+                                "chime" -> "system"
+                                else -> "alarm"
+                            }
+                            viewModel.setStudyAlarmSound(next)
+                        },
+                        value = soundLabel,
+                    )
+                }
             }
             SettingLink(Icons.Rounded.AutoAwesome, "Preview Pix notification", {
                 com.pixelquest.app.notification.PqNotifications.previewTestNotification(context)

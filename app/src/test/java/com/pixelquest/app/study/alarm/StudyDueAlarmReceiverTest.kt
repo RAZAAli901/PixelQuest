@@ -88,6 +88,8 @@ class StudyDueAlarmReceiverTest {
             }
 
             every { settingsRepository.isNotificationsEnabled } returns flowOf(true)
+            every { settingsRepository.isStudyAlarmStyleEnabled } returns flowOf(true)
+            every { settingsRepository.studyAlarmSound } returns flowOf("alarm")
         }
     }
 
@@ -202,5 +204,116 @@ class StudyDueAlarmReceiverTest {
         val shadow = shadowOf(alarmManager)
         val scheduledAlarms = shadow.scheduledAlarms
         assertEquals(1, scheduledAlarms.size)
+    }
+
+    @Test
+    fun alarmStyleDisabled_postsStandardNotificationWithoutFullScreenIntent() = runBlocking {
+        every { settingsRepository.isStudyAlarmStyleEnabled } returns flowOf(false)
+
+        val dueAt = now.plus(Duration.ofHours(24))
+        val item = StudyItemEntity(
+            id = "quiz_standard",
+            partyId = "party_1",
+            kind = StudyItemKind.QUIZ,
+            title = "Standard Alert Quiz",
+            subject = "Physics",
+            notes = "Chapter 7",
+            dueAt = dueAt.toEpochMilli(),
+            pinned = false,
+            createdBy = "aria",
+            createdAt = now.toEpochMilli(),
+        )
+        db.studyDao().upsertItems(listOf(item))
+
+        val intent = Intent(context, StudyDueAlarmReceiver::class.java).apply {
+            action = StudyDueAlarmScheduler.ACTION_DUE_ALARM
+            putExtra(StudyDueAlarmScheduler.EXTRA_ITEM_ID, "quiz_standard")
+            putExtra(StudyDueAlarmScheduler.EXTRA_PARTY_ID, "party_1")
+            putExtra(StudyDueAlarmScheduler.EXTRA_TITLE, "Standard Alert Quiz")
+            putExtra(StudyDueAlarmScheduler.EXTRA_KIND, "QUIZ")
+            putExtra(StudyDueAlarmScheduler.EXTRA_DUE_AT, dueAt.toEpochMilli())
+        }
+
+        receiver.handleReceive(context, intent).join()
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val shadow = shadowOf(notificationManager)
+        val notification = shadow.allNotifications.firstOrNull { it.channelId == NotificationChannels.Spec.STUDY.id }
+
+        assertNotNull(notification)
+        org.junit.Assert.assertNotEquals(NotificationCompat.CATEGORY_ALARM, notification?.category)
+        org.junit.Assert.assertNull(notification?.fullScreenIntent)
+    }
+
+    @Test
+    fun partyMuted_doesNotPostNotification() = runBlocking {
+        reminderMutes.setMuted("party_1", true)
+
+        val dueAt = now.plus(Duration.ofHours(24))
+        val item = StudyItemEntity(
+            id = "quiz_muted",
+            partyId = "party_1",
+            kind = StudyItemKind.QUIZ,
+            title = "Muted Quiz",
+            subject = "Physics",
+            notes = "Chapter 8",
+            dueAt = dueAt.toEpochMilli(),
+            pinned = false,
+            createdBy = "aria",
+            createdAt = now.toEpochMilli(),
+        )
+        db.studyDao().upsertItems(listOf(item))
+
+        val intent = Intent(context, StudyDueAlarmReceiver::class.java).apply {
+            action = StudyDueAlarmScheduler.ACTION_DUE_ALARM
+            putExtra(StudyDueAlarmScheduler.EXTRA_ITEM_ID, "quiz_muted")
+            putExtra(StudyDueAlarmScheduler.EXTRA_PARTY_ID, "party_1")
+            putExtra(StudyDueAlarmScheduler.EXTRA_TITLE, "Muted Quiz")
+            putExtra(StudyDueAlarmScheduler.EXTRA_KIND, "QUIZ")
+            putExtra(StudyDueAlarmScheduler.EXTRA_DUE_AT, dueAt.toEpochMilli())
+        }
+
+        receiver.handleReceive(context, intent).join()
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val shadow = shadowOf(notificationManager)
+        val notifications = shadow.allNotifications.filter { it.extras.getString(NotificationCompat.EXTRA_TITLE)?.contains("Muted Quiz") == true }
+        org.junit.Assert.assertTrue(notifications.isEmpty())
+    }
+
+    @Test
+    fun alarmSoundChime_postsSuccessfully() = runBlocking {
+        every { settingsRepository.studyAlarmSound } returns flowOf("chime")
+
+        val dueAt = now.plus(Duration.ofHours(24))
+        val item = StudyItemEntity(
+            id = "quiz_chime",
+            partyId = "party_1",
+            kind = StudyItemKind.QUIZ,
+            title = "Chime Quiz",
+            subject = "Physics",
+            notes = "Chapter 9",
+            dueAt = dueAt.toEpochMilli(),
+            pinned = false,
+            createdBy = "aria",
+            createdAt = now.toEpochMilli(),
+        )
+        db.studyDao().upsertItems(listOf(item))
+
+        val intent = Intent(context, StudyDueAlarmReceiver::class.java).apply {
+            action = StudyDueAlarmScheduler.ACTION_DUE_ALARM
+            putExtra(StudyDueAlarmScheduler.EXTRA_ITEM_ID, "quiz_chime")
+            putExtra(StudyDueAlarmScheduler.EXTRA_PARTY_ID, "party_1")
+            putExtra(StudyDueAlarmScheduler.EXTRA_TITLE, "Chime Quiz")
+            putExtra(StudyDueAlarmScheduler.EXTRA_KIND, "QUIZ")
+            putExtra(StudyDueAlarmScheduler.EXTRA_DUE_AT, dueAt.toEpochMilli())
+        }
+
+        receiver.handleReceive(context, intent).join()
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val shadow = shadowOf(notificationManager)
+        val notification = shadow.allNotifications.firstOrNull { it.channelId == NotificationChannels.Spec.STUDY_DUE_ALARMS.id }
+        assertNotNull(notification)
     }
 }

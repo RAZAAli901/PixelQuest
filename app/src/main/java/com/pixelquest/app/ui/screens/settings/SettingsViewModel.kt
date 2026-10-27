@@ -9,6 +9,7 @@ import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.TaskRepository
 import com.pixelquest.app.domain.repository.UserProfileRepository
 import com.pixelquest.app.scheduling.TaskAlarmScheduler
+import com.pixelquest.app.ui.theme.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import com.pixelquest.app.ui.theme.ThemeMode
 import javax.inject.Inject
 
 data class SettingsUiState(
@@ -31,7 +31,7 @@ data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.Pixel,
     val isSimpleModeEnabled: Boolean = false,
     val showSimpleModeHighlight: Boolean = false,
-    val isAiInsightsEnabled: Boolean = false
+    val isAiInsightsEnabled: Boolean = false,
 )
 
 private data class SettingsPrefs(
@@ -42,7 +42,7 @@ private data class SettingsPrefs(
     val theme: ThemeMode,
     val simpleMode: Boolean,
     val highlightSeen: Boolean,
-    val aiInsights: Boolean
+    val aiInsights: Boolean,
 )
 
 private data class PrefsSubGroup(
@@ -50,7 +50,7 @@ private data class PrefsSubGroup(
     val theme: ThemeMode,
     val simple: Boolean,
     val highlightSeen: Boolean,
-    val aiInsights: Boolean
+    val aiInsights: Boolean,
 )
 
 @HiltViewModel
@@ -63,10 +63,37 @@ class SettingsViewModel @Inject constructor(
     private val progressReset: com.pixelquest.app.data.local.ProgressReset,
     private val backupRestorer: com.pixelquest.app.data.backup.BackupRestorer,
     private val aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null,
-    private val autoBackups: com.pixelquest.app.data.backup.AutoBackups? = null
+    private val autoBackups: com.pixelquest.app.data.backup.AutoBackups? = null,
+    private val studyReminderMutes: com.pixelquest.app.study.alarm.StudyReminderMutes? = null,
 ) : ViewModel() {
 
+    val isStudyAlarmStyleEnabled: StateFlow<Boolean> = settingsRepository.isStudyAlarmStyleEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    fun setStudyAlarmStyleEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setStudyAlarmStyleEnabled(enabled)
+        }
+    }
+
+    val studyAlarmSound: StateFlow<String> = settingsRepository.studyAlarmSound
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "alarm")
+
+    fun setStudyAlarmSound(sound: String) {
+        viewModelScope.launch {
+            settingsRepository.setStudyAlarmSound(sound)
+        }
+    }
+
+    val mutedStudyParties: StateFlow<Set<String>> = studyReminderMutes?.muted
+        ?: kotlinx.coroutines.flow.MutableStateFlow(emptySet())
+
+    fun setStudyPartyMuted(partyId: String, muted: Boolean) {
+        studyReminderMutes?.setMuted(partyId, muted)
+    }
+
     private val _autoBackupDays = kotlinx.coroutines.flow.MutableStateFlow(autoBackups?.days().orEmpty())
+
     /** The automatic backups kept on the phone (AutoBackupWorker), newest first. */
     val autoBackupDays: StateFlow<List<java.time.LocalDate>> = _autoBackupDays.asStateFlow()
 
@@ -96,7 +123,7 @@ class SettingsViewModel @Inject constructor(
             combine(
                 settingsRepository.isSoundEnabled,
                 settingsRepository.isCrtEnabled,
-                settingsRepository.isHapticsEnabled
+                settingsRepository.isHapticsEnabled,
             ) { sound, crt, haptics -> Triple(sound, crt, haptics) },
             combine(
                 settingsRepository.isNotificationsEnabled,
@@ -104,11 +131,11 @@ class SettingsViewModel @Inject constructor(
                 settingsRepository.aiInsightsEnabled,
                 combine(
                     settingsRepository.simpleModeEnabled,
-                    settingsRepository.hasSeenSimpleModeHighlight
-                ) { simple, seen -> Pair(simple, seen) }
+                    settingsRepository.hasSeenSimpleModeHighlight,
+                ) { simple, seen -> Pair(simple, seen) },
             ) { notifs, theme, aiEnabled, (simple, seen) ->
                 PrefsSubGroup(notifs, theme, simple, seen, aiEnabled)
-            }
+            },
         ) { (sound, crt, haptics), subGroup ->
             SettingsPrefs(
                 sound = sound,
@@ -118,9 +145,9 @@ class SettingsViewModel @Inject constructor(
                 theme = subGroup.theme,
                 simpleMode = subGroup.simple,
                 highlightSeen = subGroup.highlightSeen,
-                aiInsights = subGroup.aiInsights
+                aiInsights = subGroup.aiInsights,
             )
-        }
+        },
     ) { profile, difficulty, prefs ->
         val hasUsage = (profile?.totalXp ?: 0) >= 30 || (profile?.level ?: 1) > 1
         val shouldShowHighlight = !prefs.simpleMode && !prefs.highlightSeen && hasUsage
@@ -134,12 +161,12 @@ class SettingsViewModel @Inject constructor(
             themeMode = prefs.theme,
             isSimpleModeEnabled = prefs.simpleMode,
             showSimpleModeHighlight = shouldShowHighlight,
-            isAiInsightsEnabled = prefs.aiInsights
+            isAiInsightsEnabled = prefs.aiInsights,
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = SettingsUiState()
+        initialValue = SettingsUiState(),
     )
 
     /** False on Android 12+ until the user allows "Alarms & reminders"; reminders may then run late. */
@@ -269,7 +296,7 @@ class SettingsViewModel @Inject constructor(
     private fun readsBackTheSame(
         context: android.content.Context,
         uri: android.net.Uri,
-        written: com.pixelquest.app.data.backup.BackupPayload
+        written: com.pixelquest.app.data.backup.BackupPayload,
     ): Boolean {
         val text = try {
             context.contentResolver.openInputStream(uri)?.use { it.bufferedReader().readText() }
@@ -285,9 +312,12 @@ class SettingsViewModel @Inject constructor(
     /** When a backup was last saved and checked: "Last backup: 12 Oct 2026", or "Never backed up". */
     val lastBackupText: StateFlow<String> = settingsRepository.lastBackupAt
         .map { at ->
-            if (at <= 0L) "No backup saved yet."
-            else "Last backup: " + java.time.Instant.ofEpochMilli(at).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-                .format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy", java.util.Locale.ENGLISH))
+            if (at <= 0L) {
+                "No backup saved yet."
+            } else {
+                "Last backup: " + java.time.Instant.ofEpochMilli(at).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy", java.util.Locale.ENGLISH))
+            }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
@@ -333,6 +363,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private val _canUndoRestore = kotlinx.coroutines.flow.MutableStateFlow(backupRestorer.canUndoLastRestore())
+
     /** Settings offers UNDO LAST RESTORE while what the phone had before it is kept (RestoreSafetyCopy). */
     val canUndoRestore: StateFlow<Boolean> = _canUndoRestore.asStateFlow()
 
@@ -400,6 +431,7 @@ class SettingsViewModel @Inject constructor(
 
     private var pendingImportPayload: com.pixelquest.app.data.backup.BackupPayload? = null
     private val _pendingImportSummary = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+
     /** What the file being restored holds, for the confirm dialog. */
     val pendingImportSummary: StateFlow<String?> = _pendingImportSummary.asStateFlow()
     private val _showRestoreConfirmDialog = kotlinx.coroutines.flow.MutableStateFlow(false)
