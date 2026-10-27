@@ -3,6 +3,40 @@
 All notable changes to **PixelQuest** are documented in this file.
 PixelQuest follows [Semantic Versioning 2.0.0](https://semver.org/). See [docs/VERSIONING_POLICY.md](docs/VERSIONING_POLICY.md) for full versioning and release lifecycle policies.
 
+## [1.8.4] - 2026-10-28 — Ongoing Notification Study Timer, 24h Due Alarms & Circle Done Fixes (Sprint B01-R03)
+
+### ⬆️ Upgrading
+Install 1.8.4 over 1.8.3 (or any earlier version): 100% backward compatible. All existing quests, streaks, hero stats, study circles, and timer states are preserved.
+
+### ⏱️ Ongoing Notification Study Timer (T01 - T11)
+- **Foreground Service & State Machine**: `StudyTimerService` owns a persistent timer state machine (RUNNING, PAUSED, STOPPED) stored in `PrefsStudyTimerStore` that survives app kills and device reboots.
+- **Battery-Friendly Ongoing Notification**: Displays live active study duration via the Android system chronometer with zero per-second CPU wakeups.
+- **Direct Notification Controls**: Pause, Resume, and Stop action buttons right from the notification drawer, and tapping the notification immediately opens the active study circle's Week tab.
+- **Session Auto-Logging & Protection**: Stopping saves the session to the study circle (5 to 240 minutes; sessions under 5 minutes are discarded with an explanatory notice; auto-stops at 4 hours).
+- **Single Active Timer**: Only one study timer can run across all circles at a time; starting a new timer prompts to stop and save the currently active timer.
+- **Android 14 Ready**: Declares `specialUse` foreground service type with appropriate permissions and a quiet low-importance notification channel.
+
+### ⏰ Alarm-Style Alerts 24 Hours Before Due (A01 - A10)
+- **StudyDueAlarmScheduler**: Automatically schedules exact alarms 24 hours prior to assignment and quiz deadlines using Android AlarmManager.
+- **Urgent Alarm Delivery**: High-importance notification channel with custom alarm sound, vibration, category alarm, and full-screen intent when the screen is locked/off.
+- **Actionable Alerts**: Interactive notification actions for Done (completes item immediately), Snooze 1 hour, and Open.
+- **Lifecycle Sync & Permissions**: Automatically cancels upon item completion or deletion; reschedules on due date modifications, time zone changes, or system reboot. Gracefully falls back to inexact alarms when exact alarm permission is absent.
+- **Granular Controls**: Settings to toggle alarm-style delivery on/off, choose custom alert sounds, and mute notifications per study circle.
+
+### 📚 Study Circle Done Filtering & Multi-User Progress (F01 - F09)
+- **Per-User Completion Filtering**: Fixed item filtering to query by each user's own `study_completions` row rather than a global flag.
+- **Optimistic Updates**: Instant local cache updates with graceful rollback if the server refuses.
+- **Done Section**: Completed items automatically move into a collapsed Done section at the bottom of This Week and All Items tabs, supporting Undo.
+- **Completion Avatars**: Displays member avatars and counts (e.g., `3 of 5 done`) and labels fully finished items as `Everyone done`.
+- **Scoreboard Integrity**: Double-tap protection prevents duplicate points on the scoreboard.
+
+### ⚔️ Quest Touch Zones, Instant Tap & Zero-XP Rules (B01 - B15)
+- **Three Touch Zones**: Split the quest card into three touch zones (icon for edit, body for open/long-press details, complete circle for completion toggle with undo snackbar).
+- **Zero-XP Creation & First Completion**: Guaranteed 0 XP on quest creation and configured first completion to award 0 XP (`FIRST_COMPLETION_XP = 0`) with motion suppression, while awarding normal streak XP on subsequent completions.
+- **Accessibility**: Full TalkBack custom accessibility actions for Complete, Edit, and Open, meeting 48dp touch target guidelines in Pixel, Comic, and Simple modes.
+
+---
+
 ## [1.8.3] - 2026-10-27 — Quest Tap Architecture, 3 Touch Zones & Zero-XP Rules (B01-B14)
 
 ### ⬆️ Upgrading
