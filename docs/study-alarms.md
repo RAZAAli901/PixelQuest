@@ -15,7 +15,18 @@ Inside a Study Circle ([study-party.md](study-party.md)), assignments and quizze
 
 ---
 
-## 2. Timing Rules and Edge Cases
+## 2. Timing Rules, Eligibility rules, and Edge Cases
+
+### Eligibility rules
+An item is eligible for an alarm if and only if all of the following conditions are met:
+1. **Kind:** It is an `ASSIGNMENT` or a `QUIZ`.
+2. **Has Due Date:** `dueAt` is non-null.
+3. **Future Alert Moment (> 24 hours remain):** The calculated trigger moment `dueAt - 24 hours` is strictly in the future (`dueAt - 24 hours > now`).
+   - If an item is created with a due date fewer than 24 hours in the future, **no alarm is scheduled**.
+   - If an item is edited so that its new due date is fewer than 24 hours in the future, any existing alarm is cancelled and **no new alarm is scheduled**.
+   - If an item already past the 24-hour mark is received from remote sync, **no retroactive alarm is scheduled**.
+4. **Not Completed:** The active user has not already completed the item (no stored or pending completion in Room).
+5. **Party Not Muted & Active:** The party is currently active and not muted in user settings.
 
 ### 2.1 The 24-Hour Rule
 - When `dueAt` is set, the alarm is calculated as `dueAt.minus(Duration.ofHours(24))`.
