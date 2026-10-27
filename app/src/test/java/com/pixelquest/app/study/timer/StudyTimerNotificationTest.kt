@@ -215,4 +215,24 @@ class StudyTimerNotificationTest {
         val text = notif.extras.getString(NotificationCompat.EXTRA_TEXT).orEmpty()
         assertTrue(text.contains("240 mins"))
     }
+
+    @Test
+    fun channelAndServiceDeclaration_areQuietLowImportance_andHavePermissions() {
+        val spec = NotificationChannels.Spec.STUDY_TIMER
+        assertEquals(NotificationChannels.Importance.LOW, spec.importance)
+        assertFalse(spec.sound)
+        assertFalse(spec.vibration)
+
+        val nm = context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val channel = nm.getNotificationChannel(spec.id)
+        assertNotNull(channel)
+        assertEquals(android.app.NotificationManager.IMPORTANCE_LOW, channel.importance)
+        assertNull(channel.sound)
+        assertFalse(channel.shouldVibrate())
+
+        val app = ApplicationProvider.getApplicationContext<Application>()
+        assertFalse(StudyTimerService.hasNotificationPermission(app))
+        org.robolectric.Shadows.shadowOf(app).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS)
+        assertTrue(StudyTimerService.hasNotificationPermission(app))
+    }
 }

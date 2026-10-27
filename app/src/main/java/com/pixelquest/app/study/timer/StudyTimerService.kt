@@ -188,7 +188,15 @@ class StudyTimerService : Service() {
     private fun updateNotification(timer: RunningTimer) {
         val notification = buildForegroundNotification(timer)
         try {
-            startForeground(NOTIFICATION_ID, notification)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
         } catch (e: Exception) {
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             manager?.notify(NOTIFICATION_ID, notification)
@@ -340,6 +348,15 @@ class StudyTimerService : Service() {
             } else {
                 context.startService(intent)
             }
+        }
+
+        fun hasNotificationPermission(context: Context): Boolean = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.POST_NOTIFICATIONS,
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        } else {
+            androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
         }
     }
 }

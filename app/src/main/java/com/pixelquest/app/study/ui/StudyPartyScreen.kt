@@ -204,6 +204,7 @@ fun StudyPartyScreen(
             onConfirmDelete = viewModel::confirmDelete,
             timerActions = TimerActions(
                 onStart = {
+                    askForNotifications()
                     viewModel.startTimer()
                     com.pixelquest.app.study.timer.StudyTimerService.start(context, viewModel.partyId, state.party?.name)
                 },
@@ -225,6 +226,7 @@ fun StudyPartyScreen(
                     com.pixelquest.app.study.timer.StudyTimerService.resume(context)
                 },
                 onSwitchTimer = {
+                    askForNotifications()
                     viewModel.stopOtherAndStartTimer()
                     com.pixelquest.app.study.timer.StudyTimerService.start(context, viewModel.partyId, state.party?.name)
                 },
