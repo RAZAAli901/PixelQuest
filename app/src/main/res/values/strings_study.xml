@@ -324,4 +324,14 @@
     <string name="study_setting_alarm_sound_system">System default</string>
     <string name="study_setting_party_mutes">Muted study circles</string>
     <string name="study_setting_party_mutes_desc">Manage study circles where due alerts are muted</string>
+    <!-- Study Timer Notification (T03-T06) -->
+    <string name="study_timer_notif_title">Studying with <xliff:g id="party" example="Physics Circle">%1$s</xliff:g></string>
+    <string name="study_timer_notif_title_solo">Studying</string>
+    <string name="study_timer_notif_paused">Paused · <xliff:g id="elapsed" example="25:00">%1$s</xliff:g></string>
+    <string name="study_timer_action_pause">Pause</string>
+    <string name="study_timer_action_resume">Resume</string>
+    <string name="study_timer_action_stop">Stop</string>
+    <string name="study_timer_saved_notif">Study session saved (<xliff:g id="minutes" example="25">%1$d</xliff:g> mins)</string>
+    <string name="study_timer_not_saved">Study session under 5 minutes was not saved.</string>
+    <string name="study_timer_max_limit_reached">Study timer ended (max 4 hours saved).</string>
 </resources>

@@ -129,6 +129,14 @@ object NotificationChannels {
             sound = true,
             vibration = true,
         ),
+        STUDY_TIMER(
+            id = "pq_study_timer",
+            displayName = "Study timer",
+            description = "Live ongoing study timer while you are studying with a circle",
+            importance = Importance.LOW,
+            sound = false,
+            vibration = false,
+        ),
     }
 
     /** Reminder channel for the user's sound preference. */
@@ -136,7 +144,7 @@ object NotificationChannels {
         if (soundEnabled) Spec.REMINDERS else Spec.REMINDERS_SILENT
 
     /** Channels the user can tune from Settings (the sync channel is too minor to list). */
-    val userFacing: List<Spec> = listOf(Spec.REMINDERS, Spec.REMINDERS_SILENT, Spec.MISSED, Spec.PROGRESS, Spec.COACH, Spec.DAROOD, Spec.STUDY, Spec.STUDY_REMINDERS, Spec.STUDY_CHAT, Spec.CHESS, Spec.STUDY_DUE_ALARMS)
+    val userFacing: List<Spec> = listOf(Spec.REMINDERS, Spec.REMINDERS_SILENT, Spec.MISSED, Spec.PROGRESS, Spec.COACH, Spec.DAROOD, Spec.STUDY, Spec.STUDY_REMINDERS, Spec.STUDY_CHAT, Spec.CHESS, Spec.STUDY_DUE_ALARMS, Spec.STUDY_TIMER)
 
     /** Opens the system page for one channel; before Android 8 there are no channels, so open the app page. */
     fun systemSettingsIntent(context: Context, spec: Spec): Intent {

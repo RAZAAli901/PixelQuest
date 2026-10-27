@@ -13,6 +13,9 @@
     <!-- Namaz Tracker: rough (city-level) location for prayer times, asked for only when the player
          turns it on or taps Use my location (docs/namaz-design.md). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Study timer foreground service (docs/study-timer.md) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
         android:name=".PixelQuestApplication"
@@ -169,6 +172,17 @@
         <receiver
             android:name=".study.alarm.StudyReminderActionReceiver"
             android:exported="false" />
+
+        <!-- Study timer foreground service (docs/study-timer.md) -->
+        <service
+            android:name=".study.timer.StudyTimerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Study timer recording active focused study session duration" />
+        </service>
+
         <!-- WorkManager is initialised by PixelQuestApplication with HiltWorkerFactory, so the
              @HiltWorker workers (missed tasks, streaks, sync, AI) can be constructed. -->
         <!-- The study chat's opened files, to the system viewer the player picks: their cache folder only. -->
