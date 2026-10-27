@@ -342,4 +342,47 @@ class StudyPartyScreenTest {
         composeTestRule.onNodeWithText("Done (1)").assertExists().performClick()
         composeTestRule.onNodeWithTag(StudyTags.item("b")).assertExists()
     }
+
+    @Test
+    fun anItemEveryoneHasFinished_isLabelledEveryoneDone_andStaysOnlyInDoneSection() {
+        val item = com.pixelquest.app.study.domain.StudyItem(
+            "ed", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Group Project", null, null, null, false, "aria", Instant.EPOCH,
+        )
+        val tick = com.pixelquest.app.study.domain.StudyCompletion(
+            1, null, "ed", "p1", "aria", Instant.now(), java.time.LocalDate.now(), "UTC", com.pixelquest.app.study.domain.SyncState.SYNCED,
+        )
+        // 2 of 2 members completed it -> everyoneDone is true
+        val row = ItemRow(item, tick, doneCount = 2, memberCount = 2, due = DueState.NONE, canUndo = true, canEdit = true, doneUsers = listOf("aria", "bram"))
+        assertEquals(true, row.everyoneDone)
+
+        val state = StudyPartyUiState(
+            party = party,
+            myId = "aria",
+            members = members,
+            tab = PartyTab.ALL_ITEMS,
+            items = listOf(row),
+            loaded = true,
+        )
+
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                StudyPartyContent(
+                    state = state,
+                    onNavigateBack = {},
+                    onOpenInfo = {},
+                )
+            }
+        }
+
+        // Active items list does not contain it because item is completed by everyone
+        composeTestRule.onNodeWithTag(StudyTags.item("ed")).assertDoesNotExist()
+
+        // Collapsed Done section is shown
+        composeTestRule.onNodeWithText("Done (1)").assertExists().performClick()
+
+        // In Done section, item is shown with "Everyone done" label
+        composeTestRule.onNodeWithTag(StudyTags.item("ed")).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.EVERYONE_DONE, useUnmergedTree = true).assertExists()
+        composeTestRule.onNodeWithText("Everyone done", ignoreCase = true, useUnmergedTree = true).assertExists()
+    }
 }

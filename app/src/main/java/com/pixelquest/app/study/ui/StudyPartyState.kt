@@ -59,6 +59,7 @@ data class ItemRow(
     val doneUsers: List<String> = emptyList(),
 ) {
     val done: Boolean get() = mine != null && mine.state != SyncState.FAILED
+    val everyoneDone: Boolean get() = memberCount > 0 && doneCount >= memberCount
 }
 
 /**
@@ -131,11 +132,11 @@ data class StudyPartyUiState(
     /** The party's active members. */
     val memberCount: Int get() = members.count { it.status == MemberStatus.ACTIVE }
 
-    /** Items the player has not yet completed. */
-    val activeItems: List<ItemRow> get() = items.filter { !it.done }
+    /** Items the player has not yet completed and not everyone has finished. */
+    val activeItems: List<ItemRow> get() = items.filter { !it.done && !it.everyoneDone }
 
-    /** Items the player has completed. */
-    val completedItems: List<ItemRow> get() = items.filter { it.done }
+    /** Items the player has completed or everyone in the circle has finished. */
+    val completedItems: List<ItemRow> get() = items.filter { it.done || it.everyoneDone }
 }
 
 /** Each item's card, from the party's completions and members, as the player at [now] sees it. */
@@ -172,7 +173,7 @@ fun itemRowsOf(
 
 /** This week's cards: items the player has not completed that are due this week, overdue or undated. */
 fun thisWeekOf(rows: List<ItemRow>, weekStart: LocalDate, zone: ZoneId): List<ItemRow> = rows.filter { row ->
-    if (row.done) return@filter false
+    if (row.done || row.everyoneDone) return@filter false
     val day = row.item.dueAt?.atZone(zone)?.toLocalDate()
     when {
         day == null -> true
@@ -184,7 +185,7 @@ fun thisWeekOf(rows: List<ItemRow>, weekStart: LocalDate, zone: ZoneId): List<It
 
 /** Completed items for this week (due this week, overdue or undated), for the collapsed Done section. */
 fun completedThisWeekOf(rows: List<ItemRow>, weekStart: LocalDate, zone: ZoneId): List<ItemRow> = rows.filter { row ->
-    if (!row.done) return@filter false
+    if (!row.done && !row.everyoneDone) return@filter false
     val day = row.item.dueAt?.atZone(zone)?.toLocalDate()
     when {
         day == null -> true

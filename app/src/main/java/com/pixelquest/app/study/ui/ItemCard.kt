@@ -130,11 +130,17 @@ fun ItemCard(
                         }
                     }
                 }
-                Text(
-                    text = stringResource(R.string.study_item_done_count, row.doneCount, row.memberCount),
-                    style = PqType.Meta,
-                    modifier = Modifier.testTag(StudyTags.itemDoneCount(item.id)),
-                )
+                if (row.everyoneDone) {
+                    Box(Modifier.testTag(StudyTags.EVERYONE_DONE)) {
+                        PqTag(stringResource(R.string.study_item_everyone_done))
+                    }
+                } else {
+                    Text(
+                        text = stringResource(R.string.study_item_done_count, row.doneCount, row.memberCount),
+                        style = PqType.Meta,
+                        modifier = Modifier.testTag(StudyTags.itemDoneCount(item.id)),
+                    )
+                }
                 row.mine?.let { mine ->
                     Text(
                         text = stringResource(

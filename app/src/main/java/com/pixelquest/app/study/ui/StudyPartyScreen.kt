@@ -1127,4 +1127,5 @@ object StudyTags {
     fun itemDiscard(id: String) = "study_item_discard_$id"
     fun itemAvatars(id: String) = "study_item_avatars_$id"
     fun itemDoneCount(id: String) = "study_item_done_count_$id"
+    const val EVERYONE_DONE = "study_everyone_done"
 }
