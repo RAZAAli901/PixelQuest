@@ -26,6 +26,32 @@ interface StudyDao {
     @Query("SELECT * FROM study_item WHERE partyId = :partyId ORDER BY pinned DESC, dueAt IS NULL, dueAt, createdAt")
     fun observeItems(partyId: String): Flow<List<StudyItemEntity>>
 
+    /**
+     * Items in [partyId] that [userId] hasn't finished: pinned first, then soonest due, those with no due date last.
+     * Filtered by the current user's study_completions row and pending completions, never by a global flag.
+     */
+    @Query(
+        """SELECT * FROM study_item i WHERE i.partyId = :partyId
+        AND NOT EXISTS (SELECT 1 FROM study_completion c WHERE c.itemId = i.id AND c.userId = :userId)
+        AND NOT EXISTS (SELECT 1 FROM study_pending p WHERE p.itemId = i.id AND p.kind = 'COMPLETION' AND p.state = 'PENDING')
+        ORDER BY i.pinned DESC, i.dueAt IS NULL, i.dueAt, i.createdAt""",
+    )
+    fun observeUnfinishedItems(partyId: String, userId: String): Flow<List<StudyItemEntity>>
+
+    /**
+     * Items in [partyId] that [userId] has finished: items with a study_completion for [userId]
+     * or a pending completion on this device.
+     */
+    @Query(
+        """SELECT * FROM study_item i WHERE i.partyId = :partyId
+        AND (
+            EXISTS (SELECT 1 FROM study_completion c WHERE c.itemId = i.id AND c.userId = :userId)
+            OR EXISTS (SELECT 1 FROM study_pending p WHERE p.itemId = i.id AND p.kind = 'COMPLETION' AND p.state = 'PENDING')
+        )
+        ORDER BY i.dueAt DESC, i.createdAt DESC""",
+    )
+    fun observeCompletedItems(partyId: String, userId: String): Flow<List<StudyItemEntity>>
+
     @Query("SELECT * FROM study_item WHERE id = :id")
     fun observeItem(id: String): Flow<StudyItemEntity?>
 
@@ -44,7 +70,7 @@ interface StudyDao {
         """SELECT * FROM study_item i WHERE i.dueAt IS NOT NULL AND i.dueAt < :until
         AND NOT EXISTS (SELECT 1 FROM study_completion c WHERE c.itemId = i.id AND c.userId = :userId)
         AND NOT EXISTS (SELECT 1 FROM study_pending p WHERE p.itemId = i.id AND p.kind = 'COMPLETION' AND p.state = 'PENDING')
-        ORDER BY i.dueAt LIMIT :limit"""
+        ORDER BY i.dueAt LIMIT :limit""",
     )
     fun observeUnfinishedDueBefore(userId: String, until: Long, limit: Int): Flow<List<StudyItemEntity>>
 

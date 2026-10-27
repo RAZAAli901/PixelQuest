@@ -30,22 +30,22 @@ import com.pixelquest.app.study.sync.StudySyncScheduler
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -67,6 +67,12 @@ interface StudyRepository {
 
     /** A party's items: pinned first, then soonest due, those with no due date last. */
     fun observeItems(partyId: String): Flow<List<StudyItem>>
+
+    /** A party's items that the player hasn't completed, filtered by the current user's study_completions row. */
+    fun observeUnfinishedItems(partyId: String): Flow<List<StudyItem>> = emptyFlow()
+
+    /** A party's items that the player has completed. */
+    fun observeCompletedItems(partyId: String): Flow<List<StudyItem>> = emptyFlow()
 
     fun observeItem(itemId: String): Flow<StudyItem?>
 
@@ -147,7 +153,7 @@ class StudyRepositoryImpl(
     private val timeZone: () -> ZoneId,
     private val syncScheduler: StudySyncScheduler? = null,
     private val live: StudyLiveSource? = null,
-    private val quietMs: Long = QUIET_MS
+    private val quietMs: Long = QUIET_MS,
 ) : StudyRepository {
 
     @Inject
@@ -157,7 +163,7 @@ class StudyRepositoryImpl(
         parties: PartyDao,
         account: DaroodAccount,
         syncScheduler: StudySyncScheduler,
-        live: StudyLiveSource
+        live: StudyLiveSource,
     ) : this(remote, dao, parties, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler, live)
 
     override fun myId(): String? = account.id()
@@ -169,6 +175,16 @@ class StudyRepositoryImpl(
     override fun today(): LocalDate = now().atZone(zone()).toLocalDate()
 
     override fun observeItems(partyId: String): Flow<List<StudyItem>> = dao.observeItems(partyId).map { rows -> rows.map { it.toDomain() } }
+
+    override fun observeUnfinishedItems(partyId: String): Flow<List<StudyItem>> {
+        val me = account.id() ?: return observeItems(partyId)
+        return dao.observeUnfinishedItems(partyId, me).map { rows -> rows.map { it.toDomain() } }
+    }
+
+    override fun observeCompletedItems(partyId: String): Flow<List<StudyItem>> {
+        val me = account.id() ?: return kotlinx.coroutines.flow.flowOf(emptyList())
+        return dao.observeCompletedItems(partyId, me).map { rows -> rows.map { it.toDomain() } }
+    }
 
     override fun observeItem(itemId: String): Flow<StudyItem?> = dao.observeItem(itemId).map { it?.toDomain() }
 
@@ -315,7 +331,7 @@ class StudyRepositoryImpl(
             itemId = item.id,
             localDate = Instant.ofEpochMilli(at).atZone(here).toLocalDate(),
             tz = here.id,
-            createdAt = at
+            createdAt = at,
         )
         dao.insertPending(pending)
         // Couldn't go now: the sync worker sends it once there's a connection.
@@ -352,7 +368,7 @@ class StudyRepositoryImpl(
             minutes = minutes,
             localDate = Instant.ofEpochMilli(at).atZone(here).toLocalDate(),
             tz = here.id,
-            createdAt = at
+            createdAt = at,
         )
         dao.insertPending(pending)
         if (sendPending().needsRetry) syncScheduler?.scheduleSend()
@@ -429,41 +445,55 @@ class StudyRepositoryImpl(
 }
 
 private fun StudyItemEntity.toDomain() = StudyItem(
-    id, partyId, kind, title, subject, notes, dueAt?.let(Instant::ofEpochMilli), pinned, createdBy, Instant.ofEpochMilli(createdAt)
+    id, partyId, kind, title, subject, notes, dueAt?.let(Instant::ofEpochMilli), pinned, createdBy, Instant.ofEpochMilli(createdAt),
 )
 
 private fun StudyItem.toEntity() = StudyItemEntity(
-    id, partyId, kind, title, subject, notes, dueAt?.toEpochMilli(), pinned, createdBy, createdAt.toEpochMilli()
+    id, partyId, kind, title, subject, notes, dueAt?.toEpochMilli(), pinned, createdBy, createdAt.toEpochMilli(),
 )
 
 private fun StudyCompletionEntity.toDomain() = StudyCompletion(
-    id, clientId, itemId, partyId, userId, Instant.ofEpochMilli(completedAt), localDate, tz, SyncState.SYNCED
+    id, clientId, itemId, partyId, userId, Instant.ofEpochMilli(completedAt), localDate, tz, SyncState.SYNCED,
 )
 
 private fun StudyCompletion.toEntity() = StudyCompletionEntity(
-    id ?: 0, partyId, itemId, userId, completedAt.toEpochMilli(), localDate, tz, clientId
+    id ?: 0,
+    partyId,
+    itemId,
+    userId,
+    completedAt.toEpochMilli(),
+    localDate,
+    tz,
+    clientId,
 )
 
 private fun StudySessionEntity.toDomain() = StudySession(
-    id, clientId, partyId, userId, minutes, localDate, tz, Instant.ofEpochMilli(createdAt), SyncState.SYNCED
+    id, clientId, partyId, userId, minutes, localDate, tz, Instant.ofEpochMilli(createdAt), SyncState.SYNCED,
 )
 
 private fun StudySession.toEntity() = StudySessionEntity(
-    id ?: 0, partyId, userId, minutes, localDate, tz, createdAt.toEpochMilli(), clientId
+    id ?: 0,
+    partyId,
+    userId,
+    minutes,
+    localDate,
+    tz,
+    createdAt.toEpochMilli(),
+    clientId,
 )
 
 private fun WeekScore.toEntity() = StudyWeekScoreEntity(
-    partyId, userId, weekStart, points, itemPoints, bonusPoints, studyPoints, itemsCompleted, studyMinutes
+    partyId, userId, weekStart, points, itemPoints, bonusPoints, studyPoints, itemsCompleted, studyMinutes,
 )
 
 private fun StudyWeekScoreEntity.toDomain(username: String?) = WeekScore(
-    partyId, userId, username, weekStart, points, itemPoints, bonusPoints, studyPoints, itemsCompleted, studyMinutes
+    partyId, userId, username, weekStart, points, itemPoints, bonusPoints, studyPoints, itemsCompleted, studyMinutes,
 )
 
 private fun PendingStudyEntity.toCompletion(me: String?) = StudyCompletion(
-    null, clientId, itemId.orEmpty(), partyId, me, Instant.ofEpochMilli(createdAt), localDate, tz, state
+    null, clientId, itemId.orEmpty(), partyId, me, Instant.ofEpochMilli(createdAt), localDate, tz, state,
 )
 
 private fun PendingStudyEntity.toSession(me: String?) = StudySession(
-    null, clientId, partyId, me, minutes ?: 0, localDate, tz, Instant.ofEpochMilli(createdAt), state
+    null, clientId, partyId, me, minutes ?: 0, localDate, tz, Instant.ofEpochMilli(createdAt), state,
 )

@@ -28,7 +28,7 @@ enum class DueState {
     LATER,
 
     /** No due date. */
-    NONE
+    NONE,
 }
 
 /** How close [dueAt] is at [now], in the player's [zone]. */
@@ -55,7 +55,7 @@ data class ItemRow(
     val memberCount: Int,
     val due: DueState,
     val canUndo: Boolean,
-    val canEdit: Boolean
+    val canEdit: Boolean,
 ) {
     val done: Boolean get() = mine != null && mine.state != SyncState.FAILED
 }
@@ -124,7 +124,7 @@ data class StudyPartyUiState(
     /** The Add item or Edit item sheet, open with these fields; null when closed. */
     val form: ItemForm? = null,
     /** An item the player asked to delete, waiting for them to be sure. */
-    val confirmingDelete: ItemRow? = null
+    val confirmingDelete: ItemRow? = null,
 ) {
     /** The party's active members. */
     val memberCount: Int get() = members.count { it.status == MemberStatus.ACTIVE }
@@ -138,7 +138,7 @@ fun itemRowsOf(
     myId: String?,
     isLeader: Boolean,
     now: Instant,
-    zone: ZoneId
+    zone: ZoneId,
 ): List<ItemRow> {
     val active = members.filter { it.status == MemberStatus.ACTIVE }.map { it.userId }.toSet()
     val byItem = completions.groupBy { it.itemId }
@@ -154,18 +154,31 @@ fun itemRowsOf(
             memberCount = active.size,
             due = due,
             canUndo = mine != null && (mine.state != SyncState.SYNCED || mine.canUndoAt(now)),
-            canEdit = isLeader || (myId != null && item.createdBy == myId)
+            canEdit = isLeader || (myId != null && item.createdBy == myId),
         )
     }
 }
 
-/** This week's cards: due this week (Monday to Sunday, [weekStart] on), and anything still to do that's overdue or undated. */
+/** This week's cards: items the player has not completed that are due this week, overdue or undated. */
 fun thisWeekOf(rows: List<ItemRow>, weekStart: LocalDate, zone: ZoneId): List<ItemRow> = rows.filter { row ->
+    if (row.done) return@filter false
     val day = row.item.dueAt?.atZone(zone)?.toLocalDate()
     when {
-        day == null -> !row.done
+        day == null -> true
         !day.isBefore(weekStart) && day.isBefore(weekStart.plusDays(7)) -> true
-        day.isBefore(weekStart) -> !row.done
+        day.isBefore(weekStart) -> true
+        else -> false
+    }
+}
+
+/** Completed items for this week (due this week, overdue or undated), for the collapsed Done section. */
+fun completedThisWeekOf(rows: List<ItemRow>, weekStart: LocalDate, zone: ZoneId): List<ItemRow> = rows.filter { row ->
+    if (!row.done) return@filter false
+    val day = row.item.dueAt?.atZone(zone)?.toLocalDate()
+    when {
+        day == null -> true
+        !day.isBefore(weekStart) && day.isBefore(weekStart.plusDays(7)) -> true
+        day.isBefore(weekStart) -> true
         else -> false
     }
 }
@@ -234,7 +247,7 @@ fun activityOf(
     ticks: List<StudyCompletion>,
     sessions: List<com.pixelquest.app.study.domain.StudySession>,
     since: Instant,
-    limit: Int = 20
+    limit: Int = 20,
 ): List<ActivityLine> {
     val titles = items.associate { it.id to it.title }
     val lines = items.map { ActivityLine.Added(it.createdBy, it.createdAt, it.title) } +
