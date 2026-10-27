@@ -448,7 +448,7 @@ class StudyRepositoryImpl(
     }
 }
 
-private fun StudyItemEntity.toDomain() = StudyItem(
+internal fun StudyItemEntity.toDomain() = StudyItem(
     id, partyId, kind, title, subject, notes, dueAt?.let(Instant::ofEpochMilli), pinned, createdBy, Instant.ofEpochMilli(createdAt),
 )
 

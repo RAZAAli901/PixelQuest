@@ -74,6 +74,25 @@ interface StudyDao {
     )
     fun observeUnfinishedDueBefore(userId: String, until: Long, limit: Int): Flow<List<StudyItemEntity>>
 
+    /** All unfinished items with a due date for [userId] across all study parties. */
+    @Query(
+        """SELECT * FROM study_item i WHERE i.dueAt IS NOT NULL
+        AND NOT EXISTS (SELECT 1 FROM study_completion c WHERE c.itemId = i.id AND c.userId = :userId)
+        AND NOT EXISTS (SELECT 1 FROM study_pending p WHERE p.itemId = i.id AND p.kind = 'COMPLETION' AND p.state = 'PENDING')
+        ORDER BY i.dueAt""",
+    )
+    suspend fun unfinishedItemsWithDue(userId: String): List<StudyItemEntity>
+
+    /** Whether [userId] has marked [itemId] completed (stored or pending). */
+    @Query(
+        """SELECT EXISTS (
+            SELECT 1 FROM study_completion WHERE itemId = :itemId AND userId = :userId
+            UNION
+            SELECT 1 FROM study_pending WHERE itemId = :itemId AND kind = 'COMPLETION' AND state = 'PENDING'
+        )""",
+    )
+    suspend fun isItemCompleted(itemId: String, userId: String): Boolean
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertItems(items: List<StudyItemEntity>)
 
