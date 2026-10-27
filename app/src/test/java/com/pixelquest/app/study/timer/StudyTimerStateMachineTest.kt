@@ -118,4 +118,81 @@ class StudyTimerStateMachineTest {
         val store3 = PrefsStudyTimerStore(context)
         assertNull(store3.running.value)
     }
+
+    @Test
+    fun multiplePauseResumeCycles_accuratelyAccountsPauseDurations() {
+        val store = MemoryStudyTimerStore()
+        val t0 = 1_000_000L
+        store.start("party_1", t0, "Physics Circle")
+
+        // 1. Run 10 mins (600s), pause for 5 mins (300s)
+        store.pause(t0 + 600_000L)
+        store.resume(t0 + 900_000L)
+        assertEquals(300_000L, store.running.value?.accumulatedPauseMs)
+        assertEquals(600_000L, store.running.value?.elapsedMillisAt(t0 + 900_000L))
+
+        // 2. Run another 15 mins (900s), pause for 10 mins (600s)
+        val pause2 = t0 + 900_000L + 900_000L // t0 + 1800s
+        store.pause(pause2)
+        val resume2 = pause2 + 600_000L // t0 + 2400s
+        store.resume(resume2)
+        assertEquals(900_000L, store.running.value?.accumulatedPauseMs) // 300s + 600s = 900s
+        // Active elapsed: 10m + 15m = 25m (1_500_000ms)
+        assertEquals(1_500_000L, store.running.value?.elapsedMillisAt(resume2))
+
+        // 3. Run another 10 mins (600s), pause at t0 + 3000s
+        val pause3 = resume2 + 600_000L // t0 + 3000s
+        store.pause(pause3)
+        // Active elapsed: 25m + 10m = 35m (2_100_000ms)
+        assertEquals(2_100_000L, store.running.value?.elapsedMillisAt(pause3))
+        // Remains 35m even 2 hours later because it's paused
+        assertEquals(2_100_000L, store.running.value?.elapsedMillisAt(pause3 + 7_200_000L))
+
+        // 4. Chronometer base verification
+        val runningAgain = store.running.value!!.copy(pausedAt = null)
+        val realtimeBoot = 50_000_000L
+        val base = runningAgain.chronometerBase(realtimeBoot, pause3)
+        assertEquals(realtimeBoot - 2_100_000L, base)
+    }
+
+    @Test
+    fun idempotentPauseAndResume_doesNotCorruptState() {
+        val store = MemoryStudyTimerStore()
+        val t0 = 1_000_000L
+
+        // Resuming when null is a safe no-op
+        store.resume(t0)
+        assertNull(store.running.value)
+
+        // Pausing when null is a safe no-op
+        store.pause(t0)
+        assertNull(store.running.value)
+
+        store.start("party_1", t0, "Physics Circle")
+
+        // Resuming when already running does not change state or accumulatedPauseMs
+        store.resume(t0 + 10_000L)
+        assertFalse(store.running.value?.isPaused == true)
+        assertEquals(0L, store.running.value?.accumulatedPauseMs)
+
+        // Pausing sets pausedAt
+        store.pause(t0 + 30_000L)
+        assertEquals(t0 + 30_000L, store.running.value?.pausedAt)
+
+        // Pausing again while already paused preserves the initial pausedAt
+        store.pause(t0 + 60_000L)
+        assertEquals(t0 + 30_000L, store.running.value?.pausedAt)
+        assertEquals(30_000L, store.running.value?.elapsedMillisAt(t0 + 100_000L))
+    }
+
+    @Test
+    fun clockSkewOrNegativeElapsed_clampedToZero() {
+        val t0 = 1_000_000L
+        val timer = RunningTimer("party_1", t0, "Math Circle")
+
+        // Time before start (e.g. clock adjusted backwards)
+        assertEquals(0L, timer.elapsedMillisAt(t0 - 50_000L))
+        assertEquals(0, timer.minutesAt(t0 - 50_000L))
+        assertNull(timer.loggedAt(t0 - 50_000L))
+    }
 }

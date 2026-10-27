@@ -85,6 +85,10 @@ class StudyTimerNotificationTest {
         assertEquals(2, notification.actions.size)
         assertEquals(context.getString(R.string.study_timer_action_pause), notification.actions[0].title.toString())
         assertEquals(context.getString(R.string.study_timer_action_stop), notification.actions[1].title.toString())
+        val pauseShadow = org.robolectric.Shadows.shadowOf(notification.actions[0].actionIntent)
+        assertEquals(StudyTimerService.ACTION_PAUSE, pauseShadow.savedIntent.action)
+        val stopShadow = org.robolectric.Shadows.shadowOf(notification.actions[1].actionIntent)
+        assertEquals(StudyTimerService.ACTION_STOP, stopShadow.savedIntent.action)
     }
 
     @Test
@@ -101,6 +105,10 @@ class StudyTimerNotificationTest {
         assertEquals(2, notification.actions.size)
         assertEquals(context.getString(R.string.study_timer_action_resume), notification.actions[0].title.toString())
         assertEquals(context.getString(R.string.study_timer_action_stop), notification.actions[1].title.toString())
+        val resumeShadow = org.robolectric.Shadows.shadowOf(notification.actions[0].actionIntent)
+        assertEquals(StudyTimerService.ACTION_RESUME, resumeShadow.savedIntent.action)
+        val stopShadow = org.robolectric.Shadows.shadowOf(notification.actions[1].actionIntent)
+        assertEquals(StudyTimerService.ACTION_STOP, stopShadow.savedIntent.action)
 
         // Chronometer is disabled while paused; static text shows "Paused · 10:00"
         assertFalse(notification.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER))
@@ -287,10 +295,14 @@ class StudyTimerNotificationTest {
         }
         service.onStartCommand(restoreIntent, 0, 1)
 
-        // Allow coroutine to complete
-        kotlinx.coroutines.delay(200)
+        // Wait for background IO to complete
+        var attempts = 0
+        while (store.running.value != null && attempts < 50) {
+            Thread.sleep(20)
+            attempts++
+        }
 
-        io.mockk.coVerify(atLeast = 1) { service.studyRepository.logStudy("party_history", 240) }
+        io.mockk.coVerify(timeout = 2000) { service.studyRepository.logStudy("party_history", 240) }
         assertNull(store.running.value)
     }
 
