@@ -85,11 +85,17 @@ open class PartyRepositoryImpl(
     private val now: () -> Long,
     private val live: PartyLiveSource? = null,
     private val accountId: () -> String? = { null },
+    private val dueAlarmScheduler: com.pixelquest.app.study.alarm.StudyDueAlarmScheduler? = null,
 ) : PartyRepository {
 
     @Inject
-    constructor(remote: PartyRemoteDataSource, dao: PartyDao, live: PartyLiveSource, account: DaroodAccount) :
-        this(remote, dao, System::currentTimeMillis, live, account::id)
+    constructor(
+        remote: PartyRemoteDataSource,
+        dao: PartyDao,
+        live: PartyLiveSource,
+        account: DaroodAccount,
+        dueAlarmScheduler: com.pixelquest.app.study.alarm.StudyDueAlarmScheduler,
+    ) : this(remote, dao, System::currentTimeMillis, live, account::id, dueAlarmScheduler)
 
     override fun followInvitations(): Flow<Unit> = channelFlow {
         val source = live ?: return@channelFlow
@@ -156,7 +162,10 @@ open class PartyRepositoryImpl(
         remote.respondToInvite(partyId, accept).alsoOnSuccess { refreshParty(partyId) }
 
     override suspend fun leaveParty(partyId: String): SupabaseResult<Unit> =
-        remote.leaveParty(partyId).alsoOnSuccess { refreshParties() }
+        remote.leaveParty(partyId).alsoOnSuccess {
+            dueAlarmScheduler?.cancelPartyAlarms(partyId)
+            refreshParties()
+        }
 
     override suspend fun removeMember(partyId: String, userId: String): SupabaseResult<Unit> =
         remote.removeMember(partyId, userId).alsoOnSuccess { refreshParty(partyId) }
@@ -169,7 +178,10 @@ open class PartyRepositoryImpl(
 
     // The server no longer lists it, so the refresh takes it off the phone too.
     override suspend fun deleteParty(partyId: String): SupabaseResult<Unit> =
-        remote.deleteParty(partyId).alsoOnSuccess { refreshParties() }
+        remote.deleteParty(partyId).alsoOnSuccess {
+            dueAlarmScheduler?.cancelPartyAlarms(partyId)
+            refreshParties()
+        }
 
     private suspend inline fun <T> SupabaseResult<T>.alsoOnSuccess(then: () -> Unit): SupabaseResult<T> {
         if (this is SupabaseResult.Success) then()

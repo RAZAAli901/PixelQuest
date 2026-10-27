@@ -140,6 +140,9 @@ interface StudyRepository {
     /** Drops a refused tick or study time from the phone. */
     suspend fun discard(clientId: String)
 
+    /** Cancels alarms for all study items in [partyId]. */
+    suspend fun cancelPartyAlarms(partyId: String) {}
+
     /**
      * Follows a party live while collected: what changes is brought into the cache, once the changes
      * pause, and each is passed on. Nothing without a live source.
@@ -158,6 +161,7 @@ class StudyRepositoryImpl(
     private val syncScheduler: StudySyncScheduler? = null,
     private val live: StudyLiveSource? = null,
     private val quietMs: Long = QUIET_MS,
+    private val dueAlarmScheduler: com.pixelquest.app.study.alarm.StudyDueAlarmScheduler? = null,
 ) : StudyRepository {
 
     @Inject
@@ -168,7 +172,19 @@ class StudyRepositoryImpl(
         account: DaroodAccount,
         syncScheduler: StudySyncScheduler,
         live: StudyLiveSource,
-    ) : this(remote, dao, parties, account, System::currentTimeMillis, ZoneId::systemDefault, syncScheduler, live)
+        dueAlarmScheduler: com.pixelquest.app.study.alarm.StudyDueAlarmScheduler,
+    ) : this(
+        remote,
+        dao,
+        parties,
+        account,
+        System::currentTimeMillis,
+        ZoneId::systemDefault,
+        syncScheduler,
+        live,
+        QUIET_MS,
+        dueAlarmScheduler,
+    )
 
     override fun myId(): String? = account.id()
 
@@ -303,10 +319,21 @@ class StudyRepositoryImpl(
     }
 
     override suspend fun addItem(partyId: String, draft: StudyItemDraft, pinned: Boolean): SupabaseResult<StudyItem> =
-        remote.addItem(partyId, draft, pinned).also { if (it is SupabaseResult.Success) dao.upsertItemIfKept(it.data.toEntity()) }
+        remote.addItem(partyId, draft, pinned).also { result ->
+            if (result is SupabaseResult.Success) {
+                dao.upsertItemIfKept(result.data.toEntity())
+                dueAlarmScheduler?.schedule(result.data)
+            }
+        }
 
     override suspend fun editItem(itemId: String, draft: StudyItemDraft): SupabaseResult<StudyItem> =
-        remote.editItem(itemId, draft).also { if (it is SupabaseResult.Success) dao.upsertItemIfKept(it.data.toEntity()) }
+        remote.editItem(itemId, draft).also { result ->
+            if (result is SupabaseResult.Success) {
+                dao.upsertItemIfKept(result.data.toEntity())
+                dueAlarmScheduler?.cancel(itemId)
+                dueAlarmScheduler?.schedule(result.data)
+            }
+        }
 
     override suspend fun setPinned(itemId: String, pinned: Boolean): SupabaseResult<Unit> =
         remote.setPinned(itemId, pinned).also { result ->
@@ -318,14 +345,20 @@ class StudyRepositoryImpl(
         return remote.deleteItem(itemId).also { result ->
             if (result is SupabaseResult.Success) {
                 dao.removeItem(itemId)
+                dueAlarmScheduler?.cancel(itemId)
                 item?.let { refreshScores(it.partyId) }
             }
         }
     }
 
+    override suspend fun cancelPartyAlarms(partyId: String) {
+        dueAlarmScheduler?.cancelPartyAlarms(partyId)
+    }
+
     private val completingMutex = Mutex()
 
     override suspend fun complete(item: StudyItem): StudyCompletion = completingMutex.withLock {
+        dueAlarmScheduler?.cancel(item.id)
         val me = account.id()
         dao.pendingCompletionOf(item.id)?.let { return@withLock it.toCompletion(me) }
         if (me != null) dao.completionOf(item.id, me)?.let { return@withLock it.toDomain() }

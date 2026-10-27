@@ -107,6 +107,14 @@ class StudyDueAlarmScheduler(
         alarmScheduler.cancel(pendingIntent)
     }
 
+    /** Cancels alarms for all items belonging to [partyId]. */
+    suspend fun cancelPartyAlarms(partyId: String) {
+        val items = dao.getItemsForParty(partyId)
+        for (item in items) {
+            cancel(item.id)
+        }
+    }
+
     /**
      * Reschedules all unfinished items with a due date for the current user.
      * Arms eligible alarms and returns the list of scheduled item IDs.

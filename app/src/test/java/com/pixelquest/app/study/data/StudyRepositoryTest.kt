@@ -3,9 +3,9 @@ package com.pixelquest.app.study.data
 import android.app.Application
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
 import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.data.remote.SupabaseResult
-import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
 import com.pixelquest.app.party.domain.PartyType
 import com.pixelquest.app.study.data.remote.StudyItemDraft
 import com.pixelquest.app.study.domain.StudyItemKind
@@ -45,8 +45,16 @@ class StudyRepositoryTest {
         .allowMainThreadQueries().build()
     private var scheduled = 0
     private val parties = DaroodPartyRepositoryImpl(server, db.daroodDao(), { server.me }, now = { server.now.toEpochMilli() }, zone = { ZoneId.of("UTC") })
+    private val dueScheduler = io.mockk.mockk<com.pixelquest.app.study.alarm.StudyDueAlarmScheduler>(relaxed = true)
     private val repo = StudyRepositoryImpl(
-        study, db.studyDao(), db.partyDao(), { server.me }, clock = { server.now.toEpochMilli() }, timeZone = { ZoneId.of("UTC") }, syncScheduler = StudySyncScheduler { scheduled++ }
+        study,
+        db.studyDao(),
+        db.partyDao(),
+        { server.me },
+        clock = { server.now.toEpochMilli() },
+        timeZone = { ZoneId.of("UTC") },
+        syncScheduler = StudySyncScheduler { scheduled++ },
+        dueAlarmScheduler = dueScheduler,
     )
     private val party = server.seedParty("Physics group", "aria", "bram", type = PartyType.STUDY)
 
@@ -173,7 +181,14 @@ class StudyRepositoryTest {
         val changes = kotlinx.coroutines.channels.Channel<com.pixelquest.app.study.sync.StudyChange>(kotlinx.coroutines.channels.Channel.UNLIMITED)
         val live = com.pixelquest.app.study.sync.StudyLiveSource { kotlinx.coroutines.flow.flow { for (c in changes) emit(c) } }
         val following = StudyRepositoryImpl(
-            study, db.studyDao(), db.partyDao(), { server.me }, clock = { server.now.toEpochMilli() }, timeZone = { ZoneId.of("UTC") }, live = live, quietMs = 200
+            study,
+            db.studyDao(),
+            db.partyDao(),
+            { server.me },
+            clock = { server.now.toEpochMilli() },
+            timeZone = { ZoneId.of("UTC") },
+            live = live,
+            quietMs = 200,
         )
         val heard = java.util.concurrent.CopyOnWriteArrayList<com.pixelquest.app.study.sync.StudyChange>()
         val job = launch(kotlinx.coroutines.Dispatchers.IO) { following.followParty(party).collect { heard += it } }
@@ -208,5 +223,50 @@ class StudyRepositoryTest {
         assertEquals(LocalDate.of(2026, 10, 19), winner.weekStart)
         assertEquals("bram", winner.username)
         assertNotNull(repo.observeAllScores(party).first().firstOrNull { it.weekStart == winner.weekStart })
+    }
+
+    @Test
+    fun complete_cancelsScheduledDueAlarm() = runBlocking {
+        onThePhone()
+        val item = study.seedItem(party, "aria", "Calculus Assignment", dueAt = server.now.plus(Duration.ofDays(2)))
+        repo.refresh(party)
+        val domainItem = repo.observeItems(party).first().first { it.id == item.id }
+
+        repo.complete(domainItem)
+
+        io.mockk.verify(atLeast = 1) { dueScheduler.cancel(item.id) }
+    }
+
+    @Test
+    fun editItem_cancelsOldAlarmAndSchedulesUpdatedItem() = runBlocking {
+        onThePhone()
+        val item = study.seedItem(party, "aria", "Calculus Assignment", dueAt = server.now.plus(Duration.ofDays(2)))
+        repo.refresh(party)
+
+        val newDueAt = server.now.plus(Duration.ofDays(3))
+        repo.editItem(
+            item.id,
+            StudyItemDraft(
+                kind = StudyItemKind.ASSIGNMENT,
+                title = "Calculus Assignment 2",
+                subject = null,
+                notes = null,
+                dueAt = newDueAt,
+            ),
+        )
+
+        io.mockk.verify(atLeast = 1) { dueScheduler.cancel(item.id) }
+        io.mockk.coVerify(atLeast = 1) { dueScheduler.schedule(match<com.pixelquest.app.study.domain.StudyItem> { it.id == item.id && it.dueAt == newDueAt }) }
+    }
+
+    @Test
+    fun deleteItem_cancelsScheduledAlarm() = runBlocking {
+        onThePhone()
+        val item = study.seedItem(party, "aria", "Calculus Assignment", dueAt = server.now.plus(Duration.ofDays(2)))
+        repo.refresh(party)
+
+        repo.deleteItem(item.id)
+
+        io.mockk.verify(atLeast = 1) { dueScheduler.cancel(item.id) }
     }
 }

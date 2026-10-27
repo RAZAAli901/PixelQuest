@@ -255,6 +255,61 @@ class StudyDueAlarmSchedulerTest {
         assertEquals(1, fakeAlarms.scheduled.size)
     }
 
+    @Test
+    fun cancelPartyAlarms_cancelsAllItemsInParty() = runBlocking {
+        db.partyDao().upsertParties(listOf(party("party_2")))
+        db.studyDao().upsertItems(
+            listOf(
+                StudyItemEntity(
+                    id = "item_p1_1",
+                    partyId = "party_1",
+                    kind = StudyItemKind.ASSIGNMENT,
+                    title = "HW 1",
+                    subject = null,
+                    notes = null,
+                    dueAt = now.plus(Duration.ofHours(30)).toEpochMilli(),
+                    pinned = false,
+                    createdBy = "aria",
+                    createdAt = now.toEpochMilli(),
+                ),
+                StudyItemEntity(
+                    id = "item_p1_2",
+                    partyId = "party_1",
+                    kind = StudyItemKind.QUIZ,
+                    title = "Quiz 1",
+                    subject = null,
+                    notes = null,
+                    dueAt = now.plus(Duration.ofHours(40)).toEpochMilli(),
+                    pinned = false,
+                    createdBy = "aria",
+                    createdAt = now.toEpochMilli(),
+                ),
+                StudyItemEntity(
+                    id = "item_p2_1",
+                    partyId = "party_2",
+                    kind = StudyItemKind.QUIZ,
+                    title = "Quiz 2",
+                    subject = null,
+                    notes = null,
+                    dueAt = now.plus(Duration.ofHours(50)).toEpochMilli(),
+                    pinned = false,
+                    createdBy = "aria",
+                    createdAt = now.toEpochMilli(),
+                ),
+            ),
+        )
+
+        // Schedule them
+        scheduler.schedule(db.studyDao().getItem("item_p1_1")!!)
+        scheduler.schedule(db.studyDao().getItem("item_p1_2")!!)
+        scheduler.schedule(db.studyDao().getItem("item_p2_1")!!)
+        assertEquals(3, fakeAlarms.scheduled.size)
+
+        // Cancel party_1
+        scheduler.cancelPartyAlarms("party_1")
+        assertEquals(2, fakeAlarms.cancelled.size)
+    }
+
     class FakeAlarmScheduler : AlarmScheduler {
         val scheduled = mutableListOf<Pair<Long, PendingIntent>>()
         val cancelled = mutableListOf<PendingIntent>()

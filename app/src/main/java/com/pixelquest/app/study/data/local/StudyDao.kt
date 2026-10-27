@@ -58,6 +58,9 @@ interface StudyDao {
     @Query("SELECT * FROM study_item WHERE id = :id")
     suspend fun getItem(id: String): StudyItemEntity?
 
+    @Query("SELECT * FROM study_item WHERE partyId = :partyId")
+    suspend fun getItemsForParty(partyId: String): List<StudyItemEntity>
+
     /** Every item due between [from] and [to] (epoch millis), in every party on the phone. */
     @Query("SELECT * FROM study_item WHERE dueAt >= :from AND dueAt < :to ORDER BY dueAt")
     suspend fun itemsDueBetween(from: Long, to: Long): List<StudyItemEntity>
