@@ -204,8 +204,16 @@ class MainActivity : ComponentActivity() {
     }
 
     /** The screen [intent] asks to open, if it's one a notification may open (MainActivity is exported). */
-    private fun routeFrom(intent: Intent?): String? =
-        intent?.getStringExtra(EXTRA_OPEN_ROUTE)?.takeIf(::isOpenable)
+    private fun routeFrom(intent: Intent?): String? {
+        val directRoute = intent?.getStringExtra(EXTRA_OPEN_ROUTE)?.takeIf(::isOpenable)
+        if (directRoute != null) return directRoute
+        val partyId = intent?.getStringExtra("OPEN_STUDY_PARTY_ID")
+        if (!partyId.isNullOrBlank()) {
+            val route = Screen.PartiesParty.createRoute(partyId)
+            if (isOpenable(route)) return route
+        }
+        return null
+    }
 
     companion object {
         /** A screen to open, from a notification's tap. */
@@ -214,8 +222,8 @@ class MainActivity : ComponentActivity() {
         // The Namaz Tracker's, and its route before the Islamic hub, which 1.4's reminders carry.
         private val OPENABLE_ROUTES = setOf(Screen.Namaz.route, com.pixelquest.app.ui.navigation.Routes.LEGACY_NAMAZ)
 
-        /** A study party's screen, for its reminders: only a party id (a UUID), nothing else. */
-        private val STUDY_PARTY_ROUTE = Regex("^" + Regex.escape(Screen.PartiesParty.createRoute("")) + "[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$")
+        /** A study party's screen, for its reminders: a party id, nothing else. */
+        private val STUDY_PARTY_ROUTE = Regex("^" + Regex.escape(Screen.PartiesParty.createRoute("")) + "[0-9a-zA-Z_-]+$")
 
         /** A Darood Party's room, or its weekly ranking, for their notifications: only a party id (a UUID). */
         private val DAROOD_WEEK_ROUTE = Regex("^" + Regex.escape(Screen.DaroodWeek.createRoute("@")).replace("@", "\\E[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\\Q") + "$")

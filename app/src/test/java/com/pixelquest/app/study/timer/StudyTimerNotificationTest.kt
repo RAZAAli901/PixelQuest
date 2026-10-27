@@ -10,6 +10,7 @@ import com.pixelquest.app.study.data.MemoryStudyTimerStore
 import com.pixelquest.app.study.data.RunningTimer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -134,5 +135,18 @@ class StudyTimerNotificationTest {
         }
         service.onStartCommand(cancelIntent, 0, 3)
         assertNull(store.running.value)
+    }
+
+    @Test
+    fun contentIntent_opensStudyPartyTimerScreen() {
+        val timer = RunningTimer("party_math", 1_000_000L, "Math Circle")
+        val notification = service.buildForegroundNotification(timer)
+
+        assertNotNull(notification.contentIntent)
+        val shadow = org.robolectric.Shadows.shadowOf(notification.contentIntent)
+        val intent = shadow.savedIntent
+        assertEquals("party_math", intent.getStringExtra("OPEN_STUDY_PARTY_ID"))
+        assertEquals(com.pixelquest.app.ui.navigation.Screen.PartiesParty.createRoute("party_math"), intent.getStringExtra(com.pixelquest.app.MainActivity.EXTRA_OPEN_ROUTE))
+        assertEquals("WEEK", intent.getStringExtra("FOCUS_TAB"))
     }
 }
