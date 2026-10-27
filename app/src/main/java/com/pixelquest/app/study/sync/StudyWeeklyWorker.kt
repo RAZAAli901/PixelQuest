@@ -51,9 +51,11 @@ class StudyWeeklyWorker @AssistedInject constructor(
     private val study: StudyRepository,
     private val settings: StudyReminderSettings,
     private val appSettings: SettingsRepository? = null,
+    private val dueAlarmScheduler: com.pixelquest.app.study.alarm.StudyDueAlarmScheduler? = null,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
+        dueAlarmScheduler?.rescheduleAll()
         if (!settings.weeklySummary.value) return Result.success()
         // Points and places are game terms: Simple Mode has none, so no summary.
         if (appSettings?.simpleModeEnabled?.first() == true) return Result.success()

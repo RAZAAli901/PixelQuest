@@ -30,11 +30,21 @@ class BootReceiver : BroadcastReceiver() {
     @Inject
     lateinit var studyReminders: com.pixelquest.app.study.alarm.StudyReminderScheduler
 
+    @Inject
+    lateinit var dueAlarmScheduler: com.pixelquest.app.study.alarm.StudyDueAlarmScheduler
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action in REARM_ACTIONS) {
             val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
+                    // Reschedule study 24-hour due alarms (A07)
+                    try {
+                        dueAlarmScheduler.rescheduleAll()
+                    } catch (e: Exception) {
+                        com.pixelquest.app.util.AppLog.e("BootReceiver", "Could not re-arm study due alarms", e)
+                    }
+
                     // The prayer reminders' next 48 hours. They follow the tracker's own switches and
                     // the notifications switch themselves, and a failure here mustn't stop the tasks'.
                     try {
@@ -79,7 +89,8 @@ class BootReceiver : BroadcastReceiver() {
             Intent.ACTION_MY_PACKAGE_REPLACED,
             ACTION_EXACT_ALARM_PERMISSION_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED,
-            Intent.ACTION_TIME_CHANGED
+            Intent.ACTION_TIME_CHANGED,
+            "android.intent.action.TIME_SET",
         )
     }
 }

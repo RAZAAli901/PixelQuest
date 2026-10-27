@@ -70,9 +70,13 @@ class StudyDueWorker @AssistedInject constructor(
     private val dao: StudyDao,
     private val account: DaroodAccount,
     private val settings: StudyReminderSettings,
+    private val dueAlarmScheduler: com.pixelquest.app.study.alarm.StudyDueAlarmScheduler? = null,
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
+        // Reschedule pending 24-hour due alarms when background sync runs (A07)
+        dueAlarmScheduler?.rescheduleAll()
+
         if (!settings.dueReminders.value) return Result.success()
         val me = account.id() ?: return Result.success()
         parties.refreshParties()
