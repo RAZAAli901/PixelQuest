@@ -309,6 +309,7 @@
     <string name="study_tab_chess">Chess</string>
     <!-- Study 24-hour due alerts (A03, A04) -->
     <string name="study_due_alert_prompt_body">This item is due tomorrow. Complete it now or snooze.</string>
+    <string name="study_due_alert_prompt_body_party"><xliff:g id="party" example="Physics Circle">%1$s</xliff:g> · Due tomorrow. Complete it now or snooze.</string>
     <string name="action_done">Done</string>
     <string name="action_snooze_1h">Snooze 1 hour</string>
     <string name="action_open">Open</string>

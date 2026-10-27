@@ -201,6 +201,13 @@ internal fun StudyPromptContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        com.pixelquest.app.mascot.PqMascot(
+            mood = com.pixelquest.app.mascot.PixMood.Focus,
+            size = 96.dp,
+        )
+
+        Spacer(Modifier.height(16.dp))
+
         Text(
             text = title,
             style = PqType.Title,

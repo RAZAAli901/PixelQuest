@@ -78,6 +78,7 @@ class StudyDueAlarmReceiverTest {
 
             receiver = StudyDueAlarmReceiver().apply {
                 this.studyDao = db.studyDao()
+                this.partyDao = db.partyDao()
                 this.studyRepository = this@StudyDueAlarmReceiverTest.studyRepository
                 this.settingsRepository = this@StudyDueAlarmReceiverTest.settingsRepository
                 this.dueAlarmScheduler = this@StudyDueAlarmReceiverTest.scheduler

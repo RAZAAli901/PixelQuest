@@ -38,6 +38,9 @@ class StudyDueAlarmReceiver : BroadcastReceiver() {
     lateinit var studyDao: StudyDao
 
     @Inject
+    lateinit var partyDao: com.pixelquest.app.party.data.local.PartyDao
+
+    @Inject
     lateinit var studyRepository: StudyRepository
 
     @Inject
@@ -120,7 +123,12 @@ class StudyDueAlarmReceiver : BroadcastReceiver() {
         val dueAt = if (dueAtMillis > 0) Instant.ofEpochMilli(dueAtMillis) else storedItem.dueAt?.let(Instant::ofEpochMilli)
 
         val notificationTitle = StudyPromptActivity.formatDuePromptTitle(context, kind, dueAt, storedItem.title)
-        val notificationText = context.getString(R.string.study_due_alert_prompt_body)
+        val partyName = if (partyId.isNotEmpty()) partyDao.getParty(partyId)?.name else null
+        val notificationText = if (!partyName.isNullOrBlank()) {
+            context.getString(R.string.study_due_alert_prompt_body_party, partyName)
+        } else {
+            context.getString(R.string.study_due_alert_prompt_body)
+        }
         val notificationId = dueAlarmScheduler.requestCodeForItem(itemId)
 
         // 1. Full-screen prompt intent for lock screen / screen off
