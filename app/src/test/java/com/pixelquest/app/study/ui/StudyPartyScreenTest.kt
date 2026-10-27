@@ -5,9 +5,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -38,11 +38,11 @@ class StudyPartyScreenTest {
 
     private val party = Party(
         id = "p1", name = "Physics group", leaderId = "aria", maxMembers = 10, milestone = null, milestoneSetAt = null,
-        completedAt = null, createdAt = Instant.EPOCH, total = 0, memberCount = 2, myStatus = MemberStatus.ACTIVE, type = PartyType.STUDY
+        completedAt = null, createdAt = Instant.EPOCH, total = 0, memberCount = 2, myStatus = MemberStatus.ACTIVE, type = PartyType.STUDY,
     )
     private val members = listOf(
         PartyMember("p1", "aria", "aria_k", PartyRole.LEADER, MemberStatus.ACTIVE, null, null),
-        PartyMember("p1", "bram", "bram", PartyRole.MEMBER, MemberStatus.ACTIVE, null, null)
+        PartyMember("p1", "bram", "bram", PartyRole.MEMBER, MemberStatus.ACTIVE, null, null),
     )
 
     @Test
@@ -50,10 +50,10 @@ class StudyPartyScreenTest {
         val zone = java.time.ZoneId.of("UTC")
         val quiz = com.pixelquest.app.study.domain.StudyItem(
             "q", "p1", com.pixelquest.app.study.domain.StudyItemKind.QUIZ, "Waves quiz", "Physics", null,
-            Instant.parse("2026-10-19T09:00:00Z"), true, "aria", Instant.EPOCH
+            Instant.parse("2026-10-19T09:00:00Z"), true, "aria", Instant.EPOCH,
         )
         val waiting = com.pixelquest.app.study.domain.StudyCompletion(
-            null, "c1", "q", "p1", "aria", Instant.EPOCH, java.time.LocalDate.of(2026, 10, 21), "UTC", com.pixelquest.app.study.domain.SyncState.PENDING
+            null, "c1", "q", "p1", "aria", Instant.EPOCH, java.time.LocalDate.of(2026, 10, 21), "UTC", com.pixelquest.app.study.domain.SyncState.PENDING,
         )
         var opened = false
         composeTestRule.setContent {
@@ -75,10 +75,10 @@ class StudyPartyScreenTest {
     @Test
     fun aCardsButton_ticks_undoes_orRetries() {
         val item = com.pixelquest.app.study.domain.StudyItem(
-            "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH
+            "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH,
         )
         fun tick(state: com.pixelquest.app.study.domain.SyncState) = com.pixelquest.app.study.domain.StudyCompletion(
-            null, "c1", "a", "p1", "bram", Instant.EPOCH, java.time.LocalDate.of(2026, 10, 21), "UTC", state
+            null, "c1", "a", "p1", "bram", Instant.EPOCH, java.time.LocalDate.of(2026, 10, 21), "UTC", state,
         )
         var row by mutableStateOf(ItemRow(item, null, 0, 2, DueState.NONE, canUndo = false, canEdit = false))
         val did = mutableListOf<String>()
@@ -108,10 +108,17 @@ class StudyPartyScreenTest {
         val zone = java.time.ZoneId.of("UTC")
         val item = com.pixelquest.app.study.domain.StudyItem(
             "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", "Physics", "Pages 4 to 9",
-            Instant.parse("2026-10-23T17:00:00Z"), false, "aria", Instant.EPOCH
+            Instant.parse("2026-10-23T17:00:00Z"), false, "aria", Instant.EPOCH,
         )
         val bramsTick = com.pixelquest.app.study.domain.StudyCompletion(
-            7, null, "a", "p1", "bram", Instant.parse("2026-10-21T08:00:00Z"), java.time.LocalDate.of(2026, 10, 21), "UTC"
+            7,
+            null,
+            "a",
+            "p1",
+            "bram",
+            Instant.parse("2026-10-21T08:00:00Z"),
+            java.time.LocalDate.of(2026, 10, 21),
+            "UTC",
         )
         val row = ItemRow(item, null, 1, 2, DueState.LATER, canUndo = false, canEdit = true)
         var state by mutableStateOf(StudyPartyUiState(party = party, myId = "aria", isLeader = true, members = members, items = listOf(row), ticks = mapOf("a" to listOf(bramsTick)), loaded = true))
@@ -163,7 +170,7 @@ class StudyPartyScreenTest {
         val brams = com.pixelquest.app.study.domain.WeekScore("p1", "bram", "bram", week, 26, 15, 5, 6, 1, 65)
         val board = listOf(
             BoardLine("bram", "bram", 26, 1, isMe = false, score = brams),
-            BoardLine("aria", "aria_k", 0, 2, isMe = true, score = null)
+            BoardLine("aria", "aria_k", 0, 2, isMe = true, score = null),
         )
         val state = StudyPartyUiState(party = party, myId = "aria", members = members, tab = PartyTab.SCOREBOARD, weekStart = week, board = board, loaded = true)
         composeTestRule.setContent {
@@ -182,7 +189,7 @@ class StudyPartyScreenTest {
         val last = java.time.LocalDate.of(2026, 10, 12)
         val winners = listOf(
             com.pixelquest.app.study.domain.WeekWinner("p1", last, "bram", null, 40),
-            com.pixelquest.app.study.domain.WeekWinner("p1", last, "aria", null, 40)
+            com.pixelquest.app.study.domain.WeekWinner("p1", last, "aria", null, 40),
         )
         var dismissed = false
         val state = StudyPartyUiState(party = party, myId = "aria", members = members, tab = PartyTab.SCOREBOARD, winnerBanner = winners, pastWeeks = listOf(PastWeek(last, winners, 40)), loaded = true)
@@ -199,7 +206,7 @@ class StudyPartyScreenTest {
     @Test
     fun aCardsMenu_isThereForItsCreatorOrTheLeader() {
         val item = com.pixelquest.app.study.domain.StudyItem(
-            "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH
+            "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Lab report", null, null, null, false, "bram", Instant.EPOCH,
         )
         val row = ItemRow(item, null, 0, 2, DueState.NONE, canUndo = false, canEdit = true)
         val state = StudyPartyUiState(party = party, myId = "bram", members = members, items = listOf(row), tab = PartyTab.ALL_ITEMS, loaded = true)
@@ -212,7 +219,7 @@ class StudyPartyScreenTest {
     @Test
     fun pinnedItems_stripAcrossTheTop_andOpen() {
         val pinned = com.pixelquest.app.study.domain.StudyItem(
-            "q", "p1", com.pixelquest.app.study.domain.StudyItemKind.QUIZ, "Waves quiz", null, null, null, true, "aria", Instant.EPOCH
+            "q", "p1", com.pixelquest.app.study.domain.StudyItemKind.QUIZ, "Waves quiz", null, null, null, true, "aria", Instant.EPOCH,
         )
         val row = ItemRow(pinned, null, 0, 2, DueState.NONE, canUndo = false, canEdit = true)
         var opened: String? = null
@@ -269,5 +276,69 @@ class StudyPartyScreenTest {
         state = state.copy(isLeader = false)
         composeTestRule.onNodeWithTag(StudyTags.ADD_PEOPLE).assertDoesNotExist()
         composeTestRule.onNodeWithTag(StudyTags.REMINDERS_DUE).assertExists()
+    }
+
+    @Test
+    fun thisWeekAndAllItems_showOnlyIncomplete_withCollapsedDoneSectionAtBottom_andUndoAllowed() {
+        val itemA = com.pixelquest.app.study.domain.StudyItem(
+            "a", "p1", com.pixelquest.app.study.domain.StudyItemKind.ASSIGNMENT, "Assignment A", null, null, null, false, "aria", Instant.EPOCH,
+        )
+        val itemB = com.pixelquest.app.study.domain.StudyItem(
+            "b", "p1", com.pixelquest.app.study.domain.StudyItemKind.QUIZ, "Quiz B", null, null, null, false, "aria", Instant.EPOCH,
+        )
+        val tickB = com.pixelquest.app.study.domain.StudyCompletion(
+            1, null, "b", "p1", "aria", Instant.now(), java.time.LocalDate.now(), "UTC", com.pixelquest.app.study.domain.SyncState.SYNCED,
+        )
+        val rowA = ItemRow(itemA, null, 0, 2, DueState.NONE, canUndo = false, canEdit = true)
+        val rowB = ItemRow(itemB, tickB, 1, 2, DueState.NONE, canUndo = true, canEdit = true)
+
+        var undoneId: String? = null
+        var state by mutableStateOf(
+            StudyPartyUiState(
+                party = party,
+                myId = "aria",
+                members = members,
+                tab = PartyTab.THIS_WEEK,
+                items = listOf(rowA, rowB),
+                thisWeek = listOf(rowA),
+                completedThisWeek = listOf(rowB),
+                weekSections = listOf(WeekSection.NoDate to listOf(rowA)),
+                loaded = true,
+            ),
+        )
+
+        composeTestRule.setContent {
+            PixelQuestTheme {
+                StudyPartyContent(
+                    state = state,
+                    onNavigateBack = {},
+                    onOpenInfo = {},
+                    onSelectTab = { state = state.copy(tab = it) },
+                    actions = ItemActions(onUndo = { undoneId = it }),
+                )
+            }
+        }
+
+        // 1. This Week: only incomplete item A is visible; completed item B is not shown until expanded
+        composeTestRule.onNodeWithText("Assignment A").assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.item("b")).assertDoesNotExist()
+
+        // Collapsed Done section header is shown
+        composeTestRule.onNodeWithText("Done (1)").assertExists()
+
+        // Expand Done section
+        composeTestRule.onNodeWithText("Done (1)").performClick()
+        composeTestRule.onNodeWithTag(StudyTags.item("b")).assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.itemUndo("b"), useUnmergedTree = true).assertExists().performClick()
+        assertEquals("b", undoneId)
+
+        // 2. All Items tab: switch to ALL_ITEMS
+        state = state.copy(tab = PartyTab.ALL_ITEMS)
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Assignment A").assertExists()
+        composeTestRule.onNodeWithTag(StudyTags.item("b")).assertDoesNotExist()
+        composeTestRule.onNodeWithText("Done (1)").assertExists().performClick()
+        composeTestRule.onNodeWithTag(StudyTags.item("b")).assertExists()
     }
 }

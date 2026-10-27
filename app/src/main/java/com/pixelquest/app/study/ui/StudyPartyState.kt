@@ -96,6 +96,7 @@ data class StudyPartyUiState(
     /** Every tick in the party by item, newest first, this phone's own still waiting among them. */
     val ticks: Map<String, List<StudyCompletion>> = emptyMap(),
     val thisWeek: List<ItemRow> = emptyList(),
+    val completedThisWeek: List<ItemRow> = emptyList(),
     val weekSections: List<Pair<WeekSection, List<ItemRow>>> = emptyList(),
     val weekProgress: WeekProgress = WeekProgress(0, 0),
     val pinned: List<ItemRow> = emptyList(),
@@ -128,6 +129,12 @@ data class StudyPartyUiState(
 ) {
     /** The party's active members. */
     val memberCount: Int get() = members.count { it.status == MemberStatus.ACTIVE }
+
+    /** Items the player has not yet completed. */
+    val activeItems: List<ItemRow> get() = items.filter { !it.done }
+
+    /** Items the player has completed. */
+    val completedItems: List<ItemRow> get() = items.filter { it.done }
 }
 
 /** Each item's card, from the party's completions and members, as the player at [now] sees it. */

@@ -34,6 +34,11 @@
     <string name="study_section_today">Today</string>
     <string name="study_section_tomorrow">Tomorrow</string>
     <string name="study_section_no_date">No due date</string>
+    <string name="study_section_done">Done</string>
+    <string name="study_section_done_count">Done (<xliff:g id="count" example="3">%1$d</xliff:g>)</string>
+    <string name="study_done_show">Show completed items</string>
+    <string name="study_done_hide">Hide completed items</string>
+    <string name="study_item_everyone_done">Everyone done</string>
     <!-- An item's card. -->
     <string name="study_kind_assignment">Assignment</string>
     <string name="study_kind_quiz">Quiz</string>

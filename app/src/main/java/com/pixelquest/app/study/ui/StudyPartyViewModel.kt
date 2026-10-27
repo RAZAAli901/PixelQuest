@@ -130,6 +130,7 @@ class StudyPartyViewModel @Inject constructor(
     val uiState: StateFlow<StudyPartyUiState> = combine(cards, scores, study.observePendingCount(), flags) { (party, members, rows, ticks), (weekScores, past, winners, studiedToday, running, pastWeeks, banner, sessions), waiting, flags ->
         val me = study.myId()
         val week = thisWeekOf(rows, weekStart, study.zone())
+        val completedWeek = completedThisWeekOf(rows, weekStart, study.zone())
         StudyPartyUiState(
             party = party,
             myId = me,
@@ -141,8 +142,9 @@ class StudyPartyViewModel @Inject constructor(
             items = rows,
             ticks = ticks,
             thisWeek = week,
+            completedThisWeek = completedWeek,
             weekSections = weekSectionsOf(week, study.zone()),
-            weekProgress = weekProgressOf(week),
+            weekProgress = WeekProgress(completedWeek.size, week.size + completedWeek.size),
             pinned = rows.filter { it.item.pinned },
             weekStart = weekStart,
             today = study.today(),

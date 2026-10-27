@@ -2,6 +2,7 @@ package com.pixelquest.app.study.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.PersonAdd
@@ -358,6 +361,8 @@ private fun StudyPartyScaffold(
             },
         ),
     ) { androidx.compose.runtime.mutableStateOf(com.pixelquest.app.study.chat.ui.FilesQuery()) }
+    var thisWeekDoneExpanded by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    var allItemsDoneExpanded by androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     Scaffold(
         containerColor = PqColors.Ground,
         topBar = {
@@ -523,7 +528,7 @@ private fun StudyPartyScaffold(
                                     )
                                     WinnerBannerIfAny(state, onDismissWinners)
                                     if (state.pinned.isNotEmpty()) PinnedStrip(state.pinned, onOpen = onOpenItem)
-                                    if (state.thisWeek.isNotEmpty()) WeekSummary(state)
+                                    if (state.thisWeek.isNotEmpty() || state.completedThisWeek.isNotEmpty()) WeekSummary(state)
                                     chatState?.files?.filter { it.pinned }?.takeIf { it.isNotEmpty() }?.let { pinnedFiles ->
                                         PqGroupLabel(stringResource(R.string.study_files_pinned))
                                         pinnedFiles.forEach {
@@ -534,13 +539,25 @@ private fun StudyPartyScaffold(
                                     if (reminderActions != null) AddReminderButton(reminderActions.onAdd)
                                 }
                             }
-                            thisWeek(state, onOpenItem, actions)
+                            thisWeek(
+                                state = state,
+                                onOpenItem = onOpenItem,
+                                actions = actions,
+                                doneExpanded = thisWeekDoneExpanded,
+                                onToggleDone = { thisWeekDoneExpanded = !thisWeekDoneExpanded },
+                            )
                         }
                         PartyTab.ALL_ITEMS -> {
                             item(key = "top") {
                                 TopOfList { if (state.pinned.isNotEmpty()) PinnedStrip(state.pinned, onOpen = onOpenItem) }
                             }
-                            itemCards(state, state.items, R.string.study_items_empty, onOpenItem, actions)
+                            allItems(
+                                state = state,
+                                onOpenItem = onOpenItem,
+                                actions = actions,
+                                doneExpanded = allItemsDoneExpanded,
+                                onToggleDone = { allItemsDoneExpanded = !allItemsDoneExpanded },
+                            )
                         }
                         PartyTab.SCOREBOARD -> {
                             item(key = "top") { TopOfList { WinnerBannerIfAny(state, onDismissWinners) } }
@@ -723,9 +740,15 @@ private fun TopOfList(content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) { content() }
 }
 
-/** This week's items under overdue, each day, and no date, then the party's recent activity. */
-private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String) -> Unit, actions: ItemActions) {
-    if (state.thisWeek.isEmpty()) {
+/** This week's items under overdue, each day, and no date, collapsed completed items, then the party's recent activity. */
+private fun LazyListScope.thisWeek(
+    state: StudyPartyUiState,
+    onOpenItem: (String) -> Unit,
+    actions: ItemActions,
+    doneExpanded: Boolean,
+    onToggleDone: () -> Unit,
+) {
+    if (state.thisWeek.isEmpty() && state.completedThisWeek.isEmpty()) {
         emptyLine(R.string.study_week_empty, state.loaded)
         return activityFeed(state)
     }
@@ -733,6 +756,7 @@ private fun LazyListScope.thisWeek(state: StudyPartyUiState, onOpenItem: (String
         item(key = "section_" + sectionKey(section)) { SectionHeading(sectionLabel(section, state.today)) }
         items(rows, key = { it.item.id }) { row -> CardFor(state, row, onOpenItem, actions) }
     }
+    doneSection("this_week", state.completedThisWeek, doneExpanded, onToggleDone, state, onOpenItem, actions)
     activityFeed(state)
 }
 
@@ -804,6 +828,82 @@ fun sectionLabel(section: WeekSection, today: LocalDate): String = when (section
         today -> stringResource(R.string.study_section_today)
         today.plusDays(1) -> stringResource(R.string.study_section_tomorrow)
         else -> section.date.format(DateTimeFormatter.ofPattern("EEEE d MMM", LocalConfiguration.current.locales[0]))
+    }
+}
+
+/** All items: active uncompleted items first, then collapsed completed items at the bottom. */
+private fun LazyListScope.allItems(
+    state: StudyPartyUiState,
+    onOpenItem: (String) -> Unit,
+    actions: ItemActions,
+    doneExpanded: Boolean,
+    onToggleDone: () -> Unit,
+) {
+    val active = state.activeItems
+    val completed = state.completedItems
+    if (active.isEmpty() && completed.isEmpty()) {
+        return emptyLine(R.string.study_items_empty, state.loaded)
+    }
+    items(active, key = { it.item.id }) { row -> CardFor(state, row, onOpenItem, actions) }
+    doneSection("all_items", completed, doneExpanded, onToggleDone, state, onOpenItem, actions)
+}
+
+@Composable
+private fun DoneSectionHeader(
+    count: Int,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = modifier
+            .fillMaxWidth()
+            .testTag(StudyTags.DONE_SECTION_HEADER)
+            .clickable(role = Role.Button, onClickLabel = stringResource(if (expanded) R.string.study_done_hide else R.string.study_done_show), onClick = onToggle)
+            .padding(vertical = 10.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                if (expanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                contentDescription = null,
+                tint = PqColors.Ink2,
+                modifier = Modifier.size(20.dp),
+            )
+            Text(
+                text = stringResource(R.string.study_section_done_count, count),
+                style = PqType.BodyStrong.copy(color = PqColors.Ink2),
+            )
+        }
+    }
+}
+
+private fun LazyListScope.doneSection(
+    tabKey: String,
+    completedRows: List<ItemRow>,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+    state: StudyPartyUiState,
+    onOpenItem: (String) -> Unit,
+    actions: ItemActions,
+) {
+    if (completedRows.isEmpty()) return
+    item(key = "done_header_$tabKey") {
+        DoneSectionHeader(
+            count = completedRows.size,
+            expanded = expanded,
+            onToggle = onToggle,
+            modifier = Modifier.testTag(StudyTags.doneSection(tabKey)),
+        )
+    }
+    if (expanded) {
+        items(completedRows, key = { "done_" + it.item.id }) { row ->
+            CardFor(state, row, onOpenItem, actions)
+        }
     }
 }
 
@@ -1017,6 +1117,10 @@ object StudyTags {
     fun boardPlace(userId: String) = "study_board_place_$userId"
     fun boardPoints(userId: String) = "study_board_points_$userId"
     const val ITEM_LINK = "study_item_link"
+    const val DONE_SECTION = "study_done_section"
+    const val DONE_SECTION_HEADER = "study_done_section_header"
+    fun doneSection(tab: String) = "study_done_section_$tab"
+    fun doneHeader(tab: String) = "study_done_header_$tab"
     fun itemDone(id: String) = "study_item_done_$id"
     fun itemUndo(id: String) = "study_item_undo_$id"
     fun itemRetry(id: String) = "study_item_retry_$id"
