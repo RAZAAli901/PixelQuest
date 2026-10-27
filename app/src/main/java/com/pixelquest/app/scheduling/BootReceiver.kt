@@ -33,11 +33,23 @@ class BootReceiver : BroadcastReceiver() {
     @Inject
     lateinit var dueAlarmScheduler: com.pixelquest.app.study.alarm.StudyDueAlarmScheduler
 
+    @Inject
+    lateinit var timerStore: com.pixelquest.app.study.data.StudyTimerStore
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action in REARM_ACTIONS) {
             val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
+                    // Restore active study timer after reboot (T10)
+                    try {
+                        if (timerStore.running.value != null) {
+                            com.pixelquest.app.study.timer.StudyTimerService.restore(context)
+                        }
+                    } catch (e: Exception) {
+                        com.pixelquest.app.util.AppLog.e("BootReceiver", "Could not restore study timer after reboot", e)
+                    }
+
                     // Reschedule study 24-hour due alarms (A07)
                     try {
                         dueAlarmScheduler.rescheduleAll()

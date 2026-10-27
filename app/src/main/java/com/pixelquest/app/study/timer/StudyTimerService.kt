@@ -152,6 +152,7 @@ class StudyTimerService : Service() {
     private fun handleRestore() {
         val current = timerStore.running.value
         if (current == null) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
         } else {
             // Check if 4 hours already elapsed while process was killed

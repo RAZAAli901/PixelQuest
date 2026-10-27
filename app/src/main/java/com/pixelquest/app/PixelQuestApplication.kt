@@ -71,10 +71,21 @@ class PixelQuestApplication :
     @javax.inject.Inject
     lateinit var studyReminderAlarms: com.pixelquest.app.study.alarm.StudyReminderAlarmSync
 
+    @javax.inject.Inject
+    lateinit var timerStore: com.pixelquest.app.study.data.StudyTimerStore
+
     private val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
+        // Restore running or paused study timer if process died or app restarted (T10)
+        try {
+            if (timerStore.running.value != null) {
+                com.pixelquest.app.study.timer.StudyTimerService.restore(this)
+            }
+        } catch (e: Exception) {
+            com.pixelquest.app.util.AppLog.e("PixelQuestApp", "Could not restore study timer", e)
+        }
         // Step 8: Global uncaught-exception handler logging crashes locally
         com.pixelquest.app.util.PixelCrashHandler.init(this)
         // Fast cold-start: lightweight notification channel creation

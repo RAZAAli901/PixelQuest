@@ -235,4 +235,75 @@ class StudyTimerNotificationTest {
         org.robolectric.Shadows.shadowOf(app).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS)
         assertTrue(StudyTimerService.hasNotificationPermission(app))
     }
+
+    @Test
+    fun restore_runningTimer_reconstructsOngoingNotification() {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+        val t0 = System.currentTimeMillis() - 30 * 60_000L // 30 mins ago
+        store.start("party_chem", t0, "Chemistry Circle")
+
+        val restoreIntent = android.content.Intent(service, StudyTimerService::class.java).apply {
+            action = StudyTimerService.ACTION_RESTORE
+        }
+        service.onStartCommand(restoreIntent, 0, 1)
+
+        val notif = service.buildForegroundNotification(store.running.value!!)
+        assertEquals(context.getString(R.string.study_timer_notif_title, "Chemistry Circle"), notif.extras.getString(NotificationCompat.EXTRA_TITLE))
+        assertTrue(notif.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER))
+        assertTrue((notif.flags and Notification.FLAG_ONGOING_EVENT) != 0)
+    }
+
+    @Test
+    fun restore_pausedTimer_reconstructsPausedNotification() {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+        val t0 = System.currentTimeMillis() - 40 * 60_000L
+        store.start("party_bio", t0, "Biology Circle")
+        store.pause(t0 + 20 * 60_000L) // Paused after 20 mins
+
+        val restoreIntent = android.content.Intent(service, StudyTimerService::class.java).apply {
+            action = StudyTimerService.ACTION_RESTORE
+        }
+        service.onStartCommand(restoreIntent, 0, 1)
+
+        val notif = service.buildForegroundNotification(store.running.value!!)
+        assertFalse(notif.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER))
+        val body = notif.extras.getString(NotificationCompat.EXTRA_TEXT).orEmpty()
+        assertTrue(body.contains("Paused"))
+        assertEquals(2, notif.actions.size)
+        assertEquals(context.getString(R.string.study_timer_action_resume), notif.actions[0].title.toString())
+    }
+
+    @Test
+    fun restore_expiredTimer_performsStopAndLogsCapped240Minutes() = kotlinx.coroutines.test.runTest {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+        val t0 = System.currentTimeMillis() - 300 * 60_000L // 5 hours ago (> 4 hours)
+        store.start("party_history", t0, "History Circle")
+
+        val restoreIntent = android.content.Intent(service, StudyTimerService::class.java).apply {
+            action = StudyTimerService.ACTION_RESTORE
+        }
+        service.onStartCommand(restoreIntent, 0, 1)
+
+        // Allow coroutine to complete
+        kotlinx.coroutines.delay(200)
+
+        io.mockk.coVerify(atLeast = 1) { service.studyRepository.logStudy("party_history", 240) }
+        assertNull(store.running.value)
+    }
+
+    @Test
+    fun restore_nullTimer_stopsSelfWithoutCrashing() {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+
+        val restoreIntent = android.content.Intent(service, StudyTimerService::class.java).apply {
+            action = StudyTimerService.ACTION_RESTORE
+        }
+        val result = service.onStartCommand(restoreIntent, 0, 1)
+        assertEquals(android.app.Service.START_STICKY, result)
+        assertNull(store.running.value)
+    }
 }
