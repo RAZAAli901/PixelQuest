@@ -9,6 +9,8 @@ import com.pixelquest.app.notification.NotificationChannels
 import com.pixelquest.app.study.data.MemoryStudyTimerStore
 import com.pixelquest.app.study.data.RunningTimer
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -72,5 +74,65 @@ class StudyTimerNotificationTest {
         val notification = service.buildForegroundNotification(timer)
         val title = notification.extras.getString(NotificationCompat.EXTRA_TITLE)
         assertEquals(context.getString(R.string.study_timer_notif_title_solo), title)
+    }
+
+    @Test
+    fun runningTimer_hasPauseAndStopActions() {
+        val timer = RunningTimer("party_1", 1_000_000L, "Physics Circle")
+        val notification = service.buildForegroundNotification(timer)
+
+        assertEquals(2, notification.actions.size)
+        assertEquals(context.getString(R.string.study_timer_action_pause), notification.actions[0].title.toString())
+        assertEquals(context.getString(R.string.study_timer_action_stop), notification.actions[1].title.toString())
+    }
+
+    @Test
+    fun pausedTimer_hasResumeAndStopActions_andStaticElapsedText() {
+        val timer = RunningTimer(
+            partyId = "party_1",
+            startedAt = 1_000_000L,
+            partyName = "Physics Circle",
+            pausedAt = 1_600_000L, // 10 mins active
+            accumulatedPauseMs = 0L,
+        )
+        val notification = service.buildForegroundNotification(timer)
+
+        assertEquals(2, notification.actions.size)
+        assertEquals(context.getString(R.string.study_timer_action_resume), notification.actions[0].title.toString())
+        assertEquals(context.getString(R.string.study_timer_action_stop), notification.actions[1].title.toString())
+
+        // Chronometer is disabled while paused; static text shows "Paused · 10:00"
+        assertFalse(notification.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER))
+        val body = notification.extras.getString(NotificationCompat.EXTRA_TEXT).orEmpty()
+        assertTrue(body.contains("Paused"))
+    }
+
+    @Test
+    fun actions_pauseAndResumeServiceIntents() {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+        store.start("party_1", 1_000_000L, "Physics Circle")
+        assertFalse(store.running.value?.isPaused == true)
+
+        // Trigger ACTION_PAUSE
+        val pauseIntent = android.content.Intent(service, StudyTimerService::class.java).apply {
+            action = StudyTimerService.ACTION_PAUSE
+        }
+        service.onStartCommand(pauseIntent, 0, 1)
+        assertTrue(store.running.value?.isPaused == true)
+
+        // Trigger ACTION_RESUME
+        val resumeIntent = android.content.Intent(service, StudyTimerService::class.java).apply {
+            action = StudyTimerService.ACTION_RESUME
+        }
+        service.onStartCommand(resumeIntent, 0, 2)
+        assertFalse(store.running.value?.isPaused == true)
+
+        // Trigger ACTION_CANCEL
+        val cancelIntent = android.content.Intent(service, StudyTimerService::class.java).apply {
+            action = StudyTimerService.ACTION_CANCEL
+        }
+        service.onStartCommand(cancelIntent, 0, 3)
+        assertNull(store.running.value)
     }
 }
