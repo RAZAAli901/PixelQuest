@@ -16,8 +16,9 @@ class CompleteTaskUseCase @Inject constructor(
     private val taskAlarmScheduler: TaskAlarmScheduler,
 ) {
     suspend operator fun invoke(task: TaskEntity, date: LocalDate): Boolean {
-        // 0 means it was already done (a double tap, or completed from the reminder).
-        if (taskResultRecorder.recordCompleted(task.id, date) == 0) return false
+        // AlreadyCompleted or TaskNotFound returns false.
+        val result = taskResultRecorder.recordTaskCompletion(task.id, date)
+        if (result !is TaskResultRecorder.CompletionResult.Success) return false
         if (task.recurrenceType == RecurrenceType.ONE_TIME) {
             taskAlarmScheduler.cancelAlarmForTask(task)
         } else {

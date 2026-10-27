@@ -14,6 +14,7 @@ object NetworkConfig {
 }
 
 object GameConfig {
+    const val FIRST_COMPLETION_XP = 0
     const val BASE_XP_PER_TASK = 50
     const val BONUS_XP_PER_STREAK_DAY = 10
     const val ALL_FIVE_BONUS_XP = 100

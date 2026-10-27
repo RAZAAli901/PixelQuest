@@ -50,8 +50,12 @@ class TaskResultRecorderTest {
     private class FakeProfile : UserProfileRepository {
         val profile = MutableStateFlow<UserProfileEntity?>(UserProfileEntity(username = "Hero", avatarId = "avatar_hero"))
         override fun getProfile(): Flow<UserProfileEntity?> = profile
-        override suspend fun insertProfile(profile: UserProfileEntity) { this.profile.value = profile }
-        override suspend fun updateProfile(profile: UserProfileEntity) { this.profile.value = profile }
+        override suspend fun insertProfile(profile: UserProfileEntity) {
+            this.profile.value = profile
+        }
+        override suspend fun updateProfile(profile: UserProfileEntity) {
+            this.profile.value = profile
+        }
         override suspend fun performLevelUp(): UserProfileEntity? = null
         override suspend fun updateSupabaseUserId(userId: String?) = Unit
         override suspend fun updateLeaderboardSettings(optIn: Boolean, displayName: String?) = Unit
@@ -62,8 +66,12 @@ class TaskResultRecorderTest {
     private class FakeStreak(days: Int) : StreakRepository {
         private val streak = MutableStateFlow<StreakEntity?>(StreakEntity(currentStreak = days))
         override fun getCurrentStreak(): Flow<StreakEntity?> = streak
-        override suspend fun insertStreak(streak: StreakEntity) { this.streak.value = streak }
-        override suspend fun updateStreak(streak: StreakEntity) { this.streak.value = streak }
+        override suspend fun insertStreak(streak: StreakEntity) {
+            this.streak.value = streak
+        }
+        override suspend fun updateStreak(streak: StreakEntity) {
+            this.streak.value = streak
+        }
     }
 
     private val day = LocalDate.of(2026, 10, 3)
@@ -72,12 +80,15 @@ class TaskResultRecorderTest {
     private val quests = com.pixelquest.app.testing.FakeTaskRepository(
         listOf(1L, 2L).map {
             com.pixelquest.app.data.local.entity.TaskEntity(
-                id = it, name = "Quest $it", description = "", scheduledDay = LocalDate.of(2026, 9, 1),
+                id = it,
+                name = "Quest $it",
+                description = "",
+                scheduledDay = LocalDate.of(2026, 9, 1),
                 scheduledTime = java.time.LocalTime.of(9, 0),
                 recurrenceType = com.pixelquest.app.domain.model.RecurrenceType.DAILY,
-                category = com.pixelquest.app.domain.model.TaskCategory.FITNESS
+                category = com.pixelquest.app.domain.model.TaskCategory.FITNESS,
             )
-        }
+        },
     )
     private val recorder = TaskResultRecorder(logs, profile, FakeStreak(days = 2), quests)
 
@@ -85,25 +96,29 @@ class TaskResultRecorderTest {
 
     @Test
     fun completing_awardsStreakXpOnce() = runTest {
+        // Pre-seed a prior completion so task 1 has already been completed before (B06)
+        logs.insertLog(TaskCompletionLogEntity(taskId = 1, completedDate = day.minusDays(1), wasCompleted = true, pointsAwarded = 0))
         assertEquals(70, recorder.recordCompleted(1, day)) // 50 + 2 streak days x 10
         assertEquals(0, recorder.recordCompleted(1, day))
         assertEquals(70, xp)
-        assertEquals(1, logs.logs.value.size)
+        assertEquals(2, logs.logs.value.size)
     }
 
     @Test
     fun aDoubleTap_racingItself_isCountedOnce() = runTest {
+        logs.insertLog(TaskCompletionLogEntity(taskId = 1, completedDate = day.minusDays(1), wasCompleted = true, pointsAwarded = 0))
         val awarded = List(3) { async { recorder.recordCompleted(1, day) } }.awaitAll()
         assertEquals(listOf(70, 0, 0), awarded.sortedDescending())
         assertEquals(70, xp)
-        assertEquals(1, logs.logs.value.size)
+        assertEquals(2, logs.logs.value.size)
     }
 
     @Test
     fun aMissedTask_canStillBeCompletedThatDay() = runTest {
+        logs.insertLog(TaskCompletionLogEntity(taskId = 1, completedDate = day.minusDays(1), wasCompleted = true, pointsAwarded = 0))
         assertTrue(recorder.recordNotDone(1, day))
         assertEquals(70, recorder.recordCompleted(1, day))
-        val log = logs.logs.value.single()
+        val log = logs.logs.value.last()
         assertTrue(log.wasCompleted)
         assertEquals(70, log.pointsAwarded)
         assertEquals(70, xp)
@@ -118,10 +133,12 @@ class TaskResultRecorderTest {
 
     @Test
     fun otherTasksAndOtherDays_areSeparate() = runTest {
+        logs.insertLog(TaskCompletionLogEntity(taskId = 1, completedDate = day.minusDays(1), wasCompleted = true, pointsAwarded = 0))
+        logs.insertLog(TaskCompletionLogEntity(taskId = 2, completedDate = day.minusDays(1), wasCompleted = true, pointsAwarded = 0))
         recorder.recordCompleted(1, day)
         recorder.recordCompleted(2, day)
         recorder.recordCompleted(1, day.plusDays(1))
-        assertEquals(3, logs.logs.value.size)
+        assertEquals(5, logs.logs.value.size)
         assertEquals(210, xp)
     }
 

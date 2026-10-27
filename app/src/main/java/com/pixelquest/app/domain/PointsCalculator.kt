@@ -5,6 +5,7 @@ import com.pixelquest.app.data.local.entity.TaskEntity
 
 object PointsCalculator {
 
+    const val FIRST_COMPLETION_XP = GameConfig.FIRST_COMPLETION_XP
     const val BASE_XP_PER_TASK = GameConfig.BASE_XP_PER_TASK
     const val BONUS_XP_PER_STREAK_DAY = GameConfig.BONUS_XP_PER_STREAK_DAY
 

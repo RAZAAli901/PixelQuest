@@ -1,5 +1,6 @@
 package com.pixelquest.app.domain
 
+import com.pixelquest.app.config.GameConfig
 import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
@@ -27,31 +28,52 @@ class TaskResultRecorder @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val streakRepository: StreakRepository,
     private val taskRepository: com.pixelquest.app.domain.repository.TaskRepository,
-    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null
+    private val syncScheduler: com.pixelquest.app.worker.SyncScheduler? = null,
 ) {
     // Serialises a double tap, or the app and a notification button racing each other.
     private val mutex = Mutex()
 
-    /** Marks the task done on [date]. Returns the XP awarded: 0 when it was already done. */
-    suspend fun recordCompleted(taskId: Long, date: LocalDate): Int = mutex.withLock {
+    sealed class CompletionResult {
+        data class Success(val points: Int) : CompletionResult()
+        object AlreadyCompleted : CompletionResult()
+        object TaskNotFound : CompletionResult()
+    }
+
+    suspend fun recordTaskCompletion(taskId: Long, date: LocalDate): CompletionResult = mutex.withLock {
         // A deleted quest's reminder can still be in the shade; "Yes" there used to award XP and
         // leave a log for a quest that no longer exists.
-        if (taskRepository.getTaskById(taskId).first() == null) return@withLock 0
+        if (taskRepository.getTaskById(taskId).first() == null) return@withLock CompletionResult.TaskNotFound
         val existing = taskCompletionRepository.getLogForTaskOnDate(taskId, date)
-        if (existing?.wasCompleted == true) return@withLock 0
+        if (existing?.wasCompleted == true) return@withLock CompletionResult.AlreadyCompleted
 
+        // B06: The first completion of a quest awards 0 XP (FIRST_COMPLETION_XP);
+        // every later completion awards normal XP. Detected from existing completion logs.
+        val hasPriorCompletion = taskCompletionRepository.getLogsForTask(taskId).first().any { it.wasCompleted }
         val streak = streakRepository.getCurrentStreak().first()?.currentStreak ?: 0
-        val points = PointsCalculator.calculateXpForTask(currentStreak = streak)
+        val points = if (!hasPriorCompletion) {
+            GameConfig.FIRST_COMPLETION_XP
+        } else {
+            PointsCalculator.calculateXpForTask(currentStreak = streak)
+        }
+
         if (existing != null) {
             taskCompletionRepository.updateLog(existing.copy(wasCompleted = true, pointsAwarded = points))
         } else {
             taskCompletionRepository.insertLog(
-                TaskCompletionLogEntity(taskId = taskId, completedDate = date, wasCompleted = true, pointsAwarded = points)
+                TaskCompletionLogEntity(taskId = taskId, completedDate = date, wasCompleted = true, pointsAwarded = points),
             )
         }
-        userProfileRepository.addXp(points)
+        if (points > 0) {
+            userProfileRepository.addXp(points)
+        }
         syncScheduler?.scheduleProfileSync()
-        points
+        CompletionResult.Success(points)
+    }
+
+    /** Marks the task done on [date]. Returns the XP awarded: 0 when it was already done. */
+    suspend fun recordCompleted(taskId: Long, date: LocalDate): Int {
+        val result = recordTaskCompletion(taskId, date)
+        return if (result is CompletionResult.Success) result.points else 0
     }
 
     /**
@@ -62,7 +84,7 @@ class TaskResultRecorder @Inject constructor(
         if (taskRepository.getTaskById(taskId).first() == null) return@withLock false
         if (taskCompletionRepository.getLogForTaskOnDate(taskId, date) != null) return@withLock false
         taskCompletionRepository.insertLog(
-            TaskCompletionLogEntity(taskId = taskId, completedDate = date, wasCompleted = false, pointsAwarded = 0)
+            TaskCompletionLogEntity(taskId = taskId, completedDate = date, wasCompleted = false, pointsAwarded = 0),
         ) != -1L
     }
 }
