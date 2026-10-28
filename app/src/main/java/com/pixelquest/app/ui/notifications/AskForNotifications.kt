@@ -43,10 +43,12 @@ object NotificationAsk {
 
 /** A function to call as the player turns a reminder on: it asks for notifications if they're still needed. */
 @Composable
-fun rememberAskForNotifications(): () -> Unit {
+fun rememberAskForNotifications(onGranted: () -> Unit = {}): () -> Unit {
     val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
-    return remember(context, launcher) {
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) onGranted()
+    }
+    return remember(context, launcher, onGranted) {
         {
             if (NotificationAsk.needed(context)) {
                 NotificationAsk.markAsked(context)

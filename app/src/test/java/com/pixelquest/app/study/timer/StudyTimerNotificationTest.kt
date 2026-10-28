@@ -61,6 +61,14 @@ class StudyTimerNotificationTest {
 
         // 4. Ongoing flag
         assertTrue((notification.flags and Notification.FLAG_ONGOING_EVENT) != 0)
+
+        // 5. Content text shows live counting
+        val text = notification.extras.getString(NotificationCompat.EXTRA_TEXT)
+        assertEquals(context.getString(R.string.study_timer_notif_running), text)
+
+        // 6. Private visibility with generic public version (S047)
+        assertEquals(NotificationCompat.VISIBILITY_PRIVATE, notification.visibility)
+        assertNotNull(notification.publicVersion)
     }
 
     @Test
@@ -317,5 +325,36 @@ class StudyTimerNotificationTest {
         val result = service.onStartCommand(restoreIntent, 0, 1)
         assertEquals(android.app.Service.START_STICKY, result)
         assertNull(store.running.value)
+    }
+
+    @Test
+    fun nullIntent_withRunningTimer_restoresNotificationAndReturnsStartSticky() {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+        store.start("party_math", System.currentTimeMillis() - 10 * 60_000L, "Math Circle")
+
+        // When Android restarts a START_STICKY service after app kill/swipe, intent is null
+        val result = service.onStartCommand(null, 0, 1)
+        assertEquals(android.app.Service.START_STICKY, result)
+        assertNotNull(store.running.value)
+    }
+
+    @Test
+    fun nullIntent_withoutRunningTimer_stopsSelfAndReturnsNotSticky() {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+
+        val result = service.onStartCommand(null, 0, 1)
+        assertEquals(android.app.Service.START_NOT_STICKY, result)
+    }
+
+    @Test
+    fun onTaskRemoved_runningTimer_keepsServiceAlive() {
+        val store = MemoryStudyTimerStore()
+        service.timerStore = store
+        store.start("party_math", System.currentTimeMillis() - 5 * 60_000L, "Math Circle")
+
+        service.onTaskRemoved(android.content.Intent())
+        assertNotNull(store.running.value)
     }
 }

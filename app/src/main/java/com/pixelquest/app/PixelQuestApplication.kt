@@ -78,6 +78,9 @@ class PixelQuestApplication :
 
     override fun onCreate() {
         super.onCreate()
+        // Fast cold-start: lightweight notification channel creation
+        NotificationHelper.createNotificationChannel(this)
+        com.pixelquest.app.notification.PqNotify.createChannels(this)
         // Restore running or paused study timer if process died or app restarted (T10)
         try {
             if (timerStore.running.value != null) {
@@ -88,9 +91,6 @@ class PixelQuestApplication :
         }
         // Step 8: Global uncaught-exception handler logging crashes locally
         com.pixelquest.app.util.PixelCrashHandler.init(this)
-        // Fast cold-start: lightweight notification channel creation
-        NotificationHelper.createNotificationChannel(this)
-        com.pixelquest.app.notification.PqNotify.createChannels(this)
         com.pixelquest.app.notification.PqNotify.deepLink = { ctx, route ->
             val intent = android.content.Intent(ctx, MainActivity::class.java).apply {
                 flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP

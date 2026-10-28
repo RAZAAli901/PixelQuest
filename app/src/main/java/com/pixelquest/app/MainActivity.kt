@@ -84,6 +84,7 @@ class MainActivity : ComponentActivity() {
             if (isGranted) {
                 isNotificationBannerDismissed = false
                 NotificationAsk.setBannerDismissed(this, false)
+                com.pixelquest.app.study.timer.StudyTimerService.restore(this)
             }
         }
 

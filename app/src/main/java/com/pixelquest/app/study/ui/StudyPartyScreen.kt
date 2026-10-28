@@ -113,7 +113,10 @@ fun StudyPartyScreen(
         ).collectAsState()
     val dueReminders by viewModel.dueReminders.collectAsState()
     val weeklySummary by viewModel.weeklySummary.collectAsState()
-    val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications()
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val askForNotifications = com.pixelquest.app.ui.notifications.rememberAskForNotifications {
+        com.pixelquest.app.study.timer.StudyTimerService.restore(context)
+    }
     // Followed live only while the screen is visible.
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(lifecycle, viewModel) {
@@ -133,7 +136,6 @@ fun StudyPartyScreen(
         if (chatViewModel != null && chatShown && chatState.loaded) chatViewModel.markRead()
     }
     // A shared file, fetched on the player's tap, goes to the system viewer they choose.
-    val context = androidx.compose.ui.platform.LocalContext.current
     LaunchedEffect(chatViewModel) {
         chatViewModel?.openRequests?.collect { saved ->
             if (!com.pixelquest.app.study.chat.ui.openInViewer(context, saved)) chatViewModel.noViewer()

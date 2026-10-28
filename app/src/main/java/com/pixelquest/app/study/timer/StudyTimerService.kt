@@ -7,7 +7,6 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import com.pixelquest.app.MainActivity
 import com.pixelquest.app.R
@@ -49,6 +48,7 @@ class StudyTimerService : Service() {
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var autoStopJob: Job? = null
+    private var isStarted = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -58,7 +58,20 @@ class StudyTimerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val action = intent?.action ?: return START_NOT_STICKY
+        if (intent == null) {
+            val current = timerStore.running.value
+            return if (current != null) {
+                isStarted = true
+                handleRestore()
+                START_STICKY
+            } else {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
+                START_NOT_STICKY
+            }
+        }
+
+        val action = intent.action ?: return START_NOT_STICKY
 
         when (action) {
             ACTION_START -> {
@@ -87,14 +100,25 @@ class StudyTimerService : Service() {
         return START_STICKY
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        val current = timerStore.running.value
+        if (current != null) {
+            updateNotification(current)
+        }
+    }
+
     private fun observeTimerState() {
         serviceScope.launch {
             timerStore.running.collectLatest { timer ->
                 if (timer == null) {
-                    autoStopJob?.cancel()
-                    stopForeground(STOP_FOREGROUND_REMOVE)
-                    stopSelf()
+                    if (isStarted) {
+                        autoStopJob?.cancel()
+                        stopForeground(STOP_FOREGROUND_REMOVE)
+                        stopSelf()
+                    }
                 } else {
+                    isStarted = true
                     updateNotification(timer)
                     scheduleAutoStopIfNeeded(timer)
                 }
@@ -103,6 +127,10 @@ class StudyTimerService : Service() {
     }
 
     private fun handleStart(partyId: String, partyName: String?, startedAt: Long) {
+        isStarted = true
+        val startingTimer = RunningTimer(partyId = partyId, startedAt = startedAt, partyName = partyName)
+        updateNotification(startingTimer)
+
         serviceScope.launch(Dispatchers.IO) {
             val current = timerStore.running.value
             if (current != null && current.partyId != partyId) {
@@ -155,6 +183,7 @@ class StudyTimerService : Service() {
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
         } else {
+            isStarted = true
             // Check if 4 hours already elapsed while process was killed
             val now = System.currentTimeMillis()
             val elapsed = current.elapsedMillisAt(now)
@@ -245,6 +274,7 @@ class StudyTimerService : Service() {
             val elapsed = timer.elapsedMillisAt(System.currentTimeMillis())
             builder.setContentText(getString(R.string.study_timer_notif_paused, elapsedText(elapsed)))
             builder.setUsesChronometer(false)
+            builder.setShowWhen(false)
 
             val resumeIntent = Intent(this, StudyTimerService::class.java).apply { action = ACTION_RESUME }
             val resumePendingIntent = PendingIntent.getService(
@@ -255,7 +285,10 @@ class StudyTimerService : Service() {
             )
             builder.addAction(0, getString(R.string.study_timer_action_resume), resumePendingIntent)
         } else {
-            val base = timer.chronometerBase(SystemClock.elapsedRealtime(), System.currentTimeMillis())
+            val now = System.currentTimeMillis()
+            val base = timer.chronometerWhen(now)
+            builder.setContentText(getString(R.string.study_timer_notif_running))
+            builder.setShowWhen(true)
             builder.setUsesChronometer(true)
             builder.setChronometerCountDown(false)
             builder.setWhen(base)

@@ -11,6 +11,7 @@ Install 1.8.4 over 1.8.3 (or any earlier version): 100% backward compatible. All
 ### ⏱️ Ongoing Notification Study Timer (T01 - T11)
 - **Foreground Service & State Machine**: `StudyTimerService` owns a persistent timer state machine (RUNNING, PAUSED, STOPPED) stored in `PrefsStudyTimerStore` that survives app kills and device reboots.
 - **Battery-Friendly Ongoing Notification**: Displays live active study duration via the Android system chronometer with zero per-second CPU wakeups.
+- **Live Background Seconds & App Closure Resilience**: Fixed chronometer epoch base calculation for real-time second counting in the notification drawer; configured `stopWithTask="false"`, `onTaskRemoved`, and null-intent revival in `StudyTimerService` so the live counting notification persists and updates even when the app is closed or swiped from Recents.
 - **Direct Notification Controls**: Pause, Resume, and Stop action buttons right from the notification drawer, and tapping the notification immediately opens the active study circle's Week tab.
 - **Session Auto-Logging & Protection**: Stopping saves the session to the study circle (5 to 240 minutes; sessions under 5 minutes are discarded with an explanatory notice; auto-stops at 4 hours).
 - **Single Active Timer**: Only one study timer can run across all circles at a time; starting a new timer prompts to stop and save the currently active timer.

@@ -327,6 +327,7 @@
     <!-- Study Timer Notification (T03-T06) -->
     <string name="study_timer_notif_title">Studying with <xliff:g id="party" example="Physics Circle">%1$s</xliff:g></string>
     <string name="study_timer_notif_title_solo">Studying</string>
+    <string name="study_timer_notif_running">Counting study seconds live…</string>
     <string name="study_timer_notif_paused">Paused · <xliff:g id="elapsed" example="25:00">%1$s</xliff:g></string>
     <string name="study_timer_action_pause">Pause</string>
     <string name="study_timer_action_resume">Resume</string>

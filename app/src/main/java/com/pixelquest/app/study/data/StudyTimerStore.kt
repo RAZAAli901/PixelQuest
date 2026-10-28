@@ -45,6 +45,16 @@ data class RunningTimer(
         return currentRealtime - elapsed
     }
 
+    /**
+     * Epoch-based timestamp for NotificationCompat.Builder.setWhen().
+     * NotificationCompat expects milliseconds since epoch (wall clock) so the system chronometer
+     * calculates live seconds elapsed since this timestamp.
+     */
+    fun chronometerWhen(now: Long = System.currentTimeMillis()): Long {
+        val elapsed = elapsedMillisAt(now)
+        return now - elapsed
+    }
+
     /** The whole minutes it has run at [now]. */
     fun minutesAt(now: Long): Int = (elapsedMillisAt(now) / 60_000L).toInt()
 
