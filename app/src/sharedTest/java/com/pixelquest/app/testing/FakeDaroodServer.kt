@@ -314,7 +314,8 @@ class FakeDaroodServer(var me: String? = "me") : DaroodPartyRemoteDataSource {
         val week = weekResults.getOrPut(partyId to weekStart) {
             val ranked = members.filter { it.partyId == partyId && it.status == "active" }.map { member ->
                 val theirs = entries.filter {
-                    it.partyId == partyId && it.userId == member.userId &&
+                    it.partyId == partyId &&
+                        it.userId == member.userId &&
                         LocalDate.parse(it.localDate).let { d -> !d.isBefore(weekStart) && !d.isAfter(weekStart.plusDays(6)) }
                 }
                 Triple(member.userId, theirs.sumOf { it.amount.toLong() }, theirs.map { it.localDate }.distinct().size)
