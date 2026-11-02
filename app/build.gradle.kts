@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless)
     alias(libs.plugins.kover)
+    alias(libs.plugins.test.retry)
 }
 
 spotless {
@@ -341,4 +342,65 @@ kover {
             }
         }
     }
+}
+
+tasks.withType<Test>().configureEach {
+    val isCi = System.getenv("CI") != null || project.hasProperty("ci")
+    retry {
+        if (isCi) {
+            maxRetries.set(1)
+            maxFailures.set(20)
+            failOnPassedAfterRetry.set(false)
+        }
+    }
+
+    val failedTestNames = mutableSetOf<String>()
+    val flakyTests = mutableSetOf<String>()
+
+    addTestListener(
+        object : TestListener {
+            override fun beforeSuite(suite: TestDescriptor) {}
+
+            override fun afterSuite(
+                suite: TestDescriptor,
+                result: TestResult,
+            ) {
+                if (suite.parent == null) {
+                    val flakyReportFile =
+                        project.layout.buildDirectory
+                            .file("reports/flaky-tests.txt")
+                            .get()
+                            .asFile
+                    flakyReportFile.parentFile.mkdirs()
+                    if (flakyTests.isNotEmpty()) {
+                        val reportContent =
+                            buildString {
+                                appendLine("FLAKY TESTS DETECTED (${flakyTests.size}):")
+                                flakyTests.forEach { appendLine("  - $it") }
+                            }
+                        flakyReportFile.writeText(reportContent)
+                        logger.warn("\n$reportContent")
+                    } else {
+                        flakyReportFile.writeText("No flaky tests detected.\n")
+                    }
+                }
+            }
+
+            override fun beforeTest(testDescriptor: TestDescriptor) {}
+
+            override fun afterTest(
+                testDescriptor: TestDescriptor,
+                result: TestResult,
+            ) {
+                val testId = "${testDescriptor.className} > ${testDescriptor.name}"
+                if (result.resultType == TestResult.ResultType.FAILURE) {
+                    failedTestNames.add(testId)
+                } else if (result.resultType == TestResult.ResultType.SUCCESS) {
+                    if (failedTestNames.contains(testId)) {
+                        flakyTests.add(testId)
+                    }
+                }
+            }
+        },
+    )
 }

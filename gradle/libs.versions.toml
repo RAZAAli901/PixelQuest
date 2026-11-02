@@ -41,6 +41,7 @@ kover = "0.8.3"
 ktor = "3.0.1"
 serialization = "1.6.3"
 turbine = "1.1.0"
+testRetry = "1.5.8"
 
 [libraries]
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
@@ -111,4 +112,5 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.7" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+test-retry = { id = "org.gradle.test-retry", version.ref = "testRetry" }
 
