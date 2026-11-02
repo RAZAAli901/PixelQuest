@@ -37,6 +37,7 @@ datastore = "1.1.1"
 # java.time and other Java 8+ APIs on API 24-25 (minSdk 24); 2.1.x needs AGP 8.0+.
 desugarJdkLibs = "2.1.5"
 spotless = "6.25.0"
+kover = "0.8.3"
 ktor = "3.0.1"
 serialization = "1.6.3"
 turbine = "1.1.0"
@@ -109,4 +110,5 @@ hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.7" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 
