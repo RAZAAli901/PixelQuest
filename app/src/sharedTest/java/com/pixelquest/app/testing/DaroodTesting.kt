@@ -4,9 +4,9 @@ import com.pixelquest.app.darood.data.OwnUsername
 import com.pixelquest.app.darood.data.SetUsernameResult
 import com.pixelquest.app.darood.data.UsernameRepository
 import com.pixelquest.app.darood.domain.Username
-import com.pixelquest.app.data.remote.SupabaseResult
 import com.pixelquest.app.darood.sync.DaroodLiveSource
 import com.pixelquest.app.darood.sync.PartyChange
+import com.pixelquest.app.data.remote.SupabaseResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emitAll
@@ -22,14 +22,18 @@ import java.time.Instant
 class FakeUsernameRepository(
     var mine: OwnUsername? = null,
     val taken: MutableSet<String> = mutableSetOf(),
-    var now: Instant = Instant.parse("2026-10-19T08:00:00Z")
-) : UsernameRepository {
+    var now: Instant = Instant.parse("2026-10-19T08:00:00Z"),
+) : UsernameRepository,
+    FailureInjectable {
+    override var failureType: FakeFailureType = FakeFailureType.NONE
     var offline = false
     val availabilityChecks = mutableListOf<String>()
     val saves = mutableListOf<String>()
 
-    private fun <T> answer(block: () -> T): SupabaseResult<T> =
-        if (offline) SupabaseResult.NetworkError(IOException("offline"), "offline") else SupabaseResult.Success(block())
+    private fun <T> answer(block: () -> T): SupabaseResult<T> {
+        checkSupabaseFailure<T>()?.let { return it }
+        return if (offline) SupabaseResult.NetworkError(IOException("offline"), "offline") else SupabaseResult.Success(block())
+    }
 
     override suspend fun fetchMyUsername(): SupabaseResult<OwnUsername?> = answer { mine }
 

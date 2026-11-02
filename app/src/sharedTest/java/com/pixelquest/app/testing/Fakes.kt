@@ -27,17 +27,25 @@ import java.time.LocalDate
  * behaviour rather than a stub's. Tests seed state through the public MutableStateFlows.
  */
 
-open class FakeTaskRepository(initial: List<TaskEntity> = emptyList()) : TaskRepository {
+open class FakeTaskRepository(initial: List<TaskEntity> = emptyList()) :
+    TaskRepository,
+    FailureInjectable {
+    override var failureType: FakeFailureType = FakeFailureType.NONE
     val tasks = MutableStateFlow(initial)
     private var nextId = (initial.maxOfOrNull { it.id } ?: 0L) + 1
 
-    override fun getAllTasks(): Flow<List<TaskEntity>> = tasks
+    override fun getAllTasks(): Flow<List<TaskEntity>> {
+        checkFailure()
+        if (failureType == FakeFailureType.EMPTY_RESPONSE) return kotlinx.coroutines.flow.flowOf(emptyList())
+        return tasks
+    }
     override fun getTaskById(id: Long): Flow<TaskEntity?> = tasks.map { all -> all.firstOrNull { it.id == id } }
 
     /** Same rule as TaskRepositoryImpl: active tasks that occur on [day]. */
     override fun getTasksForDay(day: LocalDate): Flow<List<TaskEntity>> = tasks.map { all ->
         all.filter {
-            it.isActive && !it.scheduledDay.isAfter(day) &&
+            it.isActive &&
+                !it.scheduledDay.isAfter(day) &&
                 TaskOccurrence.occursOn(it.scheduledDay, it.recurrenceType, day, it.weeklyDays)
         }.sortedBy { it.scheduledTime }
     }
@@ -56,7 +64,10 @@ open class FakeTaskRepository(initial: List<TaskEntity> = emptyList()) : TaskRep
 }
 
 /** Like the real table, holds at most one log per task per day (a second insert returns -1). */
-open class FakeTaskCompletionRepository(initial: List<TaskCompletionLogEntity> = emptyList()) : TaskCompletionRepository {
+open class FakeTaskCompletionRepository(initial: List<TaskCompletionLogEntity> = emptyList()) :
+    TaskCompletionRepository,
+    FailureInjectable {
+    override var failureType: FakeFailureType = FakeFailureType.NONE
     val logs = MutableStateFlow(initial)
     private var nextId = (initial.maxOfOrNull { it.id } ?: 0L) + 1
 
@@ -81,13 +92,19 @@ open class FakeTaskCompletionRepository(initial: List<TaskCompletionLogEntity> =
 }
 
 open class FakeUserProfileRepository(
-    initial: UserProfileEntity? = UserProfileEntity(username = "Hero", avatarId = "avatar_hero")
-) : UserProfileRepository {
+    initial: UserProfileEntity? = UserProfileEntity(username = "Hero", avatarId = "avatar_hero"),
+) : UserProfileRepository,
+    FailureInjectable {
+    override var failureType: FakeFailureType = FakeFailureType.NONE
     val profile = MutableStateFlow(initial)
 
     override fun getProfile(): Flow<UserProfileEntity?> = profile
-    override suspend fun insertProfile(profile: UserProfileEntity) { this.profile.value = profile }
-    override suspend fun updateProfile(profile: UserProfileEntity) { this.profile.value = profile }
+    override suspend fun insertProfile(profile: UserProfileEntity) {
+        this.profile.value = profile
+    }
+    override suspend fun updateProfile(profile: UserProfileEntity) {
+        this.profile.value = profile
+    }
     override suspend fun performLevelUp(): UserProfileEntity? {
         val current = profile.value ?: return null
         return current.copy(level = current.level + 1, perfectDaysTowardNextLevel = LevelCalculator.getPostLevelUpProgress())
@@ -107,24 +124,43 @@ open class FakeUserProfileRepository(
     }
 }
 
-open class FakeStreakRepository(initial: StreakEntity? = StreakEntity()) : StreakRepository {
+open class FakeStreakRepository(initial: StreakEntity? = StreakEntity()) :
+    StreakRepository,
+    FailureInjectable {
+    override var failureType: FakeFailureType = FakeFailureType.NONE
     val streak = MutableStateFlow(initial)
     override fun getCurrentStreak(): Flow<StreakEntity?> = streak
-    override suspend fun insertStreak(streak: StreakEntity) { this.streak.value = streak }
-    override suspend fun updateStreak(streak: StreakEntity) { this.streak.value = streak }
+    override suspend fun insertStreak(streak: StreakEntity) {
+        this.streak.value = streak
+    }
+    override suspend fun updateStreak(streak: StreakEntity) {
+        this.streak.value = streak
+    }
 }
 
-open class FakeDifficultySettingsRepository(initial: DifficultySettingsEntity? = DifficultySettingsEntity()) : DifficultySettingsRepository {
+open class FakeDifficultySettingsRepository(initial: DifficultySettingsEntity? = DifficultySettingsEntity()) :
+    DifficultySettingsRepository,
+    FailureInjectable {
+    override var failureType: FakeFailureType = FakeFailureType.NONE
     val settings = MutableStateFlow(initial)
     override fun getCurrentDifficulty(): Flow<DifficultySettingsEntity?> = settings
-    override suspend fun insertSettings(settings: DifficultySettingsEntity) { this.settings.value = settings }
-    override suspend fun updateSettings(settings: DifficultySettingsEntity) { this.settings.value = settings }
+    override suspend fun insertSettings(settings: DifficultySettingsEntity) {
+        this.settings.value = settings
+    }
+    override suspend fun updateSettings(settings: DifficultySettingsEntity) {
+        this.settings.value = settings
+    }
 }
 
-open class FakeLevelHistoryRepository : LevelHistoryRepository {
+open class FakeLevelHistoryRepository :
+    LevelHistoryRepository,
+    FailureInjectable {
+    override var failureType: FakeFailureType = FakeFailureType.NONE
     val history = MutableStateFlow<List<LevelHistoryEntity>>(emptyList())
     override fun getAllHistory(): Flow<List<LevelHistoryEntity>> = history
-    override suspend fun insertLevelHistory(entry: LevelHistoryEntity) { history.value = history.value + entry }
+    override suspend fun insertLevelHistory(entry: LevelHistoryEntity) {
+        history.value = history.value + entry
+    }
 }
 
 /** Every setting as a MutableStateFlow; the setters write through, like SharedPreferences would. */
@@ -133,8 +169,10 @@ open class FakeSettingsRepository(
     theme: ThemeMode = ThemeMode.Pixel,
     notifications: Boolean = true,
     aiInsights: Boolean = false,
-    onboardingDone: Boolean = true
-) : SettingsRepository {
+    onboardingDone: Boolean = true,
+) : SettingsRepository,
+    FailureInjectable {
+    override var failureType: FakeFailureType = FakeFailureType.NONE
     override val isSoundEnabled = MutableStateFlow(true)
     override val isCrtEnabled = MutableStateFlow(false)
     override val isHapticsEnabled = MutableStateFlow(true)
@@ -152,28 +190,62 @@ open class FakeSettingsRepository(
     override val lastBackupAt = MutableStateFlow(0L)
     override val namazSetupShown = MutableStateFlow(false)
     override val daroodAvailable = MutableStateFlow(true)
-    override suspend fun setDaroodAvailable(available: Boolean) { daroodAvailable.value = available }
+    override suspend fun setDaroodAvailable(available: Boolean) {
+        daroodAvailable.value = available
+    }
     override val islamicHubShown = MutableStateFlow(true)
-    override suspend fun setIslamicHubShown(shown: Boolean) { islamicHubShown.value = shown }
-    override suspend fun setNamazSetupShown(shown: Boolean) { namazSetupShown.value = shown }
-    override suspend fun setLastBackupAt(timestamp: Long) { lastBackupAt.value = timestamp }
+    override suspend fun setIslamicHubShown(shown: Boolean) {
+        islamicHubShown.value = shown
+    }
+    override suspend fun setNamazSetupShown(shown: Boolean) {
+        namazSetupShown.value = shown
+    }
+    override suspend fun setLastBackupAt(timestamp: Long) {
+        lastBackupAt.value = timestamp
+    }
 
-    override suspend fun setSimpleModeHighlightSeen(seen: Boolean) { hasSeenSimpleModeHighlight.value = seen }
-    override suspend fun setSoundEnabled(enabled: Boolean) { isSoundEnabled.value = enabled }
-    override suspend fun setCrtEnabled(enabled: Boolean) { isCrtEnabled.value = enabled }
-    override suspend fun setHapticsEnabled(enabled: Boolean) { isHapticsEnabled.value = enabled }
-    override suspend fun setReduceMotionEnabled(enabled: Boolean) { isReduceMotionEnabled.value = enabled }
-    override suspend fun setOnboardingComplete(complete: Boolean) { onboardingComplete.value = complete }
-    override suspend fun setNotificationsEnabled(enabled: Boolean) { isNotificationsEnabled.value = enabled }
-    override suspend fun setNotificationSoundEnabled(enabled: Boolean) { isNotificationSoundEnabled.value = enabled }
-    override suspend fun setNotificationVibrationEnabled(enabled: Boolean) { isNotificationVibrationEnabled.value = enabled }
+    override suspend fun setSimpleModeHighlightSeen(seen: Boolean) {
+        hasSeenSimpleModeHighlight.value = seen
+    }
+    override suspend fun setSoundEnabled(enabled: Boolean) {
+        isSoundEnabled.value = enabled
+    }
+    override suspend fun setCrtEnabled(enabled: Boolean) {
+        isCrtEnabled.value = enabled
+    }
+    override suspend fun setHapticsEnabled(enabled: Boolean) {
+        isHapticsEnabled.value = enabled
+    }
+    override suspend fun setReduceMotionEnabled(enabled: Boolean) {
+        isReduceMotionEnabled.value = enabled
+    }
+    override suspend fun setOnboardingComplete(complete: Boolean) {
+        onboardingComplete.value = complete
+    }
+    override suspend fun setNotificationsEnabled(enabled: Boolean) {
+        isNotificationsEnabled.value = enabled
+    }
+    override suspend fun setNotificationSoundEnabled(enabled: Boolean) {
+        isNotificationSoundEnabled.value = enabled
+    }
+    override suspend fun setNotificationVibrationEnabled(enabled: Boolean) {
+        isNotificationVibrationEnabled.value = enabled
+    }
     override suspend fun setThemeMode(mode: ThemeMode) {
         themeMode.value = mode
     }
-    override suspend fun setSimpleModeEnabled(enabled: Boolean) { simpleModeEnabled.value = enabled }
-    override suspend fun setAiInsightsEnabled(enabled: Boolean) { aiInsightsEnabled.value = enabled }
-    override suspend fun setLastAiInsightTimestamp(timestamp: Long) { lastAiInsightTimestamp.value = timestamp }
-    override suspend fun setAiReminderMessagesEnabled(enabled: Boolean) { aiReminderMessagesEnabled.value = enabled }
+    override suspend fun setSimpleModeEnabled(enabled: Boolean) {
+        simpleModeEnabled.value = enabled
+    }
+    override suspend fun setAiInsightsEnabled(enabled: Boolean) {
+        aiInsightsEnabled.value = enabled
+    }
+    override suspend fun setLastAiInsightTimestamp(timestamp: Long) {
+        lastAiInsightTimestamp.value = timestamp
+    }
+    override suspend fun setAiReminderMessagesEnabled(enabled: Boolean) {
+        aiReminderMessagesEnabled.value = enabled
+    }
 }
 
 /**
@@ -189,7 +261,10 @@ class FixedClock(var time: java.time.LocalDateTime = java.time.LocalDateTime.now
 /** [com.pixelquest.app.domain.ai.AiAccess] for tests: signed in with [token] unless it's null. */
 class FakeAiAccess(token: String? = "test-access-token") : com.pixelquest.app.domain.ai.AiAccess {
     var token: String? = token
-        set(value) { field = value; isSignedIn.value = value != null }
+        set(value) {
+            field = value
+            isSignedIn.value = value != null
+        }
     override val isSignedIn = MutableStateFlow(token != null)
     override suspend fun accessToken(): String? = token
 }

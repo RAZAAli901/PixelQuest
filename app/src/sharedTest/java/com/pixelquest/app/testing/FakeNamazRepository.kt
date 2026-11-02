@@ -13,8 +13,10 @@ import java.time.LocalDate
 
 /** An in-memory NamazRepository: one row per prayer per day, like the real table's unique index. */
 open class FakeNamazRepository(
-    settings: NamazSettingsEntity = NamazSettingsEntity()
-) : NamazRepository {
+    settings: NamazSettingsEntity = NamazSettingsEntity(),
+) : NamazRepository,
+    FailureInjectable {
+    override var failureType: FakeFailureType = FakeFailureType.NONE
 
     val settings = MutableStateFlow(settings)
 
