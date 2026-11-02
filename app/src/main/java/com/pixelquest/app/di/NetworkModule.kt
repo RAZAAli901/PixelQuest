@@ -38,4 +38,11 @@ object NetworkModule {
         client: SupabaseClient,
     ): com.pixelquest.app.data.remote.SupabaseClientWrapper =
         com.pixelquest.app.data.remote.DefaultSupabaseClientWrapper(client)
+
+    @Provides
+    @Singleton
+    fun provideNetworkMonitor(
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
+    ): com.pixelquest.app.util.NetworkMonitor =
+        com.pixelquest.app.util.ConnectivityManagerNetworkMonitor(context)
 }
