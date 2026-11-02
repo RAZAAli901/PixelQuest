@@ -20,7 +20,7 @@ class RaceBoardPrivacyTest {
 
     @Test
     fun aRaceLine_holdsNoMemberNorId() {
-        val fields = RaceLine::class.java.declaredFields.map { it.name }.filterNot { it.startsWith("$") }.toSet()
+        val fields = RaceLine::class.java.declaredFields.filterNot { it.isSynthetic || it.name.startsWith("$") || it.name.startsWith("__") }.map { it.name }.toSet()
         assertEquals(setOf("name", "memberCount", "total", "milestone", "progress", "completedAt", "mine"), fields)
     }
 }
