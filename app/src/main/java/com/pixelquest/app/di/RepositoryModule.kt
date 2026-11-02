@@ -264,12 +264,6 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindAlarmScheduler(
-        impl: com.pixelquest.app.scheduling.AndroidAlarmScheduler,
-    ): com.pixelquest.app.scheduling.AlarmScheduler
-
-    @Binds
-    @Singleton
     abstract fun bindStudyReminderAlarms(
         impl: com.pixelquest.app.study.alarm.AlarmManagerStudyReminderAlarms,
     ): com.pixelquest.app.study.alarm.StudyReminderAlarms
