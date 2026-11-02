@@ -125,3 +125,10 @@ A flaky test is a critical bug. Every test in PixelQuest must adhere to the foll
 - **Initial Failures**: 0
 - **Initial Ignored**: 20
 - **Initial Run Duration**: ~7m 27s
+
+
+---
+
+## 7. Test Writing Guide
+
+For full worked examples covering each architectural layer (Use Case, ViewModel, Repository, Screen, and WorkManager Worker), see [docs/TEST_WRITING_GUIDE.md](TEST_WRITING_GUIDE.md).
