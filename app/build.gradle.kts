@@ -191,6 +191,26 @@ android {
         unitTests {
             isIncludeAndroidResources = true
         }
+        managedDevices {
+            devices {
+                maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("pixelPhone").apply {
+                    device = "Pixel 6"
+                    apiLevel = 34
+                    systemImageSource = "aosp"
+                }
+                maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("pixelTablet").apply {
+                    device = "Pixel Tablet"
+                    apiLevel = 34
+                    systemImageSource = "aosp"
+                }
+            }
+            groups {
+                maybeCreate("ciDevices").apply {
+                    targetDevices.add(devices["pixelPhone"])
+                    targetDevices.add(devices["pixelTablet"])
+                }
+            }
+        }
     }
     buildFeatures {
         compose = true
