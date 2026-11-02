@@ -117,14 +117,34 @@ A flaky test is a critical bug. Every test in PixelQuest must adhere to the foll
 
 ---
 
-## 6. Test Suite Baseline
+## 6. Test Suite Baseline (Phase A - V020 Baseline)
 
-*Updated automatically during Phase A (V020) and subsequent CI milestones.*
+Recorded on November 3, 2026:
 
-- **Initial Unit Tests Count**: 2,349 tests
-- **Initial Failures**: 0
-- **Initial Ignored**: 20
-- **Initial Run Duration**: ~7m 27s
+### Test Suite Execution
+- **Total Unit & Robolectric Tests**: 2,396
+- **Passed**: 2,374 (100% pass rate among active tests)
+- **Failures**: 0
+- **Ignored / Skipped**: 22 (live network / optional Gemini credentials tests)
+- **Suite Execution Duration**: 6m 07s (total Gradle task time: 7m 35s)
+- **Flaky Tests**: 0 detected (single retry enabled in CI)
+
+### Code Coverage (Kover Baseline)
+- **Total Application Line Coverage**: 73.79% (31,585 / 42,803 lines)
+- **Total Instruction Coverage**: 76.18% (362,897 / 476,345 instructions)
+- **Total Branch Coverage**: 57.96% (12,405 / 21,402 branches)
+
+#### Layer Breakdown vs Targets:
+| Architectural Layer | Target Coverage | Recorded Baseline | Status |
+|---|---|---|---|
+| **Domain Layer** | 80% | **89.51%** (1,903 / 2,126 lines) | EXCEEDS TARGET |
+| **Data Layer** | 70% | **77.50%** (11,204 / 14,457 lines) | EXCEEDS TARGET |
+| **ViewModels & UI** | 50% | **78.10%** (15,698 / 20,099 lines) | EXCEEDS TARGET |
+
+
+
+
+
 
 
 ---
