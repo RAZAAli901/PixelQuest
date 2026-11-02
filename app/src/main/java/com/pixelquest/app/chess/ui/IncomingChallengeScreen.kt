@@ -183,6 +183,7 @@ fun IncomingChallengeScreen(
     clock: () -> Instant = Instant::now,
     onReport: () -> Unit = {},
     onBlock: () -> Unit = {},
+    ticking: Boolean = true,
 ) {
     // Scrolls, for small phones and large text.
     Column(Modifier.fillMaxSize().background(PqColors.Ground).verticalScroll(rememberScrollState()).testTag(IncomingTags.SCREEN)) {
@@ -192,7 +193,7 @@ fun IncomingChallengeScreen(
             if (state.gone) Text(stringResource(R.string.chess_problem_expired), style = PqType.Body, modifier = Modifier.padding(24.dp).testTag(IncomingTags.GONE))
             return@Column
         }
-        val now = rememberTicking(running = true, phoneClock = { clock().toEpochMilli() })
+        val now = rememberTicking(running = ticking, phoneClock = { clock().toEpochMilli() })
         val left = (challenge.expiresAt.toEpochMilli() - now).coerceAtLeast(0)
         val open = challenge.isAnswerable(Instant.ofEpochMilli(now))
         val name = state.fromName ?: "?"

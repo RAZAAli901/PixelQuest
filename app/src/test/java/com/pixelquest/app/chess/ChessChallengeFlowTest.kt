@@ -108,7 +108,7 @@ class ChessChallengeFlowTest {
         }
         composeTestRule.setContent {
             val state by vm.state.collectAsState()
-            PixelQuestTheme { IncomingChallengeScreen(state, onAnswer = vm::answer, onNavigateBack = {}) }
+            PixelQuestTheme { IncomingChallengeScreen(state, onAnswer = vm::answer, onNavigateBack = {}, ticking = false) }
         }
         waitFor("loaded") { vm.state.value.challenge != null }
         composeTestRule.onNodeWithTag(IncomingTags.COUNTDOWN).assertExists()
@@ -126,7 +126,7 @@ class ChessChallengeFlowTest {
         var closed = false
         composeTestRule.setContent {
             val state by vm.state.collectAsState()
-            PixelQuestTheme { IncomingChallengeScreen(state, onAnswer = vm::answer, onNavigateBack = { closed = true }, onReport = vm::report, onBlock = vm::block) }
+            PixelQuestTheme { IncomingChallengeScreen(state, onAnswer = vm::answer, onNavigateBack = { closed = true }, onReport = vm::report, onBlock = vm::block, ticking = false) }
         }
         waitFor("loaded") { vm.state.value.challenge != null }
         composeTestRule.onNodeWithTag(IncomingTags.ACCEPT).assertExists()
