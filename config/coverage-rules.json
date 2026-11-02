@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "description": "PixelQuest minimum line coverage thresholds per layer",
+  "layers": {
+    "domain": {
+      "packagePattern": "com.pixelquest.app.domain.*",
+      "minLineCoverage": 80,
+      "description": "Business logic, use cases, domain entities, algorithms"
+    },
+    "data": {
+      "packagePattern": "com.pixelquest.app.data.*",
+      "minLineCoverage": 70,
+      "description": "Room entities, DAOs, repositories, remote datasources, mappers"
+    },
+    "viewmodels": {
+      "classPattern": "*ViewModel*",
+      "minLineCoverage": 80,
+      "description": "ViewModel state management and coroutine flows"
+    },
+    "ui": {
+      "packagePattern": "com.pixelquest.app.ui.*",
+      "minLineCoverage": 50,
+      "description": "Composable screens, theme tokens, navigation, UI components"
+    }
+  }
+}
