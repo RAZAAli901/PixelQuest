@@ -12,15 +12,18 @@ import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.SavedStateHandle
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.darood.data.DaroodPartyRepositoryImpl
+import com.pixelquest.app.data.local.AppDatabase
 import com.pixelquest.app.party.domain.PartyType
+import com.pixelquest.app.study.chat.data.ChatSend
 import com.pixelquest.app.study.chat.data.ChatUploadScheduler
 import com.pixelquest.app.study.chat.data.ChatUploads
 import com.pixelquest.app.study.chat.data.OpenedFile
 import com.pixelquest.app.study.chat.data.PickedDocuments
 import com.pixelquest.app.study.chat.data.PickedFile
 import com.pixelquest.app.study.chat.data.StudyChatRepositoryImpl
+import com.pixelquest.app.study.chat.data.UploadRun
+import com.pixelquest.app.study.chat.data.local.UploadState
 import com.pixelquest.app.study.chat.data.remote.ChatFilesRemote
 import com.pixelquest.app.study.chat.data.remote.DownloadReply
 import com.pixelquest.app.study.chat.data.remote.FileCall
@@ -30,6 +33,10 @@ import com.pixelquest.app.study.chat.domain.ChatFile
 import com.pixelquest.app.study.chat.domain.ChatFileStatus
 import com.pixelquest.app.study.chat.domain.ChatMessage
 import com.pixelquest.app.study.chat.domain.ChatMessageKind
+import com.pixelquest.app.study.chat.domain.StudyChatConfig
+import com.pixelquest.app.study.chat.domain.UploadChecks
+import com.pixelquest.app.study.chat.domain.UploadProblem
+import com.pixelquest.app.study.chat.domain.UploadRefused
 import com.pixelquest.app.study.chat.ui.ChatActions
 import com.pixelquest.app.study.chat.ui.StudyChatPane
 import com.pixelquest.app.study.chat.ui.StudyChatTags
@@ -42,9 +49,14 @@ import com.pixelquest.app.testing.FakeStudyServer
 import com.pixelquest.app.testing.TestViewModels
 import com.pixelquest.app.testing.closeAfterWrites
 import com.pixelquest.app.ui.theme.PixelQuestTheme
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,7 +78,10 @@ class StudyChatFlowTest {
     val composeTestRule = createComposeRule()
 
     private val zone = ZoneId.of("UTC")
-    private val server = FakeDaroodServer(me = "aria").apply { usernames += mapOf("aria" to "aria_k", "bram" to "bram"); now = Instant.parse("2026-10-21T10:00:00Z") }
+    private val server = FakeDaroodServer(me = "aria").apply {
+        usernames += mapOf("aria" to "aria_k", "bram" to "bram")
+        now = Instant.parse("2026-10-21T10:00:00Z")
+    }
     private val party = server.seedParty("Physics group", "aria", "bram", type = PartyType.STUDY)
     private val chatServer = FakeChatServer(me = "aria", now = server.now).apply { members[party] = mutableSetOf("aria", "bram") }
     private val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Application>(), AppDatabase::class.java).allowMainThreadQueries().build()
@@ -76,11 +91,18 @@ class StudyChatFlowTest {
 
     /** The file functions: the server stores the file and its message once it's checked, or rejects it. */
     private var rejectAs: String? = null
+    private var offlineMidway: Boolean = false
     private val files = object : ChatFilesRemote {
         override suspend fun requestUpload(partyId: String, name: String, mime: String, sizeBytes: Long) =
             FileCall.Ok(RequestUploadReply("f-$name", "/storage/v1/object/upload/sign/study-files/$partyId/x?token=t", name, 300))
         override suspend fun upload(uploadPath: String, mime: String, maxBytes: Long, open: () -> InputStream?, onProgress: (Long) -> Unit): FileCall<Long> {
-            val size = open()!!.readBytes().size.toLong()
+            val bytes = open()?.readBytes() ?: return FileCall.Refused("unreadable")
+            if (bytes.size > maxBytes) return FileCall.Refused("too_large")
+            if (offlineMidway) {
+                onProgress(bytes.size / 2L)
+                return FileCall.Offline
+            }
+            val size = bytes.size.toLong()
             onProgress(size / 2)
             onProgress(size)
             return FileCall.Ok(size)
@@ -98,10 +120,19 @@ class StudyChatFlowTest {
         override fun open(uri: String): InputStream = ByteArrayInputStream("%PDF-1.7".toByteArray())
     }
     private val scheduled = mutableListOf<String>()
-    private val uploads = ChatUploads(db.chatDao(), files, documents, chat, object : ChatUploadScheduler {
-        override fun schedule(clientId: String) { scheduled += clientId }
-        override fun cancel(clientId: String) {}
-    }, clock = { server.now.toEpochMilli() })
+    private val uploads = ChatUploads(
+        db.chatDao(),
+        files,
+        documents,
+        chat,
+        object : ChatUploadScheduler {
+            override fun schedule(clientId: String) {
+                scheduled += clientId
+            }
+            override fun cancel(clientId: String) {}
+        },
+        clock = { server.now.toEpochMilli() },
+    )
     private val opened = mutableListOf<String>()
     private val viewModels = TestViewModels()
 
@@ -123,22 +154,39 @@ class StudyChatFlowTest {
 
     @Test
     fun text_thenAPdf_thenARejectedFile() {
-        runBlocking { parties.refreshParties(); parties.refreshParty(party) }
+        runBlocking {
+            parties.refreshParties()
+            parties.refreshParty(party)
+        }
         val vm = viewModels.keep(StudyChatViewModel::class.java) {
             StudyChatViewModel(
-                SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)), chat, parties, study,
-                picked = { PickedFile(it, "Past paper.pdf", "application/pdf", 8) }, uploads = uploads,
-                fetcher = { file -> opened += file.id; OpenedFile.Saved(java.io.File("x"), file.mime) },
-                warned = com.pixelquest.app.study.chat.data.MemoryFileWarningSeen().apply { markSeen(party) }
+                SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)),
+                chat,
+                parties,
+                study,
+                picked = { PickedFile(it, "Past paper.pdf", "application/pdf", 8) },
+                uploads = uploads,
+                fetcher = { file ->
+                    opened += file.id
+                    OpenedFile.Saved(java.io.File("x"), file.mime)
+                },
+                warned = com.pixelquest.app.study.chat.data.MemoryFileWarningSeen().apply { markSeen(party) },
             )
         }
         composeTestRule.setContent {
             val state by vm.uiState.collectAsState()
             PixelQuestTheme {
-                StudyChatPane(state, zone, ChatActions(
-                    onDraftChange = vm::changeDraft, onSend = vm::send, onAttach = vm::attach,
-                    onOpenFile = vm::openFile, onDismissUpload = vm::dismissUpload
-                ))
+                StudyChatPane(
+                    state,
+                    zone,
+                    ChatActions(
+                        onDraftChange = vm::changeDraft,
+                        onSend = vm::send,
+                        onAttach = vm::attach,
+                        onOpenFile = vm::openFile,
+                        onDismissUpload = vm::dismissUpload,
+                    ),
+                )
             }
         }
         waitFor("loaded") { vm.uiState.value.loaded }
@@ -173,5 +221,159 @@ class StudyChatFlowTest {
         waitFor("dismissed") { vm.uiState.value.uploads.isEmpty() }
         assertEquals(1, chatServer.files.size)
     }
-}
 
+    @Test
+    fun textMessageLimits_0_1_2000_and_2001_characters() = runBlocking {
+        parties.refreshParties()
+        parties.refreshParty(party)
+
+        val vm = viewModels.keep(StudyChatViewModel::class.java) {
+            StudyChatViewModel(
+                SavedStateHandle(mapOf(StudyPartyViewModel.ARG_PARTY to party)),
+                chat,
+                parties,
+                study,
+                picked = { PickedFile(it, "test.pdf", "application/pdf", 100) },
+                uploads = uploads,
+                fetcher = { file ->
+                    opened += file.id
+                    OpenedFile.Saved(java.io.File("x"), file.mime)
+                },
+                warned = com.pixelquest.app.study.chat.data.MemoryFileWarningSeen().apply { markSeen(party) },
+            )
+        }
+        val watching = vm.uiState.launchIn(kotlinx.coroutines.MainScope())
+        try {
+            waitFor("loaded") { vm.uiState.value.loaded }
+
+            // 0 chars / blank
+            vm.changeDraft("")
+            waitFor("empty draft") { !vm.uiState.value.canSend }
+            assertFalse("Cannot send empty message", vm.uiState.value.canSend)
+            vm.changeDraft("     ")
+            waitFor("blank draft") { !vm.uiState.value.canSend }
+            assertFalse("Cannot send blank message", vm.uiState.value.canSend)
+            assertEquals(ChatSend.Invalid, chat.send(party, "", null))
+
+            // 1 char: valid
+            vm.changeDraft("Q")
+            waitFor("1 char draft") { vm.uiState.value.canSend }
+            assertTrue("Can send 1 char message", vm.uiState.value.canSend)
+            vm.send()
+            waitFor("1 char sent") { chatServer.messages.any { it.body == "Q" } }
+
+            // 2,000 chars: exactly at limit
+            val exactLimit = "A".repeat(StudyChatConfig.MESSAGE_MAX_CHARS)
+            vm.changeDraft(exactLimit)
+            waitFor("2000 char draft") { vm.uiState.value.draft.length == 2000 && vm.uiState.value.canSend }
+            assertTrue("Can send 2000 char message", vm.uiState.value.canSend)
+            vm.send()
+            waitFor("2000 chars sent") { chatServer.messages.any { it.body == exactLimit } }
+
+            // 2,001 chars: over limit
+            // UI input clips at 2000 chars
+            val overLimit = "B".repeat(StudyChatConfig.MESSAGE_MAX_CHARS + 1)
+            vm.changeDraft(overLimit)
+            waitFor("clipped to max") { vm.uiState.value.draft.length == StudyChatConfig.MESSAGE_MAX_CHARS }
+            assertEquals(StudyChatConfig.MESSAGE_MAX_CHARS, vm.uiState.value.draft.length)
+
+            // Direct repository send and state check past 2000 chars
+            val overLimitState = com.pixelquest.app.study.chat.ui.ChatUiState(draft = overLimit)
+            assertFalse("Cannot send state with over 2000 chars", overLimitState.canSend)
+            assertEquals(ChatSend.Invalid, chat.send(party, overLimit, null))
+        } finally {
+            watching.cancel()
+        }
+    }
+
+    @Test
+    fun fileUploadLimits_empty_and_20MB_boundaries() {
+        // 0 bytes (empty file) -> rejected
+        val emptyResult = UploadChecks.check("empty.pdf", "application/pdf", 0L)
+        assertTrue("Empty file must fail", emptyResult.isFailure)
+        assertEquals(UploadProblem.EMPTY, (emptyResult.exceptionOrNull() as? UploadRefused)?.problem)
+
+        // Exactly 20 MB (20 * 1024 * 1024 bytes) -> accepted
+        val maxBytes = StudyChatConfig.FILE_MAX_BYTES
+        val exactMaxResult = UploadChecks.check("limit.pdf", "application/pdf", maxBytes)
+        assertTrue("Exact 20MB file must succeed", exactMaxResult.isSuccess)
+        assertEquals("limit.pdf", exactMaxResult.getOrNull()?.name)
+        assertEquals("application/pdf", exactMaxResult.getOrNull()?.mime)
+
+        // 20 MB + 1 byte -> rejected
+        val overLimitResult = UploadChecks.check("over_limit.pdf", "application/pdf", maxBytes + 1L)
+        assertTrue("20MB + 1 byte file must fail", overLimitResult.isFailure)
+        assertEquals(UploadProblem.TOO_LARGE, (overLimitResult.exceptionOrNull() as? UploadRefused)?.problem)
+    }
+
+    @Test
+    fun fileUploadLimits_renamedProgramFiles_and_unsupportedTypes() {
+        // Executable / scripts
+        val exeCheck = UploadChecks.check("malware.exe", "application/octet-stream", 1024L)
+        assertEquals(UploadProblem.BAD_TYPE, (exeCheck.exceptionOrNull() as? UploadRefused)?.problem)
+
+        // Mismatched extension masquerading as PDF
+        val fakePdfCheck = UploadChecks.check("payload.exe", "application/pdf", 1024L)
+        assertEquals(UploadProblem.BAD_TYPE, (fakePdfCheck.exceptionOrNull() as? UploadRefused)?.problem)
+
+        val shellCheck = UploadChecks.check("exploit.sh", "text/x-shellscript", 1024L)
+        assertEquals(UploadProblem.BAD_TYPE, (shellCheck.exceptionOrNull() as? UploadRefused)?.problem)
+
+        // Archives
+        val apkCheck = UploadChecks.check("app.apk", "application/vnd.android.package-archive", 1024L)
+        assertEquals(UploadProblem.ARCHIVE, (apkCheck.exceptionOrNull() as? UploadRefused)?.problem)
+
+        val zipCheck = UploadChecks.check("archive.zip", "application/zip", 1024L)
+        assertEquals(UploadProblem.ARCHIVE, (zipCheck.exceptionOrNull() as? UploadRefused)?.problem)
+
+        val sevenZipCheck = UploadChecks.check("payload.7z", "application/x-7z-compressed", 1024L)
+        assertEquals(UploadProblem.ARCHIVE, (sevenZipCheck.exceptionOrNull() as? UploadRefused)?.problem)
+
+        // Macro-enabled documents
+        val macroWordCheck = UploadChecks.check("doc.docm", "application/vnd.ms-word.document.macroEnabled.12", 1024L)
+        assertEquals(UploadProblem.MACROS, (macroWordCheck.exceptionOrNull() as? UploadRefused)?.problem)
+
+        val macroExcelCheck = UploadChecks.check("sheet.xlsm", "application/vnd.ms-excel.sheet.macroEnabled.12", 1024L)
+        assertEquals(UploadProblem.MACROS, (macroExcelCheck.exceptionOrNull() as? UploadRefused)?.problem)
+    }
+
+    @Test
+    fun fileUploadLimits_veryLongFileName_and_pathSanitization() {
+        // 1. Name over 120 chars: truncated to exactly 120 chars preserving extension
+        val rawLongName = "a".repeat(150) + ".pdf"
+        val cleaned = UploadChecks.cleanName(rawLongName)
+        assertNotNull(cleaned)
+        assertEquals(StudyChatConfig.FILE_NAME_MAX_CHARS, cleaned?.length)
+        assertTrue(cleaned?.endsWith(".pdf") == true)
+
+        // 2. Path traversal attack stripped down to basename
+        val traversalName = "../../../../etc/passwd.pdf"
+        assertEquals("passwd.pdf", UploadChecks.cleanName(traversalName))
+
+        // 3. Control characters, RTL override, and illegal file name symbols removed
+        val hostileName = "\u0000\u200B\u202Eevil:<?*|notes.pdf"
+        assertEquals("evilnotes.pdf", UploadChecks.cleanName(hostileName))
+    }
+
+    @Test
+    fun fileUpload_connectionLostMidUpload_queuesForRetry() = runBlocking {
+        parties.refreshParties()
+        parties.refreshParty(party)
+
+        val testPdf = PickedFile("content://docs/offline_test", "offline_test.pdf", "application/pdf", 1024)
+        assertTrue(uploads.share(party, testPdf))
+        val uploadId = scheduled.last()
+
+        // 1. Connection lost mid-upload: upload returns RETRY_LATER and state is QUEUED
+        offlineMidway = true
+        assertEquals(UploadRun.RETRY_LATER, uploads.run(uploadId))
+        val queuedUpload = db.chatDao().getUpload(uploadId)
+        assertNotNull("Upload row must exist", queuedUpload)
+        assertEquals(UploadState.QUEUED, queuedUpload?.state)
+
+        // 2. Connection restored: retry succeeds and completes upload
+        offlineMidway = false
+        assertEquals(UploadRun.DONE, uploads.run(uploadId))
+        assertNull("Upload row cleared from queue after success", db.chatDao().getUpload(uploadId))
+    }
+}
