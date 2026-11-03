@@ -9,11 +9,16 @@ import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import com.pixelquest.app.data.local.entity.DifficultySettingsEntity
+import com.pixelquest.app.data.local.entity.StreakEntity
+import com.pixelquest.app.data.local.entity.TaskCompletionLogEntity
 import com.pixelquest.app.data.local.entity.TaskEntity
+import com.pixelquest.app.data.local.entity.UserProfileEntity
 import com.pixelquest.app.domain.TaskResultRecorder
 import com.pixelquest.app.domain.model.DifficultyLevel
 import com.pixelquest.app.domain.model.RecurrenceType
@@ -25,6 +30,7 @@ import com.pixelquest.app.testing.FakeTaskCompletionRepository
 import com.pixelquest.app.testing.FakeTaskRepository
 import com.pixelquest.app.testing.FakeUserProfileRepository
 import com.pixelquest.app.testing.FixedClock
+import com.pixelquest.app.ui.components.QuestTags
 import com.pixelquest.app.ui.screens.history.TaskHistoryViewModel
 import com.pixelquest.app.ui.screens.tasks.TaskFormViewModel
 import com.pixelquest.app.ui.screens.tasks.TaskViewModel
@@ -43,6 +49,9 @@ import java.time.LocalTime
 /**
  * B02 & B04: Verifies a just-created quest is tappable immediately,
  * after rotation, and after the app restarts.
+ *
+ * V027: Quest gestures: tap, hold, icon, circle, no double firing,
+ * and immediate interactivity right after creation.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], application = Application::class)
@@ -63,10 +72,9 @@ class QuestTapAfterCreationTest {
     private fun buildQuestsScreen(
         taskRepo: FakeTaskRepository,
         completionRepo: FakeTaskCompletionRepository,
-        onEditQuest: (Long) -> Unit = {},
+        profileRepo: FakeUserProfileRepository = FakeUserProfileRepository(),
+        streakRepo: FakeStreakRepository = FakeStreakRepository(),
     ): Triple<TodayViewModel, TaskViewModel, TaskHistoryViewModel> {
-        val profileRepo = FakeUserProfileRepository()
-        val streakRepo = FakeStreakRepository()
         val diffRepo = FakeDifficultySettingsRepository(
             DifficultySettingsEntity(id = 1, difficultyLevel = DifficultyLevel.MEDIUM, perfectDayThreshold = 0.7f, daysRequiredPerLevel = 7),
         )
@@ -258,5 +266,296 @@ class QuestTapAfterCreationTest {
         composeTestRule.onNodeWithTag(QuestsTags.quest(createdId)).performClick()
         composeTestRule.waitForIdle()
         assertEquals(createdId, editedId)
+    }
+
+    @Test
+    fun quest_allGesturesRightAfterCreation_tapHoldIconCircle() {
+        val (taskRepo, completionRepo) = setupTestBench()
+        val (todayViewModel, allViewModel, historyViewModel) = buildQuestsScreen(taskRepo, completionRepo)
+
+        var editedId: Long? = null
+        var editCount = 0
+
+        composeTestRule.setContent {
+            QuestsScreen(
+                initialTab = QuestTab.Today,
+                onNewQuest = {},
+                onEditQuest = {
+                    editedId = it
+                    editCount++
+                },
+                onOpenHistoryQuest = {},
+                todayViewModel = todayViewModel,
+                allViewModel = allViewModel,
+                historyViewModel = historyViewModel,
+            )
+        }
+
+        // Insert quest into repository
+        val createdId = runBlocking {
+            taskRepo.insertTask(
+                TaskEntity(
+                    name = "Gesture Quest",
+                    description = "Testing all gestures",
+                    scheduledDay = now.toLocalDate(),
+                    scheduledTime = LocalTime.of(12, 0),
+                    recurrenceType = RecurrenceType.DAILY,
+                    category = TaskCategory.CHORES,
+                ),
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        // 1. Icon gesture: tapping icon triggers onEditQuest
+        composeTestRule.onNodeWithTag(QuestTags.icon(createdId)).performClick()
+        composeTestRule.waitForIdle()
+        assertEquals(createdId, editedId)
+        assertEquals(1, editCount)
+
+        // 2. Hold gesture: long pressing card body triggers onEditQuest
+        editedId = null
+        composeTestRule.onNodeWithTag(QuestTags.body(createdId)).performTouchInput { longClick() }
+        composeTestRule.waitForIdle()
+        assertEquals(createdId, editedId)
+        assertEquals(2, editCount)
+
+        // 3. Tap gesture: short click on card body triggers onEditQuest
+        editedId = null
+        composeTestRule.onNodeWithTag(QuestTags.body(createdId)).performClick()
+        composeTestRule.waitForIdle()
+        assertEquals(createdId, editedId)
+        assertEquals(3, editCount)
+
+        // 4. Circle gesture: tapping completion circle completes the quest
+        composeTestRule.onNodeWithTag(QuestTags.complete(createdId)).performClick()
+        composeTestRule.waitForIdle()
+
+        val logs = completionRepo.logs.value
+        assertEquals("Quest should be completed via circle tap", 1, logs.size)
+        assertEquals(createdId, logs.first().taskId)
+        assertTrue(logs.first().wasCompleted)
+    }
+
+    @Test
+    fun quest_circleRapidDoubleTap_preventsDoubleFiringAndDuplicateXp() {
+        val (taskRepo, completionRepo) = setupTestBench()
+        val profileRepo = FakeUserProfileRepository()
+        runBlocking {
+            profileRepo.updateProfile(
+                UserProfileEntity(
+                    id = 1,
+                    username = "Hero",
+                    avatarId = "avatar_knight",
+                    totalXp = 50,
+                    level = 1,
+
+                ),
+            )
+        }
+        val streakRepo = FakeStreakRepository()
+        runBlocking {
+            streakRepo.updateStreak(
+                StreakEntity(
+                    currentStreak = 5,
+                    longestStreak = 10,
+                    lastCompletedDate = now.toLocalDate().minusDays(1),
+                ),
+            )
+        }
+
+        val (todayViewModel, allViewModel, historyViewModel) = buildQuestsScreen(
+            taskRepo = taskRepo,
+            completionRepo = completionRepo,
+            profileRepo = profileRepo,
+            streakRepo = streakRepo,
+        )
+
+        // Create a task that has a prior completion so that this completion awards XP (> 0)
+        val createdId = runBlocking {
+            val id = taskRepo.insertTask(
+                TaskEntity(
+                    name = "Recurring Quest",
+                    description = "",
+                    scheduledDay = now.toLocalDate(),
+                    scheduledTime = LocalTime.of(9, 0),
+                    recurrenceType = RecurrenceType.DAILY,
+                    category = TaskCategory.FITNESS,
+                ),
+            )
+            // Seed a prior completion on an earlier date
+            completionRepo.insertLog(
+                TaskCompletionLogEntity(
+                    taskId = id,
+                    completedDate = now.toLocalDate().minusDays(1),
+                    pointsAwarded = 25,
+                    wasCompleted = true,
+                ),
+            )
+            id
+        }
+
+        composeTestRule.setContent {
+            QuestsScreen(
+                initialTab = QuestTab.Today,
+                onNewQuest = {},
+                onEditQuest = {},
+                onOpenHistoryQuest = {},
+                todayViewModel = todayViewModel,
+                allViewModel = allViewModel,
+                historyViewModel = historyViewModel,
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        // Rapid double tap on completion circle
+        composeTestRule.onNodeWithTag(QuestTags.complete(createdId)).performClick()
+        composeTestRule.onNodeWithTag(QuestTags.complete(createdId)).performClick()
+        composeTestRule.waitForIdle()
+
+        // Verify only 1 completion log for today
+        val todayLogs = completionRepo.logs.value.filter {
+            it.taskId == createdId && it.completedDate == now.toLocalDate()
+        }
+        assertEquals("Rapid double tap must record exactly 1 completion log for today", 1, todayLogs.size)
+        assertTrue(todayLogs.first().wasCompleted)
+
+        // Verify XP was awarded only once (pointsAwarded = 25 for streak 5)
+        val finalProfile = profileRepo.profile.value
+        val expectedXp = 50 + todayLogs.first().pointsAwarded
+        assertEquals("XP should be awarded only once despite double tap", expectedXp, finalProfile?.totalXp)
+    }
+
+    @Test
+    fun quest_alreadyCompletedCircleTap_isIgnored() {
+        val (taskRepo, completionRepo) = setupTestBench()
+        val (todayViewModel, allViewModel, historyViewModel) = buildQuestsScreen(taskRepo, completionRepo)
+
+        val createdId = runBlocking {
+            val id = taskRepo.insertTask(
+                TaskEntity(
+                    name = "Done Quest",
+                    description = "",
+                    scheduledDay = now.toLocalDate(),
+                    scheduledTime = LocalTime.of(8, 0),
+                    recurrenceType = RecurrenceType.DAILY,
+                    category = TaskCategory.OTHER,
+                ),
+            )
+            completionRepo.insertLog(
+                TaskCompletionLogEntity(
+                    taskId = id,
+                    completedDate = now.toLocalDate(),
+                    pointsAwarded = 20,
+                    wasCompleted = true,
+                ),
+            )
+            id
+        }
+
+        composeTestRule.setContent {
+            QuestsScreen(
+                initialTab = QuestTab.Today,
+                onNewQuest = {},
+                onEditQuest = {},
+                onOpenHistoryQuest = {},
+                todayViewModel = todayViewModel,
+                allViewModel = allViewModel,
+                historyViewModel = historyViewModel,
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        // Tap complete circle on already-completed quest
+        composeTestRule.onNodeWithTag(QuestTags.complete(createdId)).performClick()
+        composeTestRule.waitForIdle()
+
+        // Log count should remain 1
+        assertEquals(1, completionRepo.logs.value.size)
+    }
+
+    @Test
+    fun quest_cardBodyRapidDoubleTap_invokesEditSafely() {
+        val (taskRepo, completionRepo) = setupTestBench()
+        val (todayViewModel, allViewModel, historyViewModel) = buildQuestsScreen(taskRepo, completionRepo)
+
+        val createdId = runBlocking {
+            taskRepo.insertTask(
+                TaskEntity(
+                    name = "Tap Quest",
+                    description = "",
+                    scheduledDay = now.toLocalDate(),
+                    scheduledTime = LocalTime.of(10, 0),
+                    recurrenceType = RecurrenceType.DAILY,
+                    category = TaskCategory.HEALTH,
+                ),
+            )
+        }
+
+        var editCount = 0
+        composeTestRule.setContent {
+            QuestsScreen(
+                initialTab = QuestTab.Today,
+                onNewQuest = {},
+                onEditQuest = { editCount++ },
+                onOpenHistoryQuest = {},
+                todayViewModel = todayViewModel,
+                allViewModel = allViewModel,
+                historyViewModel = historyViewModel,
+            )
+        }
+        composeTestRule.waitForIdle()
+
+        // Rapid double tap on card body
+        composeTestRule.onNodeWithTag(QuestTags.body(createdId)).performClick()
+        composeTestRule.onNodeWithTag(QuestTags.body(createdId)).performClick()
+        composeTestRule.waitForIdle()
+
+        assertTrue("Double tap on body should safely trigger edit callback without errors", editCount >= 1)
+    }
+
+    @Test
+    fun quest_createdViaFormFlow_allZonesInteractiveImmediately() {
+        val (taskRepo, completionRepo) = setupTestBench()
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val formViewModel = TaskFormViewModel(taskRepo, TaskAlarmScheduler(context), appClock)
+        val (todayViewModel, allViewModel, historyViewModel) = buildQuestsScreen(taskRepo, completionRepo)
+
+        var editedId: Long? = null
+        composeTestRule.setContent {
+            QuestsScreen(
+                initialTab = QuestTab.Today,
+                onNewQuest = {},
+                onEditQuest = { editedId = it },
+                onOpenHistoryQuest = {},
+                todayViewModel = todayViewModel,
+                allViewModel = allViewModel,
+                historyViewModel = historyViewModel,
+            )
+        }
+
+        formViewModel.onNameChanged("Form Created Quest")
+        formViewModel.onTimeSelected(LocalTime.of(13, 0))
+        var saved = false
+        formViewModel.saveTask { saved = true }
+        composeTestRule.waitForIdle()
+        assertTrue(saved)
+
+        val newTask = taskRepo.tasks.value.first { it.name == "Form Created Quest" }
+
+        // Test icon tap immediately
+        composeTestRule.onNodeWithTag(QuestTags.icon(newTask.id)).performClick()
+        composeTestRule.waitForIdle()
+        assertEquals(newTask.id, editedId)
+
+        // Test body tap immediately
+        editedId = null
+        composeTestRule.onNodeWithTag(QuestTags.body(newTask.id)).performClick()
+        composeTestRule.waitForIdle()
+        assertEquals(newTask.id, editedId)
+
+        // Test complete circle tap immediately
+        composeTestRule.onNodeWithTag(QuestTags.complete(newTask.id)).performClick()
+        composeTestRule.waitForIdle()
+        assertTrue(completionRepo.logs.value.any { it.taskId == newTask.id && it.wasCompleted })
     }
 }
