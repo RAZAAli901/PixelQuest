@@ -129,7 +129,8 @@ class LifecycleAndProcessDeathStressTest {
 
         // User edits fields without pressing Save
         vm1.onNameChanged("Defeat the Shadow Dragon")
-        vm1.onDayToggled(DayOfWeek.WEDNESDAY)
+        val targetDay = if (java.time.LocalDate.now().dayOfWeek == DayOfWeek.FRIDAY) DayOfWeek.SATURDAY else DayOfWeek.FRIDAY
+        vm1.onDayToggled(targetDay)
         vm1.onTimeSelected(LocalTime.of(18, 45))
 
         // Simulated Process Death
@@ -142,7 +143,7 @@ class LifecycleAndProcessDeathStressTest {
 
         val restoredForm = vm2.formState.value
         assertEquals("Task title must be restored after process death", "Defeat the Shadow Dragon", restoredForm.name)
-        assertTrue("Selected day must be restored after process death", restoredForm.selectedDays.contains(DayOfWeek.WEDNESDAY))
+        assertTrue("Selected day must be restored after process death", restoredForm.selectedDays.contains(targetDay))
         assertEquals("Scheduled time must be restored after process death", LocalTime.of(18, 45), restoredForm.scheduledTime)
     }
 
