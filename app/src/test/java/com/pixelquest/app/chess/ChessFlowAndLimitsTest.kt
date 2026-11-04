@@ -91,7 +91,6 @@ class ChessFlowAndLimitsTest {
         repeat(300) {
             if (condition()) return
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(20))
-            Thread.sleep(5)
         }
         throw AssertionError("still waiting: $what")
     }
