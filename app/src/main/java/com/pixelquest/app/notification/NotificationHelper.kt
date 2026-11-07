@@ -50,7 +50,14 @@ object NotificationHelper {
             builder.setStyle(NotificationCompat.BigTextStyle().bigText(copy.bigText))
         }
         if (fullScreenIntent != null) {
-            builder.setFullScreenIntent(fullScreenIntent, true)
+            if (FullScreenIntentPermission.canUseFullScreenIntent(context)) {
+                builder.setFullScreenIntent(fullScreenIntent, true)
+            } else {
+                builder.setPriority(NotificationCompat.PRIORITY_HIGH)
+                if (contentIntent == null) {
+                    builder.setContentIntent(fullScreenIntent)
+                }
+            }
         }
 
         if (!soundEnabled) {

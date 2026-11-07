@@ -125,7 +125,15 @@ object PqNotify {
         s.chronometerBase?.let { b.setUsesChronometer(true).setWhen(it).setShowWhen(true) }
         s.group?.let { b.setGroup(it) }
         if (s.ch.silent) b.setSilent(true)
-        if (s.fullScreen) b.setFullScreenIntent(deepLink(ctx, s.route), true).setPriority(NotificationCompat.PRIORITY_MAX)
+        if (s.fullScreen) {
+            val deepLinkIntent = deepLink(ctx, s.route)
+            if (FullScreenIntentPermission.canUseFullScreenIntent(ctx)) {
+                b.setFullScreenIntent(deepLinkIntent, true).setPriority(NotificationCompat.PRIORITY_MAX)
+            } else {
+                b.setPriority(NotificationCompat.PRIORITY_HIGH)
+                b.setContentIntent(deepLinkIntent)
+            }
+        }
         // Max 3 actions; the one marked primary is listed first (Android renders it in the accent).
         s.acts.sortedByDescending { it.primary }.take(3).forEach { a -> b.addAction(0, a.label, PqNotifyActions.intent(ctx, a.action, s.id, s.subId, s.extraInt)) }
 

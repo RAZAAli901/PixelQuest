@@ -29,7 +29,7 @@
 
 ### Policy Risks & System Interactions
 - [x] **#4 Exact alarms:** Permission `SCHEDULE_EXACT_ALARM` restricted on Android 14+. Check `canScheduleExactAlarms()` before scheduling; fall back to window alarms with user notice.
-- [ ] **#5 Full-screen intent:** `USE_FULL_SCREEN_INTENT` given by default only to calling/alarm apps. Check `canUseFullScreenIntent()` on Android 14+, provide system settings redirect, and fall back to heads-up high-priority notification.
+- [x] **#5 Full-screen intent:** `USE_FULL_SCREEN_INTENT` given by default only to calling/alarm apps. Check `canUseFullScreenIntent()` on Android 14+, provide system settings redirect, and fall back to heads-up high-priority notification.
 - [x] **#6 Foreground service:** Declare foreground service type in manifest and code (`FOREGROUND_SERVICE` requires specific types on Android 14+); audit WorkManager and prepare study timer service type.
 
 ### Policy Gaps (User Safety & AI Content)
@@ -85,7 +85,7 @@
 - [x] **P014**: feat: check canScheduleExactAlarms() before exact alarms with window alarm fallback
 - [x] **P015**: feat: settings row opening Alarms & Reminders system settings
 - [x] **P016**: feat: check canUseFullScreenIntent() on Android 14+ with permission grant flow
-- [ ] **P017**: fix: high-priority heads-up notification fallback when full-screen intent disallowed
+- [x] **P017**: fix: high-priority heads-up notification fallback when full-screen intent disallowed
 - [ ] **P018**: docs: write docs/store/full-screen-intent-declaration.md
 
 ### Phase 4: AI Reporting, Terms & Blocking (P019–P023)

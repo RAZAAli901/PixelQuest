@@ -213,7 +213,11 @@ class StudyDueAlarmReceiver : BroadcastReceiver() {
 
         if (isAlarmStyle) {
             builder.setCategory(NotificationCompat.CATEGORY_ALARM)
-            builder.setFullScreenIntent(promptPendingIntent, true)
+            if (com.pixelquest.app.notification.FullScreenIntentPermission.canUseFullScreenIntent(context)) {
+                builder.setFullScreenIntent(promptPendingIntent, true)
+            } else {
+                builder.setPriority(NotificationCompat.PRIORITY_HIGH)
+            }
             val soundUri = when (alarmSound) {
                 "chime" -> android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
                 "system" -> android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_RINGTONE)
