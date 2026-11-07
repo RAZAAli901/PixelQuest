@@ -104,5 +104,5 @@
 - [x] **P027**: ci: bundle build & bundletool validation check in CI
 - [x] **P028**: chore: bump version code & release notes
 - [x] **P029**: docs: store listing text in docs/store/listing.md & screenshot checklist
-- [ ] **P030**: test: bundle smoke test via bundletool
+- [x] **P030**: test: bundle smoke test via bundletool & final readiness sign-off
 
