@@ -30,4 +30,11 @@
     <string name="settings_exact_alarms_denied">Permission required</string>
     <string name="settings_exact_alarms_prompt_text">Reminders can arrive up to 10 minutes late (longer if your phone is idle). Allow \"Alarms &amp; reminders\" so they fire on time.</string>
     <string name="settings_exact_alarms_allow_btn">Allow exact reminder times</string>
+
+    <!-- Full-screen alerts settings row (P016) -->
+    <string name="settings_full_screen_title">Full-screen alerts</string>
+    <string name="settings_full_screen_allowed">Allowed</string>
+    <string name="settings_full_screen_denied">Permission required</string>
+    <string name="settings_full_screen_prompt_text">Allow full-screen prompts over the lock screen for study timers and urgent habit reminders.</string>
+    <string name="settings_full_screen_allow_btn">Allow full-screen alerts</string>
 </resources>

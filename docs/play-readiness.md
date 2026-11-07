@@ -84,7 +84,7 @@
 - [x] **P013**: docs: write docs/store/fgs-declaration.md with user impact & demo steps
 - [x] **P014**: feat: check canScheduleExactAlarms() before exact alarms with window alarm fallback
 - [x] **P015**: feat: settings row opening Alarms & Reminders system settings
-- [ ] **P016**: feat: check canUseFullScreenIntent() on Android 14+ with permission grant flow
+- [x] **P016**: feat: check canUseFullScreenIntent() on Android 14+ with permission grant flow
 - [ ] **P017**: fix: high-priority heads-up notification fallback when full-screen intent disallowed
 - [ ] **P018**: docs: write docs/store/full-screen-intent-declaration.md
 

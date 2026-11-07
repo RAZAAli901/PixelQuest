@@ -119,6 +119,7 @@ fun SettingsScreen(
                     canScheduleExact = { viewModel.canScheduleExactAlarms() },
                     onAllow = { context.startActivity(viewModel.exactAlarmSettingsIntent()) },
                 )
+                FullScreenIntentPrompt()
                 val reminderSoundOn by viewModel.isReminderSoundEnabled.collectAsState()
                 SettingSwitch("Reminder sound", "Off, reminders arrive silently", reminderSoundOn, {
                     viewModel.setReminderSoundEnabled(it)
