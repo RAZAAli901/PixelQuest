@@ -53,6 +53,13 @@ interface LeaderboardRepository {
     ): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
 
     /**
+     * The account's blocked user list, and blocking/unblocking members.
+     */
+    suspend fun getBlockedUserIds(): SupabaseResult<Set<String>> = SupabaseResult.Success(emptySet())
+    suspend fun blockUser(userId: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+    suspend fun unblockUser(userId: String): SupabaseResult<Unit> = SupabaseResult.Success(Unit)
+
+    /**
      * The heroes ranked just above and below the signed-in user: their rank, then one page of the
      * same ordered list around it. Null when the user isn't on the leaderboard.
      */

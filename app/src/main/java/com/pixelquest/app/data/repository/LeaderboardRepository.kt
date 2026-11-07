@@ -9,6 +9,8 @@ import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.query.filter.PostgrestFilterBuilder
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.pixelquest.app.domain.repository.LeaderboardRepository as DomainLeaderboardRepository
@@ -172,6 +174,43 @@ open class LeaderboardRepositoryImpl @Inject constructor(
                     reportedProfileId = reportedProfileId,
                     reason = reason,
                 ),
+            )
+        }
+    }
+
+    override suspend fun getBlockedUserIds(): SupabaseResult<Set<String>> {
+        val user = auth?.currentUserOrNull() ?: return SupabaseResult.Success(emptySet())
+        return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
+            postgrest["member_blocks"]
+                .select(Columns.list("blocked_id"))
+                .decodeList<com.pixelquest.app.study.chat.data.remote.BlockDto>()
+                .map { it.blockedId }
+                .toSet()
+        }
+    }
+
+    override suspend fun blockUser(userId: String): SupabaseResult<Unit> {
+        val user = auth?.currentUserOrNull()
+            ?: return SupabaseResult.AuthError(IllegalStateException("Not authenticated"), "Please sign in to block players.")
+        return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
+            postgrest.rpc(
+                "block_member",
+                kotlinx.serialization.json.buildJsonObject {
+                    put("user_id", userId)
+                },
+            )
+        }
+    }
+
+    override suspend fun unblockUser(userId: String): SupabaseResult<Unit> {
+        val user = auth?.currentUserOrNull()
+            ?: return SupabaseResult.AuthError(IllegalStateException("Not authenticated"), "Please sign in to unblock players.")
+        return safeSupabaseCall(timeoutMs = LEADERBOARD_TIMEOUT_MS) {
+            postgrest.rpc(
+                "unblock_member",
+                kotlinx.serialization.json.buildJsonObject {
+                    put("user_id", userId)
+                },
             )
         }
     }

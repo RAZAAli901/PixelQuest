@@ -265,5 +265,10 @@ class ReportAndBlockFlowsTest {
             "Could not submit report: check network connection.",
             vm.uiState.value.errorMessage,
         )
+
+        // 4. Block user from leaderboard
+        vm.blockUser("troll-user-1")
+        assertTrue("Blocked user in UI state", vm.uiState.value.blockedUserIds.contains("troll-user-1"))
+        assertEquals("Player blocked. Their entries will no longer be visible.", vm.uiState.value.reportMessage)
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.Flag
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,7 +30,7 @@ import com.pixelquest.app.ui.theme.pqShape
 /**
  * One hero on the board, as the locked board's preview draws them (mock 2J): the rank, their initial,
  * their name and what they're ranked by, and the number. The first three's ranks sit on gold, silver
- * and bronze; the player's own row is gold. Anyone else's name can be reported.
+ * and bronze; the player's own row is gold. Anyone else's name can be reported or blocked (P022).
  */
 @Composable
 fun PixelLeaderboardRow(
@@ -40,7 +41,8 @@ fun PixelLeaderboardRow(
     modifier: Modifier = Modifier,
     isCurrentUser: Boolean = false,
     @Suppress("UNUSED_PARAMETER") avatarId: String? = null,
-    onReportClicked: ((displayName: String) -> Unit)? = null
+    onReportClicked: ((displayName: String) -> Unit)? = null,
+    onBlockClicked: ((displayName: String) -> Unit)? = null,
 ) {
     val medal = when (rank) {
         1 -> PqColors.Gold
@@ -54,19 +56,19 @@ fun PixelLeaderboardRow(
         modifier = modifier
             .fillMaxWidth()
             .comic(bg = if (isCurrentUser) PqColors.Gold else PqColors.Paper, radius = 12.dp, border = PqDimens.BorderThin, shadow = 0.dp)
-            .padding(start = 12.dp, end = 4.dp, top = 10.dp, bottom = 10.dp)
+            .padding(start = 12.dp, end = 4.dp, top = 10.dp, bottom = 10.dp),
     ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .widthIn(min = 30.dp)
-                .then(if (medal != null) Modifier.comic(bg = medal, radius = 15.dp, border = PqDimens.BorderThin, shadow = 0.dp).padding(horizontal = 6.dp, vertical = 2.dp) else Modifier)
+                .then(if (medal != null) Modifier.comic(bg = medal, radius = 15.dp, border = PqDimens.BorderThin, shadow = 0.dp).padding(horizontal = 6.dp, vertical = 2.dp) else Modifier),
         ) {
             Text(text = rank.toString(), style = PqType.number(20))
         }
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(34.dp).clip(pqShape(8.dp)).background(PqColors.Ink)
+            modifier = Modifier.size(34.dp).clip(pqShape(8.dp)).background(PqColors.Ink),
         ) {
             Text(text = displayName.take(1).uppercase(), style = PqType.Button.copy(color = PqColors.Paper))
         }
@@ -75,11 +77,16 @@ fun PixelLeaderboardRow(
             Text(text = statLabel, style = PqType.Meta)
         }
         Text(text = statValue, style = PqType.BodyStrong)
+        if (onBlockClicked != null) {
+            IconButton(onClick = { onBlockClicked(displayName) }) {
+                Icon(Icons.Rounded.Block, contentDescription = "Block $displayName", tint = PqColors.Muted)
+            }
+        }
         if (onReportClicked != null) {
             IconButton(onClick = { onReportClicked(displayName) }) {
                 Icon(Icons.Rounded.Flag, contentDescription = "Report $displayName", tint = PqColors.Muted)
             }
-        } else {
+        } else if (onBlockClicked == null) {
             Box(Modifier.size(8.dp))
         }
     }

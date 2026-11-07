@@ -68,6 +68,7 @@ fun LeaderboardScreen(
         onLoadMore = { viewModel.loadMore() },
         onRefresh = { viewModel.refresh() },
         onReportProfile = { id, name -> viewModel.reportProfile(id, "Flagged offensive display name: $name") },
+        onBlockUser = { id -> viewModel.blockUser(id) },
         onViewSelected = { viewModel.selectView(it) },
         onNavigateBack = onNavigateBack,
         onNavigateToAccount = onNavigateToAccount,
@@ -82,12 +83,14 @@ fun LeaderboardContent(
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit,
     onReportProfile: (String, String) -> Unit = { _, _ -> },
+    onBlockUser: (String) -> Unit = {},
     onViewSelected: (LeaderboardView) -> Unit = {},
     onNavigateBack: (() -> Unit)? = null,
     onNavigateToAccount: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var reportingItem by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var blockingItem by remember { mutableStateOf<Pair<String, String>?>(null) }
     var pullOffset by remember { mutableStateOf(0f) }
     val density = LocalDensity.current
     val refreshThresholdPx = with(density) { 64.dp.toPx() }
@@ -175,11 +178,12 @@ fun LeaderboardContent(
             is LeaderboardAuthState.SignedInReadOnly -> auth.userId
             LeaderboardAuthState.NotSignedIn -> null
         }
-        val currentEntries = remember(uiState.selectedTab, uiState.streakEntries, uiState.levelEntries) {
-            when (uiState.selectedTab) {
+        val currentEntries = remember(uiState.selectedTab, uiState.streakEntries, uiState.levelEntries, uiState.blockedUserIds) {
+            val list = when (uiState.selectedTab) {
                 LeaderboardTab.TOP_STREAKS -> uiState.streakEntries
                 LeaderboardTab.TOP_LEVELS -> uiState.levelEntries
             }
+            if (uiState.blockedUserIds.isEmpty()) list else list.filter { it.id !in uiState.blockedUserIds }
         }
 
         // A refresh or a page that failed while the cached board still shows.
@@ -208,7 +212,7 @@ fun LeaderboardContent(
 
         if (showAroundYou) {
             AroundYouList(
-                entries = uiState.aroundYouEntries,
+                entries = uiState.aroundYouEntries.filter { it.profile.id !in uiState.blockedUserIds },
                 selectedTab = uiState.selectedTab,
                 currentUserId = currentUserId,
                 isLoading = uiState.isLoadingAroundYou || uiState.isLoading,
@@ -260,6 +264,11 @@ fun LeaderboardContent(
                                 } else {
                                     null
                                 },
+                                onBlock = if (!isCurrentUser) {
+                                    { blockingItem = item.id to item.displayName }
+                                } else {
+                                    null
+                                },
                             )
                         }
                         if (uiState.canLoadMore) {
@@ -306,6 +315,21 @@ fun LeaderboardContent(
             onDismiss = { reportingItem = null },
         )
     }
+
+    if (blockingItem != null) {
+        val (profileId, name) = blockingItem!!
+        PqConfirmDialog(
+            title = "Block $name?",
+            message = "Are you sure you want to block \'$name\'? You won't see their scores on the leaderboard or interact with them.",
+            confirm = "Block",
+            dismiss = stringResource(R.string.pq_lb_cancel),
+            onConfirm = {
+                onBlockUser(profileId)
+                blockingItem = null
+            },
+            onDismiss = { blockingItem = null },
+        )
+    }
 }
 
 /** A hero's row for the board's tab: their streak, or their level and XP. */
@@ -316,6 +340,7 @@ private fun BoardRow(
     tab: LeaderboardTab,
     isCurrentUser: Boolean,
     onReport: (() -> Unit)?,
+    onBlock: (() -> Unit)? = null,
 ) {
     when (tab) {
         LeaderboardTab.TOP_STREAKS -> PixelLeaderboardRow(
@@ -325,6 +350,7 @@ private fun BoardRow(
             statValue = profile.currentStreak.toString(),
             isCurrentUser = isCurrentUser,
             onReportClicked = onReport?.let { report -> { _ -> report() } },
+            onBlockClicked = onBlock?.let { block -> { _ -> block() } },
         )
         LeaderboardTab.TOP_LEVELS -> PixelLeaderboardRow(
             rank = rank,
@@ -333,6 +359,7 @@ private fun BoardRow(
             statValue = stringResource(R.string.pq_lb_level_stat, profile.level),
             isCurrentUser = isCurrentUser,
             onReportClicked = onReport?.let { report -> { _ -> report() } },
+            onBlockClicked = onBlock?.let { block -> { _ -> block() } },
         )
     }
 }

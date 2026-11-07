@@ -92,7 +92,7 @@
 - [x] **P019**: feat: "Report this insight" action on AI Coach answers
 - [x] **P020**: feat(db): allow report type ai_insight in reports schema with RLS
 - [x] **P021**: feat: terms of use acceptance screen before leaderboard opt-in & name publishing
-- [ ] **P022**: feat: block user functionality for leaderboard entries
+- [x] **P022**: feat: block user functionality for leaderboard entries
 - [ ] **P023**: docs: draft terms of use and privacy policy text in docs/legal/
 
 ### Phase 5: Deletion, Privacy & Data Safety (P024–P026)

@@ -55,6 +55,7 @@ data class LeaderboardUiState(
     val errorMessage: String? = null,
     val lastUpdatedTimestamp: String? = null,
     val reportMessage: String? = null,
+    val blockedUserIds: Set<String> = emptySet(),
 )
 
 @HiltViewModel
@@ -370,5 +371,28 @@ class LeaderboardViewModel @Inject constructor(
 
     fun clearReportMessage() {
         _uiState.value = _uiState.value.copy(reportMessage = null)
+    }
+
+    fun blockUser(userId: String) {
+        viewModelScope.launch {
+            when (val result = leaderboardRepository.blockUser(userId)) {
+                is SupabaseResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        blockedUserIds = _uiState.value.blockedUserIds + userId,
+                        reportMessage = "Player blocked. Their entries will no longer be visible.",
+                    )
+                }
+                is SupabaseResult.AuthError -> {
+                    _uiState.value = _uiState.value.copy(errorMessage = "Please sign in to block players.")
+                }
+                else -> {
+                    // Optimistically block locally if offline
+                    _uiState.value = _uiState.value.copy(
+                        blockedUserIds = _uiState.value.blockedUserIds + userId,
+                        reportMessage = "Player blocked on this device.",
+                    )
+                }
+            }
+        }
     }
 }
