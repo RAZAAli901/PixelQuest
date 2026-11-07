@@ -42,13 +42,10 @@ fun PixelQuestTheme(
     if (!view.isInEditMode) {
         SideEffect {
             (view.context as? Activity)?.window?.let { window ->
-                @Suppress("DEPRECATION")
-                window.statusBarColor = colors.background.toArgb()
-                @Suppress("DEPRECATION")
-                window.navigationBarColor = colors.background.toArgb()
+                val isDark = androidx.core.graphics.ColorUtils.calculateLuminance(colors.background.toArgb()) < 0.5
                 WindowCompat.getInsetsController(window, view).apply {
-                    isAppearanceLightStatusBars = true
-                    isAppearanceLightNavigationBars = true
+                    isAppearanceLightStatusBars = !isDark
+                    isAppearanceLightNavigationBars = !isDark
                 }
             }
         }
