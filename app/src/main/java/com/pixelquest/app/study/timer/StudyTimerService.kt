@@ -320,6 +320,12 @@ class StudyTimerService : Service() {
         manager.notify(COMPLETION_NOTIFICATION_ID, notification)
     }
 
+    @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        super.onTimeout(startId, fgsType)
+        handleStop()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         serviceScope.cancel()

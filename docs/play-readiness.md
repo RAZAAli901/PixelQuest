@@ -30,7 +30,7 @@
 ### Policy Risks & System Interactions
 - [ ] **#4 Exact alarms:** Permission `SCHEDULE_EXACT_ALARM` restricted on Android 14+. Check `canScheduleExactAlarms()` before scheduling; fall back to window alarms with user notice.
 - [ ] **#5 Full-screen intent:** `USE_FULL_SCREEN_INTENT` given by default only to calling/alarm apps. Check `canUseFullScreenIntent()` on Android 14+, provide system settings redirect, and fall back to heads-up high-priority notification.
-- [ ] **#6 Foreground service:** Declare foreground service type in manifest and code (`FOREGROUND_SERVICE` requires specific types on Android 14+); audit WorkManager and prepare study timer service type.
+- [x] **#6 Foreground service:** Declare foreground service type in manifest and code (`FOREGROUND_SERVICE` requires specific types on Android 14+); audit WorkManager and prepare study timer service type.
 
 ### Policy Gaps (User Safety & AI Content)
 - [ ] **#8 AI-generated content:** In-app reporting for Gemini AI Coach output ("Report this insight" button and report persistence).
@@ -80,7 +80,7 @@
 ### Phase 3: Foreground Services, Alarms & Full-Screen Alerts (P010–P018)
 - [x] **P010**: docs: list every foreground work location
 - [x] **P011**: fix: declare foreground service type and permissions or remove unused declarations
-- [ ] **P012**: feat: study timer foreground service type and permissions for target SDK 36
+- [x] **P012**: feat: study timer foreground service type and permissions for target SDK 36
 - [ ] **P013**: docs: write docs/store/fgs-declaration.md with user impact & demo steps
 - [ ] **P014**: feat: check canScheduleExactAlarms() before exact alarms with window alarm fallback
 - [ ] **P015**: feat: settings row opening Alarms & Reminders system settings
