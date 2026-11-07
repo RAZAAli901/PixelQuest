@@ -34,7 +34,7 @@ class AccountWordingTest {
                 AccountContent(
                     authState = AuthUiState.SignedIn(AuthUser("user-1", "hero@pixelquest.test", null)),
                     accountState = AccountUiState(),
-                    cloudAvailable = true
+                    cloudAvailable = true,
                 )
             }
         }
@@ -61,7 +61,7 @@ class AccountWordingTest {
                 AccountContent(
                     authState = AuthUiState.SignedIn(AuthUser("user-1", "hero@pixelquest.test", null)),
                     accountState = AccountUiState(isOptedIn = true, displayNameInput = "Titan_Slayer"),
-                    cloudAvailable = true
+                    cloudAvailable = true,
                 )
             }
         }
@@ -76,11 +76,21 @@ class AccountWordingTest {
                 AccountContent(
                     authState = AuthUiState.SignedIn(AuthUser("user-1", "hero@pixelquest.test", null)),
                     accountState = AccountUiState(),
-                    cloudAvailable = true
+                    cloudAvailable = true,
                 )
             }
         }
         composeTestRule.onNodeWithText("Names are unique", substring = true).assertExists()
     }
-}
 
+    @Test
+    fun leaderboardPrivacyDialog_showsTermsOfUseAndCheckbox() {
+        composeTestRule.setContent {
+            PixelQuestTheme(themeMode = ThemeMode.Pixel) {
+                LeaderboardPrivacyConfirmDialog(displayName = "Titan_Slayer", onConfirm = {}, onDismiss = {})
+            }
+        }
+        composeTestRule.onNodeWithText("Terms of Use", substring = true).assertExists()
+        composeTestRule.onNodeWithText("I agree to the Terms of Use", substring = true).assertExists()
+    }
+}

@@ -297,6 +297,7 @@ fun PqDialog(
     modifier: Modifier = Modifier,
     confirm: String? = null,
     onConfirm: (() -> Unit)? = null,
+    confirmEnabled: Boolean = true,
     dismiss: String? = null,
     onDismiss: (() -> Unit)? = null,
     content: @Composable () -> Unit,
@@ -314,7 +315,7 @@ fun PqDialog(
                 if (showDismiss || showConfirm) {
                     Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         if (showDismiss) PqButton(dismiss!!, onDismiss!!, Modifier.weight(1f), style = PqButtonStyle.Secondary)
-                        if (showConfirm) PqButton(confirm!!, onConfirm!!, Modifier.weight(1f))
+                        if (showConfirm) PqButton(confirm!!, onConfirm!!, Modifier.weight(1f), enabled = confirmEnabled)
                     }
                 }
             }

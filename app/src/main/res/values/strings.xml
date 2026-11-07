@@ -45,4 +45,11 @@
     <string name="report_insight_dialog_cancel">Cancel</string>
     <string name="report_insight_success">Insight reported. Thank you for your feedback.</string>
     <string name="report_insight_error">Failed to submit report. Please try again.</string>
+    <!-- Terms of Use acceptance (P021) -->
+    <string name="terms_dialog_title">Leaderboard Terms of Use</string>
+    <string name="terms_agree_checkbox">I agree to the Terms of Use and Community Guidelines</string>
+    <string name="terms_rule_names">No offensive, profane, sexually explicit, hateful, or abusive display names.</string>
+    <string name="terms_rule_conduct">No botting, automated farming, or exploiting progress.</string>
+    <string name="terms_rule_enforcement">Violations result in immediate removal from the public leaderboard and account ban.</string>
+    <string name="terms_confirm_button">Agree &amp; Join</string>
 </resources>
