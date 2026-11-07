@@ -229,6 +229,30 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    bundle {
+        language {
+            // Language splits disabled since app is English-only and uses custom resource config
+            enableSplit = false
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
+        }
+    }
+}
+
+tasks.register("buildReleaseBundle") {
+    group = "build"
+    description = "Builds the release Android App Bundle (.aab) for Google Play distribution."
+    dependsOn(":app:bundleRelease")
+}
+
+tasks.register("buildLocalReleaseApk") {
+    group = "build"
+    description = "Builds a signed release APK for local test installation on devices."
+    dependsOn(":app:assembleRelease")
 }
 
 // Q007: Kotlin warnings are build failures on production sources so new code cannot add warning debt.

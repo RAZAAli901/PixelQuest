@@ -66,7 +66,7 @@
 
 ### Phase 1: Build & Target (P001–P007)
 - [x] **P001**: docs: copy the audit summary into docs/play-readiness.md as a checklist
-- [ ] **P002**: chore: configure bundleRelease for release build type & document Play App Signing
+- [x] **P002**: chore: configure bundleRelease for release build type & document Play App Signing
 - [ ] **P003**: chore: raise compileSdk and targetSdk to 36
 - [ ] **P004**: fix: edge-to-edge and window insets on every screen
 - [ ] **P005**: fix: review Android 15 & 16 behavior changes and apply necessary fixes
@@ -105,3 +105,4 @@
 - [ ] **P028**: chore: bump version code & release notes
 - [ ] **P029**: docs: store listing text in docs/store/listing.md & screenshot checklist
 - [ ] **P030**: test: bundle smoke test via bundletool
+
