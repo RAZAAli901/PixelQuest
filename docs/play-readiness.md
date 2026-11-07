@@ -79,7 +79,7 @@
 
 ### Phase 3: Foreground Services, Alarms & Full-Screen Alerts (P010–P018)
 - [x] **P010**: docs: list every foreground work location
-- [ ] **P011**: fix: declare foreground service type and permissions or remove unused declarations
+- [x] **P011**: fix: declare foreground service type and permissions or remove unused declarations
 - [ ] **P012**: feat: study timer foreground service type and permissions for target SDK 36
 - [ ] **P013**: docs: write docs/store/fgs-declaration.md with user impact & demo steps
 - [ ] **P014**: feat: check canScheduleExactAlarms() before exact alarms with window alarm fallback

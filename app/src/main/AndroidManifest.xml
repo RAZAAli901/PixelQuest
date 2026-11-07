@@ -189,6 +189,13 @@
 
         <!-- WorkManager is initialised by PixelQuestApplication with HiltWorkerFactory, so the
              @HiltWorker workers (missed tasks, streaks, sync, AI) can be constructed. -->
+        <!-- PixelQuest workers run as standard background tasks (no setForegroundAsync).
+             Remove untyped SystemForegroundService to satisfy Google Play targetSdk 36 FGS policy. -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:exported="false"
+            tools:node="remove" />
+
         <!-- The study chat's opened files, to the system viewer the player picks: their cache folder only. -->
         <provider
             android:name="androidx.core.content.FileProvider"
