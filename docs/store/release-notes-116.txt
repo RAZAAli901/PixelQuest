@@ -1,0 +1,8 @@
+PixelQuest 1.9.0 (Build 116) - Google Play Release:
+• Android 16 (API 36) support with predictive back and edge-to-edge layout
+• Adaptive launcher icons with themed monochrome layer support
+• AI Coach safety reporting and moderation tools
+• Leaderboard Terms of Use acceptance and user blocking controls
+• Enhanced exact alarm and full-screen alert settings with heads-up fallbacks
+• Optimized bundle size and faster offline cold boot performance
+

@@ -102,7 +102,7 @@
 
 ### Phase 6: Release & Validation (P027–P030)
 - [x] **P027**: ci: bundle build & bundletool validation check in CI
-- [ ] **P028**: chore: bump version code & release notes
+- [x] **P028**: chore: bump version code & release notes
 - [ ] **P029**: docs: store listing text in docs/store/listing.md & screenshot checklist
 - [ ] **P030**: test: bundle smoke test via bundletool
 
