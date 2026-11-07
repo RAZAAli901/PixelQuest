@@ -93,7 +93,7 @@
 - [x] **P020**: feat(db): allow report type ai_insight in reports schema with RLS
 - [x] **P021**: feat: terms of use acceptance screen before leaderboard opt-in & name publishing
 - [x] **P022**: feat: block user functionality for leaderboard entries
-- [ ] **P023**: docs: draft terms of use and privacy policy text in docs/legal/
+- [x] **P023**: docs: draft terms of use and privacy policy text in docs/legal/
 
 ### Phase 5: Deletion, Privacy & Data Safety (P024–P026)
 - [ ] **P024**: docs: static account deletion webpage in docs/site/delete-account.html
