@@ -96,7 +96,7 @@
 - [x] **P023**: docs: draft terms of use and privacy policy text in docs/legal/
 
 ### Phase 5: Deletion, Privacy & Data Safety (P024–P026)
-- [ ] **P024**: docs: static account deletion webpage in docs/site/delete-account.html
+- [x] **P024**: docs: static account deletion webpage in docs/site/delete-account.html
 - [ ] **P025**: docs: comprehensive privacy policy in docs/legal/privacy-policy.md
 - [ ] **P026**: docs: docs/store/data-safety.md field-by-field worksheet
 

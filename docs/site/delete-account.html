@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelQuest - Delete Your Account & Cloud Data</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-red: #ef4444;
+            --accent-gold: #f59e0b;
+            --accent-blue: #38bdf8;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 760px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .logo {
+            display: inline-block;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            color: var(--accent-gold);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        h1 {
+            font-size: 1.85rem;
+            margin-bottom: 0.75rem;
+        }
+        p.subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.75rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        ol, ul {
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+        li strong {
+            color: var(--text-primary);
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--accent-gold);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .badge-danger {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: 2px solid var(--accent-blue);
+            border-color: transparent;
+        }
+        button.btn-delete {
+            width: 100%;
+            padding: 0.85rem 1.5rem;
+            background-color: var(--accent-red);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+        button.btn-delete:hover {
+            background-color: #dc2626;
+        }
+        .notice {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--accent-red);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #fca5a5;
+        }
+        footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PixelQuest</div>
+            <h1>Account & Data Deletion</h1>
+            <p class="subtitle">Request permanent deletion of your PixelQuest cloud account and associated data.</p>
+        </header>
+
+        <!-- Method 1: Instant In-App Deletion -->
+        <div class="card">
+            <h2>Method 1: Instant In-App Deletion (Recommended)</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                You can delete your cloud account immediately at any time directly inside the PixelQuest Android app without waiting for manual verification:
+            </p>
+            <ol>
+                <li>Open <strong>PixelQuest</strong> on your Android device.</li>
+                <li>Tap <strong>Settings</strong> (gear icon) in the navigation bar.</li>
+                <li>Tap <strong>Account</strong> (or tap your profile in the top-right).</li>
+                <li>Scroll down to the <strong>Danger zone</strong> section.</li>
+                <li>Tap <span class="badge badge-danger">Delete my cloud data</span>.</li>
+                <li>Confirm both confirmation prompts to permanently purge your cloud profile and public records.</li>
+            </ol>
+            <div class="notice">
+                <strong>Instant Effect:</strong> In-app deletion executes an atomic database procedure that removes your cloud authentication, public leaderboard profile, chat records, and uploaded files immediately.
+            </div>
+        </div>
+
+        <!-- Method 2: Web Deletion Request Form -->
+        <div class="card">
+            <h2>Method 2: Web Deletion Request Form</h2>
+            <p style="margin-bottom: 1.25rem; color: var(--text-secondary);">
+                If you have uninstalled the app or lost access to your device, submit the form below or email <a href="mailto:privacy@pixelquest.app?subject=Account%20Deletion%20Request" style="color: var(--accent-blue);">privacy@pixelquest.app</a> using the email registered with your account.
+            </p>
+            <form action="mailto:privacy@pixelquest.app" method="post" enctype="text/plain">
+                <div class="form-group">
+                    <label for="email">Registered Account Email *</label>
+                    <input type="email" id="email" name="email" required placeholder="hero@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="display_name">Public Display Name / Username (Optional)</label>
+                    <input type="text" id="display_name" name="display_name" placeholder="e.g. Titan_Slayer">
+                </div>
+                <div class="form-group">
+                    <label for="auth_provider">Sign-In Method Used</label>
+                    <select id="auth_provider" name="auth_provider">
+                        <option value="google">Sign in with Google</option>
+                        <option value="email_otp">Email Verification Code (Magic Link / OTP)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reason">Reason for deletion (Optional)</label>
+                    <textarea id="reason" name="reason" rows="3" placeholder="Tell us how we can improve..."></textarea>
+                </div>
+                <button type="submit" class="btn-delete">Submit Deletion Request</button>
+            </form>
+            <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                Requests submitted via web form or email are verified and processed within <strong>7 business days</strong>.
+            </p>
+        </div>
+
+        <!-- What Data is Deleted vs Kept -->
+        <div class="card">
+            <h2>What Happens When You Delete Your Account</h2>
+            <ul>
+                <li><strong>Deleted Immediately:</strong> Your Supabase user account, registered email address, public display name, avatar choice, leaderboard rankings, and all chat attachments/files you uploaded.</li>
+                <li><strong>Local Data:</strong> Local quest titles, checklists, and offline streak records stored in your device's private SQLite database remain on your phone unless you choose to uninstall the app or tap "Reset Progress" in Settings.</li>
+                <li><strong>Anonymized Records:</strong> Aggregated party metrics (e.g. historical group Darood count milestones and finished multiplayer chess game boards) are retained in an anonymized state with all author identifiers stripped so remaining members do not experience corrupted game states.</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 PixelQuest. All rights reserved.</p>
+            <p style="margin-top: 0.5rem;">
+                <a href="privacy.html">Privacy Policy</a> &bull; 
+                <a href="terms.html">Terms of Use</a> &bull; 
+                <a href="https://github.com/RAZAAli901/PixelQuest">Source Code</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
