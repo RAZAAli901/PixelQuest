@@ -23,4 +23,11 @@
     <string name="tip_quran_body">Tap a surah to read, then tap an ayah to bookmark, copy or share it. The reader\'s settings button (top right) changes the text size and what each ayah shows. It all works offline.</string>
     <!-- What a locked phone shows for a notification when it hides sensitive content (S047). -->
     <string name="notif_hidden_title">New in PixelQuest</string>
+
+    <!-- Exact alarms settings row (P015) -->
+    <string name="settings_exact_alarms_title">Alarms &amp; reminders</string>
+    <string name="settings_exact_alarms_allowed">Allowed</string>
+    <string name="settings_exact_alarms_denied">Permission required</string>
+    <string name="settings_exact_alarms_prompt_text">Reminders can arrive up to 10 minutes late (longer if your phone is idle). Allow \"Alarms &amp; reminders\" so they fire on time.</string>
+    <string name="settings_exact_alarms_allow_btn">Allow exact reminder times</string>
 </resources>
