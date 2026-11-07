@@ -25,7 +25,7 @@
 ### Blockers (Must Fix for Upload / Initial Processing)
 - [ ] **#1 Package format:** Build Android App Bundle (`.aab` via `bundleRelease`) instead of `.apk`. Enroll in Play App Signing with upload key.
 - [ ] **#2 Target API level:** Raise `targetSdk` and `compileSdk` to **API 36** (Android 16, mandated since 31 Aug 2026). Test Android 15 & 16 runtime behavior changes.
-- [ ] **#3 Launcher icon:** Add adaptive launcher icon (`android:icon` and `android:roundIcon` with foreground, background, monochrome layers) and export 512×512 px store icon.
+- [x] **#3 Launcher icon:** Add adaptive launcher icon (`android:icon` and `android:roundIcon` with foreground, background, monochrome layers) and export 512×512 px store icon.
 
 ### Policy Risks & System Interactions
 - [ ] **#4 Exact alarms:** Permission `SCHEDULE_EXACT_ALARM` restricted on Android 14+. Check `canScheduleExactAlarms()` before scheduling; fall back to window alarms with user notice.
@@ -75,7 +75,7 @@
 
 ### Phase 2: Icon & Store Assets (P008–P009)
 - [x] **P008**: feat: adaptive launcher icon (foreground, background, monochrome layers)
-- [ ] **P009**: chore: export 512×512 store icon and 1024×500 feature graphic into docs/store/
+- [x] **P009**: chore: export 512×512 store icon and 1024×500 feature graphic into docs/store/
 
 ### Phase 3: Foreground Services, Alarms & Full-Screen Alerts (P010–P018)
 - [ ] **P010**: docs: list every foreground work location
