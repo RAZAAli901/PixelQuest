@@ -97,7 +97,7 @@
 
 ### Phase 5: Deletion, Privacy & Data Safety (P024–P026)
 - [x] **P024**: docs: static account deletion webpage in docs/site/delete-account.html
-- [ ] **P025**: docs: comprehensive privacy policy in docs/legal/privacy-policy.md
+- [x] **P025**: docs: comprehensive privacy policy in docs/legal/privacy-policy.md
 - [ ] **P026**: docs: docs/store/data-safety.md field-by-field worksheet
 
 ### Phase 6: Release & Validation (P027–P030)
