@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(RobolectricTestRunner::class)
-@Config(application = HiltTestApplication::class)
+@Config(sdk = [34], application = HiltTestApplication::class)
 class TestHiltModuleTest {
 
     @get:Rule
