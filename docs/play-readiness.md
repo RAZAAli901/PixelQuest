@@ -74,7 +74,7 @@
 - [x] **P007**: fix: resolve any regressions from P006
 
 ### Phase 2: Icon & Store Assets (P008–P009)
-- [ ] **P008**: feat: adaptive launcher icon (foreground, background, monochrome layers)
+- [x] **P008**: feat: adaptive launcher icon (foreground, background, monochrome layers)
 - [ ] **P009**: chore: export 512×512 store icon and 1024×500 feature graphic into docs/store/
 
 ### Phase 3: Foreground Services, Alarms & Full-Screen Alerts (P010–P018)
