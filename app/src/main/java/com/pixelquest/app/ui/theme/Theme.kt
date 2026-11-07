@@ -27,7 +27,7 @@ val LocalReduceMotion = androidx.compose.runtime.staticCompositionLocalOf { fals
 fun PixelQuestTheme(
     themeMode: ThemeMode? = null,
     isReduceMotion: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     if (themeMode != null) {
         val before = remember { PqSkinState.skin }
@@ -42,7 +42,9 @@ fun PixelQuestTheme(
     if (!view.isInEditMode) {
         SideEffect {
             (view.context as? Activity)?.window?.let { window ->
+                @Suppress("DEPRECATION")
                 window.statusBarColor = colors.background.toArgb()
+                @Suppress("DEPRECATION")
                 window.navigationBarColor = colors.background.toArgb()
                 WindowCompat.getInsetsController(window, view).apply {
                     isAppearanceLightStatusBars = true
@@ -54,7 +56,7 @@ fun PixelQuestTheme(
 
     CompositionLocalProvider(
         LocalAppColorScheme provides PqAppColors,
-        LocalReduceMotion provides isReduceMotion
+        LocalReduceMotion provides isReduceMotion,
     ) {
         MaterialTheme(colorScheme = colors, typography = typography, content = content)
     }

@@ -1,7 +1,6 @@
 package com.pixelquest.app.util
 
 import android.content.Context
-import com.pixelquest.app.util.AppLog
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
@@ -30,10 +29,11 @@ object PixelCrashHandler {
     private fun logCrashLocally(context: Context, thread: Thread, throwable: Throwable) {
         val crashFile = File(context.filesDir, CRASH_LOG_FILENAME)
         val timestamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
-        
+
         FileWriter(crashFile, true).use { fw ->
             PrintWriter(fw).use { pw ->
                 pw.println("=== CRASH REPORT [$timestamp] ===")
+                @Suppress("DEPRECATION")
                 pw.println("Thread: ${thread.name} (id: ${thread.id})")
                 pw.println("Exception: ${throwable.javaClass.name} - ${throwable.message}")
                 throwable.printStackTrace(pw)
