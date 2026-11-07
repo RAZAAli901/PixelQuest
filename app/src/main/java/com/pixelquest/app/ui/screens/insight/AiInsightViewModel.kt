@@ -1,6 +1,5 @@
 package com.pixelquest.app.ui.screens.insight
 
-import com.pixelquest.app.ui.navigation.TabSharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pixelquest.app.data.remote.GeminiResult
@@ -8,15 +7,15 @@ import com.pixelquest.app.domain.repository.HabitInsightRepository
 import com.pixelquest.app.domain.repository.InsightCacheRepository
 import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
+import com.pixelquest.app.ui.navigation.TabSharing
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,7 +33,7 @@ class AiInsightViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val taskCompletionRepository: TaskCompletionRepository,
     private val insightCacheRepository: InsightCacheRepository,
-    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess
+    private val aiAccess: com.pixelquest.app.domain.ai.AiAccess,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AiInsightUiState>(AiInsightUiState.Loading)
@@ -73,7 +72,7 @@ class AiInsightViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = TabSharing,
-            initialValue = false
+            initialValue = false,
         )
 
     init {
@@ -100,17 +99,29 @@ class AiInsightViewModel @Inject constructor(
                 _uiState.value = AiInsightUiState.SignInRequired()
                 return@launch
             }
-            val isOptedIn = try { settingsRepository.aiInsightsEnabled.first() } catch (e: Exception) { false }
+            val isOptedIn = try {
+                settingsRepository.aiInsightsEnabled.first()
+            } catch (e: Exception) {
+                false
+            }
             if (!isOptedIn) {
                 _uiState.value = AiInsightUiState.Disabled()
                 return@launch
             }
 
             // Check if player has enough completion history (Step 13)
-            val logs = try { taskCompletionRepository.getAllLogs().first() } catch (e: Exception) { emptyList() }
+            val logs = try {
+                taskCompletionRepository.getAllLogs().first()
+            } catch (e: Exception) {
+                emptyList()
+            }
             val distinctDays = logs.map { it.completedDate }.distinct().size
             if (distinctDays < 3 && logs.size < 3) {
-                val isSimple = try { settingsRepository.simpleModeEnabled.first() } catch (e: Exception) { false }
+                val isSimple = try {
+                    settingsRepository.simpleModeEnabled.first()
+                } catch (e: Exception) {
+                    false
+                }
                 val msg = if (isSimple) {
                     "Keep up the steady effort! Complete habits for at least 3 days to unlock personalized AI habit coaching."
                 } else {
@@ -125,7 +136,7 @@ class AiInsightViewModel @Inject constructor(
                     daysLogged = distinctDays,
                     minimumRequiredDays = 3,
                     message = msg,
-                    encouragingTip = tip
+                    encouragingTip = tip,
                 )
                 return@launch
             }
@@ -140,7 +151,7 @@ class AiInsightViewModel @Inject constructor(
                     insight = cachedResponse,
                     isCached = true,
                     remainingCooldownSeconds = cooldown,
-                    canRefresh = cooldown == 0L
+                    canRefresh = cooldown == 0L,
                 )
             } else if (_uiState.value !is AiInsightUiState.Success) {
                 _uiState.value = AiInsightUiState.Loading
@@ -157,7 +168,7 @@ class AiInsightViewModel @Inject constructor(
                         insight = result.data,
                         isCached = wasCached,
                         remainingCooldownSeconds = updatedCooldown,
-                        canRefresh = updatedCooldown == 0L
+                        canRefresh = updatedCooldown == 0L,
                     )
                 }
                 is GeminiResult.Disabled -> AiInsightUiState.Disabled(result.message)
@@ -169,13 +180,13 @@ class AiInsightViewModel @Inject constructor(
                         AiInsightUiState.CapReached(
                             message = result.message,
                             isMonthly = result.message.contains("monthly", ignoreCase = true),
-                            lastInsight = fallback
+                            lastInsight = fallback,
                         )
                     } else {
                         AiInsightUiState.RateLimited(
                             retryAfterSeconds = result.retryAfterSeconds ?: updatedCooldown,
                             message = result.message,
-                            lastInsight = fallback
+                            lastInsight = fallback,
                         )
                     }
                 }
@@ -184,7 +195,7 @@ class AiInsightViewModel @Inject constructor(
                     AiInsightUiState.Error(
                         message = result.message,
                         canRetry = true,
-                        fallbackInsight = fallback
+                        fallbackInsight = fallback,
                     )
                 }
                 is GeminiResult.ApiError -> {
@@ -194,7 +205,7 @@ class AiInsightViewModel @Inject constructor(
                         // Retrying can't help a build without AI set up, or before tomorrow's limit resets.
                         canRetry = result.message != com.pixelquest.app.domain.ai.AiErrorCopy.NOT_CONFIGURED &&
                             result.message != com.pixelquest.app.domain.ai.AiErrorCopy.DAILY_LIMIT,
-                        fallbackInsight = fallback
+                        fallbackInsight = fallback,
                     )
                 }
                 is GeminiResult.MalformedResponse -> {
@@ -202,7 +213,7 @@ class AiInsightViewModel @Inject constructor(
                     AiInsightUiState.Error(
                         message = com.pixelquest.app.domain.ai.AiErrorCopy.UNREADABLE,
                         canRetry = true,
-                        fallbackInsight = fallback
+                        fallbackInsight = fallback,
                     )
                 }
             }
@@ -229,11 +240,21 @@ class AiInsightViewModel @Inject constructor(
                 _uiState.value = AiInsightUiState.RateLimited(
                     retryAfterSeconds = cooldown,
                     message = com.pixelquest.app.domain.ai.AiRateLimitFormatter.formatCooldownMessage(cooldown),
-                    lastInsight = fallback
+                    lastInsight = fallback,
                 )
                 return@launch
             }
             loadInsight(forceRefresh = true)
+        }
+    }
+
+    /**
+     * Reports an offensive or inappropriate AI coach insight.
+     */
+    fun reportInsight(content: String, reason: String = "offensive_content", onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val result = habitInsightRepository.reportInsight(content, reason)
+            onResult(result.isSuccess)
         }
     }
 

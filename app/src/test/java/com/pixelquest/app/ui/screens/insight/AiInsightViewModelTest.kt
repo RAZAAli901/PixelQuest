@@ -50,7 +50,7 @@ class AiInsightViewModelTest {
 
     private class FakeHabitInsightRepository : HabitInsightRepository {
         var generateResult: GeminiResult<HabitInsightResponse> = GeminiResult.Success(
-            HabitInsightResponse("Summary", "Suggestion", "Encouragement", generatedAt = 1000L)
+            HabitInsightResponse("Summary", "Suggestion", "Encouragement", generatedAt = 1000L),
         )
         var cooldownSeconds: Long = 0L
         val latestInsightFlow = MutableStateFlow<HabitInsightResponse?>(null)
@@ -67,10 +67,18 @@ class AiInsightViewModelTest {
         override val latestInsight: Flow<HabitInsightResponse?> = latestInsightFlow
 
         override suspend fun getRemainingCooldownSeconds(): Long = cooldownSeconds
+
+        val reportedInsights = mutableListOf<Pair<String, String>>()
+
+        override suspend fun reportInsight(content: String, reason: String): Result<Unit> {
+            reportedInsights.add(content to reason)
+            return Result.success(Unit)
+        }
     }
 
     private class FakeCacheRepository : InsightCacheRepository by NoOpInsightCacheRepository() {
         var cachedEntity: InsightCacheEntity? = null
+
         /** Every insight kept, newest first (what the AI Coach lists under the latest). */
         var recent: List<InsightCacheEntity> = emptyList()
         override suspend fun getLatestInsight(): InsightCacheEntity? = cachedEntity
@@ -124,8 +132,8 @@ class AiInsightViewModelTest {
             listOf(
                 TaskCompletionLogEntity(id = 1, taskId = 1, completedDate = today, wasCompleted = true, pointsAwarded = 50),
                 TaskCompletionLogEntity(id = 2, taskId = 1, completedDate = today.minusDays(1), wasCompleted = true, pointsAwarded = 50),
-                TaskCompletionLogEntity(id = 3, taskId = 1, completedDate = today.minusDays(2), wasCompleted = true, pointsAwarded = 50)
-            )
+                TaskCompletionLogEntity(id = 3, taskId = 1, completedDate = today.minusDays(2), wasCompleted = true, pointsAwarded = 50),
+            ),
         )
     }
 
@@ -139,7 +147,7 @@ class AiInsightViewModelTest {
             settingsRepository = settingsRepo,
             taskCompletionRepository = FakeCompletionRepository(),
             insightCacheRepository = FakeCacheRepository(),
-            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
         )
 
         advanceUntilIdle()
@@ -159,7 +167,7 @@ class AiInsightViewModelTest {
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
             insightCacheRepository = FakeCacheRepository(),
-            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
         )
 
         advanceUntilIdle()
@@ -184,7 +192,7 @@ class AiInsightViewModelTest {
             suggestion = "Rest well.",
             encouragement = "Great power awaits!",
             dataHash = "hash123",
-            generatedAt = 1000L
+            generatedAt = 1000L,
         )
 
         val habitRepo = FakeHabitInsightRepository()
@@ -195,7 +203,7 @@ class AiInsightViewModelTest {
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
             insightCacheRepository = cacheRepo,
-            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
         )
 
         advanceUntilIdle()
@@ -215,7 +223,7 @@ class AiInsightViewModelTest {
             settingsRepository = FakeSettingsRepository(),
             taskCompletionRepository = completionRepo,
             insightCacheRepository = FakeCacheRepository(),
-            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
         )
         advanceUntilIdle()
         return viewModel.uiState.value as AiInsightUiState.Error
@@ -245,7 +253,7 @@ class AiInsightViewModelTest {
         habitRepo.cooldownSeconds = 7200L
         habitRepo.generateResult = GeminiResult.RateLimited(
             retryAfterSeconds = 7200L,
-            message = "Check back in 2 hours for a fresh insight."
+            message = "Check back in 2 hours for a fresh insight.",
         )
 
         val viewModel = AiInsightViewModel(
@@ -253,7 +261,7 @@ class AiInsightViewModelTest {
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
             insightCacheRepository = FakeCacheRepository(),
-            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
         )
 
         advanceUntilIdle()
@@ -273,7 +281,7 @@ class AiInsightViewModelTest {
         val habitRepo = FakeHabitInsightRepository()
         habitRepo.generateResult = GeminiResult.NetworkError(
             cause = java.io.IOException("No internet"),
-            message = "Network connection unavailable."
+            message = "Network connection unavailable.",
         )
 
         val viewModel = AiInsightViewModel(
@@ -281,7 +289,7 @@ class AiInsightViewModelTest {
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
             insightCacheRepository = FakeCacheRepository(),
-            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
         )
 
         advanceUntilIdle()
@@ -304,7 +312,7 @@ class AiInsightViewModelTest {
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
             insightCacheRepository = FakeCacheRepository(),
-            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
         )
         advanceUntilIdle()
         assertTrue(viewModel.uiState.value is AiInsightUiState.Success)
@@ -333,13 +341,13 @@ class AiInsightViewModelTest {
             settingsRepository = settingsRepo,
             taskCompletionRepository = completionRepo,
             insightCacheRepository = FakeCacheRepository(),
-            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
         )
         advanceUntilIdle()
 
         habitRepo.cooldownSeconds = 0L
         habitRepo.generateResult = GeminiResult.Success(
-            HabitInsightResponse("Refreshed Summary", "Refreshed Suggestion", "Refreshed Cheer", generatedAt = 2000L)
+            HabitInsightResponse("Refreshed Summary", "Refreshed Suggestion", "Refreshed Cheer", generatedAt = 2000L),
         )
         viewModel.refreshInsight()
         advanceUntilIdle()
@@ -362,7 +370,7 @@ class AiInsightViewModelTest {
             settingsRepository = settingsRepo,
             taskCompletionRepository = FakeCompletionRepository(),
             insightCacheRepository = FakeCacheRepository(),
-            aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
         )
         advanceUntilIdle()
 
@@ -385,7 +393,12 @@ class AiInsightViewModelTest {
         val completionRepo = FakeCompletionRepository().also { populateSufficientLogs(it) }
         val cacheRepo = FakeCacheRepository().apply {
             cachedEntity = InsightCacheEntity(
-                id = 1, summary = "Saved summary", suggestion = "s", encouragement = "e", dataHash = "h", generatedAt = 1000L
+                id = 1,
+                summary = "Saved summary",
+                suggestion = "s",
+                encouragement = "e",
+                dataHash = "h",
+                generatedAt = 1000L,
             )
         }
         val habitRepo = FakeHabitInsightRepository()
@@ -412,7 +425,11 @@ class AiInsightViewModelTest {
         val habitRepo = FakeHabitInsightRepository().apply { generateResult = GeminiResult.SignInRequired() }
 
         val viewModel = AiInsightViewModel(
-            habitRepo, FakeSettingsRepository(), completionRepo, FakeCacheRepository(), com.pixelquest.app.testing.FakeAiAccess()
+            habitRepo,
+            FakeSettingsRepository(),
+            completionRepo,
+            FakeCacheRepository(),
+            com.pixelquest.app.testing.FakeAiAccess(),
         )
         advanceUntilIdle()
 
@@ -450,7 +467,7 @@ class AiInsightViewModelTest {
         settingsRepository = FakeSettingsRepository(),
         taskCompletionRepository = FakeCompletionRepository(),
         insightCacheRepository = cache,
-        aiAccess = com.pixelquest.app.testing.FakeAiAccess()
+        aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
     )
 
     @Test
@@ -522,5 +539,27 @@ class AiInsightViewModelTest {
 
         assertEquals("the newest is the latest, shown above", listOf(9L, 8L, 7L, 6L, 5L), viewModel.olderInsights.value.map { it.id })
         assertEquals("Insight 9", viewModel.olderInsights.value.first().insight.summary)
+    }
+
+    @Test
+    fun reportInsight_delegatesToRepository() = runTest {
+        val habitRepo = FakeHabitInsightRepository()
+        val viewModel = AiInsightViewModel(
+            habitInsightRepository = habitRepo,
+            settingsRepository = FakeSettingsRepository(),
+            taskCompletionRepository = FakeCompletionRepository(),
+            insightCacheRepository = FakeCacheRepository(),
+            aiAccess = com.pixelquest.app.testing.FakeAiAccess(),
+        )
+
+        var reportResult: Boolean? = null
+        viewModel.reportInsight("Offensive content", "offensive_content") { success ->
+            reportResult = success
+        }
+        advanceUntilIdle()
+
+        assertTrue(reportResult == true)
+        assertEquals(1, habitRepo.reportedInsights.size)
+        assertEquals("Offensive content" to "offensive_content", habitRepo.reportedInsights.first())
     }
 }

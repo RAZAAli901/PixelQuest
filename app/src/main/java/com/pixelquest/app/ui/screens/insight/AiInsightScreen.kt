@@ -1,5 +1,6 @@
 package com.pixelquest.app.ui.screens.insight
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -25,17 +26,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Bolt
 import androidx.compose.material.icons.rounded.CloudOff
+import androidx.compose.material.icons.rounded.Flag
 import androidx.compose.material.icons.rounded.HourglassTop
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Timeline
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,9 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.pixelquest.app.R
 import com.pixelquest.app.audio.LocalSoundManager
 import com.pixelquest.app.domain.ai.AiErrorCopy
-import com.pixelquest.app.domain.ai.HabitInsightResponse
 import com.pixelquest.app.ui.components.PqButton
-import com.pixelquest.app.ui.components.PqButtonStyle
 import com.pixelquest.app.ui.components.PqCard
 import com.pixelquest.app.ui.components.PqGroupLabel
 import com.pixelquest.app.ui.components.PqProgressBar
@@ -83,12 +87,13 @@ fun AiInsightScreen(
     viewModel: AiInsightViewModel = hiltViewModel(),
     onNavigateBack: (() -> Unit)? = null,
     onNavigateToSettings: (() -> Unit)? = null,
-    onNavigateToAccount: (() -> Unit)? = null
+    onNavigateToAccount: (() -> Unit)? = null,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isSimpleMode by viewModel.isSimpleMode.collectAsState()
     val displayState by viewModel.displayState.collectAsState()
     val olderInsights by viewModel.olderInsights.collectAsState()
+    val context = LocalContext.current
 
     AiInsightScreenContent(
         modifier = modifier,
@@ -99,9 +104,19 @@ fun AiInsightScreen(
         onToggleLatestExpanded = viewModel::toggleLatestExpanded,
         olderInsights = olderInsights,
         onToggleOlder = viewModel::toggleOlder,
+        onReportInsight = { insightContent ->
+            viewModel.reportInsight(insightContent) { success ->
+                val msg = if (success) {
+                    context.getString(R.string.report_insight_success)
+                } else {
+                    context.getString(R.string.report_insight_error)
+                }
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            }
+        },
         onNavigateBack = onNavigateBack,
         onNavigateToSettings = onNavigateToSettings,
-        onNavigateToAccount = onNavigateToAccount
+        onNavigateToAccount = onNavigateToAccount,
     )
 }
 
@@ -116,9 +131,10 @@ fun AiInsightScreenContent(
     onToggleLatestExpanded: () -> Unit = {},
     olderInsights: List<OlderInsight> = emptyList(),
     onToggleOlder: (Long) -> Unit = {},
+    onReportInsight: ((String) -> Unit)? = null,
     onNavigateBack: (() -> Unit)? = null,
     onNavigateToSettings: (() -> Unit)? = null,
-    onNavigateToAccount: (() -> Unit)? = null
+    onNavigateToAccount: (() -> Unit)? = null,
 ) {
     val sound = LocalSoundManager.current
     Column(
@@ -127,7 +143,7 @@ fun AiInsightScreenContent(
             .fillMaxSize()
             .background(PqColors.Ground)
             .verticalScroll(rememberScrollState())
-            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 32.dp)
+            .padding(start = PqDimens.ScreenPad, end = PqDimens.ScreenPad, top = 8.dp, bottom = 32.dp),
     ) {
         PqTopBar(if (isSimpleMode) "Habit coach" else "AI coach", onBack = onNavigateBack) {
             // A fresh brief is asked for here, once there's one to replace.
@@ -144,7 +160,8 @@ fun AiInsightScreenContent(
                     state = uiState,
                     title = stringResource(if (isSimpleMode) R.string.pq_coach_title_simple else R.string.pq_coach_title),
                     expanded = !displayState.compact || displayState.latestExpanded,
-                    onToggleExpanded = if (displayState.compact) onToggleLatestExpanded else null
+                    onToggleExpanded = if (displayState.compact) onToggleLatestExpanded else null,
+                    onReport = onReportInsight,
                 )
                 EarlierBriefs(olderInsights, displayState.expandedOlderId, onToggleOlder)
             }
@@ -176,12 +193,12 @@ fun CoachRefreshButton(enabled: Boolean, remainingSeconds: Long, onClick: () -> 
             .heightIn(min = 40.dp)
             .comicPressable(onClick, bg = if (ready) PqColors.Gold else PqColors.Sunken, radius = 12.dp, shadow = if (ready) 2.dp else 0.dp, enabled = enabled, role = Role.Button)
             .semantics(mergeDescendants = true) { contentDescription = description }
-            .padding(horizontal = 10.dp)
+            .padding(horizontal = 10.dp),
     ) {
         Icon(if (ready) Icons.Rounded.Refresh else Icons.Rounded.HourglassTop, contentDescription = null, tint = PqColors.Ink, modifier = Modifier.size(18.dp))
         Text(
             text = (if (ready) stringResource(R.string.coach_refresh) else stringResource(R.string.coach_cooldown_hours, hours)).uppercase(),
-            style = PqType.Button
+            style = PqType.Button,
         )
     }
 }
@@ -191,9 +208,41 @@ fun CoachRefreshButton(enabled: Boolean, remainingSeconds: Long, onClick: () -> 
  * a word of encouragement. Live when just written; when it was written at the foot.
  */
 @Composable
-private fun CoachBrief(state: AiInsightUiState.Success, title: String, expanded: Boolean, onToggleExpanded: (() -> Unit)?) {
+private fun CoachBrief(
+    state: AiInsightUiState.Success,
+    title: String,
+    expanded: Boolean,
+    onToggleExpanded: (() -> Unit)?,
+    onReport: ((String) -> Unit)? = null,
+) {
     val insight = state.insight
     val preview = onToggleExpanded != null && !expanded
+    var showReportDialog by remember { mutableStateOf(false) }
+
+    if (showReportDialog) {
+        AlertDialog(
+            onDismissRequest = { showReportDialog = false },
+            title = { Text(text = stringResource(R.string.report_insight_dialog_title), style = PqType.CardTitle) },
+            text = { Text(text = stringResource(R.string.report_insight_dialog_text), style = PqType.Body) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showReportDialog = false
+                        val fullContent = "Summary: ${insight.summary}\nSuggestion: ${insight.suggestion}\nEncouragement: ${insight.encouragement}"
+                        onReport?.invoke(fullContent)
+                    },
+                ) {
+                    Text(text = stringResource(R.string.report_insight_dialog_confirm), color = PqColors.RedText)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReportDialog = false }) {
+                    Text(text = stringResource(R.string.report_insight_dialog_cancel))
+                }
+            },
+        )
+    }
+
     PqCard(shadow = PqDimens.ShadowLg) {
         Column(Modifier.fillMaxWidth()) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(14.dp)) {
@@ -214,11 +263,41 @@ private fun CoachBrief(state: AiInsightUiState.Success, title: String, expanded:
                 if (onToggleExpanded != null) ExpandToggle(expanded, onToggleExpanded)
             }
             Box(Modifier.fillMaxWidth().height(PqDimens.BorderThin).background(PqColors.Ink))
-            Text(
-                text = (if (state.isCached) "Saved brief" else "New brief") + " · " + dateOf(insight.generatedAt),
-                style = PqType.Meta,
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = (if (state.isCached) "Saved brief" else "New brief") + " · " + dateOf(insight.generatedAt),
+                    style = PqType.Meta,
+                )
+                if (onReport != null) {
+                    Row(
+                        modifier = Modifier
+                            .clickable(
+                                onClickLabel = stringResource(R.string.report_insight_btn),
+                                role = Role.Button,
+                            ) { showReportDialog = true }
+                            .padding(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Icon(
+                            Icons.Rounded.Flag,
+                            contentDescription = stringResource(R.string.report_insight_btn),
+                            tint = PqColors.Muted,
+                            modifier = Modifier.size(14.dp),
+                        )
+                        Text(
+                            text = stringResource(R.string.report_insight_dialog_confirm),
+                            style = PqType.Meta.copy(color = PqColors.Muted),
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -245,7 +324,7 @@ private fun ExpandToggle(expanded: Boolean, onToggle: () -> Unit) {
         modifier = Modifier
             .heightIn(min = 40.dp)
             .clickable(onClickLabel = label, role = Role.Button, onClick = onToggle)
-            .padding(vertical = 10.dp)
+            .padding(vertical = 10.dp),
     )
 }
 
@@ -256,7 +335,7 @@ private fun Expandable(visible: Boolean, content: @Composable () -> Unit) {
     AnimatedVisibility(
         visible = visible,
         enter = if (still) EnterTransition.None else expandVertically() + fadeIn(),
-        exit = if (still) ExitTransition.None else shrinkVertically() + fadeOut()
+        exit = if (still) ExitTransition.None else shrinkVertically() + fadeOut(),
     ) { content() }
 }
 
@@ -272,7 +351,7 @@ private fun EarlierBriefs(items: List<OlderInsight>, expandedId: Long?, onToggle
             modifier = Modifier
                 .fillMaxWidth()
                 .comicPressable({ onToggle(item.id) }, radius = PqDimens.Radius, shadow = 0.dp, onClickLabel = stringResource(if (open) R.string.coach_collapse else R.string.coach_expand), role = Role.Button)
-                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
         ) {
             Text(text = dateOf(item.insight.generatedAt), style = PqType.MetaStrong)
             if (open) {
@@ -305,7 +384,7 @@ private fun CoachStateCard(
     body: String,
     button: String? = null,
     onClick: (() -> Unit)? = null,
-    extra: @Composable () -> Unit = {}
+    extra: @Composable () -> Unit = {},
 ) {
     PqCard(radius = PqDimens.RadiusLg) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth().padding(14.dp)) {
@@ -372,9 +451,12 @@ internal fun aiErrorHeading(message: String): String = when (message) {
 @Composable
 fun AiInsightErrorState(state: AiInsightUiState.Error, onRetry: () -> Unit) {
     CoachStateCard(
-        Icons.Rounded.CloudOff, PqColors.Rose, aiErrorHeading(state.message), state.message,
+        Icons.Rounded.CloudOff,
+        PqColors.Rose,
+        aiErrorHeading(state.message),
+        state.message,
         button = if (state.canRetry && state.message != AiErrorCopy.NOT_CONFIGURED) "Try again" else null,
-        onClick = onRetry
+        onClick = onRetry,
     )
 }
 

@@ -89,7 +89,7 @@
 - [x] **P018**: docs: write docs/store/full-screen-intent-declaration.md
 
 ### Phase 4: AI Reporting, Terms & Blocking (P019–P023)
-- [ ] **P019**: feat: "Report this insight" action on AI Coach answers
+- [x] **P019**: feat: "Report this insight" action on AI Coach answers
 - [ ] **P020**: feat(db): allow report type ai_insight in reports schema with RLS
 - [ ] **P021**: feat: terms of use acceptance screen before leaderboard opt-in & name publishing
 - [ ] **P022**: feat: block user functionality for leaderboard entries

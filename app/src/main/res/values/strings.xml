@@ -37,4 +37,12 @@
     <string name="settings_full_screen_denied">Permission required</string>
     <string name="settings_full_screen_prompt_text">Allow full-screen prompts over the lock screen for study timers and urgent habit reminders.</string>
     <string name="settings_full_screen_allow_btn">Allow full-screen alerts</string>
+    <!-- AI Coach reporting (P019) -->
+    <string name="report_insight_btn">Report insight</string>
+    <string name="report_insight_dialog_title">Report this AI insight?</string>
+    <string name="report_insight_dialog_text">Flag this generated AI response as offensive, harmful, inaccurate, or inappropriate for review.</string>
+    <string name="report_insight_dialog_confirm">Report</string>
+    <string name="report_insight_dialog_cancel">Cancel</string>
+    <string name="report_insight_success">Insight reported. Thank you for your feedback.</string>
+    <string name="report_insight_error">Failed to submit report. Please try again.</string>
 </resources>

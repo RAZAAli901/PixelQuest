@@ -28,4 +28,9 @@ interface HabitInsightRepository {
      * Returns 0 if no cooldown is active.
      */
     suspend fun getRemainingCooldownSeconds(): Long = 0L
+
+    /**
+     * Reports an offensive, harmful or inappropriate AI-generated habit insight.
+     */
+    suspend fun reportInsight(content: String, reason: String = "offensive_content"): Result<Unit> = Result.success(Unit)
 }

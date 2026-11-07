@@ -188,6 +188,14 @@ open class FakeHabitInsightRepository :
     }
 
     override val latestInsight: Flow<HabitInsightResponse?> = insightFlow
+
+    val reportedInsights = mutableListOf<Pair<String, String>>()
+
+    override suspend fun reportInsight(content: String, reason: String): Result<Unit> {
+        checkFailure()
+        reportedInsights.add(content to reason)
+        return Result.success(Unit)
+    }
 }
 
 open class FakeInsightCacheRepository :
