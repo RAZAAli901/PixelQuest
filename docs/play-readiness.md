@@ -41,11 +41,11 @@
 - [ ] **#7 Developer account closed test:** Personal accounts created after 13 Nov 2023 require 12 testers for 14 consecutive days before production release.
 - [x] **#11 Account deletion web link:** Publish public web page for account and data deletion requests (hosted on GitHub Pages).
 - [x] **#12 Data safety form:** Disclose collection/sharing for email, display name, level, streak, XP, habit completion patterns (Gemini), transit encryption, and deletion.
-- [ ] **#15 Store content questions:** Complete questionnaires for content rating, target audience (13+), no ads, and declarations.
+- [x] **#15 Store content questions:** Complete questionnaires for content rating, target audience (13+), no ads, and declarations (see `docs/store/listing.md`).
 
 ### Information & Hardening
-- [ ] **#16 Boot receiver:** Review `RECEIVE_BOOT_COMPLETED` receiver; keep `android:exported="false"` where possible.
-- [ ] **#17 Backup rules:** Tighten `allowBackup` and XML backup rules to protect sensitive cached data.
+- [x] **#16 Boot receiver:** Review `RECEIVE_BOOT_COMPLETED` receiver; keep `android:exported="false"` where possible.
+- [x] **#17 Backup rules:** Tighten `allowBackup` and XML backup rules to protect sensitive cached data.
 
 ### Passed Checks (Maintain Compliance)
 - [x] **#13 Privacy policy:** Public URL link present in app and store listing.
@@ -103,6 +103,6 @@
 ### Phase 6: Release & Validation (P027–P030)
 - [x] **P027**: ci: bundle build & bundletool validation check in CI
 - [x] **P028**: chore: bump version code & release notes
-- [ ] **P029**: docs: store listing text in docs/store/listing.md & screenshot checklist
+- [x] **P029**: docs: store listing text in docs/store/listing.md & screenshot checklist
 - [ ] **P030**: test: bundle smoke test via bundletool
 
