@@ -78,7 +78,7 @@
 - [x] **P009**: chore: export 512×512 store icon and 1024×500 feature graphic into docs/store/
 
 ### Phase 3: Foreground Services, Alarms & Full-Screen Alerts (P010–P018)
-- [ ] **P010**: docs: list every foreground work location
+- [x] **P010**: docs: list every foreground work location
 - [ ] **P011**: fix: declare foreground service type and permissions or remove unused declarations
 - [ ] **P012**: feat: study timer foreground service type and permissions for target SDK 36
 - [ ] **P013**: docs: write docs/store/fgs-declaration.md with user impact & demo steps
