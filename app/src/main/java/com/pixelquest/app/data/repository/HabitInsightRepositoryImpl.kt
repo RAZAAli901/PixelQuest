@@ -20,8 +20,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
-import javax.inject.Singleton
 
 class HabitInsightRepositoryImpl(
     private val streakRepository: StreakRepository,
@@ -35,7 +33,9 @@ class HabitInsightRepositoryImpl(
     private val usageTracker: com.pixelquest.app.domain.ai.AiUsageTracker = com.pixelquest.app.domain.ai.InMemoryAiUsageTracker(),
     private val clock: () -> Long = { System.currentTimeMillis() },
     /** Called after each live Gemini insight with the call time (Day 26: schedules the "ready" notification). */
-    private val onLiveInsightGenerated: (Long) -> Unit = {}
+    private val onLiveInsightGenerated: (Long) -> Unit = {},
+    private val postgrest: io.github.jan.supabase.postgrest.Postgrest? = null,
+    private val auth: io.github.jan.supabase.auth.Auth? = null,
 ) : HabitInsightRepository {
 
     constructor(
@@ -45,7 +45,7 @@ class HabitInsightRepositoryImpl(
         taskCompletionRepository: TaskCompletionRepository,
         settingsRepository: SettingsRepository,
         geminiClient: GeminiClient,
-        toneHook: HabitInsightToneHook = DefaultHabitInsightToneHook()
+        toneHook: HabitInsightToneHook = DefaultHabitInsightToneHook(),
     ) : this(
         streakRepository = streakRepository,
         userProfileRepository = userProfileRepository,
@@ -56,7 +56,7 @@ class HabitInsightRepositoryImpl(
         insightCacheRepository = NoOpInsightCacheRepository(),
         toneHook = toneHook,
         usageTracker = com.pixelquest.app.domain.ai.InMemoryAiUsageTracker(),
-        clock = { System.currentTimeMillis() }
+        clock = { System.currentTimeMillis() },
     )
 
     companion object {
@@ -76,7 +76,11 @@ class HabitInsightRepositoryImpl(
 
     override suspend fun getRemainingCooldownSeconds(): Long {
         val now = clock()
-        val lastCallTime = try { settingsRepository.lastAiInsightTimestamp.first() } catch (e: Exception) { 0L }
+        val lastCallTime = try {
+            settingsRepository.lastAiInsightTimestamp.first()
+        } catch (e: Exception) {
+            0L
+        }
             .let { if (it > 0L) it else (insightCacheRepository.getLatestInsight()?.generatedAt ?: 0L) }
         val elapsed = now - lastCallTime
         return if (lastCallTime > 0L && elapsed in 0 until MIN_CALL_INTERVAL_MS) {
@@ -87,24 +91,48 @@ class HabitInsightRepositoryImpl(
     }
 
     override suspend fun generateHabitInsight(forceRefresh: Boolean): GeminiResult<HabitInsightResponse> {
-        val isOptedIn = try { settingsRepository.aiInsightsEnabled.first() } catch (e: Exception) { false }
+        val isOptedIn = try {
+            settingsRepository.aiInsightsEnabled.first()
+        } catch (e: Exception) {
+            false
+        }
         if (!isOptedIn) {
             return GeminiResult.Disabled("AI Habit Insights are disabled. Enable them in Settings to receive personalized insights.")
         }
 
-        val streak = try { streakRepository.getCurrentStreak().first() } catch (e: Exception) { null }
-        val profile = try { userProfileRepository.getProfile().first() } catch (e: Exception) { null }
-        val tasks = try { taskRepository.getAllTasks().first() } catch (e: Exception) { emptyList() }
-        val logs = try { taskCompletionRepository.getAllLogs().first() } catch (e: Exception) { emptyList() }
+        val streak = try {
+            streakRepository.getCurrentStreak().first()
+        } catch (e: Exception) {
+            null
+        }
+        val profile = try {
+            userProfileRepository.getProfile().first()
+        } catch (e: Exception) {
+            null
+        }
+        val tasks = try {
+            taskRepository.getAllTasks().first()
+        } catch (e: Exception) {
+            emptyList()
+        }
+        val logs = try {
+            taskCompletionRepository.getAllLogs().first()
+        } catch (e: Exception) {
+            emptyList()
+        }
 
-        val isSimpleMode = try { settingsRepository.simpleModeEnabled.first() } catch (e: Exception) { false }
+        val isSimpleMode = try {
+            settingsRepository.simpleModeEnabled.first()
+        } catch (e: Exception) {
+            false
+        }
         val tone = toneHook.resolveTone(isSimpleMode)
 
         val telemetry = HabitInsightPromptBuilder.buildTelemetrySummary(
             streak = streak,
             profile = profile,
             tasks = tasks,
-            logs = logs
+            logs = logs,
         )
 
         val dataHash = HabitInsightPromptBuilder.computeDataHash(telemetry, tone)
@@ -125,7 +153,7 @@ class HabitInsightRepositoryImpl(
             val message = com.pixelquest.app.domain.ai.AiRateLimitFormatter.formatCooldownMessage(cooldownSeconds)
             return GeminiResult.RateLimited(
                 retryAfterSeconds = cooldownSeconds,
-                message = message
+                message = message,
             )
         }
 
@@ -139,7 +167,7 @@ class HabitInsightRepositoryImpl(
             }
             return GeminiResult.RateLimited(
                 retryAfterSeconds = if (isMonthly) 86400L * 7 else 86400L,
-                message = message
+                message = message,
             )
         }
 
@@ -149,7 +177,7 @@ class HabitInsightRepositoryImpl(
         val rawCallResult = safeGeminiCall {
             geminiClient.generateContent(
                 prompt = prompt,
-                systemInstruction = systemInstruction
+                systemInstruction = systemInstruction,
             )
         }
 
@@ -169,14 +197,18 @@ class HabitInsightRepositoryImpl(
                     insightCacheRepository.saveInsight(parsed, dataHash)
                     // Update persistent rate limit timestamp
                     val callTime = clock()
-                    try { settingsRepository.setLastAiInsightTimestamp(callTime) } catch (_: Exception) {}
-                    try { onLiveInsightGenerated(callTime) } catch (_: Exception) {}
+                    try {
+                        settingsRepository.setLastAiInsightTimestamp(callTime)
+                    } catch (_: Exception) {}
+                    try {
+                        onLiveInsightGenerated(callTime)
+                    } catch (_: Exception) {}
                     GeminiResult.Success(parsed)
                 } catch (e: Exception) {
                     GeminiResult.MalformedResponse(
                         cause = e,
                         rawResponse = rawCallResult.data,
-                        message = "Failed to parse structured JSON from Gemini: ${e.message}"
+                        message = "Failed to parse structured JSON from Gemini: ${e.message}",
                     )
                 }
             }
@@ -186,6 +218,27 @@ class HabitInsightRepositoryImpl(
             is GeminiResult.Disabled -> GeminiResult.Disabled(rawCallResult.message)
             is GeminiResult.SignInRequired -> rawCallResult
             is GeminiResult.MalformedResponse -> rawCallResult
+        }
+    }
+
+    override suspend fun reportInsight(content: String, reason: String): Result<Unit> {
+        val pg = postgrest
+        val at = auth
+        if (pg == null || at == null) {
+            return Result.success(Unit) // Offline/unconfigured fallback
+        }
+        val user = at.currentUserOrNull() ?: return Result.failure(IllegalStateException("Not authenticated"))
+        return try {
+            pg["ai_reports"].insert(
+                com.pixelquest.app.data.remote.model.AiReportDto(
+                    reporterId = user.id,
+                    insightContent = content.take(5000),
+                    reason = reason.take(500),
+                ),
+            )
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

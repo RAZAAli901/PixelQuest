@@ -22,9 +22,7 @@ object AiModule {
 
     @Provides
     @Singleton
-    fun provideGeminiHttpClient(): HttpClient {
-        return HttpClient(Android)
-    }
+    fun provideGeminiHttpClient(): HttpClient = HttpClient(Android)
 
     /**
      * Release builds (and debug builds with GEMINI_VIA_PROXY=true) go through the gemini-proxy Edge
@@ -35,11 +33,11 @@ object AiModule {
     @Singleton
     fun provideGeminiClient(
         httpClient: HttpClient,
-        aiAccess: com.pixelquest.app.domain.ai.AiAccess
+        aiAccess: com.pixelquest.app.domain.ai.AiAccess,
     ): GeminiClient = createGeminiClient(
         viaProxy = BuildConfig.GEMINI_VIA_PROXY,
         httpClient = httpClient,
-        aiAccess = aiAccess
+        aiAccess = aiAccess,
     )
 
     /** Either way, nothing is sent unless an account is signed in ([AccountRequiredGeminiClient]). */
@@ -49,14 +47,14 @@ object AiModule {
         aiAccess: com.pixelquest.app.domain.ai.AiAccess,
         supabaseUrl: String = BuildConfig.SUPABASE_URL,
         anonKey: String = BuildConfig.SUPABASE_ANON_KEY,
-        geminiApiKey: String = BuildConfig.GEMINI_API_KEY
+        geminiApiKey: String = BuildConfig.GEMINI_API_KEY,
     ): GeminiClient = com.pixelquest.app.data.remote.AccountRequiredGeminiClient(
         delegate = if (viaProxy) {
             GeminiProxyClient(supabaseUrl, anonKey, { aiAccess.accessToken() }, httpClient)
         } else {
             GeminiClientImpl(apiKeyProvider = { geminiApiKey }, httpClient = httpClient, model = GEMINI_MODEL_ID)
         },
-        access = aiAccess
+        access = aiAccess,
     )
 
     @Provides
@@ -66,10 +64,8 @@ object AiModule {
     @Provides
     @Singleton
     fun provideAiUsageTracker(
-        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
-    ): com.pixelquest.app.domain.ai.AiUsageTracker {
-        return com.pixelquest.app.data.local.prefs.PreferencesAiUsageTracker(context)
-    }
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
+    ): com.pixelquest.app.domain.ai.AiUsageTracker = com.pixelquest.app.data.local.prefs.PreferencesAiUsageTracker(context)
 
     @Provides
     @Singleton
@@ -82,23 +78,25 @@ object AiModule {
         geminiClient: GeminiClient,
         insightCacheRepository: com.pixelquest.app.domain.repository.InsightCacheRepository,
         aiUsageTracker: com.pixelquest.app.domain.ai.AiUsageTracker,
-        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
-    ): com.pixelquest.app.domain.repository.HabitInsightRepository {
-        return com.pixelquest.app.data.repository.HabitInsightRepositoryImpl(
-            streakRepository = streakRepository,
-            userProfileRepository = userProfileRepository,
-            taskRepository = taskRepository,
-            taskCompletionRepository = taskCompletionRepository,
-            settingsRepository = settingsRepository,
-            geminiClient = geminiClient,
-            insightCacheRepository = insightCacheRepository,
-            usageTracker = aiUsageTracker,
-            onLiveInsightGenerated = {
-                com.pixelquest.app.worker.InsightReadyWorker.scheduleAfter(
-                    context,
-                    com.pixelquest.app.data.repository.HabitInsightRepositoryImpl.MIN_CALL_INTERVAL_MS
-                )
-            }
-        )
-    }
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
+        postgrest: io.github.jan.supabase.postgrest.Postgrest,
+        auth: io.github.jan.supabase.auth.Auth,
+    ): com.pixelquest.app.domain.repository.HabitInsightRepository = com.pixelquest.app.data.repository.HabitInsightRepositoryImpl(
+        streakRepository = streakRepository,
+        userProfileRepository = userProfileRepository,
+        taskRepository = taskRepository,
+        taskCompletionRepository = taskCompletionRepository,
+        settingsRepository = settingsRepository,
+        geminiClient = geminiClient,
+        insightCacheRepository = insightCacheRepository,
+        usageTracker = aiUsageTracker,
+        onLiveInsightGenerated = {
+            com.pixelquest.app.worker.InsightReadyWorker.scheduleAfter(
+                context,
+                com.pixelquest.app.data.repository.HabitInsightRepositoryImpl.MIN_CALL_INTERVAL_MS,
+            )
+        },
+        postgrest = postgrest,
+        auth = auth,
+    )
 }
