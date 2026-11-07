@@ -86,7 +86,7 @@
 - [x] **P015**: feat: settings row opening Alarms & Reminders system settings
 - [x] **P016**: feat: check canUseFullScreenIntent() on Android 14+ with permission grant flow
 - [x] **P017**: fix: high-priority heads-up notification fallback when full-screen intent disallowed
-- [ ] **P018**: docs: write docs/store/full-screen-intent-declaration.md
+- [x] **P018**: docs: write docs/store/full-screen-intent-declaration.md
 
 ### Phase 4: AI Reporting, Terms & Blocking (P019–P023)
 - [ ] **P019**: feat: "Report this insight" action on AI Coach answers
