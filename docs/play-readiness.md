@@ -23,8 +23,8 @@
 ## 2. Play Readiness Checklist (26 Items)
 
 ### Blockers (Must Fix for Upload / Initial Processing)
-- [ ] **#1 Package format:** Build Android App Bundle (`.aab` via `bundleRelease`) instead of `.apk`. Enroll in Play App Signing with upload key.
-- [ ] **#2 Target API level:** Raise `targetSdk` and `compileSdk` to **API 36** (Android 16, mandated since 31 Aug 2026). Test Android 15 & 16 runtime behavior changes.
+- [x] **#1 Package format:** Build Android App Bundle (`.aab` via `bundleRelease`) instead of `.apk`. Enroll in Play App Signing with upload key.
+- [x] **#2 Target API level:** Raise `targetSdk` and `compileSdk` to **API 36** (Android 16, mandated since 31 Aug 2026). Test Android 15 & 16 runtime behavior changes.
 - [x] **#3 Launcher icon:** Add adaptive launcher icon (`android:icon` and `android:roundIcon` with foreground, background, monochrome layers) and export 512×512 px store icon.
 
 ### Policy Risks & System Interactions
@@ -33,14 +33,14 @@
 - [x] **#6 Foreground service:** Declare foreground service type in manifest and code (`FOREGROUND_SERVICE` requires specific types on Android 14+); audit WorkManager and prepare study timer service type.
 
 ### Policy Gaps (User Safety & AI Content)
-- [ ] **#8 AI-generated content:** In-app reporting for Gemini AI Coach output ("Report this insight" button and report persistence).
-- [ ] **#9 Terms for user content:** Terms of Use acceptance requirement before leaderboard opt-in and public name publishing (banning offensive names).
-- [ ] **#10 Report and block:** In-app reporting retained, plus blocking feature for leaderboard/chat interactions (hiding blocked users).
+- [x] **#8 AI-generated content:** In-app reporting for Gemini AI Coach output ("Report this insight" button and report persistence).
+- [x] **#9 Terms for user content:** Terms of Use acceptance requirement before leaderboard opt-in and public name publishing (banning offensive names).
+- [x] **#10 Report and block:** In-app reporting retained, plus blocking feature for leaderboard/chat interactions (hiding blocked users).
 
 ### Play Console Actions
 - [ ] **#7 Developer account closed test:** Personal accounts created after 13 Nov 2023 require 12 testers for 14 consecutive days before production release.
-- [ ] **#11 Account deletion web link:** Publish public web page for account and data deletion requests (hosted on GitHub Pages).
-- [ ] **#12 Data safety form:** Disclose collection/sharing for email, display name, level, streak, XP, habit completion patterns (Gemini), transit encryption, and deletion.
+- [x] **#11 Account deletion web link:** Publish public web page for account and data deletion requests (hosted on GitHub Pages).
+- [x] **#12 Data safety form:** Disclose collection/sharing for email, display name, level, streak, XP, habit completion patterns (Gemini), transit encryption, and deletion.
 - [ ] **#15 Store content questions:** Complete questionnaires for content rating, target audience (13+), no ads, and declarations.
 
 ### Information & Hardening
@@ -101,7 +101,7 @@
 - [x] **P026**: docs: docs/store/data-safety.md field-by-field worksheet
 
 ### Phase 6: Release & Validation (P027–P030)
-- [ ] **P027**: ci: bundle build & bundletool validation check in CI
+- [x] **P027**: ci: bundle build & bundletool validation check in CI
 - [ ] **P028**: chore: bump version code & release notes
 - [ ] **P029**: docs: store listing text in docs/store/listing.md & screenshot checklist
 - [ ] **P030**: test: bundle smoke test via bundletool

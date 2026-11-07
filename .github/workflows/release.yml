@@ -119,13 +119,16 @@ jobs:
           # variable EMAIL_SIGN_IN is set to true.
           echo "EMAIL_SIGN_IN=${EMAIL_SIGN_IN:-false}" >> local.properties
 
-      - name: Build Debug & Release APKs
+      - name: Build Debug & Release APKs and App Bundle
         env:
           KEYSTORE_FILE: ${{ github.workspace }}/app/pixelquest-release.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew compileDebugKotlin assembleDebug assembleRelease
+        run: ./gradlew compileDebugKotlin assembleDebug assembleRelease bundleRelease
+
+      - name: Validate Release App Bundle & Target SDK (Play Readiness)
+        run: python3 scripts/security/check_bundle.py app/build/outputs/bundle/release/app-release.aab
 
       # With the keystore secret present, the APK must be signed with the PixelQuest release key
       # (app/release-signing-cert.sha256), or it couldn't update existing installs: fail instead.
@@ -182,6 +185,7 @@ jobs:
           body_path: RELEASE_NOTES.md
           fail_on_unmatched_files: false
           files: |
+            app/build/outputs/bundle/release/app-release.aab
             app/build/outputs/apk/release/app-release.apk
             app/build/outputs/apk/debug/app-debug.apk
         env:
