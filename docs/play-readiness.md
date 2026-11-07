@@ -81,7 +81,7 @@
 - [x] **P010**: docs: list every foreground work location
 - [x] **P011**: fix: declare foreground service type and permissions or remove unused declarations
 - [x] **P012**: feat: study timer foreground service type and permissions for target SDK 36
-- [ ] **P013**: docs: write docs/store/fgs-declaration.md with user impact & demo steps
+- [x] **P013**: docs: write docs/store/fgs-declaration.md with user impact & demo steps
 - [ ] **P014**: feat: check canScheduleExactAlarms() before exact alarms with window alarm fallback
 - [ ] **P015**: feat: settings row opening Alarms & Reminders system settings
 - [ ] **P016**: feat: check canUseFullScreenIntent() on Android 14+ with permission grant flow
