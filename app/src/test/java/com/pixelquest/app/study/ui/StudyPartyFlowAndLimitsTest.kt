@@ -136,6 +136,7 @@ class StudyPartyFlowAndLimitsTest {
 
     private fun waitFor(desc: String, condition: () -> Boolean) = runBlocking {
         repeat(150) {
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
             if (condition()) return@runBlocking
             delay(20)
         }
@@ -297,6 +298,8 @@ class StudyPartyFlowAndLimitsTest {
         // 3. Bram completes again
         bram.vm.complete(assignment.id)
         waitFor("Completed second time") { studyServer.completions.any { it.itemId == assignment.id && it.userId == "bram" } }
+        bram.vm.refresh()
+        waitFor("Bram sees completed second time") { bram.vm.uiState.value.items.firstOrNull { it.item.id == assignment.id }?.done == true }
 
         // 4. Advance time past 24-hour undo window (25 hours later)
         server.now = initialTime.plus(Duration.ofHours(25))

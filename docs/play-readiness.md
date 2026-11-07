@@ -71,7 +71,7 @@
 - [x] **P004**: fix: edge-to-edge and window insets on every screen
 - [x] **P005**: fix: review Android 15 & 16 behavior changes and apply necessary fixes
 - [x] **P006**: test: run test suite under API 36 environment
-- [ ] **P007**: fix: resolve any regressions from P006
+- [x] **P007**: fix: resolve any regressions from P006
 
 ### Phase 2: Icon & Store Assets (P008–P009)
 - [ ] **P008**: feat: adaptive launcher icon (foreground, background, monochrome layers)
