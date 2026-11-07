@@ -28,7 +28,7 @@
 - [x] **#3 Launcher icon:** Add adaptive launcher icon (`android:icon` and `android:roundIcon` with foreground, background, monochrome layers) and export 512×512 px store icon.
 
 ### Policy Risks & System Interactions
-- [ ] **#4 Exact alarms:** Permission `SCHEDULE_EXACT_ALARM` restricted on Android 14+. Check `canScheduleExactAlarms()` before scheduling; fall back to window alarms with user notice.
+- [x] **#4 Exact alarms:** Permission `SCHEDULE_EXACT_ALARM` restricted on Android 14+. Check `canScheduleExactAlarms()` before scheduling; fall back to window alarms with user notice.
 - [ ] **#5 Full-screen intent:** `USE_FULL_SCREEN_INTENT` given by default only to calling/alarm apps. Check `canUseFullScreenIntent()` on Android 14+, provide system settings redirect, and fall back to heads-up high-priority notification.
 - [x] **#6 Foreground service:** Declare foreground service type in manifest and code (`FOREGROUND_SERVICE` requires specific types on Android 14+); audit WorkManager and prepare study timer service type.
 
@@ -82,7 +82,7 @@
 - [x] **P011**: fix: declare foreground service type and permissions or remove unused declarations
 - [x] **P012**: feat: study timer foreground service type and permissions for target SDK 36
 - [x] **P013**: docs: write docs/store/fgs-declaration.md with user impact & demo steps
-- [ ] **P014**: feat: check canScheduleExactAlarms() before exact alarms with window alarm fallback
+- [x] **P014**: feat: check canScheduleExactAlarms() before exact alarms with window alarm fallback
 - [ ] **P015**: feat: settings row opening Alarms & Reminders system settings
 - [ ] **P016**: feat: check canUseFullScreenIntent() on Android 14+ with permission grant flow
 - [ ] **P017**: fix: high-priority heads-up notification fallback when full-screen intent disallowed

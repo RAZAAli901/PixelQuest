@@ -16,7 +16,7 @@ object AlarmArming {
     fun canScheduleExact(alarmManager: AlarmManager): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
 
-    /** Arms [pendingIntent] for [atMillis]; false if Android refused (the permission taken back meanwhile). */
+    /** Arms [pendingIntent] for [atMillis]; falls back to window alarm if exact permission is denied or revoked. */
     fun arm(alarmManager: AlarmManager, atMillis: Long, pendingIntent: PendingIntent): Boolean = try {
         if (canScheduleExact(alarmManager)) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMillis, pendingIntent)
@@ -25,6 +25,13 @@ object AlarmArming {
         }
         true
     } catch (e: SecurityException) {
+        try {
+            alarmManager.setWindow(AlarmManager.RTC_WAKEUP, atMillis, INEXACT_WINDOW_MS, pendingIntent)
+            true
+        } catch (e2: Exception) {
+            false
+        }
+    } catch (e: Exception) {
         false
     }
 }
