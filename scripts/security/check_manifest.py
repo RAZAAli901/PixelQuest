@@ -35,6 +35,7 @@ PERMISSIONS = {
     "android.permission.ACCESS_COARSE_LOCATION": "prayer times by city, asked for only when turned on",
     "android.permission.WAKE_LOCK": "WorkManager",
     "android.permission.FOREGROUND_SERVICE": "WorkManager's expedited sync on Android 11 and older",
+    "android.permission.FOREGROUND_SERVICE_SPECIAL_USE": "the active study timer's visible foreground notification",
     "com.google.android.c2dm.permission.RECEIVE": "Firebase push for chess",
     "com.pixelquest.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION": "androidx: guards the app's own runtime receivers",
 }
