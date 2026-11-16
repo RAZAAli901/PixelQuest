@@ -7,16 +7,20 @@ name: Cloud Tests (local Supabase)
 
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# The local Supabase stack is expensive; cancel superseded runs for the same change.
+concurrency:
+  group: cloud-tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   cloud:
+    name: cloud
     runs-on: ubuntu-latest
     timeout-minutes: 40
 

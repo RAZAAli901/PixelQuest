@@ -2,17 +2,22 @@ name: Android CI Build
 
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# A newer commit supersedes an in-progress build for the same PR or branch.
+concurrency:
+  group: android-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: build
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
       - name: Checkout Repository
