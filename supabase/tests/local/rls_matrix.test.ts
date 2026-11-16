@@ -77,6 +77,9 @@ localTest("cross-user: a stranger reads, changes and deletes none of another pla
   sql(`INSERT INTO public.chess_watch_log (user_id, game_id) VALUES ('${a.userId}', '${game}')`);
   sql(`INSERT INTO public.profiles (id, display_name, leaderboard_opt_in) VALUES ('${c.userId}', 'Matrix_${c.userId.slice(0, 6)}', true) ON CONFLICT (id) DO NOTHING`);
   sql(`INSERT INTO public.reports (reporter_id, reported_profile_id, reason) VALUES ('${a.userId}', '${c.userId}', 'matrix') ON CONFLICT DO NOTHING`);
+  // AI reports are deliberately unreadable to players, but still must be present in
+  // this cross-user matrix so a future policy cannot accidentally expose them.
+  sql(`INSERT INTO public.ai_reports (reporter_id, insight_content, reason) VALUES ('${a.userId}', 'matrix', 'spam')`);
 
   // Every column that names a user, and every party column, from the catalogue.
   const userColumns = sql(`

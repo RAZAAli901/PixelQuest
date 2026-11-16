@@ -72,7 +72,7 @@ localTest("chess: a party's members read its games, moves and challenges; outsid
   assert.deepEqual(await read(outsider, `chess_ratings?user_id=eq.${white.userId}&select=int_points`), []);
   // The rules are everyone's.
   assert.equal((await read(outsider, "chess_time_controls?select=seconds")).length, 4);
-  assert.equal((await read(outsider, "chess_config?select=start_rating"))[0].start_rating, 800);
+  assert.equal((await read(outsider, "chess_config?select=start_rating"))[0].start_rating, 200);
   // Signed out: nothing.
   assert.equal((await call(`/rest/v1/chess_games?select=id`)).status, 401);
 

@@ -61,7 +61,10 @@ jobs:
       - name: Database, sign-in and AI server tests
         env:
           SUPABASE_LOCAL: '1'
-        run: node --test "supabase/tests/**/*.test.ts"
+        # These integration files intentionally exercise shared server-wide limits and
+        # chess state.  Run one file at a time so independent workers cannot mutate
+        # the same local database concurrently.
+        run: node --test --test-concurrency=1 "supabase/tests/**/*.test.ts"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4

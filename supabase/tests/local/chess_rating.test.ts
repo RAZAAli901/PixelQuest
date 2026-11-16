@@ -37,12 +37,12 @@ localTest("chess: a finished rated game moves both ratings once; farmed games mo
   };
 
   const first = play(20, "white", "resign");
-  assert.equal(points(), "820/1 780/1", "both new: K 40, equal ratings");
+  assert.equal(points(), "220/1 180/1", "both new: K 40, equal ratings");
   assert.equal(sql(`SELECT white_change || ' ' || black_change || ' ' || rating_applied FROM public.chess_games WHERE id = '${first}'`), "20 -20 true");
 
   // Under 4 moves each: no change, unless it was mate.
   play(6, "black", "resign");
-  assert.equal(points(), "820/1 780/1");
+  assert.equal(points(), "220/1 180/1");
   play(5, "white", "checkmate");
   assert.equal(points().split(" ")[0].split("/")[1], "2");
 
