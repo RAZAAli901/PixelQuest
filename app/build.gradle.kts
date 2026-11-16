@@ -227,6 +227,10 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // JUnit brings the same informational license file through several test
+            // artifacts. It is not an Android runtime resource and cannot be merged.
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/LICENSE-notice.md"
         }
     }
     bundle {

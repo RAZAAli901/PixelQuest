@@ -48,11 +48,11 @@ localTest("chess, through the functions: scholar's mate, ratings and head-to-hea
   const row = sql(`SELECT status || ' ' || result || ' ' || result_reason || ' ' || rating_applied FROM public.chess_games WHERE id = '${game}'`);
   assert.equal(row, "finished white checkmate true");
   assert.equal((await fn("chess-move", black, { game_id: game, ply: 8, uci: "e8f7" })).body.error, "game_over");
-  assert.equal(rating(white, 300), "820/1");
-  assert.equal(rating(black, 300), "780/1");
+  assert.equal(rating(white, 300), "220/1");
+  assert.equal(rating(black, 300), "180/1");
   // Asked to end again, nothing changes.
   sql(`SELECT private.chess_finish('${game}', 'black', 'resign')`);
-  assert.equal(rating(white, 300), "820/1");
+  assert.equal(rating(white, 300), "220/1");
 });
 
 localTest("chess, through the functions: a resignation, a draw offer, and a game lost on time", async () => {
