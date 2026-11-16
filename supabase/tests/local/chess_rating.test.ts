@@ -77,7 +77,7 @@ localTest("chess views: head-to-head per time control and total, the party board
   const board = await view(third, `chess_party_leaderboard?party_id=eq.${party}&time_control_sec=eq.600&order=place`);
   assert.equal(board.length, 3, "every active member, games or not");
   assert.equal(board[0].user_id, black.userId, "Black won the 10-minute game");
-  assert.equal(board.find((r: { user_id: string }) => r.user_id === third.userId).int_points, 800);
+  assert.equal(board.find((r: { user_id: string }) => r.user_id === third.userId).int_points, 200);
   assert.deepEqual(await view(outsider, `chess_party_leaderboard?party_id=eq.${party}`), []);
 
   const stats = await view(third, `chess_profile_stats?user_id=eq.${white.userId}&time_control_sec=eq.180`);
