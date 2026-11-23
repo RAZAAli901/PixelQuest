@@ -11,11 +11,15 @@ import com.pixelquest.app.domain.namaz.Prayer
 import com.pixelquest.app.domain.namaz.PrayerMoment
 import com.pixelquest.app.domain.namaz.PrayerTimeProvider
 import com.pixelquest.app.domain.repository.NamazRepository
+import com.pixelquest.app.tune.data.TuneRepository
+import com.pixelquest.app.tune.model.TuneTarget
+import com.pixelquest.app.tune.notification.TuneNotificationHelper
 import com.pixelquest.app.util.AppClock
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import java.time.Duration
 import java.time.LocalDate
 import java.time.ZoneId
@@ -24,14 +28,16 @@ import javax.inject.Singleton
 
 /** What a Namaz alarm does when it fires; the receiver only hands it over. */
 @Singleton
-class NamazAlarmHandler(
+class NamazAlarmHandler @JvmOverloads constructor(
     private val repository: NamazRepository,
     private val provider: PrayerTimeProvider,
     private val notifier: NamazNotifier,
     private val options: NamazReminderOptionsStore,
     private val deliveries: NamazDeliveries,
     private val clock: AppClock,
-    private val zone: () -> ZoneId
+    private val zone: () -> ZoneId = { ZoneId.systemDefault() },
+    private val tuneRepository: TuneRepository? = null,
+    private val tuneNotifications: TuneNotificationHelper? = null,
 ) {
     @Inject
     constructor(
@@ -40,8 +46,13 @@ class NamazAlarmHandler(
         notifier: NamazNotifier,
         options: NamazReminderOptionsStore,
         deliveries: NamazDeliveries,
-        clock: AppClock
-    ) : this(repository, provider, notifier, options, deliveries, clock, { ZoneId.systemDefault() })
+        clock: AppClock,
+        tuneRepository: TuneRepository,
+        tuneNotifications: TuneNotificationHelper,
+    ) : this(
+        repository, provider, notifier, options, deliveries, clock, { ZoneId.systemDefault() },
+        tuneRepository, tuneNotifications,
+    )
 
     /** Shows the reminder for [prayer] on [date], unless it's no longer wanted (NamazReminderCheck). */
     suspend fun handle(kind: NamazAlarm.Kind, date: LocalDate, prayer: Prayer) {
@@ -63,11 +74,20 @@ class NamazAlarmHandler(
             null
         }
         val opts = options.get()
+        val customChannelId = if (kind != NamazAlarm.Kind.NUDGE && opts.sound != com.pixelquest.app.domain.namaz.NamazSound.SILENT) {
+            tuneNotifications?.resolveChannelId(
+                target = TuneTarget.NAMAZ,
+                selectedTuneId = tuneRepository?.namazTuneIdFlow?.first(),
+            )
+        } else {
+            null
+        }
         notifier.show(
             NamazReminder(
                 kind, date, prayer, time, place.name, minutesToStart, next, opts.sound,
                 // The nudge is a quiet follow-up, never an alarm.
-                asAlarm = kind != NamazAlarm.Kind.NUDGE && opts.asAlarm(prayer)
+                asAlarm = kind != NamazAlarm.Kind.NUDGE && opts.asAlarm(prayer),
+                channelId = customChannelId,
             )
         )
     }

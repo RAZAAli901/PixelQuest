@@ -38,8 +38,9 @@ object NotificationHelper {
         vibrationEnabled: Boolean = true,
         isSimpleMode: Boolean = false,
         copy: NotificationCopy? = null,
+        channelId: String = NotificationChannels.reminderChannel(soundEnabled).id,
     ): Notification {
-        val builder = PqNotifications.builder(context, NotificationChannels.reminderChannel(soundEnabled).id, mood = com.pixelquest.app.mascot.PixMood.Focus)
+        val builder = PqNotifications.builder(context, channelId, mood = com.pixelquest.app.mascot.PixMood.Focus)
             .setContentTitle(copy?.title ?: getReminderTitle(taskName, isSimpleMode))
             .setContentText(copy?.text ?: getReminderText(taskName, isSimpleMode))
             .setPriority(NotificationCompat.PRIORITY_HIGH)

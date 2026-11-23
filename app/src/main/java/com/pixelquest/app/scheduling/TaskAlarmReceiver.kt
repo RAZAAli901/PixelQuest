@@ -15,6 +15,9 @@ import com.pixelquest.app.domain.repository.SettingsRepository
 import com.pixelquest.app.domain.repository.StreakRepository
 import com.pixelquest.app.domain.repository.TaskCompletionRepository
 import com.pixelquest.app.domain.repository.TaskRepository
+import com.pixelquest.app.tune.data.TuneRepository
+import com.pixelquest.app.tune.model.TuneTarget
+import com.pixelquest.app.tune.notification.TuneNotificationHelper
 import com.pixelquest.app.ui.prompt.TaskPromptActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -51,6 +54,12 @@ class TaskAlarmReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var encouragementPackStore: EncouragementPackStore
+
+    @Inject
+    lateinit var tuneRepository: TuneRepository
+
+    @Inject
+    lateinit var tuneNotifications: TuneNotificationHelper
 
     override fun onReceive(context: Context, intent: Intent) {
         if (!accepts(intent.action)) return
@@ -103,6 +112,14 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         // A SILENT task stays quiet even when reminder sound is on.
         val soundEnabled = settingsRepository.isNotificationSoundEnabled.first() && style != ReminderStyle.SILENT
         val vibrationEnabled = settingsRepository.isNotificationVibrationEnabled.first()
+        val channelId = if (soundEnabled) {
+            tuneNotifications.resolveChannelId(
+                TuneTarget.QUEST,
+                tuneRepository.questTuneIdFlow.first(),
+            )
+        } else {
+            com.pixelquest.app.notification.NotificationChannels.reminderChannel(false).id
+        }
         val copy = NotificationContentBuilder.reminder(
             buildReminderContext(taskName, category, isSimpleMode).copy(
                 startsInMinutes = startsInMinutes,
@@ -175,7 +192,8 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 soundEnabled = soundEnabled,
                 vibrationEnabled = vibrationEnabled,
                 isSimpleMode = isSimpleMode,
-                copy = copy
+                copy = copy,
+                channelId = channelId,
             )
             val notificationManager = NotificationManagerCompat.from(context)
             notificationManager.notify(taskId.toInt(), notification)

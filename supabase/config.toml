@@ -404,6 +404,10 @@ deno_version = 2
 [functions.gemini-proxy]
 verify_jwt = false
 
+# The tune catalog validates the signed-in caller itself before issuing R2 URLs.
+[functions.tune-catalog]
+verify_jwt = false
+
 # The study chat's file functions check the caller's sign-in themselves too (docs/study-chat.md).
 [functions.request-upload]
 verify_jwt = false
@@ -474,4 +478,8 @@ verify_jwt = false
 
 # Called with the service role key only, which the handler checks itself.
 [functions.send-push]
+verify_jwt = false
+
+# tune-catalog verifies the caller before issuing short-lived R2 URLs.
+[functions.tune-catalog]
 verify_jwt = false

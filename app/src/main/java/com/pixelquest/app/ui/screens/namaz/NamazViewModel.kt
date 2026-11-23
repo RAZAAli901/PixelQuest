@@ -124,8 +124,32 @@ class NamazViewModel(
     private val alarms: NamazAlarms,
     private val clock: AppClock,
     private val zone: () -> ZoneId,
-    private val levelUps: com.pixelquest.app.domain.LevelUpSignalManager? = null
+    private val levelUps: com.pixelquest.app.domain.LevelUpSignalManager? = null,
 ) : ViewModel() {
+
+    private var aiAccess: com.pixelquest.app.domain.ai.AiAccess? = null
+
+    constructor(
+        repository: NamazRepository,
+        provider: PrayerTimeProvider,
+        nextPrayer: NextPrayerUseCase,
+        autoMarkMissed: AutoMarkMissedUseCase,
+        markPrayer: MarkPrayerUseCase,
+        undoPrayer: UndoPrayerUseCase,
+        placeResolver: NamazPlaceResolver,
+        settingsRepository: SettingsRepository,
+        reminderOptions: NamazReminderOptionsStore,
+        alarms: NamazAlarms,
+        clock: AppClock,
+        zone: () -> ZoneId,
+        levelUps: com.pixelquest.app.domain.LevelUpSignalManager?,
+        aiAccess: com.pixelquest.app.domain.ai.AiAccess?,
+    ) : this(
+        repository, provider, nextPrayer, autoMarkMissed, markPrayer, undoPrayer,
+        placeResolver, settingsRepository, reminderOptions, alarms, clock, zone, levelUps
+    ) {
+        this.aiAccess = aiAccess
+    }
 
     @Inject
     constructor(
@@ -140,10 +164,11 @@ class NamazViewModel(
         reminderOptions: NamazReminderOptionsStore,
         alarms: NamazAlarms,
         clock: AppClock,
-        levelUps: com.pixelquest.app.domain.LevelUpSignalManager
+        levelUps: com.pixelquest.app.domain.LevelUpSignalManager,
+        aiAccess: com.pixelquest.app.domain.ai.AiAccess,
     ) : this(
         repository, provider, nextPrayer, autoMarkMissed, markPrayer, undoPrayer, placeResolver, settingsRepository,
-        reminderOptions, alarms, clock, { ZoneId.systemDefault() }, levelUps
+        reminderOptions, alarms, clock, { ZoneId.systemDefault() }, levelUps, aiAccess,
     )
 
     init {
@@ -153,6 +178,10 @@ class NamazViewModel(
     private fun now(): ZonedDateTime = clock.now().atZone(zone())
 
     private val refreshRequests = MutableStateFlow(0)
+
+    /** Cloud tunes are an account feature; signed-out players keep the bundled sound choices. */
+    val isSignedIn: StateFlow<Boolean> = (aiAccess?.isSignedIn ?: kotlinx.coroutines.flow.flowOf(false))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /**
      * The master switch. Off hides the tracker and stops its workers writing; the prayers already

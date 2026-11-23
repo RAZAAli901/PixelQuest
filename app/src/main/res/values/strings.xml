@@ -9,6 +9,8 @@
     <string name="coach_refresh_description">Get a fresh insight</string>
 
     <string name="navigate_back">Back</string>
+    <string name="play_update_ready">Update ready</string>
+    <string name="play_update_restart">Restart</string>
 
     <!-- Plurals: lint (PluralsCandidate) on a number followed by words. -->
     <plurals name="coach_cooldown_description">

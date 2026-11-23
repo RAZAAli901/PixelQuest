@@ -35,6 +35,9 @@ object NamazChannels {
     /** "Still not prayed" before the next prayer: low importance, no sound. */
     const val NUDGE = "namaz_nudge"
 
+    /** Prefix for downloaded-tune channels, which are deleted when the tracker is disabled. */
+    const val CUSTOM_TUNE_PREFIX = "pq_namaz_tune_"
+
     /** Every channel this object has ever created, for deleting them all. */
     val all: List<String> get() = listOf(REMINDERS, REMINDERS_CHIME, REMINDERS_SILENT, FAJR_ALARM, FAJR_ALARM_CHIME, NUDGE)
 
@@ -118,6 +121,11 @@ object NamazChannels {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val manager = context.getSystemService(NotificationManager::class.java)
         all.forEach { manager.deleteNotificationChannel(it) }
+        // Downloaded tune channels are versioned by tune ID, so remove old selections too.
+        manager.notificationChannels
+            .filter { it.id.startsWith(CUSTOM_TUNE_PREFIX) }
+            .forEach { manager.deleteNotificationChannel(it.id) }
         manager.deleteNotificationChannelGroup(GROUP_ID)
     }
+
 }

@@ -90,6 +90,15 @@ class CiBuildWorkflowTest {
     }
 
     @Test
+    fun releaseWorkflow_buildsAndPublishesPlayAppBundle() {
+        val workflow = listOf(File("../.github/workflows/release.yml"), File(".github/workflows/release.yml")).first { it.exists() }
+        val content = workflow.readText()
+
+        assertTrue("Release must build Android App Bundle", content.contains("bundleRelease"))
+        assertTrue("Release must retain Android App Bundle", content.contains("app/build/outputs/bundle/release/app-release.aab"))
+    }
+
+    @Test
     fun verifyCiWorkflow_testsTheEdgeFunctions() {
         val targetFile = listOf(File("../.github/workflows/build.yml"), File(".github/workflows/build.yml")).first { it.exists() }
         val activeLines = targetFile.readLines().filterNot { it.trim().startsWith("#") }

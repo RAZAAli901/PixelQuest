@@ -269,6 +269,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     // The Quran reader's settings, in a Preferences DataStore.
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.play.review.ktx)
+    implementation(libs.play.app.update.ktx)
 
     // Day 13 Section C Step 11: Credential Manager & Google Identity Services
     implementation(libs.androidx.credentials)

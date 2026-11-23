@@ -90,7 +90,7 @@ jobs:
       - name: Build Debug & Release APKs
         # assembleDebugAndroidTest compiles the instrumented tests (no device here to run them); they had
         # stopped compiling without anyone noticing.
-        run: ./gradlew compileDebugKotlin assembleDebug assembleRelease assembleDebugAndroidTest
+        run: ./gradlew compileDebugKotlin assembleDebug assembleRelease bundleRelease assembleDebugAndroidTest
 
       # S042: every exported component has a permission or a written reason (docs/security/MANIFEST_AUDIT.md).
       - name: Exported components
@@ -143,6 +143,12 @@ jobs:
         with:
           name: pixelquest-release-apk
           path: app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload Release App Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixelquest-release-aab
+          path: app/build/outputs/bundle/release/app-release.aab
 
       # The whole unit suite compiles and passes since Day 29 (no quarantine). Live Gemini calls stay
       # off: they only run with PIXELQUEST_LIVE_GEMINI=1, which CI never sets.

@@ -41,6 +41,25 @@ data class NamazReminder(
     val sound: NamazSound = NamazSound.SYSTEM,
     val asAlarm: Boolean = false,
 ) {
+    /** Android O+ channel chosen by the alarm handler when a cached custom tune is selected. */
+    var channelId: String? = null
+        private set
+
+    constructor(
+        kind: NamazAlarm.Kind,
+        date: LocalDate,
+        prayer: Prayer,
+        time: ZonedDateTime,
+        placeName: String,
+        minutesToStart: Int = 0,
+        next: PrayerMoment? = null,
+        sound: NamazSound = NamazSound.SYSTEM,
+        asAlarm: Boolean = false,
+        channelId: String? = null,
+    ) : this(kind, date, prayer, time, placeName, minutesToStart, next, sound, asAlarm) {
+        this.channelId = channelId
+    }
+
     /** One notification per prayer and day: a snooze, a nudge or a second alarm replaces it, not stacks. */
     val notificationId: Int get() = NamazAlarm.requestCode(NamazAlarm.Kind.REMINDER, date, prayer)
 }
@@ -90,7 +109,7 @@ class AndroidNamazNotifier @Inject constructor(
         }
         val builder = PqNotifications.builder(
             context,
-            NamazChannels.reminderChannel(reminder.sound, reminder.asAlarm),
+            reminder.channelId ?: NamazChannels.reminderChannel(reminder.sound, reminder.asAlarm),
             mood = com.pixelquest.app.mascot.PixMood.Praying,
         )
             .setContentTitle(title)

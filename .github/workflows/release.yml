@@ -125,7 +125,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew compileDebugKotlin assembleDebug assembleRelease
+        run: ./gradlew compileDebugKotlin assembleDebug assembleRelease bundleRelease
 
       # With the keystore secret present, the APK must be signed with the PixelQuest release key
       # (app/release-signing-cert.sha256), or it couldn't update existing installs: fail instead.
@@ -184,5 +184,6 @@ jobs:
           files: |
             app/build/outputs/apk/release/app-release.apk
             app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/bundle/release/app-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

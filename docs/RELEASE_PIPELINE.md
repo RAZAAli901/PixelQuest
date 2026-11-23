@@ -1,6 +1,6 @@
 # PixelQuest GitHub Actions Release Pipeline Documentation
 
-This document outlines the workflow and secrets configuration for the PixelQuest Automated Release Pipeline (`.github/workflows/release.yml`).
+This document outlines the workflow and secrets configuration for the PixelQuest Automated Release Pipeline (`.github/workflows/release.yml`). Tagged releases build both a signed APK for sideload QA and a signed Android App Bundle (`app-release.aab`) for Google Play upload.
 
 ## Trigger Conditions
 - Any git tag push matching `v*` (e.g. `v1.0.0`, `v1.0.0-rc1`).
@@ -31,3 +31,7 @@ To build and publish signed release APKs, the following secrets must be set in G
 git tag v1.0.0-rc1
 git push origin v1.0.0-rc1
 ```
+
+## Google Play delivery
+
+Upload `app/build/outputs/bundle/release/app-release.aab` to the Google Play Console internal testing track. Install it from Play Store before enabling in-app review or in-app updates: these APIs are not validated by a locally installed APK. Promote only after internal-track review/update QA passes.

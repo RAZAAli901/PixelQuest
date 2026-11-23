@@ -100,6 +100,19 @@ fun NamazScreen(
     onNavigateBack: (() -> Unit)? = null,
     viewModel: NamazViewModel = hiltViewModel()
 ) {
+    NamazScreen(
+        onNavigateBack = onNavigateBack,
+        onNavigateToTunes = {},
+        viewModel = viewModel
+    )
+}
+
+@Composable
+fun NamazScreen(
+    onNavigateBack: (() -> Unit)?,
+    onNavigateToTunes: () -> Unit,
+    viewModel: NamazViewModel = hiltViewModel()
+) {
     val state by viewModel.uiState.collectAsState()
     val setupVisible by viewModel.setupVisible.collectAsState()
     val settingsVisible by viewModel.settingsVisible.collectAsState()
@@ -108,6 +121,7 @@ fun NamazScreen(
     val pendingLevelUp by viewModel.pendingLevelUp.collectAsState()
     val allFive by viewModel.allFive.collectAsState()
     val locationLookup by viewModel.locationLookup.collectAsState()
+    val signedIn by viewModel.isSignedIn.collectAsState()
     val locationRequest = rememberLocationPermissionRequest { granted ->
         if (granted) viewModel.useMyLocation() else viewModel.locationRefused()
     }
@@ -205,7 +219,9 @@ fun NamazScreen(
             onFajrThroughDnd = viewModel::setFajrThroughDnd,
             onTestReminder = if (com.pixelquest.app.BuildConfig.DEBUG) viewModel::testReminder else null,
             onXpEnabled = viewModel::setXpEnabled,
-            isSimpleMode = state.isSimpleMode
+            isSimpleMode = state.isSimpleMode,
+            canChooseCustomTune = signedIn,
+            onChooseCustomTune = onNavigateToTunes,
         )
     }
 

@@ -12,17 +12,24 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.pixelquest.app.audio.LocalSoundManager
@@ -39,6 +46,7 @@ import com.pixelquest.app.ui.notifications.NotificationAsk
 import com.pixelquest.app.ui.notifications.NotificationsOffBanner
 import com.pixelquest.app.ui.theme.PixelQuestTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -62,6 +70,15 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var tips: com.pixelquest.app.ui.tips.TipsStore
 
+    @Inject
+    lateinit var reviewPrompts: com.pixelquest.app.play.review.ReviewPromptCoordinator
+
+    @Inject
+    lateinit var playReviewRequester: com.pixelquest.app.play.review.PlayReviewRequester
+
+    @Inject
+    lateinit var inAppUpdates: com.pixelquest.app.play.update.InAppUpdateController
+
     private val lostProgressViewModel: com.pixelquest.app.ui.screens.settings.LostProgressViewModel by viewModels()
 
     var isNotificationPermissionGranted by mutableStateOf(true)
@@ -72,6 +89,14 @@ class MainActivity : ComponentActivity() {
 
     /** A screen a notification asked to open (the Namaz reminder), until the app can show it. */
     private var pendingRoute by mutableStateOf<String?>(null)
+    private var onboardingDone = false
+    private var updateReady by mutableStateOf(false)
+
+    private val updateLauncher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            inAppUpdates.onFlowResult(result.resultCode)
+            // Cancellation and Play errors leave normal app flow uninterrupted.
+        }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -92,6 +117,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) pendingRoute = routeFrom(intent)
         checkNotificationPermission()
+        lifecycleScope.launch {
+            reviewPrompts.requests.collect { playReviewRequester.requestReview(this@MainActivity) }
+        }
+        lifecycleScope.launch {
+            settingsRepository.onboardingComplete.collect { complete ->
+                onboardingDone = complete
+                if (complete) inAppUpdates.checkForUpdate(updateLauncher)
+            }
+        }
         // Settings > Look, read before the first frame so it opens in the player's skin (docs/ui-v2.md):
         // one preference read, not a flow run to its first value.
         val startLook = com.pixelquest.app.data.repository.SettingsRepositoryImpl.storedThemeMode(this)
@@ -184,6 +218,14 @@ class MainActivity : ComponentActivity() {
                                             isNotificationBannerDismissed = true
                                         },
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                    )
+                                }
+                                if (updateReady) {
+                                    UpdateReadyBanner(
+                                        onRestart = {
+                                            updateReady = false
+                                            inAppUpdates.completeUpdate()
+                                        },
                                     )
                                 }
                                 PixelNavHost(
@@ -304,5 +346,36 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         // Back from Android's permission prompt or its settings: the banner follows the answer.
         checkNotificationPermission()
+        if (onboardingDone) inAppUpdates.resume(updateLauncher)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        inAppUpdates.onStart { updateReady = true }
+    }
+
+    override fun onStop() {
+        inAppUpdates.onStop()
+        super.onStop()
+    }
+}
+
+@androidx.compose.runtime.Composable
+private fun UpdateReadyBanner(onRestart: () -> Unit) {
+    Surface(
+        color = com.pixelquest.app.ui.theme.PqColors.Ink,
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(R.string.play_update_ready),
+                color = com.pixelquest.app.ui.theme.PqColors.Paper,
+                modifier = Modifier.weight(1f),
+            )
+            Button(onClick = onRestart) { Text(stringResource(R.string.play_update_restart)) }
+        }
     }
 }

@@ -44,6 +44,7 @@ class TodayViewModel @Inject constructor(
     private val skipTaskUseCase: SkipTaskUseCase,
     private val settingsRepository: SettingsRepository? = null,
     private val appClock: com.pixelquest.app.util.AppClock = com.pixelquest.app.util.AppClock(),
+    private val reviewPrompts: com.pixelquest.app.play.review.ReviewPromptCoordinator? = null,
 ) : ViewModel() {
 
     constructor(
@@ -163,7 +164,7 @@ class TodayViewModel @Inject constructor(
 
     fun completeTask(task: TaskEntity) {
         viewModelScope.launch {
-            completeTaskUseCase(task, currentDate)
+            if (completeTaskUseCase(task, currentDate)) reviewPrompts?.onSuccessfulQuestCompletion()
         }
     }
 

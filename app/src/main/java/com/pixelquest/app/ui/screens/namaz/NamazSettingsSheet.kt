@@ -64,7 +64,9 @@ fun NamazSettingsSheet(
     onFajrThroughDnd: (Boolean) -> Unit = {},
     onTestReminder: (() -> Unit)? = null,
     onXpEnabled: (Boolean) -> Unit = {},
-    isSimpleMode: Boolean = false
+    isSimpleMode: Boolean = false,
+    canChooseCustomTune: Boolean = false,
+    onChooseCustomTune: () -> Unit = {},
 ) {
     val method = NamazMethod.fromName(settings.method)
     val madhab = AsrMadhab.fromName(settings.asrMadhab)
@@ -135,6 +137,14 @@ fun NamazSettingsSheet(
                         onCheckedChange = onFajrThroughDnd
                     )
                     Text(text = stringResource(R.string.namaz_settings_fajr_dnd_hint), style = PqType.Meta)
+                }
+                if (canChooseCustomTune) {
+                    PqButton(
+                        text = "Choose downloaded tune",
+                        onClick = onChooseCustomTune,
+                        style = PqButtonStyle.Secondary,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
             }
             // Debug builds only: a real reminder in 10 seconds, to try the whole path on a phone.

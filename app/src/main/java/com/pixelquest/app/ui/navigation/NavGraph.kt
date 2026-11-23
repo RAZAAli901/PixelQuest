@@ -97,6 +97,12 @@ fun PixelNavHost(
                 onNavigateToAccount = { navController.navigate(Screen.Account.route) },
             )
         }
+        composable(Screen.QuestTunes.route) {
+            com.pixelquest.app.tune.ui.TuneLibraryScreen(
+                libraryTarget = com.pixelquest.app.tune.model.TuneTarget.QUEST,
+                onBack = { navController.popBackStack() },
+            )
+        }
         composable(Screen.Tasks.route) {
             com.pixelquest.app.ui.screens.QuestsScreen(
                 onNewQuest = { navController.navigate(Screen.CreateTask.route) },
@@ -193,6 +199,7 @@ fun PixelNavHost(
                 onNavigateToDifficulty = { navController.navigate(Screen.DifficultySelection.route) },
                 onNavigateToAvatar = { navController.navigate(Screen.AvatarSelection.route) },
                 onNavigateToAccount = { navController.navigate(Screen.Account.route) },
+                onNavigateToQuestTunes = { navController.navigate(Screen.QuestTunes.route) },
                 onNavigateBack = { navController.popBackStack() },
                 onResetComplete = {
                     navController.navigate(Screen.Onboarding.route) {
@@ -215,7 +222,16 @@ fun PixelNavHost(
         islamicGraph(navController, islamicItems) {
             // The Islamic screen from before the hub (docs/islamic-hub.md): the Namaz Tracker.
             composable(Screen.Namaz.route) {
-                com.pixelquest.app.ui.screens.namaz.NamazScreen(onNavigateBack = { navController.popBackStack() })
+                com.pixelquest.app.ui.screens.namaz.NamazScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToTunes = { navController.navigate(Screen.NamazTunes.route) },
+                )
+            }
+            composable(Screen.NamazTunes.route) {
+                com.pixelquest.app.tune.ui.TuneLibraryScreen(
+                    libraryTarget = com.pixelquest.app.tune.model.TuneTarget.NAMAZ,
+                    onBack = { navController.popBackStack() },
+                )
             }
         }
         // The parties of every kind, Darood's too, outside the Islamic section (docs/party-core.md).

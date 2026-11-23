@@ -47,12 +47,16 @@ sealed class Screen(val route: String) {
 
     object Onboarding : Screen("onboarding")
     object Settings : Screen("settings")
+    /** Signed-in players can choose a downloaded sound for quest reminders. */
+    object QuestTunes : Screen("settings/quest-tunes")
     object Account : Screen("account")
     object Leaderboard : Screen("leaderboard")
     object AiInsight : Screen("ai_insight")
 
     /** The Namaz Tracker, from the Islamic hub. */
     object Namaz : Screen("${Routes.ISLAMIC}/namaz")
+    /** Signed-in players can choose a downloaded sound for Namaz reminders. */
+    object NamazTunes : Screen("${Routes.ISLAMIC}/namaz/tunes")
 
     /** The main app's parties (docs/party-core.md): the study parties, outside the Islamic section. */
     object Parties : Screen(Routes.PARTIES)

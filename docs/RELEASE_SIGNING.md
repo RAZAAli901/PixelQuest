@@ -18,7 +18,7 @@ The fingerprints are public: anyone can read them from an APK. The keystore file
 
 ## Where the secrets are
 
-- **This computer.** The keystore is at `app/pixelquest-release.jks`. The password is `KEYSTORE_PASSWORD` / `KEY_PASSWORD` in `local.properties`, with `KEYSTORE_FILE` and `KEY_ALIAS` beside it. Both files are gitignored. `./gradlew assembleRelease` signs with them.
+- **This computer.** The keystore is at `app/pixelquest-release.jks`. The password is `KEYSTORE_PASSWORD` / `KEY_PASSWORD` in `local.properties`, with `KEYSTORE_FILE` and `KEY_ALIAS` beside it. Both files are gitignored. `./gradlew assembleRelease bundleRelease` signs APK and Android App Bundle with them.
 - **GitHub.** `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD` are repository secrets, set on 8 Oct 2026. Tagged releases (`.github/workflows/release.yml`) decode and sign with them.
 
 ## Back it up

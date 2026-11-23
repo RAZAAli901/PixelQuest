@@ -68,6 +68,30 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindReviewPromptStateStore(
+        impl: com.pixelquest.app.play.review.PrefsReviewPromptStateStore,
+    ): com.pixelquest.app.play.review.ReviewPromptStateStore
+
+    @Binds
+    @Singleton
+    abstract fun bindPlayReviewRequester(
+        impl: com.pixelquest.app.play.review.GooglePlayReviewRequester,
+    ): com.pixelquest.app.play.review.PlayReviewRequester
+
+    @Binds
+    @Singleton
+    abstract fun bindInAppUpdateController(
+        impl: com.pixelquest.app.play.update.GooglePlayInAppUpdateController,
+    ): com.pixelquest.app.play.update.InAppUpdateController
+
+    @Binds
+    @Singleton
+    abstract fun bindUpdatePromptStateStore(
+        impl: com.pixelquest.app.play.update.PrefsUpdatePromptStateStore,
+    ): com.pixelquest.app.play.update.UpdatePromptStateStore
+
+    @Binds
+    @Singleton
     abstract fun bindStatsRepository(
         impl: com.pixelquest.app.data.repository.StatsRepositoryImpl,
     ): com.pixelquest.app.domain.repository.StatsRepository

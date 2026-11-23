@@ -44,6 +44,7 @@ fun SettingsScreen(
     onNavigateToDifficulty: () -> Unit = {},
     onNavigateToAvatar: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
+    onNavigateToQuestTunes: () -> Unit = {},
     onNavigateBack: (() -> Unit)? = null,
     onResetComplete: () -> Unit = {},
 ) {
@@ -105,6 +106,7 @@ fun SettingsScreen(
             SettingLink(Icons.Rounded.Cloud, "Cloud & leaderboard", onNavigateToAccount)
         },
         notificationsSection = {
+            val signedIn by viewModel.isSignedIn.collectAsState()
             SettingSwitch(
                 "Notifications",
                 "Reminders and nudges from PixelQuest",
@@ -123,6 +125,11 @@ fun SettingsScreen(
                 SettingSwitch("Reminder sound", "Off, reminders arrive silently", reminderSoundOn, {
                     viewModel.setReminderSoundEnabled(it)
                 })
+                if (signedIn) {
+                    SettingLink(Icons.Rounded.Tune, "Quest reminder tune", onNavigateToQuestTunes)
+                } else {
+                    SettingLink(Icons.Rounded.Tune, "More reminder tunes", onNavigateToAccount, value = "Sign in required")
+                }
                 val studyAlarmStyleOn by viewModel.isStudyAlarmStyleEnabled.collectAsState()
                 SettingSwitch(
                     androidx.compose.ui.res.stringResource(com.pixelquest.app.R.string.study_setting_alarm_style),
