@@ -1,14 +1,9 @@
 # Handoff: start here
 
-This folder is for the next agent picking up PixelQuest. Read these in order:
+This folder is for the next engineer picking up PixelQuest:
 
-1. **README.md** (this file): where things stand and what's left.
-2. **[RULES.md](RULES.md)**: the owner's standing rules. They override your defaults.
-3. **[STATUS.md](STATUS.md)**: the plan item by item, what's done, and the decisions made.
-4. **[HOW-TO.md](HOW-TO.md)**: building, testing, the local Supabase stack, deploying, and how commits are made.
-5. **[MAP.md](MAP.md)**: where the code for each feature lives.
+1. **[HOW-TO.md](HOW-TO.md)**: building, testing, the local Supabase stack, deploying, and how commits are made.
 
-([NEXT-J062.md](NEXT-J062.md) is the brief from the middle of Phase B, kept for its gotchas.)
 
 ## The project
 
