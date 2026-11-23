@@ -12,6 +12,7 @@ import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material.icons.rounded.Policy
 import androidx.compose.material.icons.rounded.Restore
 import androidx.compose.material.icons.rounded.Settings
@@ -45,6 +46,7 @@ fun SettingsScreen(
     onNavigateToAvatar: () -> Unit = {},
     onNavigateToAccount: () -> Unit = {},
     onNavigateToQuestTunes: () -> Unit = {},
+    onNavigateToUsername: () -> Unit = {},
     onNavigateBack: (() -> Unit)? = null,
     onResetComplete: () -> Unit = {},
 ) {
@@ -103,6 +105,12 @@ fun SettingsScreen(
                 enabled = !state.isSimpleModeEnabled,
             )
             if (state.isSimpleModeEnabled) SettingNote(DIFFICULTY_LOCKED_IN_SIMPLE_MODE)
+            SettingLink(
+                Icons.Rounded.Face,
+                "Change username",
+                onNavigateToUsername,
+                value = "@$savedName",
+            )
             SettingLink(Icons.Rounded.Cloud, "Cloud & leaderboard", onNavigateToAccount)
         },
         notificationsSection = {

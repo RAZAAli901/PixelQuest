@@ -200,6 +200,7 @@ fun PixelNavHost(
                 onNavigateToAvatar = { navController.navigate(Screen.AvatarSelection.route) },
                 onNavigateToAccount = { navController.navigate(Screen.Account.route) },
                 onNavigateToQuestTunes = { navController.navigate(Screen.QuestTunes.route) },
+                onNavigateToUsername = { navController.navigate(Screen.UsernameSetup.route) { launchSingleTop = true } },
                 onNavigateBack = { navController.popBackStack() },
                 onResetComplete = {
                     navController.navigate(Screen.Onboarding.route) {
